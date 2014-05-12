@@ -3,16 +3,19 @@ package org.mkcl.els.repository;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Query;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.DeviceType;
@@ -20,45 +23,51 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.service.IProcessService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Serializable>{
 
+	@Autowired
+	IProcessService processService;
+	
+	/**** Free Text Search Begins ****/
 	@SuppressWarnings("rawtypes")
 	public List<QuestionSearchVO> fullTextSearchClubbing(final String param, final Question question,
 			final Integer start,final Integer noofRecords,
 			final String locale,final Map<String, String[]> requestMap) {
-		/**** Select Clause ****/
+		DeviceType deviceType=question.getType();
+		HouseType housetype=question.getHouseType();
+		StringBuffer deviceTypeQuery=new StringBuffer();
+		String orderByQuery="";
+
 		/**** Condition 1 :must not contain processed question ****/
 		/**** Condition 2 :parent must be null ****/
 		String selectQuery="SELECT q.id as id,q.number as number,"+
-		"  q.subject as subject,q.revised_subject as revisedSubject,"+
-		"  q.question_text as questionText,q.revised_question_text as revisedQuestionText,"+
-		"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"+
-		"  sety.session_type as sessionType ,g.number as groupnumber,"+
-		"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype," +
-		"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, qd1.answering_date as answeringDate"+
-		"  FROM questions as q "+
-		"  LEFT JOIN housetypes as ht ON(q.housetype_id=ht.id) "+
-		"  LEFT JOIN sessions as s ON(q.session_id=s.id) "+
-		"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "+
-		"  LEFT JOIN status as st ON(q.recommendationstatus_id=st.id) "+
-		"  LEFT JOIN devicetypes as dt ON(q.devicetype_id=dt.id) "+
-		"  LEFT JOIN members as m ON(q.member_id=m.id) "+
-		"  LEFT JOIN titles as t ON(m.title_id=t.id) "+
-		"  LEFT JOIN groups as g ON(q.group_id=g.id) "+
-		"  LEFT JOIN question_dates as qd ON(q.answering_date=qd.id) "+
-		"  LEFT JOIN question_dates as qd1 ON(q.chart_answering_date=qd1.id) "+
-		"  LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
-		"  LEFT JOIN departments as d ON(q.department_id=d.id) "+
-		"  LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
-		"  WHERE q.id<>"+question.getId()+" AND q.parent is NULL ";
-
-		DeviceType deviceType=question.getType();
-		StringBuffer deviceTypeQuery=new StringBuffer();
-		String orderByQuery="";
-		HouseType housetype=question.getHouseType();
+				"  q.subject as subject,q.revised_subject as revisedSubject,"+
+				"  q.question_text as questionText,q.revised_question_text as revisedQuestionText,"+
+				"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"+
+				"  sety.session_type as sessionType ,g.number as groupnumber,"+
+				"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype," +
+				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, qd1.answering_date as answeringDate"+
+				"  FROM questions as q "+
+				"  LEFT JOIN housetypes as ht ON(q.housetype_id=ht.id) "+
+				"  LEFT JOIN sessions as s ON(q.session_id=s.id) "+
+				"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "+
+				"  LEFT JOIN status as st ON(q.recommendationstatus_id=st.id) "+
+				"  LEFT JOIN devicetypes as dt ON(q.devicetype_id=dt.id) "+
+				"  LEFT JOIN members as m ON(q.member_id=m.id) "+
+				"  LEFT JOIN titles as t ON(m.title_id=t.id) "+
+				"  LEFT JOIN groups as g ON(q.group_id=g.id) "+
+				"  LEFT JOIN question_dates as qd ON(q.answering_date=qd.id) "+
+				"  LEFT JOIN question_dates as qd1 ON(q.chart_answering_date=qd1.id) "+
+				"  LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
+				"  LEFT JOIN departments as d ON(q.department_id=d.id) "+
+				"  LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
+				"  WHERE q.id<>"+question.getId()+" AND q.parent is NULL ";	
 		if(deviceType!=null){
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
 				/**** Starred Questions :starred questions:recommendation status >=to_be_put_up,<=yaadi_laid,same session
@@ -74,48 +83,52 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				deviceTypeQuery.append(" AND q.housetype_id="+housetype.getId() +" AND dt.type='"+ApplicationConstants.UNSTARRED_QUESTION +"')");
 				deviceTypeQuery.append(")");
 				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
-				" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
-			}else if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+						" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
 				/**** unstarred questions:recommendation status >=assistant_processed,<=yaadi_laid,same house type ****/
 				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
 				deviceTypeQuery.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
 				deviceTypeQuery.append(" AND q.housetype_id="+housetype.getId() +" AND dt.type='"+ApplicationConstants.UNSTARRED_QUESTION +"'");
 				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
-				" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
-			}else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+						" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
 				/**** short notice questions:recommendation status >=assistant_processed,<=yaadi_laid,same session ****/
 				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
 				deviceTypeQuery.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
 				deviceTypeQuery.append(" AND s.id="+question.getSession().getId() +" AND dt.type='"+ApplicationConstants.SHORT_NOTICE_QUESTION +"'");
 				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
-				" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
-			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+						" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
 				/**** Half hour discussion from questions Questions :recommendation status >=assistant_processed,<=yaadi_laid,same session****/
 				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
 				deviceTypeQuery.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
 				deviceTypeQuery.append(" AND s.id="+question.getSession().getId() +" AND dt.type='"+ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION +"'");
 				deviceTypeQuery.append(" AND m.id = " + question.getPrimaryMember().getId());
 				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
-				" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;				
-			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+						" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;				
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
 				/**** Half hour discussion from questions Questions :recommendation status >=assistant_processed,<=yaadi_laid,same session****/
 				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
 				deviceTypeQuery.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
 				deviceTypeQuery.append(" AND s.id="+question.getSession().getId() +" AND dt.type='"+ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE +"'");
 				deviceTypeQuery.append(" AND m.id = " + question.getPrimaryMember().getId());
 				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
-				" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;				
+						" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;				
 			}
 		}
 
 		String filter=addFilter(requestMap);
 
-		/**** fulltext query ****/
+		/**** full text query ****/
 		String searchQuery=null;
 		if(!param.contains("+")&&!param.contains("-")){
 			searchQuery=" AND (( match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-			"against('"+param+"' in natural language mode)"+
-			")||q.subject LIKE '"+param+"%'||q.question_text LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%')";
+					"against('"+param+"' in natural language mode)"+
+					")||q.subject LIKE '"+param+"%'||q.question_text LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%')";
 		}else if(param.contains("+")&&!param.contains("-")){
 			String[] parameters=param.split("\\+");
 			StringBuffer buffer=new StringBuffer();
@@ -123,7 +136,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				buffer.append("+"+i+" ");
 			}
 			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-			"against('"+buffer.toString()+"' in boolean  mode)";
+					"against('"+buffer.toString()+"' in boolean  mode)";
 		}else if(!param.contains("+")&&param.contains("-")){
 			String[] parameters=param.split("-");
 			StringBuffer buffer=new StringBuffer();
@@ -132,15 +145,15 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			}
 			buffer.deleteCharAt(buffer.length()-1);
 			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-			"against('"+buffer.toString()+"' in boolean  mode)";
+					"against('"+buffer.toString()+"' in boolean  mode)";
 		}else if(param.contains("+")||param.contains("-")){
 			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-			"against('"+param+"' in boolean  mode)";
+					"against('"+param+"' in boolean  mode)";
 		}		
 		/**** Final Query ****/
 		String query=selectQuery+deviceTypeQuery.toString()+filter+searchQuery+orderByQuery;
 		String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.questionText, "+
-		" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.answeringDate FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
+				" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.answeringDate FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
 
 		List results=this.em().createNativeQuery(finalQuery).getResultList();
 		List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
@@ -234,76 +247,26 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				if(!question.getMinistry().getName().equals(questionSearchVO.getMinistry())){
 					/**** Candidate For Ministry Change ****/
 					questionSearchVO.setClassification("Ministry Change");
-				}else{
-//					if(question.getDepartment()!=null){
-//						if(!question.getDepartment().getName().equals(questionSearchVO.getDepartment())){
-//							/**** Candidate For Department Change ****/
-//							questionSearchVO.setClassification("Department Change");
-//						}else{
-							if(question.getSubDepartment()!=null){
-								if(!question.getSubDepartment().getName().equals(questionSearchVO.getSubDepartment())){
-									/**** Candidate For Sub Department Change ****/
-									questionSearchVO.setClassification("Sub Department Change");	
-								}else if(question.getSubDepartment().getName().isEmpty()&&questionSearchVO.getSubDepartment().isEmpty()){
-									/**** Candidate For Clubbing ****/
-									questionSearchVO.setClassification("Clubbing");
-								}else if(question.getSubDepartment().getName().equals(questionSearchVO.getSubDepartment())){
-									/**** Candidate For Clubbing ****/
-									questionSearchVO.setClassification("Clubbing");
-								}
-							}else if(question.getSubDepartment()==null&&questionSearchVO.getSubDepartment()==null){
-								/**** Candidate For Clubbing ****/
-								questionSearchVO.setClassification("Clubbing");
-							}
-//						}
-//					}else if(question.getDepartment()==null&&questionSearchVO.getDepartment()!=null){
-//						questionSearchVO.setClassification("Department Change");
-//					}
+				}else{					
+					if(question.getSubDepartment()!=null){
+						if(!question.getSubDepartment().getName().equals(questionSearchVO.getSubDepartment())){
+							/**** Candidate For Sub Department Change ****/
+							questionSearchVO.setClassification("Sub Department Change");	
+						}else if(question.getSubDepartment().getName().isEmpty()&&questionSearchVO.getSubDepartment().isEmpty()){
+							/**** Candidate For Clubbing ****/
+							questionSearchVO.setClassification("Clubbing");
+						}else if(question.getSubDepartment().getName().equals(questionSearchVO.getSubDepartment())){
+							/**** Candidate For Clubbing ****/
+							questionSearchVO.setClassification("Clubbing");
+						}
+					}else if(question.getSubDepartment()==null&&questionSearchVO.getSubDepartment()==null){
+						/**** Candidate For Clubbing ****/
+						questionSearchVO.setClassification("Clubbing");
+					}					
 				}
 			}
 		}
-	}
-	
-	private void addClasification(BillSearchVO billSearchVO,Bill bill) {
-		if(billSearchVO.getStatusType().equals(ApplicationConstants.BILL_FINAL_REJECTION)){
-			/**** Candidate For Referencing ****/
-			billSearchVO.setClassification("Referencing");
-		} 
-		else {
-			if(bill.getMinistry()!=null){
-				if(!bill.getMinistry().getName().equals(billSearchVO.getMinistry())){
-					/**** Candidate For Ministry Change ****/
-					billSearchVO.setClassification("Ministry Change");
-				}else{
-//						if(bill.getDepartment()!=null){
-//							if(!bill.getDepartment().getName().equals(billSearchVO.getDepartment())){
-//								/**** Candidate For Department Change ****/
-//								billSearchVO.setClassification("Department Change");
-//							}else{
-							if(bill.getSubDepartment()!=null){
-								if(!bill.getSubDepartment().getName().equals(billSearchVO.getSubDepartment())){
-									/**** Candidate For Sub Department Change ****/
-									billSearchVO.setClassification("Sub Department Change");	
-								}else if(bill.getSubDepartment().getName().isEmpty()&&billSearchVO.getSubDepartment().isEmpty()){
-									/**** Candidate For Clubbing ****/
-									billSearchVO.setClassification("Clubbing");
-								}else if(bill.getSubDepartment().getName().equals(billSearchVO.getSubDepartment())){
-									/**** Candidate For Clubbing ****/
-									billSearchVO.setClassification("Clubbing");
-								}
-							}else if(bill.getSubDepartment()==null&&billSearchVO.getSubDepartment()==null){
-								/**** Candidate For Clubbing ****/
-								billSearchVO.setClassification("Clubbing");
-							}
-//							}
-//						}else if(question.getDepartment()==null&&questionSearchVO.getDepartment()!=null){
-//							questionSearchVO.setClassification("Department Change");
-//						}
-				}
-			}
-		}				
-	}
-
+	}	
 
 	private String addFilter(Map<String, String[]> requestMap) {
 		StringBuffer buffer=new StringBuffer();
@@ -378,54 +341,6 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}			
 		return buffer.toString();
 	}
-	
-	private String addFilterForBill(final Bill bill, Map<String, String[]> requestMap) {
-		StringBuffer buffer=new StringBuffer();
-		if(requestMap.get("status")!=null){
-			String status=requestMap.get("status")[0];
-			if((!status.isEmpty())&&(!status.equals("-"))){
-				if(status.equals(ApplicationConstants.UNPROCESSED_FILTER)){
-					buffer.append(" AND st.priority=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED+"')");					
-				}else if(status.equals(ApplicationConstants.PENDING_FILTER)){
-					buffer.append(" AND st.priority>(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED+"')");
-					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_FINAL_ADMISSION+"')");
-				}else if(status.equals(ApplicationConstants.APPROVED_FILTER)){
-					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_FINAL_ADMISSION+"')");
-					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_PROCESSED_INTRODUCED+"')");
-				} 
-			}
-		}
-		String language = "";
-		if(requestMap.get("language")!=null){			
-			if((!requestMap.get("language")[0].isEmpty())&&(!requestMap.get("language")[0].equals("-"))){
-				language=requestMap.get("language")[0];				
-			} else {
-				int firstChar=requestMap.get("param")[0].charAt(0); //param already checked for null & empty
-				if(firstChar>=2308 && firstChar <= 2418){
-					language="marathi";
-				}else if((firstChar>=65 && firstChar <= 90) || (firstChar>=97 && firstChar <= 122)
-						||(firstChar>=48 && firstChar <= 57)){
-					language="english";
-				} else {
-					//default language for bill
-					language=bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
-				}
-			}
-		} else {
-			int firstChar=requestMap.get("param")[0].charAt(0); //param already checked for null & empty
-			if(firstChar>=2308 && firstChar <= 2418){
-				language="marathi";
-			}else if((firstChar>=65 && firstChar <= 90) || (firstChar>=97 && firstChar <= 122)
-					||(firstChar>=48 && firstChar <= 57)){
-				language="english";
-			} else {
-				//default language for bill
-				language=bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
-			}
-		}
-		buffer.append(" AND lang.type = '" + language + "'");
-		return buffer.toString();
-	}
 
 	private String higlightText(final String textToHiglight,final String pattern) {
 
@@ -470,28 +385,23 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}
 		return highlightedText;
 	}
+	/**** Free Text Search Begins ****/
 
+	/**** Question Clubbing Begins ****/
 	public String club(final Long questionBeingProcessed,
 			final Long questionBeingClubbed,final String locale) {
 		String clubbingStatus=null;
 		try{
-			/**** Question which is being processed ****/
 			Question beingProcessedQuestion=Question.findById(Question.class,questionBeingProcessed);
-			/**** Question that showed in clubbing search result and whose clubbing link was clicked ****/
 			Question beingClubbedQuestion=Question.findById(Question.class,questionBeingClubbed);
-			if(beingProcessedQuestion!=null&&beingClubbedQuestion!=null){
-				/**** if any of the two question has its internal status as clubbed
-				 *  then clubbing process will not continue****/
+			if(beingProcessedQuestion!=null&&beingClubbedQuestion!=null){				
 				String alreadyClubbedStatus=alreadyClubbed(beingProcessedQuestion,beingClubbedQuestion,locale);
 				if(alreadyClubbedStatus.equals("NO")){
-					/**** Noone of the question is already clubbed ****/
 					clubbingStatus=clubbingRules(beingProcessedQuestion,beingClubbedQuestion,locale);
 				}else{
-					/**** Atleast one of the question is already clubbed.so further clubbing stops ****/
 					clubbingStatus=alreadyClubbedStatus;
 				}
 			}else{
-				/**** Atleast one of the question could not be found ****/
 				if(beingClubbedQuestion==null){
 					clubbingStatus="BEINGSEARCHED_DOESNOT_EXIST";
 				}else if(beingProcessedQuestion==null){
@@ -499,420 +409,483 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				}			
 			}
 		}catch(Exception ex){
-			/**** An exception has occurred ****/
 			logger.error("CLUBBING_FAILED",ex);
 			clubbingStatus="CLUBBING_FAILED";
 			return clubbingStatus;
 		}
 		return clubbingStatus;
 	}	
-	
-	public String clubBill(final Long billBeingProcessed,
-			final Long billBeingClubbed,final String locale) {
-		String clubbingStatus=null;
-		try{
-			/**** Bill which is being processed ****/
-			Bill beingProcessedBill=Bill.findById(Bill.class,billBeingProcessed);
-			/**** Bill that showed in clubbing search result and whose clubbing link was clicked ****/
-			Bill beingClubbedBill=Bill.findById(Bill.class,billBeingClubbed);
-			if(beingProcessedBill!=null&&beingClubbedBill!=null){
-				/**** if any of the two bill has its internal status as clubbed
-				 *  then clubbing process will not continue****/
-				String alreadyClubbedStatus=alreadyClubbed(beingProcessedBill,beingClubbedBill,locale);
-				if(alreadyClubbedStatus.equals("NO")){
-					/**** Noone of the bill is already clubbed ****/
-					clubbingStatus=clubbingRules(beingProcessedBill,beingClubbedBill,locale);
-				}else{
-					/**** Atleast one of the bill is already clubbed.so further clubbing stops ****/
-					clubbingStatus=alreadyClubbedStatus;
-				}
-			}else{
-				/**** Atleast one of the bill could not be found ****/
-				if(beingClubbedBill==null){
-					clubbingStatus="BEINGSEARCHED_DOESNOT_EXIST";
-				}else if(beingProcessedBill==null){
-					clubbingStatus="BEINGPROCESSED_DOESNOT_EXIST";
-				}			
-			}
-		}catch(Exception ex){
-			/**** An exception has occurred ****/
-			logger.error("CLUBBING_FAILED",ex);
-			clubbingStatus="CLUBBING_FAILED";
-			return clubbingStatus;
-		}
-		return clubbingStatus;
-	}
 
+	@SuppressWarnings("unchecked")
 	private String alreadyClubbed(final Question beingProcessedQuestion,
 			final Question beingClubbedQuestion,final String locale) {
-		/**** If either of the two question has an entry in clubbed entity it means the question is already clubbed ****/
-		/*ClubbedEntity clubbedEntity1=ClubbedEntity.findByFieldName(ClubbedEntity.class,"question",
-				beingClubbedQuestion, locale);*/
+		/**** If any of the two questions have entries in clubbed entities then it means they are already clubbed
+		 * and hence clubbing cannot proceed ****/
 		String strQuery="SELECT ce FROM Question q JOIN q.clubbedEntities ce " +
 				"WHERE ce.question.id=:clubbedQuestionId " +
-				"AND q.id=:processedQuestionId AND ce.locale=:locale";
+				" OR ce.question.id=:processedQuestionId";
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("clubbedQuestionId", beingClubbedQuestion.getId());
 		query.setParameter("processedQuestionId",beingProcessedQuestion.getId());
-		query.setParameter("locale",locale);
-		
-		/****Result list is used as getsingleresult logs the exception when the entity is not found****/
 		List<ClubbedEntity> clubEntities=query.getResultList();
 		if(clubEntities!=null && clubEntities.size()>0){
-			/**** Clubbed question has an entry in clubbed entities ****/
 			return "BEINGSEARCHED_QUESTION_ALREADY_CLUBBED";
-		}else{
-			return "NO";
-		}
-	}
-	
-	private String alreadyClubbed(final Bill beingProcessedBill,
-			final Bill beingClubbedBill,final String locale) {
-		/**** If either of the two bill has an entry in clubbed entity it means the bill is already clubbed ****/
-		ClubbedEntity clubbedEntity1=ClubbedEntity.findByFieldName(ClubbedEntity.class,"bill",
-				beingClubbedBill, locale);
-		if(clubbedEntity1!=null){
-			/**** Clubbed bill has an entry in clubbed entities ****/
-			return "BEINGSEARCHED_BILL_ALREADY_CLUBBED";
 		}else{
 			return "NO";
 		}
 	}
 
 	private String clubbingRules(Question beingProcessedQuestion,
-			Question beingClubbedQuestion, String locale) {
-		String beingProcessedQuestionType=beingProcessedQuestion.getType().getType();
-		String beingClubbedQuestionType=beingClubbedQuestion.getType().getType();
-		Status beingProcessedQuestionStatus=beingProcessedQuestion.getInternalStatus();
-		Status beingClubbedQuestionStatus=beingClubbedQuestion.getInternalStatus();
-
-		/**** Clubbing of starred with starred,unstarred with unstarred,short notice with short notice 
-		 * and half hour discussion with half hour discussion 
-		 * and half hour standalone with half hour stand alone****/
-		if(beingProcessedQuestionType.equals(beingClubbedQuestionType)&&
-				beingProcessedQuestion.getMinistry().getName().equals(beingClubbedQuestion.getMinistry().getName())
-				/*&&beingProcessedQuestion.getDepartment().getName().equals(beingClubbedQuestion.getDepartment().getName())*/){
-			if(beingProcessedQuestion.getSubDepartment()!=null&&beingClubbedQuestion.getSubDepartment()!=null){
-				if(beingProcessedQuestion.getSubDepartment().getName().equals(beingClubbedQuestion.getSubDepartment().getName())){
-					/**** Clubbing will take place only if both question belong to the same group,ministry
-					 * ,department and sub department ****/
-					/**** processed number < clubbed number ****/
+			Question beingClubbedQuestion, String locale) {			
+		if(	beingProcessedQuestion.getType()!=null
+				&&beingClubbedQuestion.getType()!=null
+				&&(beingProcessedQuestion.getType().getType().equals(beingClubbedQuestion.getType().getType())
+				||(beingProcessedQuestion.getType().equals(ApplicationConstants.STARRED_QUESTION)
+				&&beingClubbedQuestion.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)))
+				&&beingProcessedQuestion.getMinistry()!=null
+				&&beingClubbedQuestion.getMinistry()!=null
+				&& beingProcessedQuestion.getMinistry().getName().equals(beingClubbedQuestion.getMinistry().getName())
+				&&beingProcessedQuestion.getSubDepartment()!=null
+				&&beingClubbedQuestion.getSubDepartment()!=null){
+			if(beingProcessedQuestion.getSubDepartment().getName().equals(beingClubbedQuestion.getSubDepartment().getName())){
+				/**** same chart ****/
+				if(beingProcessedQuestion.getChartAnsweringDate()!=null 
+						&& beingClubbedQuestion.getChartAnsweringDate()!=null
+						&& beingProcessedQuestion.getChartAnsweringDate().getId().equals(beingClubbedQuestion.getChartAnsweringDate().getId())){
 					if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
-						return beingProcessedIsPrimary(beingProcessedQuestion,beingClubbedQuestion
-								,beingProcessedQuestionStatus,beingClubbedQuestionStatus
-								,beingProcessedQuestionType,beingClubbedQuestionType,locale);
-					}
-					/**** processed number > clubbed number(discussed in length) ****/
-					else{
-						return beingClubbedIsPrimary(beingProcessedQuestion,beingClubbedQuestion
-								,beingProcessedQuestionStatus,beingClubbedQuestionStatus
-								,beingProcessedQuestionType,beingClubbedQuestionType,locale);
+						return beingProcessedIsPrimary(beingProcessedQuestion,beingClubbedQuestion);
+					}else{
+						return beingClubbedIsPrimary(beingProcessedQuestion,beingClubbedQuestion);
 					}	
-				}else{
-					return "QUESTIONS_FROM_DIFFERENT_MINISTRY_DEPARTMENT_SUBDEPARTMENT";
 				}
-			}else if(beingProcessedQuestion.getSubDepartment()==null&&beingClubbedQuestion.getSubDepartment()==null){
-				/**** Clubbing will take place only if both question belong to the same group,ministry
-				 * ,department and sub department ****/
-				/**** processed number < clubbed number ****/
-				if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
-					return beingProcessedIsPrimary(beingProcessedQuestion,beingClubbedQuestion
-							,beingProcessedQuestionStatus,beingClubbedQuestionStatus
-							,beingProcessedQuestionType,beingClubbedQuestionType,locale);
+				/**** different chart ****/
+				else if(beingProcessedQuestion.getChartAnsweringDate()!=null 
+						&& beingClubbedQuestion.getChartAnsweringDate()!=null
+						&& beingProcessedQuestion.getChartAnsweringDate().getAnsweringDate().before(beingClubbedQuestion.getChartAnsweringDate().getAnsweringDate())){
+					return beingProcessedIsPrimary(beingProcessedQuestion,beingClubbedQuestion);
 				}
-				/**** processed number > clubbed number(discussed in length) ****/
+				else if(beingProcessedQuestion.getChartAnsweringDate()!=null 
+						&& beingClubbedQuestion.getChartAnsweringDate()!=null
+						&& beingProcessedQuestion.getChartAnsweringDate().getAnsweringDate().after(beingClubbedQuestion.getChartAnsweringDate().getAnsweringDate())){
+					return beingClubbedIsPrimary(beingProcessedQuestion,beingClubbedQuestion);
+				}
+				/**** no chart ****/
 				else{
-					return beingClubbedIsPrimary(beingProcessedQuestion,beingClubbedQuestion
-							,beingProcessedQuestionStatus,beingClubbedQuestionStatus
-							,beingProcessedQuestionType,beingClubbedQuestionType,locale);
-				}	
+					if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+						return beingProcessedIsPrimary(beingProcessedQuestion,beingClubbedQuestion);
+					}else{
+						return beingClubbedIsPrimary(beingProcessedQuestion,beingClubbedQuestion);
+					}	
+				}
 			}else{
 				return "QUESTIONS_FROM_DIFFERENT_MINISTRY_DEPARTMENT_SUBDEPARTMENT";
-			}
-
+			}			
 		}
 		return "CLUBBING_FAILED";
 	}
 	
-	private String clubbingRules(Bill beingProcessedBill,
-			Bill beingClubbedBill, String locale) {
-		String beingProcessedBillType=beingProcessedBill.getType().getType();
-		String beingClubbedBillType=beingClubbedBill.getType().getType();
-		Status beingProcessedBillStatus=beingProcessedBill.getInternalStatus();
-		Status beingClubbedBillStatus=beingClubbedBill.getInternalStatus();
+	private String beingProcessedIsPrimary(Question beingProcessedQuestion, 
+			Question beingClubbedQuestion) {
+		String locale = beingClubbedQuestion.getLocale();				
+		
+		String beingProcessedQnISType = 
+			beingProcessedQuestion.getInternalStatus().getType();
+		String beingProcessedQnRSType = 
+			beingProcessedQuestion.getRecommendationStatus().getType();
+		
+		Status beingClubbedQnIS = 
+			beingClubbedQuestion.getInternalStatus();		
+		String beingClubbedQnISType =
+			beingClubbedQuestion.getInternalStatus().getType();
+		String beingClubbedQnRSType =
+			beingClubbedQuestion.getRecommendationStatus().getType();
+		
+		Status unProcessedStatus = 
+			Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, 
+					locale);
+		Status TO_BE_PUT_UP =
+			Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+		Status approvalStatus = 
+			Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
 
-		/**** Clubbing of starred with starred,unstarred with unstarred,short notice with short notice 
-		 * and half hour discussion with half hour discussion ****/
-		if(beingProcessedBillType.equals(beingClubbedBillType)&&
-				beingProcessedBill.getMinistry().getName().equals(beingClubbedBill.getMinistry().getName())
-				/*&&beingProcessedBill.getDepartment().getName().equals(beingClubbedBill.getDepartment().getName())*/){
-			if(beingProcessedBill.getSubDepartment()!=null&&beingClubbedBill.getSubDepartment()!=null){
-				if(beingProcessedBill.getSubDepartment().getName().equals(beingClubbedBill.getSubDepartment().getName())){
-					/**** Clubbing will take place only if both bill belong to the same group,ministry
-					 * ,department and sub department ****/
-					/**** processed submission date is before clubbed submission date ****/
-					if(beingProcessedBill.getSubmissionDate().before(beingClubbedBill.getSubmissionDate())){
-						return beingProcessedIsPrimary(beingProcessedBill,beingClubbedBill
-								,beingProcessedBillStatus,beingClubbedBillStatus
-								,beingProcessedBillType,beingClubbedBillType,locale);
-					}
-					/**** processed submission date is after clubbed submission date(discussed in length) ****/
-					else{
-						return beingClubbedIsPrimary(beingProcessedBill,beingClubbedBill
-								,beingProcessedBillStatus,beingClubbedBillStatus
-								,beingProcessedBillType,beingClubbedBillType,locale);
-					}	
-				}else{
-					return "BILLS_FROM_DIFFERENT_MINISTRY_DEPARTMENT_SUBDEPARTMENT";
-				}
-			}else if(beingProcessedBill.getSubDepartment()==null&&beingClubbedBill.getSubDepartment()==null){
-				/**** Clubbing will take place only if both bill belong to the same group,ministry
-				 * ,department and sub department ****/
-				/**** processed submission date is before clubbed submission date ****/
-				if(beingProcessedBill.getSubmissionDate().before(beingClubbedBill.getSubmissionDate())){
-					return beingProcessedIsPrimary(beingProcessedBill,beingClubbedBill
-							,beingProcessedBillStatus,beingClubbedBillStatus
-							,beingProcessedBillType,beingClubbedBillType,locale);
-				}
-				/**** processed submission date after clubbed submission date(discussed in length) ****/
-				else{
-					return beingClubbedIsPrimary(beingProcessedBill,beingClubbedBill
-							,beingProcessedBillStatus,beingClubbedBillStatus
-							,beingProcessedBillType,beingClubbedBillType,locale);
-				}	
-			}else{
-				return "BILLS_FROM_DIFFERENT_MINISTRY_DEPARTMENT_SUBDEPARTMENT";
-			}
-
+		// CASE A: beingProcessedQn = "TO_BE_PUT_UP", beingClubbedQn = "TO_BE_PUT_UP"
+		if((beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
+				&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) 
+				|| (beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED))) {
+			Status clubbed = 
+				Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, clubbed, clubbed, locale);
+			return "PROCESSED_CLUBBED_TO_SEARCHED";
+		}
+		// CASE B: beingProcessedQn = "TO_BE_PUT_UP", beingClubbedQn = "IN_WORKFLOW"
+		else if((beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) 
+				&& ((beingClubbedQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION) 
+						&& beingClubbedQnIS.getPriority() > TO_BE_PUT_UP.getPriority()
+						&& beingClubbedQnIS.getPriority() < approvalStatus.getPriority()) 
+						|| (! beingClubbedQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
+								&& beingClubbedQnIS.getPriority() > unProcessedStatus.getPriority()
+								&& beingClubbedQnIS.getPriority() < approvalStatus.getPriority()))) {
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, clubbedWithPending,clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE C: beingProcessedQn = "TO_BE_PUT_UP", beingClubbedQn = "FINAL"
+		// CASE C1
+		else if((beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) 
+				&& (beingClubbedQuestion.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+						&& beingClubbedQnIS.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))) {
+			Status convertedToUnstarredAndAdmit = Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, convertedToUnstarredAndAdmit, convertedToUnstarredAndAdmit, locale);
+			return "PROCESSED_TO_BE_CONVERTED_TO_UNSTARRED_AND_ADMIT";
+		}
+		// CASE C2
+		else if((beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) 
+				&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+			Status nameClubbing = Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, nameClubbing, nameClubbing, locale);
+			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";
+		}		
+		// Case for CONVERT_TO_UNSTARRED will come here.
+		// CASE D: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "TO_BE_PUT_UP"
+		else if((beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+				|| beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)) 
+				&& (beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))) {
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, clubbedWithPending,clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE E: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "IN_WORKFLOW"
+		else if((beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+				|| beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)) 
+				&& (beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+						|| beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))) {
+			// End beingClubbedQuestion's workflow, club it with beingProcessedQuestion
+			// and set its status to "TO_BE_CLUBBED_WITH_PENDING"
+			endProcess(beingClubbedQuestion);
+			removeExistingWorkflowAttributes(beingClubbedQuestion);
+			
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, clubbedWithPending,clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE F: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "FINAL"
+		// CASE F1
+		else if((beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK) 
+				|| beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)) 
+				&& (beingClubbedQuestion.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+						&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))) {
+			// End beingProcessed Qns workflow, club it with beingClubbedQuestion
+			// and set its status to "PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT"
+			endProcess(beingProcessedQuestion);
+			removeExistingWorkflowAttributes(beingProcessedQuestion);
+			
+			Status convertedToUnstarredAndAdmit = Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, convertedToUnstarredAndAdmit, convertedToUnstarredAndAdmit, locale);
+			return "PROCESSED_TO_BE_CONVERTED_TO_UNSTARRED_AND_ADMIT";
+		}
+		// CASE F2
+		else if((beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK) 
+				|| beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)) 
+				&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+			// End beingProcessed Qns workflow, club it with beingClubbedQuestion
+			// and set its status to "PUT_UP_FOR_NAME_CLUBBING"
+			endProcess(beingProcessedQuestion);
+			removeExistingWorkflowAttributes(beingProcessedQuestion);
+			
+			Status nameClubbing = Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, nameClubbing, nameClubbing, locale);
+			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";			
+		}
+		// CASE G: beingProcessedQn = "FINAL", beingClubbedQn = "TO_BE_PUT_UP"
+		// CASE G1
+		else if((beingProcessedQuestion.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION) 
+				&& beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))
+				&& (beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))) {
+			Status convertedToUnstarredAndAdmit = Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, convertedToUnstarredAndAdmit, convertedToUnstarredAndAdmit, locale);
+			return "PROCESSED_TO_BE_CONVERTED_TO_UNSTARRED_AND_ADMIT";
+		}
+		// CASE G2
+		else if(beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION) 
+				&& (beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))) {
+			Status nameClubbing = Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, nameClubbing, nameClubbing, locale);
+			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";
+		}
+		// CASE G3
+		else if(beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION) 
+				&& (beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))) {
+			Status putUpForRejection = Status.findByType(ApplicationConstants.QUESTION_PUTUP_REJECTION, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, putUpForRejection, putUpForRejection, locale);
+			return "PROCESSED_TO_BE_PUT_UP_FOR_REJECTION";
+		}
+		// CASE H: beingProcessedQn = "FINAL", beingClubbedQn = "IN_WORKFLOW"
+		// CASE H1
+		else if((beingProcessedQuestion.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+				&& beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) 
+				&& (beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+						|| beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))) {
+			// End beingClubbed Qns workflow, club it with beingProcessedQuestion
+			// and set its status to "PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT"
+			endProcess(beingClubbedQuestion);
+			removeExistingWorkflowAttributes(beingClubbedQuestion);
+			
+			Status convertedToUnstarredAndAdmit = Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, convertedToUnstarredAndAdmit, convertedToUnstarredAndAdmit, locale);
+			return "PROCESSED_TO_BE_CONVERTED_TO_UNSTARRED_AND_ADMIT";
+		}
+		// CASE H2
+		else if(beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION) 
+				&& (beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+						|| beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))) {
+			// End beingClubbed Qns workflow, club it with beingProcessedQuestion
+			// and set its status to "PUT_UP_FOR_NAME_CLUBBING"
+			endProcess(beingClubbedQuestion);
+			removeExistingWorkflowAttributes(beingClubbedQuestion);
+			
+			Status nameClubbing = Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, nameClubbing, nameClubbing, locale);
+			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";
+		}
+		// CASE I: beingProcessedQn = "FINAL", beingClubbedQn = "FINAL"
+		// CASE I1
+		else if(beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION) 
+				&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+			Status admitted=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, admitted, admitted, locale);
+			return "PROCESSED_CLUBBED_WITH_SEARCHED_AND_ADMITTED";
 		}
 		return "CLUBBING_FAILED";
 	}
 
 	private String beingClubbedIsPrimary(Question beingProcessedQuestion,
-			Question beingClubbedQuestion,
-			Status beingProcessedQuestionStatus,Status beingClubbedQuestionStatus,
-			String beingProcessedQuestionType,String beingClubbedQuestionType
-			,String locale) {
-		String beingProcessedQuestionStatusType=beingProcessedQuestionStatus.getType();
-		String beingClubbedQuestionStatusType=beingClubbedQuestionStatus.getType();
-		String beingProcessedRecommendationStatus=beingProcessedQuestion.getRecommendationStatus().getType();
-		/**** Setting parent and child ****/
-		/**** Parent Rule:if primary question(beingClubbedQuestion) has a parent then its parent 
-		 * will become the parent of the whole bunch.If not then beingClubbedQuestion will become 
-		 * the parent of beingProcessedQuestion.****/
-		Question beingClubbedParent=beingClubbedQuestion.getParent();
-		Question parent=null;
-		if(beingClubbedParent!=null){
-			parent=beingClubbedParent;
-		}else{
-			parent=beingClubbedQuestion;
-		}	
-		Question child=beingProcessedQuestion;		
-		Status unProcessedStatus=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, locale);
-		Status approvalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);		
-		if(	(beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP) 
-				&& beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))||
-				(beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
-						&& beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED))){
-			Status clubbed=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, locale);
-			actualClubbing(parent, child,clubbed,clubbed, locale);
+			Question beingClubbedQuestion) {
+		String locale = beingClubbedQuestion.getLocale();				
+		
+		String beingProcessedQnISType = 
+			beingProcessedQuestion.getInternalStatus().getType();
+		String beingProcessedQnRSType = 
+			beingProcessedQuestion.getRecommendationStatus().getType();
+		
+		Status beingClubbedQnIS = 
+			beingClubbedQuestion.getInternalStatus();		
+		String beingClubbedQnISType =
+			beingClubbedQuestion.getInternalStatus().getType();
+		String beingClubbedQnRSType =
+			beingClubbedQuestion.getRecommendationStatus().getType();
+		
+		Status unProcessedStatus = 
+			Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, 
+					locale);
+		Status TO_BE_PUT_UP =
+			Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+		Status approvalStatus = 
+			Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
+		
+		// CASE A: beingProcessedQn = "TO_BE_PUT_UP", beingClubbedQn = "TO_BE_PUT_UP"
+		if((beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
+				&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) 
+				|| (beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED))) {
+			Status clubbed = 
+				Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, clubbed, clubbed, locale);
 			return "PROCESSED_CLUBBED_TO_SEARCHED";
-		}else if((beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
-				||beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))
-				&&beingClubbedQuestionStatus.getPriority()>=unProcessedStatus.getPriority()
-				&&beingClubbedQuestionStatus.getPriority()<approvalStatus.getPriority()){
-			Status clubbedWithPending=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
-			actualClubbing(parent, child,clubbedWithPending,clubbedWithPending, locale);
+		}
+		// CASE B: beingProcessedQn = "TO_BE_PUT_UP", beingClubbedQn = "IN_WORKFLOW"
+		else if((beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) 
+				&& ((beingClubbedQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION) 
+						&& beingClubbedQnIS.getPriority() > TO_BE_PUT_UP.getPriority()
+						&& beingClubbedQnIS.getPriority() < approvalStatus.getPriority()) 
+						|| (! beingClubbedQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
+								&& beingClubbedQnIS.getPriority() > unProcessedStatus.getPriority()
+								&& beingClubbedQnIS.getPriority() < approvalStatus.getPriority()))) {
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, clubbedWithPending, clubbedWithPending, locale);
 			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
-		}else if((beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
-				||beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))
-				&&beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
-			Status nameClubbing=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, locale);
-			actualClubbing(parent, child,nameClubbing,nameClubbing, locale);
-			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";
-		}else if((beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
-				||beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))
-				&&beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)){
-			Status putUpForRejection=Status.findByType(ApplicationConstants.QUESTION_PUTUP_REJECTION, locale);
-			actualClubbing(parent, child,putUpForRejection,putUpForRejection, locale);
-			return "PROCESSED_TO_BE_PUT_UP_FOR_REJECTION";
-		}else if((beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
-				||beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))
-				&&beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED)){
-			Status convertedToUnstarred=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED, locale);
-			actualClubbing(parent, child,convertedToUnstarred,convertedToUnstarred, locale);
-			return "PROCESSED_TO_BE_CONVERTED_TO_UNSTARRED";
-		}else if((beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
-				||beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))
-				&&beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)){
-			Status nameClubbing=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, locale);
-			Status convertedToUnstarredAndAdmit=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, locale);
-			actualClubbing(parent, child,nameClubbing,convertedToUnstarredAndAdmit, locale);
+		}
+		// CASE C: beingProcessedQn = "TO_BE_PUT_UP", beingClubbedQn = "FINAL"
+		// CASE C1
+		else if((beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) 
+				&& (beingClubbedQuestion.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+						&& beingClubbedQnIS.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))) {
+			Status convertedToUnstarredAndAdmit = Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, convertedToUnstarredAndAdmit, convertedToUnstarredAndAdmit, locale);
 			return "PROCESSED_TO_BE_CONVERTED_TO_UNSTARRED_AND_ADMIT";
-		}else if((beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
-				||beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))
-				&&(beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)
-						||beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
-						||beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)
-						||beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_GOVT))){
-			Status putOnHold=Status.findByType(ApplicationConstants.QUESTION_PUTUP_ONHOLD, locale);
-			actualClubbing(parent, child,putOnHold,putOnHold, locale);
-			return "PROCESSED_TO_BE_PUT_ON_HOLD";
-		}else if(beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-				&&beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
-			Status putOnHold=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
-			actualClubbing(parent, child,putOnHold,putOnHold, locale);
-			return "PROCESSED_CLUBBED_WITH_SEARCHED_AND_ADMITTED";
 		}
-		return "CLUBBING_FAILED";
-	}
-	
-	private String beingClubbedIsPrimary(Bill beingProcessedBill,
-			Bill beingClubbedBill,
-			Status beingProcessedBillStatus,Status beingClubbedBillStatus,
-			String beingProcessedBillType,String beingClubbedBillType
-			,String locale) {
-		String beingProcessedBillStatusType=beingProcessedBillStatus.getType();
-		String beingClubbedBillStatusType=beingClubbedBillStatus.getType();
-		String beingProcessedRecommendationStatus=beingProcessedBill.getRecommendationStatus().getType();
-		/**** Setting parent and child ****/
-		/**** Parent Rule:if primary bill(beingClubbedBill) has a parent then its parent 
-		 * will become the parent of the whole bunch.If not then beingClubbedBill will become 
-		 * the parent of beingProcessedBill.****/
-		Bill beingClubbedParent=beingClubbedBill.getParent();
-		Bill parent=null;
-		if(beingClubbedParent!=null){
-			parent=beingClubbedParent;
-		}else{
-			parent=beingClubbedBill;
-		}	
-		Bill child=beingProcessedBill;		
-		Status unProcessedStatus=Status.findByType(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED, locale);
-		Status approvalStatus=Status.findByType(ApplicationConstants.BILL_FINAL_ADMISSION, locale);	
-		if(	(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP) 
-				&& beingClubbedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP))||
-				(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)
-						&& beingClubbedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED))){
-			Status clubbed=Status.findByType(ApplicationConstants.BILL_SYSTEM_CLUBBED, locale);
-			actualClubbing(parent, child,clubbed,clubbed, locale);
-			return "PROCESSED_CLUBBED_TO_SEARCHED";
-		}else if((beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)
-				||beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_SENDBACK)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_DISCUSS))
-				&&beingClubbedBillStatus.getPriority()>=unProcessedStatus.getPriority()
-				&&beingClubbedBillStatus.getPriority()<approvalStatus.getPriority()){
-			Status clubbedWithPending=Status.findByType(ApplicationConstants.BILL_SYSTEM_CLUBBED_WITH_PENDING, locale);
-			actualClubbing(parent, child,clubbedWithPending,clubbedWithPending, locale);
-			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
-		}else if((beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)
-				||beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_SENDBACK)
-				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_DISCUSS))
-				&&(
-				beingClubbedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)
-				||beingClubbedBillStatusType.equals(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED))){
-			Status nameClubbing=Status.findByType(ApplicationConstants.BILL_PUTUP_NAMECLUBBING, locale);
-			actualClubbing(parent, child,nameClubbing,nameClubbing, locale);
+		// CASE C2
+		else if((beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) 
+				&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+			Status nameClubbing = Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, nameClubbing, nameClubbing, locale);
 			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";
-		}else if(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)
-				&&(
-				beingClubbedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)
-				||beingClubbedBillStatusType.equals(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED))){
-			Status putOnHold=Status.findByType(ApplicationConstants.BILL_FINAL_ADMISSION, locale);
-			actualClubbing(parent, child,putOnHold,putOnHold, locale);
+		}
+		// Case for CONVERT_TO_UNSTARRED will come here.
+		// CASE D: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "TO_BE_PUT_UP"
+		else if((beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+				|| beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)) 
+				&& (beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))) {
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, clubbedWithPending,clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE E: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "IN_WORKFLOW"
+		else if((beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+				|| beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)) 
+				&& (beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+						|| beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))) {
+			// End beingProcessed Qns workflow, club it with beingClubbedQuestion
+			// and set its status to "TO_BE_CLUBBE_WITH_PENDING"
+			endProcess(beingProcessedQuestion);
+			removeExistingWorkflowAttributes(beingProcessedQuestion);
+			
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, clubbedWithPending,clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE F: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "FINAL"
+		// CASE F1
+		else if((beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK) 
+				|| beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)) 
+				&& (beingClubbedQuestion.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+						&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))) {
+			// End beingProcessed Qns workflow, club it with beingClubbedQuestion
+			// and set its status to "PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT"
+			endProcess(beingProcessedQuestion);
+			removeExistingWorkflowAttributes(beingProcessedQuestion);
+			
+			Status convertedToUnstarredAndAdmit = Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, convertedToUnstarredAndAdmit, convertedToUnstarredAndAdmit, locale);
+			return "PROCESSED_TO_BE_CONVERTED_TO_UNSTARRED_AND_ADMIT";
+		}
+		// CASE F2
+		else if((beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK) 
+				|| beingProcessedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)) 
+				&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+			// End beingProcessed Qns workflow, club it with beingClubbedQuestion
+			// and set its status to "PUT_UP_FOR_NAME_CLUBBING"
+			endProcess(beingProcessedQuestion);
+			removeExistingWorkflowAttributes(beingProcessedQuestion);
+			
+			Status nameClubbing = Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, nameClubbing, nameClubbing, locale);
+			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";
+		}
+		// CASE G: beingProcessedQn = "FINAL", beingClubbedQn = "TO_BE_PUT_UP"
+		// CASE G1
+		else if((beingProcessedQuestion.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION) 
+				&& beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) 
+				&& (beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))) {
+			Status convertedToUnstarredAndAdmit = Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, convertedToUnstarredAndAdmit, convertedToUnstarredAndAdmit, locale);
+			return "PROCESSED_TO_BE_CONVERTED_TO_UNSTARRED_AND_ADMIT";
+		}
+		// CASE G2
+		else if(beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION) 
+				&& (beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))) {
+			Status nameClubbing = Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, nameClubbing, nameClubbing, locale);
+			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";
+		}
+		// CASE G3
+		else if(beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION) 
+				&& (beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))) {
+			Status putUpForRejection = Status.findByType(ApplicationConstants.QUESTION_PUTUP_REJECTION, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, putUpForRejection, putUpForRejection, locale);
+			return "PROCESSED_TO_BE_PUT_UP_FOR_REJECTION";
+		}
+		// CASE H: beingProcessedQn = "FINAL", beingClubbedQn = "IN_WORKFLOW"
+		// CASE H1
+		else if((beingProcessedQuestion.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+				&& beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) 
+				&& (beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+						|| beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))) {
+			// End beingClubbed Qns workflow, club it with beingProcessedQuestion
+			// and set its status to "PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT"
+			endProcess(beingClubbedQuestion);
+			removeExistingWorkflowAttributes(beingClubbedQuestion);
+			
+			Status convertedToUnstarredAndAdmit = Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, convertedToUnstarredAndAdmit, convertedToUnstarredAndAdmit, locale);
+			return "PROCESSED_TO_BE_CONVERTED_TO_UNSTARRED_AND_ADMIT";
+		}
+		// CASE H2
+		else if(beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION) 
+				&& (beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+						|| beingClubbedQnRSType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS))) {
+			// End beingClubbed Qns workflow, club it with beingProcessedQuestion
+			// and set its status to "PUT_UP_FOR_NAME_CLUBBING"
+			endProcess(beingClubbedQuestion);
+			removeExistingWorkflowAttributes(beingClubbedQuestion);			
+							
+			Status nameClubbing = Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, locale);
+			actualClubbing(beingProcessedQuestion, beingClubbedQuestion, nameClubbing, nameClubbing, locale);
+			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";
+		}
+		// CASE I: beingProcessedQn = "FINAL", beingClubbedQn = "FINAL"
+		// CASE I1
+		else if(beingProcessedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION) 
+				&& beingClubbedQnISType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+			Status admitted=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
+			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, admitted, admitted, locale);
 			return "PROCESSED_CLUBBED_WITH_SEARCHED_AND_ADMITTED";
 		}
 		return "CLUBBING_FAILED";
-	}
-
-	private String beingProcessedIsPrimary(Question beingProcessedQuestion,
-			Question beingClubbedQuestion,
-			Status beingProcessedQuestionStatus,Status beingClubbedQuestionStatus,
-			String beingProcessedQuestionType,String beingClubbedQuestionType
-			,String locale) {
-		String beingProcessedQuestionStatusType=beingClubbedQuestionStatus.getType();
-		String beingClubbedQuestionStatusType=beingClubbedQuestionStatus.getType();
-		/***Here we will first check if beingClubbed question is itself a clubbed question ****/
-		Question beingProcessedParent=beingProcessedQuestion.getParent();
-		Question parent=null;
-		if(beingProcessedParent!=null){
-			parent=beingProcessedParent;
-		}else{
-			parent=beingProcessedQuestion;
-		}	
-		Question child=beingClubbedQuestion;
-		if(	(beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP) 
-				&& beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP))||
-				(beingProcessedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)
-						&& beingClubbedQuestionStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED))){
-			Status clubbed=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, locale);
-			actualClubbing(parent, child,clubbed,clubbed, locale);
-			return "SEARCHED_CLUBBED_TO_PROCESSED";
-		}
-		return "CLUBBING_FAILED";
-	}
-	
-	private String beingProcessedIsPrimary(Bill beingProcessedBill,
-			Bill beingClubbedBill,
-			Status beingProcessedBillStatus,Status beingClubbedBillStatus,
-			String beingProcessedBillType,String beingClubbedBillType
-			,String locale) {
-		String beingProcessedBillStatusType=beingProcessedBillStatus.getType();
-		String beingClubbedBillStatusType=beingClubbedBillStatus.getType();
-		/***Here we will first check if beingClubbed bill is itself a clubbed bill ****/
-		Bill beingProcessedParent=beingProcessedBill.getParent();
-		Bill parent=null;
-		if(beingProcessedParent!=null){
-			parent=beingProcessedParent;
-		}else{
-			parent=beingProcessedBill;
-		}	
-		Bill child=beingClubbedBill;
-		if(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)
-						&& beingClubbedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)){
-			Status clubbed=Status.findByType(ApplicationConstants.BILL_SYSTEM_CLUBBED, locale);
-			actualClubbing(parent, child,clubbed,clubbed, locale);
-			return "SEARCHED_CLUBBED_TO_PROCESSED";
-		}
-		return "CLUBBING_FAILED";
-	}
-
+	}		
 
 	private void actualClubbing(Question parent,Question child,
 			Status newInternalStatus,Status newRecommendationStatus,String locale){
-		/**** Here we will obtain all clubbed entities of parent ****/
+		/**** a.Clubbed entities of parent question are obtained 
+		 * b.Clubbed entities of child question are obtained
+		 * c.Child question is updated(parent,internal status,recommendation status) 
+		 * d.Child Question entry is made in Clubbed Entity and child question clubbed entity is added to parent clubbed entity 
+		 * e.Clubbed entities of child questions are updated(parent,internal status,recommendation status)
+		 * f.Clubbed entities of parent(child question clubbed entities,other clubbed entities of child question and 
+		 * clubbed entities of parent question is updated)
+		 * g.Position of all clubbed entities of parent are updated in order of their chart answering date and number ****/
 		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
-		if(parent.getClubbedEntities()!=null){
-			if(!parent.getClubbedEntities().isEmpty()){
-				for(ClubbedEntity i:parent.getClubbedEntities()){
+		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
+			for(ClubbedEntity i:parent.getClubbedEntities()){
+				// parent & child need not be disjoint. They could
+				// be present in each other's hierarchy.
+				Long childQnId = child.getId();
+				Question clubbedQn = i.getQuestion();
+				Long clubbedQnId = clubbedQn.getId();
+				if(! childQnId.equals(clubbedQnId)) {
 					parentClubbedEntities.add(i);
 				}
-			}
+			}			
 		}
-		/****  Here we will obtain all clubbed entities of child ***/
+
 		List<ClubbedEntity> childClubbedEntities=new ArrayList<ClubbedEntity>();
-		if(child.getClubbedEntities()!=null){
-			if(!child.getClubbedEntities().isEmpty()){
-				for(ClubbedEntity i:child.getClubbedEntities()){
+		if(child.getClubbedEntities()!=null && !child.getClubbedEntities().isEmpty()){
+			for(ClubbedEntity i:child.getClubbedEntities()){
+				// parent & child need not be disjoint. They could
+				// be present in each other's hierarchy.
+				Long parentQnId = parent.getId();
+				Question clubbedQn = i.getQuestion();
+				Long clubbedQnId = clubbedQn.getId();
+				if(! parentQnId.equals(clubbedQnId)) {
 					childClubbedEntities.add(i);
 				}
 			}
-		}
-		/**** set the child's parent,its internal and recommendation status to clubbed 
-		 * and its clubbing to null****/
+		}	
+
 		child.setParent(parent);
 		child.setClubbedEntities(null);
 		child.setInternalStatus(newInternalStatus);
@@ -922,39 +895,39 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			child.setFileIndex(null);
 			child.setFileSent(false);
 		}
-		child.simpleMerge();                
-		/**** Here we are making new clubbed entity entry for being clubbed question only
-		 * as being processed question will at this time have an entry in clubbed entities
-		 * if its a clubbed question.
-		 */
+		child.simpleMerge();
+
 		ClubbedEntity clubbedEntity=new ClubbedEntity();
 		clubbedEntity.setDeviceType(child.getType());
 		clubbedEntity.setLocale(child.getLocale());
 		clubbedEntity.setQuestion(child);
-		clubbedEntity.persist();                
-		/**** add this as clubbed entity in parent question clubbed entity(either beingProcessed question)
-		 * or parent of being processed question ****/
-		parentClubbedEntities.add(clubbedEntity);                
-		/*** add clubbed entities of clubbed question in parent clubbed entities ****/
-		if(childClubbedEntities!=null){
-			if(!childClubbedEntities.isEmpty()){
-				for(ClubbedEntity k:childClubbedEntities){
-					Question question=k.getQuestion();
-					question.setParent(parent);
+		clubbedEntity.persist();
+		parentClubbedEntities.add(clubbedEntity);		
+
+		Status TO_BE_CLUBBED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
+		if(childClubbedEntities!=null&& !childClubbedEntities.isEmpty()){
+			for(ClubbedEntity k:childClubbedEntities){
+				Question question=k.getQuestion();
+				question.setParent(parent);
+				
+				Status internalStatus = question.getInternalStatus();
+				if(internalStatus != null 
+						&& internalStatus.getType().equals(TO_BE_CLUBBED.getType())) {
 					question.setInternalStatus(newInternalStatus);
 					question.setRecommendationStatus(newRecommendationStatus);
-					question.simpleMerge();
-					k.setQuestion(question);
-					k.merge();
-					parentClubbedEntities.add(k);
-				}                        
-			}
+				}
+				
+				question.simpleMerge();
+				k.setQuestion(question);
+				k.merge();
+				parentClubbedEntities.add(k);
+			}			
 		}
-		/**** Setting parent's clubbed entities to parentClubbed entities ****/
+		parent.setParent(null);
 		parent.setClubbedEntities(parentClubbedEntities);
 		parent.simpleMerge();
-		/**** update position of parent's clubbed entities ****/
-		List<ClubbedEntity> clubbedEntities=parent.findClubbedEntitiesByQuestionNumber(ApplicationConstants.ASC,locale);
+
+		List<ClubbedEntity> clubbedEntities=parent.findClubbedEntitiesByChartAnsweringDateQuestionNumber(ApplicationConstants.ASC,locale);
 		Integer position=1;
 		for(ClubbedEntity i:clubbedEntities){
 			i.setPosition(position);
@@ -963,86 +936,71 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}
 	}
 	
-	private void actualClubbing(Bill parent,Bill child,
-			Status newInternalStatus,Status newRecommendationStatus,String locale){
-		/**** Here we will obtain all clubbed entities of parent ****/
-		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
-		if(parent.getClubbedEntities()!=null){
-			if(!parent.getClubbedEntities().isEmpty()){
-				for(ClubbedEntity i:parent.getClubbedEntities()){
-					parentClubbedEntities.add(i);
-				}
-			}
+	private void endProcess(Question question) {
+		try {
+			// Complete task & end process
+			WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(question);				
+			String taskId = wfDetails.getTaskId();
+			Task task = processService.findTaskById(taskId);
+			
+			Map<String, String> properties = new HashMap<String, String>();
+			properties.put("pv_endflag", "end");
+			processService.completeTask(task, properties);
+			
+			// Update WorkflowDetails
+			wfDetails.setStatus("COMPLETED");
+			wfDetails.setCompletionTime(new Date());
+			wfDetails.merge();
+		} 
+		catch (ELSException e) {
+			e.printStackTrace();
 		}
-		/****  Here we will obtain all clubbed entities of child ***/
-		List<ClubbedEntity> childClubbedEntities=new ArrayList<ClubbedEntity>();
-		if(child.getClubbedEntities()!=null){
-			if(!child.getClubbedEntities().isEmpty()){
-				for(ClubbedEntity i:child.getClubbedEntities()){
-					childClubbedEntities.add(i);
-				}
-			}
-		}
-		/**** set the child's parent,its internal and recommendation status to clubbed 
-		 * and its clubbing to null****/
-		child.setParent(parent);
-		child.setClubbedEntities(null);
-		child.setInternalStatus(newInternalStatus);
-		child.setRecommendationStatus(newRecommendationStatus);
-		if(child.getFile()!=null){
-			child.setFile(null);
-			child.setFileIndex(null);
-			child.setFileSent(false);
-		}
-		child.simpleMerge();                
-		/**** Here we are making new clubbed entity entry for being clubbed bill only
-		 * as being processed bill will at this time have an entry in clubbed entities
-		 * if its a clubbed bill.
-		 */
-		ClubbedEntity clubbedEntity=new ClubbedEntity();
-		clubbedEntity.setDeviceType(child.getType());
-		clubbedEntity.setLocale(child.getLocale());
-		clubbedEntity.setBill(child);
-		clubbedEntity.persist();                
-		/**** add this as clubbed entity in parent bill clubbed entity(either beingProcessed bill)
-		 * or parent of being processed bill ****/
-		parentClubbedEntities.add(clubbedEntity);                
-		/*** add clubbed entities of clubbed bill in parent clubbed entities ****/
-		if(childClubbedEntities!=null){
-			if(!childClubbedEntities.isEmpty()){
-				for(ClubbedEntity k:childClubbedEntities){
-					Bill bill=k.getBill();
-					bill.setParent(parent);
-					bill.setInternalStatus(newInternalStatus);
-					bill.setRecommendationStatus(newRecommendationStatus);
-					bill.simpleMerge();
-					k.setBill(bill);
-					k.merge();
-					parentClubbedEntities.add(k);
-				}                        
-			}
-		}
-		/**** Setting parent's clubbed entities to parentClubbed entities ****/
-		parent.setClubbedEntities(parentClubbedEntities);
-		parent.simpleMerge();
-		/**** update position of parent's clubbed entities ****/
-		List<ClubbedEntity> clubbedEntities=parent.findClubbedEntitiesByBillSubmissionDate(ApplicationConstants.ASC,locale);
-		Integer position=1;
-		for(ClubbedEntity i:clubbedEntities){
-			i.setPosition(position);
-			position++;
-			i.merge();
-		}
-	}	
+	}
 	
-	/**
-	 * Unclub.
-	 *
-	 * @param questionBeingProcessed the question being processed
-	 * @param questionBeingClubbed the question being clubbed
-	 * @param locale the locale
-	 * @return the boolean
-	 */
+	private void removeExistingWorkflowAttributes(Question question) {
+		// Update question so as to remove existing workflow
+		// based attributes
+		question.setEndFlag(null);
+		question.setLevel("0");
+		question.setTaskReceivedOn(null);
+		question.setWorkflowDetailsId(null);
+		question.setWorkflowStarted("NO");
+		question.setWorkflowStartedOn(null);
+		question.setActor(null);
+		question.setLocalizedActorName("");
+		question.simpleMerge();
+	}
+
+	public Question updateClubbing(final Question domain) {
+		/**** On same chart ****/
+		if(domain.getChartAnsweringDate().getId().equals(domain.getParent().getChartAnsweringDate().getId())){
+			if(domain.getNumber() > domain.getParent().getNumber()){
+				actualClubbing(domain.getParent(),domain,domain.getInternalStatus(), domain.getRecommendationStatus(),domain.getLocale());
+			}else{
+				actualClubbing(domain,domain.getParent(),domain.getInternalStatus(), domain.getRecommendationStatus(),domain.getLocale());
+			}
+		}
+		/**** on different charts (parent is on a previous chart)****/
+		else if(domain.getChartAnsweringDate().getAnsweringDate().after(domain.getParent().getChartAnsweringDate().getAnsweringDate())){
+			actualClubbing(domain.getParent(),domain,domain.getInternalStatus(), domain.getRecommendationStatus(),domain.getLocale());
+		}
+		/**** on different charts (clubbed question is on a previous chart)****/
+		else if(domain.getChartAnsweringDate().getAnsweringDate().before(domain.getParent().getChartAnsweringDate().getAnsweringDate())){
+			actualClubbing(domain,domain.getParent(),domain.getInternalStatus(), domain.getRecommendationStatus(),domain.getLocale());
+		}
+		/**** No charts ****/
+		else{
+			if(domain.getNumber() > domain.getParent().getNumber()){
+				actualClubbing(domain.getParent(),domain,domain.getInternalStatus(), domain.getRecommendationStatus(),domain.getLocale());
+			}else{
+				actualClubbing(domain,domain.getParent(),domain.getInternalStatus(), domain.getRecommendationStatus(),domain.getLocale());
+			}	
+		}	
+		return domain;
+	}
+	/**** Question Clubbing Ends ****/
+
+	/**** Question Unclubbing Begins ****/
 	public String unclub(final Long questionBeingProcessed,
 			final Long questionBeingClubbed, final String locale) {
 		try {
@@ -1152,25 +1110,66 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}		
 		return "SUCCESS";
 	}
-	
-	/**
-	 * Unclub without Merge.
-	 *
-	 * @param questionBeingProcessed the question being processed
-	 * @param questionBeingClubbed the question being clubbed
-	 * @param locale the locale
-	 * @return the boolean
-	 */
+
+	public Question unclub(final Question domain){
+		try {			
+			/**** Update Parent(clubbed entities-number of clubbed entities and each clubbed entities position) ****/
+			List<ClubbedEntity> parentClubbedEntities =domain.getParent().getClubbedEntities();
+			List<ClubbedEntity> parentNewClubbedEntities=new ArrayList<ClubbedEntity>();
+			for(ClubbedEntity i:parentClubbedEntities){
+				if(! i.getQuestion().getId().equals(domain.getId())){
+					parentNewClubbedEntities.add(i);
+				}
+			}
+			if(!parentNewClubbedEntities.isEmpty()){
+				domain.getParent().setClubbedEntities(parentNewClubbedEntities);
+			}else{
+				domain.getParent().setClubbedEntities(null);
+			} 
+			domain.getParent().simpleMerge();
+			List<ClubbedEntity> clubbedEntities=domain.getParent().findClubbedEntitiesByChartAnsweringDateQuestionNumber(ApplicationConstants.ASC,domain.getLocale());
+			Integer position=1;
+			for(ClubbedEntity i:clubbedEntities){
+				i.setPosition(position);
+				position++;
+				i.merge();
+			}
+
+			/**** Update Domain(Parent,internal status,recommendation status,file,fileIndex,fileSent) ****/
+			domain.setParent(null);
+			Status newStatus=null;
+			if(domain.getType().equals("questions_unstarred")
+					||domain.getType().equals("questions_halfhourdiscussion_from_question")
+					||domain.getType().equals("questions_shortnotice")){
+				newStatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+			}else{
+				newStatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+			}
+			domain.setInternalStatus(newStatus);
+			domain.setRecommendationStatus(newStatus);
+			if(domain.getFile()==null){
+				Reference reference=Question.findCurrentFile(domain);
+				domain.setFile(Integer.parseInt(reference.getId()));
+				domain.setFileIndex(Integer.parseInt(reference.getName()));
+				domain.setFileSent(false);
+			}
+			domain.simpleMerge();			
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (ELSException e) {
+			e.printStackTrace();
+		}
+		return domain;
+	}
+
 	public Question unclubWithoutMerge(final Question beingProcessedQuestion,
 			final Question beingClubbedQuestion, final String locale) {
 		try {
-			//ClubbedEntity clubbedEntityToRemove=null;
-
 			/**** If processed question's number is less than clubbed question's number
 			 * then clubbed question is removed from the clubbing of processed question
 			 * ,clubbed question's parent is set to null ,new clubbing of processed 
-			 * question is set,their position is updated****/
-			if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+			 * question is set,their position is updated ****/
+			if(beingProcessedQuestion.getNumber() < beingClubbedQuestion.getNumber()){
 				List<ClubbedEntity> oldClubbedQuestions=beingProcessedQuestion.getClubbedEntities();
 				List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
 				Integer position=0;
@@ -1217,7 +1216,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					beingClubbedQuestion.setFileIndex(Integer.parseInt(reference.getName()));
 					beingClubbedQuestion.setFileSent(false);
 				}				
-			}else if(beingProcessedQuestion.getNumber()>beingClubbedQuestion.getNumber()){
+			}else if(beingProcessedQuestion.getNumber() > beingClubbedQuestion.getNumber()){
 				List<ClubbedEntity> oldClubbedQuestions=beingClubbedQuestion.getClubbedEntities();
 				List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
 				Integer position=0;
@@ -1266,7 +1265,312 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}		
 		return beingClubbedQuestion;
 	}
-	
+
+	public Question unclubChildrenWithStatus(final Question domain,final Status status) {
+		List<ClubbedEntity> domainClubbedEntities =domain.getClubbedEntities();
+		List<ClubbedEntity> domainNewClubbedEntities=new ArrayList<ClubbedEntity>();
+		for(ClubbedEntity i:domainClubbedEntities){
+			if(!i.getQuestion().getInternalStatus().getType().equals(status.getType())){
+				domainNewClubbedEntities.add(i);
+			}else{
+				i.getQuestion().setParent(null);				
+				Status newStatus=null;
+				if(domain.getType().getType().equals("questions_unstarred")
+						||domain.getType().getType().equals("questions_halfhourdiscussion_from_question")
+						||domain.getType().getType().equals("questions_shortnotice")){
+					newStatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+				}else{
+					newStatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+				}
+				i.getQuestion().setInternalStatus(newStatus);
+				i.getQuestion().setRecommendationStatus(newStatus);
+				i.getQuestion().simpleMerge();
+			}
+		}
+		if(!domainNewClubbedEntities.isEmpty()){
+			domain.setClubbedEntities(domainNewClubbedEntities);
+		}else{
+			domain.getParent().setClubbedEntities(null);
+		} 
+		domain.simpleMerge();
+		List<ClubbedEntity> clubbedEntities=domain.findClubbedEntitiesByChartAnsweringDateQuestionNumber(ApplicationConstants.ASC,domain.getLocale());
+		Integer position=1;
+		for(ClubbedEntity i:clubbedEntities){
+			i.setPosition(position);
+			position++;
+			i.merge();
+		}
+		return domain;
+	}
+
+	/**** Question Unclubbing Ends ****/
+
+	public String clubBill(final Long billBeingProcessed,
+			final Long billBeingClubbed,final String locale) {
+		String clubbingStatus=null;
+		try{
+			/**** Bill which is being processed ****/
+			Bill beingProcessedBill=Bill.findById(Bill.class,billBeingProcessed);
+			/**** Bill that showed in clubbing search result and whose clubbing link was clicked ****/
+			Bill beingClubbedBill=Bill.findById(Bill.class,billBeingClubbed);
+			if(beingProcessedBill!=null&&beingClubbedBill!=null){
+				/**** if any of the two bill has its internal status as clubbed
+				 *  then clubbing process will not continue****/
+				String alreadyClubbedStatus=alreadyClubbed(beingProcessedBill,beingClubbedBill,locale);
+				if(alreadyClubbedStatus.equals("NO")){
+					/**** Noone of the bill is already clubbed ****/
+					clubbingStatus=clubbingRules(beingProcessedBill,beingClubbedBill,locale);
+				}else{
+					/**** Atleast one of the bill is already clubbed.so further clubbing stops ****/
+					clubbingStatus=alreadyClubbedStatus;
+				}
+			}else{
+				/**** Atleast one of the bill could not be found ****/
+				if(beingClubbedBill==null){
+					clubbingStatus="BEINGSEARCHED_DOESNOT_EXIST";
+				}else if(beingProcessedBill==null){
+					clubbingStatus="BEINGPROCESSED_DOESNOT_EXIST";
+				}			
+			}
+		}catch(Exception ex){
+			/**** An exception has occurred ****/
+			logger.error("CLUBBING_FAILED",ex);
+			clubbingStatus="CLUBBING_FAILED";
+			return clubbingStatus;
+		}
+		return clubbingStatus;
+	}
+
+
+	private String alreadyClubbed(final Bill beingProcessedBill,
+			final Bill beingClubbedBill,final String locale) {
+		/**** If either of the two bill has an entry in clubbed entity it means the bill is already clubbed ****/
+		ClubbedEntity clubbedEntity1=ClubbedEntity.findByFieldName(ClubbedEntity.class,"bill",
+				beingClubbedBill, locale);
+		if(clubbedEntity1!=null){
+			/**** Clubbed bill has an entry in clubbed entities ****/
+			return "BEINGSEARCHED_BILL_ALREADY_CLUBBED";
+		}else{
+			return "NO";
+		}
+	}
+
+
+	private String clubbingRules(Bill beingProcessedBill,
+			Bill beingClubbedBill, String locale) {
+		String beingProcessedBillType=beingProcessedBill.getType().getType();
+		String beingClubbedBillType=beingClubbedBill.getType().getType();
+		Status beingProcessedBillStatus=beingProcessedBill.getInternalStatus();
+		Status beingClubbedBillStatus=beingClubbedBill.getInternalStatus();
+
+		/**** Clubbing of starred with starred,unstarred with unstarred,short notice with short notice 
+		 * and half hour discussion with half hour discussion ****/
+		if(beingProcessedBillType.equals(beingClubbedBillType)&&
+				beingProcessedBill.getMinistry().getName().equals(beingClubbedBill.getMinistry().getName())
+				/*&&beingProcessedBill.getDepartment().getName().equals(beingClubbedBill.getDepartment().getName())*/){
+			if(beingProcessedBill.getSubDepartment()!=null&&beingClubbedBill.getSubDepartment()!=null){
+				if(beingProcessedBill.getSubDepartment().getName().equals(beingClubbedBill.getSubDepartment().getName())){
+					/**** Clubbing will take place only if both bill belong to the same group,ministry
+					 * ,department and sub department ****/
+					/**** processed submission date is before clubbed submission date ****/
+					if(beingProcessedBill.getSubmissionDate().before(beingClubbedBill.getSubmissionDate())){
+						return beingProcessedIsPrimary(beingProcessedBill,beingClubbedBill
+								,beingProcessedBillStatus,beingClubbedBillStatus
+								,beingProcessedBillType,beingClubbedBillType,locale);
+					}
+					/**** processed submission date is after clubbed submission date(discussed in length) ****/
+					else{
+						return beingClubbedIsPrimary(beingProcessedBill,beingClubbedBill
+								,beingProcessedBillStatus,beingClubbedBillStatus
+								,beingProcessedBillType,beingClubbedBillType,locale);
+					}	
+				}else{
+					return "BILLS_FROM_DIFFERENT_MINISTRY_DEPARTMENT_SUBDEPARTMENT";
+				}
+			}else if(beingProcessedBill.getSubDepartment()==null&&beingClubbedBill.getSubDepartment()==null){
+				/**** Clubbing will take place only if both bill belong to the same group,ministry
+				 * ,department and sub department ****/
+				/**** processed submission date is before clubbed submission date ****/
+				if(beingProcessedBill.getSubmissionDate().before(beingClubbedBill.getSubmissionDate())){
+					return beingProcessedIsPrimary(beingProcessedBill,beingClubbedBill
+							,beingProcessedBillStatus,beingClubbedBillStatus
+							,beingProcessedBillType,beingClubbedBillType,locale);
+				}
+				/**** processed submission date after clubbed submission date(discussed in length) ****/
+				else{
+					return beingClubbedIsPrimary(beingProcessedBill,beingClubbedBill
+							,beingProcessedBillStatus,beingClubbedBillStatus
+							,beingProcessedBillType,beingClubbedBillType,locale);
+				}	
+			}else{
+				return "BILLS_FROM_DIFFERENT_MINISTRY_DEPARTMENT_SUBDEPARTMENT";
+			}
+
+		}
+		return "CLUBBING_FAILED";
+	}
+
+
+	private String beingClubbedIsPrimary(Bill beingProcessedBill,
+			Bill beingClubbedBill,
+			Status beingProcessedBillStatus,Status beingClubbedBillStatus,
+			String beingProcessedBillType,String beingClubbedBillType
+			,String locale) {
+		String beingProcessedBillStatusType=beingProcessedBillStatus.getType();
+		String beingClubbedBillStatusType=beingClubbedBillStatus.getType();
+		String beingProcessedRecommendationStatus=beingProcessedBill.getRecommendationStatus().getType();
+		/**** Setting parent and child ****/
+		/**** Parent Rule:if primary bill(beingClubbedBill) has a parent then its parent 
+		 * will become the parent of the whole bunch.If not then beingClubbedBill will become 
+		 * the parent of beingProcessedBill.****/
+		Bill beingClubbedParent=beingClubbedBill.getParent();
+		Bill parent=null;
+		if(beingClubbedParent!=null){
+			parent=beingClubbedParent;
+		}else{
+			parent=beingClubbedBill;
+		}	
+		Bill child=beingProcessedBill;		
+		Status unProcessedStatus=Status.findByType(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED, locale);
+		Status approvalStatus=Status.findByType(ApplicationConstants.BILL_FINAL_ADMISSION, locale);	
+		if(	(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP) 
+				&& beingClubbedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP))||
+				(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)
+						&& beingClubbedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED))){
+			Status clubbed=Status.findByType(ApplicationConstants.BILL_SYSTEM_CLUBBED, locale);
+			actualClubbing(parent, child,clubbed,clubbed, locale);
+			return "PROCESSED_CLUBBED_TO_SEARCHED";
+		}else if((beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)
+				||beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP)
+				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_SENDBACK)
+				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_DISCUSS))
+				&&beingClubbedBillStatus.getPriority()>=unProcessedStatus.getPriority()
+				&&beingClubbedBillStatus.getPriority()<approvalStatus.getPriority()){
+			Status clubbedWithPending=Status.findByType(ApplicationConstants.BILL_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(parent, child,clubbedWithPending,clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}else if((beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)
+				||beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP)
+				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_SENDBACK)
+				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_DISCUSS))
+				&&(
+						beingClubbedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)
+						||beingClubbedBillStatusType.equals(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED))){
+			Status nameClubbing=Status.findByType(ApplicationConstants.BILL_PUTUP_NAMECLUBBING, locale);
+			actualClubbing(parent, child,nameClubbing,nameClubbing, locale);
+			return "PROCESSED_TO_BE_NAMED_CLUBBED_WITH_PENDING";
+		}else if(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)
+				&&(
+						beingClubbedBillStatusType.equals(ApplicationConstants.BILL_FINAL_ADMISSION)
+						||beingClubbedBillStatusType.equals(ApplicationConstants.BILL_PROCESSED_TOBEINTRODUCED))){
+			Status putOnHold=Status.findByType(ApplicationConstants.BILL_FINAL_ADMISSION, locale);
+			actualClubbing(parent, child,putOnHold,putOnHold, locale);
+			return "PROCESSED_CLUBBED_WITH_SEARCHED_AND_ADMITTED";
+		}
+		return "CLUBBING_FAILED";
+	}
+
+
+
+	private String beingProcessedIsPrimary(Bill beingProcessedBill,
+			Bill beingClubbedBill,
+			Status beingProcessedBillStatus,Status beingClubbedBillStatus,
+			String beingProcessedBillType,String beingClubbedBillType
+			,String locale) {
+		String beingProcessedBillStatusType=beingProcessedBillStatus.getType();
+		String beingClubbedBillStatusType=beingClubbedBillStatus.getType();
+		/***Here we will first check if beingClubbed bill is itself a clubbed bill ****/
+		Bill beingProcessedParent=beingProcessedBill.getParent();
+		Bill parent=null;
+		if(beingProcessedParent!=null){
+			parent=beingProcessedParent;
+		}else{
+			parent=beingProcessedBill;
+		}	
+		Bill child=beingClubbedBill;
+		if(beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)
+				&& beingClubbedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED)){
+			Status clubbed=Status.findByType(ApplicationConstants.BILL_SYSTEM_CLUBBED, locale);
+			actualClubbing(parent, child,clubbed,clubbed, locale);
+			return "SEARCHED_CLUBBED_TO_PROCESSED";
+		}
+		return "CLUBBING_FAILED";
+	}
+
+
+
+	private void actualClubbing(Bill parent,Bill child,
+			Status newInternalStatus,Status newRecommendationStatus,String locale){
+		/**** Here we will obtain all clubbed entities of parent ****/
+		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		if(parent.getClubbedEntities()!=null){
+			if(!parent.getClubbedEntities().isEmpty()){
+				for(ClubbedEntity i:parent.getClubbedEntities()){
+					parentClubbedEntities.add(i);
+				}
+			}
+		}
+		/****  Here we will obtain all clubbed entities of child ***/
+		List<ClubbedEntity> childClubbedEntities=new ArrayList<ClubbedEntity>();
+		if(child.getClubbedEntities()!=null){
+			if(!child.getClubbedEntities().isEmpty()){
+				for(ClubbedEntity i:child.getClubbedEntities()){
+					childClubbedEntities.add(i);
+				}
+			}
+		}
+		/**** set the child's parent,its internal and recommendation status to clubbed 
+		 * and its clubbing to null****/
+		child.setParent(parent);
+		child.setClubbedEntities(null);
+		child.setInternalStatus(newInternalStatus);
+		child.setRecommendationStatus(newRecommendationStatus);
+		if(child.getFile()!=null){
+			child.setFile(null);
+			child.setFileIndex(null);
+			child.setFileSent(false);
+		}
+		child.simpleMerge();                
+		/**** Here we are making new clubbed entity entry for being clubbed bill only
+		 * as being processed bill will at this time have an entry in clubbed entities
+		 * if its a clubbed bill.
+		 */
+		ClubbedEntity clubbedEntity=new ClubbedEntity();
+		clubbedEntity.setDeviceType(child.getType());
+		clubbedEntity.setLocale(child.getLocale());
+		clubbedEntity.setBill(child);
+		clubbedEntity.persist();                
+		/**** add this as clubbed entity in parent bill clubbed entity(either beingProcessed bill)
+		 * or parent of being processed bill ****/
+		parentClubbedEntities.add(clubbedEntity);                
+		/*** add clubbed entities of clubbed bill in parent clubbed entities ****/
+		if(childClubbedEntities!=null){
+			if(!childClubbedEntities.isEmpty()){
+				for(ClubbedEntity k:childClubbedEntities){
+					Bill bill=k.getBill();
+					bill.setParent(parent);
+					bill.setInternalStatus(newInternalStatus);
+					bill.setRecommendationStatus(newRecommendationStatus);
+					bill.simpleMerge();
+					k.setBill(bill);
+					k.merge();
+					parentClubbedEntities.add(k);
+				}                        
+			}
+		}
+		/**** Setting parent's clubbed entities to parentClubbed entities ****/
+		parent.setClubbedEntities(parentClubbedEntities);
+		parent.simpleMerge();
+		/**** update position of parent's clubbed entities ****/
+		List<ClubbedEntity> clubbedEntities=parent.findClubbedEntitiesByBillSubmissionDate(ApplicationConstants.ASC,locale);
+		Integer position=1;
+		for(ClubbedEntity i:clubbedEntities){
+			i.setPosition(position);
+			position++;
+			i.merge();
+		}
+	}	
+
 	/**
 	 * Unclub.
 	 *
@@ -1368,7 +1672,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}		
 		return "SUCCESS";
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public List<BillSearchVO> fullTextSearchClubbing(final String param, final Bill bill,
 			final Integer start,final Integer noofRecords,
@@ -1418,7 +1722,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_PROCESSED_INTRODUCED+"'))" + 
 				" AND (ist.type<>'"+ApplicationConstants.BILL_RECOMMEND_REJECTION + "'" +
 				" AND ist.type<>'"+ApplicationConstants.BILL_FINAL_REJECTION+"')";
-		
+
 		/**** filter query ****/
 		String filterQuery=addFilterForBill(bill, requestMap);
 
@@ -1458,11 +1762,11 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					" || (match(contentDraft.text) against('"+param+"' in boolean mode))" + 
 					" || (match(revisedContentDraft.text) against('"+param+"' in boolean mode))";
 		}	
-		
+
 		/**** Order By Query ****/
 		String orderByQuery=" ORDER BY st.priority "+ApplicationConstants.ASC+" ,b.number "+ApplicationConstants.ASC+
 				", b.submission_date "+ApplicationConstants.ASC+", b.id "+ApplicationConstants.ASC;
-		
+
 		/**** Final Query ****/
 		String query=selectQuery+filterQuery+searchQuery+orderByQuery;
 		String finalQuery="SELECT rs.billId,rs.billNumber,rs.billTitle,rs.billRevisedTitle,rs.billContent, "+
@@ -1566,5 +1870,93 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			}
 		}
 		return resultBillSearchVOs;
+	}	
+
+	private void addClasification(BillSearchVO billSearchVO,Bill bill) {
+		if(billSearchVO.getStatusType().equals(ApplicationConstants.BILL_FINAL_REJECTION)){
+			/**** Candidate For Referencing ****/
+			billSearchVO.setClassification("Referencing");
+		} 
+		else {
+			if(bill.getMinistry()!=null){
+				if(!bill.getMinistry().getName().equals(billSearchVO.getMinistry())){
+					/**** Candidate For Ministry Change ****/
+					billSearchVO.setClassification("Ministry Change");
+				}else{
+					//						if(bill.getDepartment()!=null){
+					//							if(!bill.getDepartment().getName().equals(billSearchVO.getDepartment())){
+					//								/**** Candidate For Department Change ****/
+					//								billSearchVO.setClassification("Department Change");
+					//							}else{
+					if(bill.getSubDepartment()!=null){
+						if(!bill.getSubDepartment().getName().equals(billSearchVO.getSubDepartment())){
+							/**** Candidate For Sub Department Change ****/
+							billSearchVO.setClassification("Sub Department Change");	
+						}else if(bill.getSubDepartment().getName().isEmpty()&&billSearchVO.getSubDepartment().isEmpty()){
+							/**** Candidate For Clubbing ****/
+							billSearchVO.setClassification("Clubbing");
+						}else if(bill.getSubDepartment().getName().equals(billSearchVO.getSubDepartment())){
+							/**** Candidate For Clubbing ****/
+							billSearchVO.setClassification("Clubbing");
+						}
+					}else if(bill.getSubDepartment()==null&&billSearchVO.getSubDepartment()==null){
+						/**** Candidate For Clubbing ****/
+						billSearchVO.setClassification("Clubbing");
+					}
+					//							}
+					//						}else if(question.getDepartment()==null&&questionSearchVO.getDepartment()!=null){
+					//							questionSearchVO.setClassification("Department Change");
+					//						}
+				}
+			}
+		}				
+	}
+
+	private String addFilterForBill(final Bill bill, Map<String, String[]> requestMap) {
+		StringBuffer buffer=new StringBuffer();
+		if(requestMap.get("status")!=null){
+			String status=requestMap.get("status")[0];
+			if((!status.isEmpty())&&(!status.equals("-"))){
+				if(status.equals(ApplicationConstants.UNPROCESSED_FILTER)){
+					buffer.append(" AND st.priority=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED+"')");					
+				}else if(status.equals(ApplicationConstants.PENDING_FILTER)){
+					buffer.append(" AND st.priority>(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED+"')");
+					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_FINAL_ADMISSION+"')");
+				}else if(status.equals(ApplicationConstants.APPROVED_FILTER)){
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_FINAL_ADMISSION+"')");
+					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.BILL_PROCESSED_INTRODUCED+"')");
+				} 
+			}
+		}
+		String language = "";
+		if(requestMap.get("language")!=null){			
+			if((!requestMap.get("language")[0].isEmpty())&&(!requestMap.get("language")[0].equals("-"))){
+				language=requestMap.get("language")[0];				
+			} else {
+				int firstChar=requestMap.get("param")[0].charAt(0); //param already checked for null & empty
+				if(firstChar>=2308 && firstChar <= 2418){
+					language="marathi";
+				}else if((firstChar>=65 && firstChar <= 90) || (firstChar>=97 && firstChar <= 122)
+						||(firstChar>=48 && firstChar <= 57)){
+					language="english";
+				} else {
+					//default language for bill
+					language=bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
+				}
+			}
+		} else {
+			int firstChar=requestMap.get("param")[0].charAt(0); //param already checked for null & empty
+			if(firstChar>=2308 && firstChar <= 2418){
+				language="marathi";
+			}else if((firstChar>=65 && firstChar <= 90) || (firstChar>=97 && firstChar <= 122)
+					||(firstChar>=48 && firstChar <= 57)){
+				language="english";
+			} else {
+				//default language for bill
+				language=bill.getSession().getParameter(bill.getType().getType()+"_defaultTitleLanguage");
+			}
+		}
+		buffer.append(" AND lang.type = '" + language + "'");
+		return buffer.toString();
 	}
 }
