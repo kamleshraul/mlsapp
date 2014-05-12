@@ -1303,9 +1303,9 @@ public class Question extends Device implements Serializable {
     	return getQuestionRepository().findClubbedEntitiesByPosition(question);
     }
     
-    public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final String sortOrder,
+    public List<ClubbedEntity> findClubbedEntitiesByChartAnsweringDateQuestionNumber(final String sortOrder,
     		final String locale) {
-    	return getQuestionRepository().findClubbedEntitiesByQuestionNumber(this,sortOrder,
+    	return getQuestionRepository().findClubbedEntitiesByChartAnsweringDateQuestionNumber(this,sortOrder,
     			locale);
     }
     
