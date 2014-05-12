@@ -1998,8 +1998,13 @@ public class Ballot extends BaseDomain implements Serializable {
 //						bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
 //						memberNames+=","+bufferFirstNamesFirst.toString();
 //					}
-//				}					
-				deviceVO.setMemberNames(q.findAllMemberNames());
+//				}	
+				String houseType = session.findHouseType();
+				if(houseType!=null && houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+					deviceVO.setMemberNames(q.findAllMemberNamesWithConstituencies());
+				} else if(houseType!=null && houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+					deviceVO.setMemberNames(q.findAllMemberNames());
+				}				
 				deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
 				String content = q.getRevisedQuestionText();
 				if(content != null) {
