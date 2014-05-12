@@ -143,6 +143,14 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	@Column(length=1000)
 	private String module;
 	
+	/****Chart Answering Dates****/
+	private Date answeringDate;
+	
+	/****Decision Status****/
+	private String decisionInternalStatus;
+	
+	private String decisionRecommendStatus;
+	
 	@Autowired
     private transient WorkflowDetailsRepository workflowDetailsRepository;
 	
@@ -424,6 +432,16 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 				strItemsCount,strLocale,file);
 	}
 	
+	public static List<WorkflowDetails> findAll(final String strHouseType,
+			final String strSessionType,final String strSessionYear,final String strMotionType,
+			final String strStatus,final String strWorkflowSubType,final String assignee,
+			final String strItemsCount,final String strLocale,final String file,final String group,final Date answeringDate) throws ELSException {
+		return getWorkflowDetailsRepository().findAll(strHouseType,
+				strSessionType,strSessionYear,strMotionType,
+				strStatus,strWorkflowSubType,assignee,
+				strItemsCount,strLocale,file,group,answeringDate);
+	}
+	
 	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUser(final Map<String, String> parameters, 
 			final String orderBy,
 			final int start,
@@ -676,4 +694,34 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public void setAcknowledgementDecision(String acknowledgementDecision) {
 		this.acknowledgementDecision = acknowledgementDecision;
 	}
+
+	public Date getAnsweringDate() {
+		return answeringDate;
+	}
+
+	public void setAnsweringDate(Date chartAnsweringDate) {
+		this.answeringDate = chartAnsweringDate;
+	}
+
+	public String getDecisionInternalStatus() {
+		return decisionInternalStatus;
+	}
+
+	public void setDecisionInternalStatus(String decisionInternalStatus) {
+		this.decisionInternalStatus = decisionInternalStatus;
+	}
+
+	public String getDecisionRecommendStatus() {
+		return decisionRecommendStatus;
+	}
+
+	public void setDecisionRecommendStatus(String decisionRecommendStatus) {
+		this.decisionRecommendStatus = decisionRecommendStatus;
+	}
+
+
+	
+	
+	
+	
 }
