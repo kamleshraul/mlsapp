@@ -105,13 +105,21 @@
 						
 						<fo:block text-align="left">
 							<fo:block>प्रति,</fo:block>						
-							<fo:block font-weight="bold" margin-left="1cm"><xsl:value-of select="$primaryMemberName"/>
-							<xsl:if test="hasMoreMembers='yes'">
+							<fo:block font-weight="bold" margin-left="1cm"><xsl:value-of select="primaryMemberName"/>
+							<xsl:choose>
+							<xsl:when test="hasMoreMembers='yes'">
 								<xsl:choose>
 									<xsl:when test="houseType='lowerhouse'"> व इतर वि.स.स.</xsl:when>
 									<xsl:when test="houseType='upperhouse'"> व इतर वि.प.स.</xsl:when>
 								</xsl:choose>
-							</xsl:if>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:choose>
+									<xsl:when test="houseType='lowerhouse'">, वि.स.स.</xsl:when>
+									<xsl:when test="houseType='upperhouse'">, वि.प.स.</xsl:when>
+								</xsl:choose> 
+							</xsl:otherwise>
+							</xsl:choose>
 							</fo:block>							
 						</fo:block>		
 						

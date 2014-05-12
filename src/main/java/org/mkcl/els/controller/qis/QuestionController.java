@@ -4216,6 +4216,15 @@ public class QuestionController extends GenericController<Question>{
 				}
 				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
 				letterVO.setQuestionText(formattedText);		
+				Member primaryMember = question.getPrimaryMember();
+				if(primaryMember!=null) {
+					String primaryMemberName = primaryMember.findFirstLastName();
+					if(primaryMemberName!=null) {
+						letterVO.setPrimaryMemberName(primaryMemberName);
+					} else {
+						letterVO.setPrimaryMemberName("");
+					}
+				}
 				String allMemberNames = null;
 				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 					allMemberNames = question.findAllMemberNamesWithConstituencies();
