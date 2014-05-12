@@ -106,6 +106,9 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 							}
 							workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getSession().getYear()));
 						}
+						if(question.getChartAnsweringDate()!=null){
+							workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+						}
 						workflowDetails.setSubject(question.getSubject());
 						workflowDetails.setText(question.getQuestionText());
 					}
@@ -212,6 +215,9 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 								}
 								if(question.getGroup()!=null){
 									workflowDetails.setGroupNumber(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getGroup().getNumber()));
+								}
+								if(question.getChartAnsweringDate()!=null){
+									workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 								}
 								workflowDetails.setRemarks(question.getRemarks());
 								if(question.getSession()!=null){
@@ -701,6 +707,66 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			}else{
 				query.setParameter("status",strStatus);
 				query.setParameter("workflowSubType",strWorkflowSubType);
+			}
+			query.setMaxResults(Integer.parseInt(strItemsCount));
+			workflowDetails=query.getResultList();
+			return workflowDetails;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findAll", "WorkflowDetails Not found");
+			throw elsException;
+		}
+	}
+	
+	public List<WorkflowDetails> findAll(String strHouseType,
+			String strSessionType, String strSessionYear, String strDeviceType,
+			String strStatus, String strWorkflowSubType, String assignee,
+			String strItemsCount, String strLocale, String file, String group,
+			Date answeringDate) throws ELSException {
+		StringBuffer buffer=new StringBuffer();
+		buffer.append("SELECT wd FROM WorkflowDetails wd" +
+				" WHERE houseType=:houseType"+
+				" AND sessionType=:sessionType" +
+				" AND sessionYear=:sessionYear"+
+				" AND assignee=:assignee" +
+				" AND deviceType=:deviceType"+
+				" AND locale=:locale");
+		if(file!=null&&!file.isEmpty()&&!file.equals("-")){
+			buffer.append(" AND file=:file");
+		}else{
+			buffer.append(" AND status=:status");
+			buffer.append(" AND workflowSubType=:workflowSubType");
+		}
+		
+		if(group!=null && !group.isEmpty()){
+			buffer.append(" AND groupNumber=:group");
+		}
+		if(answeringDate!=null){
+			buffer.append(" AND answeringDate=:answeringDate");
+		}
+		buffer.append(" ORDER BY device_number");
+		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
+		try{
+			Query query=this.em().createQuery(buffer.toString());
+			query.setParameter("houseType",strHouseType);
+			query.setParameter("sessionType",strSessionType);
+			query.setParameter("sessionYear",strSessionYear);
+			query.setParameter("assignee",assignee);
+			query.setParameter("deviceType",strDeviceType);
+			query.setParameter("locale",strLocale);
+			if(file!=null&&!file.isEmpty()&&!file.equals("-")){
+				query.setParameter("file",file);
+			}else{
+				query.setParameter("status",strStatus);
+				query.setParameter("workflowSubType",strWorkflowSubType);
+			}
+			if(group!=null &&!group.isEmpty()){
+				query.setParameter("group", group);
+			}
+			if(answeringDate!=null){
+				query.setParameter("answeringDate", answeringDate);
 			}
 			query.setMaxResults(Integer.parseInt(strItemsCount));
 			workflowDetails=query.getResultList();
