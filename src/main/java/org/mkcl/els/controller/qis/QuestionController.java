@@ -1182,7 +1182,7 @@ public class QuestionController extends GenericController<Question>{
 							||internalStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
 							||internalStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)
 							||internalStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
-							)){
+							||internalStatusType.equals(ApplicationConstants.QUESTION_PUTUP_REJECTION))){
 				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUsergroup));
 				List<Reference> actors=WorkflowConfig.findQuestionActorsVO(domain, internalStatus, userGroup, 1, locale);
 				model.addAttribute("internalStatusSelected",internalStatus.getId());
