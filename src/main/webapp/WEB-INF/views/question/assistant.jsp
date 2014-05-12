@@ -1164,7 +1164,7 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<c:if test="${(internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing' &&selectedQuestionType=='questions_starred')
+	<c:if test="${(internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred' &&selectedQuestionType=='questions_starred')
 	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
 	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
 	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
@@ -1255,7 +1255,7 @@
 			<c:when test="${bulkedit!='yes'}">
 				<c:if test="${internalStatusType=='question_submit'
 							||internalStatusType=='question_system_assistantprocessed'
-							||(internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_system_groupchanged' && selectedQuestionType=='questions_starred')
+							||(internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_system_groupchanged' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred' && selectedQuestionType=='questions_starred')
 							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
 							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
 							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
