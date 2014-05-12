@@ -1730,9 +1730,12 @@ public class QuestionWorkflowController  extends BaseController{
 						}
 					}			
 				}
-
+				workflowDetails.setAnsweringDate(domain.getChartAnsweringDate().getAnsweringDate());
+				workflowDetails.setDecisionInternalStatus(domain.getInternalStatus().getName());
+				workflowDetails.setDecisionRecommendStatus(domain.getRecommendationStatus().getName());
 				workflowDetails.setStatus("COMPLETED");
 				workflowDetails.setCompletionTime(new Date());
+				
 				workflowDetails.merge();		
 				/**** display message ****/
 				model.addAttribute("type","taskcompleted");
@@ -1770,6 +1773,8 @@ public class QuestionWorkflowController  extends BaseController{
 			String strItemsCount=request.getParameter("itemsCount");
 			String strFile=request.getParameter("file");
 			String strLocale=locale.toString();
+			String strAnsweringDate=request.getParameter("answeringDate");
+			String strGroup=request.getParameter("group");
 			/**** usergroup,usergroupType,role *****/
 			List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
 			String strUserGroupType=null;
@@ -1874,6 +1879,8 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("itemscount", strItemsCount);
 				model.addAttribute("file", strFile);
 				model.addAttribute("workflowSubType",strWorkflowSubType);
+				model.addAttribute("answeringDate",strAnsweringDate);
+				model.addAttribute("group", strGroup);
 			}
 			return "workflow/question/bulkapprovalinit";		
 		}catch (ELSException ee) {
@@ -2007,6 +2014,9 @@ public class QuestionWorkflowController  extends BaseController{
 							wfDetails.setInternalStatus(question.getInternalStatus().getName());
 							wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
 							wfDetails.setCompletionTime(new Date());
+							wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+							wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
+							wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
 							wfDetails.merge();
 							/**** Update Motion ****/
 							question.setEditedOn(new Date());
@@ -2058,6 +2068,8 @@ public class QuestionWorkflowController  extends BaseController{
 		String strWorkflowSubType=request.getParameter("workflowSubType");
 		String strLocale=locale.toString();	
 		String assignee=this.getCurrentUser().getActualUsername();
+		String strAnsweringDate=request.getParameter("answeringDate");
+		String strGroup=request.getParameter("group");
 		if(strHouseType!=null&&!(strHouseType.isEmpty())
 				&&strSessionType!=null&&!(strSessionType.isEmpty())
 				&&strSessionYear!=null&&!(strSessionYear.isEmpty())
@@ -2070,13 +2082,21 @@ public class QuestionWorkflowController  extends BaseController{
 				&&strFile!=null&&!(strFile.isEmpty())
 				&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){	
 			model.addAttribute("workflowSubType", strWorkflowSubType);
+			Date answeringDate=null;
+			if(strAnsweringDate!=null && !strAnsweringDate.isEmpty()){
+				 answeringDate=FormaterUtil.formatStringToDate(strAnsweringDate, ApplicationConstants.DB_DATEFORMAT);
+			}
 			/**** Workflow Details ****/
 			List<WorkflowDetails> workflowDetails = null;
 			try {
+				/*workflowDetails = WorkflowDetails.
+						findAll(strHouseType,strSessionType,strSessionYear,
+								strQuestionType,strStatus,strWorkflowSubType,
+								assignee,strItemsCount,strLocale,strFile);*/
 				workflowDetails = WorkflowDetails.
 						findAll(strHouseType,strSessionType,strSessionYear,
 								strQuestionType,strStatus,strWorkflowSubType,
-								assignee,strItemsCount,strLocale,strFile);
+								assignee,strItemsCount,strLocale,strFile,strGroup,answeringDate);
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
