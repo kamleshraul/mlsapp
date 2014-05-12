@@ -981,8 +981,7 @@
 	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
 		<p>
 			<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
-			<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
-			<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+			<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>			
 		</p>
 	</c:if>
 	
@@ -997,7 +996,6 @@
 	<p style="display:none;" class="revise3" id="revisedReasonDiv">
 	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
 	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p style="display:none;" class="revise4" id="revisedBriefExplanationDiv">
@@ -1037,6 +1035,10 @@
 		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
 		</p>
 	</c:if>
+	
+	<p style="text-align: right; width: 720px;">
+		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+	</p>
 	<table class="uiTable" style="margin-left:165px;">
 	<thead>
 	<tr>
@@ -1089,39 +1091,48 @@
 	</c:otherwise>
 	</c:choose>
 	</c:forEach>	
+	<c:if test="${workflowstatus != 'COMPLETED'}">
+		<tr>
+			<td>
+				${userName}<br>
+				${userGroupName}
+			</td>
+			<td>
+				<select id="changeInternalStatus" class="sSelect">
+					<c:forEach items="${internalStatuses}" var="i">
+						<c:choose>
+							<c:when test="${i.type=='question_system_groupchanged' }">
+								<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+							</c:when>
+							<c:otherwise>
+								<c:choose>
+									<c:when test="${i.id==internalStatus }">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:otherwise>
+										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+									</c:otherwise>
+								</c:choose>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+			</td>
+			<td>
+				<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+			</td>
+		</tr>
+	</c:if>	
 	</tbody>
 	</table>
-	<c:if test="${workflowstatus!='COMPLETED' }">	
-	<p>
-	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
-	<select id="changeInternalStatus" class="sSelect">
-		<c:forEach items="${internalStatuses}" var="i">
-			<c:choose>
-				<c:when test="${i.type=='question_system_groupchanged' }">
-					<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-				</c:when>
-				<c:otherwise>
-					<c:choose>
-						<c:when test="${i.id==internalStatus }">
-							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-						</c:when>
-						<c:otherwise>
-							<c:choose>
-								<c:when test="${fn:contains(i.type,nextInternalStatus)}">
-									<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-								</c:when>
-								<c:otherwise>
-									<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-								</c:otherwise>
-							</c:choose>
-									
-						</c:otherwise>
-					</c:choose>
-				</c:otherwise>
-			</c:choose>
-		</c:forEach>
-	</select>
+	<c:if test="${workflowstatus != 'COMPLETED'}">
+		<p>
+			 <a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
+		</p>
+	</c:if>
 	
+	<c:if test="${workflowstatus!='COMPLETED' }">	
+	<p>	
 	<select id="internalStatusMaster" style="display:none;">
 	<c:forEach items="${internalStatuses}" var="i">
 	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
@@ -1156,10 +1167,6 @@
 		</p>
 		</c:if>
 	</c:if>
-		
-	<p>
-	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
-	</p>
 	
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>

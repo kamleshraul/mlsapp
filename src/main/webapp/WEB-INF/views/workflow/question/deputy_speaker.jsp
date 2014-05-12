@@ -1013,7 +1013,6 @@
 				<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 			</c:if>
 		</c:if>
-		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	
 	<p style="display:none;" class="revise3" id="revisedReasonDiv">
@@ -1052,6 +1051,10 @@
 	<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
 	</p>
 	</c:if>
+	
+	<p style="text-align: right; width: 720px;">
+		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+	</p>
 	<table class="uiTable" style="margin-left:165px;">
 	<thead>
 	<tr>
@@ -1104,30 +1107,48 @@
 	</c:otherwise>
 	</c:choose>
 	</c:forEach>	
+	<c:if test="${workflowstatus != 'COMPLETED'}">
+		<tr>
+			<td>
+				${userName}<br>
+				${userGroupName}
+			</td>
+			<td>
+				<select id="changeInternalStatus" class="sSelect">
+					<c:forEach items="${internalStatuses}" var="i">
+						<c:choose>
+							<c:when test="${i.type=='question_system_groupchanged' }">
+								<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+							</c:when>
+							<c:otherwise>
+								<c:choose>
+									<c:when test="${i.id==internalStatus }">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:otherwise>
+										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+									</c:otherwise>
+								</c:choose>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+			</td>
+			<td>
+				<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+			</td>
+		</tr>
+	</c:if>	
 	</tbody>
 	</table>
+	<c:if test="${workflowstatus != 'COMPLETED'}">
+		<p>
+			 <a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
+		</p>
+	</c:if>
+	
 	<c:if test="${workflowstatus!='COMPLETED' }">	
 	<p>
-	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
-	<select id="changeInternalStatus" class="sSelect">
-	<c:forEach items="${internalStatuses}" var="i">
-	<c:choose>
-	<c:when test="${i.type=='question_system_groupchanged' }">
-	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<c:choose>
-	<c:when test="${i.id==internalStatus }">
-	<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-	</c:otherwise>
-	</c:choose>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>
 	
 	<select id="internalStatusMaster" style="display:none;">
 	<c:forEach items="${internalStatuses}" var="i">
@@ -1164,15 +1185,6 @@
 		</c:if>
 	</c:if>
 		
-	<p>
-	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
-	</p>
-	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
-	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>	
-	
 	<c:if test="${workflowstatus!='COMPLETED' }">
 	<div class="fields">
 		<h2></h2>
