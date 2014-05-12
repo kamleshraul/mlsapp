@@ -1495,10 +1495,10 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final Question question, 
+	public List<ClubbedEntity> findClubbedEntitiesByChartAnsweringDateQuestionNumber(final Question question, 
 			final String sortOrder, final String locale) {
 		String strQuery = "SELECT m  FROM Question q JOIN q.clubbedEntities m" +
-				" WHERE q.id=:questionId ORDER BY m.question.number " + sortOrder;
+				" WHERE q.id=:questionId ORDER BY m.question.chartAnsweringDate,m.question.number " + sortOrder;
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("questionId", question.getId());
 		return query.getResultList();
