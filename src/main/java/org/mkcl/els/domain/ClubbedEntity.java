@@ -152,46 +152,45 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
      */
     public DeviceType getDeviceType() {
         return deviceType;
-    }
+    }    
     
-    public static String club(final Long questionBeingProcessed,final Long questionBeingClubbed,final String locale){
-        return getClubbedEntityRepository().club(questionBeingProcessed,questionBeingClubbed,locale);
-    }
-    
-    public static String clubBill(final Long billBeingProcessed,final Long billBeingClubbed,final String locale){
-        return getClubbedEntityRepository().clubBill(billBeingProcessed,billBeingClubbed,locale);
-    }
-    
-    public static String unclub(final Long questionBeingProcessed,final Long questionBeingClubbed,final String locale){
-        return getClubbedEntityRepository().unclub(questionBeingProcessed,questionBeingClubbed,locale);
-    }
-    
-    public static Question unclubWithoutMerge(final Question questionBeingProcessed,final Question questionBeingClubbed,final String locale){
-        return getClubbedEntityRepository().unclubWithoutMerge(questionBeingProcessed,questionBeingClubbed,locale);
-    }
-    
-    public static String unclubBill(final Long billBeingProcessed,final Long billBeingClubbed,final String locale){
-        return getClubbedEntityRepository().unclubBill(billBeingProcessed,billBeingClubbed,locale);
-    }
-    
+    /**** Search questions for clubbing ****/
     public static List<QuestionSearchVO> fullTextSearchClubbing(final String param,
 			final Question question,final int start,final int noOfRecords,final String locale,final Map<String, String[]> requestMap) {
 		return getClubbedEntityRepository().fullTextSearchClubbing(param, question, start, noOfRecords, locale,requestMap);
 	}
     
-    public static List<BillSearchVO> fullTextSearchClubbing(final String param,
-			final Bill bill,final int start,final int noOfRecords,final String locale,final Map<String, String[]> requestMap) {
-		return getClubbedEntityRepository().fullTextSearchClubbing(param, bill, start, noOfRecords, locale,requestMap);
-	}
-
-    /**
-     * If @param question has clubbings then remove @param question 
-     * as the parent of it's clubbings. Elect a new parent from among
-     * the clubbings.
-     * 
-     * Return null if @param question has no clubbings, else
-     * Return the new elected parent. 
-     */
+    /**** Club question ****/
+    public static String club(final Long questionBeingProcessed,final Long questionBeingClubbed,final String locale){
+        return getClubbedEntityRepository().club(questionBeingProcessed,questionBeingClubbed,locale);
+    }
+    
+    /**** Update the clubbing of given question ****/
+   	public static Question updateClubbing(final Question domain) {
+   		return getClubbedEntityRepository().updateClubbing(domain);
+   	}   	
+    
+    /**** Unclub question and its parent ****/
+   	public static Question unclub(final Question domain){
+   		return getClubbedEntityRepository().unclub(domain);
+   	}
+   	
+   	/**** Unclub question and its parent ****/
+   	public static Question unclubChildrenWithStatus(final Question domain,final Status status){
+   		return getClubbedEntityRepository().unclubChildrenWithStatus(domain,status);
+   	}
+   	
+	/**** Unclub question ****/
+    public static String unclub(final Long questionBeingProcessed,final Long questionBeingClubbed,final String locale){
+        return getClubbedEntityRepository().unclub(questionBeingProcessed,questionBeingClubbed,locale);
+    }
+    
+    /**** Unclub question ****/
+    public static Question unclubWithoutMerge(final Question questionBeingProcessed,final Question questionBeingClubbed,final String locale){
+        return getClubbedEntityRepository().unclubWithoutMerge(questionBeingProcessed,questionBeingClubbed,locale);
+    }
+    
+    /**** Remove Parent ****/
     public static Question removeParent(final Question question) {
     	Question newParent = question;
     	
@@ -221,4 +220,18 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     	
     	return newParent;
     }
+    
+    public static List<BillSearchVO> fullTextSearchClubbing(final String param,
+			final Bill bill,final int start,final int noOfRecords,final String locale,final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, bill, start, noOfRecords, locale,requestMap);
+	}
+
+    public static String clubBill(final Long billBeingProcessed,final Long billBeingClubbed,final String locale){
+        return getClubbedEntityRepository().clubBill(billBeingProcessed,billBeingClubbed,locale);
+    }   
+    
+    public static String unclubBill(final Long billBeingProcessed,final Long billBeingClubbed,final String locale){
+        return getClubbedEntityRepository().unclubBill(billBeingProcessed,billBeingClubbed,locale);
+    }
+    
 }
