@@ -476,7 +476,7 @@
 	function generateIntimationLetter() {			
 		var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 		if(selectedQuestionId.length<1) {
-			$.prompt("Please select a question first!");
+			$.prompt($('#selectRowFirstMessage').val());
 			return false;
 		} else if(selectedQuestionId.length>1) {
 			$.prompt("Please select only one question!");
@@ -822,39 +822,23 @@
 
 		<div class="tabContent"></div>
 
-		<input type="hidden" id="key" name="key"> <input type="hidden"
-			name="ugparam" id="ugparam" value="${ugparam }"> <input
-			type="hidden" name="srole" id="srole" value="${role }"> <input
-			type="hidden" name="currentusergroup" id="currentusergroup"
-			value="${usergroup}"> <input type="hidden"
-			name="currentusergroupType" id="currentusergroupType"
-			value="${usergroupType}"> <input type="hidden"
-			name="currentDeviceType" id="currentDeviceType"
-			value="${questionTypeType}"> <input type="hidden"
-			name="currentHouseType" id="currentHouseType" value="${houseType}">
-
-		<input type="hidden" name="pleaseSelect" id="pleaseSelect"
-			value="<spring:message code='please.select' text='Please Select'/>">
-		<input type="hidden" id="ballotSuccessMsg"
-			value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">
-		<input type="hidden" id="ballotAlreadyCreatedMsg"
-			value="<spring:message code='ballot.success' text='Member Ballot Already Created'/>">
-		<input type="hidden" id="ballotFailedMsg"
-			value="<spring:message code='ballot.failed' text='Member Ballot Couldnot be Created.Try Again'/>">
-		<input type="hidden" id="selectAttendanceRoundMsg"
-			value="<spring:message code='ballot.selectattendanceround' text='Please Select Attendance Type And Round First'/>">
-		<input type="hidden" id="selectRowFirstMessage"
-			name="selectRowFirstMessage"
-			value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>"
-			disabled="disabled"> <input type="hidden"
-			id="confirmDeleteMessage" name="confirmDeleteMessage"
-			value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>"
-			disabled="disabled"> <input type="hidden" id="allowedGroups"
-			name="allowedGroups" value="${allowedGroups }"> <input
-			type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
-		<input type="hidden" id="chartAnsweringDate" name="chartAnsweringDate"
-			value="-"> <input type="hidden" id="ErrorMsg"
-			value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>" />
+		<input type="hidden" id="key" name="key"> <input type="hidden" name="ugparam" id="ugparam" value="${ugparam }">
+		<input type="hidden" name="srole" id="srole" value="${role }">
+		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">
+		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">
+		<input type="hidden" name="currentDeviceType" id="currentDeviceType" value="${questionTypeType}">
+		<input type="hidden" name="currentHouseType" id="currentHouseType" value="${houseType}">
+		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">
+		<input type="hidden" id="ballotSuccessMsg" value="<spring:message code='ballot.success' text='Member Ballot Created Succesfully'/>">
+		<input type="hidden" id="ballotAlreadyCreatedMsg" value="<spring:message code='ballot.success' text='Member Ballot Already Created'/>">
+		<input type="hidden" id="ballotFailedMsg" value="<spring:message code='ballot.failed' text='Member Ballot Couldnot be Created.Try Again'/>">
+		<input type="hidden" id="selectAttendanceRoundMsg" value="<spring:message code='ballot.selectattendanceround' text='Please Select Attendance Type And Round First'/>">
+		<input type="hidden" id="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
+		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
+		<input type="hidden" id="allowedGroups" name="allowedGroups" value="${allowedGroups }">
+		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
+		<input type="hidden" id="chartAnsweringDate" name="chartAnsweringDate" value="-">
+		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>" />
 	</div>
 </body>
 </html>
