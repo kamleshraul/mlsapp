@@ -4269,7 +4269,11 @@ public class QuestionController extends GenericController<Question>{
 				}
 				
 				/** referenced question details (later should come through referenced entities) **/
-				letterVO.setQuestionReferenceText(question.getQuestionreferenceText());		
+				if(question.getQuestionreferenceText()!=null) {
+					letterVO.setQuestionReferenceText(question.getQuestionreferenceText());
+				} else {
+					letterVO.setQuestionReferenceText("");
+				}
 				
 				Status status = question.getInternalStatus();	
 				String statusType=status.getType();
