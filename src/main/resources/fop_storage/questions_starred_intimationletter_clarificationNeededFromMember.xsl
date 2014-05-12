@@ -96,11 +96,11 @@
 							<fo:block margin-left="1cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 						</fo:block>	
 						
-						<fo:block font-size="6px">&#160;</fo:block>					
+						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block text-align="left">
 							<fo:block>प्रति,</fo:block>						
-							<fo:block font-weight="bold" margin-left="1cm"><xsl:value-of select="primaryMemberName"/>
+							<fo:block font-weight="bold" margin-left="1cm"><xsl:value-of select="substring-before(memberNames,',')"/>
 							<xsl:if test="hasMoreMembers='yes'">
 								<xsl:choose>
 									<xsl:when test="houseType='lowerhouse'"> व इतर वि.स.स.</xsl:when>
