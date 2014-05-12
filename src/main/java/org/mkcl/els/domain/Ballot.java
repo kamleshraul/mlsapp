@@ -1982,29 +1982,30 @@ public class Ballot extends BaseDomain implements Serializable {
 				deviceVO.setNumber(questionSequenceVO.getNumber());
 				deviceVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(questionSequenceVO.getNumber(), locale));
 				Question q = Question.findById(Question.class, questionSequenceVO.getQuestionId());
-				String memberNames="";
-				Member member=q.getPrimaryMember();
-				if(member!=null){
-					memberNames+=member.findFirstLastName();
-				}
-				List<SupportingMember> selectedSupportingMembers=q.getSupportingMembers();					
-				if(selectedSupportingMembers!=null){
-					if(!selectedSupportingMembers.isEmpty()){
-						StringBuffer bufferFirstNamesFirst=new StringBuffer();
-						for(SupportingMember sm:selectedSupportingMembers){
-							Member m=sm.getMember();
-							bufferFirstNamesFirst.append(m.findFirstLastName()+",");								
-						}
-						bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
-						memberNames+=","+bufferFirstNamesFirst.toString();
-					}
-				}					
-				deviceVO.setMemberNames(memberNames);
-				deviceVO.setSubject(q.getRevisedSubject());
+//				String memberNames="";
+//				Member member=q.getPrimaryMember();
+//				if(member!=null){
+//					memberNames+=member.findFirstLastName();
+//				}
+//				List<SupportingMember> selectedSupportingMembers=q.getSupportingMembers();					
+//				if(selectedSupportingMembers!=null){
+//					if(!selectedSupportingMembers.isEmpty()){
+//						StringBuffer bufferFirstNamesFirst=new StringBuffer();
+//						for(SupportingMember sm:selectedSupportingMembers){
+//							Member m=sm.getMember();
+//							bufferFirstNamesFirst.append(m.findFirstLastName()+",");								
+//						}
+//						bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
+//						memberNames+=","+bufferFirstNamesFirst.toString();
+//					}
+//				}					
+				deviceVO.setMemberNames(q.findAllMemberNames());
+				deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
 				String content = q.getRevisedQuestionText();
 				if(content != null) {
 					if(content.endsWith("<br><p></p>")) {
 						content = content.substring(0, content.length()-11);
+						content = FormaterUtil.formatNumbersInGivenText(content, locale);
 					}
 				}				
 				deviceVO.setContent(content);		
@@ -2012,6 +2013,7 @@ public class Ballot extends BaseDomain implements Serializable {
 				if(answer != null) {
 					if(answer.endsWith("<br><p></p>")) {
 						answer = answer.substring(0, answer.length()-11);
+						answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 					}
 				}				
 				deviceVO.setAnswer(answer);				
@@ -2171,29 +2173,30 @@ public class Ballot extends BaseDomain implements Serializable {
 					deviceVO.setNumber(questionSequenceVOs.get(j).getNumber());
 					deviceVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(questionSequenceVOs.get(j).getNumber(), locale));
 					Question q = Question.findById(Question.class, questionSequenceVOs.get(j).getQuestionId());
-					String memberNames="";
-					Member member=q.getPrimaryMember();
-					if(member!=null){
-						memberNames+=member.findFirstLastName();
-					}
-					List<SupportingMember> selectedSupportingMembers=q.getSupportingMembers();					
-					if(selectedSupportingMembers!=null){
-						if(!selectedSupportingMembers.isEmpty()){
-							StringBuffer bufferFirstNamesFirst=new StringBuffer();
-							for(SupportingMember k:selectedSupportingMembers){
-								Member m=k.getMember();
-								bufferFirstNamesFirst.append(m.findFirstLastName()+",");								
-							}
-							bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
-							memberNames+=","+bufferFirstNamesFirst.toString();
-						}
-					}					
-					deviceVO.setMemberNames(memberNames);
-					deviceVO.setSubject(q.getRevisedSubject());
+//					String memberNames="";
+//					Member member=q.getPrimaryMember();
+//					if(member!=null){
+//						memberNames+=member.findFirstLastName();
+//					}
+//					List<SupportingMember> selectedSupportingMembers=q.getSupportingMembers();					
+//					if(selectedSupportingMembers!=null){
+//						if(!selectedSupportingMembers.isEmpty()){
+//							StringBuffer bufferFirstNamesFirst=new StringBuffer();
+//							for(SupportingMember k:selectedSupportingMembers){
+//								Member m=k.getMember();
+//								bufferFirstNamesFirst.append(m.findFirstLastName()+",");								
+//							}
+//							bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
+//							memberNames+=","+bufferFirstNamesFirst.toString();
+//						}
+//					}					
+					deviceVO.setMemberNames(q.findAllMemberNames());
+					deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
 					String content = q.getRevisedQuestionText();
 					if(content != null) {
 						if(content.endsWith("<br><p></p>")) {
 							content = content.substring(0, content.length()-11);
+							content = FormaterUtil.formatNumbersInGivenText(content, locale);
 						}
 					}				
 					deviceVO.setContent(content);		
@@ -2201,6 +2204,7 @@ public class Ballot extends BaseDomain implements Serializable {
 					if(answer != null) {
 						if(answer.endsWith("<br><p></p>")) {
 							answer = answer.substring(0, answer.length()-11);
+							answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 						}
 					}				
 					deviceVO.setAnswer(answer);				
