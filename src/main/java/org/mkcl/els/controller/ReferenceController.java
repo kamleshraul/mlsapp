@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.groovy.antlr.AntlrParserPlugin;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -5178,4 +5179,62 @@ public class ReferenceController extends BaseController {
 		model.addAttribute("data","data");
 		return "question/dummy";
 	}
+	
+	@RequestMapping(value="/getChartAnsweringDateByGroup", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getChartAnsweringDateFromGroup(HttpServletRequest request, ModelMap model,Locale locale){
+		String strGroup=request.getParameter("group");
+		String strHouseType=request.getParameter("houseType");
+		String strSessionType=request.getParameter("sessionType");
+		String strSessionYear=request.getParameter("sessionYear");
+		List<MasterVO> masterVOs= new ArrayList<MasterVO>();
+		if(strGroup!=null && !strGroup.isEmpty()
+			&& strHouseType!=null && !strHouseType.isEmpty()
+			&& strSessionType!=null && !strSessionType.isEmpty()
+			&& strSessionYear!=null && !strSessionYear.isEmpty()){
+			try {
+				CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				String groupStr = null;
+				String sessionTypeStr=null;
+				String houseTypeStr = null;
+				String sessionYearStr=null;
+				if(csptDeployment!=null){
+					String server=csptDeployment.getValue();
+					if(server.equals("TOMCAT")){
+						groupStr = new String(strGroup.getBytes("ISO-8859-1"),"UTF-8");
+						sessionTypeStr = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+						houseTypeStr = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+						sessionYearStr = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+					}
+				}
+				Integer groupNumber=new Integer(FormaterUtil.getDeciamlFormatterWithNoGrouping(0, locale.toString()).parse(groupStr).toString());
+				HouseType houseType=HouseType.findByName(houseTypeStr, locale.toString());
+				SessionType sessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionTypeStr, locale.toString());
+				Integer sessionYear=new Integer(FormaterUtil.getDeciamlFormatterWithNoGrouping(0,locale.toString()).parse(sessionYearStr).toString());
+				Group group=Group.findByNumberHouseTypeSessionTypeYear(groupNumber, houseType, sessionType, sessionYear);
+				if(group!=null){
+					List<QuestionDates> questionDates=group.getQuestionDates();
+					for(QuestionDates qd:questionDates){
+						MasterVO masterVO=new MasterVO();
+						masterVO.setValue(qd.getAnsweringDate().toString());
+						masterVO.setName(FormaterUtil.formatDateToString(qd.getAnsweringDate(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+						masterVOs.add(masterVO);
+					}
+				}
+						
+				
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return masterVOs;
+			
+	}
+	
 }
