@@ -72,6 +72,14 @@
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">	
+	            	<xsl:variable name="primaryMemberName">						
+						<xsl:choose>
+							<xsl:when test="substring-before(memberNames,',')!=''">
+								<xsl:value-of select="substring-before(memberNames,',')"/>
+							</xsl:when>
+							<xsl:otherwise><xsl:value-of select="memberNames"/></xsl:otherwise>
+						</xsl:choose>					
+					</xsl:variable>
 	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
 						<fo:block text-align="right">
 							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
@@ -97,7 +105,7 @@
 						
 						<fo:block text-align="left">
 							<fo:block>प्रति,</fo:block>						
-							<fo:block font-weight="bold" margin-left="1cm"><xsl:value-of select="substring-before(memberNames,',')"/>
+							<fo:block font-weight="bold" margin-left="1cm"><xsl:value-of select="$primaryMemberName"/>
 							<xsl:if test="hasMoreMembers='yes'">
 								<xsl:choose>
 									<xsl:when test="houseType='lowerhouse'"> व इतर वि.स.स.</xsl:when>

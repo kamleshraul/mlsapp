@@ -561,6 +561,7 @@ public class ApplicationConstants {
 
 	public static final String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT="question_final_clarificationNeededFromMemberAndDepartment";
 
+	public static final String QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT="question_recommend_clarificationNeededFromMemberAndDepartment";
 
 	public static final String QUESTION_FINAL_CLARIFICATION_NOT_RECEIVED_FROM_DEPARTMENT="question_final_clarificationNotReceivedFromDepartment";
 
