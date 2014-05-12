@@ -5193,23 +5193,19 @@ public class ReferenceController extends BaseController {
 			&& strSessionYear!=null && !strSessionYear.isEmpty()){
 			try {
 				CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				String groupStr = null;
-				String sessionTypeStr=null;
-				String houseTypeStr = null;
-				String sessionYearStr=null;
 				if(csptDeployment!=null){
 					String server=csptDeployment.getValue();
 					if(server.equals("TOMCAT")){
-						groupStr = new String(strGroup.getBytes("ISO-8859-1"),"UTF-8");
-						sessionTypeStr = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
-						houseTypeStr = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
-						sessionYearStr = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+						strGroup = new String(strGroup.getBytes("ISO-8859-1"),"UTF-8");
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
 					}
 				}
-				Integer groupNumber=new Integer(FormaterUtil.getDeciamlFormatterWithNoGrouping(0, locale.toString()).parse(groupStr).toString());
-				HouseType houseType=HouseType.findByName(houseTypeStr, locale.toString());
-				SessionType sessionType=SessionType.findByFieldName(SessionType.class, "sessionType", sessionTypeStr, locale.toString());
-				Integer sessionYear=new Integer(FormaterUtil.getDeciamlFormatterWithNoGrouping(0,locale.toString()).parse(sessionYearStr).toString());
+				Integer groupNumber=new Integer(FormaterUtil.getDeciamlFormatterWithNoGrouping(0, locale.toString()).parse(strGroup).toString());
+				HouseType houseType=HouseType.findByName(strHouseType, locale.toString());
+				SessionType sessionType=SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+				Integer sessionYear=new Integer(FormaterUtil.getDeciamlFormatterWithNoGrouping(0,locale.toString()).parse(strSessionYear).toString());
 				Group group=Group.findByNumberHouseTypeSessionTypeYear(groupNumber, houseType, sessionType, sessionYear);
 				if(group!=null){
 					List<QuestionDates> questionDates=group.getQuestionDates();
