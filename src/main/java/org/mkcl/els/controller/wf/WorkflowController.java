@@ -12,6 +12,7 @@ package org.mkcl.els.controller.wf;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.domain.CustomParameter;
@@ -49,7 +51,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 // TODO: Auto-generated Javadoc
 /**
  * The Class WorkflowController.
@@ -229,6 +230,17 @@ public class WorkflowController extends BaseController {
 		if(lastSessionCreated.getId()!=null){
 			year=lastSessionCreated.getYear();
 			model.addAttribute("sessionType",lastSessionCreated.getType().getId());
+			String groupsAllowed=this.getCurrentUser().getGroupsAllowed();
+			if(groupsAllowed!=null && !groupsAllowed.isEmpty()){
+				String groups[]=groupsAllowed.split(",");
+				List<MasterVO> groupNumberVOs=new ArrayList<MasterVO>();
+				for(int i=0;i<groups.length;i++){
+					MasterVO groupNumber=new MasterVO();
+					groupNumber.setName(FormaterUtil.formatNumbersInGivenText(groups[i], locale));
+					groupNumberVOs.add(groupNumber);
+				}
+				model.addAttribute("groups", groupNumberVOs);
+			}
 		}else{
 			model.addAttribute("errorcode","nosessionentriesfound");
 			return errorpage;
