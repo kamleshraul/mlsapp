@@ -98,6 +98,20 @@
 				} */
 			});
 			
+			$('#selectedGroup').change(function(){
+				var value=$(this).val();
+				if(value!=""){
+					loadChartAnsweringDateByGroup(value);
+					$('#answeringDateDiv').css('display','inline-block');
+					
+				}
+				reloadMyTaskGrid();
+			});
+			
+			$('#selectedAnsweringDate').change(function(){
+				reloadMyTaskGrid();
+				
+			});
 			/**** Keyboard Events ****/	
 			$(document).keydown(function (e){
 				if(e.which==83 && e.ctrlKey){
@@ -228,13 +242,17 @@
 						+"&status="+$("#selectedStatus").val()
 						+"&workflowSubType="+$("#selectedSubWorkflow").val()
 						+"&assignee="+$("#assignee").val()
+						+"&group="+$("#selectedGroup").val()
+						+"&answeringDate="+$("#selectedAnsweringDate").val()
 						);
 				var oldURL=$("#grid").getGridParam("url");
 				var baseURL=oldURL.split("?")[0];
 				newURL=baseURL+"?"+$("#gridURLParams").val();
 				$("#grid").setGridParam({"url":newURL});
 				$("#grid").trigger("reloadGrid");							
-		}		
+		}	
+		
+		
 		function loadSubWorkflowByDeviceType(deviceType){
 			$.get('ref/status?deviceType='+ deviceType,function(data){
 				$("#selectedSubWorkflow").empty();
@@ -282,6 +300,8 @@
 				scrollTop();
 			});			
 		} 
+		
+		
 		/**** Bulk Approval ****/
 		function bulkApproval(){
 			var resourceURL="";
@@ -301,7 +321,9 @@
 				status:$("#selectedStatus").val(),
 				workflowSubType:$("#selectedSubWorkflow").val(),
 				itemsCount:$("#selectedItemsCount").val(),
-				file:file
+				file:file,
+				group:$('#selectedGroup').val(),
+				answeringDate:$('#selectedAnsweringDate').val()
 				},function(data){
 				$('a').removeClass('selected');
 				$('#bulkputup_tab').addClass('selected');
@@ -385,6 +407,22 @@
 			$("#selectionDiv1").hide();
 			var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text().split("_")[0];
 			showTabByIdAndUrl('details_tab', "workflow/question/report/currentstatusreport?device="+device+"&grid=workflow&reportType="+val+"&wfdId="+wfdId);
+		}
+		
+		function loadChartAnsweringDateByGroup(value){
+			$.get('ref/getChartAnsweringDateByGroup?group='+$("#selectedGroup").val()
+					+ '&houseType='+$("#selectedHouseType").val()
+					+ '&sessionType='+$("#selectedSessionType").val()
+					+ '&sessionYear='+$("#selectedSessionYear").val(),function(data){
+				var text="<option value=''>"+$('#pleaseSelectOption').val()+"</option>";
+				if(data.length>0){
+					$('#selectedAnsweringDate').empty();
+					for(var i=0;i<data.length;i++){
+						text=text+"<option value='"+data[i].value+"'>"+data[i].name+"</option>";	
+					}
+					$('#selectedAnsweringDate').html(text);
+				}
+			});
 		}
 	</script>
 	
@@ -527,7 +565,25 @@
 			<option value="COMPLETED"><spring:message code="mytask.completed" text="Completed"></spring:message></option>
 			<option value="TIMEOUT"><spring:message code="mytask.timeout" text="Timeout"></spring:message></option>
 			</select> |	
-			<hr>										
+			<hr>
+			<a href="#" id="workflowLabel" class="butSim">
+				<spring:message code="mytask.group" text="Group"/>
+			</a>
+			<select id="selectedGroup" name="selectedGroup" class="sSelect">
+			<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>			
+				<c:forEach items="${groups}" var="i">
+					<option value="${i.name}">${i.name}</option>
+				</c:forEach>			
+			</select>|
+			
+			<div id='answeringDateDiv' style='display: none;' >
+			<a href="#" id="workflowLabel" class="butSim" >
+				<spring:message code="mytask.chartAnsweringDate" text="Answering Date"/>
+			</a>
+			<select id="selectedAnsweringDate" name="selectedAnsweringDate" class="sSelect">
+				<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>
+			</select>|
+			</div>										
 			<a href="#" id="workflowLabel" class="butSim">
 				<spring:message code="mytask.workflow" text="Workflow"/>
 			</a>
@@ -537,6 +593,7 @@
 			<option value="${i.type}">${i.name}</option>
 			</c:forEach>			
 			</select>| 
+			<hr>
 			<c:if test="${usergroupType!='department'}">
 				<a href="#" id="select_itemcount" class="butSim">
 					<spring:message code="device.itemcount" text="No. of Devices(Bulk Putup)"/>

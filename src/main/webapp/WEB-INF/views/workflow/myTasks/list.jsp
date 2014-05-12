@@ -14,6 +14,8 @@
 						+"&status="+$("#selectedStatus").val()
 						+"&workflowSubType="+$("#selectedSubWorkflow").val()
 						+"&assignee="+$("#assignee").val()
+						+"&group="+$("#selectedGroup").val()
+						+"&answeringDate="+$("#selectedAnsweringDate").val()
 						);
 			$('#process').click(function(){
 				process($('#key').val());
