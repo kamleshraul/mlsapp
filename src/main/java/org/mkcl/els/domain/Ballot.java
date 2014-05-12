@@ -2038,18 +2038,11 @@ public class Ballot extends BaseDomain implements Serializable {
 				if(answeringMember != null){
 					deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
 				}
-				if(q.getParent()!=null) {
-					deviceVO.setParent(FormaterUtil.formatNumberNoGrouping(q.getParent().getNumber(), locale));
-					SimpleDateFormat dbFormat = null;
-		            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-			    	if(dbDateFormat!=null){
-			    		dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-			    	}
-					String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-	        		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-	        		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-	        		String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + ", " + strAnsweringDates[2];
-	        		deviceVO.setParentAnsweringDate(formattedAnsweringDate);
+				/** referenced question details (later should come through referenced entities) **/
+				if(q.getQuestionreferenceText()!=null) {
+					deviceVO.setQuestionReferenceText(q.getQuestionreferenceText());
+				} else {
+					deviceVO.setQuestionReferenceText("");
 				}
 				deviceVOs.add(deviceVO);
 			}
@@ -2229,18 +2222,11 @@ public class Ballot extends BaseDomain implements Serializable {
 					if(answeringMember != null){
 						deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
 					}
-					if(q.getParent()!=null) {
-						deviceVO.setParent(FormaterUtil.formatNumberNoGrouping(q.getParent().getNumber(), locale));
-						SimpleDateFormat dbFormat = null;
-			            CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-				    	if(dbDateFormat!=null){
-				    		dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
-				    	}
-						String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
-		        		String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-		        		String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-		        		String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + ", " + strAnsweringDates[2];
-		        		deviceVO.setParentAnsweringDate(formattedAnsweringDate);
+					/** referenced question details (later should come through referenced entities) **/
+					if(q.getQuestionreferenceText()!=null) {
+						deviceVO.setQuestionReferenceText(q.getQuestionreferenceText());
+					} else {
+						deviceVO.setQuestionReferenceText("");
 					}
 					deviceVOs.add(deviceVO);
 				}

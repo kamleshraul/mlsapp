@@ -695,7 +695,8 @@
 				     										}
 				     									</fo:block> -->
 				     									<fo:block>
-														    <fo:external-graphic src="brace.JPG"  content-height="200"  content-width="70" />
+				     										
+														    <!-- <fo:external-graphic src="report_images/brace.JPG"  content-height="200"  content-width="70" /> -->
 														</fo:block>
 				     								</fo:table-cell>
 				     								<fo:table-cell display-align="center">
@@ -746,9 +747,9 @@
                 				<fo:inline vertical-align="super" font-size="11pt">*</fo:inline>
                 				&#160;&#160;<xsl:value-of select="formattedNumber"/>
                 				&#160;&#160;<xsl:value-of select="memberNames"/>&#160;:&#160;
-                				<xsl:if test="parent!=''">
-                				तारांकित प्रश्न क्रमांक <xsl:value-of select="parent"/> ला दिनांक <xsl:value-of select="parentAnsweringDate"/> रोजी दिलेल्या उत्तराच्या संदर्भात :&#160;
-                				</xsl:if>
+                				<xsl:if test="questionReferenceText!=''">
+									<xsl:value-of select="questionReferenceText"/>: &#160;
+								</xsl:if>
                 				<fo:inline font-weight="normal">
                 					सन्माननीय
                 				</fo:inline>

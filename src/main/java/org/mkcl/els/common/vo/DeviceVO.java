@@ -56,6 +56,8 @@ public class DeviceVO {
 		
 		private String kids;
 		
+		private String questionReferenceText;
+		
 		private Boolean isFactualRecieved;
 		
 		public DeviceVO() {
@@ -167,6 +169,14 @@ public class DeviceVO {
 
 		public void setKids(String kids) {
 			this.kids = kids;
+		}
+
+		public String getQuestionReferenceText() {
+			return questionReferenceText;
+		}
+
+		public void setQuestionReferenceText(String questionReferenceText) {
+			this.questionReferenceText = questionReferenceText;
 		}
 
 		public Boolean getIsFactualRecieved() {
