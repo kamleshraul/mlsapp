@@ -1495,6 +1495,15 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final Question question, 
+			final String sortOrder, final String locale) {
+		String strQuery = "SELECT m  FROM Question q JOIN q.clubbedEntities m" +
+				" WHERE q.id=:questionId ORDER BY m.question.number " + sortOrder;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("questionId", question.getId());
+		return query.getResultList();
+	}
+	
 	public List<ClubbedEntity> findClubbedEntitiesByChartAnsweringDateQuestionNumber(final Question question, 
 			final String sortOrder, final String locale) {
 		String strQuery = "SELECT m  FROM Question q JOIN q.clubbedEntities m" +
@@ -2503,5 +2512,18 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			logger.error(e.getMessage());
 			return false;
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByChartAnsDateNumber(
+			final Question question,final String locale) {
+		String strQuery="Select ce from Question q JOIN q.clubbedEntities ce JOIN ce.question ceq "
+				+ "WHERE q.id=:question and q.locale=:locale "
+				+ "ORDER BY ceq.chartAnsweringDate.answeringDate "+ApplicationConstants.ASC+","
+						+ "ceq.number "+ApplicationConstants.ASC;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("question",question.getId());
+		query.setParameter("locale",locale);				
+		return query.getResultList();
 	}
 }
