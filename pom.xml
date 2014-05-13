@@ -324,12 +324,12 @@
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
 			<version>1.6.2</version>
-		</dependency>
+		</dependency>		
 		<dependency>
-			<groupId>velocity</groupId>
+			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
-			<version>1.5</version>
-		</dependency>
+			<version>1.6</version>
+		</dependency>		            
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
