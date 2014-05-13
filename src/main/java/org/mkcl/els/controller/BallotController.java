@@ -2321,22 +2321,24 @@ public class BallotController extends BaseController{
 			final HttpServletRequest request,
 			final Locale locale){
 		try{
-			Boolean status=false;
 			String strSession=request.getParameter("session");
 			String strDeviceType=request.getParameter("questionType");
 			if(strSession!=null&&strDeviceType!=null){
 				Session session=Session.findById(Session.class,Long.parseLong(strSession));
 				DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
-				Integer primaryInMBCount=MemberBallot.findPrimaryCount(session,deviceType,locale.toString());
-				int start=0;
-				int size=50;
-				for(int i=start;i<primaryInMBCount;i=i+size){
-					status=MemberBallot.updateClubbing(session,deviceType,i,i+size,locale.toString());
-				}
-				if(status){
-					status=MemberBallot.deleteTempEntries();
-				}
-				if(!status){
+				String startTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+				String endTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+				
+				Map<String,String[]> requestMap=new HashMap<String, String[]>();
+				requestMap.put("locale",new String[]{locale.toString()});
+				requestMap.put("sessionid",new String[]{String.valueOf(session.getId())});
+				requestMap.put("deviceTypeId",new String[]{String.valueOf(deviceType.getId())});
+				requestMap.put("startDate",new String[]{startTime});
+				requestMap.put("endDate",new String[]{endTime});
+				requestMap.put("statusType",new String[]{ApplicationConstants.QUESTION_FINAL_ADMISSION});
+				
+				boolean updateClubbingStatus=MemberBallot.updateClubbing(session, deviceType, requestMap, locale.toString());	
+				if(!updateClubbingStatus){
 					model.addAttribute("type", "MEMBERBALLOTUPDATECLUBBING_FAILED");
 					return "ballot/error";
 				}
