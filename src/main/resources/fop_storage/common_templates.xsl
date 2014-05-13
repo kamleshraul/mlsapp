@@ -20,7 +20,11 @@
     =============================================== -->    
     <xsl:template match="br">     	
     	<fo:block> </fo:block>&#160;  	
-    </xsl:template>     
+    </xsl:template>
+    
+    <xsl:template match="hr">     	
+    	<fo:block><fo:leader leader-length="100%" leader-pattern="rule"/></fo:block>  	
+    </xsl:template>        
   	
   	<!--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    process common attributes and children
@@ -274,11 +278,11 @@
     </fo:block>
   </xsl:template>
 
-  <xsl:template match="hr">
+  <!-- <xsl:template match="hr">
     <fo:block xsl:use-attribute-sets="hr">
       <xsl:call-template name="process-common-attributes"/>
     </fo:block>
-  </xsl:template>
+  </xsl:template> -->
 
   <xsl:template match="div | DIV">
     <!-- need fo:block-container? or normal fo:block -->
