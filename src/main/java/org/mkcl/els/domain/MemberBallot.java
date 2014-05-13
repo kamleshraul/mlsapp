@@ -462,6 +462,11 @@ public class MemberBallot extends BaseDomain implements Serializable {
 		return getMemberBallotRepository().getMemberBallotVOs(session, deviceType, attendance, round, group, answeringDate, locale);
 	}
 	
+	public static boolean updateClubbing(final Session session,final DeviceType deviceType
+			,final Map<String,String[]> requestMap,final String locale) throws ELSException{			
+			return getMemberBallotRepository().updateClubbing(session,deviceType,requestMap,locale);		
+	}
+	
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
@@ -489,8 +494,5 @@ public class MemberBallot extends BaseDomain implements Serializable {
 
 	public Integer getPseudoPosition() {
 		return pseudoPosition;
-	}
-
-
-	
+	}	
 }
