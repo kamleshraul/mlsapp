@@ -553,6 +553,7 @@ public class ReportServiceImpl implements IReportService {
 			
 			//convert improper html tags into proper xhtml tags
 			content = content.replaceAll("br", "br/");
+			content = content.replaceAll("hr", "hr/");
 			
 			//handle character entities
 			content = content.replaceAll("&amp;tilde;", "&#126;");
