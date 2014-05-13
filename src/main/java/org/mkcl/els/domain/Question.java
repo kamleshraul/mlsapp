@@ -1303,6 +1303,12 @@ public class Question extends Device implements Serializable {
     	return getQuestionRepository().findClubbedEntitiesByPosition(question);
     }
     
+    public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final String sortOrder,
+    		final String locale) {
+    	return getQuestionRepository().findClubbedEntitiesByQuestionNumber(this,sortOrder,
+    			locale);
+    }
+    
     public List<ClubbedEntity> findClubbedEntitiesByChartAnsweringDateQuestionNumber(final String sortOrder,
     		final String locale) {
     	return getQuestionRepository().findClubbedEntitiesByChartAnsweringDateQuestionNumber(this,sortOrder,
@@ -2434,6 +2440,13 @@ public class Question extends Device implements Serializable {
 	public void setAnsweringAttemptsByDepartment(
 			Integer answeringAttemptsByDepartment) {
 		this.answeringAttemptsByDepartment = answeringAttemptsByDepartment;
+	}
+
+
+	public static List<ClubbedEntity> findClubbedEntitiesByChartAnsDateNumber(
+			final Question question,final String locale) {
+		return getQuestionRepository().findClubbedEntitiesByChartAnsDateNumber(
+				question,locale);
 	}
 
 
