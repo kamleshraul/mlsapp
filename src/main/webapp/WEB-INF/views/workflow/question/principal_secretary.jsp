@@ -1045,7 +1045,6 @@
 				<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 			</c:if>
 		</c:if>
-		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	
 	<p style="display:none;" class="revise3" id="revisedReasonDiv">
@@ -1086,94 +1085,94 @@
 	</c:if>
 	
 	<p style="text-align: right; width: 720px;">
-		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+		<a href="javascript:void(0);" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	<table class="uiTable" style="margin-left:165px;">
-	<thead>
-	<tr>
-	<th>
-	<spring:message code="qis.latestrevisions.user" text="Usergroup"></spring:message>
-	</th>
-	<th>
-	<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
-	</th>
-	<th>
-	<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
-	</th>
-	</tr>
-	</thead>
-	<tbody>	
-	<c:set var="startingActor" value="${startingActor}"></c:set>
-	<c:set var="count" value="0"></c:set>
-	<c:set var="startingActorCount" value="0"></c:set>
-	<c:forEach items="${latestRevisions}" var="i">	
-	<c:choose>
-	<c:when test="${i[0]==startingActor}">	
-	<c:set var="startingActorCount" value="${count}"></c:set>
-	<c:set var="count" value="${count+1 }"></c:set>
-	</c:when>
-	<c:otherwise>
-	<c:set var="count" value="${count+1 }"></c:set>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	
-	<c:set var="count" value="0"></c:set>
-	<c:forEach items="${latestRevisions }" var="i">
-	<c:choose>
-	<c:when test="${count>= startingActorCount}">
-	<tr>
-		<td>
-		${i[0]}<br>${i[1]}
-		</td>
-		<td>
-		${i[3]}
-		</td>
-		<td>
-		${i[4]}
-		</td>
-	</tr>
-	<c:set var="count" value="${count+1 }"></c:set>
-	</c:when>
-	<c:otherwise>
-	<c:set var="count" value="${count+1 }"></c:set>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	
-	<c:if test="${workflowstatus != 'COMPLETED'}">
-		<tr>
-			<td>
-				${userName}<br>
-				${userGroupName}
-			</td>
-			<td>
-				<select id="changeInternalStatus" class="sSelect">
-					<c:forEach items="${internalStatuses}" var="i">
-						<c:choose>
-							<c:when test="${i.type=='question_system_groupchanged' }">
-								<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-							</c:when>
-							<c:otherwise>
+		<thead>
+			<tr>
+				<th>
+					<spring:message code="qis.latestrevisions.user" text="Usergroup"></spring:message>
+				</th>
+				<th>
+					<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
+				</th>
+				<th>
+					<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
+				</th>
+			</tr>
+		</thead>
+		<tbody>	
+			<c:set var="startingActor" value="${startingActor}"></c:set>
+			<c:set var="count" value="0"></c:set>
+			<c:set var="startingActorCount" value="0"></c:set>
+			<c:set var="currUserFound" value="no" />
+			<c:forEach items="${latestRevisions}" var="i">	
+				<c:choose>
+					<c:when test="${i[0]==startingActor}">	
+						<c:set var="startingActorCount" value="${count}"></c:set>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:when>
+					<c:otherwise>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+			
+			<c:set var="count" value="0"></c:set>
+			<c:forEach items="${latestRevisions }" var="i">
+				<c:choose>
+					<c:when test="${count>= startingActorCount}">
+						<tr>
+							<td>
+								${i[1]}<br>${i[0]}
+							</td>
+							<td>
+								${i[3]}
+							</td>
+							<td>
+								${i[4]}							
+							</td>
+						</tr>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:when>
+					<c:otherwise>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+			<c:if test="${workflowstatus != 'COMPLETED'}">
+				<tr>
+					<td>
+						${userName}<br>
+						${userGroupName}
+					</td>
+					<td>
+						<select id="changeInternalStatus" class="sSelect">
+							<c:forEach items="${internalStatuses}" var="i">
 								<c:choose>
-									<c:when test="${i.id==internalStatus }">
-										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									<c:when test="${i.type=='question_system_groupchanged' }">
+										<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
 									</c:when>
 									<c:otherwise>
-										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+										<c:choose>
+											<c:when test="${i.id==internalStatus }">
+												<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+											</c:when>
+											<c:otherwise>
+												<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+											</c:otherwise>
+										</c:choose>
 									</c:otherwise>
 								</c:choose>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-				</select>
-			</td>
-			<td>
-				<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
-			</td>
-		</tr>
-	</c:if>	
-	</tbody>
+							</c:forEach>
+						</select>
+					</td>
+					<td>
+						<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+					</td>
+				</tr>
+			</c:if>
+		</tbody>
 	</table>
 	<c:if test="${workflowstatus != 'COMPLETED'}">
 		<p>
