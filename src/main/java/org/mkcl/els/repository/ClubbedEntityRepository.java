@@ -440,7 +440,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		if(	beingProcessedQuestion.getType()!=null
 				&&beingClubbedQuestion.getType()!=null
 				&&(beingProcessedQuestion.getType().getType().equals(beingClubbedQuestion.getType().getType())
-				||(beingProcessedQuestion.getType().equals(ApplicationConstants.STARRED_QUESTION)
+				||(beingProcessedQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
 				&&beingClubbedQuestion.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)))
 				&&beingProcessedQuestion.getMinistry()!=null
 				&&beingClubbedQuestion.getMinistry()!=null
