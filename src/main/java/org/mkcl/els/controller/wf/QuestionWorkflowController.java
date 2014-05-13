@@ -31,7 +31,6 @@ import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.common.vo.ActorVO;
 import org.mkcl.els.common.vo.BulkApprovalVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
@@ -68,6 +67,8 @@ import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
@@ -2981,20 +2982,57 @@ public class QuestionWorkflowController  extends BaseController{
 		return "workflow/question/reports/statusreport";
 	}
 
-	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="report/{qId}/currentstatusreportvm", method=RequestMethod.GET)
 	public String getCurrentStatusReportVM(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+				
+		response.setContentType("text/html; charset=utf-8");		
+		return QuestionWorkflowHelper.getCurrentStatusReportData(id, model, request, response, locale);
+	}	
+	
+	@SuppressWarnings("rawtypes")
+	private void findLatestRemarksByUserGroup(final Question domain, final ModelMap model,
+			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {
+		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+		requestMap.put("questionId",new String[]{String.valueOf(domain.getId())});
+		requestMap.put("locale",new String[]{domain.getLocale()});
+		List result=Query.findReport("QIS_LATEST_REVISIONS", requestMap);
+		model.addAttribute("latestRevisions",result);
+		UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.ASSISTANT, domain.getLocale());
+		model.addAttribute("startingActor", userGroupType.getName());
+	}
+	
+	
+	/**
+	 * A helper method to generate current-status report
+	 * @param id
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param locale
+	 * @return
+	 */
+	public static String getCurrentStatusReportData(final Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		return QuestionWorkflowHelper.getCurrentStatusReportData(id, model, request, response, locale);
+	}
+}
+
+/**** Helper for producing reports at workflow level ****/
+class QuestionWorkflowHelper{
+	
+	private static Logger logger = LoggerFactory.getLogger(QuestionWorkflowHelper.class);
+	
+	@SuppressWarnings("rawtypes")
+	public static String getCurrentStatusReportData(final Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 		String page = "question/error";
 		try{
-			String strDevice = request.getParameter("device");
-			Map<String, ActorVO> finalDataMap = new HashMap<String, ActorVO>();
-
+			String strDevice = request.getParameter("device"); 
 			if(strDevice != null && !strDevice.isEmpty()){
 				Question qt = Question.findById(Question.class, id);
-				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());
-				//model.addAttribute("report", report);
+				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());				
+				Map<String, Object[]> dataMap = new HashMap<String, Object[]>();
+				
 				if(report != null && !report.isEmpty()){
-
+						
 					Object[] obj = (Object[]) report.get(0);
 					if(obj[26] != null){
 						model.addAttribute("fullSessionName", obj[26].toString());
@@ -3006,204 +3044,188 @@ public class QuestionWorkflowController  extends BaseController{
 					}else{
 						model.addAttribute("deviceName", "-");
 					}
-
+	
 					model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-
+	
 					if(obj[16] != null){
 						model.addAttribute("primaryMemConstituency", obj[16].toString());
 					}else{
 						model.addAttribute("primaryMemConstituency", "-");
 					}
-
+	
 					if(obj[12] != null){
 						model.addAttribute("memberName", obj[12].toString());
 					}else{
 						model.addAttribute("memberName", "-");
 					}
-
+	
 					if(obj[17] != null){
 						model.addAttribute("support", obj[17].toString());
 					}else{
 						model.addAttribute("support", "-");
 					}
-
+	
 					if(obj[19] != null){
 						model.addAttribute("groupNumber", obj[19].toString());
 					}else{
 						model.addAttribute("groupNumber", "-");
 					}
-
+	
 					if(obj[21] != null){
 						Date answeringDate = FormaterUtil.formatStringToDate(obj[21].toString(), ApplicationConstants.DB_DATEFORMAT);
 						model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 					}else{
 						model.addAttribute("answeringDate", "-");
 					}
-
+	
 					if(obj[22] != null){
 						Date deptSendDate = FormaterUtil.formatStringToDate(obj[22].toString(), ApplicationConstants.DB_DATEFORMAT);
 						model.addAttribute("deptSendDate", FormaterUtil.formatDateToString(deptSendDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 					}else{
 						model.addAttribute("deptSendDate", "-");
 					}
-
+	
 					if(obj[23] != null){
 						model.addAttribute("priority", obj[23].toString());
 					}else{
 						model.addAttribute("priority", "-");
 					}
-
+					
 					if(obj[29] != null){
 						model.addAttribute("finalStatus", obj[29].toString());
 					}else{
 						model.addAttribute("finalStatus", "-");
 					}
-
+	
 					if(obj[5] != null){
 						model.addAttribute("subject", FormaterUtil.formatNumbersInGivenText(obj[5].toString(), locale.toString()));
 					}else{
 						model.addAttribute("subject", "-");
 					}
-
+	
 					if(obj[9] != null){
 						model.addAttribute("deviceNumber", obj[9].toString());
 					}else{
 						model.addAttribute("deviceNumber", "-");
 					}
-
+					
 					if(obj[20] != null){
 						model.addAttribute("department", obj[20].toString());
 					}else{
 						model.addAttribute("department", "-");
 					}
-
+	
 					if(obj[24] != null){
 						model.addAttribute("ministry", obj[24].toString());
 					}else{
 						model.addAttribute("ministry", "-");
 					}
-
+	
 					if(obj[4] != null){
 						model.addAttribute("details", FormaterUtil.formatNumbersInGivenText(obj[4].toString(), locale.toString()));
 					}else{
 						model.addAttribute("details", "-");
 					}
-
+	
 					List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
 					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
-
-					List<ActorVO> actors = new ArrayList<ActorVO>();
+	
 					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
 						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
-
+						
 							for(Object o : report){
 								Object[] objx = (Object[])o;
-
+	
 								if(objx[27] != null && !objx[27].toString().isEmpty()){
 									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
-
+										
 										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
-										ActorVO actor = new ActorVO();
+																				
 										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-											actor.setName(userGroupType.getName() + "<br>" + ((objx[1]!=null)?objx[1].toString() : "" ));
-											actor.setDesignation(((objx[1]!=null)?objx[1].toString() : "" ));
-										}else{
-											actor.setName(userGroupType.getName() + "<br>");
-											actor.setDesignation("");
-										}
-										if(objx[6] != null){
-											actor.setValue(FormaterUtil.formatNumbersInGivenText(objx[6].toString(), locale.toString()));
-										}
-										if(objx[28] != null){
-											actor.setStatus(objx[28].toString());
-										}
-										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
-											if(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
-												if(actor.getValue() != null && actor.getValue().length() > 0){
-													finalDataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
+												if(objx != null){
+													if(objx[6] != null && objx[6].toString().length() > 0){
+														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+													}
 												}
 											}else{
-												finalDataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+												dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
 											}
 										}else{
-											if(finalDataMap.get(userGroupType.getType()) != null){
-												if(actor.getValue() != null && actor.getValue().length() > 0){
-													finalDataMap.put(userGroupType.getType(), actor);
+											if(dataMap.get(userGroupType.getType()) != null){
+												if(objx != null){
+													if(objx[6] != null && objx[6].toString().length() > 0){
+														dataMap.put(userGroupType.getType(), objx);
+													}
 												}
+												
 											}else{
-												finalDataMap.put(userGroupType.getType(), actor);
+												dataMap.put(userGroupType.getType(), objx);
 											}
 										}
-
 									}
 								}
 							}
-
-							for(String var : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
-								if(var.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || var.equals(ApplicationConstants.UNDER_SECRETARY)){
-									if(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
-										actors.add(finalDataMap.get(ApplicationConstants.UNDER_SECRETARY));
-									}
-								}else{
-									if(finalDataMap.get(var) != null){
-										actors.add(finalDataMap.get(var));
-									}
-								}
-							}
-
-							if(!actors.isEmpty()){
-								String lastUSerGroup = actors.get(actors.size() - 1).getName();
+							
+							
+							
+							if(dataMap.get(ApplicationConstants.PRINCIPAL_SECRETARY) == null){
 								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
-
-								if(!lastUSerGroup.equals(userGroupType.getName())){
-									ActorVO actor = new ActorVO();
-									actor.setName(userGroupType.getName());
-									actor.setValue("");
-									actor.setStatus("");	
-									actor.setDesignation("");
-									actors.add(actor);
-								}
+								
+								Object[] dataCollection = new Object[30];
+								dataCollection[0] = new String(userGroupType.getName());
+								dataCollection[1] = new String("");
+								dataCollection[3] = new String("");
+								dataCollection[6] = new String("");
+								dataCollection[28] = new String("");
+								
+								dataMap.put(ApplicationConstants.PRINCIPAL_SECRETARY, dataCollection);
 							}
-
-							if(actors.isEmpty()){
+							
+							if(dataMap.isEmpty()){
 								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
-
+								
 									Reference ref = UserGroup.findQuestionActor(qt, val, String.valueOf(0), locale.toString());
-									ActorVO actor = new ActorVO();
+									Object[] actor = new Object[30];
 									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-										actor.setName(ref.getId().split("#")[3]);
-										actor.setDesignation(ref.getId().split("#")[4]);
+										actor[0] = new String(ref.getId().split("#")[3]);
+										actor[1] = new String(ref.getId().split("#")[4]);
 									}else{
-										actor.setName(ref.getId().split("#")[3]);
-										actor.setDesignation("");
+										actor[0] = new String(ref.getId().split("#")[3]);
+										actor[1] = new String("");
 									}
-									actor.setValue("");
-									actor.setFormattedNumber("");
-									actor.setStatus("");
-									actors.add(actor);
+									actor[3] = new String("");
+									actor[6] = new String("");
+									actor[28] = new String("");
+									
+									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+										dataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+									}else{
+										dataMap.put(val, actor);
+									}
 								}
 							}
-
-							model.addAttribute("actors", actors);
+	
+							model.addAttribute("data", dataMap);
 						}
 					}
-
+	
 					page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "workflow/question/reports/statusreportlowerhouse": "workflow/question/reports/statusreportupperhouse";
 				}		
-
+	
 				model.addAttribute("qid", qt.getId());
 			}
 		}catch(Exception e){
-			logger.error(e.getMessage(), e);
+			logger.error(e.getMessage(),e);
+			e.printStackTrace();
 		}
-
-		response.setContentType("text/html; charset=utf-8");		
+		
 		return page;
-	}	
-
+	}
+	
 	@SuppressWarnings("rawtypes")
-	private List generatetCurrentStatusReport(final Question question, final String device, final String locale){
+	public static List generatetCurrentStatusReport(final Question question, final String device, final String locale){
 		String support = question.findAllMemberNames();
 		Map<String, String[]> parameters = new HashMap<String, String[]>();
 		parameters.put("locale",new String[]{locale.toString()});
@@ -3217,17 +3239,4 @@ public class QuestionWorkflowController  extends BaseController{
 
 		return list;  
 	}
-	
-	@SuppressWarnings("rawtypes")
-	private void findLatestRemarksByUserGroup(final Question domain, final ModelMap model,
-			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {
-		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
-		requestMap.put("questionId",new String[]{String.valueOf(domain.getId())});
-		requestMap.put("locale",new String[]{domain.getLocale()});
-		List result=Query.findReport("QIS_LATEST_REVISIONS", requestMap);
-		model.addAttribute("latestRevisions",result);
-		UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.ASSISTANT, domain.getLocale());
-		model.addAttribute("startingActor", userGroupType.getName());
-	}
-
 }
