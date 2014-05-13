@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -25,12 +26,14 @@ import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
 import org.mkcl.els.common.vo.MemberBallotQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotAttendance;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Session;
 import org.springframework.stereotype.Repository;
@@ -51,22 +54,22 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final String locale,
 			final Integer totalRounds){
 		try {
-			
+
 			StringBuffer strQuery = new StringBuffer("SELECT COUNT(m.id) FROM MemberBallot m" +
-							" WHERE m.session.id=:sessionId" +
-							" AND m.deviceType.id=:deviceTypeId" +
-							" AND m.round=:round" +
-							" AND m.attendance=:attendance" +
-							" AND m.locale=:locale"
+					" WHERE m.session.id=:sessionId" +
+					" AND m.deviceType.id=:deviceTypeId" +
+					" AND m.round=:round" +
+					" AND m.attendance=:attendance" +
+					" AND m.locale=:locale"
 					);
-			
+
 			Query jpQuery = this.em().createQuery(strQuery.toString());
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("round", round);
 			jpQuery.setParameter("attendance", attendance);
 			jpQuery.setParameter("locale", locale);
-			
+
 			int count = ((Long)jpQuery.getSingleResult()).intValue();
 			if(count>0){
 				jpQuery = null;
@@ -83,14 +86,14 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 								" AND m.locale=:locale" +
 								" AND m.round=:round" +
 								" AND m.attendance=:attendance";
-						
+
 						jpQuery = this.em().createQuery(deleteMemberBallots);
 						jpQuery.setParameter("sessionId", session.getId());
 						jpQuery.setParameter("deviceTypeId", deviceType.getId());
 						jpQuery.setParameter("round", round);
 						jpQuery.setParameter("attendance", attendance);
 						jpQuery.setParameter("locale", locale);						
-						
+
 						jpQuery.executeUpdate();
 						freshBallotAllowed=true;
 					}
@@ -173,7 +176,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				order++;
 				count++;
 			}
-			
+
 			String query="UPDATE MemberBallotAttendance m" +
 					" SET locked=true WHERE m.session.id=:sessionId" +
 					" AND m.deviceType.id=:deviceTypeId" +
@@ -187,9 +190,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				jpQuery.setParameter("attendance", attendance);
 				jpQuery.setParameter("round", round);
 				jpQuery.setParameter("locale", locale);
-						
+
 				jpQuery.executeUpdate();
-	
+
 				return "SUCCESS";
 			}catch (Exception e) {
 				e.printStackTrace();
@@ -296,7 +299,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				" AND mb.attendance=:attendance" +
 				" AND mb.locale=:locale" +
 				" AND mb.member.id=:membersAtPositionXId";
-		
+
 		try {
 			StringBuffer roundQuery=new StringBuffer();
 			for(int i=1;i<round;i++){
@@ -311,14 +314,14 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			if(positionQuery!=null&&!positionQuery.toString().isEmpty()){
 				positionQuery.delete(positionQuery.length()-3,positionQuery.length()-1);		
 				finalQuery=query+" AND ("+roundQuery.toString()+") AND ("+positionQuery.toString()+")";
-				
+
 				Query jpQuery = this.em().createQuery(finalQuery);
 				jpQuery.setParameter("sessionId", session.getId());
 				jpQuery.setParameter("deviceTypeId", deviceType.getId());
 				jpQuery.setParameter("attendance", attendance);
 				jpQuery.setParameter("membersAtPositionXId", membersAtPositionX.getId());
 				jpQuery.setParameter("locale", locale);
-				
+
 				Long count=(Long) jpQuery.getSingleResult();
 				if(count==0){
 					return true;
@@ -339,21 +342,21 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final boolean attendance, 
 			final int round, 
 			final String locale) throws ELSException {
-			
+
 		try {
 			String strQuery = "SELECT COUNT(m.id) FROM MemberBallot m" +
-								" WHERE m.session.id=:sessionId" +
-								" AND m.deviceType.id=:deviceTypeId" +
-								" AND m.attendance=:attendance" +
-								" AND m.round=:round" +
-								" AND m.locale=:locale";
+					" WHERE m.session.id=:sessionId" +
+					" AND m.deviceType.id=:deviceTypeId" +
+					" AND m.attendance=:attendance" +
+					" AND m.round=:round" +
+					" AND m.locale=:locale";
 			Query jpQuery = this.em().createQuery(strQuery);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("attendance", attendance);
 			jpQuery.setParameter("round", round);
 			jpQuery.setParameter("locale", locale);
-			
+
 			return ((Long)jpQuery.getSingleResult()).intValue();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -424,21 +427,21 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final DeviceType deviceType, 
 			final Member member, 
 			final String locale) throws ELSException {		
-		
+
 		String strQuery = "SELECT m FROM MemberBallot m" +
 				" WHERE m.session.id=:sessionId" +
 				" AND m.deviceType.id=:deviceTypeId" +
 				" AND m.member.id=:memberId" +
 				" AND m.locale=:locale ORDER BY m.round ASC, m.position ASC";
-		
+
 		try{
 			Query jpQuery = this.em().createQuery(strQuery);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("memberId", member.getId());
 			jpQuery.setParameter("locale", locale);
-			
-			
+
+
 			return jpQuery.getResultList();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -454,7 +457,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final Member member,
 			final int round, 
 			final String locale) throws ELSException {
-		
+
 		try {
 			String strQuery = "SELECT m FROM MemberBallot m" +
 					" WHERE m.session.id=:sessionId" +
@@ -462,14 +465,14 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 					" AND m.member.id=:memberId" +
 					" AND m.round=:round" +
 					" AND m.locale=:locale";
-			
+
 			TypedQuery<MemberBallot> jpQuery = this.em().createQuery(strQuery, MemberBallot.class);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", questionType.getId());
 			jpQuery.setParameter("memberId", member.getId());
 			jpQuery.setParameter("round", round);
 			jpQuery.setParameter("locale", locale);
-			
+
 			MemberBallot memberBallot = null;
 			try{
 				memberBallot = jpQuery.getSingleResult();
@@ -486,7 +489,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			elsException.setParameter("MemberBallotRepository_MemberBallot_findByMemberRound", "No ballot found.");
 			throw elsException;
 		}
-		
+
 	}
 
 
@@ -535,23 +538,23 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			NumberFormat numberFormat=FormaterUtil.getNumberFormatterNoGrouping(locale);
 			SimpleDateFormat dbFormat=FormaterUtil.getDateFormatter(customParameter.getValue(), locale);
 			SimpleDateFormat format=FormaterUtil.getDateFormatter(locale);
-			
+
 			/**** Member Ballot Entries ****/
 			org.mkcl.els.domain.Query elsQueryMemberBallotInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_GET_MEMBER_BALLOT_VO_MEMBER_BALLOT_INNER_QUERY", locale);
 			org.mkcl.els.domain.Query elsQueryMemberBallotFinal = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_GET_MEMBER_BALLOT_VO_MEMBER_BALLOT_FINAL_QUERY", locale);
 			Query jpQuery = null;
 			if(elsQueryMemberBallotInner != null){
 				if(elsQueryMemberBallotFinal != null){
-					
+
 					jpQuery = this.em().createNativeQuery(elsQueryMemberBallotFinal.getQuery().replaceAll("INNER_QUERY", elsQueryMemberBallotInner.getQuery()));
 					jpQuery.setParameter("sessionId", session);
 					jpQuery.setParameter("deviceTypeId", deviceType);
 					jpQuery.setParameter("round", round);
 					jpQuery.setParameter("attendance", attendance);
 					jpQuery.setParameter("locale", locale);					
-					
+
 					List memberBallots = jpQuery.getResultList();
-						
+
 					StringBuffer buffer=new StringBuffer();
 					for(Object i:memberBallots){
 						Object[] o=(Object[]) i;
@@ -604,7 +607,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			  	MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_WITH_QUESTIONDATE
 			  	MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_WITH_GROUP
 			  	MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_WITH_QUESTIONDATE_GROUP
-			  
+
 			 */
 			/**** Populating Question Choices ****/
 			for(MemberBallotVO i:ballots){
@@ -620,43 +623,43 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				" AND q.group_id=g.id"+
 				" AND mbca.memberballot_id="+i.getId();*/
 				org.mkcl.els.domain.Query elsQueryInner = null;
-				
+
 				if (answeringDate == 0 && group == 0) {
 					elsQueryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class,
-									"keyField","MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_PLAIN", locale);
+							"keyField","MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_PLAIN", locale);
 				} else if (answeringDate != 0 && group != 0) {
 					elsQueryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class,
-									"keyField","MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_WITH_QUESTIONDATE_GROUP",locale);
+							"keyField","MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_WITH_QUESTIONDATE_GROUP",locale);
 				} else if (answeringDate != 0) {
 					elsQueryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class,
-									"keyField","MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_WITH_QUESTIONDATE",locale);
+							"keyField","MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_WITH_QUESTIONDATE",locale);
 				} else if (group != 0) {
 					elsQueryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class,
-									"keyField","MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_WITH_GROUP",locale);
+							"keyField","MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_WITH_GROUP",locale);
 				}
-				
+
 				if(elsQueryInner != null){
-					
+
 					org.mkcl.els.domain.Query elsQueryFinal = null;
 					elsQueryFinal = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, 
 							"keyField", "MEMBERBALLOT_GET_MEMBER_BALLOT_VO_QUESTION_CHOICE_FINAL_QUERY", locale);
-					
+
 					if(elsQueryFinal != null){
-						
+
 						String finalQuery = elsQueryFinal.getQuery().replaceAll("INNER_QUERY", elsQueryInner.getQuery());
 						jpQuery = this.em().createNativeQuery(finalQuery);
 						jpQuery.setParameter("memberBallotId", i.getId());
-												
+
 						if(answeringDate != 0){
 							jpQuery.setParameter("qdId", answeringDate);
 						}
-						
+
 						if(group != 0){
 							jpQuery.setParameter("groupId", group);
 						}
-						
+
 						List result = jpQuery.getResultList();
-						
+
 						for(Object j:result){
 							MemberBallotQuestionVO questionVO=new MemberBallotQuestionVO();
 							Object[] o=(Object[]) j;
@@ -704,7 +707,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 	public Integer findPrimaryCount(final Session session, 
 			final DeviceType deviceType,
 			final String locale) throws ELSException {
-		
+
 		String query="SELECT q FROM MemberBallot mb" +
 				" JOIN mb.questionChoices qc" +
 				" JOIN qc.question q" +
@@ -712,14 +715,14 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				" AND mb.deviceType.id=:deviceTypeId" +
 				" AND mb.locale=:locale" +
 				" AND q.parent IS NULL";
-				// " AND q.parent=:parent";
+		// " AND q.parent=:parent";
 		try{
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("locale", locale);
 			// jpQuery.setParameter("parent", null);
-			
+
 			return jpQuery.getResultList().size();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -811,23 +814,23 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final Group group,
 			final String answeringDate,
 			final String locale) throws ELSException {
-		
+
 		try{
 			String query="SELECT COUNT(b.id) FROM Ballot b" +
-						" WHERE b.session.id=:sessionId" +
-						" AND b.deviceType.id=:deviceTypeId" +
-						" AND b.group.id=:groupId" +
-						" AND b.answeringDate=:answeringDate" +
-						" AND locale=:locale";
+					" WHERE b.session.id=:sessionId" +
+					" AND b.deviceType.id=:deviceTypeId" +
+					" AND b.group.id=:groupId" +
+					" AND b.answeringDate=:answeringDate" +
+					" AND locale=:locale";
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("groupId", group.getId());
 			jpQuery.setParameter("answeringDate", FormaterUtil.formatStringToDate(answeringDate, ApplicationConstants.DB_DATEFORMAT));
 			jpQuery.setParameter("locale", locale);
-			
+
 			Long count= ((Long)jpQuery.getSingleResult()).longValue();
-			
+
 			if(count.compareTo(Long.valueOf(0))==0){
 				return false;
 			}else{
@@ -847,17 +850,17 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final DeviceType deviceType,
 			final String answeringDate,
 			final String locale) throws ELSException{
-		
+
 		try{
 			org.mkcl.els.domain.Query queryInner = null;
 			org.mkcl.els.domain.Query queryWrapper = null;
 			String ballotEntryQuery = null;
 			Query jpQuery = null;
 			List ballotEntries = null;
-			
+
 			List<MemberBallotFinalBallotVO> ballots = new ArrayList<MemberBallotFinalBallotVO>();
 			NumberFormat numberFormat=FormaterUtil.getNumberFormatterNoGrouping(locale);		
-			
+
 			queryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_EMPTY_INNER_QUERY", locale);
 			queryWrapper = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_EMPTY_WRAPPER", locale);
 			if(queryInner != null){
@@ -870,9 +873,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 					jpQuery.setParameter("locale", "'" + locale + "'");
 				}
 			}
-			
+
 			ballotEntries = jpQuery.getResultList();
-			
+
 			for(Object i:ballotEntries){
 				Object[] o=(Object[]) i;
 				MemberBallotFinalBallotVO ballot=new MemberBallotFinalBallotVO();
@@ -889,19 +892,19 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				}
 				ballots.add(ballot);
 			}
-			
+
 			queryInner = null;
 			queryWrapper = null;
 			jpQuery = null;
-			
+
 			if(!ballots.isEmpty()){
 				for(MemberBallotFinalBallotVO i:ballots){
 					queryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_NOT_EMPTY_INNER_QUERY", locale);
 					queryWrapper = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_BALLOT_IF_NOT_EMPTY_WRAPPER", locale);
-									
+
 					List questionEntries= null;
 					String finalQuestionQuery = null;
-					
+
 					if(queryInner != null){
 						if(queryWrapper != null){
 							finalQuestionQuery = queryWrapper.getQuery().replaceAll("INNER_QUERY", queryInner.getQuery());				
@@ -909,9 +912,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 							jpQuery.setParameter("ballotEntryId", i.getBallotEntryId());
 						}
 					}
-	
+
 					questionEntries = jpQuery.getResultList();
-					
+
 					List<MemberBallotFinalBallotQuestionVO> questions=new ArrayList<MemberBallotFinalBallotQuestionVO>();
 					for(Object j:questionEntries){
 						Object[] o=(Object[]) j;
@@ -966,9 +969,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 					/**** Count of questions ****/
 					org.mkcl.els.domain.Query queryCounter = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_MEMBER_WISE_REPORT_COUNT_QUERY", locale);
 					if(queryCounter != null){
-						
+
 						String countQuery=queryCounter.getQuery();
-											
+
 						Query jpQuery = this.em().createNativeQuery(countQuery);
 						jpQuery.setParameter("sessionId", session.getId());
 						jpQuery.setParameter("memberId", member.getId());
@@ -976,7 +979,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDate, ApplicationConstants.DB_DATEFORMAT));
 						jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDate, ApplicationConstants.DB_DATEFORMAT));
 						jpQuery.setParameter("questionTypeId", questionType.getId());
-						
+
 						List countResults=jpQuery.getResultList();
 						List<MemberBallotMemberWiseCountVO> countVOs=new ArrayList<MemberBallotMemberWiseCountVO>();
 						NumberFormat numberFormat=FormaterUtil.getNumberFormatterNoGrouping(locale);
@@ -996,20 +999,20 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						memberBallotMemberWiseReportVO.setMemberBallotMemberWiseCountVOs(countVOs);
 						/**** Member Full Name ****/
 						memberBallotMemberWiseReportVO.setMember(member.getFullname());	
-						
+
 						jpQuery = null;
 						queryCounter = null;
-						
+
 						org.mkcl.els.domain.Query questionQueryInner = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_MEMBER_WISE_REPORT_QUESTION_QUERY_INNER", locale);
 						org.mkcl.els.domain.Query questionQueryFinal = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_MEMBER_WISE_REPORT_QUESTION_QUERY_FINAL", locale);
 						if(questionQueryInner != null){
 							if(questionQueryFinal != null){
-								
+
 								/**** Questions ****/
 								List<MemberBallotMemberWiseQuestionVO> questionVOs=new ArrayList<MemberBallotMemberWiseQuestionVO>();
-															
+
 								String query = questionQueryFinal.getQuery().replaceAll("INNER_QUERY", questionQueryInner.getQuery());
-								
+
 								jpQuery = this.em().createNativeQuery(query);
 								jpQuery.setParameter("sessionId", session.getId());
 								jpQuery.setParameter("memberId", member.getId());
@@ -1017,7 +1020,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 								jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDate, ApplicationConstants.DB_DATEFORMAT));
 								jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDate, ApplicationConstants.DB_DATEFORMAT));
 								jpQuery.setParameter("questionTypeId", questionType.getId());
-										
+
 								List questionResults=jpQuery.getResultList();
 								int position=1;
 								for(Object i:questionResults){
@@ -1095,7 +1098,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						jpQuery.setParameter("locale", locale);
 						jpQuery.setParameter("startDate", startDate);
 						jpQuery.setParameter("endDate", endDate);
-						
+
 						List members = jpQuery.getResultList();
 						int count=1;
 						NumberFormat numberFormat = FormaterUtil.getNumberFormatterNoGrouping(locale);
@@ -1127,29 +1130,29 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 							}
 							distribution.setQuestionSubmissionStartTime(startDate);	
 							distribution.setQuestionSubmissionEndTime(endDate);	
-		            		distribution.setsNo(numberFormat.format(count));
+							distribution.setsNo(numberFormat.format(count));
 							count++;
 							distributions.add(distribution);
 						}
-						
+
 						elsQuery = null;
 						jpQuery = null;
-						
+
 						elsQuery =org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "MEMBERBALLOT_VIEW_QUESTION_DISTRIBUTION_COUNT", locale);
-						
+
 						if(elsQuery != null){
-							
+
 							jpQuery = this.em().createNativeQuery(elsQuery.getQuery());
-							
+
 							for(MemberBallotQuestionDistributionVO i:distributions){
-															
+
 								jpQuery.setParameter("sessionId", session.getId());
 								jpQuery.setParameter("memberId", i.getMemberId());
 								jpQuery.setParameter("locale", locale);
 								jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATEFORMAT));
 								jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDateParameter, ApplicationConstants.DB_DATEFORMAT));
 								jpQuery.setParameter("questionTypeId", questionType.getId());
-								
+
 								List countResults = jpQuery.getResultList();
 								List<MemberBallotMemberWiseCountVO> countVOs=new ArrayList<MemberBallotMemberWiseCountVO>();
 								int clarificationCount=0;
@@ -1184,7 +1187,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 								}
 								i.setDistributions(countVOs);	
 								i.setTotalCount(numberFormat.format(totalCount));
-								
+
 							}
 						}
 					}
@@ -1208,23 +1211,23 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final String locale,
 			final int startingRecordToFetch,
 			final int noOfRecordsToFetch) throws ELSException {
-		
+
 		try {
 			String query="SELECT m FROM MemberBallot mb" +
-							" JOIN mb.member m WHERE"+
-							" mb.session.id=:sessionId" +
-							" AND mb.deviceType.id=:deviceTypeId" +
-							" AND mb.attendance=:attendance" +
-							" AND mb.locale=:locale" +
-							" AND mb.round=:round ORDER BY mb.position";
-			
+					" JOIN mb.member m WHERE"+
+					" mb.session.id=:sessionId" +
+					" AND mb.deviceType.id=:deviceTypeId" +
+					" AND mb.attendance=:attendance" +
+					" AND mb.locale=:locale" +
+					" AND mb.round=:round ORDER BY mb.position";
+
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("attendance", attendance);
 			jpQuery.setParameter("locale", locale);
 			jpQuery.setParameter("round", round);
-			
+
 			return jpQuery.setFirstResult(startingRecordToFetch).setMaxResults(noOfRecordsToFetch).getResultList();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1240,7 +1243,6 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final int round,
 			final boolean attendance,
 			final String locale) throws ELSException {
-		
 		try {
 			String query="SELECT COUNT(mb.id) FROM MemberBallot mb" +
 					" WHERE mb.session.id=:sessionId" +
@@ -1255,7 +1257,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			jpQuery.setParameter("attendance", attendance);
 			jpQuery.setParameter("locale", locale);
 			jpQuery.setParameter("round", round);
-			
+
 			return ((Long)jpQuery.getSingleResult()).intValue();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1264,5 +1266,72 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			elsException.setParameter("MemberBallotRepository_int_findEntryCount", "No coount found.");
 			throw elsException;
 		}		
+	}
+
+	@SuppressWarnings("rawtypes")
+	public boolean updateClubbing(final Session session,final DeviceType deviceType,
+			final Map<String,String[]> requestMap,final String locale) throws ELSException {		
+		try {
+			List result=org.mkcl.els.domain.Query.findReport("COUNCIL_UPDATE_CLUBBING", requestMap);
+			if(result!=null && !result.isEmpty()){
+				for(Object i:result){
+					Object[] o=(Object[]) i;
+					String oldPrimary=null;
+					String newPrimary=null;
+					if(o[0]!=null){
+						oldPrimary=o[0].toString();
+					}
+					if(o[1]!=null){
+						newPrimary=o[1].toString();
+					}
+					if(oldPrimary!=null && newPrimary!=null){
+						Question oldPrimaryQuestion=Question.findById(Question.class,Long.parseLong(oldPrimary));
+						Question newPrimaryQuestion=Question.findById(Question.class,Long.parseLong(newPrimary));
+						ClubbedEntity newPrimaryClubbedEntity=ClubbedEntity.findByFieldName(ClubbedEntity.class,"question",newPrimaryQuestion, locale);
+						/**** Clubbed Entities of New Primary Question and Old primary question ****/
+						ClubbedEntity oldPrimaryClubbedEntity=new ClubbedEntity();
+						oldPrimaryClubbedEntity.setDeviceType(deviceType);
+						oldPrimaryClubbedEntity.setLocale(locale);
+						oldPrimaryClubbedEntity.setQuestion(oldPrimaryQuestion);
+						oldPrimaryClubbedEntity.setPosition(newPrimaryClubbedEntity.getPosition());
+						oldPrimaryClubbedEntity.persist();					
+						List<ClubbedEntity> newPrimaryclubbedEntities=new ArrayList<ClubbedEntity>();					
+						List<ClubbedEntity> oldPrimaryClubbedEntities=oldPrimaryQuestion.getClubbedEntities();
+						for(ClubbedEntity j:oldPrimaryClubbedEntities){
+							if(j.getId()!=newPrimaryClubbedEntity.getId()){
+								newPrimaryclubbedEntities.add(j);
+							}
+						}
+						newPrimaryclubbedEntities.add(oldPrimaryClubbedEntity);
+
+						oldPrimaryQuestion.setParent(newPrimaryQuestion);
+						oldPrimaryQuestion.setClubbedEntities(null);
+						oldPrimaryQuestion.merge();
+
+						newPrimaryQuestion.setParent(null);
+						newPrimaryQuestion.setClubbedEntities(newPrimaryclubbedEntities);
+						newPrimaryQuestion.merge();
+
+						newPrimaryClubbedEntity.remove();
+
+						/**** Update Position of New Primary Question Clubbed Entities ****/
+						List<ClubbedEntity> newPrimaryClubbedEntitiesSorted=Question.findClubbedEntitiesByChartAnsDateNumber(newPrimaryQuestion,locale);
+						int position=1;
+						for(ClubbedEntity l:newPrimaryClubbedEntitiesSorted){
+							l.setPosition(position);
+							l.merge();
+							position++;
+						}
+					}
+				}
+			}
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("MemberBallotRepository_exception_updateclubbing", "Eexception occureed during update clubbing");
+			throw elsException;
+		}			
 	}
 }
