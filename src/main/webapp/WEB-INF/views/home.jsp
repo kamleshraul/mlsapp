@@ -123,7 +123,8 @@
             <input type="hidden" name="removeUploadedFile" id="removeUploadedFile" value="<spring:message code='file.remove' text='Remove'></spring:message>"/>	
             <input type="hidden" name="cancelFn" id="cancelFn"/>
             <input type="hidden" id="selectAll" value="<spring:message code='multiSelect.selectAll' text='Select All'/>"/>                 
-            <input type="hidden" id="selectNone" value="<spring:message code='multiSelect.selectNone' text='Un-Select All'/>"/>            	
+            <input type="hidden" id="selectNone" value="<spring:message code='multiSelect.selectNone' text='Un-Select All'/>"/>
+            <input type="hidden" id="outputFormatNotSetPrompt" value="<spring:message code='generic.report.outputFormatNotSetPrompt' text='Please select output format first.'/>"/>         	
             
                              
                         

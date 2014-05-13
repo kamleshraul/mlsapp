@@ -228,7 +228,7 @@
 				$(this).attr('href', resourceURL);			
 				//check output format set or not
 				if($("#outputFormat").val() == "") {
-					$.prompt("Please Select Output Format first!!!!");
+					$.prompt($('#outputFormatNotSetPrompt').val());
 					return false;
 				}
 			});			
@@ -275,7 +275,7 @@
 				$(this).attr('href', resourceURL);
 				//check output format set or not
 				if($("#outputFormat").val() == "") {
-					$.prompt("Please Select Output Format first!!!!");
+					$.prompt($('#outputFormatNotSetPrompt').val());
 					return false;
 				}
 			});

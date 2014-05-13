@@ -61,7 +61,49 @@
 				$(".link").css("color","#8D8B8B");
 				$(this).css("color","blue");
 				questionDistribution();
-			});						
+			});	
+			/**** Level 3 Links ****/
+			$("#view_yaadi").click(function(){
+				var parameters = "houseType="+$("#selectedHouseType").val()
+								 +"&sessionYear="+$("#selectedSessionYear").val()
+								 +"&sessionType="+$("#selectedSessionType").val()
+								 +"&questionType="+$("#selectedQuestionType").val()
+								 +"&group="+$("#mbGroup").val()
+								 +"&status="+$("#selectedStatus").val()
+								 +"&role="+$("#srole").val() 
+								 +"&answeringDate="+$("#mbAnsweringDate").val()							 
+								 +"&outputFormat=" + $("#outputFormat").val();		
+				
+				$(this).attr('href', 'question/viewYaadi?' + parameters);			
+				//check output format set or not
+				if($("#outputFormat").val() == "") {
+					$.prompt($('#outputFormatNotSetPrompt').val());
+					return false;
+				} else if($("#mbAnsweringDate").val() == "-") {
+					$.prompt($('#answeringDateNotSetPrompt').val());
+					return false;
+				}
+			});
+			$("#view_suchi").click(function(){
+				var parameters = "houseType="+$("#selectedHouseType").val()
+								 +"&sessionYear="+$("#selectedSessionYear").val()
+								 +"&sessionType="+$("#selectedSessionType").val()
+								 +"&questionType="+$("#selectedQuestionType").val()
+								 +"&group="+$("#mbGroup").val()
+								 +"&status="+$("#selectedStatus").val()
+								 +"&role="+$("#srole").val() 
+								 +"&answeringDate=" + $("#mbAnsweringDate").val()								 
+								 + "&outputFormat=" + $("#outputFormat").val();
+				$(this).attr('href', 'question/viewSuchi?' + parameters);
+				//check output format set or not
+				if($("#outputFormat").val() == "") {
+					$.prompt($('#outputFormatNotSetPrompt').val());
+					return false;
+				} else if($("#mbAnsweringDate").val() == "-") {
+					$.prompt($('#answeringDateNotSetPrompt').val());
+					return false;
+				}
+			});
 			/**** on page load ****/
 			attendance();											
 		});		
@@ -387,18 +429,33 @@
 			<a href="#" id="updateclubbing" class="butSim link">
 				<spring:message code="memberballot.updateclubbing" text="Update Clubbing"/>
 			</a> |
-			<div style="display:none;">
+			<!-- <div style="display:none;"> -->
 			<a href="#" id="finalballot" class="butSim link">
 				<spring:message code="memberballot.finalballot" text="Final Ballot"/>
 			</a> |	
-			</div>		
+			<!-- </div> -->		
 			<a href="#" id="memberwise_report" class="butSim link">
 				<spring:message code="memberballot.memberwisereport" text="Member's Questions Report"/>
 			</a> |
 			<a href="#" id="question_distribution" class="butSim link">
 				<spring:message code="memberballot.questiondistribution" text="Total Questions Report"/>
 			</a> |
-			<hr>			
+			<hr>	
+			<a href="#" id="view_yaadi" class="butSim">
+				<spring:message code="ballotinitial.viewyaadi" text="View Yaadi"/>
+			</a> | 
+			<a href="#" id="view_suchi" class="butSim">
+				<spring:message code="ballotinitial.viewsuchi" text="View Suchi"/>
+			</a>
+			<c:if test="${not empty outputFormats}">				
+				<select id="outputFormat" name="outputFormat">
+					<option value="" selected="selected">Please Select Output Format</option>
+					<c:forEach items="${outputFormats}" var="i">
+						<option value="${i.value}">${i.name}</option>
+					</c:forEach>
+				</select>				
+			</c:if>
+			<hr>
 </div>
 <div id="resultDiv">
 </div>
@@ -407,5 +464,6 @@
 <input type="hidden" id="noOfRounds" name="noOfRounds" value="${noOfRounds}">
 <input type="hidden" id="selectGroupAnsweringDateMsg" name="selectGroupAnsweringDateMsg" value="<spring:message code='memberballot.selectanseringdatemsg' text='Please Select Group And Ansering Date.'/>">
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+<input type="hidden" id="answeringDateNotSetPrompt" value="<spring:message code='memberballotinit.answeringDateNotSetPrompt' text='Please select answering date first.'/>"/>
 </body>
 </html>
