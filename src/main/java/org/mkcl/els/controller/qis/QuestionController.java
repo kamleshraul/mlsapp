@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.ActorVO;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
@@ -34,8 +35,6 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
 import org.mkcl.els.controller.GenericController;
-import org.mkcl.els.controller.QuestionReportController;
-import org.mkcl.els.controller.wf.QuestionWorkflowController;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Chart;
@@ -46,8 +45,10 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
+import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberBallotChoice;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
@@ -65,6 +66,7 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
@@ -245,7 +247,7 @@ public class QuestionController extends GenericController<Question>{
 				model.addAttribute("errorcode","current_user_has_no_usergroups");
 			}
 			/**** User group Filter Ends ****/
-			
+
 			/**** Roles Filter Starts 
 			 * a.QIS roles starts with QIS_,MEMBER_,HDS_
 			 * b.any user will have single role per device type
@@ -303,7 +305,7 @@ public class QuestionController extends GenericController<Question>{
 				model.addAttribute("ugparam",this.getCurrentUser().getActualUsername());
 			}
 			/*** ugparam Filter Ends ****/
-			
+
 			/**** File Options Filter Starts 
 			 * a.Custom Parameter=QIS_FILE_OPTIONS_ALLOWED_FOR controls who will have file options seen ****/
 			CustomParameter fileOptionsAllowedFor=CustomParameter.findByName(CustomParameter.class,"QIS_FILE_OPTIONS_ALLOWED_FOR","");
@@ -353,7 +355,7 @@ public class QuestionController extends GenericController<Question>{
 		String role=request.getParameter("role");	
 		CustomParameter newOperationAllowedTo=CustomParameter.findByName(CustomParameter.class,"QIS_NEW_OPERATION_ALLOWED_TO","");
 		if(newOperationAllowedTo!=null&&role!=null&&!role.isEmpty()&&newOperationAllowedTo.getValue().contains(role)){
-				return servletPath;			
+			return servletPath;			
 		}		
 		model.addAttribute("errorcode","permissiondenied");
 		return servletPath.replace("new","error");
@@ -440,7 +442,7 @@ public class QuestionController extends GenericController<Question>{
 			model.addAttribute("errorcode","sessionType_isnull");
 		}
 		/**** Session Type Ends ****/
-		
+
 		/**** Question Type Starts ****/
 		String selectedQuestionType=request.getParameter("questionType");
 		if(selectedQuestionType==null){
@@ -579,7 +581,7 @@ public class QuestionController extends GenericController<Question>{
 							model.addAttribute("departments",departments);
 							Department department=domain.getDepartment();
 							if(department!=null){                            	
-							model.addAttribute("departmentSelected",department.getId());
+								model.addAttribute("departmentSelected",department.getId());
 							}
 							List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, locale);
 							model.addAttribute("subDepartments",subDepartments);
@@ -642,7 +644,7 @@ public class QuestionController extends GenericController<Question>{
 				model.addAttribute("departments",departments);
 				Department department=domain.getDepartment();
 				if(department!=null){                            	
-				model.addAttribute("departmentSelected",department.getId());
+					model.addAttribute("departmentSelected",department.getId());
 				}
 				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, locale);
 				model.addAttribute("subDepartments",subDepartments);
@@ -799,13 +801,36 @@ public class QuestionController extends GenericController<Question>{
 		/**** Supporting Members Starts ****/
 		List<SupportingMember> selectedSupportingMembers=domain.getSupportingMembers();
 		List<Member> supportingMembers=new ArrayList<Member>();
+		Date currentDate=new Date();
 		if(selectedSupportingMembers!=null){
 			if(!selectedSupportingMembers.isEmpty()){
 				StringBuffer bufferFirstNamesFirst=new StringBuffer();
 				for(SupportingMember i:selectedSupportingMembers){
 					Member m=i.getMember();
-					bufferFirstNamesFirst.append(m.getFullname()+",");
-					supportingMembers.add(m);
+					if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE) 
+							&& questionType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+						/**** in case of starred question in upper house,if a supporting member is active on current date
+						 * and the question contains a clubbed entity that belongs to second batch then the member will
+						 * be included ****/						
+							try {
+								if(!m.isPresentInMemberBallotAttendanceUH(domain.getSession(),domain.getType(),locale)
+									&& m.isActiveMemberOn(currentDate, locale)
+									&& domain.containsClubbingFromSecondBatch(domain.getSession(),m,locale)
+									){
+									bufferFirstNamesFirst.append(m.getFullname()+",");
+									supportingMembers.add(m);
+								}else if(m.isActiveMemberOn(currentDate, locale)){
+									bufferFirstNamesFirst.append(m.getFullname()+",");
+									supportingMembers.add(m);
+								}
+							} catch (ELSException e) {
+								e.printStackTrace();
+							}
+						
+					}else if(m.isActiveMemberOn(currentDate, locale)){
+						bufferFirstNamesFirst.append(m.getFullname()+",");
+						supportingMembers.add(m);
+					}
 				}
 				model.addAttribute("supportingMembersName", bufferFirstNamesFirst.toString());
 				model.addAttribute("supportingMembers",supportingMembers);
@@ -836,7 +861,7 @@ public class QuestionController extends GenericController<Question>{
 			model.addAttribute("formattedPriority",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getPriority()));
 		}
 		/**** Priorities Ends  ****/
-		
+
 		/**** Ministries,Departments,Sub departments,Groups,Answering Dates Starts ****/
 		if(questionType.getType().trim().equals("questions_starred")){
 			Date rotationOrderPubDate=null;
@@ -847,7 +872,6 @@ public class QuestionController extends GenericController<Question>{
 					serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 					rotationOrderPubDate = FormaterUtil.getDateFormatter(serverDateFormat.getValue(), "en_US").parse(strRotationOrderPubDate);
 					model.addAttribute("rotationOrderPublishDate", FormaterUtil.getDateFormatter(locale).format(rotationOrderPubDate));
-					Date currentDate=new Date();
 					if(currentDate.equals(rotationOrderPubDate)||currentDate.after(rotationOrderPubDate)){
 						List<Ministry> ministries=Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
 						model.addAttribute("ministries",ministries);
@@ -989,7 +1013,7 @@ public class QuestionController extends GenericController<Question>{
 			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
 		}
 		/**** Number Ends ****/
-		
+
 		/**** Role Starts ****/
 		String role=request.getParameter("role");
 		if(role!=null){
@@ -1000,7 +1024,7 @@ public class QuestionController extends GenericController<Question>{
 			request.getSession().removeAttribute("role");
 		}
 		/**** Role Ends ****/
-		
+
 		/**** User Group Starts ****/
 		String usergroupType=request.getParameter("usergroupType");
 		if(usergroupType!=null){
@@ -1036,7 +1060,7 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}		
 		/**** Bulk Edit Ends****/
-		
+
 		/**** Status,Internal Status and Recommendation Status Starts ****/
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();
@@ -1081,7 +1105,7 @@ public class QuestionController extends GenericController<Question>{
 			model.addAttribute("recommendationStatusType",recommendationStatus.getType());
 		}
 		/**** Status,Internal Status and Recommendation Status Starts ****/
-		
+
 		/**** Referenced Questions Starts ****/
 		CustomParameter clubbedReferencedEntitiesVisibleUserGroups = CustomParameter.findByName(CustomParameter.class, "QIS_ALLOWED_USERGROUP_TO_DO_VIEW_CLUBBING_REFERENCING", "");   
 		if(clubbedReferencedEntitiesVisibleUserGroups != null&&clubbedReferencedEntitiesVisibleUserGroups.getValue().contains(usergroupType)){
@@ -1137,17 +1161,57 @@ public class QuestionController extends GenericController<Question>{
 					reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getQuestion().getNumber()));
 					reference.setNumber(String.valueOf(ce.getQuestion().getId()));
 					references.add(reference);
-					String tempPrimary=ce.getQuestion().getPrimaryMember().getFullname();
-					if(!buffer1.toString().contains(tempPrimary)){
-						buffer1.append(ce.getQuestion().getPrimaryMember().getFullname()+",");
+					Member clubbedQuestionPrimaryMember=ce.getQuestion().getPrimaryMember();
+					String tempPrimary=clubbedQuestionPrimaryMember.getFullname();
+					if(!buffer1.toString().contains(tempPrimary)){						
+						if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE) 
+								&& questionType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+							/**** in case of starred question in upper house,if a supporting member is active on current date
+							 * and the question contains a clubbed entity that belongs to second batch then the member will
+							 * be included ****/
+							try {
+								if(!clubbedQuestionPrimaryMember.isPresentInMemberBallotAttendanceUH(domain.getSession(),domain.getType(),locale)
+									&& clubbedQuestionPrimaryMember.isActiveMemberOn(currentDate, locale)
+									&& domain.containsClubbingFromSecondBatch(domain.getSession(),clubbedQuestionPrimaryMember,locale)
+									){
+									buffer1.append(clubbedQuestionPrimaryMember.getFullname()+",");
+								}else if(clubbedQuestionPrimaryMember.isActiveMemberOn(currentDate, locale)){
+									buffer1.append(clubbedQuestionPrimaryMember.getFullname()+",");
+								}
+							} catch (ELSException e) {
+								e.printStackTrace();
+							}
+						}else if(clubbedQuestionPrimaryMember.isActiveMemberOn(currentDate, locale)){
+							buffer1.append(clubbedQuestionPrimaryMember.getFullname()+",");
+						}
 					}
 					List<SupportingMember> clubbedSupportingMember=ce.getQuestion().getSupportingMembers();
 					if(clubbedSupportingMember!=null){
 						if(!clubbedSupportingMember.isEmpty()){
 							for(SupportingMember l:clubbedSupportingMember){
-								String tempSupporting=l.getMember().getFullname();
+								Member clubbedQuestionSupportingMember=l.getMember();
+								String tempSupporting=clubbedQuestionSupportingMember.getFullname();
 								if(!buffer1.toString().contains(tempSupporting)){
-									buffer1.append(tempSupporting+",");
+									if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE) 
+											&& questionType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+										/**** in case of starred question in upper house,if a supporting member is active on current date
+										 * and the question contains a clubbed entity that belongs to second batch then the member will
+										 * be included ****/
+										try {
+											if(!clubbedQuestionSupportingMember.isPresentInMemberBallotAttendanceUH(domain.getSession(),domain.getType(),locale)
+												&& clubbedQuestionSupportingMember.isActiveMemberOn(currentDate, locale)
+												&& domain.containsClubbingFromSecondBatch(domain.getSession(),clubbedQuestionSupportingMember,locale)
+												){
+												buffer1.append(clubbedQuestionSupportingMember.getFullname()+",");
+											}else if(clubbedQuestionPrimaryMember.isActiveMemberOn(currentDate, locale)){
+												buffer1.append(clubbedQuestionSupportingMember.getFullname()+",");
+											}
+										} catch (ELSException e) {
+											e.printStackTrace();
+										}
+									}else if(clubbedQuestionSupportingMember.isActiveMemberOn(currentDate, locale)){
+										buffer1.append(clubbedQuestionSupportingMember.getFullname()+",");
+									}
 								}
 							}
 						}
@@ -1169,7 +1233,7 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}
 		/**** Clubbed Questions Ends ****/			
-		
+
 		/**** Populating Put up options and Actors Starts ****/
 		if(domain.getInternalStatus()!=null){
 			String internalStatusType=domain.getInternalStatus().getType();			
@@ -1195,30 +1259,30 @@ public class QuestionController extends GenericController<Question>{
 		}
 		/**** Populating Put up options and Actors Ends ****/		
 		//---------------------------Added by vikas & dhananjay-------------------------------------
-				Status tempStatus = Status.findByFieldName(Status.class, "type", "question_final_rejection", domain.getLocale());
-				boolean canRemark = false;	
-				String errorMessagePossible="";
-				try{
-					errorMessagePossible = "domain_not_found";
-					if (domain.getInternalStatus().getType().equals(tempStatus.getType())) {
-						errorMessagePossible = "questiondraft_not_found_for_remark";
-						QuestionDraft qDraft = domain.findPreviousDraft();					
-						model.addAttribute("sectionofficer_remark",qDraft.getRemarks());
-						canRemark = true;
-					}
-				}catch(Exception e){
-					model.addAttribute("errorcode",errorMessagePossible);
-					logger.error("Remark not found."+e.getMessage());
-				}
-				if(!canRemark){
-					model.addAttribute("sectionofficer_remark","");
-				}
-				if(questionType != null){
-					if(questionType.getType().equals("questions_halfhourdiscussion_from_question") || questionType.getType().equals("questions_halfhourdiscussion_standalone")){
+		Status tempStatus = Status.findByFieldName(Status.class, "type", "question_final_rejection", domain.getLocale());
+		boolean canRemark = false;	
+		String errorMessagePossible="";
+		try{
+			errorMessagePossible = "domain_not_found";
+			if (domain.getInternalStatus().getType().equals(tempStatus.getType())) {
+				errorMessagePossible = "questiondraft_not_found_for_remark";
+				QuestionDraft qDraft = domain.findPreviousDraft();					
+				model.addAttribute("sectionofficer_remark",qDraft.getRemarks());
+				canRemark = true;
+			}
+		}catch(Exception e){
+			model.addAttribute("errorcode",errorMessagePossible);
+			logger.error("Remark not found."+e.getMessage());
+		}
+		if(!canRemark){
+			model.addAttribute("sectionofficer_remark","");
+		}
+		if(questionType != null){
+			if(questionType.getType().equals("questions_halfhourdiscussion_from_question") || questionType.getType().equals("questions_halfhourdiscussion_standalone")){
 
-						populateForHalfHourDiscussionEdit(model, domain, request);
-					}
-				}
+				populateForHalfHourDiscussionEdit(model, domain, request);
+			}
+		}
 		//---------------------------Added by vikas & dhananjay-------------------------------------
 	}
 
@@ -1273,7 +1337,7 @@ public class QuestionController extends GenericController<Question>{
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	protected void customValidateCreate(final Question domain, final BindingResult result,
 			final HttpServletRequest request) {		
@@ -1336,7 +1400,7 @@ public class QuestionController extends GenericController<Question>{
 							}
 							Boolean flag=Question.isExist(domain.getNumber(),domain.getSession(),domain.getLocale());
 							if(flag){
-								 result.rejectValue("number", "NonUnique","Duplicate Parameter");
+								result.rejectValue("number", "NonUnique","Duplicate Parameter");
 							}
 						}
 						if(domain.getHouseType()==null){
@@ -1381,7 +1445,7 @@ public class QuestionController extends GenericController<Question>{
 				//check for duplicate questions
 				Boolean  flag=Question.isExist(domain.getNumber(),domain.getSession(),domain.getLocale());
 				if(flag){
-					 result.rejectValue("number", "NonUnique","Duplicate Parameter");
+					result.rejectValue("number", "NonUnique","Duplicate Parameter");
 				}
 			}
 			if(domain.getHouseType()==null){
@@ -1411,7 +1475,7 @@ public class QuestionController extends GenericController<Question>{
 		}
 		/**** Validation Ends ****/
 	}
-	
+
 	@Override
 	protected void customValidateUpdate(final Question domain, final BindingResult result,
 			final HttpServletRequest request) {		
@@ -1474,10 +1538,10 @@ public class QuestionController extends GenericController<Question>{
 								result.rejectValue("number","NumberEmpty");
 							}
 							//check for duplicate questions
-//							Question question=Question.isExist(domain.getNumber(),domain.getSession(),domain.getLocale());
-//							if(question!=null){
-//								 result.rejectValue("number", "NonUnique","Duplicate Parameter");
-//							}
+							//							Question question=Question.isExist(domain.getNumber(),domain.getSession(),domain.getLocale());
+							//							if(question!=null){
+							//								 result.rejectValue("number", "NonUnique","Duplicate Parameter");
+							//							}
 						}
 						if(domain.getHouseType()==null){
 							result.rejectValue("houseType","HousetypeEmpty");
@@ -1831,7 +1895,7 @@ public class QuestionController extends GenericController<Question>{
 		super.populateUpdateIfErrors(model, domain, request);
 	}
 
-	
+
 	@Override
 	protected void populateCreateIfNoErrors(final ModelMap model, final Question domain,
 			final HttpServletRequest request) {
@@ -1910,7 +1974,7 @@ public class QuestionController extends GenericController<Question>{
 							}
 						}
 						/**** Supporting Members is updates(in case of submit) Starts ****/
-						
+
 						/**** Status,Internal Status and recommendation Status is set ****/
 						Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
 						domain.setStatus(newstatus);
@@ -1947,7 +2011,7 @@ public class QuestionController extends GenericController<Question>{
 			domain.setRecommendationStatus(status);
 		}
 		/**** Status,Internal Status,Recommendation Status Update Ends ****/
-		
+
 		/**** creation date,created by,edited on,edited by Starts ****/
 		domain.setCreationDate(new Date());
 		domain.setCreatedBy(this.getCurrentUser().getActualUsername());
@@ -1996,7 +2060,7 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}
 	}	
-	
+
 	@Override
 	protected void populateUpdateIfNoErrors(final ModelMap model, final Question domain,
 			final HttpServletRequest request) {
@@ -2103,7 +2167,7 @@ public class QuestionController extends GenericController<Question>{
 				}
 			}else{
 				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_COMPLETE, domain.getLocale());
-				
+
 				/*****Uncomment the following Code when processing of question for council will be 
 				 * done online And delete the code following the below code******/
 				/*if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)){
@@ -2124,7 +2188,7 @@ public class QuestionController extends GenericController<Question>{
 						domain.setRecommendationStatus(status);
 					}
 				}
-				
+
 			}
 		}
 		else{
@@ -2172,7 +2236,7 @@ public class QuestionController extends GenericController<Question>{
 							domain.setInternalStatus(ASSISTANT_PROCESSED);
 							domain.setRecommendationStatus(ASSISTANT_PROCESSED);
 						}
-						
+
 						QuestionDraft draft = domain.findPreviousDraft();				        
 						if(group != null && draft != null) {
 							Group prevGroup = draft.getGroup();
@@ -2307,7 +2371,7 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}
 	}
-	
+
 	@Override
 	protected void populateAfterCreate(final ModelMap model, final Question domain,
 			final HttpServletRequest request) {
@@ -2360,7 +2424,7 @@ public class QuestionController extends GenericController<Question>{
 		}
 		/**** Supporting Member Workflow Ends ****/
 	}
-	
+
 	@Override
 	protected void populateAfterUpdate(final ModelMap model, final Question domain,
 			final HttpServletRequest request) {
@@ -2537,7 +2601,7 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}
 		/**** Supporting Member Workflow/Put Up Workflow ****/
-		
+
 		/**** Adding to Chart and Group Changed Code Starts ****/
 		Status internalStatus = domain.getInternalStatus();
 		String deviceType=domain.getType().getType();
@@ -2579,7 +2643,7 @@ public class QuestionController extends GenericController<Question>{
 		}
 		/**** Adding to Chart and Group Changed Code Ends ****/
 	}	
-	
+
 	@Transactional
 	@Override
 	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
@@ -3925,7 +3989,7 @@ public class QuestionController extends GenericController<Question>{
 				List<User> users = User.findByRole(false, role.getName(), locale.toString());
 				//as principal secretary for starred question is only one, so user is obviously first element of the list.
 				data.setUserName(users.get(0).findFirstLastName());
-				
+
 				List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
 				int count = 0;
 
@@ -4091,7 +4155,7 @@ public class QuestionController extends GenericController<Question>{
 					List<User> users = User.findByRole(false, role.getName(), locale.toString());
 					//as principal secretary for starred question is only one, so user is obviously first element of the list.
 					data.setUserName(users.get(0).findFirstLastName());
-					
+
 					List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
 					int count = 0;
 					try {
@@ -4163,7 +4227,7 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}
 	}
-	
+
 	@RequestMapping(value="/generateIntimationLetter" ,method=RequestMethod.GET)
 	public @ResponseBody void generateIntimationLetter(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
 		File reportFile = null; 
@@ -4172,7 +4236,7 @@ public class QuestionController extends GenericController<Question>{
 
 		String strQuestionId = request.getParameter("questionId");		
 		String strWorkflowId = request.getParameter("workflowId");
-		
+
 		//in case if request comes from workflow page, question id is retrived from workflow details
 		if(strWorkflowId!=null && !strWorkflowId.isEmpty()) {
 			WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
@@ -4180,7 +4244,7 @@ public class QuestionController extends GenericController<Question>{
 				strQuestionId = workflowDetails.getDeviceId();
 			}
 		}
-		
+
 		if(strQuestionId!=null && !strQuestionId.isEmpty()) {
 			Question question = Question.findById(Question.class, Long.parseLong(strQuestionId));
 			if(question!=null) {
@@ -4274,14 +4338,14 @@ public class QuestionController extends GenericController<Question>{
 				} else {
 					//answeringDate = question.getDiscussionDate();
 				}
-				
+
 				/** referenced question details (later should come through referenced entities) **/
 				if(question.getQuestionreferenceText()!=null) {
 					letterVO.setQuestionReferenceText(question.getQuestionreferenceText());
 				} else {
 					letterVO.setQuestionReferenceText("");
 				}
-				
+
 				Status status = question.getInternalStatus();	
 				String statusType=status.getType();
 				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
@@ -4290,7 +4354,7 @@ public class QuestionController extends GenericController<Question>{
 				} else {//if(statusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
 					formattedText = FormaterUtil.formatNumbersInGivenText(question.getQuestionreferenceText(), question.getLocale());
 				}
-				
+
 				String memberOrDepartment=request.getParameter("memberOrDepartment");
 				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && memberOrDepartment!=null && memberOrDepartment.equals(ApplicationConstants.MEMBER)
 						|| statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && memberOrDepartment!=null && memberOrDepartment.equals(ApplicationConstants.MEMBER)){
@@ -4349,24 +4413,24 @@ public class QuestionController extends GenericController<Question>{
 					}
 				}
 				String statusTypeSplit = statusType.split("_")[statusType.split("_").length-1];
-				
-//				if(statusType.equals("admission")
-//						|| statusType.equals("rejection")) {
-//					WorkflowActor putupActor = WorkflowConfig.findFirstActor(question, status, locale.toString());
-//					if(putupActor!=null) {
-//						String putupActorUsergroupName = putupActor.getUserGroupType().getName();
-//						QuestionDraft putupDraft = Question.findPutupDraft(question.getId(), "question_recommend_"+statusType, putupActorUsergroupName);				
-//						if(putupDraft!=null) {
-//							letterVO.setRemarks(putupDraft.getRemarks());
-//						}
-//					}
-//				}				
+
+				//				if(statusType.equals("admission")
+				//						|| statusType.equals("rejection")) {
+				//					WorkflowActor putupActor = WorkflowConfig.findFirstActor(question, status, locale.toString());
+				//					if(putupActor!=null) {
+				//						String putupActorUsergroupName = putupActor.getUserGroupType().getName();
+				//						QuestionDraft putupDraft = Question.findPutupDraft(question.getId(), "question_recommend_"+statusType, putupActorUsergroupName);				
+				//						if(putupDraft!=null) {
+				//							letterVO.setRemarks(putupDraft.getRemarks());
+				//						}
+				//					}
+				//				}				
 				/**** In case username is required ****/
-//				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
-//				List<User> users = User.findByRole(false, role.getName(), locale.toString());
-//				//as principal secretary for starred question is only one, so user is obviously first element of the list.
-//				letterVO.setUserName(users.get(0).findFirstLastName());
-				
+				//				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
+				//				List<User> users = User.findByRole(false, role.getName(), locale.toString());
+				//				//as principal secretary for starred question is only one, so user is obviously first element of the list.
+				//				letterVO.setUserName(users.get(0).findFirstLastName());
+
 				/**** generate report ****/				
 				try {
 					if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
