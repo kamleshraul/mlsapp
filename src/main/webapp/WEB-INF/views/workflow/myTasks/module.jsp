@@ -406,7 +406,7 @@
 		function showCurrentStatusReport(val, wfdId){
 			$("#selectionDiv1").hide();
 			var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text().split("_")[0];
-			showTabByIdAndUrl('details_tab', "workflow/question/report/currentstatusreport?device="+device+"&grid=workflow&reportType="+val+"&wfdId="+wfdId);
+			showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 		}
 		
 		function loadChartAnsweringDateByGroup(value){
