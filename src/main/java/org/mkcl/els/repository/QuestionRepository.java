@@ -10,6 +10,7 @@
 package org.mkcl.els.repository;
 
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -2525,5 +2526,37 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		query.setParameter("question",question.getId());
 		query.setParameter("locale",locale);				
 		return query.getResultList();
+	}
+
+	@SuppressWarnings("rawtypes")
+	public boolean containsClubbingFromSecondBatch(final Session session,
+			final Member member,final Question question,final String locale) throws ELSException{
+		try {
+			String startTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_SECONDBATCH_SUBMISSION_STARTTIME_UH);
+			String endTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_SECONDBATCH_SUBMISSION_ENDTIME_UH);
+			Date startDate=FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT,"en_US").parse(startTime);
+			Date endDate=FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT,"en_US").parse(endTime);
+			String strQuery="SELECT qce FROM Question q LEFT JOIN q.clubbedEntities qce "
+					+ "LEFT JOIN qce.question qceq LEFT JOIN qceq.supportingMembers qceqs "
+					+ "WHERE qceq.submissionDate >=:startDate AND qceq.submissionDate <=:endDate "
+					+ " AND (qceq.primaryMember.id=:member OR qceqs.member.id=:member )"
+					+ " AND q.id=:question";
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("member",member.getId());
+			query.setParameter("startDate",startDate);
+			query.setParameter("endDate",endDate);
+			query.setParameter("question",question.getId());
+			List result=query.getResultList();
+			if(result!=null && !result.isEmpty()){
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("Contact_Support", "Please contact support");
+			throw elsException;
+		}
+		return false;
 	}
 }

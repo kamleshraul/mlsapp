@@ -1284,10 +1284,13 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 					if(o[1]!=null){
 						newPrimary=o[1].toString();
 					}
+					System.out.println("***************");
+					System.out.println(oldPrimary+" "+newPrimary);
 					if(oldPrimary!=null && newPrimary!=null){
 						Question oldPrimaryQuestion=Question.findById(Question.class,Long.parseLong(oldPrimary));
 						Question newPrimaryQuestion=Question.findById(Question.class,Long.parseLong(newPrimary));
-						ClubbedEntity newPrimaryClubbedEntity=ClubbedEntity.findByFieldName(ClubbedEntity.class,"question",newPrimaryQuestion, locale);
+						//ClubbedEntity newPrimaryClubbedEntity=ClubbedEntity.findByFieldName(ClubbedEntity.class,"question.id",newPrimaryQuestion.getId(), locale);
+						ClubbedEntity newPrimaryClubbedEntity=ClubbedEntity.findByQuestion(newPrimaryQuestion, locale);
 						/**** Clubbed Entities of New Primary Question and Old primary question ****/
 						ClubbedEntity oldPrimaryClubbedEntity=new ClubbedEntity();
 						oldPrimaryClubbedEntity.setDeviceType(deviceType);
@@ -1296,9 +1299,12 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						oldPrimaryClubbedEntity.setPosition(newPrimaryClubbedEntity.getPosition());
 						oldPrimaryClubbedEntity.persist();					
 						List<ClubbedEntity> newPrimaryclubbedEntities=new ArrayList<ClubbedEntity>();					
-						List<ClubbedEntity> oldPrimaryClubbedEntities=oldPrimaryQuestion.getClubbedEntities();
-						for(ClubbedEntity j:oldPrimaryClubbedEntities){
-							if(j.getId()!=newPrimaryClubbedEntity.getId()){
+						//List<ClubbedEntity> oldPrimaryClubbedEntities=oldPrimaryQuestion.getClubbedEntities();
+						for(ClubbedEntity j:oldPrimaryQuestion.getClubbedEntities()){
+							if(!j.getId().equals(newPrimaryClubbedEntity.getId())){
+								Question question=j.getQuestion();
+								question.setParent(newPrimaryQuestion);
+								question.merge();
 								newPrimaryclubbedEntities.add(j);
 							}
 						}
@@ -1312,7 +1318,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						newPrimaryQuestion.setClubbedEntities(newPrimaryclubbedEntities);
 						newPrimaryQuestion.merge();
 
-						newPrimaryClubbedEntity.remove();
+						//newPrimaryClubbedEntity.remove();
 
 						/**** Update Position of New Primary Question Clubbed Entities ****/
 						List<ClubbedEntity> newPrimaryClubbedEntitiesSorted=Question.findClubbedEntitiesByChartAnsDateNumber(newPrimaryQuestion,locale);

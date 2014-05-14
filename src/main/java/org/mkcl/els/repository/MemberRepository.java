@@ -53,6 +53,7 @@ import org.mkcl.els.domain.Address;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Contact;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.ElectionResult;
 import org.mkcl.els.domain.FamilyMember;
@@ -66,6 +67,7 @@ import org.mkcl.els.domain.Profession;
 import org.mkcl.els.domain.Qualification;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.RivalMember;
+import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.stereotype.Repository;
 
@@ -2660,5 +2662,38 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		}
 		return memberVOs;
 	}
-	
+
+	@SuppressWarnings("rawtypes")
+	public boolean isActiveMemberOn(final Member member,final Date activeOn,final String locale) {
+		String strQuery="Select m FROM Member m JOIN m.houseMemberRoleAssociations hmra "
+				+ "WHERE m.id=:member AND hmra.fromDate <=:activeOn AND "
+				+ "(hmra.toDate >=:activeOn OR hmra.toDate IS NULL )";
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("member",member.getId());
+		query.setParameter("activeOn", activeOn);
+		List result=query.getResultList();
+		if(result!=null && !result.isEmpty()){
+			return true;
+		}
+		return false;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public boolean isPresentInMemberBallotAttendanceUH(final Session session,final DeviceType deviceType,
+			final Member member,
+			final String locale) {
+			String strQuery="SELECT m FROM MemberBallotAttendance mba JOIN mba.member m "
+					+ "JOIN mba.session s JOIN mba.deviceType dt "
+					+ "WHERE m.id=:member AND s.id=:session AND dt.id=:deviceType";
+			javax.persistence.Query query=this.em().createQuery(strQuery);
+			query.setParameter("member",member.getId());
+			query.setParameter("session", session.getId());
+			query.setParameter("deviceType", deviceType.getId());
+			List result=query.getResultList();
+			if(result!=null && !result.isEmpty()){
+				return true;
+			}else{
+				return false;
+			}		
+	}	
 }
