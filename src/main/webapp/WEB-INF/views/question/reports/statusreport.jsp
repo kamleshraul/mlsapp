@@ -45,15 +45,13 @@
 		});
 		
 		function showRemarkReport(){
-			var paramVar = '?deviceType='+$("#selectedQuestionType").val()+
+			var paramVar = '?deviceType='+$("#selectedDeviceType").val()+
 			'&sessionYear='+$("#selectedSessionYear").val()+
 			'&sessionType='+$("#selectedSessionType").val()+
 			'&houseType='+$("#selectedHouseType").val()+
 			'&status='+$("#selectedStatus").val()+
-			'&group='+$("#selectedGroup").val()+
-			'&subdepartment='+$("#selectedSubDepartment").val()+
-			'&device='+$("#device").val()+
-			'&grid=device';
+			'&wfSubType='+$("#selectedSubWorkflow").val()+
+			'&grid=workflow';
 
 			$.get('ref/pendingtasksdevices'+paramVar,function(data){
 			
@@ -80,7 +78,7 @@
 		
 		function addRemarkReport(){
 			if(ids.length > 0 && counter < ids.length){
-				 $.get('question/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val()+'&grid=device',function(data1){
+				 $.get('question/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val(),function(data1){
 						 								
 							if($('#reportWindow1').text().trim()=='v'){
 								$('#reportWindow1').empty();
@@ -92,7 +90,7 @@
 				 });
 				 
 				 counter++;
-				
+				 
 				 if(counter < limit){
 				 	setTimeout(addRemarkReport, 200);
 				 }
@@ -121,11 +119,15 @@
 	        @page{
 	        	size: 210mm 297mm !important;   /* auto is the initial value */
   				margin: 0px 0px 0px 15px !important;
-	        } 
+	        }  
 	        
 	        hr{
 	        	display: none !important;
-	        }    
+	        }   
+	        
+	        span{
+	        	display: block !important;
+	        } 
         }
         
         pre{
@@ -157,7 +159,7 @@
 
 <div id="reportDiv">
 	<div id="statusReportDiv">				
-		<div id="reportWindow" style="size: 600px;">
+		<div id="reportWindow" style="size: 750px;">
 			<div id="reportWindow1" style="word-wrap: break-word;">
 				v
 			</div>
@@ -168,7 +170,7 @@
 	<b>&#9660;</b>
 </div>
 <input type="hidden" id="noMorePages" value="<spring:message code='client.message.no_more_pages' text='No more pages.' />"/>
-<input type="hidden" id="device" value="${device}" />
+<input type="hidden" id="device" value="${device}" /> 
 <input type="hidden" id="reportType" value="${reportType}" />
 <input type="hidden" id="qIDs" value="${qId}" />
 </body>

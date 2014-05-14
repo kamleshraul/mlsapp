@@ -1,19 +1,19 @@
 <div style="width: 750px; margin-top: 0px !important;">
 	<table style="width: 750px; margin-top: 0px !important;">
 		<tr>
-			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">$deviceName</td>
+			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">$formatData.get(11)</td>
 			<td style="font-size: 22px; text-decoration: underline; width:290px; text-align: center;">
 				महाराष्ट्र विधानसभा
 			</td>	
 			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">
-				$fullSessionName
+				$formatData.get(26)
 			</td>
 		</tr>		
 		<tr>
 			<td style="width: 750px; text-align: right; font-size: 12px;" colspan="3">
 				<!--<span style="font-weight: bold; font-size: 17px;">प्रपत्र क्रमांक :</span><br />
-				दिनांक : $currentDate <br />	-->		
-				निर्वाचन क्षेत्र: $primaryMemConstituency
+				दिनांक : $formatData.get(30) <br />	-->		
+				निर्वाचन क्षेत्र: $formatData.get(16)
 			</td>
 		</tr>
 	</table>
@@ -24,7 +24,7 @@
 				सदस्यांचे नाव
 			</td>
 			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				<!--$memberName<br />--> $support
+				<!--$memberName<br />--> $formatData.get(17)
 			</td>
 		</tr>
 		<tr style="font-weight: bold;">													
@@ -32,7 +32,7 @@
 				प्रश्न क्रमांक
 			</td>
 			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				$deviceNumber
+				$formatData.get(9)
 			</td>
 		</tr>
 		<tr style="font-weight: bold;">
@@ -40,7 +40,18 @@
 				गट क्रमांक 
 			</td>
 			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				$groupNumber &nbsp;&nbsp;&nbsp;&nbsp;( $department )
+				#if($formatData.get(19))
+					$formatData.get(19)
+				#else
+					-
+				#end
+				 &nbsp;&nbsp;&nbsp;&nbsp;(
+				#if($formatData.get(20))
+					$formatData.get(20)
+				#else
+					-
+				#end  
+				 )
 			</td>	
 		</tr>
 		#if($finalStatus!='अतारांकित स्वीकृत करावा' && $finalStatus!='अतारांकित करावा')
@@ -49,7 +60,11 @@
 					उत्तराचा दिनांक 
 				</td>
 				<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-					$answeringDate 
+					#if($formatData.get(21))
+						$formatData.get(21)
+					#else
+						-
+					#end
 				</td>	
 			</tr>
 			<tr style="font-weight: bold;">
@@ -57,7 +72,11 @@
 					विभागाला पाठवण्याची दिनांक 
 				</td>
 				<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-					$deptSendDate 
+					#if($formatData.get(22))
+						$formatData.get(22)
+					#else
+						-
+					#end
 				</td>	
 			</tr>
 		#end
@@ -66,7 +85,7 @@
 				स्थिती 
 			</td>
 			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-				$finalStatus
+				$formatData.get(29)
 			</td>
 		</tr>
 		<tr>
@@ -77,20 +96,20 @@
 				विषय 
 			</td>
 			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-				$subject
+				$formatData.get(5)
 			</td>
 		</tr>
 		<br>
 		<tr>
 			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-				$details
+				$formatData.get(4)
 			</td>
 		</tr>
 	</table>
 </div>
 <div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>
-<div style="width: 750px;">
-	<table style="width: 750px; font-weight: bold; border: 1px solid black; font-size: 16px; border-top: 1px solid black;" class="strippedTable">
+<div style="width: 750px;">	
+	<table style="width: 750px; font-weight: bold; border: 1px solid black; font-size: 16px;" class="uiTable">
 		#foreach($r in $data)
 			<tr class="page-break" style="font-weight: bold;">
 				<td style="width: 120px; padding: 2px; text-align: center; min-height: 30px;">
