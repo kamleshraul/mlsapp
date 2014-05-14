@@ -1697,7 +1697,7 @@ public class Question extends Device implements Serializable {
 				member = sm.getMember();
 				if(member!=null) {
 					memberName = member.findFirstLastName();
-					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {				
 						allMemberNamesBuffer.append(", " + memberName);						
 					}									
 				}				
@@ -2450,8 +2450,10 @@ public class Question extends Device implements Serializable {
 	}
 
 
-	
-
-
+	public boolean containsClubbingFromSecondBatch(final Session session,final Member member,
+			String locale) throws ELSException {
+		return getQuestionRepository().containsClubbingFromSecondBatch(session,member,this,
+				locale);
+	}
 	
 }

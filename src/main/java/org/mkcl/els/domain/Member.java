@@ -703,6 +703,14 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return constituencyName;
 	}
 	
+	public boolean isActiveMemberOn(final Date date,final String locale){
+		return getMemberRepository().isActiveMemberOn(this,date,locale);
+	}
+	
+	public boolean isPresentInMemberBallotAttendanceUH(final Session session,final DeviceType deviceType,final String locale){
+		return getMemberRepository().isPresentInMemberBallotAttendanceUH(session,deviceType,this,locale);
+	}
+	
 	// ------------------------------------------Getters/Setters-----------------------------------
 	/**
 	 * Gets the title.

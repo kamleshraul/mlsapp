@@ -233,5 +233,9 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     public static String unclubBill(final Long billBeingProcessed,final Long billBeingClubbed,final String locale){
         return getClubbedEntityRepository().unclubBill(billBeingProcessed,billBeingClubbed,locale);
     }
+
+	public static ClubbedEntity findByQuestion(final Question question,final String locale) {
+		return getClubbedEntityRepository().findByQuestion(question,locale);
+	}
     
 }
