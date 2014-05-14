@@ -1959,4 +1959,20 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		buffer.append(" AND lang.type = '" + language + "'");
 		return buffer.toString();
 	}
+
+
+	@SuppressWarnings("rawtypes")
+	public ClubbedEntity findByQuestion(final Question question,
+			final String locale) {
+		String strQuery="SELECT ce FROM ClubbedEntity ce JOIN ce.question q "
+				+ " WHERE q.id=:question AND q.locale=:locale";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("question",question.getId());
+		query.setParameter("locale",locale);
+		List result=query.getResultList();
+		if(result!=null && !result.isEmpty()){
+			return (ClubbedEntity) result.get(0);
+		}
+		return null;
+	}
 }
