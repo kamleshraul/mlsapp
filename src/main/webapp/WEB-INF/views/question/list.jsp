@@ -148,12 +148,10 @@
 				<a href="#" id="statreport" class="butSim">
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
 				</a> |
-			 </security:authorize>	
-			 <security:authorize access="hasAnyRole('QIS_ABC')">
+			 </security:authorize>
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
-				</a> |
-			 </security:authorize>		 
+				</a> |		 
 			<p>&nbsp;</p>
 		</div>
 	</div>

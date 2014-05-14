@@ -171,7 +171,8 @@
 	
 	function showCurrentStatusReport(val, qId){
 		$("#selectionDiv1").hide();
-		showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+$("#selectedQuestionType").val()+"&grid=device&reportType="+val+"&qId="+qId);
+		var device = $("#deviceTypeMaster option[value='"+$("#selectedQuestionType").val()+"']").text().split("_")[0];
+		showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+ device +"&reportType="+val+"&qId="+qId);
 	}
 	function loadGroupsFromSessions() {
 		if ($("#selectedGroup").length > 0) {
@@ -245,18 +246,7 @@
 		var resourceUrl="question/new?"+parameters;
 		showTabByIdAndUrl('details_tab', resourceUrl);
 	}
-	/**** edit question ****/
-	/* function editQuestion() {
-		$("#cancelFn").val("editQuestion");						
-		var row=$('#key').val();
-		
-		if(row==null||row==''){
-			$.prompt($('#selectRowFirstMessage').val());
-			return false;
-		}else{
-			showTabByIdAndUrl('details_tab','question/'+row+'/edit?'+$("#gridURLParams").val());
-		}			
-	} */
+	
 	function editQuestion(row) {
 		$("#cancelFn").val("editQuestion");
 		row = $('#key').val();
@@ -302,33 +292,22 @@
 			return;
 		} else {
 			$.prompt($('#confirmDeleteMessage').val() + row,
-							{buttons : {Ok : true,Cancel : false},
-								callback : function(v) {
-									if (v) {
-										$.delete_('question/' + row+ '/delete',null,function(data,
-																textStatus,
-																XMLHttpRequest) {
-															showQuestionList();
-														}).fail(function() {
-															if ($("#ErrorMsg").val() != '') {
-																$("#error_p").html($("#ErrorMsg").val())
-																		.css(
-																				{
-																					'color' : 'red',
-																					'display' : 'block'
-																				});
-															} else {
-																$("#error_p").html("Error occured contact for support.").css(
-																				{
-																					'color' : 'red',
-																					'display' : 'block'
-																				});
-															}
-															scrollTop();
-														});
-									}
+					{buttons : {Ok : true,Cancel : false},
+					callback : function(v) {
+						if (v) {
+							$.delete_('question/' + row+ '/delete',null,function(data,textStatus,XMLHttpRequest) {
+								showQuestionList();
+							}).fail(function() {
+								if ($("#ErrorMsg").val() != '') {
+									$("#error_p").html($("#ErrorMsg").val()).css({'color' : 'red','display' : 'block'});
+								} else {
+									$("#error_p").html("Error occured contact for support.").css({'color' : 'red','display' : 'block'});
 								}
+								scrollTop();
 							});
+						}
+					}
+			});
 		}
 	}
 	/**** reload grid ****/
@@ -504,7 +483,7 @@
 	
 	
 	function statReport(){
-		var url = "question/statreport?sessionYear="+$("#selectedSessionYear").val()
+		var url = "question/report/statreport?sessionYear="+$("#selectedSessionYear").val()
 				+ "&sessionType="+$("#selectedSessionType").val()
 				+ "&houseType="+$("#selectedHouseType").val()
 				+ "&deviceType="+$("#selectedQuestionType").val();
@@ -695,7 +674,7 @@
 				</c:forEach>
 			</select> <select id="deviceTypeMaster" style="display: none;">
 				<c:forEach items="${questionTypes }" var="i">
-					<option value="${i.id }">${i.type }</option>
+					<option value="${i.id}">${i.type}</option>
 				</c:forEach>
 			</select>|
 
