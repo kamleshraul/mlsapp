@@ -1617,7 +1617,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					beingProcessedBill.setClubbedEntities(null);
 				}            
 				beingProcessedBill.simpleMerge();
-				clubbedEntityToRemove.remove();
+				//clubbedEntityToRemove.remove();
 				beingClubbedBill.setParent(null);
 				Status newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED, locale);
 				beingClubbedBill.setInternalStatus(newstatus);
@@ -1653,7 +1653,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				}
 				beingClubbedBill.setClubbedEntities(newClubbedBills);
 				beingClubbedBill.simpleMerge();
-				clubbedEntityToRemove.remove();
+				//clubbedEntityToRemove.remove();
 				beingProcessedBill.setParent(null);
 				Status newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.BILL_SYSTEM_ASSISTANT_PROCESSED, locale);
 				beingProcessedBill.setInternalStatus(newstatus);
