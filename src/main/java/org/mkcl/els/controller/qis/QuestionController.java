@@ -3943,7 +3943,7 @@ public class QuestionController extends GenericController<Question>{
 				if(ballotedDeviceVOs == null) {
 					try {
 						//response.sendError(404, "Report cannot be generated at this stage.");
-						MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "resolution.karyavaliReport.noDataFound", locale.toString());
+						MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "question.yadiReport.noDataFound", locale.toString());
 						if(message != null) {
 							if(!message.getValue().isEmpty()) {
 								response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
@@ -4285,6 +4285,8 @@ public class QuestionController extends GenericController<Question>{
 					} else {
 						letterVO.setPrimaryMemberName("");
 					}
+				} else {
+					//error code: No Primary Member Found.
 				}
 				String allMemberNames = null;
 				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
@@ -4340,7 +4342,8 @@ public class QuestionController extends GenericController<Question>{
 
 				/** referenced question details (later should come through referenced entities) **/
 				if(question.getQuestionreferenceText()!=null) {
-					letterVO.setQuestionReferenceText(question.getQuestionreferenceText());
+					formattedText = FormaterUtil.formatNumbersInGivenText(question.getQuestionreferenceText(), question.getLocale());
+					letterVO.setQuestionReferenceText(formattedText);
 				} else {
 					letterVO.setQuestionReferenceText("");
 				}
