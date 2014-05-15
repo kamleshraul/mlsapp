@@ -895,7 +895,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			child.setFileIndex(null);
 			child.setFileSent(false);
 		}
-		child.simpleMerge();
+		child.merge();
 
 		ClubbedEntity clubbedEntity=new ClubbedEntity();
 		clubbedEntity.setDeviceType(child.getType());
@@ -916,7 +916,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					question.setRecommendationStatus(newRecommendationStatus);
 				}
 				
-				question.simpleMerge();
+				question.merge();
 				k.setQuestion(question);
 				k.merge();
 				parentClubbedEntities.add(k);
@@ -924,7 +924,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}
 		parent.setParent(null);
 		parent.setClubbedEntities(parentClubbedEntities);
-		parent.simpleMerge();
+		parent.merge();
 
 		List<ClubbedEntity> clubbedEntities=parent.findClubbedEntitiesByChartAnsweringDateQuestionNumber(ApplicationConstants.ASC,locale);
 		Integer position=1;
