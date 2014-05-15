@@ -452,7 +452,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				if(beingProcessedQuestion.getChartAnsweringDate()!=null 
 						&& beingClubbedQuestion.getChartAnsweringDate()!=null
 						&& beingProcessedQuestion.getChartAnsweringDate().getId().equals(beingClubbedQuestion.getChartAnsweringDate().getId())){
-					if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+					if(beingProcessedQuestion.getNumber().compareTo(beingClubbedQuestion.getNumber()) < 0){
 						return beingProcessedIsPrimary(beingProcessedQuestion,beingClubbedQuestion);
 					}else{
 						return beingClubbedIsPrimary(beingProcessedQuestion,beingClubbedQuestion);
@@ -471,7 +471,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				}
 				/**** no chart ****/
 				else{
-					if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+					if(beingProcessedQuestion.getNumber().compareTo(beingClubbedQuestion.getNumber()) < 0){
 						return beingProcessedIsPrimary(beingProcessedQuestion,beingClubbedQuestion);
 					}else{
 						return beingClubbedIsPrimary(beingProcessedQuestion,beingClubbedQuestion);
@@ -522,11 +522,11 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		else if((beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED) 
 				|| beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) 
 				&& ((beingClubbedQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION) 
-						&& beingClubbedQnIS.getPriority() > TO_BE_PUT_UP.getPriority()
-						&& beingClubbedQnIS.getPriority() < approvalStatus.getPriority()) 
+						&& beingClubbedQnIS.getPriority().compareTo(TO_BE_PUT_UP.getPriority()) > 0
+						&& beingClubbedQnIS.getPriority().compareTo(approvalStatus.getPriority()) < 0)
 						|| (! beingClubbedQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
-								&& beingClubbedQnIS.getPriority() > unProcessedStatus.getPriority()
-								&& beingClubbedQnIS.getPriority() < approvalStatus.getPriority()))) {
+								&& beingClubbedQnIS.getPriority().compareTo(unProcessedStatus.getPriority()) > 0
+								&& beingClubbedQnIS.getPriority().compareTo(approvalStatus.getPriority()) < 0))) {
 			Status clubbedWithPending = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
 			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, clubbedWithPending,clubbedWithPending, locale);
 			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
@@ -704,11 +704,11 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		else if((beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED) 
 				|| beingProcessedQnISType.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) 
 				&& ((beingClubbedQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION) 
-						&& beingClubbedQnIS.getPriority() > TO_BE_PUT_UP.getPriority()
-						&& beingClubbedQnIS.getPriority() < approvalStatus.getPriority()) 
+						&& beingClubbedQnIS.getPriority().compareTo(TO_BE_PUT_UP.getPriority()) > 0 
+						&& beingClubbedQnIS.getPriority().compareTo(approvalStatus.getPriority()) < 0)
 						|| (! beingClubbedQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
-								&& beingClubbedQnIS.getPriority() > unProcessedStatus.getPriority()
-								&& beingClubbedQnIS.getPriority() < approvalStatus.getPriority()))) {
+								&& beingClubbedQnIS.getPriority().compareTo(unProcessedStatus.getPriority()) > 0
+								&& beingClubbedQnIS.getPriority().compareTo(approvalStatus.getPriority()) < 0))) {
 			Status clubbedWithPending = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
 			actualClubbing(beingClubbedQuestion, beingProcessedQuestion, clubbedWithPending, clubbedWithPending, locale);
 			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
@@ -904,7 +904,6 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		clubbedEntity.persist();
 		parentClubbedEntities.add(clubbedEntity);		
 
-		Status TO_BE_CLUBBED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
 		if(childClubbedEntities!=null&& !childClubbedEntities.isEmpty()){
 			for(ClubbedEntity k:childClubbedEntities){
 				Question question=k.getQuestion();
@@ -912,7 +911,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				
 				Status internalStatus = question.getInternalStatus();
 				if(internalStatus != null 
-						&& internalStatus.getType().equals(TO_BE_CLUBBED.getType())) {
+						&& internalStatus.getType().equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)) {
 					question.setInternalStatus(newInternalStatus);
 					question.setRecommendationStatus(newRecommendationStatus);
 				}
@@ -974,7 +973,8 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 	public Question updateClubbing(final Question domain) {
 		/**** On same chart ****/
 		if(domain.getChartAnsweringDate().getId().equals(domain.getParent().getChartAnsweringDate().getId())){
-			if(domain.getNumber() > domain.getParent().getNumber()){
+			// if(domain.getNumber() > domain.getParent().getNumber()){
+			if(domain.getNumber().compareTo(domain.getParent().getNumber()) > 0){
 				actualClubbing(domain.getParent(),domain,domain.getInternalStatus(), domain.getRecommendationStatus(),domain.getLocale());
 			}else{
 				actualClubbing(domain,domain.getParent(),domain.getInternalStatus(), domain.getRecommendationStatus(),domain.getLocale());
@@ -990,7 +990,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}
 		/**** No charts ****/
 		else{
-			if(domain.getNumber() > domain.getParent().getNumber()){
+			if(domain.getNumber().compareTo(domain.getParent().getNumber()) > 0){
 				actualClubbing(domain.getParent(),domain,domain.getInternalStatus(), domain.getRecommendationStatus(),domain.getLocale());
 			}else{
 				actualClubbing(domain,domain.getParent(),domain.getInternalStatus(), domain.getRecommendationStatus(),domain.getLocale());
@@ -1006,19 +1006,20 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		try {
 			Question beingProcessedQuestion=Question.findById(Question.class,questionBeingProcessed);
 			Question beingClubbedQuestion=Question.findById(Question.class,questionBeingClubbed);
-			ClubbedEntity clubbedEntityToRemove=null;
+			// ClubbedEntity clubbedEntityToRemove=null;
 
 			/**** If processed question's number is less than clubbed question's number
 			 * then clubbed question is removed from the clubbing of processed question
 			 * ,clubbed question's parent is set to null ,new clubbing of processed 
 			 * question is set,their position is updated****/
-			if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+			// if(beingProcessedQuestion.getNumber()<beingClubbedQuestion.getNumber()){
+			if(beingProcessedQuestion.getNumber().compareTo(beingClubbedQuestion.getNumber()) < 0){
 				List<ClubbedEntity> oldClubbedQuestions=beingProcessedQuestion.getClubbedEntities();
 				List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
 				Integer position=0;
 				boolean found=false;
 				for(ClubbedEntity i:oldClubbedQuestions){
-					if(i.getQuestion().getId()!=beingClubbedQuestion.getId()){
+					if(! i.getQuestion().getId().equals(beingClubbedQuestion.getId())){
 						if(found){
 							i.setPosition(position);
 							position++;
@@ -1030,7 +1031,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					}else{
 						found=true;
 						position=i.getPosition();
-						clubbedEntityToRemove=i;
+						// clubbedEntityToRemove=i;
 					}
 				}
 				if(!newClubbedQuestions.isEmpty()){
@@ -1060,13 +1061,13 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					beingClubbedQuestion.setFileSent(false);
 				}
 				beingClubbedQuestion.simpleMerge();
-			}else if(beingProcessedQuestion.getNumber()>beingClubbedQuestion.getNumber()){
+			}else if(beingProcessedQuestion.getNumber().compareTo(beingClubbedQuestion.getNumber()) > 0){
 				List<ClubbedEntity> oldClubbedQuestions=beingClubbedQuestion.getClubbedEntities();
 				List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
 				Integer position=0;
 				boolean found=false;
 				for(ClubbedEntity i:oldClubbedQuestions){
-					if(i.getQuestion().getId()!=beingProcessedQuestion.getId()){
+					if(! i.getQuestion().getId().equals(beingProcessedQuestion.getId())){
 						if(found){
 							i.setPosition(position);
 							position++;
@@ -1078,7 +1079,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					}else{
 						found=true;
 						position=i.getPosition();
-						clubbedEntityToRemove=i;
+						// clubbedEntityToRemove=i;
 					}
 				}
 				beingClubbedQuestion.setClubbedEntities(newClubbedQuestions);
@@ -1169,7 +1170,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			 * then clubbed question is removed from the clubbing of processed question
 			 * ,clubbed question's parent is set to null ,new clubbing of processed 
 			 * question is set,their position is updated ****/
-			if(beingProcessedQuestion.getNumber() < beingClubbedQuestion.getNumber()){
+			if(beingProcessedQuestion.getNumber().compareTo(beingClubbedQuestion.getNumber()) < 0){
 				List<ClubbedEntity> oldClubbedQuestions=beingProcessedQuestion.getClubbedEntities();
 				List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
 				Integer position=0;
@@ -1216,13 +1217,14 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					beingClubbedQuestion.setFileIndex(Integer.parseInt(reference.getName()));
 					beingClubbedQuestion.setFileSent(false);
 				}				
-			}else if(beingProcessedQuestion.getNumber() > beingClubbedQuestion.getNumber()){
+			// }else if(beingProcessedQuestion.getNumber() > beingClubbedQuestion.getNumber()){
+			}else if(beingProcessedQuestion.getNumber().compareTo(beingClubbedQuestion.getNumber()) > 0){
 				List<ClubbedEntity> oldClubbedQuestions=beingClubbedQuestion.getClubbedEntities();
 				List<ClubbedEntity> newClubbedQuestions=new ArrayList<ClubbedEntity>();
 				Integer position=0;
 				boolean found=false;
 				for(ClubbedEntity i:oldClubbedQuestions){
-					if(i.getQuestion().getId()!=beingProcessedQuestion.getId()){
+					if(! i.getQuestion().getId().equals(beingProcessedQuestion.getId())){
 						if(found){
 							i.setPosition(position);
 							position++;
@@ -1341,20 +1343,23 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		return clubbingStatus;
 	}
 
-
 	private String alreadyClubbed(final Bill beingProcessedBill,
 			final Bill beingClubbedBill,final String locale) {
 		/**** If either of the two bill has an entry in clubbed entity it means the bill is already clubbed ****/
-		ClubbedEntity clubbedEntity1=ClubbedEntity.findByFieldName(ClubbedEntity.class,"bill",
-				beingClubbedBill, locale);
-		if(clubbedEntity1!=null){
+		String strQuery="SELECT ce FROM Bill b JOIN b.clubbedEntities ce " +
+				"WHERE ce.bill.id=:clubbedBillId " +
+				" OR ce.bill.id=:processedBillId";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("clubbedBillId", beingClubbedBill.getId());
+		query.setParameter("processedBillId",beingProcessedBill.getId());
+		List<ClubbedEntity> clubEntities=query.getResultList();
+		if(clubEntities!=null && clubEntities.size()>0){
 			/**** Clubbed bill has an entry in clubbed entities ****/
 			return "BEINGSEARCHED_BILL_ALREADY_CLUBBED";
 		}else{
 			return "NO";
 		}
 	}
-
 
 	private String clubbingRules(Bill beingProcessedBill,
 			Bill beingClubbedBill, String locale) {
@@ -1410,7 +1415,8 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		return "CLUBBING_FAILED";
 	}
 
-
+	// TODO: Method need to be revised keeping in mind the beingClubbedIsPrimary()
+	// written for Question.
 	private String beingClubbedIsPrimary(Bill beingProcessedBill,
 			Bill beingClubbedBill,
 			Status beingProcessedBillStatus,Status beingClubbedBillStatus,
@@ -1444,8 +1450,8 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				||beingProcessedBillStatusType.equals(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP)
 				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_SENDBACK)
 				||beingProcessedRecommendationStatus.equals(ApplicationConstants.BILL_RECOMMEND_DISCUSS))
-				&&beingClubbedBillStatus.getPriority()>=unProcessedStatus.getPriority()
-				&&beingClubbedBillStatus.getPriority()<approvalStatus.getPriority()){
+				&&beingClubbedBillStatus.getPriority().compareTo(unProcessedStatus.getPriority()) >= 0
+				&&beingClubbedBillStatus.getPriority().compareTo(approvalStatus.getPriority()) < 0){
 			Status clubbedWithPending=Status.findByType(ApplicationConstants.BILL_SYSTEM_CLUBBED_WITH_PENDING, locale);
 			actualClubbing(parent, child,clubbedWithPending,clubbedWithPending, locale);
 			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
@@ -1469,8 +1475,6 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}
 		return "CLUBBING_FAILED";
 	}
-
-
 
 	private String beingProcessedIsPrimary(Bill beingProcessedBill,
 			Bill beingClubbedBill,
@@ -1496,8 +1500,6 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}
 		return "CLUBBING_FAILED";
 	}
-
-
 
 	private void actualClubbing(Bill parent,Bill child,
 			Status newInternalStatus,Status newRecommendationStatus,String locale){
@@ -1584,7 +1586,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		try {
 			Bill beingProcessedBill=Bill.findById(Bill.class,billBeingProcessed);
 			Bill beingClubbedBill=Bill.findById(Bill.class,billBeingClubbed);
-			ClubbedEntity clubbedEntityToRemove=null;
+			// ClubbedEntity clubbedEntityToRemove=null;
 
 			/**** If processed bill's submission date is before clubbed bill's submission date
 			 * then clubbed bill is removed from the clubbing of processed bill
@@ -1596,7 +1598,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				Integer position=0;
 				boolean found=false;
 				for(ClubbedEntity i:oldClubbedBills){
-					if(i.getBill().getId()!=beingClubbedBill.getId()){
+					if(! i.getBill().getId().equals(beingClubbedBill.getId())){
 						if(found){
 							i.setPosition(position);
 							position++;
@@ -1608,7 +1610,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					}else{
 						found=true;
 						position=i.getPosition();
-						clubbedEntityToRemove=i;
+						// clubbedEntityToRemove=i;
 					}
 				}
 				if(!newClubbedBills.isEmpty()){
@@ -1636,7 +1638,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				Integer position=0;
 				boolean found=false;
 				for(ClubbedEntity i:oldClubbedBills){
-					if(i.getBill().getId()!=beingProcessedBill.getId()){
+					if(! i.getBill().getId().equals(beingProcessedBill.getId())){
 						if(found){
 							i.setPosition(position);
 							position++;
@@ -1648,7 +1650,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					}else{
 						found=true;
 						position=i.getPosition();
-						clubbedEntityToRemove=i;
+						//clubbedEntityToRemove=i;
 					}
 				}
 				beingClubbedBill.setClubbedEntities(newClubbedBills);
