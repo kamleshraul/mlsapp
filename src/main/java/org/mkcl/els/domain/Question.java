@@ -1621,12 +1621,14 @@ public class Question extends Device implements Serializable {
 				if(member!=null) {
 					memberName = member.findFirstLastName();
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-						if(count==1) {
-							allMemberNamesBuffer.append(memberName);
-							count++;
-						} else {
-							allMemberNamesBuffer.append(", " + memberName);
-						}												
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+							if(count==1) {
+								allMemberNamesBuffer.append(memberName);
+								count++;
+							} else {
+								allMemberNamesBuffer.append(", " + memberName);
+							}
+						}																								
 					}									
 				}				
 			}
@@ -1646,11 +1648,13 @@ public class Question extends Device implements Serializable {
 					if(member!=null) {
 						memberName = member.findFirstLastName();
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-							if(!allMemberNamesBuffer.toString().isEmpty()){
-								allMemberNamesBuffer.append(", " + memberName);
-							}else{
-								allMemberNamesBuffer.append(memberName);
-							}
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+								if(!allMemberNamesBuffer.toString().isEmpty()){
+									allMemberNamesBuffer.append(", " + memberName);
+								}else{
+									allMemberNamesBuffer.append(memberName);
+								}
+							}														
 						}												
 					}
 					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
@@ -1660,10 +1664,12 @@ public class Question extends Device implements Serializable {
 							if(member!=null) {
 								memberName = member.findFirstLastName();
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-									if(allMemberNamesBuffer.toString().isEmpty()){
-										allMemberNamesBuffer.append(memberName);
-									}else{
-										allMemberNamesBuffer.append(", " + memberName);
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+										if(!allMemberNamesBuffer.toString().isEmpty()){
+											allMemberNamesBuffer.append(", " + memberName);
+										}else{
+											allMemberNamesBuffer.append(memberName);
+										}
 									}
 								}								
 							}
@@ -1698,7 +1704,9 @@ public class Question extends Device implements Serializable {
 				if(member!=null) {
 					memberName = member.findFirstLastName();
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {				
-						allMemberNamesBuffer.append(", " + memberName);						
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+							allMemberNamesBuffer.append(", " + memberName);
+						}																		
 					}									
 				}				
 			}
@@ -1718,7 +1726,9 @@ public class Question extends Device implements Serializable {
 					if(member!=null) {
 						memberName = member.findFirstLastName();
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-							allMemberNamesBuffer.append(", " + memberName);							
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+								allMemberNamesBuffer.append(", " + memberName);
+							}							
 						}												
 					}
 					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
@@ -1728,7 +1738,9 @@ public class Question extends Device implements Serializable {
 							if(member!=null) {
 								memberName = member.findFirstLastName();
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-									allMemberNamesBuffer.append(", " + memberName);									
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+										allMemberNamesBuffer.append(", " + memberName);
+									}									
 								}								
 							}
 						}
@@ -1740,13 +1752,13 @@ public class Question extends Device implements Serializable {
 	}
 	
 	public String findAllMemberNamesWithConstituencies() {
+		Session session = this.getSession();
+		House questionHouse = session.getHouse();
+		Date currentDate = new Date();
 		StringBuffer allMemberNamesBuffer = new StringBuffer("");
 		Member member = null;
 		String memberName = "";
 		String constituencyName = "";
-		
-		House questionHouse = this.getSession().getHouse();
-		Date currentDate = new Date();
 		
 		/** primary member **/
 		member = this.getPrimaryMember();		
@@ -1772,7 +1784,9 @@ public class Question extends Device implements Serializable {
 				if(member!=null) {
 					memberName = member.findFirstLastName();
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-						allMemberNamesBuffer.append(", " + memberName);
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+							allMemberNamesBuffer.append(", " + memberName);
+						}
 						constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
 						if(!constituencyName.isEmpty()) {
 							allMemberNamesBuffer.append(" (" + constituencyName + ")");						
@@ -1797,7 +1811,9 @@ public class Question extends Device implements Serializable {
 					if(member!=null) {
 						memberName = member.findFirstLastName();
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-							allMemberNamesBuffer.append(", " + memberName);
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+								allMemberNamesBuffer.append(", " + memberName);
+							}
 							constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
 							if(!constituencyName.isEmpty()) {
 								allMemberNamesBuffer.append(" (" + constituencyName + ")");							
@@ -1811,7 +1827,9 @@ public class Question extends Device implements Serializable {
 							if(member!=null) {
 								memberName = member.findFirstLastName();
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
-									allMemberNamesBuffer.append(", " + memberName);
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+										allMemberNamesBuffer.append(", " + memberName);
+									}
 									constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
 									if(!constituencyName.isEmpty()) {
 										allMemberNamesBuffer.append(" (" + constituencyName + ")");							

@@ -32,6 +32,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
@@ -709,6 +710,43 @@ import org.springframework.beans.factory.annotation.Configurable;
 	
 	public boolean isPresentInMemberBallotAttendanceUH(final Session session,final DeviceType deviceType,final String locale){
 		return getMemberRepository().isPresentInMemberBallotAttendanceUH(session,deviceType,this,locale);
+	}
+	
+	public boolean isSupportingOrClubbedMemberToBeAddedForDevice(Device device) {
+		boolean isSupportingOrClubbedMemberToBeAddedForDevice = false;
+		HouseType houseType = null;
+		DeviceType deviceType = null;
+		Session session = null;
+		Date currentDate = new Date();
+		if(device!=null) {
+			if(device instanceof Question) {
+				Question question = (Question) device;
+				houseType = question.getHouseType();
+				deviceType = question.getType();
+				session = question.getSession();
+				if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE) 
+						&& deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+					/**** in case of starred question in upper house,if a supporting this is active on current date
+					 * and the question contains a clubbed entity that belongs to second batch then the this will
+					 * be included ****/
+					try {
+						if(!this.isPresentInMemberBallotAttendanceUH(session,deviceType,question.getLocale())
+							&& this.isActiveMemberOn(currentDate, question.getLocale())
+							&& question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
+							){
+							isSupportingOrClubbedMemberToBeAddedForDevice = true;
+						}else if(this.isActiveMemberOn(currentDate, question.getLocale())){
+							isSupportingOrClubbedMemberToBeAddedForDevice = true;
+						}
+					} catch (ELSException e) {
+						e.printStackTrace();
+					}
+				} else if(this.isActiveMemberOn(currentDate, question.getLocale())){
+					isSupportingOrClubbedMemberToBeAddedForDevice = true;
+				}
+			}			
+		}
+		return isSupportingOrClubbedMemberToBeAddedForDevice;
 	}
 	
 	// ------------------------------------------Getters/Setters-----------------------------------
