@@ -701,7 +701,18 @@ public class BallotController extends BaseController{
 							model.addAttribute("selectedRound",round);
 							model.addAttribute("session",session.getId());
 							model.addAttribute("questionType", questionType.getId());
-							model.addAttribute("noOfRounds",noOfRounds);							
+							model.addAttribute("noOfRounds",noOfRounds);	
+							/**** Populating Output Formats For Report/s ****/
+							List<MasterVO> outputFormats = new ArrayList<MasterVO>();
+							MasterVO pdfFormat = new MasterVO();
+							pdfFormat.setName("PDF");
+							pdfFormat.setValue("PDF");
+							outputFormats.add(pdfFormat);
+							MasterVO wordFormat = new MasterVO();
+							wordFormat.setName("WORD");
+							wordFormat.setValue("WORD");
+							outputFormats.add(wordFormat);									
+							model.addAttribute("outputFormats", outputFormats);
 						}else{
 							logger.error("**** Total No. Of Rounds In Member Ballot Not Set In Session ****");
 							model.addAttribute("type", "NOOFROUNDS_IN_MEMBERBALLOT_NOTSET");
