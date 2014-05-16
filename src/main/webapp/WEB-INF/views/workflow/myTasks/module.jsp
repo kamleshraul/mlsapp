@@ -399,7 +399,7 @@
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			} else {			
-				$('#generateIntimationLetter').attr('href', 'question/generateIntimationLetter?workflowId='+workflowId+'&memberOrDepartment='+$("#memDeptReport").val());
+				$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?workflowId='+workflowId+'&memberOrDepartment='+$("#memDeptReport").val());
 			}
 		}
 		

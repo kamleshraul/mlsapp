@@ -473,7 +473,7 @@
 			$.prompt("Please select only one question!");
 			return false;
 		} else {			
-			$('#generateIntimationLetter').attr('href', 'question/generateIntimationLetter?questionId='+selectedQuestionId+'&memberOrDepartment='+$("#memDeptReport").val());
+			$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?questionId='+selectedQuestionId+'&memberOrDepartment='+$("#memDeptReport").val());
 			//$.get('question/generateIntimationLetter?questionId='+selectedQuestionId);		    
 		}		
 	}
