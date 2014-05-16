@@ -110,7 +110,9 @@
 	/**** load actors ****/
 	function loadActors(value){
 		//var valueToSend="";
-		if(value!='-'){		
+		if(value!='-'){	
+			var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();
+			var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();
 		//var type=$("#internalStatusMaster option[value='"+value+"']").text();			
 	   // if(type=='question_processed_sendToDepartment'){
 		 //   valueToSend=$("#internalStatus").val();
@@ -131,9 +133,9 @@
 				$("#actor").html(text);
 				$("#actorDiv").hide();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				//if(value!=sendback&&value!=discuss){
-				//$("#internalStatus").val(value);
-				//}
+				if(value!=sendback&&value!=discuss){
+					$("#internalStatus").val(value);
+				}
 				$("#recommendationStatus").val(value);	
 				/**** setting level,localizedActorName ****/
 				 var actor1=data[0].id;
@@ -144,9 +146,9 @@
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			/**** in case of sendback and discuss only recommendation status is changed ****/
-			//if(value!=sendback&&value!=discuss){
-			//$("#internalStatus").val(value);
-			//}
+			if(value!=sendback&&value!=discuss){
+				$("#internalStatus").val(value);
+			}
 		    $("#recommendationStatus").val(value);
 			}
 		});
@@ -648,13 +650,13 @@
 					$(this).val("");
 				}
 			});
-			
-			if((currTimeMillis <=  parseInt($("#sendBackTimeLimit").val())) && ($("#remarks").val()!='')){
+			goAhead='true';
+			/* if((currTimeMillis <=  parseInt($("#sendBackTimeLimit").val())) && ($("#remarks").val()!='')){
 				goAhead='true';
-			}
+			} */
 			if((goAhead=='true') || (goAhead=='false' && ($('#answer').val().replace(/<[^>]+>/g,"")!=''))){
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				$.post($('form').attr('action')+'?operation=workflowsendback',  
+				$.post($('form').attr('action'),  
 	    	            $("form").serialize(),
 	    	            function(data){
 	       					$('.tabContent').html(data);
@@ -1243,7 +1245,8 @@
 		</c:if>
 	</c:if>
 	
-	<c:if test="${currTimeMillis <= sendbacktimelimit and workflowstatus!='COMPLETED'}">
+	<%-- <c:if test="${currTimeMillis <= sendbacktimelimit and workflowstatus!='COMPLETED'}"> --%>
+	<c:if test="${workflowstatus!='COMPLETED'}">
 		<p>
 		<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
 		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
@@ -1254,9 +1257,9 @@
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">
-			<c:if test="${currTimeMillis <= sendbacktimelimit}">
+			<%-- <c:if test="${currTimeMillis <= sendbacktimelimit}"> --%>
 				<input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef">
-			</c:if>
+			<%-- </c:if> --%>
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</p>
 	</div>
@@ -1265,7 +1268,7 @@
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">		
-			<%-- <input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef"> --%>
+			<%-- <input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef"> --%> 
 			<c:if test="${answeringAttempts < maxAnsweringAttempts}">
 				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 			</c:if>
