@@ -150,6 +150,54 @@ public class QuestionReportController extends BaseController{
 		response.setContentType("text/html; charset=utf-8");		
 		return QuestionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}
+	
+	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/admissionreport", method=RequestMethod.GET)
+	public String admittedAndToBeAdmittedReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		String page = "question/error";
+		try{
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strHouseType = request.getParameter("houseType");
+			String strDeviceType = request.getParameter("deviceType");
+			String strGroupId = request.getParameter("groupId");
+			String strSubDepartment = request.getParameter("subDepartment");
+			
+			if(strSessionType != null && !strSessionType.isEmpty()
+					&& strSessionYear != null && !strSessionYear.isEmpty()
+					&& strHouseType != null && !strHouseType.isEmpty()
+					&& strDeviceType != null && !strDeviceType.isEmpty()
+					&& strGroupId != null && !strGroupId.isEmpty()
+					&& strSubDepartment != null && !strSubDepartment.isEmpty()){
+				
+				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, new Integer(strSessionYear));
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+				
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("groupId", new String[]{strGroupId});
+				parameters.put("subDepartment", new String[]{strSubDepartment});
+				parameters.put("locale", new String[]{locale.toString()});
+				
+				List report = Query.findReport("ADMISSION_REPORT", parameters);
+				
+				model.addAttribute("report", report);
+				model.addAttribute("formater", new FormaterUtil());
+				model.addAttribute("locale", locale.toString());
+				model.addAttribute("showSubDepartment", strSubDepartment);
+				page = "question/reports/admissionreport";
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return page;
+	}
 }
 
 /**** Helper for producing reports ****/
@@ -189,6 +237,11 @@ class QuestionReportHelper{
 												if(objx != null){
 													if(objx[6] != null && objx[6].toString().length() > 0){
 														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+													}else{
+														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
+														tempObj[28] = objx[28];
+														
+														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
 													}
 												}
 											}else{
@@ -199,6 +252,11 @@ class QuestionReportHelper{
 												if(objx != null){
 													if(objx[6] != null && objx[6].toString().length() > 0){
 														dataMap.put(userGroupType.getType(), objx);
+													}else{
+														Object[] tempObj = dataMap.get(userGroupType.getType());
+														tempObj[28] = objx[28];
+														
+														dataMap.put(userGroupType.getType(), tempObj);
 													}
 												}
 												
