@@ -167,6 +167,7 @@
 		/**** show question list method is called by default.****/
 		showQuestionList();
 		
+		loadSubDepartmentsFromGroup($("#selectedGroup").val());
 	});
 	
 	function showCurrentStatusReport(val, qId){
@@ -174,6 +175,17 @@
 		var device = $("#deviceTypeMaster option[value='"+$("#selectedQuestionType").val()+"']").text().split("_")[0];
 		showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+ device +"&reportType="+val+"&qId="+qId);
 	}
+	function showAdmissionReport(){
+		params = "houseType=" + $('#selectedHouseType').val()
+		+ '&sessionYear=' + $("#selectedSessionYear").val()
+		+ '&sessionType=' + $("#selectedSessionType").val()
+		+ '&deviceType=' + $("#selectedQuestionType").val()
+		+ '&groupId=' + $("#selectedGroup").val()
+		+ '&subDepartment=' + $("#selectedSubDepartment").val();
+		
+		showTabByIdAndUrl('details_tab', "question/report/admissionreport?"+ params);
+	}
+	
 	function loadGroupsFromSessions() {
 		if ($("#selectedGroup").length > 0) {
 			params = "houseType=" + $('#selectedHouseType').val()
@@ -467,7 +479,7 @@
 	}
 	function loadSubDepartmentsFromGroup(group){
 		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val(),function(data){
-			var subDepartmentText='';
+			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
 			$('#selectedSubDepartment').empty();
 			if(data.length>0){
 				for(var i=0;i<data.length;i++){
