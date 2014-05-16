@@ -191,7 +191,7 @@
 											</c:choose>				
 										</c:otherwise>
 									</c:choose>		
-									<spring:message code="group.rotationorder.selectCriteria" text="Week"/> ${i.count}
+									<spring:message code="group.rotationorder.selectCriteria" text="Date"/> ${i.count}
 								</th>
 								</c:forEach>
 							</tr>						
@@ -201,7 +201,8 @@
 								<th><label style="width: 250px;"><spring:message code="group.rotationorder.anweringDate" text="Answering Date"/></label></th>
 								<c:forEach begin="1" end="${dateCount}" varStatus="i">
 								<td>		
-									<input style="width: 70px;" class="datemask sText" type="text"  name="answeringDate${i.count-1}" value="${answeringDates[i.count-1]}" readonly="readonly">		
+									<input style="width: 70px;" class="datemask sText" type="text"  name="answeringDate${i.count-1}" value="${answeringDates[i.count-1]}">		
+									<input type="hidden" name="originalAnsweringDate${i.count-1}" value="${originalAnsweringDates[i.count-1]}" readonly="readonly">
 								</td>
 								</c:forEach>
 							</tr>						
@@ -222,7 +223,7 @@
 								<tr>
 									<th><label style="width: 250px;"><spring:message code="group.rotationorder.speakerSendingDate" text="Last Sending Date to Speaker"/></label></th>
 									<c:forEach begin="1" end="${dateCount}" varStatus="i">
-									<td>							
+									<td>
 										<input style="width: 70px;" class="datemask sText" type="text" id="speakerSendingDate${i.count-1}" name="speakerSendingDate${i.count-1}" value="${speakerSendingDates[i.count-1]}">	
 										<input type="hidden" id="speakerSendingDateHidden${i.count-1}" value="${speakerSendingDates[i.count-1]}">	
 									</td>

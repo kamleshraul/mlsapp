@@ -34,6 +34,7 @@ import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -592,80 +593,125 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 				dateFormat=new SimpleDateFormat(parameter.getValue(),new Locale(domain.getLocale()));
 			}
 			dateFormat.setLenient(true);
-			
+			boolean isRotationOrderSet = domain.isRotationOrderSet();
 	    	for (; !start.after(end); start.add(Calendar.DATE, 1)) {
 	    	    Date current = start.getTime();
-	    	    String select="false";	    
+	    	    String select="false";	  
+	    	    QuestionDates existingQuestionDate = null;
 	    	    switch(domain.getNumber())
 	    	    {
 		    	    case 1:
 		    	    	
-		    	    	if(sf.format(current).equals("Monday")){
+		    	    	existingQuestionDate = domain.findQuestionDatesByGroupAndAnsweringDate(current);
+		    	    	if(existingQuestionDate!=null) {
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
-		    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName (QuestionDates.class, "answeringDate", current, domain.getLocale());
-		    	    		if(qd!=null || (!Holiday.isHolidayOnDate(current, domain.getLocale()))) {
+		    	    		select = "true";
+		    	    		selects.add(select);
+		    	    	} else if(sf.format(current).equals("Monday")){
+		    	    		answeringDates.add(current);
+		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
 		    	    			select = "true";
-		    	    		} 	
+		    	    		}
+		    	    		selects.add(select);
+		    	    	}
+		    	    	break;
+		    	    	
+		    	    case 6:
+		    	    	
+		    	    	existingQuestionDate = domain.findQuestionDatesByGroupAndAnsweringDate(current);
+		    	    	if(existingQuestionDate!=null) {
+		    	    		answeringDates.add(current);
+		    	    		aDates.add(dateFormat.format(current));
+		    	    		select = "true";
+		    	    		selects.add(select);
+		    	    	} else if(sf.format(current).equals("Sunday")){
+		    	    		answeringDates.add(current);
+		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
+		    	    			select = "true";
+		    	    		}
 		    	    		selects.add(select);
 		    	    	}
 		    	    	break;
 		    	    	
 		    	    case 2:
 		    	    	
-		    	    	if(sf.format(current).equals("Tuesday")){
+		    	    	existingQuestionDate = domain.findQuestionDatesByGroupAndAnsweringDate(current);
+		    	    	if(existingQuestionDate!=null) {
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
-		    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-		    	    		if(qd!=null || (!Holiday.isHolidayOnDate(current, domain.getLocale()))) {
-		    	    			select = "true";
-		    	    		}   
+		    	    		select = "true";
 		    	    		selects.add(select);
-		       	    	}
+		    	    	} else if(sf.format(current).equals("Tuesday")){
+		    	    		answeringDates.add(current);
+		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
+		    	    			select = "true";
+		    	    		}
+		    	    		selects.add(select);
+		    	    	}
 		    	    	break;
 		    	    	
 		    	    case 3:
 		    	    	
-		    	    	if(sf.format(current).equals("Wednesday")){
+		    	    	existingQuestionDate = domain.findQuestionDatesByGroupAndAnsweringDate(current);
+		    	    	if(existingQuestionDate!=null) {
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
-		    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-		    	    		if(qd!=null || (!Holiday.isHolidayOnDate(current, domain.getLocale()))) {
-		    	    			select = "true";
-		    	    		} 
+		    	    		select = "true";
 		    	    		selects.add(select);
-		       	    	}
+		    	    	} else if(sf.format(current).equals("Wednesday")){
+		    	    		answeringDates.add(current);
+		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
+		    	    			select = "true";
+		    	    		}
+		    	    		selects.add(select);
+		    	    	}
 		    	    	break;
 		    	    	
 		    	    case 4:
 		    	    	
-		    	    	if(sf.format(current).equals("Thursday")){
+		    	    	existingQuestionDate = domain.findQuestionDatesByGroupAndAnsweringDate(current);
+		    	    	if(existingQuestionDate!=null) {
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
-		    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-		    	    		if(qd!=null || (!Holiday.isHolidayOnDate(current, domain.getLocale()))) {
+		    	    		select = "true";
+		    	    		selects.add(select);
+		    	    	} else if(sf.format(current).equals("Thursday")){
+		    	    		answeringDates.add(current);
+		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
 		    	    			select = "true";
-		    	    		}   
+		    	    		}
 		    	    		selects.add(select);
 		    	    	}
 		    	    	break;
 		    	    	
 		    	    case 5:
 		    	    	
-		    	    	if(sf.format(current).equals("Friday")){ 
+		    	    	existingQuestionDate = domain.findQuestionDatesByGroupAndAnsweringDate(current);
+		    	    	if(existingQuestionDate!=null) {
 		    	    		answeringDates.add(current);
 		    	    		aDates.add(dateFormat.format(current));
-		    	    		QuestionDates qd = domain.findQuestionDatesByGroupAndAnsweringDate(current);//QuestionDates.findByFieldName(QuestionDates.class, "answeringDate", current, domain.getLocale());
-		    	    		if(qd!=null || (!Holiday.isHolidayOnDate(current, domain.getLocale()))) {
-		    	    			select = "true";
-		    	    		}  
+		    	    		select = "true";
 		    	    		selects.add(select);
-		       	    	}
+		    	    	} else if(sf.format(current).equals("Friday")){
+		    	    		answeringDates.add(current);
+		    	    		aDates.add(dateFormat.format(current));
+		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
+		    	    			select = "true";
+		    	    		}
+		    	    		selects.add(select);
+		    	    	}
 		    	    	break;  	
 	    	    
 	    	    }    	    
 	    	}    	
 	    	model.addAttribute("answeringDates", aDates);
+	    	model.addAttribute("originalAnsweringDates", aDates);
 	    	model.addAttribute("selects", selects);
 	    	for(Date answeringDate:answeringDates){    		
 	    		int difference;
@@ -902,6 +948,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	 * @param request the request
 	 * @return the string
 	 */
+    @Transactional
 	@RequestMapping(value="/rotationorder",method = RequestMethod.POST)
 	public String updateRotationOrder(@Valid @ModelAttribute("domain") Group domain,
 			final BindingResult result, 
@@ -925,6 +972,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		List<QuestionDates> questionDatesToRemove = new ArrayList<QuestionDates>();
 		for(int i=0;i<dateCount;i++){
 			Date answeringDate=null;
+			Date originalAnsweringDate=null;
 			Date submissionDate=null;
 			Date lastSendingDateToDepartment=null;
 			Date lastReceivingDateFromDepartment=null;
@@ -937,10 +985,16 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 			if(request.getParameter("date"+i)!=null){				
 				if(request.getParameter("date"+i).equals("true")){
 					String aDate=request.getParameter("answeringDate"+i);
+					String oDate=request.getParameter("originalAnsweringDate"+i);
 					try {
 						if(aDate!=null){
 							if(!aDate.isEmpty()){
 								answeringDate=sf.parse(aDate);
+							}
+						}
+						if(oDate!=null){
+							if(!oDate.isEmpty()){
+								originalAnsweringDate=sf.parse(oDate);
 							}
 						}
 					} catch (ParseException e) {
@@ -1040,7 +1094,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 					}
 
 					QuestionDates questionDate= new QuestionDates();
-					QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);					
+					QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate(originalAnsweringDate);					
 					if(qd!=null){
 						questionDate=qd;
 					}					
@@ -1057,20 +1111,18 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 					questionDate.setLocale(domain.getLocale());
 					questionDates.add(questionDate);					
 				}				
-			}
-			else{
-				String aDate=request.getParameter("answeringDate"+i);
+			} else{
+				String aDate=request.getParameter("originalAnsweringDate"+i);
 				try {
 					answeringDate=sf.parse(aDate);
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
-				QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate( answeringDate);				
+				QuestionDates qd= domain.findQuestionDatesByGroupAndAnsweringDate(answeringDate);				
 				if(qd!=null){
 					questionDatesToRemove.add(qd);
 				}
 			}
-
 		}
 		if(!questionDates.isEmpty()){
 			domain.setQuestionDates(questionDates);					
@@ -1079,7 +1131,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 				qdr.remove();
 			}
 		}
-		model.addAttribute("domain", domain);	
+		model.addAttribute("domain", domain);
 		redirectAttributes.addFlashAttribute("type", "success");
 		redirectAttributes.addFlashAttribute("msg", "update_success");
 		String returnUrl = "redirect:/" + servletPath + "/"

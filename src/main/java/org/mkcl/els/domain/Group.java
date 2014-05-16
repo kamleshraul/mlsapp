@@ -91,7 +91,6 @@ public class Group extends BaseDomain implements Serializable {
     private transient GroupRepository groupRepository;
 
     // ---------------------------------Constructors----------------------//
-
     public Group() {
 		super();
 	}
@@ -104,112 +103,118 @@ public class Group extends BaseDomain implements Serializable {
         }
         return groupRepository;
     }
+    
     // ----------------------------Domain Methods-------------------------//
-
     public static List<Group> findByHouseTypeSessionTypeYear(
 			final HouseType houseType, final SessionType sessionType, final Integer sessionYear) throws ELSException {
 		return getGroupRepository().findByHouseTypeSessionTypeYear(
 				houseType,sessionType,sessionYear);
-	}
-
-
-
+	}    
+    
 	public static List<String> findAnsweringDates(final Long id, final String locale) throws ELSException {
 		return getGroupRepository().findAnsweringDates(id, locale);
 	}
 
-	 public static Group findByNumberHouseTypeSessionTypeYear(final Integer groupNumber,
+	public static Group findByNumberHouseTypeSessionTypeYear(final Integer groupNumber,
 	            final HouseType houseType, final SessionType sessionType, final Integer year) throws ELSException {
-	        return getGroupRepository().findByNumberHouseTypeSessionTypeYear(groupNumber,
-	                houseType, sessionType, year);
-	    }
+        return getGroupRepository().findByNumberHouseTypeSessionTypeYear(groupNumber,
+                houseType, sessionType, year);
+    }
 
-	 public static Group find(final Ministry ministry, final Session session, final String locale) throws ELSException {
-			HouseType houseType = session.getHouse().getType();
-			Integer year = session.getYear();
-			SessionType sessionType = session.getType();
-			return getGroupRepository().find(ministry, houseType, year, sessionType, locale);
+	public static Group find(final Ministry ministry, final Session session, final String locale) throws ELSException {
+		HouseType houseType = session.getHouse().getType();
+		Integer year = session.getYear();
+		SessionType sessionType = session.getType();
+		return getGroupRepository().find(ministry, houseType, year, sessionType, locale);
+	}
+
+	/**
+	 * Returns an empty list if there are no answering dates.
+	 */
+	public List<Date> getAnsweringDates() {
+		List<Date> answeringDates = new ArrayList<Date>();
+		List<QuestionDates> qDateList = this.getQuestionDates();
+		for(QuestionDates qd : qDateList) {
+			answeringDates.add(qd.getAnsweringDate());
 		}
+		return answeringDates;
+	}
 
-		/**
-		 * Returns an empty list if there are no answering dates.
-		 */
-		public List<Date> getAnsweringDates() {
-			List<Date> answeringDates = new ArrayList<Date>();
-			List<QuestionDates> qDateList = this.getQuestionDates();
-			for(QuestionDates qd : qDateList) {
-				answeringDates.add(qd.getAnsweringDate());
-			}
-			return answeringDates;
+	/**
+	 * Returns a sorted list of answering dates sorted as per
+	 * @param sortOrder
+	 * OR
+	 * Returns an empty list if there are no answering dates.
+	 */
+	public List<Date> getAnsweringDates(final String sortOrder) {
+		List<Date> answeringDates = this.getAnsweringDates();
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			// No need to write a Comparator as Date class
+			// has already implemented the Comparable interface.
+			Collections.sort(answeringDates);
 		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			Comparator<Date> c = new Comparator<Date>() {
 
-		/**
-		 * Returns a sorted list of answering dates sorted as per
-		 * @param sortOrder
-		 * OR
-		 * Returns an empty list if there are no answering dates.
-		 */
-		public List<Date> getAnsweringDates(final String sortOrder) {
-			List<Date> answeringDates = this.getAnsweringDates();
-			if(sortOrder.equals(ApplicationConstants.ASC)) {
-				// No need to write a Comparator as Date class
-				// has already implemented the Comparable interface.
-				Collections.sort(answeringDates);
-			}
-			else if(sortOrder.equals(ApplicationConstants.DESC)) {
-				Comparator<Date> c = new Comparator<Date>() {
-
-					@Override
-					public int compare(final Date d1, final Date d2) {
-						return d2.compareTo(d1);
-					}
-				};
-				Collections.sort(answeringDates, c);
-			}
-			return answeringDates;
-		}
-
-		/**
-		 * Returns null if @param answeringDate is not one of the
-		 * answering dates mentioned for this Group.
-		 */
-		public Date getFinalSubmissionDate(final Date answeringDate) {
-			List<QuestionDates> qDateList = this.getQuestionDates();
-			for(QuestionDates qd : qDateList) {
-				if(qd.getAnsweringDate().equals(answeringDate)) {
-					Date date = qd.getFinalSubmissionDate();
-					CustomParameter parameter =
-						CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
-					String formatType = parameter.getValue();
-					String strDate = FormaterUtil.formatDateToString(date, formatType);
-					String newStrDate = strDate.replaceFirst("00:00:00", "23:59:59");
-					Date submissionDate =
-						FormaterUtil.formatStringToDate(newStrDate, formatType);
-					return submissionDate;
+				@Override
+				public int compare(final Date d1, final Date d2) {
+					return d2.compareTo(d1);
 				}
-			}
-			return null;
+			};
+			Collections.sort(answeringDates, c);
 		}
+		return answeringDates;
+	}
 
-		//To have get the rotation order (question_dates) of the group
-		 public  QuestionDates findQuestionDatesByGroupAndAnsweringDate(final Date answeringDate){
-			 //Group group=Group.findById(Group.class, groupId);
-			 List<QuestionDates> questionDates=this.getQuestionDates();
-			 for(QuestionDates q:questionDates){
-				 if(q.getAnsweringDate().equals(answeringDate)){
-					 return q;
-				 }
+	/**
+	 * Returns null if @param answeringDate is not one of the
+	 * answering dates mentioned for this Group.
+	 */
+	public Date getFinalSubmissionDate(final Date answeringDate) {
+		List<QuestionDates> qDateList = this.getQuestionDates();
+		for(QuestionDates qd : qDateList) {
+			if(qd.getAnsweringDate().equals(answeringDate)) {
+				Date date = qd.getFinalSubmissionDate();
+				CustomParameter parameter =
+					CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+				String formatType = parameter.getValue();
+				String strDate = FormaterUtil.formatDateToString(date, formatType);
+				String newStrDate = strDate.replaceFirst("00:00:00", "23:59:59");
+				Date submissionDate =
+					FormaterUtil.formatStringToDate(newStrDate, formatType);
+				return submissionDate;
+			}
+		}
+		return null;
+	}
+
+	//To have get the rotation order (question_dates) of the group
+	 public  QuestionDates findQuestionDatesByGroupAndAnsweringDate(final Date answeringDate){
+		 //Group group=Group.findById(Group.class, groupId);
+		 List<QuestionDates> questionDates=this.getQuestionDates();
+		 for(QuestionDates q:questionDates){
+			 if(q.getAnsweringDate().equals(answeringDate)){
+				 return q;
 			 }
-			 return null;
-	    }
+		 }
+		 return null;
+    }
 
-
-
-		 public static List<QuestionDatesVO> findAllGroupDatesFormatted(final HouseType houseType,
-		            final SessionType sessionType, final Integer sessionYear, final String string) {
-		        return getGroupRepository().findAllGroupDatesFormatted(houseType,
-		               sessionType,sessionYear,string);
-		    }
+	public static List<QuestionDatesVO> findAllGroupDatesFormatted(final HouseType houseType,
+	            final SessionType sessionType, final Integer sessionYear, final String string) {
+		return getGroupRepository().findAllGroupDatesFormatted(houseType,
+	               sessionType,sessionYear,string);
+	}
+	
+	public boolean isRotationOrderSet() {
+		boolean isRotationOrderSet = false;
+		List<QuestionDates> questionDates = this.getQuestionDates();
+		if(questionDates!=null && !questionDates.isEmpty()) {
+			isRotationOrderSet = true;
+		}
+		return isRotationOrderSet;
+	}
+	
     // ----------------------------Getters/Setters------------------------//
 	public HouseType getHouseType() {
 		return houseType;
