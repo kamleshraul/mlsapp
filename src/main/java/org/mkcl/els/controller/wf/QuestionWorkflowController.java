@@ -1732,7 +1732,9 @@ public class QuestionWorkflowController  extends BaseController{
 						}
 					}			
 				}
-				workflowDetails.setAnsweringDate(domain.getChartAnsweringDate().getAnsweringDate());
+				if(domain.getChartAnsweringDate()!=null) {
+					workflowDetails.setAnsweringDate(domain.getChartAnsweringDate().getAnsweringDate());
+				}
 				workflowDetails.setDecisionInternalStatus(domain.getInternalStatus().getName());
 				workflowDetails.setDecisionRecommendStatus(domain.getRecommendationStatus().getName());
 				workflowDetails.setStatus("COMPLETED");
