@@ -560,7 +560,7 @@
 			
 	        <fo:page-sequence master-reference="{$pageSequenceVariable}" id="DocumentBody">
 		        <fo:static-content flow-name="page-number">	        	
-		        	<fo:block font-family="{$font}" font-size="11pt" text-align="center">
+		        	<fo:block font-family="Mangal" font-size="11pt" text-align="center">
 		        		<fo:page-number/>		        				        		
 		        	</fo:block>
 		        </fo:static-content>       	        
@@ -573,12 +573,12 @@
 			      <fo:table-body>
 				<fo:table-row>
 				  <fo:table-cell>
-				    <fo:block text-align="start" font-family="{$font}" font-style="italic" font-weight="bold">
+				    <fo:block text-align="start" font-family="Mangal" font-style="italic" font-weight="bold">
 				      powered by महाराष्ट्र ज्ञान महामंडळ मर्यादित
 				    </fo:block>
 				  </fo:table-cell>
 				  <fo:table-cell>
-				    <fo:block text-align="end" font-family="{$font}" font-style="italic" font-weight="normal">Page 
+				    <fo:block text-align="end" font-family="Mangal" font-style="italic" font-weight="normal">Page 
 				      <fo:page-number/> of 
 				      <fo:page-number-citation-last
 					ref-id="DocumentBody"/>
@@ -598,14 +598,14 @@
 			      <fo:table-body>
 				<fo:table-row>
 				  <fo:table-cell>
-				    <fo:block text-align="start" font-family="{$font}" font-style="italic" font-weight="normal">Page 
+				    <fo:block text-align="start" font-family="Mangal" font-style="italic" font-weight="normal">Page 
 				      <fo:page-number/> 
 				      of <fo:page-number-citation-last 
 				      ref-id="DocumentBody"/>
 				    </fo:block>
 				  </fo:table-cell>
 				  <fo:table-cell>
-				    <fo:block text-align="end" font-family="{$font}" font-style="italic" font-weight="bold">
+				    <fo:block text-align="end" font-family="Mangal" font-style="italic" font-weight="bold">
 				      powered by महाराष्ट्र ज्ञान महामंडळ मर्यादित
 				    </fo:block>
 				  </fo:table-cell>
@@ -616,23 +616,23 @@
 		    </fo:static-content>
 
 		    <fo:static-content flow-name="rb-right">
-			<fo:block font-size="10pt" text-align="start" font-family="{$font}" font-style="italic" font-weight="bold">
+			<fo:block font-size="10pt" text-align="start" font-family="Mangal" font-style="italic" font-weight="bold">
 			    ई-विधानमंडळ
 			</fo:block>
 		    </fo:static-content>
 
 		    <fo:static-content flow-name="rb-left">
-			<fo:block font-size="10pt" text-align="start" font-family="{$font}" font-style="italic" font-weight="bold">
+			<fo:block font-size="10pt" text-align="start" font-family="Mangal" font-style="italic" font-weight="bold">
 			    ई-विधानमंडळ
 			</fo:block>
 		    </fo:static-content> -->
 	
 	            <fo:flow flow-name="xsl-region-body">		    
-					<fo:block font-family="{$font}" font-size="12pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
-					    <fo:block font-size="27pt" font-weight="bold" text-align="center">
+					<fo:block font-family="Mangal" font-size="10.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+					    <fo:block font-size="18pt" font-weight="bold" text-align="center">
 							महाराष्ट्र <xsl:value-of select="houseType"/>												
 						</fo:block>
-						<fo:block font-size="18pt" font-weight="bold" text-align="center">
+						<fo:block font-size="14pt" font-weight="bold" text-align="center">
 							<xsl:choose>
 								<xsl:when test="sessionNumber = 1">
 									पहिले
@@ -649,17 +649,17 @@
 							</xsl:choose>
 							&#160;अधिवेशन, <xsl:value-of select="sessionYear"/>																								
 						</fo:block>		
-						<fo:block text-align="center" font-weight="bold" font-size="16pt">
-							- - - - - - - - - - - - - - - - -
-						</fo:block>		                	
-	                	<fo:block text-align="center" font-size="19pt" font-weight="bold">
-	                		तारांकित प्रश्नोत्तरांच्या यादीत समाविष्ट करण्यात आलेल्या प्रश्नांची सूची
-	                	</fo:block>
-	                	<fo:block font-size="5pt">&#160;</fo:block>	                	           	
-	                	<fo:block text-align="center" font-weight="bold">
+						<fo:block text-align="center" font-weight="bold" font-size="12pt">
+							--------------------------
+						</fo:block>		
+						<fo:block text-align="center" font-weight="bold" font-size="12pt">
 	                		<xsl:value-of select="answeringDay"/>, दिनांक <xsl:value-of select="answeringDate"/> / <xsl:value-of select="answeringDateInIndianCalendar"/> ( शके )
 	                	</fo:block>
-	                	<fo:block font-size="10pt">&#160;</fo:block>
+	                	<fo:block font-size="10pt">&#160;</fo:block>                	
+	                	<fo:block text-align="center" font-size="12pt" font-weight="bold">
+	                		तारांकित प्रश्नोत्तरांच्या यादीत समाविष्ट करण्यात आलेल्या प्रश्नांची सूची
+	                	</fo:block>
+	                	<fo:block font-size="10pt">&#160;</fo:block>        	           	
 	                	<fo:block text-align="center" font-weight="bold">
 	                		<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                			<fo:table-column column-number="1" column-width="2cm" />
@@ -728,8 +728,8 @@
 	                		</fo:table>
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
-	                	<fo:block text-align="center" font-size="13pt" font-weight="bold">	                		
-	                		<fo:block font-size="14pt">प्रश्नांचा तपशील </fo:block>
+	                	<fo:block text-align="center" font-size="12pt" font-weight="bold">	                		
+	                		<fo:block font-size="12pt">प्रश्नांचा तपशील </fo:block>
 	                		<fo:block font-size="3pt">&#160;</fo:block>
 	                		<xsl:for-each select="./roundVOs/roundVO" >
 	                			<xsl:choose>
@@ -776,7 +776,7 @@
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<xsl:for-each select="./roundVOs/roundVO" >
-	                		<fo:block text-align="center" font-size="14pt" font-weight="bold">
+	                		<fo:block text-align="center" font-size="12pt" font-weight="bold">
 	                			<xsl:choose>
 	                				<xsl:when test="position()=1">
 	                					पहिली फेरी
@@ -874,53 +874,12 @@
 	                	<fo:block font-size="20pt">&#160;</fo:block>
 	                	<xsl:choose>
 	                		<xsl:when test="$formatOut='application/pdf'">
-	                			<fo:block font-size="13pt">
-			                		विधान भवन : 
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	                			                		                		
-			                		<fo:inline font-weight="bold">
-			                			<xsl:value-of select="userName"/>
-			                		</fo:inline>
-			                		<fo:block font-size="0pt">&#160;</fo:block>
-			                		<xsl:value-of select="sessionPlace"/>
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;
-			                		प्रधान सचिव,
-			                		<fo:block font-size="0pt">&#160;</fo:block>
-			                		<fo:block text-align="right">
-			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
-			                		</fo:block>
-			                	</fo:block>
-	                		</xsl:when>
-	                		<xsl:when test="$formatOut='WORD'">
-	                			<fo:block font-size="13pt" text-align="left">
+	                			<fo:block font-size="11pt">
 			                		विधान भवन : 
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;                			                		                		
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	                			                		                		
 			                		<fo:inline font-weight="bold">
 			                			<xsl:value-of select="userName"/>
 			                		</fo:inline>
@@ -930,17 +889,47 @@
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;
+			                		प्रधान सचिव,
+			                		<fo:block font-size="0pt">&#160;</fo:block>
+			                		दिनांक: <xsl:value-of select="reportDate"/>
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;
+			                		महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
+			                		<!-- <fo:block text-align="right">
+			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
+			                		</fo:block> -->
+			                	</fo:block>
+	                		</xsl:when>
+	                		<xsl:when test="$formatOut='WORD'">
+	                			<fo:block font-size="11pt" text-align="left">
+			                		विधान भवन : 
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;         			                		                		
+			                		<fo:inline font-weight="bold">
+			                			<xsl:value-of select="userName"/>
+			                		</fo:inline>
+			                		<fo:block font-size="0pt">&#160;</fo:block>
+			                		<xsl:value-of select="sessionPlace"/>.
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;			                		
 			                		&#160;&#160;
 			                		प्रधान सचिव,
 			                		<fo:block font-size="0pt">&#160;</fo:block>
-			                		<fo:block text-align="right">
+			                		<!-- <fo:block text-align="right">
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
-			                		</fo:block>
+			                		</fo:block> -->
+			                		दिनांक: <xsl:value-of select="reportDate"/>
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;
+			                		महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                	</fo:block>
 	                		</xsl:when>
 	                	</xsl:choose>	                	                		                	

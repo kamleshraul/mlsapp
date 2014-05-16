@@ -94,8 +94,15 @@ public abstract class BaseController {
         ReportServiceImpl reportGenerator = null;
         data.setLocale(locale);
         CustomParameter reportDateFormatParameter = CustomParameter.findByName(CustomParameter.class, xsltFileName.toUpperCase() + "_REPORTDATE_FORMAT", "");
-		if(reportDateFormatParameter!=null && reportDateFormatParameter.getValue()!=null) {					
-			data.setReportDate(FormaterUtil.formatDateToString(new Date(), reportDateFormatParameter.getValue(), locale));
+		if(reportDateFormatParameter!=null && reportDateFormatParameter.getValue()!=null) {
+			String formattedReportDate = FormaterUtil.formatDateToString(new Date(), reportDateFormatParameter.getValue(), locale);
+			if(reportDateFormatParameter.getValue().equals("dd MMM, yyyy")) {
+				String[] strDate=formattedReportDate.split(",");
+				String[] strMonth=strDate[0].split(" ");
+				String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+				formattedReportDate = strMonth[0] + " " + month + ", " + strDate[1];
+			}
+			data.setReportDate(formattedReportDate);
 		} else {
 			data.setReportDate(FormaterUtil.formatDateToString(new Date(), ApplicationConstants.REPORT_DATEFORMAT, locale));
 		}
