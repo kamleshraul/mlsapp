@@ -111,12 +111,14 @@
 		if(value!='-'){
 		var dateAdmitted=$("#internalStatusMaster option[value='question_processed_final_dateAdmitted']").text();	
 		var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
+		 var nameclubbing_reject=$("#internalStatusMaster option[value='question_final_reject_nameclubbing']").text();
 		if(value == dateAdmitted) {
 			$("#endflag").val("end");
 			$("#recommendationStatus").val(value);
 			return false;
-		}else if(value==nameclubbing){
+		}else if(value==nameclubbing || value==nameclubbing_reject){
 			$("#endFlag").val("end");
+			$("#internalStatus").val(value);
 			$("#recommendationStatus").val(value);
 			$("#actor").empty();
 			$("#actorDiv").hide();
