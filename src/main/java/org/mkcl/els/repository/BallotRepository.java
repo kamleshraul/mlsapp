@@ -12,7 +12,9 @@ package org.mkcl.els.repository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -246,38 +248,24 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		//	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 		// String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
 		//String date = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
-
-		String strQuery = "SELECT q FROM Question q" +
-		" where q.id IN ("+
-		" SELECT d.id FROM Chart c JOIN c.chartEntries ce JOIN ce.devices d" +
-		" WHERE c.session.id = :sessionId" + 
-		" AND c.group.id = :groupId" + 
-		" AND c.answeringDate <= :answeringDate" + 
-		" AND c.locale = :locale" + 
-		" AND ce.member.id = :memberId" + 
-		" AND q.parent = " + null +  
-		" AND q.internalStatus.id = :internalStatusId" + 
-		" AND (" +
-		" q.ballotStatus.id != :ballotStatusId" + 
-		" OR" +
-		" q.ballotStatus.id = " + null + " ))" +
-		" ORDER BY q.answeringDate ASC, q.priority ASC";
-
+		
 		List<Question> questions = new ArrayList<Question>();
 		try{
-			TypedQuery<Question> jpQuery = this.em().createQuery(strQuery, Question.class);
-			jpQuery.setParameter("sessionId", session.getId());
-			jpQuery.setParameter("groupId", group.getId());
-			jpQuery.setParameter("answeringDate", answeringDate);
-			jpQuery.setParameter("memberId", member.getId());
-			jpQuery.setParameter("locale", locale);
-			jpQuery.setParameter("internalStatusId", internalStatus.getId());
-			jpQuery.setParameter("ballotStatusId", ballotStatus.getId());
-			jpQuery.setMaxResults(noOfRounds);
-		
-			List<Question> qX = jpQuery.getResultList();
-			if(qX != null){
-				questions = qX;
+			Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+			parametersMap.put("locale", new String[]{locale.toString()});
+			parametersMap.put("sessionId", new String[]{session.getId().toString()});
+			parametersMap.put("groupId", new String[]{group.getId().toString()});
+			parametersMap.put("answeringDate", new String[]{answeringDate.toString()});
+			parametersMap.put("memberId", new String[]{member.getId().toString()});
+			parametersMap.put("internalStatusId", new String[]{internalStatus.getId().toString()});
+			parametersMap.put("ballotStatusId", new String[]{ballotStatus.getId().toString()});			
+			
+			List<Question> qX = org.mkcl.els.domain.Query.findResultListOfGivenClass("QIS_ELIGIBLE_QUESTIONS_FOR_STARRED_ASSEMBLY_BALLOT", parametersMap, Question.class);
+			
+			if(qX != null && !qX.isEmpty() && noOfRounds!=null && noOfRounds>0){
+				for(int i=0; i<qX.size(); i++) {
+					questions.add(qX.get(i));					
+				}				
 			}
 		}catch (Exception e) {
 			e.printStackTrace();

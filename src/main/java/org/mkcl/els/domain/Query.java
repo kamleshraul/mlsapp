@@ -68,10 +68,13 @@ public class Query extends BaseDomain{
     }
 
 	@SuppressWarnings("rawtypes")
-	public static List findReport(final String report,
-			final Map<String, String[]> requestMap) {
-		return getQueryRepository().findReport(report,
-				requestMap);
+	public static List findReport(final String report, final Map<String, String[]> requestMap) {
+		return getQueryRepository().findReport(report, requestMap);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static List findResultListOfGivenClass(final String report, final Map<String, String[]> requestMap, final Class className) {
+		return getQueryRepository().findResultListOfGivenClass(report, requestMap, className);
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -80,9 +83,7 @@ public class Query extends BaseDomain{
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static List findMISPartyDistrictReport(final String report,
-			final Map<String, String[]> requestMap) {
-		return getQueryRepository().findMISPartyDistrictReport(report,
-				requestMap);
+	public static List findMISPartyDistrictReport(final String report, final Map<String, String[]> requestMap) {
+		return getQueryRepository().findMISPartyDistrictReport(report, requestMap);
 	}
 }
