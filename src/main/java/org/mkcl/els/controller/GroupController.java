@@ -618,24 +618,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		    	    	}
 		    	    	break;
 		    	    	
-		    	    case 6:
-		    	    	
-		    	    	existingQuestionDate = domain.findQuestionDatesByGroupAndAnsweringDate(current);
-		    	    	if(existingQuestionDate!=null) {
-		    	    		answeringDates.add(current);
-		    	    		aDates.add(dateFormat.format(current));
-		    	    		select = "true";
-		    	    		selects.add(select);
-		    	    	} else if(sf.format(current).equals("Sunday")){
-		    	    		answeringDates.add(current);
-		    	    		aDates.add(dateFormat.format(current));
-		    	    		if(isRotationOrderSet==false && !Holiday.isHolidayOnDate(current, domain.getLocale())) {
-		    	    			select = "true";
-		    	    		}
-		    	    		selects.add(select);
-		    	    	}
-		    	    	break;
-		    	    	
 		    	    case 2:
 		    	    	
 		    	    	existingQuestionDate = domain.findQuestionDatesByGroupAndAnsweringDate(current);
