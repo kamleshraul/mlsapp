@@ -994,6 +994,24 @@ public class QuestionController extends GenericController<Question>{
 			if(domain.getSubmissionDate()!=null){
 				model.addAttribute("submissionDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getSubmissionDate()));
 				model.addAttribute("formattedSubmissionDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getSubmissionDate()));
+				/***Remove the following code when session gets over**/
+				
+				if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+					if(domain.getSubmissionDate()!=null && domain.getInternalStatus()!=null){
+						String firstBatchSubmissionEndDate=selectedSession.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+						try {
+							if(domain.getSubmissionDate().after(FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, locale).parse(firstBatchSubmissionEndDate))
+									&& domain.getInternalStatus().getType().contains("final")){
+								model.addAttribute("hideSubmitButton","yes");
+							}else{
+								model.addAttribute("hideSubmitButton","no");
+							}
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
 			}
 			if(domain.getCreationDate()!=null){
 				model.addAttribute("creationDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getCreationDate()));
