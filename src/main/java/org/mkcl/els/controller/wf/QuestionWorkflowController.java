@@ -2558,7 +2558,7 @@ public class QuestionWorkflowController  extends BaseController{
 					question.setStatus(newStatusStatus);
 					question.setInternalStatus(newInternalStatus);
 					question.setInternalStatus(domain.getRecommendationStatus());
-				}if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
 					question.setInternalStatus(nameClubbing);
 				}
 				question.simpleMerge();
@@ -2634,7 +2634,7 @@ public class QuestionWorkflowController  extends BaseController{
 					question.setStatus(domain.getStatus());
 					question.setInternalStatus(domain.getInternalStatus());
 					question.setInternalStatus(domain.getRecommendationStatus());
-				}if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
 					question.setInternalStatus(nameClubbing);
 				}			
 				question.simpleMerge();
@@ -2718,7 +2718,7 @@ public class QuestionWorkflowController  extends BaseController{
 					question.setStatus(domain.getStatus());
 					question.setInternalStatus(domain.getInternalStatus());
 					question.setInternalStatus(domain.getRecommendationStatus());
-				}else{
+				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
 					question.setInternalStatus(nameClubbing);
 				}			
 				question.simpleMerge();
