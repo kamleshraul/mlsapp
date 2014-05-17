@@ -2545,7 +2545,7 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				briefExplainationText=domain.getBriefExplanation();
 			}
-			Status status1=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED, domain.getLocale());
+			Status nameClubbing=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
 			for(ClubbedEntity i:clubbedEntities){
 				Question question=i.getQuestion();
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
@@ -2558,9 +2558,9 @@ public class QuestionWorkflowController  extends BaseController{
 					question.setStatus(newStatusStatus);
 					question.setInternalStatus(newInternalStatus);
 					question.setInternalStatus(domain.getRecommendationStatus());
-				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
-					question.setInternalStatus(status1);
-				}			
+				}if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+					question.setInternalStatus(nameClubbing);
+				}
 				question.simpleMerge();
 			}
 		}
@@ -2621,7 +2621,7 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				briefExplainationText=domain.getBriefExplanation();
 			}
-			Status newInternalStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT, domain.getLocale());
+			Status nameClubbing=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
 			for(ClubbedEntity i:clubbedEntities){
 				Question question=i.getQuestion();
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
@@ -2634,8 +2634,8 @@ public class QuestionWorkflowController  extends BaseController{
 					question.setStatus(domain.getStatus());
 					question.setInternalStatus(domain.getInternalStatus());
 					question.setInternalStatus(domain.getRecommendationStatus());
-				}else{
-					question.setInternalStatus(newInternalStatus);
+				}if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+					question.setInternalStatus(nameClubbing);
 				}			
 				question.simpleMerge();
 			}
@@ -2705,7 +2705,7 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				briefExplainationText=domain.getBriefExplanation();
 			}
-			Status newInternalStatus=Status.findByType(ApplicationConstants.QUESTION_PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED, domain.getLocale());
+			Status nameClubbing=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
 			for(ClubbedEntity i:clubbedEntities){
 				Question question=i.getQuestion();
 				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
@@ -2719,7 +2719,7 @@ public class QuestionWorkflowController  extends BaseController{
 					question.setInternalStatus(domain.getInternalStatus());
 					question.setInternalStatus(domain.getRecommendationStatus());
 				}else{
-					question.setInternalStatus(newInternalStatus);
+					question.setInternalStatus(nameClubbing);
 				}			
 				question.simpleMerge();
 			}
