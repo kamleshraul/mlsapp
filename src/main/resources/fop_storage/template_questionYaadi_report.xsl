@@ -753,7 +753,7 @@
                 				<fo:inline font-weight="normal">
                 					सन्माननीय
                 				</fo:inline>
-                				&#160;<xsl:value-of select="ministryName"/>&#160;
+                				<xsl:value-of select="ministryName"/>
                 				<fo:inline font-weight="normal">
                 					पुढील गोष्टींचा खुलासा करतील काय :-
                 				</fo:inline>	                			               			

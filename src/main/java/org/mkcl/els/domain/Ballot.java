@@ -2039,8 +2039,10 @@ public class Ballot extends BaseDomain implements Serializable {
 					deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
 				}
 				/** referenced question details (later should come through referenced entities) **/
-				if(q.getQuestionreferenceText()!=null) {
-					deviceVO.setQuestionReferenceText(q.getQuestionreferenceText());
+				String questionReferenceText = q.getQuestionreferenceText();
+				if(questionReferenceText!=null) {
+					questionReferenceText = FormaterUtil.formatNumbersInGivenText(questionReferenceText, locale);
+					deviceVO.setQuestionReferenceText(questionReferenceText);
 				} else {
 					deviceVO.setQuestionReferenceText("");
 				}
