@@ -1269,7 +1269,7 @@
 				</c:if>
 				<%--- Remove the Following if conditions after session... Hack given for the council branch  --%>
 				
-				<c:if test="${fn:contains(internalStatusType, 'question_final') && selectedQuestionType=='questions_starred' && houseTypeType=='upperhouse' && submissionDate < '01-05-2014'}">
+				<c:if test="${fn:contains(internalStatusType, 'question_final') && selectedQuestionType=='questions_starred' && houseTypeType=='upperhouse' && hideSubmitButton=='no'}">
 					<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT','HDS_ASSISTANT')">
 						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</security:authorize>					
