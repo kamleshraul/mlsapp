@@ -225,12 +225,12 @@ public class ClubbedEntityController extends BaseController{
 					// This condition is added because the first batch questions of
 					// Council were manually updated and didn't go in the workflow.
 					// Hence, workflowDetails is going to be null.
-					if((recommendationStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)
+					if(recommendationStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)
 							|| recommendationStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-							|| internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))
-							&& workflowDetails == null){
+							|| internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
 						if(usergroupType != null 
-								&& (usergroupType.equals("assistant"))) {
+								&& (usergroupType.equals("assistant")
+										|| usergroupType.equals("clerk"))) {
 							if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
 								return true;
 							}
