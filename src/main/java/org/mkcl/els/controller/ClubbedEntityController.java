@@ -221,11 +221,26 @@ public class ClubbedEntityController extends BaseController{
 						return true;
 					}
 				}else{
+					// TODO: [HACK 17May2014 Amit] Remove this if condition once the Monsoon session 2014 is over.
+					// This condition is added because the first batch questions of
+					// Council were manually updated and didn't go in the workflow.
+					// Hence, workflowDetails is going to be null.
+					if((recommendationStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)
+							|| recommendationStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+							|| internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))
+							&& workflowDetails == null){
+						if(usergroupType != null 
+								&& (usergroupType.equals("assistant"))) {
+							if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
+								return true;
+							}
+						}
+					}
+					
 					/**** if recommendation status=discuss||send back,workflow has started,question is currently at assistant's login
 					 *    if internal status=admitted,workflow has started and question is currently at assistant's login ****/
 					if((recommendationStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS)
-							||recommendationStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-							||internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))
+							||recommendationStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK))
 							&&workflowDetails.getId()!=null){
 						if(workflowDetails.getAssigneeUserGroupType().equals("assistant")
 								&&usergroupType!=null){
