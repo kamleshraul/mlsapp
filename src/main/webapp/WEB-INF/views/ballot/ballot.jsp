@@ -15,7 +15,7 @@
 		.memberName{
 			min-width: 170px;
 			max-width: 250px;
-			text-align: center;
+			text-align: left;
 			padding: 5px;
 			font-weight: bold;
 		}
