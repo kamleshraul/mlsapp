@@ -1350,4 +1350,8 @@ public class ApplicationConstants {
 	public static final String REPORTING_BILL_LANGUAGES = "REPORTING_BILL_LANGUAGES";
 
 	public static final String MARATHI = "marathi";
+
+	public static final String QUESTION_FINAL = "question_final";
+
+	
 }
