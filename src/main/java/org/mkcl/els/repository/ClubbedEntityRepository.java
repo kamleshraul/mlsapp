@@ -1051,8 +1051,13 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				}else{
 					newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
 				}
-				beingClubbedQuestion.setInternalStatus(newstatus);
-				beingClubbedQuestion.setRecommendationStatus(newstatus);
+				if(!beingClubbedQuestion.getInternalStatus().getType().startsWith(ApplicationConstants.QUESTION_FINAL)){
+					Status submitStatus=Status.findByType(ApplicationConstants.QUESTION_SUBMIT, locale);
+					beingClubbedQuestion.setInternalStatus(newstatus);
+					beingClubbedQuestion.setRecommendationStatus(newstatus);
+					beingClubbedQuestion.setStatus(submitStatus);
+				}
+				
 				if(beingClubbedQuestion.getFile()==null){
 					/**** Add Question to file ****/
 					Reference reference=Question.findCurrentFile(beingClubbedQuestion);
@@ -1095,8 +1100,13 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				}else{
 					newstatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale);
 				}
-				beingProcessedQuestion.setInternalStatus(newstatus);
-				beingProcessedQuestion.setRecommendationStatus(newstatus);
+				if(!beingProcessedQuestion.getInternalStatus().getType().startsWith(ApplicationConstants.QUESTION_FINAL)){
+					Status submitStatus=Status.findByType(ApplicationConstants.QUESTION_SUBMIT, locale);
+					beingProcessedQuestion.setInternalStatus(newstatus);
+					beingProcessedQuestion.setRecommendationStatus(newstatus);
+					beingProcessedQuestion.setStatus(submitStatus);
+				}
+			
 				if(beingClubbedQuestion.getFile()==null){
 					/**** Add Question to file ****/
 					Reference reference=Question.findCurrentFile(beingClubbedQuestion);
