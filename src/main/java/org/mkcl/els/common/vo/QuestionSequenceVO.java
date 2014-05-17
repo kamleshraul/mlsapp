@@ -28,6 +28,9 @@ public class QuestionSequenceVO {
 
 	/** The number. */
 	private Integer number;
+	
+	/** The formatted number. */
+	private String formattedNumber;
 
 	/** The sequence no. */
 	private Integer sequenceNo;
@@ -54,6 +57,14 @@ public class QuestionSequenceVO {
 		super();
 		this.setQuestionId(questionId);
 		this.setNumber(number);
+		this.setSequenceNo(sequenceNo);
+	}
+	
+	public QuestionSequenceVO(final Long questionId, final Integer number, final String formattedNumber, final Integer sequenceNo) {
+		super();
+		this.setQuestionId(questionId);
+		this.setNumber(number);
+		this.setFormattedNumber(formattedNumber);
 		this.setSequenceNo(sequenceNo);
 	}
 
@@ -92,6 +103,14 @@ public class QuestionSequenceVO {
 	 */
 	public void setNumber(final Integer number) {
 		this.number = number;
+	}
+
+	public String getFormattedNumber() {
+		return formattedNumber;
+	}
+
+	public void setFormattedNumber(String formattedNumber) {
+		this.formattedNumber = formattedNumber;
 	}
 
 	/**

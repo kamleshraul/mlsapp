@@ -231,21 +231,35 @@ public class Ballot extends BaseDomain implements Serializable {
 			ballotEntries = preBallot.getBallotEntries();
 		}
 		
+		Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+		queryParameters.put("preballotId", new String[]{preBallot.getId().toString()});
+		queryParameters.put("locale", new String[]{preBallot.getLocale()});
+		
 		for(BallotEntry be : ballotEntries) {
 			StarredBallotVO ballotVO = new StarredBallotVO();
-			ballotVO.setMemberId(be.getMember().getId());
-			ballotVO.setMemberName(be.getMember().getFullnameLastNameFirst());
-			
-			List<QuestionSequenceVO> questionSequenceVOs = new ArrayList<QuestionSequenceVO>();
-			List<DeviceSequence> deviceSequences = be.getDeviceSequences();
-			for(DeviceSequence ds : deviceSequences) {
-				QuestionSequenceVO questionSequenceVO = new QuestionSequenceVO();
-				questionSequenceVO.setQuestionId(((Question)ds.getDevice()).getId());
-				questionSequenceVO.setNumber(((Question)ds.getDevice()).getNumber());
-				questionSequenceVOs.add(questionSequenceVO);
-			}
-			ballotVO.setQuestionSequenceVOs(questionSequenceVOs);
-			
+			Member currentMember = be.getMember();
+			ballotVO.setMemberId(currentMember.getId());
+			ballotVO.setMemberName(currentMember.getFullnameLastNameFirst());
+			queryParameters.put("memberId", new String[]{currentMember.getId().toString()});
+			List deviceSequences = Query.findReport("QIS_LOWERHOUSE_PREBALLOT_MEMBER_DEVICESEQUENCES", queryParameters);
+			if(deviceSequences!=null && !deviceSequences.isEmpty()) {
+				List<QuestionSequenceVO> questionSequenceVOs = new ArrayList<QuestionSequenceVO>();
+				for(Object obj: deviceSequences) {
+					if(obj!=null) {
+						Object[] deviceSequence = (Object[]) obj;
+						if(deviceSequence!=null && deviceSequence.length>=3) {
+							QuestionSequenceVO questionSequenceVO = new QuestionSequenceVO();
+							if(deviceSequence[1]!=null && deviceSequence[2]!=null) {
+								questionSequenceVO.setQuestionId(Long.parseLong(deviceSequence[1].toString()));						
+								questionSequenceVO.setNumber(Integer.parseInt(deviceSequence[2].toString()));
+								questionSequenceVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(questionSequenceVO.getNumber(), locale));
+								questionSequenceVOs.add(questionSequenceVO);
+							}
+						}													
+					}
+				}
+				ballotVO.setQuestionSequenceVOs(questionSequenceVOs);
+			}			
 			ballotVOs.add(ballotVO);
 		}
 		
