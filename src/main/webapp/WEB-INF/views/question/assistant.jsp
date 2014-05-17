@@ -1267,7 +1267,9 @@
 					<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
 					</security:authorize>					
 				</c:if>
-				<c:if test="${fn:contains(internalStatusType, 'question_final') && selectedQuestionType=='questions_starred' && houseTypeType=='upperhouse'}">
+				<%--- Remove the Following if conditions after session... Hack given for the council branch  --%>
+				
+				<c:if test="${fn:contains(internalStatusType, 'question_final') && selectedQuestionType=='questions_starred' && houseTypeType=='upperhouse' && submissionDate < '01-05-2014'}">
 					<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT','HDS_ASSISTANT')">
 						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</security:authorize>					
