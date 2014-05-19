@@ -106,15 +106,19 @@
 				<tr>
 					<%-- <td class="td">${counter}</td> --%>
 					<td class="memberName">${ballotVO[0]}</td>
+					<c:if test="${not empty ballotVO[2] and ballotVO[2]!=''}">
 					<td class="td">${ballotVO[1]}</td>
 					<td class="td">${ballotVO[2]}</td>
 					<c:set var="counter" value="${counter + 1}" />
 					<c:set var="mCounter" value="${mCounter + 1}" />
+					</c:if>
 			</c:when>
 			<c:otherwise>
+				<c:if test="${not empty ballotVO[2] and ballotVO[2]!=''}">
 				<td class="td">${ballotVO[1]}</td>
 				<td class="td">${ballotVO[2]}</td>
 				<c:set var="mCounter" value="${mCounter + 1}" />
+				</c:if>
 			</c:otherwise>
 		</c:choose>
 		<c:set var="memberName" value="${ballotVO[0]}" />   
