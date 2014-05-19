@@ -203,7 +203,7 @@
 									 +"&role="+$("#srole").val() 
 									 + "&answeringDate=" + $("#selectedAnsweringDate").val()									 
 									 + "&outputFormat=" + $("#outputFormat").val();
-					resourceURL = 'question/viewYaadi?' + parameters;
+					resourceURL = 'question/report/viewYaadi?' + parameters;
 				}else if($("#category").val()=='resolution'){
 					parameters = "houseType="+$("#selectedHouseType").val()
 								 +"&sessionYear="+$("#selectedSessionYear").val()
@@ -246,7 +246,7 @@
 									 + "&answeringDate=" + $("#selectedAnsweringDate").val()
 									 +"&category=" + $("#category").val()
 									 + "&outputFormat=" + $("#outputFormat").val();	
-					resourceURL = 'question/viewSuchi?' + parameters;
+					resourceURL = 'question/report/viewSuchi?' + parameters;
 				}else if($("#category").val()=='resolution'){
 					parameters = "houseType="+$("#selectedHouseType").val()
 					 +"&sessionYear="+$("#selectedSessionYear").val()

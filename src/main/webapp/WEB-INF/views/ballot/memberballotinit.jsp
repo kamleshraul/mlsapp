@@ -74,7 +74,7 @@
 								 +"&answeringDate="+$("#mbAnsweringDate").val()							 
 								 +"&outputFormat=" + $("#outputFormat").val();		
 				
-				$(this).attr('href', 'question/viewYaadi?' + parameters);			
+				$(this).attr('href', 'question/report/viewYaadi?' + parameters);			
 				//check output format set or not
 				if($("#outputFormat").val() == "") {
 					$.prompt($('#outputFormatNotSetPrompt').val());
@@ -94,7 +94,7 @@
 								 +"&role="+$("#srole").val() 
 								 +"&answeringDate=" + $("#mbAnsweringDate").val()								 
 								 + "&outputFormat=" + $("#outputFormat").val();
-				$(this).attr('href', 'question/viewSuchi?' + parameters);
+				$(this).attr('href', 'question/report/viewSuchi?' + parameters);
 				//check output format set or not
 				if($("#outputFormat").val() == "") {
 					$.prompt($('#outputFormatNotSetPrompt').val());

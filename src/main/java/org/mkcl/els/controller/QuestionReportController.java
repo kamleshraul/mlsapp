@@ -2,6 +2,7 @@ package org.mkcl.els.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,9 +16,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.MinistryVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.common.vo.RoundVO;
 import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
+import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
+import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
@@ -26,9 +32,11 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
@@ -458,6 +466,348 @@ public class QuestionReportController extends BaseController{
 		}
 		
 		return page;
+	}
+	
+	@RequestMapping(value="/viewYaadi" ,method=RequestMethod.GET)
+	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+
+		String strHouseType=request.getParameter("houseType");
+		String strSessionType=request.getParameter("sessionType");
+		String strSessionYear=request.getParameter("sessionYear");	    
+		String strDeviceType=request.getParameter("questionType");
+		String reportFormat=request.getParameter("outputFormat");
+		if(strDeviceType == null){
+			strDeviceType = request.getParameter("deviceType");
+		}
+		String strAnsweringDate = request.getParameter("answeringDate");
+
+		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && strDeviceType!=null && strAnsweringDate!=null && reportFormat!=null){
+			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty() && !strDeviceType.isEmpty() && !strAnsweringDate.isEmpty() && !reportFormat.isEmpty()) {
+				HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+				SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+				Integer sessionYear=Integer.parseInt(strSessionYear);
+				Session session = null;
+				try {
+					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				} catch (ELSException e1) {					
+					e1.printStackTrace();
+				}				
+				DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+				Date answeringDate = null;
+				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+					QuestionDates questionDates = 
+							QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+					answeringDate = questionDates.getAnsweringDate();
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+						deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+					CustomParameter dbDateFormat = 
+							CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
+					CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+				}
+				Group group = null;
+				if(deviceType.getDevice().equals("Question")) {
+					try {
+						group = Group.find(session, answeringDate, locale.toString());
+					} catch (ELSException e) {					
+						e.printStackTrace();
+					}
+				}				
+				List<DeviceVO> ballotedDeviceVOs = null;
+				try {
+					ballotedDeviceVOs = Ballot.findBallotedQuestionVOs(session, deviceType, group, answeringDate, "mr_IN");
+				} catch (ELSException e1) {
+					e1.printStackTrace();
+				}
+				if(ballotedDeviceVOs == null) {
+					try {
+						//response.sendError(404, "Report cannot be generated at this stage.");
+						MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "question.yadiReport.noDataFound", locale.toString());
+						if(message != null) {
+							if(!message.getValue().isEmpty()) {
+								response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
+							} else {
+								response.getWriter().println("<h3>No Question is balloted yet.<br/>So Yaadi Report cannot be generated.</h3>");
+							}
+						} else {
+							response.getWriter().println("<h3>No Question is balloted yet.<br/>So Yaadi Report cannot be generated.</h3>");
+						}
+
+						return;
+					} catch (IOException e) {						
+						e.printStackTrace();
+					}
+				}
+				if(ballotedDeviceVOs.isEmpty()) {
+					try {
+						//response.sendError(404, "Report cannot be generated at this stage.");
+						MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "resolution.karyavaliReport.noDataFound", locale.toString());
+						if(message != null) {
+							if(!message.getValue().isEmpty()) {	            				
+								response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
+							} else {
+								response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
+							}
+						} else {
+							response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
+						}
+
+						return;
+					} catch (IOException e) {						
+						e.printStackTrace();
+					}
+				}
+				QuestionYaadiSuchiXmlVO data = new QuestionYaadiSuchiXmlVO();
+				data.setHouseType(houseType.getName());
+				data.setSessionNumber(session.getNumber().toString());
+				data.setSessionType(sessionType.getSessionType());
+				data.setSessionYear(FormaterUtil.formatNumberNoGrouping(sessionYear, locale.toString()));
+				data.setSessionPlace(session.getPlace().getPlace());
+				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
+				List<User> users = User.findByRole(false, role.getName(), locale.toString());
+				//as principal secretary for starred question is only one, so user is obviously first element of the list.
+				data.setUserName(users.get(0).findFirstLastName());
+
+				List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
+				int count = 0;
+
+				try {
+					for(Ministry mi: Group.findMinistriesByPriority(group)) { //group.getMinistries()) {
+						count++;
+						String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
+						MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
+						ministryVOs.add(ministryVO);	            	
+					}
+				} catch (ELSException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				data.setMinistryVOs(ministryVOs);
+				SimpleDateFormat dbFormat = null;
+				CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+				if(dbDateFormat!=null){
+					dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+				}
+				//Added the following code to solve the marathi month and day issue
+				String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
+				String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+				data.setAnsweringDay(answeringDay);
+				String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
+				String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+				String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + " " + strAnsweringDates[2];
+				data.setAnsweringDate(formattedAnsweringDate);
+
+				String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
+				data.setAnsweringDateInIndianCalendar(answeringDateInIndianCalendar);
+
+				data.setDeviceVOs(ballotedDeviceVOs);
+				data.setTotalNumberOfDevices(FormaterUtil.formatNumberNoGrouping(ballotedDeviceVOs.size(), locale.toString()));
+				//generate report
+				try {
+					reportFile = generateReportUsingFOP(data, "template_questionYaadi_report", reportFormat, "starred_question_yaadi", locale.toString());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				System.out.println("Question Yaadi Report generated successfully in " + reportFormat + " format!");
+
+				openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
+			} else{
+				logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values ****");
+				try {
+					response.getWriter().println("<h3>Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values</h3>");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}				
+			}
+		} else{
+			logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for null values ****");
+			try {
+				response.getWriter().println("<h3>Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for null values</h3>");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}				
+		}
+	}
+
+	@RequestMapping(value="/viewSuchi" ,method=RequestMethod.GET)
+	public @ResponseBody void generateSuchiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		try{
+			File reportFile = null; 
+
+			String strHouseType=request.getParameter("houseType");
+			String strSessionType=request.getParameter("sessionType");
+			String strSessionYear=request.getParameter("sessionYear");	    
+			String strDeviceType=request.getParameter("questionType");
+			if(strDeviceType == null){
+				strDeviceType = request.getParameter("deviceType");
+			}
+			String strAnsweringDate = request.getParameter("answeringDate");
+			String reportFormat=request.getParameter("outputFormat");
+
+			if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && strDeviceType!=null && strAnsweringDate!=null && reportFormat!=null){
+				if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty() && !strDeviceType.isEmpty() && !strAnsweringDate.isEmpty() && !reportFormat.isEmpty()) {
+					HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+					SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+					Integer sessionYear=Integer.parseInt(strSessionYear);
+					Session session = null;
+					try {
+						session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+					} catch (ELSException e3) {
+						e3.printStackTrace();
+					}
+					DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+					Date answeringDate = null;
+					if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+						QuestionDates questionDates = 
+								QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+						answeringDate = questionDates.getAnsweringDate();
+					}
+					else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+							deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+						CustomParameter dbDateFormat = 
+								CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+						answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+					}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
+						CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+						answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+					}	
+					Group group = null;
+					if(deviceType.getDevice().equals("Question")) {
+						try {
+							group = Group.find(session, answeringDate, locale.toString());
+						} catch (ELSException e1) {
+							e1.printStackTrace();
+						}
+					}					
+					List<RoundVO> roundVOs = null;
+					try {
+						roundVOs = Ballot.findBallotedRoundVOsForSuchi(session, deviceType, group, answeringDate, locale.toString());
+					} catch (ELSException e2) {
+						e2.printStackTrace();
+					}				
+					if(roundVOs == null) {
+						try {
+							//response.sendError(404, "Report cannot be generated at this stage.");
+							MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "resolution.karyavaliReport.noDataFound", locale.toString());
+							if(message != null) {
+								if(!message.getValue().isEmpty()) {
+									response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
+								} else {
+									response.getWriter().println("<h3>No Question is balloted yet.<br/>So Yaadi Report cannot be generated.</h3>");
+								}
+							} else {
+								response.getWriter().println("<h3>No Question is balloted yet.<br/>So Yaadi Report cannot be generated.</h3>");
+							}
+
+							return;
+						} catch (IOException e) {						
+							e.printStackTrace();
+						}
+					}
+					if(roundVOs.isEmpty()) {
+						try {
+							//response.sendError(404, "Report cannot be generated at this stage.");
+							MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "resolution.karyavaliReport.noDataFound", locale.toString());
+							if(message != null) {
+								if(!message.getValue().isEmpty()) {	            				
+									response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
+								} else {
+									response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
+								}
+							} else {
+								response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
+							}
+
+							return;
+						} catch (IOException e) {						
+							e.printStackTrace();
+						}
+					}
+					QuestionYaadiSuchiXmlVO data = new QuestionYaadiSuchiXmlVO();
+					data.setHouseType(houseType.getName());
+					data.setSessionNumber(session.getNumber().toString());
+					data.setSessionType(sessionType.getSessionType());
+					data.setSessionYear(FormaterUtil.formatNumberNoGrouping(sessionYear, locale.toString()));
+					data.setSessionPlace(session.getPlace().getPlace());
+					Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
+					List<User> users = User.findByRole(false, role.getName(), locale.toString());
+					//as principal secretary for starred question is only one, so user is obviously first element of the list.
+					data.setUserName(users.get(0).findFirstLastName());
+
+					List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
+					int count = 0;
+					try {
+						for(Ministry mi: Group.findMinistriesByPriority(group)) { //group.getMinistries()) {
+							count++;
+							String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
+							MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
+							ministryVOs.add(ministryVO);	            	
+						}
+					} catch (ELSException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					data.setMinistryVOs(ministryVOs);
+					SimpleDateFormat dbFormat = null;
+					CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+					if(dbDateFormat!=null){
+						dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+					}
+					//Added the following code to solve the marathi month and day issue
+					String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
+					String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+					data.setAnsweringDay(answeringDay);
+					String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
+					String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+					String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + " " + strAnsweringDates[2];
+					data.setAnsweringDate(formattedAnsweringDate);
+					String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
+					data.setAnsweringDateInIndianCalendar(answeringDateInIndianCalendar);
+					int totalNumberOfDevices = 0;
+					for(RoundVO r: roundVOs) {
+						totalNumberOfDevices += r.getDeviceVOs().size();
+					}
+					data.setTotalNumberOfDevices(FormaterUtil.formatNumberNoGrouping(totalNumberOfDevices, locale.toString()));
+					data.setRoundVOs(roundVOs);
+
+					//generate report
+					try {
+						reportFile = generateReportUsingFOP(data, "template_questionSuchi_report", reportFormat, "starred_question_suchi", locale.toString());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					System.out.println("Question Suchi Report generated successfully in " + reportFormat + " format!");
+
+					openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
+				} else{
+					logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values ****");
+					try {
+						response.getWriter().println("<h3>Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for empty values</h3>");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}				
+				}
+			} else{
+				logger.error("**** Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for null values ****");
+				try {
+					response.getWriter().println("<h3>Check request parameters 'houseType,sessionType,sessionYear,deviceType,outputFormat' for null values</h3>");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}				
+			}
+		}catch (Exception e) {
+			logger.debug("viewsuchi", e);
+			e.printStackTrace();
+			try {
+				response.getWriter().println("<h3>Can not create Suchi</h3>");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
 	}
 }
 
