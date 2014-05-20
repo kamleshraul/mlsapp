@@ -251,10 +251,10 @@
 			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
 				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
-				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+				/* if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
 					$.prompt($("#referenceQuestionIncorrectMsg").val());
 					return false;
-				}
+				} */
 			}
 		});
 		
@@ -278,10 +278,10 @@
 			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
 				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
-				if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+				/* if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
 					$.prompt($("#referenceQuestionIncorrectMsg").val());
 					return false;
-				}
+				} */
 			}
 			//-----------------------------------------------------------------------------
 
@@ -334,9 +334,10 @@
 				
 				var submissionStartDate= '${startDate}';
 				var submissionEndDate= '${endDate}';
-				
-				if((deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
-					$('#questionText').val($('#copyOfquestionText').val());
+				if($('#copyOfquestionText').val()!=undefined){
+					if((deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+						$('#questionText').val($('#copyOfquestionText').val());
+					}
 				}
 				if( (new Date().getTime() < new Date(submissionStartDate).getTime())){
 					$.prompt($('#earlySubmissionMsg').val());					
@@ -367,10 +368,10 @@
 				
 				if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
 					//added to validate quetion number for half hour discussion--
-					if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+					/* if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
 						$.prompt($("#referenceQuestionIncorrectMsg").val());
 						return false;
-					}
+					} */
 				}
 			}			
 			//------------------------------------------------------------
@@ -432,16 +433,18 @@
 				//$.prompt(url);
 				
 				$.get(url, function(data) {
-					if(data.id==0){
+					/* if(data.id==0){
 						$.prompt($('#noQuestionMsg').val());
 					}else if(data.id==-1){
 						$.prompt($("#questionNumberIncorrectMsg").val());
-					}else{
-						$('#halfHourDiscussionReference_questionId_H').val(data.id);
-						$.get('question/viewquestion?qid='+data.id,function(data){
-							$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
-						},'html');
-					}
+					}else{ */
+						if(data.id!=0 && data.id!=-1){
+							$('#halfHourDiscussionReference_questionId_H').val(data.id);
+							$.get('question/viewquestion?qid='+data.id,function(data){
+								$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
+							},'html');
+						}
+					//}
 				}).fail(function(){
 					if($("#ErrorMsg").val()!=''){
 						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -459,7 +462,7 @@
 			
 			var questionNumber = $('#halfHourDiscussionReference_questionNumber').val();
 			var deviceTypeTemp='${questionType}';
-			//alert('helo'+questionNumber+':'+deviceTypeTemp);
+			
 			if(questionNumber!=""){
 				
 				var sessionId = '${session}';
@@ -467,9 +470,9 @@
 				
 				
 				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&deviceTypeId='+deviceTypeTemp+'&locale='+locale+'&view=view';
-				
+				$("#halfHourDiscusionFromQuestionReferenceNumber").val(questionNumber);
 				$.get(url, function(data) {
-					if(data.id==0){
+					/* if(data.id==0){
 						$('#subject').val('');
 						if($('#questionText').is('[readonly]')){
 							$('#questionText-wysiwyg-iframe').contents().find('html').html('');
@@ -483,16 +486,20 @@
 							$('#copyOfquestionText').val('');
 						}
 						$.prompt($("#questionNumberIncorrectMsg").val());
-					}else{
-						$('#halfHourDiscussionReference_questionId_H').val(data.id);
-						$.get('question/getsubject?qid='+data.id+'&text=1',function(data){
-							$('#subject').val(data.name);
-							if($('#questionText').is('[readonly]')){
-								$('#questionText-wysiwyg-iframe').contents().find('html').html(data.value);
-								$('#copyOfquestionText').val(data.value);
-							}
-						});
-					}
+					}else{ */
+						if(data.id!=0 && data.id!=-1){
+							$('#halfHourDiscussionReference_questionId_H').val(data.id);
+							$.get('question/getsubject?qid='+data.id+'&text=1',function(data){
+								$('#subject').val(data.name);
+								if($('#questionText').is('[readonly]')){
+									$('#questionText-wysiwyg-iframe').contents().find('html').html(data.value);
+									$('#copyOfquestionText').val(data.value);
+								}else{
+									$('#questionText').wysiwyg('setContent',data.value);
+								}
+							});
+						}
+					//}
 				}).fail(function(){
 					if($("#ErrorMsg").val()!=''){
 						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -673,16 +680,18 @@
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+		
 		<p>
 			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
-			<form:textarea path="subject" rows="2" cols="50" readonly="true"></form:textarea>
+			<form:textarea path="subject" rows="2" cols="50"></form:textarea>
 			<form:errors path="subject" cssClass="validationError" />
 		</p>
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
-			<form:textarea path="questionText" cssClass="wysiwyg" readonly="true"></form:textarea>
+			<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
+		<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${domain.halfHourDiscusionFromQuestionReferenceNumber}" />
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">

@@ -311,7 +311,9 @@
 			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
 				
 				if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
-					$('#questionText').val($('#copyOfquestionText').val());
+					if($('#questionText').is('[readonly]')){
+						$('#questionText').val($('#copyOfquestionText').val());	
+					}
 				}
 				
 				var submissionStartDate= '${startDate}';
@@ -409,23 +411,25 @@
 				//$.prompt(url);
 				
 				$.get(url, function(data) {
-					if(data.id==0){
+					/* if(data.id==0){
 						$.prompt($('#noQuestionMsg').val());
 					}else if(data.id==-1){
 						$.prompt($("#questionNumberIncorrectMsg").val());
-					}else{
-						$('#halfHourDiscussionReference_questionId_H').val(data.id);
-						$.get('question/viewquestion?qid='+data.id,function(data){
-							$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
-						},'html').fail(function(){
-	    					if($("#ErrorMsg").val()!=''){
-	    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-	    					}else{
-	    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-	    					}
-	    					scrollTop();
-	    				});
-					}
+					}else{ */
+						if(data.id!=0 && data.id!=-1){
+							$('#halfHourDiscussionReference_questionId_H').val(data.id);
+							$.get('question/viewquestion?qid='+data.id,function(data){
+								$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
+							},'html').fail(function(){
+		    					if($("#ErrorMsg").val()!=''){
+		    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+		    					}else{
+		    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+		    					}
+		    					scrollTop();
+		    				});
+						}
+					//}
 				}).fail(function(){
 					if($("#ErrorMsg").val()!=''){
 						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -462,9 +466,9 @@
 				
 				
 				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&deviceTypeId='+deviceTypeTemp+'&locale='+locale+'&view=view';
-				
+				$("#halfHourDiscusionFromQuestionReferenceNumber").val(questionNumber);
 				$.get(url, function(data) {
-					if(data.id==0){
+					/* if(data.id==0){
 						$('#subject').val('');
 						if($('#questionText').is('[readonly]')){
 							$('#questionText-wysiwyg-iframe').contents().find('html').html('');
@@ -478,16 +482,21 @@
 							$('#copyOfquestionText').val('');
 						}
 						$.prompt($("#questionNumberIncorrectMsg").val());
-					}else{
-						$('#halfHourDiscussionReference_questionId_H').val(data.id);
-						$.get('question/getsubject?qid='+data.id+'&text=1',function(data){
-							$('#subject').val(data.name);
-							if($('#questionText').is('[readonly]')){
-								$('#questionText-wysiwyg-iframe').contents().find('html').html(data.value);
-								$('#copyOfquestionText').val(data.value);
-							}
-						});
-					}
+					}else{ */
+						alert(data.id);
+						if(data.id!=0 && data.id!=-1){
+							$('#halfHourDiscussionReference_questionId_H').val(data.id);
+							$.get('question/getsubject?qid='+data.id+'&text=1',function(data){
+								$('#subject').val(data.name);
+								if($('#questionText').is('[readonly]')){
+									$('#questionText-wysiwyg-iframe').contents().find('html').html(data.value);
+									$('#copyOfquestionText').val(data.value);
+								}else{
+									$('#questionText').wysiwyg('setContent',data.value);
+								}
+							});
+						}
+					//}
 				}).fail(function(){
 					$.unblockUI();
 					if($("#ErrorMsg").val()!=''){
@@ -725,15 +734,17 @@
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		<p>
 			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
-			<form:textarea path="subject" rows="2" cols="50" readonly="true"></form:textarea>
+			<form:textarea path="subject" rows="2" cols="50"></form:textarea>
 			<form:errors path="subject" cssClass="validationError" />
 		</p>	
 		
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
-			<form:textarea path="questionText" cssClass="wysiwyg" readonly="true"></form:textarea>
+			<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
+		
+		<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${referredQuestionNumber}" />
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">

@@ -1345,6 +1345,10 @@
 	<input id="remindersubject" name="remindersubject" value="${pv_remindersubject}" type="hidden">
 	<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">	
 	</c:if>		
+	
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+			<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${referredQuestionNumber}" />
+	</c:if>
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
