@@ -2064,7 +2064,9 @@ public class QuestionController extends GenericController<Question>{
 
 							refQuestion = Question.findQuestionExcludingGivenDeviceTypes(currentSession, qNumber, domain.getLocale(), domain.getType().getId(), halfHourDiscussionStandAlone.getId());
 							if(refQuestion == null){
-								refQuestion = Question.findQuestionExcludingGivenDeviceTypes(prevSession, qNumber, domain.getLocale(), domain.getType().getId(), halfHourDiscussionStandAlone.getId());
+								if(prevSession != null){
+									refQuestion = Question.findQuestionExcludingGivenDeviceTypes(prevSession, qNumber, domain.getLocale(), domain.getType().getId(), halfHourDiscussionStandAlone.getId());
+								}
 							}
 						}
 						//-------------------------------------------------
@@ -2376,7 +2378,9 @@ public class QuestionController extends GenericController<Question>{
 						if(halfHourDiscussionStandAlone != null){
 							refQuestion = Question.findQuestionExcludingGivenDeviceTypes(currentSession, qNumber, domain.getLocale(), domain.getType().getId(), halfHourDiscussionStandAlone.getId());
 							if(refQuestion == null){
-								refQuestion = Question.findQuestionExcludingGivenDeviceTypes(prevSession, qNumber, domain.getLocale(), domain.getType().getId(), halfHourDiscussionStandAlone.getId());
+								if(prevSession != null){
+									refQuestion = Question.findQuestionExcludingGivenDeviceTypes(prevSession, qNumber, domain.getLocale(), domain.getType().getId(), halfHourDiscussionStandAlone.getId());
+								}
 							}
 						}
 						//-------------------------------------------------
@@ -2809,17 +2813,27 @@ public class QuestionController extends GenericController<Question>{
 					}
 				}
 
-				String strRefQuestionNumber = request.getParameter("halfHourDiscussionReference_questionNumber");				
-				if(strRefQuestionNumber != null){
-					if(!strRefQuestionNumber.isEmpty()){
-						try {
+				String strRefQuestionNumber = request.getParameter("halfHourDiscussionReference_questionNumber");
+				try {
+					if(strRefQuestionNumber != null){
+						if(!strRefQuestionNumber.isEmpty()){
+							
 							Integer qNumber = new Integer(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).parse(strRefQuestionNumber).intValue());							
 							model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(qNumber));
-
-						} catch (ParseException e) {
-							e.printStackTrace();
+						}else{
+							if(domain.getHalfHourDiscusionFromQuestionReferenceNumber() != null 
+									&& !domain.getHalfHourDiscusionFromQuestionReferenceNumber().isEmpty()){
+								model.addAttribute("referredQuestionNumber", FormaterUtil.formatNumberNoGrouping(new Integer(domain.getHalfHourDiscusionFromQuestionReferenceNumber()), domain.getLocale()));
+							}
+						}
+					}else{
+						if(domain.getHalfHourDiscusionFromQuestionReferenceNumber() != null 
+								&& !domain.getHalfHourDiscusionFromQuestionReferenceNumber().isEmpty()){
+							model.addAttribute("referredQuestionNumber", FormaterUtil.formatNumberNoGrouping(new Integer(domain.getHalfHourDiscusionFromQuestionReferenceNumber()), domain.getLocale()));
 						}
 					}
+				}catch (Exception e) {
+					e.printStackTrace();
 				}
 
 
@@ -3047,9 +3061,12 @@ public class QuestionController extends GenericController<Question>{
 					model.addAttribute("discussionDateSelected",null);
 				}
 				if (domain.getHalfHourDiscusionFromQuestionReference() != null) {
-					if (domain.getHalfHourDiscusionFromQuestionReference()!= null) {
-						model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
-						model.addAttribute("refQuestionId", domain.getHalfHourDiscusionFromQuestionReference().getId());
+					model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
+					model.addAttribute("refQuestionId", domain.getHalfHourDiscusionFromQuestionReference().getId());
+				}else{
+					if(domain.getHalfHourDiscusionFromQuestionReferenceNumber() != null 
+							&& !domain.getHalfHourDiscusionFromQuestionReferenceNumber().isEmpty()){
+						model.addAttribute("referredQuestionNumber", FormaterUtil.formatNumberNoGrouping(new Integer(domain.getHalfHourDiscusionFromQuestionReferenceNumber()), domain.getLocale()));
 					}
 				}
 			}
