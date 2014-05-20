@@ -1029,7 +1029,7 @@
 				</c:forEach>
 			</select>
 	</p>
-	</c:otherwise>	
+	</c:otherwise>		
 	</c:choose>			
 	
 	<p>
@@ -1212,18 +1212,19 @@
 			</select>	
 			<form:errors path="internalStatus" cssClass="validationError"/>	
 		</p>
-		</security:authorize>.
-		<p id="actorDiv" style="display: none;">
-			<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
-			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
-			<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
-		</p>
-	
+		</security:authorize>
+			<p id="actorDiv" style="display: none;">
+					<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
+					<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
+					<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
+			</p>
 	</c:if>		
 		
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
-	
+	<c:if test="${fn:contains(internalStatusType, 'question_final')}">
+				<form:hidden path="actor"/>
+	</c:if>
 	<c:if test="${!(empty domain.factualPosition)}">
 		<p>
 		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
@@ -1269,7 +1270,7 @@
 				</c:if>
 				<%--- Remove the Following if conditions after session... Hack given for the council branch  --%>
 				
-				<c:if test="${fn:contains(internalStatusType, 'question_final') && selectedQuestionType=='questions_starred' && houseTypeType=='upperhouse' && hideSubmitButton=='no'}">
+				<c:if test="${fn:contains(internalStatusType, 'question_final') && selectedQuestionType=='questions_starred'}">
 					<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT','HDS_ASSISTANT')">
 						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</security:authorize>					
