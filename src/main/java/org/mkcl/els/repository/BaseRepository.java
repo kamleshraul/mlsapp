@@ -45,13 +45,7 @@ public class BaseRepository<T, ID extends Serializable> extends
     /** The Constant logger. */
     protected static final Logger logger = LoggerFactory
             .getLogger(BaseRepository.class);
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * com.trg.dao.jpa.JPABaseDAO#setEntityManager(javax.persistence.EntityManager
-     * )
-     */
+   
     @Override
     @PersistenceContext
     public void setEntityManager(final EntityManager entityManager) {
@@ -59,19 +53,11 @@ public class BaseRepository<T, ID extends Serializable> extends
         entityManager.setFlushMode(FlushModeType.AUTO);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.trg.dao.jpa.JPABaseDAO#setSearchProcessor(com.trg.search.jpa.
-     * JPASearchProcessor)
-     */
     @Override
     @Autowired
     public void setSearchProcessor(final JPASearchProcessor searchProcessor) {
         super.setSearchProcessor(searchProcessor);
     }
-
-    // =======================towards_generalization----------------------------------//
 
     /**
      * Find by id.
@@ -98,28 +84,17 @@ public class BaseRepository<T, ID extends Serializable> extends
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <U extends T> U findByName(final Class persistenceClass,
-            final String fieldValue, final String locale)  {
-/*        final Search search = new Search();
-        search.addFilterEqual("name", fieldValue);
-        if (locale == null) {
-            search.addFilterNull("locale");
-        }
-        else if (locale.isEmpty()) {
-
-        }
-        else {
-            search.addFilterEqual("locale", locale);
-        }
-        return (U) this._searchUnique(persistenceClass, search);*/
-    	StringBuffer strQuery = new StringBuffer("SELECT t FROM " + persistenceClass.getSimpleName() + " t" +
+            final String fieldValue, 
+            final String locale)  {
+    	StringBuffer strQuery = new StringBuffer("SELECT t FROM " + 
+    			persistenceClass.getSimpleName() + " t" +
     			" WHERE t.name=:name");
     	
     	if (locale == null) {
     		strQuery.append(" AND locale=:locale");
-        }else if (locale.isEmpty()) {
-        	
-        }else {
-        	strQuery.append(" AND locale=:locale");
+        }
+    	else if (! locale.isEmpty()) {
+    		strQuery.append(" AND locale=:locale");
         }
     	
     	Query jpQuery = this.em().createQuery(strQuery.toString());
@@ -127,23 +102,24 @@ public class BaseRepository<T, ID extends Serializable> extends
     	
     	if (locale == null) {
     		jpQuery.setParameter("locale", null);
-        }else if (locale.isEmpty()) {
-        	
-        }else {
-        	jpQuery.setParameter("locale", locale);
+        }
+    	else if (! locale.isEmpty()) {
+    		jpQuery.setParameter("locale", locale);
         }
     	
     	U result = null;
-    	try{
+    	try {
     		result = (U) jpQuery.getSingleResult();
-    	}catch (Exception e) {
-			
+    	}
+    	catch (Exception e) {
+    		logger.warn("BaseRepository: findByName(): " +
+    			"Common exception thrown when getSingleResult() is invoked on javax.persistence.Query");
 		}
     	
     	return result;  	
     }
 
-        /**
+    /**
      * Find by field name.
      *
      * @param <U> the generic type
@@ -157,28 +133,15 @@ public class BaseRepository<T, ID extends Serializable> extends
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <U extends T,V> U findByFieldName(final Class persistenceClass,
             final String fieldName, final V fieldValue, final String locale) {
-        /*final Search search = new Search();
-        search.addFilterEqual(fieldName, fieldValue);
-        if (locale == null) {
-            search.addFilterNull("locale");
-        }
-        else if (locale.isEmpty()) {
-
-        }
-        else {
-            search.addFilterEqual("locale", locale);
-        }
-        return (U) this._searchUnique(persistenceClass, search);*/
-    	
-    	StringBuffer strQuery = new StringBuffer("SELECT t FROM " + persistenceClass.getSimpleName() + " t" +
+    	StringBuffer strQuery = new StringBuffer("SELECT t FROM " + 
+    			persistenceClass.getSimpleName() + " t" +
     			" WHERE t." + fieldName + "=:fieldValue");
     	
     	if (locale == null) {
     		strQuery.append(" AND locale=:locale");
-        }else if (locale.isEmpty()) {
-        	
-        }else {
-        	strQuery.append(" AND locale=:locale");
+        }
+    	else if (! locale.isEmpty()) {
+    		strQuery.append(" AND locale=:locale");
         }
     	
     	Query jpQuery = this.em().createQuery(strQuery.toString());
@@ -186,18 +149,18 @@ public class BaseRepository<T, ID extends Serializable> extends
     	
     	if (locale == null) {
     		jpQuery.setParameter("locale", null);
-        }else if (locale.isEmpty()) {
-        	
-        }else {
-        	jpQuery.setParameter("locale", locale);
+        }
+    	else if (! locale.isEmpty()) {
+    		jpQuery.setParameter("locale", locale);
         }
     	
     	U result = null;
-    	try{
+    	try {
     		result = (U) jpQuery.getSingleResult();
-    	}catch (Exception e) {
-			e.printStackTrace();
-			logger.warn("BaseRepository: findByFieldNames(): Common exception thrown when used getSingleResult() on JPQL.");
+    	}
+    	catch (Exception e) {
+    		logger.warn("BaseRepository: findByFieldName(): " +
+				"Common exception thrown when getSingleResult() is invoked on javax.persistence.Query");
 		}
     	
     	return result;
@@ -216,29 +179,18 @@ public class BaseRepository<T, ID extends Serializable> extends
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <U extends T> U findByFieldNames(final Class persistenceClass,
             final Map<String, String> names, final String locale) {
-        /*final Search search = new Search();
-        for (Entry<String, String> i : names.entrySet()) {
-            search.addFilterEqual(i.getKey(), i.getValue());
-        }
-        if (locale == null) {
-            search.addFilterNull("locale");
-        }
-        else if (locale.isEmpty()) {
-
-        }
-        else {
-            search.addFilterEqual("locale", locale);
-        }
-        return (U) this._searchUnique(persistenceClass, search);*/
-    	StringBuffer strQuery = new StringBuffer("SELECT DISTINCT t FROM " + persistenceClass.getSimpleName() + " t WHERE");
+    	StringBuffer strQuery = new StringBuffer("SELECT DISTINCT t FROM " + 
+    			persistenceClass.getSimpleName() + " t WHERE");
     	
     	int index = 0; 
     	for (Entry<String, String> i : names.entrySet()) {
-    		if(i.getValue()!=null) {
+    		if(i.getValue() != null) {
     			strQuery.append(" t." + i.getKey() + "=:" + i.getKey());
-    		} else {
+    		} 
+    		else {
     			strQuery.append(" t." + i.getKey() + " IS NULL");
     		}
+    		
             if(index < (names.entrySet().size() - 1)){
             	strQuery.append(" AND");	            	
             }
@@ -247,7 +199,8 @@ public class BaseRepository<T, ID extends Serializable> extends
     	
     	if (locale == null) {
     		strQuery.append(" AND locale IS NULL");
-        }else if (!locale.isEmpty()) {
+        }
+    	else if (! locale.isEmpty()) {
         	strQuery.append(" AND locale=:locale");
         }
     	
@@ -257,96 +210,87 @@ public class BaseRepository<T, ID extends Serializable> extends
     			jpQuery.setParameter(i.getKey(), i.getValue());
     		}          
         }    	
-    	if (locale != null) {    		
-    		if (!locale.isEmpty()) {
-    			jpQuery.setParameter("locale", locale);
-    		}
+    	if (locale != null && ! locale.isEmpty()) {
+    		jpQuery.setParameter("locale", locale);
         }
-    	List<U> list = jpQuery.getResultList();
+    	
     	U result = null;
-    	if(!list.isEmpty()){
-    		result = (U) list.get(0);
+    	try {
+    		result = (U) jpQuery.getSingleResult();
     	}
+    	catch (Exception e) {
+    		logger.warn("BaseRepository: findByFieldNames(): " +
+				"Common exception thrown when getSingleResult() is invoked on javax.persistence.Query");
+		}
     	
     	return result;
     }
     
+    // TODO
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <U extends T> List<U> findAllByFieldNames(final Class persistenceClass,
-            final Map<String, String> names, final String sortBy, final String sortOrder, final String locale) {
-        final Search search = new Search();
+            final Map<String, String> names, 
+            final String sortBy, 
+            final String sortOrder, 
+            final String locale) {
+        
+    	final Search search = new Search();
         for (Entry<String, String> i : names.entrySet()) {
             search.addFilterEqual(i.getKey(), i.getValue());
         }
         if (locale == null) {
             search.addFilterNull("locale");
         }
-        else if (locale.isEmpty()) {
-
+        else if (! locale.isEmpty()) {
+        	search.addFilterEqual("locale", locale);
         }
-        else {
-            search.addFilterEqual("locale", locale);
-        }
+        
         final List<U> records = this._search(persistenceClass, search);
         return records;
-    }
-
-    /**
-     * Find all.
-     *
-     * @param <U> the generic type
-     * @param persistenceClass the persistence class
-     * @param sortBy the sort by
-     * @param sortOrder the sort order
-     * @param locale the locale
-     * @return the list
-     * @throws ELSException 
-     */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <U extends T> List<U> findAll(final Class persistenceClass,
-            final String sortBy, final String sortOrder, final String locale) {
-        
-    	/*final Search search = new Search();
-        
-        if (sortOrder.toLowerCase().equals(ApplicationConstants.ASC)) {
-            search.addSortAsc(sortBy);
-        }else {
-            search.addSortDesc(sortBy);
+    	
+        // Test the following commented code and if it works as desired
+        // then replace the above uncommented code with the following
+        // commented code.
+    	/*
+    	StringBuffer strQuery = new StringBuffer("SELECT DISTINCT t FROM " + 
+    			persistenceClass.getSimpleName() + " t WHERE");
+    	
+    	int index = 0; 
+    	for (Entry<String, String> i : names.entrySet()) {
+    		if(i.getValue() != null) {
+    			strQuery.append(" t." + i.getKey() + "=:" + i.getKey());
+    		} 
+    		else {
+    			strQuery.append(" t." + i.getKey() + " IS NULL");
+    		}
+    		
+            if(index < (names.entrySet().size() - 1)){
+            	strQuery.append(" AND");	            	
+            }
+            index++;
         }
-        
-        if (locale == null) {
-            search.addFilterNull("locale");
-        }else if (locale.isEmpty()) {
-
-        }else {
-            search.addFilterEqual("locale", locale);
-        }
-        
-        final List<U> records = this._search(persistenceClass, search);
-        return records;*/
-    	StringBuffer strQuery = new StringBuffer("SELECT DISTINCT t FROM " + persistenceClass.getSimpleName() + " t");
+    	
     	if (locale == null) {
-    		strQuery.append(" WHERE locale=:locale");
-        }else if (locale.isEmpty()) {
-        	
-        }else {
-        	strQuery.append(" WHERE locale=:locale");
+    		strQuery.append(" AND locale IS NULL");
         }
-    	strQuery.append(" ORDER BY t." + sortBy + " " + sortOrder);
+    	else if (! locale.isEmpty()) {
+        	strQuery.append(" AND locale=:locale");
+        }
     	
     	Query jpQuery = this.em().createQuery(strQuery.toString());
-    	if (locale == null) {
-    		jpQuery.setParameter("locale", null);
-        }else if (locale.isEmpty()) {
-        	
-        }else {
-        	jpQuery.setParameter("locale", locale);
+    	for (Entry<String, String> i : names.entrySet()) {
+    		if(i.getValue()!=null) {
+    			jpQuery.setParameter(i.getKey(), i.getValue());
+    		}          
+        }    	
+    	if (locale != null && ! locale.isEmpty()) {
+    		jpQuery.setParameter("locale", locale);
         }
-    	List<U> result = jpQuery.getResultList();
     	
-    	return result;
+    	List<U> result = jpQuery.getResultList();
+		return result;
+		*/
     }
-
 
      /**
      * Find all by field name.
@@ -363,53 +307,35 @@ public class BaseRepository<T, ID extends Serializable> extends
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public <U extends T,V> List<U> findAllByFieldName(
-            final Class persistenceClass, final String fieldName, final V fieldValue,
-            final String sortBy, final String sortOrder, final String locale){
-       /* final Search search = new Search();
-        if (sortOrder.toLowerCase().equals(ApplicationConstants.ASC)) {
-            search.addSortAsc(sortBy);
-        }
-        else {
-            search.addSortDesc(sortBy);
-        }
-        if (locale == null) {
-            search.addFilterNull("locale");
-        }
-        else if (locale.isEmpty()) {
-
-        }
-        else {
-            search.addFilterEqual("locale", locale);
-        }
-        search.addFilterEqual(fieldName, fieldValue);
-        final List<U> records = this._search(persistenceClass, search);
-        return records;*/
-		StringBuffer strQuery = new StringBuffer("SELECT t FROM " + persistenceClass.getSimpleName() + 
+            final Class persistenceClass, 
+            final String fieldName, 
+            final V fieldValue,
+            final String sortBy, 
+            final String sortOrder, 
+            final String locale){
+    	StringBuffer strQuery = new StringBuffer("SELECT t FROM " + 
+    			persistenceClass.getSimpleName() + 
 				" t WHERE t." + fieldName + "=:" + fieldName);
-		if (locale == null) {
-			strQuery.append(" AND locale=:locale");
-		}else if (locale.isEmpty()) {
-			
-		}else {
+		
+    	if (locale == null) {
 			strQuery.append(" AND locale=:locale");
 		}
-		
+    	else if (! locale.isEmpty()) {
+    		strQuery.append(" AND locale=:locale");
+		}
 		strQuery.append(" ORDER BY t." + sortBy + " " + sortOrder);
 
 		Query jpQuery = this.em().createQuery(strQuery.toString());
 		jpQuery.setParameter(fieldName, fieldValue);
 		if (locale == null) {
 			jpQuery.setParameter("locale", null);
-		}else if (locale.isEmpty()) {
-			
-		}else {
+		}
+		else if (! locale.isEmpty()) {
 			jpQuery.setParameter("locale", locale);
 		}
 		
 		List<U> result = jpQuery.getResultList();
-		
 		return result;
-		
     }
 
     /**
@@ -428,35 +354,16 @@ public class BaseRepository<T, ID extends Serializable> extends
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public <U extends T> List<U> findAllByStartingWith(
             final Class persistenceClass, final String fieldName,
-            final String startingWith, final String sortBy, final String sortOrder, final String locale) {
-        
-    	/*final Search search = new Search();
-        if (sortOrder.toLowerCase().equals(ApplicationConstants.ASC)) {
-            search.addSortAsc(sortBy);
-        }
-        else {
-            search.addSortDesc(sortBy);
-        }
-        if (locale == null) {
-            search.addFilterNull("locale");
-        }
-        else if (locale.isEmpty()) {
-
-        }
-        else {
-            search.addFilterEqual("locale", locale);
-        }
-        search.addFilterILike(fieldName, startingWith);
-        final List<U> records = this._search(persistenceClass, search);
-        return records;*/
-		StringBuffer strQuery = new StringBuffer("SELECT t FROM " + persistenceClass.getSimpleName() + 
+            final String startingWith, final String sortBy, 
+            final String sortOrder, final String locale) {
+		StringBuffer strQuery = new StringBuffer("SELECT t FROM " + 
+				persistenceClass.getSimpleName() + 
 				" t WHERE t." + fieldName + " LIKE :pattern");
 		
 		if (locale == null) {
 			strQuery.append(" AND locale=:locale");
-		}else if (locale.isEmpty()) {
-			
-		}else {
+		}
+		else if (! locale.isEmpty()) {
 			strQuery.append(" AND locale=:locale");
 		}
 		
@@ -466,14 +373,12 @@ public class BaseRepository<T, ID extends Serializable> extends
 		jpQuery.setParameter("pattern", startingWith + "%");
 		if (locale == null) {
 			jpQuery.setParameter("locale", null);
-		}else if (locale.isEmpty()) {
-			
-		}else {
+		}
+		else if (! locale.isEmpty()) {
 			jpQuery.setParameter("locale", locale);
 		}
 		
 		List<U> result = jpQuery.getResultList();
-		
 		return result;
     }
 
@@ -481,29 +386,69 @@ public class BaseRepository<T, ID extends Serializable> extends
 	public <U extends T> List<U> findAllByLikeParameter(
             final Class persistenceClass, final String[] fields,
             final String term,final String locale) {
-			
-		StringBuffer strQuery = new StringBuffer("SELECT t FROM " + persistenceClass.getSimpleName() + 
+		StringBuffer strQuery = new StringBuffer("SELECT t FROM " + 
+				persistenceClass.getSimpleName() + 
 				" t WHERE ");
-		for(int i=0;i<fields.length;i++){
-			strQuery.append(fields[i]+" LIKE :pattern");
-			if(i+1<fields.length){
+		
+		int fieldsLength = fields.length;
+		for(int i = 0; i < fieldsLength; i++){
+			strQuery.append(fields[i] + " LIKE :pattern");
+			if(i + 1 < fieldsLength){
 				strQuery.append(" OR ");
 			}
 		}
+		
 		if (locale == null) {
 			strQuery.append(" AND locale=:locale");
-		}else if (locale.isEmpty()) {
-			
-		}else {
+		}
+		else if (! locale.isEmpty()) {
 			strQuery.append(" AND locale=:locale");
 		}
 		
 		Query jpQuery = this.em().createQuery(strQuery.toString());
 		jpQuery.setParameter("pattern", term + "%");
 		jpQuery.setParameter("locale",locale);
-		List<U> result = jpQuery.getResultList();
 		
+		List<U> result = jpQuery.getResultList();
 		return result;
 			
 	}
+    
+    /**
+     * Find all.
+     *
+     * @param <U> the generic type
+     * @param persistenceClass the persistence class
+     * @param sortBy the sort by
+     * @param sortOrder the sort order
+     * @param locale the locale
+     * @return the list
+     * @throws ELSException 
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <U extends T> List<U> findAll(final Class persistenceClass,
+            final String sortBy, final String sortOrder, final String locale) {
+    	StringBuffer strQuery = new StringBuffer("SELECT DISTINCT t FROM " + 
+    			persistenceClass.getSimpleName() + " t");
+    	
+    	if (locale == null) {
+    		strQuery.append(" WHERE locale=:locale");
+        }
+    	else if (! locale.isEmpty()) {
+    		strQuery.append(" WHERE locale=:locale");
+        }
+    	strQuery.append(" ORDER BY t." + sortBy + " " + sortOrder);
+    	
+    	Query jpQuery = this.em().createQuery(strQuery.toString());
+    	if (locale == null) {
+    		jpQuery.setParameter("locale", null);
+        }
+    	else if (! locale.isEmpty()) {
+    		jpQuery.setParameter("locale", locale);
+        }
+    	
+    	List<U> result = jpQuery.getResultList();
+    	return result;
+    }
+
 }
