@@ -2193,7 +2193,7 @@ public class QuestionController extends GenericController<Question>{
 					domain.setRecommendationStatus(status);
 				}*/
 				if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-					if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)){
+					if(!domain.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)&& !domain.getStatus().getType().contains("question_final")){
 						domain.setStatus(status);
 						domain.setInternalStatus(status);
 						domain.setRecommendationStatus(status);
