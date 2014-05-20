@@ -525,11 +525,13 @@
 			}				
 			return false;			
 		});
-		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'){
+		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'
+			|| $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone'){
+		
 			if($("#revisedReason").val()!=''){
 			    $("#revisedReasonDiv").show();
 		    }
-			if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question'){
+			if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone'){
 			    if($("#revisedBriefExplanation").val()!=''){
 			    	$("#revisedBriefExplanationDiv").show();
 			    }

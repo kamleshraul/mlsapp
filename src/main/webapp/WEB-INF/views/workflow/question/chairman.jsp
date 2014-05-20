@@ -405,7 +405,9 @@
 			return false;			
 		});
 
-		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'){
+		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'
+			|| $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone'){
+		
 			if($("#revisedReason").val()!=''){
 			    $("#revisedReasonDiv").show();
 		    }
@@ -991,8 +993,7 @@
 			<c:if test="${selectedQuestionType!='questions_shortnotice'}">	
 				<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 			</c:if>
-		</c:if>
-		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+		</c:if>		
 	</p>
 	
 	<p style="display:none;" class="revise3" id="revisedReasonDiv">

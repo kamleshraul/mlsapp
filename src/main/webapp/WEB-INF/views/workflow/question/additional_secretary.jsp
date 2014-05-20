@@ -419,11 +419,13 @@
 			return false;			
 		});
 	
-		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'){
+		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'
+			|| $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone'){
+		
 			if($("#revisedReason").val()!=''){
 			    $("#revisedReasonDiv").show();
 		    }
-			if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question'){
+			if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone'){
 			    if($("#revisedBriefExplanation").val()!=''){
 			    	$("#revisedBriefExplanationDiv").show();
 			    }
@@ -1139,28 +1141,7 @@
 	</c:if>
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">	
-	<p>
-	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
-	<select id="changeInternalStatus" class="sSelect">
-	<c:forEach items="${internalStatuses}" var="i">
-	<c:choose>
-	<c:when test="${i.type=='question_system_groupchanged' }">
-	<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<c:choose>
-	<c:when test="${i.id==internalStatus }">
-	<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-	</c:otherwise>
-	</c:choose>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>
-	
+	<p>	
 	<select id="internalStatusMaster" style="display:none;">
 	<c:forEach items="${internalStatuses}" var="i">
 	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>

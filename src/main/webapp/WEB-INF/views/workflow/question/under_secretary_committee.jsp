@@ -423,11 +423,13 @@
 			}				
 			return false;			
 		});
-		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'){
+		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'
+				|| $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone'){
+			
 			if($("#revisedReason").val()!=''){
 			    $("#revisedReasonDiv").show();
 		    }
-			if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question'){
+			if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone'){
 			    if($("#revisedBriefExplanation").val()!=''){
 			    	$("#revisedBriefExplanationDiv").show();
 			    }
@@ -958,7 +960,7 @@
 		<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 	
-	<c:if test="${not (selectedQuestiontype=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse') }">
+	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse') }">
 		<p>
 		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
 		<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
@@ -974,7 +976,7 @@
 		</c:if>
 	</c:if>
 		
-	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestiontype=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 	<p>
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
@@ -990,7 +992,7 @@
 	</p>
 	</c:if>	
 	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestiontype=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
 			<form:textarea path="briefExplanation" cssClass="wysiwyg" readonly="true"></form:textarea>
@@ -1249,6 +1251,8 @@
 <input id="oldRecommendationStatus" value="${oldRecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
+<input id="selectedQuestionType" value="${selectedQuestionType}" type="hidden">
+<input id="selectedHouseType" value="${shouseTypeType}" type="hidden">
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
