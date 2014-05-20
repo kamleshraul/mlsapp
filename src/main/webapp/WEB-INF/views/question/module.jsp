@@ -517,6 +517,20 @@
 			}
 		showTabByIdAndUrl('details_tab', url);
 	}
+	
+	function sendMessage() {		
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&deviceType=" + $("#selectedQuestionType").val()
+		+ "&ugparam=" + $("#ugparam").val() + "&status="
+		+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+		+ "&usergroup=" + $("#currentusergroup").val()
+		+ "&device=Question"
+		+ "&usergroupType=" + $("#currentusergroupType").val();
+		var resourceUrl="pushmessage/new?"+parameters;
+		showTabByIdAndUrl('details_tab', resourceUrl);
+	}
 </script>
 </head>
 <body>
@@ -700,7 +714,7 @@
 			'HDS_SECTION_OFFICER','HDS_UNDER_SECRETARY_COMMITTEE','QIS_ADDITIONAL_SECRETARY','QIS_CLERK','HDS_CLERK')">
 				<hr>
 				<c:if
-					test="${questionTypeType!='questions_halfhourdiscussion_standalone'}">
+					test="${not(questionTypeType!='questions_halfhourdiscussion_standalone' and houseType=='lowerhouse')}">
 					<a href="#" id="select_group" class="butSim"> <spring:message
 							code="question.group" text="Group" />
 					</a>
@@ -725,7 +739,6 @@
 					</c:forEach>
 				</select> |	
 				<div id='questionDepartment' style="display:inline;">
-				<c:if test="${questionTypeType!='questions_halfhourdiscussion_standalone'}">
 					<a href="#" id="select_department" class="butSim"> <spring:message
 							code="question.department" text="Group" />
 					</a>
@@ -738,7 +751,6 @@
 							</option>
 						</c:forEach>
 					</select>|
-				</c:if>	
 				</div>	 
 			</security:authorize>
 			
@@ -756,7 +768,7 @@
 					</c:forEach>
 				</select>
 				<c:if
-					test="${questionTypeType!='questions_halfhourdiscussion_standalone'}">|
+					test="${not (questionTypeType!='questions_halfhourdiscussion_standalone' and houseType=='lowerhouse') }">|
 					<select name="selectedGroup" id="selectedGroup"
 						style="width: 100px; height: 25px; display: none;">
 					</select>

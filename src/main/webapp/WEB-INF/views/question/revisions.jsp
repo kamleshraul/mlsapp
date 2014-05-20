@@ -25,7 +25,7 @@
 						<th><spring:message code="question.question" text="Question"></spring:message></th>
 					</c:if>
 					
-					<c:if test="${selectedDeviceType=='questions_halfhourdiscussion_from_question'}">
+					<c:if test="${selectedDeviceType=='questions_halfhourdiscussion_from_question' or selectedDeviceType=='questions_halfhourdiscussion_standalone'}">
 						<th><spring:message code="question.reason" text="Reason"></spring:message></th>
 						<th><spring:message code="question.briefexplanation" text="Brief Explanantion"></spring:message></th>
 					</c:if>
@@ -45,7 +45,7 @@
 							<td>${i.details}</td>
 						</c:if>
 						
-						<c:if test="${selectedDeviceType=='questions_halfhourdiscussion_from_question'}">
+						<c:if test="${selectedDeviceType=='questions_halfhourdiscussion_from_question' or selectedDeviceType=='questions_halfhourdiscussion_standalone'}">
 							<td>${i.reason}</td>
 							<td>${i.briefExplanation}</td>
 						</c:if>

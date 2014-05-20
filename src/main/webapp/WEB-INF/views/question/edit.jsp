@@ -574,12 +574,12 @@
 		<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
 		<c:choose>
 		<c:when test="${memberStatusType=='question_complete' or memberStatusType=='question_incomplete'}">
-		<security:authorize access="hasAnyRole('QIS_TYPIST')">
+		<security:authorize access="hasAnyRole('QIS_TYPIST', 'HDS_TYPIST')">
 		<form:input path="number" cssClass="sText"/>
 		</security:authorize>	
 		</c:when>
 		<c:otherwise>
-		<security:authorize access="hasAnyRole('QIS_TYPIST')">
+		<security:authorize access="hasAnyRole('QIS_TYPIST', 'HDS_TYPIST')">
 		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">
 		<input id="number" name="number" value="${domain.number}" type="hidden">
 		</security:authorize>
@@ -600,12 +600,12 @@
 		<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
 		<c:choose>
 		<c:when test="${memberStatusType=='question_complete' or memberStatusType=='question_incomplete'}">
-		<security:authorize access="hasAnyRole('QIS_TYPIST')">
+		<security:authorize access="hasAnyRole('QIS_TYPIST','HDS_TYPIST')">
 		<form:input path="number" cssClass="sText"/>
 		</security:authorize>	
 		</c:when>
 		<c:otherwise>
-		<security:authorize access="hasAnyRole('QIS_TYPIST')">
+		<security:authorize access="hasAnyRole('QIS_TYPIST','HDS_TYPIST')">
 		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">
 		<input id="number" name="number" value="${domain.number}" type="hidden">
 		</security:authorize>
@@ -855,12 +855,14 @@
 						</p>	
 					</td>
 					<td style="vertical-align: top;">
-						<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
-							<p>
-						</c:if>
-						<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
-							<p style="display: none;" >
-						</c:if>
+						<c:choose>
+							<c:when test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
+								<p>
+							</c:when>
+							<c:otherwise>
+								<p style="display: none;" >
+							</c:otherwise>
+						</c:choose>
 							<label class="small"><spring:message code="question.group" text="Group"/>*</label>
 							<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">		
 							<input type="hidden" id="group" name="group" value="${group }">

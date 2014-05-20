@@ -561,7 +561,7 @@
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	
-	<security:authorize access="hasAnyRole('QIS_TYPIST')">	
+	<security:authorize access="hasAnyRole('QIS_TYPIST','HDS_TYPIST')">	
 	<p>
 		<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
 		<form:input path="number" cssClass="sText"/>
@@ -614,7 +614,7 @@
 	</p>
 	</security:authorize>
 	
-	<security:authorize access="hasAnyRole('QIS_TYPIST')">		
+	<security:authorize access="hasAnyRole('QIS_TYPIST', 'HDS_TYPIST')">		
 	<p>
 		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/>*</label>
 		<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">

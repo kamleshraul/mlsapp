@@ -93,7 +93,11 @@
 			$("#generateAdmissionReport").click(function(){
 				$("#selectionDiv1").hide();
 				showAdmissionReport();
-			});	
+			});
+			
+			$("#send_message").click(function(){
+				sendMessage();
+			});
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -154,12 +158,19 @@
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
 				</a> |
 			 </security:authorize>
-			<a href="#" id="generateCurrentStatusReport" class="butSim">
-				<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
-			</a> |	
+			 <security:authorize access="!hasAnyRole('QIS_TYPIST', 'QIS_CLERK','HDS_TYPIST','HDS_CLERK')">
+				<a href="#" id="generateCurrentStatusReport" class="butSim">
+					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
+				</a> |
+			</security:authorize>	
 			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY')">	 
 				<a href="#" id="generateAdmissionReport" class="butSim">
 					<spring:message code="question.generateAdmissionReport" text="Generate Admission Report"/>
+				</a> |
+			</security:authorize>
+			<security:authorize access="!hasAnyRole('QIS_TYPIST','QIS_CLERK','HDS_TYPIST','HDS_CLERK')">	 
+				<a href="#" id="send_message" class="butSim">
+					<spring:message code="question.sendMessage" text="Send Message"/>
 				</a> |
 			</security:authorize>
 			<p>&nbsp;</p>
