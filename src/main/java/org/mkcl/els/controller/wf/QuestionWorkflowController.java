@@ -1098,9 +1098,12 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("discussionDateSelected",null);
 			}
 			if (domain.getHalfHourDiscusionFromQuestionReference() != null) {
-				if (domain.getHalfHourDiscusionFromQuestionReference()!= null) {
-					model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
-					model.addAttribute("refQuestionId", domain.getHalfHourDiscusionFromQuestionReference().getId());
+				model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
+				model.addAttribute("refQuestionId", domain.getHalfHourDiscusionFromQuestionReference().getId());
+			}else{
+				if(domain.getHalfHourDiscusionFromQuestionReferenceNumber() != null
+						&& !domain.getHalfHourDiscusionFromQuestionReferenceNumber().isEmpty()){
+					model.addAttribute("referredQuestionNumber", FormaterUtil.formatNumberNoGrouping(new Integer(domain.getHalfHourDiscusionFromQuestionReferenceNumber()), domain.getLocale()));
 				}
 			}
 		}
