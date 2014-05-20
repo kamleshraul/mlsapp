@@ -277,6 +277,8 @@ public class Question extends Device implements Serializable {
     /**** HALF HOUR DEVICE ATTRIBUTES ****/
     @ManyToOne(fetch=FetchType.LAZY)
     private Question halfHourDiscusionFromQuestionReference;
+    
+    private String halfHourDiscusionFromQuestionReferenceNumber;
 
     @Temporal(TemporalType.DATE)
     private Date discussionDate;
@@ -2212,6 +2214,19 @@ public class Question extends Device implements Serializable {
 		this.halfHourDiscusionFromQuestionReference = halfHourDiscusionFromQuestionReference;
 	}
 	
+	
+	
+	public String getHalfHourDiscusionFromQuestionReferenceNumber() {
+		return halfHourDiscusionFromQuestionReferenceNumber;
+	}
+
+
+	public void setHalfHourDiscusionFromQuestionReferenceNumber(
+			String halfHourDiscusionFromQuestionReferenceNumber) {
+		this.halfHourDiscusionFromQuestionReferenceNumber = halfHourDiscusionFromQuestionReferenceNumber;
+	}
+
+
 	public Date getDiscussionDate() {
 		return discussionDate;
 	}
