@@ -1713,12 +1713,16 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			List<Question> tempList = jpQuery.getResultList();
 			if(tempList.size() > 0){
 				question = tempList.get(0);
-			}
-			if(question.getStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
-				return question;
+				
+				if(question.getStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
+					return question;
+				}else{
+					return null;
+				}
 			}else{
-				return null;
+				
 			}
+				
 		}catch(Exception e){
 			question = null;
 		}
