@@ -2395,6 +2395,18 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return question;
 		
 	}
+	
+	public Question getQuestion(final Long sessionId, final Integer number,final String locale){
+		String strQuery = "SELECT q FROM Question q WHERE q.session.id=:sessionId AND q.number=:number AND q.locale=:locale";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("sessionId", sessionId);
+		query.setParameter("number", number);
+		query.setParameter("locale", locale);
+		Question question = (Question) query.getSingleResult();
+		
+		return question;
+		
+	}
 	//==================portlet proceedings webservice method===============
 	@SuppressWarnings("unchecked")
 	public List<Question> findByDeviceAndStatus(final DeviceType deviceType, final Status status){
