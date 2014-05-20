@@ -1590,6 +1590,10 @@ public class Question extends Device implements Serializable {
 	 public static Question getQuestion(final Long sessionId,final Long deviceTypeId, final Integer number,final String locale){
 	    	return getQuestionRepository().getQuestion(sessionId, deviceTypeId,number, locale);
 	 }
+	 
+	 public static Question getQuestion(final Long sessionId, final Integer number,final String locale){
+	    	return getQuestionRepository().getQuestion(sessionId, number, locale);
+	 }
 	
 	 public QuestionDraft findSecondPreviousDraft() {
 		 Long id = this.getId();
