@@ -2014,11 +2014,24 @@ public class Ballot extends BaseDomain implements Serializable {
 //					}
 //				}	
 				String houseType = session.findHouseType();
-				if(houseType!=null && houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
-					deviceVO.setMemberNames(q.findAllMemberNamesWithConstituencies());
-				} else if(houseType!=null && houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-					deviceVO.setMemberNames(q.findAllMemberNames());
-				}				
+				String allMemberNames = "";
+				CustomParameter memberNameFormatParameter = null;
+				if(houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_YADI_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+						allMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormatParameter.getValue());
+					} else {
+						allMemberNames = q.findAllMemberNamesWithConstituencies(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+					}					
+				} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_YADI_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+						allMemberNames = q.findAllMemberNames(memberNameFormatParameter.getValue());
+					} else {
+						allMemberNames = q.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+					}					
+				}
+				deviceVO.setMemberNames(allMemberNames);				
 				deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
 				String content = q.getRevisedQuestionText();
 				if(content != null) {
@@ -2203,8 +2216,21 @@ public class Ballot extends BaseDomain implements Serializable {
 //							bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
 //							memberNames+=","+bufferFirstNamesFirst.toString();
 //						}
-//					}					
-					deviceVO.setMemberNames(q.findAllMemberNames());
+//					}
+					String houseType = q.getHouseType().getType();
+					String allMemberNames = "";
+					CustomParameter memberNameFormatParameter = null;
+					if(houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+						memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_SUCHI_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+					} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+						memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_SUCHI_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+					}
+					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+						allMemberNames = q.findAllMemberNames(memberNameFormatParameter.getValue());
+					} else {
+						allMemberNames = q.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+					}
+					deviceVO.setMemberNames(allMemberNames);					
 					deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
 					String content = q.getRevisedQuestionText();
 					if(content != null) {

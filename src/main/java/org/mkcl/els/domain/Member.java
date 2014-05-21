@@ -488,10 +488,28 @@ import org.springframework.beans.factory.annotation.Configurable;
 			sb.append(this.getTitle().getName().trim());
 		}
 		sb.append(" ");
-		sb.append(this.getFirstName().trim());
-		sb.append(" ");
-		sb.append(this.getLastName().trim());
+		if(this.getAliasEnabled()!=null && this.getAliasEnabled().equals(true) && this.getAlias()!=null && !this.getAlias().isEmpty()) {			
+			sb.append(this.getAlias().trim());
+		} else {
+			sb.append(this.getFirstName().trim());
+			sb.append(" ");
+			sb.append(this.getLastName().trim());
+		}		
 		return sb.toString().trim();
+	}
+	
+	public String findNameInGivenFormat(String nameFormat) {
+		StringBuffer sb = new StringBuffer();
+		if(nameFormat!=null && !nameFormat.isEmpty()) {
+			if(nameFormat.equals(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME)) {
+				sb.append(this.findFirstLastName());
+			} else if(nameFormat.equals(ApplicationConstants.FORMAT_MEMBERNAME_FULLNAME)) {
+				sb.append(this.getFullname());
+			} else if(nameFormat.equals(ApplicationConstants.FORMAT_MEMBERNAME_FULLNAMELASTNAMEFIRST)) {
+				sb.append(this.getFullnameLastNameFirst());
+			}
+		}
+		return sb.toString();
 	}
 	
 	/**

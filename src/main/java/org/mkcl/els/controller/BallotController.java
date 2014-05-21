@@ -405,14 +405,12 @@ public class BallotController extends BaseController{
 
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
-			HouseType houseType =
-					HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 			model.addAttribute("houseType", houseType.getType());
 
 			/** Create SessionType */
 			String strSessionTypeId = request.getParameter("sessionType");
-			SessionType sessionType =
-					SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
 			model.addAttribute("sessionType", sessionType.getType());
 
 			/** Create year */
@@ -447,8 +445,7 @@ public class BallotController extends BaseController{
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-				QuestionDates questionDates = 
-						QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
@@ -2962,18 +2959,18 @@ public class BallotController extends BaseController{
 
 
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-				QuestionDates questionDates = 
-						QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
-				CustomParameter dbDateFormat = 
-						CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
-				CustomParameter dbDateFormat = 
-						CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
+			if(answeringDate!=null) {
+				model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
 			}
 
 			/**** Validate whether pre-ballot can be created for bill ****/

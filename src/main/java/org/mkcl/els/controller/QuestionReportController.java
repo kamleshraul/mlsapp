@@ -24,6 +24,7 @@ import org.mkcl.els.common.vo.RoundVO;
 import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
 import org.mkcl.els.domain.Ballot;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
@@ -237,10 +238,21 @@ public class QuestionReportController extends BaseController{
 					//error code: No Primary Member Found.
 				}
 				String allMemberNames = null;
+				CustomParameter memberNameFormatParameter = null;
 				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-					allMemberNames = question.findAllMemberNamesWithConstituencies();
+					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "INTIMATIONLETTER_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+						allMemberNames = question.findAllMemberNamesWithConstituencies(memberNameFormatParameter.getValue());
+					} else {
+						allMemberNames = question.findAllMemberNamesWithConstituencies(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+					}
 				} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-					allMemberNames = question.findAllMemberNames();
+					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "INTIMATIONLETTER_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+						allMemberNames = question.findAllMemberNames(memberNameFormatParameter.getValue());
+					} else {
+						allMemberNames = question.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+					}					
 				}						
 				if(allMemberNames!=null && !allMemberNames.isEmpty()) {
 					letterVO.setMemberNames(allMemberNames);
@@ -809,6 +821,98 @@ public class QuestionReportController extends BaseController{
 			}
 		}
 	}
+	
+	@RequestMapping(value="/generateClubbedIntimationLetter/getClubbedQuestions", method=RequestMethod.GET)
+	public String getClubbedQuestionsForIntimationReport(HttpServletRequest request, ModelMap model) {
+		String retVal = "question/reports/error";
+		String questionId = request.getParameter("questionId");
+		if(questionId!=null && !questionId.isEmpty()) {
+			Question question = Question.findById(Question.class, Long.parseLong(questionId));
+			if(question!=null) {
+				model.addAttribute("questionId", questionId);
+				List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(question, ApplicationConstants.DESC);
+				if(clubbedEntities!=null && !clubbedEntities.isEmpty()) {
+					List<Reference> nameClubbedQuestionVOs = new ArrayList<Reference>();
+					for(ClubbedEntity ce: clubbedEntities) {
+						Question clubbedQuestion = ce.getQuestion();
+						if(Question.isAdmittedThroughNameClubbing(clubbedQuestion)) {							
+							Reference nameClubbedQuestionVO = new Reference();
+							nameClubbedQuestionVO.setId(clubbedQuestion.getId().toString());
+							nameClubbedQuestionVO.setNumber(FormaterUtil.formatNumberNoGrouping(clubbedQuestion.getNumber(), clubbedQuestion.getLocale()));
+							nameClubbedQuestionVOs.add(nameClubbedQuestionVO);
+						}
+					}
+					if(!nameClubbedQuestionVOs.isEmpty()) {
+						model.addAttribute("nameClubbedQuestionVOs", nameClubbedQuestionVOs);
+						retVal = "question/reports/getClubbedQuestions";
+					} else {
+						model.addAttribute("errorcode", "noNameClubbedEntitiesFound");
+					}					
+				} else {
+					model.addAttribute("errorcode", "noClubbedEntitiesFound");
+				}
+			} else {
+				model.addAttribute("errorcode", "invalidQuestion");
+			}			
+		}
+		return retVal;
+	}
+	
+	@RequestMapping(value="/generateClubbedIntimationLetter", method=RequestMethod.GET)
+	public @ResponseBody void generateClubbedIntimationLetter(HttpServletRequest request, final HttpServletResponse response, final ModelMap model, final Locale locale) {
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.errorMessage", locale.toString());
+		
+		String strQuestionId = request.getParameter("questionId");
+		String strClubbedQuestions = request.getParameter("clubbedQuestions");
+		String outputFormat = request.getParameter("outputFormat");
+		
+		if(strQuestionId!=null&&outputFormat!=null){
+			if((!strQuestionId.isEmpty())&&!outputFormat.isEmpty()){
+				try {
+					/**** Generate & Process Report Data ****/
+					List<Object> reportFields = new ArrayList<Object>(); //replace this with specific list or data for this report
+					
+					/**** generate report ****/
+					reportFile = generateReportUsingFOP(new Object[]{reportFields}, "xslt_filename", outputFormat, "report_filename", locale.toString());
+					if(reportFile!=null) {
+						System.out.println("Report generated successfully in " + outputFormat + " format!");
+						openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
+					}
+				} catch(Exception e) {
+					logger.error("**** Some Runtime Exception Occurred ****");
+					e.printStackTrace();
+					isError = true;
+				}
+			} else {
+				logger.error("**** Check request parameter 'strRequestParameter,outputFormat' for empty values ****");
+				isError = true;
+			}
+		} else{
+			logger.error("**** Check request parameter 'strRequestParameter,outputFormat' for null values ****");
+			isError = true;				
+		}
+		
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
+	}
 }
 
 /**** Helper for producing reports ****/
@@ -938,7 +1042,18 @@ class QuestionReportHelper{
 	
 	@SuppressWarnings("rawtypes")
 	public static List generatetCurrentStatusReport(final Question question, final String device, final String locale){
-		String support = question.findAllMemberNames();
+		CustomParameter memberNameFormatParameter = null;
+		if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+			memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "CURRENTSTATUSREPORT_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+		} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+			memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "CURRENTSTATUSREPORT_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+		}
+		String support = "";
+		if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+			support = question.findAllMemberNames(memberNameFormatParameter.getValue());
+		} else {
+			support = question.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+		}		
 		Map<String, String[]> parameters = new HashMap<String, String[]>();
 		parameters.put("locale",new String[]{locale.toString()});
 		parameters.put("id",new String[]{question.getId().toString()});
