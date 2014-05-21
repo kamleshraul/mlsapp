@@ -1810,7 +1810,7 @@ class QuestionChart {
 			
 			Status REJECTED = Status.findByType(
 					ApplicationConstants.QUESTION_FINAL_REJECTION, chart.getLocale());
-		Integer rejected = Chart.getChartRepository().findQuestionsCount(member, 
+			Integer rejected = Chart.getChartRepository().findQuestionsCount(member, 
 					chart.getSession(), chart.getDeviceType(), new Status[]{ REJECTED }, 
 					chart.getLocale());
 			
@@ -1993,6 +1993,7 @@ class QuestionChart {
 		}else{
 			List<Question> datedQList = new ArrayList<Question>();
 			List<Question> beforeDatedQList = new ArrayList<Question>();
+			List<Question> afterDatedQList = new ArrayList<Question>();
 			List<Question> nonDatedQList = new ArrayList<Question>();
 			
 			for(Question q : onChartQuestions) {
@@ -2000,24 +2001,32 @@ class QuestionChart {
 					nonDatedQList.add(q);
 				}
 				else {
-					if(q.getAnsweringDate().getAnsweringDate().compareTo(answeringDate) == 0) {
-						datedQList.add(q);
-					}
-					else if(q.getAnsweringDate().getAnsweringDate().compareTo(answeringDate) < 0) {
+					if(q.getAnsweringDate().getAnsweringDate().compareTo(answeringDate) < 0) {
 						beforeDatedQList.add(q);
 					}
+					else if(q.getAnsweringDate().getAnsweringDate().compareTo(answeringDate) > 0) {
+						afterDatedQList.add(q);
+					}
+					else {// q.getAnsweringDate().getAnsweringDate().compareTo(answeringDate) == 0
+						datedQList.add(q);
+					}
+					
 				}
 			}
 			
 			datedQList = Question.sortByNumber(datedQList, ApplicationConstants.ASC);
 			beforeDatedQList = Question.sortByAnsweringDate(beforeDatedQList, ApplicationConstants.ASC);
+			afterDatedQList = Question.sortByAnsweringDate(afterDatedQList, ApplicationConstants.ASC);
 			nonDatedQList = Question.sortByNumber(nonDatedQList, ApplicationConstants.ASC);
 			
 			List<Question> candidateQList = new ArrayList<Question>();
 			candidateQList.addAll(datedQList);
 			candidateQList.addAll(beforeDatedQList);
+			candidateQList.addAll(afterDatedQList);
 			candidateQList.addAll(nonDatedQList);
 		
+			// ASSERT: The size of onChartQuestions should be equal to the size
+			// 		   of candidateQList
 			return candidateQList;
 		}
 	}
