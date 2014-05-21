@@ -40,7 +40,7 @@
 		</label>
 	</div>
 	
-	<table class="uiTable" border="1">
+	<table class="strippedTable" border="1">
 		<tr>
 		<th><spring:message code="member.name" text="Member Name"/></th>
 		<th><spring:message code="question1" text="Question 1"/></th>
