@@ -5074,10 +5074,12 @@ public class ReferenceController extends BaseController {
 		Boolean flag=false;
 		String strNumber=request.getParameter("number");
 		String strSession=request.getParameter("session");
+		String strDeviceType=request.getParameter("deviceType");
 		if(strNumber!=null && !strNumber.isEmpty() 
 			&& strSession!=null && !strSession.isEmpty()){
 			Session session=Session.findById(Session.class, Long.parseLong(strSession));
-			flag=Question.isExist(Integer.parseInt(strNumber), session, locale.toString());
+			DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			flag=Question.isExist(Integer.parseInt(strNumber),deviceType, session, locale.toString());
 		}
 		return flag;
 	}
