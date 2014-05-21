@@ -547,9 +547,11 @@
 		});
 		
 		$('#number').change(function(){
-			$.get('ref/getQuestionByNumberAndSession?number='+$(this).val()+'&session='+$('#session').val(),function(data){
+			$.get('ref/getQuestionByNumberAndSession?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#type').val(),function(data){
 				if(data){
 					$('#numberError').css('display','inline');
+				}else{
+					$('#numberError').css('display','none');
 				}
 			});
 		});
