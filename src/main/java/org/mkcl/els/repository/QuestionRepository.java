@@ -2534,13 +2534,24 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return memberMinister;
 	}
 
-	public Boolean isExist(Integer number, Session session, String locale) {
+	public Boolean isExist(Integer number, DeviceType deviceType, Session session, String locale) {
 		try{
-			String strQuery="SELECT q FROM Question q " +
+			StringBuffer strQuery=new StringBuffer();
+			strQuery.append("SELECT q FROM Question q " +
 					" WHERE q.session.id=:sessionId" +
 					" AND q.number=:number" +
-					" AND q.locale=:locale";
-			Query query=this.em().createQuery(strQuery);
+					" AND q.locale=:locale");
+			Query query=null;
+			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)||
+					deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)||
+					deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+				 query=this.em().createQuery(strQuery.toString());
+			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)||
+					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				strQuery.append(" AND q.type.id=:deviceTypeId"); 
+				query=this.em().createQuery(strQuery.toString());
+				query.setParameter("deviceTypeId", deviceType.getId());
+			}
 			query.setParameter("sessionId", session.getId());
 			query.setParameter("number", number);
 			query.setParameter("locale", locale);
@@ -2551,7 +2562,6 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				return false;
 			}
 		}catch(Exception e) {
-			e.printStackTrace();
 			logger.error(e.getMessage());
 			return false;
 		}
