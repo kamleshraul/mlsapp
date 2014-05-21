@@ -477,6 +477,29 @@
 			//$.get('question/generateIntimationLetter?questionId='+selectedQuestionId);		    
 		}		
 	}
+	/**** To Generate Clubbed Intimation Letter ****/
+	function generateClubbedIntimationLetter() {			
+		var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+		if(selectedQuestionId.length<1) {
+			$.prompt($('#selectRowFirstMessage').val());
+			return false;
+		} else if(selectedQuestionId.length>1) {
+			$.prompt("Please select only one question!");
+			return false;
+		} else {	
+			$.get('question/report/generateClubbedIntimationLetter/getClubbedQuestions?questionId='+selectedQuestionId,function(data) {
+				$.fancybox.open(data,{autoSize:false,width:400,height:300});
+			},'html').fail(function(){				
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+			//$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?questionId='+selectedQuestionId+'&memberOrDepartment='+$("#memDeptReport").val());
+		}		
+	}
 	function loadSubDepartmentsFromGroup(group){
 		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val(),function(data){
 			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
