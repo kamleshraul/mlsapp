@@ -732,7 +732,14 @@
 	</p>	
 	
 	<p>
-	<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
+		<c:choose>
+			<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' || selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
+				<label class="small"><spring:message code="question.halfhour.number" text="Notice Number"/>*</label>
+			</c:when>
+			<c:otherwise>
+				<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
+			</c:otherwise>
+		</c:choose>
 	<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 	<input id="number" name="number" value="${domain.number}" type="hidden">
 	<form:errors path="number" cssClass="validationError"/>

@@ -121,6 +121,12 @@
 		var questionType = $("#selectedQuestionType").val();
 		var recommendRepeatAdmission = $("#internalStatusMaster option[value='question_recommend_repeatadmission']").text();
 		var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
+		var sendBack = $("#internalStatusMaster option[value='question_recommend_sendback']").text();
+		var discuss = $("#internalStatusMaster option[value='question_recommend_discuss']").text();
+		
+		if(questionType == 'questions_halfhourdiscussion_from_question' && (value == sendBack || value == discuss)){
+			$("#endFlag").val("continue");
+		}
 		if(value==answerReceived || value==rejectedWithReason || value==departmentIntimated||value==clarificationReceived){
 			$("#endFlag").val("end");
 			$("#recommendationStatus").val(value);
@@ -821,7 +827,14 @@
 	</p>	
 	
 	<p>
-	<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
+		<c:choose>
+			<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' || selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
+				<label class="small"><spring:message code="question.halfhour.number" text="Notice Number"/>*</label>
+			</c:when>
+			<c:otherwise>
+				<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
+			</c:otherwise>
+		</c:choose>
 	<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 	<input id="number" name="number" value="${domain.number}" type="hidden">
 	<form:errors path="number" cssClass="validationError"/>

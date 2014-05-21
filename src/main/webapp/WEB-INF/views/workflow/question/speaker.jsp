@@ -724,7 +724,14 @@
 	</p>	
 	
 	<p>
-	<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
+		<c:choose>
+			<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' || selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
+				<label class="small"><spring:message code="question.halfhour.number" text="Notice Number"/>*</label>
+			</c:when>
+			<c:otherwise>
+				<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
+			</c:otherwise>
+		</c:choose>
 	<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 	<input id="number" name="number" value="${domain.number}" type="hidden">
 	<form:errors path="number" cssClass="validationError"/>
@@ -990,7 +997,6 @@
 		<p>
 		<a href="#" id="reviseReason" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseReason" text="Revise Points To be Discussed"></spring:message></a>
 		<a href="#" id="reviseBriefExplanation" style="margin-right: 20px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
-		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 		</p>
 	</c:if>
 	
