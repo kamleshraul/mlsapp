@@ -180,9 +180,7 @@
 				</select> | 
 				<a href="#" id="generateClubbedIntimationLetter" class="butSim">
 					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>
-				</a> | 		
-				</select>
-				|
+				</a> | 				
 			</security:authorize>				 
 			<p>&nbsp;</p>
 		</div>
