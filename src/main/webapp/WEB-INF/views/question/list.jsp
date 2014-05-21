@@ -78,7 +78,13 @@
 			$("#generateIntimationLetter").click(function(){
 				$(this).attr('href','#');
 				generateIntimationLetter();				
-			});		
+			});
+			
+			/**** Generate Clubbed Intimation Letter ****/			
+			$("#generateClubbedIntimationLetter").click(function(){
+				$(this).attr('href','#');
+				generateClubbedIntimationLetter();				
+			});
 			
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
@@ -142,22 +148,11 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="question.search" text="Search"/>
 			</a> |
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
-				<a href="#" id="generateIntimationLetter" class="butSim">
-					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
-				</a> 				
-				<select id="memDeptReport" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
-						<option value="-">-</option>
-					 	<option value="member"><spring:message code='generic.usergroup.member' text='member' /></option>
-						<option value="department"><spring:message code='generic.usergroup.department' text='department' /></option>
-				</select>
-				|
-			</security:authorize>				
-			 <security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<a href="#" id="statreport" class="butSim">
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
 				</a> |
-			 </security:authorize>
+			</security:authorize>
 			 <security:authorize access="!hasAnyRole('QIS_TYPIST', 'QIS_CLERK','HDS_TYPIST','HDS_CLERK')">
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
@@ -173,6 +168,22 @@
 					<spring:message code="question.sendMessage" text="Send Message"/>
 				</a> |
 			</security:authorize>
+			<hr>
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
+				<a href="#" id="generateIntimationLetter" class="butSim">
+					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
+				</a> 				
+				<select id="memDeptReport" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
+						<option value="-">-</option>
+					 	<option value="member"><spring:message code='generic.usergroup.member' text='member' /></option>
+						<option value="department"><spring:message code='generic.usergroup.department' text='department' /></option>
+				</select> | 
+				<a href="#" id="generateClubbedIntimationLetter" class="butSim">
+					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>
+				</a> | 		
+				</select>
+				|
+			</security:authorize>				 
 			<p>&nbsp;</p>
 		</div>
 	</div>
