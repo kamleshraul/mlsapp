@@ -1353,5 +1353,9 @@ public class ApplicationConstants {
 
 	public static final String QUESTION_FINAL = "question_final";
 
+	public static final String FORMAT_MEMBERNAME_FIRSTNAMELASTNAME = "firstnamelastname";
 	
+	public static final String FORMAT_MEMBERNAME_FULLNAME = "fullname";
+	
+	public static final String FORMAT_MEMBERNAME_FULLNAMELASTNAMEFIRST = "fullnamelastnamefirst";
 }
