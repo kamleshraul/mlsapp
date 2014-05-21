@@ -1494,6 +1494,15 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		query.setParameter("questionId", question.getId());
 		return query.getResultList();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByPosition(final Question question, final String sortOrder) {
+		String strQuery = "SELECT ce FROM Question m JOIN m.clubbedEntities ce" +
+				" WHERE m.id =:questionId ORDER BY ce.position " + sortOrder;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("questionId", question.getId());
+		return query.getResultList();
+	}
 
 	@SuppressWarnings("unchecked")
 	public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final Question question, 
@@ -2469,6 +2478,23 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setMaxResults(1);
 		QuestionDraft draft = tQuery.getSingleResult();
 		return draft;
+	}
+	
+	public boolean isAdmittedThroughNameClubbing(final Question question) {
+		boolean isAdmittedThroughNameClubbing = false;
+		String query = "SELECT qd" +
+				" FROM Question q join q.drafts qd" +
+				" WHERE q.id=:qid" +
+				" AND q.internalStatus.type='" + ApplicationConstants.QUESTION_FINAL_ADMISSION + "'" +
+				" AND qd.internalStatus.type='" + ApplicationConstants.QUESTION_RECOMMEND_NAMECLUBBING + "'" +
+				" ORDER BY qd.id DESC";
+		TypedQuery<QuestionDraft> tQuery = this.em().createQuery(query, QuestionDraft.class);
+		tQuery.setParameter("qid", question.getId());		
+		List<QuestionDraft> drafts = tQuery.getResultList();
+		if(drafts!=null && !drafts.isEmpty()) {
+			isAdmittedThroughNameClubbing = true;
+		}		
+		return isAdmittedThroughNameClubbing;
 	}
 	
 	public MemberMinister findMemberMinisterIfExists(Question question) throws ELSException {
