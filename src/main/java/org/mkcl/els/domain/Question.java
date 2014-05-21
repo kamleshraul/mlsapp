@@ -1610,8 +1610,8 @@ public class Question extends Device implements Serializable {
 		 return getQuestionRepository().findMemberMinisterIfExists(question);		 
 	 }
 	 
-	 public static Boolean isExist(Integer number, Session session,String locale) {
-		 return getQuestionRepository().isExist(number,session,locale);
+	 public static Boolean isExist(Integer number, DeviceType deviceType, Session session,String locale) {
+		 return getQuestionRepository().isExist(number,deviceType,session,locale);
 	 }
 	 
 	 public static QuestionDraft findPutupDraft(final Long id, final String putupStatus, final String putupActorUsergroupName) {
