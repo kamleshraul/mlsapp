@@ -737,7 +737,7 @@
 			'HDS_SECTION_OFFICER','HDS_UNDER_SECRETARY_COMMITTEE','QIS_ADDITIONAL_SECRETARY','QIS_CLERK','HDS_CLERK')">
 				<hr>
 				<c:if
-					test="${not(questionTypeType!='questions_halfhourdiscussion_standalone' and houseType=='lowerhouse')}">
+					test="${not(questionTypeType=='questions_halfhourdiscussion_standalone' and houseType=='lowerhouse')}">
 					<a href="#" id="select_group" class="butSim"> <spring:message
 							code="question.group" text="Group" />
 					</a>
