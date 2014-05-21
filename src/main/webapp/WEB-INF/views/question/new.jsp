@@ -498,6 +498,9 @@
 									$('#questionText').wysiwyg('setContent',data.value);
 								}
 							});
+						}else{
+							$('#subject').val('');
+							$('#questionText').wysiwyg('setContent', '');
 						}
 					//}
 				}).fail(function(){
@@ -570,7 +573,14 @@
 	
 	<security:authorize access="hasAnyRole('QIS_TYPIST','HDS_TYPIST')">	
 	<p>
-		<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
+		<c:choose>
+			<c:when test="${fn:contains(selectedQuestionType,'questions_halfhourdiscussion')}">
+				<label class="small"><spring:message code="question.halfhour.number" text="Notice Number"/>*</label>
+			</c:when>
+			<c:otherwise>
+				<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
+			</c:otherwise>
+		</c:choose>
 		<form:input path="number" cssClass="sText"/>
 		<form:errors path="number" cssClass="validationError"/>
 		<span id='numberError' style="display: none; color: red;">

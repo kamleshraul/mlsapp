@@ -483,7 +483,6 @@
 						}
 						$.prompt($("#questionNumberIncorrectMsg").val());
 					}else{ */
-						alert(data.id);
 						if(data.id!=0 && data.id!=-1){
 							$('#halfHourDiscussionReference_questionId_H').val(data.id);
 							$.get('question/getsubject?qid='+data.id+'&text=1',function(data){
@@ -495,6 +494,9 @@
 									$('#questionText').wysiwyg('setContent',data.value);
 								}
 							});
+						}else{
+							$('#subject').val('');
+							$('#questionText').wysiwyg('setContent', '');
 						}
 					//}
 				}).fail(function(){
@@ -580,7 +582,14 @@
 	<form:errors path="version" cssClass="validationError"/>
 	<c:if test="${!(empty domain.number)}">
 	<p>
-		<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
+		<c:choose>
+			<c:when test="${fn:contains(selectedQuestionType,'questions_halfhourdiscussion')}">
+				<label class="small"><spring:message code="question.halfhour.number" text="Notice Number"/>*</label>
+			</c:when>
+			<c:otherwise>
+				<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
+			</c:otherwise>
+		</c:choose>
 		<c:choose>
 		<c:when test="${memberStatusType=='question_complete' or memberStatusType=='question_incomplete'}">
 		<security:authorize access="hasAnyRole('QIS_TYPIST', 'HDS_TYPIST')">
