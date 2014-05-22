@@ -478,6 +478,13 @@ public class BallotController extends BaseController{
 					List ballotVOs = org.mkcl.els.domain.Query.findReport("STARRED_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
 					model.addAttribute("ballotVOs", ballotVOs);
+					/** Add number of rounds to model */
+					CustomParameter noOfRoundsParameter = CustomParameter.findByName(CustomParameter.class,"QUESTION_BALLOT_NO_OF_ROUNDS", "");
+					if(noOfRoundsParameter!=null && noOfRoundsParameter.getValue()!=null && !noOfRoundsParameter.getValue().isEmpty()) {
+						model.addAttribute("noOfRounds", noOfRoundsParameter.getValue());
+					} else {
+						model.addAttribute("noOfRounds", ApplicationConstants.OUESTION_BALLOT_NO_OF_ROUNDS);
+					}
 					CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
 					if(serverDateTimeFormat != null){
 						model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), serverDateTimeFormat.getValue(), locale.toString()));
