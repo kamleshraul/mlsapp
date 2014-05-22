@@ -264,7 +264,10 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 			
 			if(qX != null && !qX.isEmpty() && noOfRounds!=null && noOfRounds>0){
 				for(int i=0; i<qX.size(); i++) {
-					questions.add(qX.get(i));					
+					if(i==noOfRounds) {
+						break;
+					}
+					questions.add(qX.get(i));			
 				}				
 			}
 		}catch (Exception e) {

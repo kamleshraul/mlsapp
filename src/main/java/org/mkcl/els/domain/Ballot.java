@@ -239,7 +239,17 @@ public class Ballot extends BaseDomain implements Serializable {
 			StarredBallotVO ballotVO = new StarredBallotVO();
 			Member currentMember = be.getMember();
 			ballotVO.setMemberId(currentMember.getId());
-			ballotVO.setMemberName(currentMember.getFullnameLastNameFirst());
+			CustomParameter memberNameFormatParameter = null;
+			if(session.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
+				memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_PREBALLOT_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+			} else if(session.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
+				memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_PREBALLOT_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+			}
+			if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+				ballotVO.setMemberName(currentMember.findNameInGivenFormat(memberNameFormatParameter.getValue()));
+			} else {
+				ballotVO.setMemberName(currentMember.findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
+			}			
 			queryParameters.put("memberId", new String[]{currentMember.getId().toString()});
 			List deviceSequences = Query.findReport("QIS_LOWERHOUSE_PREBALLOT_MEMBER_DEVICESEQUENCES", queryParameters);
 			if(deviceSequences!=null && !deviceSequences.isEmpty()) {
