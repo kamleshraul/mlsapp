@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.codehaus.groovy.antlr.AntlrParserPlugin;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.ChartVerificationUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.util.RomanNumeral;
 import org.mkcl.els.common.vo.AutoCompleteVO;
@@ -46,6 +47,8 @@ import org.mkcl.els.domain.Airport;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillKind;
 import org.mkcl.els.domain.BillType;
+import org.mkcl.els.domain.Chart;
+import org.mkcl.els.domain.ChartEntry;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Committee;
 import org.mkcl.els.domain.CommitteeName;
@@ -113,6 +116,7 @@ import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -5235,4 +5239,153 @@ public class ReferenceController extends BaseController {
 			
 	}
 	
+	@Transactional
+	@RequestMapping(value="/test/council/group/{number}/chart/{id}", method=RequestMethod.GET)
+	public @ResponseBody String testCouncil(
+			@PathVariable("number") final String number,
+			@PathVariable("id") final String id) {
+		Long chartId = null;
+		
+		if(number.equals("1")) {
+			if(id.equals("5300")) {
+				chartId = new Long(5300);
+			}
+			else if(id.equals("5301")) {
+				chartId = new Long(5301);
+			}
+			else if(id.equals("5302")) {
+				chartId = new Long(5302);
+			}
+			else if(id.equals("5303")) {
+				chartId = new Long(5303);
+			}
+		}
+		else if(number.equals("2")) {
+			if(id.equals("5304")) {
+				chartId = new Long(5304);
+			}
+			else if(id.equals("5305")) {
+				chartId = new Long(5305);
+			}
+			else if(id.equals("5306")) {
+				chartId = new Long(5306);
+			}
+			else if(id.equals("5307")) {
+				chartId = new Long(5307);
+			}
+		}
+		else if(number.equals("3")) {
+			if(id.equals("5308")) {
+				chartId = new Long(5308);
+			}
+			else if(id.equals("5309")) {
+				chartId = new Long(5309);
+			}
+			else if(id.equals("5310")) {
+				chartId = new Long(5310);
+			}
+			else if(id.equals("5311")) {
+				chartId = new Long(5311);
+			}
+		}
+		else if(number.equals("4")) {
+			if(id.equals("5312")) {
+				chartId = new Long(5312);
+			}
+			else if(id.equals("5313")) {
+				chartId = new Long(5313);
+			}
+			else if(id.equals("5314")) {
+				chartId = new Long(5314);
+			}
+			else if(id.equals("5315")) {
+				chartId = new Long(5315);
+			}
+		}
+		else if(number.equals("5")) {
+			if(id.equals("5316")) {
+				chartId = new Long(5316);
+			}
+			else if(id.equals("5317")) {
+				chartId = new Long(5317);
+			}
+			else if(id.equals("5318")) {
+				chartId = new Long(5318);
+			}
+			else if(id.equals("5319")) {
+				chartId = new Long(5319);
+			}
+		}
+		
+		Chart chart = Chart.findById(Chart.class, chartId);
+		ChartVerificationUtil.rectify(chart);
+		System.out.println(">>>>> Processing complete");
+		return "COMPLETE";
+	}
+	
+	@Transactional
+	@RequestMapping(value="/test/assembly/group/{number}/chart/{id}", method=RequestMethod.GET)
+	public @ResponseBody String testAssembly(
+			@PathVariable("number") final String number,
+			@PathVariable("id") final String id) {
+		Long chartId = null;
+		
+		if(number.equals("1")) {
+			if(id.equals("5150")) {
+				chartId = new Long(5150);
+			}
+			else if(id.equals("5350")) {
+				chartId = new Long(5350);
+			}
+			else if(id.equals("5450")) {
+				chartId = new Long(5450);
+			}
+		}
+		else if(number.equals("2")) {
+			if(id.equals("5201")) {
+				chartId = new Long(5201);
+			}
+			else if(id.equals("5351")) {
+				chartId = new Long(5351);
+			}
+			else if(id.equals("5500")) {
+				chartId = new Long(5500);
+			}
+		}
+		else if(number.equals("3")) {
+			if(id.equals("5200")) {
+				chartId = new Long(5200);
+			}
+			else if(id.equals("5352")) {
+				chartId = new Long(5352);
+			}
+			else if(id.equals("5501")) {
+				chartId = new Long(5501);
+			}
+		}
+		else if(number.equals("4")) {
+			if(id.equals("5203")) {
+				chartId = new Long(5203);
+			}
+			else if(id.equals("5353")) {
+				chartId = new Long(5353);
+			}
+			else if(id.equals("5550")) {
+				chartId = new Long(5550);
+			}
+		}
+		else if(number.equals("5")) {
+			if(id.equals("5204")) {
+				chartId = new Long(5204);
+			}
+			else if(id.equals("5400")) {
+				chartId = new Long(5400);
+			}
+		}
+		
+		Chart chart = Chart.findById(Chart.class, chartId);
+		ChartVerificationUtil.rectify(chart);
+		System.out.println(">>>>> Processing complete");
+		return "COMPLETE";
+	}
 }
