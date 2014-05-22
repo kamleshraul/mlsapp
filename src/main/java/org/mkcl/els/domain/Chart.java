@@ -2016,14 +2016,14 @@ class QuestionChart {
 			
 			datedQList = Question.sortByNumber(datedQList, ApplicationConstants.ASC);
 			beforeDatedQList = Question.sortByAnsweringDate(beforeDatedQList, ApplicationConstants.ASC);
-			afterDatedQList = Question.sortByAnsweringDate(afterDatedQList, ApplicationConstants.ASC);
 			nonDatedQList = Question.sortByNumber(nonDatedQList, ApplicationConstants.ASC);
+			afterDatedQList = Question.sortByAnsweringDate(afterDatedQList, ApplicationConstants.ASC);
 			
 			List<Question> candidateQList = new ArrayList<Question>();
 			candidateQList.addAll(datedQList);
 			candidateQList.addAll(beforeDatedQList);
-			candidateQList.addAll(afterDatedQList);
 			candidateQList.addAll(nonDatedQList);
+			candidateQList.addAll(afterDatedQList);
 		
 			// ASSERT: The size of onChartQuestions should be equal to the size
 			// 		   of candidateQList
