@@ -43,9 +43,9 @@
 	<table class="strippedTable" border="1">
 		<tr>
 		<th><spring:message code="member.name" text="Member Name"/></th>
-		<th><spring:message code="question1" text="Question 1"/></th>
-		<th><spring:message code="question2" text="Question 2"/></th>
-		<th><spring:message code="question3" text="Question 3"/></th>
+		<th><spring:message code="qis.preballot.question1" text="Question 1"/></th>
+		<th><spring:message code="qis.preballot.question2" text="Question 2"/></th>
+		<th><spring:message code="qis.preballot.question3" text="Question 3"/></th>
 		</tr>
 		<c:forEach items="${ballotVOs}" var="ballotVO">
 		<tr>
