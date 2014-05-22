@@ -1796,11 +1796,11 @@ public class Question extends Device implements Serializable {
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
 							allMemberNamesBuffer.append(", " + memberName);
-						}
-						constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
-						if(!constituencyName.isEmpty()) {
-							allMemberNamesBuffer.append(" (" + constituencyName + ")");						
-						}
+							constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+							if(!constituencyName.isEmpty()) {
+								allMemberNamesBuffer.append(" (" + constituencyName + ")");						
+							}
+						}						
 					}									
 				}				
 			}
@@ -1823,11 +1823,11 @@ public class Question extends Device implements Serializable {
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
 								allMemberNamesBuffer.append(", " + memberName);
-							}
-							constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
-							if(!constituencyName.isEmpty()) {
-								allMemberNamesBuffer.append(" (" + constituencyName + ")");							
-							}
+								constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+								if(!constituencyName.isEmpty()) {
+									allMemberNamesBuffer.append(" (" + constituencyName + ")");							
+								}
+							}							
 						}												
 					}
 					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
@@ -1839,11 +1839,11 @@ public class Question extends Device implements Serializable {
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
 										allMemberNamesBuffer.append(", " + memberName);
-									}
-									constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
-									if(!constituencyName.isEmpty()) {
-										allMemberNamesBuffer.append(" (" + constituencyName + ")");							
-									}
+										constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+										if(!constituencyName.isEmpty()) {
+											allMemberNamesBuffer.append(" (" + constituencyName + ")");							
+										}
+									}									
 								}								
 							}
 						}

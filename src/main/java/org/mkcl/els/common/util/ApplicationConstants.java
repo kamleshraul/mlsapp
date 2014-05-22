@@ -555,8 +555,12 @@ public class ApplicationConstants {
 
 	public static String QUESTION_PROCESSED_CLARIFICATION_RECIEVED="question_processed_clarificationReceived";
 
+	public static final String QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER="question_recommend_clarificationNeededFromMember";
+	
 	public static final String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER="question_final_clarificationNeededFromMember";
 
+	public static final String QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT="question_recommend_clarificationNeededFromDepartment";
+	
 	public static final String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT="question_final_clarificationNeededFromDepartment";
 
 	public static final String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT="question_final_clarificationNeededFromMemberAndDepartment";

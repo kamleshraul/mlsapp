@@ -269,73 +269,77 @@ public class ReportServiceImpl implements IReportService {
 				configParamElement = null;				
 			}
 			
-			for (int i = 0; i < reportFields.length; i++) {				
-				String classType = reportFields[i].getClass().getSimpleName();
-				if(classType.equals("String")){					
-					Element singleElement = new Element("element_"+(i+1));					
-					singleElement.setText(reportFields[i].toString());
-					root.addContent(singleElement);					
-				} else if(classType.endsWith("List")){					
-					List report = (List) reportFields[i]; 
-					Set s = new HashSet<Object>();				
-					for (int j = 0; j < report.size(); j++) {						
-						Element listElement = new Element("element_"+(i+1));
-						if(report.get(j).getClass().getSimpleName().equals("Object[]")){
-							createInternalElements(((Object[])report.get(j)), listElement);
-						}else if(report.get(j).getClass().getSimpleName().endsWith("List")) {							
-							createInternalElements((List<Object>)report.get(j), listElement);
-						} else if(report.get(j).getClass().getSimpleName().equals("String")) {
-							listElement.setText(report.get(j).toString());
-						}
-						root.addContent(listElement);
-					}					
-				} else if(classType.endsWith("Map")){					
-					Map mapReport = (Map) reportFields[i]; 
-					Iterator iter = mapReport.entrySet().iterator();
-					while(iter.hasNext()){						
-						Map.Entry entry = (Map.Entry)iter.next(); 
-						if(entry != null){
-							Element mapElement = new Element("element_"+(i+1));						
-							if(entry.getKey().getClass().getSimpleName().endsWith("List")){
-								List report = (List)entry.getValue();								
-								for (int j = 0; j < report.size(); j++) {	
-									Element mapKeyElement = new Element(mapElement.getName()+"_1");
-									if(report.get(j).getClass().getSimpleName().endsWith("List")) {
-										createInternalElements((List<Object>)report.get(j), mapKeyElement);										
-									} else if(report.get(j).getClass().getSimpleName().equals("String")) {
-										mapKeyElement.setText(report.get(j).toString());
-									}
-									mapElement.addContent(mapKeyElement);								
+			if(reportFields!=null && reportFields.length>0) {
+				for (int i = 0; i < reportFields.length; i++) {
+					if(reportFields[i]!=null) {
+						String classType = reportFields[i].getClass().getSimpleName();
+						if(classType.equals("String")){					
+							Element singleElement = new Element("element_"+(i+1));					
+							singleElement.setText(reportFields[i].toString());
+							root.addContent(singleElement);					
+						} else if(classType.endsWith("List")){					
+							List report = (List) reportFields[i]; 
+							Set s = new HashSet<Object>();				
+							for (int j = 0; j < report.size(); j++) {						
+								Element listElement = new Element("element_"+(i+1));
+								if(report.get(j).getClass().getSimpleName().equals("Object[]")){
+									createInternalElements(((Object[])report.get(j)), listElement);
+								}else if(report.get(j).getClass().getSimpleName().endsWith("List")) {							
+									createInternalElements((List<Object>)report.get(j), listElement);
+								} else if(report.get(j).getClass().getSimpleName().equals("String")) {
+									listElement.setText(report.get(j).toString());
 								}
-								report = null;
-							} else if(entry.getKey().getClass().getSimpleName().equals("String")) {
-								Element mapKeyElement = new Element(mapElement.getName()+"_1");
-								mapKeyElement.setText(entry.getKey().toString());	
-								mapElement.addContent(mapKeyElement);
-							}							
-							if(entry.getValue().getClass().getSimpleName().endsWith("List")){
-								List report = (List)entry.getValue();								
-								for (int j = 0; j < report.size(); j++) {							
-									Element mapValueElement = new Element(mapElement.getName()+"_2");
-									if(report.get(j).getClass().getSimpleName().endsWith("List")) {
-										createInternalElements((List<Object>)report.get(j), mapValueElement);										
-									} else if(report.get(j).getClass().getSimpleName().equals("String")) {
-										mapValueElement.setText(report.get(j).toString());
+								root.addContent(listElement);
+							}					
+						} else if(classType.endsWith("Map")){					
+							Map mapReport = (Map) reportFields[i]; 
+							Iterator iter = mapReport.entrySet().iterator();
+							while(iter.hasNext()){						
+								Map.Entry entry = (Map.Entry)iter.next(); 
+								if(entry != null){
+									Element mapElement = new Element("element_"+(i+1));						
+									if(entry.getKey().getClass().getSimpleName().endsWith("List")){
+										List report = (List)entry.getValue();								
+										for (int j = 0; j < report.size(); j++) {	
+											Element mapKeyElement = new Element(mapElement.getName()+"_1");
+											if(report.get(j).getClass().getSimpleName().endsWith("List")) {
+												createInternalElements((List<Object>)report.get(j), mapKeyElement);										
+											} else if(report.get(j).getClass().getSimpleName().equals("String")) {
+												mapKeyElement.setText(report.get(j).toString());
+											}
+											mapElement.addContent(mapKeyElement);								
+										}
+										report = null;
+									} else if(entry.getKey().getClass().getSimpleName().equals("String")) {
+										Element mapKeyElement = new Element(mapElement.getName()+"_1");
+										mapKeyElement.setText(entry.getKey().toString());	
+										mapElement.addContent(mapKeyElement);
+									}							
+									if(entry.getValue().getClass().getSimpleName().endsWith("List")){
+										List report = (List)entry.getValue();								
+										for (int j = 0; j < report.size(); j++) {							
+											Element mapValueElement = new Element(mapElement.getName()+"_2");
+											if(report.get(j).getClass().getSimpleName().endsWith("List")) {
+												createInternalElements((List<Object>)report.get(j), mapValueElement);										
+											} else if(report.get(j).getClass().getSimpleName().equals("String")) {
+												mapValueElement.setText(report.get(j).toString());
+											}
+											mapElement.addContent(mapValueElement);									
+										}								
+										report = null;
+									} else if(entry.getValue().getClass().getSimpleName().equals("String")) {
+										Element mapValueElement = new Element(mapElement.getName()+"_2");
+										mapValueElement.setText(entry.getValue().toString());
+										mapElement.addContent(mapValueElement);								
 									}
-									mapElement.addContent(mapValueElement);									
-								}								
-								report = null;
-							} else if(entry.getValue().getClass().getSimpleName().equals("String")) {
-								Element mapValueElement = new Element(mapElement.getName()+"_2");
-								mapValueElement.setText(entry.getValue().toString());
-								mapElement.addContent(mapValueElement);								
-							}
-							root.addContent(mapElement);
+									root.addContent(mapElement);
+								}
+							}	
+							mapReport = null;
 						}
-					}	
-					mapReport = null;
-				}				
-			}			
+					}									
+				}
+			}						
 			
 			FileOutputStream str = null;
 			str = new FileOutputStream(xmlFile);

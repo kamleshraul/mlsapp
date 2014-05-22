@@ -26,7 +26,7 @@
 						return false;
 					}
 					$('#linkForReport').attr('href', 'question/report/generateClubbedIntimationLetter?questionId='+$('#questionId').val()
-							+'clubbedQuestions='+$('#clubbedQuestions').val());
+							+'&clubbedQuestions='+$('#clubbedQuestions').val()+'&outputFormat=WORD');
 				});
 			});
 		</script>		 
