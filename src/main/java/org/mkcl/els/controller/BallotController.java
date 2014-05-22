@@ -3005,6 +3005,31 @@ public class BallotController extends BaseController{
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 					retVal = this.hdsPreBallotAssembly(model, session, deviceType, answeringDate, locale.toString());
 				}else if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+					/** Add number of rounds to model */
+					CustomParameter noOfRoundsParameter = CustomParameter.findByName(CustomParameter.class,"QUESTION_BALLOT_NO_OF_ROUNDS", "");
+					if(noOfRoundsParameter!=null && noOfRoundsParameter.getValue()!=null && !noOfRoundsParameter.getValue().isEmpty()) {
+						model.addAttribute("noOfRounds", noOfRoundsParameter.getValue());
+					} else {
+						model.addAttribute("noOfRounds", ApplicationConstants.OUESTION_BALLOT_NO_OF_ROUNDS);
+					}					
+					/** Add localized answeringDate to model */
+					String localizedAnsweringDate = null;
+					CustomParameter answeringDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
+					if(answeringDateFormatParameter!=null && answeringDateFormatParameter.getValue()!=null && !answeringDateFormatParameter.getValue().isEmpty()) {
+						localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, answeringDateFormatParameter.getValue(), locale.toString());
+					} else {
+						localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", locale.toString());
+					}					
+					model.addAttribute("answeringDate", localizedAnsweringDate);
+					CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+					if(serverDateTimeFormat != null){
+						model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), serverDateTimeFormat.getValue(), locale.toString()));
+					} else {
+						model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), "dd/MM/yyyy HH:mm:ss", locale.toString()));
+					}
+//					if(ballotVOs != null && !ballotVOs.isEmpty()){
+//						model.addAttribute("totalMembers", FormaterUtil.formatNumberNoGrouping(Integer.valueOf((((Object[])ballotVOs.get(0))[3]).toString()), locale.toString()));
+//					}
 					retVal = this.starredPreBallot(model, session, deviceType, answeringDate, locale.toString());
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {
 					CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
@@ -3117,9 +3142,12 @@ public class BallotController extends BaseController{
 			final DeviceType deviceType,
 			final Date answeringDate,
 			final String locale) throws ELSException {
-		List<StarredBallotVO> ballotVOs = 
-				Ballot.findStarredPreBallotVOs(session, deviceType, answeringDate, locale);
-		model.addAttribute("ballotVOs", ballotVOs);
+		List<StarredBallotVO> ballotVOs = Ballot.findStarredPreBallotVOs(session, deviceType, answeringDate, locale);		
+		model.addAttribute("ballotVOs", ballotVOs);		
+		/**** total number of members ****/
+		if(ballotVOs!=null) {
+			model.addAttribute("totalMembers", FormaterUtil.formatNumberNoGrouping(ballotVOs.size(), locale));
+		}
 		return "ballot/starred_preballot";
 	}
 
