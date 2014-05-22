@@ -407,7 +407,8 @@ public class QuestionReportController extends BaseController{
 
 				/**** generate report ****/				
 				try {
-					if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+					if(status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+							|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 						reportFile = generateReportUsingFOP(letterVO, "question_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
 					} else {
 						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
