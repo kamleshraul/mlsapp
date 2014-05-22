@@ -10,7 +10,6 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -177,8 +176,6 @@ public class Ballot extends BaseDomain implements Serializable {
 		if(ballot != null) {
 			List<BallotEntry> ballotEntries = ballot.getBallotEntries();
 			for(BallotEntry be : ballotEntries) {
-				Long memberId = be.getMember().getId();
-				String memberName = be.getMember().getFullnameLastNameFirst();
 				List<QuestionSequenceVO> questionSequenceVOs = Ballot.getQuestionSequenceVOs(be.getDeviceSequences());
 				for(QuestionSequenceVO i: questionSequenceVOs) {
 					i.setMemberId(be.getMember().getId());
@@ -206,6 +203,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		return questionSequenceVOs;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static List<StarredBallotVO> findStarredPreBallotVOs(final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,
@@ -644,7 +642,6 @@ public class Ballot extends BaseDomain implements Serializable {
 		try {
 			ballot = Ballot.find(session, deviceType, answeringDate, locale);
 		} catch (ELSException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if(ballot != null) {
@@ -1182,7 +1179,6 @@ public class Ballot extends BaseDomain implements Serializable {
 	private static List<BallotEntry> createHDSBallotEntries(final Session session, final DeviceType deviceType, final Date answeringDate, final List<Member> members,
 			final String locale) {
 		List<BallotEntry> ballotEntries = new ArrayList<BallotEntry>();
-		List<String> subjectList = new ArrayList<String>();
 		
 		for(Member m : members) {
 			
@@ -1847,15 +1843,15 @@ public class Ballot extends BaseDomain implements Serializable {
 	/**
 	 * A subset of eligible Resolution of size @param maxQuestions are taken in Ballot.
 	 */
-	private static List<Resolution> selectResolutionsForBallot(final List<Resolution> resolutions,
-			final Integer maxResolutions) {
-		List<Resolution> selectedQList = new ArrayList<Resolution>();
-		selectedQList.addAll(resolutions);
-		if(selectedQList.size() >= maxResolutions) {
-			selectedQList = selectedQList.subList(0, maxResolutions); 
-		}
-		return selectedQList;
-	}
+//	private static List<Resolution> selectResolutionsForBallot(final List<Resolution> resolutions,
+//			final Integer maxResolutions) {
+//		List<Resolution> selectedQList = new ArrayList<Resolution>();
+//		selectedQList.addAll(resolutions);
+//		if(selectedQList.size() >= maxResolutions) {
+//			selectedQList = selectedQList.subList(0, maxResolutions); 
+//		}
+//		return selectedQList;
+//	}
 	
 	private static List<BallotEntry> createNoticeBallotEntries(final List<Question> questions,
 			final String locale) {
@@ -1890,17 +1886,14 @@ public class Ballot extends BaseDomain implements Serializable {
 		return sequences;
 	}
 	
-	
-	private static List<Resolution> randomizeResolutions(final List<Resolution> resolutions) {
-		List<Resolution> newResolution = new ArrayList<Resolution>();
-		newResolution.addAll(resolutions);
-		Long seed = System.nanoTime();
-		Random rnd = new Random(seed);
-		Collections.shuffle(newResolution, rnd);
-		return newResolution;
-	}
-	
-	
+//	private static List<Resolution> randomizeResolutions(final List<Resolution> resolutions) {
+//		List<Resolution> newResolution = new ArrayList<Resolution>();
+//		newResolution.addAll(resolutions);
+//		Long seed = System.nanoTime();
+//		Random rnd = new Random(seed);
+//		Collections.shuffle(newResolution, rnd);
+//		return newResolution;
+//	}
 	
 	/**
 	 * Use it post Ballot.
@@ -1961,6 +1954,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		return ballotedVOs;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static List<DeviceVO> findBallotedQuestionVOs(final Session session, final DeviceType deviceType, final Group group, final Date answeringDate,
 			final String locale) throws ELSException {			
 		List<DeviceVO> deviceVOs = new ArrayList<DeviceVO>();		
@@ -2092,6 +2086,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		return deviceVOs;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static List<RoundVO> findBallotedRoundVOsForSuchi(final Session session, final DeviceType deviceType, Group group, Date answeringDate, final String locale) throws ELSException {
 		//first we find balloted questions in sequence order
 		List<QuestionSequenceVO> questionSequenceVOs = new ArrayList<QuestionSequenceVO>();
