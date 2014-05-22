@@ -17,13 +17,20 @@
 			width: 300px;			
 			text-align: left;
 			padding: 5px;	
-			font-weight: bold;
+			font-weight: bold !important;
 		}
 		.td{
 			text-align: center;
 			padding: 5px;
 		}
 	</style>
+	<style type="text/css" media="print">
+		table.strippedTable {width: 780px;}
+		.memberName, .td, th, p#header, table#footer {font-size: 20px !important;}
+		.memberName {font-weight: bold;}
+		table#footer {width: 757px !important;}
+	</style>
+	<link rel="stylesheet" type="text/css" href="./resources/css/printerfriendly.css?v=48" media="print" />
 </head>
 
 <body>
@@ -46,26 +53,26 @@
 		<h2 style="text-decoration: underline; font-family: 'Times New Roman';"><spring:message code="generic.preballot.list" text="PRE-BALLOT LIST" /></h2>
 	</div>
 	
-	<div style="margin: 0px 0px 10px 25px; font-size: 20px;">
+	<p id="header" style="margin: 0px 0px 10px 25px; font-size: 15px;">
 		<label>
-			<spring:message code="generic.date" text="Answering Date"/> <b>${answeringDate}</b>
+			<spring:message code="generic.date" text="Answering Date"/> <span style="text-decoration: underline; font-weight: bold;">${answeringDate}</span>
 			<spring:message code="question.preballot.starred.lowerhouse.headercontent" text="Pre-Ballot Of the Day"></spring:message>
 		</label>
-	</div>
+	</p>
 	
 	<c:set var="noOfRounds" value="${noOfRounds}"/>
 	
-	<table class="strippedTable" border="1" style="margin-left: 25px; font-size: 20px;">
+	<table class="strippedTable" border="1" style="margin-left: 25px; font-size: 15px;">
 		<thead>
 			<tr>
-				<th class="memberName" style="font-size: 20px;"><spring:message code="question.preballot.member.name" text="Member Name"/></th>
+				<th class="memberName"><spring:message code="question.preballot.member.name" text="Member Name"/></th>
 				<c:forEach begin="${questionCount+1}" end="${noOfRounds}" varStatus="cnt">
-					<th class="td" style="font-size: 20px;"><spring:message code="qis.preballot.question${cnt.count}" text="Question ${cnt.count}"/></th>
+					<th class="td"><spring:message code="qis.preballot.question${cnt.count}" text="Question ${cnt.count}"/></th>
 				</c:forEach>		
 			</tr>
-			<tr>
-				<td style="font-size: 8px;" colspan="${noOfRounds+1}">&nbsp;</td>
-			</tr>
+			<%-- <tr>
+				<th style="font-size: 8px;" colspan="${noOfRounds+1}">&nbsp;</th>
+			</tr> --%>
 		</thead>
 		<tbody>
 			<c:forEach items="${ballotVOs}" var="ballotVO">
@@ -86,15 +93,15 @@
 			</c:forEach>
 		</tbody>
 	</table>
-	<table style="max-width: 800px; width: 800px; margin-left: 25px; margin-top: 20px;">
+	<table id="footer" style="max-width: 800px; width: 800px; margin-left: 25px; margin-top: 20px;">
 		<tr>
-			<td colspan="7">
-				<p style="font-size: 20px;">
+			<td colspan="${noOfRounds+1}">
+				<p>
 					<span style="font-weight: bold;">
 						<spring:message code="question.preballot.member.total" text="Total Members" />:&nbsp;&nbsp;&nbsp;&nbsp;${totalMembers}
 					</span><br /><br />
 					<spring:message code="generic.date" text="Answering Date"/> ${answeringDate}<spring:message code="question.preballot.starred.lowerhouse.footer1" text="Footer"/>
-					<br/>${formattedCurrentDate}<spring:message code="question.preballot.starred.lowerhouse.footer2" text="Footer"/>
+					${formattedCurrentDate}<spring:message code="question.preballot.starred.lowerhouse.footer2" text="Footer"/>
 				</p>
 			</td>		
 		</tr>
