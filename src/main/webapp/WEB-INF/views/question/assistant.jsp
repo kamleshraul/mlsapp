@@ -1126,10 +1126,10 @@
 				<c:otherwise>
 					<c:choose>
 						<c:when test="${selectedQuestionType=='questions_shortnotice'}">
-							<a href="#" id="reviseReason" style="margin-right: 20px;"><spring:message code="question.revise.common.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-right: 20px;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
 						</c:when>
 						<c:otherwise>
-							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.common.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
 						</c:otherwise>
 					</c:choose>					
 				</c:otherwise>
@@ -1140,12 +1140,6 @@
 		</c:if>
 		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 		<br />
-	</p>
-	
-	<p style="display:none;" class="revise3" id="revisedReasonDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
-	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p style="display:none;" class="revise4" id="revisedBriefExplanationDiv">
@@ -1165,6 +1159,12 @@
 	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	
+	<p style="display:none;" class="revise3" id="revisedReasonDiv">
+	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
+	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p id="internalStatusDiv">
@@ -1221,11 +1221,13 @@
 			<form:errors path="internalStatus" cssClass="validationError"/>	
 		</p>
 		</security:authorize>
+
 		<p id="actorDiv" style="display: none;">
-				<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
-				<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
-				<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
+			<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
+			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
+			<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
 		</p>		
+
 	</c:if>		
 		
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
@@ -1233,7 +1235,9 @@
 	<c:if test="${fn:contains(internalStatusType, 'question_final')}">
 				<form:hidden path="actor"/>
 	</c:if>
-	<c:if test="${!(empty domain.factualPosition)}">
+	<c:if test="${!(empty domain.factualPosition) || 
+			(internalStatusType=='question_final_clarificationNeededFromDepartment'&& houseTypeType=='upperhouse')
+			 }">
 		<p>
 		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
 		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
@@ -1241,10 +1245,17 @@
 		</p>
 	</c:if>	
 	
-	<c:if test="${houseTypeType=='upperhouse'}">
+	<c:if test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_rejection'}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
 			<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
+		</p>
+	</c:if>
+	
+	<c:if test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_admission'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+			<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
 		</p>
 	</c:if>
 	
