@@ -72,8 +72,7 @@
 					$("#new_record").html("<spring:message code='question.newStandAlone' text='New'/>");
 				}
 			});
-			
-			
+						
 			/**** Generate Intimation Letter ****/			
 			$("#generateIntimationLetter").click(function(){
 				$(this).attr('href','#');
@@ -86,6 +85,7 @@
 				generateClubbedIntimationLetter();				
 			});
 			
+			//------stats reports as html-----------------------starts----------------
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 				
@@ -104,6 +104,30 @@
 			$("#send_message").click(function(){
 				sendMessage();
 			});
+			
+			$("#hdDays").hide();
+			
+			$("#showHDDayWiseReport").click(function(){
+				$("#hdDays").toggle();
+			});
+			
+			$("#showhddaywisereport").click(function(){
+				$("#selectionDiv1").hide();
+				showHDDaywisereport();
+			});
+			
+			$("#showHDStatAndAdmissionReport").click(function(){
+				$("#selectionDiv1").hide();
+				showHDStatAndAdmissionreport();
+			});
+			
+			var selectedDeviceType = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
+			if(!selectedDeviceType.startsWith("questions_halfhourdiscussion_")){
+				$("#hdReportsDiv").hide();
+			}else{
+				$("#hdReportsDiv").show();
+			}
+			//------stats reports as html-----------------------ends----------------
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -163,6 +187,19 @@
 					<spring:message code="question.generateAdmissionReport" text="Generate Admission Report"/>
 				</a> |
 			</security:authorize>
+			<security:authorize access="hasAnyRole('QIS_TYPIST', 'QIS_CLERK', 'QIS_ASSISTANT', 'HDS_TYPIST','HDS_CLERK', 'HDS_ASSISTANT')">
+				<div id="hdReportsDiv" style="display: inline;">
+					<a href="#" id="showHDDayWiseReport" class="butSim">
+						<spring:message code="question.hdDayWiseReport" text="HD Day wise Report"/>
+					</a> <div id="hdDays" style="display: inline; width: 200px;">
+						<input type="text" value="0" id="hdDaysForReport" style="width: 50px; border: 1px solid black; border-radius: 2px;"/>
+						<a href="javascript:void(0);" id="showhddaywisereport" >Go</a>
+					</div>|
+					<a href="#" id="showHDStatAndAdmissionReport" class="butSim">
+						<spring:message code="question.hdStatAndAdmissionReport" text="HD Stat and Admission Report"/>
+					</a> |
+				</div>
+			</security:authorize>		
 			<security:authorize access="!hasAnyRole('QIS_TYPIST','QIS_CLERK','HDS_TYPIST','HDS_CLERK')">	 
 				<a href="#" id="send_message" class="butSim">
 					<spring:message code="question.sendMessage" text="Send Message"/>
@@ -181,7 +218,7 @@
 				<a href="#" id="generateClubbedIntimationLetter" class="butSim">
 					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>
 				</a> | 				
-			</security:authorize>				 
+			</security:authorize>	 
 			<p>&nbsp;</p>
 		</div>
 	</div>

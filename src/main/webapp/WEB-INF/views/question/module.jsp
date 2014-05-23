@@ -77,21 +77,22 @@
 			}
 		});
 		/**** question type changes then reload grid****/
-		$("#selectedQuestionType")
-				.change(
-						function() {
+		$("#selectedQuestionType").change(function() {
 							var value = $(this).val();
-							var text = $(
-									"#deviceTypeMaster option[value='"
-											+ value + "']")
-									.text();
+							var text = $("#deviceTypeMaster option[value='"+ value + "']").text();
+							
+							if(!text.startsWith("questions_halfhourdiscussion_")){
+								$("#hdReportsDiv").hide();
+							}else{
+								$("#hdReportsDiv").show();
+							}
+							
 							if (text == 'questions_starred') {
 								$("#chart_tab").show();
 							} else {
 								$("#chart_tab").hide();
 							}
-							if (text == 'questions_starred'
-									&& currentHouseType == 'upperhouse') {
+							if (text == 'questions_starred' && currentHouseType == 'upperhouse') {
 								$("#memberballot_tab").show();
 								$("#ballot_tab").hide();
 							} else if ((text == 'questions_starred' && currentHouseType == 'lowerhouse')
@@ -554,6 +555,26 @@
 		var resourceUrl="pushmessage/new?"+parameters;
 		showTabByIdAndUrl('details_tab', resourceUrl);
 	}
+	
+	function showHDDaywisereport(){
+		var param = "sessionYear="+$("#selectedSessionYear").val()
+		+ "&sessionType="+$("#selectedSessionType").val()
+		+ "&houseType="+$("#selectedHouseType").val()
+		+ "&deviceType="+$("#selectedQuestionType").val()
+		+ "&days="+$("#hdDaysForReport").val()
+		+ "&groupId=0&subDepartment=0";
+		showTabByIdAndUrl('details_tab', 'question/report/halfhourdaysubmitreport?'+ param);
+	}
+	
+	function showHDStatAndAdmissionreport(){
+		var param = "sessionYear="+$("#selectedSessionYear").val()
+		+ "&sessionType="+$("#selectedSessionType").val()
+		+ "&houseType="+$("#selectedHouseType").val()
+		+ "&deviceType="+$("#selectedQuestionType").val()
+		+ "&days="+$("#hdDaysForReport").val()
+		+ "&groupId=0&subDepartment=0";
+		showTabByIdAndUrl('details_tab', 'question/report/hdstatandadmissionreport?'+ param);
+	}
 </script>
 </head>
 <body>
@@ -736,20 +757,38 @@
 			'HDS_SECRETARY','HDS_OFFICER_ON_SPECIAL_DUTY','HDS_DEPUTY_SPEAKER','HDS_CHAIRMAN','HDS_DEPUTY_CHAIRMAN',
 			'HDS_SECTION_OFFICER','HDS_UNDER_SECRETARY_COMMITTEE','QIS_ADDITIONAL_SECRETARY','QIS_CLERK','HDS_CLERK')">
 				<hr>
-				<c:if
-					test="${not(questionTypeType=='questions_halfhourdiscussion_standalone' and houseType=='lowerhouse')}">
-					<a href="#" id="select_group" class="butSim"> <spring:message
-							code="question.group" text="Group" />
-					</a>
-					<select name="selectedGroup" id="selectedGroup"
-						style="width: 100px; height: 25px;">
-						<c:forEach items="${groups}" var="i">
-							<option value="${i.id}">
-								<c:out value="${i.formatNumber()}"></c:out>
-							</option>
-						</c:forEach>
-					</select>|
-				</c:if>
+				<c:choose>
+					<c:when test="${not(questionTypeType=='questions_halfhourdiscussion_standalone' and houseType=='lowerhouse')}">
+						<div style="display: inline; ">
+							<a href="#" id="select_group" class="butSim"> <spring:message
+									code="question.group" text="Group" />
+							</a>
+							<select name="selectedGroup" id="selectedGroup"
+								style="width: 100px; height: 25px;">
+								<c:forEach items="${groups}" var="i">
+									<option value="${i.id}">
+										<c:out value="${i.formatNumber()}"></c:out>
+									</option>
+								</c:forEach>
+							</select>
+						</div>
+					</c:when>
+					<c:otherwise>
+						<div style="display: none; ">
+							<a href="#" id="select_group" class="butSim"> <spring:message
+									code="question.group" text="Group" />
+							</a>
+							<select name="selectedGroup" id="selectedGroup"
+								style="width: 100px; height: 25px;">
+								<c:forEach items="${groups}" var="i">
+									<option value="${i.id}">
+										<c:out value="${i.formatNumber()}"></c:out>
+									</option>
+								</c:forEach>
+							</select>
+						</div>
+					</c:otherwise>
+				</c:choose>|
 				<a href="#" id="select_status" class="butSim"> <spring:message
 						code="question.status" text="Status" />
 				</a>

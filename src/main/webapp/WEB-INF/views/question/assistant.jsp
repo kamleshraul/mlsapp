@@ -839,7 +839,14 @@
 	</p>	
 	
 	<p>
-	<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
+		<c:choose>
+			<c:when test="${fn:contains(selectedQuestionType,'questions_halfhourdiscussion')}">
+				<label class="small"><spring:message code="question.halfhour.number" text="Notice Number"/>*</label>
+			</c:when>
+			<c:otherwise>
+				<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
+			</c:otherwise>
+		</c:choose>
 	<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 	<input id="number" name="number" value="${domain.number}" type="hidden">
 	<form:errors path="number" cssClass="validationError"/>
@@ -890,7 +897,8 @@
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<c:if test="${discussionDateSelected != null}">
 			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
-			<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" readonly="readonly">
+			<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="sText" readonly="readonly" />
+			<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
 			<form:errors path="discussionDate" cssClass="validationError"/>
 		</c:if>
 	</c:if>
@@ -1166,7 +1174,7 @@
 	
 	<c:if test="${(internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred' &&selectedQuestionType=='questions_starred')
 	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
-	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
+	||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_putup_nameclubbibg')&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
 	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
 	||(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse')
 	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse')}">
@@ -1213,11 +1221,11 @@
 			<form:errors path="internalStatus" cssClass="validationError"/>	
 		</p>
 		</security:authorize>
-			<p id="actorDiv" style="display: none;">
-					<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
-					<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
-					<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
-			</p>
+		<p id="actorDiv" style="display: none;">
+				<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
+				<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
+				<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
+		</p>		
 	</c:if>		
 		
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
@@ -1256,7 +1264,7 @@
 			<c:when test="${bulkedit!='yes'}">
 				<c:if test="${internalStatusType=='question_submit'
 							||internalStatusType=='question_system_assistantprocessed'
-							||(internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_system_groupchanged' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred' && selectedQuestionType=='questions_starred')
+							||((internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_system_groupchanged' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred') && selectedQuestionType=='questions_starred')
 							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
 							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
 							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
@@ -1348,6 +1356,9 @@
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 			<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${referredQuestionNumber}" />
+			<input type="hidden" name="referenceDeviceType" id="referenceDeviceType" value="${domain.referenceDeviceType}"/>
+			<input type="hidden" name="referenceDeviceMember" id="referenceDeviceMember" value="${domain.referenceDeviceMember}"/>
+			<input type="hidden" name="referenceDeviceAnswerDate" id="referenceDeviceAnswerDate" value="${refDeviceAnswerDate}"/>
 	</c:if>
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">

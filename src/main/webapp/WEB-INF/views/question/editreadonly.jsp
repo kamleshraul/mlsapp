@@ -53,7 +53,14 @@
 	<form:errors path="version" cssClass="validationError"/>
 		
 	<p>
-	<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
+		<c:choose>
+			<c:when test="${fn:contains(domain.type.type,'questions_halfhourdiscussion')}">
+				<label class="small"><spring:message code="question.halfhour.number" text="Notice Number"/>*</label>
+			</c:when>
+			<c:otherwise>
+				<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
+			</c:otherwise>
+		</c:choose>
 	<input id="formattedNumberEdit" name="formattedNumberEdit" value="${formattedNumber}" class="sText" readonly="readonly">		
 	
 	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">

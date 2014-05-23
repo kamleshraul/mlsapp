@@ -498,9 +498,11 @@
 									$('#questionText').wysiwyg('setContent',data.value);
 								}
 							});
+							$("#referenceDeviceType").val(data.formattedNumber);
 						}else{
 							$('#subject').val('');
 							$('#questionText').wysiwyg('setContent', '');
+							$("#referenceDeviceType").val('');
 						}
 					//}
 				}).fail(function(){
@@ -640,16 +642,7 @@
 		<input name="primaryMember" id="primaryMember" type="hidden" value="${primaryMember}">		
 		<form:errors path="primaryMember" cssClass="validationError"/>		
 	</p>	
-	</security:authorize>	
-	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-		<p>
-			<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
-			<input class="sText" type="text" name="halfHourDiscussionReference_questionNumber" id="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" />
-			<form:errors path="halfHourDiscusionFromQuestionReference" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-			<label class="small"><a id="halfhourdiscussion_referred_question" href="#" ><spring:message code="question.halfhour.questionrefview" text="See Referred Question"/></a></label>	
-		</p>
-	</c:if>		
+	</security:authorize>
 	
 	<p>
 		<label class="centerlabel"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
@@ -667,7 +660,7 @@
 		</c:if>
 		<form:errors path="supportingMembers" cssClass="validationError"/>	
 	</p>
-	
+		
 	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
 		<p>
 			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
@@ -694,14 +687,46 @@
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		
 		<p>
+			<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
+			<input class="sText" type="text" name="halfHourDiscussionReference_questionNumber" id="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" />
+			<label class="small"><a id="halfhourdiscussion_referred_question" href="#" ><spring:message code="question.halfhour.questionrefview" text="See Referred Question"/></a></label>	
+		</p>
+		
+		<p>
+			<label class="small"><spring:message code="question.halfhour.questionrefdevicetype" text="Reference Question Device Type: "/>*</label>
+			<form:input path="referenceDeviceType" cssClass="sText" />
+			<form:errors path="referenceDeviceType" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		</p>
+
+		<p>
+			<label class="small"><spring:message code="question.halfhour.questionrefdevicemember" text="Reference Question Member: "/>*</label>
+			<form:input path="referenceDeviceMember" cssClass="sText" />
+			<form:errors path="referenceDeviceMember" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		</p>
+		
+		<p>
+			<label class="small"><spring:message code="question.halfhour.questionrefdeviceanswer" text="Reference Question Answering Date: "/>*</label>
+			<input id="referenceDeviceAnswerDate_view" class="datemask sText" type="text" value="${formattedRefDeviceAnswerDate}"/>
+			<input id="referenceDeviceAnswerDate" name="referenceDeviceAnswerDate" class="datemask sText" type="hidden" value="${refDeviceAnswerDate}"/>
+			<form:errors path="referenceDeviceAnswerDate" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		</p>
+		
+		<p>
 			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
 			<form:textarea path="subject" rows="2" cols="50"></form:textarea>
 			<form:errors path="subject" cssClass="validationError" />
-		</p>
+		</p>	
+		
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
 			<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		</p>
+		
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/>*</label>
+			<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="answer" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 		<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${domain.halfHourDiscusionFromQuestionReferenceNumber}" />
 	</c:if>
