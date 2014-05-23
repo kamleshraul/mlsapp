@@ -5082,7 +5082,32 @@ public class ReferenceController extends BaseController {
 			&& strSession!=null && !strSession.isEmpty()){
 			Session session=Session.findById(Session.class, Long.parseLong(strSession));
 			DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
-			flag=Question.isExist(Integer.parseInt(strNumber),deviceType, session, locale.toString());
+			CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			Integer questionNumber=null;
+			if(csptDeployment!=null){
+				String server=csptDeployment.getValue();
+				if(server.equals("TOMCAT")){
+					try {
+						strNumber = new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");
+						questionNumber=  FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+								
+					} catch (UnsupportedEncodingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}else{
+					try {
+						questionNumber=FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			flag=Question.isExist(questionNumber,deviceType, session, locale.toString());
 		}
 		return flag;
 	}
