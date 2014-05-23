@@ -63,9 +63,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 	"briefExplanation","discussionDate","dateOfAnsweringByMinister","toBeAnsweredByMinister"
 	,"revisedReason","reason","numberOfDaysForFactualPositionReceiving",
 	"lastDateOfFactualPositionReceiving","factualPosition","questionsAskedInFactualPosition"
-	,"locale","version","versionMismatch","editedAs","questionreferenceText","rejectionReason"},ignoreUnknown=true)
+	,"locale","version","versionMismatch","editedAs","questionreferenceText","rejectionReason","referenceDeviceType","referenceDeviceMember","referenceDeviceAnswerDate"},ignoreUnknown=true)
 public class Question extends Device implements Serializable {
-
+		
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
     /**** Attributes ****/    
@@ -279,6 +279,13 @@ public class Question extends Device implements Serializable {
     private Question halfHourDiscusionFromQuestionReference;
     
     private String halfHourDiscusionFromQuestionReferenceNumber;
+    
+    private String referenceDeviceType;
+    
+	private String referenceDeviceMember;
+	
+	@Temporal(TemporalType.DATE)
+	private Date referenceDeviceAnswerDate;
 
     @Temporal(TemporalType.DATE)
     private Date discussionDate;
@@ -744,12 +751,21 @@ public class Question extends Device implements Serializable {
 			final Status[] internalStatuses,
 			final Boolean hasParent,
 			final Boolean isBalloted,
+			final Boolean isMandatoryUnique,
 			final Date startTime,
 			final Date endTime,
 			final String sortOrder,
 			final String locale) {
     	
-    	return getQuestionRepository().findByBallot(session, deviceType, answeringDate, internalStatuses, hasParent, isBalloted, startTime, endTime, sortOrder, locale);
+    	return getQuestionRepository().findByBallot(session, deviceType, answeringDate, internalStatuses, hasParent, isBalloted, isMandatoryUnique, startTime, endTime, sortOrder, locale);
+    }
+    
+    public static String findBallotedMembers(final Session session, final DeviceType deviceType){
+    	return getQuestionRepository().findBallotedMembers(session, deviceType);
+    }
+    
+    public static String findBallotedSubjects(final Session session, final DeviceType deviceType){
+    	return getQuestionRepository().findBallotedSubjects(session, deviceType);
     }
     
     /**
@@ -2232,6 +2248,36 @@ public class Question extends Device implements Serializable {
 	public void setHalfHourDiscusionFromQuestionReferenceNumber(
 			String halfHourDiscusionFromQuestionReferenceNumber) {
 		this.halfHourDiscusionFromQuestionReferenceNumber = halfHourDiscusionFromQuestionReferenceNumber;
+	}
+
+
+	public String getReferenceDeviceType() {
+		return referenceDeviceType;
+	}
+
+
+	public void setReferenceDeviceType(String referenceDeviceType) {
+		this.referenceDeviceType = referenceDeviceType;
+	}
+
+
+	public String getReferenceDeviceMember() {
+		return referenceDeviceMember;
+	}
+
+
+	public void setReferenceDeviceMember(String referenceDeviceMember) {
+		this.referenceDeviceMember = referenceDeviceMember;
+	}
+
+
+	public Date getReferenceDeviceAnswerDate() {
+		return referenceDeviceAnswerDate;
+	}
+
+
+	public void setReferenceDeviceAnswerDate(Date referenceDeviceAnswerDate) {
+		this.referenceDeviceAnswerDate = referenceDeviceAnswerDate;
 	}
 
 
