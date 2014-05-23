@@ -2804,7 +2804,12 @@ public class QuestionController extends GenericController<Question>{
 							}
 							model.addAttribute("discussionDates",discussionDates);
 							if (domain.getDiscussionDate() != null) {
-								model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+								model.addAttribute("discussionDateSelected", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getDiscussionDate()));
+								model.addAttribute("formattedDiscussionDateSelected", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+							}
+							if (domain.getReferenceDeviceAnswerDate() != null) {
+								model.addAttribute("refDeviceAnswerDate", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getReferenceDeviceAnswerDate()));
+								model.addAttribute("formattedRefDeviceAnswerDate", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getReferenceDeviceAnswerDate()));
 							}
 						} catch (ParseException e) {
 
@@ -2908,7 +2913,12 @@ public class QuestionController extends GenericController<Question>{
 					}
 					model.addAttribute("discussionDates",discussionDates);
 					if (domain.getDiscussionDate() != null) {
-						model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+						model.addAttribute("discussionDateSelected", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getDiscussionDate()));
+						model.addAttribute("formattedDiscussionDateSelected", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+					}
+					if (domain.getReferenceDeviceAnswerDate() != null) {
+						model.addAttribute("refDeviceAnswerDate", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getReferenceDeviceAnswerDate()));
+						model.addAttribute("formattedRefDeviceAnswerDate", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getReferenceDeviceAnswerDate()));
 					}
 				} catch (ParseException e) {
 
@@ -3056,9 +3066,11 @@ public class QuestionController extends GenericController<Question>{
 				}
 
 				if (domain.getDiscussionDate() != null) {
-					model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+					model.addAttribute("discussionDateSelected", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getDiscussionDate()));
+					model.addAttribute("formattedDiscussionDateSelected", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
 				}else{
 					model.addAttribute("discussionDateSelected",null);
+					model.addAttribute("formattedDiscussionDateSelected", null);
 				}
 				if (domain.getHalfHourDiscusionFromQuestionReference() != null) {
 					model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
@@ -3068,6 +3080,11 @@ public class QuestionController extends GenericController<Question>{
 							&& !domain.getHalfHourDiscusionFromQuestionReferenceNumber().isEmpty()){
 						model.addAttribute("referredQuestionNumber", FormaterUtil.formatNumberNoGrouping(new Integer(domain.getHalfHourDiscusionFromQuestionReferenceNumber()), domain.getLocale()));
 					}
+				}
+				
+				if (domain.getReferenceDeviceAnswerDate() != null) {
+					model.addAttribute("refDeviceAnswerDate", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getReferenceDeviceAnswerDate()));
+					model.addAttribute("formattedRefDeviceAnswerDate", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getReferenceDeviceAnswerDate()));
 				}
 			}
 
@@ -3142,9 +3159,16 @@ public class QuestionController extends GenericController<Question>{
 		}
 
 		if (domain.getDiscussionDate() != null) {
-			model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+			model.addAttribute("discussionDateSelected", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getDiscussionDate()));
+			model.addAttribute("formattedDiscussionDateSelected", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
 		}else{
 			model.addAttribute("discussionDateSelected",null);
+			model.addAttribute("formattedDiscussionDateSelected", null);
+		}
+		
+		if (domain.getReferenceDeviceAnswerDate() != null) {
+			model.addAttribute("refDeviceAnswerDate", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getReferenceDeviceAnswerDate()));
+			model.addAttribute("formattedRefDeviceAnswerDate", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getReferenceDeviceAnswerDate()));
 		}
 	}
 
@@ -3212,6 +3236,7 @@ public class QuestionController extends GenericController<Question>{
 							masterVO.setId(q.getId());
 							masterVO.setName(q.getSubject());
 							masterVO.setValue(q.getQuestionText());
+							masterVO.setFormattedNumber(q.getType().getName());
 
 						}
 					}
