@@ -458,12 +458,14 @@ public class QuestionReportController extends BaseController{
 			String strGroupId = request.getParameter("groupId");
 			String strSubDepartment = request.getParameter("subDepartment");
 			
+			if(strGroupId == null ){
+				
+			}
+			
 			if(strSessionType != null && !strSessionType.isEmpty()
 					&& strSessionYear != null && !strSessionYear.isEmpty()
 					&& strHouseType != null && !strHouseType.isEmpty()
-					&& strDeviceType != null && !strDeviceType.isEmpty()
-					&& strGroupId != null && !strGroupId.isEmpty()
-					&& strSubDepartment != null && !strSubDepartment.isEmpty()){
+					&& strDeviceType != null && !strDeviceType.isEmpty()){
 				
 				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
 				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
@@ -493,6 +495,87 @@ public class QuestionReportController extends BaseController{
 		return page;
 	}
 	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/halfhourdaysubmitreport", method=RequestMethod.GET)
+	public String halfhourDayWiseSubmissionReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		String page = "question/error";
+		try{
+			String strGroupId = request.getParameter("groupId");
+			String strSubDepartment = request.getParameter("subDepartment");
+			String strDay = request.getParameter("days");
+			
+			if(strGroupId != null && !strGroupId.isEmpty()
+					&& strSubDepartment != null && !strSubDepartment.isEmpty()
+					&& strDay != null && !strDay.isEmpty()){
+								
+				List<Object> objects = QuestionReportHelper.getSesionAndDeviceType(request, locale.toString());
+				
+				Session session = null; 
+				DeviceType deviceType = null;
+				if(!objects.isEmpty()){
+					session = (Session) objects.get(0);
+					deviceType = (DeviceType)objects.get(1);
+				}
+				
+				Integer startDay = new Integer(strDay);
+				Integer endDay = new Integer((startDay.intValue()==0)? startDay.intValue():startDay.intValue()-1);
+				
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("groupId", new String[]{strGroupId});
+				parameters.put("startDay", new String[]{startDay.toString()});
+				parameters.put("endDay", new String[]{endDay.toString()});
+				parameters.put("subDepartment", new String[]{strSubDepartment});
+				parameters.put("subDepartment", new String[]{strSubDepartment});
+				parameters.put("locale", new String[]{locale.toString()});
+				
+				List report = Query.findReport("HALFHOUR_DAYWISE_SUBMISSION_REPORT", parameters);
+				
+				model.addAttribute("report", report);
+				model.addAttribute("formater", new FormaterUtil());
+				model.addAttribute("locale", locale.toString());
+				
+				page = "question/reports/halfhourdaywisesubmitreport";
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return page;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/hdstatandadmissionreport", method=RequestMethod.GET)
+	public String generateHDStatAndAdmissionReport(HttpServletRequest request, Model model, Locale locale){
+		Map<String, String[]> parameters = new HashMap<String, String[]>();
+		Session session = null;
+		DeviceType deviceType = null;
+		List<Object> objects = QuestionReportHelper.getSesionAndDeviceType(request, locale.toString());
+		if(!objects.isEmpty()){
+			session = (Session) objects.get(0);
+			deviceType = (DeviceType)objects.get(1);
+		}
+		parameters.put("locale", new String[]{locale.toString()});
+		parameters.put("sessionId", new String[]{session.getId().toString()});
+		parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+		List headerStatReport = Query.findReport("HALFHOUR_STAT_REPORT", parameters);
+		List admissionReport = Query.findReport("HALFHOUR_ADMISSION_REPORT", parameters);
+		
+		model.addAttribute("headerStats", headerStatReport);
+		model.addAttribute("report", admissionReport);
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale.toString());
+		CustomParameter csptShowHDAdmissionDetails = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase() + "_ADMISSION_DETAILS_" + session.getHouse().getType().getType().toUpperCase(), "");
+		if(csptShowHDAdmissionDetails != null){
+			model.addAttribute("showStats", csptShowHDAdmissionDetails.getValue());
+		}
+		return "question/reports/hd_statusreport";
+	}	
+	
+	
+	//----------------------------------------------------------------------
 	@RequestMapping(value="/viewYaadi" ,method=RequestMethod.GET)
 	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
 		File reportFile = null; 
@@ -1179,6 +1262,37 @@ class QuestionReportHelper{
 		return list;  
 	}
 	
+	public static List<Object> getSesionAndDeviceType(HttpServletRequest request, String locale){
+		List<Object> objects = new ArrayList<Object>();
+		try{
+		
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strHouseType = request.getParameter("houseType");
+			String strDeviceType = request.getParameter("deviceType");
+			
+			if(strSessionType != null && !strSessionType.isEmpty()
+					&& strSessionYear != null && !strSessionYear.isEmpty()
+					&& strHouseType != null && !strHouseType.isEmpty()
+					&& strDeviceType != null && !strDeviceType.isEmpty()){
+				
+				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, new Integer(strSessionYear));
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+				
+				objects.add(session);
+				objects.add(deviceType);
+				
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return objects;
+	}
+
 	public static String findMemberNamesForAddedQuestion(Question clubbedQuestion, String previousQuestionsMemberNames, String memberNameFormat, boolean isConstituencyIncluded) {
 		Session session = clubbedQuestion.getSession();
 		House questionHouse = session.getHouse();
