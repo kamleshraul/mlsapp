@@ -740,6 +740,9 @@ public class ApplicationConstants {
 
 	public static final String QUESTIONS_HALFHOURDISCUSSION_STANDALONE_SUBMISSIONENDDATE = "questions_halfhourdiscussion_standalone_submissionEndDate"; 
 
+	public static String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT="question_final_clarificationNeededFromGovt";
+
+	public static String QUESTION_PROCESSED_FINAL_ADMITTED="question_processed_final_dateAdmitted";
 	/**** member ballot ****/
 	public static final String MEMBERBALLOT_DELETE_EXISTING="DELETE";
 
@@ -1006,8 +1009,6 @@ public class ApplicationConstants {
 	public static String REPORTING="reporting";
 
 	public static String CLERK="clerk";
-
-	public static String QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT="question_final_clarificationNeededFromGovt";
 
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
