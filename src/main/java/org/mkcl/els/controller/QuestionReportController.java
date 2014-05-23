@@ -299,19 +299,20 @@ public class QuestionReportController extends BaseController{
 						}
 					}
 				} else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
-					SimpleDateFormat dbFormat = null;
-					CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
-					if(dbDateFormat!=null){
-						dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+					if(question.getDateOfAnsweringByMinister()!=null){
+						SimpleDateFormat dbFormat = null;
+						CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+						if(dbDateFormat!=null){
+							dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+						}
+						//Added the following code to solve the marathi month and day issue
+						String[] strAnsweringDates=dbFormat.format(question.getDateOfAnsweringByMinister()).split(",");
+						String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+						String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
+						String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+						String formattedAnsweringDate = answeringDay+","+strAnsweringMonth[0] + " " + answeringMonth + " " + strAnsweringDates[2];
+						letterVO.setAnsweringDate(formattedAnsweringDate);
 					}
-					//Added the following code to solve the marathi month and day issue
-					String[] strAnsweringDates=dbFormat.format(question.getDateOfAnsweringByMinister()).split(",");
-					String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
-					String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
-					String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-					String formattedAnsweringDate = answeringDay+","+strAnsweringMonth[0] + " " + answeringMonth + " " + strAnsweringDates[2];
-					letterVO.setAnsweringDate(formattedAnsweringDate);
-					
 				}else{
 					//answeringDate = question.getDiscussionDate();
 				}
