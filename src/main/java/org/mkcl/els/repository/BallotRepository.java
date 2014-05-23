@@ -258,6 +258,7 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 			parametersMap.put("memberId", new String[]{member.getId().toString()});
 			parametersMap.put("internalStatusId", new String[]{internalStatus.getId().toString()});
 			parametersMap.put("ballotStatusId", new String[]{ballotStatus.getId().toString()});			
+			parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 			
 			List<Question> qX = org.mkcl.els.domain.Query.findResultListOfGivenClass("QIS_ELIGIBLE_QUESTIONS_FOR_STARRED_ASSEMBLY_BALLOT", parametersMap, Question.class);
 			
