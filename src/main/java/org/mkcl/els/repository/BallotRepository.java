@@ -21,8 +21,6 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
-import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BallotEntry;
@@ -38,7 +36,6 @@ import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class BallotRepository
@@ -173,6 +170,7 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		return ballotEntry;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Member> findMembersEligibleForBallot(final Session session,
 			final DeviceType deviceType,
 			final Group group,
@@ -234,6 +232,7 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		return members;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Question> findQuestionsEligibleForBallot(final Member member,
 			final Session session,
 			final DeviceType deviceType,
@@ -267,7 +266,7 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 					if(i==noOfRounds) {
 						break;
 					}
-					questions.add(qX.get(i));			
+					questions.add(qX.get(i));		
 				}				
 			}
 		}catch (Exception e) {
