@@ -3,8 +3,8 @@
 <head>
 	<title><spring:message code="workflow.myTasks.list" text="List of My Tasks"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<script type="text/javascript">
-				
+	<script type="text/javascript">		
+		
 		$(document).ready(function(){
 			onPageLoad();
 			
@@ -134,6 +134,22 @@
 			}
 			$("#notificationDiv").hide();
 			$("#newTasksDiv").hide();	
+			$("#notificationDiv").hide();
+			$("#newMessageDiv").hide();
+			
+			$("#newMessageDivViewer").click(function(){
+				
+				if($("#newMessageDiv").css('display')=='none'){
+					$(this).empty();
+					$(this).html("<b>&#9658;</b>");
+					pendingNewMessages();
+				}else{
+					$(this).empty();
+					$(this).html("<b>&#9668;</b>");
+				}
+				$("#newMessageDiv").toggle();
+			});
+						
 		});
 				
 		//to get the new pending tasks
@@ -147,6 +163,36 @@
 					if(data){
 						$("#notificationDiv").html(data.value);
 						$("#notificationDiv").show();
+					}
+				});
+			}			  
+		}
+		
+		//to get the new pending messages
+		function pendingNewMessages(){
+			
+			var url = "ref/newpendingmessages?sessionYear=" + $("#selectedSessionYear").val() +
+						"&sessionType=" + $("#selectedSessionType").val() + 
+						"&houseType=" + $("#selectedHouseType").val();
+			$.get(url, function(data){
+				$("#newMessageDiv").empty();
+				if(data.length > 0){
+					var text = "<table style='margin: 10px; padding: 2px;'>";
+					for(var i = 0; i < data.length; i++){
+						text += "<tr><td style='text-align: center; margin: 2px; padding: 2px;'><a hrfe='javascript:void(0);' id='message" + data[i][0] + "' onclick='updateMessage("+ data[i][0] +")' title='" + data[i][0] + "'>" + data[i][1]+"</a></td>"
+								+ "<td style='text-align: center; margin: 2px; padding: 2px;'>" + data[i][2] + "</td><td style='text-align: center; margin: 2px; padding: 2px;'>" + data[i][3] + "</td></tr>";						
+					}
+					text += "</table>";
+					$("#newMessageDiv").html(text);
+				}
+			});
+		}
+		
+		function updateMessage(val){
+			if($("#message"+val).attr('title') != 'SUCCESS'){
+				$.post("pushmessage/"+ val+"/updateasread?read=yes", function(data){
+					if(data){
+						$("#message"+val).attr('title',data);
 					}
 				});
 			}
@@ -470,6 +516,41 @@
 			position: fixed;
 			overflow: auto;
 		}
+		
+		.newMessageDivNormal{
+			background: #D4F4FF scroll no-repeat;
+			width: 80px;
+			border: 1px solid black;
+			z-index: 4000;
+			bottom: 35px;
+			right: 5px;			
+			position: fixed;
+			cursor: pointer;
+			text-align: center
+		}
+		
+		.newMessageDivBig{
+			background: #D4F4FF scroll no-repeat;
+			width: 300px;
+			height: 250px;
+			border: 1px solid black;
+			z-index: 4000;
+			bottom: 25px;
+			right: 25px;			
+			position: fixed;
+			cursor: pointer;
+		}
+		#newMessageDivViewer{
+			background: #0A469A scroll no-repeat;
+			width: 15px;
+			height: 15px;
+			border: 1px solid black;
+			z-index: 5000;
+			bottom: 25px;
+			right: 5px;			
+			position: fixed;
+			cursor: pointer;
+		}
 	</style>
 </head>
 <body>
@@ -639,6 +720,14 @@
 		<div id="notificationDiv">
 			V
 		</div>
+		
+		<div id="newMessageDivViewer">
+			<b>&#9668;</b>
+		</div>
+		
+		<div id="newMessageDiv" class="newMessageDivBig">
+			Message
+		</div>			
 		
 		<div style="display: none;">
 			<select id="deviceTypeMaster">			
