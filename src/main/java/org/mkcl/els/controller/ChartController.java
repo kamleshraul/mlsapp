@@ -317,34 +317,7 @@ public class ChartController extends BaseController{
 					parametersMap.put("roleId", new String[]{memberRole.getId().toString()});					
 					parametersMap.put("currentDate", new String[]{FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT)});
 					extraMembers = org.mkcl.els.domain.Query.findReport("STARRED_CHART_VIEW_2", parametersMap);
-					if(questionParents != null && !questionParents.isEmpty()){
-						for(int i = 0; i < starredChartView.size(); i++ ){
-							Object[] obj = ((Object[])starredChartView.get(i));
-							if(questionParents.contains(obj[3])){
-								String parent = obj[3].toString();
-								parametersMap.put("parentId", new String[]{parent});
-								
-								StringBuffer strKids = new StringBuffer();
-								List kids = org.mkcl.els.domain.Query.findReport("STARRED_CHART_KIDS", parametersMap);
-								
-								for(int j = 0; j < kids.size(); j++){
-									Object[] objKids = (Object[])kids.get(j);
-									strKids.append(objKids[2].toString());
-									if(j < (kids.size() - 1)){
-										strKids.append(",");								
-									}
-									objKids = null;		
-									parent = null;
-								}
-								((Object[])starredChartView.get(i))[10] = strKids.toString();
-								strKids = null;
-							}
-						}
-						
-						
-					}else{
-						
-					}
+					
 					List simplifiedList = (starredChartView!=null)?getSimplifiedChart(starredChartView):null;
 					simplifiedList.addAll(extraMembers);
 					model.addAttribute("report", simplifiedList);
@@ -387,7 +360,7 @@ public class ChartController extends BaseController{
 					List newList = getSimplifiedChart(hdsChartView);
 					List extraMembers = org.mkcl.els.domain.Query.findReport("HDS_CHART_VIEW_2", parametersMap);
 					newList.addAll(extraMembers);
-					model.addAttribute("report", hdsChartView);
+					model.addAttribute("report", newList);
 				}				
 			}
 			
