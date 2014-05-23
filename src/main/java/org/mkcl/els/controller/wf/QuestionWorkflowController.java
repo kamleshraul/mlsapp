@@ -1093,9 +1093,11 @@ public class QuestionWorkflowController  extends BaseController{
 			}
 
 			if (domain.getDiscussionDate() != null) {
-				model.addAttribute("discussionDateSelected",FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
+				model.addAttribute("discussionDateSelected", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getDiscussionDate()));
+				model.addAttribute("formattedDiscussionDateSelected", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
 			}else{
 				model.addAttribute("discussionDateSelected",null);
+				model.addAttribute("formattedDiscussionDateSelected", null);
 			}
 			if (domain.getHalfHourDiscusionFromQuestionReference() != null) {
 				model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
@@ -1105,6 +1107,11 @@ public class QuestionWorkflowController  extends BaseController{
 						&& !domain.getHalfHourDiscusionFromQuestionReferenceNumber().isEmpty()){
 					model.addAttribute("referredQuestionNumber", FormaterUtil.formatNumberNoGrouping(new Integer(domain.getHalfHourDiscusionFromQuestionReferenceNumber()), domain.getLocale()));
 				}
+			}
+			
+			if (domain.getReferenceDeviceAnswerDate() != null) {
+				model.addAttribute("refDeviceAnswerDate", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getReferenceDeviceAnswerDate()));
+				model.addAttribute("formattedRefDeviceAnswerDate", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getReferenceDeviceAnswerDate()));
 			}
 		}
 	}	
@@ -1358,7 +1365,9 @@ public class QuestionWorkflowController  extends BaseController{
 				}
 			} catch (ParseException e1) {
 				try {
-					dateOfAnsweringByMinister=FormaterUtil.getDateFormatter(locale.toString()).parse(strDateOfAnsweringByMinister);
+					if(strDateOfAnsweringByMinister != null && !strDateOfAnsweringByMinister.isEmpty()){
+						dateOfAnsweringByMinister=FormaterUtil.getDateFormatter(locale.toString()).parse(strDateOfAnsweringByMinister);
+					}
 				} catch (ParseException e) {
 					logger.error(e.getMessage());
 				}
@@ -2309,10 +2318,11 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				briefExplainationText=domain.getBriefExplanation();
 			}
+			
 			Status nameClubbing=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
-			for(ClubbedEntity i:clubbedEntities){
-				Question question=i.getQuestion();
-				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+			if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+				for(ClubbedEntity i:clubbedEntities){
+					Question question=i.getQuestion();
 					question.setRevisedSubject(subject);
 					question.setRevisedQuestionText(questionText);
 					question.setRevisedReason(reasonText);
@@ -2321,9 +2331,36 @@ public class QuestionWorkflowController  extends BaseController{
 					question.setInternalStatus(domain.getInternalStatus());
 					question.setRecommendationStatus(domain.getInternalStatus());
 					question.simpleMerge();
-				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
-					question.setInternalStatus(nameClubbing);
-					question.simpleMerge();
+				}
+			}else if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				
+					for(ClubbedEntity i:clubbedEntities){
+						Question question=i.getQuestion();
+						question.setRevisedSubject(subject);
+						question.setRevisedQuestionText(questionText);
+						question.setRevisedReason(reasonText);
+						question.setRevisedBriefExplanation(briefExplainationText);
+						question.setStatus(domain.getInternalStatus());
+						question.setInternalStatus(domain.getInternalStatus());
+						question.setRecommendationStatus(domain.getInternalStatus());
+						question.simpleMerge();	
+					}
+			}else{
+				for(ClubbedEntity i:clubbedEntities){
+					Question question=i.getQuestion();
+					if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+						question.setRevisedSubject(subject);
+						question.setRevisedQuestionText(questionText);
+						question.setRevisedReason(reasonText);
+						question.setRevisedBriefExplanation(briefExplainationText);
+						question.setStatus(domain.getInternalStatus());
+						question.setInternalStatus(domain.getInternalStatus());
+						question.setRecommendationStatus(domain.getInternalStatus());
+						question.simpleMerge();
+					}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+						question.setInternalStatus(nameClubbing);
+						question.simpleMerge();
+					}
 				}
 			}
 		}
@@ -2442,10 +2479,12 @@ public class QuestionWorkflowController  extends BaseController{
 			}else{
 				briefExplainationText=domain.getBriefExplanation();
 			}
+			
 			Status putUpForRejection=Status.findByType(ApplicationConstants.QUESTION_PUTUP_REJECTION, domain.getLocale());
-			for(ClubbedEntity i:clubbedEntities){
-				Question question=i.getQuestion();
-				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+			
+			if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+				for(ClubbedEntity i:clubbedEntities){
+					Question question=i.getQuestion();
 					question.setRevisedSubject(subject);
 					question.setRevisedQuestionText(questionText);
 					question.setRevisedReason(reasonText);
@@ -2454,9 +2493,36 @@ public class QuestionWorkflowController  extends BaseController{
 					question.setInternalStatus(domain.getInternalStatus());
 					question.setRecommendationStatus(domain.getInternalStatus());
 					question.simpleMerge();
-				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
-					question.setInternalStatus(putUpForRejection);
-					question.simpleMerge();
+				}
+			}else if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				
+					for(ClubbedEntity i:clubbedEntities){
+						Question question=i.getQuestion();
+						question.setRevisedSubject(subject);
+						question.setRevisedQuestionText(questionText);
+						question.setRevisedReason(reasonText);
+						question.setRevisedBriefExplanation(briefExplainationText);
+						question.setStatus(domain.getInternalStatus());
+						question.setInternalStatus(domain.getInternalStatus());
+						question.setRecommendationStatus(domain.getInternalStatus());
+						question.simpleMerge();	
+					}
+			}else{			
+				for(ClubbedEntity i:clubbedEntities){
+					Question question=i.getQuestion();
+					if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+						question.setRevisedSubject(subject);
+						question.setRevisedQuestionText(questionText);
+						question.setRevisedReason(reasonText);
+						question.setRevisedBriefExplanation(briefExplainationText);
+						question.setStatus(domain.getInternalStatus());
+						question.setInternalStatus(domain.getInternalStatus());
+						question.setRecommendationStatus(domain.getInternalStatus());
+						question.simpleMerge();
+					}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+						question.setInternalStatus(putUpForRejection);
+						question.simpleMerge();
+					}
 				}
 			}
 		}
