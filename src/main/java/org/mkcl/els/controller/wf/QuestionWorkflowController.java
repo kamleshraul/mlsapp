@@ -900,7 +900,9 @@ public class QuestionWorkflowController  extends BaseController{
 		if(workflowDetails.getSendBackBefore() != null){
 			model.addAttribute("sendbacktimelimit", workflowDetails.getSendBackBefore().getTime());
 		}
-
+		
+		/****Level for RevisedDraft workflow****/
+		model.addAttribute("revisedDraftInitialLevel",1);
 	}
 
 	private void populateInternalStatus(final ModelMap model,final Question domain,final String locale) {
