@@ -4996,54 +4996,55 @@ public class ReferenceController extends BaseController {
 			return clubbedQuestionsVO;
 		}
 		
-				@RequestMapping(value="/newpendingtasks", method=RequestMethod.GET)
-		public @ResponseBody MasterVO getNewPendingTasks(HttpServletRequest request, Locale locale){
-			MasterVO data = new MasterVO();
-			try{
-				String strSessionYear = request.getParameter("sessionYear");
-				String strSessionType = request.getParameter("sessionType");
-				String strStatus = request.getParameter("status");
-				String strHouseType = request.getParameter("houseType");
+		
+	@RequestMapping(value="/newpendingtasks", method=RequestMethod.GET)
+	public @ResponseBody MasterVO getNewPendingTasks(HttpServletRequest request, Locale locale){
+		MasterVO data = new MasterVO();
+		try{
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");
+			String strStatus = request.getParameter("status");
+			String strHouseType = request.getParameter("houseType");
+			
+			if(strSessionYear != null && !strSessionYear.isEmpty()
+					&& strSessionType != null && !strSessionType.isEmpty()
+					&& strStatus != null && !strStatus.isEmpty()
+					&& strHouseType != null && !strHouseType.isEmpty()){
 				
-				if(strSessionYear != null && !strSessionYear.isEmpty()
-						&& strSessionType != null && !strSessionType.isEmpty()
-						&& strStatus != null && !strStatus.isEmpty()
-						&& strHouseType != null && !strHouseType.isEmpty()){
-					
-					CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
-					
-						if(csptServer.getValue().equals("TOMCAT")){
-							
-							strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
-							strSessionType = new String(strSessionType.getBytes("ISO-8859-1"), "UTF-8");
-							strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
-						}
-					}
-					
-					
-					Map<String, String> parameters = new HashMap<String, String>();
-					parameters.put("locale", locale.toString());
-					parameters.put("assignee", this.getCurrentUser().getActualUsername());
-					parameters.put("sessionYear", strSessionYear);
-					parameters.put("sessionType", strSessionType);
-					parameters.put("houseType", strHouseType);
-					parameters.put("status", strStatus);
-					
-					List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.ASC);
-					
-					if(workflows != null){
+				CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+				
+					if(csptServer.getValue().equals("TOMCAT")){
 						
-							data.setValue(String.valueOf(workflows.size()));
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"), "UTF-8");
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
 					}
 				}
-			}catch(Exception e){
-				logger.error(e.getMessage());
-				e.printStackTrace();
+				
+				
+				Map<String, String> parameters = new HashMap<String, String>();
+				parameters.put("locale", locale.toString());
+				parameters.put("assignee", this.getCurrentUser().getActualUsername());
+				parameters.put("sessionYear", strSessionYear);
+				parameters.put("sessionType", strSessionType);
+				parameters.put("houseType", strHouseType);
+				parameters.put("status", strStatus);
+				
+				List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.ASC);
+				
+				if(workflows != null){
+					
+						data.setValue(String.valueOf(workflows.size()));
+				}
 			}
-			
-			return data;
+		}catch(Exception e){
+			logger.error(e.getMessage());
+			e.printStackTrace();
 		}
+		
+		return data;
+	}
 	
 	@RequestMapping(value="/getStatusByDeviceType", method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getStatusByDeviceType(HttpServletRequest request, Locale locale){
@@ -5236,4 +5237,103 @@ public class ReferenceController extends BaseController {
 		return masterVOs;
 			
 	}
+	@RequestMapping(value="/device/actors",method=RequestMethod.GET)
+	public @ResponseBody List<Reference> findActorsByQuestionNumber(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		List<Reference> actors = new ArrayList<Reference>();
+		
+		try{
+			String strDevice = request.getParameter("device");
+			String strUserGroup = request.getParameter("usergroup");
+			String strLevel = request.getParameter("level");
+			String strDeviceNumber = request.getParameter("deviceNumber");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strHouseType = request.getParameter("houseType");
+			
+			
+			if(strDevice != null && strUserGroup != null
+					&& strDeviceNumber != null && strSessionType != null
+					&& strSessionYear != null && strHouseType != null){
+				if(!strDevice.isEmpty() && !strUserGroup.isEmpty() 
+						&& !strDeviceNumber.isEmpty() && !strSessionType.isEmpty()
+						&& !strSessionYear.isEmpty() && !strHouseType.isEmpty()){
+					
+					SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, new Integer(strSessionYear));
+					UserGroup userGroup = UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+					
+					if(strDevice.equals(Question.class.getSimpleName())){
+												
+						Question question = Question.getQuestion(session.getId(), new Integer(strDeviceNumber), locale.toString());
+						if(strLevel == null){
+							if(question.getLevel() != null && !question.getLevel().isEmpty()){
+								strLevel = question.getLevel();
+							}else{
+								strLevel = "1";
+							}
+						}
+						
+						Status internalStatus = (question != null)? question.getInternalStatus() : null;	
+						
+						actors = WorkflowConfig.findQuestionActorsVO(question,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+					}
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return actors;
+	}
+	
+	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/newpendingmessages", method=RequestMethod.GET)
+	public @ResponseBody List getNewMessage(HttpServletRequest request, Locale locale){
+		List pendingMessage = null;
+		try{
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");
+			String strHouseType = request.getParameter("houseType");
+			
+			if(strSessionYear != null && !strSessionYear.isEmpty()
+					&& strSessionType != null && !strSessionType.isEmpty()
+					&& strHouseType != null && !strHouseType.isEmpty()){
+				
+				CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+				
+					if(csptServer.getValue().equals("TOMCAT")){
+						
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"), "UTF-8");
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
+					}
+				}
+				
+				SessionType sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+				HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
+				Integer year = new Integer(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strSessionYear)));
+				
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("recepientUserName", new String[]{this.getCurrentUser().getActualUsername()});
+				parameters.put("sessionYear", new String[]{year.toString()});
+				parameters.put("sessionType", new String[]{sessionType.getId().toString()});
+				parameters.put("houseType", new String[]{houseType.getType()});
+				
+				pendingMessage = Query.findReport("USER_MESSAGES", parameters);
+				
+			}
+		}catch(Exception e){
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return pendingMessage;
+	}
+	
 }
