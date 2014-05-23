@@ -47,6 +47,8 @@ import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BallotEntry;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Device;
+import org.mkcl.els.domain.DeviceSequence;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
@@ -380,9 +382,26 @@ public class BallotController extends BaseController{
 			/** Create Ballot */
 			Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale.toString());
 			if(ballot == null) {
-				Ballot newBallot = 
-						new Ballot(session, deviceType, answeringDate, new Date(), locale.toString());
+				Ballot newBallot = new Ballot(session, deviceType, answeringDate, new Date(), locale.toString());
 				newBallot.create();
+				if(deviceType.getType().startsWith("questions_halfhourdiscussion_")){
+					Status balloted = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_PROCESSED_BALLOTED, locale.toString());
+					if(newBallot.getBallotEntries() != null && !newBallot.getBallotEntries().isEmpty()){
+						for(BallotEntry be : newBallot.getBallotEntries()){
+							if(be.getDeviceSequences() != null && !be.getDeviceSequences().isEmpty()){
+								for(DeviceSequence deviceSeq : be.getDeviceSequences()){
+									Device device = deviceSeq.getDevice();
+									
+									if(device instanceof Question){
+										Question q = (Question) device;
+										q.setBallotStatus(balloted);
+										q.simpleMerge();
+									}
+								}
+							}
+						}
+					}
+				}
 				retVal = "CREATED";
 			}
 			else {
