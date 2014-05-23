@@ -133,8 +133,13 @@
 						
 						<fo:block font-size="4px">&#160;</fo:block>	
 						
-						<fo:block margin-left="1cm">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;आपला उपरिनिर्दिष्ट प्रश्न खाली नमूद केलेल्या कारणांमुळे माननीय  
+						<fo:block margin-left="1cm">
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;आपला
+							<xsl:choose>
+								<xsl:when test="deviceType='अल्प सूचना प्रश्न'">उपरोक्त </xsl:when>
+								<xsl:otherwise>उपरिनिर्दिष्ट </xsl:otherwise>
+							</xsl:choose>							
+							  प्रश्न खाली नमूद केलेल्या कारणांमुळे माननीय  
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
 								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
