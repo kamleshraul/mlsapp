@@ -298,7 +298,21 @@ public class QuestionReportController extends BaseController{
 							letterVO.setLastSendingDateToDepartment(FormaterUtil.formatDateToString(lastSendingDateToDepartment, "dd-MM-yyyy", question.getLocale()));
 						}
 					}
-				} else {
+				} else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+					SimpleDateFormat dbFormat = null;
+					CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+					if(dbDateFormat!=null){
+						dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+					}
+					//Added the following code to solve the marathi month and day issue
+					String[] strAnsweringDates=dbFormat.format(question.getDateOfAnsweringByMinister()).split(",");
+					String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+					String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
+					String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+					String formattedAnsweringDate = answeringDay+","+strAnsweringMonth[0] + " " + answeringMonth + " " + strAnsweringDates[2];
+					letterVO.setAnsweringDate(formattedAnsweringDate);
+					
+				}else{
 					//answeringDate = question.getDiscussionDate();
 				}
 
@@ -407,10 +421,15 @@ public class QuestionReportController extends BaseController{
 
 				/**** generate report ****/				
 				try {
-					if(status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+					if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
+						&& question.getDateOfAnsweringByMinister()!=null 
+						&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_FINAL_ADMITTED)
+						&& memberOrDepartment.equals(ApplicationConstants.MEMBER)){
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_member", "WORD", "intimation_letter", locale.toString());
+					}else if(status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
 							|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 						reportFile = generateReportUsingFOP(letterVO, "question_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
-					} else {
+					}else {
 						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
 					}					
 					System.out.println("Intimation Letter generated successfully in WORD format!");
