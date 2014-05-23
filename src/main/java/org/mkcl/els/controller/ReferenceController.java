@@ -28,10 +28,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.groovy.antlr.AntlrParserPlugin;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.common.util.ChartVerificationUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.util.RomanNumeral;
 import org.mkcl.els.common.vo.AutoCompleteVO;
@@ -47,8 +45,6 @@ import org.mkcl.els.domain.Airport;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillKind;
 import org.mkcl.els.domain.BillType;
-import org.mkcl.els.domain.Chart;
-import org.mkcl.els.domain.ChartEntry;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Committee;
 import org.mkcl.els.domain.CommitteeName;
@@ -116,7 +112,6 @@ import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -3536,6 +3531,7 @@ public class ReferenceController extends BaseController {
 		return autoCompleteVOs;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/partmembers", method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getPartMembers(HttpServletRequest request, HttpServletResponse response, Locale locale){
 		String strHouseType=request.getParameter("houseType");
@@ -3605,6 +3601,7 @@ public class ReferenceController extends BaseController {
 	}
 	
 	//TODO: Members page headings
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/memberreportpageheading", method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getMemberReportPageheading(HttpServletRequest request, HttpServletResponse response, Locale locale){
 		
@@ -3667,6 +3664,7 @@ public class ReferenceController extends BaseController {
 	}
 		
 	//TODO: Page headings
+		@SuppressWarnings("rawtypes")
 		@RequestMapping(value="/reportpageheading", method=RequestMethod.GET)
 		public @ResponseBody List<MasterVO> getReportPageheading(HttpServletRequest request, HttpServletResponse response, Locale locale){
 			
