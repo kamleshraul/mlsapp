@@ -35,6 +35,7 @@ import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
@@ -1153,12 +1154,14 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	 * @param locale the locale
 	 * @return the list
 	 */
+	@SuppressWarnings({"rawtypes" })
 	public List<Question> findByBallot(final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,
 			final Status[] internalStatuses,
 			final Boolean hasParent,
 			final Boolean isBalloted,
+			final Boolean isMandatoryUnique,
 			final Date startTime,
 			final Date endTime,
 			final String sortOrder,
@@ -1174,42 +1177,139 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
 		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
 		StringBuffer query = new StringBuffer(
-				" SELECT q FROM Question q" +
-				" WHERE q.session.id=:sessionId AND q.type.id=:deviceTypeId "+
-				" AND ( q.discussionDate IS NULL OR q.discussionDate<=:strDiscussionDate)" +
-				" AND q.submissionDate>=:strStartTime AND q.submissionDate<=:strEndTime" +
+				" SELECT GROUP_CONCAT(q.id),q.revised_subject FROM questions q" +
+				" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId " +
+				" AND ( q.discussion_date IS NULL OR q.discussion_date<=:strDiscussionDate)" +
+				" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime" +
 				" AND q.locale=:locale" +
 				" AND q.number IS NOT NULL");
-		query.append(this.getStatusFilters(internalStatuses));
+		
+		query.append(this.getStatusFiltersNative(internalStatuses));
 		Status balloted = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_PROCESSED_BALLOTED, locale);
 		if(isBalloted.booleanValue()){
-			query.append(" AND (q.ballotStatus=:ballotStatus OR q.ballotStatus IS NULL)");
+			query.append(" AND (q.ballotstatus_id=:ballotStatus OR q.ballotstatus_id IS NULL)");
 		}else{
-			query.append(" AND q.ballotStatus IS NULL");
+			query.append(" AND q.ballotstatus_id IS NULL");
 		}
 		
 		if(!hasParent) {
 				query.append(" AND q.parent IS NULL");
 		}
-		if(sortOrder.equals(ApplicationConstants.ASC)) {
-			query.append(" ORDER BY q.number ASC");
+		if(isMandatoryUnique.booleanValue()){
+			query.append(" AND q.member_id NOT IN(SELECT" +
+				" qqq.member_id FROM questions qqq" + 
+				" WHERE qqq.id IN(SELECT ds.device_id" +
+				" FROM ballots b" +
+				" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+				" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
+				" INNER JOIN ballot_entries_device_sequences beds ON(beds.ballot_entry_id=bbe.ballot_entry_id)" +
+				" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" +
+				" WHERE b.session_id=:sessionId" +
+				" AND b.devicetype_id=:deviceTypeId))");
+			
+			query.append(" AND q.revised_subject NOT IN (SELECT" +
+					" qqq.revised_subject FROM questions qqq" + 
+					" WHERE qqq.id IN(SELECT ds.device_id" +
+					" FROM ballots b" +
+					" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+					" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
+					" INNER JOIN ballot_entries_device_sequences beds ON(beds.ballot_entry_id=bbe.ballot_entry_id)" +
+					" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" +
+					" WHERE b.session_id=:sessionId" +
+					" AND b.devicetype_id=:deviceTypeId))");
 		}
-		else if(sortOrder.equals(ApplicationConstants.DESC)) {
-			query.append(" ORDER BY q.number DESC");
-		}
+		query.append(" GROUP BY q.revised_subject");
+		//query.append(" ORDER BY q.revised_subject ASC,q.member_id ASC,q.submission_date DESC");
 
-		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		Query tQuery = this.em().createNativeQuery(query.toString());
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("deviceTypeId", deviceType.getId());
 		tQuery.setParameter("strDiscussionDate", answeringDate);
 		tQuery.setParameter("strStartTime", startTime);
 		tQuery.setParameter("strEndTime", endTime);
 		tQuery.setParameter("locale", locale);
+		
 		if(isBalloted.booleanValue()){
 			tQuery.setParameter("ballotStatus", balloted);
 		}
-		List<Question> questions = tQuery.getResultList();
+		
+		List data = tQuery.getResultList();
+		List<Question> questions = new ArrayList<Question>();
+		if(data != null && !data.isEmpty()){
+			for(Object o : data){
+				Object[] obj = ((Object[]) o);
+				if(obj[0] != null){
+					String[] ids = obj[0].toString().split(",");
+					
+					Question q = Question.findById(Question.class, new Long(ids[0]));
+					
+					questions.add(q);
+				}
+			}
+		}
 		return questions;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public String findBallotedMembers(final Session session, final DeviceType deviceType){
+		String retVal = null;	
+		StringBuffer query = new StringBuffer("SELECT GROUP_CONCAT(qqq.member_id),qqq.revised_subject" +
+									" FROM questions qqq" +
+									" WHERE qqq.id IN(SELECT ds.device_id" + 
+									" FROM ballots b" + 
+									" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+									" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" + 
+									" INNER JOIN ballot_entries_device_sequences beds ON(beds.ballot_entry_id=bbe.ballot_entry_id)" + 
+									" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" + 
+									" WHERE b.session_id=:sessionId" + 
+									" AND b.devicetype_id=:deviceTypeId)");
+		
+		Query tQuery = this.em().createNativeQuery(query.toString());
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("deviceTypeId", deviceType.getId());
+				
+		List data = tQuery.getResultList();
+		if(data != null && !data.isEmpty()){
+			for(Object o : data){
+				Object[] obj = (Object[])o;
+				if(obj[0] != null){
+					retVal = obj[0].toString();
+					break;
+				}
+			}
+		}
+		return retVal;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public String findBallotedSubjects(final Session session, final DeviceType deviceType){
+		String retVal = null;	
+		StringBuffer query = new StringBuffer("SELECT GROUP_CONCAT(qqq.revised_subject),qqq.revised_subject" +
+									" FROM questions qqq" +
+									" WHERE qqq.id IN(SELECT ds.device_id" + 
+									" FROM ballots b" + 
+									" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+									" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" + 
+									" INNER JOIN ballot_entries_device_sequences beds ON(beds.ballot_entry_id=bbe.ballot_entry_id)" + 
+									" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" + 
+									" WHERE b.session_id=:sessionId" + 
+									" AND b.devicetype_id=:deviceTypeId)");
+		
+		Query tQuery = this.em().createNativeQuery(query.toString());
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("deviceTypeId", deviceType.getId());
+				
+		List data = tQuery.getResultList();
+		if(data != null && !data.isEmpty()){
+			for(Object o : data){
+				Object[] obj = (Object[])o;
+				if(obj[0] != null){
+					retVal = obj[0].toString();
+					break;
+				}
+			}
+		}
+		return retVal;
 	}
 	
 	public Question getQuestionForMemberOfUniqueSubject(final Session session, final DeviceType deviceType, final Date answeringDate,  final Long memberID, final List<String> subjects, final String locale){
@@ -1932,6 +2032,20 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		int n = internalStatuses.length;
 		for(int i = 0; i < n; i++) {
 			sb.append(" q.internalStatus.id = " + internalStatuses[i].getId());
+			if(i < n - 1) {
+				sb.append(" OR");
+			}
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+	
+	private String getStatusFiltersNative(final Status[] internalStatuses) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" AND(");
+		int n = internalStatuses.length;
+		for(int i = 0; i < n; i++) {
+			sb.append(" q.internalstatus_id = " + internalStatuses[i].getId());
 			if(i < n - 1) {
 				sb.append(" OR");
 			}

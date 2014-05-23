@@ -471,4 +471,28 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		}
 		return references;
 	}	
+	
+	//added by vikas to find the ballot members if exists 
+	public List<Member> findMembersOfBallotBySessionAndDeviceType(final Session session, final DeviceType deviceType, final String locale){
+		StringBuffer strQuery = new StringBuffer("SELECT b FROM Ballot b" +
+				" WHERE b.session.id=:sessionId AND b.deviceType.id=:deviceTypeId AND b.locale=:locale");
+		
+		TypedQuery<Ballot> jpQuery = this.em().createQuery(strQuery.toString(), Ballot.class);
+		jpQuery.setParameter("sessionId", session.getId());
+		jpQuery.setParameter("deviceTypeId", deviceType.getId());
+		jpQuery.setParameter("locale", locale);
+		
+		List<Ballot> ballots = jpQuery.getResultList();
+		List<Member> ballotMembers = new ArrayList<Member>();
+		if(ballots != null && !ballots.isEmpty()){
+			for(Ballot b : ballots){
+				if(b.getBallotEntries() != null && !b.getBallotEntries().isEmpty()){
+					for(BallotEntry be : b.getBallotEntries()){
+						ballotMembers.add(be.getMember());
+					}
+				}
+			}
+		}
+		return ballotMembers;
+	}
 }
