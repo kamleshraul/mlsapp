@@ -1091,10 +1091,10 @@
 				<c:otherwise>
 					<c:choose>
 						<c:when test="${selectedQuestionType=='questions_shortnotice'}">
-							<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.common.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
 						</c:when>
 						<c:otherwise>
-							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.common.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
 						</c:otherwise>
 					</c:choose>					
 				</c:otherwise>
@@ -1190,7 +1190,7 @@
 	<c:if test="${selectedQuestionType == 'questions_shortnotice'}">
 		<p>
 		<label class="small"><spring:message code="question.dateOfAnsweringByMinister" text="Answering Date"/></label>
-		<form:input path="dateOfAnsweringByMinister" cssClass="datetimemask sText"/>
+		<form:input path="dateOfAnsweringByMinister" cssClass="datemask sText"/>
 		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
 		</p>
 	</c:if>

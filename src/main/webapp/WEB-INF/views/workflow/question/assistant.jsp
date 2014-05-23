@@ -116,9 +116,9 @@
 		var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();
 		var putUpForDateApproval=$("#internalStatusMaster option[value='question_processed_putUpForDateApproval']").text();
 		var sendToSectionOfficer = $("#internalStatusMaster option[value='question_processed_sendToSectionOfficer']").text();
+		var revisedDraftRecommendApproval = $("#internalStatusMaster option[value='question_recommend_revisedtextapproval']").text();
 		var currentRecommendationStatus=$("#recommendationStatus").val();
 		var questionType = $("#selectedQuestionType").val();
-		
 		var valueToSend = "";
 		var changedInternalStatus = $("#changeInternalStatus").val();
 		if(changedInternalStatus == putUpForDateApproval || 
@@ -128,8 +128,14 @@
 		else {
 			valueToSend = value;
 		}
+		var level='';
+		if(value==revisedDraftRecommendApproval){
+			level=$('#revisedDraftLevel').val();
+		}else{
+			level=$('#level').val();
+		}
 		var params="question="+$("#id").val()+"&status="+valueToSend+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+		"&usergroup="+$("#usergroup").val()+"&level="+level;
 		var resourceURL='ref/question/actors?'+params;
 		$.post(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
@@ -148,7 +154,8 @@
 				}
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value != sendback && value != discuss && 
-						value != putUpForDateApproval && value != sendToSectionOfficer){
+						value != putUpForDateApproval && value != sendToSectionOfficer
+						&& value!=revisedDraftRecommendApproval){
 					$("#internalStatus").val(value);
 				}
 				if(value==sendback||value==discuss){
@@ -162,7 +169,9 @@
 				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
 				 $("#actorName").val(temp[4]);
 				 $("#actorName").css('display','inline');
-				if($("#oldRecommendationStatus").val()== sendback || $("#oldRecommendationStatus").val()==discuss){
+				if($("#oldRecommendationStatus").val()== sendback 
+					|| $("#oldRecommendationStatus").val()==discuss
+					|| value==revisedDraftRecommendApproval){
 					$("#actorDiv").show();
 				}
 				
@@ -538,7 +547,9 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});								
+			});		
+			
+			$('#bulkedit').val('yes');
 			$.post($('form').attr('action'),  
 	            $("form").serialize(),  
 	            function(data){
@@ -1047,12 +1058,6 @@
 		</c:if>
 	</p>
 	
-	<p style="display:none;" class="revise3" id="revisedReasonDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
-	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
-	
 	<p style="display:none;" class="revise4" id="revisedBriefExplanationDiv">
 	<label class="wysiwyglabel"><spring:message code="question.revisedBriefExplanation" text="Revised Brief Explanation"/></label>
 	<form:textarea path="revisedBriefExplanation" cssClass="wysiwyg"></form:textarea>
@@ -1069,6 +1074,12 @@
 	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	
+	<p style="display:none;" class="revise3" id="revisedReasonDiv">
+	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
+	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p id="internalStatusDiv">
@@ -1222,6 +1233,7 @@
 		<p class="tright">		
 		<c:if test="${bulkedit!='yes'}">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</c:if>
 		<c:if test="${bulkedit=='yes'}">
 			<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
@@ -1319,5 +1331,6 @@
 </div>
 
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+<input type="hidden" id="revisedDraftLevel" name="revisedDraftLevel" value="${revisedDraftInitialLevel}"/>
 </body>
 </html>

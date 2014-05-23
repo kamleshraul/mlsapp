@@ -110,20 +110,29 @@
 	function loadActors(value){
 		if(value!='-'){
 			var dateAdmitted=$("#internalStatusMaster option[value='question_processed_final_dateAdmitted']").text();	
+			var dateResubmit=$("#internalStatusMaster option[value='question_processed_final_dateResubmit']").text();
+			var valueToSend = "";
 			if(value == dateAdmitted) {
 				$("#endFlag").val("end");
 				$("#recommendationStatus").val(value);
 				return false;
+			}else if(value==dateResubmit){
+				$("#endFlag").val("continue");
+				$("recommendationStatus").val(value);
+				valueToSend=$("#internalStatus").val();
+				$("#level").val("5");
 			}else {
 				$("#endFlag").val("continue");
+				valueToSend=value;
 			}
-
-			var params="question="+$("#id").val()+"&status="+value+
+			
+			var params="question="+$("#id").val()+"&status="+valueToSend+
 			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 			var resourceURL='ref/question/actors?'+params;
 		    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
 		    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
 		    var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
+		    
 		    $.post(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
 					$("#actor").empty();
@@ -137,7 +146,7 @@
 					if(value==sendback||value==discuss){
 						$("#internalStatus").val($("#oldInternalStatus").val());
 					}
-					if(value!=sendback&&value!=discuss){
+					if(value!=sendback&&value!=discuss && value!=dateResubmit){
 						$("#internalStatus").val(value);
 					}else if(value==nameclubbing){
 						$("#endFlag").val("end");
@@ -1001,11 +1010,6 @@
 		</p>
 	</c:if>
 	
-	<p style="display:none;" class="revise3" id="revisedReasonDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
-	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
-	</p>
-	
 	<p style="display:none;" class="revise4" id="revisedBriefExplanationDiv">
 	<label class="wysiwyglabel"><spring:message code="question.revisedBriefExplanation" text="Revised Brief Explanation"/></label>
 	<form:textarea path="revisedBriefExplanation" cssClass="wysiwyg"></form:textarea>
@@ -1022,6 +1026,11 @@
 	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	
+	<p style="display:none;" class="revise3" id="revisedReasonDiv">
+	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
+	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
 	</p>
 	
 	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">

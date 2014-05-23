@@ -117,7 +117,7 @@
 		var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
 		var nameclubbing_reject=$("#internalStatusMaster option[value='question_final_reject_nameclubbing']").text();
 		var nameclubbingWithConvertToUnstarredAndAdmit=$("#internalStatusMaster option[value='question_final_convertToUnstarredAndAdmitClubbedWithPreviousSession']").text();
-
+		var revisedDraftFinalApproval = $("#internalStatusMaster option[value='question_final_revisedtextapproval']").text();
 		
 		var changedInternalStatus = $("#changeInternalStatus").val();
 		if(changedInternalStatus == admitDate || 
@@ -134,6 +134,7 @@
 		else {
 			valueToSend = value;
 		} 
+		console.log(valueToSend);
 		var params="question="+$("#id").val()+"&status="+valueToSend+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
@@ -152,7 +153,7 @@
 				$("#actorDiv").show();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value != sendback && value != discuss
-						&& value != admitDate && value != resubmitDate){
+						&& value != admitDate && value != resubmitDate && value != revisedDraftFinalApproval){
 					$("#internalStatus").val(value);
 				}
 				
@@ -1023,10 +1024,10 @@
 				<c:otherwise>
 					<c:choose>
 						<c:when test="${selectedQuestionType=='questions_shortnotice'}">
-							<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.common.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
 						</c:when>
 						<c:otherwise>
-							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.common.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
 						</c:otherwise>
 					</c:choose>					
 				</c:otherwise>
@@ -1035,12 +1036,6 @@
 				<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 			</c:if>
 		</c:if>
-	</p>
-	
-	<p style="display:none;" class="revise3" id="revisedReasonDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
-	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p style="display:none;" class="revise4" id="revisedBriefExplanationDiv">
@@ -1058,6 +1053,12 @@
 	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	
+	<p style="display:none;" class="revise3" id="revisedReasonDiv">
+	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
+	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">

@@ -1018,10 +1018,10 @@
 				<c:otherwise>
 					<c:choose>
 						<c:when test="${selectedQuestionType=='questions_shortnotice'}">
-							<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.common.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
 						</c:when>
 						<c:otherwise>
-							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.common.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
 						</c:otherwise>
 					</c:choose>					
 				</c:otherwise>
@@ -1033,11 +1033,6 @@
 		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	
-	<p style="display:none;" class="revise3" id="revisedReasonDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
-	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
 	
 	<p style="display:none;" class="revise4" id="revisedBriefExplanationDiv">
 	<label class="wysiwyglabel"><spring:message code="question.revisedBriefExplanation" text="Revised Brief Explanation"/></label>
@@ -1056,6 +1051,13 @@
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
+	
+	<p style="display:none;" class="revise3" id="revisedReasonDiv">
+	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
+	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	
 	
 	<p id="internalStatusDiv">
 	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>

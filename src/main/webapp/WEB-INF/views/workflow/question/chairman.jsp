@@ -109,11 +109,13 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
-		var dateAdmitted=$("#internalStatusMaster option[value='question_processed_final_dateAdmitted']").text();	
+		var dateAdmitted=$("#internalStatusMaster option[value='question_processed_final_dateAdmitted']").text();
+		var dateResubmit=$("#internalStatusMaster option[value='question_processed_final_dateResubmit']").text();
 		var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();
 		 var nameclubbing_reject=$("#internalStatusMaster option[value='question_final_reject_nameclubbing']").text();
-		if(value == dateAdmitted) {
-			$("#endflag").val("end");
+		var valueToSend = "";
+		 if(value == dateAdmitted) {
+			$("#endFlag").val("end");
 			$("#recommendationStatus").val(value);
 			return false;
 		}else if(value==nameclubbing || value==nameclubbing_reject){
@@ -123,11 +125,18 @@
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			return false;
-		}else {
-			$("#endflag").val("continue");
+		}else if(value==dateResubmit){
+			$("#endFlag").val("continue");
+			$("recommendationStatus").val(value);
+			valueToSend=$("#internalStatus").val();
+			$("#level").val("7");
+		}
+		else {
+			$("#endFlag").val("continue");
+			valueToSend=value;
 		}
 
-		var params="question="+$("#id").val()+"&status="+value+
+		var params="question="+$("#id").val()+"&status="+valueToSend+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
 		var resourceURL='ref/question/actors?'+params;
 	    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
@@ -143,7 +152,7 @@
 				$("#actor").html(text);
 				$("#actorDiv").hide();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
+				if(value!=sendback&&value!=discuss && value!=dateResubmit){
 				$("#internalStatus").val(value);
 				}
 				if(value==sendback||value==discuss){
@@ -990,10 +999,10 @@
 				<c:otherwise>
 					<c:choose>
 						<c:when test="${selectedQuestionType=='questions_shortnotice'}">
-							<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.common.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
 						</c:when>
 						<c:otherwise>
-							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.common.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
 						</c:otherwise>
 					</c:choose>					
 				</c:otherwise>
@@ -1002,12 +1011,6 @@
 				<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 			</c:if>
 		</c:if>		
-	</p>
-	
-	<p style="display:none;" class="revise3" id="revisedReasonDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
-	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p style="display:none;" class="revise4" id="revisedBriefExplanationDiv">
@@ -1026,6 +1029,12 @@
 	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg" ></form:textarea>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+	</p>
+	
+	<p style="display:none;" class="revise3" id="revisedReasonDiv">
+	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
+	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p id="internalStatusDiv">
