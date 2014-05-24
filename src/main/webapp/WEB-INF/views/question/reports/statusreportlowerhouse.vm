@@ -105,6 +105,18 @@
 				$formatData.get(4)
 			</td>
 		</tr>
+		<br>
+		#if($formatData.get(10)=='questions_shortnotice')
+		<tr>
+			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				अल्पसूचनेने विचारण्याची कारणे:
+			</td>
+			<td colspan="2" style="width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				$formatData.get(7)
+			</td>
+		</tr>
+		#end
+		
 	</table>
 </div>
 <div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>
@@ -134,12 +146,22 @@
 				प्रधान सचिव
 				-->
 			</td>
-			<td colspan="2" style="font-weight: bold; width: 600px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align: center;">
-				<br>
-				(&nbsp&nbsp;तारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अतारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
-				<br><br>
-				मा. अध्यक्ष
-			</td>
+			#if($formatData.get(10)=='questions_shortnotice')
+				<td colspan="2" style="font-weight: bold; width: 600px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align: center;">
+					<br>
+					(&nbsp&nbsp;स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अतारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
+					<br><br>
+					मा. अध्यक्ष
+				</td>
+			#else
+				<td colspan="2" style="font-weight: bold; width: 600px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align: center;">
+					<br>
+					(&nbsp&nbsp;तारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अतारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
+					<br><br>
+					मा. अध्यक्ष
+				</td>
+			#end
+			
 		</tr>
 	</table>
 </div>
