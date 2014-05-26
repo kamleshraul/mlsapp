@@ -208,6 +208,16 @@ public class QuestionReportController extends BaseController{
 				if(houseType!=null) {
 					letterVO.setHouseType(houseType.getType());
 					letterVO.setHouseTypeName(houseType.getName());
+				}	
+				Session session = question.getSession();
+				if(session!=null) {					
+					letterVO.setSessionPlace(session.getPlace().getPlace());
+					if(session.getNumber()!=null) {
+						letterVO.setSessionNumber(session.getNumber().toString());
+					}		
+					if(session.getYear()!=null) {
+						letterVO.setSessionYear(FormaterUtil.formatNumberNoGrouping(session.getYear(), locale.toString()));
+					}
 				}
 				Group group = question.getGroup();
 				if(group!=null) {
@@ -227,10 +237,21 @@ public class QuestionReportController extends BaseController{
 					formattedText = question.getQuestionText();
 				}
 				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
-				letterVO.setQuestionText(formattedText);		
+				letterVO.setQuestionText(formattedText);	
+				/**** populating member names with customized formatting ****/
+				String memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;
+				CustomParameter memberNameFormatParameter = null;
+				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "INTIMATIONLETTER_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+				} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "INTIMATIONLETTER_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+				}
+				if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+					memberNameFormat = memberNameFormatParameter.getValue();
+				}
 				Member primaryMember = question.getPrimaryMember();
 				if(primaryMember!=null) {
-					String primaryMemberName = primaryMember.findFirstLastName();
+					String primaryMemberName = primaryMember.findNameInGivenFormat(memberNameFormat);
 					if(primaryMemberName!=null) {
 						letterVO.setPrimaryMemberName(primaryMemberName);
 					} else {
@@ -240,21 +261,10 @@ public class QuestionReportController extends BaseController{
 					//error code: No Primary Member Found.
 				}
 				String allMemberNames = null;
-				CustomParameter memberNameFormatParameter = null;
 				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "INTIMATIONLETTER_MEMBERNAMEFORMAT_LOWERHOUSE", "");
-					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
-						allMemberNames = question.findAllMemberNamesWithConstituencies(memberNameFormatParameter.getValue());
-					} else {
-						allMemberNames = question.findAllMemberNamesWithConstituencies(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
-					}
+					allMemberNames = question.findAllMemberNamesWithConstituencies(memberNameFormat);
 				} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "INTIMATIONLETTER_MEMBERNAMEFORMAT_UPPERHOUSE", "");
-					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
-						allMemberNames = question.findAllMemberNames(memberNameFormatParameter.getValue());
-					} else {
-						allMemberNames = question.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
-					}					
+					allMemberNames = question.findAllMemberNames(memberNameFormat);
 				}						
 				if(allMemberNames!=null && !allMemberNames.isEmpty()) {
 					letterVO.setMemberNames(allMemberNames);
@@ -335,6 +345,48 @@ public class QuestionReportController extends BaseController{
 						letterVO.setRejectionReason("");
 					}
 				}
+				
+				/**** populating fields for half-hour discussion from questions ****/
+				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+					Question referredQuestion = question.getHalfHourDiscusionFromQuestionReference();
+					if(referredQuestion!=null) {
+						if(referredQuestion.getNumber()!=null) {
+							letterVO.setReferredQuestionNumber(FormaterUtil.formatNumberNoGrouping(referredQuestion.getNumber(), locale.toString()));
+						}						
+						DeviceType referredQuestionDeviceType = referredQuestion.getType();
+						if(referredQuestionDeviceType!=null) {
+							letterVO.setReferredQuestionDeviceType(referredQuestionDeviceType.getType());
+						}
+						Member referredQuestionMember = referredQuestion.getPrimaryMember();
+						if(referredQuestionMember!=null) {
+							letterVO.setReferredQuestionMemberName(referredQuestionMember.findNameInGivenFormat(memberNameFormat));
+						}						
+						if(referredQuestionDeviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+							QuestionDates answeringQuestionDate = referredQuestion.getAnsweringDate();
+							if(answeringQuestionDate!=null && answeringQuestionDate.getAnsweringDate()!=null) {
+								letterVO.setReferredQuestionAnsweringDate(FormaterUtil.formatDateToString(answeringQuestionDate.getAnsweringDate(), ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString()));
+							}
+						}
+					} else {
+						String referredQuestionNumber = question.getHalfHourDiscusionFromQuestionReferenceNumber();
+						if(referredQuestionNumber!=null) {
+							letterVO.setReferredQuestionNumber(referredQuestionNumber);
+						}
+						if(question.getReferenceDeviceType()!=null) {
+							letterVO.setReferredQuestionDeviceType(question.getReferenceDeviceType());
+						}
+						if(question.getReferenceDeviceMember()!=null) {
+							letterVO.setReferredQuestionMemberName(question.getReferenceDeviceMember());
+						}
+						Date referrredQuestionAnsweringDate = question.getReferenceDeviceAnswerDate();
+						if(referrredQuestionAnsweringDate!=null) {
+							letterVO.setReferredQuestionAnsweringDate(FormaterUtil.formatDateToString(referrredQuestionAnsweringDate, ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString()));
+						}
+					}
+					if(question.getDiscussionDate()!=null) {
+						letterVO.setAnsweringDate(FormaterUtil.formatDateToString(question.getDiscussionDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString()));
+					}
+				}
 
 				String memberOrDepartment=request.getParameter("memberOrDepartment");
 				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && memberOrDepartment!=null && memberOrDepartment.equals(ApplicationConstants.MEMBER)
@@ -352,18 +404,18 @@ public class QuestionReportController extends BaseController{
 					if(questionsAsked==null) {
 						if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
-							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
 						} else if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
 								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
+							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
 						}
-					} else if(!questionsAsked.isEmpty()) {
+					} else if(questionsAsked.isEmpty()) {
 						if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
-							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
 						} else if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
 								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-							questionsAsked = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
+							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
 						}
 					}
 					if(questionsAsked!=null && !questionsAsked.isEmpty()) {
@@ -372,10 +424,10 @@ public class QuestionReportController extends BaseController{
 						String allQuestions = "";
 						if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
-							allQuestions = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+							allQuestions = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
 						} else if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
 								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-							allQuestions = question.getSession().getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
+							allQuestions = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
 						}								
 						for(String questionAsked : questionsAsked.split("##")) {
 							MasterVO questionAskedForClarification = new MasterVO();
@@ -413,12 +465,13 @@ public class QuestionReportController extends BaseController{
 				//							letterVO.setRemarks(putupDraft.getRemarks());
 				//						}
 				//					}
-				//				}				
+				//				}		
+				
 				/**** In case username is required ****/
-				//				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
-				//				List<User> users = User.findByRole(false, role.getName(), locale.toString());
-				//				//as principal secretary for starred question is only one, so user is obviously first element of the list.
-				//				letterVO.setUserName(users.get(0).findFirstLastName());
+				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
+				List<User> users = User.findByRole(false, role.getName(), locale.toString());
+				//as principal secretary for starred question is only one, so user is obviously first element of the list.
+				letterVO.setUserName(users.get(0).findFirstLastName());
 
 				/**** generate report ****/				
 				try {
@@ -1118,6 +1171,114 @@ public class QuestionReportController extends BaseController{
 				e.printStackTrace();
 			}
 		}		
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/memberwisequestions",method=RequestMethod.GET)
+	public String viewMemberWiseReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		String errorpage="ballot/error";
+		try{
+			List<Reference> eligibleMembers = new ArrayList<Reference>();
+			
+			String category = request.getParameter("category");
+			String strQuestionType = request.getParameter("questionType");
+			String strHouseType = request.getParameter("houseType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strGroup = request.getParameter("group");
+			String strAnsweringDate = request.getParameter("answeringDate");
+			
+			if(category!=null&&strQuestionType!=null){
+				if((!category.isEmpty())&&(!strQuestionType.isEmpty())){										
+					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+					if(questionType!=null) {
+						model.addAttribute("questionType",questionType.getId());
+						/**** find members from chart whose questions are on required chart ****/
+						Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+						queryParameters.put("deviceTypeId", new String[]{questionType.getId().toString()});						
+						/**** parameters for halfhour standalone ****/
+						if(questionType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+							if(strHouseType!=null && strSessionType!=null && strSessionYear!=null) {
+								if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()) {
+									HouseType houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+									SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+									Integer sessionYear = Integer.parseInt(strSessionYear);
+									if(houseType!=null && sessionType!=null) {
+										Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+										if(session!=null) {
+											queryParameters.put("sessionId", new String[]{session.getId().toString()});
+											model.addAttribute("session",session.getId());											
+										} else {
+											//error
+										}
+									} else {							
+										//error
+									}
+									//set not required parameters to empty values
+									queryParameters.put("groupId", new String[]{""});
+									queryParameters.put("answeringDate", new String[]{""});
+								}
+							}
+						} else {
+							if(strGroup!=null && strAnsweringDate!=null) {
+								if(!strGroup.isEmpty() && !strAnsweringDate.isEmpty()) {
+									Group group = Group.findById(Group.class, Long.parseLong(strGroup));
+									if(group!=null) {
+										queryParameters.put("groupId", new String[]{group.getId().toString()});
+										model.addAttribute("group",group.getId());
+									} else {
+										//error
+									}
+									QuestionDates answeringQuestionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+									if(answeringQuestionDates!=null) {
+										String answeringDate = FormaterUtil.formatDateToString(answeringQuestionDates.getAnsweringDate(), ApplicationConstants.DB_DATEFORMAT);
+										queryParameters.put("answeringDate", new String[]{answeringDate});
+										model.addAttribute("answeringDate",answeringDate);
+									} else {
+										//error
+									}
+									//set not required parameters to empty values
+									queryParameters.put("sessionId", new String[]{""});
+								}
+							}
+						}
+						queryParameters.put("locale", new String[]{locale.toString()});
+						List resultList = Query.findReport("QIS_CHART_MEMBERS_WITH_QUESTIONS", queryParameters);
+						if(resultList!=null && !resultList.isEmpty()) {
+							for(Object o: resultList) {								
+								Object[] result = (Object[])o;
+								Reference member = new Reference();
+								if(result[0]!=null) {
+									member.setId(result[0].toString());
+								}
+								if(result[1]!=null) {
+									member.setName(result[1].toString());
+								}
+								eligibleMembers.add(member);								
+							}							
+							model.addAttribute("eligibleMembers", eligibleMembers);
+						} else {
+							//error
+						}
+					} else {
+						//error
+					}
+				}else{
+					logger.error("**** Check request parameter 'session,questionType' for empty values ****");
+					model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
+					return errorpage;
+				}
+			}else{
+				logger.error("**** Check request parameter 'session,questionType' for null values ****");
+				model.addAttribute("type", "REQUEST_PARAMETER_NULL");
+				return errorpage;
+			}						
+		}catch(Exception ex){
+			logger.error("failed",ex);
+			model.addAttribute("type","DB_EXCEPTION");
+			return errorpage;
+		}
+		return "ballot/memberwise_questions";
 	}
 }
 

@@ -19,6 +19,12 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String houseType;
 	
+	private String sessionPlace;
+	
+	private String sessionNumber;
+	
+	private String sessionYear;
+	
 	private String groupNumber;
 	
 	private String subject;
@@ -50,6 +56,14 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	private List<MasterVO> questionsAskedForClarification;
 	
 	private String userName;
+	
+	private String referredQuestionNumber;
+	
+	private String referredQuestionDeviceType;
+	
+	private String referredQuestionMemberName;
+	
+	private String referredQuestionAnsweringDate;
 
 	@XmlElement(name = "deviceType")
 	public String getDeviceType() {
@@ -85,6 +99,33 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 
 	public void setHouseType(String houseType) {
 		this.houseType = houseType;
+	}
+
+	@XmlElement(name = "sessionPlace")
+	public String getSessionPlace() {
+		return sessionPlace;
+	}
+
+	public void setSessionPlace(String sessionPlace) {
+		this.sessionPlace = sessionPlace;
+	}
+
+	@XmlElement(name = "sessionNumber")
+	public String getSessionNumber() {
+		return sessionNumber;
+	}
+
+	public void setSessionNumber(String sessionNumber) {
+		this.sessionNumber = sessionNumber;
+	}
+
+	@XmlElement(name = "sessionYear")
+	public String getSessionYear() {
+		return sessionYear;
+	}
+
+	public void setSessionYear(String sessionYear) {
+		this.sessionYear = sessionYear;
 	}
 
 	@XmlElement(name = "groupNumber")
@@ -232,6 +273,43 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	@XmlElement(name = "referredQuestionNumber")
+	public String getReferredQuestionNumber() {
+		return referredQuestionNumber;
+	}
+
+	public void setReferredQuestionNumber(String referredQuestionNumber) {
+		this.referredQuestionNumber = referredQuestionNumber;
+	}
+
+	@XmlElement(name = "referredQuestionDeviceType")
+	public String getReferredQuestionDeviceType() {
+		return referredQuestionDeviceType;
+	}
+
+	public void setReferredQuestionDeviceType(String referredQuestionDeviceType) {
+		this.referredQuestionDeviceType = referredQuestionDeviceType;
+	}
+
+	@XmlElement(name = "referredQuestionMemberName")
+	public String getReferredQuestionMemberName() {
+		return referredQuestionMemberName;
+	}
+
+	public void setReferredQuestionMemberName(String referredQuestionMemberName) {
+		this.referredQuestionMemberName = referredQuestionMemberName;
+	}
+
+	@XmlElement(name = "referredQuestionAnsweringDate")
+	public String getReferredQuestionAnsweringDate() {
+		return referredQuestionAnsweringDate;
+	}
+
+	public void setReferredQuestionAnsweringDate(
+			String referredQuestionAnsweringDate) {
+		this.referredQuestionAnsweringDate = referredQuestionAnsweringDate;
 	}	
 
 }
