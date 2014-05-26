@@ -53,6 +53,11 @@ public class ApplicationConstants {
 
 	/** The Constant SERVER_DATEFORMAT. */
 	public static final String SERVER_DATEFORMAT = "dd/MM/yyyy";
+	
+	/** The Constant ROTATIONORDER_DATEFORMAT. (This is abstract format defined for rotation order style formatting) */
+	public static final String ROTATIONORDER_WITH_DAY_DATEFORMAT = "day, dinank dd month, yyyy";
+	
+	public static final String ROTATIONORDER_DATEFORMAT = "dinank dd month, yyyy";
 
 	/** The Constant en_US_LOWERHOUSE_DEAFULTROLE. */
 	public static final String en_US_LOWERHOUSE_DEAFULTROLE="Member";

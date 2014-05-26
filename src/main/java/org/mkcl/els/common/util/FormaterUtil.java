@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.MessageResource;
 
 import com.ibm.icu.util.IndianCalendar;
 
@@ -508,13 +509,35 @@ public class FormaterUtil {
 	}
 	
 	public static String formatDateToString(final Date date, final String formatType, final String locale) {
-	    SimpleDateFormat df = getDateFormatter(formatType, locale);
-	    String strFormatDate = null;
-	    try {
-	        strFormatDate = df.format(date);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+		SimpleDateFormat df = null;
+		String strFormatDate = null;
+		if(formatType!=null && (formatType.equals(ApplicationConstants.ROTATIONORDER_DATEFORMAT)
+				|| formatType.equals(ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT))) {
+			CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+			if(dbDateFormat!=null && dbDateFormat.getValue()!=null && !dbDateFormat.getValue().isEmpty()){
+				df=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+				//Added the following code to solve the marathi month and day issue
+				String[] strDates=df.format(date).split(",");
+				String day=FormaterUtil.getDayInMarathi(strDates[0],locale.toString());
+				MessageResource dateResource = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale);
+				if(dateResource!=null && dateResource.getValue()!=null && !dateResource.getValue().isEmpty()) {
+					String[] strMonth=strDates[1].split(" ");
+					String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+					if(formatType.equals(ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT)) {
+						strFormatDate = day + ", " + dateResource.getValue() + " " + strMonth[0] + " " + month + ", " + strDates[2];
+					} else if(formatType.equals(ApplicationConstants.ROTATIONORDER_DATEFORMAT)) {
+						strFormatDate = dateResource.getValue() + " " + strMonth[0] + " " + month + ", " + strDates[2];
+					}			
+				}
+			}						
+		} else {
+			df = getDateFormatter(formatType, locale);	    
+		    try {
+		        strFormatDate = df.format(date);
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		}	    
 	    return strFormatDate;
 	}
 	
