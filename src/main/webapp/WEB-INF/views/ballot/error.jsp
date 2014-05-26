@@ -292,4 +292,13 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${type eq 'PRE_BALLOT_NOT_CREATED'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.preBallotNotCreated" text="Create the Pre Ballot first"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 </c:choose>
