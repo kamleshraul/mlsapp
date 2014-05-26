@@ -408,6 +408,9 @@ public class BallotController extends BaseController{
 				retVal = "ALREADY_EXISTS";
 			}
 		}
+		catch(ELSException elsex) {
+			retVal = "PRE_BALLOT_NOT_CREATED";
+		}
 		catch(Exception e) {
 			logger.error("error", e);
 			retVal = "ERROR";
