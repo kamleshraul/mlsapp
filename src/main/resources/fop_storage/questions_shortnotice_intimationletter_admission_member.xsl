@@ -99,11 +99,11 @@
 						
 						<!-- <fo:block font-size="8px">&#160;</fo:block> -->					
 						<fo:block text-align="left">
-							<fo:block font-weight="bold">प्रेषक</fo:block>
-							<fo:block margin-left="0.40cm">प्रधान सचिव</fo:block>
-							<fo:block margin-left="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
-							<fo:block font-weight="bold">प्रति,</fo:block>	
-							<fo:block margin-left="0.40cm"><xsl:value-of select="primaryMemberName"/>&#160;
+							<fo:block font-weight="bold">प्रेषक : </fo:block>
+							<fo:block margin-left="0.90cm">प्रधान सचिव</fo:block>
+							<fo:block margin-left="0.90cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
+							<fo:block font-weight="bold">प्रति : </fo:block>	
+							<fo:block margin-left="0.80cm"><xsl:value-of select="primaryMemberName"/>&#160;
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">वि.स.स.</xsl:when>
 								<xsl:when test="houseType='upperhouse'">वि.प.स.</xsl:when>
@@ -111,12 +111,12 @@
 							</fo:block>	
 						</fo:block>
 						<fo:block font-size="6px">&#160;</fo:block>
-						<fo:block margin-left="0.50cm">
-							<fo:inline font-weight="bold">"<xsl:value-of select="subject"/>"</fo:inline>
+						<fo:block margin-left="1.3cm">
+							<fo:inline font-weight="bold">विषय : "<xsl:value-of select="subject"/>"</fo:inline>
 							या विषयावरील अल्पसूचना प्रश्न क्रमांक <xsl:value-of select="number"/>
 						</fo:block>
 						
-						<fo:block margin-left="0.50cm">
+						<fo:block margin-left="1.3cm">
 							<fo:inline font-weight="bold"> संदर्भ : </fo:inline> या सचिवालयाचे पत्र क्रमांक __________
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
@@ -124,13 +124,10 @@
 							</xsl:choose>
 							,दिनांक __________________.
 						</fo:block>
-						
-						<fo:block>महोदय,</fo:block>	
-						
 						<fo:block font-size="4px">&#160;</fo:block>	
-						
+						<fo:block>महोदय,</fo:block>	
 						<fo:block margin-left="1.5cm">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160; उपरोक्त विषयाच्या संदर्भाधीन पत्रान्वये कळविण्यात येते की, आपण विचारलेल्या उपरोक्त
+							&#160;&#160;&#160;&#160;&#160; उपरोक्त विषयाच्या संदर्भाधीन पत्रान्वये कळविण्यात येते की, आपण विचारलेल्या उपरोक्त
 							अल्प सूचना प्रश्न क्रमांक  <xsl:value-of select="number"/> ला  <xsl:value-of select="answeringDate"/> रोजी 
 							सभागृहात उत्तर देण्याबाबत मा. 
 							<xsl:choose>
@@ -152,15 +149,15 @@
 						<fo:block font-size="4px">&#160;</fo:block>				
 						<!-- <fo:block font-size="4px">&#160;</fo:block> -->				
 						<fo:block text-align="right">
-							<fo:block margin-right="2.5cm">आपला/आपली</fo:block>
+							<fo:block margin-right="2.5cm">आपला/आपली,</fo:block>
 							<fo:block font-size="10.5px">&#160;</fo:block>							
-							<fo:block margin-right="2cm">कक्ष अधिकारी,</fo:block>							
-							<fo:block>महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
+							<fo:block margin-right="2.5cm">कक्ष अधिकारी,</fo:block>							
+							<fo:block margin-right="1.5cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 						</fo:block>
 						
 						<fo:block>
 							<fo:block font-weight="bold">प्रत: </fo:block>
-							<fo:block margin-left="1.5cm">	
+							<fo:block margin-left="1.0cm">	
 								<fo:block>							
 								<xsl:choose>
 									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री'">
@@ -175,14 +172,22 @@
 												१. माननीय  <fo:inline font-weight="bold"><xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री  यांच्या माहितीसाठी सदर अग्रेषित.</fo:inline>
 											</xsl:when>
 											<xsl:otherwise>
-												१. माननीय <fo:inline font-weight="bold"><xsl:value-of select="subDepartment"/> </fo:inline>मंत्री
+												१. माननीय <fo:inline font-weight="bold"><xsl:value-of select="subDepartment"/> </fo:inline>मंत्री  यांच्या माहितीसाठी सदर अग्रेषित.
 											</xsl:otherwise>
 										</xsl:choose>										
 									</xsl:otherwise>
 								</xsl:choose>
-								  यांच्या माहितीसाठी सदर अग्रेषित.
+								 </fo:block>
+								<fo:block>
+									<xsl:choose>
+										<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+											 २. <xsl:value-of select="subDepartment"/>	
+										</xsl:when>
+										<xsl:otherwise>
+											 २. <xsl:value-of select="subDepartment"/> विभाग
+										</xsl:otherwise>
+									</xsl:choose>								
 								</fo:block>
-								<fo:block> २.<xsl:value-of select="subDepartment"/>	</fo:block>
 							</fo:block>
 						</fo:block>	
 												
