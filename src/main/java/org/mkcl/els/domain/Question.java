@@ -1492,8 +1492,28 @@ public class Question extends Device implements Serializable {
 	            }
             	draft.setSubject(this.getSubject());
             	draft.setQuestionText(this.getQuestionText());
-            }
-            else {
+            }else if(this.getType().getType().equals(
+            		ApplicationConstants.SHORT_NOTICE_QUESTION)){
+            	if(this.getRevisedReason() != null){
+        		    draft.setReason(this.getRevisedReason());
+	            } 
+            	if(this.getRevisedQuestionText()!= null && this.getRevisedSubject() != null){
+	                draft.setQuestionText(this.getRevisedQuestionText());
+	                draft.setSubject(this.getRevisedSubject());                
+	            }
+            	else if(this.getRevisedQuestionText() != null){
+	            	draft.setQuestionText(this.getRevisedQuestionText());
+	                draft.setSubject(this.getSubject());
+	            }
+            	else if(this.getRevisedSubject()!=null){
+	                draft.setQuestionText(this.getQuestionText());
+	                draft.setSubject(this.getRevisedSubject());
+	            }
+            	else{
+	            	draft.setQuestionText(this.getQuestionText());
+	                draft.setSubject(this.getSubject());
+	            }
+            }else {
             	if(this.getRevisedQuestionText()!= null && this.getRevisedSubject() != null){
 	                draft.setQuestionText(this.getRevisedQuestionText());
 	                draft.setSubject(this.getRevisedSubject());                
