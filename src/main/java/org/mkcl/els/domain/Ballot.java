@@ -792,26 +792,58 @@ public class Ballot extends BaseDomain implements Serializable {
 	 * existing Ballot.
 	 * @throws ELSException 
 	 */
+//	private Ballot createStarredAssemblyBallot() throws ELSException {
+//		Ballot ballot = Ballot.find(this.getSession(), this.getDeviceType(), 
+//				this.getAnsweringDate(), this.getLocale());
+//		
+//		if(ballot == null) {
+//			Integer noOfRounds = Ballot.getNoOfRounds();
+//			Group group = Group.find(session, answeringDate, this.getLocale());
+//			
+//			List<BallotEntry> computedList = Ballot.compute(this.getSession(),
+//					group, this.getAnsweringDate(), noOfRounds, this.getLocale());
+//			List<BallotEntry> randomizedList = Ballot.randomize(computedList);
+//			List<BallotEntry> sequencedList = Ballot.addSequenceNumbers(randomizedList, noOfRounds);
+//
+//			this.setBallotEntries(sequencedList);
+//			this.setGroup(group);
+//			ballot = (Ballot) this.persist();
+//			
+//			Status BALLOTED = 
+//				Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, this.getLocale());
+//			Ballot.getRepository().updateBallotQuestions(ballot, BALLOTED);
+//		}
+//		
+//		return ballot;
+//	}
 	private Ballot createStarredAssemblyBallot() throws ELSException {
-		Ballot ballot = Ballot.find(this.getSession(), this.getDeviceType(), 
-				this.getAnsweringDate(), this.getLocale());
+		Session session = this.getSession();
+		DeviceType deviceType = this.getDeviceType();
+		Date answeringDate = this.getAnsweringDate();
+		String locale = this.getLocale();
+		
+		Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
 		
 		if(ballot == null) {
-			Integer noOfRounds = Ballot.getNoOfRounds();
-			Group group = Group.find(session, answeringDate, this.getLocale());
-			
-			List<BallotEntry> computedList = Ballot.compute(this.getSession(),
-					group, this.getAnsweringDate(), noOfRounds, this.getLocale());
-			List<BallotEntry> randomizedList = Ballot.randomize(computedList);
-			List<BallotEntry> sequencedList = Ballot.addSequenceNumbers(randomizedList, noOfRounds);
+			Integer noOfRounds = Ballot.getNoOfRounds();			
+			PreBallot preBallot = 
+				PreBallot.find(session, deviceType, answeringDate, locale);
+			if(preBallot == null) {
+				throw new ELSException("Ballot_createStarredAssemblyBallot", "PRE_BALLOT_NOT_CREATED");
+			}
+			else {
+				List<BallotEntry> preBallotList = preBallot.getBallotEntries(); 
+				List<BallotEntry> randomizedList = Ballot.randomize(preBallotList);
+				List<BallotEntry> sequencedList = Ballot.addSequenceNumbers(randomizedList, noOfRounds);
 
-			this.setBallotEntries(sequencedList);
-			this.setGroup(group);
-			ballot = (Ballot) this.persist();
-			
-			Status BALLOTED = 
-				Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, this.getLocale());
-			Ballot.getRepository().updateBallotQuestions(ballot, BALLOTED);
+				this.setBallotEntries(sequencedList);
+				this.setGroup(group);
+				ballot = (Ballot) this.persist();
+				
+				Status BALLOTED = 
+					Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, this.getLocale());
+				Ballot.getRepository().updateBallotQuestions(ballot, BALLOTED);
+			}
 		}
 		
 		return ballot;
