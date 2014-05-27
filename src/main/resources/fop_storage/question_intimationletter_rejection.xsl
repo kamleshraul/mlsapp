@@ -134,12 +134,14 @@
 						<fo:block font-size="4px">&#160;</fo:block>	
 						
 						<fo:block margin-left="1cm">
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;आपला
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 							<xsl:choose>
-								<xsl:when test="deviceType='अल्प सूचना प्रश्न'">उपरोक्त </xsl:when>
-								<xsl:otherwise>उपरिनिर्दिष्ट </xsl:otherwise>
+								<xsl:when test="deviceType='अल्प सूचना प्रश्न' and houseType='lowerhouse'">
+									उपरोक्त  विषयावरील आपला खाली नमूद केलेला प्रश्न 
+								</xsl:when>
+								<xsl:otherwise>आपला उपरिनिर्दिष्ट प्रश्न खाली नमूद केलेल्या कारणांमुळे माननीय  </xsl:otherwise>
 							</xsl:choose>							
-							  प्रश्न खाली नमूद केलेल्या कारणांमुळे माननीय  
+							  
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
 								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
@@ -148,7 +150,7 @@
 						</fo:block>	
 						<fo:block font-size="6px">&#160;</fo:block>				
 						<fo:block text-align="right">
-							<fo:block margin-right="2cm">आपला</fo:block>
+							<fo:block margin-right="2cm">आपला/आपली</fo:block>
 							<fo:block>&#160;</fo:block>
 							<fo:block margin-right="1.4cm">कक्ष अधिकारी,</fo:block>		
 							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								

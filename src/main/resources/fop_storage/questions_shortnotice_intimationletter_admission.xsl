@@ -251,7 +251,17 @@
 							</fo:block>							
 							<fo:block margin-left="0.40cm">महाराष्ट्र शासन मंत्रालय, मुंबई - ४०० ०३२</fo:block>	
 						</fo:block>		
-						
+						<fo:block margin-left="1.4cm">
+							विषय : 
+							<xsl:choose>
+								<xsl:when test="houseType='lowerhouse'">
+									<fo:inline font-weight="bold">अल्पसूचना प्रश्न क्रमांक  <xsl:value-of select="number"/></fo:inline>
+								</xsl:when>
+								<xsl:when test="houseType='upperhouse'">
+									 <xsl:value-of select="subject"/> या विषयावरील अल्पवधी सूचना प्रश्न क्रमांक  <xsl:value-of select="number"/> या बाबत. 
+								</xsl:when>
+							</xsl:choose>
+						</fo:block>
 						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block>महोदय,</fo:block>	
@@ -297,7 +307,12 @@
 									<xsl:when test="houseType='lowerhouse'">महाराष्ट्र विधानसभा </xsl:when>
 									<xsl:when test="houseType='upperhouse'">महाराष्ट्र विधानपरिषद </xsl:when>
 								</xsl:choose>
-								नियमांतील नियम ८६ (४) कडे वेधू इच्छितो. सदर नियमाप्रमाणे आवश्यक ती माहिती बृहन्मुंबईच्या सीमेच्या आत उपलब्ध असल्यास,अल्पसूचना प्रश्न शासनास मिळाल्यापासून सात दिवसांच्या आत त्यांचे उत्तर देण्यात आले पाहिजे व माहिती
+								नियमांतील नियम
+								<xsl:choose>
+									<xsl:when test="houseType='lowerhouse'">८६ (४) </xsl:when>
+									<xsl:when test="houseType='upperhouse'">८४ (४) </xsl:when>
+								</xsl:choose> 
+								 कडे वेधू इच्छितो. सदर नियमाप्रमाणे आवश्यक ती माहिती बृहन्मुंबईच्या सीमेच्या आत उपलब्ध असल्यास,अल्पसूचना प्रश्न शासनास मिळाल्यापासून सात दिवसांच्या आत त्यांचे उत्तर देण्यात आले पाहिजे व माहिती
 								बृहन्मुंबईबाहेरून मागवावयाची असल्यास प्रश्न शासनास मिळाल्यापासून चौदा दिवसांच्या आत त्यांचे उत्तर देण्यात आले पाहिजे.
 							</fo:block>
 							<fo:block>
@@ -327,10 +342,10 @@
 								</xsl:choose>
 								महोदयांना कळवावीत अशी त्यांना विनंती करण्यात यावी(पहा-
 								<xsl:choose>
-									<xsl:when test="houseType='lowerhouse'">महाराष्ट्र विधानसभा </xsl:when>
-									<xsl:when test="houseType='upperhouse'">महाराष्ट्र विधानपरिषद </xsl:when>
+									<xsl:when test="houseType='lowerhouse'">महाराष्ट्र विधानसभा  नियम ८६(३)).</xsl:when>
+									<xsl:when test="houseType='upperhouse'">महाराष्ट्र विधानपरिषद  नियम ८४(३)).</xsl:when>
 								</xsl:choose>
-								 नियम ८६(३)).
+								
 							</fo:block>
 							<!-- <fo:block>&#160;</fo:block> -->	
 							<fo:block text-align="right">

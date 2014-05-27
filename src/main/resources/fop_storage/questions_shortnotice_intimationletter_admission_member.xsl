@@ -169,10 +169,10 @@
 									<xsl:otherwise>
 										<xsl:choose>
 											<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
-												१. माननीय  <fo:inline font-weight="bold"><xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री  यांच्या माहितीसाठी सदर अग्रेषित.</fo:inline>
+												१. माननीय  <fo:inline font-weight="bold"><xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री  सादर अग्रेषित.</fo:inline>
 											</xsl:when>
 											<xsl:otherwise>
-												१. माननीय <fo:inline font-weight="bold"><xsl:value-of select="subDepartment"/> </fo:inline>मंत्री  यांच्या माहितीसाठी सदर अग्रेषित.
+												१. माननीय <fo:inline font-weight="bold"><xsl:value-of select="subDepartment"/> </fo:inline>मंत्री सादर अग्रेषित.
 											</xsl:otherwise>
 										</xsl:choose>										
 									</xsl:otherwise>
