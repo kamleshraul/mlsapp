@@ -385,11 +385,11 @@ public class MemberBallot extends BaseDomain implements Serializable {
 	 * @param totalRounds 
 	 * @throws ELSException 
 	 */
-	public static Boolean createFinalBallot(final Session session,
-			final DeviceType deviceType, final Group group, final String answeringDate,
+	public static Boolean createFinalBallotUH(final Session session,
+			final DeviceType deviceType, final Group group, final String strAnsweringDate,final Date answeringDate,
 			final String locale,final String firstBatchSubmissionDate,final int totalRounds) throws ELSException {
-		return getMemberBallotRepository().createFinalBallot(session,
-				deviceType,group,answeringDate,locale,firstBatchSubmissionDate,totalRounds);
+		return getMemberBallotRepository().createFinalBallotUH(session,
+				deviceType,group,strAnsweringDate,answeringDate,locale,firstBatchSubmissionDate,totalRounds);
 	}
 
 	public static List<MemberBallotFinalBallotVO> viewFinalBallot(final Session session,
