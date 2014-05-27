@@ -2399,11 +2399,8 @@ public class BallotController extends BaseController{
 	public String createFinalMemberBallot(final HttpServletRequest request,
 			final ModelMap model,
 			final Locale locale){
-
 		String errorpage="ballot/error";
-
 		try{
-
 			String strSession=request.getParameter("session");
 			String strDeviceType=request.getParameter("questionType");
 			String strGroup=request.getParameter("group");
@@ -2435,7 +2432,7 @@ public class BallotController extends BaseController{
 								model.addAttribute("type","TOTAL_ROUNDS_IN_BALLOT_UH_NOTSET");
 								return errorpage;	
 							}
-							status=MemberBallot.createFinalBallot(session, deviceType,group,ansDate, locale.toString(),firstBatchSubmissionDate,Integer.parseInt(totalRounds));
+							status=MemberBallot.createFinalBallotUH(session, deviceType,group,ansDate,questionDates.getAnsweringDate(), locale.toString(),firstBatchSubmissionDate,Integer.parseInt(totalRounds));
 							if(status){
 								ballots=MemberBallot.viewFinalBallot(session, deviceType,ansDate, locale.toString());
 								model.addAttribute("ballots",ballots);
