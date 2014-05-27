@@ -63,8 +63,13 @@
 		var question=$("#questionId").val();
 		console.log("Question Id:"+question);
 		if(question!=undefined&&question!=''){
-			var params="question="+question+"&status="+value+
-			"&usergroup="+$("#apprusergroup").val()+"&level=1";
+			var params="question="+question+"&status=";
+			if($("#currentusergroupType").val()=='assistant' || $("#currentusergroupType").val()=='section_officer'){
+				params += $("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text()+"&level=8";
+			}else{
+				params += value+"&level=1";
+			}
+			params +="&usergroup="+$("#apprusergroup").val() ;
 			var resourceURL='ref/question/actors?'+params;				
 			$.post(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
