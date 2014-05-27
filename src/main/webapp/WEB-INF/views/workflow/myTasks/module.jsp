@@ -71,7 +71,7 @@
 			$("#selectedSubWorkflow").change(function(){
 				var value=$(this).val();
 				if(value!=null){				
-					if(($('#currentusergroupType').val()=="assistant"||$('#currentusergroupType').val()=="section_officer")&& value.contains("final")){
+					 if(($('#currentusergroupType').val()=="assistant"||$('#currentusergroupType').val()=="section_officer")&& value.contains("final")&&$('#currenthousetype').val()=='lowerhouse'){
 						$('#bulkapproval_tab').hide();
 						$('#selectedItemsCount').hide();
 						$('#selectedFileCount').hide();
@@ -79,7 +79,7 @@
 						$('#bulkapproval_tab').show();
 						$('#selectedItemsCount').show();
 						$('#selectedFileCount').show();
-					}
+					} 
 					reloadMyTaskGrid();
 				}
 			});
@@ -671,9 +671,16 @@
 			<select id="selectedSubWorkflow" name="selectedSubWorkflow">
 			<option value=""><spring:message code='please.select' text='Please Select'/></option>			
 			<c:forEach items="${workflowTypes}" var="i">
-			<option value="${i.type}">${i.name}</option>
+				<option value="${i.type}">${i.name}</option>
 			</c:forEach>			
 			</select>| 
+			<div id="subWFMasterDiv" style="display: none;">
+				<select id="subWFMaster">
+					<c:forEach items="${workflowTypes}" var="i">
+						<option value="${i.type}">${i.id}</option>
+					</c:forEach>
+				</select>
+			</div> 
 			<hr>
 			<c:if test="${usergroupType!='department'}">
 				<a href="#" id="select_itemcount" class="butSim">
@@ -737,7 +744,8 @@
 			</select>
 		</div>
 		<input type="hidden" id="getNewTasks" value="yes" />
-		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">		
+		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">
+		<input type="hidden" name="currenthousetype" id="currenthousetype" value="${houseType}">		
 		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" id="assignee" value="${assignee}">	
