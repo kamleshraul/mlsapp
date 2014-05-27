@@ -272,27 +272,27 @@ public class MemberBallotRepoTest extends AbstractTest {
 	@Test
 	@Transactional
 	public void testCreateFinalBallot() {
-		try{
-			Session session = Session.findById(Session.class, new Long(51));
-			DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(4));
-			Member member = Member.findById(Member.class, new Long(147));
-			Group group = Group.findById(Group.class, new Long(151));
-			Boolean finalBallotCreated = MemberBallot.createFinalBallot(session, deviceType, group, "2013-07-17", "mr_IN", "2013-06-20", 5);
-		
-			assertNotNull(finalBallotCreated);
-			//assertNull(finalBallotCreated);
-			
-			assertTrue(finalBallotCreated);
-			//assertFalse(finalBallotCreated);
-			
-			//assertTrue(!finalBallotCreated);
-			assertFalse(!finalBallotCreated);
-			
-			
-		}catch (Exception e) {
-			
-			e.printStackTrace();
-		}
+//		try{
+//			Session session = Session.findById(Session.class, new Long(51));
+//			DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(4));
+//			Member member = Member.findById(Member.class, new Long(147));
+//			Group group = Group.findById(Group.class, new Long(151));
+//			Boolean finalBallotCreated = MemberBallot.createFinalBallot(session, deviceType, group, "2013-07-17", "mr_IN", "2013-06-20", 5);
+//		
+//			assertNotNull(finalBallotCreated);
+//			//assertNull(finalBallotCreated);
+//			
+//			assertTrue(finalBallotCreated);
+//			//assertFalse(finalBallotCreated);
+//			
+//			//assertTrue(!finalBallotCreated);
+//			assertFalse(!finalBallotCreated);
+//			
+//			
+//		}catch (Exception e) {
+//			
+//			e.printStackTrace();
+//		}
 	}
 
 	@Test
