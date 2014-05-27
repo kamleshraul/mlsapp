@@ -2132,16 +2132,29 @@ public class Ballot extends BaseDomain implements Serializable {
 						allMemberNames = q.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
 					}					
 				}
-				deviceVO.setMemberNames(allMemberNames);				
-				deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
+				deviceVO.setMemberNames(allMemberNames);
+				if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
+					deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
+				} else if(q.getSubject()!=null && !q.getSubject().isEmpty()) {
+					deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getSubject(), locale));
+				}
 				String content = q.getRevisedQuestionText();
-				if(content != null) {
+				if(content!=null && !content.isEmpty()) {
 					if(content.endsWith("<br><p></p>")) {
 						content = content.substring(0, content.length()-11);
 						content = FormaterUtil.formatNumbersInGivenText(content, locale);
 					}
-				}				
-				deviceVO.setContent(content);		
+					deviceVO.setContent(content);
+				} else {
+					content = q.getQuestionText();
+					if(content!=null && !content.isEmpty()) {
+						if(content.endsWith("<br><p></p>")) {
+							content = content.substring(0, content.length()-11);
+							content = FormaterUtil.formatNumbersInGivenText(content, locale);
+						}
+						deviceVO.setContent(content);
+					}
+				}						
 				String answer = q.getAnswer();
 				if(answer != null) {
 					if(answer.endsWith("<br><p></p>")) {
@@ -2332,16 +2345,29 @@ public class Ballot extends BaseDomain implements Serializable {
 					} else {
 						allMemberNames = q.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
 					}
-					deviceVO.setMemberNames(allMemberNames);					
-					deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
+					deviceVO.setMemberNames(allMemberNames);	
+					if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
+						deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
+					} else if(q.getSubject()!=null && !q.getSubject().isEmpty()) {
+						deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getSubject(), locale));
+					}
 					String content = q.getRevisedQuestionText();
-					if(content != null) {
+					if(content!=null && !content.isEmpty()) {
 						if(content.endsWith("<br><p></p>")) {
 							content = content.substring(0, content.length()-11);
 							content = FormaterUtil.formatNumbersInGivenText(content, locale);
 						}
-					}				
-					deviceVO.setContent(content);		
+						deviceVO.setContent(content);
+					} else {
+						content = q.getQuestionText();
+						if(content!=null && !content.isEmpty()) {
+							if(content.endsWith("<br><p></p>")) {
+								content = content.substring(0, content.length()-11);
+								content = FormaterUtil.formatNumbersInGivenText(content, locale);
+							}
+							deviceVO.setContent(content);
+						}
+					}							
 					String answer = q.getAnswer();
 					if(answer != null) {
 						if(answer.endsWith("<br><p></p>")) {
