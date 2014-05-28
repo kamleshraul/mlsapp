@@ -1097,7 +1097,7 @@
 					<label class="wysiwyglabel"><spring:message code="question.halfhourReason" text="Points to be discussed"/>*</label>
 				</c:otherwise>
 			</c:choose>
-			<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
+			<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 	</c:if>	
@@ -1105,7 +1105,7 @@
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
-			<form:textarea path="briefExplanation" cssClass="wysiwyg" readonly="true"></form:textarea>
+			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
 			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
 	</c:if>
