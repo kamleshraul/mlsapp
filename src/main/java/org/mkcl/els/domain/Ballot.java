@@ -2144,26 +2144,26 @@ public class Ballot extends BaseDomain implements Serializable {
 				String content = q.getRevisedQuestionText();
 				if(content!=null && !content.isEmpty()) {
 					if(content.endsWith("<br><p></p>")) {
-						content = content.substring(0, content.length()-11);
-						content = FormaterUtil.formatNumbersInGivenText(content, locale);
+						content = content.substring(0, content.length()-11);						
 					}
+					content = FormaterUtil.formatNumbersInGivenText(content, locale);
 					deviceVO.setContent(content);
 				} else {
 					content = q.getQuestionText();
 					if(content!=null && !content.isEmpty()) {
 						if(content.endsWith("<br><p></p>")) {
-							content = content.substring(0, content.length()-11);
-							content = FormaterUtil.formatNumbersInGivenText(content, locale);
+							content = content.substring(0, content.length()-11);							
 						}
+						content = FormaterUtil.formatNumbersInGivenText(content, locale);
 						deviceVO.setContent(content);
 					}
 				}						
 				String answer = q.getAnswer();
 				if(answer != null) {
 					if(answer.endsWith("<br><p></p>")) {
-						answer = answer.substring(0, answer.length()-11);
-						answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
+						answer = answer.substring(0, answer.length()-11);						
 					}
+					answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 				}				
 				deviceVO.setAnswer(answer);				
 				Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
@@ -2357,26 +2357,26 @@ public class Ballot extends BaseDomain implements Serializable {
 					String content = q.getRevisedQuestionText();
 					if(content!=null && !content.isEmpty()) {
 						if(content.endsWith("<br><p></p>")) {
-							content = content.substring(0, content.length()-11);
-							content = FormaterUtil.formatNumbersInGivenText(content, locale);
+							content = content.substring(0, content.length()-11);							
 						}
+						content = FormaterUtil.formatNumbersInGivenText(content, locale);
 						deviceVO.setContent(content);
 					} else {
 						content = q.getQuestionText();
 						if(content!=null && !content.isEmpty()) {
 							if(content.endsWith("<br><p></p>")) {
-								content = content.substring(0, content.length()-11);
-								content = FormaterUtil.formatNumbersInGivenText(content, locale);
+								content = content.substring(0, content.length()-11);								
 							}
+							content = FormaterUtil.formatNumbersInGivenText(content, locale);
 							deviceVO.setContent(content);
 						}
 					}							
 					String answer = q.getAnswer();
 					if(answer != null) {
 						if(answer.endsWith("<br><p></p>")) {
-							answer = answer.substring(0, answer.length()-11);
-							answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
+							answer = answer.substring(0, answer.length()-11);							
 						}
+						answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 					}				
 					deviceVO.setAnswer(answer);				
 					Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
