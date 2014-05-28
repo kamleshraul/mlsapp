@@ -1,5 +1,7 @@
 package org.mkcl.els.common.vo;
 
+import java.util.Date;
+
 public class BallotEntryVO {
 
 	private Long memberId;
@@ -19,6 +21,10 @@ public class BallotEntryVO {
 	private Long deviceId;
 	
 	private Integer sequence;
+	
+	private Date submissionDate;
+	
+	private Date chartAnsweringDate;
 
 	public BallotEntryVO() {
 		super();
@@ -95,6 +101,21 @@ public class BallotEntryVO {
 
 	public void setDeviceId(Long deviceId) {
 		this.deviceId = deviceId;
-	}	
-	
+	}
+
+	public Date getSubmissionDate() {
+		return submissionDate;
+	}
+
+	public void setSubmissionDate(Date submissionDate) {
+		this.submissionDate = submissionDate;
+	}
+
+	public Date getChartAnsweringDate() {
+		return chartAnsweringDate;
+	}
+
+	public void setChartAnsweringDate(Date chartAnsweringDate) {
+		this.chartAnsweringDate = chartAnsweringDate;
+	}		
 }
