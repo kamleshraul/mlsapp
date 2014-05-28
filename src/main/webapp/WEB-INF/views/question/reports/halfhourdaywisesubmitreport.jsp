@@ -96,10 +96,13 @@
 						<thead>
 							<tr>
 								<th style="width: 40px;"><spring:message code="question.hdq.report.status.srno" text="Sr. No." /></th>
-								<th style="width: 80px;"><spring:message code="question.hdq.report.status.hdqNumber" text="HDQ Number" /></th>
-								<th style="width: 80px;"><spring:message code="question.hdq.report.status.questionNumber" text="Question Number" /></th>
+								<th style="width: 80px;"><spring:message code="question.hdq.report.status.hdqNumber" text="HDQ Number" /></th>								
+								<c:if test="${report[0][9]=='questions_halfhourdiscussion_from_question'}">
+									<th style="width: 80px;"><spring:message code="question.hdq.report.status.questionNumber" text="Question Number" /></th>
+								</c:if>
 								<th style="width: 150px;"><spring:message code="question.hdq.report.status.memberName" text="Member" /></th>
 								<th style="width: 250px;"><spring:message code="question.hdq.report.status.subject" text="Subject" /></th>
+								<th style="width: 250px;"><spring:message code="question.report.status" text="Status"/></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -107,9 +110,12 @@
 								<tr>
 									<td style="width: 40px; text-align: center;">${counter.count}</td>
 									<td style="width: 80px; text-align: center;">${r[0]}</td>
-									<td style="width: 80px; text-align: center;">${r[1]}</td>
+									<c:if test="${report[0][9]=='questions_halfhourdiscussion_from_question'}">
+										<td style="width: 80px; text-align: center;">${r[1]}</td>
+									</c:if>
 									<td style="width: 80px; text-align: center;">${r[2]}</td>
 									<td style="width: 320px; text-align: center;">${r[3]}</td>
+									<td style="width: 120px; text-align: center;">&nbsp;</td>
 								</tr>
 							</c:forEach>
 						</tbody>
