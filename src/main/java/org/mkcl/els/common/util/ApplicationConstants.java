@@ -1094,7 +1094,7 @@ public class ApplicationConstants {
 
 	public static final String COMMITTEETOUR_RETURN_URL = "workflow/committeetour/requestForTour";
 
-	public static final String SERVER_DATETIMEFORMAT = "SERVER_DATETIMEFORMAT";
+	public static final String SERVER_DATETIMEFORMAT = "dd/MM/yyyy HH:mm:ss";
 
 	/****************Bill Information System********************/
 	/**** device types ****/
