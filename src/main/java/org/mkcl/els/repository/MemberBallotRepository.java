@@ -32,6 +32,8 @@ import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
 import org.mkcl.els.common.vo.MemberBallotQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
+import org.mkcl.els.comparator.BallotEntryVOFirstBatchComparator;
+import org.mkcl.els.comparator.BallotEntryVOSecondBatchComparator;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BallotEntry;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -796,7 +798,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 
 				List<BallotEntryVO> firstBatchEntries=new ArrayList<BallotEntryVO>();
 				List<BallotEntryVO> secondBatchEntries=new ArrayList<BallotEntryVO>();
-				Long lastMemberFirstBatch=new Long(0);
+				Long lastMemberFirstBatch=new Long(0);	
+				Date firstBatchSubmissionEndDateDate=FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, "en_US").parse(firstBatchSubmissionEndDate);
 				position=firstBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,firstBatchEntries);
 				if(memberPositionMap!=null && memberPositionMap.size()>0){
 					int size=memberPositionMap.size();
@@ -814,9 +817,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 
 				int totalRoundsInMemberBallot=Integer.parseInt(session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_UH));
 				inactiveMemberCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,session,deviceType,
-						locale,totalRoundsInMemberBallot,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch);
+						locale,totalRoundsInMemberBallot,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch,firstBatchSubmissionEndDateDate);
 				inactiveMemberPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,session,deviceType,locale,totalRoundsInMemberBallot
-						,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch);
+						,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch,firstBatchSubmissionEndDateDate);
 
 
 				//Setting Position
@@ -829,6 +832,53 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				int sequence=1;
 				int actualPosition=1;
 				Status ballotStatus=Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, locale);
+				for(java.util.Map.Entry<Long,Map<Integer, BallotEntryVO>> i:memberRoundBallotEntryVOMap.entrySet()){
+					List<BallotEntryVO> firstBatchQuestions=new ArrayList<BallotEntryVO>();
+					List<BallotEntryVO> secondBatchQuestions=new ArrayList<BallotEntryVO>();
+					for(java.util.Map.Entry<Integer, BallotEntryVO> j:i.getValue().entrySet()){
+						if(j.getValue().getSubmissionDate()!=null){
+							if((j.getValue().getSubmissionDate().before(firstBatchSubmissionEndDateDate)
+									||j.getValue().getSubmissionDate().equals(firstBatchSubmissionEndDateDate))
+									&& j.getValue().getRound()!=null 
+									&& j.getValue().getPosition()!=null
+									){
+								firstBatchQuestions.add(j.getValue());
+							}else{
+								secondBatchQuestions.add(j.getValue());
+							}
+						}
+					}
+					Map<Integer, BallotEntryVO> tempMap=new HashMap<Integer, BallotEntryVO>();
+					boolean filled=false;
+					int count=0;
+					if(!firstBatchQuestions.isEmpty()){
+						Collections.sort(firstBatchQuestions,new BallotEntryVOFirstBatchComparator());
+						for(BallotEntryVO k:firstBatchQuestions){
+							if(count==totalRounds){
+								break;
+							}
+							tempMap.put(count+1,k);
+							count++;
+						}
+						if(tempMap.size()==totalRounds){
+							filled=true;
+						}
+					}
+					if(!filled && !secondBatchQuestions.isEmpty()){
+						Collections.sort(secondBatchQuestions,new BallotEntryVOSecondBatchComparator());
+						for(BallotEntryVO k:secondBatchQuestions){
+							if(count==totalRounds){
+								break;
+							}
+							tempMap.put(count+1,k);
+							count++;
+						}
+						if(tempMap.size()==totalRounds){
+							filled=true;
+						}
+					}
+					memberRoundBallotEntryVOMap.put(i.getKey(),tempMap);
+				}
 				for(int round=1;round<=totalRounds;round++){
 					for(java.util.Map.Entry<Integer, Long> i:sortedMemberPositionMap.entrySet()){
 						BallotEntryVO ballotEntryVO=memberRoundBallotEntryVOMap.get(i.getValue()).get(round);
@@ -891,7 +941,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 	@SuppressWarnings("rawtypes")
 	private Integer firstBatchCurrentAnsweringDate(final Map<String,String[]> requestMap,int position,final int totalRounds,
 			final Map<Long,Integer> memberPositionMap,final Map<Long,Map<Integer,BallotEntryVO>> memberRoundBallotEntryVOMap
-			,final List<BallotEntryVO> firstBatchEntries){
+			,final List<BallotEntryVO> firstBatchEntries) throws ParseException{
 		//list of first batch questions belonging to particular answering date and sorted according to attendance,round,position,choice
 		//and taken from member ballot choice
 		List queryFirstBatchCurrentAnsweringDate=org.mkcl.els.domain.Query.findReport("FINAL_BALLOT_UH_FIRSTBATCHCURRENTANSWERINGDATE", requestMap);
@@ -917,31 +967,37 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				roundBallotEntryMap=memberRoundBallotEntryVOMap.get(memberid);
 				int roundBallotEntryMapSize=roundBallotEntryMap.size();
 				if(roundBallotEntryMapSize <totalRounds){
-					BallotEntryVO ballotEntryVO=new BallotEntryVO();
-					ballotEntryVO.setMemberId(memberid);
-					if(o[1]!=null){
-						ballotEntryVO.setAttendance(Boolean.parseBoolean(o[1].toString()));
-					}
-					if(o[2]!=null){
-						ballotEntryVO.setRound(Integer.parseInt(o[2].toString()));
-					}
-					if(o[3]!=null){
-						ballotEntryVO.setPosition(Integer.parseInt(o[3].toString()));
-					}
-					if(o[4]!=null){
-						ballotEntryVO.setChoice(Integer.parseInt(o[4].toString()));
-					}
-					if(o[5]!=null){
-						ballotEntryVO.setDeviceId(Long.parseLong(o[5].toString()));
-					}
-					if(o[6]!=null){
-						ballotEntryVO.setDeviceNumber(Integer.parseInt(o[6].toString()));
-					}
-					if(o[7]!=null){
-						ballotEntryVO.setPriority(Integer.parseInt(o[7].toString()));
-					}
-					firstBatchEntries.add(ballotEntryVO);
-					roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
+				BallotEntryVO ballotEntryVO=new BallotEntryVO();
+				ballotEntryVO.setMemberId(memberid);
+				if(o[1]!=null){
+					ballotEntryVO.setAttendance(Boolean.parseBoolean(o[1].toString()));
+				}
+				if(o[2]!=null){
+					ballotEntryVO.setRound(Integer.parseInt(o[2].toString()));
+				}
+				if(o[3]!=null){
+					ballotEntryVO.setPosition(Integer.parseInt(o[3].toString()));
+				}
+				if(o[4]!=null){
+					ballotEntryVO.setChoice(Integer.parseInt(o[4].toString()));
+				}
+				if(o[5]!=null){
+					ballotEntryVO.setDeviceId(Long.parseLong(o[5].toString()));
+				}
+				if(o[6]!=null){
+					ballotEntryVO.setDeviceNumber(Integer.parseInt(o[6].toString()));
+				}
+				if(o[7]!=null){
+					ballotEntryVO.setPriority(Integer.parseInt(o[7].toString()));
+				}
+				if(o[8]!=null){
+					ballotEntryVO.setSubmissionDate(FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, "en_US").parse(o[8].toString()));
+				}
+				if(o[9]!=null){
+					ballotEntryVO.setChartAnsweringDate(FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATEFORMAT, "en_US").parse(o[9].toString()));
+				}
+				firstBatchEntries.add(ballotEntryVO);
+				roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 				}
 				memberRoundBallotEntryVOMap.put(memberid, roundBallotEntryMap);						
 			}
@@ -953,7 +1009,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 	private Integer secondBatchCurrentAnsweringDate(final Map<String,String[]> requestMap,int position,final int totalRounds,
 			final Map<Long,Integer> memberPositionMap,final Map<Long,Map<Integer,BallotEntryVO>> memberRoundBallotEntryVOMap,
 			final List<BallotEntryVO> secondBatchEntries
-			){
+			) throws ParseException{
 		//list of second batch questions belonging to particular answering date and sorted according to number
 		//and taken from questions
 		List querySecondBatchCurrentAnsweringDate=org.mkcl.els.domain.Query.findReport("FINAL_BALLOT_UH_SECONDBATCHCURRENTANSWERINGDATE", requestMap);
@@ -979,19 +1035,25 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				roundBallotEntryMap=memberRoundBallotEntryVOMap.get(memberid);
 				int roundBallotEntryMapSize=roundBallotEntryMap.size();
 				if(roundBallotEntryMapSize <totalRounds){
-					BallotEntryVO ballotEntryVO=new BallotEntryVO();
-					ballotEntryVO.setMemberId(memberid);
-					if(o[1]!=null){
-						ballotEntryVO.setDeviceId(Long.parseLong(o[1].toString()));
-					}
-					if(o[2]!=null){
-						ballotEntryVO.setDeviceNumber(Integer.parseInt(o[2].toString()));
-					}
-					if(o[3]!=null){
-						ballotEntryVO.setPriority(Integer.parseInt(o[3].toString()));
-					}
-					secondBatchEntries.add(ballotEntryVO);
-					roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
+				BallotEntryVO ballotEntryVO=new BallotEntryVO();
+				ballotEntryVO.setMemberId(memberid);
+				if(o[1]!=null){
+					ballotEntryVO.setDeviceId(Long.parseLong(o[1].toString()));
+				}
+				if(o[2]!=null){
+					ballotEntryVO.setDeviceNumber(Integer.parseInt(o[2].toString()));
+				}
+				if(o[3]!=null){
+					ballotEntryVO.setPriority(Integer.parseInt(o[3].toString()));
+				}
+				if(o[4]!=null){
+					ballotEntryVO.setSubmissionDate(FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, "en_US").parse(o[4].toString()));
+				}
+				if(o[5]!=null){
+					ballotEntryVO.setChartAnsweringDate(FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATEFORMAT, "en_US").parse(o[5].toString()));
+				}
+				secondBatchEntries.add(ballotEntryVO);
+				roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 				}
 				memberRoundBallotEntryVOMap.put(memberid, roundBallotEntryMap);						
 			}
@@ -1002,7 +1064,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 	@SuppressWarnings("rawtypes")
 	private Integer firstBatchPreviousAnsweringDate(final Map<String,String[]> requestMap,int position,final int totalRounds,
 			final Map<Long,Integer> memberPositionMap,final Map<Long,Map<Integer,BallotEntryVO>> memberRoundBallotEntryVOMap,
-			final List<BallotEntryVO> firstBatchEntries){
+			final List<BallotEntryVO> firstBatchEntries) throws ParseException{
 		//list of first batch questions belonging to previous answering date and sorted according to answering date,attendance,round,position,choice
 		//and taken from member ballot choice
 		List queryFirstBatchPreviousAnsweringDate=org.mkcl.els.domain.Query.findReport("FINAL_BALLOT_UH_FIRSTBATCHPREVIOUSANSWERINGDATE", requestMap);
@@ -1028,31 +1090,37 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				roundBallotEntryMap=memberRoundBallotEntryVOMap.get(memberid);
 				int roundBallotEntryMapSize=roundBallotEntryMap.size();
 				if(roundBallotEntryMapSize <totalRounds){
-					BallotEntryVO ballotEntryVO=new BallotEntryVO();
-					ballotEntryVO.setMemberId(memberid);
-					if(o[1]!=null){
-						ballotEntryVO.setAttendance(Boolean.parseBoolean(o[1].toString()));
-					}
-					if(o[2]!=null){
-						ballotEntryVO.setRound(Integer.parseInt(o[2].toString()));
-					}
-					if(o[3]!=null){
-						ballotEntryVO.setPosition(Integer.parseInt(o[3].toString()));
-					}
-					if(o[4]!=null){
-						ballotEntryVO.setChoice(Integer.parseInt(o[4].toString()));
-					}
-					if(o[5]!=null){
-						ballotEntryVO.setDeviceId(Long.parseLong(o[5].toString()));
-					}
-					if(o[6]!=null){
-						ballotEntryVO.setDeviceNumber(Integer.parseInt(o[6].toString()));
-					}
-					if(o[7]!=null){
-						ballotEntryVO.setPriority(Integer.parseInt(o[7].toString()));
-					}
-					//firstBatchEntries.add(ballotEntryVO);
-					roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
+				BallotEntryVO ballotEntryVO=new BallotEntryVO();
+				ballotEntryVO.setMemberId(memberid);
+				if(o[1]!=null){
+					ballotEntryVO.setAttendance(Boolean.parseBoolean(o[1].toString()));
+				}
+				if(o[2]!=null){
+					ballotEntryVO.setRound(Integer.parseInt(o[2].toString()));
+				}
+				if(o[3]!=null){
+					ballotEntryVO.setPosition(Integer.parseInt(o[3].toString()));
+				}
+				if(o[4]!=null){
+					ballotEntryVO.setChoice(Integer.parseInt(o[4].toString()));
+				}
+				if(o[5]!=null){
+					ballotEntryVO.setDeviceId(Long.parseLong(o[5].toString()));
+				}
+				if(o[6]!=null){
+					ballotEntryVO.setDeviceNumber(Integer.parseInt(o[6].toString()));
+				}
+				if(o[7]!=null){
+					ballotEntryVO.setPriority(Integer.parseInt(o[7].toString()));
+				}
+				if(o[8]!=null){
+					ballotEntryVO.setSubmissionDate(FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, "en_US").parse(o[8].toString()));
+				}
+				if(o[9]!=null){
+					ballotEntryVO.setChartAnsweringDate(FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATEFORMAT, "en_US").parse(o[9].toString()));
+				}
+				//firstBatchEntries.add(ballotEntryVO);
+				roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 				}
 				memberRoundBallotEntryVOMap.put(memberid, roundBallotEntryMap);						
 			}
@@ -1063,7 +1131,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 	@SuppressWarnings("rawtypes")
 	private Integer secondBatchPreviousAnsweringDate(final Map<String,String[]> requestMap,int position,final int totalRounds,
 			final Map<Long,Integer> memberPositionMap,final Map<Long,Map<Integer,BallotEntryVO>> memberRoundBallotEntryVOMap,
-			List<BallotEntryVO> secondBatchEntries){
+			List<BallotEntryVO> secondBatchEntries) throws ParseException{
 		//list of second batch questions belonging to particular answering date and sorted according to answering date and number
 		//and taken from questions
 		List querySecondBatchPreviousAnsweringDate=org.mkcl.els.domain.Query.findReport("FINAL_BALLOT_UH_SECONDBATCHPREVIOUSANSWERINGDATE", requestMap);
@@ -1089,19 +1157,25 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				roundBallotEntryMap=memberRoundBallotEntryVOMap.get(memberid);
 				int roundBallotEntryMapSize=roundBallotEntryMap.size();
 				if(roundBallotEntryMapSize <totalRounds){
-					BallotEntryVO ballotEntryVO=new BallotEntryVO();
-					ballotEntryVO.setMemberId(memberid);
-					if(o[1]!=null){
-						ballotEntryVO.setDeviceId(Long.parseLong(o[1].toString()));
-					}
-					if(o[2]!=null){
-						ballotEntryVO.setDeviceNumber(Integer.parseInt(o[2].toString()));
-					}
-					if(o[3]!=null){
-						ballotEntryVO.setPriority(Integer.parseInt(o[3].toString()));
-					}
-					//secondBatchEntries.add(ballotEntryVO);
-					roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
+				BallotEntryVO ballotEntryVO=new BallotEntryVO();
+				ballotEntryVO.setMemberId(memberid);
+				if(o[1]!=null){
+					ballotEntryVO.setDeviceId(Long.parseLong(o[1].toString()));
+				}
+				if(o[2]!=null){
+					ballotEntryVO.setDeviceNumber(Integer.parseInt(o[2].toString()));
+				}
+				if(o[3]!=null){
+					ballotEntryVO.setPriority(Integer.parseInt(o[3].toString()));
+				}
+				if(o[4]!=null){
+					ballotEntryVO.setSubmissionDate(FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, "en_US").parse(o[4].toString()));
+				}
+				if(o[5]!=null){
+					ballotEntryVO.setChartAnsweringDate(FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATEFORMAT, "en_US").parse(o[5].toString()));
+				}
+				//secondBatchEntries.add(ballotEntryVO);
+				roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 				}
 				memberRoundBallotEntryVOMap.put(memberid, roundBallotEntryMap);						
 			}
@@ -1114,7 +1188,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final Map<Long,Integer> memberPositionMap,final Map<Long,Map<Integer,BallotEntryVO>> memberRoundBallotEntryVOMap,
 			final Session session,final DeviceType deviceType,final String locale,final int totalRoundsInMemberBallot,
 			final List<BallotEntryVO> firstBatchEntries,final List<BallotEntryVO> secondBatchEntries,
-			final Long lastMemberFirstBatch
+			final Long lastMemberFirstBatch,
+			final Date firstBatchSubmissionEndDateDate
 			) throws ELSException{
 		//list of inactive members who gave question in first batch on current answering date
 		List queryInactiveMemberCurrentAnsweringDate=org.mkcl.els.domain.Query.findReport("FINAL_BALLOT_UH_INACTIVEMEMBERCURRENTANSWERINGDATE", requestMap);
@@ -1123,10 +1198,10 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			if(o!=null){
 				Question question=Question.findById(Question.class,Long.parseLong(o[1].toString()));	
 				boolean allocated=inactiveMemberQuestionSupportingMemebr(memberPositionMap, memberRoundBallotEntryVOMap, session, deviceType, question, totalRounds, 
-						totalRoundsInMemberBallot, locale,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch);
+						totalRoundsInMemberBallot, locale,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch,firstBatchSubmissionEndDateDate);
 				if(!allocated){
 					allocated=inactiveMemberQuestionClubbedMemebr(memberPositionMap, memberRoundBallotEntryVOMap, session, deviceType, question, 
-							totalRounds, totalRoundsInMemberBallot, locale,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch);
+							totalRounds, totalRoundsInMemberBallot, locale,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch,firstBatchSubmissionEndDateDate);
 				}
 			}
 		}
@@ -1138,8 +1213,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final Session session,final DeviceType deviceType,final String locale,final int totalRoundsInMemberBallot,
 			final List<BallotEntryVO> firstBatchEntries,
 			final List<BallotEntryVO> secondBatchEntries,
-			final Long lastMemberFirstBatch
-		) throws ELSException{
+			final Long lastMemberFirstBatch,
+			final Date firstBatchSubmissionEndDateDate
+			) throws ELSException{
 		//list of inactive members who gave question in first batch on previous answering date
 		List queryInactiveMemberPreviousAnsweringDate=org.mkcl.els.domain.Query.findReport("FINAL_BALLOT_UH_INACTIVEMEMBERPREVIOUSANSWERINGDATE", requestMap);
 		for(Object i:queryInactiveMemberPreviousAnsweringDate){
@@ -1147,10 +1223,10 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			if(o!=null){
 				Question question=Question.findById(Question.class,Long.parseLong(o[1].toString()));	
 				boolean allocated=inactiveMemberQuestionSupportingMemebr(memberPositionMap, memberRoundBallotEntryVOMap, session, deviceType, question, totalRounds, 
-						totalRoundsInMemberBallot, locale,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch);
+						totalRoundsInMemberBallot, locale,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch,firstBatchSubmissionEndDateDate);
 				if(!allocated){
 					allocated=inactiveMemberQuestionClubbedMemebr(memberPositionMap, memberRoundBallotEntryVOMap, session, deviceType, 
-							question, totalRounds, totalRoundsInMemberBallot, locale,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch);
+							question, totalRounds, totalRoundsInMemberBallot, locale,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch,firstBatchSubmissionEndDateDate);
 				}
 			}
 		}
@@ -1167,7 +1243,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final String locale,
 			final List<BallotEntryVO> firstBatchEntries,
 			final List<BallotEntryVO> secondBatchEntries,
-			final Long lastMemberFirstBatch	
+			final Long lastMemberFirstBatch,
+			final Date firstBatchSubmissionEndDateDate
 			) throws ELSException{			
 		List<SupportingMember> supportingMembers=question.getSupportingMembers();
 		boolean allocated=false;		
@@ -1186,7 +1263,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				}
 				if(allowed){
 					allocated=allocateQuestionToMember(memberPositionMap, memberRoundBallotEntryVOMap, session, deviceType, question, 
-							totalRounds, totalRoundsInMemberBallot, locale, member,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch);
+							totalRounds, totalRoundsInMemberBallot, locale, member,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch,firstBatchSubmissionEndDateDate);
 					if(allocated){
 						return allocated;
 					}
@@ -1207,7 +1284,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final String locale,
 			final List<BallotEntryVO> firstBatchEntries,
 			final List<BallotEntryVO> secondBatchEntries,
-			final Long lastMemberFirstBatch		
+			final Long lastMemberFirstBatch,
+			final Date firstBatchSubmissionEndDateDate
 			) throws ELSException{			
 		List<ClubbedEntity> clubbedEntities=question.getClubbedEntities();
 		boolean allocated=false;		
@@ -1226,7 +1304,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				}
 				if(allowed){
 					allocated=allocateQuestionToMember(memberPositionMap, memberRoundBallotEntryVOMap, session, deviceType, question, 
-							totalRounds, totalRoundsInMemberBallot, locale, member,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch);
+							totalRounds, totalRoundsInMemberBallot, locale, member,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch,firstBatchSubmissionEndDateDate);
 				}				
 				if(allocated){
 					return allocated;
@@ -1246,7 +1324,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 							}
 							if(supportingAllowed){
 								allocated=allocateQuestionToMember(memberPositionMap, memberRoundBallotEntryVOMap, session, deviceType, 
-										question, totalRounds, totalRoundsInMemberBallot, locale, supportingMember,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch);
+										question, totalRounds, totalRoundsInMemberBallot, locale, supportingMember,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch,firstBatchSubmissionEndDateDate);
 								if(allocated){
 									return allocated;
 								}
@@ -1271,12 +1349,64 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final Member member,
 			final List<BallotEntryVO> firstBatchEntries,
 			final List<BallotEntryVO> secondBatchEntries,
-			final Long lastMemberFirstBatch		
+			final Long lastMemberFirstBatch,
+			final Date firstBatchSubmissionEndDateDate
 			) throws ELSException{
 		Long memberId=member.getId();
 		Integer questionNumber=question.getNumber();
 		//if supporting member is already present in memberPositionMap 
 		//and memberRoundBallotEntryVOMap and no of entries is less than total rounds then allocated=true and break
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"FINAL_BALLOT_COUNCIL_NOEMPTYSLOT_INACTIVEMEMBER_RULE","");
+		if(customParameter!=null && customParameter.getValue().toLowerCase().equals("active")){
+			if(memberPositionMap.get(memberId)!=null 
+					&& memberRoundBallotEntryVOMap.get(memberId)!=null 
+					&& memberRoundBallotEntryVOMap.get(memberId).size() == totalRounds){
+				List<BallotEntryVO> firstBatchQuestions=new ArrayList<BallotEntryVO>();
+				List<BallotEntryVO> secondBatchQuestions=new ArrayList<BallotEntryVO>();	
+				Map<Integer, BallotEntryVO> tempMap=new HashMap<Integer, BallotEntryVO>();
+				int count=0;			
+				for(java.util.Map.Entry<Integer, BallotEntryVO> j:memberRoundBallotEntryVOMap.get(memberId).entrySet()){
+					if(j.getValue().getSubmissionDate()!=null){
+						if((j.getValue().getSubmissionDate().before(firstBatchSubmissionEndDateDate)
+								||j.getValue().getSubmissionDate().equals(firstBatchSubmissionEndDateDate))
+								&& j.getValue().getRound()!=null 
+								&& j.getValue().getPosition()!=null
+								){
+							firstBatchQuestions.add(j.getValue());
+							tempMap.put(count+1, j.getValue());
+							count++;
+						}else{
+							secondBatchQuestions.add(j.getValue());
+						}
+					}
+				}				
+				boolean allocated=false;
+				if(!secondBatchQuestions.isEmpty() && count < totalRounds){
+					BallotEntryVO ballotEntryVO=new BallotEntryVO();
+					ballotEntryVO.setMemberId(memberId);					
+					ballotEntryVO.setDeviceId(question.getId());					
+					ballotEntryVO.setDeviceNumber(question.getNumber());				
+					ballotEntryVO.setPriority(question.getPriority());
+					ballotEntryVO.setSubmissionDate(question.getSubmissionDate());
+					ballotEntryVO.setChartAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+					secondBatchQuestions.add(ballotEntryVO);
+					Collections.sort(secondBatchQuestions,new BallotEntryVOSecondBatchComparator());
+					for(BallotEntryVO k:secondBatchQuestions){
+						if(count==totalRounds){
+							break;
+						}
+						if(k.getDeviceId().compareTo(question.getId())==0){
+							allocated=true;
+						}
+						tempMap.put(count+1,k);
+						count++;
+					}				
+				}
+				memberRoundBallotEntryVOMap.put(memberId,tempMap);
+				return allocated;
+			}			
+		}	
+		
 		if(memberPositionMap.get(memberId)!=null 
 				&& memberRoundBallotEntryVOMap.get(memberId)!=null 
 				&& memberRoundBallotEntryVOMap.get(memberId).size() < totalRounds){
@@ -1292,7 +1422,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			ballotEntryVO.setMemberId(memberId);					
 			ballotEntryVO.setDeviceId(question.getId());					
 			ballotEntryVO.setDeviceNumber(question.getNumber());				
-			ballotEntryVO.setPriority(question.getPriority());					
+			ballotEntryVO.setPriority(question.getPriority());
+			ballotEntryVO.setSubmissionDate(question.getSubmissionDate());
+			ballotEntryVO.setChartAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 			roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 			memberRoundBallotEntryVOMap.put(memberId, roundBallotEntryMap);	
 			return true;
@@ -1350,7 +1482,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						ballotEntryVO.setMemberId(memberId);									
 						ballotEntryVO.setDeviceId(question.getId());									
 						ballotEntryVO.setDeviceNumber(question.getNumber());									
-						ballotEntryVO.setPriority(question.getPriority());									
+						ballotEntryVO.setPriority(question.getPriority());	
+						ballotEntryVO.setSubmissionDate(question.getSubmissionDate());
+						ballotEntryVO.setChartAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 						roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 						memberRoundBallotEntryVOMap.put(memberId, roundBallotEntryMap);	
 						return true;
@@ -1372,6 +1506,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						ballotEntryVO.setDeviceId(question.getId());									
 						ballotEntryVO.setDeviceNumber(question.getNumber());									
 						ballotEntryVO.setPriority(question.getPriority());	
+						ballotEntryVO.setSubmissionDate(question.getSubmissionDate());
+						ballotEntryVO.setChartAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 						roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 						memberRoundBallotEntryVOMap.put(memberId, roundBallotEntryMap);	
 						return true;
@@ -1393,6 +1529,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						ballotEntryVO.setDeviceId(question.getId());									
 						ballotEntryVO.setDeviceNumber(question.getNumber());									
 						ballotEntryVO.setPriority(question.getPriority());	
+						ballotEntryVO.setSubmissionDate(question.getSubmissionDate());
+						ballotEntryVO.setChartAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 						roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 						memberRoundBallotEntryVOMap.put(memberId, roundBallotEntryMap);	
 						return true;
@@ -1439,7 +1577,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						ballotEntryVO.setMemberId(memberId);									
 						ballotEntryVO.setDeviceId(question.getId());									
 						ballotEntryVO.setDeviceNumber(question.getNumber());									
-						ballotEntryVO.setPriority(question.getPriority());									
+						ballotEntryVO.setPriority(question.getPriority());	
+						ballotEntryVO.setSubmissionDate(question.getSubmissionDate());
+						ballotEntryVO.setChartAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 						roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 						memberRoundBallotEntryVOMap.put(memberId, roundBallotEntryMap);	
 						return true;
@@ -1461,6 +1601,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						ballotEntryVO.setDeviceId(question.getId());									
 						ballotEntryVO.setDeviceNumber(question.getNumber());									
 						ballotEntryVO.setPriority(question.getPriority());	
+						ballotEntryVO.setSubmissionDate(question.getSubmissionDate());
+						ballotEntryVO.setChartAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 						roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 						memberRoundBallotEntryVOMap.put(memberId, roundBallotEntryMap);	
 						return true;
@@ -1482,6 +1624,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						ballotEntryVO.setDeviceId(question.getId());									
 						ballotEntryVO.setDeviceNumber(question.getNumber());									
 						ballotEntryVO.setPriority(question.getPriority());	
+						ballotEntryVO.setSubmissionDate(question.getSubmissionDate());
+						ballotEntryVO.setChartAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 						roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 						memberRoundBallotEntryVOMap.put(memberId, roundBallotEntryMap);	
 						return true;
@@ -1538,6 +1682,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 					ballotEntryVO.setDeviceId(question.getId());									
 					ballotEntryVO.setDeviceNumber(question.getNumber());									
 					ballotEntryVO.setPriority(question.getPriority());	
+					ballotEntryVO.setSubmissionDate(question.getSubmissionDate());
+					ballotEntryVO.setChartAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 					roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 					memberRoundBallotEntryVOMap.put(memberId, roundBallotEntryMap);	
 					return true;
@@ -1560,6 +1706,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 					ballotEntryVO.setDeviceId(question.getId());									
 					ballotEntryVO.setDeviceNumber(question.getNumber());									
 					ballotEntryVO.setPriority(question.getPriority());	
+					ballotEntryVO.setSubmissionDate(question.getSubmissionDate());
+					ballotEntryVO.setChartAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 					roundBallotEntryMap.put(roundBallotEntryMapSize+1, ballotEntryVO);
 					memberRoundBallotEntryVOMap.put(memberId, roundBallotEntryMap);	
 					return true;
