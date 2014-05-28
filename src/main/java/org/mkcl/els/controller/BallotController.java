@@ -2140,9 +2140,11 @@ public class BallotController extends BaseController{
 									QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
 									memberBallotChoice.setNewAnsweringDate(questionDates);
 									question.setAnsweringDate(questionDates);
-									question.simpleMerge();
+									question.merge();
 								}else{
 									memberBallotChoice.setNewAnsweringDate(question.getChartAnsweringDate());
+									question.setAnsweringDate(question.getChartAnsweringDate());
+									question.merge();
 								}
 								memberBallotChoice.setQuestion(question);
 							}
@@ -2337,6 +2339,8 @@ public class BallotController extends BaseController{
 							memberBallotChoice.persist();
 							memberBallotChoices.add(memberBallotChoice);
 							count++;
+							question.setAnsweringDate(question.getChartAnsweringDate());
+							question.merge();
 						}
 					}
 					//}					
