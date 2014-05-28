@@ -1015,6 +1015,8 @@ public class ApplicationConstants {
 
 	public static String CLERK="clerk";
 
+	public static String QUESTION_PROCESSED_SENDTODEPARTMENT="question_processed_sendToDepartment";
+
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
 
