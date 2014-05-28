@@ -78,7 +78,7 @@
 							<th class="memberName"><spring:message code="question.ballot.starred.lowerhouse.member.name" text="Member Name"/></th>
 							<c:forEach begin="${questionCount+1}" end="${noOfRounds}" varStatus="cnt">
 								<th class="td"><spring:message code="question.ballot.starred.lowerhouse.round${cnt.count}" text="Round ${cnt.count}"/></th>
-								<th class="td" style="display:none;"><spring:message code="question.ballot.starred.lowerhouse.ballotnumber" text="Ballot Number"/></th>
+								<th class="td"><spring:message code="question.ballot.starred.lowerhouse.ballotnumber" text="Ballot Number"/></th>
 							</c:forEach>		
 						</tr>
 						<%-- <tr>
@@ -97,7 +97,7 @@
 										<c:if test="${mCounter <= maxCount}">
 											<c:forEach begin="${mCounter}" end="${maxCount}" step="1" varStatus="ctr">
 												<td class="td">-</td>
-												<td class="td" style="display:none;">-</td>						
+												<td class="td">-</td>						
 											</c:forEach>
 										</c:if>
 										
@@ -110,7 +110,7 @@
 										<td class="memberName">${ballotVO[0]}</td>
 										<c:if test="${not empty ballotVO[2] and ballotVO[2]!=''}">
 										<td class="td">${ballotVO[1]}</td>
-										<td class="td" style="display:none;">${ballotVO[2]}</td>
+										<td class="td">${ballotVO[2]}</td>
 										<c:set var="counter" value="${counter + 1}" />
 										<c:set var="mCounter" value="${mCounter + 1}" />
 										</c:if>
@@ -118,7 +118,7 @@
 								<c:otherwise>
 									<c:if test="${not empty ballotVO[2] and ballotVO[2]!=''}">
 									<td class="td">${ballotVO[1]}</td>
-									<td class="td" style="display:none;">${ballotVO[2]}</td>
+									<td class="td">${ballotVO[2]}</td>
 									<c:set var="mCounter" value="${mCounter + 1}" />
 									</c:if>
 								</c:otherwise>
@@ -128,7 +128,7 @@
 						<c:if test="${mCounter <= maxCount}">
 							<c:forEach begin="${mCounter}" end="${maxCount}" step="1">
 								<td class="td">-</td>
-								<td class="td" style="display:none;">-</td>						
+								<td class="td">-</td>						
 							</c:forEach>
 						</c:if>
 					</tbody>
