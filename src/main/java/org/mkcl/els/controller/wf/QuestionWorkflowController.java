@@ -1997,7 +1997,9 @@ public class QuestionWorkflowController  extends BaseController{
 							/**** Update Internal Status and Recommendation Status ****/
 							if(status!=null){
 								if(!status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
-										&& !status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)){
+										&& !status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+										&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
+										&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)){
 									question.setInternalStatus(status);
 								}
 								question.setRecommendationStatus(status);	
