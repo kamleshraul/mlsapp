@@ -2182,6 +2182,16 @@ public class Ballot extends BaseDomain implements Serializable {
 				if(answeringMember != null){
 					deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
 				}
+				try {
+					MemberMinister memberMinister = Question.findMemberMinisterIfExists(q);
+					if(memberMinister!=null) {
+						deviceVO.setPrimaryMemberDesignation(memberMinister.getDesignation().getName());
+					} else {
+						deviceVO.setPrimaryMemberDesignation("");
+					}
+				} catch(ELSException ex) {
+					deviceVO.setPrimaryMemberDesignation("");
+				}
 				/** referenced question details (later should come through referenced entities) **/
 				String questionReferenceText = q.getQuestionreferenceText();
 				if(questionReferenceText!=null) {

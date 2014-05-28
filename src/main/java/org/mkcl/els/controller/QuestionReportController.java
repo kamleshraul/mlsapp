@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -955,7 +956,22 @@ public class QuestionReportController extends BaseController{
 					}
 					data.setTotalNumberOfDevices(FormaterUtil.formatNumberNoGrouping(totalNumberOfDevices, locale.toString()));
 					data.setRoundVOs(roundVOs);
-
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(new Date());
+					calendar.add(Calendar.DATE, -1);
+					CustomParameter reportDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "template_questionSuchi_report".toUpperCase() + "_REPORTDATE_FORMAT", "");
+					if(reportDateFormatParameter!=null && reportDateFormatParameter.getValue()!=null) {
+						String formattedReportDate = FormaterUtil.formatDateToString(calendar.getTime(), reportDateFormatParameter.getValue(), locale.toString());
+						if(reportDateFormatParameter.getValue().equals("dd MMM, yyyy")) {
+							String[] strDate=formattedReportDate.split(",");
+							String[] strMonth=strDate[0].split(" ");
+							String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+							formattedReportDate = strMonth[0] + " " + month + ", " + strDate[1];
+						}
+						data.setReportDate(formattedReportDate);
+					} else {
+						data.setReportDate(FormaterUtil.formatDateToString(calendar.getTime(), ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
+					}					
 					//generate report
 					try {
 						reportFile = generateReportUsingFOP(data, "template_questionSuchi_report", reportFormat, "starred_question_suchi", locale.toString());

@@ -26,6 +26,8 @@ public class DeviceVO {
 		/** The ministry name **/
 		private String ministryName;
 		
+		private String primaryMemberDesignation;
+		
 		/** The submission date **/
 		private String submissionDate;
 		
@@ -233,6 +235,14 @@ public class DeviceVO {
 
 		public void setMinistryName(String ministryName) {
 			this.ministryName = ministryName;
+		}
+
+		public String getPrimaryMemberDesignation() {
+			return primaryMemberDesignation;
+		}
+
+		public void setPrimaryMemberDesignation(String primaryMemberDesignation) {
+			this.primaryMemberDesignation = primaryMemberDesignation;
 		}
 
 		public String getSubmissionDate() {
