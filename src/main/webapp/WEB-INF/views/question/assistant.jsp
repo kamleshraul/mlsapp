@@ -1233,7 +1233,7 @@
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 	<c:if test="${fn:contains(internalStatusType, 'question_final')}">
-				<form:hidden path="actor"/>
+		<form:hidden path="actor"/>
 	</c:if>
 	<c:if test="${!(empty domain.factualPosition) || 
 			(internalStatusType=='question_final_clarificationNeededFromDepartment'&& houseTypeType=='upperhouse')
@@ -1251,13 +1251,20 @@
 			<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
 		</p>
 	</c:if>
-	
-	<c:if test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_admission'}">
-		<p>
+	<c:choose>
+		<c:when test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_admission'}">
+			<p>
 			<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 			<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
-		</p>
-	</c:if>
+			</p>
+		</c:when>
+		<c:when test="${houseTypeType=='lowerhouse' && !(empty domain.answer)}">
+			<p>
+			<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+			<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+			</p>
+		</c:when>
+	</c:choose>
 	
 	<p>
 	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
