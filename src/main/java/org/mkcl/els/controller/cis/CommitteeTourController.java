@@ -230,16 +230,16 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		model.addAttribute("venueName", tour.getVenueName());
 		
 		String dateFormatKey = ApplicationConstants.SERVER_DATETIMEFORMAT;
-		String dateFormatVal = this.getCustomParameterValue(dateFormatKey, "");
+		//String dateFormatVal = this.getCustomParameterValue(dateFormatKey, "");
 		String fromDate = FormaterUtil.formatDateToString(
 				tour.getFromDate(), 
-				dateFormatVal,
+				dateFormatKey,
 				locale.toString());
 		model.addAttribute("fromDate", fromDate);
 		
 		String toDate = FormaterUtil.formatDateToString(
 				tour.getToDate(), 
-				dateFormatVal,
+				dateFormatKey,
 				locale.toString());
 		model.addAttribute("toDate", toDate);
 
