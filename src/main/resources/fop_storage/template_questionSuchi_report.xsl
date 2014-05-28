@@ -653,13 +653,12 @@
 							--------------------------
 						</fo:block>		
 						<fo:block text-align="center" font-weight="bold" font-size="12pt">
-	                		<xsl:value-of select="answeringDay"/>, दिनांक <xsl:value-of select="answeringDate"/> / <xsl:value-of select="answeringDateInIndianCalendar"/> ( शके )
-	                	</fo:block>
-	                	<fo:block font-size="10pt">&#160;</fo:block>                	
+	                		<xsl:value-of select="answeringDate"/> / <xsl:value-of select="answeringDateInIndianCalendar"/> ( शके ) रोजीच्या
+	                	</fo:block>	                	             	
 	                	<fo:block text-align="center" font-size="12pt" font-weight="bold">
 	                		तारांकित प्रश्नोत्तरांच्या यादीत समाविष्ट करण्यात आलेल्या प्रश्नांची सूची
 	                	</fo:block>
-	                	<fo:block font-size="10pt">&#160;</fo:block>        	           	
+	                	<fo:block font-size="4pt">&#160;</fo:block>        	           	
 	                	<fo:block text-align="center" font-weight="bold">
 	                		<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                			<fo:table-column column-number="1" column-width="2cm" />
@@ -681,7 +680,7 @@
 					     							</fo:table-cell>
 					     							<fo:table-cell padding-left="5">
 					     								<fo:block text-align="left">
-					     									<xsl:value-of select="name" />.
+					     									<xsl:value-of select="name" />
 					     								</fo:block>
 					     							</fo:table-cell>				     								     								
 				     								<fo:table-cell display-align="center">
@@ -695,7 +694,7 @@
 				     										}
 				     									</fo:block> -->
 				     									<fo:block>
-														    <fo:external-graphic src="brace.JPG"  content-height="200"  content-width="70" />
+														    <fo:external-graphic src="../../../src/main/webapp/resources/images/brace.JPG"  content-height="100"  content-width="70" />
 														</fo:block>
 				     								</fo:table-cell>
 				     								<fo:table-cell display-align="center">
@@ -717,7 +716,7 @@
 					     							</fo:table-cell>
 					     							<fo:table-cell padding-left="5">
 					     								<fo:block text-align="left">
-					     									<xsl:value-of select="name" />.
+					     									<xsl:value-of select="name" />
 					     								</fo:block>
 					     							</fo:table-cell>		     										     							
 					     						</fo:table-row>
@@ -727,9 +726,9 @@
 			     				</fo:table-body>
 	                		</fo:table>
 	                	</fo:block>
-	                	<fo:block font-size="10pt">&#160;</fo:block>
-	                	<fo:block text-align="center" font-size="12pt" font-weight="bold">	                		
-	                		<fo:block font-size="12pt">प्रश्नांचा तपशील </fo:block>
+	                	<fo:block font-size="4pt">&#160;</fo:block>
+	                	<fo:block text-align="center" font-size="12pt" font-weight="bold">	 
+	                		<fo:block>प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
 	                		<fo:block font-size="3pt">&#160;</fo:block>
 	                		<xsl:for-each select="./roundVOs/roundVO" >
 	                			<xsl:choose>
@@ -771,8 +770,15 @@
 	                			 </xsl:choose>	                			 
 	                			 ]
 	                			<fo:block font-size="3pt">&#160;</fo:block>
-	                		</xsl:for-each>
-	                		प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/>	                		
+	                		</xsl:for-each>	                		
+	                		<fo:block font-size="7pt" margin-left="2cm">	                		
+	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
+	                		<fo:block font-size="12pt">एकूण - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
+	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
+	                		--------------------
+	                		</fo:block>
+	                		<fo:block font-size="4pt">&#160;</fo:block>               		
+	                		<fo:block font-size="12pt">प्रश्नांचा तपशील </fo:block>	                		
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<xsl:for-each select="./roundVOs/roundVO" >
@@ -811,12 +817,12 @@
 	                			</xsl:choose>
 	                		</fo:block>
 	                		<fo:block font-size="3pt">&#160;</fo:block>
-	                		<fo:block text-align="center">
+	                		<fo:block text-align="center" font-weight="bold">
 		                		<fo:table table-layout="fixed" width="100%">
 		                			<fo:table-column column-number="1" column-width="1cm" />
 			                        <fo:table-column column-number="2" column-width="2cm" />
-			                        <fo:table-column column-number="3" column-width="5cm" />
-			                        <fo:table-column column-number="4" column-width="8cm" />
+			                        <fo:table-column column-number="3" column-width="6.5cm" />
+			                        <fo:table-column column-number="4" column-width="6.5cm" />
 			                        <fo:table-header>
 			                        	<fo:table-row background-color="green">
 			                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" color="white">
@@ -904,33 +910,88 @@
 			                	</fo:block>
 	                		</xsl:when>
 	                		<xsl:when test="$formatOut='WORD'">
-	                			<fo:block font-size="11pt" text-align="left">
-			                		विधान भवन : 
+	                			<fo:block font-size="10.5pt" text-align="left">
+	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
+	                					<fo:table-column column-number="1" column-width="5cm" />
+				                        <fo:table-column column-number="2" column-width="6cm" />
+				                        <fo:table-column column-number="3" column-width="5cm" />
+				                        <fo:table-body>
+				                        	<fo:table-row border-collapse="collapse">
+				                        		<fo:table-cell>
+				     								<fo:block text-align="left">
+				     									विधान भवन :
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block>
+				     									&#160;
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block text-align="center" font-weight="bold">
+				     									<xsl:value-of select="userName"/>
+				     								</fo:block>
+				     							</fo:table-cell>
+				                        	</fo:table-row>
+				                        	<fo:table-row border-collapse="collapse">
+				                        		<fo:table-cell>
+				     								<fo:block text-align="left">
+				     									<xsl:value-of select="sessionPlace"/>.
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block>
+				     									&#160;
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block text-align="center">
+				     									प्रधान सचिव,
+				     								</fo:block>				     								
+				     							</fo:table-cell>
+				                        	</fo:table-row>
+				                        	<fo:table-row border-collapse="collapse">
+				                        		<fo:table-cell>
+				     								<fo:block text-align="left">
+				     									दिनांक : <xsl:value-of select="reportDate"/>
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block>
+				     									&#160;
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block text-align="center">
+				     									महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
+				     								</fo:block>
+				     							</fo:table-cell>
+				                        	</fo:table-row>
+				                        </fo:table-body>
+	                				</fo:table>
+			                		<!-- विधान भवन : 
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;         			                		                		
+			                		         			                		                		
 			                		<fo:inline font-weight="bold">
 			                			<xsl:value-of select="userName"/>
 			                		</fo:inline>
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<xsl:value-of select="sessionPlace"/>.
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;			                		
-			                		&#160;&#160;
 			                		प्रधान सचिव,
 			                		<fo:block font-size="0pt">&#160;</fo:block>
-			                		<!-- <fo:block text-align="right">
+			                		<fo:block text-align="right">
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                		</fo:block> -->
-			                		दिनांक: <xsl:value-of select="reportDate"/>
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;
-			                		महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                	</fo:block>
+			                	<fo:block>___________________________________________________________________________</fo:block>
+			                	<fo:block text-align="center">
+			                		मुद्रणपूर्व सर्व प्रकिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+			                	</fo:block>
+			                	<fo:block></fo:block>
+				     			<fo:block text-align="center">
+				     				मुद्रण: शासकीय मध्यवर्ती मुद्रणालय, <xsl:value-of select="sessionPlace"/>.
+				     			</fo:block>
 	                		</xsl:when>
 	                	</xsl:choose>	                	                		                	
 	                </fo:block>       

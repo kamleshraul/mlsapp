@@ -480,8 +480,9 @@ public class QuestionReportController extends BaseController{
 						&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_FINAL_ADMITTED)
 						&& memberOrDepartment.equals(ApplicationConstants.MEMBER)){
 						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_member", "WORD", "intimation_letter", locale.toString());
-					}else if(status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
-							|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+					}else if((status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+							|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION))
+							&& (!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION))) {
 						reportFile = generateReportUsingFOP(letterVO, "question_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
 					}else {
 						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
@@ -773,13 +774,13 @@ public class QuestionReportController extends BaseController{
 				if(dbDateFormat!=null){
 					dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
 				}
-				//Added the following code to solve the marathi month and day issue
+				//Added the following code to solve the marathi month and day issue				
 				String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
 				String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
 				data.setAnsweringDay(answeringDay);
 				String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
 				String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-				String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + " " + strAnsweringDates[2];
+				String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 				data.setAnsweringDate(formattedAnsweringDate);
 
 				String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
@@ -944,7 +945,7 @@ public class QuestionReportController extends BaseController{
 					data.setAnsweringDay(answeringDay);
 					String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
 					String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
-					String formattedAnsweringDate = strAnsweringMonth[0] + " " + answeringMonth + " " + strAnsweringDates[2];
+					String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 					data.setAnsweringDate(formattedAnsweringDate);
 					String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
 					data.setAnsweringDateInIndianCalendar(answeringDateInIndianCalendar);

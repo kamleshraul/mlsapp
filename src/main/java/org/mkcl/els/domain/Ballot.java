@@ -2308,7 +2308,9 @@ public class Ballot extends BaseDomain implements Serializable {
 				roundVO.setNumberOfQuestionsInGivenRound(i);
 				roundVO.setFormattedNumberOfQuestionsInGivenRound(formattedNumberOfQuestionsInGivenRound);
 				roundVO.setFirstElementInGivenRound(firstElementInGivenRound);
+				roundVO.setFirstElementInGivenRoundInt(questionsTillGivenRound+1);				
 				roundVO.setLastElementInGivenRound(lastElementInGivenRound);
+				roundVO.setLastElementInGivenRoundInt(questionsTillGivenRound+i);
 				List<DeviceVO> deviceVOs = new ArrayList<DeviceVO>();
 				for(int j=questionsTillGivenRound; j<(questionsTillGivenRound + i); j++) {
 					DeviceVO deviceVO = new DeviceVO();

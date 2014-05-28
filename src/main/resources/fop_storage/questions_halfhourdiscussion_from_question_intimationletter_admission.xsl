@@ -188,10 +188,19 @@
 							स्वीकृत केली आहे.
 						</fo:block>	
 						<fo:block font-size="2px">&#160;</fo:block>
-						<fo:block>
-							&#160;&#160;&#160;&#160;&#160;&#160;सदर सूचना बॅलेटमध्ये आली असून ती <fo:inline font-weight="bold"><xsl:value-of select="answeringDate"/></fo:inline>
-							रोजी चर्चेसाठी ठेवण्यात आली आहे.
-						</fo:block>
+						<xsl:choose>
+							<xsl:when test="not(answeringDate) or answeringDate=''">
+								<fo:block>
+									&#160;&#160;&#160;&#160;&#160;&#160;सदर सूचना बॅलेटमध्ये आल्यास, सत्र संपेपर्यंत चर्चेसाठी ठेवण्यात येईल.
+								</fo:block>								
+							</xsl:when>
+							<xsl:otherwise>
+								<fo:block>
+									&#160;&#160;&#160;&#160;&#160;&#160;सदर सूचना बॅलेटमध्ये आली असून ती <fo:inline font-weight="bold"><xsl:value-of select="answeringDate"/></fo:inline>
+									रोजी चर्चेसाठी ठेवण्यात आली आहे.
+								</fo:block>
+							</xsl:otherwise>
+						</xsl:choose>						
 						<fo:block font-size="4px">&#160;</fo:block>			
 						<fo:block text-align="right">
 							<fo:block margin-right="2.3cm">आपला</fo:block>

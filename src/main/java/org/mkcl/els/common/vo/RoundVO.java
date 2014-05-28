@@ -11,7 +11,11 @@ public class RoundVO {
 	
 	private String firstElementInGivenRound;
 	
+	private int firstElementInGivenRoundInt;
+	
 	private String lastElementInGivenRound;	
+	
+	private int lastElementInGivenRoundInt;
 	
 	private List<DeviceVO> deviceVOs;
 	
@@ -47,12 +51,28 @@ public class RoundVO {
 		this.firstElementInGivenRound = firstElementInGivenRound;
 	}
 
+	public int getFirstElementInGivenRoundInt() {
+		return firstElementInGivenRoundInt;
+	}
+
+	public void setFirstElementInGivenRoundInt(int firstElementInGivenRoundInt) {
+		this.firstElementInGivenRoundInt = firstElementInGivenRoundInt;
+	}
+
 	public String getLastElementInGivenRound() {
 		return lastElementInGivenRound;
 	}
 
 	public void setLastElementInGivenRound(String lastElementInGivenRound) {
 		this.lastElementInGivenRound = lastElementInGivenRound;
+	}
+
+	public int getLastElementInGivenRoundInt() {
+		return lastElementInGivenRoundInt;
+	}
+
+	public void setLastElementInGivenRoundInt(int lastElementInGivenRoundInt) {
+		this.lastElementInGivenRoundInt = lastElementInGivenRoundInt;
 	}
 
 	public List<DeviceVO> getDeviceVOs() {
