@@ -1739,6 +1739,9 @@ public class Ballot extends BaseDomain implements Serializable {
 			ballot = (Ballot) this.persist();	
 		}
 		
+		Status BALLOTED = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, this.getLocale());
+		Ballot.getRepository().updateBallotQuestions(ballot, BALLOTED);
+		
 		return ballot;
 		
 	}	
