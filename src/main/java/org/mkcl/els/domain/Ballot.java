@@ -2350,6 +2350,14 @@ public class Ballot extends BaseDomain implements Serializable {
 					} else {
 						allMemberNames = q.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
 					}
+					List<Title> titles = Title.findAll(Title.class, "name", ApplicationConstants.ASC, locale);
+					if(titles!=null && !titles.isEmpty()) {
+						for(Title t: titles) {
+							if(t.getName().trim().endsWith(".")) {
+								allMemberNames = allMemberNames.replace(t.getName().trim()+" ", t.getName().trim());
+							}
+						}
+					}
 					deviceVO.setMemberNames(allMemberNames);	
 					if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
 						deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
