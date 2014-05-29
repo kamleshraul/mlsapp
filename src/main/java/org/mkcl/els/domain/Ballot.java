@@ -2153,6 +2153,8 @@ public class Ballot extends BaseDomain implements Serializable {
 				if(content!=null && !content.isEmpty()) {
 					if(content.endsWith("<br><p></p>")) {
 						content = content.substring(0, content.length()-11);						
+					} else if(content.endsWith("<p></p>")) {
+						content = content.substring(0, content.length()-7);					
 					}
 					content = FormaterUtil.formatNumbersInGivenText(content, locale);
 					deviceVO.setContent(content);
@@ -2161,6 +2163,8 @@ public class Ballot extends BaseDomain implements Serializable {
 					if(content!=null && !content.isEmpty()) {
 						if(content.endsWith("<br><p></p>")) {
 							content = content.substring(0, content.length()-11);							
+						} else if(content.endsWith("<p></p>")) {
+							content = content.substring(0, content.length()-7);					
 						}
 						content = FormaterUtil.formatNumbersInGivenText(content, locale);
 						deviceVO.setContent(content);
@@ -2170,6 +2174,8 @@ public class Ballot extends BaseDomain implements Serializable {
 				if(answer != null) {
 					if(answer.endsWith("<br><p></p>")) {
 						answer = answer.substring(0, answer.length()-11);						
+					} else if(answer.endsWith("<p></p>")) {
+						answer = answer.substring(0, answer.length()-7);					
 					}
 					answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 				}				
@@ -2375,6 +2381,8 @@ public class Ballot extends BaseDomain implements Serializable {
 					if(content!=null && !content.isEmpty()) {
 						if(content.endsWith("<br><p></p>")) {
 							content = content.substring(0, content.length()-11);							
+						} else if(content.endsWith("<p></p>")) {
+							content = content.substring(0, content.length()-7);							
 						}
 						content = FormaterUtil.formatNumbersInGivenText(content, locale);
 						deviceVO.setContent(content);
@@ -2383,6 +2391,8 @@ public class Ballot extends BaseDomain implements Serializable {
 						if(content!=null && !content.isEmpty()) {
 							if(content.endsWith("<br><p></p>")) {
 								content = content.substring(0, content.length()-11);								
+							} else if(content.endsWith("<p></p>")) {
+								content = content.substring(0, content.length()-7);							
 							}
 							content = FormaterUtil.formatNumbersInGivenText(content, locale);
 							deviceVO.setContent(content);
@@ -2392,6 +2402,8 @@ public class Ballot extends BaseDomain implements Serializable {
 					if(answer != null) {
 						if(answer.endsWith("<br><p></p>")) {
 							answer = answer.substring(0, answer.length()-11);							
+						} else if(answer.endsWith("<p></p>")) {
+							answer = answer.substring(0, answer.length()-7);							
 						}
 						answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 					}				

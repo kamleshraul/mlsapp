@@ -750,10 +750,10 @@
 	                		<fo:block text-align="center" font-size="9pt" font-weight="bold">
 	                			<xsl:value-of select="subject"/>
 	                		</fo:block>
-	                		<fo:block font-size="0pt">&#160;</fo:block>
+	                		<fo:block font-size="9pt">&#160;</fo:block>
 	                		<fo:block font-weight="bold">	                			
                 				(<xsl:value-of select="serialNumber"/>)
-                				<fo:inline vertical-align="super" font-size="18pt">*</fo:inline>
+                				<fo:inline vertical-align="super" font-size="15pt">*</fo:inline>
                 				&#160;<xsl:value-of select="formattedNumber"/>
                 				&#160;&#160;<xsl:value-of select="memberNames"/>&#160;:&#160;
                 				<xsl:if test="questionReferenceText!=''">
