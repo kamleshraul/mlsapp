@@ -756,13 +756,18 @@
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	
-	<c:if test="${selectedQuestionType=='questions_starred'}">
-		<c:if test="${not (formattedAnsweringDate==null && (empty formattedAnsweringDate))}">
-		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
-		</c:if>
-		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
-	</c:if>
+	<c:choose>
+		<c:when test="${selectedQuestionType=='questions_starred'}">
+			<c:if test="${not (formattedAnsweringDate==null && (empty formattedAnsweringDate))}">
+				<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
+				<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
+			</c:if>
+			<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
+		</c:when>
+		<c:otherwise>
+			<form:hidden path="answeringDate"/>
+		</c:otherwise>
+	</c:choose>
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<c:if test="${not (discussionDateSelected==null && (empty discussionDateSelected))}">
 			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
@@ -772,15 +777,20 @@
 		</c:if>
 	</c:if>
 	</p>
-	<c:if test="${selectedQuestionType=='questions_starred'}">
-		<p>
-		<c:if test="${formattedChartAnsweringDate !=null}">
-			<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
-			<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
-		</c:if>	
-		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
-		</p>
-	</c:if>
+	<c:choose>
+		<c:when test="${selectedQuestionType=='questions_starred'}">
+			<p>
+				<c:if test="${formattedChartAnsweringDate !=null}">
+					<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
+					<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
+				</c:if>	
+				<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+			</p>
+		</c:when>
+		<c:otherwise>
+			<form:hidden path="chartAnsweringDate"/>
+		</c:otherwise>
+	</c:choose>
 	<p>
 	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 	<select name="ministry" id="ministry" class="sSelect" >
@@ -1202,7 +1212,8 @@
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
-	<form:hidden path="workflowStarted"/>	
+	<form:hidden path="workflowStarted"/>
+	<form:hidden path="ballotStatus"/>	
 	<form:hidden path="endFlag"/>
 	<form:hidden path="level"/>
 	<form:hidden path="localizedActorName"/>

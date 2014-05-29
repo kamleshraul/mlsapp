@@ -849,15 +849,20 @@
 	<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
-	
-	<c:if test="${selectedQuestionType=='questions_starred'}">
-		<c:if test="${not (formattedAnsweringDate==null and (empty formattedAnsweringDate))}">
-		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
+	<c:choose>
+		<c:when test="${selectedQuestionType=='questions_starred'}">
+			<c:if test="${not (formattedAnsweringDate==null and (empty formattedAnsweringDate))}">
+			<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
+			<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
 		</c:if>
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
 		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
-	</c:if>
+		</c:when>
+		<c:otherwise>
+			<form:hidden path="answeringDate"/>
+			<form:hidden path="chartAnsweringDate"/>
+		</c:otherwise>
+	</c:choose>
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
 		<c:if test="${not (discussionDateSelected==null and (empty discussionDateSelected))}">
 			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
@@ -1298,6 +1303,7 @@
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
+	<form:hidden path="ballotStatus"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
