@@ -1738,7 +1738,9 @@ public class Question extends Device implements Serializable {
 		}		
 		memberName = member.findNameInGivenFormat(nameFormat);
 		if(memberName!=null && !memberName.isEmpty()) {
-			allMemberNamesBuffer.append(memberName);			
+			if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+				allMemberNamesBuffer.append(memberName);
+			}						
 		} else {
 			return allMemberNamesBuffer.toString();
 		}						
@@ -1751,7 +1753,11 @@ public class Question extends Device implements Serializable {
 					memberName = member.findNameInGivenFormat(nameFormat);
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {				
 						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
-							allMemberNamesBuffer.append(", " + memberName);
+							if(allMemberNamesBuffer.length()>0) {
+								allMemberNamesBuffer.append(", " + memberName);
+							} else {
+								allMemberNamesBuffer.append(memberName);
+							}
 						}																		
 					}									
 				}				
@@ -1773,7 +1779,11 @@ public class Question extends Device implements Serializable {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
-								allMemberNamesBuffer.append(", " + memberName);
+								if(allMemberNamesBuffer.length()>0) {
+									allMemberNamesBuffer.append(", " + memberName);
+								} else {
+									allMemberNamesBuffer.append(memberName);
+								}
 							}							
 						}												
 					}
@@ -1785,7 +1795,11 @@ public class Question extends Device implements Serializable {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
-										allMemberNamesBuffer.append(", " + memberName);
+										if(allMemberNamesBuffer.length()>0) {
+											allMemberNamesBuffer.append(", " + memberName);
+										} else {
+											allMemberNamesBuffer.append(memberName);
+										}
 									}									
 								}								
 							}
@@ -1813,11 +1827,13 @@ public class Question extends Device implements Serializable {
 		}		
 		memberName = member.findNameInGivenFormat(nameFormat);
 		if(memberName!=null && !memberName.isEmpty()) {
-			allMemberNamesBuffer.append(memberName);
-			constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
-			if(!constituencyName.isEmpty()) {
-				allMemberNamesBuffer.append(" (" + constituencyName + ")");			
-			}
+			if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+				allMemberNamesBuffer.append(memberName);
+				constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+				if(!constituencyName.isEmpty()) {
+					allMemberNamesBuffer.append(" (" + constituencyName + ")");			
+				}
+			}			
 		} else {
 			return allMemberNamesBuffer.toString();
 		}				
@@ -1831,7 +1847,11 @@ public class Question extends Device implements Serializable {
 					memberName = member.findNameInGivenFormat(nameFormat);
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
-							allMemberNamesBuffer.append(", " + memberName);
+							if(allMemberNamesBuffer.length()>0) {
+								allMemberNamesBuffer.append(", " + memberName);
+							} else {
+								allMemberNamesBuffer.append(memberName);
+							}
 							constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
 							if(!constituencyName.isEmpty()) {
 								allMemberNamesBuffer.append(" (" + constituencyName + ")");						
@@ -1858,7 +1878,11 @@ public class Question extends Device implements Serializable {
 						memberName = member.findNameInGivenFormat(nameFormat);
 						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
-								allMemberNamesBuffer.append(", " + memberName);
+								if(allMemberNamesBuffer.length()>0) {
+									allMemberNamesBuffer.append(", " + memberName);
+								} else {
+									allMemberNamesBuffer.append(memberName);
+								}
 								constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
 								if(!constituencyName.isEmpty()) {
 									allMemberNamesBuffer.append(" (" + constituencyName + ")");							
@@ -1874,7 +1898,11 @@ public class Question extends Device implements Serializable {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
-										allMemberNamesBuffer.append(", " + memberName);
+										if(allMemberNamesBuffer.length()>0) {
+											allMemberNamesBuffer.append(", " + memberName);
+										} else {
+											allMemberNamesBuffer.append(memberName);
+										}
 										constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
 										if(!constituencyName.isEmpty()) {
 											allMemberNamesBuffer.append(" (" + constituencyName + ")");							

@@ -910,7 +910,7 @@
 			                	</fo:block>
 	                		</xsl:when>
 	                		<xsl:when test="$formatOut='WORD'">
-	                			<fo:block font-size="10.5pt" text-align="left">
+	                			<fo:block font-size="10.5pt" font-weight="bold" text-align="left">
 	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                					<fo:table-column column-number="1" column-width="5cm" />
 				                        <fo:table-column column-number="2" column-width="6cm" />
@@ -928,7 +928,7 @@
 				     								</fo:block>
 				     							</fo:table-cell>
 				     							<fo:table-cell>
-				     								<fo:block text-align="center" font-weight="bold">
+				     								<fo:block text-align="center">
 				     									<xsl:value-of select="userName"/>
 				     								</fo:block>
 				     							</fo:table-cell>
@@ -984,7 +984,7 @@
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                		</fo:block> -->
 			                	</fo:block>
-			                	<fo:block>___________________________________________________________________________</fo:block>
+			                	<fo:block>_______________________________________________________________________</fo:block>
 			                	<fo:block text-align="center">
 			                		मुद्रणपूर्व सर्व प्रकिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
 			                	</fo:block>
