@@ -799,22 +799,41 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				List<BallotEntryVO> firstBatchEntries=new ArrayList<BallotEntryVO>();
 				List<BallotEntryVO> secondBatchEntries=new ArrayList<BallotEntryVO>();
 				Long lastMemberFirstBatch=new Long(0);	
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "FINAL_BALLOT_COUNCIL_SCANNING", "");
 				Date firstBatchSubmissionEndDateDate=FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, "en_US").parse(firstBatchSubmissionEndDate);
-				position=firstBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,firstBatchEntries);
-				if(memberPositionMap!=null && memberPositionMap.size()>0){
-					int size=memberPositionMap.size();
-					int count=1;
-					for(java.util.Map.Entry<Long, Integer> i:memberPositionMap.entrySet()){
-						if(size==count){
-							lastMemberFirstBatch=i.getKey();
+				/**** Horizontal Scanning=first batch current date,first batch previous date,second batch current date,second batch previous date
+				 * Vertical scanning=first batch current date,second batch current date,first batch previous date,second batch previous date ****/
+				if(customParameter!=null && customParameter.getValue().toLowerCase().equals("horizontal")){
+					position=firstBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,firstBatchEntries);
+					if(memberPositionMap!=null && memberPositionMap.size()>0){
+						int size=memberPositionMap.size();
+						int count=1;
+						for(java.util.Map.Entry<Long, Integer> i:memberPositionMap.entrySet()){
+							if(size==count){
+								lastMemberFirstBatch=i.getKey();
+							}
+							count++;
 						}
-						count++;
-					}
-				}			
-				position=secondBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,secondBatchEntries);
-				position=firstBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,firstBatchEntries);
-				position=secondBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,secondBatchEntries);
-
+					}			
+					position=firstBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,firstBatchEntries);
+					position=secondBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,secondBatchEntries);
+					position=secondBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,secondBatchEntries);
+				}else{
+					position=firstBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,firstBatchEntries);
+					if(memberPositionMap!=null && memberPositionMap.size()>0){
+						int size=memberPositionMap.size();
+						int count=1;
+						for(java.util.Map.Entry<Long, Integer> i:memberPositionMap.entrySet()){
+							if(size==count){
+								lastMemberFirstBatch=i.getKey();
+							}
+							count++;
+						}
+					}			
+					position=secondBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,secondBatchEntries);
+					position=firstBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,firstBatchEntries);
+					position=secondBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,secondBatchEntries);
+				}
 				int totalRoundsInMemberBallot=Integer.parseInt(session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_UH));
 				inactiveMemberCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,session,deviceType,
 						locale,totalRoundsInMemberBallot,firstBatchEntries,secondBatchEntries,lastMemberFirstBatch,firstBatchSubmissionEndDateDate);
