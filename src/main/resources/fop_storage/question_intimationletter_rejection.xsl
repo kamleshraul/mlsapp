@@ -144,7 +144,7 @@
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 							<xsl:choose>
 								<xsl:when test="deviceType='अल्प सूचना प्रश्न' and houseType='lowerhouse'">
-									उपरोक्त  विषयावरील आपला खाली नमूद केलेला प्रश्न 
+									उपरोक्त  विषयावरील आपला खाली नमूद केलेला प्रश्न माननीय
 								</xsl:when>
 								<xsl:otherwise>आपला उपरिनिर्दिष्ट प्रश्न खाली नमूद केलेल्या कारणांमुळे माननीय  </xsl:otherwise>
 							</xsl:choose>							
@@ -159,8 +159,8 @@
 						<fo:block text-align="right">
 							<fo:block margin-right="2cm">आपला/आपली</fo:block>
 							<fo:block>&#160;</fo:block>
-							<fo:block margin-right="1.4cm">कक्ष अधिकारी,</fo:block>		
-							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
+							<fo:block margin-right="1.8cm">कक्ष अधिकारी,</fo:block>		
+							<fo:block margin-right="0.7cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
 						</fo:block>
 						----------------------------------------------------------------------------------------------------------------------------------------
 						<fo:block font-weight="bold"><xsl:value-of select="rejectionReason"/></fo:block>	

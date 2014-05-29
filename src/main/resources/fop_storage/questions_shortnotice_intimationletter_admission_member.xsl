@@ -128,7 +128,7 @@
 						<fo:block>महोदय,</fo:block>	
 						<fo:block margin-left="1.5cm">							
 							&#160;&#160;&#160;&#160;&#160; उपरोक्त विषयाच्या संदर्भाधीन पत्रान्वये कळविण्यात येते की, आपण विचारलेल्या उपरोक्त
-							अल्प सूचना प्रश्न क्रमांक  <xsl:value-of select="number"/> ला  <xsl:value-of select="answeringDate"/> रोजी 
+							अल्प सूचना प्रश्न क्रमांक  <xsl:value-of select="number"/> ला <fo:inline font-weight="bold"> <xsl:value-of select="answeringDate"/> </fo:inline> रोजी 
 							सभागृहात उत्तर देण्याबाबत मा. 
 							<xsl:choose>
 									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">

@@ -366,15 +366,15 @@
 								<fo:block>							
 								<xsl:choose>
 									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री'">
-										<fo:block>(१) माननीय <xsl:value-of select="primaryMemberDesignation"/></fo:block>
+										<fo:block>(१) माननीय <xsl:value-of select="primaryMemberDesignation"/>    यांच्या माहितीसाठी सादर अग्रेषित.</fo:block>
 									</xsl:when>
 									<xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
-										<fo:block>(१) माननीय <xsl:value-of select="primaryMemberDesignation"/></fo:block>
+										<fo:block>(१) माननीय <xsl:value-of select="primaryMemberDesignation"/>    यांच्या माहितीसाठी सादर अग्रेषित.</fo:block>
 									</xsl:when>
 									<xsl:otherwise>
 										<xsl:choose>
 											<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
-												<fo:block>(१) माननीय  <fo:inline font-weight="bold"><xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री  यांच्या माहितीसाठी सदर अग्रेषित.</fo:inline></fo:block>
+												<fo:block>(१) माननीय  <fo:inline font-weight="bold"><xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री  यांच्या माहितीसाठी सादर अग्रेषित.</fo:inline></fo:block>
 											</xsl:when>
 											<xsl:otherwise>
 												<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="subDepartment"/> मंत्री  यांच्या माहितीसाठी सदर अग्रेषित.</fo:inline></fo:block>
@@ -385,8 +385,8 @@
 								</fo:block>
 								<fo:block>(२)<xsl:value-of select="$primaryMemberConstituency"/>
 								<xsl:choose>
-									<xsl:when test="houseType='lowerhouse'">वि.स.स.</xsl:when>
-									<xsl:when test="houseType='upperhouse'">वि.प.स.</xsl:when> 
+									<xsl:when test="houseType='lowerhouse'"> वि.स.स.</xsl:when>
+									<xsl:when test="houseType='upperhouse'"> वि.प.स.</xsl:when> 
 								</xsl:choose>
 								यांना स्वीकृत प्रश्नाच्या प्रतीसह सादर अग्रेषित.
 								</fo:block>
