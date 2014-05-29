@@ -481,6 +481,11 @@ public class QuestionReportController extends BaseController{
 						&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_FINAL_ADMITTED)
 						&& memberOrDepartment.equals(ApplicationConstants.MEMBER)){
 						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_member", "WORD", "intimation_letter", locale.toString());
+					}else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
+							&& question.getDateOfAnsweringByMinister()!=null 
+							&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_FINAL_ADMITTED)
+							&& memberOrDepartment.equals(ApplicationConstants.DEPARTMENT)){
+							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_department", "WORD", "intimation_letter", locale.toString()); 
 					}else if((status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
 							|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION))
 							&& (!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION))) {
