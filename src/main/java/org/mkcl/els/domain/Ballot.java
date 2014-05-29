@@ -2167,21 +2167,10 @@ public class Ballot extends BaseDomain implements Serializable {
 				}				
 				deviceVO.setAnswer(answer);				
 				Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
-				List<MemberRole> memberRoles = HouseMemberRoleAssociation.findAllActiveRolesOfMemberInSession(answeringMember, session, locale);
-				for(MemberRole mr : memberRoles) {
-					if(mr.getType().equals(ApplicationConstants.CHIEF_MINISTER) || mr.getType().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)) {
-						deviceVO.setMinistryName(q.getMinistry().getName());
-						break;
-					}
-				}
-				if(deviceVO.getMinistryName()==null) {
-					Role ministerRole = Role.findByFieldName(Role.class, "type", ApplicationConstants.MINISTER, locale);
-					String localizedMinisterRoleName = ministerRole.getLocalizedName();				
-					deviceVO.setMinistryName(q.getSubDepartment().getName() + " " + localizedMinisterRoleName);
-				}			
 				if(answeringMember != null){
 					deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
 				}
+				deviceVO.setMinistryName(q.getSubDepartment().getName());
 				try {
 					MemberMinister memberMinister = Question.findMemberMinisterIfExists(q);
 					if(memberMinister!=null) {

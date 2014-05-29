@@ -513,12 +513,12 @@
 		    
           
 	            <fo:simple-page-master master-name="otherPages"
-                  page-height="21.5cm"
-                  page-width="13.7cm"
-                  margin-top="1.7cm"
-                  margin-bottom="0.2cm"
-                  margin-left="1.1cm"
-                  margin-right="1cm">
+                  page-height="29.7cm"
+                  page-width="21cm"
+                  margin-top="4cm"
+                  margin-bottom="5cm"
+                  margin-left="4cm"
+                  margin-right="4cm">
 			      <fo:region-body margin-top="1cm"/>        
 			      <fo:region-before region-name="page-number" extent="2cm"/>
 			      <fo:region-after extent="1.5cm"/>
@@ -627,8 +627,8 @@
 			</fo:block>
 		    </fo:static-content> -->
 	
-	            <fo:flow flow-name="xsl-region-body">		    
-					<fo:block font-family="Mangal" font-size="9pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+	            <fo:flow flow-name="xsl-region-body">	
+	            	<fo:block font-family="Mangal" font-size="9pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 					    <fo:block font-size="16" font-weight="bold" text-align="center">
 							महाराष्ट्र <xsl:value-of select="houseType"/>												
 						</fo:block>
@@ -705,7 +705,7 @@
 				     									</fo:block> -->
 				     									<fo:block>
 				     										<!-- <fo:block font-size="20px">&#125;</fo:block> -->
-														    <fo:external-graphic src="../../../src/main/webapp/resources/images/brace.JPG"  content-height="100"  content-width="70" />
+														    <fo:external-graphic src="../../../resources/images/brace.JPG"  content-height="100"  content-width="70" />
 														</fo:block>
 				     								</fo:table-cell>
 				     								<fo:table-cell display-align="center">
@@ -762,11 +762,18 @@
                 				<fo:inline font-weight="normal">
                 					सन्माननीय
                 				</fo:inline>
-                				<xsl:value-of select="ministryName"/>
-                				<fo:inline font-weight="normal">
-                					पुढील गोष्टींचा खुलासा करतील काय :-
-                				</fo:inline>	                			               			
-	                		</fo:block>
+                				<xsl:choose>
+									<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+										<xsl:value-of select="primaryMemberDesignation"/><fo:inline font-weight="normal"> पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
+									</xsl:when>
+									<!-- <xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
+										<xsl:value-of select="primaryMemberDesignation"/>
+									</xsl:when> -->
+									<xsl:otherwise>
+										<xsl:value-of select="ministryName"/> मंत्री <fo:inline font-weight="normal">पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
+									</xsl:otherwise>
+								</xsl:choose>   				
+                			</fo:block>
 	                		<fo:block font-size="0pt">&#160;</fo:block>
 	                		<fo:block font-weight="normal">
 	                			<xsl:apply-templates select="content"></xsl:apply-templates>

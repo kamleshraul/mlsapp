@@ -694,7 +694,7 @@
 				     										}
 				     									</fo:block> -->
 				     									<fo:block>
-														    <fo:external-graphic src="../../../src/main/webapp/resources/images/brace.JPG"  content-height="100"  content-width="70" />
+														    <fo:external-graphic src="../../../resources/images/brace.JPG"  content-height="100"  content-width="70" />
 														</fo:block>
 				     								</fo:table-cell>
 				     								<fo:table-cell display-align="center">
