@@ -750,7 +750,7 @@
 	                		<fo:block text-align="center" font-size="9pt" font-weight="bold">
 	                			<xsl:value-of select="subject"/>
 	                		</fo:block>
-	                		<fo:block font-size="0pt">&#160;</fo:block>
+	                		<fo:block font-size="9pt">&#160;</fo:block>
 	                		<fo:block font-weight="bold">	                			
                 				(<xsl:value-of select="serialNumber"/>)
                 				<fo:inline vertical-align="super" font-size="18pt">*</fo:inline>
@@ -778,7 +778,7 @@
 	                		<fo:block font-weight="normal">
 	                			<xsl:apply-templates select="content"></xsl:apply-templates>
 	                		</fo:block>
-	                		<fo:block font-size="5pt">&#160;</fo:block>
+	                		<fo:block font-size="9pt">&#160;</fo:block>
 	                		<fo:block>
 	                			<xsl:choose>
 	                				<xsl:when test="not(answer)">
@@ -796,13 +796,13 @@
 	                				</xsl:otherwise>
 	                			</xsl:choose>	                			
 	                		</fo:block>
-	                		<fo:block font-size="10pt">&#160;</fo:block>
+	                		<fo:block font-size="9pt">&#160;</fo:block>
 	                		<fo:block text-align="center">
 	                			-----------------
 	                		</fo:block>
-	                		<fo:block font-size="10pt">&#160;</fo:block>
+	                		<fo:block font-size="9pt">&#160;</fo:block>
 	                	</xsl:for-each>
-	                	<fo:block font-size="10pt">&#160;</fo:block>
+	                	<fo:block font-size="12pt">&#160;</fo:block>
 	                	<xsl:choose>
 	                		<xsl:when test="$formatOut='application/pdf'">
 	                			<fo:block font-size="11pt">
