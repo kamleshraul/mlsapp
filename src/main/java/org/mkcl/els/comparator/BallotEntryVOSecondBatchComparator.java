@@ -10,9 +10,9 @@ public class BallotEntryVOSecondBatchComparator implements Comparator<BallotEntr
 	public int compare(BallotEntryVO o1, BallotEntryVO o2) {
 		int result=0;
 		if(o1.getChartAnsweringDate().before(o2.getChartAnsweringDate())){
-			result=1;
-		}else if(o1.getChartAnsweringDate().after(o2.getChartAnsweringDate())){
 			result=-1;
+		}else if(o1.getChartAnsweringDate().after(o2.getChartAnsweringDate())){
+			result=1;
 		}else{
 			result=0;
 		}
@@ -24,5 +24,4 @@ public class BallotEntryVOSecondBatchComparator implements Comparator<BallotEntr
 		}		
 		return result;
 	}
-
 }
