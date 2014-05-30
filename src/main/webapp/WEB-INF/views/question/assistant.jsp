@@ -889,9 +889,6 @@
 				</c:forEach>
 			</select>
 		</c:when>
-		<c:otherwise>
-			<form:hidden path="answeringDate"/>
-		</c:otherwise>
 	</c:choose>
 		
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
@@ -914,9 +911,7 @@
 				<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 			</p>
 		</c:when>
-		<c:otherwise>
-			<form:hidden path="chartAnsweringDate"/>
-		</c:otherwise>
+		
 	</c:choose>
 	<p>
 	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
@@ -1336,7 +1331,7 @@
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
-	<form:hidden path="ballotStatus"/>
+	
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
