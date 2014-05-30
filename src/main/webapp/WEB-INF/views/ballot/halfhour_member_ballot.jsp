@@ -28,18 +28,22 @@
 <label class="small"><spring:message code="question.ballot.answeringDate" text="Answering Date"/>: ${answeringDate}</label>
 
 <table class="strippedTable" border="1">
-	<tr>
-		<th><spring:message code="general.srnumber" text="Serial Number"/></th>
-		<th><spring:message code="member.name" text="Member Name"/></th>
-	</tr>
-	<c:set var="counter" value="1" />
-	<c:forEach items="${ballotVOs}" var="ballotVO">
+	<thead>
 		<tr>
-			<td>${counter}</td>
-			<td>${ballotVO[1]}</td>
+			<th><spring:message code="general.srnumber" text="Serial Number"/></th>
+			<th><spring:message code="member.name" text="Member Name"/></th>
 		</tr>
-	<c:set var="counter" value="${counter + 1}" />
-	</c:forEach>
+	</thead>
+	<tbody>
+		<c:set var="counter" value="1" />
+		<c:forEach items="${ballotVOs}" var="ballotVO">
+			<tr>
+				<td>${counter}</td>
+				<td>${ballotVO[1]}</td>
+			</tr>
+		<c:set var="counter" value="${counter + 1}" />
+		</c:forEach>
+	</tbody>
 </table>
 </div>
 </c:otherwise>

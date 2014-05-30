@@ -60,35 +60,39 @@
 					</div>
 					<div>
 						<table class="strippedTable" border="1">
-							<tr>
-								<th style="width:40%;"><spring:message code="general.srnumber" text="Serial Number"/></th>
-								<th><spring:message code="member.name" text="Member Name"/></th>
-								<%-- <th><spring:message code="question.number" text="Resolution Number"/></th>
-								<th><spring:message code="question.subject" text="Subject"/></th> --%>
-								<%-- <th><spring:message code="question.selectfordiscussion" text="To Be Discussed"/></th> --%>
-							</tr>
-					
-							<c:forEach items="${ballotVOs}" var="ballotVO" varStatus="counter">
+							<thead>
 								<tr>
-									<td style="width: 40%;">
-										${serialnumber[counter.count - 1].name}
-									</td>
-									<%-- <td>${ballotVO.memberName}</td> --%>
-									<td>${ballotVO[1]}</td>
-									<%-- <td>${ballotVO.number}</td>
-									<td>${ballotVO.subject}</td> --%>
-									<%-- <td align="center">
-										<c:choose>
-											<c:when test="${ballotVO.selected=='checked'}">
-												<input type="checkbox" name="tobeDiscussed" value="${ballotVO.id}" checked="checked"/>
-											</c:when>
-											<c:otherwise>
-												<input type="checkbox" name="tobeDiscussed" value="${ballotVO.id}" />
-											</c:otherwise>
-										</c:choose>
-									</td> --%>
+									<th style="width:40%;"><spring:message code="general.srnumber" text="Serial Number"/></th>
+									<th><spring:message code="member.name" text="Member Name"/></th>
+									<%-- <th><spring:message code="question.number" text="Resolution Number"/></th>
+									<th><spring:message code="question.subject" text="Subject"/></th> --%>
+									<%-- <th><spring:message code="question.selectfordiscussion" text="To Be Discussed"/></th> --%>
 								</tr>
-							</c:forEach>
+							</thead>
+							<tbody>
+					
+								<c:forEach items="${ballotVOs}" var="ballotVO" varStatus="counter">
+									<tr>
+										<td style="width: 40%;">
+											${serialnumber[counter.count - 1].name}
+										</td>
+										<%-- <td>${ballotVO.memberName}</td> --%>
+										<td>${ballotVO[1]}</td>
+										<%-- <td>${ballotVO.number}</td>
+										<td>${ballotVO.subject}</td> --%>
+										<%-- <td align="center">
+											<c:choose>
+												<c:when test="${ballotVO.selected=='checked'}">
+													<input type="checkbox" name="tobeDiscussed" value="${ballotVO.id}" checked="checked"/>
+												</c:when>
+												<c:otherwise>
+													<input type="checkbox" name="tobeDiscussed" value="${ballotVO.id}" />
+												</c:otherwise>
+											</c:choose>
+										</td> --%>
+									</tr>
+								</c:forEach>
+							</tbody>
 						</table>
 					</div>
 					<br />
