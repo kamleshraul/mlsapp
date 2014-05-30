@@ -1288,11 +1288,11 @@
 				<c:if test="${internalStatusType=='question_submit'
 							||internalStatusType=='question_system_assistantprocessed'
 							||((internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_system_groupchanged' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred') && selectedQuestionType=='questions_starred')
-							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
-							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
-							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
-							||(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse')
-							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse')
+							||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_shortnotice')
+							||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_halfhourdiscussion_from_question')
+							||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_unstarred')
+							||((internalStatusType=='question_system_putup' || internalStatusType=='question_system_groupchanged') && (selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse'))
+							||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && (selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse'))
 							}">
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					<security:authorize access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
