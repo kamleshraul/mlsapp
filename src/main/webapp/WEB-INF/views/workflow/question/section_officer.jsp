@@ -116,7 +116,7 @@
 		var rejectedWithReason = $("#internalStatusMaster option[value='question_processed_rejectionWithReason']").text();
 		var dateAndAnswerReceived = $("#internalStatusMaster option[value='question_processed_dateAndAnswerReceived']").text();
 		var clarificationReceived = $("#internalStatusMaster option[value='question_processed_clarificationReceived']").text();
-		var clarificationFromMemberAndDepartment=$("#internalStatusMaster option[value='question_recommend_clarificationNeededFromMemberAndDepartment']").text();
+		var clarificationFromMemberAndDepartment=$("#internalStatusMaster option[value='question_recommend_clarificationNeededFromMemberAndDepartment']").text();		
 		var departmentIntimated = $("#internalStatusMaster option[value='question_processed_departmentIntimated']").text();
 		var questionType = $("#selectedQuestionType").val();
 		var recommendRepeatAdmission = $("#internalStatusMaster option[value='question_recommend_repeatadmission']").text();
@@ -1408,7 +1408,6 @@
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
-	<form:hidden path="ballotStatus"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
