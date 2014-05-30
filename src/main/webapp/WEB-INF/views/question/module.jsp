@@ -473,8 +473,7 @@
 			$.prompt("Please select only one question!");
 			return false;
 		} else {			
-			$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?questionId='+selectedQuestionId+'&memberOrDepartment='+$("#memDeptReport").val());
-			//$.get('question/generateIntimationLetter?questionId='+selectedQuestionId);		    
+			$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?questionId='+selectedQuestionId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 		}		
 	}
 	/**** To Generate Clubbed Intimation Letter ****/
@@ -496,8 +495,7 @@
 					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 				}
 				scrollTop();
-			});
-			//$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?questionId='+selectedQuestionId+'&memberOrDepartment='+$("#memDeptReport").val());
+			});			
 		}		
 	}
 	function loadSubDepartmentsFromGroup(group){

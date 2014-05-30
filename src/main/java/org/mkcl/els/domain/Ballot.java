@@ -2116,23 +2116,42 @@ public class Ballot extends BaseDomain implements Serializable {
 //						bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
 //						memberNames+=","+bufferFirstNamesFirst.toString();
 //					}
-//				}	
+//				}
 				String houseType = session.findHouseType();
 				String allMemberNames = "";
 				CustomParameter memberNameFormatParameter = null;
+				String memberNameFormat = null;
 				if(houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
 					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_YADI_MEMBERNAMEFORMAT_LOWERHOUSE", "");
 					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
-						allMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormatParameter.getValue());
+						memberNameFormat = memberNameFormatParameter.getValue();						
 					} else {
-						allMemberNames = q.findAllMemberNamesWithConstituencies(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
-					}					
+						memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
+					}
+					allMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormat);
 				} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+					Member pmember = Member.findById(Member.class, questionSequenceVO.getMemberId());
 					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_YADI_MEMBERNAMEFORMAT_UPPERHOUSE", "");
 					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
-						allMemberNames = q.findAllMemberNames(memberNameFormatParameter.getValue());
+						memberNameFormat = memberNameFormatParameter.getValue();						
 					} else {
-						allMemberNames = q.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+						memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
+					}
+					allMemberNames = q.findAllMemberNames(memberNameFormat);
+					if(pmember!=null) {
+						String pmemberName = pmember.findNameInGivenFormat(memberNameFormat);
+						String[] allMemberNamesArr = allMemberNames.split(",");
+						if(allMemberNames!=null && !(allMemberNamesArr[0].equals(pmemberName))) {
+							StringBuffer revisedAllMemberNames = new StringBuffer();
+							for(int i=1; i<allMemberNamesArr.length; i++) {
+								if(i==1) {
+									revisedAllMemberNames.append(allMemberNamesArr[i].substring(1, allMemberNamesArr[i].length()));
+								} else {
+									revisedAllMemberNames.append("," + allMemberNamesArr[i]);
+								}
+							}
+							allMemberNames = revisedAllMemberNames.toString();
+						}
 					}					
 				}
 				List<Title> titles = Title.findAll(Title.class, "name", ApplicationConstants.ASC, locale);

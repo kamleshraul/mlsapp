@@ -187,6 +187,7 @@ public class QuestionReportController extends BaseController{
 
 		String strQuestionId = request.getParameter("questionId");		
 		String strWorkflowId = request.getParameter("workflowId");
+		String intimationLetterFilter=request.getParameter("intimationLetterFilter");
 
 		//in case if request comes from workflow page, question id is retrived from workflow details
 		if(strWorkflowId!=null && !strWorkflowId.isEmpty()) {
@@ -383,18 +384,30 @@ public class QuestionReportController extends BaseController{
 						if(referrredQuestionAnsweringDate!=null) {
 							letterVO.setReferredQuestionAnsweringDate(FormaterUtil.formatDateToString(referrredQuestionAnsweringDate, ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString()));
 						}
-					}
-					if(question.getDiscussionDate()!=null) {
-						letterVO.setAnsweringDate(FormaterUtil.formatDateToString(question.getDiscussionDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString()));
-					}
+					}					
+				}
+				
+				/**** populating fields for half-hour discussion (standalone) ****/
+				if(question.getReason()!=null) {
+					letterVO.setReason(question.getReason());
+				} else {
+					letterVO.setReason("");
+				}
+				if(question.getBriefExplanation()!=null) {
+					letterVO.setBriefExplanation(question.getBriefExplanation());
+				} else {
+					letterVO.setBriefExplanation("");
+				}
+				
+				if(question.getDiscussionDate()!=null) {
+					letterVO.setDiscussionDate(FormaterUtil.formatDateToString(question.getDiscussionDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString()));
 				}
 
-				String memberOrDepartment=request.getParameter("memberOrDepartment");
-				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && memberOrDepartment!=null && memberOrDepartment.equals(ApplicationConstants.MEMBER)
-						|| statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && memberOrDepartment!=null && memberOrDepartment.equals(ApplicationConstants.MEMBER)){
+				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)){
 					statusType=ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
-				}else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && memberOrDepartment!=null && memberOrDepartment.equals(ApplicationConstants.DEPARTMENT)
-						|| statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && memberOrDepartment!=null && memberOrDepartment.equals(ApplicationConstants.DEPARTMENT)){
+				}else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)){
 					statusType=ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT;
 				}
 				if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
@@ -479,18 +492,22 @@ public class QuestionReportController extends BaseController{
 					if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
 						&& question.getDateOfAnsweringByMinister()!=null 
 						&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_FINAL_ADMITTED)
-						&& memberOrDepartment.equals(ApplicationConstants.MEMBER)){
+						&& intimationLetterFilter.equals(ApplicationConstants.MEMBER)){
 						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_member", "WORD", "intimation_letter", locale.toString());
 					}else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
 							&& question.getDateOfAnsweringByMinister()!=null 
 							&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_FINAL_ADMITTED)
-							&& memberOrDepartment.equals(ApplicationConstants.DEPARTMENT)){
+							&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)){
 							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_department", "WORD", "intimation_letter", locale.toString()); 
 					}else if((status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
 							|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION))
 							&& (!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION))) {
 						reportFile = generateReportUsingFOP(letterVO, "question_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
-					}else {
+					}else if(intimationLetterFilter!=null && intimationLetterFilter.equals("prestatus")) {
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_prestatus_"+statusTypeSplit, "WORD", "_intimation_letter", locale.toString());
+					}else if(intimationLetterFilter!=null && intimationLetterFilter.equals("discussionDate")) {
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_discussiondate_"+statusTypeSplit, "WORD", "_intimation_letter", locale.toString());
+					} else {
 						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
 					}					
 					System.out.println("Intimation Letter generated successfully in WORD format!");

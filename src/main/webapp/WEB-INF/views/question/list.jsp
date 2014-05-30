@@ -210,10 +210,12 @@
 				<a href="#" id="generateIntimationLetter" class="butSim">
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
 				</a> 				
-				<select id="memDeptReport" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
+				<select id="intimationLetterFilter" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
 						<option value="-">-</option>
-					 	<option value="member"><spring:message code='generic.usergroup.member' text='member' /></option>
-						<option value="department"><spring:message code='generic.usergroup.department' text='department' /></option>
+					 	<option value="member"><spring:message code='question.intimationletter.member' text='member' /></option>
+						<option value="department"><spring:message code='question.intimationletter.department' text='department' /></option>
+						<option value="prestatus"><spring:message code='question.intimationletter.prestatus' text='pre-status' /></option>
+						<option value="discussionDate"><spring:message code='question.intimationletter.discussiondate' text='discussion date' /></option>
 				</select> | 
 				<a href="#" id="generateClubbedIntimationLetter" class="butSim">
 					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>

@@ -45,6 +45,8 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String answeringDate;
 	
+	private String discussionDate;
+	
 	private String questionReferenceText;
 	
 	private String lastSendingDateToDepartment;
@@ -64,6 +66,10 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	private String referredQuestionMemberName;
 	
 	private String referredQuestionAnsweringDate;
+	
+	private String reason;
+	
+	private String briefExplanation;	
 
 	@XmlElement(name = "deviceType")
 	public String getDeviceType() {
@@ -218,6 +224,15 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 		this.answeringDate = answeringDate;
 	}
 
+	@XmlElement(name = "discussionDate")
+	public String getDiscussionDate() {
+		return discussionDate;
+	}
+
+	public void setDiscussionDate(String discussionDate) {
+		this.discussionDate = discussionDate;
+	}
+
 	@XmlElement(name = "questionReferenceText")
 	public String getQuestionReferenceText() {
 		return questionReferenceText;
@@ -310,6 +325,24 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	public void setReferredQuestionAnsweringDate(
 			String referredQuestionAnsweringDate) {
 		this.referredQuestionAnsweringDate = referredQuestionAnsweringDate;
+	}
+
+	@XmlElement(name = "reason")
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	@XmlElement(name = "bExplanation")
+	public String getBriefExplanation() {
+		return briefExplanation;
+	}
+
+	public void setBriefExplanation(String briefExplanation) {
+		this.briefExplanation = briefExplanation;
 	}	
 
 }
