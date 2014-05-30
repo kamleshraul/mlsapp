@@ -81,7 +81,7 @@
 							var value = $(this).val();
 							var text = $("#deviceTypeMaster option[value='"+ value + "']").text();
 							
-							if(!text.startsWith("questions_halfhourdiscussion_")){
+							if(text.indexOf("questions_halfhourdiscussion_")==-1){
 								$("#hdReportsDiv").hide();
 							}else{
 								$("#hdReportsDiv").show();
