@@ -1805,11 +1805,15 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		for(int i = 0; i < deviceTypeIds.length; i++){
 			exclusiveDeviceTypeIds.add(deviceTypeIds[i]);
 		}
+		
+		Status yaadiLaid = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_YAADILAID, locale);
+		
 		String strQuery = "SELECT q FROM Question q" +
 						" WHERE q.session.id=:sessionId" +
 						" AND q.number=:number" +
 						" AND q.type.id NOT IN (:deviceTypeIds)" +
-						" AND q.status.id=:status";
+						" AND q.status.id=:status" +
+						" AND q.internalStatus.id=:yaadiLaidId";
 		
 		Status admitted = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
 		TypedQuery<Question> jpQuery = this.em().createQuery(strQuery, Question.class);
@@ -1817,6 +1821,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		jpQuery.setParameter("number", number);
 		jpQuery.setParameter("deviceTypeIds", exclusiveDeviceTypeIds);
 		jpQuery.setParameter("status", admitted.getId());
+		jpQuery.setParameter("yaadiLaidId", yaadiLaid.getId());
+		
 		Question question = null;
 		try{
 			List<Question> tempList = jpQuery.getResultList();
