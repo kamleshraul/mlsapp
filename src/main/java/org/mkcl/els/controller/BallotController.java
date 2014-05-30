@@ -395,6 +395,7 @@ public class BallotController extends BaseController{
 									if(device instanceof Question){
 										Question q = (Question) device;
 										q.setBallotStatus(balloted);
+										q.setDiscussionDate(answeringDate);
 										q.simpleMerge();
 									}
 								}
