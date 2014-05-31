@@ -25,26 +25,30 @@
 
 <c:otherwise>
 <div id="reportDiv">
-<label class="small"><spring:message code="question.ballot.answeringDate" text="Answering Date"/>: ${answeringDate}</label>
-
-<table class="strippedTable" border="1">
-	<thead>
-		<tr>
-			<th><spring:message code="general.srnumber" text="Serial Number"/></th>
-			<th><spring:message code="member.name" text="Member Name"/></th>
-		</tr>
-	</thead>
-	<tbody>
-		<c:set var="counter" value="1" />
-		<c:forEach items="${ballotVOs}" var="ballotVO">
+	<div style="font-size: 22px; font-weight: bold; text-align: center;">
+		<spring:message code="question.ballot.hdq.assembly" text="Discussion Date"/>
+		<spring:message code="question.ballot.discussionDate" text="Discussion Date"/> : ${answeringDate}
+	</div>
+	<table class="strippedTable" border="1">
+		<thead>
 			<tr>
-				<td>${counter}</td>
-				<td>${ballotVO[1]}</td>
+				<th style="width: 60px; text-align: center;"><spring:message code="general.srnumber" text="Serial Number"/></th>
+				<th style="width: 200px; text-align: center;"><spring:message code="member.name" text="Member Name"/></th>
+				<th style="width: 480px; text-align: center;"><spring:message code="question.choices" text="Questions"/></th>
 			</tr>
-		<c:set var="counter" value="${counter + 1}" />
-		</c:forEach>
-	</tbody>
-</table>
+		</thead>
+		<tbody>
+			<c:set var="counter" value="1" />
+			<c:forEach items="${ballotVOs}" var="ballotVO">
+			<tr>
+				<td style="width: 60px; text-align: center;">${counter}</td>
+				<td style="width: 200px; text-align: center;">${ballotVO[1]}</td>
+				<td style="width: 480px;">&nbsp;</td>
+			</tr>
+			<c:set var="counter" value="${counter + 1}" />
+			</c:forEach>
+		</tbody>
+	</table>
 </div>
 </c:otherwise>
 </c:choose>

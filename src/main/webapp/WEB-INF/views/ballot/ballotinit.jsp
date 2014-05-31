@@ -452,12 +452,12 @@
 				<spring:message code="ballotinitial.viewballot" text="View Ballot"/>
 			</a>
 			<c:if test="${deviceTypeType != 'bills_nonofficial' and not(fn:contains(deviceTypeType, 'resolutions_')) and not(fn:contains(deviceTypeType, 'standalone'))}"> | 
-			<a href="#" id="view_yaadi" class="butSim">
-				<spring:message code="ballotinitial.viewyaadi" text="View Yaadi"/>
-			</a> | 
-			<a href="#" id="view_suchi" class="butSim">
-				<spring:message code="ballotinitial.viewsuchi" text="View Suchi"/>
-			</a>
+				<a href="#" id="view_yaadi" class="butSim">
+					<spring:message code="ballotinitial.viewyaadi" text="View Yaadi"/>
+				</a> | 
+				<a href="#" id="view_suchi" class="butSim">
+					<spring:message code="ballotinitial.viewsuchi" text="View Suchi"/>
+				</a>
 			<c:if test="${not empty outputFormats}">				
 				<select id="outputFormat" name="outputFormat">
 					<option value="" selected="selected">Please Select Output Format</option>
