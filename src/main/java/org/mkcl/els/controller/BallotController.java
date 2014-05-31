@@ -426,6 +426,8 @@ public class BallotController extends BaseController{
 		String retVal = "ballot/error";
 		try {
 
+			model.addAttribute("formater", new FormaterUtil());
+			model.addAttribute("locale", locale.toString());
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
@@ -454,6 +456,7 @@ public class BallotController extends BaseController{
 
 			deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 			model.addAttribute("deviceType", deviceType.getType());
+			model.addAttribute("deviceName", deviceType.getName());
 
 			Group group = null;
 			if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
