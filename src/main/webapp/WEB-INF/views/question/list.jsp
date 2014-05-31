@@ -122,7 +122,7 @@
 			});
 			
 			var selectedDeviceType = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
-			if(!selectedDeviceType.startsWith("questions_halfhourdiscussion_")){
+			if(selectedDeviceType.indexOf("questions_halfhourdiscussion_")==-1){
 				$("#hdReportsDiv").hide();
 			}else{
 				$("#hdReportsDiv").show();
