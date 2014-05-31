@@ -753,6 +753,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 							&& question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
 							){
 							isSupportingOrClubbedMemberToBeAddedForDevice = true;
+						}else if(!this.isPresentInMemberBallotAttendanceUH(session,deviceType,question.getLocale())
+							&& this.isActiveMemberOn(currentDate, question.getLocale())
+							&& !question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
+							){
+							isSupportingOrClubbedMemberToBeAddedForDevice = false;
 						}else if(this.isActiveMemberOn(currentDate, question.getLocale())){
 							isSupportingOrClubbedMemberToBeAddedForDevice = true;
 						}

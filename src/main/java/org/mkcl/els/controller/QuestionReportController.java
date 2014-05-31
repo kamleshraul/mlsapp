@@ -388,16 +388,35 @@ public class QuestionReportController extends BaseController{
 				}
 				
 				/**** populating fields for half-hour discussion (standalone) ****/
-				if(question.getReason()!=null) {
-					letterVO.setReason(question.getReason());
+				if(question.getRevisedReason()!=null && !question.getRevisedReason().isEmpty()) {
+					formattedText = question.getRevisedReason();
+				} else if(question.getReason()!=null) {
+					formattedText = question.getReason();					
 				} else {
-					letterVO.setReason("");
+					formattedText = "";
 				}
-				if(question.getBriefExplanation()!=null) {
-					letterVO.setBriefExplanation(question.getBriefExplanation());
+				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, locale.toString());
+				if(formattedText.endsWith("<br><p></p>")) {
+					formattedText = formattedText.substring(0, formattedText.length()-11);
+				} else if(formattedText.endsWith("<p></p>")) {
+					formattedText = formattedText.substring(0, formattedText.length()-7);
+				}
+				letterVO.setReason(formattedText);
+				
+				if(question.getRevisedBriefExplanation()!=null && !question.getRevisedBriefExplanation().isEmpty()) {
+					formattedText = question.getRevisedBriefExplanation();
+				} else if(question.getBriefExplanation()!=null) {
+					formattedText = question.getBriefExplanation();
 				} else {
-					letterVO.setBriefExplanation("");
+					formattedText = "";					
 				}
+				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, locale.toString());
+				if(formattedText.endsWith("<br><p></p>")) {
+					formattedText = formattedText.substring(0, formattedText.length()-11);
+				} else if(formattedText.endsWith("<p></p>")) {
+					formattedText = formattedText.substring(0, formattedText.length()-7);
+				}
+				letterVO.setBriefExplanation(formattedText);
 				
 				if(question.getDiscussionDate()!=null) {
 					letterVO.setDiscussionDate(FormaterUtil.formatDateToString(question.getDiscussionDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString()));
