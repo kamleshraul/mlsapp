@@ -3032,7 +3032,7 @@ public class BallotController extends BaseController{
 			}else if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 
 				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ){
-					retVal = this.halfHourPreBallot(model, session, deviceType, answeringDate, locale.toString());
+					retVal = this.hdqPreBallotAssembly(model, session, deviceType, answeringDate, locale.toString());
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 					retVal = this.hdsPreBallotAssembly(model, session, deviceType, answeringDate, locale.toString());
 				}else if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
@@ -3137,6 +3137,24 @@ public class BallotController extends BaseController{
 			return "ballot/error";
 		}
 	}
+	
+	private String hdqPreBallotAssembly(final ModelMap model,
+			final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotMemberVO> ballotVOs;
+		try {
+			ballotVOs = Ballot.findPreBallotMemberVO(session, deviceType, answeringDate, locale);
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/hdq_preballot_assembly";
+		} catch (ELSException e) {
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error";
+		}
+	}
+	
 
 	private String hdsPreBallotCouncil(final ModelMap model,
 			final Session session,
