@@ -750,7 +750,7 @@
 	                		<fo:block text-align="center" font-size="9pt" font-weight="bold">
 	                			<xsl:value-of select="subject"/>
 	                		</fo:block>
-	                		<fo:block font-size="9pt">&#160;</fo:block>
+	                		<fo:block font-size="5pt">&#160;</fo:block>
 	                		<fo:block font-weight="bold">	                			
                 				(<xsl:value-of select="serialNumber"/>)
                 				<fo:inline vertical-align="super" font-size="15pt">*</fo:inline>
@@ -796,7 +796,7 @@
 	                				</xsl:otherwise>
 	                			</xsl:choose>	                			
 	                		</fo:block>
-	                		<fo:block font-size="9pt">&#160;</fo:block>
+	                		<!-- <fo:block font-size="9pt">&#160;</fo:block> -->
 	                		<fo:block text-align="center">
 	                			-----------------
 	                		</fo:block>
