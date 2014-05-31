@@ -1251,9 +1251,12 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public String findBallotedMembers(final Session session, final DeviceType deviceType){
-		String retVal = null;	
-		StringBuffer query = new StringBuffer("SELECT GROUP_CONCAT(qqq.member_id),qqq.revised_subject" +
+	public String findBallotedMembers(final Session session, final String memberNotice, final DeviceType deviceType){
+		StringBuffer retVal = null;	
+		StringBuffer query = null;
+		
+		if(memberNotice.equals("notice")){
+			query = new StringBuffer("SELECT GROUP_CONCAT(qqq.member_id),qqq.revised_subject" +
 									" FROM questions qqq" +
 									" WHERE qqq.id IN(SELECT ds.device_id" + 
 									" FROM ballots b" + 
@@ -1263,22 +1266,48 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 									" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" + 
 									" WHERE b.session_id=:sessionId" + 
 									" AND b.devicetype_id=:deviceTypeId)");
+		}else if(memberNotice.equals("member")){
+			query = new StringBuffer("SELECT DISTINCT qqq.member_id,'0' AS randomData" +
+										" FROM questions qqq" +
+										" WHERE qqq.member_id IN(SELECT be.member_id" +
+										" FROM ballots b" +
+										" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+										" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
+										" WHERE b.session_id=:sessionId" +
+										" AND b.devicetype_id=:deviceTypeId)");
+		}
 		
 		Query tQuery = this.em().createNativeQuery(query.toString());
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("deviceTypeId", deviceType.getId());
 				
 		List data = tQuery.getResultList();
-		if(data != null && !data.isEmpty()){
-			for(Object o : data){
-				Object[] obj = (Object[])o;
-				if(obj[0] != null){
-					retVal = obj[0].toString();
-					break;
+		if(memberNotice.equals("member")){
+			if(data != null && !data.isEmpty()){
+				retVal = new StringBuffer();
+				for(int i = 0; i < data.size(); i++){
+					Object[] obj = (Object[])data.get(i);
+					if(obj[0] != null){
+						retVal.append(obj[0].toString());
+						if(i < (data.size() - 1)){
+							retVal.append(",");
+						}
+					}
+				}
+			}
+		}else if(memberNotice.equals("notice")){
+			if(data != null && !data.isEmpty()){
+				retVal = new StringBuffer();
+				for(Object o : data){
+					Object[] obj = (Object[])o;
+					if(obj[0] != null){
+						retVal.append(obj[0].toString());
+						break;
+					}
 				}
 			}
 		}
-		return retVal;
+		return retVal.toString();
 	}
 	
 	@SuppressWarnings("rawtypes")
