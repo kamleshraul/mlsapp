@@ -1277,6 +1277,11 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						&& question.containsClubbingFromSecondBatch(session,member,locale)
 						){
 					allowed=true;
+				}else if(!member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+						&& member.isActiveMemberOn(currentDate, locale)
+						&& !question.containsClubbingFromSecondBatch(session,member,locale)
+						){
+					allowed=false;
 				}else if(member.isActiveMemberOn(currentDate, locale)){		
 					allowed=true;
 				}
@@ -1318,6 +1323,11 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						&& question.containsClubbingFromSecondBatch(session,member,locale)
 						){
 					allowed=true;
+				}else if(!member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+						&& member.isActiveMemberOn(currentDate, locale)
+						&& !question.containsClubbingFromSecondBatch(session,member,locale)
+						){
+					allowed=false;
 				}else if(member.isActiveMemberOn(currentDate, locale)){		
 					allowed=true;
 				}
@@ -1338,6 +1348,11 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 									&& question.containsClubbingFromSecondBatch(session,supportingMember,locale)
 									){
 								supportingAllowed=true;
+							}else if(!member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+									&& member.isActiveMemberOn(currentDate, locale)
+									&& !question.containsClubbingFromSecondBatch(session,member,locale)
+									){
+								allowed=false;
 							}else if(supportingMember.isActiveMemberOn(currentDate, locale)){		
 								supportingAllowed=true;
 							}
