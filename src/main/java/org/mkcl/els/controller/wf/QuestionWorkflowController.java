@@ -2034,7 +2034,9 @@ public class QuestionWorkflowController  extends BaseController{
 							wfDetails.setInternalStatus(question.getInternalStatus().getName());
 							wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
 							wfDetails.setCompletionTime(new Date());
-							wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+							if(!question.getType().getType().startsWith("questions_halfhourdiscussion_")){
+								wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+							}
 							wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
 							wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
 							wfDetails.merge();
@@ -2271,7 +2273,10 @@ public class QuestionWorkflowController  extends BaseController{
 		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_REPEATREJECTION)
 				&&recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REPEATREJECTION)){
 			performActionOnRejection(domain);
-		}		
+		}else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&& recommendationStatus.equals("question_processed_clarificationReceived")){
+			performActionOnClarificationNeededFromMember(domain);
+		}
 	}
 
 	private void performActionOnAdmission(Question domain) {
@@ -3003,8 +3008,12 @@ public class QuestionWorkflowController  extends BaseController{
 	}
 
 	private void performActionOnClarificationNeededFromMember(Question domain) {
-		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER, domain.getLocale());
-		domain.setStatus(finalStatus);
+		
+		Status submitted = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
+		Status tobePutUp = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+		
+		domain.setStatus(submitted);
+		domain.setInternalStatus(tobePutUp);
 
 		if(domain.getRevisedSubject()==null){			
 			domain.setRevisedSubject(domain.getSubject());			
