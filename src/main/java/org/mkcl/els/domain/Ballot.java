@@ -29,6 +29,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.apache.poi.ss.formula.ptg.MemErrPtg;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -414,9 +415,9 @@ public class Ballot extends BaseDomain implements Serializable {
 			
 			List<Member> members = null;
 			if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
-				members = Ballot.computeMembers(session, deviceType, answeringDate, locale);
+				members = Ballot.computeMembers(session, deviceType, answeringDate, false, locale);
 			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
-				members = Ballot.computeMembers(session,deviceType, answeringDate, locale);
+				members = Ballot.computeMembers(session,deviceType, answeringDate, false, locale);
 			}
 			for(Member m: members) {
 				BallotMemberVO preBallotMemberVO = new BallotMemberVO();
@@ -440,7 +441,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 		List<Member> members = null;
 		
-		members = Ballot.computeMembers(session, deviceType, answeringDate, locale);
+		members = Ballot.computeMembers(session, deviceType, answeringDate, false, locale);
 		
 		for(Member m: members) {
 			BallotMemberVO preBallotMemberVO = new BallotMemberVO();
@@ -1028,23 +1029,19 @@ public class Ballot extends BaseDomain implements Serializable {
 				this.getAnsweringDate(), this.getLocale());
 		
 		if(ballot == null) {
-			List<Member> computedList = Ballot.computeMembers(this.getSession(),
-					this.getDeviceType(),
-					this.getAnsweringDate(),
-					this.getLocale());
-			
+			List<Member> computedList = null;
 			CustomParameter csptUniqueFlag = CustomParameter.findByName(CustomParameter.class, this.getDeviceType().getType().toUpperCase() + "_" + this.getSession().getHouse().getType().getType().toUpperCase() + "_UNIQUE_FLAG_MEMBER_BALLOT", "");
-			List<Member> newComputedList = new ArrayList<Member>();
 			
 			if(csptUniqueFlag != null && csptUniqueFlag.getValue() != null && !csptUniqueFlag.getValue().isEmpty()){
 				if(csptUniqueFlag.getValue().equalsIgnoreCase("YES")){
-					newComputedList = getUniqueMembers(session, deviceType, computedList);
+					computedList = Ballot.computeMembers(this.getSession(),
+								this.getDeviceType(),
+								this.getAnsweringDate(),
+								true,
+								this.getLocale());
 				}
-			}else{
-				newComputedList.addAll(computedList);
 			}
 			
-			List<Member> randomizedList = Ballot.randomizeMembers(newComputedList);
 			// Read the constant 3 as a configurable parameter
 			CustomParameter hdqAssemblyBallotOutPutCount = CustomParameter.findByName(CustomParameter.class, "HDQ_ASSEMBLY_BALLOT_OUTPUT_COUNT", "");
 			if(hdqAssemblyBallotOutPutCount == null){
@@ -1052,7 +1049,21 @@ public class Ballot extends BaseDomain implements Serializable {
 				elsException.setParameter("HDQ_ASSEMBLY_BALLOT_OUTPUT_COUNT", "Custom Parameters for HDQ_ASSEMBLY_BALLOT_OUTPUT_COUNT is not set.");
 				throw elsException;
 			}
-			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, Integer.valueOf(hdqAssemblyBallotOutPutCount.getValue()));
+			
+			int outPutCount = Integer.parseInt(hdqAssemblyBallotOutPutCount.getValue());
+			
+			List<Member> finalComputedList = getUniqueMembers(session, deviceType, computedList, "member");
+			if(finalComputedList.size() < outPutCount){
+				finalComputedList = Ballot.computeMembers(this.getSession(),
+						this.getDeviceType(),
+						this.getAnsweringDate(),
+						false,
+						this.getLocale());
+			}
+			
+			List<Member> randomizedList = Ballot.randomizeMembers(finalComputedList);
+			
+			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, outPutCount);
 			
 			List<BallotEntry> ballotEntries = Ballot.createMemberBallotEntries(selectedList,
 					this.getLocale());
@@ -1063,9 +1074,9 @@ public class Ballot extends BaseDomain implements Serializable {
 		return ballot;
 	}
 	
-	private List<Member> getUniqueMembers(Session session, DeviceType deviceType, List<Member> members){
+	private List<Member> getUniqueMembers(Session session, DeviceType deviceType, List<Member> members, String memberNotice){
 		StringBuffer memberList = new StringBuffer("");
-		String returnData = Question.findBallotedMembers(session, deviceType);
+		String returnData = Question.findBallotedMembers(session, memberNotice, deviceType);
 		memberList.append(( returnData == null)? "":returnData);
 		List<Member> newMs = new ArrayList<Member>();
 		if(!memberList.toString().isEmpty()){
@@ -1077,6 +1088,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		}else{
 			newMs.addAll(members);
 		}
+		
 		return newMs;
 	}
 	
@@ -1098,13 +1110,41 @@ public class Ballot extends BaseDomain implements Serializable {
 				this.getAnsweringDate(), this.getLocale());
 		
 		if(ballot == null) {
-			List<Member> computedList = Ballot.computeMembers(this.getSession(),
-					this.getDeviceType(),
-					this.getAnsweringDate(),
-					this.getLocale());
-			List<Member> randomizedList = Ballot.randomizeMembers(computedList);
+			List<Member> computedList = null;
+			
+			CustomParameter csptUniqueFlag = CustomParameter.findByName(CustomParameter.class, this.getDeviceType().getType().toUpperCase() + "_" + this.getSession().getHouse().getType().getType().toUpperCase() + "_UNIQUE_FLAG_MEMBER_BALLOT", "");
+			
+			if(csptUniqueFlag != null && csptUniqueFlag.getValue() != null && !csptUniqueFlag.getValue().isEmpty()){
+				if(csptUniqueFlag.getValue().equalsIgnoreCase("YES")){
+					computedList = Ballot.computeMembers(this.getSession(),
+								this.getDeviceType(),
+								this.getAnsweringDate(),
+								true,
+								this.getLocale());
+				}
+			}
+			
 			// Read the constant 2 as a configurable parameter
-			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, 2);
+			CustomParameter hdsAssemblyBallotOutPutCount = CustomParameter.findByName(CustomParameter.class, "HDS_ASSEMBLY_BALLOT_OUTPUT_COUNT", "");
+			if(hdsAssemblyBallotOutPutCount == null){
+				ELSException elsException = new ELSException();
+				elsException.setParameter("HDS_ASSEMBLY_BALLOT_OUTPUT_COUNT", "Custom Parameters for HDQ_ASSEMBLY_BALLOT_OUTPUT_COUNT is not set.");
+				throw elsException;
+			}
+			
+			int outPutCOunt = Integer.parseInt(hdsAssemblyBallotOutPutCount.getValue());
+			List<Member> finalComputedList = getUniqueMembers(session, deviceType, computedList, "member");
+			if(finalComputedList.size() < outPutCOunt){
+				finalComputedList = Ballot.computeMembers(this.getSession(),
+						this.getDeviceType(),
+						this.getAnsweringDate(),
+						false,
+						this.getLocale());
+			}
+			
+			List<Member> randomizedList = Ballot.randomizeMembers(finalComputedList);
+			// Read the constant 2 as a configurable parameter
+			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, outPutCOunt);
 			
 			List<BallotEntry> ballotEntries = Ballot.createMemberBallotEntries(selectedList,
 					this.getLocale());
@@ -1216,18 +1256,43 @@ public class Ballot extends BaseDomain implements Serializable {
 				this.getAnsweringDate(), this.getLocale());
 		
 		if(ballot == null) {
-			List<Member> computedList = Ballot.computeMembers(this.getSession(),this.getDeviceType(),this.getAnsweringDate(),this.getLocale());
-			List<Member> randomizedList = Ballot.randomizeMembers(computedList);
-			// Read the constant 5 as a configurable parameter
-			CustomParameter ballotOutputCountCustomParameter =  CustomParameter.findByFieldName(CustomParameter.class, "name", ApplicationConstants.QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_ASSEMBLY, "");
-			Integer ballotOutputCount = null;
-			if(ballotOutputCountCustomParameter != null){
-				ballotOutputCount = new Integer(ballotOutputCountCustomParameter.getValue());
-			}else{
-				ballotOutputCount = 2;
+			List<Member> computedList = null;
+			
+			CustomParameter csptUniqueFlag = CustomParameter.findByName(CustomParameter.class, this.getDeviceType().getType().toUpperCase() + "_" + this.getSession().getHouse().getType().getType().toUpperCase() + "_UNIQUE_FLAG_MEMBER_BALLOT", "");
+			if(csptUniqueFlag == null){
+				ELSException elsException = new ELSException();
+				elsException.setParameter("QUESTIONS_HALFHOURDISCUSSION_STANDALONE_UNIQUE_FLAG_MEMBER_BALLOT", "Custom Parameters for QUESTIONS_HALFHOURDISCUSSION_STANDALONE_UNIQUE_FLAG_MEMBER_BALLOT is not set.");
+				throw elsException;
 			}
 			
-			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, ballotOutputCount);
+			if(csptUniqueFlag.getValue().equalsIgnoreCase("YES")){
+				computedList = Ballot.computeMembers(this.getSession(),
+							this.getDeviceType(),
+							this.getAnsweringDate(),
+							true,
+							this.getLocale());
+			}
+			
+			// Read the constant 2 as a configurable parameter
+			CustomParameter hdsAssemblyBallotOutPutCount = CustomParameter.findByName(CustomParameter.class, "HDS_ASSEMBLY_BALLOT_OUTPUT_COUNT", "");
+			if(hdsAssemblyBallotOutPutCount == null){
+				ELSException elsException = new ELSException();
+				elsException.setParameter("HDS_ASSEMBLY_BALLOT_OUTPUT_COUNT", "Custom Parameters for HDQ_ASSEMBLY_BALLOT_OUTPUT_COUNT is not set.");
+				throw elsException;
+			}
+			
+			int outPutCount = Integer.parseInt(hdsAssemblyBallotOutPutCount.getValue());
+			List<Member> finalComputedList = getUniqueMembers(session, deviceType, computedList, "member");
+			if(finalComputedList.size() < outPutCount){
+				finalComputedList = Ballot.computeMembers(this.getSession(),
+						this.getDeviceType(),
+						this.getAnsweringDate(),
+						false,
+						this.getLocale());
+			}
+			
+			List<Member> randomizedList = Ballot.randomizeMembers(finalComputedList);
+			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, outPutCount);
 			
 			List<BallotEntry> ballotEntries = Ballot.createHDSBallotEntries(this.getSession(), this.getDeviceType(), this.getAnsweringDate(), selectedList,
 					this.getLocale());
@@ -1393,10 +1458,42 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 		if(ballot == null) {
 			
-			List<Member> computedList = Ballot.computeMembers(this.getSession(), this.getDeviceType(), 
-					this.getAnsweringDate(), this.getLocale());
-					
-			List<Member> randomizedList = Ballot.randomizeMembers(computedList);
+			List<Member> computedList = null;
+			
+			CustomParameter csptUniqueFlag = CustomParameter.findByName(CustomParameter.class, this.getDeviceType().getType().toUpperCase() + "_" + this.getSession().getHouse().getType().getType().toUpperCase() + "_UNIQUE_FLAG_MEMBER_BALLOT", "");
+			if(csptUniqueFlag == null){
+				ELSException elsException = new ELSException();
+				elsException.setParameter("QUESTIONS_HALFHOURDISCUSSION_STANDALONE_UNIQUE_FLAG_MEMBER_BALLOT", "Custom Parameters for QUESTIONS_HALFHOURDISCUSSION_STANDALONE_UNIQUE_FLAG_MEMBER_BALLOT is not set.");
+				throw elsException;
+			}
+			
+			if(csptUniqueFlag.getValue().equalsIgnoreCase("YES")){
+				computedList = Ballot.computeMembers(this.getSession(),
+							this.getDeviceType(),
+							this.getAnsweringDate(),
+							true,
+							this.getLocale());
+			}
+			
+			// Read the constant 2 as a configurable parameter
+			CustomParameter hdsAssemblyBallotOutPutCount = CustomParameter.findByName(CustomParameter.class, "HDS_ASSEMBLY_BALLOT_OUTPUT_COUNT", "");
+			if(hdsAssemblyBallotOutPutCount == null){
+				ELSException elsException = new ELSException();
+				elsException.setParameter("HDS_ASSEMBLY_BALLOT_OUTPUT_COUNT", "Custom Parameters for HDQ_ASSEMBLY_BALLOT_OUTPUT_COUNT is not set.");
+				throw elsException;
+			}
+			
+			int outPutCount = Integer.parseInt(hdsAssemblyBallotOutPutCount.getValue());
+			List<Member> finalComputedList = getUniqueMembers(session, deviceType, computedList, "member");
+			if(finalComputedList.size() < outPutCount){
+				finalComputedList = Ballot.computeMembers(this.getSession(),
+						this.getDeviceType(),
+						this.getAnsweringDate(),
+						false,
+						this.getLocale());
+			}
+			
+			List<Member> randomizedList = Ballot.randomizeMembers(finalComputedList);
 			
 			// Read the constant 5 as a configurable parameter
 			CustomParameter ballotOutputCountCP = CustomParameter.findByFieldName(CustomParameter.class, "name", ApplicationConstants.QUESTIONS_HALFHOURDISCUSSION_STANDALONE_BALLOT_OUTPUT_COUNT_COUNCIL, null);
@@ -1425,7 +1522,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		if(ballot == null) {
 			
 			List<Member> computedList = Ballot.computeMembers(this.getSession(), this.getDeviceType(), 
-					this.getAnsweringDate(), this.getLocale());
+					this.getAnsweringDate(), true, this.getLocale());
 					
 			List<Member> randomizedList = Ballot.randomizeMembers(computedList);
 			
@@ -1463,6 +1560,7 @@ public class Ballot extends BaseDomain implements Serializable {
 	private static List<Member> computeMembers(final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,
+			final Boolean isUnique,
 			final String locale) throws ELSException {
 		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 				"DB_TIMESTAMP", "");
@@ -1488,7 +1586,11 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 		List<Member> members = null;
 		//if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+		if(isUnique.booleanValue()){
 			members = Question.findPrimaryMembersByBallot(session, deviceType, answeringDate, internalStatuses, false, false, startTime, endTime, ApplicationConstants.ASC, locale);
+		}else{
+			members = Question.findPrimaryMembers(session, deviceType,answeringDate, internalStatuses, false, startTime, endTime,ApplicationConstants.ASC, locale);
+		}
 		/*}else{
 			members = Question.findPrimaryMembers(session, deviceType,answeringDate, internalStatuses, false, startTime, endTime,ApplicationConstants.ASC, locale);
 		}*/
@@ -1763,7 +1865,7 @@ public class Ballot extends BaseDomain implements Serializable {
 			
 			if(csptUniqueFlagForNoticeBallot != null && csptUniqueFlagForNoticeBallot.getValue() != null && !csptUniqueFlagForNoticeBallot.getValue().isEmpty()){
 				if(csptUniqueFlagForNoticeBallot.getValue().equalsIgnoreCase("YES")){
-					computedList = getUniqueMemberSubjectQuestion(this.getSession(), this.getDeviceType(), computedList);
+					computedList = getUniqueMemberSubjectQuestion(this.getSession(), this.getDeviceType(), computedList, "notice");
 				}
 			}
 			List<Question> randomizedList = Ballot.randomizeQuestions(computedList);
@@ -1781,9 +1883,9 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 	}	
 	
-	private List<Question> getUniqueMemberSubjectQuestion(Session session, DeviceType deviceType, List<Question> questions){
-		StringBuffer memberList = new StringBuffer(Question.findBallotedMembers(session, deviceType));
-		StringBuffer subjectList = new StringBuffer(Question.findBallotedMembers(session, deviceType));
+	private List<Question> getUniqueMemberSubjectQuestion(Session session, DeviceType deviceType, List<Question> questions, String memberNotice){
+		StringBuffer memberList = new StringBuffer(Question.findBallotedMembers(session, memberNotice, deviceType));
+		StringBuffer subjectList = new StringBuffer(Question.findBallotedMembers(session, memberNotice, deviceType));
 		List<Question> newQuestionList = new ArrayList<Question>();
 		if(questions != null && !questions.isEmpty()){
 			for(Question q : questions){
