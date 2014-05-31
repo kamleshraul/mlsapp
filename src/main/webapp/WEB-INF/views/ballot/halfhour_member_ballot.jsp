@@ -24,9 +24,22 @@
 </c:when>
 
 <c:otherwise>
-<div id="reportDiv">
-	<div style="font-size: 22px; font-weight: bold; text-align: center;">
-		<spring:message code="question.ballot.hdq.assembly" text="Discussion Date"/>
+<div id="reportDiv" style="width: 750px;">
+	<div style="width: 100%; font-weight: bold; text-align: center; font-size: 22px; ">
+		<c:choose>
+			<c:when test="${houseType=='lowerhouse'}">
+				<spring:message code="generic.maharashtra.lowerhouse" text="Maharashtra Assembly"/>
+			</c:when>
+			<c:when test="${houseType=='uppwehouse'}">
+				<spring:message code="generic.maharashtra.upperhouse" text="Maharashtra Council"/>
+			</c:when>
+		</c:choose>
+	</div>
+	<div style="width: 100%; font-weight: bold; text-align: center; ">
+		<spring:message code="question.ballot.hdq.assembly.ballot" text="${deviceName}"/>
+	</div>
+	<br>
+	<div style="width: 100%;font-size: 16px; font-weight: bold; text-align: center; width:">
 		<spring:message code="question.ballot.discussionDate" text="Discussion Date"/> : ${answeringDate}
 	</div>
 	<table class="strippedTable" border="1">
@@ -38,14 +51,12 @@
 			</tr>
 		</thead>
 		<tbody>
-			<c:set var="counter" value="1" />
-			<c:forEach items="${ballotVOs}" var="ballotVO">
-			<tr>
-				<td style="width: 60px; text-align: center;">${counter}</td>
-				<td style="width: 200px; text-align: center;">${ballotVO[1]}</td>
-				<td style="width: 480px;">&nbsp;</td>
-			</tr>
-			<c:set var="counter" value="${counter + 1}" />
+			<c:forEach items="${ballotVOs}" var="ballotVO" varStatus="counter">
+				<tr>
+					<td style="width: 60px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
+					<td style="width: 200px; text-align: center;">${ballotVO[1]}</td>
+					<td style="width: 480px;">&nbsp;</td>
+				</tr>
 			</c:forEach>
 		</tbody>
 	</table>
