@@ -25,7 +25,7 @@
 	    	<fo:layout-master-set>				
 				<fo:simple-page-master master-name="first"
 	                  	page-height="29.7cm" page-width="21cm"
-	                  	margin-top="0.5cm" margin-bottom="1.5cm"
+	                  	margin-top="2.3cm" margin-bottom="1.5cm"
 	                  	margin-left="1.5cm" margin-right="1.25cm">
 			      	<fo:region-body margin-top="0cm"/>
 			      	<fo:region-before region-name="rb-first" extent="2cm"/>
@@ -85,10 +85,14 @@
 							दिलेल्या अर्धा-तास चर्चेच्या सूचनेची आगाऊ प्रत सोबत जोडल्याप्रमाणे आहे :-						
 	            		</fo:block>  
 	            		<fo:block font-size="6px">&#160;</fo:block>    
-	            		<fo:block margin-left="1cm">
-	            			"<xsl:apply-templates select="reason"/>"
+	            		<fo:block>
+	            			&#160;&#160;&#160;&#160;
+	            			<xsl:choose>
+	            				<xsl:when test="reason!=''"><xsl:apply-templates select="reason"/></xsl:when>
+	            				<xsl:when test="bExplanation!=''"><xsl:apply-templates select="bExplanation"/></xsl:when>
+	            			</xsl:choose>	            			
 	            		</fo:block> 
-	            		<fo:block font-size="10.5px">&#160;</fo:block>      	
+	            		<fo:block font-size="12px">&#160;</fo:block>      	
 	            		<fo:block text-decoration="underline"><xsl:value-of select="houseTypeName"/> अर्धा-तास चर्चा</fo:block>			
 	            		<fo:block>अति तात्काळ</fo:block>	
 						<fo:block text-align="right">

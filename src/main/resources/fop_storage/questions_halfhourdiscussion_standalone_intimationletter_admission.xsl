@@ -25,7 +25,7 @@
 	    	<fo:layout-master-set>				
 				<fo:simple-page-master master-name="first"
 	                  	page-height="29.7cm" page-width="21cm"
-	                  	margin-top="0.5cm" margin-bottom="1.5cm"
+	                  	margin-top="2.3cm" margin-bottom="1.5cm"
 	                  	margin-left="1.5cm" margin-right="1.25cm">
 			      	<fo:region-body margin-top="0cm"/>
 			      	<fo:region-before region-name="rb-first" extent="2cm"/>
@@ -86,9 +86,13 @@
 	            		</fo:block>  
 	            		<fo:block font-size="6px">&#160;</fo:block>    
 	            		<fo:block>
-	            			&#160;&#160;&#160;&#160;&#160;&#160;<xsl:apply-templates select="reason"/>
+	            			&#160;&#160;&#160;&#160;
+	            			<xsl:choose>
+	            				<xsl:when test="reason!=''"><xsl:apply-templates select="reason"/></xsl:when>
+	            				<xsl:when test="bExplanation!=''"><xsl:apply-templates select="bExplanation"/></xsl:when>
+	            			</xsl:choose>	            			
 	            		</fo:block> 
-	            		<fo:block font-size="10.5px">&#160;</fo:block>      	
+	            		<fo:block font-size="12px">&#160;</fo:block>
 	            		<fo:block text-decoration="underline">अति तात्काळ</fo:block>			
 	            		<fo:block>अर्धा-तास चर्चा</fo:block>	
 						<fo:block text-align="right">
@@ -141,7 +145,7 @@
 							<fo:block margin-right="1.8cm">कक्ष अधिकारी</fo:block>							
 							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय.</fo:block>
 						</fo:block>
-						<fo:block font-size="6px">&#160;</fo:block>	
+						<fo:block font-size="12px">&#160;</fo:block>
 						<fo:block>
 							(१)
 							<xsl:choose>
