@@ -337,7 +337,10 @@
 						+ $("#currentusergroupType").val()+"&subDepartment="
 						+ $("#selectedSubDepartment").val());
 		var oldURL = $("#grid").getGridParam("url");
-		var baseURL = oldURL.split("?")[0];
+		var baseURL = "";
+		if(oldURL != undefined || oldURL!=''){
+			baseURL = oldURL.split("?")[0];
+		}
 		newURL = baseURL + "?" + $("#gridURLParams").val();
 		$("#grid").setGridParam({
 			"url" : newURL
