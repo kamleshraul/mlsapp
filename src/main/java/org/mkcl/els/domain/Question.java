@@ -760,8 +760,8 @@ public class Question extends Device implements Serializable {
     	return getQuestionRepository().findByBallot(session, deviceType, answeringDate, internalStatuses, hasParent, isBalloted, isMandatoryUnique, startTime, endTime, sortOrder, locale);
     }
     
-    public static String findBallotedMembers(final Session session, final DeviceType deviceType){
-    	return getQuestionRepository().findBallotedMembers(session, deviceType);
+    public static String findBallotedMembers(final Session session, final String memberNotice, final DeviceType deviceType){
+    	return getQuestionRepository().findBallotedMembers(session, memberNotice, deviceType);
     }
     
     public static String findBallotedSubjects(final Session session, final DeviceType deviceType){
