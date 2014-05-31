@@ -148,10 +148,10 @@
 			</tr>
 		#elseif($formatData.get(10)=='questions_halfhourdiscussion_from_question')
 			<tr>
-				<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				<!--<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 					उपस्थित करण्याचे मुद्दे
-				</td>
-				<td colspan="2" style="width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				</td>-->
+				<td colspan="3" style="width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 					$formatData.get(7)
 				</td>
 			</tr>		
@@ -191,7 +191,7 @@
 					<br>
 					#if($formatData.get(10)=='questions_shortnotice')
 						(&nbsp&nbsp;स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अतारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
-					#elseif($formatData.get(10).contains('question_halfhourdiscussion_'))
+					#elseif($formatData.get(10).contains('questions_halfhourdiscussion_'))
 						(&nbsp&nbsp;स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
 					#end
 					<br><br>
