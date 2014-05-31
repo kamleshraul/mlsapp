@@ -515,10 +515,10 @@
 	            <fo:simple-page-master master-name="otherPages"
                   page-height="29.7cm"
                   page-width="21cm"
-                  margin-top="4cm"
-                  margin-bottom="5cm"
-                  margin-left="4cm"
-                  margin-right="4cm">
+                  margin-top="2cm"
+                  margin-bottom="7cm"
+                  margin-left="4.5cm"
+                  margin-right="4.5cm">
 			      <fo:region-body margin-top="1cm"/>        
 			      <fo:region-before region-name="page-number" extent="2cm"/>
 			      <fo:region-after extent="1.5cm"/>
