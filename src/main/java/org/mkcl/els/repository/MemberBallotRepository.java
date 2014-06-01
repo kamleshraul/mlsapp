@@ -819,20 +819,34 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				Long lastMemberSecondBatch=new Long(0);
 
 				/**** Horizontal Scanning=first batch current date,first batch previous date,second batch current date,second batch previous date ***/
-				position=firstBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
-				position=firstBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
-				membersWithQuestionsOnlyInLastRoundPresent=membersWithFIrstBatchLastRoundQuestionsPresent(session, deviceType, requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInLastRoundPresent,
-						membersWithQuestionsOnlyInLastRoundAbsent, lastMemberFirstBatch, totalRoundsInMemberBallot, locale);
-				membersWithQuestionsOnlyInLastRoundAbsent=membersWithFIrstBatchLastRoundQuestionsAbsent(session, deviceType, requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInLastRoundPresent,
-						membersWithQuestionsOnlyInLastRoundAbsent, lastMemberFirstBatch, totalRoundsInMemberBallot, locale);
-				lastMemberFirstBatch=lastMember(memberPositionMap);
-
-				position=secondBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
-				position=secondBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
-				membersWithQuestionsOnlyInSecondBatch=membersWithSecondBatchQuestionsOnly(session, deviceType, requestMap, position, totalRoundsInMemberBallot, 
-						memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInSecondBatch, lastMemberSecondBatch, locale);
-				lastMemberSecondBatch=lastMember(memberPositionMap);
-				
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"FINAL_BALLOT_COUNCIL_SCANNING","");
+				if(customParameter!=null && customParameter.getValue().toLowerCase().equals("horizontal")){
+					position=firstBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
+					lastMemberFirstBatch=lastMember(memberPositionMap);
+					position=firstBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
+					membersWithQuestionsOnlyInLastRoundPresent=membersWithFIrstBatchLastRoundQuestionsPresent(session, deviceType, requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInLastRoundPresent,
+							membersWithQuestionsOnlyInLastRoundAbsent, lastMemberFirstBatch, totalRoundsInMemberBallot, locale);
+					membersWithQuestionsOnlyInLastRoundAbsent=membersWithFIrstBatchLastRoundQuestionsAbsent(session, deviceType, requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInLastRoundPresent,
+							membersWithQuestionsOnlyInLastRoundAbsent, lastMemberFirstBatch, totalRoundsInMemberBallot, locale);
+					position=secondBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
+					lastMemberSecondBatch=lastMember(memberPositionMap);
+					position=secondBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
+					membersWithQuestionsOnlyInSecondBatch=membersWithSecondBatchQuestionsOnly(session, deviceType, requestMap, position, totalRoundsInMemberBallot, 
+							memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInSecondBatch, lastMemberSecondBatch, locale);
+				}else{
+					position=firstBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
+					lastMemberFirstBatch=lastMember(memberPositionMap);
+					position=secondBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
+					lastMemberSecondBatch=lastMember(memberPositionMap);
+					position=firstBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
+					membersWithQuestionsOnlyInLastRoundPresent=membersWithFIrstBatchLastRoundQuestionsPresent(session, deviceType, requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInLastRoundPresent,
+							membersWithQuestionsOnlyInLastRoundAbsent, lastMemberFirstBatch, totalRoundsInMemberBallot, locale);
+					membersWithQuestionsOnlyInLastRoundAbsent=membersWithFIrstBatchLastRoundQuestionsAbsent(session, deviceType, requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInLastRoundPresent,
+							membersWithQuestionsOnlyInLastRoundAbsent, lastMemberFirstBatch, totalRoundsInMemberBallot, locale);
+					position=secondBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
+					membersWithQuestionsOnlyInSecondBatch=membersWithSecondBatchQuestionsOnly(session, deviceType, requestMap, position, totalRoundsInMemberBallot, 
+							memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInSecondBatch, lastMemberSecondBatch, locale);
+				}				
 				inactiveMemberFirstBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,
 						session,deviceType,locale,totalRoundsInMemberBallot,firstBatchSubmissionEndDateDate
 						,membersWithQuestionsOnlyInLastRoundPresent,membersWithQuestionsOnlyInLastRoundAbsent,membersWithQuestionsOnlyInSecondBatch
@@ -864,53 +878,95 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				int sequence=1;
 				int actualPosition=1;
 				Status ballotStatus=Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, locale);
-				for(java.util.Map.Entry<Long,Map<Integer, BallotEntryVO>> i:memberRoundBallotEntryVOMap.entrySet()){
-					List<BallotEntryVO> firstBatchQuestions=new ArrayList<BallotEntryVO>();
-					List<BallotEntryVO> secondBatchQuestions=new ArrayList<BallotEntryVO>();
-					for(java.util.Map.Entry<Integer, BallotEntryVO> j:i.getValue().entrySet()){
-						if(j.getValue().getSubmissionDate()!=null){
-							if((j.getValue().getSubmissionDate().before(firstBatchSubmissionEndDateDate)
-									||j.getValue().getSubmissionDate().equals(firstBatchSubmissionEndDateDate))
-									&& j.getValue().getRound()!=null 
-									&& j.getValue().getPosition()!=null
-									){
-								firstBatchQuestions.add(j.getValue());
-							}else{
-								secondBatchQuestions.add(j.getValue());
+				CustomParameter eligibleQuestionsAreSorted=CustomParameter.findByName(CustomParameter.class, "FINAL_BALLOT_COUNCIL_ELIGIBLE_QUESTIONS_SORTED", "");
+				if(eligibleQuestionsAreSorted!=null && eligibleQuestionsAreSorted.getValue().toLowerCase().equals("yes")){
+					for(java.util.Map.Entry<Long,Map<Integer, BallotEntryVO>> i:memberRoundBallotEntryVOMap.entrySet()){
+						List<BallotEntryVO> firstBatchQuestions=new ArrayList<BallotEntryVO>();
+						List<BallotEntryVO> secondBatchQuestions=new ArrayList<BallotEntryVO>();
+						List<BallotEntryVO> inactiveMemberQuestions=new ArrayList<BallotEntryVO>();
+						CustomParameter inactiveMembersQuestionsSorted=CustomParameter.findByName(CustomParameter.class,"FINAL_BALLOT_COUNCIL_INACTIVEMEMBERQUESTIONS_SORTED", "");
+						if(inactiveMembersQuestionsSorted!=null && inactiveMembersQuestionsSorted.getValue().toLowerCase().equals("yes")){
+							for(java.util.Map.Entry<Integer, BallotEntryVO> j:i.getValue().entrySet()){
+								if(j.getValue().getSubmissionDate()!=null){
+									if((j.getValue().getSubmissionDate().before(firstBatchSubmissionEndDateDate)
+											||j.getValue().getSubmissionDate().equals(firstBatchSubmissionEndDateDate))
+											&& j.getValue().getRound()!=null 
+											&& j.getValue().getPosition()!=null
+											){
+										firstBatchQuestions.add(j.getValue());
+									}else{
+										secondBatchQuestions.add(j.getValue());
+									}
+								}
+							}
+						}else{
+							for(java.util.Map.Entry<Integer, BallotEntryVO> j:i.getValue().entrySet()){
+								if(j.getValue().getSubmissionDate()!=null){
+									if((j.getValue().getSubmissionDate().before(firstBatchSubmissionEndDateDate)
+											||j.getValue().getSubmissionDate().equals(firstBatchSubmissionEndDateDate))
+											&& j.getValue().getRound()!=null 
+											&& j.getValue().getPosition()!=null
+											){
+										firstBatchQuestions.add(j.getValue());
+									}else if((j.getValue().getSubmissionDate().before(firstBatchSubmissionEndDateDate)
+											||j.getValue().getSubmissionDate().equals(firstBatchSubmissionEndDateDate))
+											&& j.getValue().getRound()==null 
+											&& j.getValue().getPosition()==null
+											){
+										inactiveMemberQuestions.add(j.getValue());
+									}							
+									else{
+										secondBatchQuestions.add(j.getValue());
+									}
+								}
 							}
 						}
-					}
-					Map<Integer, BallotEntryVO> tempMap=new HashMap<Integer, BallotEntryVO>();
-					boolean filled=false;
-					int count=0;
-					if(!firstBatchQuestions.isEmpty()){
-						Collections.sort(firstBatchQuestions,new BallotEntryVOFirstBatchComparator());
-						for(BallotEntryVO k:firstBatchQuestions){
-							if(count==totalRounds){
-								break;
+						
+						Map<Integer, BallotEntryVO> tempMap=new HashMap<Integer, BallotEntryVO>();
+						boolean filled=false;
+						int count=0;
+						if(!firstBatchQuestions.isEmpty()){
+							Collections.sort(firstBatchQuestions,new BallotEntryVOFirstBatchComparator());
+							for(BallotEntryVO k:firstBatchQuestions){
+								if(count==totalRounds){
+									break;
+								}
+								tempMap.put(count+1,k);
+								count++;
 							}
-							tempMap.put(count+1,k);
-							count++;
-						}
-						if(tempMap.size()==totalRounds){
-							filled=true;
-						}
-					}
-					if(!filled && !secondBatchQuestions.isEmpty()){
-						Collections.sort(secondBatchQuestions,new BallotEntryVOSecondBatchComparator());
-						for(BallotEntryVO k:secondBatchQuestions){
-							if(count==totalRounds){
-								break;
+							if(tempMap.size()==totalRounds){
+								filled=true;
 							}
-							tempMap.put(count+1,k);
-							count++;
 						}
-						if(tempMap.size()==totalRounds){
-							filled=true;
+						if(!filled && !secondBatchQuestions.isEmpty()){
+							Collections.sort(secondBatchQuestions,new BallotEntryVOSecondBatchComparator());
+							for(BallotEntryVO k:secondBatchQuestions){
+								if(count==totalRounds){
+									break;
+								}
+								tempMap.put(count+1,k);
+								count++;
+							}
+							if(tempMap.size()==totalRounds){
+								filled=true;
+							}
 						}
+						if(!filled && !inactiveMemberQuestions.isEmpty()){
+							for(BallotEntryVO k:inactiveMemberQuestions){
+								if(count==totalRounds){
+									break;
+								}
+								tempMap.put(count+1,k);
+								count++;
+							}
+							if(tempMap.size()==totalRounds){
+								filled=true;
+							}
+						}
+						memberRoundBallotEntryVOMap.put(i.getKey(),tempMap);
 					}
-					memberRoundBallotEntryVOMap.put(i.getKey(),tempMap);
 				}
+				
 				for(int round=1;round<=totalRounds;round++){
 					for(java.util.Map.Entry<Integer, Long> i:sortedMemberPositionMap.entrySet()){
 						BallotEntryVO ballotEntryVO=memberRoundBallotEntryVOMap.get(i.getValue()).get(round);
