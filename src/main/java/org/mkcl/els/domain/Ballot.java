@@ -2232,7 +2232,13 @@ public class Ballot extends BaseDomain implements Serializable {
 	}
 	
 	private boolean isExistingInList(String list, String data){
-		return list.contains(data);
+		boolean retVal = false;
+		if(list != null){
+			if(data != null){
+				retVal = list.contains(data);
+			}
+		}
+		return retVal;
 	}
 	
 	/**
