@@ -24,9 +24,24 @@
 </c:when>
 
 <c:otherwise>
-<div id="reportDiv">
-<label class="small"><spring:message code="question.ballot.discussionDate" text="Discussion Date"/>: ${answeringDate}</label>
-
+<div id="reportDiv" style="width: 750px;">
+	<div style="width: 100%; font-weight: bold; text-align: center; font-size: 22px; ">
+		<c:choose>
+			<c:when test="${houseType=='lowerhouse'}">
+				<spring:message code="generic.maharashtra.lowerhouse" text="Maharashtra Assembly"/>
+			</c:when>
+			<c:when test="${houseType=='upperhouse'}">
+				<spring:message code="generic.maharashtra.upperhouse" text="Maharashtra Council"/>
+			</c:when>
+		</c:choose>
+	</div>
+	<div style="width: 100%; font-weight: bold; text-align: center; ">
+		<spring:message code="question.ballot.hdq.assembly.ballot" text="${deviceName}"/>
+	</div>
+	<br>
+	<div style="width: 100%;font-size: 16px; font-weight: bold; text-align: center; width:">
+		<spring:message code="question.ballot.discussionDate" text="Discussion Date"/> : ${answeringDate}
+	</div>
 <table class="strippedTable" border="1">
 	<thead>
 		<tr>
@@ -49,7 +64,12 @@
 		</c:forEach>
 	</tbody>
 </table>
+<br>
+<div style="width: 100%; font-size: 14px; ">
+		________________<spring:message code="hd.ballot.roj" text="Dated" />
+	</div>
 </div>
+
 </c:otherwise>
 </c:choose>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>

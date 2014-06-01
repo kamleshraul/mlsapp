@@ -30,7 +30,7 @@
 			<c:when test="${houseType=='lowerhouse'}">
 				<spring:message code="generic.maharashtra.lowerhouse" text="Maharashtra Assembly"/>
 			</c:when>
-			<c:when test="${houseType=='uppwehouse'}">
+			<c:when test="${houseType=='upperhouse'}">
 				<spring:message code="generic.maharashtra.upperhouse" text="Maharashtra Council"/>
 			</c:when>
 		</c:choose>
@@ -60,6 +60,12 @@
 			</c:forEach>
 		</tbody>
 	</table>
+	<br />
+	<div style="width: 100%; font-size: 16px; ">
+		___________________ <spring:message code="question.ballot.hd.footer.roji" text="Dated"/> ${currentUser}
+		<spring:message code="question.ballot.hd.footer.roji" text="Dated"/>
+		
+	</div>
 </div>
 </c:otherwise>
 </c:choose>
