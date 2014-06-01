@@ -1162,6 +1162,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			final Boolean hasParent,
 			final Boolean isBalloted,
 			final Boolean isMandatoryUnique,
+			final Boolean isPreBallot,
 			final Date startTime,
 			final Date endTime,
 			final String sortOrder,
@@ -1176,13 +1177,26 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		// CustomParameter parameter = 
 		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
 		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-		StringBuffer query = new StringBuffer(
-				" SELECT GROUP_CONCAT(q.id),q.revised_subject FROM questions q" +
-				" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId " +
-				" AND ( q.discussion_date IS NULL OR q.discussion_date<=:strDiscussionDate)" +
-				" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime" +
-				" AND q.locale=:locale" +
-				" AND q.number IS NOT NULL");
+		
+		StringBuffer query = null;
+		
+		List<Question> questions = null;
+		if(isPreBallot.booleanValue()){
+			query = new StringBuffer(" SELECT q.* FROM questions q" +
+					" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId " +
+					" AND ( q.discussion_date IS NULL OR q.discussion_date<=:strDiscussionDate)" +
+					" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime" +
+					" AND q.locale=:locale" +
+					" AND q.number IS NOT NULL");
+		}else if(!isPreBallot.booleanValue()){
+			query = new StringBuffer(
+					" SELECT GROUP_CONCAT(q.id),q.revised_subject FROM questions q" +
+					" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId " +
+					" AND ( q.discussion_date IS NULL OR q.discussion_date<=:strDiscussionDate)" +
+					" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime" +
+					" AND q.locale=:locale" +
+					" AND q.number IS NOT NULL");
+		}
 		
 		query.append(this.getStatusFiltersNative(internalStatuses));
 		Status balloted = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_PROCESSED_BALLOTED, locale);
@@ -1195,20 +1209,36 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		if(!hasParent) {
 				query.append(" AND q.parent IS NULL");
 		}
-		if(isMandatoryUnique.booleanValue()){
-			query.append(" AND q.member_id NOT IN(SELECT" +
-				" qqq.member_id FROM questions qqq" + 
-				" WHERE qqq.id IN(SELECT ds.device_id" +
-				" FROM ballots b" +
-				" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
-				" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
-				" INNER JOIN ballot_entries_device_sequences beds ON(beds.ballot_entry_id=bbe.ballot_entry_id)" +
-				" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" +
-				" WHERE b.session_id=:sessionId" +
-				" AND b.devicetype_id=:deviceTypeId))");
+		
+		
+		if(isPreBallot.booleanValue()){
+			query.append(" ORDER BY q.submission_date ASC, q.number ASC");
 			
-			query.append(" AND q.revised_subject NOT IN (SELECT" +
-					" qqq.revised_subject FROM questions qqq" + 
+			Query tQuery = this.em().createNativeQuery(query.toString(), Question.class);
+			tQuery.setParameter("sessionId", session.getId());
+			tQuery.setParameter("deviceTypeId", deviceType.getId());
+			tQuery.setParameter("strDiscussionDate", answeringDate);
+			tQuery.setParameter("strStartTime", startTime);
+			tQuery.setParameter("strEndTime", endTime);
+			tQuery.setParameter("locale", locale);
+			
+			if(isBalloted.booleanValue()){
+				tQuery.setParameter("ballotStatus", balloted);
+			}
+			
+			List data = tQuery.getResultList();
+			
+			if(data != null && !data.isEmpty()){
+				questions = new ArrayList<Question>();
+				for(Object o : data){
+					Question q = (Question) o;						
+					questions.add(q);
+				}
+			}
+		}else if(!isPreBallot.booleanValue()){
+			if(isMandatoryUnique.booleanValue()){
+				query.append(" AND q.member_id NOT IN(SELECT" +
+					" qqq.member_id FROM questions qqq" + 
 					" WHERE qqq.id IN(SELECT ds.device_id" +
 					" FROM ballots b" +
 					" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
@@ -1217,36 +1247,52 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" +
 					" WHERE b.session_id=:sessionId" +
 					" AND b.devicetype_id=:deviceTypeId))");
-		}
-		query.append(" GROUP BY q.revised_subject");
-		//query.append(" ORDER BY q.revised_subject ASC,q.member_id ASC,q.submission_date DESC");
-
-		Query tQuery = this.em().createNativeQuery(query.toString());
-		tQuery.setParameter("sessionId", session.getId());
-		tQuery.setParameter("deviceTypeId", deviceType.getId());
-		tQuery.setParameter("strDiscussionDate", answeringDate);
-		tQuery.setParameter("strStartTime", startTime);
-		tQuery.setParameter("strEndTime", endTime);
-		tQuery.setParameter("locale", locale);
-		
-		if(isBalloted.booleanValue()){
-			tQuery.setParameter("ballotStatus", balloted);
-		}
-		
-		List data = tQuery.getResultList();
-		List<Question> questions = new ArrayList<Question>();
-		if(data != null && !data.isEmpty()){
-			for(Object o : data){
-				Object[] obj = ((Object[]) o);
-				if(obj[0] != null){
-					String[] ids = obj[0].toString().split(",");
-					
-					Question q = Question.findById(Question.class, new Long(ids[0]));
-					
-					questions.add(q);
+				
+				query.append(" AND q.revised_subject NOT IN (SELECT" +
+						" qqq.revised_subject FROM questions qqq" + 
+						" WHERE qqq.id IN(SELECT ds.device_id" +
+						" FROM ballots b" +
+						" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+						" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
+						" INNER JOIN ballot_entries_device_sequences beds ON(beds.ballot_entry_id=bbe.ballot_entry_id)" +
+						" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" +
+						" WHERE b.session_id=:sessionId" +
+						" AND b.devicetype_id=:deviceTypeId))");
+			}
+			query.append(" GROUP BY q.revised_subject");
+			query.append(" ORDER BY q.submission_date DESC, q.number DESC");
+						
+			Query tQuery = this.em().createNativeQuery(query.toString());
+			tQuery.setParameter("sessionId", session.getId());
+			tQuery.setParameter("deviceTypeId", deviceType.getId());
+			tQuery.setParameter("strDiscussionDate", answeringDate);
+			tQuery.setParameter("strStartTime", startTime);
+			tQuery.setParameter("strEndTime", endTime);
+			tQuery.setParameter("locale", locale);
+			
+			if(isBalloted.booleanValue()){
+				tQuery.setParameter("ballotStatus", balloted);
+			}
+			
+			List data = tQuery.getResultList();
+			
+			if(data != null && !data.isEmpty()){
+				questions = new ArrayList<Question>();
+				for(Object o : data){
+					Object[] obj = ((Object[]) o);
+					if(obj[0] != null){
+						String[] ids = obj[0].toString().split(",");
+						
+						Question q = Question.findById(Question.class, new Long(ids[0]));
+						
+						questions.add(q);
+					}
 				}
 			}
 		}
+		//query.append(" ORDER BY q.revised_subject ASC,q.member_id ASC,q.submission_date DESC");
+
+		
 		return questions;
 	}
 	
@@ -1307,7 +1353,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				}
 			}
 		}
-		return retVal.toString();
+		return ((retVal==null)? "":retVal.toString());
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -1338,7 +1384,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				}
 			}
 		}
-		return retVal;
+		return ((retVal==null)? "":retVal.toString());
 	}
 	
 	public Question getQuestionForMemberOfUniqueSubject(final Session session, final DeviceType deviceType, final Date answeringDate,  final Long memberID, final List<String> subjects, final String locale){
