@@ -218,6 +218,8 @@ public class Ballot extends BaseDomain implements Serializable {
 		PreBallot preBallot = PreBallot.find(session, deviceType, answeringDate, locale);
 		List<BallotEntry> ballotEntries = null;
 		
+		Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+		
 		if(preBallot == null){
 			//if does not exists create a pre ballot and save it
 			ballotEntries = Ballot.compute(session, group, answeringDate, noOfRounds, locale);
@@ -228,6 +230,7 @@ public class Ballot extends BaseDomain implements Serializable {
 				preBallot = new PreBallot(session, deviceType, answeringDate, new Date(System.currentTimeMillis()), locale);
 				preBallot.setBallotEntries(ballotEntries);
 				preBallot.persist();
+				queryParameters.put("preballotId", new String[]{preBallot.getId().toString()});
 			}
 		}else{
 			CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "QIS_STARRED_LOWERHOUSE_PREBALLOT_RECREATE_IF_EXISTS", "");
@@ -246,21 +249,21 @@ public class Ballot extends BaseDomain implements Serializable {
 						PreBallot newPreBallot = new PreBallot(session, deviceType, answeringDate, new Date(System.currentTimeMillis()), locale);
 						newPreBallot.setBallotEntries(ballotEntries);
 						newPreBallot.persist();
+						queryParameters.put("preballotId", new String[]{newPreBallot.getId().toString()});
 					}
 				}
 				else {
 					// Return the existing PreBallot
 					ballotEntries = preBallot.getBallotEntries();
+					queryParameters.put("preballotId", new String[]{preBallot.getId().toString()});
 				}
 			}
 			else {
 				// Return the existing PreBallot
 				ballotEntries = preBallot.getBallotEntries();
+				queryParameters.put("preballotId", new String[]{preBallot.getId().toString()});
 			}
 		}
-		
-		Map<String, String[]> queryParameters = new HashMap<String, String[]>();
-		queryParameters.put("preballotId", new String[]{preBallot.getId().toString()});
 		queryParameters.put("locale", new String[]{preBallot.getLocale()});
 		
 		for(BallotEntry be : ballotEntries) {
