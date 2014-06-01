@@ -655,6 +655,20 @@ import org.springframework.beans.factory.annotation.Configurable;
 	      		house, role, date, nameBeginningWith, sortOrder, locale);
 	}
 	
+	/**
+	 * Find all the members whose tenure expired between @param fromDate
+	 * and @param toDate.
+	 */
+	public static List<Member> findInactiveMembers(
+			final House house,
+			final Date fromDate,
+			final Date toDate,
+			final String locale) {
+		MemberRole role = MemberRole.find(house.getType(), "MEMBER", locale);
+		 return getMemberRepository().findInactiveMembers(
+		      		house, role, fromDate, toDate, locale);
+	}
+	
 	public static List<MasterVO> findAllMembersVOsWithGivenIdsAndWithNameContainingParam(final String memberIds, final String param) {
 		return getMemberRepository().findAllMembersVOsWithGivenIdsAndWithNameContainingParam(memberIds, param);
 	}
@@ -754,10 +768,10 @@ import org.springframework.beans.factory.annotation.Configurable;
 							){
 							isSupportingOrClubbedMemberToBeAddedForDevice = true;
 						}else if(!this.isPresentInMemberBallotAttendanceUH(session,deviceType,question.getLocale())
-							&& this.isActiveMemberOn(currentDate, question.getLocale())
-							&& !question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
-							){
-							isSupportingOrClubbedMemberToBeAddedForDevice = false;
+								&& this.isActiveMemberOn(currentDate, question.getLocale())
+								&& !question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
+								){
+								isSupportingOrClubbedMemberToBeAddedForDevice = false;
 						}else if(this.isActiveMemberOn(currentDate, question.getLocale())){
 							isSupportingOrClubbedMemberToBeAddedForDevice = true;
 						}
