@@ -66,7 +66,7 @@
 	<table class="strippedTable" border="1" style="margin-left: 25px; font-size: 15px;">
 		<thead>
 			<tr>
-				<th><spring:message code="question.preballot.serailNo" text="Sr. No."/></th>
+				<th><spring:message code="question.preballot.serialNo" text="Sr. No."/></th>
 				<th class="memberName"><spring:message code="question.preballot.member.name" text="Member Name"/></th>
 				<c:forEach begin="${questionCount+1}" end="${noOfRounds}" varStatus="cnt">
 					<th class="td"><spring:message code="qis.preballot.question${cnt.count}" text="Question ${cnt.count}"/></th>
