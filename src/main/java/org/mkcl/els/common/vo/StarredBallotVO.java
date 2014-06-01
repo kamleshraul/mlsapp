@@ -20,6 +20,8 @@ import java.util.List;
 public class StarredBallotVO {
 
 	//=============== ATTRIBUTES ====================
+	private String serialNo;
+	
 	/** The member id. */
 	private Long memberId;
 
@@ -119,5 +121,13 @@ public class StarredBallotVO {
 	 */
 	public void setQuestionSequenceVOs(final List<QuestionSequenceVO> questionSequenceVOs) {
 		this.questionSequenceVOs = questionSequenceVOs;
+	}
+
+	public String getSerialNo() {
+		return serialNo;
+	}
+
+	public void setSerialNo(String serialNo) {
+		this.serialNo = serialNo;
 	}
 }
