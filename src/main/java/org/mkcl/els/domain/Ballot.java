@@ -572,7 +572,7 @@ public class Ballot extends BaseDomain implements Serializable {
 				deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
 			List<Question> questions = null;
 			
-			questions = Ballot.computeQuestionsForHalfHour(session, deviceType, answeringDate, false, locale);
+			questions = Ballot.computeQuestionsForHalfHour(session, deviceType, answeringDate, false, true, locale);
 			
 			PreBallot preBallotHDQAssembly = new PreBallot(session, deviceType, answeringDate, new Date(), locale);
 			List<BallotEntry> preBallotEntries = new ArrayList<BallotEntry>();
@@ -2164,7 +2164,16 @@ public class Ballot extends BaseDomain implements Serializable {
 					this.getDeviceType(),
 					this.getAnsweringDate(),
 					true,
+					false,
 					this.getLocale());			
+			
+			CustomParameter csptUniqueFlagForNoticeBallot = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase() + "_" + session.getHouse().getType().getType().toUpperCase() + "_UNIQUE_FLAG_NOTICE_BALLOT", "");
+			
+			if(csptUniqueFlagForNoticeBallot != null && csptUniqueFlagForNoticeBallot.getValue() != null && !csptUniqueFlagForNoticeBallot.getValue().isEmpty()){
+				if(csptUniqueFlagForNoticeBallot.getValue().equalsIgnoreCase("YES")){
+					computedList = getUniqueMemberSubjectQuestion(this.getSession(), this.getDeviceType(), computedList, "notice");
+				}
+			}
 			
 			// Read the constant 2 as a configurable parameter
 			CustomParameter councilBallotCount = CustomParameter.findByFieldName(CustomParameter.class, "name", this.getDeviceType().getType().toUpperCase()+"_"+this.getSession().getHouse().getType().getType().toUpperCase()+"_BALLOT_OUTPUT_COUNT", "");
@@ -2181,15 +2190,10 @@ public class Ballot extends BaseDomain implements Serializable {
 						this.getDeviceType(),
 						this.getAnsweringDate(),
 						false,
+						false,
 						this.getLocale());
 			}
-			CustomParameter csptUniqueFlagForNoticeBallot = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase() + "_" + session.getHouse().getType().getType().toUpperCase() + "_UNIQUE_FLAG_NOTICE_BALLOT", "");
 			
-			if(csptUniqueFlagForNoticeBallot != null && csptUniqueFlagForNoticeBallot.getValue() != null && !csptUniqueFlagForNoticeBallot.getValue().isEmpty()){
-				if(csptUniqueFlagForNoticeBallot.getValue().equalsIgnoreCase("YES")){
-					computedList = getUniqueMemberSubjectQuestion(this.getSession(), this.getDeviceType(), computedList, "notice");
-				}
-			}
 			List<Question> randomizedList = Ballot.randomizeQuestions(computedList);
 			List<Question> selectedList = Ballot.selectQuestionsForBallot(randomizedList, Integer.valueOf(councilBallotCount.getValue()));
 			List<BallotEntry> ballotEntries = Ballot.createNoticeBallotEntries(selectedList,
@@ -2207,7 +2211,7 @@ public class Ballot extends BaseDomain implements Serializable {
 	
 	private List<Question> getUniqueMemberSubjectQuestion(Session session, DeviceType deviceType, List<Question> questions, String memberNotice){
 		StringBuffer memberList = new StringBuffer(Question.findBallotedMembers(session, memberNotice, deviceType));
-		StringBuffer subjectList = new StringBuffer(Question.findBallotedMembers(session, memberNotice, deviceType));
+		StringBuffer subjectList = new StringBuffer(Question.findBallotedSubjects(session, deviceType));
 		List<Question> newQuestionList = new ArrayList<Question>();
 		if(questions != null && !questions.isEmpty()){
 			for(Question q : questions){
@@ -2278,6 +2282,7 @@ public class Ballot extends BaseDomain implements Serializable {
 			final DeviceType deviceType,
 			final Date answeringDate,
 			final Boolean isMandatoryUnique,
+			final Boolean isPreBallot,
 			final String locale) throws ELSException {
 		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
 				"DB_TIMESTAMP", "");
@@ -2304,7 +2309,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		List<Question> questions = null;
 		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
 				|| deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
-			questions = Question.findByBallot(session, deviceType, answeringDate, internalStatuses, false, false, isMandatoryUnique, startTime, endTime, ApplicationConstants.ASC, locale);
+			questions = Question.findByBallot(session, deviceType, answeringDate, internalStatuses, false, false, isMandatoryUnique, isPreBallot, startTime, endTime, ApplicationConstants.ASC, locale);
 		}
 		
 		return questions;
