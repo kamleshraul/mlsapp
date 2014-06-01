@@ -429,6 +429,7 @@ public class BallotController extends BaseController{
 
 			model.addAttribute("formater", new FormaterUtil());
 			model.addAttribute("locale", locale.toString());
+			model.addAttribute("currentUser", this.getCurrentUser().getTitle()+" "+this.getCurrentUser().getFirstName()+" "+this.getCurrentUser().getLastName());
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
@@ -2968,11 +2969,14 @@ public class BallotController extends BaseController{
 			final Locale locale){
 		String retVal = "ballot/error";
 		try {
+			model.addAttribute("formater", new FormaterUtil());
+			model.addAttribute("locale", locale.toString());
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 
 			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
-
+			model.addAttribute("houseType", houseType.getType());
+			
 			/** Create SessionType */
 			String strSessionTypeId = request.getParameter("sessionType");
 			SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
@@ -2991,8 +2995,8 @@ public class BallotController extends BaseController{
 				strDeviceType = request.getParameter("deviceType");				
 			}	
 			deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
-
-
+			model.addAttribute("deviceType", deviceType.getType());
+			model.addAttribute("deviceName", deviceType.getName());
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
