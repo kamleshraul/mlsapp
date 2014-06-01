@@ -2573,25 +2573,12 @@ public class Ballot extends BaseDomain implements Serializable {
 				deviceVO.setNumber(questionSequenceVO.getNumber());
 				deviceVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(questionSequenceVO.getNumber(), locale));
 				Question q = Question.findById(Question.class, questionSequenceVO.getQuestionId());
-//				String memberNames="";
-//				Member member=q.getPrimaryMember();
-//				if(member!=null){
-//					memberNames+=member.findFirstLastName();
-//				}
-//				List<SupportingMember> selectedSupportingMembers=q.getSupportingMembers();					
-//				if(selectedSupportingMembers!=null){
-//					if(!selectedSupportingMembers.isEmpty()){
-//						StringBuffer bufferFirstNamesFirst=new StringBuffer();
-//						for(SupportingMember sm:selectedSupportingMembers){
-//							Member m=sm.getMember();
-//							bufferFirstNamesFirst.append(m.findFirstLastName()+",");								
-//						}
-//						bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
-//						memberNames+=","+bufferFirstNamesFirst.toString();
-//					}
-//				}
+				/**** Member Names ****/
+				Member ballotEntryMember = Member.findById(Member.class, questionSequenceVO.getMemberId());
 				String houseType = session.findHouseType();
-				String allMemberNames = "";
+				String allMemberNames = "";	
+				String ballotEntryMemberName = "";
+				String questionMemberNames = "";
 				CustomParameter memberNameFormatParameter = null;
 				String memberNameFormat = null;
 				if(houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
@@ -2601,31 +2588,47 @@ public class Ballot extends BaseDomain implements Serializable {
 					} else {
 						memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
 					}
-					allMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormat);
+					ballotEntryMemberName = ballotEntryMember.findNameWithConstituencyInGivenFormat(q.getSession().getHouse(), memberNameFormat);
+					questionMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormat);
 				} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-					Member pmember = Member.findById(Member.class, questionSequenceVO.getMemberId());
+					
 					memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_YADI_MEMBERNAMEFORMAT_UPPERHOUSE", "");
 					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
 						memberNameFormat = memberNameFormatParameter.getValue();						
 					} else {
 						memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
 					}
-					allMemberNames = q.findAllMemberNames(memberNameFormat);
-					if(pmember!=null) {
-						String pmemberName = pmember.findNameInGivenFormat(memberNameFormat);
-						String[] allMemberNamesArr = allMemberNames.split(",");
-						if(allMemberNames!=null && !(allMemberNamesArr[0].equals(pmemberName))) {
-							StringBuffer revisedAllMemberNames = new StringBuffer();
-							for(int i=1; i<allMemberNamesArr.length; i++) {
-								if(i==1) {
-									revisedAllMemberNames.append(allMemberNamesArr[i].substring(1, allMemberNamesArr[i].length()));
+					ballotEntryMemberName = ballotEntryMember.findNameInGivenFormat(memberNameFormat);
+					questionMemberNames = q.findAllMemberNames(memberNameFormat);										
+				}
+				if(!ballotEntryMemberName.isEmpty()) {
+					String[] questionMemberNamesArr = questionMemberNames.split(",");
+					StringBuffer revisedQuestionMemberNames = new StringBuffer();
+					for(int i=0; i<questionMemberNamesArr.length; i++) {
+						if(i==0) {
+							if(!questionMemberNamesArr[i].equals(ballotEntryMemberName)) {
+								if(q.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+									revisedQuestionMemberNames.append("");
 								} else {
-									revisedAllMemberNames.append("," + allMemberNamesArr[i]);
-								}
-							}
-							allMemberNames = revisedAllMemberNames.toString();
+									revisedQuestionMemberNames.append(questionMemberNamesArr[i]);
+								}									
+							}							
+						} else {
+							if(!questionMemberNamesArr[i].equals(ballotEntryMemberName)) {
+								revisedQuestionMemberNames.append("," + questionMemberNamesArr[i]);
+							}							
 						}
+					}
+					questionMemberNames = revisedQuestionMemberNames.toString();									
+				}				
+				if(!questionMemberNames.isEmpty()) {
+					if(questionMemberNames.startsWith(", ")) {
+						allMemberNames = ballotEntryMemberName + questionMemberNames;						
+					} else {
+						allMemberNames = ballotEntryMemberName + ", " + questionMemberNames;
 					}					
+				} else {
+					allMemberNames = ballotEntryMemberName;
 				}
 				List<Title> titles = Title.findAll(Title.class, "name", ApplicationConstants.ASC, locale);
 				if(titles!=null && !titles.isEmpty()) {
@@ -2636,6 +2639,7 @@ public class Ballot extends BaseDomain implements Serializable {
 					}
 				}
 				deviceVO.setMemberNames(allMemberNames);
+				//=============================================================================
 				if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
 					deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
 				} else if(q.getSubject()!=null && !q.getSubject().isEmpty()) {
@@ -2825,35 +2829,62 @@ public class Ballot extends BaseDomain implements Serializable {
 					deviceVO.setNumber(questionSequenceVOs.get(j).getNumber());
 					deviceVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(questionSequenceVOs.get(j).getNumber(), locale));
 					Question q = Question.findById(Question.class, questionSequenceVOs.get(j).getQuestionId());
-//					String memberNames="";
-//					Member member=q.getPrimaryMember();
-//					if(member!=null){
-//						memberNames+=member.findFirstLastName();
-//					}
-//					List<SupportingMember> selectedSupportingMembers=q.getSupportingMembers();					
-//					if(selectedSupportingMembers!=null){
-//						if(!selectedSupportingMembers.isEmpty()){
-//							StringBuffer bufferFirstNamesFirst=new StringBuffer();
-//							for(SupportingMember k:selectedSupportingMembers){
-//								Member m=k.getMember();
-//								bufferFirstNamesFirst.append(m.findFirstLastName()+",");								
-//							}
-//							bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
-//							memberNames+=","+bufferFirstNamesFirst.toString();
-//						}
-//					}
-					String houseType = q.getHouseType().getType();
-					String allMemberNames = "";
+					/**** Member Names ****/
+					Member ballotEntryMember = Member.findById(Member.class, questionSequenceVOs.get(j).getMemberId());
+					String houseType = session.findHouseType();
+					String allMemberNames = "";	
+					String ballotEntryMemberName = "";
+					String questionMemberNames = "";
 					CustomParameter memberNameFormatParameter = null;
+					String memberNameFormat = null;
 					if(houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
-						memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_SUCHI_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+						memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_YADI_MEMBERNAMEFORMAT_LOWERHOUSE", "");
+						if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+							memberNameFormat = memberNameFormatParameter.getValue();						
+						} else {
+							memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
+						}
+						ballotEntryMemberName = ballotEntryMember.findNameWithConstituencyInGivenFormat(q.getSession().getHouse(), memberNameFormat);
+						questionMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormat);
 					} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
-						memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_SUCHI_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+						
+						memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_YADI_MEMBERNAMEFORMAT_UPPERHOUSE", "");
+						if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+							memberNameFormat = memberNameFormatParameter.getValue();						
+						} else {
+							memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
+						}
+						ballotEntryMemberName = ballotEntryMember.findNameInGivenFormat(memberNameFormat);
+						questionMemberNames = q.findAllMemberNames(memberNameFormat);										
 					}
-					if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
-						allMemberNames = q.findAllMemberNames(memberNameFormatParameter.getValue());
+					if(!ballotEntryMemberName.isEmpty()) {
+						String[] questionMemberNamesArr = questionMemberNames.split(",");
+						StringBuffer revisedQuestionMemberNames = new StringBuffer();
+						for(int k=0; k<questionMemberNamesArr.length; k++) {
+							if(k==0) {
+								if(!questionMemberNamesArr[k].equals(ballotEntryMemberName)) {
+									if(q.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+										revisedQuestionMemberNames.append("");
+									} else {
+										revisedQuestionMemberNames.append(questionMemberNamesArr[k]);
+									}									
+								}							
+							} else {
+								if(!questionMemberNamesArr[k].equals(ballotEntryMemberName)) {
+									revisedQuestionMemberNames.append("," + questionMemberNamesArr[k]);
+								}							
+							}
+						}
+						questionMemberNames = revisedQuestionMemberNames.toString();									
+					}				
+					if(!questionMemberNames.isEmpty()) {
+						if(questionMemberNames.startsWith(", ")) {
+							allMemberNames = ballotEntryMemberName + questionMemberNames;						
+						} else {
+							allMemberNames = ballotEntryMemberName + ", " + questionMemberNames;
+						}					
 					} else {
-						allMemberNames = q.findAllMemberNames(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+						allMemberNames = ballotEntryMemberName;
 					}
 					List<Title> titles = Title.findAll(Title.class, "name", ApplicationConstants.ASC, locale);
 					if(titles!=null && !titles.isEmpty()) {
@@ -2863,7 +2894,8 @@ public class Ballot extends BaseDomain implements Serializable {
 							}
 						}
 					}
-					deviceVO.setMemberNames(allMemberNames);	
+					deviceVO.setMemberNames(allMemberNames);
+					//=============================================================================	
 					if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
 						deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
 					} else if(q.getSubject()!=null && !q.getSubject().isEmpty()) {

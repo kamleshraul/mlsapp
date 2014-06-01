@@ -512,6 +512,24 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return sb.toString();
 	}
 	
+	public String findNameWithConstituencyInGivenFormat(House house, String nameFormat) {
+		StringBuffer sb = new StringBuffer();
+		if(nameFormat!=null && !nameFormat.isEmpty()) {
+			if(nameFormat.equals(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME)) {
+				sb.append(this.findFirstLastName());
+			} else if(nameFormat.equals(ApplicationConstants.FORMAT_MEMBERNAME_FULLNAME)) {
+				sb.append(this.getFullname());
+			} else if(nameFormat.equals(ApplicationConstants.FORMAT_MEMBERNAME_FULLNAMELASTNAMEFIRST)) {
+				sb.append(this.getFullnameLastNameFirst());
+			}
+			String constituencyName = this.findConstituencyNameForYadiReport(house, "DATE", new Date(), new Date());
+			if(!constituencyName.isEmpty()) {
+				sb.append(" (" + constituencyName + ")");			
+			}
+		}
+		return sb.toString();
+	}
+	
 	/**
 	 * Gets the complete detail.
 	 *

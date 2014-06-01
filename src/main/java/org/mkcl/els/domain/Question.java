@@ -1665,7 +1665,8 @@ public class Question extends Device implements Serializable {
 			int count = 1;
 			for (SupportingMember sm : supportingMembers) {
 				member = sm.getMember();
-				if(member!=null) {
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 					memberName = member.findNameInGivenFormat(nameFormat);
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
@@ -1708,7 +1709,8 @@ public class Question extends Device implements Serializable {
 					if (clubbedSupportingMembers != null) {
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
-							if(member!=null) {
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
@@ -1750,7 +1752,8 @@ public class Question extends Device implements Serializable {
 		if (supportingMembers != null) {
 			for (SupportingMember sm : supportingMembers) {
 				member = sm.getMember();
-				if(member!=null) {
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 					memberName = member.findNameInGivenFormat(nameFormat);
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {				
 						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
@@ -1792,7 +1795,8 @@ public class Question extends Device implements Serializable {
 					if (clubbedSupportingMembers != null) {
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
-							if(member!=null) {
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
@@ -1844,7 +1848,8 @@ public class Question extends Device implements Serializable {
 		if (supportingMembers != null) {
 			for (SupportingMember sm : supportingMembers) {
 				member = sm.getMember();
-				if(member!=null) {
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 					memberName = member.findNameInGivenFormat(nameFormat);
 					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
@@ -1895,7 +1900,8 @@ public class Question extends Device implements Serializable {
 					if (clubbedSupportingMembers != null) {
 						for (SupportingMember csm : clubbedSupportingMembers) {
 							member = csm.getMember();
-							if(member!=null) {
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
 								memberName = member.findNameInGivenFormat(nameFormat);
 								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
 									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
