@@ -12,6 +12,7 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -220,6 +221,9 @@ public class Ballot extends BaseDomain implements Serializable {
 		if(preBallot == null){
 			//if does not exists create a pre ballot and save it
 			ballotEntries = Ballot.compute(session, group, answeringDate, noOfRounds, locale);
+			ballotEntries = 
+				Ballot.inactiveMembersQuestionHandover(session, group, deviceType, 
+						ballotEntries, answeringDate, noOfRounds, locale);			
 			if(!ballotEntries.isEmpty()){
 				preBallot = new PreBallot(session, deviceType, answeringDate, new Date(System.currentTimeMillis()), locale);
 				preBallot.setBallotEntries(ballotEntries);
@@ -272,6 +276,264 @@ public class Ballot extends BaseDomain implements Serializable {
 		}
 		
 		return ballotVOs;
+	}
+	
+	private static List<BallotEntry> inactiveMembersQuestionHandover(
+			final Session session,
+			final Group group,
+			final DeviceType deviceType,
+			final List<BallotEntry> ballotEntries,
+			final Date answeringDate,
+			final Integer noOfRounds,
+			final String locale) {
+		// Step 1
+		House house = session.getHouse();
+		
+		CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
+				"DB_TIMESTAMP", "");
+		Date questionSubmissionStartDate = FormaterUtil.formatStringToDate(
+				session.getParameter(
+						ApplicationConstants.QUESTION_STARRED_SUBMISSION_STARTTIME_LH), 
+				datePattern.getValue(), locale); 
+			
+		Date sessionToDate = session.getEndDate();		
+		List<Member> inactiveMembers = 
+			Member.findInactiveMembers(house, questionSubmissionStartDate, 
+					sessionToDate, locale);
+		
+		// Step 2
+		List<Question> inactiveMemberQuestions = new ArrayList<Question>();
+		Status internalStatus = 
+			Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
+		Status ballotStatus =
+			Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, locale);
+		for(Member m : inactiveMembers) {			
+			List<Question> questions = new ArrayList<Question>();
+			try {
+				questions = Ballot.getRepository().findQuestionsEligibleForBallot(m, session, 
+						deviceType, group, answeringDate, internalStatus, ballotStatus, 
+						locale);
+			} catch (ELSException e) {
+				e.printStackTrace();
+			}
+			inactiveMemberQuestions.addAll(questions);
+		}
+		
+		// Step 2a
+		inactiveMemberQuestions = Ballot.reorderQuestions(
+				inactiveMemberQuestions, answeringDate);
+		
+		// Step 3
+		Date currentDate = new Date();
+		for(Question q : inactiveMemberQuestions) {
+			List<Member> supportingMembers = Ballot.eligibleSupportingMembers(q);
+			
+			// Step 4
+			for(Member m : supportingMembers) {
+				boolean isActive = m.isActiveMemberOn(currentDate, locale);
+				if(isActive) {
+					boolean isHandovered = 
+						Ballot.handoverQuestionToMember(q, m, ballotEntries, 
+								noOfRounds, locale);
+					if(isHandovered) {
+						break;
+					}
+				}
+			}
+		}
+		
+		// Step 5
+		List<BallotEntry> sortedBallotEntries = Ballot.sortByMember(ballotEntries);
+		return sortedBallotEntries;
+		
+	}
+	
+	private static List<Question> reorderQuestions(final List<Question> questions,
+			final Date answeringDate) {
+		List<Question> qList = new ArrayList<Question>();
+		qList.addAll(questions);		
+		
+		Comparator<Question> c = new Comparator<Question>() {
+			
+			@Override
+			public int compare(final Question q1, final Question q2) {
+				Date q1ChartAnsweringDate = 
+					q1.getChartAnsweringDate().getAnsweringDate();
+				Long q1MemberId = q1.getPrimaryMember().getId();
+				Integer q1Priority = q1.getPriority();
+				Integer q1Number = q1.getNumber();
+				
+				Date q2ChartAnsweringDate = 
+					q2.getChartAnsweringDate().getAnsweringDate();
+				Long q2MemberId = q2.getPrimaryMember().getId();
+				Integer q2Priority = q2.getPriority();
+				Integer q2Number = q2.getNumber();
+				
+				if(q1ChartAnsweringDate.equals(answeringDate)
+						&& q2ChartAnsweringDate.equals(answeringDate)) {
+					if(q1MemberId.equals(q2MemberId)) {
+						int i = q1Priority.compareTo(q2Priority);
+	                    if(i == 0) {
+	                        int j = q1Number.compareTo(q2Number);
+	                        return j;
+	                    }
+	                    return i;
+					}
+					else {
+						int j = q1Number.compareTo(q2Number);
+						return j;
+					}
+				}
+				else if(q1ChartAnsweringDate.equals(answeringDate)
+						&& q2ChartAnsweringDate.before(answeringDate)) {
+					return -1;
+				}
+				else if(q1ChartAnsweringDate.before(answeringDate)
+						&& q2ChartAnsweringDate.equals(answeringDate)) {
+					return 1;
+				}
+				else if(q1ChartAnsweringDate.before(answeringDate)
+						&& q2ChartAnsweringDate.before(answeringDate)) {
+					if(q1ChartAnsweringDate.before(q2ChartAnsweringDate)) {
+						return -1;
+					}
+					else if(q1ChartAnsweringDate.after(q2ChartAnsweringDate)) {
+						return 1;
+					}
+					else { //q1ChartAnsweringDate.equal(q2ChartAnsweringDate)
+						if(q1MemberId.equals(q2MemberId)) {
+							int i = q1Priority.compareTo(q2Priority);
+		                    if(i == 0) {
+		                        int j = q1Number.compareTo(q2Number);
+		                        return j;
+		                    }
+		                    return i;
+						}
+						else {
+							int j = q1Number.compareTo(q2Number);
+							return j;
+						}
+					}
+				}
+				
+				return 0;
+			}
+		};
+		Collections.sort(qList, c);
+		
+		return qList;
+	}
+	
+	private static List<Member> eligibleSupportingMembers(final Question question) {
+		List<Member> members = new ArrayList<Member>();
+		
+		List<Member> immediateSupportingMembers = 
+			Ballot.immediateSupportingMembers(question);
+		members.addAll(immediateSupportingMembers);
+		
+		List<ClubbedEntity> clubbings = Question.findClubbedEntitiesByPosition(question);
+		if(clubbings != null) {
+			for(ClubbedEntity ce : clubbings) {
+				Question q = ce.getQuestion();
+				
+				String internalStatus = q.getInternalStatus().getType();
+				if(internalStatus.equals(
+						ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+					Member primaryMember = q.getPrimaryMember();
+					members.add(primaryMember);
+					
+					List<Member> sms = Ballot.immediateSupportingMembers(q);
+					members.addAll(sms);
+				}
+			}
+		}
+		
+		return members;
+	}
+	
+	private static List<Member> immediateSupportingMembers(final Question question) {
+		List<Member> members = new ArrayList<Member>();
+		
+		List<SupportingMember> supportingMembers = question.getSupportingMembers();
+		if(supportingMembers != null) {
+			for(SupportingMember sm : supportingMembers) {
+				boolean isApprovedSupportingMember = 
+					sm.getDecisionStatus().getType().equals(
+						ApplicationConstants.SUPPORTING_MEMBER_APPROVED);
+				if(isApprovedSupportingMember) {
+					Member member = sm.getMember();
+					members.add(member);
+				}
+			}
+		}
+		
+		return members;
+	}
+	
+	private static boolean handoverQuestionToMember(final Question question,
+			final Member member,
+			final List<BallotEntry> ballotEntries,
+			final Integer noOfRounds,
+			final String locale) {
+		boolean isHandovered = false;
+		
+		BallotEntry ballotEntry = Ballot.findBallotEntry(ballotEntries, member);
+		if(ballotEntry == null) {
+			List<DeviceSequence> deviceSequences = 
+				Ballot.createDeviceSequences(question, locale);
+			ballotEntry = new BallotEntry(member, deviceSequences, locale);
+			ballotEntries.add(ballotEntry);
+			isHandovered = true;
+		}
+		else {
+			List<DeviceSequence> deviceSequences = ballotEntry.getDeviceSequences();
+			int size = deviceSequences.size();
+			if(size < noOfRounds) {
+				DeviceSequence sequence = new DeviceSequence(question, locale);
+				deviceSequences.add(sequence);
+				isHandovered = true;
+			}
+		}
+		
+		return isHandovered;
+	}
+	
+	private static BallotEntry findBallotEntry(final List<BallotEntry> ballotEntries,
+			final Member member) {
+		for(BallotEntry be : ballotEntries) {
+			Member m = be.getMember();
+			if(m.getId().equals(member.getId())) {
+				return be;
+			}
+		}
+		return null;
+	}
+	
+	private static List<BallotEntry> sortByMember(
+			final List<BallotEntry> ballotEntries) {
+		List<BallotEntry> ballotEntryList = new ArrayList<BallotEntry>();
+		ballotEntryList.addAll(ballotEntries);
+		
+		Comparator<BallotEntry> c = new Comparator<BallotEntry>() {
+
+            @Override
+            public int compare(final BallotEntry be1, final BallotEntry be2) {
+            	String member1LastName = be1.getMember().getLastName();
+            	String member1FirstName = be1.getMember().getFirstName();
+            	
+            	String member2LastName = be2.getMember().getLastName();
+            	String member2FirstName = be2.getMember().getFirstName();
+                
+            	int i =  member1LastName.compareTo(member2LastName);
+            	if(i == 0) {
+            		return member1FirstName.compareTo(member2FirstName);
+            	}
+            	return i;
+            }
+        };
+        Collections.sort(ballotEntryList, c);
+        
+		return ballotEntryList;
 	}
 	
 	public static List<BallotVO> findPreBallotVO(final Session session,
@@ -832,7 +1094,8 @@ public class Ballot extends BaseDomain implements Serializable {
 				throw new ELSException("Ballot_createStarredAssemblyBallot", "PRE_BALLOT_NOT_CREATED");
 			}
 			else {
-				List<BallotEntry> preBallotList = preBallot.getBallotEntries(); 
+				List<BallotEntry> preBallotList = 
+					findPreBallotEntries(preBallot.getBallotEntries()); 
 				List<BallotEntry> randomizedList = Ballot.randomize(preBallotList);
 				List<BallotEntry> sequencedList = Ballot.addSequenceNumbers(randomizedList, noOfRounds);
 
@@ -847,6 +1110,40 @@ public class Ballot extends BaseDomain implements Serializable {
 		}
 		
 		return ballot;
+	}
+	
+	private List<BallotEntry> findPreBallotEntries(
+			final List<BallotEntry> preBallotList) {
+		List<BallotEntry> preBallotEntryList = new ArrayList<BallotEntry>();
+		
+		for(BallotEntry be : preBallotList) {
+			Member member = be.getMember();
+			String locale = be.getLocale();
+			
+			List<DeviceSequence> preBallotDeviceSequences = 
+				be.getDeviceSequences();
+			List<Question> questions = 
+				preBallotQuestions(preBallotDeviceSequences);
+			List<DeviceSequence> questionSequences = 
+				createQuestionSequences(questions, locale);
+			
+			BallotEntry nbe = new BallotEntry(member, questionSequences, locale);
+			preBallotEntryList.add(nbe);
+		}
+		
+		return preBallotEntryList;
+	}
+	
+	private List<Question> preBallotQuestions(
+			final List<DeviceSequence> deviceSequences) {
+		List<Question> questions = new ArrayList<Question>();
+		
+		for(DeviceSequence ds : deviceSequences) {
+			Question q = (Question) ds.getDevice();
+			questions.add(q);
+		}
+		
+		return questions;
 	}
 	
 	private static Integer getNoOfRounds() throws ELSException {
