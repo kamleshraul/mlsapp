@@ -67,6 +67,7 @@
 				</div>
 				<p id="header" style="margin: 0px 0px 10px 25px; font-size: 15px;">
 					<label>
+						<spring:message code="question.group" text="Group"/> <span style="font-weight: bold;">${groupNo}, </span>
 						<spring:message code="generic.date" text="Answering Date"/> <span style="text-decoration: underline; font-weight: bold;">${answeringDate}</span>
 						<spring:message code="question.ballot.starred.lowerhouse.headercontent" text="Ballot Of the Day"></spring:message>
 					</label>
