@@ -60,12 +60,14 @@
 			</c:forEach>
 		</tbody>
 	</table>
-	<br />
-	<div style="width: 100%; font-size: 16px; ">
+	<br /><br />
+	<%-- <div style="width: 100%; font-size: 14px; ">
 		___________________ <spring:message code="question.ballot.hd.footer.roji" text="Dated"/> ${currentUser}
-		<spring:message code="question.ballot.hd.footer.roji" text="Dated"/>
+		<spring:message code="question.ballot.hd.footer.atloc" text="At Location"/>___________________ <spring:message code="question.ballot.hd.footer.at" text="At"/>
+		<br>
+		___________________________________________________________________ <spring:message code="question.ballot.hd.footer.presence" text="Presence"/>
 		
-	</div>
+	</div> --%>
 </div>
 </c:otherwise>
 </c:choose>

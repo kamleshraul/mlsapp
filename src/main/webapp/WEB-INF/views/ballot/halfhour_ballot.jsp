@@ -45,31 +45,31 @@
 <table class="strippedTable" border="1">
 	<thead>
 		<tr>
-			<th><spring:message code="general.srnumber" text="Serial Number"/></th>
-			<th><spring:message code="member.name" text="Member Name"/></th>
-			<th><spring:message code="question.number" text="Question Number"/></th>
-			<th><spring:message code="question.subject" text="Subject"/></th>
+			<th style="width: 50px; text-align: center;"><spring:message code="general.srnumber" text="Serial Number"/></th>
+			<th style="width: 250px; text-align: center;"><spring:message code="member.name" text="Member Name"/></th>
+			<th style="width: 100px; text-align: center;"><spring:message code="question.number" text="Question Number"/></th>
+			<th style="width: 350px; text-align: center;"><spring:message code="question.subject" text="Subject"/></th>
 		</tr>
 	</thead>
 	<tbody>
-		<c:set var="counter" value="1" />
-		<c:forEach items="${ballotVOs}" var="ballotVO">
+		<c:forEach items="${ballotVOs}" var="ballotVO" varStatus="counter">
 		<tr>
-			<td>${counter}</td>
-			<td>${ballotVO[0]}</td>
-			<td>${ballotVO[1]}</td>
-			<td>${ballotVO[2]}</td>
+			<td style="width: 50px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
+			<td style="width: 250px;">${ballotVO[0]}</td>
+			<td style="width: 100px;">${ballotVO[1]}</td>
+			<td style="width: 350px;">${ballotVO[2]}</td>
 		</tr>
-		<c:set var="counter" value="${counter + 1}" />
 		</c:forEach>
 	</tbody>
 </table>
 <br>
 <div style="width: 100%; font-size: 14px; ">
-		________________<spring:message code="hd.ballot.roj" text="Dated" />
-	</div>
+	___________________ <spring:message code="question.ballot.council.hd.footer.roji" text="Dated"/> ${currentUser}
+	<spring:message code="question.ballot.council.hd.footer.atloc" text="At Location"/>___________________ <spring:message code="question.ballot.council.hd.footer.at" text="At"/>
+	<br>
+	___________________________________________________________________ <spring:message code="question.ballot.council.hd.footer.presence" text="Presence"/>
 </div>
-
+</div>
 </c:otherwise>
 </c:choose>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
