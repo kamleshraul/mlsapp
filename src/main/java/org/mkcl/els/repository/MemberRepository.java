@@ -2695,5 +2695,30 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			}else{
 				return false;
 			}		
+	}
+
+	public List<Member> findInactiveMembers(final House house, 
+			final MemberRole role,
+			final Date fromDate, 
+			final Date toDate, 
+			final String locale) {
+		CustomParameter parameter =
+			CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		String strFromDate = 
+			FormaterUtil.formatDateToString(fromDate, parameter.getValue());
+		String strToDate = 
+			FormaterUtil.formatDateToString(toDate, parameter.getValue());
+
+		String strQuery = "SELECT m" +
+			" FROM HouseMemberRoleAssociation hmra JOIN hmra.member m" +
+			" WHERE hmra.toDate >= '" + strFromDate + "'" +
+			" AND hmra.toDate <= '" + strToDate + "'" +			
+			" AND hmra.role.id = " + role.getId() +
+			" AND hmra.house.id = " + house.getId() +
+			" AND hmra.locale = '" + locale + "'";
+
+		TypedQuery<Member> query = this.em().createQuery(strQuery, Member.class);
+		List<Member> members = query.getResultList();
+		return members;
 	}	
 }
