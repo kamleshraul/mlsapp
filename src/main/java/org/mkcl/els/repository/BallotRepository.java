@@ -32,6 +32,7 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotAttendance;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
@@ -184,32 +185,72 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		// String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
 		// String date = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
 
+//		String strQuery = "SELECT m" +
+//		" FROM Member m" +
+//		" WHERE m.id IN (" +
+//		" SELECT DISTINCT(q.primaryMember.id)" +
+//		" FROM Question q where q.id IN("+
+//		" SELECT d.id FROM Chart c" +
+//		" JOIN c.chartEntries ce" +
+//		" JOIN ce.devices d" +
+//		" WHERE c.session.id =:sessionId" +
+//		" AND c.group.id =:groupId" + 
+//		" AND c.answeringDate <= :answeringDate" + 
+//		" AND c.deviceType.id=:deviceTypeId" +
+//		" AND c.locale = :locale" + 
+//		" AND q.parent =" + null +  
+//		" AND q.internalStatus.id = :internalStatusId" + 
+//		" AND (" +
+//		" q.ballotStatus.id != :ballotStatusId" + 
+//		" OR" +
+//		" q.ballotStatus.id =" + null +  
+//		" )" +
+//		" ))" +
+//		" ORDER BY m.lastName ASC, m.firstName ASC";
+		
+		House house = session.getHouse();
+		Date currentDate = new Date();
+		MemberRole role = MemberRole.find(house.getType(), "MEMBER", locale);
+		
 		String strQuery = "SELECT m" +
-		" FROM Member m" +
-		" WHERE m.id IN (" +
-		" SELECT DISTINCT(q.primaryMember.id)" +
-		" FROM Question q where q.id IN("+
-		" SELECT d.id FROM Chart c" +
-		" JOIN c.chartEntries ce" +
-		" JOIN ce.devices d" +
-		" WHERE c.session.id =:sessionId" +
-		" AND c.group.id =:groupId" + 
-		" AND c.answeringDate <= :answeringDate" + 
-		" AND c.deviceType.id=:deviceTypeId" +
-		" AND c.locale = :locale" + 
-		" AND q.parent =" + null +  
-		" AND q.internalStatus.id = :internalStatusId" + 
-		" AND (" +
-		" q.ballotStatus.id != :ballotStatusId" + 
-		" OR" +
-		" q.ballotStatus.id =" + null +  
-		" )" +
-		" ))" +
-		" ORDER BY m.lastName ASC, m.firstName ASC";
+			" FROM Member m" +
+			" WHERE m.id IN (" +
+				" SELECT mem.id" +
+				" FROM HouseMemberRoleAssociation hmra JOIN hmra.member mem" +
+				" WHERE hmra.fromDate <= :currentDate" +
+				" AND (hmra.toDate =" + null + " OR hmra.toDate >= :currentDate)" +
+				" AND hmra.role.id = :roleId" +
+				" AND hmra.house.id = :houseId" +
+				" AND hmra.locale = :locale" +
+				")" +
+			" AND m.id IN (" +
+				" SELECT DISTINCT(q.primaryMember.id)" +
+				" FROM Question q where q.id IN("+
+					" SELECT d.id FROM Chart c" +
+					" JOIN c.chartEntries ce" +
+					" JOIN ce.devices d" +
+					" WHERE c.session.id =:sessionId" +
+					" AND c.group.id =:groupId" + 
+					" AND c.answeringDate <= :answeringDate" + 
+					" AND c.deviceType.id=:deviceTypeId" +
+					" AND c.locale = :locale" + 
+					" AND q.parent =" + null +  
+					" AND q.internalStatus.id = :internalStatusId" + 
+					" AND (" +
+					" q.ballotStatus.id != :ballotStatusId" + 
+					" OR" +
+					" q.ballotStatus.id =" + null +  
+					" )" +
+			" ))" +
+			" ORDER BY m.lastName ASC, m.firstName ASC";
 		
 		List<Member> members = new ArrayList<Member>();		
 		try{	
 			Query jpQuery = this.em().createQuery(strQuery, Member.class);
+			jpQuery.setParameter("currentDate", currentDate);
+			jpQuery.setParameter("roleId", role.getId());
+			jpQuery.setParameter("houseId", house.getId());
+			jpQuery.setParameter("locale", locale);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("deviceTypeId", deviceType.getId());
 			jpQuery.setParameter("groupId", group.getId());
@@ -269,6 +310,48 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 					}
 					questions.add(qX.get(i));		
 				}				
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("BallotRepository_List<Question>_findQuestionsEligibleForBallot", "No eligible question found.");
+			throw elsException;	
+		}
+		return questions;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Question> findQuestionsEligibleForBallot(final Member member,
+			final Session session,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final Status internalStatus,
+			final Status ballotStatus,
+			final String locale) throws ELSException{
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+		// CustomParameter parameter = 
+		//	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		// String date = new DateFormater().formatDateToString(answeringDate, parameter.getValue());
+		//String date = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
+		
+		List<Question> questions = new ArrayList<Question>();
+		try{
+			Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+			parametersMap.put("locale", new String[]{locale.toString()});
+			parametersMap.put("sessionId", new String[]{session.getId().toString()});
+			parametersMap.put("groupId", new String[]{group.getId().toString()});
+			parametersMap.put("answeringDate", new String[]{answeringDate.toString()});
+			parametersMap.put("memberId", new String[]{member.getId().toString()});
+			parametersMap.put("internalStatusId", new String[]{internalStatus.getId().toString()});
+			parametersMap.put("ballotStatusId", new String[]{ballotStatus.getId().toString()});			
+			parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+			
+			List<Question> qX = org.mkcl.els.domain.Query.findResultListOfGivenClass("QIS_ELIGIBLE_QUESTIONS_FOR_STARRED_ASSEMBLY_BALLOT", parametersMap, Question.class);
+			
+			if(qX != null && !qX.isEmpty()) {
+				return qX;				
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -494,5 +577,5 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 			}
 		}
 		return ballotMembers;
-	}
+	}	
 }
