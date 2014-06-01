@@ -55,6 +55,7 @@
 	
 	<p id="header" style="margin: 0px 0px 10px 25px; font-size: 15px;">
 		<label>
+			<spring:message code="question.group" text="Group"/> <span style="font-weight: bold;">${groupNo}, </span>
 			<spring:message code="generic.date" text="Answering Date"/> <span style="text-decoration: underline; font-weight: bold;">${answeringDate}</span>
 			<spring:message code="question.preballot.starred.lowerhouse.headercontent" text="Pre-Ballot Of the Day"></spring:message>
 		</label>
@@ -65,6 +66,7 @@
 	<table class="strippedTable" border="1" style="margin-left: 25px; font-size: 15px;">
 		<thead>
 			<tr>
+				<th><spring:message code="question.preballot.serailNo" text="Sr. No."/></th>
 				<th class="memberName"><spring:message code="question.preballot.member.name" text="Member Name"/></th>
 				<c:forEach begin="${questionCount+1}" end="${noOfRounds}" varStatus="cnt">
 					<th class="td"><spring:message code="qis.preballot.question${cnt.count}" text="Question ${cnt.count}"/></th>
@@ -78,6 +80,7 @@
 			<c:forEach items="${ballotVOs}" var="ballotVO">
 			<c:set var="questionCount" value="${ballotVO.questionSequenceVOs.size()}"/>
 			<tr>
+				<td>${ballotVO.serialNo}</td>
 				<td class="memberName">${ballotVO.memberName}</td>
 				<c:forEach items="${ballotVO.questionSequenceVOs}" var="questionSequenceVO">
 					<td class="td">
@@ -99,6 +102,8 @@
 				<p>
 					<span style="font-weight: bold;">
 						<spring:message code="question.preballot.member.total" text="Total Members" />:&nbsp;&nbsp;&nbsp;&nbsp;${totalMembers}
+						<br /><br />
+						<spring:message code="question.preballot.question.total" text="Total Questions" />:&nbsp;&nbsp;&nbsp;&nbsp;${totalNoOfQuestions}
 					</span><br /><br />
 					<spring:message code="generic.date" text="Answering Date"/> ${answeringDate}<spring:message code="question.preballot.starred.lowerhouse.footer1" text="Footer"/>
 					${formattedCurrentDate}<spring:message code="question.preballot.starred.lowerhouse.footer2" text="Footer"/>
