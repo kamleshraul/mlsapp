@@ -39,6 +39,7 @@ import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
+import org.mkcl.els.common.vo.QuestionSequenceVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.StarredBallotVO;
 import org.mkcl.els.common.xmlvo.MemberBallotTotalQuestionReportXmlVO;
@@ -518,6 +519,11 @@ public class BallotController extends BaseController{
 					if(ballotVOs != null && !ballotVOs.isEmpty()){
 						model.addAttribute("totalMembers", FormaterUtil.formatNumberNoGrouping(Integer.valueOf((((Object[])ballotVOs.get(0))[3]).toString()), locale.toString()));
 					}
+					
+					Group qnGroup = Group.find(session, answeringDate, locale.toString());
+					model.addAttribute("groupNo", 
+							FormaterUtil.formatNumberNoGrouping(qnGroup.getNumber(), locale.toString()));
+					
 					retVal = "ballot/ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 					/*List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
@@ -3195,11 +3201,29 @@ public class BallotController extends BaseController{
 			final Date answeringDate,
 			final String locale) throws ELSException {
 		List<StarredBallotVO> ballotVOs = Ballot.findStarredPreBallotVOs(session, deviceType, answeringDate, locale);		
-		model.addAttribute("ballotVOs", ballotVOs);		
+		Group group = Group.find(session, answeringDate, locale);
+		model.addAttribute("groupNo", 
+				FormaterUtil.formatNumberNoGrouping(group.getNumber(), locale));
+		
 		/**** total number of members ****/
 		if(ballotVOs!=null) {
 			model.addAttribute("totalMembers", FormaterUtil.formatNumberNoGrouping(ballotVOs.size(), locale));
+			
+			Integer serialNo = 0;
+			Integer noOfQuestions = 0;
+			for(StarredBallotVO ballotVO : ballotVOs) {
+				++serialNo;
+				ballotVO.setSerialNo(FormaterUtil.formatNumberNoGrouping(serialNo, locale));
+				
+				List<QuestionSequenceVO> sequenceVOs = ballotVO.getQuestionSequenceVOs();
+				int size = sequenceVOs.size();
+				noOfQuestions = noOfQuestions + size;
+			}			
+			model.addAttribute("totalNoOfQuestions", 
+					FormaterUtil.formatNumberNoGrouping(noOfQuestions, locale));
 		}
+		
+		model.addAttribute("ballotVOs", ballotVOs);
 		return "ballot/starred_preballot";
 	}
 
