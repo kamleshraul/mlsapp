@@ -515,7 +515,7 @@
 	            <fo:simple-page-master master-name="otherPages"
                   page-height="29.7cm"
                   page-width="21cm"
-                  margin-top="2cm"
+                  margin-top="1.5cm"
                   margin-bottom="2cm"
                   margin-left="2.5cm"
                   margin-right="2.5cm">
@@ -702,7 +702,7 @@
 												             <xsl:value-of select="$lastRowNumber" />
 												       </xsl:attribute>
 				     									<fo:block text-align="left">
-				     										यांचे प्रभारी विभाग.
+				     										यांचे प्रभारी विभाग
 				     									</fo:block>
 				     								</fo:table-cell>
 				     							</fo:table-row>

@@ -713,7 +713,7 @@
 												             <xsl:value-of select="$lastRowNumber" />
 												       </xsl:attribute>
 				     									<fo:block text-align="left">
-				     										यांचे प्रभारी विभाग.
+				     										यांचे प्रभारी विभाग
 				     									</fo:block>
 				     								</fo:table-cell>
 				     							</fo:table-row>
