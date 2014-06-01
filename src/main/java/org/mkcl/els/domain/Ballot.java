@@ -230,7 +230,33 @@ public class Ballot extends BaseDomain implements Serializable {
 				preBallot.persist();
 			}
 		}else{
-			ballotEntries = preBallot.getBallotEntries();
+			CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "QIS_STARRED_LOWERHOUSE_PREBALLOT_RECREATE_IF_EXISTS", "");
+			if(cp == null || cp.getValue().equals("YES")) {
+				// Delete the existing PreBallot ONLY IF its corresponding Ballot
+				// is not created
+				Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
+				if(ballot == null) {
+					preBallot.remove();
+					
+					ballotEntries = Ballot.compute(session, group, answeringDate, noOfRounds, locale);
+					ballotEntries = 
+						Ballot.inactiveMembersQuestionHandover(session, group, deviceType, 
+								ballotEntries, answeringDate, noOfRounds, locale);			
+					if(!ballotEntries.isEmpty()){
+						PreBallot newPreBallot = new PreBallot(session, deviceType, answeringDate, new Date(System.currentTimeMillis()), locale);
+						newPreBallot.setBallotEntries(ballotEntries);
+						newPreBallot.persist();
+					}
+				}
+				else {
+					// Return the existing PreBallot
+					ballotEntries = preBallot.getBallotEntries();
+				}
+			}
+			else {
+				// Return the existing PreBallot
+				ballotEntries = preBallot.getBallotEntries();
+			}
 		}
 		
 		Map<String, String[]> queryParameters = new HashMap<String, String[]>();
