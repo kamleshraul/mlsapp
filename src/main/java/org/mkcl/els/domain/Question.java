@@ -752,12 +752,13 @@ public class Question extends Device implements Serializable {
 			final Boolean hasParent,
 			final Boolean isBalloted,
 			final Boolean isMandatoryUnique,
+			final Boolean isPreBallot,
 			final Date startTime,
 			final Date endTime,
 			final String sortOrder,
 			final String locale) {
     	
-    	return getQuestionRepository().findByBallot(session, deviceType, answeringDate, internalStatuses, hasParent, isBalloted, isMandatoryUnique, startTime, endTime, sortOrder, locale);
+    	return getQuestionRepository().findByBallot(session, deviceType, answeringDate, internalStatuses, hasParent, isBalloted, isMandatoryUnique, isPreBallot, startTime, endTime, sortOrder, locale);
     }
     
     public static String findBallotedMembers(final Session session, final String memberNotice, final DeviceType deviceType){
