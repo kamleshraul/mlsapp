@@ -2612,7 +2612,11 @@ public class Ballot extends BaseDomain implements Serializable {
 						if(k==0) {
 							if(!questionMemberNamesArr[k].equals(ballotEntryMemberName)) {
 								if(q.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-									revisedQuestionMemberNames.append("");
+									if(q.getPrimaryMember().isSupportingOrClubbedMemberToBeAddedForDevice(q)) {
+										revisedQuestionMemberNames.append("");
+									} else {
+										revisedQuestionMemberNames.append(questionMemberNamesArr[k]);
+									}
 								} else {
 									revisedQuestionMemberNames.append(questionMemberNamesArr[k]);
 								}									
@@ -2853,11 +2857,11 @@ public class Ballot extends BaseDomain implements Serializable {
 							memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
 						}
 						if(ballotEntryMember.isSupportingOrClubbedMemberToBeAddedForDevice(q)) {
-							ballotEntryMemberName = ballotEntryMember.findNameWithConstituencyInGivenFormat(q.getSession().getHouse(), memberNameFormat);
+							ballotEntryMemberName = ballotEntryMember.findNameInGivenFormat(memberNameFormat);
 						} else {
 							ballotEntryMemberName = "";
 						}						
-						questionMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormat);
+						questionMemberNames = q.findAllMemberNames(memberNameFormat);
 					} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
 						
 						memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_YADI_MEMBERNAMEFORMAT_UPPERHOUSE", "");
@@ -2876,7 +2880,11 @@ public class Ballot extends BaseDomain implements Serializable {
 							if(k==0) {
 								if(!questionMemberNamesArr[k].equals(ballotEntryMemberName)) {
 									if(q.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-										revisedQuestionMemberNames.append("");
+										if(q.getPrimaryMember().isSupportingOrClubbedMemberToBeAddedForDevice(q)) {
+											revisedQuestionMemberNames.append("");
+										} else {
+											revisedQuestionMemberNames.append(questionMemberNamesArr[k]);
+										}
 									} else {
 										revisedQuestionMemberNames.append(questionMemberNamesArr[k]);
 									}									
