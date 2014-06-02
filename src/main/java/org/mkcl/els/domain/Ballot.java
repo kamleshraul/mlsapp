@@ -2610,7 +2610,7 @@ public class Ballot extends BaseDomain implements Serializable {
 					StringBuffer revisedQuestionMemberNames = new StringBuffer();
 					for(int k=0; k<questionMemberNamesArr.length; k++) {
 						if(k==0) {
-							if(!questionMemberNamesArr[k].equals(ballotEntryMemberName)) {
+							if(!questionMemberNamesArr[k].trim().equals(ballotEntryMemberName)) {
 								if(q.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 									if(q.getPrimaryMember().isSupportingOrClubbedMemberToBeAddedForDevice(q)) {
 										revisedQuestionMemberNames.append("");
@@ -2622,7 +2622,7 @@ public class Ballot extends BaseDomain implements Serializable {
 								}									
 							}							
 						} else {
-							if(!questionMemberNamesArr[k].equals(ballotEntryMemberName)) {
+							if(!questionMemberNamesArr[k].trim().equals(ballotEntryMemberName)) {
 								revisedQuestionMemberNames.append("," + questionMemberNamesArr[k]);
 							}							
 						}
@@ -2878,7 +2878,7 @@ public class Ballot extends BaseDomain implements Serializable {
 						StringBuffer revisedQuestionMemberNames = new StringBuffer();
 						for(int k=0; k<questionMemberNamesArr.length; k++) {
 							if(k==0) {
-								if(!questionMemberNamesArr[k].equals(ballotEntryMemberName)) {
+								if(!questionMemberNamesArr[k].trim().equals(ballotEntryMemberName)) {
 									if(q.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 										if(q.getPrimaryMember().isSupportingOrClubbedMemberToBeAddedForDevice(q)) {
 											revisedQuestionMemberNames.append("");
@@ -2890,7 +2890,7 @@ public class Ballot extends BaseDomain implements Serializable {
 									}									
 								}							
 							} else {
-								if(!questionMemberNamesArr[k].equals(ballotEntryMemberName)) {
+								if(!questionMemberNamesArr[k].trim().equals(ballotEntryMemberName)) {
 									revisedQuestionMemberNames.append("," + questionMemberNamesArr[k]);
 								}							
 							}
