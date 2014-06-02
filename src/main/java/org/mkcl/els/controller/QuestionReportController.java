@@ -387,7 +387,7 @@ public class QuestionReportController extends BaseController{
 					}					
 				}
 				
-				/**** populating fields for half-hour discussion (standalone) ****/
+				/**** populating fields for half-hour discussion (common for standalone & from question) ****/
 				if(question.getRevisedReason()!=null && !question.getRevisedReason().isEmpty()) {
 					formattedText = question.getRevisedReason();
 				} else if(question.getReason()!=null) {
