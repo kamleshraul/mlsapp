@@ -66,7 +66,7 @@
 <div style="width: 100%; font-size: 14px; ">
 	___________________ <spring:message code="question.ballot.council.hd.footer.roji" text="Dated"/> ${currentUser}
 	<spring:message code="question.ballot.council.hd.footer.atloc" text="At Location"/>___________________ <spring:message code="question.ballot.council.hd.footer.at" text="At"/>
-	<br>
+	<br><br>
 	___________________________________________________________________ <spring:message code="question.ballot.council.hd.footer.presence" text="Presence"/>
 </div>
 </div>
