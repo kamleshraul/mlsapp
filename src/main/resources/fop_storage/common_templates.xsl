@@ -19,7 +19,7 @@
     empty <fo:block>.
     =============================================== -->    
     <xsl:template match="br">     	
-    	<fo:block> </fo:block>&#160;  	
+    	<fo:block></fo:block>
     </xsl:template>
     
     <xsl:template match="hr">     	

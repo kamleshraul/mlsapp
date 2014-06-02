@@ -301,7 +301,10 @@
 								</fo:block>
 								<fo:block font-size="6px">&#160;</fo:block>
 								<fo:block margin-left="1.5cm">
-									<xsl:apply-templates select="questionText"/>
+									<xsl:choose>
+			            				<xsl:when test="reason!=''"><xsl:apply-templates select="reason"/></xsl:when>
+			            				<xsl:when test="bExplanation!=''"><xsl:apply-templates select="bExplanation"/></xsl:when>
+			            			</xsl:choose>									
 								</fo:block>
 								<fo:block font-size="20pt">&#160;</fo:block>
 					            <xsl:choose>
