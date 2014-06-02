@@ -35,39 +35,40 @@
 			</c:when>
 		</c:choose>
 	</div>
-	<div style="width: 100%; font-weight: bold; text-align: center; ">
-		<spring:message code="question.ballot.hdq.assembly.ballot" text="${deviceName}"/>
+	<br><br>
+	<div style="width: 100%; font-weight: bold; text-align: center; font-size: 22px; ">
+		POST-BALLOT LIST
 	</div>
 	<br>
 	<div style="width: 100%;font-size: 16px; font-weight: bold; text-align: center; width:">
-		<spring:message code="question.ballot.discussionDate" text="Discussion Date"/> : ${answeringDate}
+		<spring:message code="generic.date" text="Date"/> : ${answeringDate}&nbsp;&nbsp;&nbsp;&nbsp;
+		<spring:message code="question.ballot.hdq.assembly.ballot.headerline" text="Header Line"/>
 	</div>
+	<br />
 	<table class="strippedTable" border="1">
 		<thead>
 			<tr>
 				<th style="width: 60px; text-align: center;"><spring:message code="general.srnumber" text="Serial Number"/></th>
 				<th style="width: 200px; text-align: center;"><spring:message code="member.name" text="Member Name"/></th>
-				<th style="width: 480px; text-align: center;"><spring:message code="question.choices" text="Questions"/></th>
 			</tr>
 		</thead>
 		<tbody>
 			<c:forEach items="${ballotVOs}" var="ballotVO" varStatus="counter">
 				<tr>
 					<td style="width: 60px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
-					<td style="width: 200px; text-align: center;">${ballotVO[1]}</td>
-					<td style="width: 480px;">&nbsp;</td>
+					<td style="width: 690px;">${ballotVO[1]}</td>
 				</tr>
 			</c:forEach>
 		</tbody>
 	</table>
-	<br /><br />
-	<%-- <div style="width: 100%; font-size: 14px; ">
-		___________________ <spring:message code="question.ballot.hd.footer.roji" text="Dated"/> ${currentUser}
-		<spring:message code="question.ballot.hd.footer.atloc" text="At Location"/>___________________ <spring:message code="question.ballot.hd.footer.at" text="At"/>
-		<br>
-		___________________________________________________________________ <spring:message code="question.ballot.hd.footer.presence" text="Presence"/>
-		
-	</div> --%>
+	<br /><br /><br />
+	<div style="width: 100%; font-size: 16px; ">
+		${ballotVOs[0][2]}&nbsp;${currentDesignation}, ${currentUser}&nbsp;${ballotVOs[0][3]}
+		<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+		${ballotVOs[0][4]}
+		<br /><br /><br /><br /><br /><br />
+		${ballotVOs[0][5]}				
+	</div>
 </div>
 </c:otherwise>
 </c:choose>
