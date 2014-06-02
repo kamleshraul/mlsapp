@@ -68,6 +68,7 @@ import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionPlace;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.UserGroup;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -429,6 +430,17 @@ public class BallotController extends BaseController{
 
 			model.addAttribute("formater", new FormaterUtil());
 			model.addAttribute("locale", locale.toString());
+			
+			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+			StringBuffer designation = new StringBuffer("");
+			for(UserGroup ug : userGroups){
+				if(ug != null){
+					designation.append(ug.getUserGroupType().getName());
+					break;
+				}
+			}
+			
+			model.addAttribute("currentDesignation", designation.toString());
 			model.addAttribute("currentUser", this.getCurrentUser().getTitle()+" "+this.getCurrentUser().getFirstName()+" "+this.getCurrentUser().getLastName());
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
