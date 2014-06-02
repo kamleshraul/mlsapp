@@ -2588,7 +2588,11 @@ public class Ballot extends BaseDomain implements Serializable {
 					} else {
 						memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
 					}
-					ballotEntryMemberName = ballotEntryMember.findNameWithConstituencyInGivenFormat(q.getSession().getHouse(), memberNameFormat);
+					if(ballotEntryMember.isSupportingOrClubbedMemberToBeAddedForDevice(q)) {
+						ballotEntryMemberName = ballotEntryMember.findNameWithConstituencyInGivenFormat(q.getSession().getHouse(), memberNameFormat);
+					} else {
+						ballotEntryMemberName = "";
+					}
 					questionMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormat);
 				} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
 					
@@ -2604,18 +2608,18 @@ public class Ballot extends BaseDomain implements Serializable {
 				if(!ballotEntryMemberName.isEmpty()) {
 					String[] questionMemberNamesArr = questionMemberNames.split(",");
 					StringBuffer revisedQuestionMemberNames = new StringBuffer();
-					for(int i=0; i<questionMemberNamesArr.length; i++) {
-						if(i==0) {
-							if(!questionMemberNamesArr[i].equals(ballotEntryMemberName)) {
+					for(int k=0; k<questionMemberNamesArr.length; k++) {
+						if(k==0) {
+							if(!questionMemberNamesArr[k].equals(ballotEntryMemberName)) {
 								if(q.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 									revisedQuestionMemberNames.append("");
 								} else {
-									revisedQuestionMemberNames.append(questionMemberNamesArr[i]);
+									revisedQuestionMemberNames.append(questionMemberNamesArr[k]);
 								}									
 							}							
 						} else {
-							if(!questionMemberNamesArr[i].equals(ballotEntryMemberName)) {
-								revisedQuestionMemberNames.append("," + questionMemberNamesArr[i]);
+							if(!questionMemberNamesArr[k].equals(ballotEntryMemberName)) {
+								revisedQuestionMemberNames.append("," + questionMemberNamesArr[k]);
 							}							
 						}
 					}
@@ -2625,7 +2629,11 @@ public class Ballot extends BaseDomain implements Serializable {
 					if(questionMemberNames.startsWith(", ")) {
 						allMemberNames = ballotEntryMemberName + questionMemberNames;						
 					} else {
-						allMemberNames = ballotEntryMemberName + ", " + questionMemberNames;
+						if(!ballotEntryMemberName.isEmpty()) {
+							allMemberNames = ballotEntryMemberName + ", " + questionMemberNames;
+						} else {
+							allMemberNames = questionMemberNames;
+						}
 					}					
 				} else {
 					allMemberNames = ballotEntryMemberName;
@@ -2844,7 +2852,11 @@ public class Ballot extends BaseDomain implements Serializable {
 						} else {
 							memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
 						}
-						ballotEntryMemberName = ballotEntryMember.findNameWithConstituencyInGivenFormat(q.getSession().getHouse(), memberNameFormat);
+						if(ballotEntryMember.isSupportingOrClubbedMemberToBeAddedForDevice(q)) {
+							ballotEntryMemberName = ballotEntryMember.findNameWithConstituencyInGivenFormat(q.getSession().getHouse(), memberNameFormat);
+						} else {
+							ballotEntryMemberName = "";
+						}						
 						questionMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormat);
 					} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
 						
@@ -2881,7 +2893,11 @@ public class Ballot extends BaseDomain implements Serializable {
 						if(questionMemberNames.startsWith(", ")) {
 							allMemberNames = ballotEntryMemberName + questionMemberNames;						
 						} else {
-							allMemberNames = ballotEntryMemberName + ", " + questionMemberNames;
+							if(!ballotEntryMemberName.isEmpty()) {
+								allMemberNames = ballotEntryMemberName + ", " + questionMemberNames;
+							} else {
+								allMemberNames = questionMemberNames;
+							}
 						}					
 					} else {
 						allMemberNames = ballotEntryMemberName;
