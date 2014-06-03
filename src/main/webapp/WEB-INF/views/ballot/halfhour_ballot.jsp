@@ -63,12 +63,11 @@
 	</tbody>
 </table>
 <br>
-<div style="width: 100%; font-size: 14px; ">
-	___________________ <spring:message code="question.ballot.council.hd.footer.roji" text="Dated"/> ${currentUser}
-	<spring:message code="question.ballot.council.hd.footer.atloc" text="At Location"/>___________________ <spring:message code="question.ballot.council.hd.footer.at" text="At"/>
-	<br><br>
-	___________________________________________________________________ <spring:message code="question.ballot.council.hd.footer.presence" text="Presence"/>
-</div>
+<div style="width: 100%; font-size: 16px; ">
+		${ballotVOs[0][3]}&nbsp;${currentDesignation}, ${currentUser}&nbsp;${ballotVOs[0][4]}
+		<br><br>
+		__________________________________________________________________ ${ballotVOs[0][5]}				
+	</div>
 </div>
 </c:otherwise>
 </c:choose>
