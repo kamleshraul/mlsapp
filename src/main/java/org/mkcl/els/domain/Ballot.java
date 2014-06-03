@@ -604,6 +604,24 @@ public class Ballot extends BaseDomain implements Serializable {
 				preBallotVOs.add(preBallotVO);
 			}
 			
+			Collections.sort(preBallotEntries, new Comparator<BallotEntry>() {
+				@Override
+				public int compare(BallotEntry b1, BallotEntry b2){
+					if(!b1.getDeviceSequences().isEmpty() && !b2.getDeviceSequences().isEmpty()){
+						return ((Question)b1.getDeviceSequences().get(0).getDevice()).getNumber().compareTo(((Question)b2.getDeviceSequences().get(0).getDevice()).getNumber());
+					}
+					return 0;
+				}
+			});
+			
+			Collections.sort(preBallotVOs, new Comparator<BallotVO>(){
+				@Override
+				public int compare(BallotVO b1, BallotVO b2){
+					return b1.getQuestionNumber().compareTo(b2.getQuestionNumber());
+				}
+			});
+			
+			
 			//persist the preballot list
 			preBallotHDQAssembly.setBallotEntries(preBallotEntries);
 			preBallotHDQAssembly.persist();
@@ -2216,12 +2234,14 @@ public class Ballot extends BaseDomain implements Serializable {
 		StringBuffer memberList = new StringBuffer(Question.findBallotedMembers(session, memberNotice, deviceType));
 		StringBuffer subjectList = new StringBuffer(Question.findBallotedSubjects(session, deviceType));
 		List<Question> newQuestionList = new ArrayList<Question>();
+		memberList.append(",");
+		subjectList.append(",");
 		if(questions != null && !questions.isEmpty()){
 			for(Question q : questions){
 				if(!isExistingInList(memberList.toString(), q.getPrimaryMember().getId().toString())){
 					if(!isExistingInList(subjectList.toString(), q.getRevisedSubject())){
-						memberList.append(q.getPrimaryMember().getId().toString()+"##");
-						subjectList.append(q.getRevisedSubject()+"##");
+						memberList.append(q.getPrimaryMember().getId().toString()+",");
+						subjectList.append(q.getRevisedSubject()+",");
 						newQuestionList.add(q);
 					}
 				}
