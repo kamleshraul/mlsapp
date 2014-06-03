@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +61,7 @@ import org.mkcl.els.domain.MemberBallotChoice;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.PreBallot;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Resolution;
@@ -385,26 +387,7 @@ public class BallotController extends BaseController{
 			Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale.toString());
 			if(ballot == null) {
 				Ballot newBallot = new Ballot(session, deviceType, answeringDate, new Date(), locale.toString());
-				newBallot.create();
-				if(deviceType.getType().startsWith("questions_halfhourdiscussion_")){
-					Status balloted = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_PROCESSED_BALLOTED, locale.toString());
-					if(newBallot.getBallotEntries() != null && !newBallot.getBallotEntries().isEmpty()){
-						for(BallotEntry be : newBallot.getBallotEntries()){
-							if(be.getDeviceSequences() != null && !be.getDeviceSequences().isEmpty()){
-								for(DeviceSequence deviceSeq : be.getDeviceSequences()){
-									Device device = deviceSeq.getDevice();
-									
-									if(device instanceof Question){
-										Question q = (Question) device;
-										q.setBallotStatus(balloted);
-										q.setDiscussionDate(answeringDate);
-										q.simpleMerge();
-									}
-								}
-							}
-						}
-					}
-				}
+				newBallot.create();				
 				retVal = "CREATED";
 			}
 			else {
@@ -441,7 +424,7 @@ public class BallotController extends BaseController{
 			}
 			
 			model.addAttribute("currentDesignation", designation.toString());
-			model.addAttribute("currentUser", this.getCurrentUser().getTitle()+" "+this.getCurrentUser().getFirstName()+" "+this.getCurrentUser().getLastName());
+			model.addAttribute("currentUser", (this.getCurrentUser().getTitle()+" "+this.getCurrentUser().getFirstName()+" " + this.getCurrentUser().getMiddleName() + " " +this.getCurrentUser().getLastName()));
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
@@ -700,6 +683,7 @@ public class BallotController extends BaseController{
 		}
 		return retVal;
 	}
+	
 	/****** Member Ballot For Council Starred Questions-First Batch(Sandeep) ******/
 	/****** Member Ballot(Council) Initial Page ****/
 	@RequestMapping(value="/memberballot/init",method=RequestMethod.GET)
@@ -2983,6 +2967,7 @@ public class BallotController extends BaseController{
 		try {
 			model.addAttribute("formater", new FormaterUtil());
 			model.addAttribute("locale", locale.toString());
+			model.addAttribute("preballot", "yes");
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 
@@ -2999,7 +2984,7 @@ public class BallotController extends BaseController{
 
 			/** Create Session */
 			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
-
+			model.addAttribute("sessionId", session.getId());
 			/** Create DeviceType */
 			DeviceType deviceType = null;
 			String strDeviceType = request.getParameter("questionType");
@@ -3009,6 +2994,7 @@ public class BallotController extends BaseController{
 			deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 			model.addAttribute("deviceType", deviceType.getType());
 			model.addAttribute("deviceName", deviceType.getName());
+			model.addAttribute("deviceId", deviceType.getId());
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
@@ -3025,6 +3011,7 @@ public class BallotController extends BaseController{
 				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}
+			model.addAttribute("strAnsweringDate", strAnsweringDate);
 			if(answeringDate!=null) {
 				model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
 			}
@@ -3106,6 +3093,36 @@ public class BallotController extends BaseController{
 		return retVal;
 	}
 
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/ballotfooter", method=RequestMethod.GET)
+	public @ResponseBody List getBallotFooter(HttpServletRequest request, HttpServletResponse response, Locale locale){
+		Map<String, String[]> params = new HashMap<String, String[]>();
+		params.put("locale", new String[]{locale.toString()});
+		
+		try{
+			params.put("sessionId", new String[]{request.getParameter("session")});
+			params.put("deviceTypeId", new String[]{request.getParameter("device")});
+			params.put("answeringDate", new String[]{request.getParameter("answerDate")});
+			List report = Query.findReport(request.getParameter("report"), params);
+			
+			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+			StringBuffer designation = new StringBuffer("");
+			for(UserGroup ug : userGroups){
+				if(ug != null){
+					designation.append(ug.getUserGroupType().getName());
+					break;
+				}
+			}
+			
+			((Object[])report.get(0))[2] = designation.toString() + ", " + (this.getCurrentUser().getTitle()+" "+this.getCurrentUser().getFirstName()+" " + this.getCurrentUser().getMiddleName() + " " +this.getCurrentUser().getLastName());
+			
+			return report;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}	
+	
 	private boolean validateBallotCreationForBill(Session session,
 			DeviceType deviceType, Date answeringDate, String locale) {
 		boolean isAllowedToCreateBallot = true;
@@ -3135,7 +3152,7 @@ public class BallotController extends BaseController{
 			}else{
 				ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
 			}
-
+			
 			model.addAttribute("ballotVOs", ballotVOs);
 			return "ballot/halfhourq_preballot";
 
