@@ -407,7 +407,8 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		}*/
 		
 		String query = "UPDATE questions" +
-				" SET ballotstatus_id =:ballotStatusID" + 
+				" SET ballotstatus_id =:ballotStatusID," + 
+				" discussion_date=:answeringDate" +
 				" WHERE id IN (" +
 				" SELECT qid FROM (" +
 				" SELECT q.id AS qid FROM questions q WHERE q.id IN (" +
