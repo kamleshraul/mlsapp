@@ -1189,8 +1189,9 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					" AND q.locale=:locale" +
 					" AND q.number IS NOT NULL");
 		}else if(!isPreBallot.booleanValue()){
+			//" SELECT GROUP_CONCAT(q.id),q.revised_subject FROM questions q" +
 			query = new StringBuffer(
-					" SELECT GROUP_CONCAT(q.id),q.revised_subject FROM questions q" +
+					" SELECT q.id,q.revised_subject FROM questions q" +
 					" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId " +
 					" AND ( q.discussion_date IS NULL OR q.discussion_date<=:strDiscussionDate)" +
 					" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime" +
@@ -1259,7 +1260,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 						" WHERE b.session_id=:sessionId" +
 						" AND b.devicetype_id=:deviceTypeId))");
 			}
-			query.append(" GROUP BY q.revised_subject");
+			//query.append(" GROUP BY q.revised_subject");
 			query.append(" ORDER BY q.submission_date DESC, q.number DESC");
 						
 			Query tQuery = this.em().createNativeQuery(query.toString());
