@@ -7,6 +7,33 @@
 		function clearErrorMsg(){
 			$("#error_msg").empty();
 		}
+		function memberwiseReport(){
+			var resourceURL = "";
+			if($("#category").val()=='question'){				
+				var parameters = "houseType="+$("#selectedHouseType").val()
+				 +"&sessionYear="+$("#selectedSessionYear").val()
+				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&questionType="+$("#selectedQuestionType").val()
+				 +"&group="+$("#selectedGroup").val()
+				 +"&status="+$("#selectedStatus").val()
+				 +"&role="+$("#srole").val() 
+				 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=question";	
+				resourceURL = 'question/report/memberwisequestions?'+ parameters;
+			}	
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			$.get(resourceURL,function(data){
+				$("#ballotResultDiv").html(data);
+				$.unblockUI();				
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.");
+				}
+				scrollTop();
+			});
+		}
 		$(document).ready(function() {
 			$("#pre_ballot").click(function(){
 				clearErrorMsg();
@@ -279,7 +306,11 @@
 					return false;
 				}
 			});
-			
+			$("#memberwise_report").click(function(){
+				$(".link").css("color","#8D8B8B");
+				$(this).css("color","blue");
+				memberwiseReport();
+			});
 			$("#give_balloted_resolution_choice").click(function(){
 				if($("#category").val()=='resolution'){
 					parameters = "houseType="+$("#selectedHouseType").val()
@@ -466,6 +497,11 @@
 					</c:forEach>
 				</select>				
 			</c:if>
+			<hr/>
+			<a href="#" id="memberwise_report" class="butSim link">
+				<spring:message code="ballotinitial.memberwisereport" text="Member's Questions Report"/>
+			</a>
+			<hr/>
 			</c:if>
 			<c:if test="${deviceTypeType =='resolutions_nonofficial'}">|
 				<%-- <c:if test="${houseType=='upperhouse'}"> --%>
