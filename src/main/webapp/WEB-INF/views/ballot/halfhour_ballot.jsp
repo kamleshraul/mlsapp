@@ -73,7 +73,11 @@
 <div style="width: 100%; font-size: 16px; ">
 		${ballotVOs[0][3]}&nbsp;${currentDesignation}, ${currentUser}&nbsp;${ballotVOs[0][4]}
 		<br><br>
-		__________________________________________________________________ ${ballotVOs[0][5]}				
+		__________________________________________________________________ ${ballotVOs[0][5]}	
+		<br><br><br>
+		${ballotVOs[0][6]}
+		<br><br><br>
+		${ballotVOs[0][7]}
 	</div>
 </div>
 </c:otherwise>
