@@ -36,7 +36,14 @@
 		</c:choose>
 	</div>
 	<div style="width: 100%; font-weight: bold; text-align: center; ">
-		<spring:message code="question.ballot.hdq.assembly.ballot" text="${deviceName}"/>
+		<c:choose>
+			<c:when test="${deviceType=='questions_halfhourdiscussion_from_question'}">
+				<spring:message code="question.ballot.hdq.council.ballot" text="${deviceName}"/>
+			</c:when>
+			<c:when test="${deviceType=='questions_halfhourdiscussion_standalone'}">
+				<spring:message code="question.ballot.hds.council.ballot" text="${deviceName}"/>
+			</c:when>
+		</c:choose>
 	</div>
 	<br>
 	<div style="width: 100%;font-size: 16px; font-weight: bold; text-align: center; width:">
