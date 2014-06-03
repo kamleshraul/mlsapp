@@ -4,7 +4,28 @@
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-	
+		$(document).ready(function(){
+			if($("#houseType").val()=='upperhouse'){
+				if($("#preballot").val()=='yes'){
+					if($("#deviceType").val()=='questions_halfhourdiscussion_from_question'){
+						$.get('ballot/ballotfooter?report=HDQ_COUNCIL_PREBALLOT_FOOTER&session='+$("#session").val()+'&device='+$("#device").val()+'&answerDate='+$("#answeringDate").val(), function(data){
+							if(data){
+								var text += data[0][1]+ " " + data[0][2] + data[0][3]+"<br><br><br>"+data[0][4]+"<br><br><br>"+data[0][5];
+								
+								$("#balFoot").empty();
+								$("#balFoot").html(text);
+							}
+						});
+					}else if($("#deviceType").val()=='questions_halfhourdiscussion_standalone'){
+						$.get('ballot/ballotfooter?report=HDS_COUNCIL_PREBALLOT_FOOTER&session='+$("#session").val()+'&device='+$("#device").val()+'&answerDate='+$("#answeringDate").val(), function(data){
+							if(data){
+								alert(data);
+							}
+						});
+					}
+				}
+			}
+		});
 	</script>
 	<link rel="stylesheet" type="text/css" href="./resources/css/printerfriendly.css?v=48" media="print" />
 </head>
@@ -36,7 +57,14 @@
 		</c:choose>
 	</div>
 	<div style="width: 100%; font-weight: bold; text-align: center; ">
-		<spring:message code="question.ballot.hdq.council.preballot" text="${deviceName}"/>
+		<c:choose>
+			<c:when test="${deviceType=='questions_halfhourdiscussion_from_question'}">
+				<spring:message code="question.ballot.hdq.council.preballot" text="${deviceName}"/>
+			</c:when>
+			<c:when test="${deviceType=='questions_halfhourdiscussion_standalone'}">
+				<spring:message code="question.ballot.hds.council.preballot" text="${deviceName}"/>
+			</c:when>
+		</c:choose>
 	</div>
 	<br>
 	<div style="width: 100%;font-size: 16px; font-weight: bold; text-align: center; width:">
@@ -62,9 +90,19 @@
 		</c:forEach>
 	</tbody>
 </table>
+<br><br>
+	<div style="width: 100%; font-size: 16px;" id="balFoot">
+					v
+	</div>
 </div>
 </c:otherwise>
 </c:choose>
+<input type="hidden" id="houseType" value="${houseType}" />
+<input type="hidden" id="deviceType" value="${deviceType}" />
+<input type="hidden" id="preballot" value="${preballot}" />
+<input type="hidden" id="session" value="${sessionId}" />
+<input type="hidden" id="device" value="${deviceId}" />
+<input type="hidden" id="answeringDate" value="${strAnsweringDate}" />
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 
