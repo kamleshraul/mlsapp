@@ -10,16 +10,19 @@
 					if($("#deviceType").val()=='questions_halfhourdiscussion_from_question'){
 						$.get('ballot/ballotfooter?report=HDQ_COUNCIL_PREBALLOT_FOOTER&session='+$("#session").val()+'&device='+$("#device").val()+'&answerDate='+$("#answeringDate").val(), function(data){
 							if(data){
-								var text += data[0][1]+ " " + data[0][2] + data[0][3]+"<br><br><br>"+data[0][4]+"<br><br><br>"+data[0][5];
+								var text = data[0][1]+ " " + data[0][2] + data[0][3]+"<br><br><br>"+data[0][4]+"<br><br><br>"+data[0][5];
 								
 								$("#balFoot").empty();
 								$("#balFoot").html(text);
-							}
+							}							
 						});
 					}else if($("#deviceType").val()=='questions_halfhourdiscussion_standalone'){
 						$.get('ballot/ballotfooter?report=HDS_COUNCIL_PREBALLOT_FOOTER&session='+$("#session").val()+'&device='+$("#device").val()+'&answerDate='+$("#answeringDate").val(), function(data){
 							if(data){
-								alert(data);
+								var text = data[0][1]+ " " + data[0][2] + data[0][3]+"<br><br><br>"+data[0][4]+"<br><br><br>"+data[0][5];
+								
+								$("#balFoot").empty();
+								$("#balFoot").html(text);
 							}
 						});
 					}
