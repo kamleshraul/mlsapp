@@ -1335,6 +1335,8 @@
 	<input type="hidden" name="answeringAttempts" value="${answeringAttempts}" />
 	<input type="hidden" id="reanswerstatus" name="reanswerstatus" value="${reanswerstatus}" />
 	<input type="hidden" id="workflowstatus" value="${workflowstatus}" />
+	<input id="ballotStatus" name="ballotStatus" value="${domain.ballotStatus.id}" type="hidden">
+	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 			<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${referredQuestionNumber}" />
 			<input type="hidden" name="referenceDeviceType" id="referenceDeviceType" value="${domain.referenceDeviceType}"/>

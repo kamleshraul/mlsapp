@@ -124,7 +124,7 @@
 		var sendBack = $("#internalStatusMaster option[value='question_recommend_sendback']").text();
 		var discuss = $("#internalStatusMaster option[value='question_recommend_discuss']").text();
 		
-		if(questionType == 'questions_halfhourdiscussion_from_question' && (value == sendBack || value == discuss)){
+		if((questionType == 'questions_halfhourdiscussion_from_question' || questionType == 'questions_halfhourdiscussion_standalone') && (value == sendBack || value == discuss)){
 			$("#endFlag").val("continue");
 		}
 		if(value==answerReceived || value==rejectedWithReason || value==departmentIntimated||value==clarificationReceived){
@@ -1094,12 +1094,12 @@
 	</c:if>
 	
 	<p>
-		<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
-			<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
-			<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-				<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
-			</c:if>
+		
+		<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
+		<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+			<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
 		</c:if>
+		
 		
 		<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 			<c:choose>
@@ -1444,6 +1444,7 @@
 	<input id="reminderfrom" name="reminderfrom" value="${pv_reminderfrom}" type="hidden">
 	<input id="remindersubject" name="remindersubject" value="${pv_remindersubject}" type="hidden">
 	<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">
+	<input id="ballotStatus" name="ballotStatus" value="${domain.ballotStatus.id}" type="hidden">
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 			<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${referredQuestionNumber}" />

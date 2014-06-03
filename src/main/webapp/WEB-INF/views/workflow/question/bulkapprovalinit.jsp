@@ -61,10 +61,9 @@
 	once and it will be set for all selected motions) ****/
 	function loadActors(value){
 		var question=$("#questionId").val();
-		console.log("Question Id:"+question);
 		if(question!=undefined&&question!=''){
 			var params="question="+question+"&status=";
-			if($("#currentusergroupType").val()=='assistant' || $("#currentusergroupType").val()=='section_officer'){
+			if(($("#currentusergroupType").val()=='assistant' || $("#currentusergroupType").val()=='section_officer') && ($("#apprworkflowSubType").val().indexOf("final")>-1)){
 				params += $("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text()+"&level=8";
 			}else{
 				params += value+"&level=1";
