@@ -44,6 +44,12 @@
 			/**** device type changes then reload grid****/			
 			$("#selectedDeviceType").change(function(){
 				var value=$(this).val();
+				var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+				if(device=='questions_shortnotice'){
+					$("#shortNoticeAnswerDateDiv").show();
+				}else{
+					$("#shortNoticeAnswerDateDiv").hide();
+				}
 				if(value!=""){
 					prependOptionToSelectedModule();
 					loadSubWorkflowByDeviceType(value);
@@ -470,6 +476,11 @@
 				}
 			});
 		}
+		
+		function showShortNoticeAnswerDateReport(wfId){
+			$("#selectionDiv1").hide();
+			showTabByIdAndUrl('details_tab','question/report/shortnoticeanswerdatereport?wfdId='+ wfId);
+		}		
 	</script>
 	
 	<style type="text/css">

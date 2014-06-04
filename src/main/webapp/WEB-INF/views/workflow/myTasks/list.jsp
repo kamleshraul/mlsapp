@@ -42,6 +42,22 @@
 					showCurrentStatusReport('all','');
 				}
 			});
+			
+			$("#generateShortNoticeAnswerDateReport").click(function(){
+				var selectedWorkflowDetailsId = $('#grid').jqGrid('getGridParam', 'selrow'); 
+				if(selectedWorkflowDetailsId==undefined || selectedWorkflowDetailsId=='') {
+					$.prompt($('#selectRowFirstMessage').val());
+					return false;
+				} else {
+					showShortNoticeAnswerDateReport(selectedWorkflowDetailsId);
+				}
+			});
+		
+			if($("#deviceTypeType").val()=='questions_shortnotice'){
+				$("#shortNoticeAnswerDateDiv").show();
+			}else{
+				$("#shortNoticeAnswerDateDiv").hide();
+			}
 		});
 	</script>
 </head>
@@ -81,6 +97,11 @@
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
+				<div id="shortNoticeAnswerDateDiv" style="display: inline;">
+					<a href="#" id="generateShortNoticeAnswerDateReport" class="butSim">
+						<spring:message code="question.generateShortNoticeAnswerDateReport" text="Generate Shortnotice Answer Date Report"/>
+					</a> |
+				</div>
 			 </security:authorize>
 			<p>&nbsp;</p>
 		</div>
