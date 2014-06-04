@@ -13,6 +13,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -2670,6 +2671,39 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 				+ "(hmra.toDate >=:activeOn OR hmra.toDate IS NULL )";
 		javax.persistence.Query query=this.em().createQuery(strQuery);
 		query.setParameter("member",member.getId());
+		query.setParameter("activeOn", activeOn);
+		List result=query.getResultList();
+		if(result!=null && !result.isEmpty()){
+			return true;
+		}
+		return false;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public boolean isActiveMemberInAnyOfGivenRolesOn(final Member member,final String[] memberRoles, final Date activeOn,final String locale) {
+		String strQuery="Select m FROM Member m JOIN m.houseMemberRoleAssociations hmra "
+				+ "WHERE m.id=:member "
+				+ "AND hmra.fromDate <=:activeOn AND hmra.role.type IN (:memberRoles) "
+				+ "AND (hmra.toDate >=:activeOn OR hmra.toDate IS NULL )";
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("member",member.getId());
+		query.setParameter("memberRoles",Arrays.asList(memberRoles));
+		query.setParameter("activeOn", activeOn);
+		List result=query.getResultList();
+		if(result!=null && !result.isEmpty()){
+			return true;
+		}
+		return false;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public boolean isActiveMinisterOn(final Member member, final Date activeOn, final String locale) {
+		String strQuery="Select m FROM Member m JOIN m.memberMinisters mm "
+				+ "WHERE m.id=:member "
+				+ "AND mm.ministryFromDate <=:activeOn "
+				+ "AND (mm.ministryToDate >=:activeOn OR mm.ministryToDate IS NULL )";
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("member",member.getId());		
 		query.setParameter("activeOn", activeOn);
 		List result=query.getResultList();
 		if(result!=null && !result.isEmpty()){

@@ -2622,7 +2622,12 @@ public class Ballot extends BaseDomain implements Serializable {
 					} else {
 						memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
 					}
-					ballotEntryMemberName = ballotEntryMember.findNameInGivenFormat(memberNameFormat);
+					if(!ballotEntryMember.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), locale)
+							&& !ballotEntryMember.isActiveMinisterOn(new Date(), locale)) {
+						ballotEntryMemberName = ballotEntryMember.findNameInGivenFormat(memberNameFormat);
+					} else {
+						ballotEntryMemberName = "";
+					}					
 					questionMemberNames = q.findAllMemberNames(memberNameFormat);										
 				}
 				if(!ballotEntryMemberName.isEmpty()) {
@@ -2890,7 +2895,12 @@ public class Ballot extends BaseDomain implements Serializable {
 						} else {
 							memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;						
 						}
-						ballotEntryMemberName = ballotEntryMember.findNameInGivenFormat(memberNameFormat);
+						if(!ballotEntryMember.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), locale)
+								&& !ballotEntryMember.isActiveMinisterOn(new Date(), locale)) {
+							ballotEntryMemberName = ballotEntryMember.findNameInGivenFormat(memberNameFormat);
+						} else {
+							ballotEntryMemberName = "";
+						}
 						questionMemberNames = q.findAllMemberNames(memberNameFormat);										
 					}
 					if(!ballotEntryMemberName.isEmpty()) {

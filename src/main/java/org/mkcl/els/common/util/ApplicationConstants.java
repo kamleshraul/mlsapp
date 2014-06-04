@@ -1372,4 +1372,6 @@ public class ApplicationConstants {
 	public static final String FORMAT_MEMBERNAME_FULLNAMELASTNAMEFIRST = "fullnamelastnamefirst";
 
 	public static final String OUESTION_BALLOT_NO_OF_ROUNDS = "3";
+	
+	public static final String NON_MEMBER_ROLES = "SPEAKER,DEPUTY_SPEAKER,CHAIRMAN,DEPUTY_CHAIRMAN";
 }

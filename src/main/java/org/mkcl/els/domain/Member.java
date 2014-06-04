@@ -758,6 +758,14 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMemberRepository().isActiveMemberOn(this,date,locale);
 	}
 	
+	public boolean isActiveMemberInAnyOfGivenRolesOn(final String[] memberRoles, final Date date, final String locale){
+		return getMemberRepository().isActiveMemberInAnyOfGivenRolesOn(this, memberRoles, date, locale);
+	}
+	
+	public boolean isActiveMinisterOn(final Date date,final String locale){
+		return getMemberRepository().isActiveMinisterOn(this,date,locale);
+	}
+	
 	public boolean isPresentInMemberBallotAttendanceUH(final Session session,final DeviceType deviceType,final String locale){
 		return getMemberRepository().isPresentInMemberBallotAttendanceUH(session,deviceType,this,locale);
 	}
@@ -782,21 +790,29 @@ import org.springframework.beans.factory.annotation.Configurable;
 					try {
 						if(!this.isPresentInMemberBallotAttendanceUH(session,deviceType,question.getLocale())
 							&& this.isActiveMemberOn(currentDate, question.getLocale())
+							&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
+							&& !this.isActiveMinisterOn(currentDate, question.getLocale())
 							&& question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
 							){
 							isSupportingOrClubbedMemberToBeAddedForDevice = true;
 						}else if(!this.isPresentInMemberBallotAttendanceUH(session,deviceType,question.getLocale())
 								&& this.isActiveMemberOn(currentDate, question.getLocale())
+								&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
+								&& !this.isActiveMinisterOn(currentDate, question.getLocale())
 								&& !question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
 								){
 								isSupportingOrClubbedMemberToBeAddedForDevice = false;
-						}else if(this.isActiveMemberOn(currentDate, question.getLocale())){
+						}else if(this.isActiveMemberOn(currentDate, question.getLocale())
+								&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
+								&& !this.isActiveMinisterOn(currentDate, question.getLocale())){
 							isSupportingOrClubbedMemberToBeAddedForDevice = true;
 						}
 					} catch (ELSException e) {
 						e.printStackTrace();
 					}
-				} else if(this.isActiveMemberOn(currentDate, question.getLocale())){
+				} else if(this.isActiveMemberOn(currentDate, question.getLocale())
+						&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
+						&& !this.isActiveMinisterOn(currentDate, question.getLocale())){
 					isSupportingOrClubbedMemberToBeAddedForDevice = true;
 				}
 			}			
