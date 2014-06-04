@@ -690,7 +690,37 @@ public class QuestionReportController extends BaseController{
 		return "question/reports/hd_statusreport";
 	}	
 	
-	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/shortnoticeanswerdatereport", method=RequestMethod.GET)
+	public String getShortNoticeAnswerDateReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		String page = "question/reports/error"; 
+		try{
+			String strWfid = request.getParameter("wfdId");
+			String strQid = request.getParameter("qId");
+			
+			WorkflowDetails wfd = null;
+			if(strWfid != null && !strWfid.isEmpty()){
+				wfd = WorkflowDetails.findById(WorkflowDetails.class, new Long(strWfid));
+				if(wfd != null){
+					strQid = wfd.getDeviceId();
+				}
+			}
+			
+			if(strQid != null && !strQid.isEmpty()){
+				Map<String, String[]> params = new HashMap<String, String[]>();
+				params.put("locale", new String[]{locale.toString()});
+				params.put("qId", new String[]{wfd.getDeviceId()});
+				List report = Query.findReport("QUESTIONS_SHORTNOTICE_ANSWERING_REPORT", params);
+				model.addAttribute("report", report);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			model.addAttribute("errorcode", "insufficient_parameters");
+		}
+
+		response.setContentType("text/html; charset=utf-8");
+		return "question/reports/shortnoticeanswer";
+	}
 	//----------------------------------------------------------------------
 	@RequestMapping(value="/viewYaadi" ,method=RequestMethod.GET)
 	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
