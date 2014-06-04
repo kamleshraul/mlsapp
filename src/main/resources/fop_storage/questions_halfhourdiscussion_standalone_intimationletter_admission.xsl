@@ -88,7 +88,8 @@
 	            		<fo:block>
 	            			&#160;&#160;&#160;&#160;
 	            			<xsl:choose>
-	            				<xsl:when test="reason!=''"><xsl:apply-templates select="reason"/></xsl:when>
+	            				<xsl:when test="reason!='' and reason!='-' and reason!='--' and reason!='---' and reason!='----' and reason!='-----'">
+	            					<xsl:apply-templates select="reason"/></xsl:when>
 	            				<xsl:when test="bExplanation!=''"><xsl:apply-templates select="bExplanation"/></xsl:when>
 	            			</xsl:choose>	            			
 	            		</fo:block> 
