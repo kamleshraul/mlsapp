@@ -302,7 +302,9 @@
 								<fo:block font-size="6px">&#160;</fo:block>
 								<fo:block margin-left="1.5cm">
 									<xsl:choose>
-			            				<xsl:when test="reason!=''"><xsl:apply-templates select="reason"/></xsl:when>
+			            				<xsl:when test="reason!='' and reason!='-' and reason!='--' and reason!='---' and reason!='----' and reason!='-----'">
+			            					<xsl:apply-templates select="reason"/>
+			            				</xsl:when>
 			            				<xsl:when test="bExplanation!=''"><xsl:apply-templates select="bExplanation"/></xsl:when>
 			            			</xsl:choose>									
 								</fo:block>
