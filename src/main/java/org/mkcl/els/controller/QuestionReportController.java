@@ -1250,8 +1250,8 @@ public class QuestionReportController extends BaseController{
 				if((!category.isEmpty())&&(!strQuestionType.isEmpty())&&!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()){										
 					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
 					if(questionType==null) {
-						logger.error("**** Check request parameter 'session,questionType' for empty values ****");
-						model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
+						logger.error("**** DeviceType Not Found ****");
+						model.addAttribute("type", "QUESTIONTYPE_NOTFOUND");
 						return errorpage;
 					}
 					model.addAttribute("questionType",questionType.getId());
@@ -1262,20 +1262,21 @@ public class QuestionReportController extends BaseController{
 					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
 					Integer sessionYear = Integer.parseInt(strSessionYear);
 					if(houseType==null || sessionType==null) {
-						logger.error("**** Check request parameter 'session,questionType' for empty values ****");
-						model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
+						logger.error("**** HouseType or SessionType Not Found ****");
+						model.addAttribute("type", "HOUSETYPE_NOTFOUND_OR_SESSIONTYPE_NOTFOUND");
 						return errorpage;
 					}
 					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 					if(session==null) {								
-						logger.error("**** Check request parameter 'session,questionType' for empty values ****");
-						model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
+						logger.error("**** Session Not Found ****");
+						model.addAttribute("type", "SESSION_NOTFOUND");
 						return errorpage;
 					}
 					model.addAttribute("session",session.getId());			
 					/**** find all members from given house which can submit questions ****/
 					Map<String, String[]> queryParameters = new HashMap<String, String[]>();
 					queryParameters.put("houseId", new String[]{session.getHouse().getId().toString()});
+					queryParameters.put("currentDate", new String[]{FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT)});
 					queryParameters.put("locale", new String[]{locale.toString()});
 					List resultList = Query.findReport("MEMBERS_ELIGIBLE_FOR_QUESTION_SUBMISSION_IN_GIVEN_HOUSE", queryParameters);
 					if(resultList!=null && !resultList.isEmpty()) {
