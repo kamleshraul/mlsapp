@@ -9,20 +9,11 @@
 			<p></p>
 		</div>
 	</c:when>
-	<c:when test="${errorcode eq 'noClubbedEntitiesFound'}">
+	<c:when test="${errorcode eq 'insufficient_parameters'}">
 		<div class="toolTip tpRed clearfix">
 			<p>
 				<img src="./resources/images/template/icons/light-bulb-off.png">
-				<spring:message code="question.report.errorcode.noClubbedEntitiesFound" text="There are no clubbed questions for this question"/>
-			</p>
-			<p></p>
-		</div>
-	</c:when>
-	<c:when test="${errorcode eq 'noNameClubbedEntitiesFound'}">
-		<div class="toolTip tpRed clearfix">
-			<p>
-				<img src="./resources/images/template/icons/light-bulb-off.png">
-				<spring:message code="question.errorcode.domain_not_found" text="There are no name-clubbed questions for this question"/>
+				<spring:message code="question.report.errorcode.insufficient_parameters" text="Insufficient Parameters."/>
 			</p>
 			<p></p>
 		</div>
