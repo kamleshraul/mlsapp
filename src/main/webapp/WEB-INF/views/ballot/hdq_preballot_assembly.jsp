@@ -35,7 +35,7 @@
 			</c:when>
 		</c:choose>
 	</div>
-	<div style="width: 100%; font-weight: bold; textd=5-align: center; ">
+	<div style="width: 100%; font-weight: bold; text-align: center; ">
 		<spring:message code="question.ballot.hdq.assembly.preballot" text="${deviceName}"/>
 	</div>
 	<br>
