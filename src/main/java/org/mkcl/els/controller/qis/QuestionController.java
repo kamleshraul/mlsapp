@@ -2769,6 +2769,21 @@ public class QuestionController extends GenericController<Question>{
 		if (selectedSession != null) {
 			if (questionType.getType().equals("questions_halfhourdiscussion_from_question")) {
 
+				CustomParameter csptHDQRefDevicesAllowed = CustomParameter.findByName(CustomParameter.class,questionType.getType().toUpperCase()+"_"+selectedSession.getHouse().getType().getType().toUpperCase()+"_REFERENCE_DEVICES_ALLOWED", "");
+				List<String> hdqRefDevices = new ArrayList<String>();
+				if(csptHDQRefDevicesAllowed != null){
+					if(csptHDQRefDevicesAllowed.getValue() != null && !csptHDQRefDevicesAllowed.getValue().isEmpty()){
+						for(String device : csptHDQRefDevicesAllowed.getValue().split(",")){
+							DeviceType deviceType = DeviceType.findByType(device, domain.getLocale());
+							hdqRefDevices.add(deviceType.getName());
+						}
+						
+						model.addAttribute("hdqRefDevices", hdqRefDevices);
+					}
+				}else{
+					//model.addAttribute("errorcode","QUESTIONS_HALFHOURDISCUSSION_FROM_QUESTION_LOWERHOUSE_REFERENCE_DEVICES_ALLOWED_NOT_SET");
+				}
+				
 				Integer selYear = selectedSession.getYear();
 				List<Reference> halfhourdiscussion_sessionYears = new ArrayList<Reference> ();
 
@@ -2987,6 +3002,23 @@ public class QuestionController extends GenericController<Question>{
 
 		if (selectedSession != null) {
 			if(questionType.getType().equals("questions_halfhourdiscussion_from_question")){
+				
+				CustomParameter csptHDQRefDevicesAllowed = CustomParameter.findByName(CustomParameter.class,questionType.getType().toUpperCase()+"_"+selectedSession.getHouse().getType().getType().toUpperCase()+"_REFERENCE_DEVICES_ALLOWED", "");
+				List<String> hdqRefDevices = new ArrayList<String>();
+				if(csptHDQRefDevicesAllowed != null){
+					if(csptHDQRefDevicesAllowed.getValue() != null && !csptHDQRefDevicesAllowed.getValue().isEmpty()){
+						for(String device : csptHDQRefDevicesAllowed.getValue().split(",")){
+							DeviceType deviceType = DeviceType.findByType(device, domain.getLocale());
+							hdqRefDevices.add(deviceType.getName());
+						}
+						
+						model.addAttribute("hdqRefDevices", hdqRefDevices);
+						model.addAttribute("hdqRefDeviceSelected", domain.getReferenceDeviceType());
+					}
+				}else{
+					//model.addAttribute("errorcode","QUESTIONS_HALFHOURDISCUSSION_FROM_QUESTION_LOWERHOUSE_REFERENCE_DEVICES_ALLOWED_NOT_SET");
+				}
+				
 				Integer selYear = selectedSession.getYear();
 				List<Reference> halfhourdiscussion_sessionYears = new ArrayList<Reference> ();
 
