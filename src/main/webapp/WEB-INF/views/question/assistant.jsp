@@ -1251,20 +1251,22 @@
 			<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
 		</p>
 	</c:if>
-	<c:choose>
-		<c:when test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_admission'}">
-			<p>
-			<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
-			<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
-			</p>
-		</c:when>
-		<c:when test="${houseTypeType=='lowerhouse' && !(empty domain.answer)}">
-			<p>
-			<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
-			<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
-			</p>
-		</c:when>
-	</c:choose>
+	<c:if test="${selectedQuestionType=='questions_starred' || selectedQuestionType=='questions_shortnotice'}">
+		<c:choose>
+			<c:when test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_admission'}">
+				<p>
+				<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+				<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+				</p>
+			</c:when>
+			<c:when test="${houseTypeType=='lowerhouse' && !(empty domain.answer)}">
+				<p>
+				<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+				<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+				</p>
+			</c:when>
+		</c:choose>
+	</c:if>
 	
 	<p>
 	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
@@ -1296,7 +1298,7 @@
 				</c:if>
 				<%--- Remove the Following if conditions after session... Hack given for the council branch  --%>
 				
-				<c:if test="${fn:contains(internalStatusType, 'question_final') && selectedQuestionType=='questions_starred'}">
+				<c:if test="${fn:contains(internalStatusType, 'question_final')}">
 					<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT','HDS_ASSISTANT')">
 						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					</security:authorize>					
@@ -1378,6 +1380,9 @@
 			<input type="hidden" name="referenceDeviceType" id="referenceDeviceType" value="${domain.referenceDeviceType}"/>
 			<input type="hidden" name="referenceDeviceMember" id="referenceDeviceMember" value="${domain.referenceDeviceMember}"/>
 			<input type="hidden" name="referenceDeviceAnswerDate" id="referenceDeviceAnswerDate" value="${refDeviceAnswerDate}"/>
+	</c:if>
+	<c:if test="${domain.ballotStatus!=null}">
+		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${domain.ballotStatus.id}"/>		
 	</c:if>
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
