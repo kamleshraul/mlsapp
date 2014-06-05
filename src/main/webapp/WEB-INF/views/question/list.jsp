@@ -85,6 +85,12 @@
 				generateClubbedIntimationLetter();				
 			});
 			
+			/**** Generate Member's Questions Report ****/
+			$("#memberwise_questions_report").click(function(){
+				$("#selectionDiv1").hide();
+				memberwiseQuestionsReport();
+			});
+			
 			//------stats reports as html-----------------------starts----------------
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
@@ -221,6 +227,9 @@
 					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>
 				</a> | 				
 			</security:authorize>	 
+			<a href="#" id="memberwise_questions_report" class="butSim link">
+				<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
+			</a> |
 			<p>&nbsp;</p>
 		</div>
 	</div>
