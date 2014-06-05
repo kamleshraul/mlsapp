@@ -49,6 +49,8 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String questionReferenceText;
 	
+	private String factualPosition;
+	
 	private String lastSendingDateToDepartment;
 	
 	private String rejectionReason;
@@ -240,6 +242,15 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 
 	public void setQuestionReferenceText(String questionReferenceText) {
 		this.questionReferenceText = questionReferenceText;
+	}
+
+	@XmlElement(name = "factualPosition")
+	public String getFactualPosition() {
+		return factualPosition;
+	}
+
+	public void setFactualPosition(String factualPosition) {
+		this.factualPosition = factualPosition;
 	}
 
 	@XmlElement(name = "lastSendingDateToDepartment")
