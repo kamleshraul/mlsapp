@@ -32,30 +32,19 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
-import org.mkcl.els.common.vo.MemberAgeWiseReportVO;
 import org.mkcl.els.common.vo.MemberBiographyVO;
-import org.mkcl.els.common.vo.MemberChildrenWiseReportVO;
 import org.mkcl.els.common.vo.MemberCompleteDetailVO;
 import org.mkcl.els.common.vo.MemberContactVO;
-import org.mkcl.els.common.vo.MemberGeneralVO;
 import org.mkcl.els.common.vo.MemberInfo;
-import org.mkcl.els.common.vo.MemberPartyDistrictWiseVO;
-import org.mkcl.els.common.vo.MemberPartyWiseReportVO;
-import org.mkcl.els.common.vo.MemberProfessionWiseReportVO;
-import org.mkcl.els.common.vo.MemberQualificationWiseReportVO;
-import org.mkcl.els.common.vo.MemberSearchPage;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.mkcl.els.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-
-// TODO: Auto-generated Javadoc
 /**
  * The Class Member.
  *
@@ -703,6 +692,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return constituencyName;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public String findConstituencyNameForAssemblyYadiReport(final House house) {
 		String constituencyName = "";
 		if(house!=null) {
@@ -720,6 +710,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return constituencyName;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public String findConstituencyNameForCouncilYadiReport(final House house, final String criteria, final Date fromDate, final Date toDate) {
 		String constituencyName = "";
 		if(house!=null) {
@@ -772,54 +763,71 @@ import org.springframework.beans.factory.annotation.Configurable;
 	
 	public boolean isSupportingOrClubbedMemberToBeAddedForDevice(Device device) {
 		boolean isSupportingOrClubbedMemberToBeAddedForDevice = false;
-		HouseType houseType = null;
-		DeviceType deviceType = null;
+//		HouseType houseType = null;
+//		DeviceType deviceType = null;
 		Session session = null;
 		Date currentDate = new Date();
 		if(device!=null) {
 			if(device instanceof Question) {
 				Question question = (Question) device;
-				houseType = question.getHouseType();
-				deviceType = question.getType();
+//				houseType = question.getHouseType();
+//				deviceType = question.getType();
 				session = question.getSession();
-				if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE) 
-						&& deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
-					/**** in case of starred question in upper house,if a supporting this is active on current date
-					 * and the question contains a clubbed entity that belongs to second batch then the this will
-					 * be included ****/
-					try {
-						if(!this.isPresentInMemberBallotAttendanceUH(session,deviceType,question.getLocale())
-							&& this.isActiveMemberOn(currentDate, question.getLocale())
-							&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
-							&& !this.isActiveMinisterOn(currentDate, question.getLocale())
-							&& question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
-							){
-							isSupportingOrClubbedMemberToBeAddedForDevice = true;
-						}else if(!this.isPresentInMemberBallotAttendanceUH(session,deviceType,question.getLocale())
-								&& this.isActiveMemberOn(currentDate, question.getLocale())
-								&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
-								&& !this.isActiveMinisterOn(currentDate, question.getLocale())
-								&& !question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
-								){
-								isSupportingOrClubbedMemberToBeAddedForDevice = false;
-						}else if(this.isActiveMemberOn(currentDate, question.getLocale())
-								&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
-								&& !this.isActiveMinisterOn(currentDate, question.getLocale())){
-							isSupportingOrClubbedMemberToBeAddedForDevice = true;
+				String locale=question.getLocale();
+//				if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE) 
+//						&& deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+//						if(!this.isPresentInMemberBallotAttendanceUH(session,deviceType,question.getLocale())
+//							&& this.isActiveMemberOn(currentDate, question.getLocale())
+//							&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
+//							&& !this.isActiveMinisterOn(currentDate, question.getLocale())
+//							&& question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
+//							){
+//							isSupportingOrClubbedMemberToBeAddedForDevice = true;
+//						}else if(!this.isPresentInMemberBallotAttendanceUH(session,deviceType,question.getLocale())
+//								&& this.isActiveMemberOn(currentDate, question.getLocale())
+//								&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
+//								&& !this.isActiveMinisterOn(currentDate, question.getLocale())
+//								&& !question.containsClubbingFromSecondBatch(question.getSession(),this,question.getLocale())
+//								){
+//								isSupportingOrClubbedMemberToBeAddedForDevice = false;
+//						}else if(this.isActiveMemberOn(currentDate, question.getLocale())
+//								&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
+//								&& !this.isActiveMinisterOn(currentDate, question.getLocale())){
+//							isSupportingOrClubbedMemberToBeAddedForDevice = true;
+//						}
+						
+						MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
+						HouseMemberRoleAssociation hmra=Member.find(this,memberRole,currentDate,locale);
+						boolean isMemberAllowed=isMemberAllowed(hmra,question);
+						if(isMemberAllowed){
+							boolean isActivePresidingOfficer=this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","),currentDate, locale);
+							if(!isActivePresidingOfficer){
+								boolean isMinister=this.isActiveMinisterOn(currentDate, locale);
+								if(!isMinister){
+									isSupportingOrClubbedMemberToBeAddedForDevice=true;
+								}
+							}
 						}
-					} catch (ELSException e) {
-						e.printStackTrace();
-					}
-				} else if(this.isActiveMemberOn(currentDate, question.getLocale())
-						&& !this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), new Date(), question.getLocale())
-						&& !this.isActiveMinisterOn(currentDate, question.getLocale())){
-					isSupportingOrClubbedMemberToBeAddedForDevice = true;
-				}
+//				} 
 			}			
 		}
 		return isSupportingOrClubbedMemberToBeAddedForDevice;
 	}
 	
+	private Boolean isMemberAllowed(HouseMemberRoleAssociation hmra,Question question){
+		if(hmra!=null && question!=null){
+			if(hmra.getFromDate().before(question.getSubmissionDate())
+				&& hmra.getToDate().after(question.getSubmissionDate())){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static HouseMemberRoleAssociation find(Member member,
+			MemberRole memberRole, Date date, String locale) {
+		return getMemberRepository().find(member,memberRole,date,locale);
+	}
 	// ------------------------------------------Getters/Setters-----------------------------------
 	/**
 	 * Gets the title.
@@ -1847,5 +1855,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public void setDeathRemarks(final String deathRemarks) {
 		this.deathRemarks = deathRemarks;
 	}
+	
 	
 }
