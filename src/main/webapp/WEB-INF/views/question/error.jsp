@@ -231,4 +231,13 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${errorcode eq 'QUESTIONS_HALFHOURDISCUSSION_FROM_QUESTION_LOWERHOUSE_REFERENCE_DEVICES_ALLOWED_NOT_SET'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.QUESTIONS_HALFHOURDISCUSSION_FROM_QUESTION_LOWERHOUSE_REFERENCE_DEVICES_ALLOWED_NOT_SET" text="Custom Parameter 'QUESTIONS_HALFHOURDISCUSSION_FROM_QUESTION_LOWERHOUSE_REFERENCE_DEVICES_ALLOWED' not set"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 </c:choose>
