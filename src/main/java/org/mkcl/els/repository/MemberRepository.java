@@ -69,6 +69,7 @@ import org.mkcl.els.domain.Qualification;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.RivalMember;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.stereotype.Repository;
 
@@ -2754,5 +2755,29 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		TypedQuery<Member> query = this.em().createQuery(strQuery, Member.class);
 		List<Member> members = query.getResultList();
 		return members;
+	}
+
+	public HouseMemberRoleAssociation find(Member member,
+			MemberRole memberRole, Date onDate, String locale) {
+		String strQuery = "SELECT hmra " +
+				"FROM HouseMemberRoleAssociation  hmra " +
+				" WHERE hmra.fromDate<=:onDate " +
+				" AND hmra.role.id=:memberRoleId " +
+				" AND hmra.member.id=:memberId " +
+				" AND (hmra.toDate IS NULL " +
+				" OR hmra.toDate>=:onDate) " +
+				" AND hmra.locale=:locale";
+		javax.persistence.Query query= this.em().createQuery(strQuery);
+		query.setParameter("onDate", onDate);
+		query.setParameter("memberRoleId", memberRole.getId());
+		query.setParameter("memberId", member.getId());
+		query.setParameter("locale", locale);
+		try{
+			HouseMemberRoleAssociation hmra=(HouseMemberRoleAssociation) query.getSingleResult();
+			return hmra;
+		}catch(Exception e){
+			return null;
+		}
+		
 	}	
 }

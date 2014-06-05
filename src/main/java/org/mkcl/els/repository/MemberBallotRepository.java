@@ -49,12 +49,14 @@ import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotAttendance;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Reference;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SupportingMember;
+import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Repository;
 
 import com.ibm.icu.util.BytesTrie.Entry;
@@ -1766,20 +1768,33 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			for(SupportingMember s:supportingMembers){
 				Member member=s.getMember();
 				boolean allowed=false;
-				if(!member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
-						&& member.isActiveMemberOn(currentDate, locale)
-						&& question.containsClubbingFromSecondBatch(session,member,locale)
-						){
-					allowed=true;
-				}else if( member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
-						&& member.isActiveMemberOn(currentDate, locale)
-						&& !question.containsClubbingFromSecondBatch(session,member,locale)){		
-					allowed=true;
-				}else if( member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
-						&& member.isActiveMemberOn(currentDate, locale)
-						&& question.containsClubbingFromSecondBatch(session,member,locale)){		
-					allowed=true;
+//				if(!member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+//						&& member.isActiveMemberOn(currentDate, locale)
+//						&& question.containsClubbingFromSecondBatch(session,member,locale)
+//						){
+//					allowed=true;
+//				}else if( member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+//						&& member.isActiveMemberOn(currentDate, locale)
+//						&& !question.containsClubbingFromSecondBatch(session,member,locale)){		
+//					allowed=true;
+//				}else if( member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+//						&& member.isActiveMemberOn(currentDate, locale)
+//						&& question.containsClubbingFromSecondBatch(session,member,locale)){		
+//					allowed=true;
+//				}
+				MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
+				HouseMemberRoleAssociation hmra=Member.find(member,memberRole,currentDate,locale);
+				boolean isMemberAllowed=isMemberAllowed(hmra,question);
+				if(isMemberAllowed){
+					boolean isActivePresidingOfficer=member.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","),currentDate, locale);
+					if(!isActivePresidingOfficer){
+						boolean isMinister=member.isActiveMinisterOn(currentDate, locale);
+						if(!isMinister){
+							allowed=true;
+						}
+					}
 				}
+			
 				if(allowed){
 					allocated=allocateQuestionToMember(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,
 							session,deviceType,locale,totalRoundsInMemberBallot,firstBatchSubmissionEndDateDate
@@ -1793,7 +1808,18 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 		}
 		return allocated;
 	}	
-
+	
+	private Boolean isMemberAllowed(HouseMemberRoleAssociation hmra,Question question){
+		if(hmra!=null && question!=null){
+			if(hmra.getFromDate().before(question.getSubmissionDate())
+				&& hmra.getToDate().after(question.getSubmissionDate())){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
 	private boolean inactiveMemberQuestionClubbedMember(
 			final Map<String, String[]> requestMap,
 			int position,
@@ -1818,20 +1844,33 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			for(ClubbedEntity i:clubbedEntities){
 				Member member=i.getQuestion().getPrimaryMember();
 				boolean allowed=false;
-				if(!member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
-						&& member.isActiveMemberOn(currentDate, locale)
-						&& question.containsClubbingFromSecondBatch(session,member,locale)
-						){
-					allowed=true;
-				}else if( member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
-						&& member.isActiveMemberOn(currentDate, locale)
-						&& !question.containsClubbingFromSecondBatch(session,member,locale)){		
-					allowed=true;
-				}else if( member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
-						&& member.isActiveMemberOn(currentDate, locale)
-						&& question.containsClubbingFromSecondBatch(session,member,locale)){		
-					allowed=true;
-				}				
+//				if(!member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+//						&& member.isActiveMemberOn(currentDate, locale)
+//						&& question.containsClubbingFromSecondBatch(session,member,locale)
+//						){
+//					allowed=true;
+//				}else if( member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+//						&& member.isActiveMemberOn(currentDate, locale)
+//						&& !question.containsClubbingFromSecondBatch(session,member,locale)){		
+//					allowed=true;
+//				}else if( member.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+//						&& member.isActiveMemberOn(currentDate, locale)
+//						&& question.containsClubbingFromSecondBatch(session,member,locale)){		
+//					allowed=true;
+//				}	
+				MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
+				HouseMemberRoleAssociation hmra=Member.find(member,memberRole,currentDate,locale);
+				boolean isMemberAllowed=isMemberAllowed(hmra,question);
+				if(isMemberAllowed){
+					boolean isActivePresidingOfficer=member.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), currentDate, locale);
+					if(!isActivePresidingOfficer){
+						boolean isMinister=member.isActiveMinisterOn(currentDate, locale);
+						if(!isMinister){
+							allowed=true;
+						}
+					}
+				}
+				
 				if(allowed){
 					allocated=allocateQuestionToMember(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,
 							session,deviceType,locale,totalRoundsInMemberBallot,firstBatchSubmissionEndDateDate
@@ -1846,20 +1885,32 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						for(SupportingMember s:supportingMembers){
 							Member supportingMember=s.getMember();
 							boolean supportingAllowed=false;
-							if(!supportingMember.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
-									&& supportingMember.isActiveMemberOn(currentDate, locale)
-									&& question.containsClubbingFromSecondBatch(session,supportingMember,locale)
-									){
-								supportingAllowed=true;
-							}else if( supportingMember.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
-									&& supportingMember.isActiveMemberOn(currentDate, locale)
-									&& !question.containsClubbingFromSecondBatch(session,supportingMember,locale)){		
-								supportingAllowed=true;
-							}else if( supportingMember.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
-									&& supportingMember.isActiveMemberOn(currentDate, locale)
-									&& question.containsClubbingFromSecondBatch(session,supportingMember,locale)){		
-								supportingAllowed=true;
-							}		
+//							if(!supportingMember.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+//									&& supportingMember.isActiveMemberOn(currentDate, locale)
+//									&& question.containsClubbingFromSecondBatch(session,supportingMember,locale)
+//									){
+//								supportingAllowed=true;
+//							}else if( supportingMember.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+//									&& supportingMember.isActiveMemberOn(currentDate, locale)
+//									&& !question.containsClubbingFromSecondBatch(session,supportingMember,locale)){		
+//								supportingAllowed=true;
+//							}else if( supportingMember.isPresentInMemberBallotAttendanceUH(session,deviceType,locale)
+//									&& supportingMember.isActiveMemberOn(currentDate, locale)
+//									&& question.containsClubbingFromSecondBatch(session,supportingMember,locale)){		
+//								supportingAllowed=true;
+//							}	
+							//MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
+							HouseMemberRoleAssociation supportingHmra=Member.find(supportingMember,memberRole,currentDate,locale);
+							boolean isSupportingMemberAllowed=isMemberAllowed(supportingHmra,question);
+							if(isSupportingMemberAllowed){
+								boolean isActivePresidingOfficer=supportingMember.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","),currentDate, locale);
+								if(!isActivePresidingOfficer){
+									boolean isMinister=supportingMember.isActiveMinisterOn(currentDate, locale);
+									if(!isMinister){
+										supportingAllowed=true;
+									}
+								}
+							}
 							if(supportingAllowed){
 								allocated=allocateQuestionToMember(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,
 										session,deviceType,locale,totalRoundsInMemberBallot,firstBatchSubmissionEndDateDate
