@@ -80,6 +80,9 @@
 							<xsl:otherwise><xsl:value-of select="memberNames"/></xsl:otherwise>
 						</xsl:choose>					
 					</xsl:variable>
+					<xsl:variable name="endPartOfSubDepartment">
+						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
+					</xsl:variable>
 	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
 						<fo:block text-align="right">
 							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
@@ -133,12 +136,13 @@
 						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block text-align="center">
-							<fo:inline font-weight="bold">विषय :</fo:inline> आपण
+							<fo:inline font-weight="bold">विषय : </fo:inline>आपण
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">दिलेली म.वि.स. नियम ९४  (१) अन्वये</xsl:when>
 								<xsl:when test="houseType='upperhouse'">महाराष्ट्र विधानपरिषद नियम ९२ अन्वये उपस्थित केलेली</xsl:when>
 							</xsl:choose>
-							अर्धा-तास चर्चेची सूचना.
+							<fo:block></fo:block>
+							अर्धा-तास चर्चेची सूचना क्रमांक <xsl:value-of select="number"/> (प्रत संलग्न).
 						</fo:block>	
 						
 						<fo:block font-size="6px">&#160;</fo:block>
@@ -148,28 +152,8 @@
 						<fo:block font-size="4px">&#160;</fo:block>
 						
 						<fo:block>
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरोक्त विषयाच्या अनुषंगाने निर्देशानुसार आपणांस कळविण्यात येते की,
-							<fo:inline font-weight="bold">"<xsl:value-of select="subject"/>"</fo:inline> या विषयावरील
-							<xsl:choose>
-								<xsl:when test="referredQuestionDeviceType='अतारांकित प्रश्न'">
-									<xsl:value-of select="referredQuestionAnsweringDate"/> रोजी सभागृहाच्या पटलावर 
-									ठेवण्यात आलेल्या अतारांकित प्रश्नोत्तरांच्या यादी क्रमांक ____ मधील प्रश्न क्रमांक <xsl:value-of select="referredQuestionNumber"/> ला									
-								</xsl:when>
-								<xsl:otherwise>
-									<xsl:value-of select="referredQuestionDeviceType"/> क्रमांक <fo:inline font-weight="bold"><xsl:value-of select="referredQuestionNumber"/></fo:inline> ला 
-									<xsl:value-of select="referredQuestionAnsweringDate"/> रोजी
-								</xsl:otherwise>
-							</xsl:choose>
-							दिलेल्या
-							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">
-									उत्तराच्या संदर्भात महाराष्ट्र विधानसभा नियम ९४ (१) अन्वये आपण दिलेली अर्धा-तास चर्चेची सूचना माननीय अध्यक्षांनी 
-									<fo:inline font-weight="bold">अस्वीकृत</fo:inline> केली आहे.
-								</xsl:when>
-								<xsl:when test="houseType='upperhouse'">
-									उत्तरातून उद्भवणाऱ्या बाबींवरील सूचना मा.सभापतींनी अस्वीकृत केली आहे.
-								</xsl:when>
-							</xsl:choose> 							
+							&#160;&#160;&#160;&#160;&#160;
+							आपणांस असे कळविण्यात येत आहे की, आपली वरील सूचना मा. सभापतींनी अस्वीकृत केली आहे.
 						</fo:block>						
 							
 						<fo:block font-size="6px">&#160;</fo:block>				
@@ -178,7 +162,44 @@
 							<fo:block font-size="10.5px">&#160;</fo:block>
 							<fo:block margin-right="1.4cm">कक्ष अधिकारी,</fo:block>		
 							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
-						</fo:block>									
+						</fo:block>
+						<xsl:if test="houseType='upperhouse'">		
+							<fo:block font-size="4px">&#160;</fo:block>
+							<fo:block>
+								ह्याची प्रत :
+							</fo:block>
+							<fo:block font-size="4px">&#160;</fo:block>
+							<fo:block margin-left="1cm">
+								(१) सचिव <xsl:value-of select="subDepartment"/> विभाग,
+							</fo:block>
+							<fo:block margin-left="1cm">
+								(२) माननीय
+								<xsl:choose>
+								<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:value-of select="primaryMemberDesignation"/>,
+								</xsl:when>
+								<!-- <xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:value-of select="primaryMemberDesignation"/>
+								</xsl:when> -->
+								<xsl:otherwise>
+									<xsl:choose>
+										<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+											<xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="subDepartment"/> मंत्री,
+										</xsl:otherwise>
+									</xsl:choose>																			
+								</xsl:otherwise>
+							</xsl:choose>
+							</fo:block>
+							<fo:block margin-left="1cm">
+								यांना या सचिवालयाचे पृष्ठांकन क्रमांक _________ दिनांकित __________								
+							</fo:block>
+							<fo:block margin-left="1cm">
+								__________ अनुसार माहितीसाठी सादर अग्रेषित.
+							</fo:block>
+						</xsl:if>			
 					</fo:block>							          
 	            </fo:flow>
 	        </fo:page-sequence>        

@@ -342,6 +342,11 @@ public class QuestionReportController extends BaseController{
 				if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION) || statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 					if(question.getRejectionReason()!=null && !question.getRejectionReason().isEmpty()) {
 						formattedText = FormaterUtil.formatNumbersInGivenText(question.getRejectionReason(), question.getLocale());
+						if(formattedText.endsWith("<br><p></p>")) {
+							formattedText = formattedText.substring(0, formattedText.length()-11);
+						} else if(formattedText.endsWith("<p></p>")) {
+							formattedText = formattedText.substring(0, formattedText.length()-7);
+						}
 						letterVO.setRejectionReason(formattedText);
 					} else {
 						letterVO.setRejectionReason("");
@@ -349,8 +354,13 @@ public class QuestionReportController extends BaseController{
 				}
 				
 				/** factual position (clarification) received from department **/
-				if(question.getQuestionreferenceText()!=null) {
+				if(question.getFactualPosition()!=null) {
 					formattedText = FormaterUtil.formatNumbersInGivenText(question.getFactualPosition(), question.getLocale());
+					if(formattedText.endsWith("<br><p></p>")) {
+						formattedText = formattedText.substring(0, formattedText.length()-11);
+					} else if(formattedText.endsWith("<p></p>")) {
+						formattedText = formattedText.substring(0, formattedText.length()-7);
+					}
 					letterVO.setFactualPosition(formattedText);
 				} else {
 					letterVO.setFactualPosition("");
@@ -526,15 +536,9 @@ public class QuestionReportController extends BaseController{
 							&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_FINAL_ADMITTED)
 							&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)){
 							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_department", "WORD", "intimation_letter", locale.toString()); 
-					}else if((status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
-							|| status.getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION))
-							&& (!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION))) {
-						reportFile = generateReportUsingFOP(letterVO, "question_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
-					}else if(intimationLetterFilter!=null && intimationLetterFilter.equals("prestatus")) {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_prestatus_"+statusTypeSplit, "WORD", "_intimation_letter", locale.toString());
-					}else if(intimationLetterFilter!=null && intimationLetterFilter.equals("discussionDate")) {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_discussiondate_"+statusTypeSplit, "WORD", "_intimation_letter", locale.toString());
-					} else {
+					}else if(intimationLetterFilter!=null && !intimationLetterFilter.isEmpty() && !intimationLetterFilter.equals("-")) {
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit, "WORD", "_intimation_letter", locale.toString());
+					}else {
 						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
 					}					
 					System.out.println("Intimation Letter generated successfully in WORD format!");

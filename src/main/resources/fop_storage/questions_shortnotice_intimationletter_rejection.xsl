@@ -103,7 +103,7 @@
 						<!-- <fo:block>&#160;</fo:block> -->
 						
 						<fo:block text-align="left">
-							<fo:block font-weight="bold">प्रेषक:</fo:block>						
+							<fo:block>प्रेषक:</fo:block>						
 							<fo:block margin-left="1cm">प्रधान सचिव,</fo:block>
 							<fo:block margin-left="1cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 						</fo:block>
@@ -111,7 +111,7 @@
 						<fo:block font-size="6px">&#160;</fo:block>					
 						
 						<fo:block text-align="left">
-							<fo:block font-weight="bold">प्रति,</fo:block>						
+							<fo:block>प्रति,</fo:block>						
 							<fo:block font-weight="bold" margin-left="1cm"><xsl:value-of select="primaryMemberName"/>
 							<xsl:choose>
 							<xsl:when test="hasMoreMembers='yes'">
@@ -132,53 +132,52 @@
 						
 						<fo:block font-size="6px">&#160;</fo:block>
 						
-						<fo:block text-align="center">
-							<fo:inline font-weight="bold">विषय :</fo:inline> आपण
-							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">दिलेली म.वि.स. नियम ९४  (१) अन्वये</xsl:when>
-								<xsl:when test="houseType='upperhouse'">महाराष्ट्र विधानपरिषद नियम ९२ अन्वये उपस्थित केलेली</xsl:when>
-							</xsl:choose>
-							अर्धा-तास चर्चेची सूचना.
-						</fo:block>	
+						<fo:block text-align="center" font-weight="bold">विषय: आपला <xsl:value-of select="deviceType"/> क्रमांक - <xsl:value-of select="number"/></fo:block>	
 						
 						<fo:block font-size="6px">&#160;</fo:block>
 						
-						<fo:block font-weight="bold">महोदय,</fo:block>	
+						<fo:block>महोदय,</fo:block>	
 						
-						<fo:block font-size="4px">&#160;</fo:block>
+						<fo:block font-size="4px">&#160;</fo:block>	
 						
-						<fo:block>
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरोक्त विषयाच्या अनुषंगाने निर्देशानुसार आपणांस कळविण्यात येते की,
-							<fo:inline font-weight="bold">"<xsl:value-of select="subject"/>"</fo:inline> या विषयावरील
+						<fo:block margin-left="1cm">
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 							<xsl:choose>
-								<xsl:when test="referredQuestionDeviceType='अतारांकित प्रश्न'">
-									<xsl:value-of select="referredQuestionAnsweringDate"/> रोजी सभागृहाच्या पटलावर 
-									ठेवण्यात आलेल्या अतारांकित प्रश्नोत्तरांच्या यादी क्रमांक ____ मधील प्रश्न क्रमांक <xsl:value-of select="referredQuestionNumber"/> ला									
+								<xsl:when test="deviceType='अल्प सूचना प्रश्न' and houseType='lowerhouse'">
+									उपरोक्त  विषयावरील आपला खाली नमूद केलेला प्रश्न माननीय
 								</xsl:when>
-								<xsl:otherwise>
-									<xsl:value-of select="referredQuestionDeviceType"/> क्रमांक <fo:inline font-weight="bold"><xsl:value-of select="referredQuestionNumber"/></fo:inline> ला 
-									<xsl:value-of select="referredQuestionAnsweringDate"/> रोजी
-								</xsl:otherwise>
+								<xsl:otherwise>आपला उपरिनिर्दिष्ट प्रश्न खाली नमूद केलेल्या कारणांमुळे माननीय  </xsl:otherwise>
+							</xsl:choose>							
+							  
+							<xsl:choose>
+								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
+								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
 							</xsl:choose>
-							दिलेल्या
-							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">
-									उत्तराच्या संदर्भात महाराष्ट्र विधानसभा नियम ९४ (१) अन्वये आपण दिलेली अर्धा-तास चर्चेची सूचना माननीय अध्यक्षांनी 
-									<fo:inline font-weight="bold">अस्वीकृत</fo:inline> केली आहे.
-								</xsl:when>
-								<xsl:when test="houseType='upperhouse'">
-									उत्तरातून उद्भवणाऱ्या बाबींवरील सूचना मा.सभापतींनी अस्वीकृत केली आहे.
-								</xsl:when>
-							</xsl:choose> 							
-						</fo:block>						
-							
+							अस्वीकृत केला आहे, असे आपणांस कळविण्यास मला निदेश दिला आहे.							
+						</fo:block>	
 						<fo:block font-size="6px">&#160;</fo:block>				
 						<fo:block text-align="right">
-							<fo:block margin-right="2cm">आपला</fo:block>
-							<fo:block font-size="10.5px">&#160;</fo:block>
-							<fo:block margin-right="1.4cm">कक्ष अधिकारी,</fo:block>		
-							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
-						</fo:block>									
+							<fo:block margin-right="2cm">आपला/आपली</fo:block>
+							<fo:block>&#160;</fo:block>
+							<fo:block margin-right="1.8cm">कक्ष अधिकारी,</fo:block>		
+							<fo:block margin-right="0.7cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
+						</fo:block>
+						----------------------------------------------------------------------------------------------------------------------------------------
+						<fo:block font-weight="bold"><xsl:value-of select="rejectionReason"/></fo:block>	
+						----------------------------------------------------------------------------------------------------------------------------------------
+						<fo:block font-size="4px">&#160;</fo:block>
+						<fo:block>
+							<fo:inline>प्रश्न - </fo:inline>
+							<xsl:choose>
+							<xsl:when test="questionReferenceText!=''">
+								<xsl:value-of select="questionReferenceText"/>
+								<fo:block margin-left="1cm"><xsl:apply-templates select="questionText"/></fo:block>
+							</xsl:when>
+							<xsl:otherwise>
+								<fo:inline margin-left="1cm"><xsl:apply-templates select="questionText"/></fo:inline>
+							</xsl:otherwise>
+							</xsl:choose>							
+						</fo:block>						
 					</fo:block>							          
 	            </fo:flow>
 	        </fo:page-sequence>        
