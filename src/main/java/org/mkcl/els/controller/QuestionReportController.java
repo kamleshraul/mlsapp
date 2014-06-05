@@ -348,6 +348,14 @@ public class QuestionReportController extends BaseController{
 					}
 				}
 				
+				/** factual position (clarification) received from department **/
+				if(question.getQuestionreferenceText()!=null) {
+					formattedText = FormaterUtil.formatNumbersInGivenText(question.getFactualPosition(), question.getLocale());
+					letterVO.setFactualPosition(formattedText);
+				} else {
+					letterVO.setFactualPosition("");
+				} 
+				
 				/**** populating fields for half-hour discussion from questions ****/
 				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 					Question referredQuestion = question.getHalfHourDiscusionFromQuestionReference();
@@ -1340,7 +1348,7 @@ public class QuestionReportController extends BaseController{
 			model.addAttribute("type","DB_EXCEPTION");
 			return errorpage;
 		}
-		return "ballot/memberwise_questions";
+		return "question/reports/memberwise_questions";
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -1383,7 +1391,7 @@ public class QuestionReportController extends BaseController{
 			model.addAttribute("type","DB_EXCEPTION");
 			return errorpage;
 		}
-		return "ballot/memberwise_questions_data";
+		return "question/reports/memberwise_questions_data";
 	}
 }
 
