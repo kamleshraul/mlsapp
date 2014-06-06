@@ -95,7 +95,7 @@
 </table>
 <br><br>
 	<div style="width: 100%; font-size: 16px;" id="balFoot">
-					v
+					-
 	</div>
 </div>
 </c:otherwise>
