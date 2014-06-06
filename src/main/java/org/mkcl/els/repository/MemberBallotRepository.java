@@ -1784,16 +1784,19 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 //				}
 				MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
 				HouseMemberRoleAssociation hmra=Member.find(member,memberRole,currentDate,locale);
-				boolean isMemberAllowed=isMemberAllowed(hmra,question);
-				if(isMemberAllowed){
-					boolean isActivePresidingOfficer=member.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","),currentDate, locale);
-					if(!isActivePresidingOfficer){
-						boolean isMinister=member.isActiveMinisterOn(currentDate, locale);
-						if(!isMinister){
-							allowed=true;
+				if(hmra!=null){
+					boolean isMemberAllowed=isMemberAllowed(hmra,question);
+					if(isMemberAllowed){
+						boolean isActivePresidingOfficer=member.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","),currentDate, locale);
+						if(!isActivePresidingOfficer){
+							boolean isMinister=member.isActiveMinisterOn(currentDate, locale);
+							if(!isMinister){
+								allowed=true;
+							}
 						}
 					}
 				}
+				
 			
 				if(allowed){
 					allocated=allocateQuestionToMember(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,
@@ -1860,16 +1863,19 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 //				}	
 				MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
 				HouseMemberRoleAssociation hmra=Member.find(member,memberRole,currentDate,locale);
-				boolean isMemberAllowed=isMemberAllowed(hmra,question);
-				if(isMemberAllowed){
-					boolean isActivePresidingOfficer=member.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), currentDate, locale);
-					if(!isActivePresidingOfficer){
-						boolean isMinister=member.isActiveMinisterOn(currentDate, locale);
-						if(!isMinister){
-							allowed=true;
+				if(hmra!=null){
+					boolean isMemberAllowed=isMemberAllowed(hmra,question);
+					if(isMemberAllowed){
+						boolean isActivePresidingOfficer=member.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","), currentDate, locale);
+						if(!isActivePresidingOfficer){
+							boolean isMinister=member.isActiveMinisterOn(currentDate, locale);
+							if(!isMinister){
+								allowed=true;
+							}
 						}
 					}
 				}
+				
 				
 				if(allowed){
 					allocated=allocateQuestionToMember(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap,
@@ -1901,13 +1907,15 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 //							}	
 							//MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
 							HouseMemberRoleAssociation supportingHmra=Member.find(supportingMember,memberRole,currentDate,locale);
-							boolean isSupportingMemberAllowed=isMemberAllowed(supportingHmra,question);
-							if(isSupportingMemberAllowed){
-								boolean isActivePresidingOfficer=supportingMember.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","),currentDate, locale);
-								if(!isActivePresidingOfficer){
-									boolean isMinister=supportingMember.isActiveMinisterOn(currentDate, locale);
-									if(!isMinister){
-										supportingAllowed=true;
+							if(hmra!=null){
+								boolean isSupportingMemberAllowed=isMemberAllowed(supportingHmra,question);
+								if(isSupportingMemberAllowed){
+									boolean isActivePresidingOfficer=supportingMember.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","),currentDate, locale);
+									if(!isActivePresidingOfficer){
+										boolean isMinister=supportingMember.isActiveMinisterOn(currentDate, locale);
+										if(!isMinister){
+											supportingAllowed=true;
+										}
 									}
 								}
 							}
