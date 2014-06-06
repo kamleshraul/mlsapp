@@ -798,16 +798,19 @@ import org.springframework.beans.factory.annotation.Configurable;
 						
 						MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
 						HouseMemberRoleAssociation hmra=Member.find(this,memberRole,currentDate,locale);
-						boolean isMemberAllowed=isMemberAllowed(hmra,question);
-						if(isMemberAllowed){
-							boolean isActivePresidingOfficer=this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","),currentDate, locale);
-							if(!isActivePresidingOfficer){
-								boolean isMinister=this.isActiveMinisterOn(currentDate, locale);
-								if(!isMinister){
-									isSupportingOrClubbedMemberToBeAddedForDevice=true;
+						if(hmra!=null){
+							boolean isMemberAllowed=isMemberAllowed(hmra,question);
+							if(isMemberAllowed){
+								boolean isActivePresidingOfficer=this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","),currentDate, locale);
+								if(!isActivePresidingOfficer){
+									boolean isMinister=this.isActiveMinisterOn(currentDate, locale);
+									if(!isMinister){
+										isSupportingOrClubbedMemberToBeAddedForDevice=true;
+									}
 								}
 							}
 						}
+						
 //				} 
 			}			
 		}
