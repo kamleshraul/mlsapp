@@ -581,7 +581,13 @@ public class Ballot extends BaseDomain implements Serializable {
 			PreBallot preBallotHDAssembly = new PreBallot(session, deviceType, answeringDate, new Date(), locale);
 			List<BallotEntry> preBallotEntries = new ArrayList<BallotEntry>();
 			
-			for(Question q : questions) {
+			List<Question> newQuestionList = new ArrayList<Question>();
+			for(Question q : questions){
+				if(q.getPrimaryMember().isActiveMemberOn(new Date(), locale)){
+					newQuestionList.add(q);
+				}
+			}
+			for(Question q : newQuestionList) {
 				
 				{
 					BallotEntry ballotEntry = new BallotEntry();
@@ -733,6 +739,8 @@ public class Ballot extends BaseDomain implements Serializable {
 				
 				preBallot = new PreBallot(session, deviceType, group, answeringDate, new Date(), locale);
 				List<BallotEntry> preBallotEntries = new ArrayList<BallotEntry>();
+				
+				List<Member> newMemberList = new ArrayList<Member>();
 				
 				for(Member m: members) {
 					
@@ -1433,6 +1441,12 @@ public class Ballot extends BaseDomain implements Serializable {
 						this.getLocale());
 			}
 			
+			List<Member> newMemberList = new ArrayList<Member>();
+			for(Member m : finalComputedList){
+				if(m.isActiveMemberOn(new Date(), this.getLocale())){
+					newMemberList.add(m);
+				}
+			}
 			List<Member> randomizedList = Ballot.randomizeMembers(finalComputedList);
 			
 			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, outPutCount);
@@ -2244,7 +2258,14 @@ public class Ballot extends BaseDomain implements Serializable {
 						this.getLocale());
 			}
 			
-			List<Question> randomizedList = Ballot.randomizeQuestions(computedList);
+			List<Question> newComputedList = new ArrayList<Question>();
+			for(Question q : computedList){
+				if(q.getPrimaryMember().isActiveMemberOn(new Date(), this.getLocale())){
+					newComputedList.add(q);
+				}
+			}
+			
+			List<Question> randomizedList = Ballot.randomizeQuestions(newComputedList);
 			List<Question> selectedList = Ballot.selectQuestionsForBallot(randomizedList, Integer.valueOf(councilBallotCount.getValue()));
 			List<BallotEntry> ballotEntries = Ballot.createNoticeBallotEntries(selectedList,
 					this.getLocale());
