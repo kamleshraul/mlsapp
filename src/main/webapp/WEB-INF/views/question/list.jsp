@@ -221,7 +221,7 @@
 					 	<option value="member"><spring:message code='question.intimationletter.member' text='member' /></option>
 						<option value="department"><spring:message code='question.intimationletter.department' text='department' /></option>
 						<option value="prestatus"><spring:message code='question.intimationletter.prestatus' text='pre-status' /></option>
-						<option value="discussionDate"><spring:message code='question.intimationletter.discussiondate' text='discussion date' /></option>
+						<option value="discussiondate"><spring:message code='question.intimationletter.discussiondate' text='discussion date' /></option>
 				</select> | 
 				<a href="#" id="generateClubbedIntimationLetter" class="butSim">
 					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>

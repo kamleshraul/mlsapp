@@ -89,7 +89,7 @@
 					 	<option value="member"><spring:message code='question.intimationletter.member' text='member' /></option>
 						<option value="department"><spring:message code='question.intimationletter.department' text='department' /></option>
 						<option value="prestatus"><spring:message code='question.intimationletter.prestatus' text='pre-status' /></option>
-						<option value="discussionDate"><spring:message code='question.intimationletter.discussiondate' text='discussion date' /></option>
+						<option value="discussiondate"><spring:message code='question.intimationletter.discussiondate' text='discussion date' /></option>
 				</select>				
 			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE')">
