@@ -211,6 +211,8 @@ public class ApplicationConstants {
 	public static final String QUESTION_PROCESSED_BALLOTED="question_processed_balloted";
 
 	public static final String QUESTION_PROCESSED_YAADILAID="question_processed_yaadilaid";
+	
+	public static final String QUESTION_PROCESSED_DISCUSSED="question_processed_discussed";
 
 	/**** Member(Unstarred) *****/
 	public static final String QUESTION_UNSTARRED_INCOMPLETE="question_incomplete";
