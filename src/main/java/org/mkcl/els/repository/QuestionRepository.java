@@ -2527,6 +2527,38 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			throw elsException;
 		}
 	}
+	
+	public List<Question> findAllByRecommendationStatus(final Session session,
+			final DeviceType deviceType, 
+			final Status recommendationStatus, 
+			final Group group,
+			final String locale) throws ELSException {
+		StringBuffer query=new StringBuffer("SELECT q FROM Question q WHERE q.session.id=:sessionId"+
+				" AND q.type.id=:deviceTypeId AND q.locale=:locale");
+		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
+				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
+				query.append(" AND q.group.id=:groupId");
+		}
+		query.append(" AND q.recommendationStatus.id=:recommendationStatusId ORDER BY q.number");
+		try{
+			TypedQuery<Question> q=this.em().createQuery(query.toString(), Question.class);
+			q.setParameter("sessionId", session.getId());
+			q.setParameter("deviceTypeId", deviceType.getId());
+			q.setParameter("locale", locale);
+			if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
+					&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
+				q.setParameter("groupId", group.getId());
+			}
+			q.setParameter("recommendationStatusId", recommendationStatus.getId());
+			return q.getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("QuestionRepository_List<Question>_findAllByStatus", "Cannot get the Question");
+			throw elsException;
+		}
+	}
 
 	public int findHighestFileNo(final Session session,final DeviceType deviceType,
 			final String locale) throws ELSException {
