@@ -90,6 +90,10 @@ public class QuestionController extends GenericController<Question>{
 	@Override
 	protected void populateModule(final ModelMap model, final HttpServletRequest request,
 			final String locale, final AuthUser currentUser) {
+		
+		/****add locale****/
+		model.addAttribute("moduleLocale", locale);
+		
 		/**** Populating filters on module page(above grid) ****/			
 		DeviceType deviceType=DeviceType.findByFieldName(DeviceType.class, "type",request.getParameter("type"), locale);
 		if(deviceType!=null){
