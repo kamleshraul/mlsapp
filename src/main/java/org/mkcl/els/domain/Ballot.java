@@ -1975,7 +1975,7 @@ public class Ballot extends BaseDomain implements Serializable {
 		if(isUnique.booleanValue()){
 			members = Question.findPrimaryMembersByBallot(session, deviceType, answeringDate, internalStatuses, false, false, startTime, endTime, ApplicationConstants.ASC, locale);
 		}else{
-			members = Question.findPrimaryMembers(session, deviceType,answeringDate, internalStatuses, false, startTime, endTime,ApplicationConstants.ASC, locale);
+			members = Question.findPrimaryMembersForBallot(session, deviceType,answeringDate, internalStatuses, false, startTime, endTime,ApplicationConstants.ASC, locale);
 		}
 		/*}else{
 			members = Question.findPrimaryMembers(session, deviceType,answeringDate, internalStatuses, false, startTime, endTime,ApplicationConstants.ASC, locale);
@@ -3138,5 +3138,12 @@ public class Ballot extends BaseDomain implements Serializable {
 			final Session session, final DeviceType deviceType, final String locale) {
 		
 		return getRepository().findMembersOfBallotBySessionAndDeviceType(session, deviceType, locale);
+	}
+
+	public static int updateByYaadi(final Ballot ballot, 
+			final Status status) {
+		
+		return getRepository().updateByYaadi(ballot, status);
+		
 	}
 }

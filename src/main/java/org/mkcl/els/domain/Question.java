@@ -1365,6 +1365,20 @@ public class Question extends Device implements Serializable {
     		answeringDate, internalStatuses, hasParent, startTime, 
     		endTime, sortOrder, locale);
     }
+    
+    public static List<Member> findPrimaryMembersForBallot(final Session session,
+        	final DeviceType deviceType,
+        	final Date answeringDate,
+        	final Status[] internalStatuses,
+        	final Boolean hasParent,
+        	final Date startTime,
+        	final Date endTime,
+        	final String sortOrder,
+        	final String locale) {
+        	return Question.getQuestionRepository().findPrimaryMembersForBallot(session, deviceType, 
+        		answeringDate, internalStatuses, hasParent, startTime, 
+        		endTime, sortOrder, locale);
+        }
 
     public static List<Member> findActiveMembersWithQuestions(final Session session,
     	final Date activeOn,
