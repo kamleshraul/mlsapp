@@ -841,6 +841,26 @@ public class ReferenceController extends BaseController {
 		return new MasterVO();
 	}
 
+	@RequestMapping(value="/sessionbyhousetype/{houseType}/{sessionYear}/{sessionType}", method=RequestMethod.GET)
+	public @ResponseBody MasterVO getSessionByHouseType(
+			final Locale locale,
+			@PathVariable("houseType")final String houseType,
+			@PathVariable("sessionYear")final Integer sessionYear,
+			@PathVariable("sessionType") final Long sessionType) {
+		try {
+			//populating departments
+			HouseType selectedHouseType=HouseType.findByType(houseType, locale.toString());
+			SessionType selectedSessionType=SessionType.findById(SessionType.class, sessionType);
+			Session selectedSession=Session.findSessionByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, sessionYear);
+			
+			MasterVO masterVO=new MasterVO(selectedSession.getId(),"");
+			return masterVO;
+			
+		} catch (ELSException e) {
+			e.printStackTrace();
+		}
+		return new MasterVO();
+	}
 	/**
 	 * Gets the members.
 	 *

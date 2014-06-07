@@ -733,6 +733,26 @@ public class QuestionReportController extends BaseController{
 		response.setContentType("text/html; charset=utf-8");
 		return "question/reports/shortnoticeanswer";
 	}
+	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@RequestMapping(value="/generalreport", method=RequestMethod.GET)
+	public String getReport(HttpServletRequest request, Model model, Locale locale){
+		
+		Map<String, String[]> requestMap = request.getParameterMap();
+		List report = Query.findReport(request.getParameter("report"), requestMap);
+		if(report != null && !report.isEmpty()){
+			Object[] obj = (Object[])report.get(0);
+			if(obj != null){
+				
+				model.addAttribute("topHeader", obj[0].toString().split(";"));
+			}
+		}
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale.toString());
+		model.addAttribute("report", report);
+		
+		return "question/reports/"+request.getParameter("reportout");		
+	}
 	//----------------------------------------------------------------------
 	@RequestMapping(value="/viewYaadi" ,method=RequestMethod.GET)
 	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){

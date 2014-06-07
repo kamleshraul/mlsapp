@@ -3851,6 +3851,67 @@ public class BallotController extends BaseController{
 		}
 		return "ballot/viewballot";		
 	}
+	
+	@Transactional
+	@RequestMapping(value="/yaadi/updatebyyaadi", method=RequestMethod.GET)
+	public @ResponseBody String updateByYaadi(HttpServletRequest request, ModelMap model, Locale locale){
+		String retVal = "FAILURE";
+		try{
+			/**** Session paramters ****/
+			String strHouseType = request.getParameter("houseType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			
+			/**** Device Type parameters ****/
+			String strDeviceType = request.getParameter("deviceType");
+			
+			if(strHouseType != null && strSessionType != null && strSessionYear != null && strDeviceType != null){
+				if((!strHouseType.isEmpty()) &&(!strSessionType.isEmpty()) &&(!strSessionYear.isEmpty()) && (!strDeviceType.isEmpty())){
+
+					/**** Session ****/
+					HouseType houseType = HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+					SessionType sessionType = SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+					Integer sessionYear = Integer.parseInt(strSessionYear);
+					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+
+					/**** Device Type ****/
+					DeviceType deviceType = DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
+					
+					/**** Populating Model ****/
+					model.addAttribute("session",session.getId());
+					model.addAttribute("deviceType", deviceType.getId());
+					
+					if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+						/**** Answering Date ****/
+						String strAnsweringDate = request.getParameter("answeringDate");
+						QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+						Date answeringDate = questionDates.getAnsweringDate();
+						
+						Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale.toString());
+						
+						if(ballot != null){
+							Status yaadiLaid = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_YAADILAID, locale.toString());
+							int done = Ballot.updateByYaadi(ballot, yaadiLaid);
+							if(done == 0){
+								retVal = "NO UPDATION";
+							}else{
+								retVal = "SUCCESS";
+							}
+						}
+						
+					}else if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+						
+					}
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			retVal = "INSUFFICIENT PARAMETERS FOR UPDATING BALLOTED QUESTIONS.";
+		}
+		
+		return retVal;
+	}
+	
 	/**** Motion Ballot Ends ****/
 	/****************************/
 
