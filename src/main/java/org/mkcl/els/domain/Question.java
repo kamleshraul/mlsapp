@@ -1602,6 +1602,14 @@ public class Question extends Device implements Serializable {
 		return getQuestionRepository().findAllByStatus(session, deviceType, internalStatus, 
 				group,itemsCount, locale);
 	}
+	
+	public static List<Question> findAllByRecommendationStatus(final Session session,
+			final DeviceType deviceType, 
+			final Status internalStatus,
+			final Group group,
+			final String locale) throws ELSException {
+		return getQuestionRepository().findAllByRecommendationStatus(session, deviceType, internalStatus, group, locale);
+	}
     
 	public static int findHighestFileNo(Session session,
 			DeviceType deviceType, String locale) throws ELSException {
