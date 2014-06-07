@@ -3437,6 +3437,122 @@ public class QuestionController extends GenericController<Question>{
 		return "question/bulksubmissionack";
 	}
 
+	/**** Yaadi to discuss update ****/
+	@RequestMapping(value="/yaaditodiscussupdate/assistant/init", method=RequestMethod.GET)
+	public String getYaadiToDiscussInit(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		/**** Request Params ****/
+		String retVal = "question/error";
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strDeviceType = request.getParameter("questionType");			
+		String strStatus = request.getParameter("status");
+		String strRole = request.getParameter("role");
+		String strUsergroup = request.getParameter("usergroup");
+		String strUsergroupType = request.getParameter("usergroupType");
+		String strGroup = request.getParameter("group");
+
+		/**** Locale ****/
+		String strLocale = locale.toString();
+
+		if(strHouseType != null && !(strHouseType.isEmpty())
+				&& strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear != null && !(strSessionYear.isEmpty())
+				&& strDeviceType != null && !(strDeviceType.isEmpty())
+				&& strStatus != null && !(strStatus.isEmpty())
+				&& strRole != null && !(strRole.isEmpty())
+				&& strUsergroupType != null && !(strUsergroupType.isEmpty())) {
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+
+			/**** Decision Status Available To Assistant(At this stage) 
+			 * QUESTION_PUT_UP_OPTIONS_ + QUESTION_TYPE + HOUSE_TYPE + USERGROUP_TYPE ****/
+			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class, "QUESTION_YAADI_UPDATE_" + deviceType.getType().toUpperCase() + "_" + houseType.getType().toUpperCase() + "_" + strUsergroupType.toUpperCase(), "");
+
+			List<Status> internalStatuses;
+			try {
+				internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(),locale.toString());
+				model.addAttribute("internalStatuses", internalStatuses);
+			} catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+			}
+			/**** Request Params To Model Attribute ****/
+			model.addAttribute("houseType", strHouseType);
+			model.addAttribute("sessionType", strSessionType);
+			model.addAttribute("sessionYear", strSessionYear);
+			model.addAttribute("questionType", strDeviceType);
+			model.addAttribute("status", strStatus);
+			model.addAttribute("role", strRole);
+			model.addAttribute("usergroup", strUsergroup);
+			model.addAttribute("usergroupType", strUsergroupType);
+			model.addAttribute("group", strGroup);
+
+			retVal = "question/yaaditoduscussupdateinit";
+		}else{
+			model.addAttribute("errorcode","CAN_NOT_INITIATE");
+		}
+
+		return retVal;
+	}
+	
+	@RequestMapping(value="/yaaditodiscussupdate/assistant/view", method=RequestMethod.GET)
+	public String getYaadiToDiscussUpdateAssistantView(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		this.getYaadiToDiscussUpdateQuestions(model, request, locale.toString());
+		return "question/bulksubmissionassistantview";
+	}
+	
+	@Transactional
+	@RequestMapping(value="/yaaditodiscussupdate/assistant/update", method=RequestMethod.POST)
+	public String yaadiToDiscussUpdateAssistant(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		
+		boolean updated = false;
+		String page = "question/error";
+		StringBuffer success = new StringBuffer();
+		
+		try{
+			String[] selectedItems = request.getParameterValues("items[]");
+			String strDecisionStatus = request.getParameter("decisionStatus");
+			String strStatus = request.getParameter("status");
+			
+			if(selectedItems != null && selectedItems.length > 0
+					&& strDecisionStatus != null && !strDecisionStatus.isEmpty()
+					&& strStatus != null && !strStatus.isEmpty()) {
+				/**** As It Is Condition ****/
+				if(!strStatus.equals("-")) {
+					for(String i : selectedItems) {
+						Long id = Long.parseLong(i);
+						Question question = Question.findById(Question.class, id);
+						Status discussed = Status.findById(Status.class, new Long(strDecisionStatus));
+						question.setRecommendationStatus(discussed);
+						question.simpleMerge();
+						updated = true;
+						success.append(FormaterUtil.formatNumberNoGrouping(question.getNumber(), question.getLocale())+",");
+					}
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			updated = false;
+		}
+		
+		if(updated){
+			this.getYaadiToDiscussUpdateQuestions(model, request, locale.toString());
+			success.append(" updated successfully...");
+			model.addAttribute("success", success.toString());
+			page = "question/yaaditodiscussupdateview";
+		}else{
+			model.addAttribute("failure", "update failed.");
+		}
+		
+		return page;
+	}
+	
 	/**** BULK SUBMISSION (ASSISTANT) ****/
 
 	@RequestMapping(value="/bulksubmission/assistant/int", method=RequestMethod.GET)
@@ -3513,7 +3629,7 @@ public class QuestionController extends GenericController<Question>{
 			final HttpServletRequest request,
 			final Locale locale) {
 		this.getBulkSubmissionQuestions(model, request, locale.toString());
-		return "question/bulksubmissionassistantview";
+		return "question/yaaditodiscussupdateview";
 	}
 
 	@Transactional
@@ -3980,5 +4096,58 @@ public class QuestionController extends GenericController<Question>{
 			}
 		}
 	}	
+	
+	private void getYaadiToDiscussUpdateQuestions(final ModelMap model,
+			final HttpServletRequest request, 
+			final String locale) {
+		/**** Request Params ****/
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strDeviceType = request.getParameter("questionType");			
+		String strStatus = request.getParameter("status");
+		String strRole = request.getParameter("role");
+		String strUsergroup = request.getParameter("usergroup");
+		String strUsergroupType = request.getParameter("usergroupType");
+		String strGroup = request.getParameter("group");
+
+		if(strHouseType != null && !(strHouseType.isEmpty())
+				&& strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear != null && !(strSessionYear.isEmpty())
+				&& strDeviceType != null && !(strDeviceType.isEmpty())
+				&& strStatus != null && !(strStatus.isEmpty())
+				&& strRole != null && !(strRole.isEmpty())
+				&& strUsergroup != null && !(strUsergroup.isEmpty())
+				&& strUsergroupType != null && !(strUsergroupType.isEmpty())) {
+			List<Question> questions = new ArrayList<Question>();
+
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale);
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			Integer sessionYear = Integer.parseInt(strSessionYear);
+			Session session;
+			try {
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType,sessionType, sessionYear);
+
+
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, 
+						Long.parseLong(strDeviceType));
+				Group group=null;
+				if(strGroup!=null && strGroup !=""){
+					group=Group.findById(Group.class, Long.parseLong(strGroup));
+				}
+				
+				Status recommendationStatus = Status.findById(Status.class,Long.parseLong(strStatus));
+				questions = Question.findAllByRecommendationStatus(session, deviceType, recommendationStatus, group , locale);
+
+				model.addAttribute("questions", questions);
+				if(questions != null && ! questions.isEmpty()) {
+					model.addAttribute("questionId", questions.get(0).getId());
+				}
+			} catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+				e.printStackTrace();
+			}
+		}
+	}
 }
 
