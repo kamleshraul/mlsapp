@@ -38,6 +38,8 @@ import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.springframework.stereotype.Repository;
 
+import com.ibm.icu.impl.ICURWLock.Stats;
+
 /**
  * The Class BallotRepository
  * 
@@ -578,5 +580,27 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 			}
 		}
 		return ballotMembers;
+	}
+
+	public int updateByYaadi(final Ballot ballot, final Status status) {
+		
+		StringBuffer strQuery = new StringBuffer("UPDATE questions q SET" +
+				" q.recommendationstatus_id=:yaadiLaid" + 
+				" WHERE q.id IN (SELECT ds.device_id" +
+				" FROM ballots b" +
+				" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
+				" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
+				" INNER JOIN ballot_entries_device_sequences beds ON(beds.ballot_entry_id=bbe.ballot_entry_id)" +
+				" INNER JOIN device_sequences ds ON(ds.id=beds.device_sequence_id)" +
+				" WHERE b.session_id=:sessionId" +
+				" AND b.devicetype_id=:deviceTypeId" +
+				" AND b.answering_date=:answeringDate)");
+		
+		Query query = this.em().createNativeQuery(strQuery.toString());
+		query.setParameter("sessionId", ballot.getSession().getId());
+		query.setParameter("yaadiLaid", status.getId());
+		query.setParameter("deviceTypeId", ballot.getDeviceType().getId());
+		query.setParameter("answeringDate", ballot.getAnsweringDate());
+		return query.executeUpdate();		
 	}	
 }

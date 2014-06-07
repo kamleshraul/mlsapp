@@ -27,6 +27,7 @@ import javax.persistence.TypedQuery;
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
+import org.apache.bcel.generic.BALOAD;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -1579,6 +1580,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return sb.toString();
 	}
 	//===============
+	
 	/**
 	 * Find primary members.
 	 *
@@ -1622,6 +1624,67 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			query.append(" AND q.parent IS NULL");
 		}
 		
+		if(sortOrder.equals(ApplicationConstants.ASC)) {
+			query.append(" ORDER BY q.number ASC");
+		}
+		else if(sortOrder.equals(ApplicationConstants.DESC)) {
+			query.append(" ORDER BY q.number DESC");
+		}
+
+		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("deviceTypeId", deviceType.getId());
+		tQuery.setParameter("strDiscussionDate", answeringDate);
+		tQuery.setParameter("strStartTime", startTime);
+		tQuery.setParameter("strEndTime", endTime);
+		tQuery.setParameter("locale", locale);
+		List<Member> members = tQuery.getResultList();
+		return members;
+	}
+	
+	/**
+	 * Find primary members.
+	 *
+	 * @param session the session
+	 * @param deviceType the device type
+	 * @param startTime the start time
+	 * @param endTime the end time
+	 * @param internalStatuses the internal statuses
+	 * @param sortOrder the sort order
+	 * @param locale the locale
+	 * @return the list
+	 */
+	public List<Member> findPrimaryMembersForBallot(final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Status[] internalStatuses,
+			final Boolean hasParent,
+			final Date startTime,
+			final Date endTime,
+			final String sortOrder,
+			final String locale) {
+		// Removed for performance reason. Uncomment when Caching mechanism is added
+
+		// CustomParameter dbDateFormat =
+		//    	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		// String strAnsweringDate = 
+		//		FormaterUtil.formatDateToString(answeringDate, dbDateFormat.getValue());
+
+		// CustomParameter parameter = 
+		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
+		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
+		StringBuffer query = new StringBuffer(
+				" SELECT DISTINCT(q.primaryMember) FROM Question q" +
+				" WHERE q.session.id=:sessionId AND q.type.id=:deviceTypeId"+
+				" AND (q.discussionDate IS NULL OR q.discussionDate<=:strDiscussionDate)" +
+				" AND q.submissionDate>=:strStartTime AND q.submissionDate<=:strEndTime"+
+				" AND q.locale=:locale" +
+				" AND q.ballotStatus IS NULL");
+		query.append(this.getStatusFilters(internalStatuses));
+		
+		if(!hasParent) {
+			query.append(" AND q.parent IS NULL");
+		}		
 		if(sortOrder.equals(ApplicationConstants.ASC)) {
 			query.append(" ORDER BY q.number ASC");
 		}
@@ -1905,13 +1968,15 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		}
 		
 		Status yaadiLaid = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_YAADILAID, locale);
-		
+		Status houseDiscussed = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_DISCUSSED, locale);
+		Status balloted = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_BALLOTED, locale);
 		String strQuery = "SELECT q FROM Question q" +
 						" WHERE q.session.id=:sessionId" +
 						" AND q.number=:number" +
 						" AND q.type.id NOT IN (:deviceTypeIds)" +
 						" AND q.status.id=:status" +
-						" AND q.internalStatus.id=:yaadiLaidId";
+						" AND q.ballotStatus.id=:ballotStatus" +
+						" AND (q.internalStatus.id=:yaadiLaidId OR q.recommendationStatus.id=:houseDiscussed)";
 		
 		Status admitted = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale);
 		TypedQuery<Question> jpQuery = this.em().createQuery(strQuery, Question.class);
@@ -1919,7 +1984,9 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		jpQuery.setParameter("number", number);
 		jpQuery.setParameter("deviceTypeIds", exclusiveDeviceTypeIds);
 		jpQuery.setParameter("status", admitted.getId());
+		jpQuery.setParameter("ballotStatus", balloted.getId());
 		jpQuery.setParameter("yaadiLaidId", yaadiLaid.getId());
+		jpQuery.setParameter("houseDiscussed", houseDiscussed.getId());
 		
 		Question question = null;
 		try{
