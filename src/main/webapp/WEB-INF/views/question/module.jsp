@@ -600,6 +600,15 @@
 		+ "&groupId=0&subDepartment=0";
 		showTabByIdAndUrl('details_tab', 'question/report/hdstatandadmissionreport?'+ param);
 	}
+	
+	function showHDGeneralreport(){
+		var url = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
+		$.get(url,function(data){
+			if(data){
+				showTabByIdAndUrl('details_tab','question/report/generalreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+"&report=HD_CONDITION_REPORT&reportout=hdconditionreport");
+			}
+		});
+	}
 </script>
 </head>
 <body>
@@ -929,6 +938,7 @@
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
 		<input type="hidden" id="chartAnsweringDate" name="chartAnsweringDate" value="-">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>" />
+		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
 	</div>
 </body>
 </html>

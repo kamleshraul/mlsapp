@@ -127,6 +127,11 @@
 				showHDStatAndAdmissionreport();
 			});
 			
+			$("#showHDGeneralReport").click(function(){
+				$("#selectionDiv1").hide();
+				showHDGeneralreport();
+			});
+			
 			var selectedDeviceType = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
 			if(selectedDeviceType.indexOf("questions_halfhourdiscussion_")==-1){
 				$("#hdReportsDiv").hide();
@@ -203,6 +208,9 @@
 					</div>|
 					<a href="#" id="showHDStatAndAdmissionReport" class="butSim">
 						<spring:message code="question.hdStatAndAdmissionReport" text="HD Stat and Admission Report"/>
+					</a> |
+					<a href="#" id="showHDGeneralReport" class="butSim">
+						<spring:message code="question.hdGeneralReport" text="HD General Report"/>
 					</a> |
 				</div>
 			</security:authorize>		
