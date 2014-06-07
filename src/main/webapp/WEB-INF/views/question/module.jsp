@@ -157,6 +157,12 @@
 			bulkPutupAssistant();
 		});
 		
+		/**** Yaadi Update ****/
+		$("#yaadiupdate_tab").click(function() {
+			$("#selectionDiv1").hide();
+			yaadiUpdate();
+		});
+		
 		/**** status changes then reload grid****/
 		$("#selectedSubDepartment").change(function() {
 			var value = $(this).val();
@@ -466,6 +472,38 @@
 				+ "&itemscount=" + $("#selectedItemsCount").val();
 		showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);
 	}
+	
+	
+	/**** Bulk yaadiupdate(Assistant)****/
+	function yaadiUpdate() {
+		var parameters = null;
+		if ($('#currentDeviceType').val() == "questions_halfhourdiscussion_standalone"
+				&& $("#selectedHouseType").val() == "lowerhouse") {
+			parameters = "houseType=" + $("#selectedHouseType").val()
+					+ "&sessionYear=" + $("#selectedSessionYear").val()
+					+ "&sessionType=" + $("#selectedSessionType").val()
+					+ "&questionType=" + $("#selectedQuestionType").val()
+					+ "&ugparam=" + $("#ugparam").val() + "&status="
+					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+					+ "&usergroup=" + $("#currentusergroup").val()
+					+ "&usergroupType=" + $("#currentusergroupType").val()
+					+ "&file=" + $("#selectedFileCount").val();
+			;
+		} else {
+			parameters = "houseType=" + $("#selectedHouseType").val()
+					+ "&sessionYear=" + $("#selectedSessionYear").val()
+					+ "&sessionType=" + $("#selectedSessionType").val()
+					+ "&questionType=" + $("#selectedQuestionType").val()
+					+ "&ugparam=" + $("#ugparam").val() + "&status="
+					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+					+ "&usergroup=" + $("#currentusergroup").val()
+					+ "&usergroupType=" + $("#currentusergroupType").val()
+					+ "&group=" + $("#ugparam").val();
+		}
+
+		var resourceURL = 'question/yaaditodiscussupdate/assistant/init?' + parameters;
+		showTabByIdAndUrl('yaadiupdate_tab', resourceURL);
+	}
 	/**** To Generate Intimation Letter ****/
 	function generateIntimationLetter() {			
 		var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
@@ -632,6 +670,13 @@
 				access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
 				<li><a id="bulkputupassistant_tab" href="#" class="tab"> <spring:message
 							code="generic.bulkputup" text="Bulk Putup">
+						</spring:message>
+				</a></li>
+			</security:authorize>
+			<security:authorize
+				access="hasAnyRole('QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
+				<li><a id="yaadiupdate_tab" href="#" class="tab"> <spring:message
+							code="generic.yaadiupdate" text="Yaadi Questions Update">
 						</spring:message>
 				</a></li>
 			</security:authorize>
