@@ -151,7 +151,7 @@
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरोक्त विषयाच्या अनुषंगाने निर्देशानुसार आपणांस कळविण्यात येते की,
 							<fo:inline font-weight="bold">"<xsl:value-of select="subject"/>"</fo:inline> या विषयावरील
 							<xsl:choose>
-								<xsl:when test="referredQuestionDeviceType='अतारांकित प्रश्न'">
+								<xsl:when test="contains(referredQuestionDeviceType, 'अतारांकित')">
 									<xsl:value-of select="referredQuestionAnsweringDate"/> रोजी सभागृहाच्या पटलावर 
 									ठेवण्यात आलेल्या अतारांकित प्रश्नोत्तरांच्या यादी क्रमांक ____ मधील प्रश्न क्रमांक <xsl:value-of select="referredQuestionNumber"/> ला									
 								</xsl:when>
