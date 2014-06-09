@@ -742,7 +742,20 @@
 		
 		<p>
 			<label class="small"><spring:message code="question.halfhour.questionrefdevicetype" text="Reference Question Device Type: "/>*</label>
-			<form:input path="referenceDeviceType" cssClass="sText" />
+			<%-- <form:input path="referenceDeviceType" cssClass="sText" /> --%>
+			<select name="referenceDeviceType" class="sSelect">
+				<option value="-"><spring:message code="please.select" /></option>
+				<c:forEach items="${hdqRefDevices}" var="d">
+					<c:choose>
+						<c:when test="${d==hdqRefDeviceSelected}">
+							<option value="${d}" selected="selected">${d}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${d}">${d}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</select>
 			<form:errors path="referenceDeviceType" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
 

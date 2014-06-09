@@ -281,7 +281,8 @@
 				/* if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
 					$.prompt($("#referenceQuestionIncorrectMsg").val());
 					return false;
-				} */
+				} */		
+				
 			}
 			//-----------------------------------------------------------------------------
 
@@ -694,7 +695,13 @@
 		
 		<p>
 			<label class="small"><spring:message code="question.halfhour.questionrefdevicetype" text="Reference Question Device Type: "/>*</label>
-			<form:input path="referenceDeviceType" cssClass="sText" />
+			<%-- <form:input path="referenceDeviceType" cssClass="sText" / --%>
+			<select name="referenceDeviceType" class="sSelect">
+				<option value="-"><spring:message code="please.select" /></option>
+				<c:forEach items="${hdqRefDevices}" var="d">
+					<option value="${d}">${d}</option>
+				</c:forEach>
+			</select>
 			<form:errors path="referenceDeviceType" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
 
