@@ -3153,7 +3153,18 @@ public class BallotController extends BaseController{
 		try {
 			PreBallot preBallot = PreBallot.find(session, deviceType, answeringDate, locale);
 			if(preBallot != null){
-				ballotVOs = PreBallot.getBallotVOFromBallotEntries(preBallot.getBallotEntries(), locale);
+				CustomParameter csptPreBallotRecreate = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase() + "_" + session.getHouse().getType().getType().toUpperCase() +"_PREBALLOT_RECREATE_IF_EXISTS", "");
+				if(csptPreBallotRecreate == null || csptPreBallotRecreate.getValue().equals("YES")){
+					Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
+					if(ballot == null){
+						preBallot.remove();
+						ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
+					}else{
+						ballotVOs = PreBallot.getBallotVOFromBallotEntries(preBallot.getBallotEntries(), locale);
+					}
+				}else{
+					ballotVOs = PreBallot.getBallotVOFromBallotEntries(preBallot.getBallotEntries(), locale);
+				}
 			}else{
 				ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
 			}
