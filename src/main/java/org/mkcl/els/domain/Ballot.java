@@ -574,63 +574,165 @@ public class Ballot extends BaseDomain implements Serializable {
 		
 		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
 				deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
-			List<Question> questions = null;
 			
-			questions = Ballot.computeQuestionsForHalfHour(session, deviceType, answeringDate, false, true, locale);
-			
-			PreBallot preBallotHDAssembly = new PreBallot(session, deviceType, answeringDate, new Date(), locale);
+			PreBallot preBallotHDAssembly = PreBallot.find(session, deviceType, answeringDate, locale);
 			List<BallotEntry> preBallotEntries = new ArrayList<BallotEntry>();
 			
-			List<Question> newQuestionList = new ArrayList<Question>();
-			for(Question q : questions){
-				if(q.getPrimaryMember().isActiveMemberOn(new Date(), locale)){
-					newQuestionList.add(q);
-				}
-			}
-			for(Question q : newQuestionList) {
-				
-				{
-					BallotEntry ballotEntry = new BallotEntry();
-					ballotEntry.setMember(q.getPrimaryMember());
-					ballotEntry.setLocale(q.getLocale());
-					
-					List<DeviceSequence> deviceSequence = new ArrayList<DeviceSequence>(1);
-					deviceSequence.add(new DeviceSequence(q, q.getLocale()));
-					ballotEntry.setDeviceSequences(deviceSequence);
-					preBallotEntries.add(ballotEntry);
-					
-					deviceSequence = null;
-					ballotEntry = null;
-				}
-				
-				BallotVO preBallotVO = new BallotVO();
-				preBallotVO.setMemberName(q.getPrimaryMember().getFullname());
-				preBallotVO.setQuestionNumber(q.getNumber());
-				preBallotVO.setQuestionSubject(q.getSubject());
-				
-				preBallotVOs.add(preBallotVO);
-			}
+			if(preBallotHDAssembly == null){
 			
-			Collections.sort(preBallotEntries, new Comparator<BallotEntry>() {
-				@Override
-				public int compare(BallotEntry b1, BallotEntry b2){
-					if(!b1.getDeviceSequences().isEmpty() && !b2.getDeviceSequences().isEmpty()){
-						return ((Question)b1.getDeviceSequences().get(0).getDevice()).getNumber().compareTo(((Question)b2.getDeviceSequences().get(0).getDevice()).getNumber());
+				PreBallot newPreBallot = new PreBallot(session, deviceType, answeringDate, new Date(), locale);
+				List<Question> questions = Ballot.computeQuestionsForHalfHour(session, deviceType, answeringDate, false, true, locale);
+				
+				List<Question> newQuestionList = new ArrayList<Question>();
+				for(Question q : questions){
+					if(q.getPrimaryMember().isActiveMemberOn(new Date(), locale)){
+						newQuestionList.add(q);
 					}
-					return 0;
 				}
-			});
-			
-			Collections.sort(preBallotVOs, new Comparator<BallotVO>(){
-				@Override
-				public int compare(BallotVO b1, BallotVO b2){
-					return b1.getQuestionNumber().compareTo(b2.getQuestionNumber());
+				for(Question q : newQuestionList) {
+					
+					{
+						BallotEntry ballotEntry = new BallotEntry();
+						ballotEntry.setMember(q.getPrimaryMember());
+						ballotEntry.setLocale(q.getLocale());
+						
+						List<DeviceSequence> deviceSequence = new ArrayList<DeviceSequence>(1);
+						deviceSequence.add(new DeviceSequence(q, q.getLocale()));
+						ballotEntry.setDeviceSequences(deviceSequence);
+						preBallotEntries.add(ballotEntry);
+						
+						deviceSequence = null;
+						ballotEntry = null;
+					}
+					
+					BallotVO preBallotVO = new BallotVO();
+					preBallotVO.setMemberName(q.getPrimaryMember().getFullname());
+					preBallotVO.setQuestionNumber(q.getNumber());
+					preBallotVO.setQuestionSubject(q.getSubject());
+					
+					preBallotVOs.add(preBallotVO);
 				}
-			});			
-			
-			//persist the preballot list
-			preBallotHDAssembly.setBallotEntries(preBallotEntries);
-			preBallotHDAssembly.persist();
+				
+				Collections.sort(preBallotEntries, new Comparator<BallotEntry>() {
+					@Override
+					public int compare(BallotEntry b1, BallotEntry b2){
+						if(!b1.getDeviceSequences().isEmpty() && !b2.getDeviceSequences().isEmpty()){
+							return ((Question)b1.getDeviceSequences().get(0).getDevice()).getNumber().compareTo(((Question)b2.getDeviceSequences().get(0).getDevice()).getNumber());
+						}
+						return 0;
+					}
+				});
+				
+				Collections.sort(preBallotVOs, new Comparator<BallotVO>(){
+					@Override
+					public int compare(BallotVO b1, BallotVO b2){
+						return b1.getQuestionNumber().compareTo(b2.getQuestionNumber());
+					}
+				});			
+				
+				//persist the preballot list
+				newPreBallot.setBallotEntries(preBallotEntries);
+				newPreBallot.persist();
+			}else{
+				CustomParameter cspt = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase() + "_" + session.getHouse().getType().getType().toUpperCase() + "_PREBALLOT_RECREATE_IF_EXISTS", "");
+				if(cspt == null || cspt.getValue().equals("YES")){
+					Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
+					if(ballot == null){
+						preBallotHDAssembly.remove();
+						
+						PreBallot newPreBallot = new PreBallot(session, deviceType, answeringDate, new Date(), locale);
+						List<Question> questions = Ballot.computeQuestionsForHalfHour(session, deviceType, answeringDate, false, true, locale);
+						
+						List<Question> newQuestionList = new ArrayList<Question>();
+						for(Question q : questions){
+							if(q.getPrimaryMember().isActiveMemberOn(new Date(), locale)){
+								newQuestionList.add(q);
+							}
+						}
+						for(Question q : newQuestionList) {
+							
+							{
+								BallotEntry ballotEntry = new BallotEntry();
+								ballotEntry.setMember(q.getPrimaryMember());
+								ballotEntry.setLocale(q.getLocale());
+								
+								List<DeviceSequence> deviceSequence = new ArrayList<DeviceSequence>(1);
+								deviceSequence.add(new DeviceSequence(q, q.getLocale()));
+								ballotEntry.setDeviceSequences(deviceSequence);
+								preBallotEntries.add(ballotEntry);
+								
+								deviceSequence = null;
+								ballotEntry = null;
+							}
+							
+							BallotVO preBallotVO = new BallotVO();
+							preBallotVO.setMemberName(q.getPrimaryMember().getFullname());
+							preBallotVO.setQuestionNumber(q.getNumber());
+							preBallotVO.setQuestionSubject(q.getSubject());
+							
+							preBallotVOs.add(preBallotVO);
+						}
+						
+						Collections.sort(preBallotEntries, new Comparator<BallotEntry>() {
+							@Override
+							public int compare(BallotEntry b1, BallotEntry b2){
+								if(!b1.getDeviceSequences().isEmpty() && !b2.getDeviceSequences().isEmpty()){
+									return ((Question)b1.getDeviceSequences().get(0).getDevice()).getNumber().compareTo(((Question)b2.getDeviceSequences().get(0).getDevice()).getNumber());
+								}
+								return 0;
+							}
+						});
+						
+						Collections.sort(preBallotVOs, new Comparator<BallotVO>(){
+							@Override
+							public int compare(BallotVO b1, BallotVO b2){
+								return b1.getQuestionNumber().compareTo(b2.getQuestionNumber());
+							}
+						});			
+						
+						//persist the preballot list
+						newPreBallot.setBallotEntries(preBallotEntries);
+						newPreBallot.persist();
+						
+					}else{
+						if(!preBallotHDAssembly.getBallotEntries().isEmpty()){
+							for(BallotEntry be : preBallotHDAssembly.getBallotEntries()){
+								for(DeviceSequence ds : be.getDeviceSequences()){
+									if(ds.getDevice() != null){
+										if(ds.getDevice() instanceof Question) {
+											Question q = (Question) ds.getDevice();
+											BallotVO preBallotVO = new BallotVO();
+											preBallotVO.setMemberName(q.getPrimaryMember().getFullname());
+											preBallotVO.setQuestionNumber(q.getNumber());
+											preBallotVO.setQuestionSubject(q.getSubject());
+											
+											preBallotVOs.add(preBallotVO);
+										}
+									}
+								}
+							}
+						}
+					}
+				}else{
+					if(!preBallotHDAssembly.getBallotEntries().isEmpty()){
+						for(BallotEntry be : preBallotHDAssembly.getBallotEntries()){
+							for(DeviceSequence ds : be.getDeviceSequences()){
+								if(ds.getDevice() != null){
+									if(ds.getDevice() instanceof Question) {
+										Question q = (Question) ds.getDevice();
+										BallotVO preBallotVO = new BallotVO();
+										preBallotVO.setMemberName(q.getPrimaryMember().getFullname());
+										preBallotVO.setQuestionNumber(q.getNumber());
+										preBallotVO.setQuestionSubject(q.getSubject());
+										
+										preBallotVOs.add(preBallotVO);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 			
 		}else if(deviceType.getType().startsWith(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
 			List<Resolution> resolutions = Ballot.computeResolutionNonOfficial(session, answeringDate, locale);
@@ -730,18 +832,11 @@ public class Ballot extends BaseDomain implements Serializable {
 			
 			PreBallot preBallot = PreBallot.find(session, deviceType, answeringDate, locale);
 			if(preBallot == null){
-				List<Member> members = null;
-				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
-					members = Ballot.computeMembers(session, deviceType, answeringDate, false, locale);
-				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
-					members = Ballot.computeMembers(session,deviceType, answeringDate, false, locale);
-				}
+				List<Member> members = Ballot.computeMembers(session,deviceType, answeringDate, false, locale);
 				
 				preBallot = new PreBallot(session, deviceType, group, answeringDate, new Date(), locale);
 				List<BallotEntry> preBallotEntries = new ArrayList<BallotEntry>();
-				
-				List<Member> newMemberList = new ArrayList<Member>();
-				
+								
 				for(Member m: members) {
 					
 					BallotMemberVO preBallotMemberVO = new BallotMemberVO();
@@ -756,8 +851,37 @@ public class Ballot extends BaseDomain implements Serializable {
 				
 				preBallot.persist();
 			}else{
-				
-				preBallotMemberVOs.addAll(getBallotMembers(preBallot.getBallotEntries()));
+				CustomParameter cspt = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase() + "_" + session.getHouse().getType().getType().toUpperCase() +"_PREBALLOT_RECREATE_IF_EXISTS","");
+				if(cspt == null || cspt.getValue().equals("YES")){
+					Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
+					if(ballot == null){
+						preBallot.remove();
+						
+						
+						PreBallot newPreBallot = new PreBallot(session, deviceType, group, answeringDate, new Date(), locale);
+						List<BallotEntry> preBallotEntries = new ArrayList<BallotEntry>();
+						List<Member> members = Ballot.computeMembers(session, deviceType, answeringDate, false, locale);
+						
+						for(Member m: members) {
+							
+							BallotMemberVO preBallotMemberVO = new BallotMemberVO();
+							preBallotMemberVO.setMemberName(m.getFullname());
+							preBallotMemberVOs.add(preBallotMemberVO);
+							
+							BallotEntry preBallotEntry = new BallotEntry(m, locale);
+							preBallotEntries.add(preBallotEntry);
+						}
+						
+						newPreBallot.setBallotEntries(preBallotEntries);
+						
+						newPreBallot.persist();
+						
+					}else{
+						preBallotMemberVOs.addAll(getBallotMembers(preBallot.getBallotEntries()));
+					}
+				}else{
+					preBallotMemberVOs.addAll(getBallotMembers(preBallot.getBallotEntries()));
+				}
 			}
 		}
 		
@@ -1433,21 +1557,30 @@ public class Ballot extends BaseDomain implements Serializable {
 			int outPutCount = Integer.parseInt(hdqAssemblyBallotOutPutCount.getValue());
 			
 			List<Member> finalComputedList = getUniqueMembers(session, deviceType, computedList, "member");
+			List<Member> newMemberList = new ArrayList<Member>();
+						
 			if(finalComputedList.size() < outPutCount){
+				
+				if(!finalComputedList.isEmpty()){
+					Member m = finalComputedList.get(0);
+					if(m.isActiveMemberOn(new Date(), this.getLocale())){
+						newMemberList.add(m);
+					}
+				}
+				
 				finalComputedList = Ballot.computeMembers(this.getSession(),
 						this.getDeviceType(),
 						this.getAnsweringDate(),
 						false,
 						this.getLocale());
 			}
-			
-			List<Member> newMemberList = new ArrayList<Member>();
 			for(Member m : finalComputedList){
 				if(m.isActiveMemberOn(new Date(), this.getLocale())){
 					newMemberList.add(m);
 				}
 			}
-			List<Member> randomizedList = Ballot.randomizeMembers(finalComputedList);
+			
+			List<Member> randomizedList = Ballot.randomizeMembers(newMemberList);
 			
 			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, outPutCount);
 			
@@ -1669,7 +1802,15 @@ public class Ballot extends BaseDomain implements Serializable {
 			
 			int outPutCount = Integer.parseInt(hdsAssemblyBallotOutPutCount.getValue());
 			List<Member> finalComputedList = getUniqueMembers(session, deviceType, computedList, "member");
+			List<Member> newMemberList = new ArrayList<Member>();
+			
 			if(finalComputedList.size() < outPutCount){
+				if(!finalComputedList.isEmpty()){
+					Member m = finalComputedList.get(0);
+					if(m.isActiveMemberOn(new Date(), this.getLocale())){
+						newMemberList.add(m);
+					}
+				}
 				finalComputedList = Ballot.computeMembers(this.getSession(),
 						this.getDeviceType(),
 						this.getAnsweringDate(),
@@ -1677,7 +1818,13 @@ public class Ballot extends BaseDomain implements Serializable {
 						this.getLocale());
 			}
 			
-			List<Member> randomizedList = Ballot.randomizeMembers(finalComputedList);
+			for(Member m : finalComputedList){
+				if(m.isActiveMemberOn(new Date(), this.getLocale())){
+					newMemberList.add(m);
+				}
+			}
+			
+			List<Member> randomizedList = Ballot.randomizeMembers(newMemberList);
 			List<Member> selectedList = Ballot.selectMembersForBallot(randomizedList, outPutCount);
 			
 			List<BallotEntry> ballotEntries = Ballot.createHDSBallotEntries(this.getSession(), this.getDeviceType(), this.getAnsweringDate(), selectedList,
@@ -2248,8 +2395,15 @@ public class Ballot extends BaseDomain implements Serializable {
 				throw elsException;
 			}
 			
+			List<Question> newComputedList = new ArrayList<Question>();
 			int outputCount = Integer.parseInt(councilBallotCount.getValue());
 			if( outputCount > computedList.size()){
+				if(!computedList.isEmpty()){
+					Question q = computedList.get(0);
+					if(q.getPrimaryMember().isActiveMemberOn(new Date(), this.getLocale())){
+						newComputedList.add(q);
+					}
+				}
 				computedList = Ballot.computeQuestionsForHalfHour(this.getSession(),
 						this.getDeviceType(),
 						this.getAnsweringDate(),
@@ -2257,8 +2411,6 @@ public class Ballot extends BaseDomain implements Serializable {
 						false,
 						this.getLocale());
 			}
-			
-			List<Question> newComputedList = new ArrayList<Question>();
 			for(Question q : computedList){
 				if(q.getPrimaryMember().isActiveMemberOn(new Date(), this.getLocale())){
 					newComputedList.add(q);
