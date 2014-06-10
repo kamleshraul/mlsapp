@@ -1654,6 +1654,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	 * @param locale the locale
 	 * @return the list
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Member> findPrimaryMembersForBallot(final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,
@@ -1674,17 +1675,25 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
 		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
 		StringBuffer query = new StringBuffer(
-				" SELECT DISTINCT(q.primaryMember) FROM Question q" +
-				" WHERE q.session.id=:sessionId AND q.type.id=:deviceTypeId"+
-				" AND (q.discussionDate IS NULL OR q.discussionDate<=:strDiscussionDate)" +
-				" AND q.submissionDate>=:strStartTime AND q.submissionDate<=:strEndTime"+
+				"SELECT m.* FROM members m WHERE m.id IN (SELECT DISTINCT(q.member_id) FROM questions q" +
+				" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId"+
+				" AND (q.discussion_date IS NULL OR q.discussion_date<=:strDiscussionDate)" +
+				" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime"+
 				" AND q.locale=:locale" +
-				" AND q.ballotStatus IS NULL");
-		query.append(this.getStatusFilters(internalStatuses));
+				" AND q.ballotstatus_id IS NULL");
+		query.append(this.getStatusFiltersNative(internalStatuses));
 		
 		if(!hasParent) {
 			query.append(" AND q.parent IS NULL");
 		}		
+		
+		query.append(" AND q.subject NOT IN(SELECT DISTINCT qqq.revised_subject FROM questions qqq WHERE qqq.session_id=:sessionId" +
+				" AND qqq.devicetype_id=:deviceTypeId" +
+				" AND qqq.ballotstatus_id IS NOT NULL)" +
+				" AND q.revised_subject NOT IN(SELECT DISTINCT qqq.revised_subject FROM questions qqq WHERE qqq.session_id=:sessionId" +
+				" AND qqq.devicetype_id=:deviceTypeId" +
+				" AND qqq.ballotstatus_id IS NOT NULL)");
+		
 		if(sortOrder.equals(ApplicationConstants.ASC)) {
 			query.append(" ORDER BY q.number ASC");
 		}
@@ -1692,7 +1701,9 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			query.append(" ORDER BY q.number DESC");
 		}
 
-		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+		query.append(")");
+		
+		Query tQuery = this.em().createNativeQuery(query.toString(), Member.class);
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("deviceTypeId", deviceType.getId());
 		tQuery.setParameter("strDiscussionDate", answeringDate);
