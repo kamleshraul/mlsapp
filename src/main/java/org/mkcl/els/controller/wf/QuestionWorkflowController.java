@@ -2034,7 +2034,9 @@ public class QuestionWorkflowController  extends BaseController{
 							wfDetails.setInternalStatus(question.getInternalStatus().getName());
 							wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
 							wfDetails.setCompletionTime(new Date());
-							if(!question.getType().getType().startsWith("questions_halfhourdiscussion_")){
+							if(!question.getType().getType().startsWith("questions_halfhourdiscussion_") 
+							&& !question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+							&& !question.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
 								wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 							}
 							wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
