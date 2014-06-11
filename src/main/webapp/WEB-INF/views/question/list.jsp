@@ -91,6 +91,12 @@
 				memberwiseQuestionsReport();
 			});
 			
+			/**** Questions Bulletein Report ****/
+			$("#bulletein_report").click(function(){				
+				$(this).attr('href','#');
+				bulleteinReport();
+			});
+			
 			//------stats reports as html-----------------------starts----------------
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
@@ -237,6 +243,9 @@
 			</security:authorize>	 
 			<a href="#" id="memberwise_questions_report" class="butSim link">
 				<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
+			</a> |
+			<a href="#" id="bulletein_report" class="butSim link">
+				<spring:message code="question.bulletein_report" text="Bulletein Report"/>
 			</a> |
 			<p>&nbsp;</p>
 		</div>

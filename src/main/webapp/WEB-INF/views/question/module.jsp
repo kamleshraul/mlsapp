@@ -564,6 +564,17 @@
 			scrollTop();
 		}); */
 	}
+	function bulleteinReport(){
+		var parameters = "houseType="+$("#selectedHouseType").val()
+		 +"&sessionYear="+$("#selectedSessionYear").val()
+		 +"&sessionType="+$("#selectedSessionType").val()
+		 /* +"&questionType="+$("#selectedQuestionType").val()
+		 +"&group="+$("#selectedGroup").val()
+		 +"&status="+$("#selectedStatus").val() */
+		 +"&role="+$("#srole").val() 
+		 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=question";	
+		$('#bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
+	}
 	function loadSubDepartmentsFromGroup(group){
 		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val(),function(data){
 			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
