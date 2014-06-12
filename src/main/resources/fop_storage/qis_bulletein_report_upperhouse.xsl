@@ -80,6 +80,11 @@
 			       		</fo:block>
 			       		<fo:block font-size="6px">&#160;</fo:block>
 			       		<fo:block text-align="center" font-size="11.5px" font-weight="bold" text-decoration="underline">
+			       			<xsl:variable name="groupHeader" select="element_1[1]/element_1_2"></xsl:variable>			       			
+			       			<xsl:if test="contains($groupHeader, 'गट')">
+			       				<fo:block font-size="14px"><xsl:value-of select="$groupHeader"></xsl:value-of></fo:block>	
+			       				<fo:block font-size="6px">&#160;</fo:block>
+			       			</xsl:if>
 			       			<fo:block>विवरण क्र.१</fo:block>		
 			       			<fo:block font-size="6px" text-decoration="none">&#160;</fo:block>	       			
 			       			<fo:block>तारांकित प्रश्न</fo:block>

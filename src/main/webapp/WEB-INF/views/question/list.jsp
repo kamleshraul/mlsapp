@@ -89,6 +89,12 @@
 			$("#memberwise_questions_report").click(function(){
 				$("#selectionDiv1").hide();
 				memberwiseQuestionsReport();
+			});			
+			
+			/**** Questions Bulletein Report ****/
+			$("#group_bulletein_report").click(function(){				
+				$(this).attr('href','#');
+				groupBulleteinReport();
 			});
 			
 			/**** Questions Bulletein Report ****/
@@ -243,6 +249,9 @@
 			</security:authorize>	 
 			<a href="#" id="memberwise_questions_report" class="butSim link">
 				<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
+			</a> |
+			<a href="#" id="group_bulletein_report" class="butSim link">
+				<spring:message code="question.group_bulletein_report" text="Group Bulletein Report"/>
 			</a> |
 			<a href="#" id="bulletein_report" class="butSim link">
 				<spring:message code="question.bulletein_report" text="Bulletein Report"/>

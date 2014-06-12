@@ -564,15 +564,17 @@
 			scrollTop();
 		}); */
 	}
-	function bulleteinReport(){
+	function groupBulleteinReport(){
 		var parameters = "houseType="+$("#selectedHouseType").val()
 		 +"&sessionYear="+$("#selectedSessionYear").val()
 		 +"&sessionType="+$("#selectedSessionType").val()
-		 /* +"&questionType="+$("#selectedQuestionType").val()
-		 +"&group="+$("#selectedGroup").val()
-		 +"&status="+$("#selectedStatus").val() */
-		 +"&role="+$("#srole").val() 
-		 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=question";	
+		 +"&group="+$("#selectedGroup").val();		 
+		$('#group_bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
+	}
+	function bulleteinReport(){
+		var parameters = "houseType="+$("#selectedHouseType").val()
+		 +"&sessionYear="+$("#selectedSessionYear").val()
+		 +"&sessionType="+$("#selectedSessionType").val();	
 		$('#bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
 	}
 	function loadSubDepartmentsFromGroup(group){

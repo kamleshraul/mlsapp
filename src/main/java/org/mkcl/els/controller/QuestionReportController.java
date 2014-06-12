@@ -1431,6 +1431,7 @@ public class QuestionReportController extends BaseController{
 		String strHouseType = request.getParameter("houseType");
 		String strSessionType = request.getParameter("sessionType");
 		String strSessionYear = request.getParameter("sessionYear");
+		String strGroup = request.getParameter("group");
 		
 		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null){
 			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()){	
@@ -1444,40 +1445,57 @@ public class QuestionReportController extends BaseController{
 					if(houseType==null || sessionType==null) {
 						logger.error("**** HouseType or SessionType Not Found ****");
 						model.addAttribute("type", "HOUSETYPE_NOTFOUND_OR_SESSIONTYPE_NOTFOUND");					
-					}
-					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-					if(session==null) {								
-						logger.error("**** Session Not Found ****");
-						model.addAttribute("type", "SESSION_NOTFOUND");					
-					}
-					Session previousSession = Session.findPreviousSession(session);
-					/**** find report data ****/
-					Map<String, String[]> queryParameters = new HashMap<String, String[]>();
-					queryParameters.put("houseTypeId", new String[]{houseType.getId().toString()});
-					queryParameters.put("sessionId", new String[]{session.getId().toString()});
-					if(previousSession!=null) {
-						queryParameters.put("previousSessionId", new String[]{previousSession.getId().toString()});						
 					} else {
-						queryParameters.put("previousSessionId", new String[]{"-1"});
-					}
-					queryParameters.put("locale", new String[]{locale.toString()});
-					List reportData = Query.findReport("QIS_BULLETEIN_REPORT", queryParameters);
-					if(reportData!=null && !reportData.isEmpty()) {
-						/**** generate report ****/
-						if(!isError) {
-							if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-								reportFile = generateReportUsingFOP(new Object[]{reportData}, "qis_bulletein_report_lowerhouse", "WORD", "qis_bulletein_report", locale.toString());
-							} else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-								reportFile = generateReportUsingFOP(new Object[]{reportData}, "qis_bulletein_report_upperhouse", "WORD", "qis_bulletein_report", locale.toString());
-							}							
-							if(reportFile!=null) {
-								System.out.println("Report generated successfully in WORD format!");
-								openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+						if(session==null) {								
+							logger.error("**** Session Not Found ****");
+							model.addAttribute("type", "SESSION_NOTFOUND");					
+						} else {
+							Session previousSession = Session.findPreviousSession(session);
+							/**** find report data ****/
+							Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+							queryParameters.put("houseTypeId", new String[]{houseType.getId().toString()});
+							queryParameters.put("sessionId", new String[]{session.getId().toString()});
+							if(previousSession!=null) {
+								queryParameters.put("previousSessionId", new String[]{previousSession.getId().toString()});						
+							} else {
+								queryParameters.put("previousSessionId", new String[]{"-1"});
 							}
-						}
-					} else {
-						//error
-					}
+							queryParameters.put("locale", new String[]{locale.toString()});
+							
+							String queryName = "QIS_BULLETEIN_REPORT";
+							Group group = new Group();
+							if(strGroup!=null && !strGroup.isEmpty()) {
+								group = Group.findById(Group.class, Long.parseLong(strGroup));
+							}
+							if(group==null) {								
+								logger.error("**** Group Not Found ****");
+								model.addAttribute("type", "GROUP_NOTFOUND");					
+							} else {
+								if(group.getId()!=null) {
+									queryParameters.put("groupId", new String[]{group.getId().toString()});
+									queryName = "QIS_BULLETEIN_GROUPWISE_REPORT";
+								}								
+								List reportData = Query.findReport(queryName, queryParameters);
+								if(reportData!=null && !reportData.isEmpty()) {
+									/**** generate report ****/
+									if(!isError) {
+										if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+											reportFile = generateReportUsingFOP(new Object[]{reportData}, "qis_bulletein_report_lowerhouse", "WORD", "qis_bulletein_report", locale.toString());
+										} else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+											reportFile = generateReportUsingFOP(new Object[]{reportData}, "qis_bulletein_report_upperhouse", "WORD", "qis_bulletein_report", locale.toString());
+										}							
+										if(reportFile!=null) {
+											System.out.println("Report generated successfully in WORD format!");
+											openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+										}
+									}
+								} else {
+									//error
+								}
+							}							
+						}						
+					}					
 				} catch(Exception e) {
 					e.printStackTrace();
 					isError = true;					
