@@ -14,6 +14,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Chart;
+import org.mkcl.els.domain.ChartEntry;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
@@ -1278,5 +1279,21 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		}
 
 		return sb.toString();
+	}
+
+	public ChartEntry find(Chart chart, Member primaryMember) {
+		String strQuery="SELECT cce"+
+				"FROM Charts c JOIN c.chartEntries AS cce "+
+				"WHERE cce.member.id=:memberId" +
+				"AND c.id=:chartId";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("memberId", primaryMember.getId());
+		query.setParameter("chartId", chart.getId());
+		try{
+			ChartEntry chartEntry=(ChartEntry) query.getSingleResult();
+			return chartEntry;
+		}catch(Exception e){
+			return null;
+		}
 	}	
 }
