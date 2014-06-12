@@ -380,7 +380,9 @@ public class Chart extends BaseDomain implements Serializable {
 	
 	// All the List returning methods having sortOrder as a parameter
 	
-	
+	public static ChartEntry find(Chart chart, Member primaryMember) {
+		return Chart.getChartRepository().find(chart,primaryMember);
+	}
 	//=============== GETTERS/SETTERS ===============
 	public Session getSession() {
 		return session;
