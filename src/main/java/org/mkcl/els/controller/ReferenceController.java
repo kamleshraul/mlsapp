@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.util.ManualCouncilUtil;
 import org.mkcl.els.common.util.RomanNumeral;
 import org.mkcl.els.common.vo.AutoCompleteVO;
 import org.mkcl.els.common.vo.ConstituencyCompleteVO;
@@ -5379,6 +5380,37 @@ public class ReferenceController extends BaseController {
 		}
 		
 		return pendingMessage;
+	}
+	
+	@RequestMapping(value="/test/session/{sessionId}", method=RequestMethod.GET)
+	public @ResponseBody String test(@PathVariable("sessionId") final Long sessionId) {
+//		long[] questionNumbers = new long[] {
+//				48996, 49093, 49334, 49343, 49359, 49632, 49633,
+//				49638, 49687, 49689, 49693, 49694, 49695, 49617,
+//				49719, 49720, 49721, 49785, 49788, 49787, 49867,
+//				49877, 50295, 50304, 50341, 50360, 50491, 50519,
+//				50521, 50524, 51040, 51103, 51104, 51130, 51192,
+//				51193, 51277, 51391, 51393, 51422, 51638, 51797
+//		};
+		String locale = ApplicationConstants.DEFAULT_LOCALE;
+		
+		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale);
+		long deviceTypeId = deviceType.getId();
+		try{
+		CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "SQ_CONVERT_TO_UNSTARRED_AND_ADMIT", "");
+		if(cp != null) {
+			String qnNumbers = cp.getValue();
+			String[] qnNumbersArr = qnNumbers.split(",");
+			for(String qnNumber : qnNumbersArr) {
+				Integer questionNumber = Integer.parseInt(qnNumber.trim());
+				Question q = Question.getQuestion(sessionId, deviceTypeId, questionNumber, locale);
+				ManualCouncilUtil.performActionOnConvertToUnstarredAndAdmit(q);
+			}
+		}
+			return "SUCCESS";
+		}catch(Exception e){
+			return "FAIL";
+		}
 	}
 	
 }
