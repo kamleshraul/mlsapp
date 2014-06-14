@@ -71,8 +71,11 @@
 			    </fo:static-content>
 	
 				<!-- body -->
-	            <fo:flow flow-name="xsl-region-body">	
-	            	<xsl:variable name="primaryMemberName">						
+	            <fo:flow flow-name="xsl-region-body">
+	            	<xsl:variable name="endPartOfSubDepartment">
+						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
+					</xsl:variable>
+					<xsl:variable name="primaryMemberName">						
 						<xsl:choose>
 							<xsl:when test="substring-before(memberNames,',')!=''">
 								<xsl:value-of select="substring-before(memberNames,',')"/>
@@ -89,63 +92,103 @@
 							</xsl:choose>
 							</fo:block>						
 							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
-							<xsl:choose>
-								<xsl:when test="sessionPlace='मुंबई'">
-									<fo:block margin-right="2.3cm">विधान भवन, <xsl:value-of select="sessionPlace"/></fo:block>
-								</xsl:when>
-								<xsl:when test="sessionPlace='नागपूर'">
-									<fo:block margin-right="1.98cm">विधान भवन, <xsl:value-of select="sessionPlace"/></fo:block>
-								</xsl:when>
-							</xsl:choose>
+							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
 							<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
-						</fo:block>			
+						</fo:block>		
 						
 						<!-- <fo:block>&#160;</fo:block> -->
 						
 						<fo:block text-align="left">
 							<fo:block>प्रेषक:</fo:block>						
 							<fo:block margin-left="1cm">प्रधान सचिव,</fo:block>
-							<fo:block margin-left="1cm">महाराष्ट्र <xsl:value-of select="houseTypeName"/></fo:block>
-						</fo:block>
+							<fo:block margin-left="1cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
+						</fo:block>	
 						
-						<fo:block font-size="6px">&#160;</fo:block>					
+						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block text-align="left">
-							<fo:block>प्रति,</fo:block>	
-							<fo:block margin-left="1cm">					
-							<fo:block>उप सचिव</fo:block>
-							<fo:block>महाराष्ट्र शासन</fo:block>
+							<fo:block>प्रति,</fo:block>						
+							<fo:block font-weight="bold" margin-left="1cm"><xsl:value-of select="primaryMemberName"/>
 							<xsl:choose>
-								<xsl:when test="department=subDepartment">
-									<fo:block><xsl:value-of select="department"/></fo:block>
-								</xsl:when>
-								<xsl:otherwise>
-									<fo:block><xsl:value-of select="department"/> (<xsl:value-of select="subDepartment"/>)</fo:block>
-								</xsl:otherwise>
+							<xsl:when test="hasMoreMembers='yes'">
+								<xsl:choose>
+									<xsl:when test="houseType='lowerhouse'"> व इतर वि.स.स.</xsl:when>
+									<xsl:when test="houseType='upperhouse'"> व इतर वि.प.स.</xsl:when>
+								</xsl:choose>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:choose>
+									<xsl:when test="houseType='lowerhouse'">, वि.स.स.</xsl:when>
+									<xsl:when test="houseType='upperhouse'">, वि.प.स.</xsl:when>
+								</xsl:choose> 
+							</xsl:otherwise>
 							</xsl:choose>
-							<fo:block font-weight="normal">मंत्रालय, मुंबई - ४०० ०३२</fo:block>	
-							</fo:block>
+							</fo:block>							
 						</fo:block>		
 						
 						<fo:block font-size="6px">&#160;</fo:block>
-						<fo:block text-align="center">विषय : महाराष्ट्र <xsl:value-of select="houseTypeName"/>&#160;<xsl:value-of select="deviceType"/> क्रमांक - <xsl:value-of select="number"/></fo:block>	
+						
+						<fo:block text-align="center" font-weight="bold">विषय: आपला <xsl:value-of select="deviceType"/> क्रमांक - <xsl:value-of select="number"/></fo:block>
+						
 						<fo:block font-size="6px">&#160;</fo:block>
-						<fo:block text-align="center">संदर्भ : १) या सचिवालयाचे पत्र क्र.________,दिनांक______</fo:block>
-						<fo:block text-align="center">२) आपले पत्र क्र._________,दिनांक______</fo:block>	
-						<fo:block font-size="6px">&#160;</fo:block>
-						<fo:block font-size="6px">&#160;</fo:block>		
+						
 						<fo:block>महोदय,</fo:block>	
-						<fo:block>
-							&#160;&#160;&#160;&#160; या सचिवालयाकडून आपल्या विभागाकडे वस्तुस्थितीसाठी पाठविलेला &#160;<xsl:value-of select="deviceType"/> क्रमांक - <xsl:value-of select="number"/>
-							माननीय सभापतींनी अस्वीकृत केला आहे.
-						</fo:block>	
-						<fo:block font-size="6px">&#160;</fo:block>				
+						
+						<fo:block font-size="4px">&#160;</fo:block>
+						
+						<fo:block margin-left="1cm">							
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;आपल्या- उपरिनिर्दिष्ट प्रश्नाबाबत खाली नमूद केलेल्या क्रमांक <xsl:value-of select="questionIndexesForClarification"/> वरील मुद्द्याबाबत खुलासा करावा अशी विनंती आहे. 												
+						</fo:block>
+							
+						<fo:block font-size="4px">&#160;</fo:block>		
+								
 						<fo:block text-align="right">
-							<fo:block margin-right="2cm">आपला/आपली</fo:block>
+							<fo:block margin-right="2cm">आपला</fo:block>
 							<fo:block>&#160;</fo:block>
-							<fo:block margin-right="1.8cm">कक्ष अधिकारी,</fo:block>		
-							<fo:block margin-right="0.7cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
-						</fo:block>					
+							<fo:block margin-right="1.4cm">कक्ष अधिकारी,</fo:block>		
+							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
+						</fo:block>
+						--------------------------------------------------------------------------------------------------------------------------------------------
+						<fo:block font-weight="bold">
+							<xsl:for-each select="questionsAskedForClarification/questionAskedForClarification">
+								<fo:block><xsl:value-of select="value"/></fo:block>
+								<!-- <xsl:if test="position()!=last()">
+									<fo:block>&#160;</fo:block>
+								</xsl:if> -->								
+							</xsl:for-each>
+						</fo:block>	
+						--------------------------------------------------------------------------------------------------------------------------------------------
+						<fo:block font-size="4px">&#160;</fo:block>
+						<fo:block text-align="center" font-weight="bold">विषय - <xsl:value-of select="subject"/></fo:block>
+						<fo:block font-size="4px">&#160;</fo:block>
+						<fo:block margin-left="1cm" font-weight="bold">
+							<fo:inline><xsl:value-of select="memberNames"/></fo:inline>			
+						</fo:block>
+						<fo:block font-size="6px">&#160;</fo:block>
+						<fo:block font-weight="bold">
+							सन्माननीय
+							<xsl:choose>
+								<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:value-of select="primaryMemberDesignation"/>
+								</xsl:when>
+								<!-- <xsl:when test="primaryMemberDesignation='उप मुख्यमंत्री'">
+									<xsl:value-of select="primaryMemberDesignation"/>
+								</xsl:when> -->
+								<xsl:otherwise>
+									<xsl:choose>
+										<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+											<xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="subDepartment"/> मंत्री
+										</xsl:otherwise>
+									</xsl:choose>									
+								</xsl:otherwise>
+							</xsl:choose>
+							पुढील गोष्टींचा खुलासा करतील काय :-
+						</fo:block>
+						<!-- <fo:block>&#160;</fo:block> -->
+						<fo:block>&#160;&#160;<xsl:apply-templates select="questionText"/></fo:block>
 					</fo:block>							          
 	            </fo:flow>
 	        </fo:page-sequence>        
