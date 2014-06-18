@@ -1530,6 +1530,114 @@ public class QuestionReportController extends BaseController{
 			}
 		}
 	}
+	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@RequestMapping(value="/departmentwisequestions", method=RequestMethod.GET)
+	public String getDepartmentwiseAdmittedQuestionReport(HttpServletRequest request, Model model, Locale locale){
+		
+		Map<String, String[]> requestMap = request.getParameterMap();
+		List report = Query.findReport(request.getParameter("report"), requestMap);
+		if(report != null && !report.isEmpty()){
+			String[] clubbedNumbersArr = new String[report.size()];
+			int count=0;
+			for(Object o: report) {
+				Object[] obj = (Object[])o;
+				if(obj!=null) {
+					if(count==0) {
+						model.addAttribute("localisedContent", obj[0].toString().split("~#"));
+					}
+					if(obj[7]!=null) {
+						String[] clubbedQuestionNumbers = obj[7].toString().split(",");
+						StringBuffer clubbedNumbers = new StringBuffer();
+						clubbedNumbers.append("(");
+						for(int i=0; i<clubbedQuestionNumbers.length; i++) {
+							if(i!=0 && i%3==0) {
+								clubbedNumbers.append("<br/>");
+							} 
+							clubbedNumbers.append(clubbedQuestionNumbers[i]);
+							if(i!=clubbedQuestionNumbers.length-1) {
+								clubbedNumbers.append(",");
+							}							
+						}
+						clubbedNumbers.append(")");						
+						clubbedNumbersArr[count]=clubbedNumbers.toString();						
+					} else {
+						clubbedNumbersArr[count]="";
+					}
+					System.out.println(clubbedNumbersArr[count]);
+				}
+				count++;
+			}
+			model.addAttribute("clubbedNumbers", clubbedNumbersArr);
+		}
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale.toString());
+		model.addAttribute("report", report);
+		model.addAttribute("selectedHouseType", request.getParameter("houseType"));
+		model.addAttribute("selectedSessionType", request.getParameter("sessionType"));
+		model.addAttribute("selectedSessionYear", request.getParameter("sessionYear"));
+		model.addAttribute("selectedSubDepartment", request.getParameter("subDepartment"));
+		
+		return "question/reports/"+request.getParameter("reportout");		
+	}
+	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@RequestMapping(value="/departmentwisequestions/export", method=RequestMethod.GET)
+	public void exportDepartmentwiseAdmittedQuestionReport(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		
+		Map<String, String[]> requestMap = request.getParameterMap();
+		List report = Query.findReport(request.getParameter("report"), requestMap);		
+		if(report != null && !report.isEmpty()){
+			List<String> localisedContent = new ArrayList<String>();
+			List<String> clubbedNumbersList = new ArrayList<String>();
+			int count=0;
+			for(Object o: report) {
+				Object[] obj = (Object[])o;
+				if(obj!=null) {
+					if(count==0) {
+						for(String i: obj[0].toString().split("~#")) {
+							localisedContent.add(i);
+						}											
+					}
+					if(obj[7]!=null) {
+						String[] clubbedQuestionNumbers = obj[7].toString().split(",");
+						StringBuffer clubbedNumbers = new StringBuffer();
+						clubbedNumbers.append("(");
+						for(int i=0; i<clubbedQuestionNumbers.length; i++) {
+							if(i!=0 && i%3==0) {
+								clubbedNumbers.append("<br>");
+							} 
+							clubbedNumbers.append(clubbedQuestionNumbers[i]);
+							if(i!=clubbedQuestionNumbers.length-1) {
+								clubbedNumbers.append(",");
+							}							
+						}
+						clubbedNumbers.append(")");					
+						clubbedNumbersList.add(clubbedNumbers.toString());										
+					} else {
+						clubbedNumbersList.add("");	
+					}					
+				}
+				count++;
+			}
+			model.addAttribute("clubbedNumbers", clubbedNumbersList);
+			/**** generate report ****/
+			if(!isError) {
+				try {
+					reportFile = generateReportUsingFOP(new Object[]{report,localisedContent, clubbedNumbersList}, "qis_departmentwise_questions", request.getParameter("outputFormat"), "qis_departmentwisequestions", locale.toString());
+				} catch (Exception e) {					
+					e.printStackTrace();
+				}							
+				if(reportFile!=null) {
+					System.out.println("Report generated successfully in WORD format!");
+					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+				}
+			}
+		}			
+	}
 }
 
 /**** Helper for producing reports ****/

@@ -577,6 +577,20 @@
 		 +"&sessionType="+$("#selectedSessionType").val();	
 		$('#bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
 	}
+	function departmentwiseQuestionsReport(){
+		var parameters = "houseType="+$("#selectedHouseType").val()
+		 +"&sessionYear="+$("#selectedSessionYear").val()
+		 +"&sessionType="+$("#selectedSessionType").val()
+		 +"&subDepartment="+$("#selectedSubDepartment").val()
+		 +"&group="+$("#selectedGroup").val()
+		 +"&status="+$("#selectedStatus").val()
+		 +"&locale="+$("#moduleLocale").val()
+		 +"&role="+$("#srole").val()
+		 +"&report="+"QIS_STARRED_DEPARTMENTWISE_QUESTIONS"
+		 +"&reportout="+"departmentwisequestions";	
+		var resourceURL = 'question/report/departmentwisequestions?'+ parameters;			
+		showTabByIdAndUrl('details_tab', resourceURL);
+	}	
 	function loadSubDepartmentsFromGroup(group){
 		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val(),function(data){
 			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
@@ -591,9 +605,7 @@
 		}).done(function(){
 			reloadQuestionGrid();
 		});
-	}
-	
-	
+	}	
 	function statReport(){
 		var url = "question/report/statreport?sessionYear="+$("#selectedSessionYear").val()
 				+ "&sessionType="+$("#selectedSessionType").val()
