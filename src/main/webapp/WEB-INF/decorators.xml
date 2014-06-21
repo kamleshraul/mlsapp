@@ -229,7 +229,11 @@
 		<pattern>/question/bulksubmission/assistant/view</pattern>		
 		<pattern>/question/bulksubmission/assistant/update</pattern>
 		<pattern>/workflow/question</pattern>	
-		
+				
+		<pattern>/pushmessage/new</pattern>
+		<pattern>/pushmessage/*/edit</pattern>
+		<pattern>/pushmessage/*/delete</pattern>
+		<pattern>/pushmessage</pattern>
 		
 		<pattern>/user/usergroup/new</pattern>
 		<pattern>/user/usergroup/*/edit</pattern>
