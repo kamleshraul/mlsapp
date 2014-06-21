@@ -993,18 +993,25 @@ public class Ballot extends BaseDomain implements Serializable {
 		Status REJECTED = null;
 		Status REPEAT_ADMITTED = null;
 		Status REPEAT_REJECTED = null;
+		Status RESOLUTION_UNDERCONSIDERATION = null;
+		
+		Status[] internalStatuses = null;
+		
 		if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)){
 			ADMITTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_FINAL_ADMISSION, locale.toString());
 			REJECTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_FINAL_REJECTION, locale.toString());
 			REPEAT_ADMITTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_FINAL_REPEATADMISSION, locale.toString());
 			REPEAT_REJECTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_FINAL_REPEATREJECTION, locale.toString());
+			internalStatuses = new Status[] {ADMITTED, REJECTED, REPEAT_ADMITTED, REPEAT_REJECTED};
 		}else if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
 			ADMITTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_FINAL_ADMISSION, locale.toString());
 			REJECTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_FINAL_REJECTION, locale.toString());
 			REPEAT_ADMITTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_FINAL_REPEATADMISSION, locale.toString());
 			REPEAT_REJECTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_FINAL_REPEATREJECTION, locale.toString());
+			RESOLUTION_UNDERCONSIDERATION = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION, locale.toString());
+			internalStatuses = new Status[] {ADMITTED, REJECTED, REPEAT_ADMITTED, REPEAT_REJECTED, RESOLUTION_UNDERCONSIDERATION};
 		}
-		Status[] internalStatuses = {ADMITTED, REJECTED, REPEAT_ADMITTED, REPEAT_REJECTED};
+		 
 		
 		Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
 		if(ballot != null) {
