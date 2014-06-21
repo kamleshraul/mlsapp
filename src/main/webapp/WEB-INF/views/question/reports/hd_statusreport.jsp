@@ -80,9 +80,6 @@
 					<c:when test="${headerStats[0][1]=='lowerhouse'}">
 						<spring:message code="question.hdq.report.status.rule.lowerhouse" text="Halfhour Discussion Rule" />
 					</c:when>
-					<c:when test="${headerStats[0][1]=='upperhouse'}">
-						<spring:message code="question.hdq.report.status.rule.upperhouse" text="Halfhour Discussion Rule" />
-					</c:when>
 				</c:choose>
 				<br>
 				${headerStats[0][2]}
