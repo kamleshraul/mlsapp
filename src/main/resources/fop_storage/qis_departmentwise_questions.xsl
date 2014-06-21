@@ -102,23 +102,23 @@
 						        <fo:table-column column-width="4.5cm"/>
 						        <fo:table-column column-width="7cm"/>
 						        <fo:table-header>
-						        	<fo:table-row border="solid 0.1mm black">
-						        		<fo:table-cell display-align="before" font-weight="bold" border-width="0.5pt" border-style="solid">
+						        	<fo:table-row>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
 						        			<fo:block text-align="center" font-weight="bold">
 						        				<xsl:value-of select="element_2[6]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" font-weight="bold" border-width="0.5pt" border-style="solid">
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
 						        			<fo:block text-align="center" font-weight="bold">
 						        				<xsl:value-of select="element_2[7]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell margin-left="0.3cm" display-align="before" font-weight="bold" border-width="0.5pt" border-style="solid">
+						        		<fo:table-cell margin-left="0.3cm" display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
 						        			<fo:block>
 						        				<xsl:value-of select="element_2[8]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell margin-left="0.3cm" display-align="before" font-weight="bold" border-width="0.5pt" border-style="solid">
+						        		<fo:table-cell margin-left="0.3cm" display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
 						        			<fo:block>
 						        				<xsl:value-of select="element_2[9]"/>
 						        			</fo:block>
@@ -128,31 +128,55 @@
 						        <fo:table-body>
 						        	<xsl:for-each select="element_1">
 						        		 <xsl:variable name="count" select="position()"/>
-						        		<fo:table-row border="solid 0.1mm black">
-							        		<fo:table-cell margin-left="0.3cm" display-align="before" border-width="0.5pt" border-style="solid">
-							        			<fo:block>
-							        				<xsl:value-of select="element_1_6"/>
-							        			</fo:block>
-							        		</fo:table-cell>
-							        		<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
-							        			<fo:block text-align="center">
-							        				<fo:block><xsl:value-of select="element_1_7"/></fo:block>							        								        			
-							        				<fo:block><xsl:apply-templates select="../element_3[$count]"/></fo:block>							        				
-							        			</fo:block>		
-							        			<!-- <xsl:if test="element_3[$count]!=''">
-							        				<fo:block><xsl:apply-templates select="element_3[$count]"/></fo:block>
-							        			</xsl:if> -->
-							        		</fo:table-cell>
-							        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" border-width="0.5pt" border-style="solid">
-							        			<fo:block>
-							        				<xsl:value-of select="element_1_9"/>
-							        			</fo:block>
-							        		</fo:table-cell>
-							        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" border-width="0.5pt" border-style="solid">
-							        			<fo:block>
-							        				<xsl:value-of select="element_1_10"/>
-							        			</fo:block>
-							        		</fo:table-cell>
+						        		<fo:table-row>
+							        		<xsl:choose>
+							        			<xsl:when test="position()!=last()">
+							        				<fo:table-cell margin-left="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
+									        			<fo:block>
+									        				<xsl:value-of select="element_1_6"/>
+									        			</fo:block>
+									        		</fo:table-cell>
+									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
+									        			<fo:block text-align="center">
+									        				<fo:block><xsl:value-of select="element_1_7"/></fo:block>							        								        			
+									        				<fo:block><xsl:apply-templates select="../element_3[$count]"/></fo:block>							        				
+									        			</fo:block>									        			
+									        		</fo:table-cell>
+									        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
+									        			<fo:block>
+									        				<xsl:value-of select="element_1_9"/>
+									        			</fo:block>
+									        		</fo:table-cell>
+									        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
+									        			<fo:block>
+									        				<xsl:value-of select="element_1_10"/>
+									        			</fo:block>
+									        		</fo:table-cell>
+							        			</xsl:when>
+							        			<xsl:otherwise>
+							        				<fo:table-cell margin-left="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+									        			<fo:block>
+									        				<xsl:value-of select="element_1_6"/>
+									        			</fo:block>
+									        		</fo:table-cell>
+									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+									        			<fo:block text-align="center">
+									        				<fo:block><xsl:value-of select="element_1_7"/></fo:block>							        								        			
+									        				<fo:block><xsl:apply-templates select="../element_3[$count]"/></fo:block>							        				
+									        			</fo:block>									        			
+									        		</fo:table-cell>
+									        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+									        			<fo:block>
+									        				<xsl:value-of select="element_1_9"/>
+									        			</fo:block>
+									        		</fo:table-cell>
+									        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+									        			<fo:block>
+									        				<xsl:value-of select="element_1_10"/>
+									        			</fo:block>
+									        		</fo:table-cell>
+							        			</xsl:otherwise>
+							        		</xsl:choose>
 							        	</fo:table-row>
 						        	</xsl:for-each>
 						        </fo:table-body>

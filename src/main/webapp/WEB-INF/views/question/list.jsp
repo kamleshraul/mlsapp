@@ -109,6 +109,12 @@
 				departmentwiseQuestionsReport();
 			});
 			
+			/**** Sankshipt Ahwal Report ****/
+			$("#ahwal_report").click(function(){				
+				//$("#selectionDiv1").hide();
+				sankshiptAhwalReport();
+			});
+			
 			//------stats reports as html-----------------------starts----------------
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
@@ -265,6 +271,9 @@
 			</a> |
 			<a href="#" id="departmentwise_report" class="butSim link">
 				<spring:message code="question.departmentwise_report" text="Department's Questions Report"/>
+			</a> |
+			<a href="#" id="ahwal_report" class="butSim link">
+				<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
 			</a> |
 			<p>&nbsp;</p>
 		</div>

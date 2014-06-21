@@ -577,6 +577,19 @@
 		 +"&sessionType="+$("#selectedSessionType").val();	
 		$('#bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
 	}
+	function ahwalBulleteinReport(){
+		var parameters = "houseType="+$("#selectedHouseType").val()
+		 +"&sessionYear="+$("#selectedSessionYear").val()
+		 +"&sessionType="+$("#selectedSessionType").val()
+		 +"&isAhwalBulletein=yes";	
+		$('#bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
+	}
+	function starredDepartmentwiseStatsReport(){
+		var parameters = "houseType="+$("#selectedHouseType").val()
+		 +"&sessionYear="+$("#selectedSessionYear").val()
+		 +"&sessionType="+$("#selectedSessionType").val();		 
+		$('#starred_departmentwise_stats_report').attr('href', 'question/report/starredDepartmentwiseStatsReport?'+ parameters);
+	}
 	function departmentwiseQuestionsReport(){
 		var parameters = "houseType="+$("#selectedHouseType").val()
 		 +"&sessionYear="+$("#selectedSessionYear").val()
@@ -591,6 +604,9 @@
 		var resourceURL = 'question/report/departmentwisequestions?'+ parameters;			
 		showTabByIdAndUrl('details_tab', resourceURL);
 	}	
+	function sankshiptAhwalReport() {
+		showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal');
+	}
 	function loadSubDepartmentsFromGroup(group){
 		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val(),function(data){
 			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
