@@ -2997,7 +2997,11 @@ public class BallotController extends BaseController{
 			model.addAttribute("deviceId", deviceType.getId());
 			
 			String strGroup = request.getParameter("group");
-			Group  group = Group.findById(Group.class, new Long(strGroup));
+			Group  group=null;
+			if(strGroup!=null && !strGroup.isEmpty()){
+				group = Group.findById(Group.class, new Long(strGroup));
+			}
+			
 			
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
