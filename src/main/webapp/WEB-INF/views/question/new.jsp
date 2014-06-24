@@ -670,7 +670,14 @@
 		</p>	
 		<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 			<p>
-				<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
+				<c:choose>
+					<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">
+						<label class="wysiwyglabel"><spring:message code="question.hds.details" text="Notice Content"/>*</label>
+					</c:when>
+					<c:otherwise>
+						<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
+					</c:otherwise>					
+				</c:choose>
 				<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
 				<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 			</p>

@@ -78,37 +78,37 @@
 		});
 		/**** question type changes then reload grid****/
 		$("#selectedQuestionType").change(function() {
-							var value = $(this).val();
-							var text = $("#deviceTypeMaster option[value='"+ value + "']").text();
-							
-							if(text.indexOf("questions_halfhourdiscussion_")==-1){
-								$("#hdReportsDiv").hide();
-							}else{
-								$("#hdReportsDiv").show();
-							}
-							
-							if (text == 'questions_starred') {
-								$("#chart_tab").show();
-							} else {
-								$("#chart_tab").hide();
-							}
-							if (text == 'questions_starred' && currentHouseType == 'upperhouse') {
-								$("#memberballot_tab").show();
-								$("#ballot_tab").hide();
-							} else if ((text == 'questions_starred' && currentHouseType == 'lowerhouse')
-									|| text == 'questions_halfhourdiscussion_from_question'
-									|| text == 'questions_halfhourdiscussion_standalone') {
-								$("#memberballot_tab").hide();
-								$("#ballot_tab").show();
-							} else {
-								$("#memberballot_tab").hide();
-								$("#ballot_tab").hide();
-							}
-							if (value != "") {
-								reloadQuestionGrid();
-							}
+			var value = $(this).val();
+			var text = $("#deviceTypeMaster option[value='"+ value + "']").text();
+			
+			if(text.indexOf("questions_halfhourdiscussion_")==-1){
+				$("#hdReportsDiv").hide();
+			}else{
+				$("#hdReportsDiv").show();
+			}
+			
+			if (text == 'questions_starred') {
+				$("#chart_tab").show();
+			} else {
+				$("#chart_tab").hide();
+			}
+			if (text == 'questions_starred' && currentHouseType == 'upperhouse') {
+				$("#memberballot_tab").show();
+				$("#ballot_tab").hide();
+			} else if ((text == 'questions_starred' && currentHouseType == 'lowerhouse')
+					|| text == 'questions_halfhourdiscussion_from_question'
+					|| text == 'questions_halfhourdiscussion_standalone') {
+				$("#memberballot_tab").hide();
+				$("#ballot_tab").show();
+			} else {
+				$("#memberballot_tab").hide();
+				$("#ballot_tab").hide();
+			}
+			if (value != "") {
+				reloadQuestionGrid();
+			}
 
-						});
+		});
 		/**** status changes then reload grid****/
 		$("#selectedStatus").change(function() {
 			var value = $(this).val();
@@ -237,6 +237,15 @@
 
 	/**** displaying grid ****/
 	function showQuestionList() {
+		
+		 var subdepartment = "";
+		 if($("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text().trim()=='questions_halfhourdiscussion_standalone'
+				 && $("#selectedHouseType").val()=='lowerhouse'){
+			 subdepartment= '0';
+		 }else{
+			 subdepartment = $("#selectedSubDepartment").val();
+		 }
+		
 		showTabByIdAndUrl('list_tab', 'question/list?houseType='
 				+ $('#selectedHouseType').val() + '&questionType='
 				+ $("#selectedQuestionType").val() + '&sessionYear='
@@ -245,8 +254,7 @@
 				+ $("#ugparam").val() + "&status=" + $("#selectedStatus").val()
 				+ "&role=" + $("#srole").val() + "&usergroup="
 				+ $("#currentusergroup").val() + "&usergroupType="
-				+ $("#currentusergroupType").val()+"&subdepartment="
-				+ $("#selectedSubDepartment").val());
+				+ $("#currentusergroupType").val()+"&subdepartment=" + subdepartment);
 	}
 
 	/**** new question ****/
@@ -343,6 +351,7 @@
 						+ $("#currentusergroupType").val()+"&subDepartment="
 						+ $("#selectedSubDepartment").val());
 		var oldURL = $("#grid").getGridParam("url");
+		
 		var baseURL = "";
 		if(oldURL != undefined || oldURL!=''){
 			baseURL = oldURL.split("?")[0];
@@ -608,7 +617,9 @@
 		showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal');
 	}
 	function loadSubDepartmentsFromGroup(group){
-		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val(),function(data){
+		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val()+
+				'&deviceType=' + $("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() +"']'").text().trim() +
+				'&houseType=' + $("#selectedHouseType").val(),function(data){
 			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
 			$('#selectedSubDepartment').empty();
 			if(data.length>0){
@@ -620,7 +631,8 @@
 			}
 		}).done(function(){
 			reloadQuestionGrid();
-		});
+		}).fail(function(){
+		});		
 	}	
 	function statReport(){
 		var url = "question/report/statreport?sessionYear="+$("#selectedSessionYear").val()
@@ -867,7 +879,6 @@
 					<option value="${i.id}">${i.type}</option>
 				</c:forEach>
 			</select>|
-
 			<security:authorize
 				access="hasAnyRole('QIS_ADMIN','QIS_ASSISTANT','QIS_UNDER_SECRETARY',
 			'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER','QIS_JOINT_SECRETARY',
