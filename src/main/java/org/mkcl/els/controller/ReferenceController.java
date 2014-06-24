@@ -4912,30 +4912,48 @@ public class ReferenceController extends BaseController {
 		
 		@RequestMapping(value="/getDepartment", method=RequestMethod.GET)
 		public @ResponseBody List<MasterVO> getDepartmentFromGroup(final HttpServletRequest request, final Locale locale){
-			String strGroup=request.getParameter("group");
-			String strUserGroup=request.getParameter("userGroup");
 			List<MasterVO> masterVos=new ArrayList<MasterVO>();
-			if(strGroup!=null && !strGroup.isEmpty() 
-				&& strUserGroup!=null && !strUserGroup.isEmpty()){
-				Group group=Group.findById(Group.class, Long.parseLong(strGroup));
-				List<Ministry> ministrys= group.getMinistries();
-				UserGroup userGroup=UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
-				Map<String,String> parameters=UserGroup.findParametersByUserGroup(userGroup);
-				if(parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString())!=null && !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale.toString()).equals(" ")){
-					String strministries=parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString());
-					for(Ministry m:ministrys){
-						if(strministries.contains(m.getName())){
-							List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(m, locale.toString());
-							for(SubDepartment s:subDepartments){
-								MasterVO masterVo=new MasterVO();
-								masterVo.setId(s.getId());
-								masterVo.setName(s.getName());
-								masterVos.add(masterVo);
+			
+			try{
+				String strGroup=request.getParameter("group");
+				String strUserGroup=request.getParameter("userGroup");
+				String strDeviceType = request.getParameter("deviceType");
+				String strHouseType = request.getParameter("houseType");
+				
+				if(strGroup!=null && !strGroup.isEmpty() 
+					&& strUserGroup!=null && !strUserGroup.isEmpty()
+					&& strDeviceType != null && !strDeviceType.isEmpty()
+					&& strHouseType != null && !strHouseType.isEmpty()){
+					Group group = null;
+					List<Ministry> ministries = null;
+					if(!(strDeviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
+							&& strHouseType.equals(ApplicationConstants.LOWER_HOUSE))){
+						group = Group.findById(Group.class, Long.parseLong(strGroup));
+						ministries = group.getMinistries();
+					}else{
+						ministries = Ministry.findAll(Ministry.class, "name", ApplicationConstants.ASC, locale.toString());
+					}
+					 
+					UserGroup userGroup=UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
+					Map<String,String> parameters=UserGroup.findParametersByUserGroup(userGroup);
+					if(parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString())!=null && !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale.toString()).equals(" ")){
+						String strministries=parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString());
+						for(Ministry m:ministries){
+							if(strministries.contains(m.getName())){
+								List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(m, locale.toString());
+								for(SubDepartment s:subDepartments){
+									MasterVO masterVo=new MasterVO();
+									masterVo.setId(s.getId());
+									masterVo.setName(s.getName());
+									masterVos.add(masterVo);
+								}
 							}
 						}
+						
 					}
-					
 				}
+			}catch(Exception ex){
+				ex.printStackTrace();
 			}
 			return masterVos;
 	}
