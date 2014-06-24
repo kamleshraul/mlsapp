@@ -273,14 +273,19 @@ public class WorkflowController extends BaseController {
 				for(UserGroup i:userGroups){
 					UserGroup userGroup=UserGroup.findById(UserGroup.class,i.getId());					
 					String userGroupDeviceType=userGroup.getParameterValue(ApplicationConstants.DEVICETYPE_KEY+"_"+locale);
-					if(userGroupDeviceType.contains(selectedDeviceType.getName())){
+					//userGroupDeviceType.contains(selectedDeviceType.getName())
+					//changed for the purpose in case when there is only one device is allocated
+					//then it fails as the by default selected device is first in the 
+					//deviceType List
+					DeviceType newSelectedDeviceType = isAllowedDevice(deviceTypes, userGroupDeviceType); 
+					if(newSelectedDeviceType != null){
 						/**** Authenticated User's usergroup and usergroupType ****/
 						String userGroupType=i.getUserGroupType().getType();			
 						model.addAttribute("usergroup", userGroup.getId());
 						model.addAttribute("usergroupType", userGroup.getUserGroupType().getType());
 						
 						/**** Status Allowed ****/
-						CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+selectedDeviceType.getType().toUpperCase()+"_"+userGroupType.toUpperCase(), "");
+						CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+newSelectedDeviceType.getType().toUpperCase()+"_"+userGroupType.toUpperCase(), "");
 						if(allowedWorkflowTypes!=null){
 							try {
 								List<Status> workflowTypesForUsergroup=Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale);
@@ -481,4 +486,16 @@ public class WorkflowController extends BaseController {
 		return resourcePath;
 	}
 
+	
+	private DeviceType isAllowedDevice(List<DeviceType> devices, String userGroupDevice){
+		DeviceType retVal = null;
+		for(DeviceType device : devices){
+			if(userGroupDevice.contains(device.getName())){
+				retVal = device;
+				break;
+			}
+		}
+		
+		return retVal;
+	}
 }
