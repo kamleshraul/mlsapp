@@ -1,7 +1,5 @@
 package org.mkcl.els.controller.qis;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,26 +13,19 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
-import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberContactVO;
-import org.mkcl.els.common.vo.MinistryVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
-import org.mkcl.els.common.vo.RoundVO;
 import org.mkcl.els.common.vo.Task;
-import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
-import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
 import org.mkcl.els.controller.GenericController;
-import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Chart;
 import org.mkcl.els.domain.Citation;
@@ -44,14 +35,10 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
-import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.MemberBallotChoice;
 import org.mkcl.els.domain.MemberMinister;
-import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
@@ -65,7 +52,6 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
-import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
@@ -264,7 +250,7 @@ public class QuestionController extends GenericController<Question>{
 				}else if(i.getType().startsWith("QIS_")){
 					model.addAttribute("role",i.getType());
 					break;
-				}else if(i.getType().startsWith("HDS_")&&deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				}else if(i.getType().startsWith("HDS_")){
 					model.addAttribute("role",i.getType());
 					break;
 				}
@@ -333,6 +319,7 @@ public class QuestionController extends GenericController<Question>{
 		/**** Controlling Grids Starts ****/
 		String role=request.getParameter("role");
 		String houseType=request.getParameter("houseType");
+		String strDeviceType = request.getParameter("questionType");
 		String newUrlPattern=urlPattern;
 		CustomParameter assistantGridAllowedFor=CustomParameter.findByName(CustomParameter.class,"QIS_ASSISTANTGRID_ALLOWED_FOR","");
 		CustomParameter memberGridAllowedFor=CustomParameter.findByName(CustomParameter.class,"QIS_MEMBERGRID_ALLOWED_FOR","");
@@ -342,7 +329,18 @@ public class QuestionController extends GenericController<Question>{
 		}else if(typistGridAllowedFor!=null&&role!=null&&!role.isEmpty()&&houseType!=null&&!houseType.isEmpty()&&typistGridAllowedFor.getValue().contains(role)){
 			newUrlPattern=urlPattern+"?usergroup=typist&houseType="+houseType;
 		}else if(assistantGridAllowedFor!=null&&role!=null&&!role.isEmpty()&&houseType!=null&&!houseType.isEmpty()&&assistantGridAllowedFor.getValue().contains(role)){
-			newUrlPattern=urlPattern+"?usergroup=assistant&houseType="+houseType;
+			if(strDeviceType != null && !strDeviceType.isEmpty() && houseType != null && !houseType.isEmpty()){
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+				if(deviceType != null 
+						&& deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
+						&& houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+					newUrlPattern = ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE.toUpperCase();
+				}else{
+					newUrlPattern=urlPattern+"?usergroup=assistant&houseType="+houseType;
+				}
+			}else{
+				newUrlPattern=urlPattern+"?usergroup=assistant&houseType="+houseType;
+			}
 		}else if(role!=null&&!role.isEmpty()&&role.contains("HDS_")){
 			newUrlPattern=ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE.toUpperCase();
 		}		
