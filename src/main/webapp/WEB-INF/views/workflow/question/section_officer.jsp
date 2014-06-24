@@ -132,6 +132,10 @@
 			$("#recommendationStatus").val(value);
 			$("#actor").empty();
 			$("#actorDiv").hide();
+			
+			if(questionType == 'questions_halfhourdiscussion_standalone' && value==departmentIntimated){
+				$("#level").val($("#originalLevel").val());
+			}
 			return false;
 		}else if(value==clarificationReceived || value==nameclubbing){
 			$("#endFlag").val("end");
@@ -156,12 +160,13 @@
 	    else {
 		    valueToSend=value;
 	    }	
+		
 		//$("#endflag").val("continue");
-		if(questionType == 'questions_halfhourdiscussion_standalone' && value==recommendRepeatAdmission){
+		if((questionType == 'questions_halfhourdiscussion_standalone' && value==recommendRepeatAdmission)){
 			$("#level").val($("#originalLevel").val());
 		}
 		var params="question="+$("#id").val()+"&status="+valueToSend+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 		var resourceURL='ref/question/actors?'+params;
 		
 		$.post(resourceURL,function(data){

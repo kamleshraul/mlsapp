@@ -171,4 +171,5 @@
 		</c:otherwise>
 	</c:choose>
 	<input type="hidden" id="questionId" value="${questionId}">
+	<input type="hidden" id="questionLevel" value="${apprLevel}" />
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
