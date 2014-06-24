@@ -2005,53 +2005,104 @@ public class QuestionWorkflowController  extends BaseController{
 								question.setRecommendationStatus(status);	
 								question.setEndFlag("continue");
 							}
-							/**** Complete Task ****/
-							Map<String,String> properties=new HashMap<String, String>();
-							properties.put("pv_deviceId",String.valueOf(question.getId()));
-							properties.put("pv_deviceTypeId",String.valueOf(question.getType().getId()));
-							properties.put("pv_user",temp[0]);
-							properties.put("pv_endflag",question.getEndFlag());							
-							String strTaskId=wfDetails.getTaskId();
-							Task task=processService.findTaskById(strTaskId);
-							processService.completeTask(task,properties);	
-							if(question.getEndFlag()!=null&&!question.getEndFlag().isEmpty()
-									&&question.getEndFlag().equals("continue")){
-								/**** Create New Workflow Details ****/
-								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-								Task newtask=processService.getCurrentTask(processInstance);
-								WorkflowDetails workflowDetails2 = null;
+							
+							if(question.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
+									&& question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+								
+								
+								/**** Complete Task ****/
+								Map<String,String> properties = new HashMap<String, String>();
+								properties.put("pv_deviceId",String.valueOf(question.getId()));
+								properties.put("pv_deviceTypeId",String.valueOf(question.getType().getId()));
+								properties.put("pv_user",temp[0]);
+								properties.put("pv_endflag",question.getEndFlag());							
+								String strTaskId = wfDetails.getTaskId();
+								Task task = processService.findTaskById(strTaskId);
+								processService.completeTask(task,properties);	
+								if(question.getEndFlag() != null && !question.getEndFlag().isEmpty()
+										&& question.getEndFlag().equals("continue")){
+									/**** Create New Workflow Details ****/
+									ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+									Task newtask = processService.getCurrentTask(processInstance);
+									WorkflowDetails workflowDetails2 = null;
+									try {
+										workflowDetails2 = WorkflowDetails.create(question,newtask,ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW,level);
+									} catch (ELSException e) {
+										e.printStackTrace();
+										model.addAttribute("error", e.getParameter());
+									}
+									question.setWorkflowDetailsId(workflowDetails2.getId());
+									question.setTaskReceivedOn(new Date());								
+								}
+								/**** Update Old Workflow Details ****/
+								wfDetails.setStatus("COMPLETED");
+								wfDetails.setInternalStatus(question.getInternalStatus().getName());
+								wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
+								wfDetails.setCompletionTime(new Date());
+								wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
+								wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
+								wfDetails.merge();
+								/**** Update Question ****/
+								question.setEditedOn(new Date());
+								question.setEditedBy(this.getCurrentUser().getActualUsername());
+								question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
 								try {
-									workflowDetails2 = WorkflowDetails.create(question,newtask,ApplicationConstants.APPROVAL_WORKFLOW,level);
+									performAction(question);
 								} catch (ELSException e) {
 									e.printStackTrace();
+									logger.error(e.toString());
 									model.addAttribute("error", e.getParameter());
 								}
-								question.setWorkflowDetailsId(workflowDetails2.getId());
-								question.setTaskReceivedOn(new Date());								
-							}
-							/**** Update Old Workflow Details ****/
-							wfDetails.setStatus("COMPLETED");
-							wfDetails.setInternalStatus(question.getInternalStatus().getName());
-							wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
-							wfDetails.setCompletionTime(new Date());
-							if(!question.getType().getType().startsWith("questions_halfhourdiscussion_") 
-							&& !question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
-							&& !question.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
-								wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
-							}
-							wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
-							wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
-							wfDetails.merge();
-							/**** Update Motion ****/
-							question.setEditedOn(new Date());
-							question.setEditedBy(this.getCurrentUser().getActualUsername());
-							question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
-							try {
-								performAction(question);
-							} catch (ELSException e) {
-								e.printStackTrace();
-								logger.error(e.toString());
-								model.addAttribute("error", e.getParameter());
+								
+							}else{
+								/**** Complete Task ****/
+								Map<String,String> properties=new HashMap<String, String>();
+								properties.put("pv_deviceId",String.valueOf(question.getId()));
+								properties.put("pv_deviceTypeId",String.valueOf(question.getType().getId()));
+								properties.put("pv_user",temp[0]);
+								properties.put("pv_endflag",question.getEndFlag());							
+								String strTaskId=wfDetails.getTaskId();
+								Task task=processService.findTaskById(strTaskId);
+								processService.completeTask(task,properties);	
+								if(question.getEndFlag()!=null&&!question.getEndFlag().isEmpty()
+										&&question.getEndFlag().equals("continue")){
+									/**** Create New Workflow Details ****/
+									ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+									Task newtask=processService.getCurrentTask(processInstance);
+									WorkflowDetails workflowDetails2 = null;
+									try {
+										workflowDetails2 = WorkflowDetails.create(question,newtask,ApplicationConstants.APPROVAL_WORKFLOW,level);
+									} catch (ELSException e) {
+										e.printStackTrace();
+										model.addAttribute("error", e.getParameter());
+									}
+									question.setWorkflowDetailsId(workflowDetails2.getId());
+									question.setTaskReceivedOn(new Date());								
+								}
+								/**** Update Old Workflow Details ****/
+								wfDetails.setStatus("COMPLETED");
+								wfDetails.setInternalStatus(question.getInternalStatus().getName());
+								wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
+								wfDetails.setCompletionTime(new Date());
+								if(!question.getType().getType().startsWith("questions_halfhourdiscussion_") 
+								&& !question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+								&& !question.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+									wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+								}
+								wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
+								wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
+								wfDetails.merge();
+								/**** Update Motion ****/
+								question.setEditedOn(new Date());
+								question.setEditedBy(this.getCurrentUser().getActualUsername());
+								question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
+								try {
+									performAction(question);
+								} catch (ELSException e) {
+									e.printStackTrace();
+									logger.error(e.toString());
+									model.addAttribute("error", e.getParameter());
+								}
 							}
 							question.merge();
 							if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION)){
@@ -2128,6 +2179,7 @@ public class QuestionWorkflowController  extends BaseController{
 			/**** Populating Bulk Approval VOs ****/
 			List<BulkApprovalVO> bulkapprovals=new ArrayList<BulkApprovalVO>();
 			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+			int counter = 0;
 			for(WorkflowDetails i:workflowDetails){
 				BulkApprovalVO bulkApprovalVO=new BulkApprovalVO();				
 				Question question=Question.findById(Question.class,Long.parseLong(i.getDeviceId()));
@@ -2210,11 +2262,16 @@ public class QuestionWorkflowController  extends BaseController{
 						bulkApprovalVO.setCurrentStatus(i.getStatus());
 						bulkapprovals.add(bulkApprovalVO);
 					}
-				}		
+				}	
+				
+				if(counter == 0){
+					model.addAttribute("apprLevel", question.getLevel());
+					counter++;
+				}
 			}
 			model.addAttribute("bulkapprovals", bulkapprovals);
 			if(bulkapprovals!=null&&!bulkapprovals.isEmpty()){
-				model.addAttribute("questionId",bulkapprovals.get(0).getDeviceId());
+				model.addAttribute("questionId",bulkapprovals.get(0).getDeviceId());				
 			}
 		}
 	}
