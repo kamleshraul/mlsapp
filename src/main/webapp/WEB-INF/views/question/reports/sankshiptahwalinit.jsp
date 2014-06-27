@@ -96,7 +96,7 @@
 				<tr><td>&nbsp;</td></tr>
 				<tr>
 					<td>
-						<a href="#" id="ahwal_hdq_condition_report" class="butSim link">
+						<a href="#" id="ahwal_hdq_condition_report" class="butSim link" style="display:none;">
 							<spring:message code="question.ahwal_hdq_condition_report" text="Half Hour Discussion From Question Report"/>
 						</a>
 					</td>
@@ -105,12 +105,12 @@
 					<tr><td>&nbsp;</td></tr>
 					<tr>
 						<td>
-							<a href="#" id="ahwal_hds_condition_report" class="butSim link">
+							<a href="#" id="ahwal_hds_condition_report" class="butSim link" style="display:none;">
 								<spring:message code="question.ahwal_hds_condition_report" text="Half Hour Discussion Standalone Report"/>
 							</a>
 						</td>
 					</tr>
-				</c:if>						
+				</c:if>	
 			</tbody>
 		</table>			
 	</body>
