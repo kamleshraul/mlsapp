@@ -111,7 +111,7 @@
 			
 			/**** Sankshipt Ahwal Report ****/
 			$("#ahwal_report").click(function(){				
-				//$("#selectionDiv1").hide();
+				$("#selectionDiv1").hide();
 				sankshiptAhwalReport();
 			});
 			

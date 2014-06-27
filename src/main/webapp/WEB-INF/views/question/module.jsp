@@ -52,9 +52,9 @@
 			if (value != "") {
 				loadGroupsFromSessions();
 				if (value == 'upperhouse') {
-					$('#memberballot_tab').show();
+					$('#memberballot_tab').show();					
 				} else {
-					$('#memberballot_tab').hide();
+					$('#memberballot_tab').hide();					
 				}
 			}
 		});
@@ -593,11 +593,31 @@
 		 +"&isAhwalBulletein=yes";	
 		$('#bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
 	}
+	function ahwalStarredUnstarredReport(){
+		var parameters = "houseType="+$("#selectedHouseType").val()
+		 +"&sessionYear="+$("#selectedSessionYear").val()
+		 +"&sessionType="+$("#selectedSessionType").val();
+		$('#ahwal_starredUnstarred_report').attr('href', 'question/report/ahwalStarredUnstarredReport?'+ parameters);
+	}
+	function ahwalShortNoticeStatsReport(){
+		var parameters = "houseType="+$("#selectedHouseType").val()
+		 +"&sessionYear="+$("#selectedSessionYear").val()
+		 +"&sessionType="+$("#selectedSessionType").val();
+		$('#ahwal_shortnotice_stats_report').attr('href', 'question/report/ahwalShortNoticeStatsReport?'+ parameters);
+	}
 	function starredDepartmentwiseStatsReport(){
 		var parameters = "houseType="+$("#selectedHouseType").val()
 		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val();		 
-		$('#starred_departmentwise_stats_report').attr('href', 'question/report/starredDepartmentwiseStatsReport?'+ parameters);
+		 +"&sessionType="+$("#selectedSessionType").val()
+		 +"&questionType=starred";
+		$('#starred_departmentwise_stats_report').attr('href', 'question/report/departmentwiseStatsReport?'+ parameters);
+	}
+	function unstarredDepartmentwiseStatsReport(){
+		var parameters = "houseType="+$("#selectedHouseType").val()
+		 +"&sessionYear="+$("#selectedSessionYear").val()
+		 +"&sessionType="+$("#selectedSessionType").val()
+		 +"&questionType=unstarred";		 
+		$('#unstarred_departmentwise_stats_report').attr('href', 'question/report/departmentwiseStatsReport?'+ parameters);
 	}
 	function departmentwiseQuestionsReport(){
 		var parameters = "houseType="+$("#selectedHouseType").val()
@@ -613,8 +633,20 @@
 		var resourceURL = 'question/report/departmentwisequestions?'+ parameters;			
 		showTabByIdAndUrl('details_tab', resourceURL);
 	}	
+	function ahwalHDQConditionReport(){
+		var parameters = "houseType="+$("#selectedHouseType").val()
+		 +"&sessionYear="+$("#selectedSessionYear").val()
+		 +"&sessionType="+$("#selectedSessionType").val();		 
+		$('#ahwal_hdq_condition_report').attr('href', 'question/report/ahwalHDConditionReport?'+ parameters);
+	}
+	function ahwalHDSConditionReport(){
+		var parameters = "houseType="+$("#selectedHouseType").val()
+		 +"&sessionYear="+$("#selectedSessionYear").val()
+		 +"&sessionType="+$("#selectedSessionType").val();		 
+		$('#ahwal_hds_condition_report').attr('href', 'question/report/ahwalHDSConditionReport?'+ parameters);
+	}
 	function sankshiptAhwalReport() {
-		showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal');
+		showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal?selectedHouseType='+$('#selectedHouseType').val());
 	}
 	function loadSubDepartmentsFromGroup(group){
 		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val()+
