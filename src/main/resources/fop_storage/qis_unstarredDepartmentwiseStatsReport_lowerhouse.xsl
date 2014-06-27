@@ -77,94 +77,63 @@
 			       		<fo:block font-size="10.5px" text-align="center" font-weight="bold">
 			       			<fo:block><xsl:value-of select="element_3[1]"/></fo:block>
 			       			<fo:block><xsl:value-of select="element_3[2]"/></fo:block>
-			       			<fo:block><xsl:value-of select="element_3[3]"/></fo:block>
 			       		</fo:block>
 			       		 <fo:block>
 			       		 	<fo:table>
-			       				<fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="3cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>
-						        <fo:table-column column-width="1.66cm"/>						        
+			       				<fo:table-column column-width="1.5cm"/>
+						        <fo:table-column column-width="4.5cm"/>
+						        <fo:table-column column-width="2.66cm"/>
+						        <fo:table-column column-width="2.66cm"/>
+						        <fo:table-column column-width="2.66cm"/>
+						        <fo:table-column column-width="2.66cm"/>
+						        <fo:table-column column-width="2.66cm"/>
+						        <fo:table-column column-width="2.66cm"/>
+						        <fo:table-column column-width="2.66cm"/>						        
 						        <fo:table-header>
 						        	<fo:table-row>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[4]"/>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[3]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[6]"/>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[5]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[8]"/>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[7]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[10]"/>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[9]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[12]"/>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[11]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[14]"/>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[13]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[16]"/>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[15]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[18]"/>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[17]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[20]"/>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[22]"/>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[24]"/>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[26]"/>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[28]"/>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="center">
-						        				<xsl:apply-templates select="element_3[30]"/>
+						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="center" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[19]"/>
 						        			</fo:block>
 						        		</fo:table-cell>						        		
 						        	</fo:table-row>
@@ -172,21 +141,31 @@
 						        <fo:table-body>
 						        	<xsl:for-each select="element_1">			
 						        		<xsl:variable name="count" select="position()"/>
+						        		<xsl:variable name="endPartOfDepartment">
+											<xsl:value-of select="substring(element_1_3,(string-length(element_1_3)-4))"/>
+										</xsl:variable>	
 						        		<fo:table-row>      					        	
 							        		<xsl:choose>
 							        			<xsl:when test="position()!=last()">
 							        				<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="0.5cm">
 									        				<xsl:value-of select="../element_2[$count]"/>
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="left" margin-left="0.2cm">
-									        				<xsl:value-of select="element_1_3"/>.									        				
+									        			<fo:block text-align="left" margin-left="0.5cm">
+									        				<xsl:choose>
+																<xsl:when test="$endPartOfDepartment='विभाग'">											
+																	<xsl:value-of select="substring(element_1_3,1,(string-length(element_1_3)-5))"/>
+																</xsl:when>
+																<xsl:otherwise>
+																	<xsl:value-of select="element_1_3"/>
+																</xsl:otherwise>
+															</xsl:choose>									        				
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_4!=''">											
 																	<xsl:value-of select="element_1_4"/>
@@ -198,7 +177,7 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_5!=''">											
 																	<xsl:value-of select="element_1_5"/>
@@ -210,7 +189,7 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_6!=''">											
 																	<xsl:value-of select="element_1_6"/>
@@ -222,7 +201,7 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_7!=''">											
 																	<xsl:value-of select="element_1_7"/>
@@ -234,7 +213,7 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_8!=''">											
 																	<xsl:value-of select="element_1_8"/>
@@ -246,7 +225,7 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_9!=''">											
 																	<xsl:value-of select="element_1_9"/>
@@ -258,70 +237,10 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_10!=''">											
 																	<xsl:value-of select="element_1_10"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	-
-																</xsl:otherwise>
-															</xsl:choose>
-									        			</fo:block>
-									        		</fo:table-cell>
-									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
-									        				<xsl:choose>
-																<xsl:when test="element_1_11!=''">											
-																	<xsl:value-of select="element_1_11"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	-
-																</xsl:otherwise>
-															</xsl:choose>
-									        			</fo:block>
-									        		</fo:table-cell>
-									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
-									        				<xsl:choose>
-																<xsl:when test="element_1_12!=''">											
-																	<xsl:value-of select="element_1_12"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	-
-																</xsl:otherwise>
-															</xsl:choose>
-									        			</fo:block>
-									        		</fo:table-cell>
-									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
-									        				<xsl:choose>
-																<xsl:when test="element_1_13!=''">											
-																	<xsl:value-of select="element_1_13"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	-
-																</xsl:otherwise>
-															</xsl:choose>
-									        			</fo:block>
-									        		</fo:table-cell>
-									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
-									        				<xsl:choose>
-																<xsl:when test="element_1_14!=''">											
-																	<xsl:value-of select="element_1_14"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	-
-																</xsl:otherwise>
-															</xsl:choose>
-									        			</fo:block>
-									        		</fo:table-cell>
-									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
-									        				<xsl:choose>
-																<xsl:when test="element_1_15!=''">											
-																	<xsl:value-of select="element_1_15"/>
 																</xsl:when>
 																<xsl:otherwise>
 																	-
@@ -332,17 +251,24 @@
 							        			</xsl:when>
 							        			<xsl:otherwise>
 							        				<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="0.5cm">
 									        				<xsl:value-of select="../element_2[$count]"/>
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block text-align="left" margin-left="0.2cm">
-									        				<xsl:value-of select="element_1_3"/>
+									        			<fo:block text-align="left" margin-left="0.5cm">
+									        				<xsl:choose>
+																<xsl:when test="$endPartOfDepartment='विभाग'">											
+																	<xsl:value-of select="substring(element_1_3,1,(string-length(element_1_3)-5))"/>
+																</xsl:when>
+																<xsl:otherwise>
+																	<xsl:value-of select="element_1_3"/>
+																</xsl:otherwise>
+															</xsl:choose>
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_4!=''">											
 																	<xsl:value-of select="element_1_4"/>
@@ -354,7 +280,7 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_5!=''">											
 																	<xsl:value-of select="element_1_5"/>
@@ -366,7 +292,7 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_6!=''">											
 																	<xsl:value-of select="element_1_6"/>
@@ -378,7 +304,7 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_7!=''">											
 																	<xsl:value-of select="element_1_7"/>
@@ -390,7 +316,7 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_8!=''">											
 																	<xsl:value-of select="element_1_8"/>
@@ -402,7 +328,7 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_9!=''">											
 																	<xsl:value-of select="element_1_9"/>
@@ -414,70 +340,10 @@
 									        			</fo:block>
 									        		</fo:table-cell>
 									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
+									        			<fo:block text-align="right" margin-right="1cm">
 									        				<xsl:choose>
 																<xsl:when test="element_1_10!=''">											
 																	<xsl:value-of select="element_1_10"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	-
-																</xsl:otherwise>
-															</xsl:choose>
-									        			</fo:block>
-									        		</fo:table-cell>
-									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
-									        				<xsl:choose>
-																<xsl:when test="element_1_11!=''">											
-																	<xsl:value-of select="element_1_11"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	-
-																</xsl:otherwise>
-															</xsl:choose>
-									        			</fo:block>
-									        		</fo:table-cell>
-									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
-									        				<xsl:choose>
-																<xsl:when test="element_1_12!=''">											
-																	<xsl:value-of select="element_1_12"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	-
-																</xsl:otherwise>
-															</xsl:choose>
-									        			</fo:block>
-									        		</fo:table-cell>
-									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
-									        				<xsl:choose>
-																<xsl:when test="element_1_13!=''">											
-																	<xsl:value-of select="element_1_13"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	-
-																</xsl:otherwise>
-															</xsl:choose>
-									        			</fo:block>
-									        		</fo:table-cell>
-									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
-									        				<xsl:choose>
-																<xsl:when test="element_1_14!=''">											
-																	<xsl:value-of select="element_1_14"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	-
-																</xsl:otherwise>
-															</xsl:choose>
-									        			</fo:block>
-									        		</fo:table-cell>
-									        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block text-align="right" margin-right="0.3cm">
-									        				<xsl:choose>
-																<xsl:when test="element_1_15!=''">											
-																	<xsl:value-of select="element_1_15"/>
 																</xsl:when>
 																<xsl:otherwise>
 																	-
@@ -491,20 +357,20 @@
 					        		</xsl:for-each>	
 					        		<fo:table-row>  
 					        			<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
+						        			<fo:block text-align="right" margin-right="0.5cm">
 						        				&#160;
 						        			</fo:block>
 						        		</fo:table-cell>
 						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="left" margin-left="0.2cm">
-						        				<xsl:apply-templates select="element_3[32]"/>
+						        			<fo:block text-align="left" margin-left="0.5cm" font-weight="bold">
+						        				<xsl:apply-templates select="element_3[21]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
 						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
+						        			<fo:block text-align="right" margin-right="1cm" font-weight="bold">
 						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_16!=''">											
-														<xsl:value-of select="element_1[1]/element_1_16"/>
+													<xsl:when test="element_1[1]/element_1_11!=''">											
+														<xsl:value-of select="element_1[1]/element_1_11"/>
 													</xsl:when>
 													<xsl:otherwise>
 														-
@@ -513,130 +379,70 @@
 						        			</fo:block>
 						        		</fo:table-cell>
 						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
+						        			<fo:block text-align="right" margin-right="1cm" font-weight="bold">
+						        				<xsl:choose>
+													<xsl:when test="element_1[1]/element_1_12!=''">											
+														<xsl:value-of select="element_1[1]/element_1_12"/>
+													</xsl:when>
+													<xsl:otherwise>
+														-
+													</xsl:otherwise>
+												</xsl:choose>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="right" margin-right="1cm" font-weight="bold">
+						        				<xsl:choose>
+													<xsl:when test="element_1[1]/element_1_13!=''">											
+														<xsl:value-of select="element_1[1]/element_1_13"/>
+													</xsl:when>
+													<xsl:otherwise>
+														-
+													</xsl:otherwise>
+												</xsl:choose>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="right" margin-right="1cm" font-weight="bold">
+						        				<xsl:choose>
+													<xsl:when test="element_1[1]/element_1_14!=''">											
+														<xsl:value-of select="element_1[1]/element_1_14"/>
+													</xsl:when>
+													<xsl:otherwise>
+														-
+													</xsl:otherwise>
+												</xsl:choose>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="right" margin-right="1cm" font-weight="bold">
+						        				<xsl:choose>
+													<xsl:when test="element_1[1]/element_1_15!=''">											
+														<xsl:value-of select="element_1[1]/element_1_15"/>
+													</xsl:when>
+													<xsl:otherwise>
+														-
+													</xsl:otherwise>
+												</xsl:choose>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="right" margin-right="1cm" font-weight="bold">
+						        				<xsl:choose>
+													<xsl:when test="element_1[1]/element_1_16!=''">											
+														<xsl:value-of select="element_1[1]/element_1_16"/>
+													</xsl:when>
+													<xsl:otherwise>
+														-
+													</xsl:otherwise>
+												</xsl:choose>
+						        			</fo:block>
+						        		</fo:table-cell>
+						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+						        			<fo:block text-align="right" margin-right="1cm" font-weight="bold">
 						        				<xsl:choose>
 													<xsl:when test="element_1[1]/element_1_17!=''">											
 														<xsl:value-of select="element_1[1]/element_1_17"/>
-													</xsl:when>
-													<xsl:otherwise>
-														-
-													</xsl:otherwise>
-												</xsl:choose>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
-						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_18!=''">											
-														<xsl:value-of select="element_1[1]/element_1_18"/>
-													</xsl:when>
-													<xsl:otherwise>
-														-
-													</xsl:otherwise>
-												</xsl:choose>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
-						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_19!=''">											
-														<xsl:value-of select="element_1[1]/element_1_19"/>
-													</xsl:when>
-													<xsl:otherwise>
-														-
-													</xsl:otherwise>
-												</xsl:choose>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
-						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_20!=''">											
-														<xsl:value-of select="element_1[1]/element_1_20"/>
-													</xsl:when>
-													<xsl:otherwise>
-														-
-													</xsl:otherwise>
-												</xsl:choose>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
-						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_21!=''">											
-														<xsl:value-of select="element_1[1]/element_1_21"/>
-													</xsl:when>
-													<xsl:otherwise>
-														-
-													</xsl:otherwise>
-												</xsl:choose>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
-						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_22!=''">											
-														<xsl:value-of select="element_1[1]/element_1_22"/>
-													</xsl:when>
-													<xsl:otherwise>
-														-
-													</xsl:otherwise>
-												</xsl:choose>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
-						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_23!=''">											
-														<xsl:value-of select="element_1[1]/element_1_23"/>
-													</xsl:when>
-													<xsl:otherwise>
-														-
-													</xsl:otherwise>
-												</xsl:choose>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
-						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_24!=''">											
-														<xsl:value-of select="element_1[1]/element_1_24"/>
-													</xsl:when>
-													<xsl:otherwise>
-														-
-													</xsl:otherwise>
-												</xsl:choose>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
-						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_25!=''">											
-														<xsl:value-of select="element_1[1]/element_1_25"/>
-													</xsl:when>
-													<xsl:otherwise>
-														-
-													</xsl:otherwise>
-												</xsl:choose>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
-						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_26!=''">											
-														<xsl:value-of select="element_1[1]/element_1_26"/>
-													</xsl:when>
-													<xsl:otherwise>
-														-
-													</xsl:otherwise>
-												</xsl:choose>
-						        			</fo:block>
-						        		</fo:table-cell>
-						        		<fo:table-cell display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block text-align="right" margin-right="0.3cm">
-						        				<xsl:choose>
-													<xsl:when test="element_1[1]/element_1_27!=''">											
-														<xsl:value-of select="element_1[1]/element_1_27"/>
 													</xsl:when>
 													<xsl:otherwise>
 														-
