@@ -4,7 +4,26 @@
 <title></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
-	$(document).ready(function() {
+	$(document).ready(function() {		
+		var myArray = [];
+		
+		$('#member option').each(function(){
+			myArray.push( this.text );				
+		});
+		
+		$( ".autosuggest").autocomplete({
+						
+				source: myArray,
+				select:function(event,ui){		
+					$('#member option').each(function(){
+						if($(this).text()==ui.item.value) {
+							$("#memberId").val(this.value);
+						}
+					});					
+					console.log($("#memberId").val());
+				}	
+		});
+		
 		$("#member").change(function(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });		
 			var value=$(this).val();
@@ -62,9 +81,13 @@
 		<option value="${i.id }"><c:out value="${i.name}"></c:out></option>
 	</c:forEach>
 </select>
-<a id="cumulativeMemberQuestionsReport" href="#" style="margin-left: 20px;">
+<%-- <a id="cumulativeMemberQuestionsReport" href="#" style="margin-left: 20px;">
 	<spring:message code="memberwisereport.cumulativeMemberQuestionsReport" text="Cumulative Member Questions Report"/>
-</a>
+</a> --%>
+<div id="memberText">
+	<input type="text" class="autosuggest sText" id="memberOption" style="width: 100px;" />
+	<a href="#" id="createMemberwiseReport" style="text-decoration: none;"><span id="goBtn"><spring:message code="part.memberwiseReport" text="Go" ></spring:message></span></a>
+</div>
 </p>
 <div id="listQuestionsDiv">
 </div>
@@ -72,6 +95,7 @@
 <input type="hidden" id="questionType" name="questionType" value="${questionType}">
 <input type="hidden" id="group" name="group" value="${group}">
 <input type="hidden" id="answeringDate" name="answeringDate" value="${answeringDate}">
+<input type="hidden" id="memberId" name="memberId">	
 
 <input type="hidden" name="pleaseSelect" id="pleaseSelect"
 	value="<spring:message code='please.select' text='Please Select'/>">
