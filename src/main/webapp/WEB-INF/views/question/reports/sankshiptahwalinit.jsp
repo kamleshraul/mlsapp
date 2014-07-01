@@ -30,12 +30,12 @@
 					$(this).attr('href','#');
 					ahwalShortNoticeStatsReport();
 				});
-				/**** Half Hour Discussion From Questions Report ****/
+				/**** Half Hour Discussion From Questions Condition Report ****/
 				$("#ahwal_hdq_condition_report").click(function(){				
 					$(this).attr('href','#');
 					ahwalHDQConditionReport();
 				});
-				/**** Half Hour Discussion Standalone Report ****/
+				/**** Half Hour Discussion Standalone Condition Report ****/
 				$("#ahwal_hds_condition_report").click(function(){				
 					$(this).attr('href','#');
 					ahwalHDSConditionReport();
@@ -96,7 +96,7 @@
 				<tr><td>&nbsp;</td></tr>
 				<tr>
 					<td>
-						<a href="#" id="ahwal_hdq_condition_report" class="butSim link" style="display:none;">
+						<a href="#" id="ahwal_hdq_condition_report" class="butSim link">
 							<spring:message code="question.ahwal_hdq_condition_report" text="Half Hour Discussion From Question Report"/>
 						</a>
 					</td>
@@ -105,7 +105,7 @@
 					<tr><td>&nbsp;</td></tr>
 					<tr>
 						<td>
-							<a href="#" id="ahwal_hds_condition_report" class="butSim link" style="display:none;">
+							<a href="#" id="ahwal_hds_condition_report" class="butSim link">
 								<spring:message code="question.ahwal_hds_condition_report" text="Half Hour Discussion Standalone Report"/>
 							</a>
 						</td>

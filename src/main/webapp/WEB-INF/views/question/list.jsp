@@ -19,7 +19,13 @@
 					+"&usergroupType="+$("#currentusergroupType").val()
 					+"&subDepartment="+$('#selectedSubDepartment').val()
 					);
-			
+			/**** show/hide unstarred yaadi link as per selected devicetype ****/
+			var currentDeviceType = $("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
+			if(currentDeviceType == 'questions_unstarred') {
+				$('#unstarredYaadiSpan').show();
+			} else {
+				$("#unstarredYaadiSpan").hide();
+			}			
 			$("#member_statistics").click(function(){
 				memberStatistics();
 			});
@@ -83,6 +89,12 @@
 			$("#generateClubbedIntimationLetter").click(function(){
 				$(this).attr('href','#');
 				generateClubbedIntimationLetter();				
+			});
+			
+			/**** Generate Clubbed Intimation Letter ****/			
+			$("#unstarred_yaadi_report").click(function(){
+				$(this).attr('href','#');
+				generateUnstarredYaadiReport();
 			});
 			
 			/**** Generate Member's Questions Report ****/
@@ -259,6 +271,11 @@
 					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>
 				</a> | 				
 			</security:authorize>	
+			<span id="unstarredYaadiSpan">
+			<a href="#" id="unstarred_yaadi_report" class="butSim link">
+				<spring:message code="question.unstarred_yaadi_report" text="Unstarred Yaadi Report"/>
+			</a> |
+			</span>
 			<hr> 
 			<a href="#" id="memberwise_questions_report" class="butSim link">
 				<spring:message code="question.memberwisereport" text="Member's Questions Report"/>

@@ -2939,4 +2939,49 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		}
 		return false;
 	}
+	
+	public Integer findHighestYaadiNumber(final DeviceType deviceType, final Session session, final String locale) {
+		Integer highestYaadiNumber = null;
+		if(session!=null) {			
+			String deviceTypeString = null;
+			if(deviceType==null) {
+				deviceTypeString = ApplicationConstants.UNSTARRED_QUESTION;
+			} else {
+				deviceTypeString = deviceType.getType();
+			}
+			String queryString = "SELECT MAX(q.yaadiNumber) FROM Question q"
+						+ " WHERE q.type.type='"+deviceTypeString+"'"
+						+ " AND q.yaadiNumber IS NOT NULL";
+			String yaadiNumberingParameter = session.getParameter(deviceTypeString + "_" + "yaadiNumberingParameter");
+			if(yaadiNumberingParameter!=null && yaadiNumberingParameter.equals("session")) {
+				queryString += " AND q.session.house.type.type='"+session.getHouse().getType().getType()+"'";
+				queryString += " AND q.yaadiLayingDate>="+session.getStartDate();
+				queryString += " AND q.yaadiLayingDate<="+session.getEndDate();
+			} else if(yaadiNumberingParameter!=null && yaadiNumberingParameter.equals("house")) {
+				queryString += " AND q.session.id IN (SELECT s.id FROM Session s WHERE s.house.id="+session.getHouse().getId()+")";
+			}			
+			queryString += " AND q.locale='"+locale+"'";
+			highestYaadiNumber = (Integer) this.em().createQuery(queryString).getSingleResult();
+			if(highestYaadiNumber==null) {
+				highestYaadiNumber = 0;
+			}
+		}
+		return highestYaadiNumber;
+	}
+	
+	public List<Question> findQuestionsFromYaadi(final DeviceType deviceType, final Session session, final Integer yaadiNumber,  final String locale) {
+		List<Question> questions = null;
+		if(session!=null) {
+			String deviceTypeString = null;
+			if(deviceType==null) {
+				deviceTypeString = ApplicationConstants.UNSTARRED_QUESTION;
+			} else {
+				deviceTypeString = deviceType.getType();
+			}
+			String queryString = "SELECT q FROM Question q"
+					+ " WHERE q.type.type='"+deviceTypeString+"'"
+					+ " AND q.yaadiNumber="+yaadiNumber;
+		}
+		return questions;
+	}
 }

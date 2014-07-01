@@ -924,6 +924,110 @@ public class QuestionReportController extends BaseController{
 			}				
 		}
 	}
+	
+	@RequestMapping(value="/generateUnstarredYaadiReport/getUnstarredYaadiNumberAndDate", method=RequestMethod.GET)
+	public String getUnstarredYaadiNumberAndDate(HttpServletRequest request, ModelMap model, Locale locale) {
+		String retVal = "question/reports/error";
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+
+		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null){
+			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()){
+				try {
+					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+					if(houseType==null) {
+						houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+					}					
+					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+					Integer sessionYear = Integer.parseInt(strSessionYear);
+					if(houseType==null || sessionType==null) {
+						logger.error("**** HouseType or SessionType Not Found ****");
+						model.addAttribute("errorcode", "HOUSETYPE_NOTFOUND_OR_SESSIONTYPE_NOTFOUND");											
+					} else {
+						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+						if(session==null) {								
+							logger.error("**** Session Not Found ****");
+							model.addAttribute("errorcode", "SESSION_NOTFOUND");
+						} else {
+							model.addAttribute("sessionId", session.getId());
+							Integer highestYaadiNumber = Question.findHighestYaadiNumber(null, session, locale.toString());
+							if(highestYaadiNumber!=null) {
+								model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber+1, locale.toString()));
+							}
+							model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+							retVal = "question/reports/getUnstarredYaadiNumberAndDate";
+						}
+					}
+				} catch(Exception e) {
+					e.printStackTrace();
+					model.addAttribute("errorcode", "SOME_EXCEPTION_OCCURED");
+				}
+			}
+		}		
+		return retVal;
+	}
+	
+	@RequestMapping(value="/generateUnstarredYaadiReport" ,method=RequestMethod.GET)
+	public @ResponseBody void generateUnstarredYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+
+		String sessionId = request.getParameter("sessionId");
+		String strYaadiNumber = request.getParameter("yaadiNumber");
+		String strYaadiLayingDate = request.getParameter("yaadiLayingDate");
+		
+		if(sessionId!=null && strYaadiNumber!=null && strYaadiLayingDate!=null){
+			if(!sessionId.isEmpty() && !strYaadiNumber.isEmpty() && !strYaadiLayingDate.isEmpty()){
+				try {
+					CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+						if(csptServer.getValue().equals("TOMCAT")){
+							strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
+							strYaadiLayingDate = new String(strYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");							
+						}
+					}
+					Session session = Session.findById(Session.class, Long.parseLong(sessionId));
+					if(session==null) {
+						logger.error("**** Session not found with request parameter sessionId ****");
+						throw new ELSException();
+					}
+					
+				} catch(Exception e) {
+					e.printStackTrace();
+					isError = true;					
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+				}
+			}else{
+				isError = true;
+				logger.error("**** Check request parameters sessionId, yaadiNumber, yaadiLayingDate for empty values ****");
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.empty", locale.toString());				
+			}
+		} else {			
+			isError = true;
+			logger.error("**** Check request parameters sessionId, yaadiNumber, yaadiLayingDate for null values ****");
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.null", locale.toString());
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
+	}
 
 	@RequestMapping(value="/viewSuchi" ,method=RequestMethod.GET)
 	public @ResponseBody void generateSuchiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
@@ -1873,18 +1977,19 @@ public class QuestionReportController extends BaseController{
 		}
 	}
 	
-	@RequestMapping(value="/ahwalHDSConditionReport" ,method=RequestMethod.GET)
-	public @ResponseBody void generateAhwalHDSConditionReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+	@RequestMapping(value="/ahwalHDConditionReport" ,method=RequestMethod.GET)
+	public @ResponseBody void generateAhwalHDConditionReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
 
 		String strHouseType = request.getParameter("houseType");
 		String strSessionType = request.getParameter("sessionType");
-		String strSessionYear = request.getParameter("sessionYear");				
+		String strSessionYear = request.getParameter("sessionYear");
+		String questionType = request.getParameter("questionType");
 		
-		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null){
-			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()){	
+		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && questionType!=null){
+			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty() && !questionType.isEmpty()){
 				try {
 					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
 					if(houseType==null) {
@@ -1905,8 +2010,9 @@ public class QuestionReportController extends BaseController{
 							Map<String, String[]> queryParameters = new HashMap<String, String[]>();
 							queryParameters.put("houseType", new String[]{houseType.getType()});
 							queryParameters.put("sessionId", new String[]{session.getId().toString()});
+							queryParameters.put("questionType", new String[]{questionType});
 							queryParameters.put("locale", new String[]{locale.toString()});
-							String queryName= "QIS_AHWAL_HDS_CONDITION_REPORT";														
+							String queryName= "QIS_AHWAL_HD_CONDITION_REPORT";													
 							List reportData = Query.findReport(queryName, queryParameters);
 							if(reportData!=null && !reportData.isEmpty()) {
 								List<String> serialNumbers = new ArrayList<String>();
@@ -1922,7 +2028,11 @@ public class QuestionReportController extends BaseController{
 								}
 								/**** generate report ****/
 								if(!isError) {			
-									reportFile = generateReportUsingFOP(new Object[]{reportData,serialNumbers,localisedContent}, "qis_ahwal_hdscondition", "WORD", "qis_ahwal_halfHourStandalone_Report", locale.toString());
+									if(questionType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+										reportFile = generateReportUsingFOP(new Object[]{reportData,serialNumbers,localisedContent,questionType}, "qis_ahwal_hdcondition_"+houseType.getType(), "WORD", "qis_ahwal_halfHourFromQuestion_Report", locale.toString());
+									} else {
+										reportFile = generateReportUsingFOP(new Object[]{reportData,serialNumbers,localisedContent,questionType}, "qis_ahwal_hdcondition_"+houseType.getType(), "WORD", "qis_ahwal_halfHourStandalone_Report", locale.toString());
+									}									
 									if(reportFile!=null) {
 										System.out.println("Report generated successfully in WORD format!");
 										openOrSaveReportFileFromBrowser(response, reportFile, "WORD");

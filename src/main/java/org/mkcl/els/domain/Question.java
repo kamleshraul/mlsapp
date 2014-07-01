@@ -255,7 +255,12 @@ public class Question extends Device implements Serializable {
     
     @ManyToOne(fetch=FetchType.LAZY,cascade=CascadeType.REMOVE)
     private ReferencedEntity referencedHDS;
-
+    
+    /**** UNSTARRED DEVICE ATTRIBUTES ****/
+    private Integer yaadiNumber; 
+    
+    @Temporal(TemporalType.DATE)
+    private Date yaadiLayingDate;
     
     /**** SHORT NOTICE DEVICE ATTRIBUTES ****/
     /** The reason. */
@@ -1982,6 +1987,10 @@ public class Question extends Device implements Serializable {
 	public static boolean isAdmittedThroughNameClubbing(final Question question) {
 		return getQuestionRepository().isAdmittedThroughNameClubbing(question);		
 	}
+	
+	public static Integer findHighestYaadiNumber(final DeviceType deviceType, final Session session, final String locale) {
+		return getQuestionRepository().findHighestYaadiNumber(deviceType, session, locale);
+	}
 	 
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
@@ -2274,6 +2283,22 @@ public class Question extends Device implements Serializable {
 		this.referencedEntities = referencedEntities;
 	}
 	
+	public Integer getYaadiNumber() {
+		return yaadiNumber;
+	}
+
+	public void setYaadiNumber(Integer yaadiNumber) {
+		this.yaadiNumber = yaadiNumber;
+	}
+
+	public Date getYaadiLayingDate() {
+		return yaadiLayingDate;
+	}
+
+	public void setYaadiLayingDate(Date yaadiLayingDate) {
+		this.yaadiLayingDate = yaadiLayingDate;
+	}
+
 	public String getReason() {
 		return reason;
 	}
