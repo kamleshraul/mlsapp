@@ -349,7 +349,7 @@
 						+ $("#selectedSubDepartment").val());
 		var oldURL = $("#grid").getGridParam("url");
 		var baseURL = "";
-		alert(oldURL);
+		
 		if(oldURL){
 			baseURL = oldURL.split("?")[0];
 		}
@@ -668,7 +668,9 @@
 		showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal?selectedHouseType='+$('#selectedHouseType').val());
 	}
 	function loadSubDepartmentsFromGroup(group, init){
-		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val(),function(data){
+		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val()
+				+'&deviceType='+$("#selectedQuestionType").val()+'&houseType='+$("#selectedHouseType").val(),function(data){
+			
 			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
 			$('#selectedSubDepartment').empty();
 			if(data.length>0){
