@@ -168,6 +168,16 @@
 				showHDGeneralreport();
 			});
 			
+			$("#showDeptSessionReport").click(function(){
+				$("#selectionDiv1").hide();
+				deptSessionreport();
+			});
+			
+			$("#showVivranReport").click(function(){
+				$("#selectionDiv1").hide();
+				showVivranReport();
+			});
+			
 			var selectedDeviceType = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
 			if(selectedDeviceType.indexOf("questions_halfhourdiscussion_")==-1){
 				$("#hdReportsDiv").hide();
@@ -249,7 +259,15 @@
 						<spring:message code="question.hdGeneralReport" text="HD General Report"/>
 					</a> |
 				</div>
-			</security:authorize>		
+			</security:authorize>	
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
+				<a href="#" id="showDeptSessionReport" class="butSim">
+						<spring:message code="question.deptSessionReport" text="Department-Session-wise Report"/>
+				</a> |
+				<a href="#" id="showVivranReport" class="butSim">
+						<spring:message code="question.vivranReport" text="Vivran Report"/>
+				</a> |
+			</security:authorize>	
 			<security:authorize access="!hasAnyRole('QIS_TYPIST','QIS_CLERK','HDS_TYPIST','HDS_CLERK')">	 
 				<a href="#" id="send_message" class="butSim">
 					<spring:message code="question.sendMessage" text="Send Message"/>

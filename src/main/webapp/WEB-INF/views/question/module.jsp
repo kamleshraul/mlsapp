@@ -128,7 +128,7 @@
 			var value = $(this).val();
 			if (value != "") {
 				$("#ugparam").val(value);
-				loadSubDepartmentsFromGroup(value);								
+				loadSubDepartmentsFromGroup(value, 'no');								
 			}
 		});
 		/**** Chart Tab ****/
@@ -179,7 +179,7 @@
 		/**** show question list method is called by default.****/
 		showQuestionList();
 		
-		loadSubDepartmentsFromGroup($("#selectedGroup").val());
+		loadSubDepartmentsFromGroup($("#selectedGroup").val(),'yes');
 	});
 	
 	function showCurrentStatusReport(val, qId){
@@ -216,7 +216,7 @@
 							$("#selectedGroup").empty();
 							$("#selectedGroup").html(text);
 							$("#ugparam").val(data[0].id);
-							loadSubDepartmentsFromGroup(data[0].id);
+							loadSubDepartmentsFromGroup(data[0].id, 'no');
 						} else {
 							$("#selectedGroup").empty();
 						}
@@ -349,7 +349,8 @@
 						+ $("#selectedSubDepartment").val());
 		var oldURL = $("#grid").getGridParam("url");
 		var baseURL = "";
-		if(oldURL != undefined || oldURL!=''){
+		alert(oldURL);
+		if(oldURL){
 			baseURL = oldURL.split("?")[0];
 		}
 		newURL = baseURL + "?" + $("#gridURLParams").val();
@@ -666,7 +667,7 @@
 	function sankshiptAhwalReport() {
 		showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal?selectedHouseType='+$('#selectedHouseType').val());
 	}
-	function loadSubDepartmentsFromGroup(group){
+	function loadSubDepartmentsFromGroup(group, init){
 		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val(),function(data){
 			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
 			$('#selectedSubDepartment').empty();
@@ -678,7 +679,11 @@
 				$("#selectedSubDepartment").html(subDepartmentText);
 			}
 		}).done(function(){
-			reloadQuestionGrid();
+			if(init=='no'){
+				reloadQuestionGrid();
+			}else if(init=='yes'){
+				showQuestionList();
+			}
 		});
 	}	
 	function statReport(){
@@ -746,6 +751,78 @@
 				showTabByIdAndUrl('details_tab','question/report/generalreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+"&report=HD_CONDITION_REPORT&reportout=hdconditionreport");
 			}
 		});
+	}
+	
+	function deptSessionreport(){
+		var url = "question/report/generalreport?houseType="+$("#selectedHouseType").val()+
+				"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+
+				"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+
+				"&reportout=deptsessionwisereport";
+		var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
+		if(devicetype=='questions_starred'){
+			url += "&report=QIS_STARRED_DEPARTMENT_SESSION_REPORT";
+		}else if(devicetype=='questions_unstarred'){
+			url += "&report=QIS_UNSTARRED_DEPARTMENT_SESSION_REPORT";
+		}else if(devicetype=='questions_shortnotice'){
+			url += "&report=QIS_SN_DEPARTMENT_SESSION_REPORT";
+		}else if(devicetype=='questions_halfhourdiscussion_from_question' || devicetype=='questions_halfhourdiscussion_standalone'){
+			url += "&report=QIS_HD_DEPARTMENT_SESSION_REPORT";
+		}
+		
+		
+		showTabByIdAndUrl('details_tab', url);
+	}
+	
+	function showVivranReport(){
+		var url = "question/report/generalreport?houseType="+$("#selectedHouseType").val()+
+				"&groupYear="+$("#selectedSessionYear").val()+"&sessionTypeId="+$("#selectedSessionType").val()+
+				"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+
+				"&reportout=vivranreport&report=QIS_STARRED_VIVRAN_REPORT"+
+				"&userName="+$("#authusername").val();
+		var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
+		/* if(devicetype=='questions_starred'){
+			url += "&report=QIS_STARRED_DEPARTMENT_SESSION_REPORT";
+		}else if(devicetype=='questions_unstarred'){
+			url += "&report=QIS_UNSTARRED_DEPARTMENT_SESSION_REPORT";
+		}else if(devicetype=='questions_shortnotice'){
+			url += "&report=QIS_SN_DEPARTMENT_SESSION_REPORT";
+		}else if(devicetype=='questions_halfhourdiscussion_from_question' || devicetype=='questions_halfhourdiscussion_standalone'){
+			url += "&report=QIS_HD_DEPARTMENT_SESSION_REPORT";
+		} */
+		
+		var urlSession = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
+		$.get(urlSession,function(data){
+			if(data){
+				url += '&sessionId='+data.id+'&locale='+$("#moduleLocale").val();
+				showTabByIdAndUrl('details_tab', url);
+			}
+		});
+	}
+	
+	function editQ(id){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&questionType=" + $("#selectedQuestionType").val()
+		+ "&ugparam=" + $("#ugparam").val() + "&status="
+		+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+		+ "&usergroup=" + $("#currentusergroup").val()
+		+ "&usergroupType=" + $("#currentusergroupType").val();
+		var resourceUrl="question/" + id + "/edit?"+parameters;
+		 $.get(resourceUrl,function(data){
+			    $.fancybox.open(data, {autoSize: false, width: 800, height:700});
+		    }).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+			
+		/* $.get('question/viewquestion?qid='+id,function(data){
+			$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
+		},'html'); */
 	}
 </script>
 </head>
