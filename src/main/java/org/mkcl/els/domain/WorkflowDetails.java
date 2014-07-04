@@ -421,6 +421,18 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getWorkflowDetailsRepository().create(domain,task,
 				workflowType,level);
 	}
+	
+	/***CutMotion related ****/
+	/* @throws ELSException ****/
+	/*public static List<WorkflowDetails> create(final CutMotion domain,final List<Task> tasks,
+			final String supportingMemberWorkflow, final String assigneeLevel) throws ELSException {		
+		return getWorkflowDetailsRepository().create(domain,tasks, supportingMemberWorkflow,assigneeLevel);
+	}*/
+
+	/*public static WorkflowDetails create(final CutMotion domain,final Task task,
+			final String workflowType,final String level) throws ELSException {
+		return getWorkflowDetailsRepository().create(domain,task, workflowType,level);
+	}*/
 
 	public static List<WorkflowDetails> findAll(final String strHouseType,
 			final String strSessionType,final String strSessionYear,final String strMotionType,
