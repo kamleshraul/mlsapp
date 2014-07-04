@@ -467,6 +467,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 		}	
 		return workflowDetails;		
 	}
+	
 	/************** Motion Related Domain Methods 
 	 * @throws ELSException *********************/
 	public List<WorkflowDetails> create(final Motion domain,final List<Task> tasks,
@@ -671,6 +672,216 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 		return workflowDetails;		
 	}
 
+	/************** CutMotion Related Domain Methods 
+	 * @throws ELSException *********************/
+	/*public List<WorkflowDetails> create(final CutMotion domain,final List<Task> tasks,
+			final String workflowType,final String assigneeLevel) throws ELSException {
+		List<WorkflowDetails> workflowDetailsList=new ArrayList<WorkflowDetails>();
+		try {
+			Status requestStatus = Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, domain.getLocale());
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+			if(customParameter != null){
+				SimpleDateFormat format = FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+				for(Task i : tasks){
+					WorkflowDetails workflowDetails = new WorkflowDetails();
+					String userGroupId = null;
+					String userGroupType = null;
+					String userGroupName = null;				
+					String username = i.getAssignee();
+					if(username != null){
+						if(!username.isEmpty()){
+							Credential credential = Credential.findByFieldName(Credential.class,"username",username,"");
+							UserGroup userGroup = UserGroup.findByFieldName(UserGroup.class,"credential",credential, domain.getLocale());
+							userGroupId = String.valueOf(userGroup.getId());
+							userGroupType = userGroup.getUserGroupType().getType();
+							userGroupName = userGroup.getUserGroupType().getName();
+							workflowDetails.setAssignee(i.getAssignee());
+							workflowDetails.setAssigneeUserGroupId(userGroupId);
+							workflowDetails.setAssigneeUserGroupType(userGroupType);
+							workflowDetails.setAssigneeUserGroupName(userGroupName);
+							workflowDetails.setAssigneeLevel(assigneeLevel);
+							if(i.getCreateTime() != null){
+								if(!i.getCreateTime().isEmpty()){
+									workflowDetails.setAssignmentTime(format.parse(i.getCreateTime()));
+								}
+							}
+							if(domain != null){
+								if(domain.getId() != null){
+									workflowDetails.setDeviceId(String.valueOf(domain.getId()));
+								}
+								if(domain.getNumber() != null){
+									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
+								}
+								if(domain.getPrimaryMember() != null){
+									workflowDetails.setDeviceOwner(domain.getPrimaryMember().getFullname());
+								}
+								if(domain.getDeviceType() != null){
+									workflowDetails.setDeviceType(domain.getDeviceType().getName());
+								}
+								if(domain.getHouseType() != null){
+									workflowDetails.setHouseType(domain.getHouseType().getName());
+								}
+								if(domain.getInternalStatus() != null){
+									workflowDetails.setInternalStatus(domain.getInternalStatus().getName());
+								}
+								workflowDetails.setLocale(domain.getLocale());
+								if(domain.getRecommendationStatus() != null){
+									workflowDetails.setRecommendationStatus(domain.getRecommendationStatus().getName());
+								}								
+								workflowDetails.setRemarks(domain.getRemarks());
+								if(domain.getSession() != null){
+									if(domain.getSession().getType() != null){
+										workflowDetails.setSessionType(domain.getSession().getType().getSessionType());
+									}
+									workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getSession().getYear()));
+								}
+								workflowDetails.setSubject(domain.getMainTitle());
+								workflowDetails.setText(domain.getNoticeContent());
+								if(domain.getFile() != null){
+									workflowDetails.setFile(String.valueOf(domain.getFile()));
+								}
+							}
+							workflowDetails.setProcessId(i.getProcessInstanceId());
+							workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
+							workflowDetails.setTaskId(i.getId());
+							workflowDetails.setWorkflowType(workflowType);
+							if(workflowType.equals(ApplicationConstants.APPROVAL_WORKFLOW)){
+								workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_CUTMOTION);
+								workflowDetails.setForm(workflowDetails.getUrlPattern() + "/" + userGroupType);
+								workflowDetails.setWorkflowSubType(domain.getInternalStatus().getType());					
+								*//**** Different types of workflow sub types ****//*
+							}else if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
+								workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_CUTMOTION);
+								workflowDetails.setForm(workflowDetails.getUrlPattern());
+								if(requestStatus != null){
+								workflowDetails.setWorkflowSubType(requestStatus.getType());
+								}
+								workflowDetails.setInternalStatus(null);
+								workflowDetails.setRecommendationStatus(null);
+							}
+							workflowDetailsList.add((WorkflowDetails) workflowDetails.persist());
+						}				
+					}
+				}				
+			}
+		} catch (ParseException e) {
+			logger.error("Parse Exception",e);
+			return workflowDetailsList;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_create_cutmotion", "WorkflowDetails cannot be created");
+			throw elsException;
+		}
+		return workflowDetailsList;	
+	}*/
+	
+	/*public WorkflowDetails create(final CutMotion domain,final Task task,final String workflowType,
+			final String level) throws ELSException {
+		
+		WorkflowDetails workflowDetails = new WorkflowDetails();
+		String userGroupId = null;
+		String userGroupType = null;
+		String userGroupName = null;				
+		
+		try {
+			String username = task.getAssignee();
+			if (username != null) {
+				if(!username.isEmpty()){
+					Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
+					UserGroup userGroup = UserGroup.findByFieldName(UserGroup.class, "credential", credential, domain.getLocale());
+					userGroupId = String.valueOf(userGroup.getId());
+					userGroupType = userGroup.getUserGroupType().getType();
+					userGroupName = userGroup.getUserGroupType().getName();
+					workflowDetails.setAssignee(task.getAssignee());
+					workflowDetails.setAssigneeUserGroupId(userGroupId);
+					workflowDetails.setAssigneeUserGroupType(userGroupType);
+					workflowDetails.setAssigneeUserGroupName(userGroupName);
+					workflowDetails.setAssigneeLevel(level);
+					CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"DB_TIMESTAMP","");
+					if(customParameter != null){
+						SimpleDateFormat format = FormaterUtil.getDateFormatter(customParameter.getValue(),"en_US");
+						if(task.getCreateTime() != null){
+							if(!task.getCreateTime().isEmpty()){
+								workflowDetails.setAssignmentTime(format.parse(task.getCreateTime()));
+							}
+						}
+					}	
+					if (domain != null) {
+						if (domain.getId() != null) {
+							workflowDetails.setDeviceId(String.valueOf(domain.getId()));
+						}
+						if (domain.getNumber() != null) {
+							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
+						}
+						if (domain.getPrimaryMember() != null) {
+							workflowDetails.setDeviceOwner(domain.getPrimaryMember().getFullname());
+						}
+						if (domain.getDeviceType() != null) {
+							workflowDetails.setDeviceType(domain.getDeviceType().getName());
+						}
+						if (domain.getHouseType() != null) {
+							workflowDetails.setHouseType(domain.getHouseType().getName());
+						}
+						if (domain.getInternalStatus() != null) {
+							workflowDetails.setInternalStatus(domain.getInternalStatus().getName());
+						}
+						workflowDetails.setLocale(domain.getLocale());
+						if (domain.getRecommendationStatus() != null) {
+							workflowDetails.setRecommendationStatus(domain.getRecommendationStatus().getName());
+						}						
+						workflowDetails.setRemarks(domain.getRemarks());
+						if (domain.getSession() != null) {
+							if (domain.getSession().getType() != null) {
+								workflowDetails.setSessionType(domain.getSession().getType().getSessionType());
+							}
+							workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getSession().getYear()));
+						}
+						workflowDetails.setSubject(domain.getMainTitle());
+						workflowDetails.setText(domain.getNoticeContent());
+						if (domain.getFile() != null) {
+							workflowDetails.setFile(String.valueOf(domain.getFile()));
+						}
+					}
+					
+					workflowDetails.setProcessId(task.getProcessInstanceId());
+					workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
+					workflowDetails.setTaskId(task.getId());
+					workflowDetails.setWorkflowType(workflowType);
+					
+					if(workflowType.equals(ApplicationConstants.APPROVAL_WORKFLOW)){
+						
+						workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_CUTMOTION);
+						workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
+						workflowDetails.setWorkflowSubType(domain.getInternalStatus().getType());					
+						*//**** Different types of workflow sub types ****//*
+					}else if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
+						
+						workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_CUTMOTION);
+						workflowDetails.setForm(workflowDetails.getUrlPattern());
+						Status requestStatus = Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, domain.getLocale());
+						if(requestStatus != null){
+							workflowDetails.setWorkflowSubType(requestStatus.getType());
+						}
+						workflowDetails.setInternalStatus(null);
+						workflowDetails.setRecommendationStatus(null);
+					}
+					workflowDetails.persist();
+				}				
+			}
+		} catch (ParseException e) {
+			logger.error("Parse Exception",e);
+			return new WorkflowDetails();
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_create_cutmotion", "WorkflowDetails cannot be created");
+			throw elsException;
+		}	
+		return workflowDetails;		
+	}*/
 
 
 	@SuppressWarnings("unchecked")
