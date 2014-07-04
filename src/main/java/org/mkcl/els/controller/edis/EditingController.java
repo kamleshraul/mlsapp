@@ -134,15 +134,39 @@ public class EditingController extends GenericController<Roster>{
 				break;
 			}
 
-			List<UserGroup> userGgroups = this.getCurrentUser().getUserGroups();
-			for(UserGroup ug : userGgroups){
+			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+			for(UserGroup ug : userGroups){
 				if(ug != null){
 					model.addAttribute("userGroup", ug.getId());
 					model.addAttribute("userGroupType", ug.getUserGroupType().getType());
 					break;
 				}
 			}
-			
+			//-----XVX-----			
+			/****
+			 * Custom Parameter To Determine The Usergroup and usergrouptype
+			 * of edis users . here we are determining what status will be
+			 * shown to a particular user.
+			 ****/
+			if (userGroups != null) {
+				if (!userGroups.isEmpty()) {
+					CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"EDIS_ALLOWED_USERGROUPTYPES", "");
+					if (customParameter != null) {
+						String allowedUserGroups = customParameter.getValue();
+						for (UserGroup i : userGroups) {
+							if (!allowedUserGroups.contains(i.getUserGroupType().getType())) {
+								model.addAttribute("errorcode", "edis_allowed_usergroups_notset");
+								break;
+							}
+						}
+					} else {
+						model.addAttribute("errorcode", "edis_allowed_usergroups_notset");
+					}
+				} else {
+					model.addAttribute("errorcode", "current_user_has_no_usergroups");
+				}
+			}
+			//-----XVX-----
 			List<MasterVO> days = new ArrayList<MasterVO>();
 			Map<String, String[]> parameters = new HashMap<String, String[]>();
 			parameters.put("locale", new String[]{locale});
