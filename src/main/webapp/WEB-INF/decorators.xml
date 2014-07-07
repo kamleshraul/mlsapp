@@ -290,6 +290,15 @@
 		<pattern>/motion/bulksubmission/assistant/update</pattern>
 		<pattern>/workflow/motion</pattern>
 		
+		<pattern>/motion/cutmotion/new</pattern>
+		<pattern>/motion/cutmotion/*/edit</pattern>
+		<pattern>/motion/cutmotion/*/delete</pattern>
+		<pattern>/motion/cutmotion</pattern>	
+		<pattern>/motion/cutmotion/bulksubmission/assistant/int</pattern>	
+		<pattern>/motion/cutmotion/bulksubmission/assistant/view</pattern>		
+		<pattern>/motion/cutmotion/bulksubmission/assistant/update</pattern>
+		<pattern>/workflow/motion/cutmotion</pattern>
+		
 		<pattern>/bill/new</pattern>
 		<pattern>/bill/*/edit</pattern>
 		<pattern>/bill/*/delete</pattern>
