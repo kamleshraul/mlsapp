@@ -9,6 +9,15 @@
 		<p></p>
 </div>
 </c:when>
+<c:when test="${type eq 'invalid_page_request'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.invalid_page_request" text="Requested Page is not found."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 <c:when test="${type eq 'INSUFFICIENT_PARAMETERS_FOR_VIEWING_PATRAK_BHAG_TWO'}">
 	<div class="toolTip tpRed clearfix">
 		<p style="font-size: 14px;">
