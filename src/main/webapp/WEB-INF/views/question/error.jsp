@@ -9,6 +9,15 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${errorcode eq 'qis_allowed_usergroup_to_do_view_clubbing_referencing_not_set'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.qis_allowed_usergroup_to_do_view_clubbing_referencing" text="QIS_ALLOWED_USERGROUP_TO_DO_VIEW_CLUBBING_REFERENCING not set."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 <c:when test="${errorcode eq 'workunderprogress'}">
 	<div class="toolTip tpRed clearfix">
 		<p>
