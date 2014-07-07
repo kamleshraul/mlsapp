@@ -21,6 +21,7 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
@@ -674,7 +675,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 
 	/************** CutMotion Related Domain Methods 
 	 * @throws ELSException *********************/
-	/*public List<WorkflowDetails> create(final CutMotion domain,final List<Task> tasks,
+	public List<WorkflowDetails> create(final CutMotion domain,final List<Task> tasks,
 			final String workflowType,final String assigneeLevel) throws ELSException {
 		List<WorkflowDetails> workflowDetailsList=new ArrayList<WorkflowDetails>();
 		try {
@@ -749,7 +750,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 								workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_CUTMOTION);
 								workflowDetails.setForm(workflowDetails.getUrlPattern() + "/" + userGroupType);
 								workflowDetails.setWorkflowSubType(domain.getInternalStatus().getType());					
-								*//**** Different types of workflow sub types ****//*
+								/**** Different types of workflow sub types ****/
 							}else if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
 								workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_CUTMOTION);
 								workflowDetails.setForm(workflowDetails.getUrlPattern());
@@ -775,9 +776,9 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			throw elsException;
 		}
 		return workflowDetailsList;	
-	}*/
+	}
 	
-	/*public WorkflowDetails create(final CutMotion domain,final Task task,final String workflowType,
+	public WorkflowDetails create(final CutMotion domain,final Task task,final String workflowType,
 			final String level) throws ELSException {
 		
 		WorkflowDetails workflowDetails = new WorkflowDetails();
@@ -855,7 +856,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_CUTMOTION);
 						workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
 						workflowDetails.setWorkflowSubType(domain.getInternalStatus().getType());					
-						*//**** Different types of workflow sub types ****//*
+						/**** Different types of workflow sub types ****/
 					}else if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
 						
 						workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_CUTMOTION);
@@ -881,7 +882,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 			throw elsException;
 		}	
 		return workflowDetails;		
-	}*/
+	}
 
 
 	@SuppressWarnings("unchecked")
