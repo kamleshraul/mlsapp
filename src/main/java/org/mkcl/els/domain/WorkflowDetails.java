@@ -344,8 +344,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 
 	public static List<WorkflowDetails> create(final Question question,final List<Task> tasks,
 			final String workflowType,final String assigneeLevel) throws ELSException {
-		return getWorkflowDetailsRepository().create(question,tasks,
-				workflowType,assigneeLevel);
+		return getWorkflowDetailsRepository().create(question,tasks, workflowType,assigneeLevel);
 	}
 
 	public void setAssignmentTime(Date assignmentTime) {
@@ -412,14 +411,26 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	 * @throws ELSException ****/
 	public static List<WorkflowDetails> create(final Motion domain,final List<Task> tasks,
 			final String supportingMemberWorkflow, final String assigneeLevel) throws ELSException {		
-		return getWorkflowDetailsRepository().create(domain,tasks,
-				supportingMemberWorkflow,assigneeLevel);
+		return getWorkflowDetailsRepository().create(domain,tasks, supportingMemberWorkflow,assigneeLevel);
 	}
 
 	public static WorkflowDetails create(final Motion domain,final Task task,
 			final String workflowType,final String level) throws ELSException {
 		return getWorkflowDetailsRepository().create(domain,task,
 				workflowType,level);
+	}
+	
+	
+	/**** CutMotion Related 
+	 * @throws ELSException ****/
+	public static List<WorkflowDetails> create(final CutMotion domain,final List<Task> tasks,
+			final String supportingMemberWorkflow, final String assigneeLevel) throws ELSException {		
+		return getWorkflowDetailsRepository().create(domain, tasks, supportingMemberWorkflow,assigneeLevel);
+	}
+
+	public static WorkflowDetails create(final CutMotion domain,final Task task,
+			final String workflowType,final String level) throws ELSException {
+		return getWorkflowDetailsRepository().create(domain, task, workflowType,level);
 	}
 	
 	/***CutMotion related ****/
@@ -730,10 +741,5 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public void setDecisionRecommendStatus(String decisionRecommendStatus) {
 		this.decisionRecommendStatus = decisionRecommendStatus;
 	}
-
-
-	
-	
-	
 	
 }
