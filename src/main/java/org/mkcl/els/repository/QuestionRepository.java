@@ -1493,7 +1493,13 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
 					" INNER JOIN ballot_entries be ON(be.id=bbe.ballot_entry_id)" +
 					" WHERE b.session_id=:sessionId" +
-					" AND b.devicetype_id=:deviceTypeId)");
+					" AND b.devicetype_id=:deviceTypeId)" + 
+					" AND q.revised_subject NOT IN(SELECT DISTINCT" +
+					" qq.revised_subject" +
+					" FROM questions qq" +
+					" WHERE qq.session_id=:sessionId" +
+					" AND qq.devicetype_id=:deviceTypeId" +
+					" AND qq.ballotstatus_id IS NOT NULL)");
 		
 		if(sortOrder.equals(ApplicationConstants.ASC)) {
 			query.append(" ORDER BY q.number ASC");
