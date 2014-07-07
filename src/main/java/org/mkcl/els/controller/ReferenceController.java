@@ -53,6 +53,7 @@ import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Creek;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Dam;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
@@ -5431,4 +5432,27 @@ public class ReferenceController extends BaseController {
 		}
 	}
 	
+	
+	@RequestMapping(value="motion/cutmotion/actors", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> findCutMotionActors(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		
+		List<Reference> actors = new ArrayList<Reference>();
+		String strCutmotion = request.getParameter("cutmotion");
+		String strInternalStatus = request.getParameter("status");
+		String strUserGroup = request.getParameter("usergroup");
+		String strLevel = request.getParameter("level");
+		if (strCutmotion != null && strInternalStatus != null
+				&& strUserGroup != null && strLevel != null) {
+			if ((!strCutmotion.isEmpty()) && (!strInternalStatus.isEmpty())
+					&& (!strUserGroup.isEmpty()) && (!strLevel.isEmpty())) {
+				Status internalStatus = Status.findById(Status.class, Long.parseLong(strInternalStatus));
+				CutMotion motion = CutMotion.findById(CutMotion.class, Long.parseLong(strCutmotion));
+				UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
+				actors = WorkflowConfig.findCutMotionActorsVO(motion, internalStatus, userGroup, Integer.parseInt(strLevel), locale.toString());
+			}
+		}
+		return actors;
+	}
 }
