@@ -1,4 +1,4 @@
-/*package org.mkcl.els.repository;
+package org.mkcl.els.repository;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -92,7 +92,7 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 			cutMotionRevisionVO.setEditedBY(o[1].toString());
 			cutMotionRevisionVO.setEditedOn(o[2].toString());
 			cutMotionRevisionVO.setStatus(o[3].toString());
-			*//**** Revision Control(Details and Subject) ****//*
+			/**** Revision Control(Details and Subject) ****/
 			if(o1 != null){
 				if(!o[4].toString().isEmpty()){
 					LinkedList<Diff> diff = d.diff_main(o1[4].toString(), o[4].toString());
@@ -316,4 +316,3 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		return motion;
 	}
 }
-*/
