@@ -814,6 +814,9 @@ public class ApplicationConstants {
 
 	/**** Prefix of motions ****/
 	public static final String DEVICE_MOTIONS="motions_";
+	
+	/**** Prefix of cutmotions ****/
+	public static final String DEVICE_CUTMOTIONS="motions_cutmotion_";
 
 	/** Prefix of resolutions **/
 	public static final String DEVICE_RESOLUTIONS="resolutions_";
@@ -1376,4 +1379,46 @@ public class ApplicationConstants {
 	public static final String OUESTION_BALLOT_NO_OF_ROUNDS = "3";
 	
 	public static final String NON_MEMBER_ROLES = "SPEAKER,DEPUTY_SPEAKER,CHAIRMAN,DEPUTY_CHAIRMAN";
+	
+	/****CutMotion****/
+	/**** Statuses ****/
+	public static final String CUTMOTION_INCOMPLETE = "cutmotion_incomplete";
+	public static final String CUTMOTION_COMPLETE = "cutmotion_complete";
+	public static final String CUTMOTION_SUBMIT = "cutmotion_submit";
+	
+	public static final String CUTMOTION_RECOMMEND_ADMISSION = "cutmotion_recommend_admission";
+	public static final String CUTMOTION_RECOMMEND_REJECTION = "cutmotion_recommend_rejection";
+	public static final String CUTMOTION_RECOMMEND_NAMECLUBBING = "cutmotion_recommend_nameclubbing";
+	public static final String CUTMOTION_RECOMMEND_SENDBACK = "cutmotion_recommend_sendback";
+	public static final String CUTMOTION_RECOMMEND_DISCUSS = "cutmotion_recommend_discuss";
+	public static final String CUTMOTION_RECOMMEND_PATRAKDATEAPPROVAL = "cutmotion_recommend_patrakdateapproval";
+	
+	public static final String CUTMOTION_SYSTEM_ASSISTANT_PROCESSED = "cutmotion_system_assistantprocessed";
+	public static final String CUTMOTION_SYSTEM_PUTUP = "cutmotion_system_putup";
+	public static final String CUTMOTION_SYSTEM_CLUBBEDWITHPENDING = "cutmotion_system_clubbedwithpending";
+	public static final String CUTMOTION_SYSTEM_CLUBBED = "cutmotion_system_clubbed";
+	
+	public static final String CUTMOTION_FINAL_ADMISSION = "cutmotion_final_admission";
+	public static final String CUTMOTION_FINAL_REJECTION = "cutmotion_final_rejection";
+	public static final String CUTMOTION_FINAL_PATRAKDATEAPPROVAL = "cutmotion_final_patrakdateapproval";
+	
+	public static final String CUTMOTION_PUTUP_NAMECLUBBING = "cutmotion_putup_nameclubbing";
+	public static final String CUTMOTION_PUTUP_ONHOLD = "cutmotion_putup_onhold";
+	
+	public static final String CUTMOTION_PROCESSED_SENDTOSECTIONOFFICER = "cutmotion_processed_sendToSectionOfficer";
+	public static final String CUTMOTION_PROCESSED_SENDTODEPARTMENT = "cutmotion_processed_sendToDepartment";
+	public static final String CUTMOTION_PROCESSED_ANSWERRECEIVED = "cutmotion_processed_answerReceived";
+	public static final String CUTMOTION_PROCESSED_REJECTIONWITHREASON ="cutmotion_processed_rejectionWithReason";
+	
+	public static final String CUTMOTION_GET_REVISION = "CUTMOTION_GET_REVISION";
+	
+	public static final String CUTMOTIONS_BUDGETARY = "motions_budgetary_cutmotion";
+	
+	public static final String CUTMOTIONS_SUPPLEMENTARY = "motions_supplementary_cutmotion";
+	
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_CUTMOTION="workflow/cutmotion";
+	
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_CUTMOTION="workflow/cutmotion/supportingmember";
+	
+	/**** CutMotion****/
 }
