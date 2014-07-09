@@ -5464,7 +5464,7 @@ public class ReferenceController extends BaseController {
 	}
 
 	
-	@RequestMapping(value="motion/cutmotion/actors", method=RequestMethod.GET)
+	@RequestMapping(value="/cutmotion/actors", method=RequestMethod.GET)
 	public @ResponseBody List<Reference> findCutMotionActors(final HttpServletRequest request,
 			final ModelMap model,
 			final Locale locale){
