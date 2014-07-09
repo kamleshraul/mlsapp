@@ -61,7 +61,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
-@RequestMapping("motion/cutmotion")
+@RequestMapping("cutmotion")
 public class CutMotionController extends GenericController<CutMotion>{
 
 	@Autowired
@@ -801,14 +801,14 @@ public class CutMotionController extends GenericController<CutMotion>{
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
 						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Resolution)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Motion)re.getDevice()).getId()));
+						reference.setNumber(String.valueOf(((Resolution)re.getDevice()).getId()));
 						refentities.add(reference);	
 						refresolutionentities.add(reference);
 					}else if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)){
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
 						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((CutMotion)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Motion)re.getDevice()).getId()));
+						reference.setNumber(String.valueOf(((CutMotion)re.getDevice()).getId()));
 						refentities.add(reference);	
 						refquestionentities.add(reference);
 					}
@@ -896,22 +896,22 @@ public class CutMotionController extends GenericController<CutMotion>{
 			HouseType houseType=domain.getHouseType();
 			/**** Final Approving Authority(Final Status) ****/
 			CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
-			CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "MOTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-			CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "MOTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-			CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "MOTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "CUTMOTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "CUTMOTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "CUTMOTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
 			if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
-				CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"MOTION_PUT_UP_OPTIONS_"+usergroupType.toUpperCase(),"");
+				CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"CUTMOTION_PUT_UP_OPTIONS_"+usergroupType.toUpperCase(),"");
 				if(finalApprovingAuthorityStatus!=null){
 					internalStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
 				}
-			}/**** MOTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
+			}/**** CUTMOTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
 			else if(deviceTypeInternalStatusUsergroup!=null){
 				internalStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
-			}/**** MOTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
+			}/**** CUTMOTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
 			else if(deviceTypeHouseTypeUsergroup!=null){
 				internalStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
 			}	
-			/**** MOTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
+			/**** CUTMOTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
 			else if(deviceTypeUsergroup!=null){
 				internalStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
 			}	
@@ -940,8 +940,8 @@ public class CutMotionController extends GenericController<CutMotion>{
 		/**** Supporting Members which are already present in domain ****/
 		List<SupportingMember> members=new ArrayList<SupportingMember>();
 		if(domain.getId()!=null){
-			Motion motion=Motion.findById(Motion.class,domain.getId());
-			members=motion.getSupportingMembers();
+			CutMotion motion = CutMotion.findById(CutMotion.class,domain.getId());
+			members = motion.getSupportingMembers();
 		}		
 		/**** New Status ****/
 		Status notsendStatus=Status.findByFieldName(Status.class, "type",ApplicationConstants.SUPPORTING_MEMBER_NOTSEND, domain.getLocale());
@@ -1175,14 +1175,14 @@ public class CutMotionController extends GenericController<CutMotion>{
 							result.rejectValue("subDepartment","SubDepartmentEmpty");
 						}	
 						String internalStatusType=domain.getInternalStatus().getType();
-						if(internalStatusType.equals(ApplicationConstants.MOTION_SUBMIT)){
+						if(internalStatusType.equals(ApplicationConstants.CUTMOTION_SUBMIT)){
 							result.rejectValue("internalStatus","PutUpOptionEmpty");
 						}						
-						if(internalStatusType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)){
+						if(internalStatusType.equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED)){
 							result.rejectValue("internalStatus","PutUpOptionEmpty");
 						}
-						if(!(internalStatusType.equals(ApplicationConstants.MOTION_SUBMIT))
-								&&!(internalStatusType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED))
+						if(!(internalStatusType.equals(ApplicationConstants.CUTMOTION_SUBMIT))
+								&&!(internalStatusType.equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED))
 								&&(domain.getActor()==null||domain.getActor().isEmpty())){
 							result.rejectValue("internalStatus","ActorEmpty");
 						}
@@ -1319,14 +1319,14 @@ public class CutMotionController extends GenericController<CutMotion>{
 								}
 							}
 							/**** Status,Internal Status and recommendation Status is set ****/
-							Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, domain.getLocale());
+							Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_SUBMIT, domain.getLocale());
 							domain.setStatus(newstatus);
 							domain.setInternalStatus(newstatus);
 							domain.setRecommendationStatus(newstatus);
 						}
 					}else{
 						if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-							Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
+							Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_COMPLETE, domain.getLocale());
 							domain.setStatus(status);
 							domain.setInternalStatus(status);
 							domain.setRecommendationStatus(status);
@@ -1334,7 +1334,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 				}else{
 					if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
+						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_COMPLETE, domain.getLocale());
 						domain.setStatus(status);
 						domain.setInternalStatus(status);
 						domain.setRecommendationStatus(status);
@@ -1342,7 +1342,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 				}
 			}else{
 				if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
+					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_COMPLETE, domain.getLocale());
 					domain.setStatus(status);
 					domain.setInternalStatus(status);
 					domain.setRecommendationStatus(status);
@@ -1352,7 +1352,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		/**** Drafts ****/
 		else{
 			if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_INCOMPLETE, domain.getLocale());
+				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_INCOMPLETE, domain.getLocale());
 				domain.setStatus(status);
 				domain.setInternalStatus(status);
 				domain.setRecommendationStatus(status);
@@ -1442,16 +1442,16 @@ public class CutMotionController extends GenericController<CutMotion>{
 								}
 							}
 							/**** Status,Internal status and recommendation status is set to complete ****/
-							Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, domain.getLocale());
+							Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_SUBMIT, domain.getLocale());
 							domain.setStatus(newstatus);
 							domain.setInternalStatus(newstatus);
 							domain.setRecommendationStatus(newstatus);
 						}
 					}else{
 						if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-							Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
+							Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_COMPLETE, domain.getLocale());
 							/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
-							if(!domain.getStatus().getType().equals(ApplicationConstants.MOTION_SUBMIT)){
+							if(!domain.getStatus().getType().equals(ApplicationConstants.CUTMOTION_SUBMIT)){
 								domain.setStatus(status);
 								domain.setInternalStatus(status);
 								domain.setRecommendationStatus(status);
@@ -1460,9 +1460,9 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 				}else{
 					if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
+						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_COMPLETE, domain.getLocale());
 						/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
-						if(!domain.getStatus().getType().equals(ApplicationConstants.MOTION_SUBMIT)){
+						if(!domain.getStatus().getType().equals(ApplicationConstants.CUTMOTION_SUBMIT)){
 							domain.setStatus(status);
 							domain.setInternalStatus(status);
 							domain.setRecommendationStatus(status);
@@ -1471,9 +1471,9 @@ public class CutMotionController extends GenericController<CutMotion>{
 				}
 			}else{
 				if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
+					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_COMPLETE, domain.getLocale());
 					/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
-					if(!domain.getStatus().getType().equals(ApplicationConstants.MOTION_SUBMIT)){
+					if(!domain.getStatus().getType().equals(ApplicationConstants.CUTMOTION_SUBMIT)){
 						domain.setStatus(status);
 						domain.setInternalStatus(status);
 						domain.setRecommendationStatus(status);
@@ -1484,7 +1484,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		/**** If all mandatory fields have not been set then status,internal status and recommendation status is set to incomplete ****/
 		else{
 			if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_INCOMPLETE, domain.getLocale());
+				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_INCOMPLETE, domain.getLocale());
 				domain.setStatus(status);
 				domain.setInternalStatus(status);
 				domain.setRecommendationStatus(status);
@@ -1533,7 +1533,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		if(strUserGroupType!=null){
 			if(strUserGroupType.equals("assistant")){				
 				String internalStatus = domain.getInternalStatus().getType();
-				if(internalStatus.equals(ApplicationConstants.MOTION_SUBMIT)&&domain.getMinistry()!=null&&domain.getSubDepartment()!=null) {
+				if(internalStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT)&&domain.getMinistry()!=null&&domain.getSubDepartment()!=null) {
 					Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
 					domain.setInternalStatus(ASSISTANT_PROCESSED);
 					domain.setRecommendationStatus(ASSISTANT_PROCESSED);
@@ -1553,9 +1553,9 @@ public class CutMotionController extends GenericController<CutMotion>{
 						domain.setFileSent(false);
 					}
 				}else if(operation.isEmpty()){
-					if(!(currentStatus.equals(ApplicationConstants.MOTION_SUBMIT)
-							||currentStatus.equals(ApplicationConstants.MOTION_COMPLETE)
-							||currentStatus.equals(ApplicationConstants.MOTION_INCOMPLETE))
+					if(!(currentStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT)
+							||currentStatus.equals(ApplicationConstants.CUTMOTION_COMPLETE)
+							||currentStatus.equals(ApplicationConstants.CUTMOTION_INCOMPLETE))
 							&&domain.getFile()==null){
 						/**** Add motion to file ****/
 						Reference reference=CutMotion.findCurrentFile(domain);
@@ -1656,7 +1656,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 						List<WorkflowDetails> workflowDetails = WorkflowDetails.create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"");
 						
 						/**** Not Send supporting members status are changed to pending ****/
-						CutMotion motion = Motion.findById(CutMotion.class,domain.getId());
+						CutMotion motion = CutMotion.findById(CutMotion.class,domain.getId());
 						List<SupportingMember> supportingMembers = motion.getSupportingMembers();
 						Status status = Status.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_PENDING,domain.getLocale());
 						for(SupportingMember i:supportingMembers){
@@ -1737,7 +1737,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		CutMotion motionTemp = CutMotion.findById(CutMotion.class,Long.parseLong(motion));
 		List<SupportingMember> supportingMembers = motionTemp.getSupportingMembers();
 		model.addAttribute("supportingMembers",supportingMembers);
-		return "motion/cutmotion/supportingmember";
+		return "cutmotion/supportingmember";
 	}
 
 	/**** Member-Supporting Members Contacts ****/
@@ -1748,7 +1748,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		String[] members = strMembers.split(",");
 		List<MemberContactVO> memberContactVOs = Member.getContactDetails(members);
 		model.addAttribute("membersContact",memberContactVOs);
-		return "motion/cutmotion/contacts";
+		return "cutmotion/contacts";
 	}
 
 	/**** revision History ****/
@@ -1765,7 +1765,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 			}
 		}		
 		model.addAttribute("drafts",drafts);
-		return "motion/cutmotion/revisions";
+		return "cutmotion/revisions";
 	}
 
 	/**** Citations ****/
@@ -1789,7 +1789,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 			}
 		}
 		model.addAttribute("citations",citations);
-		return "motion/cutmotion/citation";
+		return "cutmotion/citation";
 	}
 
 	/**** Bulk Submission ****/
@@ -1831,7 +1831,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		} catch (ELSException e) {
 			model.addAttribute("error", e.getParameter());
 		}
-		return "motion/cutmotion/bulksubmission";
+		return "cutmotion/bulksubmission";
 	}
 
 	/**
@@ -1919,7 +1919,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 
 			model.addAttribute("motions", motions);
 		}
-		return "motion/cutmotion/bulksubmissionack";
+		return "cutmotion/bulksubmissionack";
 	}
 
 	/**** Bulk Submission(Assistant)****/
@@ -1968,7 +1968,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 				internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(), locale.toString());
 				model.addAttribute("internalStatuses", internalStatuses);
 			} catch (ELSException e) {
-				return "motion/cutmotion/bulksubmission";
+				return "cutmotion/bulksubmission";
 			}
 
 			/**** Request Params To Model Attribute ****/
@@ -1983,14 +1983,14 @@ public class CutMotionController extends GenericController<CutMotion>{
 			model.addAttribute("itemscount", strItemsCount);
 			model.addAttribute("file", strFile);
 		}
-		return "motion/cutmotion/bulksubmissionassistantint";
+		return "cutmotion/bulksubmissionassistantint";
 	}
 	
 	@RequestMapping(value="/bulksubmission/assistant/view",method=RequestMethod.GET)
 	public String getBulkSubmissionAssistantView(final HttpServletRequest request,final Locale locale,
 			final Model model){	
 		getBulkSubmissionMotions(model, request, locale.toString());
-		return "motion/cutmotion/bulksubmissionassistantview";		
+		return "cutmotion/bulksubmissionassistantview";		
 	}
 	
 	@Transactional
@@ -2117,13 +2117,13 @@ public class CutMotionController extends GenericController<CutMotion>{
 								if (motion
 										.getInternalStatus()
 										.getType()
-										.equals(ApplicationConstants.MOTION_RECOMMEND_ADMISSION)) {
+										.equals(ApplicationConstants.CUTMOTION_RECOMMEND_ADMISSION)) {
 									recommendAdmission.append(motion
 											.formatNumber() + ",");
 								} else if (motion
 										.getInternalStatus()
 										.getType()
-										.equals(ApplicationConstants.MOTION_RECOMMEND_REJECTION)) {
+										.equals(ApplicationConstants.CUTMOTION_RECOMMEND_REJECTION)) {
 									recommendRejection.append(motion
 											.formatNumber() + ",");
 								}
@@ -2141,7 +2141,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 					recommendRejection.toString());
 		}
 		getBulkSubmissionMotions(model, request, locale.toString());
-		return "motion/cutmotion/bulksubmissionassistantview";
+		return "cutmotion/bulksubmissionassistantview";
 	}
 	
 	public void getBulkSubmissionMotions(final Model model,final HttpServletRequest request,final String locale){
@@ -2201,8 +2201,8 @@ public class CutMotionController extends GenericController<CutMotion>{
 	@RequestMapping(value="/{id}/details",method=RequestMethod.GET)
 	public String getDetails(@PathVariable("id")final Long id,
 			final Model model){
-		Motion motion=Motion.findById(Motion.class, id);
-		model.addAttribute("details",motion.getDetails());
-		return "motion/cutmotion/details";
+		CutMotion motion = CutMotion.findById(CutMotion.class, id);
+		model.addAttribute("details",motion.getNoticeContent());
+		return "cutmotion/details";
 	}	
 }
