@@ -2,6 +2,7 @@ package org.mkcl.els.repository;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -90,7 +92,7 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 				cutMotionRevisionVO.setEditedAs(userGroupType.getName());
 			}
 			cutMotionRevisionVO.setEditedBY(o[1].toString());
-			cutMotionRevisionVO.setEditedOn(o[2].toString());
+			cutMotionRevisionVO.setEditedOn(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[2].toString(), ApplicationConstants.DB_DATETIME_FORMAT), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 			cutMotionRevisionVO.setStatus(o[3].toString());
 			/**** Revision Control(Details and Subject) ****/
 			if(o1 != null){
@@ -152,7 +154,7 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		List<CutMotion> motions = new ArrayList<CutMotion>();
 		
 		try {
-			Status status = Status.findByFieldName(Status.class,"type",ApplicationConstants.MOTION_COMPLETE, locale);
+			Status status = Status.findByFieldName(Status.class,"type",ApplicationConstants.CUTMOTION_COMPLETE, locale);
 			String strQuery = "SELECT m FROM CutMotion cm"
 					+ " WHERE cm.session=:session"
 					+ " AND cm.primaryMember=:primaryMember" 
