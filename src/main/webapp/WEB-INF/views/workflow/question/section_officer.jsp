@@ -1380,10 +1380,30 @@
 	<form:textarea path="answer" cssClass="wysiwyg" readonly="true"></form:textarea>
 	</p>
 	</c:if>
+	<c:choose>
+		<c:when test="${(not empty domain.answer) and (fn:contains(allowedDeviceTypesForAnswerRelatedDates, selectedQuestionType))}">
+			<p>
+				<label class="small"><spring:message code="question.answerRequestedDate" text="Answer Requested Date"/></label>
+				<input id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+			</p>
+			<p>
+				<label class="small"><spring:message code="question.answerReceivedDate" text="Answer Received Date"/></label>
+				<input id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+			</p>
+		</c:when>
+		<c:otherwise>
+			<c:if test="${not empty formattedAnswerRequestedDate}">
+				<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+			</c:if>
+			<c:if test="${not empty formattedAnswerReceivedDate}">
+				<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+			</c:if>
+		</c:otherwise>
+	</c:choose>	
 	<c:if test="${!(empty isReanswered)}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.reanswer" text="Re-Answer"/></label>
-			<textarea id="reanswer" name="reanswer" class="wysiwyg" readonly="true">${isReanswered}</textarea>
+			<textarea id="reanswer" name="reanswer" class="wysiwyg" readonly="readonly">${isReanswered}</textarea>
 		</p>
 	</c:if>
 		

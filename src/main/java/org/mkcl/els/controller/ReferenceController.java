@@ -5433,6 +5433,37 @@ public class ReferenceController extends BaseController {
 	}
 	
 	
+	@RequestMapping(value="/findYaadiLayingDateForYaadi" ,method=RequestMethod.GET)
+	public @ResponseBody Reference findYaadiLayingDateForYaadi(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model) throws Exception {
+		String formattedYaadiLayingDate = null;
+		String sessionId = request.getParameter("sessionId");
+		String strYaadiNumber = request.getParameter("yaadiNumber");
+		if(sessionId!=null && strYaadiNumber!=null){
+			if(!sessionId.isEmpty() && !strYaadiNumber.isEmpty()){
+				CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+					if(csptServer.getValue().equals("TOMCAT")){
+						strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");							
+					}
+				}
+				Session session = Session.findById(Session.class, Long.parseLong(sessionId));
+				if(session==null) {
+					logger.error("**** Session not found with request parameter sessionId ****");
+					throw new ELSException();
+				}	
+				Integer yaadiNumber = (Integer) (FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strYaadiNumber).intValue());
+				Date yaadiLayingDate = Question.findYaadiLayingDateForYaadi(null, session, yaadiNumber, locale.toString());
+				if(yaadiLayingDate!=null) {
+					formattedYaadiLayingDate = FormaterUtil.formatDateToString(yaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+				} else {
+					formattedYaadiLayingDate = "-";
+				}
+			}
+		}		
+		return new Reference(formattedYaadiLayingDate, formattedYaadiLayingDate);
+	}
+
+	
 	@RequestMapping(value="motion/cutmotion/actors", method=RequestMethod.GET)
 	public @ResponseBody List<Reference> findCutMotionActors(final HttpServletRequest request,
 			final ModelMap model,

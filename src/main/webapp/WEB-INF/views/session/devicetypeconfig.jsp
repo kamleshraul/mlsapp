@@ -865,6 +865,32 @@
 				<p style="display: inline;">		
 					<input type="text" class="sText" name="questions_unstarred_numberOfSupportingMembers" id="questions_unstarred_numberOfSupportingMembers" value="${questions_unstarred_numberofsupportingmembers}" style="width: 62px" />
 				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_unstarred_yaadiNumberingParameter" text="Yaadi Numbering Parameter" /></label>
+					<select id="questions_unstarred_yaadiNumberingParameter" class="sSelect" name="questions_unstarred_yaadiNumberingParameter">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<c:choose>
+							<c:when test="${questions_unstarred_yaadinumberingparameter=='house'}">
+								<option value="house" selected="selected"><spring:message code='questions_unstarred_yaadiNumberingParameter.house' text='House'/></option>
+								<option value="session"><spring:message code='questions_unstarred_yaadiNumberingParameter.session' text='Session'/></option>
+							</c:when>
+							<c:when test="${questions_unstarred_yaadinumberingparameter=='session'}">
+								<option value="house"><spring:message code='questions_unstarred_yaadiNumberingParameter.house' text='House'/></option>
+								<option value="session" selected="selected"><spring:message code='questions_unstarred_yaadiNumberingParameter.session' text='Session'/></option>
+							</c:when>
+							<c:otherwise>
+								<option value="house"><spring:message code='questions_unstarred_yaadiNumberingParameter.house' text='House'/></option>
+								<option value="session"><spring:message code='questions_unstarred_yaadiNumberingParameter.session' text='Session'/></option>
+							</c:otherwise>
+						</c:choose>
+					</select>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_unstarred_numberOfQuestionsInYaadi" text="Number of Questions in Yaadi" /></label>
+					<input type="text" class="sInteger" name="questions_unstarred_numberOfQuestionsInYaadi" id="questions_unstarred_numberOfQuestionsInYaadi" value="${questions_unstarred_numberofquestionsinyaadi}" />
+				</p>
 			</div>
 		</c:if>
 		

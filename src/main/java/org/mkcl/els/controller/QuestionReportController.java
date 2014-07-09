@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -47,6 +48,7 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
+import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
@@ -567,10 +569,10 @@ public class QuestionReportController extends BaseController{
 					if(!errorMessage.getValue().isEmpty()) {
 						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
 					} else {
-						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 					}
 				} else {
-					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 				}
 
 				return;
@@ -952,13 +954,25 @@ public class QuestionReportController extends BaseController{
 						} else {
 							model.addAttribute("sessionId", session.getId());
 							Integer highestYaadiNumber = Question.findHighestYaadiNumber(null, session, locale.toString());
-							if(highestYaadiNumber!=null) {
+							if(highestYaadiNumber!=null) {								
 								model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber+1, locale.toString()));
 							}
-							model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+							List<String> yaadiLayingDates = new ArrayList<String>();
+							Calendar start = Calendar.getInstance();
+							start.setTime(session.getStartDate());
+							Calendar end = Calendar.getInstance();
+							end.setTime(session.getEndDate());
+							for (Calendar current=start; !current.after(end); current.add(Calendar.DATE, 1)) {
+								Date eligibleDate = current.getTime();								
+								yaadiLayingDates.add(FormaterUtil.formatDateToString(eligibleDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+							}
+							model.addAttribute("yaadiLayingDates", yaadiLayingDates);							
+							model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 							retVal = "question/reports/getUnstarredYaadiNumberAndDate";
 						}
 					}
+				} catch(ELSException e) {
+					model.addAttribute("error", e.getParameter("error"));		
 				} catch(Exception e) {
 					e.printStackTrace();
 					model.addAttribute("errorcode", "SOME_EXCEPTION_OCCURED");
@@ -977,23 +991,135 @@ public class QuestionReportController extends BaseController{
 		String sessionId = request.getParameter("sessionId");
 		String strYaadiNumber = request.getParameter("yaadiNumber");
 		String strYaadiLayingDate = request.getParameter("yaadiLayingDate");
+		String strChangedYaadiNumber = request.getParameter("changedYaadiNumber");
+		String strChangedYaadiLayingDate = request.getParameter("changedYaadiLayingDate");		
 		
 		if(sessionId!=null && strYaadiNumber!=null && strYaadiLayingDate!=null){
-			if(!sessionId.isEmpty() && !strYaadiNumber.isEmpty() && !strYaadiLayingDate.isEmpty()){
+			if(!sessionId.isEmpty() && !strYaadiNumber.isEmpty() && !strYaadiLayingDate.isEmpty() && !strYaadiLayingDate.equals("-")){
 				try {
 					CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
 						if(csptServer.getValue().equals("TOMCAT")){
 							strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
 							strYaadiLayingDate = new String(strYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");							
+							strChangedYaadiNumber = new String(strChangedYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
+							strChangedYaadiLayingDate = new String(strChangedYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");
 						}
 					}
 					Session session = Session.findById(Session.class, Long.parseLong(sessionId));
 					if(session==null) {
 						logger.error("**** Session not found with request parameter sessionId ****");
 						throw new ELSException();
+					}		
+					Integer yaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strYaadiNumber).intValue();
+					Date yaadiLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+					List<Question> totalQuestionsInYaadi = new ArrayList<Question>();
+					List<Question> existingQuestionsInYaadi = Question.findQuestionsInNumberedYaadi(null, session, yaadiNumber, yaadiLayingDate, locale.toString());
+					if(existingQuestionsInYaadi!=null&&!existingQuestionsInYaadi.isEmpty()) {
+						//Case 1: niether yaadi number nor yaadi laying date changed
+						if((strChangedYaadiNumber==null || strChangedYaadiNumber.isEmpty()) && (strChangedYaadiLayingDate==null || strChangedYaadiLayingDate.isEmpty() || strChangedYaadiLayingDate.equals("-"))) {
+							totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
+							if(yaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
+								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
+								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
+									for(Question question: newlyAddedQuestions) {		
+										question.setYaadiNumber(yaadiNumber);
+										question.setYaadiLayingDate(yaadiLayingDate);
+										question.simpleMerge();
+									}
+									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
+								}
+							}
+						} 
+						//Case 2: yaadi number changed but yaadi laying date did not change
+						else if((strChangedYaadiNumber!=null && !strChangedYaadiNumber.isEmpty()) && (strChangedYaadiLayingDate==null || strChangedYaadiLayingDate.isEmpty() || strChangedYaadiLayingDate.equals("-"))) {
+							Integer changedYaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strChangedYaadiNumber).intValue();
+							if(!Question.isYaadiOfGivenNumberExistingInSession(null, session, changedYaadiNumber, locale.toString())) {
+								for(Question question: existingQuestionsInYaadi) {
+									question.setYaadiNumber(changedYaadiNumber);
+									question.simpleMerge();
+								}
+								totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
+							} else {
+								logger.error("**** There is existing yaadi with number = " + changedYaadiNumber + " ****");
+								throw new ELSException();
+							}
+							if(changedYaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
+								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
+								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
+									for(Question question: newlyAddedQuestions) {		
+										question.setYaadiNumber(changedYaadiNumber);
+										question.setYaadiLayingDate(yaadiLayingDate);
+										question.simpleMerge();
+									}
+									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
+								}
+							}
+						}
+						//Case 3: yaadi number did not change but yaadi laying date changed
+						else if((strChangedYaadiNumber==null || strChangedYaadiNumber.isEmpty()) && (strChangedYaadiLayingDate!=null && !strChangedYaadiLayingDate.isEmpty() && !strChangedYaadiLayingDate.equals("-"))) {
+							Date changedYaadiLayingDate = FormaterUtil.formatStringToDate(strChangedYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+							for(Question question: existingQuestionsInYaadi) {
+								question.setYaadiLayingDate(changedYaadiLayingDate);
+								question.simpleMerge();
+							}		
+							totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
+							if(yaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
+								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
+								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
+									for(Question question: newlyAddedQuestions) {	
+										question.setYaadiNumber(yaadiNumber);
+										question.setYaadiLayingDate(changedYaadiLayingDate);
+										question.simpleMerge();
+									}
+									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
+								}
+							}
+						} 
+						//Case 4: both yaadi number & yaadi laying date changed
+						else {
+							Integer changedYaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strChangedYaadiNumber).intValue();
+							Date changedYaadiLayingDate = FormaterUtil.formatStringToDate(strChangedYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+							if(!Question.isYaadiOfGivenNumberExistingInSession(null, session, changedYaadiNumber, locale.toString())) {
+								for(Question question: existingQuestionsInYaadi) {
+									question.setYaadiNumber(changedYaadiNumber);
+									question.setYaadiLayingDate(changedYaadiLayingDate);
+									question.simpleMerge();
+								}
+								totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
+							} else {
+								logger.error("**** There is existing yaadi with number = " + changedYaadiNumber + " ****");
+								throw new ELSException();
+							}
+							if(changedYaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
+								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
+								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
+									for(Question question: newlyAddedQuestions) {		
+										question.setYaadiNumber(changedYaadiNumber);
+										question.setYaadiLayingDate(changedYaadiLayingDate);
+										question.simpleMerge();
+									}
+									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
+								}
+							}
+						}					
+					} else {
+						totalQuestionsInYaadi = Question.findQuestionsEligibleForNumberedYaadi(null, session, 0, locale.toString());
+						for(Question question: totalQuestionsInYaadi) {		
+							question.setYaadiNumber(yaadiNumber);
+							question.setYaadiLayingDate(yaadiLayingDate);
+							question.simpleMerge();
+						}
 					}
-					
+					Object[] reportData = QuestionReportHelper.prepareUnstarredYaadiData(session, totalQuestionsInYaadi, locale.toString());
+					/**** generate report ****/
+					if(!isError) {
+						reportFile = generateReportUsingFOP(reportData, "template_unstarredYaadi_report", "WORD", "unstarred_question_yaadi", locale.toString());
+						if(reportFile!=null) {
+							System.out.println("Report generated successfully in word format!");
+							openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+						}
+					}
 				} catch(Exception e) {
 					e.printStackTrace();
 					isError = true;					
@@ -1016,10 +1142,10 @@ public class QuestionReportController extends BaseController{
 					if(!errorMessage.getValue().isEmpty()) {
 						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
 					} else {
-						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 					}
 				} else {
-					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 				}
 
 				return;
@@ -1637,10 +1763,10 @@ public class QuestionReportController extends BaseController{
 					if(!errorMessage.getValue().isEmpty()) {
 						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
 					} else {
-						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 					}
 				} else {
-					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 				}
 
 				return;
@@ -1739,10 +1865,10 @@ public class QuestionReportController extends BaseController{
 					if(!errorMessage.getValue().isEmpty()) {
 						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
 					} else {
-						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 					}
 				} else {
-					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 				}
 
 				return;
@@ -1862,10 +1988,10 @@ public class QuestionReportController extends BaseController{
 					if(!errorMessage.getValue().isEmpty()) {
 						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
 					} else {
-						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 					}
 				} else {
-					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 				}
 
 				return;
@@ -1964,10 +2090,10 @@ public class QuestionReportController extends BaseController{
 					if(!errorMessage.getValue().isEmpty()) {
 						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
 					} else {
-						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 					}
 				} else {
-					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 				}
 
 				return;
@@ -2065,10 +2191,10 @@ public class QuestionReportController extends BaseController{
 					if(!errorMessage.getValue().isEmpty()) {
 						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
 					} else {
-						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 					}
 				} else {
-					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
 				}
 
 				return;
@@ -2490,5 +2616,148 @@ class QuestionReportHelper{
 			}
 		}		
 		return allMemberNamesBuffer.toString();		
+	}
+	
+	public static Object[] prepareUnstarredYaadiData(final Session session, final List<Question> totalQuestionsInYaadi, String locale) throws ELSException {
+		Object[] unstarredYaadiData = null;
+		/**** Session Related Data ****/
+		HouseType houseType = session.getHouse().getType();
+		String houseTypeName = houseType.getName();
+		String sessionNumber = session.getNumber().toString();
+		String sessionTypeName = session.getType().getSessionType();
+		String sessionYear = FormaterUtil.formatNumberNoGrouping(session.getYear(), locale.toString());
+		String sessionPlace = session.getPlace().getPlace();
+		/**** Questions Data ****/
+		String yaadiNumber = null;
+		List<Object[]> yaadiQuestions = new ArrayList<Object[]>();
+		int count=0;
+		for(Question q: totalQuestionsInYaadi) {
+			Object[] yaadiQuestion = new Object[15];
+			count++;
+			yaadiQuestion[0] = FormaterUtil.formatNumberNoGrouping(count, locale);
+			yaadiQuestion[1] = q.getId();
+			yaadiQuestion[2] = q.getNumber();
+			yaadiQuestion[3] = FormaterUtil.formatNumberNoGrouping(q.getNumber(), locale);
+			/**** member names ****/
+			String allMemberNames = "";	
+			String houseTypeType = houseType.getType();		
+			String memberNameFormat = null;
+			CustomParameter memberNameFormatParameter = CustomParameter.findByName(CustomParameter.class, "QIS_YADI_MEMBERNAMEFORMAT_"+houseTypeType.toUpperCase(), "");
+			if(memberNameFormatParameter!=null && memberNameFormatParameter.getValue()!=null && !memberNameFormatParameter.getValue().isEmpty()) {
+				memberNameFormat = memberNameFormatParameter.getValue();						
+			} else {
+				memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;
+			}
+			if(houseTypeType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				allMemberNames = q.findAllMemberNamesWithConstituencies(memberNameFormat);
+			} else {
+				allMemberNames = q.findAllMemberNames(memberNameFormat);
+			}
+			/**** add below commented code in case space between title & member name should be removed ****/
+//			if(allMemberNames!=null && !allMemberNames.isEmpty()) {
+//				List<Title> titles = Title.findAll(Title.class, "name", ApplicationConstants.ASC, locale);
+//				if(titles!=null && !titles.isEmpty()) {
+//					for(Title t: titles) {
+//						if(t.getName().trim().endsWith(".")) {
+//							allMemberNames = allMemberNames.replace(t.getName().trim()+" ", t.getName().trim());
+//						}
+//					}
+//				}
+//			}				
+			yaadiQuestion[4] = allMemberNames;
+			if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
+				yaadiQuestion[5] = FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale);
+			} else if(q.getSubject()!=null && !q.getSubject().isEmpty()) {
+				yaadiQuestion[5] = FormaterUtil.formatNumbersInGivenText(q.getSubject(), locale);
+			}
+			String content = q.getRevisedQuestionText();
+			if(content!=null && !content.isEmpty()) {
+				if(content.endsWith("<br><p></p>")) {
+					content = content.substring(0, content.length()-11);						
+				} else if(content.endsWith("<p></p>")) {
+					content = content.substring(0, content.length()-7);					
+				}
+				content = FormaterUtil.formatNumbersInGivenText(content, locale);				
+			} else {
+				content = q.getQuestionText();
+				if(content!=null && !content.isEmpty()) {
+					if(content.endsWith("<br><p></p>")) {
+						content = content.substring(0, content.length()-11);							
+					} else if(content.endsWith("<p></p>")) {
+						content = content.substring(0, content.length()-7);					
+					}
+					content = FormaterUtil.formatNumbersInGivenText(content, locale);					
+				}
+			}	
+			yaadiQuestion[6] = content;
+			String answer = q.getAnswer();
+			if(answer != null) {
+				if(answer.endsWith("<br><p></p>")) {
+					answer = answer.substring(0, answer.length()-11);						
+				} else if(answer.endsWith("<p></p>")) {
+					answer = answer.substring(0, answer.length()-7);					
+				}
+				answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
+			}				
+			yaadiQuestion[7] = answer;
+			Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
+			if(answeringMember != null){
+				yaadiQuestion[8] = answeringMember.findNameInGivenFormat(memberNameFormat);
+			}
+			yaadiQuestion[9] = q.getSubDepartment().getName();
+			try {
+				MemberMinister memberMinister = Question.findMemberMinisterIfExists(q);
+				if(memberMinister!=null) {
+					yaadiQuestion[10] = memberMinister.getDesignation().getName();
+				} else {
+					yaadiQuestion[10] = "";
+				}
+			} catch(ELSException ex) {
+				yaadiQuestion[10] = "";
+			}
+			/** referenced question details (later should come through referenced entities) **/
+			String questionReferenceText = q.getQuestionreferenceText();
+			if(questionReferenceText!=null) {
+				questionReferenceText = FormaterUtil.formatNumbersInGivenText(questionReferenceText, locale);
+				yaadiQuestion[11] = questionReferenceText;
+			} else {
+				yaadiQuestion[11] = "";
+			}
+			/** answer related dates **/
+			SimpleDateFormat answerRelatedDateFormat = null;
+			CustomParameter answerRelatedDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "UNSTARRED_YAADI_ANSWER_RELATED_DATE_FORMAT", "");
+			if(answerRelatedDateFormatParameter!=null) {
+				answerRelatedDateFormat=FormaterUtil.getDateFormatter(answerRelatedDateFormatParameter.getValue(), locale.toString());
+			} else {
+				answerRelatedDateFormat=FormaterUtil.getDateFormatter(ApplicationConstants.REPORT_DATEFORMAT, locale.toString());
+			}
+			if(q.getAnswerRequestedDate()!=null) {
+				yaadiQuestion[12] = answerRelatedDateFormat.format(q.getAnswerRequestedDate());
+			} else {
+				yaadiQuestion[12] = "";
+			}
+			if(q.getAnswerReceivedDate()!=null) {
+				yaadiQuestion[13] = answerRelatedDateFormat.format(q.getAnswerReceivedDate());
+			} else {
+				yaadiQuestion[13] = "";
+			}
+			if(yaadiNumber==null) {
+				if(q.getYaadiNumber()!=null) {
+					yaadiNumber = FormaterUtil.formatNumberNoGrouping(q.getYaadiNumber(), locale);
+				} else {
+					yaadiNumber = "";
+				}
+			}
+			//-----------------------------------------------
+			yaadiQuestions.add(yaadiQuestion);
+		}
+		String totalNumberOfYaadiQuestions = FormaterUtil.formatNumberNoGrouping(yaadiQuestions.size(), locale.toString());
+		Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
+		List<User> users = User.findByRole(false, role.getName(), locale.toString());
+		//as principal secretary for unstarred question is only one, so user is obviously first element of the list.
+		String userName = users.get(0).findFirstLastName();
+		
+		unstarredYaadiData = new Object[]{yaadiQuestions, totalNumberOfYaadiQuestions, houseTypeName, sessionNumber, sessionTypeName, sessionYear, sessionPlace, userName, yaadiNumber};
+		return unstarredYaadiData;
 	}
 }

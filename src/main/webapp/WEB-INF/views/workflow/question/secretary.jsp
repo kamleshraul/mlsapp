@@ -1236,6 +1236,12 @@
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
 	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
 	<input id="ballotStatus" name="ballotStatus" value="${domain.ballotStatus.id}" type="hidden">
+	<c:if test="${not empty formattedAnswerRequestedDate}">
+		<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+	</c:if>
+	<c:if test="${not empty formattedAnswerReceivedDate}">
+		<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 			<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${referredQuestionNumber}" />

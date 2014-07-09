@@ -1088,6 +1088,12 @@
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
 	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
+	<c:if test="${not empty formattedAnswerRequestedDate}">
+		<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+	</c:if>
+	<c:if test="${not empty formattedAnswerReceivedDate}">
+		<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+	</c:if>
 	
 	<!-- --------------------------PROCESS VARIABLES -------------------------------- -->
 	

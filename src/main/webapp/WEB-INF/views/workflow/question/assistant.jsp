@@ -1194,6 +1194,27 @@
 		</p>
 	</c:if>
 	
+	<c:choose>
+		<c:when test="${(not empty domain.answer) and (fn:contains(allowedDeviceTypesForAnswerRelatedDates, selectedQuestionType))}">
+			<p>
+				<label class="small"><spring:message code="question.answerRequestedDate" text="Answer Requested Date"/></label>
+				<input id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+			</p>
+			<p>
+				<label class="small"><spring:message code="question.answerReceivedDate" text="Answer Received Date"/></label>
+				<input id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+			</p>
+		</c:when>
+		<c:otherwise>
+			<c:if test="${not empty formattedAnswerRequestedDate}">
+				<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+			</c:if>
+			<c:if test="${not empty formattedAnswerReceivedDate}">
+				<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+			</c:if>
+		</c:otherwise>
+	</c:choose>
+	
 	<select id="internalStatusMaster" style="display:none;">
 	<c:forEach items="${internalStatuses}" var="i">
 	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
@@ -1267,7 +1288,7 @@
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">			
 	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
-	
+		
 	<!-- --------------------------PROCESS VARIABLES -------------------------------- -->
 	
 	<input id="mailflag" name="mailflag" value="${pv_mailflag}" type="hidden">

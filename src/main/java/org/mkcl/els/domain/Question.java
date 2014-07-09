@@ -362,6 +362,14 @@ public class Question extends Device implements Serializable {
     private Date lastDateOfFactualPositionReceiving;
     
     private Integer numberOfDaysForFactualPositionReceiving;
+    
+    /** The date of answer requested to department. */
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date answerRequestedDate;
+    
+    /** The date of answer received from department. */
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date answerReceivedDate;
     	   
     /** The question repository. */
     @Autowired
@@ -1988,8 +1996,24 @@ public class Question extends Device implements Serializable {
 		return getQuestionRepository().isAdmittedThroughNameClubbing(question);		
 	}
 	
-	public static Integer findHighestYaadiNumber(final DeviceType deviceType, final Session session, final String locale) {
+	public static Integer findHighestYaadiNumber(final DeviceType deviceType, final Session session, final String locale) throws ELSException {
 		return getQuestionRepository().findHighestYaadiNumber(deviceType, session, locale);
+	}
+	
+	public static List<Question> findQuestionsInNumberedYaadi(final DeviceType deviceType, final Session session, final Integer yaadiNumber, final Date yaadiLayingDate, final String locale) {
+		return getQuestionRepository().findQuestionsInNumberedYaadi(deviceType, session, yaadiNumber, yaadiLayingDate, locale);
+	}
+	
+	public static Date findYaadiLayingDateForYaadi(final DeviceType deviceType, final Session session, final Integer yaadiNumber, final String locale) throws ELSException {
+		return getQuestionRepository().findYaadiLayingDateForYaadi(deviceType, session, yaadiNumber, locale);
+	}
+	
+	public static List<Question> findQuestionsEligibleForNumberedYaadi(final DeviceType deviceType, final Session session, final Integer numberOfQuestionsSetInYaadi, final String locale) throws ELSException {
+		return getQuestionRepository().findQuestionsEligibleForNumberedYaadi(deviceType, session, numberOfQuestionsSetInYaadi, locale);
+	}
+	
+	public static boolean isYaadiOfGivenNumberExistingInSession(final DeviceType deviceType, final Session session, final Integer yaadiNumber, final String locale) throws ELSException {
+		return getQuestionRepository().isYaadiOfGivenNumberExistingInSession(deviceType, session, yaadiNumber, locale);
 	}
 	 
 	/**** Getters and Setters ****/
@@ -2473,6 +2497,12 @@ public class Question extends Device implements Serializable {
 	public Date getLastDateOfFactualPositionReceiving() {
 		return lastDateOfFactualPositionReceiving;
 	}
+	
+	
+	public void setLastDateOfFactualPositionReceiving(Date lastDateOfFactualPositionReceiving) {
+		this.lastDateOfFactualPositionReceiving = lastDateOfFactualPositionReceiving;
+	}	
+	
 
 	public Integer getNumberOfDaysForFactualPositionReceiving() {
 		return numberOfDaysForFactualPositionReceiving;
@@ -2484,6 +2514,27 @@ public class Question extends Device implements Serializable {
 		this.numberOfDaysForFactualPositionReceiving = numberOfDaysForFactualPositionReceiving;
 	}
 	
+	
+	public Date getAnswerRequestedDate() {
+		return answerRequestedDate;
+	}
+	
+
+	public void setAnswerRequestedDate(Date answerRequestedDate) {
+		this.answerRequestedDate = answerRequestedDate;
+	}
+	
+
+	public Date getAnswerReceivedDate() {
+		return answerReceivedDate;
+	}
+	
+
+	public void setAnswerReceivedDate(Date answerReceivedDate) {
+		this.answerReceivedDate = answerReceivedDate;
+	}
+	
+
 	public ReferencedEntity getReferencedHDS() {
 		return referencedHDS;
 	}
@@ -2494,11 +2545,6 @@ public class Question extends Device implements Serializable {
 	}
 
 
-	public void setLastDateOfFactualPositionReceiving(
-			Date lastDateOfFactualPositionReceiving) {
-		this.lastDateOfFactualPositionReceiving = lastDateOfFactualPositionReceiving;
-	}
-	
 	public String getWorkflowStarted() {
 		return workflowStarted;
 	}

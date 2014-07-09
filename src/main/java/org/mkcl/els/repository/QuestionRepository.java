@@ -2946,7 +2946,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return false;
 	}
 	
-	public Integer findHighestYaadiNumber(final DeviceType deviceType, final Session session, final String locale) {
+	public Integer findHighestYaadiNumber(final DeviceType deviceType, final Session session, final String locale) throws ELSException {
 		Integer highestYaadiNumber = null;
 		if(session!=null) {			
 			String deviceTypeString = null;
@@ -2957,17 +2957,24 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			}
 			String queryString = "SELECT MAX(q.yaadiNumber) FROM Question q"
 						+ " WHERE q.type.type='"+deviceTypeString+"'"
-						+ " AND q.yaadiNumber IS NOT NULL";
+						+ " AND q.yaadiNumber IS NOT NULL"
+						+ " AND q.session.house.id="+session.getHouse().getId();
 			String yaadiNumberingParameter = session.getParameter(deviceTypeString + "_" + "yaadiNumberingParameter");
-			if(yaadiNumberingParameter!=null && yaadiNumberingParameter.equals("session")) {
-				queryString += " AND q.session.house.type.type='"+session.getHouse().getType().getType()+"'";
-				queryString += " AND q.yaadiLayingDate>="+session.getStartDate();
-				queryString += " AND q.yaadiLayingDate<="+session.getEndDate();
-			} else if(yaadiNumberingParameter!=null && yaadiNumberingParameter.equals("house")) {
-				queryString += " AND q.session.id IN (SELECT s.id FROM Session s WHERE s.house.id="+session.getHouse().getId()+")";
-			}			
+			if(yaadiNumberingParameter!=null) {
+				if(yaadiNumberingParameter.equals("session")) {
+					queryString += " AND q.yaadiLayingDate>="+session.getStartDate();
+					queryString += " AND q.yaadiLayingDate<="+session.getEndDate();
+				}				
+			} else {
+				logger.error("**** Session parameter 'yaadiNumberingParameter' is not set for session with ID = " + session.getId() +". ****");
+				throw new ELSException("error", "question.yaadiNumberingParameterNotSet");
+			}
 			queryString += " AND q.locale='"+locale+"'";
-			highestYaadiNumber = (Integer) this.em().createQuery(queryString).getSingleResult();
+			try {
+				highestYaadiNumber = this.em().createQuery(queryString, Integer.class).getSingleResult();
+			} catch(Exception e) {
+				highestYaadiNumber = 0;
+			}	
 			if(highestYaadiNumber==null) {
 				highestYaadiNumber = 0;
 			}
@@ -2975,7 +2982,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return highestYaadiNumber;
 	}
 	
-	public List<Question> findQuestionsFromYaadi(final DeviceType deviceType, final Session session, final Integer yaadiNumber,  final String locale) {
+	public List<Question> findQuestionsInNumberedYaadi(final DeviceType deviceType, final Session session, final Integer yaadiNumber, final Date yaadiLayingDate, final String locale) {
 		List<Question> questions = null;
 		if(session!=null) {
 			String deviceTypeString = null;
@@ -2986,8 +2993,89 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			}
 			String queryString = "SELECT q FROM Question q"
 					+ " WHERE q.type.type='"+deviceTypeString+"'"
-					+ " AND q.yaadiNumber="+yaadiNumber;
+					+ " AND q.session.house.id="+session.getHouse().getId()
+					+ " AND q.yaadiNumber="+yaadiNumber
+					+ " AND q.yaadiLayingDate=:yaadiLayingDate"
+					+ " AND q.locale='"+locale+"'"
+					+ " ORDER BY q.number";			
+			questions = this.em().createQuery(queryString, Question.class).setParameter("yaadiLayingDate",yaadiLayingDate).getResultList();
 		}
 		return questions;
+	}
+	
+	public Date findYaadiLayingDateForYaadi(final DeviceType deviceType, final Session session, final Integer yaadiNumber, final String locale) throws ELSException {
+		Date yaadiLayingDate = null;
+		if(session!=null) {
+			String deviceTypeString = null;
+			if(deviceType==null) {
+				deviceTypeString = ApplicationConstants.UNSTARRED_QUESTION;
+			} else {
+				deviceTypeString = deviceType.getType();
+			}
+			String queryString = "SELECT q.yaadiLayingDate FROM Question q"
+					+ " WHERE q.type.type='"+deviceTypeString+"'"
+					+ " AND q.session.house.id="+session.getHouse().getId()
+					+ " AND q.yaadiNumber="+yaadiNumber;	
+			String yaadiNumberingParameter = session.getParameter(deviceTypeString + "_" + "yaadiNumberingParameter");
+			if(yaadiNumberingParameter!=null) {
+				if(yaadiNumberingParameter.equals("session")) {
+					queryString += " AND q.yaadiLayingDate>="+session.getStartDate();
+					queryString += " AND q.yaadiLayingDate<="+session.getEndDate();
+				}				
+			} else {
+				logger.error("**** Session parameter 'yaadiNumberingParameter' is not set for session with ID = " + session.getId() +". ****");
+				throw new ELSException("error", "question.yaadiNumberingParameterNotSet");
+			}
+			queryString += " AND q.locale='"+locale+"'";
+			queryString += " ORDER BY q.number";
+			try {
+				yaadiLayingDate = this.em().createQuery(queryString, Date.class).setMaxResults(1).getSingleResult();
+			} catch(Exception e) {
+				yaadiLayingDate = null;
+			}
+		}
+		return yaadiLayingDate;
+	}
+	
+	public List<Question> findQuestionsEligibleForNumberedYaadi(final DeviceType deviceType, final Session session, final Integer numberOfQuestionsSetInYaadi, final String locale) throws ELSException {
+		List<Question> questions = null;
+		if(session!=null) {
+			String deviceTypeString = null;
+			if(deviceType==null) {
+				deviceTypeString = ApplicationConstants.UNSTARRED_QUESTION;
+			} else {
+				deviceTypeString = deviceType.getType();
+			}
+			String queryString = "SELECT q FROM Question q"
+					+ " WHERE q.type.type='"+deviceTypeString+"'"
+					+ " AND q.session.house.id="+session.getHouse().getId()
+					+ " AND q.yaadiNumber IS NULL"
+					+ " AND q.yaadiLayingDate IS NULL"
+					+ " AND q.status.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"'"
+					+ " AND q.answer IS NOT NULL"
+					+ " AND q.locale='"+locale+"'"
+					+ " ORDER BY q.number";
+			String numberOfQuestionsInYaadiParameter = session.getParameter(deviceTypeString + "_" + "numberOfQuestionsInYaadi");
+			if(numberOfQuestionsInYaadiParameter!=null) {
+				Integer numberOfQuestionsInYaadi = Integer.parseInt(numberOfQuestionsInYaadiParameter);
+				questions = this.em().createQuery(queryString, Question.class)
+								.setMaxResults(numberOfQuestionsInYaadi-numberOfQuestionsSetInYaadi).getResultList();
+				if(questions==null) {
+					questions = new ArrayList<Question>();
+				}
+			} else {
+				logger.error("**** Session parameter 'numberOfQuestionsInYaadi' is not set for session with ID = " + session.getId() +". ****");
+				throw new ELSException("error", "question.numberOfQuestionsInYaadiParameterNotSet");
+			}			
+		}
+		return questions;
+	}
+	
+	public boolean isYaadiOfGivenNumberExistingInSession(final DeviceType deviceType, final Session session, final Integer yaadiNumber, final String locale) throws ELSException {
+		boolean isYaadiOfGivenNumberExistingInSession = false;
+		if(this.findYaadiLayingDateForYaadi(deviceType, session, yaadiNumber, locale)!=null) {
+			isYaadiOfGivenNumberExistingInSession = true;
+		}
+		return isYaadiOfGivenNumberExistingInSession;
 	}
 }

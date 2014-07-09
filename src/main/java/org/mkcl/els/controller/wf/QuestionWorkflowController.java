@@ -903,6 +903,22 @@ public class QuestionWorkflowController  extends BaseController{
 		
 		/****Level for RevisedDraft workflow****/
 		model.addAttribute("revisedDraftInitialLevel",1);
+		
+		/**** Answer related Dates ****/
+		String allowedDeviceTypesForAnswerRelatedDates = "";
+		CustomParameter deviceTypesForAnswerRelatedDates = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_FOR_ANSWER_RELATED_DATES", locale.toString());
+		if(deviceTypesForAnswerRelatedDates!=null) {
+			allowedDeviceTypesForAnswerRelatedDates = deviceTypesForAnswerRelatedDates.getValue();
+		} else {
+			allowedDeviceTypesForAnswerRelatedDates = ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION;
+		}
+		model.addAttribute("allowedDeviceTypesForAnswerRelatedDates", allowedDeviceTypesForAnswerRelatedDates);
+		if(domain.getAnswerRequestedDate()!=null) {
+			model.addAttribute("formattedAnswerRequestedDate", FormaterUtil.formatDateToString(domain.getAnswerRequestedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+		}
+		if(domain.getAnswerReceivedDate()!=null) {
+			model.addAttribute("formattedAnswerReceivedDate", FormaterUtil.formatDateToString(domain.getAnswerReceivedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+		}
 	}
 
 	private void populateInternalStatus(final ModelMap model,final Question domain,final String locale) {
@@ -1401,7 +1417,41 @@ public class QuestionWorkflowController  extends BaseController{
 					e.printStackTrace();
 				}
 			}
-
+			
+			/**** answer related dates ****/
+			String allowedDeviceTypes = "";
+			CustomParameter deviceTypesForAnswerRelatedDates = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_FOR_ANSWER_RELATED_DATES", locale.toString());
+			if(deviceTypesForAnswerRelatedDates!=null) {
+				allowedDeviceTypes = deviceTypesForAnswerRelatedDates.getValue();
+			} else {
+				allowedDeviceTypes = ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION;
+			}
+			if(allowedDeviceTypes.contains(domain.getType().getType())) {
+				SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
+				String strAnswerRequestedDate = request.getParameter("setAnswerRequestedDate");
+				if(strAnswerRequestedDate!=null && !strAnswerRequestedDate.isEmpty()) {
+					if(dateTimeFormat!=null) {						
+						domain.setAnswerRequestedDate(format.parse(strAnswerRequestedDate));
+					}					
+				}
+				String strAnswerReceivedDate = request.getParameter("setAnswerReceivedDate");
+				if(strAnswerReceivedDate!=null && !strAnswerReceivedDate.isEmpty()) {
+					if(dateTimeFormat!=null) {
+						domain.setAnswerReceivedDate(format.parse(strAnswerReceivedDate));
+					}					
+				}
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+						&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+						&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
+						&& domain.getAnswer()==null) {
+					domain.setAnswerRequestedDate(new Date());
+				}
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+						&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+						&& domain.getAnswer()!=null && domain.getAnswerReceivedDate()==null) {					
+					domain.setAnswerReceivedDate(new Date());
+				}
+			}						
 
 			/**** setting the date of factual position receiving. ****/
 			userGroupType=workflowDetails.getAssigneeUserGroupType();

@@ -555,7 +555,7 @@
 				 	   + "&usergroup=" + $("#currentusergroup").val()
 					   + "&usergroupType=" + $("#currentusergroupType").val();
 		$.get('question/report/generateUnstarredYaadiReport/getUnstarredYaadiNumberAndDate?'+parameters, function(data) {
-			$.fancybox.open(data,{autoSize:false,width:400,height:300});
+			$.fancybox.open(data,{autoSize:false,width:400,height:270});
 		},'html').fail(function(){				
 			if($("#ErrorMsg").val()!=''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
