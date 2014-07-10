@@ -508,6 +508,9 @@
 	        return false;  
 	    });  
 		
+		$("#ministry option[selected!='selected']").hide();
+		$("#department option[selected!='selected']").hide();
+		$("#subDepartment option[selected!='selected']").hide();
 		$("#actorDiv").hide();
 	});
 	</script>

@@ -509,6 +509,10 @@
 	    });  
 		
 		$("#actorDiv").hide();
+		
+		$("#ministry option[selected!='selected']").hide();
+		$("#department option[selected!='selected']").hide();
+		$("#subDepartment option[selected!='selected']").hide();
 	});
 	</script>
 	 <style type="text/css">

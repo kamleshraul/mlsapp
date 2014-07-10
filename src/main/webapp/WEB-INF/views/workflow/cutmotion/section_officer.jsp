@@ -521,6 +521,10 @@
 	        return false;  
 	    });  
 		
+		$("#ministry option[selected!='selected']").hide();
+		$("#department option[selected!='selected']").hide();
+		$("#subDepartment option[selected!='selected']").hide();
+		
 		if($('#workflowstatus').val()!='COMPLETED'){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
