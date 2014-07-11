@@ -119,25 +119,24 @@
 									सातवे
 								</xsl:when>
 							</xsl:choose>
-							<xsl:if test="element_3='विधानसभा'">(<xsl:value-of select="element_5"/>)</xsl:if>
+							<xsl:if test="element_3='विधानपरिषद'">(<xsl:value-of select="element_5"/>)</xsl:if>
 							अधिवेशन, <xsl:value-of select="element_6"/>																								
 						</fo:block>		
-						<fo:block font-size="2px">&#160;</fo:block>
-						<fo:block text-align="center" font-weight="bold" font-size="7pt">
-							-------------------------------
-						</fo:block>	
-						<fo:block font-size="1px">&#160;</fo:block>	                	
+						<fo:block font-size="5px">&#160;</fo:block>													
+						<fo:block text-align="center" font-size="1pt">
+							<fo:external-graphic src="../../../src/main/webapp/resources/images/line.JPG" content-width="1.90cm" />
+						</fo:block>						
+						<fo:block font-size="4px">&#160;</fo:block>	                	
 	                	<fo:block text-align="center" font-size="11pt" font-weight="bold">
 	                		अतारांकित प्रश्नोत्तरांची यादी
 	                	</fo:block>	                		                	           	
 	                	<fo:block text-align="center" font-size="7pt" font-weight="bold">
 	                		<fo:block font-size="9pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="element_2"/></fo:block>
-	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->	                		
 	                	</fo:block>
-	                	<fo:block font-size="2px">&#160;</fo:block>
-	                	<fo:block text-align="center" font-size="7pt" font-weight="bold">
-	                		-------------------------------
-	                	</fo:block>
+	                	<fo:block font-size="4.5px">&#160;</fo:block>
+	                	<fo:block text-align="center" font-size="1pt">
+							<fo:external-graphic src="../../../src/main/webapp/resources/images/line.JPG" content-width="1.90cm" />
+						</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<xsl:for-each select="./element_1" >
 	                		<fo:block text-align="center" font-size="9pt" font-weight="bold">
@@ -145,8 +144,7 @@
 	                		</fo:block>
 	                		<fo:block font-size="5pt">&#160;</fo:block>
 	                		<fo:block font-weight="bold">	                			
-                				(<xsl:value-of select="element_1_1"/>)
-                				<fo:inline vertical-align="super" font-size="15pt">*</fo:inline>
+                				(<xsl:value-of select="element_1_1"/>)                				
                 				&#160;<xsl:value-of select="element_1_4"/> (<xsl:value-of select="element_1_13"/>).
                 				&#160;&#160;<xsl:value-of select="element_1_5"/>&#160;:&#160;
                 				<xsl:if test="questionReferenceText!=''">
@@ -185,10 +183,10 @@
 	                				</xsl:otherwise>
 	                			</xsl:choose>	                			
 	                		</fo:block>
-	                		<!-- <fo:block font-size="9pt">&#160;</fo:block> -->
-	                		<fo:block text-align="center">
-	                			-----------------
-	                		</fo:block>
+	                		<fo:block font-size="4.5pt">&#160;</fo:block>
+	                		<fo:block text-align="center" font-size="1pt">
+								<fo:external-graphic src="../../../src/main/webapp/resources/images/line.JPG" content-width="1.90cm" />
+							</fo:block>
 	                		<fo:block font-size="9pt">&#160;</fo:block>
 	                	</xsl:for-each>
 	                	<fo:block font-size="12pt">&#160;</fo:block>

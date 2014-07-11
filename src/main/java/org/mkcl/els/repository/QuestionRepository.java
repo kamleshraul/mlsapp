@@ -2956,22 +2956,30 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				deviceTypeString = deviceType.getType();
 			}
 			String queryString = "SELECT MAX(q.yaadiNumber) FROM Question q"
-						+ " WHERE q.type.type='"+deviceTypeString+"'"
+						+ " WHERE q.type.type=:deviceTypeString"
 						+ " AND q.yaadiNumber IS NOT NULL"
-						+ " AND q.session.house.id="+session.getHouse().getId();
+						+ " AND q.session.house.id=:houseId";
 			String yaadiNumberingParameter = session.getParameter(deviceTypeString + "_" + "yaadiNumberingParameter");
 			if(yaadiNumberingParameter!=null) {
 				if(yaadiNumberingParameter.equals("session")) {
-					queryString += " AND q.yaadiLayingDate>="+session.getStartDate();
-					queryString += " AND q.yaadiLayingDate<="+session.getEndDate();
+					queryString += " AND q.yaadiLayingDate>=:sessionStartDate";
+					queryString += " AND q.yaadiLayingDate<=:sessionEndDate";
 				}				
 			} else {
 				logger.error("**** Session parameter 'yaadiNumberingParameter' is not set for session with ID = " + session.getId() +". ****");
 				throw new ELSException("error", "question.yaadiNumberingParameterNotSet");
 			}
-			queryString += " AND q.locale='"+locale+"'";
+			queryString += " AND q.locale=:locale";
 			try {
-				highestYaadiNumber = this.em().createQuery(queryString, Integer.class).getSingleResult();
+				TypedQuery<Integer> query = this.em().createQuery(queryString, Integer.class);
+				query.setParameter("houseId", session.getHouse().getId());
+				query.setParameter("deviceTypeString", deviceTypeString);
+				if(yaadiNumberingParameter.equals("session")) {
+					query.setParameter("sessionStartDate", session.getStartDate());
+					query.setParameter("sessionEndDate", session.getEndDate());
+				}				
+				query.setParameter("locale", locale);
+				highestYaadiNumber = query.getSingleResult();
 			} catch(Exception e) {
 				highestYaadiNumber = 0;
 			}	
@@ -2992,13 +3000,19 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				deviceTypeString = deviceType.getType();
 			}
 			String queryString = "SELECT q FROM Question q"
-					+ " WHERE q.type.type='"+deviceTypeString+"'"
-					+ " AND q.session.house.id="+session.getHouse().getId()
-					+ " AND q.yaadiNumber="+yaadiNumber
+					+ " WHERE q.type.type=:deviceTypeString"
+					+ " AND q.session.house.id=:houseId"
+					+ " AND q.yaadiNumber=:yaadiNumber"
 					+ " AND q.yaadiLayingDate=:yaadiLayingDate"
-					+ " AND q.locale='"+locale+"'"
-					+ " ORDER BY q.number";			
-			questions = this.em().createQuery(queryString, Question.class).setParameter("yaadiLayingDate",yaadiLayingDate).getResultList();
+					+ " AND q.locale=:locale"
+					+ " ORDER BY q.number";		
+			TypedQuery<Question> query = this.em().createQuery(queryString, Question.class);
+			query.setParameter("houseId", session.getHouse().getId());
+			query.setParameter("deviceTypeString", deviceTypeString);				
+			query.setParameter("yaadiNumber", yaadiNumber);
+			query.setParameter("yaadiLayingDate",yaadiLayingDate);
+			query.setParameter("locale", locale);
+			questions = query.getResultList();
 		}
 		return questions;
 	}
@@ -3013,23 +3027,32 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				deviceTypeString = deviceType.getType();
 			}
 			String queryString = "SELECT q.yaadiLayingDate FROM Question q"
-					+ " WHERE q.type.type='"+deviceTypeString+"'"
-					+ " AND q.session.house.id="+session.getHouse().getId()
-					+ " AND q.yaadiNumber="+yaadiNumber;	
+					+ " WHERE q.type.type=:deviceTypeString"
+					+ " AND q.session.house.id=:houseId"
+					+ " AND q.yaadiNumber=:yaadiNumber";
 			String yaadiNumberingParameter = session.getParameter(deviceTypeString + "_" + "yaadiNumberingParameter");
 			if(yaadiNumberingParameter!=null) {
 				if(yaadiNumberingParameter.equals("session")) {
-					queryString += " AND q.yaadiLayingDate>="+session.getStartDate();
-					queryString += " AND q.yaadiLayingDate<="+session.getEndDate();
+					queryString += " AND q.yaadiLayingDate>=:sessionStartDate";
+					queryString += " AND q.yaadiLayingDate<=:sessionEndDate";
 				}				
 			} else {
 				logger.error("**** Session parameter 'yaadiNumberingParameter' is not set for session with ID = " + session.getId() +". ****");
 				throw new ELSException("error", "question.yaadiNumberingParameterNotSet");
 			}
-			queryString += " AND q.locale='"+locale+"'";
+			queryString += " AND q.locale=:locale";
 			queryString += " ORDER BY q.number";
 			try {
-				yaadiLayingDate = this.em().createQuery(queryString, Date.class).setMaxResults(1).getSingleResult();
+				TypedQuery<Date> query = this.em().createQuery(queryString, Date.class);
+				query.setParameter("houseId", session.getHouse().getId());
+				query.setParameter("deviceTypeString", deviceTypeString);				
+				if(yaadiNumberingParameter.equals("session")) {
+					query.setParameter("sessionStartDate", session.getStartDate());
+					query.setParameter("sessionEndDate", session.getEndDate());
+				}
+				query.setParameter("yaadiNumber", yaadiNumber);
+				query.setParameter("locale", locale);
+				yaadiLayingDate = query.getSingleResult();
 			} catch(Exception e) {
 				yaadiLayingDate = null;
 			}
@@ -3047,19 +3070,24 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				deviceTypeString = deviceType.getType();
 			}
 			String queryString = "SELECT q FROM Question q"
-					+ " WHERE q.type.type='"+deviceTypeString+"'"
-					+ " AND q.session.house.id="+session.getHouse().getId()
+					+ " WHERE q.type.type=:deviceTypeString"
+					+ " AND q.session.house.id=:houseId"
 					+ " AND q.yaadiNumber IS NULL"
 					+ " AND q.yaadiLayingDate IS NULL"
-					+ " AND q.status.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"'"
+					+ " AND q.status.type=:admissionStatusType"
 					+ " AND q.answer IS NOT NULL"
-					+ " AND q.locale='"+locale+"'"
+					+ " AND q.locale=:locale"
 					+ " ORDER BY q.number";
 			String numberOfQuestionsInYaadiParameter = session.getParameter(deviceTypeString + "_" + "numberOfQuestionsInYaadi");
 			if(numberOfQuestionsInYaadiParameter!=null) {
 				Integer numberOfQuestionsInYaadi = Integer.parseInt(numberOfQuestionsInYaadiParameter);
-				questions = this.em().createQuery(queryString, Question.class)
-								.setMaxResults(numberOfQuestionsInYaadi-numberOfQuestionsSetInYaadi).getResultList();
+				TypedQuery<Question> query = this.em().createQuery(queryString, Question.class);
+				query.setParameter("houseId", session.getHouse().getId());
+				query.setParameter("deviceTypeString", deviceTypeString);		
+				query.setParameter("admissionStatusType", ApplicationConstants.QUESTION_FINAL_ADMISSION);				
+				query.setParameter("locale", locale);
+				questions = query.setMaxResults(numberOfQuestionsInYaadi-numberOfQuestionsSetInYaadi)
+									.getResultList();
 				if(questions==null) {
 					questions = new ArrayList<Question>();
 				}
@@ -3077,5 +3105,61 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			isYaadiOfGivenNumberExistingInSession = true;
 		}
 		return isYaadiOfGivenNumberExistingInSession;
+	}
+	
+	public boolean isNumberedYaadiFilled(final DeviceType deviceType, final Session session, final Integer yaadiNumber, final String locale) throws ELSException {
+		boolean isNumberedYaadiFilled = false;		
+		if(session!=null) {
+			Long questionsFilledInYaadiCount = null;
+			String deviceTypeString = null;
+			if(deviceType==null) {
+				deviceTypeString = ApplicationConstants.UNSTARRED_QUESTION;
+			} else {
+				deviceTypeString = deviceType.getType();
+			}
+			String queryString = "SELECT COUNT(q.id) FROM Question q"
+					+ " WHERE q.type.type=:deviceTypeString"
+					+ " AND q.session.house.id=:houseId"
+					+ " AND q.yaadiNumber=:yaadiNumber";
+			String yaadiNumberingParameter = session.getParameter(deviceTypeString + "_" + "yaadiNumberingParameter");
+			if(yaadiNumberingParameter!=null) {
+				if(yaadiNumberingParameter.equals("session")) {
+					queryString += " AND q.yaadiLayingDate>=:sessionStartDate";
+					queryString += " AND q.yaadiLayingDate<=:sessionEndDate";
+				}				
+			} else {
+				logger.error("**** Session parameter 'yaadiNumberingParameter' is not set for session with ID = " + session.getId() +". ****");
+				throw new ELSException("error", "question.yaadiNumberingParameterNotSet");
+			}
+			queryString += " AND q.locale=:locale";
+			queryString += " ORDER BY q.number";
+			try {
+				TypedQuery<Long> query = this.em().createQuery(queryString, Long.class);
+				query.setParameter("houseId", session.getHouse().getId());
+				query.setParameter("deviceTypeString", deviceTypeString);				
+				if(yaadiNumberingParameter.equals("session")) {
+					query.setParameter("sessionStartDate", session.getStartDate());
+					query.setParameter("sessionEndDate", session.getEndDate());
+				}
+				query.setParameter("yaadiNumber", yaadiNumber);
+				query.setParameter("locale", locale);
+				questionsFilledInYaadiCount = query.getSingleResult();
+			} catch(Exception e) {
+				throw new ELSException();
+			}
+			if(questionsFilledInYaadiCount!=null && questionsFilledInYaadiCount>0) {
+				String numberOfQuestionsInYaadiParameter = session.getParameter(deviceTypeString + "_" + "numberOfQuestionsInYaadi");
+				if(numberOfQuestionsInYaadiParameter!=null) {
+					Integer numberOfQuestionsInYaadi = Integer.parseInt(numberOfQuestionsInYaadiParameter);
+					if(questionsFilledInYaadiCount.intValue()==numberOfQuestionsInYaadi.intValue()) {
+						isNumberedYaadiFilled = true;
+					}
+				} else {
+					logger.error("**** Session parameter 'numberOfQuestionsInYaadi' is not set for session with ID = " + session.getId() +". ****");
+					throw new ELSException("error", "question.numberOfQuestionsInYaadiParameterNotSet");
+				}				
+			}
+		}		
+		return isNumberedYaadiFilled;
 	}
 }

@@ -954,8 +954,18 @@ public class QuestionReportController extends BaseController{
 						} else {
 							model.addAttribute("sessionId", session.getId());
 							Integer highestYaadiNumber = Question.findHighestYaadiNumber(null, session, locale.toString());
-							if(highestYaadiNumber!=null) {								
-								model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber+1, locale.toString()));
+							if(highestYaadiNumber!=null) {
+								if(Question.isNumberedYaadiFilled(null, session, highestYaadiNumber, locale.toString())) {
+									model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber+1, locale.toString()));
+									model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+								} else {
+									model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber, locale.toString()));
+									Date yaadiLayingDate = Question.findYaadiLayingDateForYaadi(null, session, highestYaadiNumber, locale.toString());
+									if(yaadiLayingDate!=null) {
+										model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(yaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+										model.addAttribute("isYaadiLayingDateSet", "yes");
+									}
+								}								
 							}
 							List<String> yaadiLayingDates = new ArrayList<String>();
 							Calendar start = Calendar.getInstance();
@@ -966,8 +976,7 @@ public class QuestionReportController extends BaseController{
 								Date eligibleDate = current.getTime();								
 								yaadiLayingDates.add(FormaterUtil.formatDateToString(eligibleDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 							}
-							model.addAttribute("yaadiLayingDates", yaadiLayingDates);							
-							model.addAttribute("currentDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+							model.addAttribute("yaadiLayingDates", yaadiLayingDates);														
 							retVal = "question/reports/getUnstarredYaadiNumberAndDate";
 						}
 					}

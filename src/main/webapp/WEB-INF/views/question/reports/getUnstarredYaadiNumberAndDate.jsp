@@ -6,7 +6,14 @@
 		<script type="text/javascript">
 			$(document).ready(function() {	
 				if($('#yaadiLayingDate').val()!='-') {
-					$("#yaadiLayingDate option[value='-']").remove();
+					$("#yaadiLayingDate option[value='-']").hide();		
+					if($('#isYaadiLayingDateSet').val()=='yes') {
+						$('#yaadiLayingDate').css('display', 'none');
+						$('#existingYaadiLayingDate').css('display', 'inline');
+						$('#existingYaadiLayingDate').val($('#yaadiLayingDate').val());
+						$('#changeYaadiNumber').css('display', 'inline');
+						$('#changeYaadiLayingDate').css('display', 'inline');
+					}
 				}
 				
 				$('#linkForReport').css('font-size','20px');
@@ -15,31 +22,30 @@
 					$.get('ref/findYaadiLayingDateForYaadi?sessionId='+$('#sessionId').val()
 							+'&yaadiNumber='+$('#yaadiNumber').val(), function(data) {
 						
-						var yaadiLayingDateForYaadiNumber = data.name.toString();
+						var yaadiLayingDateForYaadiNumber = data.name.toString();						
 						var yaadiLayingDate = $('#yaadiLayingDate').val();						
 						$('#yaadiLayingDate option').each(function() {
 							if(this.value==yaadiLayingDateForYaadiNumber) {
 								$(this).attr('selected', 'selected');
 								if($('#changedYaadiLayingDatePara').css('display')!='none') {
 									$('#imageLink_yaadiLayingDate').attr('title', $('#iconLabelOnUndo').val());
-									$('#yaadiLayingDate').css('display', 'inline');
-									$('#existingYaadiLayingDate').css('display', 'none');
-									$('#existingYaadiLayingDate').val("");
 									$("#changedYaadiLayingDate option[value='"+yaadiLayingDate+"']").show();
 									$("#changedYaadiLayingDate option[value='-']").attr('selected', 'selected');
 									$('#changedYaadiLayingDatePara').hide();
 								}								
 							}
 						});
-						yaadiLayingDate = $('#yaadiLayingDate').val();						
-						if(yaadiLayingDate!=undefined && yaadiLayingDate!='-' && yaadiLayingDate!='') {
+						if(yaadiLayingDateForYaadiNumber!=undefined && yaadiLayingDateForYaadiNumber!='-'
+								&& yaadiLayingDateForYaadiNumber!='') {
 							$('#yaadiLayingDate').css('display', 'none');
 							$('#existingYaadiLayingDate').css('display', 'inline');
-							$('#existingYaadiLayingDate').val(yaadiLayingDate);
+							$('#existingYaadiLayingDate').val(yaadiLayingDateForYaadiNumber);
 							$('#changeYaadiNumber').css('display', 'inline');
 							$('#changeYaadiLayingDate').css('display', 'inline');
-						} else {
+						} else {	
 							$('#yaadiLayingDate').css('display', 'inline');
+							$("#yaadiLayingDate option[value='-']").show();
+							$("#yaadiLayingDate option[value='-']").attr('selected', 'selected');
 							$('#existingYaadiLayingDate').css('display', 'none');
 							$('#existingYaadiLayingDate').val("");
 							$('#changeYaadiNumber').css('display', 'none');
@@ -93,9 +99,6 @@
 							$('#yaadiNumber').removeAttr('readonly');
 						}						
 						$('#imageLink_yaadiLayingDate').attr('title', $('#iconLabelOnUndo').val());
-						/* $('#yaadiLayingDate').css('display', 'inline');
-						$('#existingYaadiLayingDate').css('display', 'none');
-						$('#existingYaadiLayingDate').val(""); */
 						$("#changedYaadiLayingDate option[value='"+yaadiLayingDate+"']").show();
 						$("#changedYaadiLayingDate option[value='-']").attr('selected', 'selected');
 						$('#changedYaadiLayingDatePara').hide();
@@ -147,7 +150,7 @@
 				<option value="-"><spring:message code="please.select" text="Please Select"/></option>
 				<c:forEach items="${yaadiLayingDates}" var="i">					
 					<c:choose>
-						<c:when test="${i==currentDate}">
+						<c:when test="${i==yaadiLayingDate}">
 							<option value="${i}" selected="selected">${i}</option>
 						</c:when>
 						<c:otherwise>
@@ -191,5 +194,6 @@
 		<input type="hidden" id="sessionId" name="sessionId" value="${sessionId}"/>		
 		<input type="hidden" id="iconLabelOnClick" value="<spring:message code='question.unstarred_yaadi_report.undoChangeField' text='Undo'/>">
 		<input type="hidden" id="iconLabelOnUndo" value="<spring:message code='question.unstarred_yaadi_report.changeField' text='Change'/>">		
+		<input type="hidden" id=isYaadiLayingDateSet value="${isYaadiLayingDateSet}"/>	
 	</body>
 </html>

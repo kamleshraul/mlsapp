@@ -2015,6 +2015,10 @@ public class Question extends Device implements Serializable {
 	public static boolean isYaadiOfGivenNumberExistingInSession(final DeviceType deviceType, final Session session, final Integer yaadiNumber, final String locale) throws ELSException {
 		return getQuestionRepository().isYaadiOfGivenNumberExistingInSession(deviceType, session, yaadiNumber, locale);
 	}
+	
+	public static boolean isNumberedYaadiFilled(final DeviceType deviceType, final Session session, final Integer yaadiNumber, final String locale) throws ELSException {
+		return getQuestionRepository().isNumberedYaadiFilled(deviceType, session, yaadiNumber, locale);
+	}
 	 
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
