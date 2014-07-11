@@ -91,53 +91,113 @@
 	
 	            <fo:flow flow-name="xsl-region-body">	
 	            	<fo:block font-family="Mangal" font-size="9pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
-					    <fo:block font-size="16" font-weight="bold" text-align="center">
-							महाराष्ट्र <xsl:value-of select="element_3"/>												
-						</fo:block>
-						<fo:block font-size="2px">&#160;</fo:block>
-						<fo:block font-size="12pt" font-weight="bold" text-align="center">
-							<xsl:choose>
-								<xsl:when test="element_4 = 1">
-									पहिले
-								</xsl:when>
-								<xsl:when test="element_4 = 2">
-									दुसरे
-								</xsl:when>
-								<xsl:when test="element_4 = 3">
-									तिसरे
-								</xsl:when>
-								<xsl:when test="element_4 = 4">
-									चौथे
-								</xsl:when>
-								<xsl:when test="element_4 = 5">
-									पाचवे
-								</xsl:when>
-								<xsl:when test="element_4 = 6">
-									सहावे
-								</xsl:when>
-								<xsl:when test="element_4 = 7">
-									सातवे
-								</xsl:when>
-							</xsl:choose>
-							<xsl:if test="element_3='विधानपरिषद'">(<xsl:value-of select="element_5"/>)</xsl:if>
-							अधिवेशन, <xsl:value-of select="element_6"/>																								
-						</fo:block>		
-						<fo:block font-size="5px">&#160;</fo:block>													
-						<fo:block text-align="center" font-size="1pt">
-							<fo:external-graphic src="../../../src/main/webapp/resources/images/line.JPG" content-width="1.90cm" />
-						</fo:block>						
-						<fo:block font-size="4px">&#160;</fo:block>	                	
-	                	<fo:block text-align="center" font-size="11pt" font-weight="bold">
-	                		अतारांकित प्रश्नोत्तरांची यादी
-	                	</fo:block>	                		                	           	
-	                	<fo:block text-align="center" font-size="7pt" font-weight="bold">
-	                		<fo:block font-size="9pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="element_2"/></fo:block>
-	                	</fo:block>
-	                	<fo:block font-size="4.5px">&#160;</fo:block>
-	                	<fo:block text-align="center" font-size="1pt">
-							<fo:external-graphic src="../../../src/main/webapp/resources/images/line.JPG" content-width="1.90cm" />
-						</fo:block>
-	                	<fo:block font-size="10pt">&#160;</fo:block>
+					    <xsl:choose>
+					    	<xsl:when test="element_3='विधानसभा'">
+					    		<fo:block font-size="16" font-weight="bold" text-align="center">
+									महाराष्ट्र <xsl:value-of select="element_3"/>												
+								</fo:block>
+								<fo:block font-size="2px">&#160;</fo:block>
+								<fo:block font-size="12pt" font-weight="bold" text-align="center">
+									<xsl:choose>
+										<xsl:when test="element_4 = 1">
+											पहिले
+										</xsl:when>
+										<xsl:when test="element_4 = 2">
+											दुसरे
+										</xsl:when>
+										<xsl:when test="element_4 = 3">
+											तिसरे
+										</xsl:when>
+										<xsl:when test="element_4 = 4">
+											चौथे
+										</xsl:when>
+										<xsl:when test="element_4 = 5">
+											पाचवे
+										</xsl:when>
+										<xsl:when test="element_4 = 6">
+											सहावे
+										</xsl:when>
+										<xsl:when test="element_4 = 7">
+											सातवे
+										</xsl:when>
+									</xsl:choose>
+									अधिवेशन, <xsl:value-of select="element_6"/>																								
+								</fo:block>		
+								<!-- <fo:block font-size="7px">&#160;</fo:block> -->													
+								<fo:block text-align="center" font-size="9pt">
+									___________
+								</fo:block>						
+								<fo:block font-size="5px">&#160;</fo:block>	                	
+			                	<fo:block text-align="center" font-size="12pt" font-weight="bold">
+			                		अतारांकित प्रश्नोत्तरांची यादी
+			                	</fo:block>	 
+			                	<fo:block font-size="4.5px">&#160;</fo:block>               		                	           	
+			                	<fo:block text-align="center" font-size="7pt" font-weight="bold">
+			                		<fo:block font-size="9pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="element_2"/></fo:block>
+			                	</fo:block>
+			                	<!-- <fo:block font-size="7px">&#160;</fo:block> -->
+			                	<fo:block text-align="center" font-size="9pt">
+			                		___________
+								</fo:block>
+			                	<fo:block font-size="6pt">&#160;</fo:block>
+					    	</xsl:when>
+					    	
+					    	<xsl:when test="element_3='विधानपरिषद'">
+					    		<fo:block font-size="9px">&#160;</fo:block>
+					    		<fo:block font-size="9px">&#160;</fo:block>
+					    		<fo:block font-size="9px">&#160;</fo:block>
+					    		<fo:block font-size="9px">&#160;</fo:block>
+					    		<fo:block font-size="20" font-weight="bold" text-align="center">
+									महाराष्ट्र <xsl:value-of select="element_3"/>												
+								</fo:block>
+								<fo:block font-size="2px">&#160;</fo:block>
+								<fo:block font-size="14pt" font-weight="bold" text-align="center">
+									<xsl:choose>
+										<xsl:when test="element_4 = 1">
+											पहिले
+										</xsl:when>
+										<xsl:when test="element_4 = 2">
+											दुसरे
+										</xsl:when>
+										<xsl:when test="element_4 = 3">
+											तिसरे
+										</xsl:when>
+										<xsl:when test="element_4 = 4">
+											चौथे
+										</xsl:when>
+										<xsl:when test="element_4 = 5">
+											पाचवे
+										</xsl:when>
+										<xsl:when test="element_4 = 6">
+											सहावे
+										</xsl:when>
+										<xsl:when test="element_4 = 7">
+											सातवे
+										</xsl:when>
+									</xsl:choose>
+									<xsl:if test="element_3='विधानपरिषद'">(<xsl:value-of select="element_5"/>)</xsl:if>
+									अधिवेशन, <xsl:value-of select="element_6"/>																								
+								</fo:block>		
+								<!-- <fo:block font-size="5px">&#160;</fo:block> -->													
+								<fo:block text-align="center" font-size="9pt" font-weight="bold">
+									___________
+								</fo:block>						
+								<fo:block font-size="7px">&#160;</fo:block>	                	
+			                	<fo:block text-align="center" font-size="13pt" font-weight="bold">
+			                		अतारांकित प्रश्नोत्तरांची यादी
+			                	</fo:block>	   
+			                	<fo:block font-size="4.5px">&#160;</fo:block>             		                	           	
+			                	<fo:block text-align="center" font-size="7pt" font-weight="bold">
+			                		<fo:block font-size="9pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="element_2"/></fo:block>
+			                	</fo:block>
+			                	<fo:block font-size="3px">&#160;</fo:block>
+			                	<fo:block text-align="center" font-size="9pt" font-weight="bold">
+									___________
+								</fo:block>
+			                	<fo:block font-size="10pt">&#160;</fo:block>
+					    	</xsl:when>
+					    </xsl:choose>
+					    
 	                	<xsl:for-each select="./element_1" >
 	                		<fo:block text-align="center" font-size="9pt" font-weight="bold">
 	                			<xsl:value-of select="element_1_6"/>
@@ -184,8 +244,8 @@
 	                			</xsl:choose>	                			
 	                		</fo:block>
 	                		<fo:block font-size="4.5pt">&#160;</fo:block>
-	                		<fo:block text-align="center" font-size="1pt">
-								<fo:external-graphic src="../../../src/main/webapp/resources/images/line.JPG" content-width="1.90cm" />
+	                		<fo:block text-align="center" font-size="9pt">	                			
+								___________
 							</fo:block>
 	                		<fo:block font-size="9pt">&#160;</fo:block>
 	                	</xsl:for-each>
