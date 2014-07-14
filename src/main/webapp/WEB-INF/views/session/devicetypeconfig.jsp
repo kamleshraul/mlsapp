@@ -1363,6 +1363,186 @@
 			</div>
 		</c:if>
 		
+		<!-- cutmotion device type config starts-->
+		<c:if test="${i.type eq 'motions_cutmotion_budgetary'}">					
+			<div id="motions_cutmotion_budgetary" class="formDiv">		
+							
+				<p>
+					<label class="small"><spring:message code="session.deviceType.BudgetDate" text="Budget Date" /></label>
+					<input type="text" class="sText datetimemask" name="motion_cutmotion_budgetary_budgetDate" id="motions_budgetary__cutmotion_budgetDate" value="${motion_cutmotion_budgetary_budgetdate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.BudgetLayingDate" text="Budget Laying Date" /></label>
+					<input type="text" class="sText datetimemask" name="motion_cutmotion_budgetary_budgetLayDate" id="motion_cutmotion_budgetary_budgetLayDate" value="${motion_cutmotion_budgetary_budgetlaydate}" />
+				</p>	
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndDateFactor" text="Submission End Date Determinig Factor" /></label>
+					<input type="text" class="integer sText" name="motion_cutmotion_budgetary_submissionEndDateFactor" id="motion_cutmotion_budgetary_submissionEndDateFactor" value="${motion_cutmotion_budgetary_submissionenddatefactor}" style="height: 24px;" />
+				</p>
+					
+				<p style="display: inline;">
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Supporting Members" /></label>
+					<select class="sSelect"  style="width: 120px; margin-top: 10px; border: solid 1px #8d8e8d;" name="motion_cutmotion_budgetary_numberOfSupportingMembersComparator" id="motion_cutmotion_budgetary_numberOfSupportingMembersComparator">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<c:choose>
+							<c:when test="${motions_cutmotion_budgetary_numberofsupportingmemberscomparator=='equal'}">
+								<option value="equal" selected="selected">&#61;</option>
+							</c:when>
+							<c:otherwise>
+								<option value="equal">&#61;</option>
+							</c:otherwise>
+						</c:choose>
+						<c:choose>
+							<c:when test="${motions_cutmotion_budgetary_numberofsupportingmemberscomparator=='lessthan'}">
+								<option value="lessthan" selected="selected">&lt;</option>
+							</c:when>
+							<c:otherwise>
+								<option value="lessthan">&lt;</option>
+							</c:otherwise>
+						</c:choose>		
+						<c:choose>
+							<c:when test="${motions_cutmotion_budgetary_numberofsupportingmemberscomparator=='lessthanequal'}">
+								<option value="lessthanequal" selected="selected">&le;</option>						
+							</c:when>
+							<c:otherwise>
+								<option value="lessthanequal">&le;</option>						
+							</c:otherwise>
+						</c:choose>		
+						<c:choose>
+							<c:when test="${cmotions_cutmotion_budgetary_numberofsupportingmemberscomparator=='greaterthan'}">
+							<option value="greaterthan" selected="selected">&gt;</option>
+							</c:when>
+							<c:otherwise>
+							<option value="greaterthan">&gt;</option>
+							</c:otherwise>
+						</c:choose>		
+						<c:choose>
+							<c:when test="${motions_cutmotion_budgetary_numberofsupportingmemberscomparator=='greaterthanequal'}">
+								<option value="greaterthanequal" selected="selected">&ge;</option>
+							</c:when>
+							<c:otherwise>
+								<option value="greaterthanequal">&ge;</option>
+							</c:otherwise>
+						</c:choose>								
+					</select>
+				</p>		
+				<p style="display: inline;">
+					<input type="text" class="sText integer" name="motions_cutmotion_budgetary_numberOfSupportingMembers" id="motions_cutmotion_budgetary_numberOfSupportingMembers" value="${motions_cutmotion_budgetary_numberofsupportingmembers}" style="width: 60px; height: 24px;"/>
+				</p>
+				<%-- <p>
+					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
+					<select class="sSelectMultiple discussionDays" name="motions_cutmotion_budgetary_discussionDays" id="motions_cutmotion_budgetary_discussionDays" multiple="multiple">
+						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
+						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
+						<option value="Wednesday"><spring:message code="week.days.wednesday" text="Wednesday" /></option>
+						<option value="Thursday"><spring:message code="week.days.thursday" text="Thursday" /></option>
+						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
+						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
+					</select>
+					<label style="display: none;" id="motions_cutmotion_budgetary_discussionDays_hidden" title="${motions_cutmotion_budgetary_discussiondays}"></label>
+				</p>
+				
+				<p id="motions_cutmotion_budgetary_discussionDates_para">
+					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Dates" /></label>
+					<select class="sSelectMultiple" name="motions_cutmotion_budgetary_discussionDates" id="motions_cutmotion_budgetary_discussionDates" multiple="multiple">
+					</select>
+					<label style="display: none;" id="motions_cutmotion_budgetary_discussionDates_hidden" title="${motions_cutmotion_budgetary_discussiondates}"></label>
+				</p> --%>							
+			</div>
+		</c:if>		
+		<c:if test="${i.type eq 'motions_cutmotion_supplementary'}">					
+			<div id="motions_cutmotion_supplementary" class="formDiv">		
+							
+				<p>
+					<label class="small"><spring:message code="session.deviceType.BudgetDate" text="Budget Date" /></label>
+					<input type="text" class="sText datetimemask" name="motions_cutmotion_supplementary_budgetDate" id="motions_cutmotion_supplementary_budgetDate" value="${motions_cutmotion_supplementary_budgetdate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.BudgetLayingDate" text="Budget Laying Date" /></label>
+					<input type="text" class="sText datetimemask" name="motions_cutmotion_supplementary_budgetLayDate" id="motions_cutmotion_supplementary_budgetLayDate" value="${motions_cutmotion_supplementary_budgetlaydate}" />
+				</p>	
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndDateFactor" text="Submission End Date Determinig Factor" /></label>
+					<input type="text" class="sText  integer" name="motions_cutmotion_supplementary_submissionEndDateFactor" id="motions_cutmotion_supplementary_submissionEndDateFactor" value="${motions_cutmotion_supplementary_submissionenddatefactor}" style="height: 24px;" />
+				</p>
+									
+				<p style="display: inline;">
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Supporting Members" /></label>
+					<select class="sSelect"  style="margin-top: 10px; width: 120px; border: solid 1px #8d8e8d;" name="motions_cutmotion_supplementary_numberOfSupportingMembersComparator" id="motions_cutmotion_supplementary_numberOfSupportingMembersComparator">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<c:choose>
+							<c:when test="${motions_cutmotion_supplementary_numberofsupportingmemberscomparator=='equal'}">
+								<option value="equal" selected="selected">&#61;</option>
+							</c:when>
+							<c:otherwise>
+								<option value="equal">&#61;</option>
+							</c:otherwise>
+						</c:choose>
+						<c:choose>
+							<c:when test="${motions_cutmotion_supplementary_numberofsupportingmemberscomparator=='lessthan'}">
+								<option value="lessthan" selected="selected">&lt;</option>
+							</c:when>
+							<c:otherwise>
+								<option value="lessthan">&lt;</option>
+							</c:otherwise>
+						</c:choose>		
+						<c:choose>
+							<c:when test="${motions_cutmotion_supplementary_numberofsupportingmemberscomparator=='lessthanequal'}">
+								<option value="lessthanequal" selected="selected">&le;</option>						
+							</c:when>
+							<c:otherwise>
+								<option value="lessthanequal">&le;</option>						
+							</c:otherwise>
+						</c:choose>		
+						<c:choose>
+							<c:when test="${motions_cutmotion_supplementary_numberofsupportingmemberscomparator=='greaterthan'}">
+							<option value="greaterthan" selected="selected">&gt;</option>
+							</c:when>
+							<c:otherwise>
+							<option value="greaterthan">&gt;</option>
+							</c:otherwise>
+						</c:choose>		
+						<c:choose>
+							<c:when test="${motions_cutmotion_supplementary_numberofsupportingmemberscomparator=='greaterthanequal'}">
+								<option value="greaterthanequal" selected="selected">&ge;</option>
+							</c:when>
+							<c:otherwise>
+								<option value="greaterthanequal">&ge;</option>
+							</c:otherwise>
+						</c:choose>								
+					</select>
+				</p>		
+				<p style="display: inline;">
+					<input type="text" class="sText integer" name="motions_cutmotion_supplementary_numberOfSupportingMembers" id="motions_cutmotion_supplementary_numberOfSupportingMembers" value="${motions_cutmotion_supplementary_numberofsupportingmembers}" style="width: 60px; height: 24px;"/>
+				</p>	
+				
+				<%-- <p>
+					<label class="centerlabel"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
+					<select class="sSelectMultiple discussionDays" name="motions_cutmotion_supplementary_discussionDays" id="motions_cutmotion_supplementary_discussionDays" multiple="multiple">
+						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
+						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
+						<option value="Wednesday"><spring:message code="week.days.wednesday" text="Wednesday" /></option>
+						<option value="Thursday"><spring:message code="week.days.thursday" text="Thursday" /></option>
+						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
+						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
+					</select>
+					<label style="display: none;" id="motions_cutmotion_supplementary_discussionDays_hidden" title="${motions_cutmotion_supplementary_discussiondays}"></label>
+				</p>
+				
+				<p id="motions_cutmotion_supplementary_discussionDates_para">
+					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Dates" /></label>
+					<select class="sSelectMultiple" name="motions_cutmotion_supplementary_discussionDates" id="motions_cutmotion_supplementary_discussionDates" multiple="multiple">
+					</select>
+					<label style="display: none;" id="motions_cutmotion_supplementary_discussionDates_hidden" title="${motions_cutmotion_supplementary_discussiondates}"></label>
+				</p>	 --%>					
+			</div>
+		</c:if>
+		<!-- cutmotion device type config ends-->
+		
 		<c:if test="${i.type eq 'bills_nonofficial'}">					
 			<div id="bills_nonofficial" class="formDiv">						
 				<p>
