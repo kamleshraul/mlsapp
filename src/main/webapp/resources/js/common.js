@@ -86,9 +86,13 @@ function initControls(){
 		},
 		plugins: {
 			autoload: true,
-			i18n: { lang: "mr" }
+			i18n: { lang: "mr" },
+			rmFormat: {	rmMsWordMarkup: true }
 		}
-	});	
+	});
+	
+	$.wysiwyg.rmFormat.enabled = true;
+	
 	$('.wysiwyg').change(function(e){
 		var idval = this.id;			
 		if($('#'+idval).is('[readonly]')){

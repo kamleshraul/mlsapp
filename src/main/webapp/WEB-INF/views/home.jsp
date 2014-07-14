@@ -21,14 +21,15 @@
 		
 		<!-- Multiselect -->				
 
-		<script type="text/javascript" src="./resources/js/common.js?v=3026"></script> 
+		<script type="text/javascript" src="./resources/js/common.js?v=3027"></script> 
 		
 		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=6"></script>
 		
 		
 		
 		<!-- WYSIWYG Editor --> 
-		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=5"></script>	
+		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=6"></script>
+		<script type="text/javascript" src="./resources/js/wysiwyg.rmFormat.js?v=6"></script>
 		<script type="text/javascript" src="./resources/js/wysiwyg.table.js?v=5"></script>
 		<script type="text/javascript" src="./resources/js/wysiwyg.i18n.js?v=5"></script>
 		<script type="text/javascript" src="./resources/js/wysiwyg.fullscreen.js?v=5"></script>
