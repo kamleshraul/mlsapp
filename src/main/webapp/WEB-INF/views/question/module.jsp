@@ -748,11 +748,25 @@
 	
 	function showHDGeneralreport(){
 		var url = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
+		
 		$.get(url,function(data){
 			if(data){
 				showTabByIdAndUrl('details_tab','question/report/generalreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+"&report=HD_CONDITION_REPORT&reportout=hdconditionreport");
 			}
 		});
+	}
+	
+	function showBallotChoiceOptionReport(){
+		var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
+		if(devicetype=='questions_halfhourdiscussion_from_question' || devicetype=='questions_halfhourdiscussion_standalone'){
+			var url = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
+			
+			$.get(url,function(data){
+				if(data){
+					showTabByIdAndUrl('details_tab','question/report/generalreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+"&report=HDQ_UNIQUE_SUBJECT_MEMBER_REPORT&reportout=hdqballotchoiceoptionreport");
+				}
+			});
+		}
 	}
 	
 	function deptSessionreport(){

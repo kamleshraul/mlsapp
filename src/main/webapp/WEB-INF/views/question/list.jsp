@@ -178,6 +178,11 @@
 				showVivranReport();
 			});
 			
+			$("#showHDBallotChoiceOptionReport").click(function(){
+				$("#selectionDiv1").hide();
+				showBallotChoiceOptionReport();
+			});
+			
 			var selectedDeviceType = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
 			if(selectedDeviceType.indexOf("questions_halfhourdiscussion_")==-1){
 				$("#hdReportsDiv").hide();
@@ -257,6 +262,9 @@
 					</a> |
 					<a href="#" id="showHDGeneralReport" class="butSim">
 						<spring:message code="question.hdGeneralReport" text="HD General Report"/>
+					</a> |
+					<a href="#" id="showHDBallotChoiceOptionReport" class="butSim">
+						<spring:message code="question.BallotChoiceOptionReport" text="HD Ballot Choice Option Report"/>
 					</a> |
 				</div>
 			</security:authorize>	
