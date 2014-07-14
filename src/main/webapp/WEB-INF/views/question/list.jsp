@@ -281,7 +281,7 @@
 					<spring:message code="question.sendMessage" text="Send Message"/>
 				</a> |
 			</security:authorize>			
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_ASSISTANT','HDS_SECTION_OFFICER')">
 				<hr>
 				<a href="#" id="generateIntimationLetter" class="butSim">
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
@@ -295,29 +295,29 @@
 				</select> | 
 				<a href="#" id="generateClubbedIntimationLetter" class="butSim">
 					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>
-				</a> | 				
-			</security:authorize>	
-			<span id="unstarredYaadiSpan">
-			<a href="#" id="unstarred_yaadi_report" class="butSim link">
-				<spring:message code="question.unstarred_yaadi_report" text="Unstarred Yaadi Report"/>
-			</a> |
-			</span>
-			<hr> 
-			<a href="#" id="memberwise_questions_report" class="butSim link">
-				<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
-			</a> |			
-			<a href="#" id="group_bulletein_report" class="butSim link">
-				<spring:message code="question.group_bulletein_report" text="Group Bulletein Report"/>
-			</a> |
-			<a href="#" id="bulletein_report" class="butSim link">
-				<spring:message code="question.bulletein_report" text="Bulletein Report"/>
-			</a> |
-			<a href="#" id="departmentwise_report" class="butSim link">
-				<spring:message code="question.departmentwise_report" text="Department's Questions Report"/>
-			</a> |
-			<a href="#" id="ahwal_report" class="butSim link">
-				<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
-			</a> |
+				</a> | 						
+				<span id="unstarredYaadiSpan">
+				<a href="#" id="unstarred_yaadi_report" class="butSim link">
+					<spring:message code="question.unstarred_yaadi_report" text="Unstarred Yaadi Report"/>
+				</a> |
+				</span>
+				<hr> 
+				<a href="#" id="memberwise_questions_report" class="butSim link">
+					<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
+				</a> |			
+				<a href="#" id="group_bulletein_report" class="butSim link">
+					<spring:message code="question.group_bulletein_report" text="Group Bulletein Report"/>
+				</a> |
+				<a href="#" id="bulletein_report" class="butSim link">
+					<spring:message code="question.bulletein_report" text="Bulletein Report"/>
+				</a> |
+				<a href="#" id="departmentwise_report" class="butSim link">
+					<spring:message code="question.departmentwise_report" text="Department's Questions Report"/>
+				</a> |
+				<a href="#" id="ahwal_report" class="butSim link">
+					<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
+				</a> |
+			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
 	</div>
