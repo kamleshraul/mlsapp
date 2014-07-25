@@ -640,12 +640,13 @@
 		var parameters = "houseType="+$("#selectedHouseType").val()
 		 +"&sessionYear="+$("#selectedSessionYear").val()
 		 +"&sessionType="+$("#selectedSessionType").val()
+		 +"&deviceType="+$("#selectedQuestionType").val()
 		 +"&subDepartment="+$("#selectedSubDepartment").val()
 		 +"&group="+$("#selectedGroup").val()
 		 +"&status="+$("#selectedStatus").val()
 		 +"&locale="+$("#moduleLocale").val()
 		 +"&role="+$("#srole").val()
-		 +"&report="+"QIS_STARRED_DEPARTMENTWISE_QUESTIONS"
+		 +"&report="+"QIS_DEPARTMENTWISE_QUESTIONS"
 		 +"&reportout="+"departmentwisequestions";	
 		var resourceURL = 'question/report/departmentwisequestions?'+ parameters;			
 		showTabByIdAndUrl('details_tab', resourceURL);

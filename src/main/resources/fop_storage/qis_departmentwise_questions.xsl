@@ -86,7 +86,7 @@
 			       		</fo:block>
 			       		<fo:block font-size="4px">&#160;</fo:block>
 			       		<fo:block font-size="11px" font-weight="bold" text-decoration="underline">
-			       			<xsl:value-of select="element_2[4]"/>
+			       			<xsl:value-of select="element_1[1]/element_1_12"/> - <xsl:value-of select="element_1[1]/element_1_14"/>
 			       		</fo:block>
 			       		<fo:block font-size="6px">&#160;</fo:block>
 			       		<fo:block font-size="11px" font-weight="bold">
@@ -96,11 +96,25 @@
 			       		</fo:block>
 			       		<fo:block font-size="4px">&#160;</fo:block>
 			       		<fo:block>
+			       			<xsl:variable name="deviceType" select="element_1[1]/element_1_11"/>
+			       			<xsl:variable name="status" select="element_1[1]/element_1_13"/>
 			       			<fo:table table-layout="fixed" width="100%">
-			       				<fo:table-column column-width="1.5cm"/>
-						        <fo:table-column column-width="3.5cm"/>
-						        <fo:table-column column-width="4.5cm"/>
-						        <fo:table-column column-width="7cm"/>
+			       				<xsl:choose>
+			       					<xsl:when test="$deviceType='questions_starred' and $status='question_final_admission'">
+			       						<fo:table-column column-width="1.5cm"/>
+								        <fo:table-column column-width="3cm"/>
+								        <fo:table-column column-width="4cm"/>
+								        <fo:table-column column-width="2.5cm"/>
+								        <fo:table-column column-width="5.5cm"/>
+								        <fo:table-column column-width="1.8cm"/>
+			       					</xsl:when>
+			       					<xsl:otherwise>
+			       						<fo:table-column column-width="1.5cm"/>
+								        <fo:table-column column-width="3.5cm"/>
+								        <fo:table-column column-width="4.5cm"/>
+								        <fo:table-column column-width="7cm"/>
+			       					</xsl:otherwise>
+			       				</xsl:choose>			       				
 						        <fo:table-header>
 						        	<fo:table-row>
 						        		<fo:table-cell display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
@@ -118,11 +132,32 @@
 						        				<xsl:value-of select="element_2[8]"/>
 						        			</fo:block>
 						        		</fo:table-cell>
-						        		<fo:table-cell margin-left="0.3cm" display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
-						        			<fo:block>
-						        				<xsl:value-of select="element_2[9]"/>
-						        			</fo:block>
-						        		</fo:table-cell>
+						        		<xsl:choose>
+					       					<xsl:when test="$deviceType='questions_starred' and $status='question_final_admission'">
+					       						<fo:table-cell margin-left="0.3cm" display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+								        			<fo:block>
+								        				<xsl:value-of select="element_2[10]"/>
+								        			</fo:block>
+								        		</fo:table-cell>
+								        		<fo:table-cell margin-left="0.3cm" display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+								        			<fo:block>
+								        				<xsl:value-of select="element_2[9]"/>
+								        			</fo:block>
+								        		</fo:table-cell>
+								        		<fo:table-cell margin-left="0.3cm" display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+								        			<fo:block>
+								        				<xsl:value-of select="element_2[11]"/>
+								        			</fo:block>
+								        		</fo:table-cell>
+					       					</xsl:when>
+					       					<xsl:otherwise>
+					       						<fo:table-cell margin-left="0.3cm" display-align="before" font-weight="bold" border-top-width="0.5pt" border-top-style="solid" border-bottom-width="0.5pt" border-bottom-style="solid">
+								        			<fo:block>
+								        				<xsl:value-of select="element_2[9]"/>
+								        			</fo:block>
+								        		</fo:table-cell>
+					       					</xsl:otherwise>
+					       				</xsl:choose>						        		
 						        	</fo:table-row>
 						        </fo:table-header>
 						        <fo:table-body>
@@ -147,11 +182,32 @@
 									        				<xsl:value-of select="element_1_9"/>
 									        			</fo:block>
 									        		</fo:table-cell>
-									        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
-									        			<fo:block>
-									        				<xsl:value-of select="element_1_10"/>
-									        			</fo:block>
-									        		</fo:table-cell>
+									        		<xsl:choose>
+										        		<xsl:when test="$deviceType='questions_starred' and $status='question_final_admission'">
+										        			<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
+											        			<fo:block>
+											        				<xsl:value-of select="element_1_15"/>
+											        			</fo:block>
+											        		</fo:table-cell>
+										        			<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
+											        			<fo:block>
+											        				<xsl:value-of select="element_1_10"/>
+											        			</fo:block>
+											        		</fo:table-cell>
+											        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
+											        			<fo:block>
+											        				<xsl:value-of select="element_1_16"/>
+											        			</fo:block>
+											        		</fo:table-cell>
+										        		</xsl:when>
+										        		<xsl:otherwise>
+										        			<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm">
+											        			<fo:block>
+											        				<xsl:value-of select="element_1_10"/>
+											        			</fo:block>
+											        		</fo:table-cell>
+										        		</xsl:otherwise>
+									        		</xsl:choose>									        		
 							        			</xsl:when>
 							        			<xsl:otherwise>
 							        				<fo:table-cell margin-left="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
@@ -170,11 +226,32 @@
 									        				<xsl:value-of select="element_1_9"/>
 									        			</fo:block>
 									        		</fo:table-cell>
-									        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
-									        			<fo:block>
-									        				<xsl:value-of select="element_1_10"/>
-									        			</fo:block>
-									        		</fo:table-cell>
+									        		<xsl:choose>
+								       					<xsl:when test="$deviceType='questions_starred' and $status='question_final_admission'">
+								       						<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+											        			<fo:block>
+											        				<xsl:value-of select="element_1_15"/>
+											        			</fo:block>
+											        		</fo:table-cell>
+											        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+											        			<fo:block>
+											        				<xsl:value-of select="element_1_10"/>
+											        			</fo:block>
+											        		</fo:table-cell>
+											        		<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+											        			<fo:block>
+											        				<xsl:value-of select="element_1_16"/>
+											        			</fo:block>
+											        		</fo:table-cell>
+								       					</xsl:when>
+								       					<xsl:otherwise>
+								       						<fo:table-cell margin-left="0.3cm" margin-right="0.3cm" display-align="before" padding-top="0.1cm" padding-bottom="0.1cm" border-bottom-width="0.5pt" border-bottom-style="solid">
+											        			<fo:block>
+											        				<xsl:value-of select="element_1_10"/>
+											        			</fo:block>
+											        		</fo:table-cell>
+								       					</xsl:otherwise>
+								       				</xsl:choose>									        		
 							        			</xsl:otherwise>
 							        		</xsl:choose>
 							        	</fo:table-row>
