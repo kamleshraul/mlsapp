@@ -134,7 +134,19 @@
 		</p>
 		<c:choose>
 			<c:when test="${pressCopiesReceived=='yes'}">
-				<h3><spring:message code='bill.pressCopies'/></h3>
+				<c:choose>
+					<c:when test="${not empty printRequisition.getRequisitionFor() 
+									and printRequisition.getRequisitionFor().equals('BILL_PRESS_COPY')}">
+						<h3><spring:message code='bill.pressCopies' text='Press Copies'/></h3>
+					</c:when>
+					<c:when test="${not empty printRequisition.getRequisitionFor() 
+									and printRequisition.getRequisitionFor().equals('BILL_GAZETTE_COPY')}">
+						<h3><spring:message code='bill.gazetteCopies' text='Gazette Copies'/></h3>
+					</c:when>
+					<c:otherwise>
+						<h3><spring:message code='bill.pressCopies' text='Press Copies'/></h3>
+					</c:otherwise>
+				</c:choose>				
 				<div>
 					<%-- <fieldset>
 						<legend style="text-align: left; width: 150px;"><label><spring:message code='bill.${pressCopyHeader}' /></label></legend> --%>
@@ -226,7 +238,19 @@
 				</div>
 			</c:when>
 			<c:when test="${pressCopiesReceived!='yes' and isPrintRequisitionSent=='true'}">
-				<h3><spring:message code='bill.pressCopies.notReceived'/></h3>
+				<c:choose>
+					<c:when test="${not empty printRequisition.getRequisitionFor() 
+									and printRequisition.getRequisitionFor().equals('BILL_PRESS_COPY')}">
+						<h3><spring:message code='bill.pressCopies.notReceived' text="Press Copies are not received yet."/></h3>
+					</c:when>
+					<c:when test="${not empty printRequisition.getRequisitionFor() 
+									and printRequisition.getRequisitionFor().equals('BILL_GAZETTE_COPY')}">
+						<h3><spring:message code='bill.gazetteCopies.notReceived' text="Gazette Copies are not received yet."/></h3>
+					</c:when>
+					<c:otherwise>
+						<h3><spring:message code='bill.pressCopies.notReceived' text="Press Copies are not received yet."/></h3>
+					</c:otherwise>
+				</c:choose>				
 			</c:when>
 		</c:choose>
 		<input type="hidden" name="id" value="${printRequisition.getId()}"/>

@@ -1281,162 +1281,75 @@ public class BillWorkflowController extends BaseController {
 			model.addAttribute("constituency",constituency.getName());
 		}		
 		/**** Ministries ****/
-		Session ministrySession = null;
-		List<MemberMinister> memberMinisters = null;
-		if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-			memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
-			if(memberMinisters!=null && !memberMinisters.isEmpty()) {
-				ministrySession = selectedSession;
-			} else {
-				if(selectedSession.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
-					try {
-						ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.UPPER_HOUSE);
-						if(ministrySession!=null) {
-							memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+		Ministry ministry=domain.getMinistry();
+		if(ministry!=null){
+			model.addAttribute("ministrySelected",ministry.getId());
+			model.addAttribute("formattedMinistry",ministry.getName());
+			List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
+			model.addAttribute("subDepartments", assignedSubDepartments);
+			SubDepartment subDepartment=domain.getSubDepartment();
+			if(subDepartment!=null){
+				model.addAttribute("subDepartmentSelected",subDepartment.getId());
+			}									
+		} else {
+			Session ministrySession = selectedSession;
+			if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+				List<MemberMinister> memberMinisters = MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
+				if(memberMinisters==null || memberMinisters.isEmpty()) {
+					if(selectedSession.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
+						try {
+							ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.UPPER_HOUSE);
+							if(ministrySession!=null) {
+								memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+							}
+						} catch (ELSException e) {
+							e.printStackTrace();
 						}
-					} catch (ELSException e) {
-						e.printStackTrace();
-					}
-				} else if(selectedSession.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
-					try {
-						ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.LOWER_HOUSE);
-						if(ministrySession!=null) {
-							memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+					} else if(selectedSession.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
+						try {
+							ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.LOWER_HOUSE);
+							if(ministrySession!=null) {
+								memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+							}
+						} catch (ELSException e) {
+							e.printStackTrace();
 						}
-					} catch (ELSException e) {
-						e.printStackTrace();
 					}
 				}
-			}
-		} else {
-			ministrySession = selectedSession;
-		}
-		String strRotationOrderPubDate = ministrySession.getParameter("questions_starred_rotationOrderPublishingDate");
-		if(strRotationOrderPubDate==null) {
-			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+ministrySession.getId());
-			model.addAttribute("errorcode", "rotationorderpubdate_notset");
-			return;
-		}
-		if(strRotationOrderPubDate.isEmpty()) {
-			logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+ministrySession.getId());
-			model.addAttribute("errorcode", "rotationorderpubdate_notset");
-			return;
-		}
-		Date rotationOrderPubDate=null;
-		CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");		
-		try {
-			rotationOrderPubDate = FormaterUtil.getDateFormatter(serverDateFormat.getValue(), "en_US").parse(strRotationOrderPubDate);
-			model.addAttribute("rotationOrderPublishDate", FormaterUtil.getDateFormatter(locale).format(rotationOrderPubDate));
-			Date currentDate=new Date();
-			if(currentDate.equals(rotationOrderPubDate)||currentDate.after(rotationOrderPubDate)){
-				if(deviceType.getType().trim().equals(ApplicationConstants.NONOFFICIAL_BILL)){					
-					List<Ministry> ministries = new ArrayList<Ministry>();
-					try {
-						ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					model.addAttribute("ministries",ministries);
-					Ministry ministry=domain.getMinistry();
-					if(ministry!=null){
-						model.addAttribute("ministrySelected",ministry.getId());						
-						/**** Sub Departments ****/
-						List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,locale);
-						model.addAttribute("subDepartments",subDepartments);
-						SubDepartment subDepartment=domain.getSubDepartment();
+				if(memberMinisters!=null && !memberMinisters.isEmpty()) {
+					ministry = memberMinisters.get(0).getMinistry();
+					model.addAttribute("ministrySelected",ministry.getId());
+					model.addAttribute("formattedMinistry",ministry.getName());
+					List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
+					model.addAttribute("subDepartments", assignedSubDepartments);
+					if(!assignedSubDepartments.isEmpty()) {
+						SubDepartment subDepartment=assignedSubDepartments.get(0);
+						domain.setSubDepartment(subDepartment);			
 						if(subDepartment!=null){
 							model.addAttribute("subDepartmentSelected",subDepartment.getId());
 						}
-					}							
-				} else if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)){
-					if(usergroupType.startsWith("member")){
-						/**** To check whether to populate other ministries also for this minister ****/
-						Boolean isAllowedToAccessOtherMinistries = false;
-						CustomParameter rolesAllowedForAccessingOtherMinistriesParameter = CustomParameter.findByName(CustomParameter.class, "MEMBERROLES_SUBMISSIONFORANYMINISTRY_IN_GOVERNMENT_BILL", "");
-						if(rolesAllowedForAccessingOtherMinistriesParameter != null) {
-							if(rolesAllowedForAccessingOtherMinistriesParameter.getValue() != null && !rolesAllowedForAccessingOtherMinistriesParameter.getValue().isEmpty()) {
-								List<MemberRole> memberRoles = HouseMemberRoleAssociation.findAllActiveRolesOfMemberInSession(member, ministrySession, locale);
-								for(MemberRole memberRole: memberRoles) {
-									for(String allowedRole: rolesAllowedForAccessingOtherMinistriesParameter.getValue().split("#")) {
-										if(memberRole.getName().trim().equals(allowedRole)) {
-											isAllowedToAccessOtherMinistries = true;
-											break;
-										}
-									}
-									if(isAllowedToAccessOtherMinistries == true) {
-										break;
-									}
-								}
-							} else {
-								logger.error("custom parameter 'MEMBERROLES_SUBMISSIONFORANYMINISTRY_IN_GOVERNMENT_BILL' is not set properly");
-								model.addAttribute("errorcode", "memberroles_submissionforanyministry_in_government_bill_notset");
-							}
-						} else {
-							logger.error("custom parameter 'MEMBERROLES_SUBMISSIONFORANYMINISTRY_IN_GOVERNMENT_RESOLUTION' is not set");
-							model.addAttribute("errorcode", "memberroles_submissionforanyministry_in_government_resolution_notset");
-						}
-						List<Ministry> assignedMinistries=new ArrayList<Ministry>();
-						if(isAllowedToAccessOtherMinistries == true) {
-							List<Ministry> memberMinistries = new ArrayList<Ministry>();
-							List<Ministry> otherMinistries = new ArrayList<Ministry>();
-							for(MemberMinister i:memberMinisters){
-								memberMinistries.add(i.getMinistry());						
-							}
-							//setting first member ministry as selected ministry by default
-							if(!memberMinistries.isEmpty()) {
-								domain.setMinistry(memberMinistries.get(0));
-							}									
-							//adding ministries of minister adding this resolution
-							assignedMinistries.addAll(memberMinistries);
-							//also adding ministries that do not belong to minister adding this resolution						
-							try {
-								otherMinistries = Ministry.findMinistriesAssignedToGroups(ministrySession.getHouse().getType(), ministrySession.getYear(), ministrySession.getType(), locale);
-							} catch (ELSException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} //Ministry.findAssignedMinistries(locale);
-							otherMinistries.removeAll(memberMinistries);					
-							assignedMinistries.addAll(otherMinistries);
-						} else {
-							for(MemberMinister i:memberMinisters){
-								assignedMinistries.add(i.getMinistry());						
-							}
-							//setting first member ministry as selected ministry by default
-							if(!assignedMinistries.isEmpty()) {
-								domain.setMinistry(assignedMinistries.get(0));
-							}									
-						}	
-						model.addAttribute("ministries",assignedMinistries);
-					}else{
-						List<Ministry> ministries = new ArrayList<Ministry>();
-						try {
-							ministries = Ministry.findMinistriesAssignedToGroups(ministrySession.getHouse().getType(), ministrySession.getYear(), ministrySession.getType(), locale);
-						} catch (ELSException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}	
-						model.addAttribute("ministries",ministries);
-					}
-						
-					Ministry ministry=domain.getMinistry();
-					if(ministry!=null){
-						model.addAttribute("ministrySelected",ministry.getId());
-						List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
-						model.addAttribute("subDepartments", assignedSubDepartments);
-						if(!assignedSubDepartments.isEmpty()) {
-							SubDepartment subDepartment=assignedSubDepartments.get(0);
-							domain.setSubDepartment(subDepartment);			
-							if(subDepartment!=null){
-								model.addAttribute("subDepartmentSelected",subDepartment.getId());
-							}
-						}									
 					}
 				}
 			}
-		} catch (ParseException e) {
-			logger.error("Failed to parse rotation order publish date:'"+strRotationOrderPubDate+"' in "+serverDateFormat.getValue()+" format");
-			model.addAttribute("errorcode", "rotationorderpubdate_cannotbeparsed");
+			Date rotationOrderPubDate=null;
+			CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			String strRotationOrderPubDate = ministrySession.getParameter("questions_starred_rotationOrderPublishingDate");
+			if(strRotationOrderPubDate==null){
+				logger.error("Parameter 'questions_starred_rotationOrderPublishingDate' not set in session with Id:"+selectedSession.getId());
+				model.addAttribute("errorcode", "rotationorderpubdate_notset");
+			} else {
+				try {
+					rotationOrderPubDate = FormaterUtil.getDateFormatter(serverDateFormat.getValue(), "en_US").parse(strRotationOrderPubDate);
+				} catch (ParseException e) {
+					logger.error("Failed to parse rotation order publish date:'"+strRotationOrderPubDate+"' in "+serverDateFormat.getValue()+" format");
+					model.addAttribute("errorcode", "rotationorderpubdate_cannotbeparsed");
+				}
+				Date currentDate=new Date();
+				if(currentDate.before(rotationOrderPubDate)){
+					logger.error("Rotation order not set in session with Id:"+selectedSession.getId());
+					model.addAttribute("errorcode", "rotationorderpubdate_notreached");
+				}
+			}
 		}
 		
 		/**** Referred Act for Amendment Bill ****/
@@ -2125,6 +2038,8 @@ public class BillWorkflowController extends BaseController {
 	public String updateMyTask(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale,@Valid @ModelAttribute("domain") final Bill domain,final BindingResult result) {
+		Bill bill = null;
+		
 		/**** Workflowdetails ****/
 		String strWorkflowdetails=(String) request.getParameter("workflowdetails");
 		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
@@ -2188,7 +2103,9 @@ public class BillWorkflowController extends BaseController {
 						model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
 						model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
 						/** Stale State Exception **/
-						Bill bill = Bill.findById(Bill.class, domain.getId());
+						if(bill==null) {
+							bill = Bill.findById(Bill.class, domain.getId());
+						}
 						populateModelForPress(bill, model, request, workflowDetails);
 						String userGroupType = workflowDetails.getAssigneeUserGroupType();
 						return "workflow/bill/"+userGroupType;
@@ -2216,7 +2133,9 @@ public class BillWorkflowController extends BaseController {
 		}
 		if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
 				&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)) {
-			Bill bill = Bill.findById(Bill.class, domain.getId());	
+			if(bill==null) {
+				bill = Bill.findById(Bill.class, domain.getId());
+			}				
 			/**** add/update revised titles in domain ****/
 			bill.getRevisedTitles().clear();
 			List<TextDraft> revisedTitles = this.updateDraftsOfGivenType(bill, "revised_title", request);
@@ -2319,7 +2238,9 @@ public class BillWorkflowController extends BaseController {
 		String[] strSupportingMembers=request.getParameterValues("selectedSupportingMembers");
 		List<SupportingMember> members=new ArrayList<SupportingMember>();
 		if(domain.getId()!=null){
-			Bill bill=Bill.findById(Bill.class,domain.getId());
+			if(bill==null) {
+				bill=Bill.findById(Bill.class,domain.getId());
+			}			
 			members=bill.getSupportingMembers();
 		}
 		if(strSupportingMembers!=null){
@@ -2492,6 +2413,12 @@ public class BillWorkflowController extends BaseController {
 		List<TextDraft> revisedAnnexuresForAmendingBill = this.updateDraftsOfGivenType(domain, "revised_annexureForAmendingBill", request);
 		domain.setRevisedAnnexuresForAmendingBill(revisedAnnexuresForAmendingBill);
 		
+		/**** retain sections ****/
+		if(bill==null) {
+			bill=Bill.findById(Bill.class,domain.getId());
+		}
+		domain.setSections(bill.getSections());
+		
 		performAction(domain, request);	
 		domain.merge();
 		
@@ -2507,7 +2434,7 @@ public class BillWorkflowController extends BaseController {
 				model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
 				model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
 				/** Stale State Exception **/
-				Bill bill = Bill.findById(Bill.class, domain.getId());
+				bill=Bill.findById(Bill.class,domain.getId());
 				populateModel(bill, model, request, workflowDetails);
 				String userGroupType = workflowDetails.getAssigneeUserGroupType();
 				return "workflow/bill/"+userGroupType;
@@ -2520,7 +2447,7 @@ public class BillWorkflowController extends BaseController {
 				model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
 				model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
 				/** Stale State Exception **/
-				Bill bill = Bill.findById(Bill.class, domain.getId());
+				bill=Bill.findById(Bill.class,domain.getId());
 				populateModel(bill, model, request, workflowDetails);
 				String userGroupType = workflowDetails.getAssigneeUserGroupType();
 				return "workflow/bill/"+userGroupType;
@@ -2533,7 +2460,7 @@ public class BillWorkflowController extends BaseController {
 				model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
 				model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
 				/** Stale State Exception **/
-				Bill bill = Bill.findById(Bill.class, domain.getId());
+				bill=Bill.findById(Bill.class,domain.getId());
 				populateModel(bill, model, request, workflowDetails);
 				String userGroupType = workflowDetails.getAssigneeUserGroupType();
 				return "workflow/bill/"+userGroupType;
@@ -2596,9 +2523,9 @@ public class BillWorkflowController extends BaseController {
 			}
 		}
 		workflowDetails.setStatus("COMPLETED");
-		workflowDetails.setCompletionTime(new Date());		
-		/**** Stale State Exception ****/		
-		Bill bill=Bill.findById(Bill.class,domain.getId());
+		workflowDetails.setCompletionTime(new Date());	
+		/**** Stale State Exception ****/
+		bill=Bill.findById(Bill.class,domain.getId());
 		if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {
 			if(customStatus.getType().equals(ApplicationConstants.BILL_FINAL_TRANSLATION)) {
 				if(domain.getRemarks()!=null && !domain.getRemarks().isEmpty())

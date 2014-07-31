@@ -47,15 +47,15 @@
 		function loadSubDepartments(ministry){
 			$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
 				$("#subDepartment").empty();
-				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
+				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 				if(data.length>0){
-				for(var i=0;i<data.length;i++){
-					subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
-				}
-				$("#subDepartment").html(subDepartmentText);			
+					for(var i=0;i<data.length;i++){
+						subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+					}
+				$("#subDepartment").html(subDepartmentText);		
 				}else{
 					$("#subDepartment").empty();
-					var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
+					var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
 					$("#subDepartment").html(subDepartmentText);				
 				}
 			});
@@ -64,7 +64,7 @@
 		function loadMinistries(session){
 			$.get('ref/session/'+session+'/ministries',function(data){
 				if(data.length>0){
-					var minsitryText="<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>";
+					var minsitryText="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
 					for(var i=0;i<data.length;i++){
 						minsitryText+="<option value='"+data[i].id+"'>"+data[i].name;				
 					}
@@ -80,39 +80,39 @@
 		}
 		
 		$(document).ready(function(){		
-			if($('#ministrySelected').val()=="" || $('#ministrySelected').val()==undefined){		
-				$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
+			/* if($('#ministrySelected').val()=="" || $('#ministrySelected').val()==undefined){		
+				$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			}else{
 				//in case member doesnt want to select ministry for now, this option will be useful.
-				$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
-			}
+				$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
+			} */
 				
 			if($('#subDepartmentSelected').val()=="" || $('#subDepartmentSelected').val()==undefined){
-				$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
+				$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			}else{
 				//in case member doesnt want to select subdepartment for now, this option will be useful.
-				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");			
+				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 			}
 			
 			if($('#selectedBillType').val()=="" || $('#selectedBillType').val()==undefined){		
-				$("#billType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
+				$("#billType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			}else{
 				//in case member doesnt want to select bill type for now, this option will be useful.
-				$("#billType").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
+				$("#billType").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
 			}
 			
 			if($('#selectedBillKind').val()=="" || $('#selectedBillKind').val()==undefined){		
-				$("#billKind").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
+				$("#billKind").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			}else{
 				//in case member doesnt want to select bill kind for now, this option will be useful.
-				$("#billKind").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
+				$("#billKind").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
 			}
 			
 			if($('#selectedIntroducingHouseType').val()=="" || $('#selectedIntroducingHouseType').val()==undefined){		
-				$("#introducingHouseType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
+				$("#introducingHouseType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			}else{
 				//in case member doesnt want to select introducing housetype for now, this option will be useful.
-				$("#introducingHouseType").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
+				$("#introducingHouseType").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
 			}			
 			
 			/**** Auto Suggest(member login)- Member ****/		
@@ -190,6 +190,37 @@
 						$("select[name='"+controlName+"']").hide();									
 					}		
 					return false;
+				}
+			});
+			/**** Auto Suggest(member login)- Minister ****/
+			$( "#formattedMinistry").autocomplete({
+				minLength:3,			
+				source:'ref/getministries?session='+$('#session').val()+'&deviceTypeId='+$('#originalType').val()
+				+'&memberId='+$('#primaryMember').val(),
+				select:function(event,ui){	
+					$("#ministry").val(ui.item.id);								
+				},
+				change:function(event,ui){
+					if(ui.item!=undefined) {
+						var ministryVal=ui.item.id;
+						console.log(ministryVal);
+						if(ministryVal!=''){
+							console.log(ministryVal);
+							loadSubDepartments(ministryVal);						
+						}else{
+							//$("#department").empty();				
+							$("#subDepartment").empty();				
+							//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+							$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+						}
+					} else {
+						$("#ministry").val("");
+						$( "#formattedMinistry").val("");
+						//$("#department").empty();				
+						$("#subDepartment").empty();				
+						//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+						$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+					}					
 				}
 			});
 			
@@ -383,12 +414,13 @@
 			});
 				
 			/**** Ministry Changes ****/	
-			$("#ministry").change(function(){
-				if($(this).val()!=''){
-					loadSubDepartments($(this).val());
-				}else{
+			$("#formattedMinistry").change(function(){
+				if($(this).val()==''){
+					$("#ministry").val("");
+					//$("#department").empty();				
 					$("#subDepartment").empty();				
-					$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
+					//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+					$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 				}
 			});	
 			
@@ -689,7 +721,9 @@
 		
 		<p>
 			<label class="small"><spring:message code="bill.ministry" text="Ministry"/></label>
-			<form:select path="ministry" id="ministry" class="sSelect">
+			<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
+			<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
+			<%-- <form:select path="ministry" id="ministry" class="sSelect">
 			<c:forEach items="${ministries}" var="i">
 				<c:choose>
 					<c:when test="${i.id==ministrySelected }">
@@ -700,7 +734,7 @@
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>
-			</form:select>
+			</form:select> --%>
 			<form:errors path="ministry" cssClass="validationError"/>			
 			<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
 			<select name="subDepartment" id="subDepartment" class="sSelect">
@@ -814,10 +848,10 @@
 		
 		<div id="referredOrdinanceDiv" style="margin-top:10px;">
 			<c:choose>	
-			<c:when test="${not empty referredAct}"><c:set var="displayReferActLink" value="none"/></c:when>
-			<c:otherwise><c:set var="displayReferActLink" value="inline"/></c:otherwise>		
+			<c:when test="${not empty referredOrdinace}"><c:set var="displayReferOrdinaneLink" value="none"/></c:when>
+			<c:otherwise><c:set var="displayReferOrdinanceLink" value="inline"/></c:otherwise>		
 			</c:choose>
-			<p id="referOrdinancePara" style="display: ${displayReferActLink}">
+			<p id="referOrdinancePara" style="display: ${displayReferOrdinanceLink}">
 				<a href="#" id="referOrdinance" style="margin: 0px 0px 0px 162px;"><spring:message code="bill.referOrdinance" text="Refer Ordinance"></spring:message></a>
 			</p>	
 			<c:choose>	
@@ -1068,7 +1102,7 @@
 		<input id="selectedBillType" value="${selectedBillType}" type="hidden">
 		<input id="selectedBillKind" value="${selectedBillKind}" type="hidden">
 		<input id="selectedIntroducingHouseType" value="${selectedIntroducingHouseType}" type="hidden">
-		<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
+		<input id="pleaseSelectMessage" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
 		<input id="sendForApprovalMsg" value="<spring:message code='client.prompt.approve' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 		<input id="submissionMsg" value="<spring:message code='bill.client.prompt.submit' text='Do you want to submit the bill'></spring:message>" type="hidden">	
 		<input type="hidden" id="typeOfSelectedDeviceType" value="${selectedDeviceTypeForBill}">	

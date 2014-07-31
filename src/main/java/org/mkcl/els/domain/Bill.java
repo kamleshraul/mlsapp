@@ -475,10 +475,7 @@ public class Bill extends Device implements Serializable {
     }
     
     @Override
-    public Bill merge() {
-    	//handle for sections
-    	Bill existingBill = Bill.findById(Bill.class, this.getId());
-    	this.setSections(existingBill.getSections());
+    public Bill merge() {    	
     	Bill bill = null;
     	if(this.getStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION) 
     			&& this.getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)
@@ -610,9 +607,9 @@ public class Bill extends Device implements Serializable {
             	draft.setContentDrafts(this.addDraftsOfGivenTypeForBillDraft(this.getContentDrafts()));
             }
             
-            if(this.getSections()!= null) {            	
-            	draft.setSections(this.addSectionsForBillDraft(this.getSections()));
-            }
+//            if(this.getSections()!= null) {            	
+//            	draft.setSections(this.addSectionsForBillDraft(this.getSections()));
+//            }
             
             if(this.getRevisedStatementOfObjectAndReasonDrafts()!= null && !this.getRevisedStatementOfObjectAndReasonDrafts().isEmpty()) {
             	draft.setStatementOfObjectAndReasonDrafts(this.addDraftsOfGivenTypeForBillDraft("statementOfObjectAndReasonDrafts", this.getRevisedStatementOfObjectAndReasonDrafts()));
@@ -746,22 +743,22 @@ public class Bill extends Device implements Serializable {
     	return draftsOfGivenTypeForBillDraft;
     }
     
-    private List<Section> addSectionsForBillDraft(List<Section> sections) {
-    	if(sections!=null) {
-    		List<Section> sectionDrafts = new ArrayList<Section>();    	
-        	for(Section section : sections) {
-        		Section sectionDraft = new Section();
-        		sectionDraft.setNumber(section.getNumber());
-        		sectionDraft.setLanguage(section.getLanguage());
-        		sectionDraft.setText(section.getText());
-        		sectionDraft.setLocale(section.getLocale());
-        		sectionDrafts.add(sectionDraft);
-        	}
-        	return sectionDrafts;
-    	} else {
-    		return null;
-    	}    	
-    }
+//    private List<Section> addSectionsForBillDraft(List<Section> sections) {
+//    	if(sections!=null) {
+//    		List<Section> sectionDrafts = new ArrayList<Section>();    	
+//        	for(Section section : sections) {
+//        		Section sectionDraft = new Section();
+//        		sectionDraft.setNumber(section.getNumber());
+//        		sectionDraft.setLanguage(section.getLanguage());
+//        		sectionDraft.setText(section.getText());
+//        		sectionDraft.setLocale(section.getLocale());
+//        		sectionDrafts.add(sectionDraft);
+//        	}
+//        	return sectionDrafts;
+//    	} else {
+//    		return null;
+//    	}    	
+//    }
     
     public static List<Bill> findAllByMember(final Session session,
 			final Member primaryMember,final DeviceType deviceType,final Integer itemsCount,
@@ -1375,8 +1372,20 @@ public class Bill extends Device implements Serializable {
 		return auxiliaryWorkflowStatus;
 	}
 	
+	public static List<Section> findAllSectionsInGivenLanguage(final Long billId, final String language) throws ELSException {
+		return getBillRepository().findAllSectionsInGivenLanguage(billId, language);
+	}
+	
 	public static Section findSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
 		return getBillRepository().findSection(billId, language, sectionNumber);
+	}
+	
+	public static Section findSectionByHierarchyOrder(final Long billId, final String language, final String sectionHierarchyOrder) throws ELSException {
+		return getBillRepository().findSectionByHierarchyOrder(billId, language, sectionHierarchyOrder);
+	}
+	
+	public static List<Section> findAllInternalSections(final Long billId, final String language, final String sectionHierarchyOrder) throws ELSException {
+		return getBillRepository().findAllInternalSections(billId, language, sectionHierarchyOrder);
 	}
 	
 	//-----------------------------Getters And Setters--------------------------------

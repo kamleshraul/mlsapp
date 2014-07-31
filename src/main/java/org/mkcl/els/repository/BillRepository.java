@@ -1856,6 +1856,23 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		return result;			
 	}
 	
+	public List<Section> findAllSectionsInGivenLanguage(final Long billId, final String language) throws ELSException {
+		String strQuery = "SELECT bs FROM Bill b JOIN b.sections bs" +
+				" WHERE b.id=:billId AND bs.language=:language";
+		
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("billId",billId);
+		query.setParameter("language",language);		
+		
+		try {
+			return query.getResultList();
+		} catch(NoResultException e) {
+			return null;
+		} catch(Exception e) {
+			throw new ELSException("some_error", "Some Error Occured");
+		}
+	}
+	
 	public Section findSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
 		Section section = null;
 		
@@ -1872,8 +1889,49 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		} catch(NoResultException e) {
 			return null;
 		} catch(Exception e) {
-			throw new ELSException("bill_section_notfound", "Error in finding section");
+			throw new ELSException("some_error", "Error in finding section");
 		}
 		return section;		
+	}
+	
+	public Section findSectionByHierarchyOrder(final Long billId, final String language, final String sectionHierarchyOrder) throws ELSException {
+		Section section = null;
+		
+		String strQuery = "SELECT bs FROM Bill b JOIN b.sections bs" +
+				" WHERE b.id=:billId AND bs.language=:language AND bs.hierarchyOrder=:sectionHierarchyOrder";
+		
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("billId",billId);
+		query.setParameter("language",language);
+		query.setParameter("sectionHierarchyOrder",sectionHierarchyOrder);
+		
+		try {
+			section = (Section) query.getSingleResult();	
+		} catch(NoResultException e) {
+			return null;
+		} catch(Exception e) {
+			throw new ELSException("some_error", "Error in finding section");
+		}
+		return section;		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Section> findAllInternalSections(final Long billId, final String language, final String sectionHierarchyOrder) throws ELSException {
+		String strQuery = "SELECT bs FROM Bill b JOIN b.sections bs" +
+				" WHERE b.id=:billId AND bs.language=:language AND bs.hierarchyOrder LIKE :sectionHierarchyOrderExpr AND bs.hierarchyOrder<>:sectionHierarchyOrder";
+		
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("billId",billId);
+		query.setParameter("language",language);
+		query.setParameter("sectionHierarchyOrder",sectionHierarchyOrder);
+		query.setParameter("sectionHierarchyOrderExpr",sectionHierarchyOrder+"%");
+		
+		try {
+			return query.getResultList();
+		} catch(NoResultException e) {
+			return null;
+		} catch(Exception e) {
+			throw new ELSException("some_error", "Some Error Occured");
+		}		
 	}
 }

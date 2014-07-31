@@ -1699,7 +1699,7 @@
 				</c:forEach>	
 				
 				<p>
-					<label class="small"><spring:message code="session.deviceType.instructionalOrder" text="Schedule 7 Of Constitution in ${i.type}" /></label>
+					<label class="small"><spring:message code="session.deviceType.instructionalOrder" text="Instructional Order" /></label>
 					<c:choose>
 						<c:when test="${empty bills_nonofficial_instructionalorder}">
 							<jsp:include page="/common/file_upload.jsp">
@@ -1838,7 +1838,7 @@
 				</c:forEach>		
 				
 				<p>
-					<label class="small"><spring:message code="session.deviceType.instructionalOrder" text="Schedule 7 Of Constitution in ${i.type}" /></label>
+					<label class="small"><spring:message code="session.deviceType.instructionalOrder" text="Instructional Order" /></label>
 					<c:choose>
 						<c:when test="${empty bills_government_instructionalorder}">
 							<jsp:include page="/common/file_upload.jsp">

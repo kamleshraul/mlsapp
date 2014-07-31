@@ -10,9 +10,11 @@
 				var parameters = "houseType="+$("#selectedHouseType").val()
 				 +"&sessionYear="+$("#selectedSessionYear").val()
 				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&deviceType="+$("#selectedQuestionType").val()
 				 +"&subDepartment="+$("#selectedSubDepartment").val()
+				 +"&status="+$("#selectedStatus").val()
 				 +"&locale="+$("#moduleLocale").val()
-				 +"&report="+"QIS_STARRED_DEPARTMENTWISE_QUESTIONS"
+				 +"&report="+"QIS_DEPARTMENTWISE_QUESTIONS"
 				 +"&reportxsl="+"departmentwisequestions"
 				 +"&reportout="+"departmentwisequestions"
 				 +"&outputFormat="+"PDF";	
@@ -24,9 +26,11 @@
 				var parameters = "houseType="+$("#selectedHouseType").val()
 				 +"&sessionYear="+$("#selectedSessionYear").val()
 				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&deviceType="+$("#selectedQuestionType").val()
 				 +"&subDepartment="+$("#selectedSubDepartment").val()
+				 +"&status="+$("#selectedStatus").val()
 				 +"&locale="+$("#moduleLocale").val()
-				 +"&report="+"QIS_STARRED_DEPARTMENTWISE_QUESTIONS"
+				 +"&report="+"QIS_DEPARTMENTWISE_QUESTIONS"
 				 +"&reportxsl="+"departmentwisequestions"
 				 +"&reportout="+"departmentwisequestions"
 				 +"&outputFormat="+"WORD";	
@@ -92,7 +96,7 @@
 			${localisedContent[2]} :- &nbsp;&nbsp;&nbsp;&nbsp;<b>${report[0][3]}</b>
 		</div>
 		<div style="margin-top: 10px;font-size: 18px;font-weight: bold;text-decoration: underline;">
-			${localisedContent[3]}
+			${report[0][11]} - ${report[0][13]}
 		</div>
 		<div style="margin-top: 15px;font-size: 18px;font-weight: bold;">
 			<label style="text-decoration: underline;">${localisedContent[4]} -</label> &nbsp;&nbsp;&nbsp;${report[0][4]}
@@ -106,7 +110,14 @@
 				<th style="text-align: center;">${localisedContent[5]}</th>
 				<th style="text-align: center;">${localisedContent[6]}</th>
 				<th>${localisedContent[7]}</th>
-				<th>${localisedContent[8]}</th>
+				<c:choose>
+					<c:when test="${report[0][10]=='questions_starred' and report[0][12]=='question_final_admission'}">
+					 	<th>${localisedContent[9]}</th>
+						<th>${localisedContent[8]}</th>
+						<th>${localisedContent[10]}</th>
+					</c:when>	
+					<c:otherwise><th>${localisedContent[8]}</th></c:otherwise>
+				</c:choose>							
 			</tr>
 			<!-- <tr>
 				<th style="font-size: 8px;" colspan="4">&nbsp;</th>
@@ -124,7 +135,14 @@
 						</c:if>
 					</td>
 					<td width="25%">${r[8]}</td>
-					<td width="60%">${r[9]}</td>
+					<c:choose>
+						<c:when test="${report[0][10]=='questions_starred' and report[0][12]=='question_final_admission'}">
+						 	<td width="15%">${r[14]}</td>
+							<td width="40%">${r[9]}</td>
+							<td width="5%">${r[15]}</td>
+						</c:when>	
+						<c:otherwise><td width="60%">${r[9]}</td></c:otherwise>
+					</c:choose>					
 				</tr>
 			</c:forEach>
 		</tbody>

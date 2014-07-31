@@ -179,7 +179,7 @@
 		function loadSubDepartments(ministry){
 			$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
 				$("#subDepartment").empty();
-				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
+				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 				if(data.length>0){
 				for(var i=0;i<data.length;i++){
 					subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
@@ -187,7 +187,7 @@
 				$("#subDepartment").html(subDepartmentText);			
 				}else{
 					$("#subDepartment").empty();
-					var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
+					var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
 					$("#subDepartment").html(subDepartmentText);				
 				}
 			});
@@ -247,7 +247,39 @@
 		  }
 		}
 		
-		$(document).ready(function(){	
+		$(document).ready(function(){
+			/**** Auto Suggest(member login)- Minister ****/
+			$( "#formattedMinistry").autocomplete({
+				minLength:3,			
+				source:'ref/getministries?session='+$('#session').val()+'&deviceTypeId='+$('#originalType').val()
+				+'&memberId='+$('#primaryMember').val(),
+				select:function(event,ui){	
+					$("#ministry").val(ui.item.id);								
+				},
+				change:function(event,ui){
+					if(ui.item!=undefined) {
+						var ministryVal=ui.item.id;
+						console.log(ministryVal);
+						if(ministryVal!=''){
+							console.log(ministryVal);
+							loadSubDepartments(ministryVal);						
+						}else{
+							//$("#department").empty();				
+							$("#subDepartment").empty();				
+							//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+							$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+						}
+					} else {
+						$("#ministry").val("");
+						$( "#formattedMinistry").val("");
+						//$("#department").empty();				
+						$("#subDepartment").empty();				
+						//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+						$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+					}					
+				}
+			});
+			
 			$('#opinionSoughtFromLawAndJD').wysiwyg({
 				resizeOptions: {maxWidth: 600},
 				controls:{	
@@ -494,12 +526,13 @@
 				$(".toolTip").hide();
 			});
 			/**** Ministry Changes ****/
-			$("#ministry").change(function(){
-				if($(this).val()!=''){
-					loadSubDepartments($(this).val());
-				}else{
+			$("#formattedMinistry").change(function(){
+				if($(this).val()==''){
+					$("#ministry").val("");
+					//$("#department").empty();				
 					$("#subDepartment").empty();				
-					$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
+					//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+					$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 				}
 			});
 			/**** Citations ****/
@@ -655,27 +688,27 @@
 		    });
 		    
 			/**** On Page Load ****/
-		    if($("#ministrySelected").val()==''){
-				$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");			
+		    /* if($("#ministrySelected").val()==''){
+				$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 			}else{
-				$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
-			}
+				$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
+			} */
 			if($("#subDepartmentSelected").val()==''){
-				$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");			
+				$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 			}else{
-				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");			
+				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 			}	
 			if($('#selectedBillType').val()=="" || $('#selectedBillType').val()==undefined){		
-				$("#billType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
+				$("#billType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			}else{
 				//in case member doesnt want to select bill type for now, this option will be useful.
-				$("#billType").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
+				$("#billType").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
 			}			
 			if($('#selectedBillKind').val()=="" || $('#selectedBillKind').val()==undefined){		
-				$("#billKind").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
+				$("#billKind").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			}else{
 				//in case member doesnt want to select bill kind for now, this option will be useful.
-				$("#billKind").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
+				$("#billKind").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
 			}
 			/**** show title for only default bill language ****/
 			$('.title').each(function() {
@@ -1181,7 +1214,24 @@
 				}				
 				selectedText = getIframeSelectionText(document.getElementById(iframeId)); */				
 				$.get('bill/addSection?language='+language+'&selectedText='+selectedText,function(data){
-					$.fancybox.open(data, {autoSize: false, width: 720, height:420});		    	
+					$.fancybox.open(data, {autoSize: false, width: 720, height:450});		    	
+			    });
+				return false;
+			});
+			$('.editSection').click(function() {
+				var selectedText = "";
+				var language = this.id.split("_")[2];
+				/* var iframeId = "";
+				var language = this.id.split("_")[2];
+				//alert($('#revised_contentDraft_text_marathi').wysiwyg('getSelection'));
+				if(this.id.split("_")[1]=='contentDraft') {
+					iframeId = "contentDraft_text_"+language+"-wysiwyg-iframe";										
+				} else if(this.id.split("_")[1]=='revisedContentDraft') {
+					iframeId = "revised_contentDraft_text_"+language+"-wysiwyg-iframe";					
+				}				
+				selectedText = getIframeSelectionText(document.getElementById(iframeId)); */				
+				$.get('bill/editSection?language='+language+'&selectedText='+selectedText,function(data){
+					$.fancybox.open(data, {autoSize: false, width: 800, height:450});		    	
 			    });
 				return false;
 			});
@@ -1231,6 +1281,10 @@
 				float: right; 
 				margin: -210px 140px;
 			}	
+			.editSection {	
+				float: right;			
+				margin: -210px 20px;
+			}
 		</style>
 	</head> 
 
@@ -1308,7 +1362,9 @@
 					
 					<p>
 						<label class="small"><spring:message code="bill.ministry" text="Ministry"/>*</label>
-						<select name="ministry" id="ministry" class="sSelect">
+						<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
+						<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
+						<%-- <select name="ministry" id="ministry" class="sSelect">
 							<c:forEach items="${ministries }" var="i">
 								<c:choose>
 									<c:when test="${i.id==ministrySelected }">									
@@ -1319,7 +1375,7 @@
 									</c:otherwise>
 								</c:choose>
 							</c:forEach>
-						</select>		
+						</select> --%>		
 						<form:errors path="ministry" cssClass="validationError"/>
 						<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
 						<select name="subDepartment" id="subDepartment" class="sSelect">
@@ -1613,6 +1669,7 @@
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.contentDraft" text="Draft"/></label>
 										<textarea class="wysiwyg contentDraft" id="contentDraft_text_${i.language.type}" name="contentDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
 										<a id="saveAsSection_contentDraft_${i.language.type}" class="saveAsSection" href="javascript:void(0)"><spring:message code="bill.addSection" text="Add Section"/></a>
+										<a id="editSection_contentDraft_${i.language.type}" class="editSection" href="javascript:void(0)"><spring:message code="bill.editSection" text="Edit Section"/></a>
 										<input type="hidden" name="contentDraft_id_${i.language.type}" value="${i.id}">
 										<input type="hidden" name="contentDraft_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
@@ -1647,6 +1704,7 @@
 										</c:choose>
 										<textarea class="wysiwyg revisedContentDraft" id="revised_contentDraft_text_${i.language.type}" name="revised_contentDraft_text_${i.language.type}">${revisedContentDraftText}</textarea>
 										<a id="saveAsSection_revisedContentDraft_${i.language.type}" class="saveAsSection" href="javascript:void(0)"><spring:message code="bill.addSection" text="Add Section"/></a>
+										<a id="editSection_revisedContentDraft_${i.language.type}" class="editSection" href="javascript:void(0)"><spring:message code="bill.editSection" text="Edit Section"/></a>
 										<input type="hidden" name="revised_contentDraft_id_${i.language.type}" value="${revisedContentDraftId}">												
 									</p>
 									</div>
@@ -1654,6 +1712,8 @@
 							</div>
 						</fieldset>
 					</div>
+					
+					<form:select cssStyle="display: none;" id="sections" path="sections" items="${sections}" itemLabel="hierarchyOrder" itemValue="id"></form:select>
 					
 					<div id="annexuresForAmendingBill_div" style="margin-top: 20px;">
 						<fieldset>
@@ -2357,7 +2417,7 @@
 				<input id="usergroupType" name="usergroupType" type="hidden" value="${usergroupType}">
 				
 				<input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
-				<input id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
+				<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 				<input id="sendForTranslationMessage" name="sendForTranslationMessage" value="<spring:message code='bill.sendForTranslationMessage' text='Do You Want To Send for Translation of Selected Fields in remarks?'></spring:message>" type="hidden">
 				<input id="sendForOpinionFromLawAndJDMessage" name="sendForOpinionFromLawAndJDMessage" value="<spring:message code='bill.sendForOpinionFromLawAndJDMessage' text='Do You Want To Send for Opinion Seeking From Law And Judiciary Department?'></spring:message>" type="hidden">
 				<input id="sendForRecommendationFromGovernorPrompt" value="<spring:message code='bill.sendForRecommendationFromGovernorPrompt' text='Do You Want To Send for Recommendation From Governor?'></spring:message>" type="hidden">

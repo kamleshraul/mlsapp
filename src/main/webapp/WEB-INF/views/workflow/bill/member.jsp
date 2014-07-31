@@ -118,7 +118,7 @@
 		function loadSubDepartments(ministry){
 			$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
 				$("#subDepartment").empty();
-				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
+				var subDepartmentText="<option value='' selected='selected'>----"+$("#").val()+"----</option>";
 				if(data.length>0){
 				for(var i=0;i<data.length;i++){
 					subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
@@ -126,7 +126,7 @@
 				$("#subDepartment").html(subDepartmentText);			
 				}else{
 					$("#subDepartment").empty();
-					var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
+					var subDepartmentText="<option value='' selected='selected'>----"+$("#").val()+"----</option>";				
 					$("#subDepartment").html(subDepartmentText);				
 				}
 			});
@@ -212,6 +212,38 @@
 			});
 		} */
 		$(document).ready(function(){
+			/**** Auto Suggest(member login)- Minister ****/
+			$( "#formattedMinistry").autocomplete({
+				minLength:3,			
+				source:'ref/getministries?session='+$('#session').val()+'&deviceTypeId='+$('#originalType').val()
+				+'&memberId='+$('#primaryMember').val(),
+				select:function(event,ui){	
+					$("#ministry").val(ui.item.id);								
+				},
+				change:function(event,ui){
+					if(ui.item!=undefined) {
+						var ministryVal=ui.item.id;
+						console.log(ministryVal);
+						if(ministryVal!=''){
+							console.log(ministryVal);
+							loadSubDepartments(ministryVal);						
+						}else{
+							//$("#department").empty();				
+							$("#subDepartment").empty();				
+							//$("#department").prepend("<option value=''>----"+$("#").val()+"----</option>");				
+							$("#subDepartment").prepend("<option value=''>----"+$("#").val()+"----</option>");				
+						}
+					} else {
+						$("#ministry").val("");
+						$( "#formattedMinistry").val("");
+						//$("#department").empty();				
+						$("#subDepartment").empty();				
+						//$("#department").prepend("<option value=''>----"+$("#").val()+"----</option>");				
+						$("#subDepartment").prepend("<option value=''>----"+$("#").val()+"----</option>");
+					}					
+				}
+			});
+			
 			$('#opinionSoughtFromLawAndJD').wysiwyg({
 				resizeOptions: {maxWidth: 600},
 				controls:{	
@@ -459,12 +491,13 @@
 				$(".toolTip").hide();
 			}); */
 			/**** Ministry Changes ****/
-			$("#ministry").change(function(){
-				if($(this).val()!=''){
-					loadSubDepartments(ministry, department);
-				}else{
+			$("#formattedMinistry").change(function(){
+				if($(this).val()==''){
+					$("#ministry").val("");
+					//$("#department").empty();				
 					$("#subDepartment").empty();				
-					$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+					//$("#department").prepend("<option value=''>----"+$("#").val()+"----</option>");				
+					$("#subDepartment").prepend("<option value=''>----"+$("#").val()+"----</option>");			
 				}
 			});
 			/**** Citations ****/
@@ -624,11 +657,11 @@
 			});
 		    			    
 		    /**** On Page Load ****/
-		    if($("#ministrySelected").val()==''){
+		    /* if($("#ministrySelected").val()==''){
 				$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 			}else{
 				$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
-			}
+			} */
 			if($("#subDepartmentSelected").val()==''){
 				$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 			}else{
@@ -1159,7 +1192,9 @@
 					
 					<p>
 						<label class="small"><spring:message code="bill.ministry" text="Ministry"/>*</label>
-						<select name="ministry" id="ministry" class="sSelect">
+						<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
+						<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
+						<%-- <select name="ministry" id="ministry" class="sSelect">
 							<c:forEach items="${ministries }" var="i">
 								<c:choose>
 									<c:when test="${i.id==ministrySelected }">									
@@ -1170,7 +1205,7 @@
 									</c:otherwise>
 								</c:choose>
 							</c:forEach>
-						</select>		
+						</select> --%>		
 						<form:errors path="ministry" cssClass="validationError"/>
 						<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
 						<select name="subDepartment" id="subDepartment" class="sSelect">

@@ -207,8 +207,9 @@
 					},'html');
 				}				
 			});
-			/**** read only form for department in recommendation seeking workflow ****/
-			$("#readonly_currentForm :input").attr("disabled", true);
+			/**** read only form for view purpose ****/
+			$("#readonly_currentForm :input[type=text]").attr("readonly", true);
+			$("#readonly_currentForm :input[type!=text]").attr("disabled", true);
 			$("#readonly_currentForm :input").css("color","black");
 			$("#readonly_currentForm .wysiwyg").attr("readonly", true);
 			$("#readonly_currentForm a").not(".readonly_viewRevisions, .readonly_iconLink, .readonly_referenceLink").css("display", "none");
@@ -217,27 +218,27 @@
 			$("#readonly_viewRevisions_title").css("margin-left","162px");
 			$("#readonly_viewRevisions_title").css("margin-right","20px");
 		    /**** On page Load ****/		   
-		    if($("#readonly_ministrySelected").val()==''){
-				$("#readonly_ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");			
+		    /* if($("#readonly_ministrySelected").val()==''){
+				$("#readonly_ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 			}else{
-				$("#readonly_ministry").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
-			}
+				$("#readonly_ministry").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
+			} */
 			if($("#readonly_subDepartmentSelected").val()==''){
-				$("#readonly_subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");			
+				$("#readonly_subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 			}else{
-				$("#readonly_subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");			
+				$("#readonly_subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 			}	
 			if($('#readonly_selectedBillType').val()=="" || $('#readonly_selectedBillType').val()==undefined){		
-				$("#readonly_billType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
+				$("#readonly_billType").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			}else{
 				//in case member doesnt want to select bill type for now, this option will be useful.
-				$("#readonly_billType").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
+				$("#readonly_billType").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
 			}			
 			if($('#readonly_selectedBillKind').val()=="" || $('#readonly_selectedBillKind').val()==undefined){		
-				$("#readonly_billKind").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
+				$("#readonly_billKind").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 			}else{
 				//in case member doesnt want to select bill kind for now, this option will be useful.
-				$("#readonly_billKind").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");		
+				$("#readonly_billKind").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
 			}
 			/**** show title for only default bill language ****/
 			$('.readonly_title').each(function() {
@@ -570,7 +571,9 @@
 					
 					<p>
 						<label class="small"><spring:message code="bill.ministry" text="Ministry"/>*</label>
-						<select name="ministry" id="readonly_ministry" class="sSelect">
+						<input id="readonly_formattedMinistry" name="readonly_formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
+						<input name="readonly_ministry" id="readonly_ministry" type="hidden" value="${ministrySelected}">
+						<%-- <select name="ministry" id="readonly_ministry" class="sSelect">
 							<c:forEach items="${ministries }" var="i">
 								<c:choose>
 									<c:when test="${i.id==ministrySelected }">									
@@ -581,7 +584,7 @@
 									</c:otherwise>
 								</c:choose>
 							</c:forEach>
-						</select>		
+						</select> --%>		
 						<form:errors path="ministry" cssClass="validationError"/>
 						<label class="small"><spring:message code="bill.subdepartment" text="Sub Department"/></label>
 						<select name="subDepartment" id="readonly_subDepartment" class="sSelect">
