@@ -2924,7 +2924,7 @@ public class Ballot extends BaseDomain implements Serializable {
 				deviceVO.setAnswer(answer);				
 				Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
 				if(answeringMember != null){
-					deviceVO.setAnsweredBy(answeringMember.findFirstLastName());
+					deviceVO.setAnsweredBy(answeringMember.findNameInGivenFormat(memberNameFormat));
 				}
 				deviceVO.setMinistryName(q.getSubDepartment().getName());
 				try {
