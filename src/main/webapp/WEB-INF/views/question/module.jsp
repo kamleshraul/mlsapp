@@ -642,11 +642,12 @@
 		 +"&sessionType="+$("#selectedSessionType").val()
 		 +"&deviceType="+$("#selectedQuestionType").val()
 		 +"&subDepartment="+$("#selectedSubDepartment").val()
+		 +"&answeringDate=" //answering date can be selected later from dropdown for filtering result
 		 +"&group="+$("#selectedGroup").val()
 		 +"&status="+$("#selectedStatus").val()
 		 +"&locale="+$("#moduleLocale").val()
 		 +"&role="+$("#srole").val()
-		 +"&report="+"QIS_DEPARTMENTWISE_QUESTIONS"
+		 +"&report="+"QIS_DEPARTMENTWISE_QUESTIONS_"+$("#selectedHouseType").val().toUpperCase()
 		 +"&reportout="+"departmentwisequestions";	
 		var resourceURL = 'question/report/departmentwisequestions?'+ parameters;			
 		showTabByIdAndUrl('details_tab', resourceURL);

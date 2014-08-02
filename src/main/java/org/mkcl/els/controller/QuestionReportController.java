@@ -2215,9 +2215,13 @@ public class QuestionReportController extends BaseController{
 	
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@RequestMapping(value="/departmentwisequestions", method=RequestMethod.GET)
-	public String getDepartmentwiseAdmittedQuestionReport(HttpServletRequest request, Model model, Locale locale){
+	public String getDepartmentwiseQuestionReport(HttpServletRequest request, Model model, Locale locale){
 		
 		Map<String, String[]> requestMap = request.getParameterMap();
+		List answeringDates = Query.findReport("QIS_DEPARTMENTWISE_QUESTIONS_ANSWERING_DATES", requestMap);
+		model.addAttribute("answeringDates", answeringDates);
+		model.addAttribute("selectedAnsweringDate", request.getParameter("answeringDate"));
+		
 		List report = Query.findReport(request.getParameter("report"), requestMap);
 		if(report != null && !report.isEmpty()){
 			String[] clubbedNumbersArr = new String[report.size()];
@@ -2228,8 +2232,8 @@ public class QuestionReportController extends BaseController{
 					if(count==0) {
 						model.addAttribute("localisedContent", obj[0].toString().split("~#"));
 					}
-					if(obj[7]!=null) {
-						String[] clubbedQuestionNumbers = obj[7].toString().split(",");
+					if(obj[8]!=null) {
+						String[] clubbedQuestionNumbers = obj[8].toString().split(",");
 						StringBuffer clubbedNumbers = new StringBuffer();
 						clubbedNumbers.append("(");
 						for(int i=0; i<clubbedQuestionNumbers.length; i++) {
@@ -2296,8 +2300,8 @@ public class QuestionReportController extends BaseController{
 							localisedContent.add(i);
 						}											
 					}
-					if(obj[7]!=null) {
-						String[] clubbedQuestionNumbers = obj[7].toString().split(",");
+					if(obj[8]!=null) {
+						String[] clubbedQuestionNumbers = obj[8].toString().split(",");
 						StringBuffer clubbedNumbers = new StringBuffer();
 						clubbedNumbers.append("(");
 						for(int i=0; i<clubbedQuestionNumbers.length; i++) {
@@ -2318,10 +2322,16 @@ public class QuestionReportController extends BaseController{
 				count++;
 			}
 			model.addAttribute("clubbedNumbers", clubbedNumbersList);
+			
+			String selectedAnsweringDate = request.getParameter("answeringDate");
+			if(selectedAnsweringDate==null) {
+				selectedAnsweringDate = "";
+			}
+			
 			/**** generate report ****/
 			if(!isError) {
 				try {
-					reportFile = generateReportUsingFOP(new Object[]{report,localisedContent, clubbedNumbersList}, "qis_departmentwise_questions", request.getParameter("outputFormat"), "qis_departmentwisequestions", locale.toString());
+					reportFile = generateReportUsingFOP(new Object[]{report,localisedContent, clubbedNumbersList, selectedAnsweringDate}, "qis_departmentwise_questions", request.getParameter("outputFormat"), "qis_departmentwisequestions", locale.toString());
 				} catch (Exception e) {					
 					e.printStackTrace();
 				}							
