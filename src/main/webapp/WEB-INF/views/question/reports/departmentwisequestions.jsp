@@ -85,23 +85,25 @@
 <c:if test="${(error!='') && (error!=null)}">
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
-<c:if test="${selectedHouseType=='lowerhouse' and (report[0][11]=='questions_starred' or empty report[0][11]) and (report[0][13]=='question_final_admission' or empty report[0][13])}">
-	<div style="margin-bottom: 20px;">
-		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-		<select name="answeringDate" id="answeringDate" style="width: 100px; height: 25px;">
-			<option value=""><spring:message code="please.select" /></option>
-			<c:forEach items="${answeringDates}" var="i">
-				<c:choose>
-					<c:when test="${i[0]==selectedAnsweringDate}">
-						<option value="${i[0]}" selected="selected">${i[1]}</option>
-					</c:when>
-					<c:otherwise>
-						<option value="${i[0]}">${i[1]}</option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</select>
-	</div>
+<c:if test="${selectedHouseType=='lowerhouse' and selectedDeviceType==starredDeviceType and selectedStatus==admittedStatus}">
+	<c:if test="${not empty selectedAnsweringDate or (empty selectedAnsweringDate and not empty report)}">
+		<div style="margin-bottom: 20px;">
+			<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
+			<select name="answeringDate" id="answeringDate" style="width: 100px; height: 25px;">
+				<option value=""><spring:message code="please.select" /></option>
+				<c:forEach items="${answeringDates}" var="i">
+					<c:choose>
+						<c:when test="${i[0]==selectedAnsweringDate}">
+							<option value="${i[0]}" selected="selected">${i[1]}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${i[0]}">${i[1]}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</select>
+		</div>
+	</c:if>
 </c:if>
 <c:choose>
 <c:when test="${report == null}">

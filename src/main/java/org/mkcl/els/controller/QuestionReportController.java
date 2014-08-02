@@ -2222,6 +2222,15 @@ public class QuestionReportController extends BaseController{
 		model.addAttribute("answeringDates", answeringDates);
 		model.addAttribute("selectedAnsweringDate", request.getParameter("answeringDate"));
 		
+		DeviceType starredDeviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale.toString());
+		if(starredDeviceType!=null) {
+			model.addAttribute("starredDeviceType", starredDeviceType.getId());
+		}
+		Status admittedStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale.toString());
+		if(admittedStatus!=null) {
+			model.addAttribute("admittedStatus", admittedStatus.getId());
+		}
+		
 		List report = Query.findReport(request.getParameter("report"), requestMap);
 		if(report != null && !report.isEmpty()){
 			String[] clubbedNumbersArr = new String[report.size()];
@@ -2263,6 +2272,8 @@ public class QuestionReportController extends BaseController{
 		model.addAttribute("selectedSessionType", request.getParameter("sessionType"));
 		model.addAttribute("selectedSessionYear", request.getParameter("sessionYear"));
 		model.addAttribute("selectedSubDepartment", request.getParameter("subDepartment"));
+		model.addAttribute("selectedDeviceType", request.getParameter("deviceType"));
+		model.addAttribute("selectedStatus", request.getParameter("status"));
 		
 		return "question/reports/"+request.getParameter("reportout");		
 	}//showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal');
