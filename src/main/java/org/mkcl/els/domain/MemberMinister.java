@@ -209,6 +209,10 @@ public class MemberMinister extends BaseDomain implements Serializable {
 			String param, String locale) {
     	return getMemberMinisterRepository().findMinistersInSecondHouse(house,param,locale);
 	}   
+    
+    public static Member find(Ministry ministry, Locale locale) {
+    	return getMemberMinisterRepository().find(ministry,locale);
+	}
 
     /**** Getters & Setters ****/
     
@@ -385,6 +389,8 @@ public class MemberMinister extends BaseDomain implements Serializable {
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
+
+	
 
 	 
 }

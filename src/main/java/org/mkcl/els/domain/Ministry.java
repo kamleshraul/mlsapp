@@ -11,6 +11,7 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -107,6 +108,10 @@ public class Ministry extends BaseDomain implements Serializable{
     	 return getMinistryRepository().findMinistriesAssignedToGroupsByTerm(houseType,sessionYear,sessionType,param,locale);
 	}
 
+    public static Ministry find(SubDepartment subDepartment,Locale locale) {
+    	 return getMinistryRepository().find(subDepartment,locale);
+	}
+    
     /**** Getters and Setters ****/
     
 	/**
@@ -162,6 +167,8 @@ public class Ministry extends BaseDomain implements Serializable{
 	public void setRemarks(final String remarks) {
 		this.remarks = remarks;
 	}
+
+	
 
 	
 
