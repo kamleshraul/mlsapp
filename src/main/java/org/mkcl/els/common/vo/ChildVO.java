@@ -6,9 +6,17 @@ public class ChildVO {
 	
 	private Integer orderNo;
 	
+	private Long version;
+	
+	private Long reporter;
+	
+	private Long proceeding;
+	
 	private String proceedingContent;
 	
 	private String primaryMember;
+	
+	private String primaryMemberName;
 	
 	private String primaryMemberDesignation;
 	
@@ -37,6 +45,14 @@ public class ChildVO {
 	private String publicRepresentativeDetails;
 	
 	private String constituency;
+	
+	private String deviceType;
+	
+	private String deviceId;
+	
+	private boolean isInterrupted;
+	
+	private boolean isConstituencyRequired;
 
 	
 	public ChildVO() {
@@ -255,4 +271,88 @@ public class ChildVO {
 	public void setConstituency(String constituency) {
 		this.constituency = constituency;
 	}
+
+
+	public Long getReporter() {
+		return reporter;
+	}
+
+
+	public void setReporter(Long reporter) {
+		this.reporter = reporter;
+	}
+
+
+	public Long getProceeding() {
+		return proceeding;
+	}
+
+
+	public void setProceeding(Long proceeding) {
+		this.proceeding = proceeding;
+	}
+
+
+	public Long getVersion() {
+		return version;
+	}
+
+
+	public void setVersion(Long version) {
+		this.version = version;
+	}
+
+
+	public String getPrimaryMemberName() {
+		return primaryMemberName;
+	}
+
+
+	public void setPrimaryMemberName(String primaryMemberName) {
+		this.primaryMemberName = primaryMemberName;
+	}
+
+
+	public String getDeviceType() {
+		return deviceType;
+	}
+
+
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
+	}
+
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+
+
+	public boolean isInterrupted() {
+		return isInterrupted;
+	}
+
+
+	public void setInterrupted(boolean isInterrupted) {
+		this.isInterrupted = isInterrupted;
+	}
+
+
+	public boolean isConstituencyRequired() {
+		return isConstituencyRequired;
+	}
+
+
+	public void setConstituencyRequired(boolean isConstituencyRequired) {
+		this.isConstituencyRequired = isConstituencyRequired;
+	}
+	
+	
+	
+	
 }
