@@ -13,11 +13,8 @@ $(document).ready(function(){
 		$('#mergedCitations').val(currentCitations);
 		var content="";
 		if(counter!=null && counter!=""){
-			content=$('#content'+counter).wysiwyg("getContent");
-			$('#content'+counter).wysiwyg("setContent",content+"<p></p>" + $('#mergedCitations').val());
-		}else{
-			content=$('#proceedingContent').wysiwyg("getContent");
-			$("#proceedingContent").wysiwyg("setContent",content+"<p></p>" + $('#mergedCitations').val());
+			content=$('#partContent'+counter).wysiwyg("getContent");
+			$('#partContent'+counter).wysiwyg("setContent",content+"<p>" + $('#mergedCitations').val() +"</p>");
 		}
 		   $.fancybox.close();	    	
 	});

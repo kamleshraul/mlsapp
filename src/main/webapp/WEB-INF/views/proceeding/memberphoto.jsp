@@ -35,8 +35,8 @@ $(document).ready(function(){
 		$('.memberImgA').click(function(){
 			var id=this.id;	
 			var member=id.split('#');
-			$('#primaryMember').val(member[0]);
-			$('#formattedMember').val(member[1]);
+			$('#primaryMember'+$('#partCounter').val()).val(member[0]);
+			$('#formattedPrimaryMember'+$('#partCounter').val()).val(member[1]);
 			$.fancybox.close();
 		});
 	});
@@ -52,8 +52,8 @@ $(document).ready(function(){
 	$('.memberImgA').click(function(){
 		var id=this.id;	
 		var member=id.split('#');
-		$('#primaryMember').val(member[0]);
-		$('#formattedMember').val(member[1]);
+		$('#primaryMember'+$('#partCounter').val()).val(member[0]);
+		$('#formattedPrimaryMember'+$('#partCounter').val()).val(member[1]);
 		$.fancybox.close();
 	});
 	
@@ -102,5 +102,7 @@ $(document).ready(function(){
 		<option value="${i.id}#${i.getFullname()}"></option>
 	</c:forEach>
 </select>
+
+<input type="hidden" id='partCounter' value='${partCount}'>
 </body> 
 </html>

@@ -11,8 +11,20 @@
 		var columnNo=new Array();
 		var colVal=new Array();
 		$(document).ready(function(){	
-			
 			$(document).keydown(function (e){
+				if(e.which==78 && e.ctrlKey){
+					e.preventDefault();
+					e.stopPropagation();
+					$('#addPart'+partCount).trigger('click');
+					return false;
+				}
+				if(e.which==83 && e.ctrlKey){
+					e.preventDefault();
+					e.stopPropagation();
+					$('#savePart').trigger('click');
+				}
+			}); 
+			/* $(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					e.preventDefault();
 					dataIds=$('#grid').jqGrid('getDataIDs');
@@ -45,7 +57,7 @@
 				if(e.keyCode == 38 || e.keyCode == 40){
 					scrollRowsInGrid(e);
 		        }
-			});
+			}); */
 			/*Tooltip*/
 			$(".toolTip").hide();					
 			/**** here we are trying to add date mask in grid search when field names ends with date ****/
