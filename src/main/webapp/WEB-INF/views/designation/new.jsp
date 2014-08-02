@@ -35,6 +35,13 @@
 				<form:input cssClass="sText " path="name" />
 				<form:errors path="name" cssClass="validationError" />
 			</p>
+			
+			<p>
+				<label class="small"><spring:message
+						code="designation.type" text="Designtion Type" />&nbsp;*</label>
+				<form:input cssClass="sText " path="type" />
+				<form:errors path="type" cssClass="validationError" />
+			</p>
 			<div class="fields expand">
 				<h2></h2>
 				<p class="tright">
