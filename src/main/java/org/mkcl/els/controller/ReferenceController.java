@@ -3189,11 +3189,13 @@ public class ReferenceController extends BaseController {
 							if(p.getProceedingContent()!=null && !p.getProceedingContent().isEmpty()){
 								strContent=strContent+p.getProceedingContent();
 							}
+							masterVo.setName(p.getRevisedContent());
+							masterVo.setId(p.getId());
+							
+							masterVOs.add(masterVo);
 							
 						}
-						masterVo.setValue(proceeding.getSlot().getName());
-						masterVo.setName(strContent);
-						masterVOs.add(masterVo);
+						
 					}
 				}
 			}
@@ -5601,8 +5603,30 @@ public class ReferenceController extends BaseController {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
+
 		
 		return pendingMessage;
+	}
+	
+	
+	@RequestMapping(value="/getDeviceNumber",method=RequestMethod.GET)
+	public @ResponseBody MasterVO getDeviceNumber(HttpServletRequest request, Locale locale){
+		String strDeviceId = request.getParameter("deviceId");
+		String strDeviceType = request.getParameter("deviceType");
+		MasterVO masterVO=new MasterVO();
+		if(strDeviceType!=null && !strDeviceType.isEmpty()
+			&& strDeviceId!=null && !strDeviceId.isEmpty()){
+			DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			String device=deviceType.getDevice();
+			if(device.equals(ApplicationConstants.QUESTION)){
+				Question question=Question.findById(Question.class, Long.parseLong(strDeviceId));
+				masterVO.setName(question.getNumber().toString());
+			}else if(device.equals(ApplicationConstants.RESOLUTION)){
+				Resolution resolution = Resolution.findById(Resolution.class, Long.parseLong(strDeviceId));
+				masterVO.setName(resolution.getNumber().toString());
+			}
+		}
+		return masterVO;
 	}
 	
 	@RequestMapping(value="/test/session/{sessionId}", method=RequestMethod.GET)
@@ -5689,4 +5713,5 @@ public class ReferenceController extends BaseController {
 		}
 		return actors;
 	}
+
 }
