@@ -1020,6 +1020,8 @@ public class ApplicationConstants {
 
 	public static String CLERK="clerk";
 
+	public static String STATE_MINISTER="state_minister";
+	
 	public static String QUESTION_PROCESSED_SENDTODEPARTMENT="question_processed_sendToDepartment";
 
 	/****Custom Parameters name ****/
@@ -1367,6 +1369,10 @@ public class ApplicationConstants {
 	public static final String REPORTING_BILL_LANGUAGES = "REPORTING_BILL_LANGUAGES";
 
 	public static final String MARATHI = "marathi";
+
+	public static final String QUESTION = "Question";
+	
+	public static final String RESOLUTION = "Resolution";
 
 	public static final String QUESTION_FINAL = "question_final";
 
