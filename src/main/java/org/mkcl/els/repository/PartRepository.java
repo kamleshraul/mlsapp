@@ -372,7 +372,8 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 							+" END AS replacedPageHeading,"
 							+" '0' AS undoData,"
 							+" '0' AS redoData,"
-							+" '0' AS useit"
+							+" '0' AS useit,"
+							+" pp.order_no"
 							+" FROM proceedings p"
 							+" INNER JOIN parts pp ON(pp.proceeding=p.id)"
 							+" WHERE p.id=" + proceeding.getId()

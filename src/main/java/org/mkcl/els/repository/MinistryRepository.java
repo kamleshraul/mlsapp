@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -13,7 +14,9 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.SubDepartment;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -148,6 +151,29 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 			ministryVos.add(masterVO);
 		}
 		return ministryVos;
+	}
+
+	public Ministry find(SubDepartment subDepartment,Locale locale) {
+		String strQuery= "SELECT m FROM MemberMinister mm"+ 
+						" JOIN mm.ministry m"+
+						" JOIN mm.memberDepartments md"+ 
+						" JOIN md.subDepartments msd"+ 
+						" WHERE msd.id=:subDepartmentId"+
+						" AND (mm.ministryToDate IS NULL OR mm.ministryToDate>=:currentDate)"+
+						" AND (mm.ministryFromDate IS NULL OR mm.ministryFromDate<=:currentDate)";
+		
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("subDepartmentId", subDepartment.getId());
+		query.setParameter("currentDate", new Date());
+		try{
+			Ministry ministry=(Ministry) query.getSingleResult();
+			return ministry;
+		}catch(Exception e){
+			return null;
+		}
+		
+		
+						
 	}
 
 	

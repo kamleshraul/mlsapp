@@ -3,6 +3,7 @@ package org.mkcl.els.repository;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -591,6 +592,28 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 			masterVos.add(masterVO);
 		}
 		return masterVos;
+	}
+
+
+	public Member find(Ministry ministry, Locale locale) {
+		String strQuery = "SELECT m FROM MemberMinister mm " +
+				" JOIN mm.member m" +
+				" JOIN mm.ministry mi" +
+				" WHERE (mm.ministryToDate IS NULL OR mm.ministryToDate>=:currentDate)" +
+				" AND (mm.ministryFromDate IS NULL OR mm.ministryFromDate<=:currentDate)" +
+				" AND mm.ministry.id=:ministryId"+
+				" AND m.locale=:locale";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("currentDate", new Date());
+		query.setParameter("ministryId", ministry.getId());
+		query.setParameter("locale", locale.toString());
+		try{
+			Member member=(Member) query.getSingleResult();
+			return member;
+		}catch(Exception e){
+			return null;
+		}
+		
 	}	
 	
 }
