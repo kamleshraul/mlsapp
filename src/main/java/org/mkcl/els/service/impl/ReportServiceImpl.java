@@ -277,6 +277,11 @@ public class ReportServiceImpl implements IReportService {
 							Element singleElement = new Element("element_"+(i+1));					
 							singleElement.setText(reportFields[i].toString());
 							root.addContent(singleElement);					
+						} else if(classType.equals("Object[]")){				
+							Element listElement = new Element("element_"+(i+1));		
+							createInternalElements(((Object[])reportFields[i]), listElement);
+							//singleElement.setText(reportFields[i].toString());
+							root.addContent(listElement);					
 						} else if(classType.endsWith("List")){					
 							List report = (List) reportFields[i]; 
 							Set s = new HashSet<Object>();				
