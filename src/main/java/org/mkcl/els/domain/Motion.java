@@ -66,6 +66,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 	/** The number. */
 	private Integer number;
+	
+	/** numner assigned afer ballot **/
+	private Integer postBallotNumber;
 
 	/** The submission date. */
 	@Temporal(TemporalType.TIMESTAMP)
@@ -522,6 +525,14 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 	public void setNumber(Integer number) {
 		this.number = number;
+	}
+
+	public Integer getPostBallotNumber() {
+		return postBallotNumber;
+	}
+
+	public void setPostBallotNumber(Integer postBallotNumber) {
+		this.postBallotNumber = postBallotNumber;
 	}
 
 	public Date getSubmissionDate() {
