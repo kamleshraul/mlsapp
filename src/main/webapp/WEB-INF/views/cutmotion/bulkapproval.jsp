@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-	<title><spring:message code="motion.bulksubmissionassisatnt" text="Bulk Put Up" /></title>
+	<title><spring:message code="cutmotion.bulksubmissionassisatnt" text="Bulk Put Up" /></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<style>
 		td{min-width:150px; max-width:350px;min-height:30px;}
@@ -29,7 +29,7 @@
 					});
 					var status=$("#selectedInternalStatus").val();
 					if(status!='-'){
-		        	$.post('motion/bulkapproval?items='+items,"&status="+status,		        			 		    	             
+		        	$.post('cutmotion/bulkapproval?items='+items,"&status="+status,		        			 		    	             
 		    	            function(data){
 		       					$('html').animate({scrollTop:0}, 'slow');
 		       				 	$('body').animate({scrollTop:0}, 'slow');	
@@ -60,7 +60,7 @@
 	<c:choose>
 		<c:when test="${!(empty bulkapprovals) }">
 	<p>
-	<label class="small"><spring:message code="motion.putupfor" text="Put up for"/></label>	
+	<label class="small"><spring:message code="cutmotion.putupfor" text="Put up for"/></label>	
 	<select id="selectedInternalStatus" class="sSelect">
 	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 	<c:forEach items="${internalStatuses}" var="i">
@@ -71,21 +71,21 @@
 	</p>
 			<table class="uiTable">
 				<tr>
-					<th><spring:message code="motion.submitall" text="Submit All"></spring:message>
+					<th><spring:message code="cutmotion.submitall" text="Submit All"></spring:message>
 					<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
-					<th><spring:message code="motion.number" text="Number"></spring:message></th>
-					<th><spring:message code="motion.member" text="Member"></spring:message></th>
-					<th><spring:message code="motion.subject" text="Subject"></spring:message></th>
-					<th><spring:message code="motion.lastremark" text="Last Remark"></spring:message></th>
-					<th><spring:message code="motion.lastremarkby" text="Last Remark By"></spring:message></th>	
-					<th><spring:message code="motion.lastdecision" text="Last Decision"></spring:message></th>									
+					<th><spring:message code="cutmotion.number" text="Number"></spring:message></th>
+					<th><spring:message code="cutmotion.member" text="Member"></spring:message></th>
+					<th><spring:message code="cutmotion.mainTitle" text="Main Title"></spring:message></th>
+					<th><spring:message code="cutmotion.lastremark" text="Last Remark"></spring:message></th>
+					<th><spring:message code="cutmotion.lastremarkby" text="Last Remark By"></spring:message></th>	
+					<th><spring:message code="cutmotion.lastdecision" text="Last Decision"></spring:message></th>									
 				</tr>			
 				<c:forEach items="${bulkapprovals}" var="i">
 					<tr>
 						<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"></td>
 						<td><a id="dv${i.deviceId}" class="device">${i.deviceNumber}</a></td>
 						<td>${i.member}</td>
-						<td>${i.subject}</td>
+						<td>${i.mainTitle}</td>
 						<td>${i.lastRemark}</td>
 						<td>${i.lastRemarkBy}</td>
 						<td>${i.lastDecision}</td>						
@@ -94,7 +94,7 @@
 			</table>
 		</c:when>
 		<c:otherwise>
-			<spring:message code="motion.nomotions" text="No Completed Motions Found"></spring:message>
+			<spring:message code="cutmotion.nomotions" text="No Completed Motions Found"></spring:message>
 		</c:otherwise>
 	</c:choose>
 	<input type="hidden" id="size" value="${size }">	

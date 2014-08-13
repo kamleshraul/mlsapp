@@ -262,6 +262,13 @@
 						<form:errors path="number" cssClass="validationError"/>
 						<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
 					</p>
+					
+					<p style="dispay: none;">
+						<label class="small"><spring:message code="cutmotion.internalnumber" text="Motion Number"/>*</label>
+						<form:input path="internalNumber" cssClass="sText"/>
+						<form:errors path="internalNumber" cssClass="validationError"/>
+						<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
+					</p>
 				</security:authorize>
 					
 				<p style="display:none;">

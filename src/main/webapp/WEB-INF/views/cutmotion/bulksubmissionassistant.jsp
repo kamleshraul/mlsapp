@@ -27,7 +27,7 @@
 						items.push($(this).attr("id").split("chk")[1]);
 						}
 					});
-		        	$.post('motion/bulksubmission/assistant?items='+items
+		        	$.post('cutmotion/bulksubmission/assistant?items='+items
 		        			+"&usergroupType="+$("#usergroupType").val(),  		    	             
 		    	            function(data){
 		       					$('html').animate({scrollTop:0}, 'slow');

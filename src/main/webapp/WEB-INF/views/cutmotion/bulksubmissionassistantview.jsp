@@ -30,7 +30,7 @@ $(document).ready(function(){
 /**** Edit Motions ****/
 function editMotion(id,readonly){
 	var motionid=id.split("edit")[1];
-	var href='motion/'+motionid+'/edit';
+	var href='cutmotion/'+motionid+'/edit';
 	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			
 	var params="role="+$("#assirole").val()+"&usergroup="+$("#assiusergroup").val()+"&usergroupType="+
 				$("#assiusergroupType").val()+"&bulkedit=yes"
@@ -69,10 +69,10 @@ function editMotion(id,readonly){
 					<tr>
 						<th><spring:message code="motion.submitall" text="Submit All"></spring:message>
 						<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
-						<th><spring:message code="motion.number" text="Number"></spring:message></th>
-						<th><spring:message code="motion.member" text="Member"></spring:message></th>
-						<th><spring:message code="motion.subject" text="Subject"></spring:message></th>
-						<th><spring:message code="motion.currentstatus" text="To Be Put Up For?"></spring:message></th>
+						<th><spring:message code="cutmotion.number" text="Number"></spring:message></th>
+						<th><spring:message code="cutmotion.member" text="Member"></spring:message></th>
+						<th><spring:message code="cutmotion.subject" text="Main Title"></spring:message></th>
+						<th><spring:message code="cutmotion.currentstatus" text="To Be Put Up For?"></spring:message></th>
 					</tr>			
 					<c:forEach items="${motions}" var="i">
 						<tr class="${i.fileSent}">
@@ -88,7 +88,7 @@ function editMotion(id,readonly){
 							</c:choose>
 							<td>${i.formatNumber()}</td>
 							<td>${i.primaryMember.getFullname()}</td>
-							<td>${i.subject}</td>
+							<td>${i.mainTitle}</td>
 							<td>${i.internalStatus.name}</td>
 						</tr>
 					</c:forEach>

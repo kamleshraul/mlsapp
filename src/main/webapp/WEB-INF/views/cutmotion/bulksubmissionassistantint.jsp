@@ -32,14 +32,14 @@
 		var parameters = "houseType="+$("#assihouseType").val()
 		 +"&sessionYear="+$("#assisessionYear").val()
 		 +"&sessionType="+$("#assisessionType").val()
-		 +"&motionType="+$("#assimotionType").val()
+		 +"&cutMotionType="+$("#assimotionType").val()
 		 +"&status="+$("#assistatus").val()
 		 +"&role="+$("#assirole").val()
 		 +"&usergroup="+$("#assiusergroup").val()
 		 +"&usergroupType="+$("#assiusergroupType").val()
 		 +"&file="+$("#assifile").val()
 		 +"&itemscount="+$("#assiitemscount").val();	
-		 var resource='motion/bulksubmission/assistant/view';
+		 var resource='cutmotion/bulksubmission/assistant/view';
 		 var resourceURL=resource+"?"+parameters;
 		 $.get(resourceURL,function(data){
 			 $("#bulkResultDiv").empty();
@@ -58,22 +58,21 @@
 	function loadActors(value){
 		var motion=$("#motionId").val();
 		if(motion!=undefined&&motion!=''){
-			var params="motion="+motion+"&status="+value+
+			var params="cutmotion="+motion+"&status="+value+
 			"&usergroup="+$("#assiusergroup").val()+"&level=1";
-			var resourceURL='ref/motion/actors?'+params;				
-			$.post(resourceURL,function(data){
+			var resourceURL='ref/cutmotion/actors?'+params;				
+			$.get(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
 					var length=data.length;
 					$("#assiactor").empty();
-					var text="";
+					var text="<option value='-'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 					for(var i=0;i<data.length;i++){
 						if(i!=0){
-						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+							text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 						}else{
 							text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
 						}
 					}
-					text+="<option value='-'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 					$("#assiactor").html(text);
 					$("#actorDiv").show();								
 				}else{
@@ -120,13 +119,13 @@
 			buttons: {Ok:true, Cancel:false}, callback: function(v){
 	        if(v){
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				$.post('motion/bulksubmission/assistant/update?actor='+next+"&level="+level,
+				$.post('cutmotion/bulksubmission/assistant/update?actor='+next+"&level="+level,
 			        	{items:items
 			        	,status:status
 			        	,houseType:$("#assihouseType").val()
 			   		 	,sessionYear:$("#assisessionYear").val()
 					 	,sessionType:$("#assisessionType").val()
-					 	,motionType:$("#assimotionType").val()
+					 	,cutMotionType:$("#assimotionType").val()
 					 	,role:$("#assirole").val()
 					 	,usergroup:$("#assiusergroup").val()
 					 	,usergroupType:$("#assiusergroupType").val()

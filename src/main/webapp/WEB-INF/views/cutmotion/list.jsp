@@ -12,6 +12,7 @@
 					+"&sessionYear="+$("#selectedSessionYear").val()
 					+"&sessionType="+$("#selectedSessionType").val()
 					+"&cutMotionType="+$("#selectedCutMotionType").val()
+					+"&subDepartment="+$("#selectedSubDepartment").val()
 					+"&ugparam="+$("#ugparam").val()
 					+"&status="+$("#selectedStatus").val()
 					+"&role="+$("#srole").val()
@@ -49,6 +50,7 @@
 						+"&sessionYear="+$("#selectedSessionYear").val()
 						+"&sessionType="+$("#selectedSessionType").val()
 						+"&cutMotionType="+$(this).val()
+						+"&subDepartment="+$("#selectedSubdepartment").val()
 						+"&ugparam="+$("#ugparam").val()
 						+"&status="+$("#selectedStatus").val()
 						+"&role="+$("#srole").val()
@@ -56,6 +58,10 @@
 						+"&usergroupType="+$("#currentusergroupType").val()
 						);
 				$('#gridURLParams_ForNew').val($('#gridURLParams').val());
+			});
+			
+			$("#assign_number").click(function(){
+				assignNumberAfterApproval();
 			});
 			
 		});
@@ -96,6 +102,11 @@
 					<spring:message code="generic.delete" text="Delete"/>
 				</a> |
 			</security:authorize>			
+			<security:authorize access="hasAnyRole('CMOIS_ASSISTANT')">			
+				<a href="#" id="assign_number" class="butSim">
+					<spring:message code="generic.assign_number" text="Assign Number"/>
+				</a> |
+			</security:authorize>
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
 			</a> |

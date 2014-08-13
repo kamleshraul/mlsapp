@@ -37,7 +37,7 @@
 			}
 		});
 		$("#chkall").change(function(){
-			console.log($(this).is(":checked"));			
+						
 			if($(this).is(":checked")){
 				$(".action").attr("checked","checked");	
 			}else{
@@ -55,7 +55,7 @@
 						items.push($(this).attr("id").split("chk")[1]);
 						}
 					});
-		        	$.post('motion/bulksubmission?items='+items
+		        	$.post('cutmotion/bulksubmission?items='+items
 		        			+"&usergroupType="+$("#usergroupType").val(),  		    	             
 		    	            function(data){
 		       					$('html').animate({scrollTop:0}, 'slow');
@@ -88,17 +88,17 @@
 			<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
 			<table class="uiTable">
 				<tr>
-					<th><spring:message code="motion.submitall" text="Submit All"></spring:message>
+					<th><spring:message code="cutmotion.submitall" text="Submit All"></spring:message>
 					<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
-					<th><spring:message code="motion.subject" text="Subject"></spring:message></th>
-					<th><spring:message code="motion.up" text="Up"></spring:message></th>
-					<th><spring:message code="motion.down" text="Down"></spring:message></th>
+					<th><spring:message code="cutmotion.mainTitle" text="Main Title"></spring:message></th>
+					<th><spring:message code="cutmotion.up" text="Up"></spring:message></th>
+					<th><spring:message code="cutmotion.down" text="Down"></spring:message></th>
 				</tr>			
 				<c:set var="index" value="1"></c:set>	
 				<c:forEach items="${motions}" var="i">
 					<tr id="row${index}">
 						<td class="chk"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"></td>
-						<td class="subject">${i.subject}</td>
+						<td class="subject">${i.mainTitle}</td>
 						<td><input type="button" value="&#x2191;" class="up" style="width: 40px;"/></td>
 						<td><input type="button" value="&#x2193;" class="down" style="width: 40px;"/></td>						
 					</tr>
@@ -107,7 +107,7 @@
 			</table>
 		</c:when>
 		<c:otherwise>
-			<spring:message code="motion.nomotions" text="No Completed Motions Found"></spring:message>
+			<spring:message code="cutmotion.nomotions" text="No Completed CutMotions Found"></spring:message>
 		</c:otherwise>
 	</c:choose>
 	<input type="hidden" id="size" value="${size }">	

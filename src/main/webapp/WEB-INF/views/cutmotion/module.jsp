@@ -60,6 +60,13 @@
 				}
 
 		});
+		
+		/**** Department change ****/
+		$("#selectedSubDepartment").change(function(){
+			reloadCutMotionGrid();
+			
+		});
+		
 		/**** status changes then reload grid****/
 		$("#selectedStatus").change(function() {
 			var value = $(this).val();
@@ -78,6 +85,9 @@
 		});
 		/**** show question list method is called by default.****/
 		showCutMotionList();
+		
+		/**** Load subdepartment filter ****/
+		loadSubDepartments('yes');
 	});
 	
 	/**** displaying grid ****/
@@ -92,7 +102,8 @@
 				+ $("#ugparam").val() + "&status=" + $("#selectedStatus").val()
 				+ "&role=" + $("#srole").val() + "&usergroup="
 				+ $("#currentusergroup").val() + "&usergroupType="
-				+ $("#currentusergroupType").val());
+				+ $("#currentusergroupType").val())
+				+"&subDepartment="+$("#selectedSubDepartment").val();
 		
 		//make grid visible again with refreshed data
 		//if gridDiv is hidden make it visible
@@ -167,7 +178,8 @@
 						+ $("#selectedStatus").val() + "&role="
 						+ $("#srole").val() + "&usergroup="
 						+ $("#currentusergroup").val() + "&usergroupType="
-						+ $("#currentusergroupType").val());
+						+ $("#currentusergroupType").val() +"&subDepartment="
+						+ $("#selectedSubDepartment").val());
 		var oldURL = $("#grid").getGridParam("url");
 		var baseURL = oldURL.split("?")[0];
 		newURL = baseURL + "?" + $("#gridURLParams").val();
@@ -196,10 +208,7 @@
 	}
 	/**** Bulk putup(Assistant)****/
 	function bulkPutupAssistant() {
-		var parameters = null;
-		if ($('#currentDeviceType').val() == "questions_halfhourdiscussion_standalone"
-				&& $("#selectedHouseType").val() == "lowerhouse") {
-			parameters = "houseType=" + $("#selectedHouseType").val()
+		var parameters = "houseType=" + $("#selectedHouseType").val()
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&cutMotionType=" + $("#selectedCutMotionType").val()
@@ -207,24 +216,53 @@
 					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
 					+ "&usergroup=" + $("#currentusergroup").val()
 					+ "&usergroupType=" + $("#currentusergroupType").val()
-					+ "&file=" + $("#selectedFileCount").val();
-			;
-		} else {
-			parameters = "houseType=" + $("#selectedHouseType").val()
-					+ "&sessionYear=" + $("#selectedSessionYear").val()
-					+ "&sessionType=" + $("#selectedSessionType").val()
-					+ "&cutMotionType=" + $("#selectedcutMotionType").val()
-					+ "&ugparam=" + $("#ugparam").val() + "&status="
-					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
-					+ "&usergroup=" + $("#currentusergroup").val()
-					+ "&usergroupType=" + $("#currentusergroupType").val()
 					+ "&file=" + $("#selectedFileCount").val() + "&group="
 					+ $("#ugparam").val();
-		}
 
 		var resourceURL = 'cutmotion/bulksubmission/assistant/int?' + parameters + "&itemscount=" + $("#selectedItemsCount").val();
 	
 		showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);
+	}
+	
+	function loadSubDepartments(init){
+		$.get('ref/getDepartment?userGroup='+$('#currentusergroup').val()
+				+'&deviceType='+$("#selectedCutMotionType").val()
+				+'&houseType='+$("#selectedHouseType").val(),function(data){
+			
+			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
+			$('#selectedSubDepartment').empty();
+			if(data.length>0){
+				for(var i=0;i<data.length;i++){
+					subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+				}
+				$("#selectedSubDepartment").html(subDepartmentText);
+			}
+		}).done(function(){
+			if(init=='no'){
+				reloadCutMotionGrid();
+			}else if(init=='yes'){
+				showCutMotionList();
+			}
+		});
+	}
+	
+	function assignNumberAfterApproval(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&cutMotionType=" + $("#selectedCutMotionType").val();
+
+		var resourceURL = 'cutmotion/assignnumberafterapproval?' + parameters;
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		$.get(resourceURL, function(date){
+			
+			if(data=='success'){
+			}
+			$.unblockUI();
+		}).fail(function(){
+			$.unblockUI();
+		});
+
 	}
 </script>
 <style type="text/css">
@@ -322,7 +360,7 @@
 			<security:authorize access="hasAnyRole('CMOIS_ADMIN','CMOIS_ASSISTANT','CMOIS_UNDER_SECRETARY',
 			'CMOIS_DEPUTY_SECRETARY','CMOIS_PRINCIPAL_SECRETARY','CMOIS_SPEAKER','CMOIS_JOINT_SECRETARY',
 			'CMOIS_SECRETARY','CMOIS_OFFICER_ON_SPECIAL_DUTY','CMOIS_DEPUTY_SPEAKER','CMOIS_CHAIRMAN','CMOIS_DEPUTY_CHAIRMAN',
-			'CMOIS_SECTION_OFFICER','CMOIS_UNDER_SECRETARY_COMMITTEE','CMOIS_ADDITIONAL_SECRETARY')">
+			'CMOIS_SECTION_OFFICER','CMOIS_UNDER_SECRETARY_COMMITTEE','CMOIS_ADDITIONAL_SECRETARY','CMOIS_LEADER_OF_OPPOSITION')">
 				<hr>
 				<a href="#" id="select_status" class="butSim"> <spring:message code="generic.status" text="Status" /></a>
 				<select name="selectedStatus" id="selectedStatus" style="width: 250px; height: 25px;">
@@ -378,6 +416,21 @@
 						</c:forEach>
 					</c:if>
 				</select>|	
+				<hr>
+				<div id='cutMotionDepartment' style="display:inline;">
+				<a href="#" id="select_department" class="butSim"> <spring:message
+						code="cutmotion.department" text="Department" />
+				</a>
+				<select name="selectedSubDepartment" id="selectedSubDepartment"
+					style="width: 200px; height: 25px;">
+					<option value="0" selected="selected"><spring:message code="please.select"></spring:message></option>
+					<c:forEach items="${subDepartments}" var="i">
+						<option value="${i.id}">
+							<c:out value="${i.name}"></c:out>
+						</option>
+					</c:forEach>
+				</select>|
+			</div>
 			</security:authorize>
 			<hr>
 		</div>		
