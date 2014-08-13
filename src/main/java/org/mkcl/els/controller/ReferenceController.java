@@ -10,7 +10,6 @@
 
 package org.mkcl.els.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
@@ -41,6 +40,7 @@ import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.OrdinanceSearchVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.controller.mois.CutMotionDateControllerUtility;
 import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.Abbreviation;
 import org.mkcl.els.domain.Airport;
@@ -55,6 +55,7 @@ import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Creek;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
+import org.mkcl.els.domain.CutMotionDate;
 import org.mkcl.els.domain.Dam;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
@@ -3189,13 +3190,11 @@ public class ReferenceController extends BaseController {
 							if(p.getProceedingContent()!=null && !p.getProceedingContent().isEmpty()){
 								strContent=strContent+p.getProceedingContent();
 							}
-							masterVo.setName(p.getRevisedContent());
-							masterVo.setId(p.getId());
-							
-							masterVOs.add(masterVo);
 							
 						}
-						
+						masterVo.setValue(proceeding.getSlot().getName());
+						masterVo.setName(strContent);
+						masterVOs.add(masterVo);
 					}
 				}
 			}
@@ -3689,1220 +3688,1192 @@ public class ReferenceController extends BaseController {
 	}
 		
 	//TODO: Page headings
-	@SuppressWarnings("rawtypes")
-	@RequestMapping(value="/reportpageheading", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getReportPageheading(HttpServletRequest request, HttpServletResponse response, Locale locale){
-		
-		List<MasterVO> reportPageHeading = new ArrayList<MasterVO>();
-		String strHouseType=request.getParameter("houseType");
-		String strSessionType=request.getParameter("sessionType");
-		String strSessionYear=request.getParameter("sessionYear");
-		String strLanguage=request.getParameter("language");
-		String strDay=request.getParameter("day");
-		
-		
-		if(strHouseType!=null&&!strHouseType.equals("")&&
-				strSessionType!=null&&!strSessionType.equals("")&&
-				strSessionYear!=null&&!strSessionYear.equals("")&&
-				strLanguage!=null&&!strLanguage.equals("")&&
-				strDay!=null&&!strDay.equals("")){
-
-			HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
-			SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
-			Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
-			Session session = null;
-			try {
-				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
-			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ELSException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
-						
-			Map<String, String[]> parametersMap = new HashMap<String, String[]>();
-			parametersMap.put("locale", new String[]{locale.toString()});
-			parametersMap.put("rosterId", new String[]{roster.getId().toString()});
-			parametersMap.put("languageId", new String[]{language.getId().toString()});
-			parametersMap.put("sessionId", new String[]{roster.getSession().getId().toString()});
-			parametersMap.put("day", new String[]{roster.getDay().toString()});
-			List result=Query.findReport("RIS_PROCEEDING_CONTENT_MERGE_REPORT2", parametersMap);
-			String pageHeading = "";
+		@SuppressWarnings("rawtypes")
+		@RequestMapping(value="/reportpageheading", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getReportPageheading(HttpServletRequest request, HttpServletResponse response, Locale locale){
 			
-			for(Object ob : result){
-				Object[] objArr = (Object[]) ob;
-				if(objArr[1] != null){
-					if(!pageHeading.equals(objArr[1].toString())){
-						pageHeading = objArr[1].toString(); 
-						MasterVO mVO = new MasterVO();
-						mVO.setId(Long.valueOf(objArr[20].toString()));
-						mVO.setName(objArr[1].toString());
-						reportPageHeading.add(mVO);
-						mVO = null;
-					}
+			List<MasterVO> reportPageHeading = new ArrayList<MasterVO>();
+			String strHouseType=request.getParameter("houseType");
+			String strSessionType=request.getParameter("sessionType");
+			String strSessionYear=request.getParameter("sessionYear");
+			String strLanguage=request.getParameter("language");
+			String strDay=request.getParameter("day");
+			
+			
+			if(strHouseType!=null&&!strHouseType.equals("")&&
+					strSessionType!=null&&!strSessionType.equals("")&&
+					strSessionYear!=null&&!strSessionYear.equals("")&&
+					strLanguage!=null&&!strLanguage.equals("")&&
+					strDay!=null&&!strDay.equals("")){
+
+				HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+				SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+				Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
+				Session session = null;
+				try {
+					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			}
-		}
-		return reportPageHeading;
-	}
-	
-	@RequestMapping(value="/getInterruptedProceedings",method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getInterruptedProceeding(final HttpServletRequest request, final Locale locale,final ModelMap model){
-		//String strSlot=request.getParameter("currentSlot");
-		String strDate=request.getParameter("selectedDate");
-		String strSearchBy=request.getParameter("searchBy");
-		String strLanguage=request.getParameter("language");
-		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-		if(strDate!=null &&	!strDate.isEmpty() 
-				&& strSearchBy!=null &&!strSearchBy.isEmpty()
-				&& strLanguage!=null && !strLanguage.isEmpty()){
-			//Slot slot=Slot.findById(Slot.class, Long.parseLong(strSlot));
-			Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
-			Date sDate=FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT);
-			Roster roster=Roster.findRosterByDate(sDate,language,locale.toString());
-			if(roster!=null){
+				Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
 							
-				List<Part> parts=Part.findInterruptedProceedingInRoster(roster,locale);
-				if(!parts.isEmpty()){
-					for(Part p:parts){
-						if(p.getMainHeading()!=null && !p.getMainHeading().isEmpty() &&
-						   p.getPageHeading()!=null && !p.getPageHeading().isEmpty()){
-							MasterVO masterVo=new MasterVO();
-							if(strSearchBy.equals(ApplicationConstants.PAGE_HEADING)){
-								masterVo.setName(p.getPageHeading());
-							}else if(strSearchBy.equals(ApplicationConstants.MAIN_HEADING)){
-								masterVo.setName( p.getMainHeading());
-							}
-							masterVo.setValue(p.getMainHeading()+"#"+p.getPageHeading());
-							masterVOs.add(masterVo);
-						}
-					}
-				}
-			}
-		}
-		return masterVOs;
-	}
-
-	
-	@RequestMapping(value="/bill/actors",method=RequestMethod.POST)
-	public @ResponseBody List<Reference> findActorsForBill(final HttpServletRequest request,final ModelMap model,
-			final Locale locale){
-		List<Reference> actors=new ArrayList<Reference>();
-		String strBill=request.getParameter("bill");
-		String strInternalStatus=request.getParameter("status");		
-		String strUserGroup=request.getParameter("usergroup");
-		String strLevel=request.getParameter("level");
-		if(strBill!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
-			if((!strBill.isEmpty())&&(!strInternalStatus.isEmpty())&&
-					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
-				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
-				if(internalStatus.getType().equals(ApplicationConstants.BILL_FINAL_REJECT_TRANSLATION)) {
-					return actors;
-				}
-				Bill bill=Bill.findById(Bill.class,Long.parseLong(strBill));
-				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
-				actors=WorkflowConfig.findBillActorsVO(bill,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
-			}
-		}
-		return actors;
-	}
-	
-	@RequestMapping(value="/getTypeOfSelectedBillType",method=RequestMethod.GET) 
-	public @ResponseBody String findTypeOfSelectedBillType(final HttpServletRequest request) {
-		String typeOfSelectedBillType = "";
-		String selectedBillTypeId = request.getParameter("selectedBillTypeId");
-		if(selectedBillTypeId!=null) {
-			if(!selectedBillTypeId.isEmpty()) {
-				BillType selectedBillType = BillType.findById(BillType.class, Long.parseLong(selectedBillTypeId));
-				if(selectedBillType!=null) {
-					typeOfSelectedBillType = selectedBillType.getType();
-				}								
-			}
-		}
-		return typeOfSelectedBillType;
-	}
-	
-	@RequestMapping(value="/getTypeOfSelectedBillKind",method=RequestMethod.GET) 
-	public @ResponseBody String findTypeOfSelectedBillKind(final HttpServletRequest request) {
-		String kindOfSelectedBillKind = "";
-		String selectedBillKindId = request.getParameter("selectedBillKindId");
-		if(selectedBillKindId!=null) {
-			if(!selectedBillKindId.isEmpty()) {
-				BillKind selectedBillKind = BillKind.findById(BillKind.class, Long.parseLong(selectedBillKindId));
-				if(selectedBillKind!=null) {
-					kindOfSelectedBillKind = selectedBillKind.getType();
-				}								
-			}
-		}
-		return kindOfSelectedBillKind;
-	}
-	
-	
-	@RequestMapping(value="/ordinance/{year}/getOrdinancesForYear", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getOrdinancesForYear(@PathVariable(value="year") Integer year, final HttpServletRequest request, final Locale locale){
-		
-		List<MasterVO> ordinancesVO = new ArrayList<MasterVO>();
-		
-		if(year != null) {
-			List<Ordinance> ordinances = Ordinance.findAllByFieldName(Ordinance.class, "year", year.toString(),"number", ApplicationConstants.ASC, locale.toString());
-			
-			for(Ordinance o : ordinances){
-				MasterVO mv = new MasterVO();
-				mv.setId(o.getId());
-				mv.setNumber(o.getNumber());
-				mv.setValue(FormaterUtil.formatNumberNoGrouping(o.getNumber(), locale.toString()));
+				Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+				parametersMap.put("locale", new String[]{locale.toString()});
+				parametersMap.put("rosterId", new String[]{roster.getId().toString()});
+				parametersMap.put("languageId", new String[]{language.getId().toString()});
+				parametersMap.put("sessionId", new String[]{roster.getSession().getId().toString()});
+				parametersMap.put("day", new String[]{roster.getDay().toString()});
+				List result=Query.findReport("RIS_PROCEEDING_CONTENT_MERGE_REPORT2", parametersMap);
+				String pageHeading = "";
 				
-				ordinancesVO.add(mv);
-			}
-		}
-		
-		return ordinancesVO;
-	}
-	
-	@RequestMapping(value="/bill/membersforintroduction",method=RequestMethod.GET)
-	public @ResponseBody List<AutoCompleteVO> getMembersForIntroductionOfBill(final HttpServletRequest request,final Locale locale,final ModelMap model){
-		List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
-		String strParam=request.getParameter("term");
-		String strBillId=request.getParameter("billId");
-		if(strParam!=null && strBillId!=null) {
-			if(!strParam.isEmpty() && !strBillId.isEmpty()) {
-				Bill bill = Bill.findById(Bill.class, Long.parseLong(strBillId));
-				if(bill!=null) {
-					StringBuffer memberIds = new StringBuffer();
-					memberIds.append(bill.getPrimaryMember().getId());
-					if(bill.getSupportingMembers()!=null) {
-						if(!bill.getSupportingMembers().isEmpty()) {
-							memberIds.append(",");
-							for(SupportingMember i: bill.getSupportingMembers()) {
-								memberIds.append(i.getMember().getId());
-								memberIds.append(",");
-							}
-							memberIds.deleteCharAt(memberIds.length()-1);
+				for(Object ob : result){
+					Object[] objArr = (Object[]) ob;
+					if(objArr[1] != null){
+						if(!pageHeading.equals(objArr[1].toString())){
+							pageHeading = objArr[1].toString(); 
+							MasterVO mVO = new MasterVO();
+							mVO.setId(Long.valueOf(objArr[20].toString()));
+							mVO.setName(objArr[1].toString());
+							reportPageHeading.add(mVO);
+							mVO = null;
 						}
 					}
-					if(bill.getClubbedEntities()!=null) {
-						if(!bill.getClubbedEntities().isEmpty()) {
-							memberIds.append(",");
-							for(ClubbedEntity i: bill.getClubbedEntities()) {
-								if(i.getBill().getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)) {
-									String clubbedBillMemberId = i.getBill().getPrimaryMember().getId().toString();
-									if(!memberIds.toString().contains(clubbedBillMemberId)){
-										memberIds.append(clubbedBillMemberId);
-										memberIds.append(",");
-									}
-									if(i.getBill().getSupportingMembers()!=null) {
-										if(!i.getBill().getSupportingMembers().isEmpty()) {
-											for(SupportingMember j: i.getBill().getSupportingMembers()) {
-												String clubbedBillSupportingMemberId = j.getMember().getId().toString();
-												if(!memberIds.toString().contains(clubbedBillSupportingMemberId)){
-													memberIds.append(clubbedBillSupportingMemberId);
-													memberIds.append(",");
+				}
+			}
+			return reportPageHeading;
+		}
+		
+		@RequestMapping(value="/getInterruptedProceedings",method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getInterruptedProceeding(final HttpServletRequest request, final Locale locale,final ModelMap model){
+			//String strSlot=request.getParameter("currentSlot");
+			String strDate=request.getParameter("selectedDate");
+			String strSearchBy=request.getParameter("searchBy");
+			String strLanguage=request.getParameter("language");
+			List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+			if(strDate!=null &&	!strDate.isEmpty() 
+					&& strSearchBy!=null &&!strSearchBy.isEmpty()
+					&& strLanguage!=null && !strLanguage.isEmpty()){
+				//Slot slot=Slot.findById(Slot.class, Long.parseLong(strSlot));
+				Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
+				Date sDate=FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT);
+				Roster roster=Roster.findRosterByDate(sDate,language,locale.toString());
+				if(roster!=null){
+								
+					List<Part> parts=Part.findInterruptedProceedingInRoster(roster,locale);
+					if(!parts.isEmpty()){
+						for(Part p:parts){
+							if(p.getMainHeading()!=null && !p.getMainHeading().isEmpty() &&
+							   p.getPageHeading()!=null && !p.getPageHeading().isEmpty()){
+								MasterVO masterVo=new MasterVO();
+								if(strSearchBy.equals(ApplicationConstants.PAGE_HEADING)){
+									masterVo.setName(p.getPageHeading());
+								}else if(strSearchBy.equals(ApplicationConstants.MAIN_HEADING)){
+									masterVo.setName( p.getMainHeading());
+								}
+								masterVo.setValue(p.getMainHeading()+"#"+p.getPageHeading());
+								masterVOs.add(masterVo);
+							}
+						}
+					}
+				}
+			}
+			return masterVOs;
+		}
+
+		
+		@RequestMapping(value="/bill/actors",method=RequestMethod.POST)
+		public @ResponseBody List<Reference> findActorsForBill(final HttpServletRequest request,final ModelMap model,
+				final Locale locale){
+			List<Reference> actors=new ArrayList<Reference>();
+			String strBill=request.getParameter("bill");
+			String strInternalStatus=request.getParameter("status");		
+			String strUserGroup=request.getParameter("usergroup");
+			String strLevel=request.getParameter("level");
+			if(strBill!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
+				if((!strBill.isEmpty())&&(!strInternalStatus.isEmpty())&&
+						(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
+					Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
+					if(internalStatus.getType().equals(ApplicationConstants.BILL_FINAL_REJECT_TRANSLATION)) {
+						return actors;
+					}
+					Bill bill=Bill.findById(Bill.class,Long.parseLong(strBill));
+					UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+					actors=WorkflowConfig.findBillActorsVO(bill,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+				}
+			}
+			return actors;
+		}
+		
+		@RequestMapping(value="/getTypeOfSelectedBillType",method=RequestMethod.GET) 
+		public @ResponseBody String findTypeOfSelectedBillType(final HttpServletRequest request) {
+			String typeOfSelectedBillType = "";
+			String selectedBillTypeId = request.getParameter("selectedBillTypeId");
+			if(selectedBillTypeId!=null) {
+				if(!selectedBillTypeId.isEmpty()) {
+					BillType selectedBillType = BillType.findById(BillType.class, Long.parseLong(selectedBillTypeId));
+					if(selectedBillType!=null) {
+						typeOfSelectedBillType = selectedBillType.getType();
+					}								
+				}
+			}
+			return typeOfSelectedBillType;
+		}
+		
+		@RequestMapping(value="/getTypeOfSelectedBillKind",method=RequestMethod.GET) 
+		public @ResponseBody String findTypeOfSelectedBillKind(final HttpServletRequest request) {
+			String kindOfSelectedBillKind = "";
+			String selectedBillKindId = request.getParameter("selectedBillKindId");
+			if(selectedBillKindId!=null) {
+				if(!selectedBillKindId.isEmpty()) {
+					BillKind selectedBillKind = BillKind.findById(BillKind.class, Long.parseLong(selectedBillKindId));
+					if(selectedBillKind!=null) {
+						kindOfSelectedBillKind = selectedBillKind.getType();
+					}								
+				}
+			}
+			return kindOfSelectedBillKind;
+		}
+		
+		
+		@RequestMapping(value="/ordinance/{year}/getOrdinancesForYear", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getOrdinancesForYear(@PathVariable(value="year") Integer year, final HttpServletRequest request, final Locale locale){
+			
+			List<MasterVO> ordinancesVO = new ArrayList<MasterVO>();
+			
+			if(year != null) {
+				List<Ordinance> ordinances = Ordinance.findAllByFieldName(Ordinance.class, "year", year.toString(),"number", ApplicationConstants.ASC, locale.toString());
+				
+				for(Ordinance o : ordinances){
+					MasterVO mv = new MasterVO();
+					mv.setId(o.getId());
+					mv.setNumber(o.getNumber());
+					mv.setValue(FormaterUtil.formatNumberNoGrouping(o.getNumber(), locale.toString()));
+					
+					ordinancesVO.add(mv);
+				}
+			}
+			
+			return ordinancesVO;
+		}
+		
+		@RequestMapping(value="/bill/membersforintroduction",method=RequestMethod.GET)
+		public @ResponseBody List<AutoCompleteVO> getMembersForIntroductionOfBill(final HttpServletRequest request,final Locale locale,final ModelMap model){
+			List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
+			String strParam=request.getParameter("term");
+			String strBillId=request.getParameter("billId");
+			if(strParam!=null && strBillId!=null) {
+				if(!strParam.isEmpty() && !strBillId.isEmpty()) {
+					Bill bill = Bill.findById(Bill.class, Long.parseLong(strBillId));
+					if(bill!=null) {
+						StringBuffer memberIds = new StringBuffer();
+						memberIds.append(bill.getPrimaryMember().getId());
+						if(bill.getSupportingMembers()!=null) {
+							if(!bill.getSupportingMembers().isEmpty()) {
+								memberIds.append(",");
+								for(SupportingMember i: bill.getSupportingMembers()) {
+									memberIds.append(i.getMember().getId());
+									memberIds.append(",");
+								}
+								memberIds.deleteCharAt(memberIds.length()-1);
+							}
+						}
+						if(bill.getClubbedEntities()!=null) {
+							if(!bill.getClubbedEntities().isEmpty()) {
+								memberIds.append(",");
+								for(ClubbedEntity i: bill.getClubbedEntities()) {
+									if(i.getBill().getInternalStatus().getType().equals(ApplicationConstants.BILL_FINAL_ADMISSION)) {
+										String clubbedBillMemberId = i.getBill().getPrimaryMember().getId().toString();
+										if(!memberIds.toString().contains(clubbedBillMemberId)){
+											memberIds.append(clubbedBillMemberId);
+											memberIds.append(",");
+										}
+										if(i.getBill().getSupportingMembers()!=null) {
+											if(!i.getBill().getSupportingMembers().isEmpty()) {
+												for(SupportingMember j: i.getBill().getSupportingMembers()) {
+													String clubbedBillSupportingMemberId = j.getMember().getId().toString();
+													if(!memberIds.toString().contains(clubbedBillSupportingMemberId)){
+														memberIds.append(clubbedBillSupportingMemberId);
+														memberIds.append(",");
+													}
+												}
+												if(memberIds.charAt(memberIds.length()-1)==',') {
+													memberIds.deleteCharAt(memberIds.length()-1);
 												}
 											}
-											if(memberIds.charAt(memberIds.length()-1)==',') {
-												memberIds.deleteCharAt(memberIds.length()-1);
-											}
 										}
-									}
-								}							
-							}
-							if(memberIds.charAt(memberIds.length()-1)==',') {
-								memberIds.deleteCharAt(memberIds.length()-1);
-							}						
-						}
-					}				
-					CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-					List<MasterVO> memberVOs=new ArrayList<MasterVO>();		
-					if(customParameter!=null){
-						String server=customParameter.getValue();
-						if(server.equals("TOMCAT")){
-							try {
-								strParam=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
-								memberVOs = Member.findAllMembersVOsWithGivenIdsAndWithNameContainingParam(memberIds.toString(), strParam);
-							}
-							catch (UnsupportedEncodingException e) {
-								e.printStackTrace();
-							}
-						} else {
-							memberVOs = Member.findAllMembersVOsWithGivenIdsAndWithNameContainingParam(memberIds.toString(), strParam);
-						}						
-					}
-					for(MasterVO i:memberVOs){
-						AutoCompleteVO autoCompleteVO=new  AutoCompleteVO();
-						autoCompleteVO.setId(i.getId());
-						autoCompleteVO.setValue(i.getName());
-						autoCompleteVOs.add(autoCompleteVO);
-					}
-				}				
-			}
-		}
-		return autoCompleteVOs;
-	}
-	
-	@RequestMapping(value="/bill/printrequisition_statuses", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getPrintRequisitionStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
-		List<MasterVO> printRequisitionStatusVOs = new ArrayList<MasterVO>();
-		String billNumberStr = request.getParameter("billNumber");
-		String billYearStr = request.getParameter("billYear");
-		String houseTypeId = request.getParameter("houseTypeId");
-		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-		if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
-			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
-				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				if(server != null) {
-					if(server.getValue().equals("TOMCAT")) {
-						try {
-							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
-							billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
-							NumberFormat nf = NumberFormat.getInstance(locale);
-					        DecimalFormat df = (DecimalFormat) nf;	
-					        billNumberStr = df.parse(billNumberStr).toString();
-					        billYearStr = df.parse(billYearStr).toString();
-						}catch (UnsupportedEncodingException e) {
-							logger.error("Cannot encode one of the request parameters.");
-							printRequisitionStatusVOs = null;
-							return printRequisitionStatusVOs;
-						}catch (ParseException e) {
-							logger.error("Cannot parse one of the request parameters.");
-							printRequisitionStatusVOs = null;
-							return printRequisitionStatusVOs;
-						}
-					}
-				}
-				try {
-					Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
-					if(bill==null) {
-						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
-						printRequisitionStatusVOs = null;
-						return printRequisitionStatusVOs;
-					}
-					String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
-					if(currentHouseOrder!=null) {
-						CustomParameter printRequisitionStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
-						if(printRequisitionStatusParameter!=null) {
-							if(printRequisitionStatusParameter.getValue()!=null) {									
-								StringBuffer filteredStatusTypes = new StringBuffer("");
-								String[] statusTypesArr = printRequisitionStatusParameter.getValue().split(",");
-								for(String i: statusTypesArr) {
-									System.out.println(filteredStatusTypes.toString());
-									if(!i.trim().isEmpty()) {
-										if(i.trim().endsWith(currentHouseOrder)) {
-											if(i.trim().contains(currentHouseTypeType)) {
-												filteredStatusTypes.append(i.trim()+",");
-											}																						
-										} else {
-											filteredStatusTypes.append(i.trim()+",");						
-										}					
-									}				
+									}							
 								}
-								filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
-								List<Status> printRequisitionStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
-								if(printRequisitionStatuses!=null) {
-									for(Status i: printRequisitionStatuses) {
-										MasterVO printRequisitionStatusVO = new MasterVO();
-										printRequisitionStatusVO.setName(i.getName());
-										printRequisitionStatusVO.setValue(i.getType());
-										printRequisitionStatusVO.setId(bill.getId());
-										printRequisitionStatusVOs.add(printRequisitionStatusVO);
-									}
+								if(memberIds.charAt(memberIds.length()-1)==',') {
+									memberIds.deleteCharAt(memberIds.length()-1);
+								}						
+							}
+						}				
+						CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+						List<MasterVO> memberVOs=new ArrayList<MasterVO>();		
+						if(customParameter!=null){
+							String server=customParameter.getValue();
+							if(server.equals("TOMCAT")){
+								try {
+									strParam=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+									memberVOs = Member.findAllMembersVOsWithGivenIdsAndWithNameContainingParam(memberIds.toString(), strParam);
+								}
+								catch (UnsupportedEncodingException e) {
+									e.printStackTrace();
 								}
 							} else {
-								logger.error("Custom Parameter 'BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase() +"' is not set properly");				
+								memberVOs = Member.findAllMembersVOsWithGivenIdsAndWithNameContainingParam(memberIds.toString(), strParam);
+							}						
+						}
+						for(MasterVO i:memberVOs){
+							AutoCompleteVO autoCompleteVO=new  AutoCompleteVO();
+							autoCompleteVO.setId(i.getId());
+							autoCompleteVO.setValue(i.getName());
+							autoCompleteVOs.add(autoCompleteVO);
+						}
+					}				
+				}
+			}
+			return autoCompleteVOs;
+		}
+		
+		@RequestMapping(value="/bill/printrequisition_statuses", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getPrintRequisitionStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
+			List<MasterVO> printRequisitionStatusVOs = new ArrayList<MasterVO>();
+			String billNumberStr = request.getParameter("billNumber");
+			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
+			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(server != null) {
+						if(server.getValue().equals("TOMCAT")) {
+							try {
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
+							}catch (UnsupportedEncodingException e) {
+								logger.error("Cannot encode one of the request parameters.");
+								printRequisitionStatusVOs = null;
+								return printRequisitionStatusVOs;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								printRequisitionStatusVOs = null;
 								return printRequisitionStatusVOs;
 							}
-						} else {
-							logger.error("Custom Parameter 'BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase() +"' is not set");			
-							printRequisitionStatusVOs = null;
-							return printRequisitionStatusVOs;
-						} 
-					} else {
-						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
-						printRequisitionStatusVOs = null;
-						return printRequisitionStatusVOs;
-					}
-				}catch(NumberFormatException ne) {
-					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
-					printRequisitionStatusVOs = null;
-					return printRequisitionStatusVOs;
-				}				
-			} else {
-				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
-				printRequisitionStatusVOs = null;
-				return printRequisitionStatusVOs;
-			}			
-		} else {
-			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
-			printRequisitionStatusVOs = null;
-			return printRequisitionStatusVOs;
-		}
-		return printRequisitionStatusVOs;
-	}
-	
-	@RequestMapping(value="/bill/sendGreenCopyForEndorsement_statuses", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getSendGreenCopyForEndorsementStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
-		List<MasterVO> sendGreenCopyForEndorsementStatusVOs = new ArrayList<MasterVO>();
-		String billNumberStr = request.getParameter("billNumber");
-		String billYearStr = request.getParameter("billYear");
-		String houseTypeId = request.getParameter("houseTypeId");
-		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-		if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
-			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
-				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				if(server != null) {
-					if(server.getValue().equals("TOMCAT")) {
-						try {
-							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");		
-							billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
-							NumberFormat nf = NumberFormat.getInstance(locale);
-					        DecimalFormat df = (DecimalFormat) nf;	
-					        billNumberStr = df.parse(billNumberStr).toString();
-					        billYearStr = df.parse(billYearStr).toString();
-						}catch (UnsupportedEncodingException e) {
-							logger.error("Cannot encode one of the request parameters.");
-							sendGreenCopyForEndorsementStatusVOs = null;
-							return sendGreenCopyForEndorsementStatusVOs;
-						}catch (ParseException e) {
-							logger.error("Cannot parse one of the request parameters.");
-							sendGreenCopyForEndorsementStatusVOs = null;
-							return sendGreenCopyForEndorsementStatusVOs;
 						}
 					}
-				}
-				try {
-					Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
-					if(bill==null) {
-						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
-						sendGreenCopyForEndorsementStatusVOs = null;
-						return sendGreenCopyForEndorsementStatusVOs;
-					}
-					String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
-					if(currentHouseOrder!=null) {
-						CustomParameter sendGreenCopyForEndorsementStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS", "");
-						if(sendGreenCopyForEndorsementStatusParameter!=null) {
-							if(sendGreenCopyForEndorsementStatusParameter.getValue()!=null) {									
-								StringBuffer filteredStatusTypes = new StringBuffer("");
-								String[] statusTypesArr = sendGreenCopyForEndorsementStatusParameter.getValue().split(",");
-								for(String i: statusTypesArr) {
-									System.out.println(filteredStatusTypes.toString());
-									if(!i.trim().isEmpty()) {
-										if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
-											if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
-												filteredStatusTypes.append(i.trim()+",");							
-											}
-										} else {
-											filteredStatusTypes.append(i.trim()+",");
-										}					
-									}				
-								}
-								filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
-								List<Status> sendGreenCopyForEndorsementStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
-								if(sendGreenCopyForEndorsementStatuses!=null) {
-									for(Status i: sendGreenCopyForEndorsementStatuses) {
-										MasterVO sendGreenCopyForEndorsementStatusVO = new MasterVO();
-										sendGreenCopyForEndorsementStatusVO.setName(i.getName());
-										sendGreenCopyForEndorsementStatusVO.setValue(i.getType());
-										sendGreenCopyForEndorsementStatusVO.setId(bill.getId());
-										sendGreenCopyForEndorsementStatusVOs.add(sendGreenCopyForEndorsementStatusVO);
+					try {
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
+						if(bill==null) {
+							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
+							printRequisitionStatusVOs = null;
+							return printRequisitionStatusVOs;
+						}
+						String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+						if(currentHouseOrder!=null) {
+							CustomParameter printRequisitionStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
+							if(printRequisitionStatusParameter!=null) {
+								if(printRequisitionStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = printRequisitionStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(currentHouseOrder)) {
+												if(i.trim().contains(currentHouseTypeType)) {
+													filteredStatusTypes.append(i.trim()+",");
+												}																						
+											} else {
+												filteredStatusTypes.append(i.trim()+",");						
+											}					
+										}				
 									}
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> printRequisitionStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									if(printRequisitionStatuses!=null) {
+										for(Status i: printRequisitionStatuses) {
+											MasterVO printRequisitionStatusVO = new MasterVO();
+											printRequisitionStatusVO.setName(i.getName());
+											printRequisitionStatusVO.setValue(i.getType());
+											printRequisitionStatusVO.setId(bill.getId());
+											printRequisitionStatusVOs.add(printRequisitionStatusVO);
+										}
+									}
+								} else {
+									logger.error("Custom Parameter 'BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase() +"' is not set properly");				
+									printRequisitionStatusVOs = null;
+									return printRequisitionStatusVOs;
 								}
 							} else {
-								logger.error("Custom Parameter 'BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS' is not set properly");
+								logger.error("Custom Parameter 'BILL_PRINTREQUISITION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase() +"' is not set");			
+								printRequisitionStatusVOs = null;
+								return printRequisitionStatusVOs;
+							} 
+						} else {
+							logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+							printRequisitionStatusVOs = null;
+							return printRequisitionStatusVOs;
+						}
+					}catch(NumberFormatException ne) {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+						printRequisitionStatusVOs = null;
+						return printRequisitionStatusVOs;
+					}				
+				} else {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+					printRequisitionStatusVOs = null;
+					return printRequisitionStatusVOs;
+				}			
+			} else {
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
+				printRequisitionStatusVOs = null;
+				return printRequisitionStatusVOs;
+			}
+			return printRequisitionStatusVOs;
+		}
+		
+		@RequestMapping(value="/bill/sendGreenCopyForEndorsement_statuses", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getSendGreenCopyForEndorsementStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
+			List<MasterVO> sendGreenCopyForEndorsementStatusVOs = new ArrayList<MasterVO>();
+			String billNumberStr = request.getParameter("billNumber");
+			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
+			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(server != null) {
+						if(server.getValue().equals("TOMCAT")) {
+							try {
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");		
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
+							}catch (UnsupportedEncodingException e) {
+								logger.error("Cannot encode one of the request parameters.");
+								sendGreenCopyForEndorsementStatusVOs = null;
+								return sendGreenCopyForEndorsementStatusVOs;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								sendGreenCopyForEndorsementStatusVOs = null;
 								return sendGreenCopyForEndorsementStatusVOs;
 							}
-						} else {
-							logger.error("Custom Parameter 'BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS' is not set");
-							sendGreenCopyForEndorsementStatusVOs = null;
-							return sendGreenCopyForEndorsementStatusVOs;
-						} 
-					} else {
-						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
-						sendGreenCopyForEndorsementStatusVOs = null;
-						return sendGreenCopyForEndorsementStatusVOs;
-					}
-				}catch(NumberFormatException ne) {
-					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
-					sendGreenCopyForEndorsementStatusVOs = null;
-					return sendGreenCopyForEndorsementStatusVOs;
-				}				
-			} else {
-				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
-				sendGreenCopyForEndorsementStatusVOs = null;
-				return sendGreenCopyForEndorsementStatusVOs;
-			}			
-		} else {
-			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
-			sendGreenCopyForEndorsementStatusVOs = null;
-			return sendGreenCopyForEndorsementStatusVOs;
-		}
-		return sendGreenCopyForEndorsementStatusVOs;
-	}
-	
-	@RequestMapping(value="/bill/transmitEndorsementCopies_statuses", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getTransmitEndorsementCopiesStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
-		List<MasterVO> transmitEndorsementCopiesStatusVOs = new ArrayList<MasterVO>();
-		String billNumberStr = request.getParameter("billNumber");
-		String billYearStr = request.getParameter("billYear");
-		String houseTypeId = request.getParameter("houseTypeId");
-		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-		if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
-			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
-				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				if(server != null) {
-					if(server.getValue().equals("TOMCAT")) {
-						try {
-							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
-							billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
-							NumberFormat nf = NumberFormat.getInstance(locale);
-					        DecimalFormat df = (DecimalFormat) nf;	
-					        billNumberStr = df.parse(billNumberStr).toString();
-					        billYearStr = df.parse(billYearStr).toString();
-						}catch (UnsupportedEncodingException e) {
-							logger.error("Cannot encode one of the request parameters.");
-							transmitEndorsementCopiesStatusVOs = null;
-							return transmitEndorsementCopiesStatusVOs;
-						}catch (ParseException e) {
-							logger.error("Cannot parse one of the request parameters.");
-							transmitEndorsementCopiesStatusVOs = null;
-							return transmitEndorsementCopiesStatusVOs;
 						}
 					}
-				}
-				try {
-					Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
-					if(bill==null) {
-						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
-						transmitEndorsementCopiesStatusVOs = null;
-						return transmitEndorsementCopiesStatusVOs;
-					}
-					String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
-					if(currentHouseOrder!=null) {
-						CustomParameter transmitEndorsementCopiesStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS", "");
-						if(transmitEndorsementCopiesStatusParameter!=null) {
-							if(transmitEndorsementCopiesStatusParameter.getValue()!=null) {									
-								StringBuffer filteredStatusTypes = new StringBuffer("");
-								String[] statusTypesArr = transmitEndorsementCopiesStatusParameter.getValue().split(",");
-								for(String i: statusTypesArr) {
-									System.out.println(filteredStatusTypes.toString());
-									if(!i.trim().isEmpty()) {
-										if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
-											if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
-												filteredStatusTypes.append(i.trim()+",");							
-											}
-										} else {
-											filteredStatusTypes.append(i.trim()+",");
-										}					
-									}				
-								}
-								filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
-								List<Status> transmitEndorsementCopiesStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
-								if(transmitEndorsementCopiesStatuses!=null) {
-									for(Status i: transmitEndorsementCopiesStatuses) {
-										MasterVO transmitEndorsementCopiesStatusVO = new MasterVO();
-										transmitEndorsementCopiesStatusVO.setName(i.getName());
-										transmitEndorsementCopiesStatusVO.setValue(i.getType());
-										transmitEndorsementCopiesStatusVO.setId(bill.getId());
-										transmitEndorsementCopiesStatusVOs.add(transmitEndorsementCopiesStatusVO);
+					try {
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
+						if(bill==null) {
+							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
+							sendGreenCopyForEndorsementStatusVOs = null;
+							return sendGreenCopyForEndorsementStatusVOs;
+						}
+						String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+						if(currentHouseOrder!=null) {
+							CustomParameter sendGreenCopyForEndorsementStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS", "");
+							if(sendGreenCopyForEndorsementStatusParameter!=null) {
+								if(sendGreenCopyForEndorsementStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = sendGreenCopyForEndorsementStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+												if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
+													filteredStatusTypes.append(i.trim()+",");							
+												}
+											} else {
+												filteredStatusTypes.append(i.trim()+",");
+											}					
+										}				
 									}
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> sendGreenCopyForEndorsementStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									if(sendGreenCopyForEndorsementStatuses!=null) {
+										for(Status i: sendGreenCopyForEndorsementStatuses) {
+											MasterVO sendGreenCopyForEndorsementStatusVO = new MasterVO();
+											sendGreenCopyForEndorsementStatusVO.setName(i.getName());
+											sendGreenCopyForEndorsementStatusVO.setValue(i.getType());
+											sendGreenCopyForEndorsementStatusVO.setId(bill.getId());
+											sendGreenCopyForEndorsementStatusVOs.add(sendGreenCopyForEndorsementStatusVO);
+										}
+									}
+								} else {
+									logger.error("Custom Parameter 'BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS' is not set properly");
+									sendGreenCopyForEndorsementStatusVOs = null;
+									return sendGreenCopyForEndorsementStatusVOs;
 								}
 							} else {
-								logger.error("Custom Parameter 'BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS' is not set properly");
+								logger.error("Custom Parameter 'BILL_SENDGREENCOPYFORENDORSEMENT_STATUSOPTIONS' is not set");
+								sendGreenCopyForEndorsementStatusVOs = null;
+								return sendGreenCopyForEndorsementStatusVOs;
+							} 
+						} else {
+							logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+							sendGreenCopyForEndorsementStatusVOs = null;
+							return sendGreenCopyForEndorsementStatusVOs;
+						}
+					}catch(NumberFormatException ne) {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+						sendGreenCopyForEndorsementStatusVOs = null;
+						return sendGreenCopyForEndorsementStatusVOs;
+					}				
+				} else {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+					sendGreenCopyForEndorsementStatusVOs = null;
+					return sendGreenCopyForEndorsementStatusVOs;
+				}			
+			} else {
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
+				sendGreenCopyForEndorsementStatusVOs = null;
+				return sendGreenCopyForEndorsementStatusVOs;
+			}
+			return sendGreenCopyForEndorsementStatusVOs;
+		}
+		
+		@RequestMapping(value="/bill/transmitEndorsementCopies_statuses", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getTransmitEndorsementCopiesStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
+			List<MasterVO> transmitEndorsementCopiesStatusVOs = new ArrayList<MasterVO>();
+			String billNumberStr = request.getParameter("billNumber");
+			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
+			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(server != null) {
+						if(server.getValue().equals("TOMCAT")) {
+							try {
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");														
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
+							}catch (UnsupportedEncodingException e) {
+								logger.error("Cannot encode one of the request parameters.");
+								transmitEndorsementCopiesStatusVOs = null;
+								return transmitEndorsementCopiesStatusVOs;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								transmitEndorsementCopiesStatusVOs = null;
 								return transmitEndorsementCopiesStatusVOs;
 							}
-						} else {
-							logger.error("Custom Parameter 'BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS' is not set");
+						}
+					}
+					try {
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
+						if(bill==null) {
+							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
 							transmitEndorsementCopiesStatusVOs = null;
 							return transmitEndorsementCopiesStatusVOs;
-						} 
-					} else {
-						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
-						transmitEndorsementCopiesStatusVOs = null;
-						return transmitEndorsementCopiesStatusVOs;
-					}
-				}catch(NumberFormatException ne) {
-					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
-					transmitEndorsementCopiesStatusVOs = null;
-					return transmitEndorsementCopiesStatusVOs;
-				}				
-			} else {
-				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
-				transmitEndorsementCopiesStatusVOs = null;
-				return transmitEndorsementCopiesStatusVOs;
-			}			
-		} else {
-			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
-			transmitEndorsementCopiesStatusVOs = null;
-			return transmitEndorsementCopiesStatusVOs;
-		}
-		return transmitEndorsementCopiesStatusVOs;
-	}
-	
-	@RequestMapping(value="/bill/checkeligibilityforlayingletter", method=RequestMethod.GET)
-	public @ResponseBody Long checkEligibilityOfSelectedBillForLayingLetter(final HttpServletRequest request, final Locale locale){
-		Long validBillId = null;
-		String billNumberStr = request.getParameter("billNumber");
-		String billYearStr = request.getParameter("billYear");
-		String houseTypeId = request.getParameter("houseTypeId");
-		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-		if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
-			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
-				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				if(server != null) {
-					if(server.getValue().equals("TOMCAT")) {
-						try {
-							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
-							billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
-							NumberFormat nf = NumberFormat.getInstance(locale);
-					        DecimalFormat df = (DecimalFormat) nf;	
-					        billNumberStr = df.parse(billNumberStr).toString();
-					        billYearStr = df.parse(billYearStr).toString();
-						}catch (UnsupportedEncodingException e) {
-							logger.error("Cannot encode one of the request parameters.");
-							validBillId = null;
-							return validBillId;
-						}catch (ParseException e) {
-							logger.error("Cannot parse one of the request parameters.");
-							validBillId = null;
-							return validBillId;
 						}
-					}
-				}
-				try {
-					Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
-					if(bill==null) {
-						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
-						validBillId = null;
-						return validBillId;
-					}	
-					if(bill.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSED)
-							&& bill.getRecommendationStatus().getType().endsWith(ApplicationConstants.BILL_FIRST_HOUSE)) {
 						String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
 						if(currentHouseOrder!=null) {
-							if(currentHouseOrder.equals(ApplicationConstants.BILL_SECOND_HOUSE)) {
-								validBillId = bill.getId();
+							CustomParameter transmitEndorsementCopiesStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS", "");
+							if(transmitEndorsementCopiesStatusParameter!=null) {
+								if(transmitEndorsementCopiesStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = transmitEndorsementCopiesStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+												if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
+													filteredStatusTypes.append(i.trim()+",");							
+												}
+											} else {
+												filteredStatusTypes.append(i.trim()+",");
+											}					
+										}				
+									}
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> transmitEndorsementCopiesStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									if(transmitEndorsementCopiesStatuses!=null) {
+										for(Status i: transmitEndorsementCopiesStatuses) {
+											MasterVO transmitEndorsementCopiesStatusVO = new MasterVO();
+											transmitEndorsementCopiesStatusVO.setName(i.getName());
+											transmitEndorsementCopiesStatusVO.setValue(i.getType());
+											transmitEndorsementCopiesStatusVO.setId(bill.getId());
+											transmitEndorsementCopiesStatusVOs.add(transmitEndorsementCopiesStatusVO);
+										}
+									}
+								} else {
+									logger.error("Custom Parameter 'BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS' is not set properly");
+									transmitEndorsementCopiesStatusVOs = null;
+									return transmitEndorsementCopiesStatusVOs;
+								}
 							} else {
-								logger.error("**** selected housetype is not second house of selected bill. so it is not eligible for laying letter. ****");
-								validBillId = new Long(-2);
-								return validBillId;
-							}
+								logger.error("Custom Parameter 'BILL_TRANSMITENDORSEMENTCOPIES_STATUSOPTIONS' is not set");
+								transmitEndorsementCopiesStatusVOs = null;
+								return transmitEndorsementCopiesStatusVOs;
+							} 
 						} else {
 							logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+							transmitEndorsementCopiesStatusVOs = null;
+							return transmitEndorsementCopiesStatusVOs;
+						}
+					}catch(NumberFormatException ne) {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+						transmitEndorsementCopiesStatusVOs = null;
+						return transmitEndorsementCopiesStatusVOs;
+					}				
+				} else {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+					transmitEndorsementCopiesStatusVOs = null;
+					return transmitEndorsementCopiesStatusVOs;
+				}			
+			} else {
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
+				transmitEndorsementCopiesStatusVOs = null;
+				return transmitEndorsementCopiesStatusVOs;
+			}
+			return transmitEndorsementCopiesStatusVOs;
+		}
+		
+		@RequestMapping(value="/bill/checkeligibilityforlayingletter", method=RequestMethod.GET)
+		public @ResponseBody Long checkEligibilityOfSelectedBillForLayingLetter(final HttpServletRequest request, final Locale locale){
+			Long validBillId = null;
+			String billNumberStr = request.getParameter("billNumber");
+			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
+			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(server != null) {
+						if(server.getValue().equals("TOMCAT")) {
+							try {
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
+							}catch (UnsupportedEncodingException e) {
+								logger.error("Cannot encode one of the request parameters.");
+								validBillId = null;
+								return validBillId;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
+								validBillId = null;
+								return validBillId;
+							}
+						}
+					}
+					try {
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
+						if(bill==null) {
+							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
 							validBillId = null;
 							return validBillId;
-						}
-					} else {					
-						logger.error("**** selected bill is not currently passed from first house. so it is not eligible for laying letter. ****");
-						validBillId = new Long(-1);
-						return validBillId;
-					}
-				}catch(NumberFormatException ne) {
-					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
-					validBillId = null;
-					return validBillId;
-				}
-			}
-		}
-		return validBillId;
-	}
-	
-	@RequestMapping(value="/bill/transmitPressCopies_statuses", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getTransmitPressCopiesStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
-		List<MasterVO> transmitPressCopiesStatusVOs = new ArrayList<MasterVO>();
-		String billNumberStr = request.getParameter("billNumber");
-		String billYearStr = request.getParameter("billYear");
-		String houseTypeId = request.getParameter("houseTypeId");
-		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-		if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
-			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
-				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				if(server != null) {
-					if(server.getValue().equals("TOMCAT")) {
-						try {								
-							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
-							billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
-							NumberFormat nf = NumberFormat.getInstance(locale);
-					        DecimalFormat df = (DecimalFormat) nf;	
-					        billNumberStr = df.parse(billNumberStr).toString();
-					        billYearStr = df.parse(billYearStr).toString();
-						}catch (UnsupportedEncodingException e) {
-							logger.error("Cannot encode one of the request parameters.");
-							transmitPressCopiesStatusVOs = null;
-							return transmitPressCopiesStatusVOs;
-						}catch (ParseException e) {
-							logger.error("Cannot parse one of the request parameters.");
-							transmitPressCopiesStatusVOs = null;
-							return transmitPressCopiesStatusVOs;
-						}
-					}
-				}
-				try {
-					NumberFormat nf = NumberFormat.getInstance(locale);
-			        DecimalFormat df = (DecimalFormat) nf;	
-			        billNumberStr = df.parse(billNumberStr).toString();
-			        billYearStr = df.parse(billYearStr).toString();   
-			        Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
-					if(bill==null) {
-						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
-						transmitPressCopiesStatusVOs = null;
-						return transmitPressCopiesStatusVOs;
-					}
-					String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
-					if(currentHouseOrder!=null) {
-						CustomParameter transmitPressCopiesStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS", "");
-						if(transmitPressCopiesStatusParameter!=null) {
-							if(transmitPressCopiesStatusParameter.getValue()!=null) {									
-								StringBuffer filteredStatusTypes = new StringBuffer("");
-								String[] statusTypesArr = transmitPressCopiesStatusParameter.getValue().split(",");
-								for(String i: statusTypesArr) {
-									System.out.println(filteredStatusTypes.toString());
-									if(!i.trim().isEmpty()) {
-										if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
-											if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
-												filteredStatusTypes.append(i.trim()+",");							
-											}
-										} else {
-											filteredStatusTypes.append(i.trim()+",");
-										}					
-									}				
-								}
-								filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
-								List<Status> transmitPressCopiesStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
-								if(transmitPressCopiesStatuses!=null) {
-									for(Status i: transmitPressCopiesStatuses) {
-										MasterVO transmitPressCopiesStatusVO = new MasterVO();
-										transmitPressCopiesStatusVO.setName(i.getName());
-										transmitPressCopiesStatusVO.setValue(i.getType());
-										transmitPressCopiesStatusVO.setId(bill.getId());
-										transmitPressCopiesStatusVOs.add(transmitPressCopiesStatusVO);
-									}
+						}	
+						if(bill.getRecommendationStatus().getType().startsWith(ApplicationConstants.BILL_PROCESSED_PASSED)
+								&& bill.getRecommendationStatus().getType().endsWith(ApplicationConstants.BILL_FIRST_HOUSE)) {
+							String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+							if(currentHouseOrder!=null) {
+								if(currentHouseOrder.equals(ApplicationConstants.BILL_SECOND_HOUSE)) {
+									validBillId = bill.getId();
+								} else {
+									logger.error("**** selected housetype is not second house of selected bill. so it is not eligible for laying letter. ****");
+									validBillId = new Long(-2);
+									return validBillId;
 								}
 							} else {
-								logger.error("Custom Parameter 'BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS' is not set properly");
+								logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+								validBillId = null;
+								return validBillId;
+							}
+						} else {					
+							logger.error("**** selected bill is not currently passed from first house. so it is not eligible for laying letter. ****");
+							validBillId = new Long(-1);
+							return validBillId;
+						}
+					}catch(NumberFormatException ne) {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+						validBillId = null;
+						return validBillId;
+					}
+				}
+			}
+			return validBillId;
+		}
+		
+		@RequestMapping(value="/bill/transmitPressCopies_statuses", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getTransmitPressCopiesStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
+			List<MasterVO> transmitPressCopiesStatusVOs = new ArrayList<MasterVO>();
+			String billNumberStr = request.getParameter("billNumber");
+			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
+			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(server != null) {
+						if(server.getValue().equals("TOMCAT")) {
+							try {								
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
+							}catch (UnsupportedEncodingException e) {
+								logger.error("Cannot encode one of the request parameters.");
+								transmitPressCopiesStatusVOs = null;
+								return transmitPressCopiesStatusVOs;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								transmitPressCopiesStatusVOs = null;
 								return transmitPressCopiesStatusVOs;
 							}
-						} else {
-							logger.error("Custom Parameter 'BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS' is not set");
+						}
+					}
+					try {
+						NumberFormat nf = NumberFormat.getInstance(locale);
+				        DecimalFormat df = (DecimalFormat) nf;	
+				        billNumberStr = df.parse(billNumberStr).toString();
+				        billYearStr = df.parse(billYearStr).toString();   
+				        Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
+						if(bill==null) {
+							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
 							transmitPressCopiesStatusVOs = null;
 							return transmitPressCopiesStatusVOs;
-						} 
-					} else {
-						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+						}
+						String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+						if(currentHouseOrder!=null) {
+							CustomParameter transmitPressCopiesStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS", "");
+							if(transmitPressCopiesStatusParameter!=null) {
+								if(transmitPressCopiesStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = transmitPressCopiesStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+												if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
+													filteredStatusTypes.append(i.trim()+",");							
+												}
+											} else {
+												filteredStatusTypes.append(i.trim()+",");
+											}					
+										}				
+									}
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> transmitPressCopiesStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									if(transmitPressCopiesStatuses!=null) {
+										for(Status i: transmitPressCopiesStatuses) {
+											MasterVO transmitPressCopiesStatusVO = new MasterVO();
+											transmitPressCopiesStatusVO.setName(i.getName());
+											transmitPressCopiesStatusVO.setValue(i.getType());
+											transmitPressCopiesStatusVO.setId(bill.getId());
+											transmitPressCopiesStatusVOs.add(transmitPressCopiesStatusVO);
+										}
+									}
+								} else {
+									logger.error("Custom Parameter 'BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS' is not set properly");
+									transmitPressCopiesStatusVOs = null;
+									return transmitPressCopiesStatusVOs;
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_TRANSMITPRESSCOPIES_STATUSOPTIONS' is not set");
+								transmitPressCopiesStatusVOs = null;
+								return transmitPressCopiesStatusVOs;
+							} 
+						} else {
+							logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+							transmitPressCopiesStatusVOs = null;
+							return transmitPressCopiesStatusVOs;
+						}
+					}catch(NumberFormatException ne) {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+						transmitPressCopiesStatusVOs = null;
+						return transmitPressCopiesStatusVOs;
+					} catch(ParseException pe) {
 						transmitPressCopiesStatusVOs = null;
 						return transmitPressCopiesStatusVOs;
 					}
-				}catch(NumberFormatException ne) {
-					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+				} else {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
 					transmitPressCopiesStatusVOs = null;
 					return transmitPressCopiesStatusVOs;
-				} catch(ParseException pe) {
-					transmitPressCopiesStatusVOs = null;
-					return transmitPressCopiesStatusVOs;
-				}
+				}			
 			} else {
-				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
 				transmitPressCopiesStatusVOs = null;
 				return transmitPressCopiesStatusVOs;
-			}			
-		} else {
-			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
-			transmitPressCopiesStatusVOs = null;
+			}
 			return transmitPressCopiesStatusVOs;
 		}
-		return transmitPressCopiesStatusVOs;
-	}
-	
-	@RequestMapping(value="/bill/citation_statuses", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getCitationStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
-		List<MasterVO> citationStatusVOs = new ArrayList<MasterVO>();
-		String billNumberStr = request.getParameter("billNumber");
-		String billYearStr = request.getParameter("billYear");
-		String houseTypeId = request.getParameter("houseTypeId");
-		String currentHouseTypeType = request.getParameter("currentHouseTypeType");
-		if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
-			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
-				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				if(server != null) {
-					if(server.getValue().equals("TOMCAT")) {
-						try {
-							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");	
-							billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
-							NumberFormat nf = NumberFormat.getInstance(locale);
-					        DecimalFormat df = (DecimalFormat) nf;	
-					        billNumberStr = df.parse(billNumberStr).toString();
-					        billYearStr = df.parse(billYearStr).toString();
-						}catch (UnsupportedEncodingException e) {
-							logger.error("Cannot encode one of the request parameters.");
-							citationStatusVOs = null;
-							return citationStatusVOs;
-						} catch (ParseException e) {
-							logger.error("Cannot parse one of the request parameters.");
-							citationStatusVOs = null;
-							return citationStatusVOs;
-						}
-					}
-				}
-				try {
-					Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
-					if(bill==null) {
-						logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
-						citationStatusVOs = null;
-						return citationStatusVOs;
-					}
-					String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
-					if(currentHouseOrder!=null) {
-						/**** Citation Statuses Allowed For Selected Bill In Selected House ****/							
-						CustomParameter citationStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
-						if(citationStatusParameter!=null) {
-							if(citationStatusParameter.getValue()!=null) {									
-								StringBuffer filteredStatusTypes = new StringBuffer("");
-								String[] statusTypesArr = citationStatusParameter.getValue().split(",");
-								for(String i: statusTypesArr) {
-									System.out.println(filteredStatusTypes.toString());
-									if(!i.trim().isEmpty()) {
-										if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
-											if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
-												filteredStatusTypes.append(i.trim()+",");							
-											}
-										} else {
-											filteredStatusTypes.append(i.trim()+",");
-										}					
-									}				
-								}
-								filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
-								List<Status> citationStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
-								if(citationStatuses!=null) {
-									for(Status i: citationStatuses) {
-										MasterVO citationStatusVO = new MasterVO();
-										citationStatusVO.setName(i.getName());
-										citationStatusVO.setValue(i.getType());
-										citationStatusVO.setId(bill.getId());
-										citationStatusVOs.add(citationStatusVO);
-									}
-								}
-							} else {
-								logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set properly");
+		
+		@RequestMapping(value="/bill/citation_statuses", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getCitationStatusesForBillInGivenHouse(final HttpServletRequest request, final Locale locale){
+			List<MasterVO> citationStatusVOs = new ArrayList<MasterVO>();
+			String billNumberStr = request.getParameter("billNumber");
+			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
+			String currentHouseTypeType = request.getParameter("currentHouseTypeType");
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null&&currentHouseTypeType!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()&&!currentHouseTypeType.isEmpty()) {
+					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(server != null) {
+						if(server.getValue().equals("TOMCAT")) {
+							try {
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");	
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
+							}catch (UnsupportedEncodingException e) {
+								logger.error("Cannot encode one of the request parameters.");
+								citationStatusVOs = null;
+								return citationStatusVOs;
+							} catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
 								citationStatusVOs = null;
 								return citationStatusVOs;
 							}
-						} else {
-							logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set");
+						}
+					}
+					try {
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
+						if(bill==null) {
+							logger.error("Check Request Parameter 'billNumber' and 'billYear' for invalid values");
 							citationStatusVOs = null;
 							return citationStatusVOs;
-						}							 
-					} else {
-						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+						}
+						String currentHouseOrder = Bill.findHouseOrderOfGivenHouseForBill(bill, currentHouseTypeType);
+						if(currentHouseOrder!=null) {
+							/**** Citation Statuses Allowed For Selected Bill In Selected House ****/							
+							CustomParameter citationStatusParameter = CustomParameter.findByName(CustomParameter.class, "BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase(), "");
+							if(citationStatusParameter!=null) {
+								if(citationStatusParameter.getValue()!=null) {									
+									StringBuffer filteredStatusTypes = new StringBuffer("");
+									String[] statusTypesArr = citationStatusParameter.getValue().split(",");
+									for(String i: statusTypesArr) {
+										System.out.println(filteredStatusTypes.toString());
+										if(!i.trim().isEmpty()) {
+											if(i.trim().endsWith(ApplicationConstants.BILL_FIRST_HOUSE) || i.trim().endsWith(ApplicationConstants.BILL_SECOND_HOUSE)) {
+												if(i.trim().endsWith(currentHouseTypeType + "_" + currentHouseOrder)) {
+													filteredStatusTypes.append(i.trim()+",");							
+												}
+											} else {
+												filteredStatusTypes.append(i.trim()+",");
+											}					
+										}				
+									}
+									filteredStatusTypes.deleteCharAt(filteredStatusTypes.length()-1);	
+									List<Status> citationStatuses = Status.findStatusContainedIn(filteredStatusTypes.toString(), locale.toString(), ApplicationConstants.ASC);
+									if(citationStatuses!=null) {
+										for(Status i: citationStatuses) {
+											MasterVO citationStatusVO = new MasterVO();
+											citationStatusVO.setName(i.getName());
+											citationStatusVO.setValue(i.getType());
+											citationStatusVO.setId(bill.getId());
+											citationStatusVOs.add(citationStatusVO);
+										}
+									}
+								} else {
+									logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set properly");
+									citationStatusVOs = null;
+									return citationStatusVOs;
+								}
+							} else {
+								logger.error("Custom Parameter 'BILL_CITATION_STATUSOPTIONS_"+currentHouseOrder.toUpperCase()+"' is not set");
+								citationStatusVOs = null;
+								return citationStatusVOs;
+							}							 
+						} else {
+							logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+							citationStatusVOs = null;
+							return citationStatusVOs;
+						}
+					}catch(NumberFormatException ne) {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
 						citationStatusVOs = null;
 						return citationStatusVOs;
-					}
-				}catch(NumberFormatException ne) {
-					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+					}				
+				} else {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
 					citationStatusVOs = null;
 					return citationStatusVOs;
-				}				
+				}			
 			} else {
-				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
 				citationStatusVOs = null;
 				return citationStatusVOs;
-			}			
-		} else {
-			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
-			citationStatusVOs = null;
+			}
 			return citationStatusVOs;
 		}
-		return citationStatusVOs;
-	}
-	
-	@RequestMapping(value="/findIdOfBillWithGivenNumberYearAndHouseType", method=RequestMethod.GET)
-	public @ResponseBody String findIdOfBillWithGivenNumberYearAndHouseType(final HttpServletRequest request, final Locale locale){
-		String billId = null;
-		String billNumberStr = request.getParameter("billNumber");
-		String billYearStr = request.getParameter("billYear");
-		String houseTypeId = request.getParameter("houseTypeId");
-		if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null) {
-			if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()) {
-				CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				if(server != null) {
-					if(server.getValue().equals("TOMCAT")) {
-						try {
-							billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
-							billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
-							NumberFormat nf = NumberFormat.getInstance(locale);
-					        DecimalFormat df = (DecimalFormat) nf;	
-					        billNumberStr = df.parse(billNumberStr).toString();
-					        billYearStr = df.parse(billYearStr).toString();
-						}catch (UnsupportedEncodingException e) {
-							logger.error("Cannot encode one of the request parameters.");
-							return billId;
-						}catch (ParseException e) {
-							logger.error("Cannot parse one of the request parameters.");
-							return billId;
+		
+		@RequestMapping(value="/findIdOfBillWithGivenNumberYearAndHouseType", method=RequestMethod.GET)
+		public @ResponseBody String findIdOfBillWithGivenNumberYearAndHouseType(final HttpServletRequest request, final Locale locale){
+			String billId = null;
+			String billNumberStr = request.getParameter("billNumber");
+			String billYearStr = request.getParameter("billYear");
+			String houseTypeId = request.getParameter("houseTypeId");
+			if(billNumberStr!=null&&billYearStr!=null&&houseTypeId!=null) {
+				if(!billNumberStr.isEmpty()&&!billYearStr.isEmpty()&&!houseTypeId.isEmpty()) {
+					CustomParameter server=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(server != null) {
+						if(server.getValue().equals("TOMCAT")) {
+							try {
+								billNumberStr = new String(billNumberStr.getBytes("ISO-8859-1"),"UTF-8");
+								billYearStr = new String(billYearStr.getBytes("ISO-8859-1"),"UTF-8");
+								NumberFormat nf = NumberFormat.getInstance(locale);
+						        DecimalFormat df = (DecimalFormat) nf;	
+						        billNumberStr = df.parse(billNumberStr).toString();
+						        billYearStr = df.parse(billYearStr).toString();
+							}catch (UnsupportedEncodingException e) {
+								logger.error("Cannot encode one of the request parameters.");
+								return billId;
+							}catch (ParseException e) {
+								logger.error("Cannot parse one of the request parameters.");
+								return billId;
+							}
 						}
 					}
-				}
-				try {
-					Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
-					if(bill!=null) {
-						billId = bill.getId().toString();
-					} else {
-						logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
-					}
-				}catch(NumberFormatException ne) {
-					logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
-				}				
+					try {
+						Bill bill = Bill.findByNumberYearAndHouseType(Integer.parseInt(billNumberStr), Integer.parseInt(billYearStr), Long.parseLong(houseTypeId), locale.toString());
+						if(bill!=null) {
+							billId = bill.getId().toString();
+						} else {
+							logger.error("Check Request Parameter 'billNumber', 'billYear' and 'currentHouseTypeType' for invalid values");
+						}
+					}catch(NumberFormatException ne) {
+						logger.error("Check Request Parameter 'billNumber', 'billYear' for Non-Numeric Values");
+					}				
+				} else {
+					logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
+				}			
 			} else {
-				logger.error("Check Request Parameter 'billNumber', 'billYear' for empty Values");
-			}			
-		} else {
-			logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
-		}
-		return billId;
-	}
-	
-	@RequestMapping(value="/geteditingactors",method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getEditingActors(HttpServletRequest request, Locale locale){
-		return EditingWorkflowController.getEditingActors(request, locale);
-	}
-	
-	@SuppressWarnings("rawtypes")
-	@RequestMapping(value="/devicesofrosterproceeding", method=RequestMethod.GET)
-	public @ResponseBody List getRosterDevicesForProceeding(final HttpServletRequest request, final Locale locale){
-		List retVal = null;
-		boolean flag = false;
-		
-		try{
-			String strHouseType = request.getParameter("houseType");
-			String strSessionYear = request.getParameter("sessionYear");
-			String strSessionType = request.getParameter("sessionType");
-			String strLanguage = request.getParameter("language");
-			String strDay = request.getParameter("day");
-			
-			if((strHouseType != null && !strHouseType.isEmpty())
-					&& (strSessionType != null && !strSessionType.isEmpty())
-					&& (strSessionYear != null && !strSessionYear.isEmpty())
-					&& (strLanguage != null && !strLanguage.isEmpty())
-					&& (strDay != null && !strDay.isEmpty())) {
-				
-				HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
-				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
-				Language language = Language.findById(Language.class, Long.parseLong(strLanguage));
-				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
-				
-				Map<String, String[]> parameters = new HashMap<String, String[]>();
-				parameters.put("locale", new String[]{locale.toString()});
-				parameters.put("day", new String[]{strDay});
-				parameters.put("languageId", new String[]{language.getId().toString()});
-				parameters.put("sessionId", new String[]{session.getId().toString()});
-				retVal = Query.findReport("EDIS_ROSTER_DEVICES_OF_PROCEEDING", parameters);
-				flag = true;
-			}else{
-				flag = false;
+				logger.error("Check Request Parameter 'billNumber', 'billYear' for null Values");
 			}
-			
-		}catch (Exception e) {
-			flag = false;
-			logger.debug("ref/devicesofrosterproceeding", e);
-			e.printStackTrace();
+			return billId;
 		}
 		
-		if(!flag){
-			retVal = new ArrayList();
-			Object[] data = new Object[2];
-			MessageResource msr = MessageResource.findByFieldName(MessageResource.class, "code", "generic.error", locale.toString());
-			
-			data[0] = "error:"+((msr != null)? msr.getValue():"Can not complete the last operation.");
+		@RequestMapping(value="/geteditingactors",method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getEditingActors(HttpServletRequest request, Locale locale){
+			return EditingWorkflowController.getEditingActors(request, locale);
 		}
-		return retVal; 
-	}
-	
-	/**
-	 * @param id
-	 * @param request
-	 * @param locale
-	 * @return
-	 */
-	@SuppressWarnings("rawtypes")
-	@RequestMapping(value="/getpartDraftsInWorkflow/{id}",method=RequestMethod.GET)
-	public @ResponseBody List getDraftsOfPartInWorkflow(@PathVariable(value="id") Long id, HttpServletRequest request, Locale locale){
-		try{
-			String strWfId = request.getParameter("wfdetailsId");
-			if(strWfId != null && !strWfId.isEmpty()){
-				WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.valueOf(strWfId));
+		
+		@SuppressWarnings("rawtypes")
+		@RequestMapping(value="/devicesofrosterproceeding", method=RequestMethod.GET)
+		public @ResponseBody List getRosterDevicesForProceeding(final HttpServletRequest request, final Locale locale){
+			List retVal = null;
+			boolean flag = false;
+			
+			try{
+				String strHouseType = request.getParameter("houseType");
+				String strSessionYear = request.getParameter("sessionYear");
+				String strSessionType = request.getParameter("sessionType");
+				String strLanguage = request.getParameter("language");
+				String strDay = request.getParameter("day");
 				
-				String strUserGroup = request.getParameter("userGroup");
-				String strUserGroupType = request.getParameter("userGroupType");
-				
-				if(strUserGroup != null && !strUserGroup.isEmpty()
-						&& strUserGroupType != null && !strUserGroupType.isEmpty()){
+				if((strHouseType != null && !strHouseType.isEmpty())
+						&& (strSessionType != null && !strSessionType.isEmpty())
+						&& (strSessionYear != null && !strSessionYear.isEmpty())
+						&& (strLanguage != null && !strLanguage.isEmpty())
+						&& (strDay != null && !strDay.isEmpty())) {
 					
-					Status status = Status.findByType(wfDetails.getWorkflowSubType(), locale.toString());
+					HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+					Language language = Language.findById(Language.class, Long.parseLong(strLanguage));
+					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
 					
 					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("locale", new String[]{locale.toString()});
+					parameters.put("day", new String[]{strDay});
+					parameters.put("languageId", new String[]{language.getId().toString()});
+					parameters.put("sessionId", new String[]{session.getId().toString()});
+					retVal = Query.findReport("EDIS_ROSTER_DEVICES_OF_PROCEEDING", parameters);
+					flag = true;
+				}else{
+					flag = false;
+				}
+				
+			}catch (Exception e) {
+				flag = false;
+				logger.debug("ref/devicesofrosterproceeding", e);
+				e.printStackTrace();
+			}
+			
+			if(!flag){
+				retVal = new ArrayList();
+				Object[] data = new Object[2];
+				MessageResource msr = MessageResource.findByFieldName(MessageResource.class, "code", "generic.error", locale.toString());
+				
+				data[0] = "error:"+((msr != null)? msr.getValue():"Can not complete the last operation.");
+			}
+			return retVal; 
+		}
+		
+		/**
+		 * @param id
+		 * @param request
+		 * @param locale
+		 * @return
+		 */
+		@SuppressWarnings("rawtypes")
+		@RequestMapping(value="/getpartDraftsInWorkflow/{id}",method=RequestMethod.GET)
+		public @ResponseBody List getDraftsOfPartInWorkflow(@PathVariable(value="id") Long id, HttpServletRequest request, Locale locale){
+			try{
+				String strWfId = request.getParameter("wfdetailsId");
+				if(strWfId != null && !strWfId.isEmpty()){
+					WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.valueOf(strWfId));
 					
-					if(strUserGroupType.equals(ApplicationConstants.EDITOR)){
-						if(status.getType().equals(ApplicationConstants.EDITING_FINAL_MEMBERAPPROVAL)){
-							parameters.put("locale", new String[]{locale.toString()});
-							parameters.put("rosterId", new String[]{wfDetails.getDeviceId()});
-							UserGroup assignerUserGroup = UserGroup.findById(UserGroup.class, Long.valueOf(wfDetails.getAssignerUserGroupId()));
-							
-							User user = EditingWorkflowController.getUser(assignerUserGroup, locale.toString());
-							Member member = Member.findMember(user.getFirstName(),user.getMiddleName(), user.getLastName(), user.getBirthDate(), locale.toString());
-							parameters.put("primaryMemberId", new String[]{member.getId().toString()});
-							parameters.put("editedby", new String[]{wfDetails.getAssigner()});
-							parameters.put("partId", new String[]{id.toString()});
-							return Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DESC_OF_PART", parameters);
-						}else if(status.getType().equals(ApplicationConstants.EDITING_FINAL_SPEAKERAPPROVAL)){
-							parameters.put("locale", new String[]{locale.toString()});
-							parameters.put("rosterId", new String[]{wfDetails.getDeviceId()});
-							parameters.put("editedby", new String[]{wfDetails.getAssigner()});
-							parameters.put("partId", new String[]{id.toString()});
-							return Query.findReport("EDIS_WORKFLOW_SPEAKER_SENT_DRAFTS_DESC_OF_PART", parameters);
+					String strUserGroup = request.getParameter("userGroup");
+					String strUserGroupType = request.getParameter("userGroupType");
+					
+					if(strUserGroup != null && !strUserGroup.isEmpty()
+							&& strUserGroupType != null && !strUserGroupType.isEmpty()){
+						
+						Status status = Status.findByType(wfDetails.getWorkflowSubType(), locale.toString());
+						
+						Map<String, String[]> parameters = new HashMap<String, String[]>();
+						
+						if(strUserGroupType.equals(ApplicationConstants.EDITOR)){
+							if(status.getType().equals(ApplicationConstants.EDITING_FINAL_MEMBERAPPROVAL)){
+								parameters.put("locale", new String[]{locale.toString()});
+								parameters.put("rosterId", new String[]{wfDetails.getDeviceId()});
+								UserGroup assignerUserGroup = UserGroup.findById(UserGroup.class, Long.valueOf(wfDetails.getAssignerUserGroupId()));
+								
+								User user = EditingWorkflowController.getUser(assignerUserGroup, locale.toString());
+								Member member = Member.findMember(user.getFirstName(),user.getMiddleName(), user.getLastName(), user.getBirthDate(), locale.toString());
+								parameters.put("primaryMemberId", new String[]{member.getId().toString()});
+								parameters.put("editedby", new String[]{wfDetails.getAssigner()});
+								parameters.put("partId", new String[]{id.toString()});
+								return Query.findReport("EDIS_WORKFLOW_MEMBER_SENT_DRAFTS_DESC_OF_PART", parameters);
+							}else if(status.getType().equals(ApplicationConstants.EDITING_FINAL_SPEAKERAPPROVAL)){
+								parameters.put("locale", new String[]{locale.toString()});
+								parameters.put("rosterId", new String[]{wfDetails.getDeviceId()});
+								parameters.put("editedby", new String[]{wfDetails.getAssigner()});
+								parameters.put("partId", new String[]{id.toString()});
+								return Query.findReport("EDIS_WORKFLOW_SPEAKER_SENT_DRAFTS_DESC_OF_PART", parameters);
+							}
 						}
 					}
 				}
+			}catch (Exception e) {
+				e.printStackTrace();
 			}
-		}catch (Exception e) {
-			e.printStackTrace();
+			return null;
 		}
-		return null;
-	}
-	
-	@RequestMapping(value="committeetour/actors/workflow/{workflowName}", method=RequestMethod.GET)
-	public @ResponseBody List<Reference> getCommitteeTourActors(
-			@PathVariable("workflowName") final String workflowName,
-			@RequestParam("status") final Long statusId,
-			@RequestParam("houseType") final Long houseTypeId,
-			@RequestParam("userGroup") final Long userGroupId,
-			@RequestParam("assigneeLevel") final int assigneeLevel,
-			final Locale localeObj) {
-		List<Reference> actors = new ArrayList<Reference>();
 		
-		try {
-			HouseType houseType = 
-				HouseType.findById(HouseType.class, houseTypeId);
-			UserGroup userGroup = 
-				UserGroup.findById(UserGroup.class, userGroupId);
-			Status status = Status.findById(Status.class, statusId);
-			String locale = localeObj.toString();
+		@RequestMapping(value="committeetour/actors/workflow/{workflowName}", method=RequestMethod.GET)
+		public @ResponseBody List<Reference> getCommitteeTourActors(
+				@PathVariable("workflowName") final String workflowName,
+				@RequestParam("status") final Long statusId,
+				@RequestParam("houseType") final Long houseTypeId,
+				@RequestParam("userGroup") final Long userGroupId,
+				@RequestParam("assigneeLevel") final int assigneeLevel,
+				final Locale localeObj) {
+			List<Reference> actors = new ArrayList<Reference>();
 			
-			List<WorkflowActor> wfActors = 
-				WorkflowConfig.findCommitteeTourActors(
-					houseType, userGroup, status, workflowName, 
-					assigneeLevel, locale);
-			for(WorkflowActor wfa : wfActors) {
-				String id = String.valueOf(wfa.getId());
-				String name = wfa.getUserGroupType().getName();
-				Reference actor = new Reference(id, name);
-				actors.add(actor);
+			try {
+				HouseType houseType = 
+					HouseType.findById(HouseType.class, houseTypeId);
+				UserGroup userGroup = 
+					UserGroup.findById(UserGroup.class, userGroupId);
+				Status status = Status.findById(Status.class, statusId);
+				String locale = localeObj.toString();
+				
+				List<WorkflowActor> wfActors = 
+					WorkflowConfig.findCommitteeTourActors(
+						houseType, userGroup, status, workflowName, 
+						assigneeLevel, locale);
+				for(WorkflowActor wfa : wfActors) {
+					String id = String.valueOf(wfa.getId());
+					String name = wfa.getUserGroupType().getName();
+					Reference actor = new Reference(id, name);
+					actors.add(actor);
+				}
 			}
-		}
-		catch (Exception e) {
+			catch (Exception e) {
 
+			}
+			
+			return actors;
 		}
 		
-		return actors;
-	}
+		@RequestMapping(value="/isBallotingAllowedForSession",method=RequestMethod.GET)
+		public @ResponseBody String isBallotingAllowedForSession(HttpServletRequest request, Locale locale) throws ELSException {
+			
+			String result = "error";
+			
+			String houseTypeStr = request.getParameter("houseType");
+			String sessionTypeStr = request.getParameter("sessionType");
+			String sessionYear = request.getParameter("sessionYear");	
+			String deviceTypeStr = request.getParameter("deviceType");
+			
+			if(houseTypeStr!=null&&sessionTypeStr!=null&&sessionYear!=null&&deviceTypeStr!=null) {
+				if(!houseTypeStr.isEmpty()&&!sessionTypeStr.isEmpty()&&!sessionYear.isEmpty()&&!deviceTypeStr.isEmpty()) {
+					CustomParameter deploymentServerParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "DEPLOYMENT_SERVER", "");
+					if(deploymentServerParameter!=null) {
+						if(deploymentServerParameter.getValue()!=null) {
+							if(deploymentServerParameter.getValue().equals("TOMCAT")) {
+								try {
+									houseTypeStr = new String(houseTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+									sessionTypeStr = new String(sessionTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+									sessionYear = new String(sessionYear.getBytes("ISO-8859-1"),"UTF-8");
+									deviceTypeStr = new String(deviceTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+									HouseType houseType = HouseType.findByType(houseTypeStr, locale.toString());
+									if(houseType==null) {
+										houseType = HouseType.findById(HouseType.class, Long.parseLong(houseTypeStr));
+									}
+									SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeStr));
+									if(sessionType==null) {
+										sessionType = SessionType.findByFieldName(SessionType.class, "type", sessionTypeStr, locale.toString());
+									}
+									Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(sessionYear));
+									if(session!=null) {
+										DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceTypeStr));
+										if(deviceType==null) {
+											deviceType = DeviceType.findByFieldName(SessionType.class, "type", deviceTypeStr, locale.toString());
+										}
+										if(deviceType!=null) {
+											if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL) && session.getParameter(deviceType.getType()+"_isBallotingRequired")!=null) {
+												result = session.getParameter(deviceType.getType()+"_isBallotingRequired");
+											} else {
+												result = "";
+											}
+										}																													
+									}
+								} catch (UnsupportedEncodingException e) {
+									e.printStackTrace();									
+								}
+							}
+						}
+					}
+				} 
+			} 	
+			
+			return result;
+		}
+
+		
+		@RequestMapping(value="/referOrdinance/searchByNumber",method=RequestMethod.GET)
+	    public @ResponseBody OrdinanceSearchVO searchOrdinanceForReferring(final HttpServletRequest request,final ModelMap model,final Locale locale){
+			OrdinanceSearchVO ordSearchVO = new OrdinanceSearchVO();
+			String ordYearStr=request.getParameter("ordYear");
+			String ordNumberStr=request.getParameter("ordNumber");
+			if(ordYearStr!=null&&ordNumberStr!=null){
+	        	if((!ordYearStr.isEmpty())&&(!ordNumberStr.isEmpty())){
+	        		CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");      
+	        		if(deploymentServer!=null) {
+	        			String server=deploymentServer.getValue();
+        				if(server!=null) {
+        					if(server.equals("TOMCAT")){
+	        					try {
+	        						ordYearStr=new String(ordYearStr.getBytes("ISO-8859-1"),"UTF-8");
+	        						ordNumberStr=new String(ordNumberStr.getBytes("ISO-8859-1"),"UTF-8");
+	        					}
+	        					catch (UnsupportedEncodingException e) {
+	        						logger.error("**** encoding of request parameters failed ****");
+	        						ordSearchVO.setId(new Long(-1));
+	            					return ordSearchVO;
+	        					}
+	        				}
+        				} else {
+        					logger.error("**** Custom Parameter 'DEPLOYMENT_SERVER' value is not set ****");
+        					ordSearchVO.setId(new Long(-1));
+        					return ordSearchVO;
+        				}
+        				try { 
+        					Integer ordYear = Integer.parseInt(ordYearStr);
+        					Integer ordNumber = Integer.parseInt(ordNumberStr);
+        					Ordinance ordinance = Ordinance.findByYearAndNumber(ordYear, ordNumber);
+        					if(ordinance!=null) {
+        						ordSearchVO.setId(ordinance.getId());
+        						ordSearchVO.setNumber(ordinance.getNumber().toString());
+        						ordSearchVO.setYear(ordinance.getYear().toString());
+        						ordSearchVO.setTitle(ordinance.getDefaultTitle());        						
+        					} else {
+        						ordSearchVO.setId(new Long(0));
+            					return ordSearchVO;
+        					}
+        				} catch(NumberFormatException nfe) {
+        					logger.error("**** Some of numeric request parameters are invalid or not encoded due to incorrect 'DEPLOYMENT_SERVER' custom parameter value ****");
+        					ordSearchVO.setId(new Long(-1));
+        					return ordSearchVO;
+        				}        				
+	        		} else {
+	        			logger.error("**** Custom Parameter 'DEPLOYMENT_SERVER' is not set ****");
+	        			ordSearchVO.setId(new Long(-1));
+    					return ordSearchVO;
+	        		}	        		
+	        	}
+	        }
+			return ordSearchVO;
+		}
+
 	
-	@RequestMapping(value="/isBallotingAllowedForSession",method=RequestMethod.GET)
-	public @ResponseBody String isBallotingAllowedForSession(HttpServletRequest request, Locale locale) throws ELSException {
+		@RequestMapping(value="/getchairperson",method=RequestMethod.GET)
+		public @ResponseBody List<String> getChairPerson(final HttpServletRequest request, final Locale locale,final ModelMap model){
+			List<String> chairPersons=new ArrayList<String>();
+			String strMemberRole=request.getParameter("chairPersonRole");
+			String strProceeding=request.getParameter("proceeding");
+			Proceeding proceeding=null;
+			MemberRole mr=null;
+			if(strProceeding!=null && !strProceeding.isEmpty()){
+				proceeding=Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
+			}
+			if(strMemberRole!=null && !strMemberRole.isEmpty()){
+				 mr=MemberRole.findById(MemberRole.class, Long.parseLong(strMemberRole));
+			}
+			
+			Member member=null;
+			if(mr!=null && proceeding!=null){
+				Slot slot=proceeding.getSlot();
+				Roster roster=slot.getRoster();
+				Session session=roster.getSession();
+				House house=session.getHouse();
+				List<HouseMemberRoleAssociation> hmras;
+				try {
+					hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, mr, new Date(), locale.toString());
+					for(HouseMemberRoleAssociation h:hmras){
+						if(h.getRole().equals(mr)){
+							member=h.getMember();
+							chairPersons.add(member.getFullname());
+						}
+					}
+				}catch (ELSException e) {
+					e.printStackTrace();
+				}
+								
+			}
+			return chairPersons;
+		}
 		
-		String result = "error";
-		
-		String houseTypeStr = request.getParameter("houseType");
-		String sessionTypeStr = request.getParameter("sessionType");
-		String sessionYear = request.getParameter("sessionYear");	
-		String deviceTypeStr = request.getParameter("deviceType");
-		
-		if(houseTypeStr!=null&&sessionTypeStr!=null&&sessionYear!=null&&deviceTypeStr!=null) {
-			if(!houseTypeStr.isEmpty()&&!sessionTypeStr.isEmpty()&&!sessionYear.isEmpty()&&!deviceTypeStr.isEmpty()) {
+		@RequestMapping(value="/bill/checkSection", method=RequestMethod.GET)
+		public @ResponseBody String checkBillSectionDetails(final HttpServletRequest request, final Locale locale) {
+			String billId = request.getParameter("billId");
+			String language = request.getParameter("language");
+			String sectionNumber = request.getParameter("sectionNumber");
+			String returnValue = null;
+			if(billId!=null && !billId.isEmpty() && language!=null && !language.isEmpty() && sectionNumber!=null && !sectionNumber.isEmpty()) {
 				CustomParameter deploymentServerParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "DEPLOYMENT_SERVER", "");
 				if(deploymentServerParameter!=null) {
 					if(deploymentServerParameter.getValue()!=null) {
 						if(deploymentServerParameter.getValue().equals("TOMCAT")) {
 							try {
-								houseTypeStr = new String(houseTypeStr.getBytes("ISO-8859-1"),"UTF-8");
-								sessionTypeStr = new String(sessionTypeStr.getBytes("ISO-8859-1"),"UTF-8");
-								sessionYear = new String(sessionYear.getBytes("ISO-8859-1"),"UTF-8");
-								deviceTypeStr = new String(deviceTypeStr.getBytes("ISO-8859-1"),"UTF-8");
-								HouseType houseType = HouseType.findByType(houseTypeStr, locale.toString());
-								if(houseType==null) {
-									houseType = HouseType.findById(HouseType.class, Long.parseLong(houseTypeStr));
+								sectionNumber = new String(sectionNumber.getBytes("ISO-8859-1"),"UTF-8");
+								Section section = Bill.findSection(Long.parseLong(billId), language, sectionNumber);
+								if(section!=null) {
+									returnValue = section.getText();
+								} else {
+									returnValue = "sectionnotfound";
 								}
-								SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeStr));
-								if(sessionType==null) {
-									sessionType = SessionType.findByFieldName(SessionType.class, "type", sessionTypeStr, locale.toString());
-								}
-								Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(sessionYear));
-								if(session!=null) {
-									DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceTypeStr));
-									if(deviceType==null) {
-										deviceType = DeviceType.findByFieldName(SessionType.class, "type", deviceTypeStr, locale.toString());
-									}
-									if(deviceType!=null) {
-										if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL) && session.getParameter(deviceType.getType()+"_isBallotingRequired")!=null) {
-											result = session.getParameter(deviceType.getType()+"_isBallotingRequired");
-										} else {
-											result = "";
-										}
-									}																													
-								}
-							} catch (UnsupportedEncodingException e) {
-								e.printStackTrace();									
-							}
-						}
-					}
-				}
-			} 
-		} 	
-		
-		return result;
-	}
-
-	
-	@RequestMapping(value="/referOrdinance/searchByNumber",method=RequestMethod.GET)
-    public @ResponseBody OrdinanceSearchVO searchOrdinanceForReferring(final HttpServletRequest request,final ModelMap model,final Locale locale){
-		OrdinanceSearchVO ordSearchVO = new OrdinanceSearchVO();
-		String ordYearStr=request.getParameter("ordYear");
-		String ordNumberStr=request.getParameter("ordNumber");
-		if(ordYearStr!=null&&ordNumberStr!=null){
-        	if((!ordYearStr.isEmpty())&&(!ordNumberStr.isEmpty())){
-        		CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");      
-        		if(deploymentServer!=null) {
-        			String server=deploymentServer.getValue();
-    				if(server!=null) {
-    					if(server.equals("TOMCAT")){
-        					try {
-        						ordYearStr=new String(ordYearStr.getBytes("ISO-8859-1"),"UTF-8");
-        						ordNumberStr=new String(ordNumberStr.getBytes("ISO-8859-1"),"UTF-8");
-        					}
-        					catch (UnsupportedEncodingException e) {
-        						logger.error("**** encoding of request parameters failed ****");
-        						ordSearchVO.setId(new Long(-1));
-            					return ordSearchVO;
-        					}
-        				}
-    				} else {
-    					logger.error("**** Custom Parameter 'DEPLOYMENT_SERVER' value is not set ****");
-    					ordSearchVO.setId(new Long(-1));
-    					return ordSearchVO;
-    				}
-    				try { 
-    					Integer ordYear = Integer.parseInt(ordYearStr);
-    					Integer ordNumber = Integer.parseInt(ordNumberStr);
-    					Ordinance ordinance = Ordinance.findByYearAndNumber(ordYear, ordNumber);
-    					if(ordinance!=null) {
-    						ordSearchVO.setId(ordinance.getId());
-    						ordSearchVO.setNumber(ordinance.getNumber().toString());
-    						ordSearchVO.setYear(ordinance.getYear().toString());
-    						ordSearchVO.setTitle(ordinance.getDefaultTitle());        						
-    					} else {
-    						ordSearchVO.setId(new Long(0));
-        					return ordSearchVO;
-    					}
-    				} catch(NumberFormatException nfe) {
-    					logger.error("**** Some of numeric request parameters are invalid or not encoded due to incorrect 'DEPLOYMENT_SERVER' custom parameter value ****");
-    					ordSearchVO.setId(new Long(-1));
-    					return ordSearchVO;
-    				}        				
-        		} else {
-        			logger.error("**** Custom Parameter 'DEPLOYMENT_SERVER' is not set ****");
-        			ordSearchVO.setId(new Long(-1));
-					return ordSearchVO;
-        		}	        		
-        	}
-        }
-		return ordSearchVO;
-	}
-
-
-	@RequestMapping(value="/getchairperson",method=RequestMethod.GET)
-	public @ResponseBody List<String> getChairPerson(final HttpServletRequest request, final Locale locale,final ModelMap model){
-		List<String> chairPersons=new ArrayList<String>();
-		String strMemberRole=request.getParameter("chairPersonRole");
-		String strProceeding=request.getParameter("proceeding");
-		Proceeding proceeding=null;
-		MemberRole mr=null;
-		if(strProceeding!=null && !strProceeding.isEmpty()){
-			proceeding=Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
-		}
-		if(strMemberRole!=null && !strMemberRole.isEmpty()){
-			 mr=MemberRole.findById(MemberRole.class, Long.parseLong(strMemberRole));
-		}
-		
-		Member member=null;
-		if(mr!=null && proceeding!=null){
-			Slot slot=proceeding.getSlot();
-			Roster roster=slot.getRoster();
-			Session session=roster.getSession();
-			House house=session.getHouse();
-			List<HouseMemberRoleAssociation> hmras;
-			try {
-				hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, mr, new Date(), locale.toString());
-				for(HouseMemberRoleAssociation h:hmras){
-					if(h.getRole().equals(mr)){
-						member=h.getMember();
-						chairPersons.add(member.getFullname());
-					}
-				}
-			}catch (ELSException e) {
-				e.printStackTrace();
-			}
-							
-		}
-		return chairPersons;
-	}
-	
-	@RequestMapping(value="/bill/checkSectionForNew", method=RequestMethod.GET)
-	public @ResponseBody String checkBillSectionForNew(final HttpServletRequest request, final Locale locale) {
-		String billId = request.getParameter("billId");
-		String language = request.getParameter("language");
-		String sectionNumber = request.getParameter("sectionNumber");
-		String sectionOrder = request.getParameter("sectionOrder");
-		String returnValue = null;
-		if(billId!=null && !billId.isEmpty() && language!=null && !language.isEmpty() 
-				&& sectionNumber!=null && !sectionNumber.isEmpty()) {
-			CustomParameter deploymentServerParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "DEPLOYMENT_SERVER", "");
-			if(deploymentServerParameter!=null) {
-				if(deploymentServerParameter.getValue()!=null) {
-					if(deploymentServerParameter.getValue().equals("TOMCAT")) {
-						try {
-							sectionNumber = new String(sectionNumber.getBytes("ISO-8859-1"),"UTF-8");
-							sectionOrder = new String(sectionOrder.getBytes("ISO-8859-1"),"UTF-8");
-							Section section = Bill.findSection(Long.parseLong(billId), language, sectionNumber);
-							if(section!=null) {
-								returnValue = "section_exists_already";
-							} else {
-								if(sectionOrder!=null && !sectionOrder.isEmpty()) {
-									String[] sectionNumberArr = sectionNumber.split("\\.");
-									if(sectionNumberArr.length==1) {
-										Section sectionWithSameOrder = Bill.findSectionByHierarchyOrder(Long.parseLong(billId), language, sectionOrder);
-										if(sectionWithSameOrder!=null) {
-											returnValue = "section_with_same_order";
-										}
-									} else {											
-										String parentSectionNumber = "";
-										for(int i=0; i<=sectionNumberArr.length-2;i++) {											
-											parentSectionNumber += sectionNumberArr[i];
-											if(i!=sectionNumberArr.length-2) {
-												parentSectionNumber += ".";
-											}
-										}
-										Section parentSection = Bill.findSection(Long.parseLong(billId), language, parentSectionNumber);
-										if(parentSection!=null) {
-											Section sectionWithSameOrder = Bill.findSectionByHierarchyOrder(Long.parseLong(billId), language, parentSection.getHierarchyOrder()+"."+sectionOrder);
-											if(sectionWithSameOrder!=null) {
-												returnValue = "section_with_same_order";
-											}
-										} else {
-											return "error";
-										}
-									}
-								}
-							}
 //								Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
 //								if(bill!=null) {
 //									Section section = null;
@@ -4919,329 +4890,153 @@ public class ReferenceController extends BaseController {
 //										}
 //									}
 //								}
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-							returnValue = "invalidSectionNumber";
-						} catch (ELSException e) {
-							e.printStackTrace();
-							if(e.getParameter("bill_section_notfound")!=null) {
-								returnValue = "sectionnotfound";
-							} else {
+							} catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
+								returnValue = "invalidSectionNumber";
+							} catch (ELSException e) {
+								e.printStackTrace();
+								if(e.getParameter("bill_section_notfound")!=null) {
+									returnValue = "sectionnotfound";
+								} else {
+									returnValue = "error";
+								}								
+							} catch (Exception e) {
+								e.printStackTrace();
 								returnValue = "error";
-							}								
-						} catch (Exception e) {
-							e.printStackTrace();
-							returnValue = "error";
-						}
-					}
-				}
-			}
-		} else {
-			returnValue = "error";
-		}	
-		return returnValue;
-	}
-	
-	@RequestMapping(value="/bill/checkSectionForEdit", method=RequestMethod.GET)
-	public @ResponseBody MasterVO checkBillSectionForEdit(final HttpServletRequest request, final Locale locale) {
-		MasterVO sectionData = new MasterVO();
-		
-		String billId = request.getParameter("billId");
-		String language = request.getParameter("language");
-		String sectionNumber = request.getParameter("sectionNumber");
-		String sectionOrder = request.getParameter("sectionOrder");			
-		
-		if(billId!=null && !billId.isEmpty() && language!=null && !language.isEmpty() 
-				&& sectionNumber!=null && !sectionNumber.isEmpty()) {
-			CustomParameter deploymentServerParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "DEPLOYMENT_SERVER", "");
-			if(deploymentServerParameter!=null) {
-				if(deploymentServerParameter.getValue()!=null) {
-					if(deploymentServerParameter.getValue().equals("TOMCAT")) {
-						try {
-							sectionNumber = new String(sectionNumber.getBytes("ISO-8859-1"),"UTF-8");
-							if(sectionOrder!=null && !sectionOrder.isEmpty()) {
-								sectionOrder = new String(sectionOrder.getBytes("ISO-8859-1"),"UTF-8");
-								String[] sectionNumberArr = sectionNumber.split("\\.");
-								if(sectionNumberArr.length==1) {
-									Section sectionWithSameOrder = Bill.findSectionByHierarchyOrder(Long.parseLong(billId), language, sectionOrder);
-									if(sectionWithSameOrder!=null) {
-										sectionData.setIsSelected(true);
-									} else {
-										sectionData.setIsSelected(false);
-									}
-								} else {
-									String parentSectionNumber = "";
-									for(int i=0; i<=sectionNumberArr.length-2;i++) {											
-										parentSectionNumber += sectionNumberArr[i];
-										if(i!=sectionNumberArr.length-2) {
-											parentSectionNumber += ".";
-										}
-									}
-									Section parentSection = Bill.findSection(Long.parseLong(billId), language, parentSectionNumber);
-									if(parentSection!=null) {
-										Section sectionWithSameOrder = Bill.findSectionByHierarchyOrder(Long.parseLong(billId), language, parentSection.getHierarchyOrder()+"."+sectionOrder);
-										if(sectionWithSameOrder!=null) {
-											sectionData.setIsSelected(true);
-										} else {
-											sectionData.setIsSelected(false);
-										}
-									} else {
-										sectionData.setIsSelected(null);											
-										sectionData.setName("some_error");
-									}
-								}
-							} else {
-								Section section = Bill.findSection(Long.parseLong(billId), language, sectionNumber);
-								if(section!=null) {
-									//isSelected of MasterVO is used for whether section exists or not
-									sectionData.setIsSelected(true);	
-									sectionData.setValue(section.getText());
-									String order = section.findOrder();
-									if(order!=null && !order.isEmpty()) {
-										//order of MasterVO is used for section order
-										sectionData.setOrder(Integer.parseInt(order));
-									}										
-								} else {
-									sectionData.setIsSelected(false);
-								}
 							}
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();	
-							sectionData.setIsSelected(null);
-							sectionData.setName("invalidSectionNumber");
-						} catch (ELSException e) {
-							e.printStackTrace();
-							sectionData.setIsSelected(null);
-							sectionData.setName("some_error");								
-						} catch (Exception e) {
-							e.printStackTrace();
-							sectionData.setIsSelected(null);
-							sectionData.setName("some_error");
-						}
-					}
-				}
-			}
-		} else {
-			sectionData.setIsSelected(null);
-			sectionData.setName("some_error");
-		}	
-		return sectionData;
-	}		
-		
-	@RequestMapping(value="/getDepartment", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getDepartmentFromGroup(final HttpServletRequest request, final Locale locale){
-		List<MasterVO> masterVos=new ArrayList<MasterVO>();
-		
-		try{
-			String strGroup=request.getParameter("group");
-			String strUserGroup=request.getParameter("userGroup");
-			String strDeviceType = request.getParameter("deviceType");
-			String strHouseType = request.getParameter("houseType");
-			
-			if(strGroup!=null && !strGroup.isEmpty() 
-				&& strUserGroup!=null && !strUserGroup.isEmpty()
-				&& strDeviceType != null && !strDeviceType.isEmpty()
-				&& strHouseType != null && !strHouseType.isEmpty()){
-				Group group = null;
-				List<Ministry> ministries = null;
-				if(!(strDeviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-						&& strHouseType.equals(ApplicationConstants.LOWER_HOUSE))){
-					group = Group.findById(Group.class, Long.parseLong(strGroup));
-					ministries = group.getMinistries();
-				}else{
-					ministries = Ministry.findAll(Ministry.class, "name", ApplicationConstants.ASC, locale.toString());
-				}
-				 
-				UserGroup userGroup=UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
-				Map<String,String> parameters=UserGroup.findParametersByUserGroup(userGroup);
-				if(parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString())!=null && !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale.toString()).equals(" ")){
-					String strministries=parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString());
-					for(Ministry m:ministries){
-						if(strministries.contains(m.getName())){
-							List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(m, locale.toString());
-							for(SubDepartment s:subDepartments){
-								MasterVO masterVo=new MasterVO();
-								masterVo.setId(s.getId());
-								masterVo.setName(s.getName());
-								masterVos.add(masterVo);
-							}
-						}
-					}
-					
-				}
-			}
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}
-		return masterVos;
-	}
-		
-
-	@RequestMapping(value="/getministries",method=RequestMethod.GET)
-	public @ResponseBody List<AutoCompleteVO> getMinistries(final HttpServletRequest request,
-			final Locale locale,
-			final ModelMap model){
-		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
-		List<MasterVO> ministerVOs=new ArrayList<MasterVO>();
-		List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
-		String param=request.getParameter("term");
-		String strSession=request.getParameter("session");
-		Session session=null;
-		if(strSession!=null && !strSession.isEmpty()){
-			session=Session.findById(Session.class, Long.parseLong(strSession));				
-		}
-		if(customParameter!=null){
-			String server=customParameter.getValue();
-			if(server.equals("TOMCAT")){
-				try {
-					param=new String(param.getBytes("ISO-8859-1"),"UTF-8");												
-				}
-				catch (UnsupportedEncodingException e){
-					e.printStackTrace();
-				}
-			}
-			String deviceTypeId = request.getParameter("deviceTypeId");
-			if(deviceTypeId!=null) {
-				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceTypeId));
-				if(deviceType!=null) {
-					if(deviceType.getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-						String memberId = request.getParameter("memberId");
-						Member member = Member.findById(Member.class, Long.parseLong(memberId));
-						Session ministrySession = null;
-						List<MemberMinister> memberMinisters = null;
-						memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, session, locale.toString());
-						if(memberMinisters!=null && !memberMinisters.isEmpty()) {
-							ministrySession = session;
-						} else {
-							if(session.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
-								try {
-									ministrySession = Session.find(session.getYear(), session.getType().getType(), ApplicationConstants.UPPER_HOUSE);
-									if(ministrySession!=null) {
-										memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale.toString());
-									}
-								} catch (ELSException e) {
-									e.printStackTrace();
-								}
-							} else if(session.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
-								try {
-									ministrySession = Session.find(session.getYear(), session.getType().getType(), ApplicationConstants.LOWER_HOUSE);
-									if(ministrySession!=null) {
-										memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale.toString());
-									}
-								} catch (ELSException e) {
-									e.printStackTrace();
-								}
-							}
-						}
-						/**** To check whether to populate other ministries also for this minister ****/
-						Boolean isAllowedToAccessOtherMinistries = false;
-						CustomParameter designationsAllowedForAccessingOtherMinistriesParameter = CustomParameter.findByName(CustomParameter.class, "BILL_DESIGNATIONS_SUBMISSIONFORANYMINISTRY", "");
-						if(designationsAllowedForAccessingOtherMinistriesParameter!=null) {
-							List<Ministry> assignedMinistries=new ArrayList<Ministry>();
-							if(memberMinisters!=null) {
-								for(MemberMinister i:memberMinisters){
-									if(i.getMinistry()!=null) {
-										assignedMinistries.add(i.getMinistry());
-									}	
-									if(i.getDesignation()!=null) {
-										for(String d: designationsAllowedForAccessingOtherMinistriesParameter.getValue().split("#")) {
-											if(i.getDesignation().getName().equals(d)) {
-												isAllowedToAccessOtherMinistries = true;
-												break;
-											}
-										}								
-									}
-								}
-							}
-							List<Ministry> totalMinistries = assignedMinistries;
-							if(isAllowedToAccessOtherMinistries) {						
-								try {
-									List<Ministry> otherMinistries = Ministry.findMinistriesAssignedToGroups(ministrySession.getHouse().getType(), ministrySession.getYear(), ministrySession.getType(), locale.toString());
-									for(Ministry m: otherMinistries) {
-										boolean isRepeated = false;
-										for(Ministry mi: assignedMinistries) {
-											if(m.getId().equals(mi.getId())) {
-												isRepeated = true;
-												break;
-											}
-										}
-										if(!isRepeated) {
-											totalMinistries.add(m);
-										}									
-									}									
-								} catch (ELSException e) {
-									e.printStackTrace();
-									return autoCompleteVOs;
-								}							
-							}
-							for(Ministry i:totalMinistries){
-								if(i.getName().contains(param)) {
-									AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
-									autoCompleteVO.setId(i.getId());
-									autoCompleteVO.setValue(i.getName());
-									autoCompleteVOs.add(autoCompleteVO);
-								}									
-							}
-						}							
-					} else {
-						ministerVOs = Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
-						for(MasterVO i:ministerVOs){
-							AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
-							autoCompleteVO.setId(i.getId());
-							autoCompleteVO.setValue(i.getName());
-							autoCompleteVOs.add(autoCompleteVO);
 						}
 					}
 				}
 			} else {
-				ministerVOs = Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
-				for(MasterVO i:ministerVOs){
-					AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
-					autoCompleteVO.setId(i.getId());
-					autoCompleteVO.setValue(i.getName());
-					autoCompleteVOs.add(autoCompleteVO);
-				}
-			}
-		}
-		return autoCompleteVOs;
-	}
-	
-	/**** To get the clubbed questions text ****/
-	@RequestMapping(value="/{id}/clubbedquestiontext", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getClubbedQuestionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+				returnValue = "error";
+			}	
+			return returnValue;
+		}		
 		
-		List<MasterVO> clubbedQuestionsVO = new ArrayList<MasterVO>();
-		
-		try{
+		@RequestMapping(value="/getDepartment", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getDepartmentFromGroup(final HttpServletRequest request, final Locale locale){
+			List<MasterVO> masterVos=new ArrayList<MasterVO>();
 			
-			Question parent = Question.findById(Question.class, id);
-			
-			if(parent != null){
-				List<ClubbedEntity> clubbedQuestions = parent.getClubbedEntities();
+			try{
+				String strGroup=request.getParameter("group");
+				String strUserGroup=request.getParameter("userGroup");
+				String strDeviceType = request.getParameter("deviceType");
+				String strHouseType = request.getParameter("houseType");
 				
-				for(ClubbedEntity ce : clubbedQuestions){
-					Question cQuestion = ce.getQuestion();
-					if(cQuestion != null){
-						MasterVO mVO = new MasterVO();
-						mVO.setId(cQuestion.getId());
-						mVO.setName(FormaterUtil.formatNumberNoGrouping(cQuestion.getNumber(), locale.toString()));
-						if(cQuestion.getRevisedQuestionText() != null && !cQuestion.getRevisedQuestionText().isEmpty()){
-							mVO.setValue(cQuestion.getRevisedQuestionText());
-						}else{
-							mVO.setValue(cQuestion.getQuestionText());
+				if(strDeviceType != null && !strDeviceType.isEmpty()
+					&& strHouseType != null && !strHouseType.isEmpty()){
+					Group group = null;
+					List<Ministry> ministries = null;
+					if(!(strDeviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
+							&& strHouseType.equals(ApplicationConstants.LOWER_HOUSE))
+							&& strGroup!=null && !strGroup.isEmpty()){
+						group = Group.findById(Group.class, Long.parseLong(strGroup));
+						ministries = group.getMinistries();
+					}else{
+						ministries = Ministry.findAll(Ministry.class, "name", ApplicationConstants.ASC, locale.toString());
+					}
+					 
+					UserGroup userGroup=UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
+					Map<String,String> parameters=UserGroup.findParametersByUserGroup(userGroup);
+					if(parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString())!=null && !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale.toString()).equals(" ")){
+						String strministries=parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString());
+						for(Ministry m:ministries){
+							if(strministries.contains(m.getName())){
+								List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(m, locale.toString());
+								for(SubDepartment s:subDepartments){
+									MasterVO masterVo=new MasterVO();
+									masterVo.setId(s.getId());
+									masterVo.setName(s.getName());
+									masterVos.add(masterVo);
+								}
+							}
 						}
 						
-						clubbedQuestionsVO.add(mVO);
 					}
 				}
+			}catch(Exception ex){
+				ex.printStackTrace();
 			}
-		}catch(Exception e){
-			logger.error(e.toString());
+			return masterVos;
+	}
+		
+
+		@RequestMapping(value="/getministries",method=RequestMethod.GET)
+		public @ResponseBody List<AutoCompleteVO> getMinistries(final HttpServletRequest request,
+				final Locale locale,
+				final ModelMap model){
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+			List<MasterVO> ministerVOs=new ArrayList<MasterVO>();
+			List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
+			String strSession=request.getParameter("session");
+			Session session=null;
+			if(strSession!=null && !strSession.isEmpty()){
+				session=Session.findById(Session.class, Long.parseLong(strSession));
+				
+			}
+			if(customParameter!=null){
+				String server=customParameter.getValue();
+				if(server.equals("TOMCAT")){
+					String strParam=request.getParameter("term");
+					try {
+						String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+						ministerVOs = Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
+					}
+					catch (UnsupportedEncodingException e){
+						e.printStackTrace();
+					}
+				}else{
+					String param=request.getParameter("term");
+					ministerVOs=Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
+				}
+			}
+			for(MasterVO i:ministerVOs){
+				AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
+				autoCompleteVO.setId(i.getId());
+				autoCompleteVO.setValue(i.getName());
+				autoCompleteVOs.add(autoCompleteVO);
+			}
+
+			return autoCompleteVOs;
 		}
 		
+		/**** To get the clubbed questions text ****/
+		@RequestMapping(value="/{id}/clubbedquestiontext", method=RequestMethod.GET)
+		public @ResponseBody List<MasterVO> getClubbedQuestionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+			
+			List<MasterVO> clubbedQuestionsVO = new ArrayList<MasterVO>();
+			
+			try{
+				
+				Question parent = Question.findById(Question.class, id);
+				
+				if(parent != null){
+					List<ClubbedEntity> clubbedQuestions = parent.getClubbedEntities();
+					
+					for(ClubbedEntity ce : clubbedQuestions){
+						Question cQuestion = ce.getQuestion();
+						if(cQuestion != null){
+							MasterVO mVO = new MasterVO();
+							mVO.setId(cQuestion.getId());
+							mVO.setName(FormaterUtil.formatNumberNoGrouping(cQuestion.getNumber(), locale.toString()));
+							if(cQuestion.getRevisedQuestionText() != null && !cQuestion.getRevisedQuestionText().isEmpty()){
+								mVO.setValue(cQuestion.getRevisedQuestionText());
+							}else{
+								mVO.setValue(cQuestion.getQuestionText());
+							}
+							
+							clubbedQuestionsVO.add(mVO);
+						}
+					}
+				}
+			}catch(Exception e){
+				logger.error(e.toString());
+			}
+			
+			
+			return clubbedQuestionsVO;
+		}
 		
-		return clubbedQuestionsVO;
-	}
 		
 	@RequestMapping(value="/newpendingtasks", method=RequestMethod.GET)
 	public @ResponseBody MasterVO getNewPendingTasks(HttpServletRequest request, Locale locale){
@@ -5277,7 +5072,7 @@ public class ReferenceController extends BaseController {
 				parameters.put("houseType", strHouseType);
 				parameters.put("status", strStatus);
 				
-				List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.ASC);
+				List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
 				
 				if(workflows != null){
 					
@@ -5291,7 +5086,7 @@ public class ReferenceController extends BaseController {
 		
 		return data;
 	}
-		
+	
 	@RequestMapping(value="/getStatusByDeviceType", method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getStatusByDeviceType(HttpServletRequest request, Locale locale){
 		String strDeviceType=request.getParameter("deviceType");
@@ -5317,7 +5112,7 @@ public class ReferenceController extends BaseController {
 		}
 		return masterVOs;
 	}
-		
+	
 	@RequestMapping(value="/getQuestionByNumberAndSession", method=RequestMethod.GET)
 	public @ResponseBody Boolean getQuestionByNumberAndSession(HttpServletRequest request, Locale locale){
 		Boolean flag=false;
@@ -5357,7 +5152,7 @@ public class ReferenceController extends BaseController {
 		}
 		return flag;
 	}
-		
+	
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/pendingtasksdevices", method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getPendingTasksDeviceId(HttpServletRequest request, Locale locale){
@@ -5449,7 +5244,7 @@ public class ReferenceController extends BaseController {
 		}
 		return vos;
 	}
-		
+	
 	@RequestMapping(value="dummypage", method=RequestMethod.GET)
 	public String getDummyPage(ModelMap model, Locale locale){
 		model.addAttribute("data","data");
@@ -5603,30 +5398,8 @@ public class ReferenceController extends BaseController {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
-
 		
 		return pendingMessage;
-	}
-	
-	
-	@RequestMapping(value="/getDeviceNumber",method=RequestMethod.GET)
-	public @ResponseBody MasterVO getDeviceNumber(HttpServletRequest request, Locale locale){
-		String strDeviceId = request.getParameter("deviceId");
-		String strDeviceType = request.getParameter("deviceType");
-		MasterVO masterVO=new MasterVO();
-		if(strDeviceType!=null && !strDeviceType.isEmpty()
-			&& strDeviceId!=null && !strDeviceId.isEmpty()){
-			DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
-			String device=deviceType.getDevice();
-			if(device.equals(ApplicationConstants.QUESTION)){
-				Question question=Question.findById(Question.class, Long.parseLong(strDeviceId));
-				masterVO.setName(question.getNumber().toString());
-			}else if(device.equals(ApplicationConstants.RESOLUTION)){
-				Resolution resolution = Resolution.findById(Resolution.class, Long.parseLong(strDeviceId));
-				masterVO.setName(resolution.getNumber().toString());
-			}
-		}
-		return masterVO;
 	}
 	
 	@RequestMapping(value="/test/session/{sessionId}", method=RequestMethod.GET)
@@ -5659,6 +5432,7 @@ public class ReferenceController extends BaseController {
 			return "FAIL";
 		}
 	}
+	
 	
 	@RequestMapping(value="/findYaadiLayingDateForYaadi" ,method=RequestMethod.GET)
 	public @ResponseBody Reference findYaadiLayingDateForYaadi(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model) throws Exception {
@@ -5713,5 +5487,10 @@ public class ReferenceController extends BaseController {
 		}
 		return actors;
 	}
-
+	
+	@RequestMapping(value="/cutmotiondate/actors",method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getCutMotionDateActors(HttpServletRequest request, Locale locale){
+		CutMotionDate cutMotionDate = CutMotionDate.findById(CutMotionDate.class, new Long(request.getParameter("cutMotionDate")));
+		return CutMotionDateControllerUtility.getActors(request, cutMotionDate, locale.toString());
+	}
 }
