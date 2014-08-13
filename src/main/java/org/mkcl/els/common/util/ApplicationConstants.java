@@ -32,6 +32,9 @@ public class ApplicationConstants {
 
 	/** The Constant DEFAULT_LOCALE. */
 	public static final String DEFAULT_LOCALE = "mr_IN";
+	
+	/** System locale **/
+	public static final String SYSTEM_LOCALE = "en_US";
 
 	/** The Constant LOWER_HOUSE. */
 	public static final String LOWER_HOUSE="lowerhouse";
@@ -1422,9 +1425,28 @@ public class ApplicationConstants {
 	
 	public static final String CUTMOTIONS_SUPPLEMENTARY = "motions_supplementary_cutmotion";
 	
-	public static final String APPROVAL_WORKFLOW_URLPATTERN_CUTMOTION="workflow/cutmotion";
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_CUTMOTION = "workflow/cutmotion";
 	
-	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_CUTMOTION="workflow/cutmotion/supportingmember";
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_CUTMOTION = "workflow/cutmotion/supportingmember";
 	
+	public static final String CUTMOTIONDATE_CUTMOTIONDEPARTMENTDATEPRIORITY_DELETE = "CUTMOTIONDATE_CUTMOTIONDEPARTMENTDATEPRIORITY_DELETE";
+	
+	public static final String CUTMOTIONDEPARTMENTDATEPRIORITY_DELETE = "CUTMOTIONDEPARTMENTDATEPRIORITY_DELETE";
+	
+	public static final String CUTMOTIONDATE_DATE_INCOMPLETE = "cutmotiondate_dateincomplete";
+	public static final String CUTMOTIONDATE_DATE_COMPLETE = "cutmotiondate_datecomplete";
+	public static final String CUTMOTIONDATE_DATE_SUBMIT = "cutmotiondate_datesubmit";
+	public static final String CUTMOTIONDATE_SYSTEM_ASSISTANT_DATE_PROCESSED = "cutmotiondate_system_assistant_dateprocessed";
+	public static final String CUTMOTIONDATE_RECOMMEND_DATE_ADMISSION = "cutmotiondate_recommend_dateadmission";
+	public static final String CUTMOTIONDATE_RECOMMEND_DATE_REJECTION = "cutmotiondate_recommend_daterejection";
+	public static final String CUTMOTIONDATE_FINAL_DATE_ADMISSION = "cutmotiondate_final_dateadmission";
+	public static final String CUTMOTIONDATE_PROCESSED_DATE_ADMISSION = "cutmotiondate_processed_dateadmission";
+	public static final String CUTMOTIONDATE_PROCESSED_DATE_REHJECTION = "cutmotiondate_processed_daterejection";
+	public static final String CUTMOTIONDATE_FINAL_DATE_REJECTION = "cutmotiondate_final_daterejection";
+	public static final String CUTMOTIONDATE_RECOMMEND_DATE_SENDBACK = "cutmotiondate_recommend_datesendback";
+	public static final String CUTMOTIONDATE_RECOMMEND_DATE_DISCUSS = "cutmotiondate_recommend_datediscuss";
+	
+	public static final String CUTMOTION_REASSIGN_REJECTION_NUMBER = "CUTMOTION_REASSIGN_REJECTION_NUMBER";
+		
 	/**** CutMotion****/
 }
