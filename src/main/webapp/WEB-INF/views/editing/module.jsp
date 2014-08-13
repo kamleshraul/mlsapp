@@ -226,11 +226,11 @@
 					+"&userGroupType="+$("#userGroupType").val()
 					+"&level=1"
 					+"&wffor=speaker"
-					+"&houseType=" + $('#selectedHouseType').val()
-					+ '&sessionYear=' + $("#selectedSessionYear").val()
-					+ '&sessionType=' + $("#selectedSessionType").val()
-					+ '&language=' + $("#selectedLanguage").val()
-					+ '&day=' +$('#selectedDay').val();
+					+"&houseType=" + $("#selectedHouseType").val()
+					+ "&sessionYear=" + $("#selectedSessionYear").val()
+					+ "&sessionType=" + $("#selectedSessionType").val()
+					+ "&language=" + $("#selectedLanguage").val()
+					+ "&day=" +$('#selectedDay').val();
 				
 				$.prompt($('#sentForApproval').val(),{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
