@@ -51,7 +51,11 @@
 					$("#shortNoticeAnswerDateDiv").hide();
 				}
 				if(value!=""){
-					prependOptionToSelectedModule();
+					if($("#selectedModule option[value='']").html==null){
+						prependOptionToSelectedModule();
+					}else{
+						$("#selectedModule").val('');
+					}
 					loadSubWorkflowByDeviceType(value);
 					 $.get('ref/getTypeOfSelectedDeviceTypeFromName?deviceType='+ value,function(data){
 						$('#deviceTypeType').val(data);
@@ -63,6 +67,15 @@
 						}
 						scrollTop();
 					}); 
+				}
+				var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
+				if((device.indexOf('questions_halfhourdiscussion_standalone')==0 && houseType=='lowerhouse') 
+						|| device.indexOf('motions_')==0
+						|| device.indexOf('resolutions_')==0
+						|| device.indexOf('bills_')==0){
+					$("#groupDiv").hide();
+				}else{
+					$("#groupDiv").show();
 				}
 				
 			});	
@@ -94,14 +107,18 @@
 			$('#selectedModule').change(function(){
 				var value = $(this).val();
 				if(value!=""){
-					prependOptionToSelectedDeviceType();
+					if($("#selectedDeviceType option[value='']").html()==null){
+						prependOptionToSelectedDeviceType();
+					}else{
+						$("#selectedDeviceType").val('');
+					}
 					loadSubWorkflowByModule(value);
 				}
-				/* if(value=='EDITING'){
+				/*if(value=='EDITING'){
 					$("#editingLinkDiv").show();
 				}else{
 					$("#editingLinkDiv").hide();
-				} */
+				}*/
 			});
 			
 			$('#selectedGroup').change(function(){
@@ -360,7 +377,11 @@
 			if($('#deviceTypeType').val().contains("resolutions_")){
 				resourceURL="workflow/resolution/bulkapproval/init";					
 			}else if($('#deviceTypeType').val().contains("motions_")){
-				resourceURL="workflow/motion/bulkapproval/init";
+				if($('#deviceTypeType').val().indexOf("motions_cutmotion_")==0){
+					resourceURL="workflow/cutmotion/bulkapproval/init";	
+				}else{
+					resourceURL="workflow/cutmotion/bulkapproval/init";
+				}				
 			}else if($('#deviceTypeType').val().contains("questions_")){
 				resourceURL="workflow/question/bulkapproval/init";
 			}
@@ -645,9 +666,9 @@
 				<spring:message code="mytask.module" text="Module"/>
 			</a>
 			<select name="selectedModule" id="selectedModule" style="width:100px;height: 25px;">			
-			<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
-			<option value="REPORTING"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
-			<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>
+				<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
+				<option value="REPORTING"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
+				<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>				
 			</select> |				
 			<a href="#" id="statusLabel" class="butSim">
 				<spring:message code="mytask.status" text="Status"/>
@@ -658,16 +679,17 @@
 			<option value="TIMEOUT"><spring:message code="mytask.timeout" text="Timeout"></spring:message></option>
 			</select> |	
 			<hr>
-			<a href="#" id="workflowLabel" class="butSim">
-				<spring:message code="mytask.group" text="Group"/>
-			</a>
-			<select id="selectedGroup" name="selectedGroup" class="sSelect">
-			<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>			
-				<c:forEach items="${groups}" var="i">
-					<option value="${i.name}">${i.name}</option>
-				</c:forEach>			
+			<div id="groupDiv" style="display: inline;">
+				<a href="#" id="workflowLabel" class="butSim">
+					<spring:message code="mytask.group" text="Group"/>
+				</a>
+				<select id="selectedGroup" name="selectedGroup" class="sSelect">
+				<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>			
+					<c:forEach items="${groups}" var="i">
+						<option value="${i.name}">${i.name}</option>
+					</c:forEach>			
 			</select>|
-			
+			</div>
 			<div id='answeringDateDiv' style='display: none;' >
 			<a href="#" id="workflowLabel" class="butSim" >
 				<spring:message code="mytask.chartAnsweringDate" text="Answering Date"/>
@@ -754,6 +776,15 @@
 				</c:forEach>
 			</select>
 		</div>
+		
+		<div style="display: none;">
+			<select id="houseTypeMaster">			
+				<c:forEach items="${houseTypes}" var="i">
+					<option value="${i.name}"><c:out value="${i.type}"></c:out></option>			
+				</c:forEach>
+			</select>
+		</div>
+		
 		<input type="hidden" id="getNewTasks" value="yes" />
 		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">
 		<input type="hidden" name="currenthousetype" id="currenthousetype" value="${houseType}">		
