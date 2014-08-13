@@ -1016,8 +1016,6 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 	
 	public List<WorkflowDetails> findPendingWorkflowOfCurrentUser(final java.util.Map<String, String> parameters, 
 			final String orderBy,
-			final int start,
-			final int limit,
 			final String sortOrder){
 		
 		StringBuffer strQuery = new StringBuffer("SELECT t FROM WorkflowDetails t WHERE");
@@ -1037,10 +1035,6 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
     	for (Entry<String, String> i : parameters.entrySet()) {
             jpQuery.setParameter(i.getKey(), i.getValue());
         }
-    	if(start >= 0 && limit > 0){
-	    	jpQuery.setFirstResult(start);
-	    	jpQuery.setMaxResults(limit);
-    	}
     	@SuppressWarnings("unchecked")
 		List<WorkflowDetails> list = jpQuery.getResultList();
     	return list;

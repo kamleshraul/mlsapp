@@ -1323,4 +1323,52 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		
 		return wfActor;
 	}
+	
+	public WorkflowActor findNextCutMotionDateActor(final DeviceType deviceType,
+			final HouseType houseType,
+			final UserGroup userGroup, 
+			final Status status, 
+			final String workflowName, 
+			final int level,
+			final String locale) {
+		WorkflowActor wfActor = null;
+		
+		WorkflowConfig wfConfig = 
+			this.getLatest(houseType, workflowName, locale);
+		UserGroupType userGroupType = userGroup.getUserGroupType();
+		WorkflowActor currentWfActor = this.getWorkflowActor(wfConfig, userGroupType, level);
+		
+		if(status.getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_SENDBACK)
+				|| status.getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_SENDBACK)) {
+			wfActor = getNextWorkflowActor(wfConfig, currentWfActor, ApplicationConstants.DESC);
+		}
+		else {
+			wfActor = getNextWorkflowActor(wfConfig, currentWfActor, ApplicationConstants.ASC);
+		}
+		
+		return wfActor;
+	}	
+	
+	public List<WorkflowActor> findCutMotionDateActors(final HouseType houseType,
+			final UserGroup userGroup,
+			final Status status,
+			final String workflowName,
+			final int level,
+			final String locale) {
+		List<WorkflowActor> wfActors = new ArrayList<WorkflowActor>();
+		
+		WorkflowConfig wfConfig = this.getLatest(houseType, workflowName, locale);
+		UserGroupType userGroupType = userGroup.getUserGroupType();
+		WorkflowActor currentWfActor = this.getWorkflowActor(wfConfig, userGroupType, level);
+		
+		if(status.getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_SENDBACK)
+				|| status.getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_DISCUSS)) {
+			wfActors = getWorkflowActorsExcludingCurrent(wfConfig, currentWfActor, ApplicationConstants.DESC);
+		}
+		else {
+			wfActors = getWorkflowActorsExcludingCurrent(wfConfig, currentWfActor, ApplicationConstants.ASC);
+		}
+		
+		return wfActors;
+	}
 }

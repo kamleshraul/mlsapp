@@ -22,8 +22,10 @@ import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Repository;
 
@@ -155,7 +157,7 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		
 		try {
 			Status status = Status.findByFieldName(Status.class,"type",ApplicationConstants.CUTMOTION_COMPLETE, locale);
-			String strQuery = "SELECT m FROM CutMotion cm"
+			String strQuery = "SELECT cm FROM CutMotion cm"
 					+ " WHERE cm.session=:session"
 					+ " AND cm.primaryMember=:primaryMember" 
 					+ " AND cm.deviceType=:cutMotionType"
@@ -182,13 +184,13 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 			final Status internalStatus,
 			final Integer itemsCount,
 			final String locale) {
-		String strQuery="SELECT m FROM CutMotion cm"
+		String strQuery="SELECT cm FROM CutMotion cm"
 				+ " WHERE cm.session.id=:sessionId" 
 				+ " AND cm.deviceType.id=:cutMotionTypeId"
 				+ " AND cm.locale=:locale"
 				+ " AND cm.internalStatus.id=:internalStatusId" 
 				+ " AND cm.workflowStarted=:workflowStarted"
-				+ " AND cm.parent IS NULL ORDER BY m.number";
+				+ " AND cm.parent IS NULL ORDER BY cm.number";
 		List<CutMotion> motions = new ArrayList<CutMotion>();
 		
 		try{
@@ -273,6 +275,30 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 			logger.error(e.getMessage());
 		}
 		return motions;
+	}	
+	
+	public List<CutMotion> findBySessionDeviceTypeSubdepartment(final Session session,
+			final DeviceType cutMotionType,
+			final SubDepartment subDepartment,
+			final String locale) {
+		String strQuery="SELECT m FROM CutMotion m"
+				+ " WHERE m.session.id=:sessionId"
+				+ " AND m.deviceType.id=:cutMotionTypeId"
+				+ " AND m.locale=:locale"
+				+ " AND m.subDepartment.id=:subDepartmentId" 
+				+ " ORDER BY m.submissionDate";
+		List<CutMotion> motions = new ArrayList<CutMotion>();
+		try{
+			TypedQuery<CutMotion> query=this.em().createQuery(strQuery, CutMotion.class);
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("cutMotionTypeId",cutMotionType.getId());
+			query.setParameter("locale",locale);
+			query.setParameter("subDepartmentId", subDepartment.getId());
+			motions = query.getResultList();
+		}catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return motions;
 	}
 
 	// change to singleResult if possible
@@ -317,4 +343,93 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		CutMotion motion=(CutMotion) query.getSingleResult();
 		return motion;
 	}
+
+	public Integer findMaxNumberBySubdepartment(final Session session,
+			final DeviceType deviceType, 
+			final SubDepartment subDepartment, 
+			final String locale) {
+		StringBuffer strQuery = new StringBuffer("SELECT m FROM CutMotion m"
+				+ " WHERE m.session.id=:sessionId" 
+				+ " AND m.deviceType.id=:cutMotionTypeId" 
+				+ " AND m.subDepartment.id=:subDepartmentId" 
+				+ " AND m.locale=:locale");
+		
+		TypedQuery<CutMotion> tQuery = this.em().createNamedQuery(strQuery.toString(), CutMotion.class);
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("cutMotionTypeId", deviceType.getId());
+		tQuery.setParameter("subDepartmentId", subDepartment.getId());
+		tQuery.setParameter("locale", locale);
+		
+		List<CutMotion> motions = tQuery.setFirstResult(0).setMaxResults(1).getResultList();
+		
+		if (motions == null) {
+			return 0;
+		} else if (motions.isEmpty()) {
+			return 0;
+		} else {
+			if (motions.get(0).getNumber() == null) {
+				return 0;
+			} else {
+				return motions.get(0).getNumber();
+			}
+		}
+	}
+	
+	public Integer findHighestNumberByStatus(final Session session,
+			final DeviceType deviceType, 
+			final Status status,
+			final String locale) {
+		StringBuffer strQuery = new StringBuffer("SELECT m FROM CutMotion m"
+				+ " WHERE m.session.id=:sessionId" 
+				+ " AND m.deviceType.id=:cutMotionTypeId" 
+				+ " AND m.internalStatus.id=:internalStatusId"
+				+ " AND m.status.id=:statusId"
+				+ " AND m.locale=:locale"
+				+ " OREDER BY m.internalNumber DESC");
+		
+		TypedQuery<CutMotion> tQuery = this.em().createNamedQuery(strQuery.toString(), CutMotion.class);
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("cutMotionTypeId", deviceType.getId());
+		tQuery.setParameter("internalStatusId", status.getId());
+		tQuery.setParameter("statusId", status.getId());
+		tQuery.setParameter("locale", locale);
+		
+		List<CutMotion> motions = tQuery.setFirstResult(0).setMaxResults(1).getResultList();
+		
+		if (motions == null) {
+			return 0;
+		} else if (motions.isEmpty()) {
+			return 0;
+		} else {
+			if (motions.get(0).getInternalNumber() == null) {
+				return 0;
+			} else {
+				return motions.get(0).getInternalNumber();
+			}
+		}
+	}
+
+	public List<CutMotion> findFinalizedCutMotions(final Session session,
+			final DeviceType deviceType, 
+			final Status status, final String sortOrder, 
+			final String locale) {
+		
+		StringBuffer strQuery = new StringBuffer("SELECT m FROM CutMotion m"
+				+ " WHERE m.session.id=:sessionId" 
+				+ " AND m.deviceType.id=:cutMotionTypeId" 
+				+ " AND m.locale=:locale"
+				+ " AND m.internalStatus.id=:internalStatusId"
+				+ " AND m.status.id=:statusId"
+				+ " ORDER BY m.submissionDate " 
+				+ sortOrder);
+		
+		TypedQuery<CutMotion> tQuery = this.em().createQuery(strQuery.toString(), CutMotion.class);
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("cutMotionTypeId", deviceType.getId());
+		tQuery.setParameter("internalStatusId", status.getId());
+		tQuery.setParameter("statusId", status.getId());
+		tQuery.setParameter("locale", locale);
+		
+		return tQuery.getResultList();
+	}	
 }
