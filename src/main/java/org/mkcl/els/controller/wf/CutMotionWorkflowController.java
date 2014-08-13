@@ -385,6 +385,12 @@ public class CutMotionWorkflowController extends BaseController {
 		if (domain.getNumber() != null) {
 			model.addAttribute("formattedNumber", FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
 		}
+		
+		/**** Internal Number ****/
+		if (domain.getInternalNumber() != null) {
+			model.addAttribute("formattedInternalNumber", FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getInternalNumber()));
+		}
+		
 		/**** Created By ****/
 		model.addAttribute("createdBy", domain.getCreatedBy());
 		model.addAttribute("dataEnteredBy", domain.getDataEnteredBy());
@@ -1133,8 +1139,7 @@ public class CutMotionWorkflowController extends BaseController {
 				BulkApprovalVO bulkApprovalVO = new BulkApprovalVO();
 				CutMotion motion = CutMotion.findById(CutMotion.class, Long.parseLong(i.getDeviceId()));
 				/**** Bulk Submission for Supporting Members ****/
-				if (i.getWorkflowSubType().equals(
-						"request_to_supporting_member")) {
+				if (i.getWorkflowSubType().equals("request_to_supporting_member")) {
 					bulkApprovalVO.setId(String.valueOf(i.getId()));
 					bulkApprovalVO.setDeviceId(String.valueOf(motion.getId()));
 					bulkApprovalVO.setDeviceNumber("-");
@@ -1178,8 +1183,7 @@ public class CutMotionWorkflowController extends BaseController {
 							bulkApprovalVO.setDeviceNumber("-");
 						}
 						bulkApprovalVO.setDeviceType(motion.getDeviceType().getName());
-						bulkApprovalVO.setMember(motion.getPrimaryMember()
-								.getFullname());
+						bulkApprovalVO.setMember(motion.getPrimaryMember().getFullname());
 						bulkApprovalVO.setSubject(motion.getMainTitle());
 						if (motion.getRemarks() != null
 								&& !motion.getRemarks().isEmpty()) {
@@ -1197,15 +1201,12 @@ public class CutMotionWorkflowController extends BaseController {
 						bulkApprovalVO.setId(String.valueOf(i.getId()));
 						bulkApprovalVO.setDeviceId(String.valueOf(motion.getId()));
 						if (motion.getNumber() != null) {
-							bulkApprovalVO.setDeviceNumber(format.format(motion
-									.getNumber()));
+							bulkApprovalVO.setDeviceNumber(format.format(motion.getNumber()));
 						} else {
 							bulkApprovalVO.setDeviceNumber("-");
 						}
-						bulkApprovalVO
-								.setDeviceType(motion.getDeviceType().getName());
-						bulkApprovalVO.setMember(motion.getPrimaryMember()
-								.getFullname());
+						bulkApprovalVO.setDeviceType(motion.getDeviceType().getName());
+						bulkApprovalVO.setMember(motion.getPrimaryMember().getFullname());
 						bulkApprovalVO.setSubject(motion.getMainTitle());
 						if (motion.getRemarks() != null
 								&& !motion.getRemarks().isEmpty()) {

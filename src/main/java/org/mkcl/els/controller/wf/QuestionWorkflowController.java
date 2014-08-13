@@ -1490,7 +1490,7 @@ public class QuestionWorkflowController  extends BaseController{
 						parameters.put("deviceId", workflowDetails.getDeviceId());
 
 
-						List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.DESC);
+						List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
 						WorkflowDetails reanswerWorkflowIfAny = null;
 
 						if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
@@ -1684,7 +1684,7 @@ public class QuestionWorkflowController  extends BaseController{
 									parameters.put("status", "PENDING");
 									parameters.put("processId", prevWorkflowDetails.getProcessId());
 
-									List<WorkflowDetails> pendingWorkflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.DESC);
+									List<WorkflowDetails> pendingWorkflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
 									WorkflowDetails pendingWorkflow;
 
 									if(pendingWorkflows != null && !pendingWorkflows.isEmpty()){
@@ -1707,7 +1707,7 @@ public class QuestionWorkflowController  extends BaseController{
 								parameters.put("deviceId", workflowDetails.getDeviceId());
 
 
-								List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", 0, 0, ApplicationConstants.DESC);
+								List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
 								WorkflowDetails reanswerWorkflowIfAny = null;
 
 								if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
