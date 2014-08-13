@@ -29,6 +29,8 @@ import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.CutMotionDate;
+import org.mkcl.els.domain.CutMotionDepartmentDatePriority;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
@@ -59,6 +61,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("cutmotion")
@@ -158,15 +161,31 @@ public class CutMotionController extends GenericController<CutMotion>{
 									model.addAttribute("usergroup", i.getId());
 									userGroupType = i.getUserGroupType().getType();
 									model.addAttribute("usergroupType",userGroupType);
-									/**** Question Status Allowed ****/
-									CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class,
-													"CUTMOTION_GRID_STATUS_ALLOWED_"+ userGroupType.toUpperCase(),"");
+									
+									Map<String,String> parameters = UserGroup.findParametersByUserGroup(i);
+
+									/**** Sub department Filter Starts ****/
+									CustomParameter subDepartmentFilterAllowedFor = CustomParameter.findByName(CustomParameter.class,"QIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR", "");
+									if(subDepartmentFilterAllowedFor != null && subDepartmentFilterAllowedFor.getValue().contains(userGroupType)){
+										if(parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).equals(" ")){
+											String strSubDepartments = parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale);
+											String subDepartments[] = strSubDepartments.split("##");
+											List<SubDepartment> subDepts = new ArrayList<SubDepartment>();
+											for(int j = 0; j < subDepartments.length; j++){
+												SubDepartment subDepartment = SubDepartment.findByName(SubDepartment.class, subDepartments[j], locale);
+												subDepts.add(subDepartment);
+											}
+											model.addAttribute("subDepartments", subDepts);
+										}
+									}
+									/**** Sub department Filter Ends ****/
+									
+									CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class, "CUTMOTION_GRID_STATUS_ALLOWED_"+ userGroupType.toUpperCase(),"");
 									List<Status> status = new ArrayList<Status>();
 									if (allowedStatus != null) {
 										status = Status.findStatusContainedIn(allowedStatus.getValue(),locale);
 									} else {
-										CustomParameter defaultAllowedStatus = CustomParameter.findByName(CustomParameter.class,
-														"CUTMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT","");
+										CustomParameter defaultAllowedStatus = CustomParameter.findByName(CustomParameter.class, "CUTMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT","");
 										if (defaultAllowedStatus != null) {
 											status = Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
 										} else {
@@ -178,14 +197,15 @@ public class CutMotionController extends GenericController<CutMotion>{
 								}
 							}
 						} else {
-							model.addAttribute("errorcode","mois_allowed_usergroups_notset");
+							model.addAttribute("errorcode","cmois_allowed_usergroups_notset");
 						}
 					} else {
 						model.addAttribute("errorcode","current_user_has_no_usergroups");
 					}
 				} else {
 					model.addAttribute("errorcode","current_user_has_no_usergroups");
-				}
+				}									
+				
 				/****
 				 * Roles and ugparam.Role will be used to decide who can create
 				 * new motions(member and clerk).for member and clerk only those
@@ -215,7 +235,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 					model.addAttribute("highestFileNo", highestFileNo);
 				}
 			} catch (ELSException e) {
-				model.addAttribute("MotionController", e.getParameter());
+				model.addAttribute("CutMotionController", e.getParameter());
 			}
 		}else{
 			model.addAttribute("errorcode","workunderprogress");
@@ -739,6 +759,11 @@ public class CutMotionController extends GenericController<CutMotion>{
 		if(domain.getNumber() != null){
 			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
 		}
+		
+		/**** Number ****/
+		if(domain.getInternalNumber() != null){
+			model.addAttribute("formattedInternalNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getInternalNumber()));
+		}
 		/**** Created By ****/
 		model.addAttribute("createdBy",domain.getCreatedBy());
 		model.addAttribute("dataEnteredBy",domain.getDataEnteredBy());
@@ -1061,7 +1086,10 @@ public class CutMotionController extends GenericController<CutMotion>{
 						}
 						if(domain.getMinistry()==null){
 							result.rejectValue("ministry","MinistryEmpty");
-						}						
+						}		
+						if(isDateAdmitted(domain, domain.getLocale())){
+							
+						}
 					}
 			}
 		}/**** Drafts ****/
@@ -1323,6 +1351,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 							domain.setStatus(newstatus);
 							domain.setInternalStatus(newstatus);
 							domain.setRecommendationStatus(newstatus);
+							domain.setWorkflowStarted("NO");
 						}
 					}else{
 						if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
@@ -1330,6 +1359,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 							domain.setStatus(status);
 							domain.setInternalStatus(status);
 							domain.setRecommendationStatus(status);
+							domain.setWorkflowStarted("NO");
 						}
 					}
 				}else{
@@ -1338,6 +1368,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 						domain.setStatus(status);
 						domain.setInternalStatus(status);
 						domain.setRecommendationStatus(status);
+						domain.setWorkflowStarted("NO");
 					}
 				}
 			}else{
@@ -1346,6 +1377,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 					domain.setStatus(status);
 					domain.setInternalStatus(status);
 					domain.setRecommendationStatus(status);
+					domain.setWorkflowStarted("NO");
 				}
 			}
 		}
@@ -1446,6 +1478,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 							domain.setStatus(newstatus);
 							domain.setInternalStatus(newstatus);
 							domain.setRecommendationStatus(newstatus);
+							domain.setWorkflowStarted("NO");
 						}
 					}else{
 						if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
@@ -1455,6 +1488,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 								domain.setStatus(status);
 								domain.setInternalStatus(status);
 								domain.setRecommendationStatus(status);
+								domain.setWorkflowStarted("NO");
 							}	
 						}
 					}
@@ -1466,6 +1500,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 							domain.setStatus(status);
 							domain.setInternalStatus(status);
 							domain.setRecommendationStatus(status);
+							domain.setWorkflowStarted("NO");
 						}
 					}
 				}
@@ -1477,6 +1512,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 						domain.setStatus(status);
 						domain.setInternalStatus(status);
 						domain.setRecommendationStatus(status);
+						domain.setWorkflowStarted("NO");
 					}
 				}
 			}
@@ -1488,6 +1524,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 				domain.setStatus(status);
 				domain.setInternalStatus(status);
 				domain.setRecommendationStatus(status);
+				domain.setWorkflowStarted("NO");
 			}
 		}
 		/**** Edited On,Edited By and Edited As is set ****/
@@ -1801,7 +1838,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 			String strHouseType = request.getParameter("houseType");
 			String strSessionType = request.getParameter("sessionType");
 			String strSessionYear = request.getParameter("sessionYear");
-			String strMotionType = request.getParameter("motionType");
+			String strMotionType = request.getParameter("cutMotionType");
 			String strLocale = locale.toString();
 			String strItemsCount = request.getParameter("itemscount");
 			
@@ -1862,8 +1899,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 				Status timeoutStatus = Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
 				if (motion.getSupportingMembers() != null) {
 					if (!motion.getSupportingMembers().isEmpty()) {
-						for (SupportingMember sm : motion
-								.getSupportingMembers()) {
+						for (SupportingMember sm : motion.getSupportingMembers()) {
 							if (sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)
 									|| sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)) {
 								/**** Update Supporting Member ****/
@@ -1873,8 +1909,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 								sm.setApprovedSubject(motion.getMainTitle());
 								sm.setApprovalType("ONLINE");
 								/**** Update Workflow Details ****/
-								String strWorkflowdetails = sm
-										.getWorkflowDetailsId();
+								String strWorkflowdetails = sm.getWorkflowDetailsId();
 								if (strWorkflowdetails != null
 										&& !strWorkflowdetails.isEmpty()) {
 									WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
@@ -1900,6 +1935,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 				motion.setStatus(newstatus);
 				motion.setInternalStatus(newstatus);
 				motion.setRecommendationStatus(newstatus);
+				motion.setWorkflowStarted("NO");
 
 				/**** Edited On,Edited By and Edited As is set ****/
 				motion.setSubmissionDate(new Date());
@@ -1931,7 +1967,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		String strHouseType = request.getParameter("houseType");
 		String strSessionType = request.getParameter("sessionType");
 		String strSessionYear = request.getParameter("sessionYear");
-		String strMotionType = request.getParameter("motionType");
+		String strMotionType = request.getParameter("cutMotionType");
 		String strStatus = request.getParameter("status");
 		String strRole = request.getParameter("role");
 		String strUsergroup = request.getParameter("usergroup");
@@ -1959,7 +1995,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 			 * Decision Status Available To Assistant(At this stage)
 			 * MOTION_PUT_UP_OPTIONS_+MOTION_TYPE+HOUSE_TYPE+USERGROUP_TYPE
 			 ****/
-			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class, "MOTION_PUT_UP_OPTIONS_" 
+			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class, "CUTMOTION_PUT_UP_OPTIONS_" 
 							+ motionType.getType().toUpperCase() + "_"
 							+ houseType.getType().toUpperCase() + "_"
 							+ strUsergroupType.toUpperCase(), "");
@@ -2054,13 +2090,13 @@ public class CutMotionController extends GenericController<CutMotion>{
 				Status status = Status.findById(Status.class, statusId);
 				for (String i : selectedItems) {
 					Long id = Long.parseLong(i);
-					Motion motion = Motion.findById(Motion.class, id);
+					CutMotion motion = CutMotion.findById(CutMotion.class, id);
 					String actor = request.getParameter("actor");
 					String level = request.getParameter("level");
 					if (actor != null && !actor.isEmpty() && level != null && !level.isEmpty()) {
 						Reference reference;
 						try {
-							reference = UserGroup.findMotionActor(motion, actor, level, locale.toString());
+							reference = UserGroup.findCutMotionActor(motion, actor, level, locale.toString());
 
 							if (reference != null && reference.getId() != null
 									&& !reference.getId().isEmpty()
@@ -2080,33 +2116,20 @@ public class CutMotionController extends GenericController<CutMotion>{
 								motion.setRecommendationStatus(status);
 								motion.setEndFlag("continue");
 								/**** Create Process ****/
-								ProcessDefinition processDefinition = processService
-										.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+								ProcessDefinition processDefinition = processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 								Map<String, String> properties = new HashMap<String, String>();
 								properties.put("pv_user", temp[0]);
-								properties.put("pv_endflag",
-										motion.getEndFlag());
-								properties.put("pv_deviceId",
-										String.valueOf(motion.getId()));
-								properties.put("pv_deviceTypeId", String
-										.valueOf(motion.getType().getId()));
-								ProcessInstance processInstance = processService
-										.createProcessInstance(
-												processDefinition, properties);
+								properties.put("pv_endflag", motion.getEndFlag());
+								properties.put("pv_deviceId", String.valueOf(motion.getId()));
+								properties.put("pv_deviceTypeId", String.valueOf(motion.getDeviceType().getId()));
+								ProcessInstance processInstance = processService.createProcessInstance(processDefinition, properties);
 								/**** Create Workdetails Entry ****/
-								Task task = processService
-										.getCurrentTask(processInstance);
+								Task task = processService.getCurrentTask(processInstance);
 								if (motion.getEndFlag() != null
 										&& !motion.getEndFlag().isEmpty()
-										&& motion.getEndFlag().equals(
-												"continue")) {
-									WorkflowDetails workflowDetails = WorkflowDetails
-											.create(motion,
-													task,
-													ApplicationConstants.APPROVAL_WORKFLOW,
-													motion.getLevel());
-									motion.setWorkflowDetailsId(workflowDetails
-											.getId());
+										&& motion.getEndFlag().equals("continue")) {
+									WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, ApplicationConstants.APPROVAL_WORKFLOW, motion.getLevel());
+									motion.setWorkflowDetailsId(workflowDetails.getId());
 									/**** Workflow Started ****/
 									motion.setWorkflowStarted("YES");
 									motion.setWorkflowStartedOn(new Date());
@@ -2114,18 +2137,10 @@ public class CutMotionController extends GenericController<CutMotion>{
 									motion.setFileSent(true);
 									motion.simpleMerge();
 								}
-								if (motion
-										.getInternalStatus()
-										.getType()
-										.equals(ApplicationConstants.CUTMOTION_RECOMMEND_ADMISSION)) {
-									recommendAdmission.append(motion
-											.formatNumber() + ",");
-								} else if (motion
-										.getInternalStatus()
-										.getType()
-										.equals(ApplicationConstants.CUTMOTION_RECOMMEND_REJECTION)) {
-									recommendRejection.append(motion
-											.formatNumber() + ",");
+								if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_ADMISSION)) {
+									recommendAdmission.append(motion.formatNumber() + ",");
+								} else if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_REJECTION)) {
+									recommendRejection.append(motion.formatNumber() + ",");
 								}
 							}
 
@@ -2135,10 +2150,8 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 				}
 			}
-			model.addAttribute("recommendAdmission",
-					recommendAdmission.toString());
-			model.addAttribute("recommendRejection",
-					recommendRejection.toString());
+			model.addAttribute("recommendAdmission", recommendAdmission.toString());
+			model.addAttribute("recommendRejection", recommendRejection.toString());
 		}
 		getBulkSubmissionMotions(model, request, locale.toString());
 		return "cutmotion/bulksubmissionassistantview";
@@ -2149,7 +2162,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 		String strHouseType=request.getParameter("houseType");
 		String strSessionType=request.getParameter("sessionType");
 		String strSessionYear=request.getParameter("sessionYear");
-		String strMotionType=request.getParameter("motionType");			
+		String strMotionType=request.getParameter("cutMotionType");			
 		String strStatus=request.getParameter("status");
 		String strRole=request.getParameter("role");
 		String strUsergroup=request.getParameter("usergroup");
@@ -2169,7 +2182,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 				&&strUsergroupType!=null&&!(strUsergroupType.isEmpty())
 				&&strItemsCount!=null&&!(strItemsCount.isEmpty())
 				&&strFile!=null&&!(strFile.isEmpty())){
-			List<Motion> motions=new ArrayList<Motion>();
+			List<CutMotion> motions=new ArrayList<CutMotion>();
 			HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, strLocale);
 			SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
 			Integer sessionYear=Integer.parseInt(strSessionYear);
@@ -2180,11 +2193,11 @@ public class CutMotionController extends GenericController<CutMotion>{
 				DeviceType motionType=DeviceType.findById(DeviceType.class,Long.parseLong(strMotionType));
 				if(strFile!=null&&!strFile.isEmpty()&&!strFile.equals("-")){
 					Integer file=Integer.parseInt(strFile);
-					motions=Motion.findAllByFile(session,motionType,file,strLocale);
+					motions=CutMotion.findAllByFile(session,motionType,file,strLocale);
 				}else if(strItemsCount!=null&&!strItemsCount.isEmpty()){
 					Integer itemsCount=Integer.parseInt(strItemsCount);
 					Status internalStatus=Status.findById(Status.class,Long.parseLong(strStatus));
-					motions=Motion.findAllByStatus(session,motionType,internalStatus,itemsCount,strLocale);
+					motions=CutMotion.findAllByStatus(session,motionType,internalStatus,itemsCount,strLocale);
 				}				
 				model.addAttribute("motions",motions);
 				if(motions!=null&&!motions.isEmpty()){
@@ -2205,4 +2218,72 @@ public class CutMotionController extends GenericController<CutMotion>{
 		model.addAttribute("details",motion.getNoticeContent());
 		return "cutmotion/details";
 	}	
+	
+	private boolean isDateAdmitted(final CutMotion cutMotion, final String locale){
+		boolean retVal = false;
+		try{
+			Status dateAdmitted = Status.findByType(ApplicationConstants.CUTMOTIONDATE_FINAL_DATE_ADMISSION, locale);
+			Status dateAdmissionProcessed = Status.findByType(ApplicationConstants.CUTMOTIONDATE_PROCESSED_DATE_ADMISSION, locale);
+			CutMotionDate cutMotionDate = CutMotionDate.findCutMotionDateSessionDeviceType(cutMotion.getSession(), cutMotion.getDeviceType(), locale);
+			if(cutMotionDate != null){
+				if(cutMotionDate.getStatus().getType().equals(dateAdmitted.getType()) && cutMotion.getRecommendationStatus().getType().equals(dateAdmissionProcessed.getType())){
+					for(CutMotionDepartmentDatePriority p : cutMotionDate.getDepartmentDates()){
+						if(p.getSubDepartment().getName().equals(cutMotion.getSubDepartment().getName()) && p.getDepartment().getName().equals(cutMotion.getDepartment().getName())){
+							if(cutMotion.getSubmissionDate().before(p.getSubmissionEndDate())){
+								retVal = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return retVal;
+	}
+	
+	/**** Assignment of number after cutmotion is approved by approving authority ****/
+	@Transactional
+	@RequestMapping(value = "/assignnumberafterapproval", method = RequestMethod.GET)
+	public @ResponseBody String assignNumberAfterApproval(final HttpServletRequest request, final Locale locale){
+		String retVal = "failure";
+		try{
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strHouseType = request.getParameter("houseType");
+			String strDeviceType = request.getParameter("cutMotionType");
+			//String strSubDepartment = request.getParameter("subDepartment");
+			
+			Session session = null;
+			DeviceType deviceType = null;
+			
+			if(strSessionType != null && !strSessionType.isEmpty()
+					&& strSessionYear != null && !strSessionYear.isEmpty()
+					&& strHouseType != null && !strHouseType.isEmpty()){
+				
+				Integer sessionYear = new Integer(strSessionYear);
+				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+				HouseType houseType = HouseType.findById(HouseType.class, new Long(strHouseType));
+				if(houseType == null){
+					houseType = HouseType.findByType(strHouseType, locale.toString());
+				}
+				
+				if(sessionYear != null && sessionType != null && houseType != null){
+					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				}
+			}
+			
+			if(strDeviceType != null && !strDeviceType.isEmpty()){
+				
+				//SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, new Long(strSubDepartment));
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));				
+				CutMotion.assignCutMotionNumber(session, deviceType, locale.toString());
+				retVal = "success";			}
+			
+		}catch(Exception e){
+			logger.error("CutMotionController_assignNumberAfterApproval", e);
+		}
+		return retVal;
+	}
 }
