@@ -381,6 +381,14 @@ public class SessionController extends GenericController<Session> {
 				model.addAttribute("userRole", i.getType());
 				role = i.getType();
 				break;
+			} else if(i.getType().equals("CMOIS_")){
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
+			} else if(i.getType().equals("HDS_")){
+				model.addAttribute("userRole", i.getType());
+				role = i.getType();
+				break;
 			} else if(i.getType().equals("SUPER_ADMIN")){
 				model.addAttribute("userRole", i.getType());
 				role = i.getType();
@@ -408,7 +416,8 @@ public class SessionController extends GenericController<Session> {
 					deviceTypes = DeviceType.findDeviceTypesStartingWith("questions",domain.getLocale());
 				}else if(role.startsWith("RIS_")){
 					deviceTypes = DeviceType.findDeviceTypesStartingWith("roster",domain.getLocale());
-					
+				}else if(role.startsWith("CMOIS_")){
+					deviceTypes = DeviceType.findDeviceTypesStartingWith("motions_cutmotion",domain.getLocale());
 				}else if(role.startsWith("MOIS_")){
 					deviceTypes = DeviceType.findDeviceTypesStartingWith("motions",domain.getLocale());
 				}else if(role.startsWith("ROIS_")){
