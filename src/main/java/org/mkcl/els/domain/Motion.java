@@ -111,12 +111,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 	@Column(length=30000)
 	private String revisedDetails;
 	
-	/** The sections. */
-    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
-    @JoinTable(name="motions_amendments",
-    joinColumns={@JoinColumn(name="motion_id", referencedColumnName="id")},
-    inverseJoinColumns={@JoinColumn(name="amendment_id", referencedColumnName="id")})
-    private List<Amendment> amendments;
+//	/** The sections. */
+//    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+//    @JoinTable(name="motions_amendments",
+//    joinColumns={@JoinColumn(name="motion_id", referencedColumnName="id")},
+//    inverseJoinColumns={@JoinColumn(name="amendment_id", referencedColumnName="id")})
+//    private List<Amendment> amendments;
 
 	/** ** The Status ***. */
 
@@ -233,7 +233,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 			final Integer number, final Date submissionDate, final Date creationDate,
 			final String createdBy, final Date editedOn, final String editedBy, final String editedAs,
 			final String subject, final String revisedSubject, final String details,
-			final String revisedDetails, final List<Amendment> amendments, final Status status, final Status internalStatus,
+			final String revisedDetails, /*final List<Amendment> amendments,*/ final Status status, final Status internalStatus,
 			final Status recommendationStatus, final String remarks, final Member primaryMember,
 			final List<SupportingMember> supportingMembers, final Ministry ministry,
 			final Department department, final SubDepartment subDepartment,
@@ -254,7 +254,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 		this.revisedSubject = revisedSubject;
 		this.details = details;
 		this.revisedDetails = revisedDetails;
-		this.amendments = amendments;
+//		this.amendments = amendments;
 		this.status = status;
 		this.internalStatus = internalStatus;
 		this.recommendationStatus = recommendationStatus;
@@ -604,13 +604,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 		this.revisedDetails = revisedDetails;
 	}
 
-	public List<Amendment> getAmendments() {
-		return amendments;
-	}
-
-	public void setAmendments(List<Amendment> amendments) {
-		this.amendments = amendments;
-	}
+//	public List<Amendment> getAmendments() {
+//		return amendments;
+//	}
+//
+//	public void setAmendments(List<Amendment> amendments) {
+//		this.amendments = amendments;
+//	}
 
 	public Status getStatus() {
 		return status;
