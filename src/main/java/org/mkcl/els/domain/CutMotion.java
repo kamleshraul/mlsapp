@@ -68,6 +68,9 @@ public class CutMotion extends Device implements Serializable {
 
 	/** Number ***/
 	private Integer number;
+	
+	/** Internal Number ***/
+	private Integer internalNumber;
 
 	/**amount to be deducted **/
 	private Double amountToBeDeducted;
@@ -262,7 +265,7 @@ public class CutMotion extends Device implements Serializable {
 	@Autowired
 	private transient CutMotionRepository cutMotionRepository;
 	
-	/**** Contructor ****/
+	/**** Constructor ****/
 	public CutMotion() {
 		super();
 	}
@@ -284,7 +287,7 @@ public class CutMotion extends Device implements Serializable {
 
 	@Override
 	public CutMotion persist() {
-		if(this.getStatus().getType().equals("status")) {
+		if(this.getStatus().getType().equals(ApplicationConstants.CUTMOTION_SUBMIT)) {
 			if(this.getNumber() == null) {
 				synchronized (this) {
 					Integer number = CutMotion.assignCutMotionNo(this.getHouseType(),
@@ -373,7 +376,7 @@ public class CutMotion extends Device implements Serializable {
 	@Override
 	public CutMotion merge() {
 		CutMotion motion = null;
-		if(this.getInternalStatus().getType().equals("status")) {
+		if(this.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SUBMIT)) {
 			if(this.getNumber() == null) {
 				synchronized (this) {
 					Integer number = CutMotion.assignCutMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(),this.getLocale());
@@ -479,6 +482,19 @@ public class CutMotion extends Device implements Serializable {
 		return getCutMotionRepository().findAllByFile(session, cutMotionType, file, locale);
 	}
 
+	public static List<CutMotion> findBySessionDeviceTypeSubdepartment(final Session session,
+			final DeviceType cutMotionType,
+			final SubDepartment subDepartment,
+			final String locale) {
+		return getCutMotionRepository().findBySessionDeviceTypeSubdepartment(session, cutMotionType, subDepartment, locale);
+	}
+	
+	public static Integer findMaxNumberBySubdepartment(final Session session,
+			final DeviceType deviceType, final SubDepartment subDepartment, final String locale) {
+		
+		return getCutMotionRepository().findMaxNumberBySubdepartment(session, deviceType, subDepartment, locale);
+	}	
+	
 	public static int findHighestFileNo(final Session session,
 			final DeviceType cutMotionType,
 			final String locale) {
@@ -489,6 +505,68 @@ public class CutMotion extends Device implements Serializable {
 		return getCutMotionRepository().getMotion(sessionId,deviceTypeId,dNumber,locale);
 	}
 	
+	public static List<CutMotion> findFinalizedCutMotions(final Session session,
+			final DeviceType deviceType, 
+			final Status status,
+			final String sortOrder,
+			final String locale) {
+		return getCutMotionRepository().findFinalizedCutMotions(session, deviceType, status, sortOrder, locale);
+	}
+	
+	public static void assignCutMotionNumber(final Session session,
+			final DeviceType deviceType,
+			final String locale) {
+		
+		/**** Assign number to admitted cutmotions ****/
+		Status admitted = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION, locale);
+		int currentAdmissionCount = 0;
+		Integer intCurrentAdmissionCount = CutMotion.findHighestNumberByStatus(session, deviceType, admitted, locale);
+		if(intCurrentAdmissionCount != null){
+			currentAdmissionCount = intCurrentAdmissionCount.intValue();
+		}
+		
+		List<CutMotion> admittedCutMotions = CutMotion.findFinalizedCutMotions(session, deviceType, admitted, ApplicationConstants.ASC, locale.toString());
+		int admissionCounter = 1;
+		for(CutMotion cm : admittedCutMotions){
+			if(cm.getInternalNumber() == null){
+				cm.setInternalNumber(currentAdmissionCount + admissionCounter);
+				cm.simpleMerge();
+				admissionCounter++;
+			}
+		}
+		
+		/**** Assign number to rejected cutmotions ****/
+		int currentRejectionCount = currentAdmissionCount + admissionCounter;
+		String reassign = null;
+		Status rejected = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_REJECTION, locale);
+		CustomParameter csptReassignRejectionNumbers = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CUTMOTION_REASSIGN_REJECTION_NUMBER, "");
+		if(csptReassignRejectionNumbers != null && csptReassignRejectionNumbers.getValue() != null && !csptReassignRejectionNumbers.getValue().isEmpty()){
+			reassign = csptReassignRejectionNumbers.getValue();
+		}
+		List<CutMotion> rejectedCutMotions = CutMotion.findFinalizedCutMotions(session, deviceType, rejected, ApplicationConstants.ASC, locale.toString());
+		int rejectionCounter = 1;
+		for(CutMotion cm : rejectedCutMotions){
+			if(reassign != null && !reassign.isEmpty() && reassign.equals("yes")){
+				cm.setInternalNumber(currentRejectionCount + rejectionCounter);
+				rejectionCounter++;
+			}else{
+				if(cm.getInternalNumber() == null){
+					cm.setInternalNumber(currentRejectionCount + rejectionCounter);
+					rejectionCounter++;
+				}
+			}
+			cm.simpleMerge();
+		}
+		
+	}
+	
+	private static Integer findHighestNumberByStatus(final Session session,
+			final DeviceType deviceType, 
+			final Status status, final 
+			String locale) {
+		return getCutMotionRepository().findHighestNumberByStatus(session, deviceType, status, locale);
+	}
+
 	/**** Getter Setters ****/
 	public HouseType getHouseType() {
 		return houseType;
@@ -520,6 +598,14 @@ public class CutMotion extends Device implements Serializable {
 
 	public void setNumber(Integer number) {
 		this.number = number;
+	}
+
+	public Integer getInternalNumber() {
+		return internalNumber;
+	}
+
+	public void setInternalNumber(Integer internalNumber) {
+		this.internalNumber = internalNumber;
 	}
 
 	public Double getAmountToBeDeducted() {
@@ -912,5 +998,5 @@ public class CutMotion extends Device implements Serializable {
 
 	public void setDataEnteredBy(String dataEnteredBy) {
 		this.dataEnteredBy = dataEnteredBy;
-	}	
+	}
 }
