@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-	<title><spring:message code="motion.bulksubmissionassisatnt" text="Bulk Put Up" /></title>
+	<title><spring:message code="cutmotion.bulksubmissionassisatnt" text="Bulk Put Up" /></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<style>
 		td{min-width:150px; max-width:350px;min-height:30px;}
@@ -15,9 +15,13 @@
 		});	
 		/**** Load Actors On Changing Status ****/
 		$("#apprInternalStatusWf").change(function(){
-				var value=parseInt($(this).val());
-				if(value!='-'){
+				
+				if($(this).val()!='-'){
+					var value=parseInt($(this).val());
 					loadActors(value);
+				}else{
+					$("#actorDiv").hide();
+					return false;
 				}
 		});
 		/**** Page Load ****/
@@ -25,7 +29,7 @@
 	});		
 	/**** Display Motions File or Status Wise ****/
 	function viewContent(){		
-		 var resource='workflow/motion/bulkapproval/view';
+		 var resource='workflow/cutmotion/bulkapproval/view';
 		 $.post(resource,{
 			  houseType:$("#apprhouseType").val()
 			 ,sessionYear:$("#apprsessionYear").val()
@@ -55,10 +59,10 @@
 	function loadActors(value){
 		var motion=$("#motionId").val();
 		if(motion!=undefined&&motion!=''){
-			var params="motion="+motion+"&status="+value+
+			var params="cutmotion="+motion+"&status="+value+
 			"&usergroup="+$("#apprusergroup").val()+"&level=1";
-			var resourceURL='ref/motion/actors?'+params;				
-			$.post(resourceURL,function(data){
+			var resourceURL='ref/cutmotion/actors?'+params;				
+			$.get(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
 					var length=data.length;
 					$("#appractor").empty();
@@ -72,7 +76,11 @@
 					}
 					text+="<option value='-'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 					$("#appractor").html(text);
-					$("#actorDiv").show();								
+					if(!$("#currentusergroupType").val()=='speaker'){
+						$("#actorDiv").show();
+					}else{
+						$("#actorDiv").hide();
+					}
 				}else{
 					$("#appractor").empty();
 					$("#actorDiv").hide();	
@@ -127,7 +135,7 @@
 			buttons: {Ok:true, Cancel:false}, callback: function(v){
 	        if(v){
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				$.post('workflow/motion/bulkapproval/update?actor='+next+"&level="+level,
+				$.post('workflow/cutmotion/bulkapproval/update?actor='+next+"&level="+level,
 			        	{items:items
 			        	 ,status:status
 			        	 ,houseType:$("#apprhouseType").val()
@@ -168,7 +176,7 @@
 <p>
 	<c:choose>
 	<c:when test="${workflowSubType=='request_to_supporting_member'}">
-	<label class="small"><spring:message code="motion.decisionstatus" text="Decision?"/></label>	
+	<label class="small"><spring:message code="cutmotion.decisionstatus" text="Decision?"/></label>	
 	<select id="apprInternalStatus" class="sSelect">
 	<c:forEach items="${internalStatuses}" var="i">
 				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
@@ -177,7 +185,7 @@
 	<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
 	</c:when>
 	<c:otherwise>
-	<label class="small"><spring:message code="motion.putupfor" text="Put up for"/></label>
+	<label class="small"><spring:message code="cutmotion.putupfor" text="Put up for"/></label>
 	<select id="apprInternalStatusWf" class="sSelect">
 	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 	<c:forEach items="${internalStatuses}" var="i">
@@ -185,7 +193,7 @@
 	</c:forEach>
 	</select>
 	<span id="actorDiv" style="margin: 10px;display: none;">
-		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
+		<label class="small"><spring:message code="cutmotion.nextactor" text="Next Users"/></label>
 		<select id="appractor" class="sSelect"></select>
 	</span>	
 	<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		

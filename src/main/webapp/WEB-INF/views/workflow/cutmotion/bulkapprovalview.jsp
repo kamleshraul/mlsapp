@@ -36,7 +36,7 @@
 	function editMotion(id,readonly){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		var id=id.split("edit")[1]; 			
-		var href='workflow/motion';
+		var href='workflow/cutmotion';
 		var params="role="+$("#role").val()+"&usergroup="+$("#usergroup").val()+"&usergroupType="+
 					$("#usergroupType").val()+"&bulkedit=yes"+
 					"&workflowdetails="+id;
@@ -91,56 +91,56 @@
 			<div style="overflow: scroll;">
 			<table class="uiTable">
 				<tr>					
-					<th><spring:message code="motion.submitall" text="Submit All"></spring:message>
+					<th><spring:message code="cutmotion.submitall" text="Submit All"></spring:message>
 					<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>					
 					<c:if test="${workflowSubType=='request_to_supporting_member'}">
-					<th><spring:message code="motion.type" text="Device"></spring:message></th>
-					<th><spring:message code="motion.member" text="Member"></spring:message></th>
-					<th><spring:message code="motion.subject" text="Subject"></spring:message></th>
-					<th><spring:message code="motion.lastdecision" text="Last Decision"></spring:message></th>
+					<th><spring:message code="cutmotion.type" text="Device"></spring:message></th>
+					<th><spring:message code="cutmotion.member" text="Member"></spring:message></th>
+					<th><spring:message code="cutmotion.mainTitle" text="Main Title"></spring:message></th>
+					<th><spring:message code="cutmotion.lastdecision" text="Last Decision"></spring:message></th>
 					<th></th>
 					</c:if>
 					<c:if test="${workflowSubType!='request_to_supporting_member'}">
-					<th><spring:message code="motion.type" text="Device"></spring:message></th>					
-					<th><spring:message code="motion.number" text="Number"></spring:message></th>
-					<th><spring:message code="motion.member" text="Member"></spring:message></th>
-					<th><spring:message code="motion.subject" text="Subject"></spring:message></th>
-					<th><spring:message code="motion.lastremark" text="Last Remark"></spring:message></th>
-					<th><spring:message code="motion.lastremarkby" text="Last Remark By"></spring:message></th>	
-					<th><spring:message code="motion.lastdecision" text="Last Decision"></spring:message></th>
+					<th><spring:message code="cutmotion.type" text="Device"></spring:message></th>					
+					<th><spring:message code="cutmotion.number" text="Number"></spring:message></th>
+					<th><spring:message code="cutmotion.member" text="Member"></spring:message></th>
+					<th><spring:message code="cutmotion.mainTitle" text="Main Title"></spring:message></th>
+					<th><spring:message code="cutmotion.lastremark" text="Last Remark"></spring:message></th>
+					<th><spring:message code="cutmotion.lastremarkby" text="Last Remark By"></spring:message></th>	
+					<th><spring:message code="cutmotion.lastdecision" text="Last Decision"></spring:message></th>
 					</c:if>									
 				</tr>			
 				<c:forEach items="${bulkapprovals}" var="i">
 					<tr>
 						<c:choose>
-						<c:when test="${workflowSubType=='request_to_supporting_member'}">
-							<c:choose>
-								<c:when test="${i.currentStatus=='PENDING'}">
-								<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
-								</c:when>							
-								<c:otherwise>
-								<td style="text-align: center;"><span style="font-weight: bolder;color: green;font-size: 18px;">&#x2713;</span></td>
-								</c:otherwise>
-							</c:choose>
-								<td>${i.deviceType}</td>
-								<td>${i.member}</td>
-								<td>${i.subject}</td>
-								<td>${i.lastDecision}</td>	
-								<td>
-								<a href="#" class="details" id="device${i.deviceId}"><spring:message code="motion.details" text="Details"></spring:message></a>
-								<input type="hidden" id="sm${i.id}"  value="${i.supportingMemberId}"></td>
-						</c:when>
-						<c:otherwise>
-							<c:choose>
-								<c:when test="${i.currentStatus=='PENDING'}">
-								<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
-								<a href="#" class="edit" id="edit${i.id}"><spring:message code="motion.edit" text="Edit"></spring:message></a></td>
-								</c:when>							
-								<c:otherwise>
-								<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
-								<a href="#" class="readonly" id="edit${i.id}"><spring:message code="motion.edit" text="Edit"></spring:message></a></td>
-								</c:otherwise>
-							</c:choose>
+							<c:when test="${workflowSubType=='request_to_supporting_member'}">
+								<c:choose>
+									<c:when test="${i.currentStatus=='PENDING'}">
+									<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
+									</c:when>							
+									<c:otherwise>
+									<td style="text-align: center;"><span style="font-weight: bolder;color: green;font-size: 18px;">&#x2713;</span></td>
+									</c:otherwise>
+								</c:choose>
+									<td>${i.deviceType}</td>
+									<td>${i.member}</td>
+									<td>${i.mainTitle}</td>
+									<td>${i.lastDecision}</td>	
+									<td>
+									<a href="#" class="details" id="device${i.deviceId}"><spring:message code="cutmotion.Notice Content" text="Notice Content"></spring:message></a>
+									<input type="hidden" id="sm${i.id}"  value="${i.supportingMemberId}"></td>
+							</c:when>
+							<c:otherwise>
+								<c:choose>
+									<c:when test="${i.currentStatus=='PENDING'}">
+										<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
+										<a href="#" class="edit" id="edit${i.id}"><spring:message code="cutmotion.edit" text="Edit"></spring:message></a></td>
+									</c:when>							
+									<c:otherwise>
+										<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
+										<a href="#" class="readonly" id="edit${i.id}"><spring:message code="cutmotion.edit" text="Edit"></spring:message></a></td>
+									</c:otherwise>
+								</c:choose>
 								<td>${i.deviceType}</td>							
 								<td>${i.deviceNumber}</td>
 								<td>${i.member}</td>
@@ -148,7 +148,7 @@
 								<td>${i.lastRemark}</td>
 								<td>${i.lastRemarkBy}</td>
 								<td>${i.lastDecision}</td>	
-						</c:otherwise>
+							</c:otherwise>
 						</c:choose>									
 					</tr>
 				</c:forEach>

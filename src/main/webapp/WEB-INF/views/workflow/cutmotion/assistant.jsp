@@ -551,6 +551,7 @@
 <form:form action="workflow/cutmotion" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2>${formattedMotionType}: ${formattedNumber}</h2>
+	<%--<input type="hidden" name="internalNumber" id="internalNumber" value="${domain.internalNumber}" />  --%>
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<p style="display:none;">
@@ -584,8 +585,8 @@
 	<p>
 		<p style="display: inline;">
 			<label class="small"><spring:message code="cutmotion.number" text="Motion Nmber"/>*</label>
-			<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
-			<input id="number" name="number" value="${domain.number}" type="hidden">
+			<%--<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">--%>		
+			<input id="number" name="number" value="${domain.number}" type="text" class="sText integer">
 			<form:errors path="number" cssClass="validationError"/>		
 		</p>
 			
