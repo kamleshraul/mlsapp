@@ -285,4 +285,27 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 		return getWorkflowConfigRepository().findNextCutMotionActor(houseType, userGroup, status, workflowName, level, locale);
 	}
 	
+	/**
+	 * Returns null if there is no next actor
+	 */
+	public static WorkflowActor findNextCutMotionDateActor(
+			final DeviceType deviceType,
+			final HouseType houseType,
+			final UserGroup userGroup, 
+			final Status status, 
+			final String workflowName, 
+			final int level,
+			final String locale) {
+		return WorkflowConfig.getWorkflowConfigRepository().findNextCutMotionDateActor(deviceType, houseType, userGroup, status, workflowName, level, locale);
+	}
+	
+	public static List<WorkflowActor> findCutMotionDateActors(final HouseType houseType,
+			final UserGroup userGroup,
+			final Status status,
+			final String workflowName,
+			final int level,
+			final String locale) {
+		return getWorkflowConfigRepository().findCutMotionDateActors(houseType, userGroup, status, workflowName, level, locale);
+	}
+	
 }

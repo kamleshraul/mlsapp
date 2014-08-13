@@ -467,10 +467,8 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUser(final Map<String, String> parameters, 
 			final String orderBy,
-			final int start,
-			final int limit,
 			final String sortOrder){
-		return getWorkflowDetailsRepository().findPendingWorkflowOfCurrentUser(parameters, orderBy, start, limit, sortOrder);
+		return getWorkflowDetailsRepository().findPendingWorkflowOfCurrentUser(parameters, orderBy, sortOrder);
 	}
 	
 	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUserByAssignmentTimeRange(final Map<String, String> parameters,
