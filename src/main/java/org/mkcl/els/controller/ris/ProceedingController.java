@@ -159,17 +159,46 @@ public class ProceedingController extends GenericController<Proceeding>{
 	@Override
 	protected void populateEdit(final ModelMap model, final Proceeding domain,
 			final HttpServletRequest request) {
-		/****Ministries****/
+		
 		if(domain.getSlot()!=null){
 			Slot slot=domain.getSlot();
 			Roster roster=slot.getRoster();
 			Session session=roster.getSession();
 			model.addAttribute("session",session.getId());
+			/**** Previou Slot ****/
+			Slot previousSlot = Slot.findPreviousSlot(slot);
+			
+			if(previousSlot!=null){
+				Proceeding previousProceeding = Proceeding.findByFieldName(Proceeding.class, "slot", previousSlot, domain.getLocale());
+				if(previousProceeding != null){
+					List<Part> previousParts = previousProceeding.getParts();
+					if(!previousParts.isEmpty()){
+						/**** Last Part of previous part ****/
+						Part previousPart = previousParts.get(previousParts.size()-1);
+						model.addAttribute("previousPartMainHeading", previousPart.getMainHeading());
+						model.addAttribute("previousPartPageHeading", previousPart.getPageHeading());
+						if(previousPart.getDeviceType()!=null){
+							model.addAttribute("previousPartDeviceType",previousPart.getDeviceType().getId());
+							if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.QUESTION)){
+								Question question = Question.findById(Question.class, previousPart.getDeviceId());
+								model.addAttribute("previousPartDeviceId",question.getId());
+								model.addAttribute("previousPartDeviceNumber",question.getNumber());
+							}else if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.RESOLUTION)){
+								Resolution resolution = Resolution.findById(Resolution.class, previousPart.getDeviceId());
+								model.addAttribute("previousPartDeviceId",resolution.getId());
+								model.addAttribute("previousPartDeviceNumber",resolution.getNumber());
+							}
+						}
+					}
+				}
+			}
+			
 			
 			/****Party****/
 			List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),domain.getLocale());
 			model.addAttribute("parties", parties);
 			
+			/****Ministries****/
 			List<Ministry> ministries;
 			try {
 				ministries = Ministry.findMinistriesAssignedToGroups(session.getHouse().getType(), session.getYear(), session.getType(), session.getLocale());
@@ -201,6 +230,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 		/****SubDepartments****/
 		List<SubDepartment> subDepartments=SubDepartment.findAll(SubDepartment.class, "name", "asc", domain.getLocale());
 		model.addAttribute("subDepartments",subDepartments);
+		
 		/****DeviceType****/
 		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "desc", domain.getLocale());
 		model.addAttribute("deviceTypes", deviceTypes);
@@ -222,11 +252,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 		
 		/***Reporter***/
 		model.addAttribute("reporter",domain.getSlot().getReporter().getId());
+		model.addAttribute("userName", this.getCurrentUser().getUsername());
 		
+		/****Undo Counts and RedoCount for Editing Functionality****/
 		model.addAttribute("undoCount", 0);
 		model.addAttribute("redoCount", 0);
-		
-		model.addAttribute("userName", this.getCurrentUser().getUsername());
+
 	}
 
 	@Override
@@ -294,28 +325,34 @@ public class ProceedingController extends GenericController<Proceeding>{
 			
 			/****Member role and Chairperson****/
 			String strRole=request.getParameter("chairPersonRole"+i);
+			String strChairPerson = request.getParameter("chairPerson"+i);
 			if(strRole!=null && !strRole.isEmpty()){
 				MemberRole mr=MemberRole.findById(MemberRole.class, Long.parseLong(strRole));
 				Member chairPersonMember=null;
 				if(mr!=null){
-					Slot slot=domain.getSlot();
-					Roster roster=slot.getRoster();
-					Session session=roster.getSession();
-					House house=session.getHouse();
-					List<HouseMemberRoleAssociation> hmras;
-					try {
-						hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, mr, new Date(), domain.getLocale());
-						for(HouseMemberRoleAssociation h:hmras){
-							if(h.getRole().equals(mr)){
-								chairPersonMember=h.getMember();
-								break;
+					if(strChairPerson != null && !strChairPerson.isEmpty()){
+						part.setChairPerson(strChairPerson);
+					}else{
+						Slot slot=domain.getSlot();
+						Roster roster=slot.getRoster();
+						Session session=roster.getSession();
+						House house=session.getHouse();
+						List<HouseMemberRoleAssociation> hmras;
+						try {
+							hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, mr, new Date(), domain.getLocale());
+							for(HouseMemberRoleAssociation h:hmras){
+								if(h.getRole().equals(mr)){
+									chairPersonMember=h.getMember();
+									break;
+								}
 							}
+							part.setChairPerson(chairPersonMember.getFullname());
+						} catch (ELSException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-						part.setChairPerson(chairPersonMember.getFullname());
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
+					
 					part.setChairPersonRole(mr);
 				}
 			}
@@ -348,6 +385,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				part.setPrimaryMemberDesignation(designation);
 			}
 			
+			/****Primary Member SubDepartment****/
 			String strPrimaryMemberSubDepartment=request.getParameter("primaryMemberSubDepartment"+i);
 			if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty()){
 				SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
@@ -375,6 +413,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				part.setSubstituteMemberDesignation(designation);
 			}
 			
+			/****Substitute Member SubDepartment ****/
 			String strSubstituteMemberSubDepartment=request.getParameter("substituteMemberSubDepartment"+i);
 			if(strSubstituteMemberSubDepartment!=null && !strSubstituteMemberSubDepartment.isEmpty()){
 				SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubstituteMemberSubDepartment));
@@ -409,6 +448,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			/****The Part Entry Date****/
 			part.setEntryDate(new Date());
 			
+			/**** Is Constituency Required ****/
 			String strIsConstituencyRequired=request.getParameter("isConstituencyRequired"+i);
 			if(strIsConstituencyRequired!=null && !strIsConstituencyRequired.isEmpty()){
 				part.setIsConstituencyRequired(true);
@@ -416,6 +456,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				part.setIsConstituencyRequired(false);
 			}
 			
+			/**** Is Interrupted ****/
 			String strIsInterrupted=request.getParameter("isInterrupted"+i);
 			if(strIsInterrupted!=null && !strIsInterrupted.isEmpty()){
 				part.setIsInterrupted(true);
@@ -436,35 +477,37 @@ public class ProceedingController extends GenericController<Proceeding>{
 
 	}
 
+	// Not Used Currently... If Bookmarking is implemented uncomment following code
 	/****View the Details of the Part in which the Bookmark is added****/
-	@RequestMapping(value="/part/viewbookmark",method=RequestMethod.GET)
-	public String viewBookmarkDetail(final HttpServletRequest request, final Locale locale,
-			final ModelMap model){
-		String strBookmarkId=request.getParameter("id");
-		
-		if(strBookmarkId!=null && !strBookmarkId.isEmpty()){
-			/****Bookmark****/
-			Bookmark bookmark=Bookmark.findById(Bookmark.class, Long.parseLong(strBookmarkId));
-			if(bookmark!=null){
-				Part part=bookmark.getMasterPart();
-				Proceeding proceeding=part.getProceeding();
-				Language language=proceeding.getSlot().findLanguage();
-				List result=Part.findAllPartsOfProceeding(proceeding,language,bookmark.getBookmarkKey(),locale.toString());
-				model.addAttribute("report", result);
-				model.addAttribute("bookmarkKey",bookmark.getBookmarkKey());
-				/****Reporter****/
-				Reporter reporter=part.getReporter();
-				if(reporter!=null){
-					User user=reporter.getUser();
-					if(user!=null){
-						model.addAttribute("reporter",user.findFullName());
-					}
-				}
-			}
-		}
-		return "proceeding/bookmarkreadonly";
-	}
+//	@RequestMapping(value="/part/viewbookmark",method=RequestMethod.GET)
+//	public String viewBookmarkDetail(final HttpServletRequest request, final Locale locale,
+//			final ModelMap model){
+//		String strBookmarkId=request.getParameter("id");
+//		
+//		if(strBookmarkId!=null && !strBookmarkId.isEmpty()){
+//			/****Bookmark****/
+//			Bookmark bookmark=Bookmark.findById(Bookmark.class, Long.parseLong(strBookmarkId));
+//			if(bookmark!=null){
+//				Part part=bookmark.getMasterPart();
+//				Proceeding proceeding=part.getProceeding();
+//				Language language=proceeding.getSlot().findLanguage();
+//				List result=Part.findAllPartsOfProceeding(proceeding,language,bookmark.getBookmarkKey(),locale.toString());
+//				model.addAttribute("report", result);
+//				model.addAttribute("bookmarkKey",bookmark.getBookmarkKey());
+//				/****Reporter****/
+//				Reporter reporter=part.getReporter();
+//				if(reporter!=null){
+//					User user=reporter.getUser();
+//					if(user!=null){
+//						model.addAttribute("reporter",user.findFullName());
+//					}
+//				}
+//			}
+//		}
+//		return "proceeding/bookmarkreadonly";
+//	}
 
+	
 	@Transactional
 	@RequestMapping(value = "/{proceedingId}/{partId}/delete", method = RequestMethod.DELETE)
 	public @ResponseBody String deletePart(final @PathVariable("proceedingId") Long proceedingId,
@@ -480,6 +523,491 @@ public class ProceedingController extends GenericController<Proceeding>{
 		}
 	}
 
+	
+	@RequestMapping(value="/part/save",method=RequestMethod.POST)
+	public @ResponseBody ChildVO savePart(final HttpServletRequest request, final Locale locale,final ModelMap model){
+		String strPartCount = request.getParameter("partCount");
+		ChildVO childVO=new ChildVO();
+		if(strPartCount!=null && !strPartCount.isEmpty()){
+			String strContent = request.getParameter("partContent"+strPartCount);
+			String strPrimaryMember = request.getParameter("primaryMember"+strPartCount);
+			String strPrimaryMemberMinistry = request.getParameter("primaryMemberMinistry"+strPartCount);
+			String strPrimaryMemberDesignation = request.getParameter("primaryMemberDesignation"+strPartCount);
+			String strPrimaryMemberSubDepartment = request.getParameter("primaryMemberSubDepartment"+strPartCount);
+			String strProceeding = request.getParameter("partProceeding"+strPartCount);
+			String strPublicRepresentative = request.getParameter("publicRepresentative"+strPartCount);
+			String strPublicRepresentativeDetail = request.getParameter("publicRepresentativeDetail"+strPartCount);
+			String strChairPersonRole = request.getParameter("chairPersonRole"+strPartCount);
+			String strChairPerson = request.getParameter("chairPerson"+strPartCount);
+			String strDeviceType = request.getParameter("deviceType"+strPartCount);
+			String strIsInterrupted = request.getParameter("isInterrupted"+strPartCount);
+			String strMainHeading = request.getParameter("mainHeading"+strPartCount);
+			String strPageHeading = request.getParameter("pageHeading"+strPartCount);
+			String strIsConstituencyRequired = request.getParameter("isConstituencyRequired"+strPartCount);
+			String strOrderNo = request.getParameter("partOrder"+strPartCount);
+			String strDeviceId = request.getParameter("deviceId"+strPartCount);
+			String strReporter = request.getParameter("partReporter"+strPartCount);
+			String strPartId = request.getParameter("partId"+strPartCount);
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			String server=null;
+			Part part=null;
+			Session session=null;
+			/**** Part ****/
+			if(strPartId!=null && !strPartId.isEmpty()){
+				part=Part.findById(Part.class, Long.parseLong(strPartId));
+			}else{
+				part=new Part();
+			}
+			
+			Proceeding proceeding=null;
+			/***`Proceeding Content***/
+			if(strContent!=null && !strContent.isEmpty()){
+				part.setProceedingContent(strContent);
+				part.setRevisedContent(strContent);
+			}
+			
+			/**** Proceeding ****/
+			if(strProceeding!=null && !strProceeding.isEmpty()){
+				 proceeding = Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
+				part.setProceeding(proceeding);
+			}
+			
+			/**** ChairPerson and Member Role ****/
+			if(strChairPersonRole!=null && !strChairPersonRole.isEmpty()){
+				MemberRole memberRole = MemberRole.findById(MemberRole.class, Long.parseLong(strChairPersonRole));
+				part.setChairPersonRole(memberRole);
+				if(strChairPerson!=null && !strChairPerson.isEmpty()){
+					part.setChairPerson(strChairPerson);
+				}else{
+					Member member=null;
+					if(memberRole!=null){
+						Slot slot=proceeding.getSlot();
+						Roster roster=slot.getRoster();
+						session=roster.getSession();
+						House house=session.getHouse();
+						List<HouseMemberRoleAssociation> hmras;
+						try {
+							hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, memberRole, new Date(), proceeding.getLocale());
+							for(HouseMemberRoleAssociation h:hmras){
+								if(h.getRole().equals(memberRole)){
+									member=h.getMember();
+									break;
+								}
+							}
+							part.setChairPerson(member.getFullname());
+						} catch (ELSException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+			
+			/**** Primary member ****/
+			if(strPrimaryMember!=null && !strPrimaryMember.isEmpty()){
+				Member member = Member.findById(Member.class, Long.parseLong(strPrimaryMember));
+				part.setPrimaryMember(member);
+			}
+			
+			/**** Primary Member Designation****/
+			if(strPrimaryMemberDesignation!=null && !strPrimaryMemberDesignation.isEmpty()){
+				Designation designation = Designation.findById(Designation.class, Long.parseLong(strPrimaryMemberDesignation));
+				part.setPrimaryMemberDesignation(designation);
+				if(designation.getType().equals(ApplicationConstants.STATE_MINISTER)){
+					if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty() ){
+						SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
+						Ministry ministry = Ministry.find(subDepartment,locale);
+						Member member = MemberMinister.find(ministry,locale);
+						if(member!=null){
+							/**** Substitute Member , Ministry, Designation, SubDepartment****/
+							part.setSubstituteMember(member);
+							part.setSubstituteMemberMinistry(ministry);
+							part.setSubstituteMemberSubDepartment(subDepartment);
+							List<MemberMinister> memberMinisters=member.getMemberMinisters();
+							for(MemberMinister mm:memberMinisters){
+								if((mm.getMinistryFromDate()==null || mm.getMinistryFromDate().before(new Date()))
+									&& (mm.getMinistryToDate()==null || mm.getMinistryToDate().after(new Date()))){
+									part.setSubstituteMemberDesignation(mm.getDesignation());
+									break;
+								}
+							}
+						}
+					}
+				}
+				
+			}
+			
+			/**** Primary member Ministry ****/
+			if(strPrimaryMemberMinistry!=null && !strPrimaryMemberMinistry.isEmpty()){
+				Ministry ministry = Ministry.findById(Ministry.class, Long.parseLong(strPrimaryMemberMinistry));
+				part.setPrimaryMemberMinistry(ministry);
+			}
+			
+			/**** Primary member SubDepartment****/
+			if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty() ){
+				SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
+				part.setPrimaryMemberSubDepartment(subDepartment);
+			}
+			
+			/**** Public Representative ****/
+			if(strPublicRepresentative!=null && !strPublicRepresentative.isEmpty()){
+				part.setPublicRepresentative(strPublicRepresentative);
+				/**** Public Representative Details****/
+				if(strPublicRepresentativeDetail!=null && !strPublicRepresentativeDetail.isEmpty()){
+					part.setPublicRepresentativeDetail(strPublicRepresentativeDetail);
+				}
+			}
+					
+			/**** DeviceType****/
+			if(strDeviceType!=null && !strDeviceType.isEmpty()){
+				DeviceType deviceType =  DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+				part.setDeviceType(deviceType);
+				/**** Device Id ****/
+				if(strDeviceId!=null && !strDeviceId.isEmpty()){
+					part.setDeviceId(Long.parseLong(strDeviceId));
+				}
+			}
+						
+			/**** Is Interrupted****/
+			if(strIsInterrupted!=null && !strIsInterrupted.isEmpty()){
+				part.setIsInterrupted(true);
+			}else{
+				part.setIsInterrupted(false);
+			}
+			
+			/**** Main Heading ****/
+			if(strMainHeading!=null && !strMainHeading.isEmpty()){
+				part.setMainHeading(strMainHeading);
+			}
+			
+			/**** Page Heading ****/
+			if(strPageHeading!=null && !strPageHeading.isEmpty()){
+				part.setPageHeading(strPageHeading);
+			}
+			
+			/**** Is Constituency Required****/
+			if(strIsConstituencyRequired!=null && !strIsConstituencyRequired.isEmpty()){
+				part.setIsConstituencyRequired(true);
+			}else{
+				part.setIsConstituencyRequired(false);
+			}
+			
+			/**** Order No ****/
+			if(strOrderNo!=null && !strOrderNo.isEmpty()){
+				part.setOrderNo(Integer.parseInt(strOrderNo));
+			}
+			
+			/**** Reporter ****/
+			if(strReporter!=null && !strReporter.isEmpty()){
+				Reporter reporter= Reporter.findById(Reporter.class, Long.parseLong(strReporter));
+				part.setReporter(reporter);
+			}
+			/**** Locale****/
+			part.setLocale(locale.toString());
+			
+			if(part.getId()!=null){
+				((BaseDomain)part).merge();
+			}else{
+				((BaseDomain)part).persist();
+			}
+			
+			/**** ChildVO****/
+			childVO.setId(part.getId());
+			childVO.setMainHeading(part.getMainHeading());
+			childVO.setVersion(part.getVersion());
+			childVO.setPageHeading(part.getPageHeading());
+			
+			if(part.getChairPersonRole()!=null){
+				childVO.setMemberrole(part.getChairPersonRole().getId().toString());
+				childVO.setChairperson(part.getChairPerson());
+			}
+			
+			childVO.setOrderNo(part.getOrderNo());
+			if(part.getPrimaryMember()!=null){
+				childVO.setPrimaryMember(part.getPrimaryMember().getId().toString());
+				childVO.setPrimaryMemberName(part.getPrimaryMember().getFullname());
+			}
+			
+			
+			if(part.getPrimaryMemberDesignation()!=null){
+				childVO.setPrimaryMemberDesignation(part.getPrimaryMemberDesignation().getId().toString());
+			}
+			
+			
+			if(part.getPrimaryMemberSubDepartment()!=null){
+				childVO.setPrimaryMemberSubDepartment(part.getPrimaryMemberSubDepartment().getId().toString());
+			}
+			
+			
+			if(part.getSubstituteMember()!=null){
+				childVO.setSubstituteMember(part.getSubstituteMember().getId().toString());
+			}
+			
+			
+			if(part.getSubstituteMemberDesignation()!=null){
+				childVO.setSubstituteMemberDesignation(part.getSubstituteMemberDesignation().getId().toString());
+			}
+			
+			
+			if(part.getSubstituteMemberMinistry()!=null){
+				childVO.setSubstituteMemberMinistry(part.getSubstituteMemberMinistry().getId().toString());
+			}
+			
+			
+			if(part.getSubstituteMemberSubDepartment()!=null){
+				childVO.setSubstituteMemberSubDepartment(part.getSubstituteMemberSubDepartment().getId().toString());
+			}
+			
+			
+			if(part.getIsConstituencyRequired()!=null){
+				childVO.setConstituencyRequired(part.getIsConstituencyRequired());
+			}
+			
+			
+			if(part.getIsInterrupted()!=null){
+				childVO.setInterrupted(part.getIsInterrupted());
+			}
+			
+			
+			if(part.getDeviceType()!=null){
+				childVO.setDeviceType(part.getDeviceType().getId().toString());
+			}
+			
+			
+			if(part.getDeviceId()!=null){
+				childVO.setDeviceId(part.getDeviceId().toString());
+			}
+			
+			
+			if(part.getPublicRepresentative()!=null && !part.getPublicRepresentative().isEmpty()){
+				childVO.setPublicRepresentative(part.getPublicRepresentative());
+				if(part.getPublicRepresentativeDetail()!=null && !part.getPublicRepresentativeDetail().isEmpty()){
+					childVO.setPublicRepresentativeDetails(part.getPublicRepresentativeDetail());
+				}
+			}
+			
+			childVO.setProceedingContent(part.getProceedingContent());
+			childVO.setProceeding(part.getProceeding().getId());
+			childVO.setReporter(part.getReporter().getId());
+		}
+		
+	    return childVO;
+		//return null;
+		
+	}
+	
+	/****Bookmark Related****/
+	@RequestMapping(value="/part/bookmark",method=RequestMethod.GET)
+	public String getBookmark(final HttpServletRequest request, final Locale locale,final ModelMap model){
+		List<Language> languages=Language.findAll(Language.class, "name", "asc", locale.toString());
+		List<Language> mainlanguages=new ArrayList<Language>();
+		String strLanguage=request.getParameter("language");
+		String strSlot=request.getParameter("currentSlot");
+		String strPart=request.getParameter("currentPart");
+		String strCount=request.getParameter("count");
+		/****Language****/
+		Language language=null;
+		if(strLanguage!=null && !strLanguage.equals("")){
+			language=Language.findById(Language.class, Long.parseLong(strLanguage));
+		}
+		for(Language l:languages){
+			if(l.getId()!=language.getId()){
+				mainlanguages.add(l);
+			}
+		}
+		/****Bookmark size****/
+		if(strPart!=null&&!strPart.isEmpty()){
+			Part part=Part.findById(Part.class, Long.parseLong(strPart));
+			List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "masterPart", part, "id", "asc", locale.toString());
+			model.addAttribute("bookmarkSize",bookmarks.size());
+		}
+		model.addAttribute("count", strCount);
+		model.addAttribute("languages", languages);
+		model.addAttribute("currentSlot", strSlot);		
+		return "proceeding/bookmark";
+	}
+
+	
+	@RequestMapping(value="/part/bookmark",method=RequestMethod.POST)
+	public  @ResponseBody MasterVO addBookmark(final HttpServletRequest request, final Locale locale,final ModelMap model){
+			
+		String strLanguage = request.getParameter("language");
+		String strPart = request.getParameter("masterPart");
+		String strSlavePart = request.getParameter("slavePart");
+		String strPreviousContent = request.getParameter("previousContent");
+		String strReplacedContent = request.getParameter("replacedContent");
+		String isPart = request.getParameter("isPart");
+		String strSlot = request.getParameter("currentSlot");
+		String strPartArray = request.getParameter("partIdArray");
+		String strOrderCount =  request.getParameter("orderCount");
+		String strMasterSlot = request.getParameter("masterSlot");
+		MasterVO masterVO= new MasterVO();
+		if(isPart != null && !isPart.isEmpty()){
+			if(!Boolean.parseBoolean(isPart)){
+				if(strLanguage != null && !strLanguage.isEmpty()
+						&& strPart != null && !strPart.isEmpty()
+						&& strSlavePart != null && !strSlavePart.isEmpty()
+						&& strPreviousContent != null && !strPreviousContent.isEmpty()
+						&& strReplacedContent != null && !strReplacedContent.isEmpty()
+						&& strSlot != null && !strSlot.isEmpty()){
+						Language language = Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
+						Part masterPart = Part.findById(Part.class, Long.parseLong(strPart));
+						Part slavePart = Part.findById(Part.class, Long.parseLong(strSlavePart));
+						Slot currentSlot = Slot.findById(Slot.class, Long.parseLong(strSlot));
+					
+//						Bookmark bookmark=new Bookmark();
+//						bookmark.setLanguage(language);
+//						bookmark.setLocale(locale.toString());
+//						bookmark.setMasterPart(masterPart);
+//						bookmark.setSlavePart(slavePart);
+//						bookmark.setSlot(currentSlot);
+//						bookmark.setPreviousText(strPreviousContent);
+//						bookmark.setTextToBeReplaced(strReplacedContent);
+//						bookmark.persist();
+						
+						masterPart.setRevisedContent(strReplacedContent);
+						
+						PartDraft partDraft = new PartDraft();
+						partDraft.setEditedBy(this.getCurrentUser().getUsername());
+						partDraft.setEditedOn(new Date());
+						partDraft.setLocale(locale.toString());
+						partDraft.setMainHeading(masterPart.getMainHeading());
+						partDraft.setPageHeading(masterPart.getPageHeading());
+						partDraft.setOriginalMainHeading(masterPart.getMainHeading());
+						partDraft.setOriginalPageHeading(masterPart.getPageHeading());
+						partDraft.setOriginalText(strPreviousContent);
+						partDraft.setReplacedText(strReplacedContent);
+						partDraft.setRevisedContent(strReplacedContent);
+						partDraft.persist();
+						
+						masterPart.getPartDrafts().add(partDraft);
+						masterPart.merge();
+						
+					}
+			}else{
+				if(strLanguage != null && !strLanguage.isEmpty()
+						&& strSlavePart != null && !strSlavePart.isEmpty()
+						&& strSlot != null && !strSlot.isEmpty()
+						&& strOrderCount!=null && !strOrderCount.isEmpty()
+						&& strMasterSlot!=null && !strMasterSlot.isEmpty()){
+						Language language = Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
+						Part slavePart = Part.findById(Part.class, Long.parseLong(strSlavePart));
+						Slot currentSlot = Slot.findById(Slot.class, Long.parseLong(strSlot));
+						Slot masterSlot= Slot.findById(Slot.class, Long.parseLong(strMasterSlot));		
+						Part part=new Part();
+						part.setChairPerson(slavePart.getChairPerson());
+						part.setChairPersonRole(slavePart.getChairPersonRole());
+						part.setDeviceId(slavePart.getDeviceId());
+						part.setDeviceType(slavePart.getDeviceType());
+						part.setEntryDate(new Date());
+						part.setIsConstituencyRequired(slavePart.getIsConstituencyRequired());
+						part.setIsInterrupted(slavePart.getIsInterrupted());
+						part.setLocale(locale.toString());
+						part.setMainHeading(slavePart.getMainHeading());
+						part.setPageHeading(slavePart.getPageHeading());
+						part.setOrderNo(Integer.parseInt(strOrderCount));
+						part.setPrimaryMember(slavePart.getPrimaryMember());
+						part.setPrimaryMemberDesignation(slavePart.getPrimaryMemberDesignation());
+						part.setPrimaryMemberMinistry(slavePart.getPrimaryMemberMinistry());
+						part.setPrimaryMemberSubDepartment(slavePart.getPrimaryMemberSubDepartment());
+						part.setProceedingContent(slavePart.getProceedingContent());
+						part.setPublicRepresentative(slavePart.getPublicRepresentative());
+						part.setPublicRepresentativeDetail(slavePart.getPublicRepresentativeDetail());
+						part.setRevisedContent(slavePart.getRevisedContent());
+						part.setSubstituteMember(slavePart.getSubstituteMember());
+						part.setSubstituteMemberDesignation(slavePart.getSubstituteMemberDesignation());
+						part.setSubstituteMemberMinistry(slavePart.getSubstituteMemberMinistry());
+						part.setSubstituteMemberSubDepartment(slavePart.getSubstituteMemberSubDepartment());
+						Proceeding proceeding =  Proceeding.findByFieldName(Proceeding.class, "slot", masterSlot, locale.toString());
+						part.setProceeding(proceeding);
+						part.setReporter(masterSlot.getReporter());
+						part.persist();
+						masterVO.setId(part.getId());
+						
+//						Bookmark bookmark=new Bookmark();
+//						bookmark.setLanguage(language);
+//						bookmark.setLocale(locale.toString());
+//						bookmark.setMasterPart(part);
+//						bookmark.setSlavePart(slavePart);
+//						bookmark.setSlot(currentSlot);
+//						bookmark.setPreviousText("");
+//						bookmark.setTextToBeReplaced(part.getRevisedContent());
+//						bookmark.persist();
+						
+						if(strPartArray!=null && !strPartArray.isEmpty()){
+							String partArray[] = strPartArray.split(",");
+							int orderCount = Integer.parseInt(strOrderCount)+1;
+							for(int i=0;i<partArray.length;i++){
+								Part otherPart = Part.findById(Part.class, Long.parseLong(partArray[i]));
+								otherPart.setOrderNo(orderCount);
+								orderCount=orderCount+1;
+								otherPart.merge();
+							}
+						}
+						
+						
+				}
+			}
+		}
+		return masterVO;
+		
+	}
+	
+	
+	/****Citations****/
+	@RequestMapping(value="part/citations",method=RequestMethod.GET)
+	public String getCitations(final HttpServletRequest request, final Locale locale,
+			final ModelMap model){
+		String strCounter=request.getParameter("counter");
+		List<Citation> citations=Citation.findAllByFieldName(Citation.class, "type", ApplicationConstants.REPORTING, "text", "asc", locale.toString());//ProceedingCitation.findAll(ProceedingCitation.class, "id", "asc", locale.toString());
+		if(strCounter!=null && !strCounter.isEmpty()){
+			model.addAttribute("counter", Integer.parseInt(strCounter));
+		}
+		model.addAttribute("citations",citations);
+		return "proceeding/proceedingcitation";
+		
+	}
+
+	@RequestMapping(value="/part/getMemberByParty",method=RequestMethod.GET)
+	public @ResponseBody List<Member> getMemberByParty(final HttpServletRequest request, final Locale locale,
+			final ModelMap model){
+		String strPartyId=request.getParameter("partyId");
+		String type=this.getCurrentUser().getHouseType();
+		HouseType houseType=null;
+		if(type!=null && !type.isEmpty()){
+			 houseType=HouseType.findByType(type, locale.toString());
+		}
+		House house=House.find(houseType, new Date(), locale.toString());
+		if(strPartyId!=null && !strPartyId.isEmpty()){
+			Party party=Party.findById(Party.class, Long.parseLong(strPartyId));
+			List<Member> members=Member.findActiveMembersByParty(party,house,locale.toString());
+			model.addAttribute("members", members);		
+		
+		return members;
+		}
+		return null;
+	}
+	
+	@RequestMapping(value="/part/getMemberByPartyPage",method=RequestMethod.GET)
+	public String getMemberByPartyPage(final HttpServletRequest request, final Locale locale,
+			final ModelMap model){
+		String strPartyId=request.getParameter("partyId");
+		String strCount=request.getParameter("partCount");
+		String type=this.getCurrentUser().getHouseType();
+		HouseType houseType=null;
+		if(type!=null && !type.isEmpty()){
+			 houseType=HouseType.findByType(type, locale.toString());
+		}
+		House house=House.find(houseType, new Date(), locale.toString());
+		if(strPartyId!=null && !strPartyId.isEmpty()){
+			Party party=Party.findById(Party.class, Long.parseLong(strPartyId));
+			List<Member> members=Member.findActiveMembersByParty(party,house,locale.toString());
+			model.addAttribute("members", members);		
+		    model.addAttribute("partCount", strCount);
+		return "proceeding/memberphoto";
+		}
+		return "";
+	}
 
 	/**************************Parts Related ***********************************/
 	
@@ -1160,398 +1688,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 
 	}
 	
-	@RequestMapping(value="/part/save",method=RequestMethod.POST)
-	public @ResponseBody ChildVO savePart(final HttpServletRequest request, final Locale locale,final ModelMap model){
-		String strPartCount = request.getParameter("partCount");
-		ChildVO childVO=new ChildVO();
-		if(strPartCount!=null && !strPartCount.isEmpty()){
-			String strContent = request.getParameter("partContent"+strPartCount);
-			String strPrimaryMember = request.getParameter("primaryMember"+strPartCount);
-			String strPrimaryMemberMinistry = request.getParameter("primaryMemberMinistry"+strPartCount);
-			String strPrimaryMemberDesignation = request.getParameter("primaryMemberDesignation"+strPartCount);
-			String strPrimaryMemberSubDepartment = request.getParameter("primaryMemberSubDepartment"+strPartCount);
-			String strProceeding = request.getParameter("partProceeding"+strPartCount);
-			String strPublicRepresentative = request.getParameter("publicRepresentative"+strPartCount);
-			String strPublicRepresentativeDetail = request.getParameter("publicRepresentativeDetail"+strPartCount);
-			String strChairPersonRole = request.getParameter("chairPersonRole"+strPartCount);
-			String strDeviceType = request.getParameter("deviceType"+strPartCount);
-			String strIsInterrupted = request.getParameter("isInterrupted"+strPartCount);
-			String strMainHeading = request.getParameter("mainHeading"+strPartCount);
-			String strPageHeading = request.getParameter("pageHeading"+strPartCount);
-			String strIsConstituencyRequired = request.getParameter("isConstituencyRequired"+strPartCount);
-			String strOrderNo = request.getParameter("partOrder"+strPartCount);
-			String strDeviceId = request.getParameter("deviceId"+strPartCount);
-			String strReporter = request.getParameter("partReporter"+strPartCount);
-			String strPartId = request.getParameter("partId"+strPartCount);
-			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-			String server=null;
-			Part part=null;
-			Session session=null;
-			
-			if(strPartId!=null && !strPartId.isEmpty()){
-				part=Part.findById(Part.class, Long.parseLong(strPartId));
-			}else{
-				part=new Part();
-			}
-			Proceeding proceeding=null;
-			/***`Proceeding Contnet***/
-			if(strContent!=null && !strContent.isEmpty()){
-				part.setProceedingContent(strContent);
-				part.setRevisedContent(strContent);
-			}
-			
-			if(strPrimaryMember!=null && !strPrimaryMember.isEmpty()){
-				Member member = Member.findById(Member.class, Long.parseLong(strPrimaryMember));
-				part.setPrimaryMember(member);
-			}
-			
-			if(strProceeding!=null && !strProceeding.isEmpty()){
-				 proceeding = Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
-				part.setProceeding(proceeding);
-			}
-			
-			if(strChairPersonRole!=null && !strChairPersonRole.isEmpty()){
-				MemberRole memberRole = MemberRole.findById(MemberRole.class, Long.parseLong(strChairPersonRole));
-				part.setChairPersonRole(memberRole);
-				Member member=null;
-				if(memberRole!=null){
-					Slot slot=proceeding.getSlot();
-					Roster roster=slot.getRoster();
-					session=roster.getSession();
-					House house=session.getHouse();
-					List<HouseMemberRoleAssociation> hmras;
-					try {
-						hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, memberRole, new Date(), proceeding.getLocale());
-						for(HouseMemberRoleAssociation h:hmras){
-							if(h.getRole().equals(memberRole)){
-								member=h.getMember();
-								break;
-							}
-						}
-						part.setChairPerson(member.getFullname());
-					} catch (ELSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-			
-			if(strPrimaryMemberDesignation!=null && !strPrimaryMemberDesignation.isEmpty()){
-				Designation designation = Designation.findById(Designation.class, Long.parseLong(strPrimaryMemberDesignation));
-				part.setPrimaryMemberDesignation(designation);
-				if(designation.getType().equals(ApplicationConstants.STATE_MINISTER)){
-					if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty() ){
-						SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
-						Ministry ministry = Ministry.find(subDepartment,locale);
-						Member member = MemberMinister.find(ministry,locale);
-						if(member!=null){
-							part.setSubstituteMember(member);
-							part.setSubstituteMemberMinistry(ministry);
-							part.setSubstituteMemberSubDepartment(subDepartment);
-							List<MemberMinister> memberMinisters=member.getMemberMinisters();
-							for(MemberMinister mm:memberMinisters){
-								if((mm.getMinistryFromDate()==null || mm.getMinistryFromDate().before(new Date()))
-									&& (mm.getMinistryToDate()==null || mm.getMinistryToDate().after(new Date()))){
-									part.setSubstituteMemberDesignation(mm.getDesignation());
-									break;
-								}
-							}
-						}
-					}
-				}
-				
-			}
-			
-			if(strPrimaryMemberMinistry!=null && !strPrimaryMemberMinistry.isEmpty()){
-				Ministry ministry = Ministry.findById(Ministry.class, Long.parseLong(strPrimaryMemberMinistry));
-				part.setPrimaryMemberMinistry(ministry);
-			}
-			
-			if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty() ){
-				SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
-				part.setPrimaryMemberSubDepartment(subDepartment);
-			}
-			
-			
-			if(strPublicRepresentative!=null && !strPublicRepresentative.isEmpty()){
-				part.setPublicRepresentative(strPublicRepresentative);
-			}
-			
-			if(strPublicRepresentativeDetail!=null && !strPublicRepresentativeDetail.isEmpty()){
-				part.setPublicRepresentativeDetail(strPublicRepresentativeDetail);
-			}
-			
-			
-			if(strDeviceType!=null && !strDeviceType.isEmpty()){
-				DeviceType deviceType =  DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
-				part.setDeviceType(deviceType);
-			}
-			
-			if(strDeviceId!=null && !strDeviceId.isEmpty()){
-				part.setDeviceId(Long.parseLong(strDeviceId));
-			}
-			
-			if(strIsInterrupted!=null && !strIsInterrupted.isEmpty()){
-				part.setIsInterrupted(true);
-			}else{
-				part.setIsInterrupted(false);
-			}
-			
-			if(strMainHeading!=null && !strMainHeading.isEmpty()){
-				part.setMainHeading(strMainHeading);
-			}
-			
-			if(strPageHeading!=null && !strPageHeading.isEmpty()){
-				part.setPageHeading(strPageHeading);
-			}
-			
-			if(strIsConstituencyRequired!=null && !strIsConstituencyRequired.isEmpty()){
-				part.setIsConstituencyRequired(true);
-			}else{
-				part.setIsConstituencyRequired(false);
-			}
-			
-			if(strOrderNo!=null && !strOrderNo.isEmpty()){
-				part.setOrderNo(Integer.parseInt(strOrderNo));
-			}
-			
-			if(strReporter!=null && !strReporter.isEmpty()){
-				Reporter reporter= Reporter.findById(Reporter.class, Long.parseLong(strReporter));
-				part.setReporter(reporter);
-			}
-			part.setLocale(locale.toString());
-			if(part.getId()!=null){
-				((BaseDomain)part).merge();
-			}else{
-				((BaseDomain)part).persist();
-			}
-			
-			childVO.setId(part.getId());
-			childVO.setMainHeading(part.getMainHeading());
-			childVO.setVersion(part.getVersion());
-			childVO.setPageHeading(part.getPageHeading());
-			if(part.getChairPersonRole()!=null){
-				childVO.setMemberrole(part.getChairPersonRole().getId().toString());
-				childVO.setChairperson(part.getChairPerson());
-			}
-			childVO.setOrderNo(part.getOrderNo());
-			if(part.getPrimaryMember()!=null){
-				childVO.setPrimaryMember(part.getPrimaryMember().getId().toString());
-				childVO.setPrimaryMemberName(part.getPrimaryMember().getFullname());
-			}
-			
-			if(part.getPrimaryMemberDesignation()!=null){
-				childVO.setPrimaryMemberDesignation(part.getPrimaryMemberDesignation().getId().toString());
-			}
-			
-			if(part.getPrimaryMemberSubDepartment()!=null){
-				childVO.setPrimaryMemberSubDepartment(part.getPrimaryMemberSubDepartment().getId().toString());
-			}
-			
-			if(part.getSubstituteMember()!=null){
-				childVO.setSubstituteMember(part.getSubstituteMember().getId().toString());
-			}
-			
-			if(part.getSubstituteMemberDesignation()!=null){
-				childVO.setSubstituteMemberDesignation(part.getSubstituteMemberDesignation().getId().toString());
-			}
-			
-			if(part.getSubstituteMemberMinistry()!=null){
-				childVO.setSubstituteMemberMinistry(part.getSubstituteMemberMinistry().getId().toString());
-			}
-			
-			if(part.getSubstituteMemberSubDepartment()!=null){
-				childVO.setSubstituteMemberSubDepartment(part.getSubstituteMemberSubDepartment().getId().toString());
-			}
-			
-			if(part.getIsConstituencyRequired()!=null){
-				childVO.setConstituencyRequired(part.getIsConstituencyRequired());
-			}
-			
-			if(part.getIsInterrupted()!=null){
-				childVO.setInterrupted(part.getIsInterrupted());
-			}
-			
-			if(part.getDeviceType()!=null){
-				childVO.setDeviceType(part.getDeviceType().getId().toString());
-			}
-			
-			if(part.getDeviceId()!=null){
-				childVO.setDeviceId(part.getDeviceId().toString());
-			}
-			
-			if(part.getPublicRepresentative()!=null && !part.getPublicRepresentative().isEmpty()){
-				childVO.setPublicRepresentative(part.getPublicRepresentative());
-				if(part.getPublicRepresentativeDetail()!=null && !part.getPublicRepresentativeDetail().isEmpty()){
-					childVO.setPublicRepresentativeDetails(part.getPublicRepresentativeDetail());
-				}
-			}
-			
-			childVO.setProceedingContent(part.getProceedingContent());
-			childVO.setProceeding(part.getProceeding().getId());
-			childVO.setReporter(part.getReporter().getId());
-		}
-		
-	    return childVO;
-		//return null;
-		
-	}
 	
-	/****Bookmark Related****/
-	@RequestMapping(value="/part/bookmark",method=RequestMethod.GET)
-	public String getBookmark(final HttpServletRequest request, final Locale locale,final ModelMap model){
-		List<Language> languages=Language.findAll(Language.class, "name", "asc", locale.toString());
-		List<Language> mainlanguages=new ArrayList<Language>();
-		String strLanguage=request.getParameter("language");
-		String strSlot=request.getParameter("currentSlot");
-		String strPart=request.getParameter("currentPart");
-		String strCount=request.getParameter("count");
-		/****Language****/
-		Language language=null;
-		if(strLanguage!=null && !strLanguage.equals("")){
-			language=Language.findById(Language.class, Long.parseLong(strLanguage));
-		}
-		for(Language l:languages){
-			if(l.getId()!=language.getId()){
-				mainlanguages.add(l);
-			}
-		}
-		/****Bookmark size****/
-		if(strPart!=null&&!strPart.isEmpty()){
-			Part part=Part.findById(Part.class, Long.parseLong(strPart));
-			List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "masterPart", part, "id", "asc", locale.toString());
-			model.addAttribute("bookmarkSize",bookmarks.size());
-		}
-		model.addAttribute("count", strCount);
-		model.addAttribute("languages", languages);
-		model.addAttribute("currentSlot", strSlot);		
-		return "proceeding/bookmark";
-	}
-
-	
-	@RequestMapping(value="/part/bookmark",method=RequestMethod.POST)
-	public  @ResponseBody MasterVO addBookmark(final HttpServletRequest request, final Locale locale,final ModelMap model){
-			
-		String strLanguage = request.getParameter("language");
-		String strPart = request.getParameter("masterPart");
-		String strSlavePart = request.getParameter("slavePart");
-		String strPreviousContent = request.getParameter("previousContent");
-		String strReplacedContent = request.getParameter("replacedContent");
-		String isPart = request.getParameter("isPart");
-		String strSlot = request.getParameter("currentSlot");
-		String strPartArray = request.getParameter("partIdArray");
-		String strOrderCount =  request.getParameter("orderCount");
-		String strMasterSlot = request.getParameter("masterSlot");
-		MasterVO masterVO= new MasterVO();
-		if(isPart != null && !isPart.isEmpty()){
-			if(!Boolean.parseBoolean(isPart)){
-				if(strLanguage != null && !strLanguage.isEmpty()
-						&& strPart != null && !strPart.isEmpty()
-						&& strSlavePart != null && !strSlavePart.isEmpty()
-						&& strPreviousContent != null && !strPreviousContent.isEmpty()
-						&& strReplacedContent != null && !strReplacedContent.isEmpty()
-						&& strSlot != null && !strSlot.isEmpty()){
-						Language language = Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
-						Part masterPart = Part.findById(Part.class, Long.parseLong(strPart));
-						Part slavePart = Part.findById(Part.class, Long.parseLong(strSlavePart));
-						Slot currentSlot = Slot.findById(Slot.class, Long.parseLong(strSlot));
-					
-						Bookmark bookmark=new Bookmark();
-						bookmark.setLanguage(language);
-						bookmark.setLocale(locale.toString());
-						bookmark.setMasterPart(masterPart);
-						bookmark.setSlavePart(slavePart);
-						bookmark.setSlot(currentSlot);
-						bookmark.setPreviousText(strPreviousContent);
-						bookmark.setTextToBeReplaced(strReplacedContent);
-						bookmark.persist();
-						
-						masterPart.setRevisedContent(strReplacedContent);
-						
-						PartDraft partDraft = new PartDraft();
-						partDraft.setEditedBy(this.getCurrentUser().getUsername());
-						partDraft.setEditedOn(new Date());
-						partDraft.setLocale(locale.toString());
-						partDraft.setMainHeading(masterPart.getMainHeading());
-						partDraft.setPageHeading(masterPart.getPageHeading());
-						partDraft.setOriginalMainHeading(masterPart.getMainHeading());
-						partDraft.setOriginalPageHeading(masterPart.getPageHeading());
-						partDraft.setOriginalText(strPreviousContent);
-						partDraft.setReplacedText(strReplacedContent);
-						partDraft.setRevisedContent(strReplacedContent);
-						partDraft.persist();
-						
-						masterPart.getPartDrafts().add(partDraft);
-						masterPart.merge();
-						
-					}
-			}else{
-				if(strLanguage != null && !strLanguage.isEmpty()
-						&& strSlavePart != null && !strSlavePart.isEmpty()
-						&& strSlot != null && !strSlot.isEmpty()
-						&& strOrderCount!=null && !strOrderCount.isEmpty()
-						&& strMasterSlot!=null && !strMasterSlot.isEmpty()){
-						Language language = Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
-						Part slavePart = Part.findById(Part.class, Long.parseLong(strSlavePart));
-						Slot currentSlot = Slot.findById(Slot.class, Long.parseLong(strSlot));
-						Slot masterSlot= Slot.findById(Slot.class, Long.parseLong(strMasterSlot));		
-						Part part=new Part();
-						part.setChairPerson(slavePart.getChairPerson());
-						part.setChairPersonRole(slavePart.getChairPersonRole());
-						part.setDeviceId(slavePart.getDeviceId());
-						part.setDeviceType(slavePart.getDeviceType());
-						part.setEntryDate(new Date());
-						part.setIsConstituencyRequired(slavePart.getIsConstituencyRequired());
-						part.setIsInterrupted(slavePart.getIsInterrupted());
-						part.setLocale(locale.toString());
-						part.setMainHeading(slavePart.getMainHeading());
-						part.setPageHeading(slavePart.getPageHeading());
-						part.setOrderNo(Integer.parseInt(strOrderCount));
-						part.setPrimaryMember(slavePart.getPrimaryMember());
-						part.setPrimaryMemberDesignation(slavePart.getPrimaryMemberDesignation());
-						part.setPrimaryMemberMinistry(slavePart.getPrimaryMemberMinistry());
-						part.setPrimaryMemberSubDepartment(slavePart.getPrimaryMemberSubDepartment());
-						part.setProceedingContent(slavePart.getProceedingContent());
-						part.setPublicRepresentative(slavePart.getPublicRepresentative());
-						part.setPublicRepresentativeDetail(slavePart.getPublicRepresentativeDetail());
-						part.setRevisedContent(slavePart.getRevisedContent());
-						part.setSubstituteMember(slavePart.getSubstituteMember());
-						part.setSubstituteMemberDesignation(slavePart.getSubstituteMemberDesignation());
-						part.setSubstituteMemberMinistry(slavePart.getSubstituteMemberMinistry());
-						part.setSubstituteMemberSubDepartment(slavePart.getSubstituteMemberSubDepartment());
-						Proceeding proceeding =  Proceeding.findByFieldName(Proceeding.class, "slot", masterSlot, locale.toString());
-						part.setProceeding(proceeding);
-						part.setReporter(masterSlot.getReporter());
-						part.persist();
-						masterVO.setId(part.getId());
-						
-						Bookmark bookmark=new Bookmark();
-						bookmark.setLanguage(language);
-						bookmark.setLocale(locale.toString());
-						bookmark.setMasterPart(part);
-						bookmark.setSlavePart(slavePart);
-						bookmark.setSlot(currentSlot);
-						bookmark.setPreviousText("");
-						bookmark.setTextToBeReplaced(part.getRevisedContent());
-						bookmark.persist();
-						if(strPartArray!=null && !strPartArray.isEmpty()){
-							String partArray[] = strPartArray.split(",");
-							int orderCount = Integer.parseInt(strOrderCount)+1;
-							for(int i=0;i<partArray.length;i++){
-								Part otherPart = Part.findById(Part.class, Long.parseLong(partArray[i]));
-								otherPart.setOrderNo(orderCount);
-								orderCount=orderCount+1;
-								otherPart.merge();
-							}
-						}
-						
-						
-				}
-			}
-		}
-		return masterVO;
-		
-	}
 
 	
 	@RequestMapping(value="/part/updatetext",method=RequestMethod.POST)
@@ -1635,60 +1772,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 
 	}
 
-	/****Citations****/
-	@RequestMapping(value="part/citations",method=RequestMethod.GET)
-	public String getCitations(final HttpServletRequest request, final Locale locale,
-			final ModelMap model){
-		String strCounter=request.getParameter("counter");
-		List<Citation> citations=Citation.findAllByFieldName(Citation.class, "type", ApplicationConstants.REPORTING, "text", "asc", locale.toString());//ProceedingCitation.findAll(ProceedingCitation.class, "id", "asc", locale.toString());
-		if(strCounter!=null && !strCounter.isEmpty()){
-			model.addAttribute("counter", Integer.parseInt(strCounter));
-		}
-		model.addAttribute("citations",citations);
-		return "proceeding/proceedingcitation";
-		
-	}
-
-	@RequestMapping(value="/part/getMemberByParty",method=RequestMethod.GET)
-	public @ResponseBody List<Member> getMemberByParty(final HttpServletRequest request, final Locale locale,
-			final ModelMap model){
-		String strPartyId=request.getParameter("partyId");
-		String type=this.getCurrentUser().getHouseType();
-		HouseType houseType=null;
-		if(type!=null && !type.isEmpty()){
-			 houseType=HouseType.findByType(type, locale.toString());
-		}
-		House house=House.find(houseType, new Date(), locale.toString());
-		if(strPartyId!=null && !strPartyId.isEmpty()){
-			Party party=Party.findById(Party.class, Long.parseLong(strPartyId));
-			List<Member> members=Member.findActiveMembersByParty(party,house,locale.toString());
-			model.addAttribute("members", members);		
-		
-		return members;
-		}
-		return null;
-	}
 	
-	@RequestMapping(value="/part/getMemberByPartyPage",method=RequestMethod.GET)
-	public String getMemberByPartyPage(final HttpServletRequest request, final Locale locale,
-			final ModelMap model){
-		String strPartyId=request.getParameter("partyId");
-		String strCount=request.getParameter("partCount");
-		String type=this.getCurrentUser().getHouseType();
-		HouseType houseType=null;
-		if(type!=null && !type.isEmpty()){
-			 houseType=HouseType.findByType(type, locale.toString());
-		}
-		House house=House.find(houseType, new Date(), locale.toString());
-		if(strPartyId!=null && !strPartyId.isEmpty()){
-			Party party=Party.findById(Party.class, Long.parseLong(strPartyId));
-			List<Member> members=Member.findActiveMembersByParty(party,house,locale.toString());
-			model.addAttribute("members", members);		
-		    model.addAttribute("partCount", strCount);
-		return "proceeding/memberphoto";
-		}
-		return "";
-	}
 	
 	/****Reports Related****/
 	
@@ -1800,7 +1884,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 				childVO.setProceedingContent(p.getRevisedContent());
 				childVO.setChairperson(p.getChairPerson());
 				childVO.setMainHeading(p.getMainHeading());
-				childVO.setMemberrole(p.getChairPersonRole().getName());
+				if(p.getChairPersonRole()!=null){
+					childVO.setMemberrole(p.getChairPersonRole().getName());
+				}
+				
 				childVO.setOrderNo(p.getOrderNo());
 				childVO.setPageHeading(p.getPageHeading());
 				Member primaryMember=p.getPrimaryMember();
@@ -2057,7 +2144,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 						childVO.setProceedingContent(p.getRevisedContent());
 						childVO.setChairperson(p.getChairPerson());
 						childVO.setMainHeading(p.getMainHeading());
-						childVO.setMemberrole(p.getChairPersonRole().getName());
+						if(p.getChairPersonRole()!=null){
+							childVO.setMemberrole(p.getChairPersonRole().getName());
+						}
 						childVO.setOrderNo(p.getOrderNo());
 						childVO.setPageHeading(p.getPageHeading());
 						Member primaryMember=p.getPrimaryMember();
@@ -2217,7 +2306,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 						childVO.setProceedingContent(p.getRevisedContent());
 						childVO.setChairperson(p.getChairPerson());
 						childVO.setMainHeading(p.getMainHeading());
-						childVO.setMemberrole(p.getChairPersonRole().getName());
+						if(p.getChairPersonRole()!=null){
+							childVO.setMemberrole(p.getChairPersonRole().getName());
+						}
 						childVO.setOrderNo(p.getOrderNo());
 						childVO.setPageHeading(p.getPageHeading());
 						Member primaryMember=p.getPrimaryMember();
@@ -2468,7 +2559,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 						childVO.setProceedingContent(p.getRevisedContent());
 						childVO.setChairperson(p.getChairPerson());
 						childVO.setMainHeading(p.getMainHeading());
-						childVO.setMemberrole(p.getChairPersonRole().getName());
+						if(p.getChairPersonRole()!=null){
+							childVO.setMemberrole(p.getChairPersonRole().getName());
+						}
 						childVO.setOrderNo(p.getOrderNo());
 						childVO.setPageHeading(p.getPageHeading());
 						Member primaryMember=p.getPrimaryMember();
@@ -2809,7 +2902,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 						childVO.setProceedingContent(p.getRevisedContent());
 						childVO.setChairperson(p.getChairPerson());
 						childVO.setMainHeading(p.getMainHeading());
-						childVO.setMemberrole(p.getChairPersonRole().getName());
+						if(p.getChairPersonRole()!=null){
+							childVO.setMemberrole(p.getChairPersonRole().getName());
+						}
 						childVO.setOrderNo(p.getOrderNo());
 						childVO.setPageHeading(p.getPageHeading());
 						Member primaryMember=p.getPrimaryMember();
@@ -3237,7 +3332,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 						childVO.setProceedingContent(p.getRevisedContent());
 						childVO.setChairperson(p.getChairPerson());
 						childVO.setMainHeading(p.getMainHeading());
-						childVO.setMemberrole(p.getChairPersonRole().getName());
+						if(p.getChairPersonRole()!=null){
+							childVO.setMemberrole(p.getChairPersonRole().getName());
+						}
 						childVO.setOrderNo(p.getOrderNo());
 						childVO.setPageHeading(p.getPageHeading());
 						Member primaryMember=p.getPrimaryMember();
