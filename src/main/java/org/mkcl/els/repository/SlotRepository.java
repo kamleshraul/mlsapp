@@ -211,4 +211,20 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 		return null;
 	}
 
+	public Slot findPreviousSlot(Slot slot) {
+		String strQuery = " SELECT s FROM Slot s WHERE s.roster.id=:rosterId" +
+				" AND s.endTime<=:startTime" +
+				" ORDER BY s.endTime "+ ApplicationConstants.DESC;
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("rosterId", slot.getRoster().getId());
+		query.setParameter("startTime", slot.getStartTime());
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		List<Slot> slots=query.getResultList();
+		if(slots!=null&&!slots.isEmpty()){
+			return slots.get(0);
+		}
+		return null;
+	}
+
 }
