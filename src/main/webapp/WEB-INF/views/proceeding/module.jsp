@@ -337,7 +337,7 @@
 				   </spring:message>
 				</a>
 			</li>	
-			<li>
+			<li style='display:none;'>
 				<a id="part_tab" href="#" class="tab">
 				   <spring:message code="generic.part" text="part">
 				   </spring:message>
