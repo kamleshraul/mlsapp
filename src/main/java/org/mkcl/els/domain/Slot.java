@@ -126,6 +126,10 @@ public class Slot extends BaseDomain implements Serializable{
 			Adjournment adjournment) {
 		return getSlotRepository().firstAdjournedSlot(roster,adjournment);
 	}
+	
+	public static Slot findPreviousSlot(Slot slot) {
+		return getSlotRepository().findPreviousSlot(slot);
+	}
 	/*********** Setters and Getters ************/	
 	
 	public Reporter getReporter() {
@@ -189,9 +193,4 @@ public class Slot extends BaseDomain implements Serializable{
 	public void setBlnDeleted(Boolean blnDeleted) {
 		this.blnDeleted = blnDeleted;
 	}
-
-	
-	
-	
-	
 }
