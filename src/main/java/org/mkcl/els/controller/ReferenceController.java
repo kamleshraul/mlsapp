@@ -86,6 +86,7 @@ import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Ordinance;
 import org.mkcl.els.domain.Part;
+import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.Query;
@@ -115,6 +116,7 @@ import org.mkcl.els.domain.Tehsil;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
+import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
@@ -3180,17 +3182,19 @@ public class ReferenceController extends BaseController {
 			String slots[]=strSlot.split(",");
 			for(int i=0;i<slots.length;i++){
 				Slot slot=Slot.findById(Slot.class, Long.parseLong(slots[i]));
-				MasterVO masterVo=new MasterVO();
-				if(slot!=null){
+					if(slot!=null){
 					Proceeding proceeding=Proceeding.findByFieldName(Proceeding.class, "slot", slot, locale.toString());
 					List<Part> parts=proceeding.getParts();
 					String strContent="";
 					if(!parts.isEmpty()){
 						for(Part p:parts){
+							MasterVO masterVo=new MasterVO();
 							if(p.getProceedingContent()!=null && !p.getProceedingContent().isEmpty()){
 								strContent=strContent+p.getProceedingContent();
 							}
-							
+							if(p.getPrimaryMember()!=null){
+								masterVo.setValue(p.getPrimaryMember().getFullname());
+							}
 						}
 						masterVo.setValue(proceeding.getSlot().getName());
 						masterVo.setName(strContent);
@@ -5492,5 +5496,16 @@ public class ReferenceController extends BaseController {
 	public @ResponseBody List<MasterVO> getCutMotionDateActors(HttpServletRequest request, Locale locale){
 		CutMotionDate cutMotionDate = CutMotionDate.findById(CutMotionDate.class, new Long(request.getParameter("cutMotionDate")));
 		return CutMotionDateControllerUtility.getActors(request, cutMotionDate, locale.toString());
+	}
+	@RequestMapping(value="/findParty", method=RequestMethod.GET)
+	public @ResponseBody Long findPartyByMemberId(final HttpServletRequest request,
+			final Locale locale){
+		String strMemberId = request.getParameter("memberId");
+		if(strMemberId != null && !strMemberId.isEmpty()){
+			Member member = Member.findById(Member.class, Long.parseLong(strMemberId));
+			Party party = member.findParty();
+			return party.getId();
+		}
+		return null;
 	}
 }
