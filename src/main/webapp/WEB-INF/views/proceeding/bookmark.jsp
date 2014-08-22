@@ -107,6 +107,7 @@
 				"</div>";
 				for(var i=0;i<data.length;i++){
 					elementText=elementText + "<div id='partCounter"+ (i+1)+"'>";
+					console.log(data[i].value);
 					if(data[i].value!=null && data[i].value!=''){
 						elementText = elementText + data[i].value +" :<span id='span"+ data[i].id+"' class='bookmarkContent'> " + data[i].name +"</span>";
 					}else{
@@ -135,6 +136,7 @@
 						var inputbox = "<textarea id='prContent' class='inputbox wysiwyg sTextarea'>"+$(this).text()+"</textarea>"; 
 						$(this).html(inputbox); 
 						$('#prContent').wysiwyg({
+							 resizeOptions: {maxWidth: 600},
 							 events: {
 								blur: function() {
 									console.log('blur');
@@ -158,7 +160,7 @@
 					
 					} 	
 					
-					
+					$("div.wysiwyg").css('width','750px');
 					//$.fancybox.close();
 				}) ;
 				

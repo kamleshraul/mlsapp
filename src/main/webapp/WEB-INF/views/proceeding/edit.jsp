@@ -6,21 +6,27 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
+	/**** Global Variables ****/
 	var orderCount=0;
 	var partCount=parseInt($('#partCount').val());
 	var totalPartCount=0;
-	totalPartCount=partCount+totalPartCount;
 	var controlId='';
+	totalPartCount=partCount+totalPartCount;
+	
 	$(document).ready(function(){
+		
 		loadWysiwyg();
 		
+		/***Add Part***/
 		$('.addPartButton').click(function(){
 			var buttonId=this.id;
-			console.log(buttonId);
+			console.log("Button Id:"+buttonId);
 			var buttonCount=buttonId.split("addPart")[1];
+			console.log("buttonCount"+buttonCount);
 			addPart(parseInt(buttonCount));
 		});
 		
+		/***Edit part***/
 		$('.editableContent').mouseup(function(e){
 			 controlId=$(this).attr('id');
 			 showEditor(e);
@@ -31,10 +37,12 @@
 			
 		});
 		
+		/***Replace All Functionality***/
 		$("#replaceAll").click(function(){
 			replaceAll('edit','false');
 		});
 		
+		/***Undo***/
 		$("#undo").click(function(){
 			var undoCount = parseInt($("#undoCount").val());
 			if(undoCount>0){
@@ -42,6 +50,7 @@
 			}
 		});
 		
+		/***Redo***/
 		$("#redo").click(function(){
 			var redoCount = parseInt($("#redoCount").val());
 			if(redoCount>0){
@@ -60,7 +69,7 @@
 			    return false;
 		});
 		
-		
+		/***Registering the wysiwyg for a pop up texteditor***/
 		$('#ttA').wysiwyg({
 				controls:{
 					hide: {
@@ -78,6 +87,7 @@
 		 
 	});
 	
+	/***Add Part***/
 	function addPart(currentCount){
 		orderCount=parseInt(orderCount)+1;
 		var flag=false;
@@ -85,29 +95,33 @@
 		contentNo="content"+partCount;
 		totalPartCount=totalPartCount+1;
 		var partText= "<div id='part"+partCount+"'>"+
-		"<div id='otherContent' style='width:350px;display: inline-block;'>"+ 
+		"<div id='otherContent' style='width:320px;display: inline-block;'>"+ 
 			"<div id='div1' style='border:2px solid;height:120px;'>"+
 				 "<p style='margin-top:5px;'>"+
-					 "<label class='small'>"+$('#roleMessage').val()+"</label>"+
+					 "<label class='small' style='width:123px;'>"+$('#roleMessage').val()+"</label>"+
 					 "<select name='chairPersonRole"+partCount+"' id='chairPersonRole"+partCount+"' class='sSelect' style='width:170px;'>"+
 				    	 $('#roleMaster').html()+
 				     "</select>"+
 			     "</p>"+
-			     
+			     "<p id='chairPersonP' style='display: none;'>"+
+				 	 "<label class='small' style='width:123px;'>"+$('#chairPersonMessage').val()+"</label>"+
+				 	 "<select name='chairPerson"+partCount+"' id='chairPerson"+partCount+"' class='sSelect' style='width:170px;'>"+
+			    	 "</select>"+
+				 "</p>"+
 		         "<p class='deviceType"+partCount+"'>"+
-		              "<label class='small'>"+$('#deviceTypeMessage').val()+"</label>"+
+		              "<label class='small' style='width:123px;'>"+$('#deviceTypeMessage').val()+"</label>"+
 		              "<select name='deviceType"+partCount+"' id='deviceType"+partCount+"'class='sSelect' style='width:170px;'>"+
 				     	 $('#deviceTypeMaster').html()+
 				      "</select>"+
 		         "</p>"+
 		        
 	             "<p>"+
-	              "<label class='small'>"+$('#deviceNoMessage').val()+"</label>"+
+	              "<label class='small' style='width:123px;'>"+$('#deviceNoMessage').val()+"</label>"+
 				  "<input type='text' name='deviceNo"+partCount+"' id='deviceNo"+partCount+"' class='deviceNo sInteger' style='width:168px;'/>"+
 	             "</p>"+
 	            
 			     "<p>"+
-					"<label class='small'>"+$('#isInterruptedMessage').val()+"</label>"+
+					"<label class='small' style='width:123px;'>"+$('#isInterruptedMessage').val()+"</label>"+
 					"<input type='checkbox' id='isInterrupted"+partCount+"' name='isInterrupted"+partCount+"' class='sCheck'>"+
 				 "</p>"+
 			 "</div>"+
@@ -116,11 +130,9 @@
 			   		"<a href='javascript:void(0)' id='interruptedProceeding' class='imgLink' title='Interrupted Proceeding'>IP</a>"+			   "</p>"+
 			   "<p>"+
 			   		"<textarea class='proceedingContentwysiwyg' name='pageHeading"+partCount+"' id='pageHeading"+partCount+"'/>"+
-			    	//"<a href='javascript:void(0)' id='clearPageHeadingLink"+partCount+"' class='clearPageHeading'>clear</a>"+
-			    "</p>"+
+			   "</p>"+
 			    "<p style='margin-top:20px;'>"+
 			   	 	"<textarea class='proceedingContentwysiwyg' name='mainHeading"+partCount+"' id='mainHeading"+partCount+"'/>"+
-			    	//"<a href='javascript:void(0)' id='clearMainHeadingLink"+partCount+"' class='clearMainHeading'>clear</a>"+ 
 			    "</p>"+ 				     
 			    "<p class='order"+partCount+"'style='display:none;'>"+
 		     		"<label class='small'>"+$('#orderMessage').val()+"</label>"+
@@ -128,7 +140,7 @@
 		     	"</p>"+
 	     	 "</div>"+
 		 "</div>"+
-	     "<div id='mainContent' style='width:550px;display: inline-block;float:right;'>"+
+	     "<div id='mainContent' style='width:590px;display: inline-block;float:right;'>"+
 		     "<div id='div3' style='border:2px solid;height:120px;'>"+
 		 		"<p align='right' style='margin-top: 5px;margin-right:15px;'>"+
 		    		"<a href='javascript:void(0)' id='publicLink"+partCount+"'  class='imgLink publicLink' title='Public'>PU</a>"+
@@ -187,54 +199,98 @@
 		  "<input type='hidden' id='partEntryDate"+partCount+"' name='partEntryDate"+partCount+"'>"+
 		  "<input type='hidden' id='partRevisedContent"+partCount+"' name='partRevisedContent"+partCount+"'>"+
 		  "<input type='hidden' id='partProceeding"+partCount+"' name='partProceeding"+partCount+"' value='"+$('#proceedingId').val() +"'>"+
-	     "<div id='addDeleteButtons"+partCount+"'>"+
-	     "<a href='javascript:void(0)' id='addPart"+partCount+"' class=' addPartButton'><img src='./resources/images/add.jpg' title='Add Part' class='imageLink' /></a>"+
-		 "<a href='javascript:void(0)'  id='deletePart"+partCount+"' class=' deletePartButton' onclick='deletePart("+partCount+");'><img src='./resources/images/delete.jpg' title='Delete Part' class='imageLink' /></a>"+
-		 "<a href='javascript:void(0)' id='savePart' class='saveButton'><img src='./resources/images/save.jpg' title='Save Part' class='imageLink' /></a>"+
-		 "</div>"+
-	    "</div>";
+	      "<div id='addDeleteButtons"+partCount+"'>"+
+	      "<a href='javascript:void(0)' id='addPart"+partCount+"' class=' addNewPartButton'><img src='./resources/images/add.jpg' title='Add Part' class='imageLink' /></a>"+
+		  "<a href='javascript:void(0)'  id='deletePart"+partCount+"' class=' deletePartButton' onclick='deletePart("+partCount+");'><img src='./resources/images/delete.jpg' title='Delete Part' class='imageLink' /></a>"+
+		  "<a href='javascript:void(0)' id='savePart' class='saveButton'><img src='./resources/images/save.jpg' title='Save Part' class='imageLink' /></a>"+
+		  "</div>"+
+	     "</div>";
 	    
 		var text="";
+		/** if the part is not inserted in between two parts then only individual part will be saved
+		*** else Entire Proceeding will be updated **/
+		
 		if(currentCount==totalPartCount-1){
-			text="<form action='proceeding/part/save' id='partForm'>"+
+			 text="<form action='proceeding/part/save' id='partForm"+partCount+"'>"+
 				partText+
-			     "</form>";
+			     "</form>"; 
 			     flag=true;
 		}else{
 			text=partText;
 		}
 		
+		/** if the user entering first part it should be appended to the add delete buttons
+		*** else append the part to the previous part **/
 		if(totalPartCount==1){
-		  	$('#addDeleteButtons'+currentCount).after(text);
+			$('#addDeleteButtons'+currentCount).after(text);
 		  	$('#partOrder'+partCount).val(currentCount+1);
+		  	loadWysiwyg(contentNo);
+		    loadImageCss();
+		    loadDeviceNoChangeEvent();
+		    /** The Main Heading, page Heading, DeviceType , Device of last part of previous slot is set **/
+		  	if($('#previousPartMainHeading').val()!=null && $('#previousPartMainHeading').val()!=''){
+		  		$('#mainHeading'+partCount).wysiwyg('setContent',$('#previousPartMainHeading').val());
+	  		}
+	  		if($('#previousPartPageHeading').val()!=null && $('#previousPartPageHeading').val()!=''){
+	  			$('#pageHeading'+partCount).wysiwyg('setContent',$('#previousPartPageHeading').val());
+	  		}
+	  		if($('#previousPartDeviceType').val()!=null && $('#previousPartDeviceType').val()!=''){
+	  			 $('#deviceType'+partCount+' option').each(function(){
+	  				if($(this).val()==$('#previousPartDeviceType').val()){
+	  					 $(this).attr('selected',true);
+	  				 } 
+	  			  });
+	  		}
+	  		if($('#previousPartDeviceNumber').val()!=null || $('#previousPartDeviceNumber').val()!=''){
+	  			 $('#deviceNo'+partCount).val($('#previousPartDeviceNumber').val());
+	  		}
+	  		if($('#previousPartDeviceId').val()!=null || $('#previousPartDeviceId').val()!=''){
+	  			$('#deviceId'+partCount).val($('#previousPartDeviceId').val());
+	  		}
 	    }else{
 	    	$('#part'+currentCount).after(text);
 	    	$('#partOrder'+partCount).val(currentCount+1);
-	    	for(var i = currentCount+1;i<partCount;i++){
-	      		$('#partOrder'+i).val(i+1);
-	      	}
-	     }
-	      $('#partCount').val(partCount); 
-	      loadWysiwyg(contentNo);
-	      loadImageCss();
-	      loadDeviceNoChangeEvent();
-	      
-	      
-	      
-	      $('#mainHeading'+partCount).wysiwyg('setContent',$('#mainHeading-'+currentCount).html());
-	      $('#pageHeading'+partCount).wysiwyg('setContent',$('#pageHeading-'+currentCount).html());
-	      $('#mainHeading'+partCount+'-wysiwyg-iframe').css('height','80px');
-		  $('#pageHeading'+partCount+'-wysiwyg-iframe').css('height','80px');
-		  $('#content'+partCount+'-wysiwyg-iframe').css('height','225px');
-		  $($($("#div4").children()).children('div.wysiwyg')).css("width","520px");
-		  
-		  
-		  $('#chairPersonRole'+partCount+' option').each(function(){
+	    	loadWysiwyg(contentNo);
+		    loadImageCss();
+		    loadDeviceNoChangeEvent();
+		    $('#mainHeading'+partCount).wysiwyg('setContent',$('#mainHeading-'+currentCount).html());
+		    $('#pageHeading'+partCount).wysiwyg('setContent',$('#pageHeading-'+currentCount).html());
+		    
+		    /** The Main Heading, page Heading, DeviceType , Device of previous part of current slot is set **/
+		    $('#chairPersonRole'+partCount+' option').each(function(){
 				 if($(this).val()==$('#chairPersonRole'+currentCount).val()){
 					 $(this).attr('selected',true);
 				 } 
-		  });
-		      
+		 	});
+		    
+		    $('#deviceType'+partCount+' option').each(function(){
+				if($(this).val()==$('#partDeviceType'+currentCount).val()){
+					 $(this).attr('selected',true);
+				 } 
+			 });
+		    
+		    if($('#deviceId'+currentCount).val()!='' && $('#deviceId'+currentCount).val()!=null){
+				  $.get('ref/getDeviceNumber?deviceId='+$('#deviceId'+currentCount).val()+'&deviceType='+$('#partDeviceType'+currentCount).val(),function(data){
+					  if(data!=null){
+						  $('#deviceNo'+partCount).val(data.name);
+					  }
+				  });
+			} 
+		    
+		    
+		    /** When the User insert a part in between two parts, the orderNo needs to be updated of the parts below the current inserted part**/
+		    for(var i = currentCount+1;i<partCount;i++){
+	      		$('#partOrder'+i).val(i+1);
+	      	}
+	     }
+		
+	      $('#partCount').val(partCount); 
+	      $('#mainHeading'+partCount+'-wysiwyg-iframe').css('height','80px');
+		  $('#pageHeading'+partCount+'-wysiwyg-iframe').css('height','80px');
+		  $('#content'+partCount+'-wysiwyg-iframe').css('height','225px');
+		  $($($("#div4").children()).children('div.wysiwyg')).css("width","560px");
+		  
+		  
 		  /***Selecting Member By Party***/
 		  $('#party').change(function(){
 			 	$.get('proceeding/part/getMemberByPartyPage?partyId='+$(this).val()+'&partCount='+partCount,function(data){
@@ -250,37 +306,63 @@
 				select:function(event,ui){	
 					id=this.id;
 					var elementCount=id.split("formattedPrimaryMember")[1];
-					console.log(elementCount);
 					$("#primaryMember"+elementCount).val(ui.item.id);
-			}	
-		 });
-		
-		 
-		 
-		  $('#deviceType'+partCount+' option').each(function(){
-			if($(this).val()==$('#partDeviceType'+currentCount).val()){
-				 $(this).attr('selected',true);
-			 } 
+					/** Setting the party of the Selected member **/
+					$.get('ref/findParty?memberId='+ui.item.id,function(data){
+						if(data!=null){
+							$('#party option').each(function(){
+								if($(this).val()==data){
+									 $(this).attr('selected',true);
+								 } 
+							});
+						}
+					});
+				}	
 		  });
+		
+  		/**There are number of talika sabhadhyaksha.. to select the appropriate chariperson selection is provided **/	
+		  $('#chairPersonRole'+partCount).change(function(){
+				$.get('ref/getchairperson?chairPersonRole='+$(this).val()+'&proceeding='+$('#proceedingId').val(),function(data){
+					$("#chairPerson"+partCount).empty();
+					var chairPersonText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+					if(data.length>0){
+						if(data.length==1){
+							chairPersonText+="<option value='"+data[0]+"' selected='selected'>"+data[0];
+						}else{
+							for(var i=0;i<data.length;i++){
+								chairPersonText+="<option value='"+data[i]+"'>"+data[i];
+							}
+						}
+					$("#chairPerson"+partCount).html(chairPersonText);
+					$("#chairPersonP").css('display','block');
+					$('#div1').css('height','150px');
+					$('#div3').css('height','150px');
+					}else{
+						$("#chairPerson"+partCount).empty();
+						var chairPersonText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+						$("#chairPerson"+partCount).html(chairPersonText);	
+						$("#chairPersonP").css('display','block');
+					}
+				});
+			});
 		  
-		  
-		  if($('#deviceId'+currentCount).val()!='' && $('#deviceId'+currentCount).val()!=null){
-			  $.get('ref/getDeviceNumber?deviceId='+$('#deviceId'+currentCount).val()+'&deviceType='+$('#partDeviceType'+currentCount).val(),function(data){
-				  if(data!=null){
-					  $('#deviceNo'+partCount).val(data.name);
-				  }
-			  });
-		  } 
-		  
+		 
+		  /***Save Part****/
 		  $('#savePart').click(function(){
 			  var parameters="?partCount="+partCount;
 			  var savetext='';
+			  /** if Flag is True then single part will be saved using form[action='proceeding/part/save']
+			   ** else the entire proceeding is updated using form[action='proceeding']**/
 			  if(flag){
 				  $.post($("form[action='proceeding/part/save']").attr('action')+parameters,
 							$("form[action='proceeding/part/save']").serialize(),function(data){
 						if(data!=null){		
 							if(data!=null){
-						  		$('#part'+partCount).remove();
+								if($('#part'+partCount).parent().attr("id")=='partForm'+partCount){
+									$('#partForm'+partCount).remove();
+								}else{
+									$('#part'+partCount).remove();
+								}
 						  		savetext="<div id='part"+partCount+"' class='abc'>"+
 						  		"<div id='dummyScreen' >"+
 								"<div class='myeditablePara'>"	+
@@ -300,18 +382,25 @@
 								}
 								savetext=savetext+	
 									"<br>"+
-									"</div>"+
-						  			"<div class='member"+partCount+"' style='display: inline-block;'>"+
+									"</div>";
+								if(data.primaryMemberName!=null && data.primaryMemberName!=''){
+									savetext= savetext + "<div class='member"+partCount+"' style='display: inline-block;'>"+
 										data.primaryMemberName+ 
 									":"+
-									"</div>"+
-									"<div class='proceedingContent"+partCount+" editableContent' style='display:inline-block;' id='proceedingContent"+partCount+"'>"+
-										"<div style='min-width:180px;width: 100px; display: inline-block;'>&nbsp;&nbsp;</div>"+	
+									"</div>";
+								}else if(data.publicRepresentative != null && data.publicRepresentative !=''){
+									savetext= savetext + "<div class='member"+partCount+"' style='display: inline-block;'>"+
+									data.publicRepresentative+ 
+								":"+
+								"</div>";
+								}					  			
+								savetext=savetext +	"<div class='proceedingContent"+partCount+" editableContent' style='display:inline-block;' id='proceedingContent"+partCount+"'>"+
+									"<div style='min-width:180px;width: 100px; display: inline-block;'>&nbsp;&nbsp;</div>"+	
 										data.proceedingContent+
 									"</div>"+
 									"<div id='addDeleteButtons"+partCount+"'>"+
-										"<a href='javascript:void(0)' id='addPart"+partCount+"' class=' addPartButton'><img src='./resources/images/add.jpg' title='Add Part' class='imageLink' /></a>"+
-										"<a href='javascript:void(0)'  id='deletePart"+partCount+"' class=' deletePartButton'><img src='./resources/images/delete.jpg' title='Delete Part' class='imageLink' onclick='deletePart("+partCount+");' /></a>"+
+										"<a href='javascript:void(0)' id='addPart"+partCount+"' class='addPartButton'><img src='./resources/images/add.jpg' title='Add Part' class='imageLink' /></a>"+
+										"<a href='javascript:void(0)'  id='deletePart"+partCount+"' class='deletePartButton'><img src='./resources/images/delete.jpg' title='Delete Part' class='imageLink' onclick='deletePart("+partCount+");' /></a>"+
 										"<a href='javascript:void(0)'  id='bookmark"+partCount+"' class='addBookmark'><img src='./resources/images/star_full.jpg' title='Bookmark' class='imageLink'/></a>"+
 									"</div>"+
 									"<input type='hidden' id='partId"+partCount+"' name='partId"+partCount+"' value='"+data.id+"'>"+
@@ -343,8 +432,12 @@
 								  	"</div>"+
 								  	"</div>"+
 								  	"</div>";
-						  	if(currentCount==totalPartCount-1){
+							/** After the part is saved, the content and member name is displayed for editing purpose if needed
+							 ** Here if the saved part is first part, the content is appended to the first buttons
+							 ** else its appended to previous part **/	  	
+						  	if(currentCount==0){
 						  		$('#addDeleteButtons'+currentCount).after(savetext);
+						  		
 						  	}else{
 						  		$('#part'+currentCount).after(savetext);
 						  	}
@@ -363,13 +456,27 @@
 			  }
 			});
 		  
-		  $('.addPartButton').click(function(){
-				var buttonId=this.id;
+		  /**Registering events for dynamic content**/
+		   
+		  /**Add part**/
+		  $('#addPart'+partCount).click(function(){
+			 	var buttonId=this.id;
 				var buttonCount=buttonId.split("addPart")[1];
 				addPart(parseInt(buttonCount));
+		  }); 
+		  
+		  /**Add Bookmark**/
+		  $('.addBookmark').click(function(){
+				var id=this.id;
+				var count=id.split("bookmark");
+				elementCount=count[count.length-1];
+				$.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val()+'&count='+elementCount+'&currentPart='+$('#partId'+elementCount).val(),function(data){
+					    $.fancybox.open(data, {autoSize: false, width:800, height:500});
+				    },'html');
+				    return false;
 			});
 		  
-		  
+		  /**Edit Content**/
 		  $('.editableContent').mouseup(function(e){
 				controlId=$(this).attr('id');
 				showEditor(e);
@@ -378,6 +485,7 @@
 				$('#ttA').wysiwyg('setContent',$('#'+controlId).html());
 				
 			});
+		 
 		  /****To import the mainHeading and PageHeading of Interrupted Proceeding****/
 			$('#interruptedProceeding').click(function(){
 				var offset=$(this).offset();
@@ -389,6 +497,7 @@
 				}
 			});
 			
+		  
 			$('#searchBy').change(function(){
 				$.get('ref/getInterruptedProceedings?selectedDate='+$('#searchByDate').val()+"&searchBy="+$(this).val()+'&language='+$("#selectedLanguage").val(),function(data){
 					var text="";
@@ -425,15 +534,16 @@
 	
 	/****Function Delete Part****/
 	function deletePart(id,continous){	
-		var partId=$('#partId'+id).val();			
+		var partId=$('#partId'+id).val();	
 		if(partId != ''){
 	    $.delete_('proceeding/'+$("#id").val()+"/"+partId+'/delete', null, function(data, textStatus, XMLHttpRequest) {
 		    if(data=='SUCCESS'){
-	    	$('#part'+id).remove();
+		    $('#part'+id).remove();
 	    	totalPartCount=totalPartCount-1;
 			if(id==partCount){
 				if(continous==null){
 					partCount=partCount-1;
+					console.log("PartCount="+partCount);
 				}				
 			}
 		    }else{
@@ -441,7 +551,11 @@
 		    }
 	    });	
 		}else{
-			$('#part'+id).remove();
+			if($('#part'+id).parent().attr("id")=='partForm'+id){
+				$('#partForm'+id).remove();
+			}else{
+				$('#part'+id).remove();
+			}
 			totalPartCount=totalPartCount-1;
 			if(id==partCount){
 				if(continous==null){
@@ -450,7 +564,7 @@
 			}
 		}
 		for(var i=id+1;i<totalPartCount;i++){
-      		$('#order'+i).val(i-1);
+      		$('#partOrder'+i).val(i-1);
       	}
 	}
 	
@@ -489,9 +603,7 @@
 				        	},
 				        	hotkey:{"ctrl":1,"shift":1,"key":72}
 				        }
-				    
 				},
-						 
 		 });
 		 
 		 $('.proceedingContentwysiwyg').change(function(e){
@@ -523,7 +635,7 @@
 	     	 
      	$("div.wysiwyg").css('left','10px');
      	$("div.wysiwyg").css('top','10px');
-     	$("div.wysiwyg").css('min-width','320px');
+     	$("div.wysiwyg").css('min-width','290px');
 	     	
 	     	
 	}
@@ -542,7 +654,6 @@
 	}
 	
 	function showEditor(e){
-		
 		var pageWidth=$(window).width();
 		var pageHeight=$(window).height();
 		
@@ -622,7 +733,7 @@
         return false;
     }
 	
-	
+	/**Save the Edited Part and Hide the Text Editor**/
 	function saveAndHide(){
 		hideEditor();
 		var content = $("#ttA").val().trim();
@@ -688,6 +799,7 @@
 	}
 	
 	
+	/**Replace All Functionality**/
 	function replaceAll(command,reedit){
 		var params='proceedingId='+$('#proceedingId').val();
 		$("#undoCount").val(parseInt($("#undoCount").val()) + 1);	
@@ -724,6 +836,7 @@
 		});
 	}
 	
+	/**Undo Function**/
 	function undoLastChange(){
 		$(".ppsp").each(function(){
 			var undoData=$(this).html();
@@ -786,7 +899,7 @@
 	}
 	
 	
-	
+	/**Redo Function**/
 	
 	function redoLastChange(){
 		$(".pprp").each(function(){
@@ -1179,6 +1292,12 @@
 	<input type="hidden" id="roleMessage" name="roleMessage" value="<spring:message code='part.roleMessage' text='Role'></spring:message>" disabled="disabled"/>
 	<input type="hidden" id="contentMessage" name="contentMessage" value="<spring:message code='part.contentMessage' text='Content'></spring:message>" disabled="disabled"/>
 	<input type="hidden" id="session" value="${session}"/>
+	<input type="hidden" id="previousPartMainHeading" name="previousPartMainHeading" value="${previousPartMainHeading }">
+	<input type="hidden" id="previousPartPageHeading" name="previousPartPageHeading" value="${previousPartPageHeading }">
+	<input type="hidden" id="previousPartDeviceType" name="previousPartDeviceType" value="${previousPartDeviceType }">
+	<input type="hidden" id="previousPartDeviceId" name="previousPartDeviceId" value="${previousPartDeviceId }">
+	<input type="hidden" id="previousPartDeviceNumber" name="previousPartDeviceNumber" value="${previousPartDeviceNumber}">
+
 	<input type="hidden" id="publicRepresentativeMessage" name="publicRepresentativeMessage" value="<spring:message code='part.publicRepresentative' text='Public Representative'></spring:message>" disabled="disabled"/>
 <input type="hidden" id="publicRepresentativeDetailMessage" name="publicRepresentativeDetailMessage" value="<spring:message code='part.publicRepresentativeDetail' text='Public Representative Detail'></spring:message>" disabled="disabled"/>
 </body>

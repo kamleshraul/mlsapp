@@ -15,6 +15,7 @@
 				if(e.which==78 && e.ctrlKey){
 					e.preventDefault();
 					e.stopPropagation();
+					console.log("partCount="+partCount);
 					$('#addPart'+partCount).trigger('click');
 					return false;
 				}

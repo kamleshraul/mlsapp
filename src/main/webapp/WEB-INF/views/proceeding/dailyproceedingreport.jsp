@@ -154,7 +154,7 @@
 								<c:when test="${r[1]!=null and r[2]!=null and r[1]!='' and r[2]!=''}">
 									<tr>
 										<td colspan="3" class="content" style="text-align: center;" >
-											<b><spring:message code="part.pageHeading" text="Page Heading"/>:</b> ${r[1]}
+											<b><spring:message code="part.pageHeading" text="Page Heading"/>:</b> ${r[1]}<br>
 											<b><spring:message code="part.mainHeading" text="Main Heading"/> :</b> ${r[2]}
 										</td>
 									</tr>
@@ -499,7 +499,7 @@
 									</c:when>
 									<c:otherwise>
 										<c:choose>
-											<c:when test="${r[4]!=null}">
+											<c:when test="${r[4]!=null or r[4]!=''}">
 												&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}): ${r[0]}
 											</c:when>
 											<c:otherwise>
@@ -916,7 +916,7 @@
 						<c:when test="${r[1]!=null and r[2]!=null and r[1]!='' and r[2]!=''}">
 							<tr>
 								<td colspan="3" class="content" style="text-align: center;">
-									<b><spring:message code="part.pageHeading" text="Page Heading"/>:</b> ${r[1]}
+									<b><spring:message code="part.pageHeading" text="Page Heading"/>:</b> ${r[1]}<br>
 									<b><spring:message code="part.mainHeading" text="Main Heading"/> :</b> ${r[2]}
 								</td>
 							</tr>
