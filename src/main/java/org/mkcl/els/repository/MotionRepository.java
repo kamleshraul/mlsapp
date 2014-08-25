@@ -2,6 +2,7 @@ package org.mkcl.els.repository;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,6 +66,40 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		}
 	}
 
+	public Integer findMaxPostBallotNo(final HouseType houseType,
+			final Session session,
+			final DeviceType type,
+			final String locale) {
+		String strMotionType = type.getType();
+		String strQuery = "SELECT m FROM Motion m JOIN m.session s JOIN m.type dt" +
+		" WHERE dt.type =:motionType AND s.id=:sessionId"+
+		" ORDER BY m.postBallotNumber " +ApplicationConstants.DESC;	
+		try {
+			TypedQuery<Motion> query=this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("motionType",strMotionType);
+			query.setParameter("sessionId",session.getId());
+			List<Motion> motions = query.setFirstResult(0).
+			setMaxResults(1).getResultList();
+			if(motions == null) {
+				return 0;
+			}
+			else if(motions.isEmpty()) {
+				return 0;
+			}
+			else {
+				if(motions.get(0).getPostBallotNumber() == null) {
+					return 0;
+				}else{
+					return motions.get(0).getPostBallotNumber();
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
 	@SuppressWarnings("rawtypes")
 	public List<RevisionHistoryVO> getRevisions(final Long motionId,final String locale) {
 		org.mkcl.els.domain.Query revisionQuery=org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", ApplicationConstants.MOTION_GET_REVISION, "");
@@ -167,6 +202,72 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		
 		return motions;
 	}	
+	
+	public List<Motion> findAllByMemberBatchWise(final Session session,final Member primaryMember,
+			final DeviceType motionType, 
+			final Date startTime,
+			final Date endTime,
+			final String locale) {
+		
+		List<Motion> motions = new ArrayList<Motion>();
+		
+		try {
+			//Date startTime = session.getParameter("");
+			Status status=Status.findByFieldName(Status.class,"type",ApplicationConstants.MOTION_COMPLETE, locale);
+			String strQuery="SELECT m FROM Motion m WHERE m.session=:session AND m.primaryMember=:primaryMember" +
+					" AND m.type=:motionType AND m.locale=:locale AND m.status=:status" + 
+					" AND m.submissionDate" +
+					" AND m.submissionDate>=:startTime" +
+					" AND m.submissionDate<=:endTime" +
+					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
+			TypedQuery<Motion> query=this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("session", session);
+			query.setParameter("primaryMember", primaryMember);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale",locale);
+			query.setParameter("startTime",startTime);			
+			query.setParameter("endTime", endTime);
+			query.setParameter("status",status);
+			motions = query.getResultList();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		} 
+		
+		return motions;
+	}
+	
+	public List<Motion> findAllByBatch(final Session session,
+			final DeviceType motionType, 
+			final Date startTime,
+			final Date endTime,
+			final String locale) {
+		
+		List<Motion> motions = new ArrayList<Motion>();
+		
+		try {
+			//Date startTime = session.getParameter("");
+			Status status=Status.findByFieldName(Status.class,"type",ApplicationConstants.MOTION_COMPLETE, locale);
+			String strQuery="SELECT m FROM Motion m WHERE m.session=:session AND m.primaryMember=:primaryMember" +
+					" AND m.type=:motionType AND m.locale=:locale AND m.status=:status" + 
+					" AND m.submissionDate" +
+					" AND m.submissionDate>=:startTime" +
+					" AND m.submissionDate<=:endTime" +
+					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
+			TypedQuery<Motion> query=this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale",locale);
+			query.setParameter("startTime",startTime);			
+			query.setParameter("endTime", endTime);
+			query.setParameter("status",status);
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
+	}
 
 	public List<Motion> findAllByStatus(final Session session,final DeviceType motionType,
 			final Status internalStatus,final Integer itemsCount,final String locale) {

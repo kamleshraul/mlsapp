@@ -375,8 +375,9 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		}
 	}
 	
-	public Integer findHighestNumberByStatus(final Session session,
+	public Integer findHighestNumberByStatusDepartment(final Session session,
 			final DeviceType deviceType, 
+			final SubDepartment subDepartment,
 			final Status status,
 			final String locale) {
 		StringBuffer strQuery = new StringBuffer("SELECT m FROM CutMotion m"
@@ -384,12 +385,14 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 				+ " AND m.deviceType.id=:cutMotionTypeId" 
 				+ " AND m.internalStatus.id=:internalStatusId"
 				+ " AND m.status.id=:statusId"
+				+ " AND m.subDepartment.id=:subDepartmentId"
 				+ " AND m.locale=:locale"
-				+ " OREDER BY m.internalNumber DESC");
+				+ " ORDER BY m.internalNumber DESC");
 		
-		TypedQuery<CutMotion> tQuery = this.em().createNamedQuery(strQuery.toString(), CutMotion.class);
+		TypedQuery<CutMotion> tQuery = this.em().createQuery(strQuery.toString(), CutMotion.class);
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("cutMotionTypeId", deviceType.getId());
+		tQuery.setParameter("subDepartmentId", subDepartment.getId());
 		tQuery.setParameter("internalStatusId", status.getId());
 		tQuery.setParameter("statusId", status.getId());
 		tQuery.setParameter("locale", locale);
@@ -409,9 +412,11 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		}
 	}
 
-	public List<CutMotion> findFinalizedCutMotions(final Session session,
-			final DeviceType deviceType, 
-			final Status status, final String sortOrder, 
+	public List<CutMotion> findFinalizedCutMotionsByDepartment(final Session session,
+			final DeviceType deviceType,
+			final SubDepartment subDepartment,
+			final Status status, 
+			final String sortOrder, 
 			final String locale) {
 		
 		StringBuffer strQuery = new StringBuffer("SELECT m FROM CutMotion m"
@@ -420,12 +425,16 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 				+ " AND m.locale=:locale"
 				+ " AND m.internalStatus.id=:internalStatusId"
 				+ " AND m.status.id=:statusId"
+				+ " AND m.subDepartment.id=:subDepartmentId"
 				+ " ORDER BY m.submissionDate " 
+				+ sortOrder + " m.demandNumber " 
+				+ sortOrder + " m.amountToBeDeducted " 
 				+ sortOrder);
 		
 		TypedQuery<CutMotion> tQuery = this.em().createQuery(strQuery.toString(), CutMotion.class);
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("cutMotionTypeId", deviceType.getId());
+		tQuery.setParameter("subDepartmentId", subDepartment.getId());
 		tQuery.setParameter("internalStatusId", status.getId());
 		tQuery.setParameter("statusId", status.getId());
 		tQuery.setParameter("locale", locale);

@@ -2740,4 +2740,19 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			throw elsException;
 		}			
 	}
+
+	public List<MemberBallot> findBySessionDeviceType(final Session session,
+			final DeviceType deviceType, 
+			final String locale) {
+		StringBuffer strQuery = new StringBuffer("SELECT m FROM MemberBallot m" + 
+								" WHERE m.session.id=:sessionId" + 
+								" AND m.deviceType.id=:deviceTypeId" + 
+								" AND m.locale=:locale ORDER BY m.position ASC");
+		
+		TypedQuery<MemberBallot> tQuery = this.em().createQuery(strQuery.toString(), MemberBallot.class);
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("deviceTypeId", deviceType.getId());
+		tQuery.setParameter("locale", locale);
+		return tQuery.getResultList(); 		
+	}
 }
