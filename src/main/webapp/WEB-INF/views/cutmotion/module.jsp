@@ -83,6 +83,7 @@
 		$("#bulkputupassistant_tab").click(function() {
 			bulkPutupAssistant();
 		});
+	
 		/**** show question list method is called by default.****/
 		showCutMotionList();
 		
@@ -102,8 +103,9 @@
 				+ $("#ugparam").val() + "&status=" + $("#selectedStatus").val()
 				+ "&role=" + $("#srole").val() + "&usergroup="
 				+ $("#currentusergroup").val() + "&usergroupType="
-				+ $("#currentusergroupType").val())
-				+"&subDepartment="+$("#selectedSubDepartment").val();
+				+ $("#currentusergroupType").val()
+				+ "&subDepartment="+$("#selectedSubDepartment").val()
+				+ "&status="+$("#selectedStatus").val());
 		
 		//make grid visible again with refreshed data
 		//if gridDiv is hidden make it visible
@@ -179,7 +181,8 @@
 						+ $("#srole").val() + "&usergroup="
 						+ $("#currentusergroup").val() + "&usergroupType="
 						+ $("#currentusergroupType").val() +"&subDepartment="
-						+ $("#selectedSubDepartment").val());
+						+ $("#selectedSubDepartment").val() + "&status="
+						+ $("#selectedStatus").val());
 		var oldURL = $("#grid").getGridParam("url");
 		var baseURL = oldURL.split("?")[0];
 		newURL = baseURL + "?" + $("#gridURLParams").val();
@@ -250,13 +253,15 @@
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		+ "&sessionYear=" + $("#selectedSessionYear").val()
 		+ "&sessionType=" + $("#selectedSessionType").val()
-		+ "&cutMotionType=" + $("#selectedCutMotionType").val();
+		+ "&cutMotionType=" + $("#selectedCutMotionType").val()
+		+ "&subDepartment=" + $("#selectedSubDepartment").val();
 
 		var resourceURL = 'cutmotion/assignnumberafterapproval?' + parameters;
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		$.get(resourceURL, function(date){
+		$.get(resourceURL, function(data){
 			
-			if(data=='success'){
+			if(data=='failure'){
+				$.prompt("<p style='color: red;'>Error Occured</p>");
 			}
 			$.unblockUI();
 		}).fail(function(){
@@ -456,6 +461,7 @@
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
 		<input type="hidden" id="chartAnsweringDate" name="chartAnsweringDate" value="-"> 
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>" />
+		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
 	</div>
 </body>
 </html>

@@ -112,7 +112,7 @@
 			</a> |
 			<a href="#" id="refreshList" class="butSim">
 				<spring:message code="generic.refresh" text="Refresh"/>
-			</a> |					
+			</a> |		
 			<p>&nbsp;</p>
 		</div>
 	</div>
