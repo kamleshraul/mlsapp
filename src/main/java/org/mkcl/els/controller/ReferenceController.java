@@ -3195,10 +3195,11 @@ public class ReferenceController extends BaseController {
 							if(p.getPrimaryMember()!=null){
 								masterVo.setValue(p.getPrimaryMember().getFullname());
 							}
+							masterVo.setValue(proceeding.getSlot().getName());
+							masterVo.setName(strContent);
+							masterVOs.add(masterVo);
 						}
-						masterVo.setValue(proceeding.getSlot().getName());
-						masterVo.setName(strContent);
-						masterVOs.add(masterVo);
+						
 					}
 				}
 			}
