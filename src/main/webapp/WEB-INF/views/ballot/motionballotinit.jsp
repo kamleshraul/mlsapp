@@ -11,6 +11,11 @@
 			$('#memberballot').click(function(){
 				memberballot();
 			});				
+			
+			
+			$("#assignNumber").click(function(){
+				assignNumberToBallotedMember();
+			});
 			/**** attendance changes then disable submit otherwise whole configuration gets submitted
 			as changed value which is wrong ****/
 			$("#selectedAttendance").change(function(){
@@ -66,7 +71,17 @@
 				}
 				scrollTop();
 			});
-		}		
+		}	
+		
+		function assignNumberToBallotedMember(){
+			var parameters = "session="+$("#session").val()
+			 +"&deviceType="+$("#deviceType").val()
+			 +"&attendance="+$("#selectedAttendance").val();
+			var resourceURL = 'motion/assignnumber?'+ parameters;
+			$.get(resourceURL, function(data){
+				$.prompt(data);
+			},'html');
+		}
 	</script>
 </head>
 
@@ -90,6 +105,9 @@
 			<a href="#" id="memberballot" class="butSim">
 				<spring:message code="memberballot.memberballot" text="Ballot"/>
 			</a> |			
+			<a href="#" id="assignNumber" class="butSim">
+				<spring:message code="memberballot.assignNumber" text="Assign Number"/>
+			</a> |
 			<hr>				
 </div>
 
