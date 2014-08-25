@@ -31,6 +31,7 @@
 				 +"&subDepartment="+$("#selectedSubDepartment").val()
 				 +"&answeringDate="+$("#answeringDate").val()
 				 +"&status="+$("#selectedStatus").val()
+				 +"&group="+$("#selectedGroup").val()
 				 +"&locale="+$("#moduleLocale").val()
 				 +"&report="+"QIS_DEPARTMENTWISE_QUESTIONS_"+$("#selectedHouseType").val().toUpperCase()
 				 +"&reportxsl="+"departmentwisequestions"
@@ -49,6 +50,7 @@
 				 +"&answeringDate="+$("#answeringDate").val()
 				 +"&status="+$("#selectedStatus").val()
 				 +"&locale="+$("#moduleLocale").val()
+				 +"&group="+$("#selectedGroup").val()
 				 +"&report="+"QIS_DEPARTMENTWISE_QUESTIONS_"+$("#selectedHouseType").val().toUpperCase()
 				 +"&reportxsl="+"departmentwisequestions"
 				 +"&reportout="+"departmentwisequestions"
@@ -56,6 +58,10 @@
 				var resourceURL = 'question/report/departmentwisequestions/export?'+ parameters;
 				$(this).attr('href', resourceURL);
 			});
+			
+			if($("#selectedSubDepartment").val()=='0'){
+				$("#deptName").hide();
+			}
 		});
 	</script>
 	<style type="text/css" media="print">
@@ -137,8 +143,8 @@
 		<div style="margin-top: 10px;font-size: 18px;font-weight: bold;text-decoration: underline;">
 			${report[0][12]} - ${report[0][14]}
 		</div>
-		<div style="margin-top: 15px;font-size: 18px;font-weight: bold;">
-			<label style="text-decoration: underline;">${localisedContent[4]} -</label> &nbsp;&nbsp;&nbsp;${report[0][5]}
+		<div style="margin-top: 15px;font-size: 18px;font-weight: bold;" id="deptName">
+			<label style="text-decoration: underline;">${localisedContent[4]} -</label>&nbsp;&nbsp;&nbsp;${report[0][5]}
 		</div>
 		<c:if test="${selectedHouseType=='lowerhouse' and report[0][11]=='questions_starred' and report[0][13]=='question_final_admission' and not empty selectedAnsweringDate}">
 			<div style="text-align: center;margin-top: 15px;font-size: 18px;font-weight: bold;">
