@@ -507,64 +507,79 @@ public class CutMotion extends Device implements Serializable {
 	
 	public static List<CutMotion> findFinalizedCutMotions(final Session session,
 			final DeviceType deviceType, 
+			final SubDepartment subDepartment,
 			final Status status,
 			final String sortOrder,
 			final String locale) {
-		return getCutMotionRepository().findFinalizedCutMotions(session, deviceType, status, sortOrder, locale);
+		return getCutMotionRepository().findFinalizedCutMotionsByDepartment(session, deviceType, subDepartment, status, sortOrder, locale);
 	}
 	
-	public static void assignCutMotionNumber(final Session session,
+	public static Boolean assignCutMotionNumberByDepartment(final Session session,
 			final DeviceType deviceType,
+			final SubDepartment subDepartment,
 			final String locale) {
 		
 		/**** Assign number to admitted cutmotions ****/
+		boolean admittedMotionUpdated = false;
 		Status admitted = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION, locale);
 		int currentAdmissionCount = 0;
-		Integer intCurrentAdmissionCount = CutMotion.findHighestNumberByStatus(session, deviceType, admitted, locale);
+		Integer intCurrentAdmissionCount = CutMotion.findHighestNumberByStatusDepartment(session, deviceType, subDepartment, admitted, locale);
 		if(intCurrentAdmissionCount != null){
 			currentAdmissionCount = intCurrentAdmissionCount.intValue();
 		}
 		
-		List<CutMotion> admittedCutMotions = CutMotion.findFinalizedCutMotions(session, deviceType, admitted, ApplicationConstants.ASC, locale.toString());
-		int admissionCounter = 1;
+		List<CutMotion> admittedCutMotions = CutMotion.findFinalizedCutMotions(session, deviceType, subDepartment, admitted, ApplicationConstants.ASC, locale);
+		int admissionCounter = 0;
 		for(CutMotion cm : admittedCutMotions){
 			if(cm.getInternalNumber() == null){
+				++admissionCounter;
 				cm.setInternalNumber(currentAdmissionCount + admissionCounter);
 				cm.simpleMerge();
-				admissionCounter++;
+				admittedMotionUpdated = true;
 			}
 		}
 		
 		/**** Assign number to rejected cutmotions ****/
-		int currentRejectionCount = currentAdmissionCount + admissionCounter;
+		boolean rejectedMotionUpdated = false;
+		int currentRejectionCount = 0;
 		String reassign = null;
 		Status rejected = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_REJECTION, locale);
 		CustomParameter csptReassignRejectionNumbers = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CUTMOTION_REASSIGN_REJECTION_NUMBER, "");
 		if(csptReassignRejectionNumbers != null && csptReassignRejectionNumbers.getValue() != null && !csptReassignRejectionNumbers.getValue().isEmpty()){
 			reassign = csptReassignRejectionNumbers.getValue();
 		}
-		List<CutMotion> rejectedCutMotions = CutMotion.findFinalizedCutMotions(session, deviceType, rejected, ApplicationConstants.ASC, locale.toString());
-		int rejectionCounter = 1;
-		for(CutMotion cm : rejectedCutMotions){
-			if(reassign != null && !reassign.isEmpty() && reassign.equals("yes")){
-				cm.setInternalNumber(currentRejectionCount + rejectionCounter);
-				rejectionCounter++;
-			}else{
-				if(cm.getInternalNumber() == null){
-					cm.setInternalNumber(currentRejectionCount + rejectionCounter);
-					rejectionCounter++;
-				}
+		List<CutMotion> rejectedCutMotions = CutMotion.findFinalizedCutMotions(session, deviceType, subDepartment, rejected, ApplicationConstants.ASC, locale);
+		Integer intCurrentRejectionCount = null;
+		if(reassign != null && !reassign.isEmpty() && reassign.equals("yes")){
+			currentRejectionCount = currentAdmissionCount + admissionCounter;
+		}else{
+			intCurrentRejectionCount = CutMotion.findHighestNumberByStatusDepartment(session, deviceType, subDepartment, rejected, locale);
+			if(intCurrentRejectionCount != null){
+				currentRejectionCount = intCurrentRejectionCount.intValue();
 			}
-			cm.simpleMerge();
 		}
 		
+		int rejectionCounter = 0;		
+		for(CutMotion cm : rejectedCutMotions){
+			++rejectionCounter;
+			cm.setInternalNumber(currentRejectionCount + rejectionCounter);
+			cm.simpleMerge();
+			rejectedMotionUpdated = true;
+		}
+		
+		if(admittedMotionUpdated && rejectedMotionUpdated){
+			return true;
+		}
+		
+		return false;
 	}
 	
-	private static Integer findHighestNumberByStatus(final Session session,
+	private static Integer findHighestNumberByStatusDepartment(final Session session,
 			final DeviceType deviceType, 
+			final SubDepartment subDepartment,
 			final Status status, final 
 			String locale) {
-		return getCutMotionRepository().findHighestNumberByStatus(session, deviceType, status, locale);
+		return getCutMotionRepository().findHighestNumberByStatusDepartment(session, deviceType, subDepartment, status, locale);
 	}
 
 	/**** Getter Setters ****/

@@ -467,6 +467,14 @@ public class MemberBallot extends BaseDomain implements Serializable {
 			return getMemberBallotRepository().updateClubbing(session,deviceType,requestMap,locale);		
 	}
 	
+	public static List<MemberBallot> findBySessionDeviceType(final Session session,
+			final DeviceType deviceType, 
+			final String locale) {
+		
+		return getMemberBallotRepository().findBySessionDeviceType(session, deviceType, locale);
+		
+	}	
+	
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
@@ -494,5 +502,5 @@ public class MemberBallot extends BaseDomain implements Serializable {
 
 	public Integer getPseudoPosition() {
 		return pseudoPosition;
-	}	
+	}
 }

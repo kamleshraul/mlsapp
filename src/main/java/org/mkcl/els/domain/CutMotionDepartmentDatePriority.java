@@ -43,6 +43,9 @@ public class CutMotionDepartmentDatePriority extends BaseDomain implements Seria
 	/**** submissionEndDate ****/
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date submissionEndDate;
+	
+	
+	private Integer priority;
 
 	public CutMotionDepartmentDatePriority() {
 		super();
@@ -88,5 +91,13 @@ public class CutMotionDepartmentDatePriority extends BaseDomain implements Seria
 
 	public void setSubmissionEndDate(Date submissionEndDate) {
 		this.submissionEndDate = submissionEndDate;
+	}
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
 	}
 }

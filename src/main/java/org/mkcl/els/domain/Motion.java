@@ -250,7 +250,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 		this.submissionDate = submissionDate;
 		this.creationDate = creationDate;
 		this.createdBy = createdBy;
-		this.editedOn = editedOn;
+		this.editedOn = editedOn;          
 		this.editedBy = editedBy;
 		this.editedAs = editedAs;
 		this.subject = subject;
@@ -299,6 +299,10 @@ import org.springframework.beans.factory.annotation.Configurable;
 					Integer number = Motion.assignMotionNo(this.getHouseType(),
 							this.getSession(), this.getType(),this.getLocale());
 					this.setNumber(number + 1);
+					/*Integer persistPostBallotNumber = Motion.findMaxPostBallotNo(this.getHouseType(), this.getSession(), this.getType(), this.getLocale()); 
+					if(persistPostBallotNumber > 0){
+						this.setPostBallotNumber(persistPostBallotNumber + 1);
+					}*/
 					addMotionDraft();
 					return (Motion)super.persist();
 				}
@@ -313,6 +317,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 				session,type,locale);
 	}
 
+	public static Integer findMaxPostBallotNo(final HouseType houseType,
+			final Session session,
+			final DeviceType type,
+			final String locale) {
+		return getMotionRepository().findMaxPostBallotNo(houseType, session, type, locale);
+	}
 	private void addMotionDraft() {
 		if(! this.getStatus().getType().equals(ApplicationConstants.MOTION_INCOMPLETE) &&
 				! this.getStatus().getType().equals(ApplicationConstants.MOTION_COMPLETE)) {
@@ -376,6 +386,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 					Integer number = Motion.assignMotionNo(this.getHouseType(),
 							this.getSession(), this.getType(),this.getLocale());
 					this.setNumber(number + 1);
+					//TODO: may needed for maintaining postBallotNumber in other batch motions  
+					/*Integer mergePostBallotNumber = Motion.findMaxPostBallotNo(this.getHouseType(), this.getSession(), this.getType(), this.getLocale()); 
+					if(mergePostBallotNumber > 0){
+						this.setPostBallotNumber(mergePostBallotNumber + 1);
+					}*/
 					addMotionDraft();
 					motion = (Motion) super.merge();
 				}
@@ -432,6 +447,24 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMotionRepository().findAllByMember(session,
 				primaryMember,motionType,itemsCount,
 				locale);
+	}
+	
+	public static List<Motion> findAllByMemberBatchWise(final Session session,
+			final Member primaryMember,
+			final DeviceType motionType, 
+			final Date startTime,
+			final Date endTime,
+			final String locale) {
+		return getMotionRepository().findAllByMemberBatchWise(session, primaryMember, motionType, startTime, endTime, locale);
+	}
+	
+	public static List<Motion> findAllByBatch(final Session session,
+			final DeviceType motionType, 
+			final Date startTime,
+			final Date endTime,
+			final String locale) {
+		
+		return getMotionRepository().findAllByBatch(session, motionType, startTime, endTime, locale);
 	}
 
 	public String formatNumber() {
@@ -492,6 +525,17 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public static Motion getMotion(Long sessionId, Long deviceTypeId, Integer dNumber,
 			String locale) {
 		return getMotionRepository().getMotion(sessionId,deviceTypeId,dNumber,locale);
+	}
+	/*
+	 * TODO change and confirm then proceed
+	 */
+	public static boolean assignPostBallotNumber(final Session session,
+			final DeviceType deviceType, final String locale) {
+		List<MemberBallot> memberBallots = MemberBallot.findBySessionDeviceType(session, deviceType, locale);
+		for(MemberBallot mb : memberBallots){
+			List<Motion> motions = Motion.findAllByMember(session, mb.getMember(), deviceType, 100, locale);
+		}
+		return false;
 	}
 
 	/**** Getters and Setters ****/
@@ -846,6 +890,5 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public Boolean getFileSent() {
 		return fileSent;
 	}
-
 	
 }
