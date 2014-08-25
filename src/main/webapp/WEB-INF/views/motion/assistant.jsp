@@ -531,8 +531,16 @@
 	
 	<p>
 	<label class="small"><spring:message code="motion.number" text="Motion Nmber"/>*</label>
-	<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
-	<input id="number" name="number" value="${domain.number}" type="hidden">
+	<c:choose>
+		<c:when test="${domain.postBallotNumber != null}">
+			<input id="formattedNumber" name="formattedNumber" value="${formattedPostBallotNumber}" class="sText" readonly="readonly">
+			<input id="number" name="number" value="${domain.number}" type="hidden">
+		</c:when>
+		<c:otherwise>
+			<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">
+			<input id="number" name="number" value="${domain.number}" type="hidden">
+		</c:otherwise>
+	</c:choose>
 	<form:errors path="number" cssClass="validationError"/>		
 	</p>
 		

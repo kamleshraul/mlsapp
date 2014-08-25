@@ -3,6 +3,42 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <c:choose>
+<c:when test="${errorcode eq 'general_error'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="motion.errorcode.general_error" text="Some error occured."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${errorcode eq 'info'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="motion.errorcode.info" text="No action performed."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${errorcode eq 'numberassignment_success'}">
+	<div class="toolTip tpGreen clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-on.png">
+			<spring:message code="motion.errorcode.numberassignment_success" text="Number Assignment Done Successfully."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${errorcode eq 'numberassignment_failure'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="motion.errorcode.numberassignment_failure" text="Can not assign Number."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 <c:when test="${errorcode eq 'workunderprogress'}">
 	<div class="toolTip tpRed clearfix">
 		<p>
