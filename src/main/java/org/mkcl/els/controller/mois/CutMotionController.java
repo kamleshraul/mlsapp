@@ -2111,8 +2111,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 								/**** Update Actor ****/
 								String[] temp = reference.getId().split("#");
 								motion.setActor(reference.getId());
-								motion.setLocalizedActorName(temp[3] + "("
-										+ temp[4] + ")");
+								motion.setLocalizedActorName(temp[3] + "("+ temp[4] + ")");
 								motion.setLevel(temp[2]);
 								/****
 								 * Update Internal Status and Recommendation
