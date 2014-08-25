@@ -397,6 +397,9 @@ public class MotionWorkflowController extends BaseController{
 		if(domain.getNumber()!=null){
 			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
 		}
+		if(domain.getPostBallotNumber() != null){
+			model.addAttribute("formattedPostBallotNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getPostBallotNumber()));
+		}
 		/**** Created By ****/
 		model.addAttribute("createdBy",domain.getCreatedBy());
 		model.addAttribute("dataEnteredBy",domain.getDataEnteredBy());
