@@ -520,7 +520,14 @@
 <div id="assistantDiv">
 <form:form action="workflow/motion" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2>${formattedMotionType}: ${formattedNumber}</h2>
+	<c:choose>
+		<c:when test="${domain.postBallotNumber != null}">
+			<h2>${formattedMotionType}: ${formattedPostBallotNumber}</h2>
+		</c:when>
+		<c:otherwise>
+			<h2>${formattedMotionType}: ${formattedNumber}</h2>
+		</c:otherwise>
+	</c:choose>
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<p style="display:none;">
@@ -553,8 +560,16 @@
 	
 	<p>
 	<label class="small"><spring:message code="motion.number" text="Motion Nmber"/>*</label>
-	<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
-	<input id="number" name="number" value="${domain.number}" type="hidden">
+	<c:choose>
+		<c:when test="${domain.postBallotNumber != null}">
+			<input id="formattedNumber" name="formattedNumber" value="${formattedPostBallotNumber}" class="sText" readonly="readonly">
+			<input id="number" name="number" value="${domain.number}" type="hidden">
+		</c:when>
+		<c:otherwise>
+			<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">
+			<input id="number" name="number" value="${domain.number}" type="hidden">
+		</c:otherwise>
+	</c:choose>
 	<form:errors path="number" cssClass="validationError"/>		
 	</p>
 		
