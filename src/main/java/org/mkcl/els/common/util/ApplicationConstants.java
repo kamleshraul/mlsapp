@@ -938,6 +938,16 @@ public class ApplicationConstants {
 	public static final String MOTION_PUTUP_ONHOLD="motion_putup_onhold";
 
 	public static final String MOTION_PUTUP_REJECTION="motion_putup_rejection";
+	
+	public static final String MOTION_FIRST_BATCH_START_TIME = "motions_calling_attention_firstBatchStartTime";
+		
+	public static final String MOTION_FIRST_BATCH_END_TIME = "motions_calling_attention_firstBatchEndTime";
+	
+	public static final String MOTION_SECOND_BATCH_START_TIME = "motions_calling_attention_secondBatchStartTime";
+	
+	public static final String MOTION_SECOND_BATCH_END_TIME = "motions_calling_attention_secondBatchEndTime";
+	
+	public static final int MOTION_FIRST_BATCH_START_COUNTER = 1;
 
 	/**** Supporting Member ****/
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_MOTION="workflow/motion/supportingmember";
