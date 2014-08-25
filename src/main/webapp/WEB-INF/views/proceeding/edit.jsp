@@ -740,9 +740,7 @@
 		var newContent=content.replace(/<span.*?>/g,"");
 		newContent=newContent.replace("</span>","");
 		var elementId=$('#'+controlId).attr('class').split(' ')[2];
-		console.log("elementId"+elementId);
 		var tempId=elementId.split('-');
-		console.log("temp"+tempId);
 		$("#undoCount").val(parseInt($("#undoCount").val()) + 1);			
 		if($("#undoCount").val()=='1'){
 			$("#redoCount").val('0');
@@ -810,7 +808,6 @@
 				var i;
 				for(i = 0; i < data.length; i++){
 					if(data[i][12]=='include'){
-						console.log(data[i][13]);
 						$(".mainHeading-"+data[i][0]).empty();
 						$(".mainHeading-"+data[i][0]).html(data[i][6]);
 						$(".pageHeading-"+data[i][0]).empty();
@@ -879,14 +876,12 @@
 								$("#undoCount").val(parseInt($("#undoCount").val())-1);
 							}
 							
-							console.log("undo data array length: "+undoDataArray.length);
 							var html="";
 							if(undoDataArray.length>1){
 								html=$(".ppsp").html().replace(";"+undoDataArray[undoDataArray.length-1],"");
 							}else{
 								html=$(".ppsp").html().replace(undoDataArray[undoDataArray.length-1],"");
 							}
-							console.log("undo data now: "+html);
 							$(".ppsp").html(html);
 						}
 					}
