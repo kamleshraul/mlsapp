@@ -88,6 +88,20 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 						model.addAttribute("usergroup", i.getId());
 						userGroupType = i.getUserGroupType().getType();
 						model.addAttribute("usergroupType",userGroupType);
+						
+						CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class, "CUTMOTIONDATE_GRID_STATUS_ALLOWED_"+ userGroupType.toUpperCase(),"");
+						List<Status> status = new ArrayList<Status>();
+						if (allowedStatus != null) {
+							status = Status.findStatusContainedIn(allowedStatus.getValue(),locale);
+						} else {
+							CustomParameter defaultAllowedStatus = CustomParameter.findByName(CustomParameter.class, "CUTMOTIONDATE_GRID_STATUS_ALLOWED_BY_DEFAULT","");
+							if (defaultAllowedStatus != null) {
+								status = Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
+							} else {
+								model.addAttribute("errorcode","cutmotiondate_status_allowed_by_default_not_set");
+							}
+						}
+						model.addAttribute("status", status);
 						break;
 					}
 				}
@@ -505,6 +519,7 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 					departmentDatePriority.setSubDepartment(subDepartment);
 					departmentDatePriority.setDepartment(subDepartment.getDepartment());
 					departmentDatePriority.setDiscussionDate(FormaterUtil.formatStringToDate(strDepartmentDate, ApplicationConstants.SERVER_DATEFORMAT, domain.getLocale()));
+					departmentDatePriority.setPriority(i);
 				}
 	
 				String id = request.getParameter("departmentId" + i);

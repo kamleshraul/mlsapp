@@ -32,6 +32,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
@@ -717,6 +718,9 @@ public class MotionController extends GenericController<Motion>{
 		/**** Number ****/
 		if(domain.getNumber()!=null){
 			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+		}
+		if(domain.getPostBallotNumber() != null){
+			model.addAttribute("formattedPostBallotNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getPostBallotNumber()));
 		}
 		/**** Created By ****/
 		model.addAttribute("createdBy",domain.getCreatedBy());
@@ -2138,4 +2142,102 @@ public class MotionController extends GenericController<Motion>{
 		model.addAttribute("details",motion.getDetails());
 		return "motion/details";
 	}	
+	
+	/**** Assign Number to motion after ballot ****/
+	/**
+	 * @param request
+	 * @param locale
+	 * @return
+	 */
+	@Transactional
+	@RequestMapping(value="/assignpostballotnumber", method=RequestMethod.GET)
+	public @ResponseBody String assignPostBallotNumber(final HttpServletRequest request, final Locale locale){
+		String retVal = "failure";
+		try{
+			String strDeviceType = request.getParameter("deviceType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strHouseType = request.getParameter("houseType");
+			
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+			SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			Integer sessionYear = new Integer(strSessionYear);
+			
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+			
+			Motion.assignPostBallotNumber(session, deviceType, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return retVal;
+	}
+	
+	
+	@Transactional
+	@RequestMapping(value="/assignnumber", method=RequestMethod.GET)
+	public String assignNumber(HttpServletRequest request, ModelMap model, Locale locale){
+		String retVal = "motion/error";
+		model.addAttribute("errorcode", "info");
+		try{
+			String strSession = request.getParameter("session");
+			String strDeviceType = request.getParameter("deviceType");
+			
+			if(strSession != null && !strSession.isEmpty()
+					&& strDeviceType != null && !strDeviceType.isEmpty()){
+				
+				Session session = Session.findById(Session.class, new Long(strSession));
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+				
+				/**** Get member by their position from ballot ****/
+				List<MemberBallot> memBallots = MemberBallot.findBySessionDeviceType(session, deviceType, locale.toString());
+				
+				/****  find first batch and second batch start and end time of submission ****/
+				Date firstBatchStartTime = FormaterUtil.formatStringToDate(session.getParameter(ApplicationConstants.MOTION_FIRST_BATCH_START_TIME), ApplicationConstants.SERVER_DATETIMEFORMAT);
+				Date firstBatchEndTime = FormaterUtil.formatStringToDate(session.getParameter(ApplicationConstants.MOTION_FIRST_BATCH_END_TIME), ApplicationConstants.SERVER_DATETIMEFORMAT);
+				
+				Date secondBatchStartTime = FormaterUtil.formatStringToDate(session.getParameter(ApplicationConstants.MOTION_SECOND_BATCH_START_TIME), ApplicationConstants.SERVER_DATETIMEFORMAT);
+				Date secondBatchEndTime = FormaterUtil.formatStringToDate(session.getParameter(ApplicationConstants.MOTION_SECOND_BATCH_END_TIME), ApplicationConstants.SERVER_DATETIMEFORMAT);
+				/****  find first batch and second batch start and end time of submission ****/
+				
+				/****reset counter to 1 and start assigning the postBallotNumber as per ballot position ****/
+				int counter = ApplicationConstants.MOTION_FIRST_BATCH_START_COUNTER; 
+						//Motion.findMaxPostBallotNo(session.getHouse().getType(), session, deviceType, locale.toString());
+				for (MemberBallot mbal : memBallots) {
+					if (mbal.getMember() != null) {
+						List<Motion> motions = Motion.findAllByMemberBatchWise(session, mbal.getMember(), deviceType, firstBatchStartTime, firstBatchEndTime, locale.toString());
+
+						for (Motion m : motions) {
+							if(m.getPostBallotNumber() == null){
+								counter++;
+								m.setPostBallotNumber(counter);
+								m.simpleMerge();
+							}
+						}
+					}
+				}
+				
+				/**** find all second batch motions and assign the incremental postBallotNumbers to them ****/
+				List<Motion> allMotions = Motion.findAllByBatch(session, deviceType, secondBatchStartTime, secondBatchEndTime, locale.toString());
+				for(Motion m : allMotions){
+					if(m.getPostBallotNumber() == null){
+						counter++;
+						m.setPostBallotNumber(counter);
+						m.simpleMerge();
+					}
+				}
+				
+				/****Show success of failure message****/
+				if(counter >= ApplicationConstants.MOTION_FIRST_BATCH_START_COUNTER){
+					model.addAttribute("errorcode", "numberassignment_success");
+				}else{
+					model.addAttribute("errorcode", "numberassignment_failure");
+				}				
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+			model.addAttribute("errorcode", "general_error");
+		}
+		return retVal;
+	}
 }

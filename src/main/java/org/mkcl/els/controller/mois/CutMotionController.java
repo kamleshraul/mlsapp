@@ -73,6 +73,9 @@ public class CutMotionController extends GenericController<CutMotion>{
 	@Override
 	protected void populateModule(final ModelMap model,final HttpServletRequest request,
 			final String locale,final AuthUser currentUser) {
+		
+		model.addAttribute("moduleLocale", locale.toString());
+		
 		/**** Selected Motion Type ****/
 		DeviceType deviceType=DeviceType.findByFieldName(DeviceType.class, "type",request.getParameter("type"), locale);
 		if(deviceType!=null){
@@ -165,7 +168,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 									Map<String,String> parameters = UserGroup.findParametersByUserGroup(i);
 
 									/**** Sub department Filter Starts ****/
-									CustomParameter subDepartmentFilterAllowedFor = CustomParameter.findByName(CustomParameter.class,"QIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR", "");
+									CustomParameter subDepartmentFilterAllowedFor = CustomParameter.findByName(CustomParameter.class,"CMOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR", "");
 									if(subDepartmentFilterAllowedFor != null && subDepartmentFilterAllowedFor.getValue().contains(userGroupType)){
 										if(parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).equals(" ")){
 											String strSubDepartments = parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale);
@@ -1087,8 +1090,8 @@ public class CutMotionController extends GenericController<CutMotion>{
 						if(domain.getMinistry()==null){
 							result.rejectValue("ministry","MinistryEmpty");
 						}		
-						if(isDateAdmitted(domain, domain.getLocale())){
-							
+						if(!isDateAdmitted(domain, domain.getLocale())){
+							result.rejectValue("version","CutMotion.DateExpired");
 						}
 					}
 			}
@@ -1178,7 +1181,10 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 					if(domain.getMinistry()==null){
 						result.rejectValue("ministry","MinistryEmpty");
-					}						
+					}
+					if(!isDateAdmitted(domain, domain.getLocale())){
+						result.rejectValue("version","CutMotion.DateExpired");
+					}
 				}else /**** Start Workflow By assistant ****/
 					if(operation.equals("startworkflow")){
 						if(domain.getHouseType()==null){
@@ -2253,7 +2259,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 			String strSessionYear = request.getParameter("sessionYear");
 			String strHouseType = request.getParameter("houseType");
 			String strDeviceType = request.getParameter("cutMotionType");
-			//String strSubDepartment = request.getParameter("subDepartment");
+			String strSubDepartment = request.getParameter("subDepartment");
 			
 			Session session = null;
 			DeviceType deviceType = null;
@@ -2264,22 +2270,25 @@ public class CutMotionController extends GenericController<CutMotion>{
 				
 				Integer sessionYear = new Integer(strSessionYear);
 				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
-				HouseType houseType = HouseType.findById(HouseType.class, new Long(strHouseType));
-				if(houseType == null){
-					houseType = HouseType.findByType(strHouseType, locale.toString());
-				}
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+				
 				
 				if(sessionYear != null && sessionType != null && houseType != null){
 					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 				}
 			}
 			
-			if(strDeviceType != null && !strDeviceType.isEmpty()){
+			if(strSubDepartment != null && !strSubDepartment.isEmpty() 
+				&& strDeviceType != null && !strDeviceType.isEmpty()){
 				
-				//SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, new Long(strSubDepartment));
-				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));				
-				CutMotion.assignCutMotionNumber(session, deviceType, locale.toString());
-				retVal = "success";			}
+				SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, new Long(strSubDepartment));
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+				if(subDepartment != null && deviceType != null){
+					if(CutMotion.assignCutMotionNumberByDepartment(session, deviceType, subDepartment, locale.toString())){
+						retVal = "success";
+					}
+				}
+			}
 			
 		}catch(Exception e){
 			logger.error("CutMotionController_assignNumberAfterApproval", e);
