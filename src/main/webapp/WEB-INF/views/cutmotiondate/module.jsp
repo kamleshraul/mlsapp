@@ -51,16 +51,25 @@
 					reloadCutMotionDateGrid();
 				}
 			});	
+			
+			$("#selectedStatus").change(function() {
+				var value = $(this).val();
+				if (value != "") {
+					reloadCutMotionDateGrid();
+				}
+			});
+			
 			/**** listWorkflowConfig method is called by default.****/
 			listCutMotionDate();	
 		});
 
 		/**** displaying grid ****/					
 		function listCutMotionDate() {
-				showTabByIdAndUrl('list_tab','cutmotiondate/list?houseType='+$('#selectedHouseType').val()
-						+'&deviceType='+$("#selectedDeviceType").val()+"&sessionYear="+$("#selectedSessionYear").val()+
-						"&sessionType="+$("#selectedSessionType").val())+"&usergroup="+$("#userGroup").val()+
-						"&usergroupType="+$("#userGroupType").val()+ "&role="+$("#role").val();
+				showTabByIdAndUrl('list_tab','cutmotiondate/list?houseType='+$('#selectedHouseType').val()+
+						'&deviceType='+$("#selectedDeviceType").val()+"&sessionYear="+$("#selectedSessionYear").val()+
+						"&sessionType="+$("#selectedSessionType").val()+"&usergroup="+$("#userGroup").val()+
+						"&usergroupType="+$("#userGroupType").val()+ "&role="+$("#role").val()+
+						"&status="+$("#selectedStatus").val());
 		}
 		/**** new question ****/
 		function newCutMotionDate() {
@@ -148,11 +157,13 @@
 		/**** reload grid ****/
 		function reloadCutMotionDateGrid(){
 				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+
-						"&deviceType="+$("#selectedDeviceType").val()+"&sessionYear="+$("#selectedSessionYear").val()+
-						"&sessionType="+$("#selectedSessionType").val())+
+						"&deviceType="+$("#selectedDeviceType").val()
+						+"&sessionYear="+$("#selectedSessionYear").val()+
+						"&sessionType="+$("#selectedSessionType").val()+
 						"&usergroup="+$("#userGroup").val()+
 						"&usergroupType="+$("#userGroupType").val()+
-						"&role="+$("#role").val();
+						"&role="+$("#role").val()+
+						"&status="+$("#selectedStatus").val());
 				var oldURL=$("#grid").getGridParam("url");
 				var baseURL=oldURL.split("?")[0];
 				newURL=baseURL+"?"+$("#gridURLParams").val();
@@ -169,6 +180,16 @@
 			var option = "<option value='0' selected>" + optionValue + "</option>";
 			$('#selectedDeviceType').prepend(option);
 		}	
+		
+		function showCutmotionDatePatrakReport(){
+			var url = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
+			
+			$.get(url,function(data){
+				if(data){
+					showTabByIdAndUrl('details_tab','motion/report/cutmotion/genreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedDeviceType").val()+"&statusId=" + $("#selectedStatus").val() + "&locale="+$("#moduleLocale").val()+"&report=CUTMOTIONDATE_PATRAK_REPORT&reportout=cutmotiondatepatrak");
+				}
+			});
+		}
 	</script>
 </head>
 <body>
@@ -259,7 +280,16 @@
 				</c:choose>
 			</c:forEach>
 			</select> |								
-			<hr>						
+			<hr>		
+			<a href="#" id="select_status" class="butSim"> <spring:message code="generic.status" text="Status" /></a>
+			<select name="selectedStatus" id="selectedStatus" style="width: 190px; height: 25px;">
+				<c:forEach items="${status}" var="i">
+					<option value="${i.id}">
+						<c:out value="${i.name}"></c:out>
+					</option>
+				</c:forEach>
+			</select> |	
+			<hr>			
 		</div>				
 		
 		<div class="tabContent">
@@ -277,6 +307,7 @@
 		<input type="hidden" id="userGroup" value="${usergroup}" />
 		<input type="hidden" id="userGroupType" value="${usergroupType}" />
 		<input type="hidden" id="role" value="${role}" />
+		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
 		</div> 		
 </body>
 </html>

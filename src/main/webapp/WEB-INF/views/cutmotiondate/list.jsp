@@ -12,7 +12,8 @@
 			"&sessionType="+$("#selectedSessionType").val()+
 			"&usergroup="+$("#userGroup").val()+
 			"&usergroupType="+$("#userGroupType").val()+
-			"&role="+$("#role").val());
+			"&role="+$("#role").val()+
+			"&status="+$("#selectedStatus").val());
 			
 			//initially edit,delete and search links will be visible
 			$('#editDeleteLinks').show();
@@ -42,6 +43,19 @@
 			$("#search").click(function() {
 				searchRecord();
 			});
+			
+			$("#cutmotiondatePatrak").click(function(e){
+				
+				$("#cutmotiondateDiv").toggle();
+				
+			});			
+			
+			$("#cutmotiondatePatrakReport").click(function(){
+				$("#selectionDiv1").hide();
+				showCutmotionDatePatrakReport();
+			});
+			
+			$("#cutmotiondateDiv").hide();
 		});				
 	</script>
 </head>
@@ -69,7 +83,15 @@
 			</span> | 
 			<a href="#" id="list_record" class="butSim">
 				<spring:message code="generic.list" text="List"/>
-			</a>			
+			</a>		
+			<a href="#" id="cutmotiondatePatrak" class="butSim">
+				<spring:message code="generic.cutmotiondateReport" text="Reports"/>
+			</a> |
+			<div style="display: inline;" id="cutmotiondateDiv">
+				<a href="#" id="cutmotiondatePatrakReport" class="butSim">
+					<spring:message code="generic.cutmotiondatePatrak" text="Patrak"/>
+				</a> |
+			</div>	
 			<p>&nbsp;</p>
 		</div>
 	<%@ include file="/common/gridview.jsp" %>
