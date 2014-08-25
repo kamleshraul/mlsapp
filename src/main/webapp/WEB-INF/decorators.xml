@@ -299,6 +299,11 @@
 		<pattern>/cutmotion/bulksubmission/assistant/update</pattern>
 		<pattern>/workflow/cutmotion</pattern>
 		
+		<pattern>/cutmotiondate/new</pattern>
+		<pattern>/cutmotiondate/*/edit</pattern>
+		<pattern>/cutmotiondate/*/delete</pattern>
+		<pattern>/cutmotiondate</pattern>	
+		
 		<pattern>/bill/new</pattern>
 		<pattern>/bill/*/edit</pattern>
 		<pattern>/bill/*/delete</pattern>
