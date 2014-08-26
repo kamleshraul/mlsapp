@@ -92,12 +92,17 @@
 			       		<fo:block font-size="11px" font-weight="bold" text-decoration="underline">
 			       			<xsl:value-of select="element_1[1]/element_1_13"/> - <xsl:value-of select="element_1[1]/element_1_15"/>
 			       		</fo:block>
-			       		<fo:block font-size="6px">&#160;</fo:block>
-			       		<fo:block font-size="11px" font-weight="bold">
-			       			<fo:inline text-decoration="underline"><xsl:value-of select="element_2[5]"/> -</fo:inline>
-			       			&#160;
-			       			<xsl:value-of select="element_1[1]/element_1_6"/>
-			       		</fo:block>
+			       		<xsl:variable name="isSubDepartmentSelected">
+			       			<xsl:value-of select="element_1[1]/element_1_21"/>
+			       		</xsl:variable>
+			       		<xsl:if test="$isSubDepartmentSelected='yes'">
+				       		<fo:block font-size="6px">&#160;</fo:block>
+				       		<fo:block font-size="11px" font-weight="bold">
+				       			<fo:inline text-decoration="underline"><xsl:value-of select="element_2[5]"/> -</fo:inline>
+				       			&#160;
+				       			<xsl:value-of select="element_1[1]/element_1_6"/>
+				       		</fo:block>
+			       		</xsl:if>
 			       		<fo:block font-size="4px">&#160;</fo:block>
 			       		<xsl:if test="$houseType='lowerhouse' and $deviceType='questions_starred' and $status='question_final_admission' and $selectedAnsweringDate!=''">
 				       		<fo:block font-size="11px" font-weight="bold" text-align="center">		       			
