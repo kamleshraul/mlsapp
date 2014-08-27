@@ -3185,18 +3185,15 @@ public class ReferenceController extends BaseController {
 					if(slot!=null){
 					Proceeding proceeding=Proceeding.findByFieldName(Proceeding.class, "slot", slot, locale.toString());
 					List<Part> parts=proceeding.getParts();
-					String strContent="";
 					if(!parts.isEmpty()){
 						for(Part p:parts){
 							MasterVO masterVo=new MasterVO();
-							if(p.getProceedingContent()!=null && !p.getProceedingContent().isEmpty()){
-								strContent=strContent+p.getProceedingContent();
-							}
 							if(p.getPrimaryMember()!=null){
 								masterVo.setValue(p.getPrimaryMember().getFullname());
 							}
+							masterVo.setId(p.getId());
 							masterVo.setValue(proceeding.getSlot().getName());
-							masterVo.setName(strContent);
+							masterVo.setName(p.getRevisedContent());
 							masterVOs.add(masterVo);
 						}
 						
