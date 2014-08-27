@@ -159,12 +159,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 	@Override
 	protected void populateEdit(final ModelMap model, final Proceeding domain,
 			final HttpServletRequest request) {
-		
+		HouseType houseType = null;
 		if(domain.getSlot()!=null){
 			Slot slot=domain.getSlot();
 			Roster roster=slot.getRoster();
 			Session session=roster.getSession();
+			houseType = session.getHouse().getType();
 			model.addAttribute("session",session.getId());
+			
 			/**** Previou Slot ****/
 			Slot previousSlot = Slot.findPreviousSlot(slot);
 			
@@ -209,8 +211,6 @@ public class ProceedingController extends GenericController<Proceeding>{
 			}
 		}
 		/****slot****/
-		String strHouseType=this.getCurrentUser().getHouseType();
-		HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, domain.getLocale());
 		model.addAttribute("slot", domain.getSlot().getId());
 		model.addAttribute("slotName",domain.getSlot().getName());
 		
@@ -219,7 +219,33 @@ public class ProceedingController extends GenericController<Proceeding>{
 		model.addAttribute("members",members);
 		
 		/****MemberRoles****/
-		List<MemberRole> roles=MemberRole.findAllByFieldName(MemberRole.class, "houseType", houseType, "name", "asc", domain.getLocale());
+		List<MemberRole> roles= new ArrayList<MemberRole>();
+		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_LOWERHOUSE", "");
+			if(customParameter!=null){
+				String allowedMemberRoles = customParameter.getValue();
+				String strMemberRoles[] = allowedMemberRoles.split(",");
+				for(int i=0; i< strMemberRoles.length;i++){
+					MemberRole memberRole = MemberRole.findByFieldName(MemberRole.class, "type", strMemberRoles[i], domain.getLocale());
+					if(memberRole!=null){
+						roles.add(memberRole);
+					}
+				}
+			}
+		}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE", "");
+			if(customParameter!=null){
+				String allowedMemberRoles = customParameter.getValue();
+				String strMemberRoles[] = allowedMemberRoles.split(",");
+				for(int i=0; i< strMemberRoles.length;i++){
+					MemberRole memberRole = MemberRole.findByFieldName(MemberRole.class, "type", strMemberRoles[i], domain.getLocale());
+					if(memberRole!=null){
+						roles.add(memberRole);
+					}
+				}
+			}
+		}
+		
 		model.addAttribute("roles", roles);
 		
 		/****Designation****/
@@ -594,7 +620,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 									break;
 								}
 							}
-							part.setChairPerson(member.getFullname());
+							if(member!=null){
+								part.setChairPerson(member.getFullname());
+							}
 						} catch (ELSException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -748,7 +776,6 @@ public class ProceedingController extends GenericController<Proceeding>{
 				childVO.setSubstituteMemberDesignation(part.getSubstituteMemberDesignation().getId().toString());
 			}
 			
-			
 			if(part.getSubstituteMemberMinistry()!=null){
 				childVO.setSubstituteMemberMinistry(part.getSubstituteMemberMinistry().getId().toString());
 			}
@@ -760,6 +787,13 @@ public class ProceedingController extends GenericController<Proceeding>{
 			
 			
 			if(part.getIsConstituencyRequired()!=null){
+				if(part.getIsConstituencyRequired()){
+					if(part.getPrimaryMember()!=null){
+						Constituency constituency = part.getPrimaryMember().findConstituency();
+						childVO.setConstituency(constituency.getName());
+					}
+					
+				}
 				childVO.setConstituencyRequired(part.getIsConstituencyRequired());
 			}
 			
@@ -799,7 +833,6 @@ public class ProceedingController extends GenericController<Proceeding>{
 	/****Bookmark Related****/
 	@RequestMapping(value="/part/bookmark",method=RequestMethod.GET)
 	public String getBookmark(final HttpServletRequest request, final Locale locale,final ModelMap model){
-		List<Language> languages=Language.findAll(Language.class, "name", "asc", locale.toString());
 		List<Language> mainlanguages=new ArrayList<Language>();
 		String strLanguage=request.getParameter("language");
 		String strSlot=request.getParameter("currentSlot");
@@ -810,11 +843,20 @@ public class ProceedingController extends GenericController<Proceeding>{
 		if(strLanguage!=null && !strLanguage.equals("")){
 			language=Language.findById(Language.class, Long.parseLong(strLanguage));
 		}
-		for(Language l:languages){
-			if(l.getId()!=language.getId()){
-				mainlanguages.add(l);
+		CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_LANGUAGES_FOR_BOOKMARKING", "");
+		if(customParameter!=null){
+			String strValue = customParameter.getValue();
+			String strLanguages[] = strValue.split(",");
+			for(int i=0;i<strLanguages.length;i++){
+				Language otherLanguage = Language.findByFieldName(Language.class, "type", strLanguages[i], locale.toString());
+				if(otherLanguage!=null){
+					if(otherLanguage.getId()!=language.getId()){
+						mainlanguages.add(otherLanguage);
+					}
+				}
 			}
 		}
+		
 		/****Bookmark size****/
 		if(strPart!=null&&!strPart.isEmpty()){
 			Part part=Part.findById(Part.class, Long.parseLong(strPart));
@@ -822,7 +864,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			model.addAttribute("bookmarkSize",bookmarks.size());
 		}
 		model.addAttribute("count", strCount);
-		model.addAttribute("languages", languages);
+		model.addAttribute("languages", mainlanguages);
 		model.addAttribute("currentSlot", strSlot);		
 		return "proceeding/bookmark";
 	}
