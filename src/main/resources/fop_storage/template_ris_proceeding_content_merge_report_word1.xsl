@@ -166,7 +166,7 @@
 								 				<fo:block>&#160;</fo:block>															 		
 								 			</xsl:when>
 									 	</xsl:choose>
-									 	<fo:inline font-weight="bold">
+									 	<fo:inline font-weight="bold" text-align="justify">
 											<xsl:choose>
 												<xsl:when test="primaryMember!=''">
 													<xsl:choose>
@@ -234,7 +234,7 @@
 												</xsl:otherwise>
 											</xsl:choose>
 										</fo:inline>
-										<fo:inline font-weight="normal">
+										<fo:inline font-weight="normal" text-align="justify">
 											<xsl:apply-templates select="proceedingContent"></xsl:apply-templates>
 										</fo:inline>
 									</fo:block>
@@ -269,7 +269,7 @@
 										 				<fo:block>&#160;</fo:block>															 		
 										 			</xsl:when>
 											 	</xsl:choose>
-											 	<fo:inline font-weight="bold">
+											 	<fo:inline font-weight="bold" text-align="justify">
 													<xsl:choose>
 														<xsl:when test="position() = 1 or (preceding-sibling::childVOs[1]/primaryMember!=./primaryMember)">
 															<xsl:choose>
@@ -337,14 +337,14 @@
 														</xsl:otherwise>
 													</xsl:choose>
 												</fo:inline>
-												<fo:inline font-weight="normal">
+												<fo:inline font-weight="normal" text-align="justify">
 													<xsl:apply-templates select="proceedingContent"></xsl:apply-templates>
 												</fo:inline>
 											</fo:block>
 										</xsl:when>
  										<xsl:otherwise>
     										<fo:block>
-												<fo:inline font-weight="bold">
+												<fo:inline font-weight="bold" text-align="justify">
 													<xsl:if test="position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole">
 														<fo:block text-align="center" font-weight="bold">
 															(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
@@ -418,7 +418,7 @@
 													</xsl:otherwise>
 												</xsl:choose>
 											</fo:inline>
-											<fo:inline font-weight="normal">
+											<fo:inline font-weight="normal" text-align="justify">
 												<xsl:apply-templates select="proceedingContent"></xsl:apply-templates>
 											</fo:inline>
 										</fo:block>
