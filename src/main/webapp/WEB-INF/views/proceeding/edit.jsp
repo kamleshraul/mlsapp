@@ -27,13 +27,20 @@
 		});
 		
 		/***Edit part***/
-		$('.editableContent').mouseup(function(e){
+		$('.editableContent').dblclick(function(e){
 			 controlId=$(this).attr('id');
+			 
 			 showEditor(e);
 			 console.log(controlId);
+			 var text = window.getSelection().toString().trim();
+			 var newContent = $('#'+controlId).html();
+			 
+			 console.log(text);
+			 newContent = newContent.replace(/<span class='highlightedText'.*?>/g,"");
+			 newContent = newContent.replace(text,"<span class='highlightedText' style='background: yellow;'>"+text+"</span>");
 			$('#prevContent').val($('#'+controlId).html());
 			$('#textDemo').children('div.wysiwyg').css('width','600px');
-			$('#ttA').wysiwyg('setContent',$('#'+controlId).html());
+			$('#ttA').wysiwyg('setContent',newContent);
 			
 		});
 		
@@ -209,7 +216,7 @@
 		var text="";
 		/** if the part is not inserted in between two parts then only individual part will be saved
 		*** else Entire Proceeding will be updated **/
-		
+		console.log("totalPartCount="+totalPartCount);
 		if(currentCount==totalPartCount-1){
 			 text="<form action='proceeding/part/save' id='partForm"+partCount+"'>"+
 				partText+
@@ -221,7 +228,7 @@
 		
 		/** if the user entering first part it should be appended to the add delete buttons
 		*** else append the part to the previous part **/
-		if(totalPartCount==1){
+		if(currentCount==0){
 			$('#addDeleteButtons'+currentCount).after(text);
 		  	$('#partOrder'+partCount).val(currentCount+1);
 		  	loadWysiwyg(contentNo);
@@ -247,6 +254,11 @@
 	  		if($('#previousPartDeviceId').val()!=null || $('#previousPartDeviceId').val()!=''){
 	  			$('#deviceId'+partCount).val($('#previousPartDeviceId').val());
 	  		}
+	  		
+	  		 /** When the User insert a part in between two parts, the orderNo needs to be updated of the parts below the current inserted part**/
+		    for(var i = currentCount+1;i<partCount;i++){
+	      		$('#partOrder'+i).val(i+1);
+	      	}
 	    }else{
 	    	$('#part'+currentCount).after(text);
 	    	$('#partOrder'+partCount).val(currentCount+1);
@@ -384,18 +396,27 @@
 									"<br>"+
 									"</div>";
 								if(data.primaryMemberName!=null && data.primaryMemberName!=''){
-									savetext= savetext + "<div class='member"+partCount+"' style='display: inline-block;'>"+
+									if(data.constituency!=null && data.constituency!=''){
+										savetext= savetext + "<div class='member"+partCount+"' style='display: inline-block;'>"+
 										data.primaryMemberName+ 
-									":"+
-									"</div>";
+										"("+ data.constituency +")"+
+										":"+
+										"</div>";
+									}else{
+										savetext= savetext + "<div class='member"+partCount+"' style='display: inline-block;'>"+
+										data.primaryMemberName+ 
+										":"+
+										"</div>";
+									}
+									
 								}else if(data.publicRepresentative != null && data.publicRepresentative !=''){
 									savetext= savetext + "<div class='member"+partCount+"' style='display: inline-block;'>"+
 									data.publicRepresentative+ 
 								":"+
 								"</div>";
 								}					  			
-								savetext=savetext +	"<div class='proceedingContent"+partCount+" editableContent' style='display:inline-block;' id='proceedingContent"+partCount+"'>"+
-									"<div style='min-width:180px;width: 100px; display: inline-block;'>&nbsp;&nbsp;</div>"+	
+								savetext=savetext +	"<div style='min-width:10px;width: 50px; display: inline-block;'>&nbsp;&nbsp;</div>"+
+									"<div class='proceedingContent"+partCount+" editableContent' style='display:inline-block;' id='proceedingContent"+partCount+"'>"+
 										data.proceedingContent+
 									"</div>"+
 									"<div id='addDeleteButtons"+partCount+"'>"+
@@ -452,7 +473,12 @@
 					}).fail(function(){
 					});
 			  }else{
-				  $("form[action='proceeding']").submit();
+				  $.post("proceeding",
+							$("form[action='proceeding']").serialize(),function(data){
+					 	 $('.tabContent').html(data);
+	   					$('html').animate({scrollTop:0}, 'slow');
+	   				 	$('body').animate({scrollTop:0}, 'slow');
+				  });
 			  }
 			});
 		  
@@ -477,12 +503,17 @@
 			});
 		  
 		  /**Edit Content**/
-		  $('.editableContent').mouseup(function(e){
+		  $('.editableContent').dblclick(function(e){
 				controlId=$(this).attr('id');
 				showEditor(e);
+				var text=window.getSelection().toString().trim();
+				var newContent = $('#'+controlId).html();
+				console.log(text);
+				newContent=content.replace(/<span class='highlightedText'.*?>/g,"");
+				newContent = newContent.replace(text,"<span class='highlightedText' style='background: yellow;'>"+text+"</span>");
 				$('#prevContent').val($('#'+controlId).html());
 				$('#textDemo').children('div.wysiwyg').css('width','600px');
-				$('#ttA').wysiwyg('setContent',$('#'+controlId).html());
+				$('#ttA').wysiwyg('setContent',newContent);
 				
 			});
 		 
@@ -1068,6 +1099,7 @@
 			</form> 
 	</div>
 	<form:form action="proceeding" method="PUT" modelAttribute="domain" id="proceedForm">
+		
 	<%@ include file="/common/info.jsp" %>
 	<h2><spring:message code="proceeding.edit.heading" text="Proceeding:ID"/>(${domain.id })		
 	</h2>
@@ -1102,20 +1134,31 @@
 							<c:if test="${outer.primaryMember!=null and outer.primaryMember!=''}"> 
 								<div class="member${count}" style="display: inline-block;">
 									${outer.primaryMember.getFullname()} 
+									<c:if test="${outer.isConstituencyRequired==true }">
+										<c:if test="${outer.primaryMember.findConstituency() !=null }">
+											(${outer.primaryMember.findConstituency().name})
+										</c:if>
+									</c:if>
 									<c:if test="${outer.primaryMemberMinistry!=null}">
 										(${outer.primaryMemberMinistry.name})
+										<c:if test="${outer.primaryMemberSubDepartment!=null}">
+											(${outer.primaryMemberSubDepartment.name})
+										</c:if>
 									</c:if>
 									<c:if test="${outer.substituteMember!=null }">
 										${outer.substituteMember.getFullname()} 
 									</c:if>
 									<c:if  test="${outer.substituteMemberMinistry!=null }">
 										(${outer.substituteMemberMinistry.name})
+										<c:if test="${outer.substituteMemberSubDepartment!=null}">
+											(${outer.substituteMemberSubDepartment.name})
+										</c:if>
 									</c:if>
 										:
 								</div>
 							</c:if>
+							<div style="min-width:10px;width: 50px; display: inline-block;">&nbsp;&nbsp;</div>
 							<div class='proceedingContent${count} editableContent proceedingContent-${outer.id}' style='display:inline-block;text-align:justify !important;' id='proceedingContent-${count}'>
-									<div style="min-width:180px;width: 100px; display: inline-block;">&nbsp;&nbsp;</div>
 									${outer.revisedContent}
 							</div>
 						</div>
