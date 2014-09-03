@@ -13,6 +13,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
+import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
@@ -20,6 +21,7 @@ import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
@@ -235,6 +237,154 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 	}
 
 
+	/**** Free Text Search Begins ****/
+	@SuppressWarnings("rawtypes")
+	public List<MotionSearchVO> fullTextSearchClubbing(final String param, final Motion motion,
+			final Integer start,final Integer noofRecords,
+			final String locale,final Map<String, String[]> requestMap) {
+		DeviceType deviceType = motion.getType();
+		HouseType housetype = motion.getHouseType();
+		StringBuffer deviceTypeQuery = new StringBuffer();
+		String orderByQuery="";
+
+		/**** Condition 1 :must not contain processed question ****/
+		/**** Condition 2 :parent must be null ****/
+		String selectQuery="SELECT q.id as id,q.number as number,"+
+				"  q.subject as subject,q.revised_subject as revisedSubject,"+
+				"  q.details as details,q.revised_details as revisedDetails,"+
+				"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"+
+				"  sety.session_type as sessionType ,'0' as groupnumber,"+
+				"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype," +
+				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, '0' as answeringDate"+
+				"  FROM motions as q "+
+				"  LEFT JOIN housetypes as ht ON(q.housetype_id=ht.id) "+
+				"  LEFT JOIN sessions as s ON(q.session_id=s.id) "+
+				"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "+
+				"  LEFT JOIN status as st ON(q.recommendationstatus_id=st.id) "+
+				"  LEFT JOIN devicetypes as dt ON(q.devicetype_id=dt.id) "+
+				"  LEFT JOIN members as m ON(q.member_id=m.id) "+
+				"  LEFT JOIN titles as t ON(m.title_id=t.id) "+
+				"  LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
+				"  LEFT JOIN departments as d ON(q.department_id=d.id) "+
+				"  LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
+				"  WHERE q.id<>"+motion.getId()+" AND q.parent is NULL " +
+				"  AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED+"')" +
+				"  AND s.id=" + motion.getSession().getId();
+
+		
+		String filter = addFilterMotion(requestMap);
+
+		/**** full text query ****/
+		String searchQuery = null;
+		if(!param.contains("+")&&!param.contains("-")){
+			searchQuery = " AND (( match(q.subject,q.details,q.revised_subject,q.revised_details) "+
+					"against('"+param+"' in natural language mode)"+
+					")||q.subject LIKE '"+param+"%'||q.details LIKE '"+param+"%'||q.revised_details LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%')";
+		}else if(param.contains("+")&&!param.contains("-")){
+			String[] parameters = param.split("\\+");
+			StringBuffer buffer=new StringBuffer();
+			for(String i:parameters){
+				buffer.append("+"+i+" ");
+			}
+			searchQuery=" AND match(q.subject,q.details,q.revised_subject,q.revised_details) "+
+					"against('"+buffer.toString()+"' in boolean  mode)";
+		}else if(!param.contains("+")&&param.contains("-")){
+			String[] parameters = param.split("-");
+			StringBuffer buffer = new StringBuffer();
+			for(String i:parameters){
+				buffer.append(i+" "+"-");
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+			searchQuery=" AND match(q.subject,q.details,q.revised_subject,q.revised_details) "+
+					"against('"+buffer.toString()+"' in boolean  mode)";
+		}else if(param.contains("+")||param.contains("-")){
+			searchQuery=" AND match(q.subject,q.details,q.revised_subject,q.revised_details) "+
+					"against('"+param+"' in boolean  mode)";
+		}		
+		/**** Final Query ****/
+		String query=selectQuery+deviceTypeQuery.toString()+filter+searchQuery+orderByQuery;
+		String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.details, "+
+				" rs.revisedDetails,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.answeringDate FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
+
+		List results = this.em().createNativeQuery(finalQuery).getResultList();
+		List<MotionSearchVO> motionSearchVOs = new ArrayList<MotionSearchVO>();
+		if(results!=null){
+			for(Object i:results){
+				Object[] o=(Object[]) i;
+				MotionSearchVO motionSearchVO = new MotionSearchVO();
+				if(o[0]!=null){
+					motionSearchVO.setId(Long.parseLong(o[0].toString()));
+				}
+				if(o[1]!=null){
+					motionSearchVO.setNumber(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[1].toString())));
+				}
+				if(o[3]!=null){
+					if(!o[3].toString().isEmpty()){
+						motionSearchVO.setTitle(higlightText(o[3].toString(),param));
+					}else{
+						if(o[2]!=null){
+							motionSearchVO.setTitle(higlightText(o[2].toString(),param));
+						}
+					}
+				}else{
+					if(o[2]!=null){
+						motionSearchVO.setTitle(higlightText(o[2].toString(),param));
+					}
+				}				
+				if(o[5]!=null){
+					if(!o[5].toString().isEmpty()){
+						motionSearchVO.setNoticeContent(higlightText(o[5].toString(),param));
+					}else{
+						if(o[4]!=null){
+							motionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+						}
+					}
+				}else{
+					if(o[4]!=null){
+						motionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+					}
+				}
+				if(o[6]!=null){
+					motionSearchVO.setStatus(o[6].toString());
+				}
+				if(o[7]!=null){
+					motionSearchVO.setDeviceType(o[7].toString());
+				}
+				if(o[8]!=null){
+					motionSearchVO.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[8].toString())));
+				}
+				if(o[9]!=null){
+					motionSearchVO.setSessionType(o[9].toString());
+				}
+				if(o[10]!=null){
+					motionSearchVO.setFormattedGroup(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[10].toString())));
+					motionSearchVO.setGroup(o[10].toString());
+				}
+				if(o[11]!=null){
+					motionSearchVO.setMinistry(o[11].toString());
+				}
+				if(o[12]!=null){
+					motionSearchVO.setDepartment(o[12].toString());
+				}
+				if(o[13]!=null){
+					motionSearchVO.setSubDepartment(o[13].toString());
+				}
+				if(o[14]!=null){
+					motionSearchVO.setStatusType(o[14].toString());
+				}
+				if(o[15]!=null){
+					motionSearchVO.setFormattedPrimaryMember(o[15].toString());
+				}
+				if(o[16]!=null){
+					motionSearchVO.setChartAnsweringDate(o[16].toString());
+				}
+				addClasification(motionSearchVO, motion);
+				motionSearchVOs.add(motionSearchVO);
+			}
+		}
+		return motionSearchVOs;
+	}
+	
 	private void addClasification(QuestionSearchVO questionSearchVO,Question question) {
 		if(questionSearchVO.getStatusType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)){
 			/**** Candidate For Referencing ****/
@@ -267,6 +417,34 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			}
 		}
 	}	
+	
+	private void addClasification(MotionSearchVO motionSearchVO,Motion motion) {
+		if(motionSearchVO.getStatusType().equals(ApplicationConstants.MOTION_FINAL_REJECTION)){
+			/**** Candidate For Referencing ****/
+			motionSearchVO.setClassification("Referencing");
+		}else if(motion.getMinistry()!=null){
+			if(!motion.getMinistry().getName().equals(motionSearchVO.getMinistry())){
+				/**** Candidate For Ministry Change ****/
+				motionSearchVO.setClassification("Ministry Change");
+			}else{					
+				if(motion.getSubDepartment()!=null){
+					if(!motion.getSubDepartment().getName().equals(motionSearchVO.getSubDepartment())){
+						/**** Candidate For Sub Department Change ****/
+						motionSearchVO.setClassification("Sub Department Change");	
+					}else if(motion.getSubDepartment().getName().isEmpty() && motionSearchVO.getSubDepartment().isEmpty()){
+						/**** Candidate For Clubbing ****/
+						motionSearchVO.setClassification("Clubbing");
+					}else if(motion.getSubDepartment().getName().equals(motionSearchVO.getSubDepartment())){
+						/**** Candidate For Clubbing ****/
+						motionSearchVO.setClassification("Clubbing");
+					}
+				}else if(motion.getSubDepartment()==null && motionSearchVO.getSubDepartment()==null){
+					/**** Candidate For Clubbing ****/
+					motionSearchVO.setClassification("Clubbing");
+				}					
+			}
+		}
+	}
 
 	private String addFilter(Map<String, String[]> requestMap) {
 		StringBuffer buffer=new StringBuffer();
@@ -335,6 +513,80 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"')");
 				}else if(status.equals(ApplicationConstants.APPROVED_FILTER)){
 					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_FINAL_ADMISSION+"')");
+					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
+				} 
+			}
+		}			
+		return buffer.toString();
+	}
+	
+	private String addFilterMotion(Map<String, String[]> requestMap) {
+		StringBuffer buffer=new StringBuffer();
+		if(requestMap.get("deviceType")!=null){
+			String deviceType=requestMap.get("deviceType")[0];
+			if((!deviceType.isEmpty())&&(!deviceType.equals("-"))){
+				buffer.append(" AND dt.id="+deviceType);
+			}
+		}
+		if(requestMap.get("houseType")!=null){
+			String houseType=requestMap.get("houseType")[0];
+			if((!houseType.isEmpty())&&(!houseType.equals("-"))){
+				buffer.append(" AND ht.type='"+houseType+"'");
+			}
+		}
+		if(requestMap.get("sessionYear")!=null){
+			String sessionYear=requestMap.get("sessionYear")[0];
+			if((!sessionYear.isEmpty())&&(!sessionYear.equals("-"))){
+				buffer.append(" AND s.session_year="+sessionYear);
+			}
+		}
+		if(requestMap.get("sessionType")!=null){
+			String sessionType=requestMap.get("sessionType")[0];
+			if((!sessionType.isEmpty())&&(!sessionType.equals("-"))){
+				buffer.append(" AND sety.id="+sessionType);
+			}
+		}
+		if(requestMap.get("group")!=null){
+			String group=requestMap.get("group")[0];
+			if((!group.isEmpty())&&(!group.equals("-"))){
+				buffer.append(" AND g.id="+group);
+			}
+		}
+		if(requestMap.get("answeringDate")!=null){
+			String answeringDate=requestMap.get("answeringDate")[0];
+			if((!answeringDate.isEmpty())&&(!answeringDate.equals("-"))){
+				buffer.append(" AND qd.id="+answeringDate);
+			}
+		}	
+		if(requestMap.get("ministry")!=null){
+			String ministry=requestMap.get("ministry")[0];
+			if((!ministry.isEmpty())&&(!ministry.equals("-"))){
+				buffer.append(" AND mi.id="+ministry);
+			}
+		}
+		if(requestMap.get("department")!=null){
+			String department=requestMap.get("department")[0];
+			if((!department.isEmpty())&&(!department.equals("-"))){
+				buffer.append(" AND d.id="+department);
+			}
+		}
+		if(requestMap.get("subDepartment")!=null){
+			String subDepartment=requestMap.get("subDepartment")[0];
+			if((!subDepartment.isEmpty())&&(!subDepartment.equals("-"))){
+				buffer.append(" AND sd.id="+subDepartment);
+			}
+		}	
+		if(requestMap.get("status")!=null){
+			String status=requestMap.get("status")[0];
+			if((!status.isEmpty())&&(!status.equals("-"))){
+				if(status.equals(ApplicationConstants.UNPROCESSED_FILTER)){
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED+"')");
+					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP+"')");
+				}else if(status.equals(ApplicationConstants.PENDING_FILTER)){
+					buffer.append(" AND st.priority>(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP+"')");
+					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_FINAL_ADMISSION+"')");
+				}else if(status.equals(ApplicationConstants.APPROVED_FILTER)){
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_FINAL_ADMISSION+"')");
 					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
 				} 
 			}
@@ -414,7 +666,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			return clubbingStatus;
 		}
 		return clubbingStatus;
-	}	
+	}
 
 	@SuppressWarnings("unchecked")
 	private String alreadyClubbed(final Question beingProcessedQuestion,
@@ -1986,5 +2238,528 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			return (ClubbedEntity) result.get(0);
 		}
 		return null;
+	}
+	
+	/**** Motion Clubbing Begins ****/
+	public String clubMotion(final Long motionBeingProcessed,
+			final Long motionBeingClubbed,final String locale) {
+		String clubbingStatus=null;
+		try{
+			Motion beingProcessedMotion = Motion.findById(Motion.class, motionBeingProcessed);
+			Motion beingClubbedMotion = Motion.findById(Motion.class, motionBeingClubbed);
+			if(beingProcessedMotion != null && beingClubbedMotion != null){				
+				String alreadyClubbedStatus = alreadyClubbedMotion(beingProcessedMotion, beingClubbedMotion, locale);
+				if(alreadyClubbedStatus.equals("NO")){
+					clubbingStatus = clubbingRules(beingProcessedMotion, beingClubbedMotion, locale);
+				}else{
+					clubbingStatus = alreadyClubbedStatus;
+				}
+			}else{
+				if(beingClubbedMotion == null){
+					clubbingStatus = "BEINGSEARCHED_DOESNOT_EXIST";
+				}else if(beingProcessedMotion == null){
+					clubbingStatus="BEINGPROCESSED_DOESNOT_EXIST";
+				}			
+			}
+		}catch(Exception ex){
+			logger.error("CLUBBING_FAILED",ex);
+			clubbingStatus="CLUBBING_FAILED";
+			return clubbingStatus;
+		}
+		return clubbingStatus;
+	}	
+	
+	@SuppressWarnings("unchecked")
+	private String alreadyClubbedMotion(final Motion beingProcessedMotion,
+			final Motion beingClubbedMotion,final String locale) {
+		/**** If any of the two motions have entries in clubbed entities then it means they are already clubbed
+		 * and hence clubbing cannot proceed ****/
+		String strQuery="SELECT ce FROM Motion q JOIN q.clubbedEntities ce " +
+				"WHERE ce.motion.id=:clubbedMotionId " +
+				" OR ce.motion.id=:processedMotionId";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("clubbedMotionId", beingClubbedMotion.getId());
+		query.setParameter("processedMotionId",beingProcessedMotion.getId());
+		List<ClubbedEntity> clubEntities = query.getResultList();
+		if(clubEntities!=null && clubEntities.size()>0){
+			return "BEINGSEARCHED_MOTION_ALREADY_CLUBBED";
+		}else{
+			return "NO";
+		}
+	}
+
+	private String clubbingRules(Motion beingProcessedMotion,
+			Motion beingClubbedMotion, String locale) {			
+		if(beingProcessedMotion.getType() != null
+				&& beingClubbedMotion.getType() != null
+				&& (beingProcessedMotion.getType().getType().equals(beingClubbedMotion.getType().getType())
+				|| (beingProcessedMotion.getType().getType().equals(ApplicationConstants.MOTION_CALLING_ATTENTION)))
+				&& beingProcessedMotion.getMinistry() !=null
+				&& beingClubbedMotion.getMinistry() !=null
+				&& beingProcessedMotion.getMinistry().getName().equals(beingClubbedMotion.getMinistry().getName())
+				&& beingProcessedMotion.getSubDepartment() !=null
+				&& beingClubbedMotion.getSubDepartment() !=null){
+			if(beingProcessedMotion.getSubDepartment().getName().equals(beingClubbedMotion.getSubDepartment().getName())){
+				
+				if(beingProcessedMotion.getNumber().compareTo(beingClubbedMotion.getNumber()) < 0){
+						return beingProcessedIsPrimary(beingProcessedMotion, beingClubbedMotion);
+				}else{
+					return beingClubbedIsPrimary(beingProcessedMotion, beingClubbedMotion);
+				}
+			}else{
+				return "MOTIONS_FROM_DIFFERENT_MINISTRY_DEPARTMENT_SUBDEPARTMENT";
+			}			
+		}
+		return "CLUBBING_FAILED";
+	}
+	
+	private String beingProcessedIsPrimary(Motion beingProcessedMotion, Motion beingClubbedMotion) {
+		String locale = beingClubbedMotion.getLocale();				
+		
+		String beingProcessedMnISType = beingProcessedMotion.getInternalStatus().getType();
+		String beingProcessedMnRSType = beingProcessedMotion.getRecommendationStatus().getType();
+		
+		Status beingClubbedMnIS = beingClubbedMotion.getInternalStatus();		
+		String beingClubbedMnISType = beingClubbedMotion.getInternalStatus().getType();
+		String beingClubbedMnRSType = beingClubbedMotion.getRecommendationStatus().getType();
+		
+		Status unProcessedStatus = Status.findByType(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED, locale);
+		Status TO_BE_PUT_UP = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP, locale);
+		Status approvalStatus = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale);
+
+		// CASE A: beingProcessedQn = "TO_BE_PUT_UP", beingClubbedQn = "TO_BE_PUT_UP"
+		if((beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)
+				&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)) 
+				|| (beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+						&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED))) {
+			Status clubbed = Status.findByType(ApplicationConstants.MOTION_SYSTEM_CLUBBED, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, clubbed, clubbed, locale);
+			return "PROCESSED_CLUBBED_TO_SEARCHED";
+		}
+		// CASE B: beingProcessedQn = "TO_BE_PUT_UP", beingClubbedQn = "IN_WORKFLOW"
+		else if((beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)) 
+				&& (beingClubbedMnIS.getPriority().compareTo(TO_BE_PUT_UP.getPriority()) > 0
+						&& beingClubbedMnIS.getPriority().compareTo(approvalStatus.getPriority()) < 0)) {
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.MOTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, clubbedWithPending, clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE C: beingProcessedQn = "TO_BE_PUT_UP", beingClubbedQn = "FINAL"
+		// CASE C1
+		else if((beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP))
+						&& beingClubbedMnIS.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE C2
+		else if((beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)) 
+				&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}		
+		// Case for CONVERT_TO_UNSTARRED will come here.
+		// CASE D: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "TO_BE_PUT_UP"
+		else if((beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+				|| beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS)) 
+				&& (beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP))) {
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.MOTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, clubbedWithPending,clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE E: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "IN_WORKFLOW"
+		else if((beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+				|| beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS)) 
+				&& (beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+						|| beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS))) {
+			// End beingClubbedMotion's workflow, club it with beingProcessedMotion
+			// and set its status to "TO_BE_CLUBBED_WITH_PENDING"
+			endProcess(beingClubbedMotion);
+			removeExistingWorkflowAttributes(beingClubbedMotion);
+			
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.MOTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, clubbedWithPending, clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE F: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "FINAL"
+		// CASE F1
+		else if((beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK) 
+				|| beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS))
+				&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			// End beingProcessed Qns workflow, club it with beingClubbedQuestion
+			// and set its status to "PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT"
+			endProcess(beingProcessedMotion);
+			removeExistingWorkflowAttributes(beingProcessedMotion);
+			
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE F2
+		else if((beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK) 
+				|| beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS)) 
+				&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			// End beingProcessed Qns workflow, club it with beingClubbedQuestion
+			// and set its status to "PUT_UP_FOR_NAME_CLUBBING"
+			endProcess(beingProcessedMotion);
+			removeExistingWorkflowAttributes(beingProcessedMotion);
+			
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";			
+		}
+		// CASE G: beingProcessedQn = "FINAL", beingClubbedQn = "TO_BE_PUT_UP"
+		// CASE G1
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)
+				&& (beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP))) {
+			
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE G2
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION) 
+				&& (beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP))) {
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE G3
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_REJECTION) 
+				&& (beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP))) {
+			Status putUpForRejection = Status.findByType(ApplicationConstants.MOTION_PUTUP_REJECTION, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, putUpForRejection, putUpForRejection, locale);
+			return "PROCESSED_TO_BE_PUT_UP_FOR_REJECTION";
+		}
+		// CASE H: beingProcessedQn = "FINAL", beingClubbedQn = "IN_WORKFLOW"
+		// CASE H1
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION) 
+				&& (beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+						|| beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS))) {
+			// End beingClubbed Qns workflow, club it with beingProcessedQuestion
+			// and set its status to "PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT"
+			endProcess(beingClubbedMotion);
+			removeExistingWorkflowAttributes(beingClubbedMotion);
+			
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE H2
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION) 
+				&& (beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+						|| beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS))) {
+			// End beingClubbed Qns workflow, club it with beingProcessedQuestion
+			// and set its status to "PUT_UP_FOR_NAME_CLUBBING"
+			endProcess(beingClubbedMotion);
+			removeExistingWorkflowAttributes(beingClubbedMotion);
+			
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE I: beingProcessedQn = "FINAL", beingClubbedQn = "FINAL"
+		// CASE I1
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION) 
+				&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			Status admitted=Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, admitted, admitted, locale);
+			return "PROCESSED_CLUBBED_WITH_SEARCHED_AND_ADMITTED";
+		}
+		return "CLUBBING_FAILED";
+	}
+
+	private String beingClubbedIsPrimary(Motion beingProcessedMotion,
+			Motion beingClubbedMotion) {
+		String locale = beingClubbedMotion.getLocale();				
+		
+		String beingProcessedMnISType = beingProcessedMotion.getInternalStatus().getType();
+		String beingProcessedMnRSType = beingProcessedMotion.getRecommendationStatus().getType();
+		
+		Status beingClubbedMnIS = beingClubbedMotion.getInternalStatus();		
+		String beingClubbedMnISType = beingClubbedMotion.getInternalStatus().getType();
+		String beingClubbedMnRSType = beingClubbedMotion.getRecommendationStatus().getType();
+		
+		Status unProcessedStatus = Status.findByType(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED, locale);
+		Status TO_BE_PUT_UP = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP, locale);
+		Status approvalStatus = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale);
+		
+		// CASE A: beingProcessedMn = "TO_BE_PUT_UP", beingClubbedQn = "TO_BE_PUT_UP"
+		if((beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)
+				&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)) 
+				|| (beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+						&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED))) {
+			Status clubbed = Status.findByType(ApplicationConstants.MOTION_SYSTEM_CLUBBED, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, clubbed, clubbed, locale);
+			return "PROCESSED_CLUBBED_TO_SEARCHED";
+		}
+		// CASE B: beingProcessedMn = "TO_BE_PUT_UP", beingClubbedMn = "IN_WORKFLOW"
+		else if((beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)) 
+				&& (beingClubbedMnIS.getPriority().compareTo(TO_BE_PUT_UP.getPriority()) > 0 
+						&& beingClubbedMnIS.getPriority().compareTo(approvalStatus.getPriority()) < 0)) {
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.MOTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, clubbedWithPending, clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE C: beingProcessedMn = "TO_BE_PUT_UP", beingClubbedMn = "FINAL"
+		// CASE C1
+		else if((beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)) 
+				&& (beingClubbedMnIS.equals(ApplicationConstants.MOTION_FINAL_ADMISSION))) {
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE C2
+		else if((beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED) 
+				|| beingProcessedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)) 
+				&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// Case for CONVERT_TO_UNSTARRED will come here.
+		// CASE D: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "TO_BE_PUT_UP"
+		else if((beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+				|| beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS)) 
+				&& (beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP))) {
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.MOTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, clubbedWithPending, clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE E: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "IN_WORKFLOW"
+		else if((beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+				|| beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS)) 
+				&& (beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+						|| beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS))) {
+			// End beingProcessed Qns workflow, club it with beingClubbedQuestion
+			// and set its status to "TO_BE_CLUBBE_WITH_PENDING"
+			endProcess(beingProcessedMotion);
+			removeExistingWorkflowAttributes(beingProcessedMotion);
+			
+			Status clubbedWithPending = Status.findByType(ApplicationConstants.MOTION_SYSTEM_CLUBBED_WITH_PENDING, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, clubbedWithPending, clubbedWithPending, locale);
+			return "PROCESSED_TO_BE_CLUBBED_WITH_PENDING";
+		}
+		// CASE F: beingProcessedQn = "IN_WORKFLOW", beingClubbedQn = "FINAL"
+		// CASE F1
+		else if((beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK) 
+				|| beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS)) 
+				&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			// End beingProcessed Qns workflow, club it with beingClubbedQuestion
+			// and set its status to "PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT"
+			endProcess(beingProcessedMotion);
+			removeExistingWorkflowAttributes(beingProcessedMotion);
+			
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE F2
+		else if((beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK) 
+				|| beingProcessedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS)) 
+				&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			// End beingProcessed Qns workflow, club it with beingClubbedMotion
+			// and set its status to "PUT_UP_FOR_NAME_CLUBBING"
+			endProcess(beingProcessedMotion);
+			removeExistingWorkflowAttributes(beingProcessedMotion);
+			
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE G: beingProcessedQn = "FINAL", beingClubbedQn = "TO_BE_PUT_UP"
+		// CASE G1
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION) 
+				&& (beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP))) {
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE G2
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION) 
+				&& (beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP))) {
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE G3
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_REJECTION) 
+				&& (beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+						|| beingClubbedMnISType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP))) {
+			Status putUpForRejection = Status.findByType(ApplicationConstants.MOTION_PUTUP_REJECTION, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, putUpForRejection, putUpForRejection, locale);
+			return "PROCESSED_TO_BE_PUT_UP_FOR_REJECTION";
+		}
+		// CASE H: beingProcessedQn = "FINAL", beingClubbedQn = "IN_WORKFLOW"
+		// CASE H1
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION) 
+				&& (beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+						|| beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS))) {
+			// End beingClubbed Qns workflow, club it with beingProcessedMotion
+			// and set its status to "PUTUP_CONVERT_TO_UNSTARRED_AND_ADMIT"
+			endProcess(beingClubbedMotion);
+			removeExistingWorkflowAttributes(beingClubbedMotion);
+			
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE H2
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION) 
+				&& (beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+						|| beingClubbedMnRSType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS))) {
+			// End beingClubbed Qns workflow, club it with beingProcessedMotion
+			// and set its status to "PUT_UP_FOR_NAME_CLUBBING"
+			endProcess(beingClubbedMotion);
+			removeExistingWorkflowAttributes(beingClubbedMotion);			
+							
+			Status toBeClubbed = Status.findByType(ApplicationConstants.MOTION_TO_BE_CLUBBED, locale);
+			actualClubbing(beingProcessedMotion, beingClubbedMotion, toBeClubbed, toBeClubbed, locale);
+			return "PROCESSED_TO_BE_CLUBBED";
+		}
+		// CASE I: beingProcessedMn = "FINAL", beingClubbedMn = "FINAL"
+		// CASE I1
+		else if(beingProcessedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION) 
+				&& beingClubbedMnISType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			Status admitted=Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale);
+			actualClubbing(beingClubbedMotion, beingProcessedMotion, admitted, admitted, locale);
+			return "PROCESSED_CLUBBED_WITH_SEARCHED_AND_ADMITTED";
+		}
+		return "CLUBBING_FAILED";
+	}	
+	
+	private void actualClubbing(Motion parent,Motion child,
+			Status newInternalStatus,Status newRecommendationStatus,String locale){
+		/**** a.Clubbed entities of parent question are obtained 
+		 * b.Clubbed entities of child motion are obtained
+		 * c.Child motion is updated(parent,internal status,recommendation status) 
+		 * d.Child Motion entry is made in Clubbed Entity and child motion clubbed entity is added to parent clubbed entity 
+		 * e.Clubbed entities of child motions are updated(parent,internal status,recommendation status)
+		 * f.Clubbed entities of parent(child motion clubbed entities,other clubbed entities of child question and 
+		 * clubbed entities of parent motion is updated)
+		 * g.Position of all clubbed entities of parent are updated in order of their chart answering date and number ****/
+		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
+			for(ClubbedEntity i:parent.getClubbedEntities()){
+				// parent & child need not be disjoint. They could
+				// be present in each other's hierarchy.
+				Long childQnId = child.getId();
+				Question clubbedQn = i.getQuestion();
+				Long clubbedQnId = clubbedQn.getId();
+				if(! childQnId.equals(clubbedQnId)) {
+					parentClubbedEntities.add(i);
+				}
+			}			
+		}
+
+		List<ClubbedEntity> childClubbedEntities=new ArrayList<ClubbedEntity>();
+		if(child.getClubbedEntities()!=null && !child.getClubbedEntities().isEmpty()){
+			for(ClubbedEntity i:child.getClubbedEntities()){
+				// parent & child need not be disjoint. They could
+				// be present in each other's hierarchy.
+				Long parentQnId = parent.getId();
+				Question clubbedQn = i.getQuestion();
+				Long clubbedQnId = clubbedQn.getId();
+				if(! parentQnId.equals(clubbedQnId)) {
+					childClubbedEntities.add(i);
+				}
+			}
+		}	
+
+		child.setParent(parent);
+		child.setClubbedEntities(null);
+		child.setInternalStatus(newInternalStatus);
+		child.setRecommendationStatus(newRecommendationStatus);
+		if(child.getFile()!=null){
+			child.setFile(null);
+			child.setFileIndex(null);
+			child.setFileSent(false);
+		}
+		child.merge();
+
+		ClubbedEntity clubbedEntity=new ClubbedEntity();
+		clubbedEntity.setDeviceType(child.getType());
+		clubbedEntity.setLocale(child.getLocale());
+		clubbedEntity.setMotion(child);
+		clubbedEntity.persist();
+		parentClubbedEntities.add(clubbedEntity);		
+
+		if(childClubbedEntities!=null&& !childClubbedEntities.isEmpty()){
+			for(ClubbedEntity k:childClubbedEntities){
+				Motion motion=k.getMotion();
+				motion.setParent(parent);
+				
+				Status internalStatus = motion.getInternalStatus();
+				if(internalStatus != null 
+						&& internalStatus.getType().equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)) {
+					motion.setInternalStatus(newInternalStatus);
+					motion.setRecommendationStatus(newRecommendationStatus);
+				}
+				
+				motion.merge();
+				k.setMotion(motion);
+				k.merge();
+				parentClubbedEntities.add(k);
+			}			
+		}
+		parent.setParent(null);
+		parent.setClubbedEntities(parentClubbedEntities);
+		parent.merge();
+
+		List<ClubbedEntity> clubbedEntities = parent.findClubbedEntitiesByMotionNumber(ApplicationConstants.ASC, locale);
+		Integer position=1;
+		for(ClubbedEntity i:clubbedEntities){
+			i.setPosition(position);
+			position++;
+			i.merge();
+		}
+	}
+	
+	private void endProcess(Motion motion) {
+		try {
+			// Complete task & end process
+			WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(motion);				
+			String taskId = wfDetails.getTaskId();
+			Task task = processService.findTaskById(taskId);
+			
+			Map<String, String> properties = new HashMap<String, String>();
+			properties.put("pv_endflag", "end");
+			processService.completeTask(task, properties);
+			
+			// Update WorkflowDetails
+			wfDetails.setStatus("COMPLETED");
+			wfDetails.setCompletionTime(new Date());
+			wfDetails.merge();
+		} 
+		catch (ELSException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void removeExistingWorkflowAttributes(Motion motion) {
+		// Update motion so as to remove existing workflow
+		// based attributes
+		motion.setEndFlag(null);
+		motion.setLevel("0");
+		motion.setTaskReceivedOn(null);
+		motion.setWorkflowDetailsId(null);
+		motion.setWorkflowStarted("NO");
+		motion.setWorkflowStartedOn(null);
+		motion.setActor(null);
+		motion.setLocalizedActorName("");
+		motion.simpleMerge();
 	}
 }

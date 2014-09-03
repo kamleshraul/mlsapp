@@ -10,12 +10,14 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
+import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.ResolutionSearchVO;
 import org.mkcl.els.domain.Act;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
@@ -131,6 +133,11 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 
 	public List<QuestionSearchVO> fullTextSearchReferencing(final String param,
 			final Question question,final int start,final int noOfRecords,final String locale) {
+		return null;
+	}
+	
+	public List<MotionSearchVO> fullTextSearchReferencing(final String param,
+			final Motion motion,final int start,final int noOfRecords,final String locale) {
 		return null;
 	}
 

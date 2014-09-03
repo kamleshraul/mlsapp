@@ -72,4 +72,35 @@ public class DeviceTypeRepository extends BaseRepository<DeviceType, Serializabl
         
 		return deviceTypes;
 	}
+	
+	public List<DeviceType> getAllowedTypesInMotionClubbing(final String locale) throws ELSException {
+		
+		String query="SELECT m FROM DeviceType m" +
+						" WHERE m.locale=:locale" +
+						" AND (m.type LIKE :questions" +
+						" OR m.type LIKE :motions)" +
+						" ORDER BY m.name "+ApplicationConstants.ASC;
+		
+		List<DeviceType> deviceTypes = new ArrayList<DeviceType>();
+		TypedQuery<DeviceType> jpQuery = null;
+		
+		try{
+			
+			jpQuery = this.em().createQuery(query,DeviceType.class); 
+			jpQuery.setParameter("locale", locale);
+			jpQuery.setParameter("questions", ApplicationConstants.DEVICE_QUESTIONS + "%");
+			jpQuery.setParameter("motions", ApplicationConstants.DEVICE_MOTIONS + "%");
+        
+			deviceTypes = jpQuery.getResultList();
+        	
+        }catch(Exception e) {	
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("DepartmentRepository_List<DeviceType>getAllowedTypesInMotionClubbing", "No device type found.");
+			throw elsException;
+		}
+        
+		return deviceTypes;
+	}
 }

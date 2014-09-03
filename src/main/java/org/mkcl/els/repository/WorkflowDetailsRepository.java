@@ -315,6 +315,38 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 		return workflowDetails;
 	}
 	
+	public WorkflowDetails findCurrentWorkflowDetail(final Motion motion) throws ELSException{
+		WorkflowDetails workflowDetails = null;
+		try{
+			/**** To make the HDS to take the workflow with mailer task ****/
+			String currentDeviceTypeWorkflowType = currentDeviceTypeWorkflowType = ApplicationConstants.APPROVAL_WORKFLOW;
+			
+			String strQuery="SELECT m FROM WorkflowDetails m" +
+					" WHERE m.deviceId=:deviceId"+
+					" AND m.workflowType=:workflowType" +
+					" AND m.status='PENDING'" +
+					" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("deviceId", motion.getId().toString());
+			query.setParameter("workflowType",currentDeviceTypeWorkflowType);
+			List<WorkflowDetails> details = (List<WorkflowDetails>)query.getResultList();
+			if(details != null && !details.isEmpty()){
+				workflowDetails = details.get(0);
+			}
+		}catch (NoResultException e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		}catch(Exception e){	
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_motion", "WorkflowDetails Not Found");
+			throw elsException;
+		}		
+		
+		return workflowDetails;
+	}
+	
 	public WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution) throws ELSException {
 		try{
 			String strQuery="SELECT m FROM WorkflowDetails m" +

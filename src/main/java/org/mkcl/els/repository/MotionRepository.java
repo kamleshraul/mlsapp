@@ -31,7 +31,11 @@ import org.springframework.stereotype.Repository;
 public class MotionRepository extends BaseRepository<Motion, Serializable>{
 
 	public List<ClubbedEntity> findClubbedEntitiesByPosition(final Motion motion) {
-		return null;
+		String strQuery = "SELECT ce FROM Motion m JOIN m.clubbedEntities ce" +
+				" WHERE m.id =:motionId ORDER BY ce.position " + ApplicationConstants.ASC;
+		TypedQuery<ClubbedEntity> query=this.em().createQuery(strQuery, ClubbedEntity.class);
+		query.setParameter("motionId", motion.getId());
+		return query.getResultList();
 	}
 
 	public Integer assignMotionNo(final HouseType houseType,final Session session,
@@ -387,5 +391,14 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		query.setParameter("locale", locale);
 		Motion motion=(Motion) query.getSingleResult();
 		return motion;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByMotionNumber(final Motion motion, final String sortOrder, final String locale) {
+		String strQuery = "SELECT m  FROM Motion mo JOIN mo.clubbedEntities m" +
+				" WHERE mo.id=:motionId ORDER BY m.motion.number " + sortOrder;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("motionId", motion.getId());
+		return query.getResultList();
 	}
 }
