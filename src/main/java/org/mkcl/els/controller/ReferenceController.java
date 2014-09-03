@@ -5506,4 +5506,29 @@ public class ReferenceController extends BaseController {
 		}
 		return null;
 	}
+	
+	@RequestMapping(value="/ministry/{houseType}/{sessionYear}/{sessionType}", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getMinistryOfSession(
+			final Locale locale,
+			@PathVariable("houseType")final String houseType,
+			@PathVariable("sessionYear")final Integer sessionYear,
+			@PathVariable("sessionType") final Long sessionType) {
+		List<MasterVO> ministries = new ArrayList<MasterVO>();
+		try {
+			//populating ministry
+			HouseType selectedHouseType = HouseType.findByType(houseType, locale.toString());
+			SessionType selectedSessionType = SessionType.findById(SessionType.class, sessionType);
+			Session selectedSession = Session.findSessionByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, sessionYear);
+			List<Ministry> mins = Ministry.findMinistriesAssignedToGroups(selectedHouseType, sessionYear, selectedSessionType, locale.toString());			
+			
+			for(Ministry i : mins){
+				MasterVO masterVO = new MasterVO(i.getId(),i.getName());
+				ministries.add(masterVO);
+			}
+			
+		} catch (ELSException e) {
+			e.printStackTrace();
+		}
+		return ministries;
+	}
 }
