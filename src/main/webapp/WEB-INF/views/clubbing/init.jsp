@@ -56,7 +56,11 @@
 					$(this).css("color","");					
 				}
 				if(value!='-'&&type!='-'&&houseType!='-'){
-					loadGrp(houseType,value,type);
+					if($("#whichDevice").val().indexOf('questions_')==0){
+						loadGrp(houseType,value,type);
+					}else{
+						loadMinWithoutGroup();
+					}
 				}else{
 					//$.prompt($("#houseTypeYearSessionTypeEmptyMsg").val());
 					$("#groupStarred").empty();
@@ -83,7 +87,11 @@
 					$(this).css("color","");					
 				}
 				if(value!='-'&&year!='-'&&houseType!='-'){
-					loadGrp(houseType,year,value);
+					if($("#whichDevice").val().indexOf('questions_')==0){
+						loadGrp(houseType,year,value);
+					}else{
+						loadMinWithoutGroup();
+					}
 				}else{
 					//$.prompt($("#houseTypeYearSessionTypeEmptyMsg").val());
 					$("#groupStarred").empty();
@@ -227,7 +235,7 @@
 			});			
 			/**** On clicking search button ****/
 			$("#search").click(function(){
-			search("YES");
+				search("YES");
 			});
 			/**** On Page Load ****/
 			$("#clubbingDiv").hide();
@@ -311,7 +319,7 @@
 			scrollTop();
 		});	
 		}
-		/**** Minister ****/
+		/**** Minister by group****/
 		function loadMin(group){
 		var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
 		$("#departmentStarred").empty();
@@ -337,6 +345,39 @@
 			}
 			scrollTop();
 		});	
+		}
+		
+		/**** Minister ****/
+		function loadMinWithoutGroup(){
+			var year = $("#sessionYearStarred").val();
+			var houseType = $("#houseTypeCommon").val();
+			var sessionType = $("#sessionTypeStarred").val();
+			
+			var url = "ref/ministry/"+houseType+"/"+year+"/"+sessionType;
+			var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
+			$("#departmentStarred").empty();
+			$("#departmentStarred").html(text);
+			$("#subDepartmentStarred").empty();
+			$("#subDepartmentStarred").html(text);
+			$.get(url,function(data){
+				if(data.length>0){
+				for(var i=0;i<data.length;i++){
+					text+="<option value='"+data[i].id+"'>"+data[i].name;
+				}
+				$("#ministryStarred").empty();
+				$("#ministryStarred").html(text);						
+				}else{
+				$("#ministryStarred").empty();
+				$("#ministryStarred").html(text);		
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
 		}
 		/**** Department ****/
 		function loadDep(ministry){
@@ -408,10 +449,10 @@
 					postData['sessionType']=$("#sessionTypeStarred").val();
 				}
 				if($("#groupStarred").length>0){
-					postData['group']=$("#groupStarred").val();
+						postData['group']=$("#groupStarred").val();
 				}
 				if($("#answeringDateStarred").length>0){
-					postData['answeringDate']=$("#answeringDateStarred").val();
+						postData['answeringDate']=$("#answeringDateStarred").val();
 				}
 				if($("#ministryStarred").length>0){
 					postData['ministry']=$("#ministryStarred").val();
@@ -435,6 +476,30 @@
 					postData['status']=$("#statusStarred").val();
 				}
 				resourceURL = "clubentity/searchbill";
+			} else if($('#whichDevice').val()=='motions_'){
+				postData={param:$("#searchvalue").val(),motion:$("#deviceId").val(),record:record,start:start};
+				if($("#houseTypeCommon").length>0){
+					postData['houseType']=$("#houseTypeCommon").val();
+				}
+				if($("#sessionYearStarred").length>0){
+					postData['sessionYear']=$("#sessionYearStarred").val();
+				}
+				if($("#sessionTypeStarred").length>0){
+					postData['sessionType']=$("#sessionTypeStarred").val();
+				}				
+				if($("#ministryStarred").length>0){
+					postData['ministry']=$("#ministryStarred").val();
+				}
+				if($("#departmentStarred").length>0){
+					postData['department']=$("#departmentStarred").val();
+				}
+				if($("#subDepartmentStarred").length>0){    
+					postData['subDepartment']=$("#subDepartmentStarred").val();
+				}
+				if($("#statusStarred").length>0){
+					postData['status']=$("#statusStarred").val();
+				}
+				resourceURL = "clubentity/searchmotion";
 			}
 			var toBeSearched=$("#searchvalue").val();			
 			//previousSearchTerm=toBeSearched;
@@ -488,6 +553,8 @@
 									title = data[i].title;
 								} 								
 								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+title+"</td>";
+							}else if($('#whichDevice').val()=='motions_'){
+								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].title+"</td>";
 							}
 							
 							if($('#whichDevice').val()=='questions_') {
@@ -516,7 +583,20 @@
 									content = data[i].content;
 								} 								
 								textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+content+"</td>";
-							}							
+							}if($('#whichDevice').val()=='motions_') {
+								textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].formattedPrimaryMember+" : "+data[i].noticeContent
+								+"<br/>"
+								+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
+								+data[i].ministry;
+								if(data[i].subDepartment==null||data[i].subdepartment==""){
+									textTemp+=","+data[i].status+"<br>";
+								   
+							    }else{						     
+							    	textTemp+=","+data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].status;							     
+							    }
+							} 
+							
+							
 							if($('#whichDevice').val()=='bills_') {
 								textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].sessionYear+","+
 								data[i].sessionType+","+data[i].deviceType+",<br></span>"+data[i].ministry;
@@ -674,7 +754,9 @@
 				deviceTypeParameterName = "questionType";
 			} else if($('#whichDevice'=='bills_')) {
 				deviceTypeParameterName = "deviceType";
-			}			
+			} else if($('#whichDevice'=='motions_')){
+				
+			}	
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var parameters="houseType="+$("#selectedHouseType").val()
 			+"&sessionYear="+$("#selectedSessionYear").val()
@@ -690,7 +772,10 @@
 				resourceURL='question/'+clubId+'/edit?'+parameters;
 			}else if($('#whichDevice').val()=='bills_') {
 				resourceURL='bill/'+clubId+'/edit?'+parameters;
-			}	
+			}else if($('#whichDevice').val()=='motions_') {
+				resourceURL='motion/'+clubId+'/edit?'+parameters;
+				
+			}
 			$.get(resourceURL,function(data){
 				$("#clubbingDiv").hide();
 				$("#viewQuestion").html(data);
@@ -958,45 +1043,120 @@ td>table{
 			<option value="APPROVED"><spring:message code='bill.approved' text='Approved'/></option>
 			</select>			
 			</c:when>		
-			
+			<c:when test="${fn:startsWith(deviceType,'motions_')}">
+				<%-- <a href="#" class="butSim">
+					<spring:message code="advancedsearch.deviceType" text="Device Type"/>*
+				</a>		
+				<select name="deviceTypeStarred" id="deviceTypeStarred" style="width:100px;height: 25px;">			
+					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+					<c:forEach items="${deviceTypes}" var="i">
+						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
+					</c:forEach>
+				</select> 
+				<select id="deviceTypeStarredMaster" style="display:none;">
+					<c:forEach items="${deviceTypes}" var="i">
+						<option value="${i.id}"><c:out value="${i.type}"></c:out></option>			
+					</c:forEach>
+				</select> |	 --%>
+				<a href="#" class="butSim">
+					<spring:message code="advancedsearch.sessionyear" text="Year"/>
+				</a>			
+				<select name="sessionYearStarred" id="sessionYearStarred" style="width:100px;height: 25px;">				
+					<option value="-" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+					<c:forEach var="i" items="${years}">
+						<c:choose>
+							<c:when test="${sessionYear==i.id}">
+								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
+							</c:when>
+							<c:otherwise>
+								<option value="${i.id}" ><c:out value="${i.name}"></c:out></option>			
+							</c:otherwise>
+						</c:choose>
+					</c:forEach> 
+				</select> |			
+				<a href="#" class="butSim">
+					<spring:message code="advancedsearch.sessionType" text="Session Type"/>
+				</a>			
+				<select name="sessionTypeStarred" id="sessionTypeStarred" style="width:100px;height: 25px;">				
+					<option value="-" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+					<c:forEach items="${sessionTypes}" var="i">
+						<c:choose>
+							<c:when test="${sessionType==i.id}">
+								<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>
+							</c:when>
+							<c:otherwise>
+								<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>	
+							</c:otherwise>
+						</c:choose>
+					</c:forEach> 
+				</select> |
+				<a href="#" class="butSim">
+					<spring:message code="advancedsearch.ministry" text="Ministry"/>
+				</a>			
+				<select name="ministryStarred" id="ministryStarred" style="width:100px;height: 25px;">				
+					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+				</select> |
+				<a href="#" class="butSim">
+					<spring:message code="advancedsearch.department" text="Department"/>
+				</a>			
+				<select name="departmentStarred" id="departmentStarred" style="width:100px;height: 25px;">				
+					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+				</select> |	
+				<hr>
+				<a href="#" class="butSim">
+					<spring:message code="advancedsearch.subdepartment" text="Sub Department"/>
+				</a>			
+				<select name="subDepartmentStarred" id="subDepartmentStarred" style="width:100px;height: 25px;">				
+					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+				</select> |			
+				<a href="#" class="butSim">
+					<spring:message code="question.status" text="Status"/>
+				</a>			
+				<select name="statusStarred" id="statusStarred" class="sSelect">			
+					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+					<option value="UNPROCESSED"><spring:message code='question.unprocessed' text='Un Processed'/></option>
+					<option value="PENDING"><spring:message code='question.pending' text='Pending'/></option>
+					<option value="APPROVED"><spring:message code='question.approved' text='Approved'/></option>
+				</select> |
+			</c:when>
 			<c:otherwise>					
-			<a href="#" class="butSim">
-				<spring:message code="question.group" text="Group"/>
-			</a>			
-			<select name="groupStarred" id="groupStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			<c:forEach items="${groups}" var="i">			
-			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-			</c:forEach> 
-			</select> |						
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.ministry" text="Ministry"/>
-			</a>			
-			<select name="ministryStarred" id="ministryStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			</select> |			
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.department" text="Department"/>
-			</a>			
-			<select name="departmentStarred" id="departmentStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			</select> |			
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.subdepartment" text="Sub Department"/>
-			</a>			
-			<select name="subDepartmentStarred" id="subDepartmentStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			</select> |	
-			<hr>		
-			<a href="#" class="butSim">
-				<spring:message code="question.status" text="Status"/>
-			</a>			
-			<select name="statusStarred" id="statusStarred" class="sSelect">			
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			<option value="UNPROCESSED"><spring:message code='question.unprocessed' text='Un Processed'/></option>
-			<option value="PENDING"><spring:message code='question.pending' text='Pending'/></option>
-			<option value="APPROVED"><spring:message code='question.approved' text='Approved'/></option>
-			</select> |
+				<a href="#" class="butSim">
+					<spring:message code="question.group" text="Group"/>
+				</a>			
+				<select name="groupStarred" id="groupStarred" style="width:100px;height: 25px;">				
+					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+					<c:forEach items="${groups}" var="i">			
+						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+					</c:forEach> 
+				</select> |						
+				<a href="#" class="butSim">
+					<spring:message code="advancedsearch.ministry" text="Ministry"/>
+				</a>			
+				<select name="ministryStarred" id="ministryStarred" style="width:100px;height: 25px;">				
+					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+				</select> |			
+				<a href="#" class="butSim">
+					<spring:message code="advancedsearch.department" text="Department"/>
+				</a>			
+				<select name="departmentStarred" id="departmentStarred" style="width:100px;height: 25px;">				
+					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+				</select> |			
+				<a href="#" class="butSim">
+					<spring:message code="advancedsearch.subdepartment" text="Sub Department"/>
+				</a>			
+				<select name="subDepartmentStarred" id="subDepartmentStarred" style="width:100px;height: 25px;">				
+					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+				</select> |	
+				<hr>		
+				<a href="#" class="butSim">
+					<spring:message code="question.status" text="Status"/>
+				</a>			
+				<select name="statusStarred" id="statusStarred" class="sSelect">			
+					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+					<option value="UNPROCESSED"><spring:message code='question.unprocessed' text='Un Processed'/></option>
+					<option value="PENDING"><spring:message code='question.pending' text='Pending'/></option>
+					<option value="APPROVED"><spring:message code='question.approved' text='Approved'/></option>
+				</select> |
 			</c:otherwise>
 			</c:choose>						
 </div>	
@@ -1026,6 +1186,7 @@ td>table{
 <c:choose>
 	<c:when test="${whichDevice=='questions_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${subject}</c:when>
 	<c:when test="${whichDevice=='bills_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${title}</c:when>
+	<c:when test="${whichDevice=='motions_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${subject}</c:when>
 </c:choose>
 <input type="hidden" id="deviceId" value="${id }">
 <input type="hidden" id="deviceNumber" value="${number}">
@@ -1045,6 +1206,9 @@ td>table{
 <c:when test="${whichDevice=='questions_'}">
 <th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
 </c:when>
+<c:when test="${whichDevice=='motions_'}">
+	<th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
+</c:when>
 <c:when test="${whichDevice=='bills_'}">
 <th class="expand"><spring:message code="clubbing.title" text="Title"></spring:message></th>
 </c:when>
@@ -1052,6 +1216,9 @@ td>table{
 <c:choose>
 <c:when test="${whichDevice=='questions_'}">
 <th class="expand"><spring:message code="clubbing.question" text="Question"></spring:message></th>
+</c:when>
+<c:when test="${whichDevice=='motions_'}">
+<th class="expand"><spring:message code="clubbing.motion" text="Motion"></spring:message></th>
 </c:when>
 <c:when test="${whichDevice=='bills_'}">
 <th class="expand"><spring:message code="clubbing.bill" text="Content Draft"></spring:message></th>
