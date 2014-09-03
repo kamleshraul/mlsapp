@@ -375,7 +375,7 @@
 				<br />
 				<p style="display: inline;">
 					<label class="small"><spring:message code="cutmotion.pageNumber" text="Page Number"/>*</label>
-					<form:input path="pageNumber" cssClass="sText integer"/>
+					<form:input path="pageNumber" cssClass="sText"/>
 					<form:errors path="pageNumber" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 				</p>
 
@@ -389,7 +389,7 @@
 				
 				<p>
 					<label class="small"><spring:message code="cutmotion.demandNumber" text="Demand Number"/>*</label>
-					<form:input path="demandNumber" cssClass="sText integer"/>
+					<form:input path="demandNumber" cssClass="sText"/>
 					<form:errors path="demandNumber" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 				</p>
 				

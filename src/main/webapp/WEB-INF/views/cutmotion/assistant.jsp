@@ -562,7 +562,14 @@
 	<p>
 		<p style="display: inline;">
 			<label class="small"><spring:message code="cutmotion.number" text="Motion Nmber"/>*</label>
-			<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
+			<c:choose>
+				<c:when test="${formattedInternalNumber!=null}">
+					<input id="formattedNumber" name="formattedNumber" value="${formattedInternalNumber}" class="sText" readonly="readonly">
+				</c:when>
+				<c:when test="${formattedNumber}">
+					<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">
+				</c:when>
+			</c:choose>		
 			<input id="number" name="number" value="${domain.number}" type="hidden">
 			<form:errors path="number" cssClass="validationError"/>		
 		</p>
