@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
+import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.ResolutionSearchVO;
@@ -16,6 +17,7 @@ import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Act;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Language;
+import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
@@ -51,6 +53,8 @@ public class ReferencedEntityController {
 						model.addAttribute("whichDevice", ApplicationConstants.DEVICE_RESOLUTIONS);
 					}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_BILLS)){
 						model.addAttribute("whichDevice", ApplicationConstants.DEVICE_BILLS);
+					}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_MOTIONS)){
+						model.addAttribute("whichDevice", ApplicationConstants.DEVICE_MOTIONS);
 					}
 					
 					if(strUsergroupType != null){
@@ -226,6 +230,58 @@ public class ReferencedEntityController {
 							        billSearchVOs=ReferencedEntity.exactSearchReferencingBill(bill, language, 0, 10, bill.getLocale());
 							        model.addAttribute("exactReferences", billSearchVOs);
 								}
+							}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_MOTIONS)){
+								Motion motion = Motion.findById(Motion.class, Long.parseLong(strDeviceId));
+								int year = motion.getSession().getYear();
+								CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+								List<Reference> years = new ArrayList<Reference>();
+								if(houseFormationYear != null){
+									Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+									for(int j = year; j >= formationYear; j--){
+										Reference yearReference = new Reference(String.valueOf(j),FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(j));
+										years.add(yearReference);
+									}
+								}else{
+									model.addAttribute("flag", "houseformationyearnotset");
+									return "referencing/error";
+								}
+								model.addAttribute("years",years);
+								model.addAttribute("sessionYear",year);
+								List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, motion.getLocale());
+								model.addAttribute("sessionTypes",sessionTypes);
+								model.addAttribute("sessionType", motion.getSession().getType().getId());
+								
+								if(motion.getRevisedSubject() != null){
+									if(!motion.getRevisedSubject().isEmpty()){
+										model.addAttribute("subject", motion.getRevisedSubject());
+									}else{
+										model.addAttribute("subject", motion.getSubject());
+									}
+								}else{
+									model.addAttribute("subject", motion.getSubject());
+								}
+								
+								List<ReferencedEntity> referencedEntities= new ArrayList<ReferencedEntity>();
+								if(motion.getReferencedEntities() != null){
+									referencedEntities = motion.getReferencedEntities();
+								}
+								List<Reference> references = new ArrayList<Reference>();
+								StringBuffer buffer = new StringBuffer();
+								if(!referencedEntities.isEmpty()){
+									for(ReferencedEntity i:referencedEntities){
+										
+										Reference reference = new Reference();
+										reference.setId(String.valueOf(i.getId()));
+										reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(((Motion)i.getDevice()).getNumber())));
+										buffer.append(i.getId()+",");
+										references.add(reference);
+										
+										model.addAttribute("referencedEntities",references);
+										model.addAttribute("referencedEntitiesIds",buffer.toString());
+									}
+								}
+								model.addAttribute("id", Long.parseLong(strDeviceId));
+								model.addAttribute("number", FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
 							}
 						}
 					}
@@ -262,6 +318,25 @@ public class ReferencedEntityController {
             }
         }       
         return questionSearchVOs;
+    }
+	
+	@RequestMapping(value="/searchmotion",method=RequestMethod.POST)
+    public @ResponseBody List<MotionSearchVO> searchMotionForReferencing(final HttpServletRequest request, final Locale locale){
+		List<MotionSearchVO> motionSearchVOs = new ArrayList<MotionSearchVO>();
+		String strHouseType = request.getParameter("houseType");
+        String param = request.getParameter("param").trim();
+        String motionId = request.getParameter("motion");
+        String start = request.getParameter("start");
+        String noOfRecords = request.getParameter("record");
+        if(motionId != null && start != null && noOfRecords != null && strHouseType != null){
+            if((!motionId.isEmpty()) && (!start.isEmpty()) && (!noOfRecords.isEmpty()) && (!strHouseType.isEmpty())){
+                Motion motion = Motion.findById(Motion.class, Long.parseLong(motionId));
+                if(motion.getType() != null){
+                	motionSearchVOs = ReferencedEntity.fullTextSearchReferencing(param, motion, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString());
+                }
+            }
+        }
+        return motionSearchVOs;
     }
 	
 	private List<QuestionSearchVO> searchHDSLowerHouseForReferencing(final Question question, 
