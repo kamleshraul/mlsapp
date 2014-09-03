@@ -19,6 +19,7 @@ import javax.persistence.Table;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.BillSearchVO;
+import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.ResolutionSearchVO;
 import org.mkcl.els.repository.ReferencedEntityRepository;
@@ -101,6 +102,12 @@ public class ReferencedEntity extends BaseDomain implements Serializable{
 			final String param,
 			final Question question,final int start,final int noOfRecords,final String locale) {
 		return getReferencedEntityRepository().fullTextSearchReferencing(param, question, start, noOfRecords, locale);
+	}
+	
+	public static List<MotionSearchVO> fullTextSearchReferencing(
+			final String param,
+			final Motion motion, final int start,final int noOfRecords,final String locale) {
+		return getReferencedEntityRepository().fullTextSearchReferencing(param, motion, start, noOfRecords, locale);
 	}
 	
 	public static List<ResolutionSearchVO> fullTextSearchReferencingResolution(

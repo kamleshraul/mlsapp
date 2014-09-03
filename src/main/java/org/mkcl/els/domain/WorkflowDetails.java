@@ -363,6 +363,10 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return subject;
 	}
 
+	public static WorkflowDetails findCurrentWorkflowDetail(final Motion motion) throws ELSException {
+		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(motion);
+	}
+	
 	public static WorkflowDetails findCurrentWorkflowDetail(final Question question) throws ELSException {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(question);
 	}

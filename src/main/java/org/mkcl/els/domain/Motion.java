@@ -323,6 +323,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 			final String locale) {
 		return getMotionRepository().findMaxPostBallotNo(houseType, session, type, locale);
 	}
+	
+	public List<ClubbedEntity> findClubbedEntitiesByMotionNumber(final String sortOrder,
+    		final String locale) {
+    	return getMotionRepository().findClubbedEntitiesByMotionNumber(this,sortOrder, locale);
+    }
+	
 	private void addMotionDraft() {
 		if(! this.getStatus().getType().equals(ApplicationConstants.MOTION_INCOMPLETE) &&
 				! this.getStatus().getType().equals(ApplicationConstants.MOTION_COMPLETE)) {

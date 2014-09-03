@@ -559,6 +559,7 @@ public class CutMotion extends Device implements Serializable {
 			}
 		}
 		
+		
 		int rejectionCounter = 0;		
 		for(CutMotion cm : rejectedCutMotions){
 			++rejectionCounter;
@@ -566,7 +567,12 @@ public class CutMotion extends Device implements Serializable {
 			cm.simpleMerge();
 			rejectedMotionUpdated = true;
 		}
-		
+			
+		if(admittedMotionUpdated){		
+			if(rejectedCutMotions == null || rejectedCutMotions.isEmpty()){
+				rejectedMotionUpdated = true;
+			}
+		}
 		if(admittedMotionUpdated && rejectedMotionUpdated){
 			return true;
 		}

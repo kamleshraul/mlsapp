@@ -120,6 +120,10 @@ public class DeviceType extends BaseDomain implements Serializable {
     public static List<DeviceType> findAllowedTypesInStarredClubbing(final String locale) throws ELSException {
 		return getDeviceTypeRepository().getAllowedTypesInStarredClubbing(locale);
 	}
+    
+    public static List<DeviceType> findAllowedTypesInMotionClubbing(final String locale) throws ELSException {
+    	return getDeviceTypeRepository().getAllowedTypesInMotionClubbing(locale);
+    }
 
     // ----------------------------Getters/Setters------------------------//
 

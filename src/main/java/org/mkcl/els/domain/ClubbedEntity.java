@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.mkcl.els.common.vo.BillSearchVO;
+import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.repository.ClubbedEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,6 +176,11 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
         return getClubbedEntityRepository().club(questionBeingProcessed,questionBeingClubbed,locale);
     }
     
+    /**** Club motion ****/
+    public static String clubMotion(final Long motionBeingProcessed,final Long motionBeingClubbed,final String locale){
+        return getClubbedEntityRepository().clubMotion(motionBeingProcessed, motionBeingClubbed, locale);
+    }
+    
     /**** Update the clubbing of given question ****/
    	public static Question updateClubbing(final Question domain) {
    		return getClubbedEntityRepository().updateClubbing(domain);
@@ -247,5 +253,15 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 	public static ClubbedEntity findByQuestion(final Question question,final String locale) {
 		return getClubbedEntityRepository().findByQuestion(question,locale);
 	}
+	
+	public static List<MotionSearchVO> fullTextSearchClubbing(final String param,
+			final Motion motion,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
+	}
+    
     
 }
