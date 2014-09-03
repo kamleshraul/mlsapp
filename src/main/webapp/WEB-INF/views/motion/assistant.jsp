@@ -88,7 +88,7 @@
 	/**** Clubbing ****/
 	function clubbingInt(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		var params="id="+id
+		var params="motionId="+id
 					+"&usergroup="+$("#currentusergroup").val()
 			        +"&usergroupType="+$("#currentusergroupType").val();		
 		$.get('clubentity/init?'+params,function(data){
@@ -116,7 +116,7 @@
 		+"&usergroup="+$("#currentusergroup").val()
         +"&usergroupType="+$("#currentusergroupType").val()
         +"&deviceType="+$("#motionType").val();
-		$.get('refentity/motion/init?'+params,function(data){
+		$.get('refentity/init?'+params,function(data){
 			$.unblockUI();			
 			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
 			$("#referencingResultDiv").html(data);
