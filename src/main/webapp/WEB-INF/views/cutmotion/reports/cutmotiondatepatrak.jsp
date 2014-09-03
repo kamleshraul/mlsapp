@@ -56,14 +56,33 @@
 			</tr>
 		</thead>
 		<tbody>
+			<c:set var="discDate" value="-"></c:set>
+			<c:set var="labelCounter" value="0" />
+			<c:set var="lastNodeReceiveDate" value="-" />
 			<c:forEach items="${report}" var="r" varStatus="counter">
-				<tr>
-					<td>${formater.formatNumberNoGrouping(counter.count, locale)}</td>
-					<td>${r[3]}</td>
-					<td>${r[4]}</td>
-					<td>${r[6]}</td>					
-				</tr>
+				<c:choose>
+					<c:when test="${discDate!=r[2]}">
+							<c:set var="labelCounter" value="${labelCounter + 1 }" />
+							<c:if test="${discDate!='-'}">
+									</td>
+									<td>${lastNodeReceiveDate}</td>
+								</tr>
+							</c:if>
+						<tr>
+							<td>${formater.formatNumberNoGrouping(labelCounter, locale)}</td>
+							<td>${r[3]}</td>
+							<td>${r[4]}<br />
+					</c:when>
+					<c:otherwise>
+						${r[4]}<br/>
+					</c:otherwise>
+				</c:choose>
+				<c:set var="discDate" value="${r[2]}" />	
+				<c:set var="lastNodeReceiveDate" value="${r[6]}" />			
 			</c:forEach>
+			</td>
+				<td>${lastNodeReceiveDate}</td>
+			</tr>
 		</tbody>
 	</table>
 </div>
