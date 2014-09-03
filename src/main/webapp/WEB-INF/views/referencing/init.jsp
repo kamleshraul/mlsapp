@@ -20,7 +20,7 @@
 				previousSearchCount=record;
 			});			
 			$("#searchReference").click(function(){
-				search();
+				searchRef();
 			});
 			
 			$("#backToQuestion").click(function(){
@@ -208,14 +208,14 @@
 			}
 		}
 		
-		function search(){
+		function searchRef(){
 			var toBeSearched=$("#searchrefvalue").val();
 			previousSearchTerm=toBeSearched;			
-			
+			alert(previousSearchTerm);
 			var currentDeviceType = $("#refDeviceType").val();
 			if(toBeSearched!=''){
 				if((toBeSearched==previousSearchTerm)&&(previousSearchCount==record)){	
-					if(/*/^questions_/.test(currentDeviceType)*/currentDeviceType.contains('questions')){
+					if(/*/^questions_/.test(currentDeviceType)*/currentDeviceType.indexOf('questions')==0){
 						$.post('refentity/search',{param:$("#searchrefvalue").val(),question:$("#questionId").val(), houseType:$("#houseTypeType").val(), questionSessionYear:$("#refSessionYear").val(),questionSessionType:$("#refSessionType").val(),record:record,start:start},function(data){
 							if(data.length>0){
 								var text="";	
@@ -254,7 +254,46 @@
 	    					}
 	    					scrollTop();
 	    				});	
-					}else if(/*/^resolutions_/.test(currentDeviceType)*/currentDeviceType.contains('resolutions')){
+					}else if(currentDeviceType.indexOf("motions_")==0){
+						$.post('refentity/searchmotion',{param:$("#searchrefvalue").val(),motion:$("#motionId").val(), houseType:$("#houseTypeType").val(), motionSessionYear:$("#refSessionYear").val(),motionSessionType:$("#refSessionType").val(),record:record,start:start},function(data){
+							if(data.length>0){
+								var text="";	
+								for(var i=0;i<data.length;i++){
+									text+="<tr>";
+									text+="<td>"+data[i].number+"<span id='operation"+data[i].id+"'><a onclick='referencing("+data[i].id+");' style='margin:10px;'>"+$("#referMsg").val()+"</a></span>"
+									+"<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
+									+"</td>";
+									text+="<td>"+data[i].subject+"</td>";			
+									text+="<td>"+data[i].questionText+"</td>";			
+									text+="<td>"+data[i].deviceType+"</td>";			
+									text+="<td>"+data[i].sessionYear+"</td>";			
+									text+="<td>"+data[i].sessionType+"</td>";			
+									text+="<td>"+data[i].status+"</td>";
+									text+="</tr>";						
+								}	
+								if(data.length==10){
+									text+="<tr>"
+										+"<td style='text-align:center;'><a onclick='search();' style='margin:10px;'>"+$("#loadMoreMsg").val()+"</a></td>"
+										+"</tr>";
+									start=start+10;							
+								}
+								$("#searchTable tbody").empty();
+								$("#searchTable tbody").append(text);	
+								$("#referencingDiv").show();										
+							}else{
+								$("#referencingResult").empty();
+								$("#referencingResult").html($("#noResultsMsg").val());
+								$("#referencingDiv").show();
+							}				
+						}).fail(function(){
+	    					if($("#ErrorMsg").val()!=''){
+	    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+	    					}else{
+	    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+	    					}
+	    					scrollTop();
+	    				});							
+					}else if(/*/^resolutions_/.test(currentDeviceType)*/currentDeviceType.indexOf('resolutions')){
 						$.post('refentity/searchresolution',{param:$("#searchrefvalue").val(),resolution:$("#resolutionId").val(), resolutionSessionYear:$("#refSessionYear").val(),resolutionSessionType:$("#refSessionType").val(),record:record,start:start},function(data){
 							
 							if(data.length>0){
@@ -671,6 +710,9 @@ cursor:pointer;
 				<c:if test="${whichDevice=='bills_'}">
 					<a href="#" id="backToBill" style="margin-left: 10px;margin-right: 10px;"><spring:message code="referencing.back" text="Back"></spring:message></a>
 				</c:if>
+				<c:if test="${whichDevice=='bills_'}">
+					<a href="#" id="backToMotion" style="margin-left: 10px;margin-right: 10px;"><spring:message code="referencing.back" text="Back"></spring:message></a>
+				</c:if>
 			</td>
 		</tr>
 	</table>
@@ -687,6 +729,9 @@ cursor:pointer;
 		<c:when test="${whichDevice=='bills_'}" >
 			<label style="color:blue;font-size:14px;">${number}:${title}</label>
 		</c:when>
+		<c:when test="${whichDevice=='motions_'}" >
+			<label style="color:blue;font-size:14px;">${number}:${subject}</label>
+		</c:when>
 	</c:choose>
 	
 	<c:choose>
@@ -698,6 +743,9 @@ cursor:pointer;
 		</c:when>
 		<c:when test="${whichDevice=='bills_'}">
 			<input type="hidden" id="billId" value="${id }">
+		</c:when>
+		<c:when test="${whichDevice=='motions_'}">
+			<input type="hidden" id="motionId" value="${id }">
 		</c:when>
 	</c:choose>
 </p>
@@ -711,32 +759,42 @@ cursor:pointer;
 		<table  id="searchTable">
 		<thead>
 			<tr>
-				<c:if test="${whichDevice=='questions_'}">
-					<th><spring:message code="referencing.number" text="Question Number"></spring:message></th>
-				</c:if>
-				<c:if test="${whichDevice=='resolutions_'}">
-					<th><spring:message code="referencing.number" text="Resolution Number"></spring:message></th>
-				</c:if>
-				<c:if test="${whichDevice=='bills_'}">
-					<th><spring:message code="referencing.number" text="Device Number"></spring:message></th>
-				</c:if>
 				<c:choose>
-				<c:when test="${whichDevice!='bills_'}">
-					<th><spring:message code="referencing.subject" text="Subject"></spring:message></th>
-				</c:when>
-				<c:otherwise>
-					<th><spring:message code="referencing.title" text="Title"></spring:message></th>
-				</c:otherwise>
+					<c:when test="${whichDevice=='questions_'}">
+						<th><spring:message code="referencing.number" text="Question Number"></spring:message></th>
+					</c:when>
+					<c:when test="${whichDevice=='resolutions_'}">
+						<th><spring:message code="referencing.number" text="Resolution Number"></spring:message></th>
+					</c:when>
+					<c:when test="${whichDevice=='bills_'}">
+						<th><spring:message code="referencing.number" text="Device Number"></spring:message></th>
+					</c:when>
+					<c:when test="${whichDevice=='motions_'}">
+						<th><spring:message code="referencing.number" text="Motion Number"></spring:message></th>
+					</c:when>
 				</c:choose>
-				<c:if test="${whichDevice=='questions_'}">
-					<th><spring:message code="referencing.question" text="Question"></spring:message></th>
-				</c:if>
-				<c:if test="${whichDevice=='resolutions_'}">
-					<th><spring:message code="referencing.resolution" text="Resolution"></spring:message></th>
-				</c:if>
-				<c:if test="${whichDevice=='bills_'}">
-					<th><spring:message code="referencing.bill" text="Content Draft"></spring:message></th>
-				</c:if>
+				<c:choose>
+					<c:when test="${whichDevice!='bills_'}">
+						<th><spring:message code="referencing.subject" text="Subject"></spring:message></th>
+					</c:when>
+					<c:otherwise>
+						<th><spring:message code="referencing.title" text="Title"></spring:message></th>
+					</c:otherwise>
+				</c:choose>
+				<c:choose>
+					<c:when test="${whichDevice=='questions_'}">
+						<th><spring:message code="referencing.question" text="Question"></spring:message></th>
+					</c:when>
+					<c:when test="${whichDevice=='motions_'}">
+						<th><spring:message code="referencing.motion" text="Motion"></spring:message></th>
+					</c:when>
+					<c:when test="${whichDevice=='resolutions_'}">
+						<th><spring:message code="referencing.resolution" text="Resolution"></spring:message></th>
+					</c:when>
+					<c:when test="${whichDevice=='bills_'}">
+						<th><spring:message code="referencing.bill" text="Content Draft"></spring:message></th>
+					</c:when>
+				</c:choose>
 				<th><spring:message code="referencing.devicetype" text="Device Type"></spring:message></th>
 				<c:choose>
 				<c:when test="${whichDevice=='bills_'}">
