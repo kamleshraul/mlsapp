@@ -12,6 +12,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Bill;
@@ -20,6 +21,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Language;
+import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.WorkflowDetails;
@@ -116,6 +118,7 @@ public class ClubbedEntityController extends BaseController{
 			}
 		}else{
 			String strbillId=request.getParameter("billId");
+			String strMotionId = request.getParameter("motionId");
 			if(strbillId!=null) {
 				if(!strbillId.isEmpty()) {
 					Bill bill=Bill.findById(Bill.class,Long.parseLong(strbillId));
@@ -178,6 +181,59 @@ public class ClubbedEntityController extends BaseController{
 						}
 					}
 				}				
+			} else if(strMotionId != null && !strMotionId.isEmpty()){
+				
+				Motion motion = Motion.findById(Motion.class, new Long(strMotionId));
+				/**** Advanced Search Options ****/
+				/**** First we will check if clubbing is allowed on the given bill ****/
+				Boolean isClubbingAllowed = isClubbingAllowed(motion, request);
+				if(isClubbingAllowed){
+					/**** Question subject will be visible on the clubbing page ****/
+					if(motion.getRevisedSubject()!=null){
+						if(!motion.getRevisedSubject().isEmpty()){
+							model.addAttribute("subject",motion.getRevisedSubject());
+						}else{
+							model.addAttribute("subject",motion.getSubject());
+						}
+					}else{
+						model.addAttribute("subject",motion.getSubject());
+					}
+					/**** Question number will also be visible ****/
+					model.addAttribute("id",Long.parseLong(strMotionId));
+					model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
+					/**** Advanced Search Filters****/
+					String deviceType = motion.getType().getType();
+					model.addAttribute("deviceType", deviceType);
+					model.addAttribute("houseType", motion.getHouseType().getType());
+					try{
+						model.addAttribute("deviceTypes", DeviceType.findAllowedTypesInMotionClubbing(motion.getLocale()));
+					}catch (ELSException e) {
+						model.addAttribute("ClubbedEntityController","Request can not be completed at the moment.");
+					}
+										
+					int year = motion.getSession().getYear();
+					CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+					List<Reference> years = new ArrayList<Reference>();
+					if(houseFormationYear != null){
+						Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+						for(int i = year; i >= formationYear; i--){
+							Reference reference=new Reference(String.valueOf(i),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i));
+							years.add(reference);
+						}
+					}else{
+						model.addAttribute("flag", "houseformationyearnotset");
+						return "clubbing/error";
+					}
+					model.addAttribute("years", years);
+					model.addAttribute("sessionYear", year);
+					List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale.toString());
+					model.addAttribute("sessionTypes", sessionTypes);
+					model.addAttribute("sessionType", motion.getSession().getType().getId());
+					model.addAttribute("whichDevice", "motions_");
+				}else{
+					model.addAttribute("flag","CLUBBING_NOT_ALLOWED");
+					return "clubbing/error";
+				}
 			} else {
 				logger.error("**** Check request parameter for 'id of given device' for null value");
 				model.addAttribute("flag","REQUEST_PARAMETER_NULL");
@@ -292,6 +348,70 @@ public class ClubbedEntityController extends BaseController{
 		return false;
 	}
 
+	private Boolean isClubbingAllowed(final Motion motion, final HttpServletRequest request) {
+		/**** Clubbing is allowed only if one of the below requirement is met ****/
+		String internalStatusType = motion.getInternalStatus().getType();
+		String recommendationStatusType = motion.getRecommendationStatus().getType();
+		String deviceType = motion.getType().getType();		
+		WorkflowDetails workflowDetails;
+		try {
+			workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(motion);
+		
+			String usergroupType = request.getParameter("usergroupType");	
+			/****To enable the userGroups who can do clubbing ****/
+			CustomParameter clubbingAllowedUserGroups = CustomParameter.findByName(CustomParameter.class, "MOIS_ALLOWED_USERGROUP_TO_DO_CLUBBING", "");
+			/**** if deviceType=unstarred||half-hour||short notice,internal status=assistant_processed 
+			 * ,workflow has not started and this is assistant's login****/
+			if(internalStatusType.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)
+					&& workflowDetails == null && usergroupType != null){
+				
+				if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
+					return true;
+				}
+			}else{ 
+				/**** if deviceType=starred,internalStatusType=to_be_put_up,workflow has not started 
+				 * and this is assitant's login ****/
+				if(internalStatusType.equals(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP)
+						&& workflowDetails==null&&usergroupType!=null){
+					if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
+						return true;
+					}
+				}else{
+					// TODO: [HACK 17May2014 Amit] Remove this if condition once the Monsoon session 2014 is over.
+					// This condition is added because the first batch questions of
+					// Council were manually updated and didn't go in the workflow.
+					// Hence, workflowDetails is going to be null.
+					if(recommendationStatusType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS)
+							|| recommendationStatusType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+							|| internalStatusType.equals(ApplicationConstants.MOTION_FINAL_ADMISSION)){
+						if(usergroupType != null 
+								&& (usergroupType.equals("assistant")
+										|| usergroupType.equals("clerk"))) {
+							if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
+								return true;
+							}
+						}
+					}
+					
+					/**** if recommendation status=discuss||send back,workflow has started,question is currently at assistant's login
+					 *    if internal status=admitted,workflow has started and question is currently at assistant's login ****/
+					if((recommendationStatusType.equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS)
+							||recommendationStatusType.equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK))
+							&&workflowDetails.getId() != null){
+						if(workflowDetails.getAssigneeUserGroupType().equals("assistant")
+								&&usergroupType != null){
+							if(clubbingAllowedUserGroups != null && clubbingAllowedUserGroups.getValue().contains(usergroupType)){
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}catch (Exception e) {
+		}
+		return false;
+	}
+	
 	@RequestMapping(value="/advancedsearch",method=RequestMethod.GET)
 	public String advancedSearch(final HttpServletRequest request,
 			final ModelMap model,final Locale locale){
@@ -398,6 +518,23 @@ public class ClubbedEntityController extends BaseController{
 		return billSearchVOs;
 	}
 
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/searchmotion",method=RequestMethod.POST)
+	public @ResponseBody List<MotionSearchVO> searchMotionForClubbing(final HttpServletRequest request, final Locale locale){
+		List<MotionSearchVO> motionSearchVOs = new ArrayList<MotionSearchVO>();
+		String param = request.getParameter("param").trim();
+		String motionId = request.getParameter("motion");
+		String start = request.getParameter("start");
+		String noOfRecords = request.getParameter("record");
+		Map<String,String[]> requestMap = request.getParameterMap();
+		if(motionId != null && start != null && noOfRecords != null){
+			if((!motionId.isEmpty()) && (!start.isEmpty()) && (!noOfRecords.isEmpty())){
+				Motion motion = Motion.findById(Motion.class, Long.parseLong(motionId));
+				motionSearchVOs = ClubbedEntity.fullTextSearchClubbing(param, motion, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
+			}
+		}       
+		return motionSearchVOs;
+	}
 	@Transactional
 	@RequestMapping(value="/clubbing",method=RequestMethod.POST)
 	public @ResponseBody String clubbing(final HttpServletRequest request,final ModelMap model,final Locale locale){
@@ -413,7 +550,9 @@ public class ClubbedEntityController extends BaseController{
 					status=ClubbedEntity.club(primaryId, clubbingId, locale.toString());
 				} else if(whichDevice.equals("bills_")) {
 					status=ClubbedEntity.clubBill(primaryId, clubbingId, locale.toString());
-				}				
+				} else if(whichDevice.equals("motions_")){
+					status = ClubbedEntity.clubMotion(primaryId, clubbingId, locale.toString());
+				}
 			}
 		}
 		return status;
