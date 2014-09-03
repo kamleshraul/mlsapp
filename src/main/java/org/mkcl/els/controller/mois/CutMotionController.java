@@ -1302,6 +1302,11 @@ public class CutMotionController extends GenericController<CutMotion>{
 	@Override
 	protected void populateCreateIfNoErrors(final ModelMap model, CutMotion domain,
 			final HttpServletRequest request) {			
+		
+		/**** Set department ****/
+		if(domain.getSubDepartment() != null){
+			domain.setDepartment(domain.getSubDepartment().getDepartment());
+		}
 		/**** Status ,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
 		/**** In case of submission ****/
 		String operation=request.getParameter("operation");
@@ -1426,6 +1431,12 @@ public class CutMotionController extends GenericController<CutMotion>{
 	@Override
 	protected void populateUpdateIfNoErrors(final ModelMap model, CutMotion domain,
 			final HttpServletRequest request) {
+		
+		/**** Set department ****/
+		if(domain.getSubDepartment() != null){
+			domain.setDepartment(domain.getSubDepartment().getDepartment());
+		}
+		
 		/**** Checking if its submission request or normal update ****/
 		String operation=request.getParameter("operation");		
 		String usergroupType=request.getParameter("usergroupType");
@@ -2231,12 +2242,21 @@ public class CutMotionController extends GenericController<CutMotion>{
 			Status dateAdmissionProcessed = Status.findByType(ApplicationConstants.CUTMOTIONDATE_PROCESSED_DATE_ADMISSION, locale);
 			CutMotionDate cutMotionDate = CutMotionDate.findCutMotionDateSessionDeviceType(cutMotion.getSession(), cutMotion.getDeviceType(), locale);
 			if(cutMotionDate != null){
-				if(cutMotionDate.getStatus().getType().equals(dateAdmitted.getType()) && cutMotion.getRecommendationStatus().getType().equals(dateAdmissionProcessed.getType())){
+				if(cutMotionDate.getStatus().getType().equals(dateAdmitted.getType())){
 					for(CutMotionDepartmentDatePriority p : cutMotionDate.getDepartmentDates()){
-						if(p.getSubDepartment().getName().equals(cutMotion.getSubDepartment().getName()) && p.getDepartment().getName().equals(cutMotion.getDepartment().getName())){
-							if(cutMotion.getSubmissionDate().before(p.getSubmissionEndDate())){
-								retVal = true;
-								break;
+						if(cutMotion.getSubDepartment() != null){
+							if(p.getSubDepartment().getName().equals(cutMotion.getSubDepartment().getName()) && p.getDepartment().getName().equals(cutMotion.getSubDepartment().getDepartment().getName())){
+								if(cutMotion.getSubmissionDate() != null){
+									if(cutMotion.getSubmissionDate().before(p.getSubmissionEndDate())){
+										retVal = true;
+										break;
+									}
+								}else{
+									if((new Date()).before(p.getSubmissionEndDate())){
+										retVal = true;
+										break;
+									}
+								}
 							}
 						}
 					}
