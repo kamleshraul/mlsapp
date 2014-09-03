@@ -263,6 +263,7 @@
 				$.unblockUI();
 			});
 		}
+		
 		function saveAndHide(){
 			hideEditor();
 			var content = $("#ttA").val().trim();
