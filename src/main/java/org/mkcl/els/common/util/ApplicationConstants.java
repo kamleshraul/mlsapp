@@ -886,6 +886,8 @@ public class ApplicationConstants {
 
 	/****************Motion Information System********************/
 	/**** device types ****/
+	public static final String MOTION_CALLING_ATTENTION = "motions_calling_attention";
+	
 	public static final String AMENDMENT_FOR_BILL_MOTION = "motions_amendment_for_bill";
 
 	/**** Member View ****/	
@@ -929,6 +931,10 @@ public class ApplicationConstants {
 	public static final String MOTION_FINAL_ADMISSION="motion_final_admission";
 
 	public static final String MOTION_FINAL_REJECTION="motion_final_rejection";
+	
+	public static final String MOTION_TO_BE_REJECTED = "motion_to_be_rejected";
+	
+	public static final String MOTION_TO_BE_CLUBBED = "motion_to_be_clubbed";
 
 	public static final String MOTION_FINAL_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER="motion_final_clarificationNotReceivedFromMember";
 
@@ -1400,7 +1406,10 @@ public class ApplicationConstants {
 	public static final String NON_MEMBER_ROLES = "SPEAKER,DEPUTY_SPEAKER,CHAIRMAN,DEPUTY_CHAIRMAN";
 	
 	/****CutMotion****/
+	public static final String MOTIONS_CUTMOTION_BUDGETARY = "motions_cutmotion_budgetary";
+	public static final String MOTIONS_CUTMOTION_SUPPLIMENTARY = "motions_cutmotion_supplementary";
 	/**** Statuses ****/
+	
 	public static final String CUTMOTION_INCOMPLETE = "cutmotion_incomplete";
 	public static final String CUTMOTION_COMPLETE = "cutmotion_complete";
 	public static final String CUTMOTION_SUBMIT = "cutmotion_submit";
