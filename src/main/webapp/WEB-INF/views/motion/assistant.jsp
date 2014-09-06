@@ -115,7 +115,8 @@
 		var params="id="+id
 		+"&usergroup="+$("#currentusergroup").val()
         +"&usergroupType="+$("#currentusergroupType").val()
-        +"&deviceType="+$("#motionType").val();
+        +"&deviceType="+$("#motionType").val()
+        +"&houseType="+$("#houseType").val();
 		$.get('refentity/init?'+params,function(data){
 			$.unblockUI();			
 			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
