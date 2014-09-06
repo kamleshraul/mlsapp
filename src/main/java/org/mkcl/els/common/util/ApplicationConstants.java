@@ -898,6 +898,9 @@ public class ApplicationConstants {
 	public static final String MOTION_SUBMIT="motion_submit"; 
 
 	/**** System ****/    
+	
+	public static final String MOTION_SESSIONS_TOBE_SEARCHED_COUNT="MOTION_SESSIONS_TOBE_SEARCHED_COUNT";
+	
 	public static final String MOTION_SYSTEM_ASSISTANT_PROCESSED="motion_system_assistantprocessed";
 
 	public static final String MOTION_SYSTEM_TO_BE_PUTUP="motion_system_putup";
