@@ -211,7 +211,7 @@
 		function searchRef(){
 			var toBeSearched=$("#searchrefvalue").val();
 			previousSearchTerm=toBeSearched;			
-			alert(previousSearchTerm);
+			
 			var currentDeviceType = $("#refDeviceType").val();
 			if(toBeSearched!=''){
 				if((toBeSearched==previousSearchTerm)&&(previousSearchCount==record)){	
@@ -449,7 +449,10 @@
 				deviceId=$("#resolutionId").val();
 			}else if(whichDevice=='bills_'){
 				deviceId=$("#billId").val();
+			}else if(whichDevice=='motions_'){
+				deviceId=$("#motionId").val();
 			}
+			
 			$.post('refentity/referencing?pId='+deviceId+"&rId="+referId+"&device="+device,function(data){
 					if(data=='SUCCESS'){
 						$("#referencingResult").empty();
@@ -481,6 +484,8 @@
 				deviceId=$("#resolutionId").val();
 			}else if(whichDevice=='bills_'){
 				deviceId=$("#billId").val();
+			}else if(whichDevice=='motions_'){
+				deviceId=$("#motionId").val();
 			}
 			var device;
 			if(isAct=='true') {
@@ -533,6 +538,8 @@
 				resourceURL='resolution/'+referId+'/edit?'+parameters;
 			}else if(/^bills_/.test(device)){
 				resourceURL='bill/'+referId+'/edit?'+parameters;
+			}else if(device.indexOf("motions_")==0){
+				resourceURL='motion/'+referId+'/edit?'+parameters;
 			}
 			$.get(resourceURL,function(data){
 				$("#referencingDiv").hide();		
@@ -545,6 +552,9 @@
 				}else if($("#whichDevice").val()=='bills_'){
 					$("#viewBill").html(data);
 					$("#viewBillDiv").show();
+				}else if($("#whichDevice").val()=='motions_'){
+					$("#viewMotion").html(data);
+					$("#viewMotionDiv").show();
 				}
 			},'html').fail(function(){
 				if($("#ErrorMsg").val()!=''){
@@ -585,6 +595,9 @@
 			}else if($("#whichDevice").val()=='bills_'){
 				$("#viewBill").empty();
 				$("#viewBillDiv").hide();
+			}else if($("#whichDevice").val()=='motions_'){
+				$("#viewMotion").empty();
+				$("#viewMotionDiv").hide();
 			}
 		}
 	</script>
@@ -908,6 +921,14 @@ cursor:pointer;
 		<div id="viewBillDiv" style="display:none;">
 			<a id="backToSearch" href="#" style="display:block;"><spring:message code="referencing.back" text="Back to search page"></spring:message></a>
 			<div id="viewBill">
+			</div>
+		</div>
+	</c:when>
+	
+	<c:when test="${whichDevice=='motions_'}" >
+		<div id="viewMotionDiv" style="display:none;">
+			<a id="backToSearch" href="#" style="display:block;"><spring:message code="referencing.back" text="Back to search page"></spring:message></a>
+			<div id="viewMotion">
 			</div>
 		</div>
 	</c:when>
