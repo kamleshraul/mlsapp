@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.batik.svggen.font.table.Device;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -15,6 +16,7 @@ import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.ResolutionSearchVO;
 import org.mkcl.els.domain.Act;
 import org.mkcl.els.domain.Bill;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Motion;
@@ -138,7 +140,191 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 	
 	public List<MotionSearchVO> fullTextSearchReferencing(final String param,
 			final Motion motion,final int start,final int noOfRecords,final String locale) {
-		return null;
+		
+		List<MotionSearchVO> motionSearchVOs = new ArrayList<MotionSearchVO>();
+		try{
+			String houseType = motion.getHouseType().getType();
+			Status statusAdmitted = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, motion.getLocale());
+			Status statusRejected = Status.findByType(ApplicationConstants.MOTION_FINAL_REJECTION, motion.getLocale());
+			String admittedStatusId = null;
+			String rejectedStatusId = null;
+			
+			CustomParameter sessionsToBeSearched_CP = CustomParameter.findByFieldName(CustomParameter.class, "name", ApplicationConstants.MOTION_SESSIONS_TOBE_SEARCHED_COUNT, "");
+			int sessionsToBeSearched = 0;
+			
+			if(sessionsToBeSearched_CP != null){
+				sessionsToBeSearched = Integer.parseInt(sessionsToBeSearched_CP.getValue());
+			}		
+			
+			// to find the session to be searched
+			List<Session> totalSessions = new ArrayList<Session>();		
+			List<Session> sessionListCurrent = Session.findSessionsByHouseAndYear(motion.getSession().getHouse(), motion.getSession().getYear());		
+			sessionListCurrent.remove(motion.getSession());
+			totalSessions.addAll(sessionListCurrent);
+			
+			List<Session> sessionListLast = Session.findSessionsByHouseAndYear(motion.getSession().getHouse(), motion.getSession().getYear()-1);
+					
+			if(sessionListLast.size() > 0){
+				for(Session s : sessionListLast){
+					totalSessions.add(s);
+				}
+			}
+			
+			StringBuffer sb = new StringBuffer();		
+			int index = 1;
+			for(Session ss: totalSessions){
+				sb.append(ss.getId());
+				if(index < sessionsToBeSearched){
+					sb.append(",");
+				}else{
+					break;
+				}
+				index++;
+			}
+			
+			if (statusAdmitted != null && statusRejected != null) {
+				admittedStatusId = statusAdmitted.getId().toString();
+				rejectedStatusId = statusRejected.getId().toString();
+			}
+	
+			String selectQuery = "SELECT m.id as id,m.number as number,"
+					+ "m.subject as subject,m.revised_subject as revisedSubject,"
+					+ "m.details as noticeContent,r.revised_details as revisedNoticeContent,"
+					+ "st.name as status,dt.name as deviceType,"
+					+ "mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype,s.sessiontype_id as sessionType,s.session_year as year "
+					+ "FROM motions as m "
+					+ "LEFT JOIN housetypes as ht ON(m.housetype_id=ht.id) "
+					+ "LEFT JOIN sessions as s ON(m.session_id=s.id) "
+					+ "LEFT JOIN status as st ON(m.internalstatus_id=st.id) "
+					+ "LEFT JOIN devicetypes as dt ON(m.devicetype_id=dt.id) "
+					+ "LEFT JOIN ministries as mi ON(m.ministry_id=mi.id) "
+					+ "LEFT JOIN departments as d ON(m.department_id=d.id) "
+					+ "LEFT JOIN subdepartments as sd ON(m.subdepartment_id=sd.id) "
+					+ "WHERE m.id<>" + motion.getId() 
+					+ " AND (m.internalstatus_id=" + admittedStatusId
+					+ " OR m.internalstatus_id=" + rejectedStatusId + ")"
+					+ " AND ht.type='" + houseType +"'"
+					+ "AND s.id IN (" + sb + ")";
+			
+			String searchQuery=null;
+			if(!param.contains("+")&&!param.contains("-")){
+				searchQuery=" AND (( match(m.subject,m.details,m.revised_subject,m.revised_details) "+
+				"against('"+param+"' in natural language mode)"+
+				")||m.subject LIKE '"+param+"%'||m.details LIKE '"+param+"%'|| m.revised_subject LIKE '"+param+"%'|| m.revised_details LIKE '"+param+"%')";
+			}else if(param.contains("+")&&!param.contains("-")){
+				String[] parameters=param.split("\\+");
+				StringBuffer buffer=new StringBuffer();
+				for(String i:parameters){
+					buffer.append("+"+i+" ");
+				}
+				searchQuery=" AND match(m.subject,m.details,r.revised_subject,m.revised_details) "+
+				"against('"+buffer.toString()+"' in boolean  mode)";
+			}else if(!param.contains("+")&&param.contains("-")){
+				String[] parameters=param.split("-");
+				StringBuffer buffer=new StringBuffer();
+				for(String i:parameters){
+					buffer.append(i+" "+"-");
+				}
+				buffer.deleteCharAt(buffer.length()-1);
+				searchQuery=" AND match(m.subject,m.details,m.revised_subject,m.revised_details) "+
+				"against('"+buffer.toString()+"' in boolean  mode)";
+			}else if(param.contains("+")||param.contains("-")){
+				searchQuery=" AND match(m.subject,m.details,m.revised_subject,m.revised_details) "+
+				"against('"+param+"' in boolean  mode)";
+			}
+			
+			String orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+
+					" ,m.number "+ApplicationConstants.DESC + ", s.session_year "+ApplicationConstants.DESC;
+			/**** Final Query ****/
+			String query = selectQuery+searchQuery+orderByQuery;
+			
+			String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.noticeContent, "+
+			" rs.revisedNoticeContent,rs.status,rs.deviceType,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.sessionType,rs.year FROM ("+query+") as rs LIMIT "+start+","+noOfRecords;
+			
+			List result = this.em().createNativeQuery(finalQuery).getResultList();
+			List<ResolutionSearchVO> resolutionSearchVOs = new ArrayList<ResolutionSearchVO>();
+			
+			if(result != null){
+				for(Object i : result){
+					Object[] o = (Object[]) i;
+					
+					
+					MotionSearchVO motionSearchVO = new MotionSearchVO();
+					
+					if(o[0] != null){
+						motionSearchVO.setId(Long.parseLong(o[0].toString()));
+					}
+					
+					if(o[1] != null){
+						motionSearchVO.setNumber(o[1].toString());
+					}
+					
+					if(o[3] != null){
+						if(!o[3].toString().isEmpty()){
+							motionSearchVO.setTitle(higlightText(o[3].toString(), param));
+						}else if(o[2] != null){
+							motionSearchVO.setTitle(higlightText(o[2].toString(), param));
+						}
+					}else if(o[2] != null){
+						if(!o[2].toString().isEmpty()){
+							motionSearchVO.setTitle(higlightText(o[2].toString(), param));
+						}
+					}
+					
+					if(o[5] != null){
+						if(!o[5].toString().isEmpty()){
+							motionSearchVO.setNoticeContent(higlightText(o[5].toString(),param));
+						}else if(o[4] != null){
+							motionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+						}
+					}else if(o[4] != null){
+						motionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+					}
+					
+					
+					if(o[6] != null){
+						motionSearchVO.setStatus(o[6].toString());
+					}
+					if(o[7] != null){
+						motionSearchVO.setDeviceType(o[7].toString());
+					}
+					
+					if(o[8] != null){
+						motionSearchVO.setMinistry(o[8].toString());
+					}
+					
+					if(o[9] != null){
+						motionSearchVO.setDepartment(o[9].toString());
+					}
+					
+					if(o[10] != null){
+						motionSearchVO.setSubDepartment(o[10].toString());
+					}
+					
+					if(o[11] != null){
+						motionSearchVO.setStatusType(o[11].toString());
+					}
+					
+					if(o[12] != null){
+						Long sessionTypeId = new Long(o[12].toString());
+						SessionType sessionType = SessionType.findById(SessionType.class, sessionTypeId);
+						if(sessionType != null){
+							motionSearchVO.setSessionType(sessionType.getSessionType());
+						}
+					}
+					
+					if(o[13] != null){					
+						motionSearchVO.setSessionYear(o[13].toString());
+					}
+					
+					motionSearchVOs.add(motionSearchVO);			
+				}
+			}
+		}catch(Exception e){
+			logger.error("ReferencedEntityRepository", e);
+		}
+		
+		return motionSearchVOs;
 	}
 
 	public List<ResolutionSearchVO> fullTextSearchReferencingResolution(String param,
@@ -1553,6 +1739,8 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				
 				primaryBill.setReferencedBill(refEntity);				
 				primaryBill.simpleMerge();				
+			}else if(device.startsWith(ApplicationConstants.DEVICE_MOTIONS)){
+				
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
