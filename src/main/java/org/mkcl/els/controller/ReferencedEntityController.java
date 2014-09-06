@@ -40,9 +40,10 @@ public class ReferencedEntityController {
 		String strDeviceId=request.getParameter("id");
 		String strDeviceType = request.getParameter("deviceType");
 		String strUsergroupType = request.getParameter("usergroupType");
-//		String strHouseType = request.getParameter("houseType");
+		String strHouseType = request.getParameter("houseType");
 		
 		try{
+			model.addAttribute("houseType", strHouseType);
 			if(strDeviceId!=null && strUsergroupType!=null && strDeviceType!=null /*&& strHouseType != null*/){
 				if(!strDeviceId.isEmpty()){
 					model.addAttribute("deviceType", strDeviceType);
@@ -250,6 +251,8 @@ public class ReferencedEntityController {
 								List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, motion.getLocale());
 								model.addAttribute("sessionTypes",sessionTypes);
 								model.addAttribute("sessionType", motion.getSession().getType().getId());
+								model.addAttribute("refSession", motion.getSession().getId());
+								model.addAttribute("refHouseType", motion.getSession().getHouse().getType().getType());
 								
 								if(motion.getRevisedSubject() != null){
 									if(!motion.getRevisedSubject().isEmpty()){
