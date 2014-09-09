@@ -1088,7 +1088,7 @@ public class BillWorkflowController extends BaseController {
 //		/**** clear remarks ****/
 //		domain.setRemarks("");
 		/**** remarks ****/	
-		String currentRemarks = Bill.getLatestRemarksOfActor(domain.getId(), workflowDetails.getAssigneeUserGroupName(), this.getCurrentUser().getActualUsername(), domain.getLocale());
+		String currentRemarks = Bill.findLatestRemarksOfActor(domain.getId(), workflowDetails.getAssigneeUserGroupName(), this.getCurrentUser().getActualUsername(), domain.getLocale());
 		model.addAttribute("currentRemarks", currentRemarks);
 		/**** Locale ****/
 		String locale=domain.getLocale();

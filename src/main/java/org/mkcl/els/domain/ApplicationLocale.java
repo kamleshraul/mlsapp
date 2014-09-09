@@ -15,7 +15,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -48,6 +47,10 @@ public class ApplicationLocale extends BaseDomain implements Serializable {
     /** The display name. */
     @Column(length = 90)
     private String displayName;
+    
+    /** The language type. */
+    @Column(length = 90)
+    private String languageType;
 
     // ==================== Constructors ====================
     /**
@@ -89,6 +92,25 @@ public class ApplicationLocale extends BaseDomain implements Serializable {
         this.country = country;
         this.variant = variant;
         this.displayName = displayName;
+    }
+    
+    /**
+     * Instantiates a new application locale.
+     * 
+     * @param language the language
+     * @param country the country
+     * @param variant the variant
+     * @param displayName the display name
+     * @param displayName the language type
+     */
+    public ApplicationLocale(final String language, final String country,
+            final String variant, final String displayName, final String languageType) {
+        super();
+        this.language = language;
+        this.country = country;
+        this.variant = variant;
+        this.displayName = displayName;
+        this.languageType = languageType;
     }
 
     // ==================== Domain Methods ====================
@@ -178,4 +200,22 @@ public class ApplicationLocale extends BaseDomain implements Serializable {
     public void setDisplayName(final String displayName) {
         this.displayName = displayName;
     }
+
+    /**
+     * Gets the language type.
+     * 
+     * @return the language type
+     */
+    public String getLanguageType() {
+		return languageType;
+	}
+
+    /**
+     * Sets the language type.
+     * 
+     * @param languageType the new language type
+     */
+	public void setLanguageType(String languageType) {
+		this.languageType = languageType;
+	}
 }

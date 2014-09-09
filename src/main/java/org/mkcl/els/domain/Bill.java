@@ -1057,7 +1057,7 @@ public class Bill extends Device implements Serializable {
         return getBillRepository().getRevisions(billId,thingToBeRevised,locale);
     }
     
-    public static String getLatestRemarksOfActor(final Long billId, final String userGroupTypeName, final String username, final String locale) {
+    public static String findLatestRemarksOfActor(final Long billId, final String userGroupTypeName, final String username, final String locale) {
     	return getBillRepository().getLatestRemarksOfActor(billId, userGroupTypeName, username, locale);
     }
     
@@ -1301,6 +1301,15 @@ public class Bill extends Device implements Serializable {
 		}		
 		return null;
 	}
+	
+	public BillDraft findLatestDraft() {
+		List<BillDraft> drafts = this.getDrafts();
+		if(drafts!=null && !drafts.isEmpty()) {
+			return drafts.get(drafts.size()-1);
+		} else {
+			return null;
+		}
+	}
 
 	public static BillDraft findDraftByRecommendationStatus(final Bill bill, final Status recommendationStatus) {
 		return getBillRepository().findDraftByRecommendationStatus(bill, recommendationStatus);
@@ -1374,6 +1383,18 @@ public class Bill extends Device implements Serializable {
 	
 	public static List<Section> findAllSectionsInGivenLanguage(final Long billId, final String language) throws ELSException {
 		return getBillRepository().findAllSectionsInGivenLanguage(billId, language);
+	}
+	
+	public static List<Section> findAllSectionsInGivenLanguageForGivenHierarchyLevel(final Long billId, final String language, final int hierarchyLevel) throws ELSException {
+		return getBillRepository().findAllSectionsInGivenLanguageForGivenHierarchyLevel(billId, language, hierarchyLevel);
+	}
+	
+	public static List<Section> findAllSiblingSectionsForGivenSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
+		return getBillRepository().findAllSiblingSectionsForGivenSection(billId, language, sectionNumber);
+	}
+	
+	public static List<Section> findAllSectionsAtHierarchyLevelOfGivenSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
+		return getBillRepository().findAllSectionsAtHierarchyLevelOfGivenSection(billId, language, sectionNumber);
 	}
 	
 	public static Section findSection(final Long billId, final String language, final String sectionNumber) throws ELSException {

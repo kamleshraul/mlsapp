@@ -83,7 +83,11 @@ public class Language extends BaseDomain implements Serializable {
 	
 	public static List<Language> findAllLanguagesByModule(final String module,final String locale) throws ELSException {
 		return getLanguageRepository().findAllLanguagesByModule(module,locale);
-	} 
+	}
+	
+	public static String findLocaleForLanguage(final Language language) throws ELSException {
+		return getLanguageRepository().findLocaleForLanguage(language);
+	}
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the language.

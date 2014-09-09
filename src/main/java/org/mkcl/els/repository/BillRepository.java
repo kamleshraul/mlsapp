@@ -1873,6 +1873,151 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		}
 	}
 	
+	public List<Section> findAllSectionsInGivenLanguageForGivenHierarchyLevel(final Long billId, final String language, final int hierarchyLevel) throws ELSException {
+		Query query = null;
+		
+		String strQuery = "SELECT bs FROM Bill b JOIN b.sections bs" +
+				" WHERE b.id=:billId AND bs.language=:language";
+		
+		StringBuffer strQueryBuffer = new StringBuffer(strQuery);
+		if(hierarchyLevel==1) {
+			strQueryBuffer.append(" AND bs.hierarchyOrder NOT LIKE '%.%'");
+			query=this.em().createQuery(strQueryBuffer.toString());
+			query.setParameter("billId",billId);
+			query.setParameter("language",language);
+		} else {
+			String currentLevelMatch = "%";
+			String nextLevelMatch = "%";
+			for(int i=1; i<=hierarchyLevel; i++) {
+				if(i!=hierarchyLevel) {
+					currentLevelMatch += ".%";
+				}	
+				nextLevelMatch += ".%";
+			}
+			strQueryBuffer.append(" AND bs.hierarchyOrder LIKE :currentLevelMatch");
+			strQueryBuffer.append(" AND bs.hierarchyOrder NOT LIKE :nextLevelMatch");
+			query=this.em().createQuery(strQueryBuffer.toString());
+			query.setParameter("billId",billId);
+			query.setParameter("language",language);
+			query.setParameter("currentLevelMatch",currentLevelMatch);
+			query.setParameter("nextLevelMatch",nextLevelMatch);
+		}			
+		
+		try {
+			return query.getResultList();
+		} catch(NoResultException e) {
+			return null;
+		} catch(Exception e) {
+			throw new ELSException("some_error", "Some Error Occured");
+		}
+	}
+	
+	public List<Section> findAllSiblingSectionsForGivenSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
+		String[] sectionNumberArr = sectionNumber.split("\\.");
+		
+		Query query = null;
+		
+		String strQuery = "SELECT bs FROM Bill b JOIN b.sections bs" +
+				" WHERE b.id=:billId AND bs.language=:language AND bs.number<>:sectionNumber";
+		
+		StringBuffer strQueryBuffer = new StringBuffer(strQuery);
+		if(sectionNumberArr.length==1) {
+			strQueryBuffer.append(" AND bs.hierarchyOrder NOT LIKE '%.%'");
+			strQueryBuffer.append(" ORDER BY bs.hierarchyOrder");
+			query=this.em().createQuery(strQueryBuffer.toString());
+			query.setParameter("billId",billId);
+			query.setParameter("language",language);
+			query.setParameter("sectionNumber", sectionNumber);
+		} else {
+			String currentLevelMatch = "%";
+			String nextLevelMatch = "%";
+			for(int i=1; i<=sectionNumberArr.length; i++) {
+				if(i!=sectionNumberArr.length) {
+					currentLevelMatch += ".%";
+				}	
+				nextLevelMatch += ".%";
+			}
+			String parentSectionNumber = "";
+			for(int i=0; i<sectionNumberArr.length-1;i++) {
+				parentSectionNumber += sectionNumberArr[i];
+				if(i!=sectionNumberArr.length-2) {
+					parentSectionNumber += ".";
+				}
+			}
+			strQueryBuffer.append(" AND bs.number LIKE :parentSectionNumber");
+			strQueryBuffer.append(" AND bs.hierarchyOrder LIKE :currentLevelMatch");
+			strQueryBuffer.append(" AND bs.hierarchyOrder NOT LIKE :nextLevelMatch");
+			strQueryBuffer.append(" ORDER BY bs.hierarchyOrder");
+			query=this.em().createQuery(strQueryBuffer.toString());
+			query.setParameter("billId",billId);
+			query.setParameter("language",language);
+			query.setParameter("sectionNumber", sectionNumber);
+			query.setParameter("parentSectionNumber", parentSectionNumber + "%");
+			query.setParameter("currentLevelMatch",currentLevelMatch);
+			query.setParameter("nextLevelMatch",nextLevelMatch);
+		}			
+		
+		try {
+			return query.getResultList();
+		} catch(NoResultException e) {
+			return null;
+		} catch(Exception e) {
+			throw new ELSException("some_error", "Some Error Occured");
+		}
+	}
+	
+	public List<Section> findAllSectionsAtHierarchyLevelOfGivenSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
+		String[] sectionNumberArr = sectionNumber.split("\\.");
+		
+		Query query = null;
+		
+		String strQuery = "SELECT bs FROM Bill b JOIN b.sections bs" +
+				" WHERE b.id=:billId AND bs.language=:language";
+		
+		StringBuffer strQueryBuffer = new StringBuffer(strQuery);
+		if(sectionNumberArr.length==1) {
+			strQueryBuffer.append(" AND bs.hierarchyOrder NOT LIKE '%.%'");
+			strQueryBuffer.append(" ORDER BY bs.hierarchyOrder");
+			query=this.em().createQuery(strQueryBuffer.toString());
+			query.setParameter("billId",billId);
+			query.setParameter("language",language);			
+		} else {
+			String currentLevelMatch = "%";
+			String nextLevelMatch = "%";
+			for(int i=1; i<=sectionNumberArr.length; i++) {
+				if(i!=sectionNumberArr.length) {
+					currentLevelMatch += ".%";
+				}	
+				nextLevelMatch += ".%";
+			}
+			String parentSectionNumber = "";
+			for(int i=0; i<sectionNumberArr.length-1;i++) {
+				parentSectionNumber += sectionNumberArr[i];
+				if(i!=sectionNumberArr.length-2) {
+					parentSectionNumber += ".";
+				}
+			}
+			strQueryBuffer.append(" AND bs.number LIKE :parentSectionNumber");
+			strQueryBuffer.append(" AND bs.hierarchyOrder LIKE :currentLevelMatch");
+			strQueryBuffer.append(" AND bs.hierarchyOrder NOT LIKE :nextLevelMatch");
+			strQueryBuffer.append(" ORDER BY bs.hierarchyOrder");
+			query=this.em().createQuery(strQueryBuffer.toString());
+			query.setParameter("billId",billId);
+			query.setParameter("language",language);			
+			query.setParameter("parentSectionNumber", parentSectionNumber + "%");
+			query.setParameter("currentLevelMatch",currentLevelMatch);
+			query.setParameter("nextLevelMatch",nextLevelMatch);
+		}			
+		
+		try {
+			return query.getResultList();
+		} catch(NoResultException e) {
+			return null;
+		} catch(Exception e) {
+			throw new ELSException("some_error", "Some Error Occured");
+		}
+	}
+	
 	public Section findSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
 		Section section = null;
 		
