@@ -512,7 +512,17 @@
 		<pattern>/workflow/committee/init/invitedMemberAddition</pattern>
 		<pattern>/workflow/committee/invitedMemberAddition/*</pattern>
 		<pattern>/workflow/committee/invitedMemberAddition</pattern>
-		<pattern>/workflow/committee/invitedMemberAddition/processed/*</pattern>		
+		<pattern>/workflow/committee/invitedMemberAddition/processed/*</pattern>	
+		
+		<pattern>/sectionorder/new</pattern>
+		<pattern>/sectionorder/*/edit</pattern>
+		<pattern>/sectionorder/*/delete</pattern>
+		<pattern>/sectionorder</pattern>
+		
+		<pattern>/sectionorderseries/new</pattern>
+		<pattern>/sectionorderseries/*/edit</pattern>
+		<pattern>/sectionorderseries/*/delete</pattern>
+		<pattern>/sectionorderseries</pattern>	
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
 		<pattern>/menu</pattern>
