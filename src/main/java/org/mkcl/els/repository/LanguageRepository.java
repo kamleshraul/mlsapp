@@ -1,7 +1,9 @@
 package org.mkcl.els.repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Query;
 
@@ -65,5 +67,29 @@ public class LanguageRepository extends BaseRepository<Language, Long> {
 			}			
 		}
 		return languages;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public String findLocaleForLanguage(final Language language) throws ELSException {
+		String locale = null;
+		
+		if(language==null) {
+			return null;
+		}		
+		if(language.getType()==null || language.getType().isEmpty()) {
+			logger.error("****language type is not set****");
+			throw new ELSException();
+		}
+		
+		Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+		queryParameters.put("languageType", new String[]{language.getType()});
+		queryParameters.put("locale", new String[]{""});
+		
+		List result = org.mkcl.els.domain.Query.findReport("LOCALE_FOR_LANGUAGE_QUERY", queryParameters);
+		if(result!=null && !result.isEmpty()) {
+			locale = result.get(0).toString();
+		}
+		
+		return locale;
 	}
 }
