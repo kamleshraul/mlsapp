@@ -14,8 +14,11 @@
 			$('#list_tab').click(function(){
 				$("#selectionDiv1").show();								
 				showBillList();
-			});	
-			showBillList();	
+			});
+			showBillList();
+			$('#section_tab').click(function(){				
+				listBillSectionDetails($('#key').val());
+			});
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
 				if(value!=""){	
@@ -94,6 +97,7 @@
 		
 		/**** displaying grid ****/					
 		function showBillList() {	
+			$('#key').val("");
 			showTabByIdAndUrl('list_tab','bill/list?houseType='+$("#selectedHouseType").val()
 					+'&introducingHouseType='+$("#selectedHouseType").val()
 					+'&deviceType='+$("#selectedDeviceType").val()
@@ -166,6 +170,18 @@
 				}});
 			}
 		}
+		
+		function listBillSectionDetails(row) {
+			if(row == null || row == ''){
+				$.prompt($('#selectRowFirstMessage').val());
+				return;
+			}
+			else{
+				$("#selectionDiv1").hide();
+				showTabByIdAndUrl('section_tab','bill/section/list?billId='+$('#key').val());
+			}
+		}
+		
 		/**** reload grid ****/
 		function reloadBillGrid(){
 			$("#gridURLParams").val('houseType='+$("#selectedHouseType").val()
@@ -300,6 +316,12 @@
 			<li>
 				<a id="details_tab" href="#" class="tab">
 				   <spring:message code="generic.details" text="Details">
+				   </spring:message>
+				</a>
+			</li>
+			<li>
+				<a id="section_tab" href="#" class="tab">
+				   <spring:message code="bill.module.sectionManagement" text="Section Management">
 				   </spring:message>
 				</a>
 			</li>
