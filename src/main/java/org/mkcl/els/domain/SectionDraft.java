@@ -27,6 +27,11 @@ public class SectionDraft extends BaseDomain implements Serializable {
     @Column(length = 300)
 	private String number;
     
+    /** The ordering series. */
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="orderingseries_id")
+	private SectionOrderSeries orderingSeries;
+    
     /** The key. */
     @Column(length = 300)
 	private String hierarchyOrder;
@@ -65,7 +70,15 @@ public class SectionDraft extends BaseDomain implements Serializable {
 		this.number = number;
 	}
 	
-    public String getHierarchyOrder() {
+    public SectionOrderSeries getOrderingSeries() {
+		return orderingSeries;
+	}
+
+	public void setOrderingSeries(SectionOrderSeries orderingSeries) {
+		this.orderingSeries = orderingSeries;
+	}
+
+	public String getHierarchyOrder() {
 		return hierarchyOrder;
 	}
 

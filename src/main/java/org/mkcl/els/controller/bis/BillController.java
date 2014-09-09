@@ -1343,7 +1343,7 @@ public class BillController extends GenericController<Bill> {
 		/**** remarks ****/	
 		UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", usergroupType, locale);
 		if(userGroupType!=null) {
-			String currentRemarks = Bill.getLatestRemarksOfActor(domain.getId(), userGroupType.getName(), this.getCurrentUser().getActualUsername(), locale);
+			String currentRemarks = Bill.findLatestRemarksOfActor(domain.getId(), userGroupType.getName(), this.getCurrentUser().getActualUsername(), locale);
 			model.addAttribute("currentRemarks", currentRemarks);
 		}			
 		
