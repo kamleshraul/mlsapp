@@ -5585,7 +5585,6 @@ public class ReferenceController extends BaseController {
 		return masterVOs;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/section/findOrderSequenceByNumberAndSeries", method=RequestMethod.GET)
 	public @ResponseBody MasterVO findSectionOrderSequenceByNumberAndSeries(HttpServletRequest request, Locale locale) throws ELSException, UnsupportedEncodingException {
 		MasterVO jsonData = new MasterVO();
