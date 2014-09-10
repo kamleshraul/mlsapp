@@ -40,6 +40,7 @@ import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.OrdinanceSearchVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.common.vo.SectionVO;
 import org.mkcl.els.controller.mois.CutMotionDateControllerUtility;
 import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.Abbreviation;
@@ -99,6 +100,8 @@ import org.mkcl.els.domain.River;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Sanctuary;
 import org.mkcl.els.domain.Section;
+import org.mkcl.els.domain.SectionOrder;
+import org.mkcl.els.domain.SectionOrderSeries;
 import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.TextDraft;
@@ -4857,63 +4860,101 @@ public class ReferenceController extends BaseController {
 			return chairPersons;
 		}
 		
-		@RequestMapping(value="/bill/checkSection", method=RequestMethod.GET)
-		public @ResponseBody String checkBillSectionDetails(final HttpServletRequest request, final Locale locale) {
+		@RequestMapping(value="/bill/checkSectionDetails", method=RequestMethod.GET)
+		public @ResponseBody SectionVO checkBillSectionDetails(final HttpServletRequest request, final Locale locale) {
 			String billId = request.getParameter("billId");
 			String language = request.getParameter("language");
 			String sectionNumber = request.getParameter("sectionNumber");
-			String returnValue = null;
-			if(billId!=null && !billId.isEmpty() && language!=null && !language.isEmpty() && sectionNumber!=null && !sectionNumber.isEmpty()) {
+			String sectionOrder = request.getParameter("sectionOrder");
+			SectionVO sectionVO = new SectionVO();
+			if(billId!=null && !billId.isEmpty() && language!=null && !language.isEmpty() 
+					&& sectionNumber!=null && !sectionNumber.isEmpty()) {
 				CustomParameter deploymentServerParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "DEPLOYMENT_SERVER", "");
 				if(deploymentServerParameter!=null) {
 					if(deploymentServerParameter.getValue()!=null) {
 						if(deploymentServerParameter.getValue().equals("TOMCAT")) {
 							try {
 								sectionNumber = new String(sectionNumber.getBytes("ISO-8859-1"),"UTF-8");
+								sectionOrder = new String(sectionOrder.getBytes("ISO-8859-1"),"UTF-8");
 								Section section = Bill.findSection(Long.parseLong(billId), language, sectionNumber);
-								if(section!=null) {
-									returnValue = section.getText();
+								if(section!=null && request.getParameter("isCurrent")==null) {
+									sectionVO.setInfo("section_exists_already");									
 								} else {
-									returnValue = "sectionnotfound";
-								}
-//								Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
-//								if(bill!=null) {
-//									Section section = null;
-//									List<Section> sections = bill.getSections();
-//									if(sections!=null && !sections.isEmpty()) {
-//										for(Section s: sections) {
-//											if(s.getLanguage().equals(language) && s.getNumber().equals(Integer.parseInt(sectionNumber))) {
-//												section = s;
-//												break;
-//											}
-//										}
-//										if(section!=null) {
-//											returnValue = section.getText();
-//										}
-//									}
-//								}
+									if(sectionOrder!=null && !sectionOrder.isEmpty()) {
+										sectionOrder = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(sectionOrder).toString();
+										String[] sectionNumberArr = sectionNumber.split("\\.");
+										if(sectionNumberArr.length==1) {
+											Section sectionWithSameOrder = Bill.findSectionByHierarchyOrder(Long.parseLong(billId), language, sectionOrder);
+											if(sectionWithSameOrder!=null) {
+												sectionVO.setInfo("section_with_same_order");												
+											}
+										} else {											
+											String parentSectionNumber = "";
+											for(int i=0; i<=sectionNumberArr.length-2;i++) {											
+												parentSectionNumber += sectionNumberArr[i];
+												if(i!=sectionNumberArr.length-2) {
+													parentSectionNumber += ".";
+												}
+											}
+											Section parentSection = Bill.findSection(Long.parseLong(billId), language, parentSectionNumber);
+											if(parentSection!=null) {
+												Section sectionWithSameOrder = Bill.findSectionByHierarchyOrder(Long.parseLong(billId), language, parentSection.getHierarchyOrder()+"."+sectionOrder);
+												if(sectionWithSameOrder!=null) {
+													sectionVO.setInfo("section_with_same_order");
+												}
+											} else {
+												sectionVO.setInfo("error");												
+											}
+										}
+									} else {
+										//find whether this is only section at its hierarchy level.. send this to field 'isFirstForHierarchy'
+										List<Section> sections = Bill.findAllSiblingSectionsForGivenSection(Long.parseLong(billId), language, sectionNumber);
+										if(sections==null || sections.isEmpty()) {
+											sectionVO.setIsFirstForHierarchyLevel("yes");								
+										} else { //populate series for its hierarchy level & check whether level has custom order
+											SectionOrderSeries hierarchyOrderSeries = sections.get(0).getOrderingSeries();
+											if(hierarchyOrderSeries!=null) {
+												sectionVO.setOrderingSeries(hierarchyOrderSeries.getId().toString());
+											}										
+											Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
+											boolean isHierarchyCustomOrdered = Section.isHierarchyLevelWithCustomOrder(bill, language, sectionNumber);
+											if(isHierarchyCustomOrdered) {
+												sectionVO.setIsHierarchyLevelWithCustomOrder("yes");
+											}
+										}
+									}									
+								}																
 							} catch (UnsupportedEncodingException e) {
 								e.printStackTrace();
-								returnValue = "invalidSectionNumber";
+								sectionVO.setInfo("invalidSectionNumber");								
 							} catch (ELSException e) {
 								e.printStackTrace();
 								if(e.getParameter("bill_section_notfound")!=null) {
-									returnValue = "sectionnotfound";
+									sectionVO.setInfo("error");									
 								} else {
-									returnValue = "error";
+									sectionVO.setInfo("error");	
 								}								
 							} catch (Exception e) {
 								e.printStackTrace();
-								returnValue = "error";
+								sectionVO.setInfo("error");	
 							}
 						}
 					}
 				}
 			} else {
-				returnValue = "error";
+				sectionVO.setInfo("error");	
 			}	
-			return returnValue;
-		}		
+			if(sectionVO.getIsFirstForHierarchyLevel()==null) {
+				sectionVO.setIsFirstForHierarchyLevel("no");
+			}
+			if(sectionVO.getIsHierarchyLevelWithCustomOrder()==null) {
+				sectionVO.setIsHierarchyLevelWithCustomOrder("no");
+			}
+			if(sectionVO.getOrderingSeries()==null) {
+				sectionVO.setOrderingSeries("");
+			}
+			return sectionVO;
+		}
 		
 		@RequestMapping(value="/getDepartment", method=RequestMethod.GET)
 		public @ResponseBody List<MasterVO> getDepartmentFromGroup(final HttpServletRequest request, final Locale locale){
@@ -5489,7 +5530,23 @@ public class ReferenceController extends BaseController {
 		}
 		return actors;
 	}
-	
+
+	@RequestMapping(value="/bill/findsectionbyhierarchyorder", method=RequestMethod.GET)
+	public @ResponseBody String findBillSectionByHierarchyOrder(final HttpServletRequest request, final Locale locale) throws ELSException {
+		String returnValue = "";
+		String billId = request.getParameter("billId");
+		String language = request.getParameter("language");
+		String hierarchyOrder = request.getParameter("hierarchyOrder");
+		if(billId!=null && !billId.isEmpty() && language!=null && !language.isEmpty() 
+				&& hierarchyOrder!=null && !hierarchyOrder.isEmpty()) {
+			Section section = Bill.findSectionByHierarchyOrder(Long.parseLong(billId), language, hierarchyOrder);
+			if(section!=null) {
+				returnValue = section.getId().toString();
+			}
+		}
+		return returnValue;
+	}
+
 	@RequestMapping(value="/cutmotiondate/actors",method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getCutMotionDateActors(HttpServletRequest request, Locale locale){
 		CutMotionDate cutMotionDate = CutMotionDate.findById(CutMotionDate.class, new Long(request.getParameter("cutMotionDate")));
@@ -5505,6 +5562,141 @@ public class ReferenceController extends BaseController {
 			return party.getId();
 		}
 		return null;
+	}
+	
+	@RequestMapping(value="/section/findSeriesByLanguage", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> findSectionOrderSeriesForGivenLanguage(HttpServletRequest request, Locale locale) {
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		String languageType = request.getParameter("language");
+		if(languageType!=null && !languageType.isEmpty()) {
+			Language language = Language.findByFieldName(Language.class, "type", languageType, locale.toString());
+	        if(language!=null) {
+	        	List<SectionOrderSeries> sectionOrderSeries = SectionOrderSeries.findAllByFieldName(SectionOrderSeries.class, "language", language, "name", ApplicationConstants.ASC, locale.toString());
+		        if(sectionOrderSeries!=null && !sectionOrderSeries.isEmpty()) {
+		        	for(SectionOrderSeries series: sectionOrderSeries) {
+		        		MasterVO masterVO = new MasterVO();
+		        		masterVO.setId(series.getId());
+		        		masterVO.setName(series.getName());
+		        		masterVOs.add(masterVO);
+		        	}
+		        }
+	        }	        
+		}
+		return masterVOs;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/section/findOrderSequenceByNumberAndSeries", method=RequestMethod.GET)
+	public @ResponseBody MasterVO findSectionOrderSequenceByNumberAndSeries(HttpServletRequest request, Locale locale) throws ELSException, UnsupportedEncodingException {
+		MasterVO jsonData = new MasterVO();
+		String orderSequence = "";
+		String number = request.getParameter("number");
+		String orderSeriesId = request.getParameter("seriesId");
+		if(number==null || number.isEmpty() || orderSeriesId==null || orderSeriesId.isEmpty()) {
+			throw new ELSException();
+		}
+		CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(deploymentServer == null || deploymentServer.getValue() == null || deploymentServer.getValue().isEmpty()){
+			throw new ELSException();	
+		}
+		if(deploymentServer.getValue().equals("TOMCAT")){
+			number = new String(number.getBytes("ISO-8859-1"), "UTF-8");		
+		}
+		SectionOrderSeries orderingSeries = SectionOrderSeries.findById(SectionOrderSeries.class, Long.parseLong(orderSeriesId));
+		orderSequence = Section.findOrderInSeries(number, orderingSeries, locale.toString());
+		if(orderSequence!=null && !orderSequence.isEmpty()) {
+			orderSequence = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(orderSequence), locale.toString());
+		}
+		jsonData.setName(orderSequence);		
+		return jsonData;
+	}
+	
+	@RequestMapping(value="/bill/section/getReferenceText", method=RequestMethod.GET)
+	public @ResponseBody MasterVO getReferenceTextForSection(HttpServletRequest request, Locale locale) throws ELSException, UnsupportedEncodingException {
+		MasterVO jsonData = new MasterVO();
+		String referenceText = "";
+		String billId = request.getParameter("billId");
+		String number = request.getParameter("number");
+		String language = request.getParameter("language");
+		if(billId==null || billId.isEmpty() || number==null || number.isEmpty() || language==null || language.isEmpty()) {
+			throw new ELSException();
+		}
+		CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(deploymentServer == null || deploymentServer.getValue() == null || deploymentServer.getValue().isEmpty()){
+			throw new ELSException();	
+		}
+		if(deploymentServer.getValue().equals("TOMCAT")){		
+			number = new String(number.getBytes("ISO-8859-1"), "UTF-8");		
+		}
+		String[] numberArr = number.split("\\.");
+		
+		if(numberArr.length==1) {
+			Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
+			if(bill == null) {
+				throw new ELSException();
+			}
+			referenceText = bill.findTextOfGivenDraftTypeInGivenLanguage("revised_contentDraft", language);
+			if(referenceText==null || referenceText.isEmpty()) {
+				referenceText = bill.findTextOfGivenDraftTypeInGivenLanguage("contentDraft", language);
+			}
+			if(referenceText==null) {
+				referenceText = "";
+			}
+		} else {
+			String parentNumber = "";
+			for(int i=0; i<numberArr.length-1;i++) {
+				parentNumber += numberArr[i];
+				if(i!=numberArr.length-2) {
+					parentNumber += ".";
+				}
+			}
+			Section parentSection = Bill.findSection(Long.parseLong(billId), language, parentNumber);
+			if(parentSection==null) {
+				throw new ELSException();
+			}
+			referenceText = parentSection.getText();
+		}
+		jsonData.setName(referenceText);		
+		return jsonData;
+	}
+	
+	@RequestMapping(value="/bill/section/referOrders", method=RequestMethod.GET)
+	public String referOrdersForSection(HttpServletRequest request, ModelMap model, Locale locale) throws ELSException, UnsupportedEncodingException {
+		List<MasterVO> sectionOrders = new ArrayList<MasterVO>();
+		String returnPath = "bill/section/referOrders";
+		String billId = request.getParameter("billId");
+		String sectionNumber = request.getParameter("sectionNumber");
+		String language = request.getParameter("language");
+		if(billId==null || billId.isEmpty() || sectionNumber==null || sectionNumber.isEmpty() || language==null || language.isEmpty()) {
+			throw new ELSException();
+		}
+		CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(deploymentServer == null || deploymentServer.getValue() == null || deploymentServer.getValue().isEmpty()){
+			throw new ELSException();	
+		}
+		if(deploymentServer.getValue().equals("TOMCAT")){		
+			sectionNumber = new String(sectionNumber.getBytes("ISO-8859-1"), "UTF-8");		
+		}
+		Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
+		if(bill == null) {
+			throw new ELSException();
+		}
+		List<Section> sections = Bill.findAllSectionsAtHierarchyLevelOfGivenSection(bill.getId(), language, sectionNumber);
+		if(sections!=null && !sections.isEmpty()) {
+			for(Section s: sections) {
+				MasterVO sectionOrder = new MasterVO();
+				sectionOrder.setName(s.getNumber());
+				String sOrder = s.findOrder();
+				if(sOrder!=null) {
+					sectionOrder.setValue(FormaterUtil.formatNumberNoGrouping(Integer.parseInt(sOrder), locale.toString()));
+				} else {
+					sectionOrder.setValue("");
+				}
+				sectionOrders.add(sectionOrder);
+			}			
+		}	
+		model.addAttribute("sectionOrders", sectionOrders);
+		return returnPath;
 	}
 	
 	@RequestMapping(value="/ministry/{houseType}/{sessionYear}/{sessionType}", method=RequestMethod.GET)
