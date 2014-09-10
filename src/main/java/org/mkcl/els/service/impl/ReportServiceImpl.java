@@ -9,17 +9,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -41,7 +35,6 @@ import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-import org.joda.time.format.FormatUtils;
 import org.mkcl.els.common.exception.ResourceException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -196,6 +189,7 @@ public class ReportServiceImpl implements IReportService {
 		str.close(); 
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void createInternalElements(List<Object> currentObj, Element currentElement) {
 		for(int k = 0; k < currentObj.size(); k++){
 			
@@ -243,6 +237,7 @@ public class ReportServiceImpl implements IReportService {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void getXMLSource(final Object[] reportFields, final String locale) throws Exception {					
 		
 			Element root = new Element("root");
@@ -283,8 +278,8 @@ public class ReportServiceImpl implements IReportService {
 							//singleElement.setText(reportFields[i].toString());
 							root.addContent(listElement);					
 						} else if(classType.endsWith("List")){					
+							@SuppressWarnings("rawtypes")
 							List report = (List) reportFields[i]; 
-							Set s = new HashSet<Object>();				
 							for (int j = 0; j < report.size(); j++) {						
 								Element listElement = new Element("element_"+(i+1));
 								if(report.get(j).getClass().getSimpleName().equals("Object[]")){
@@ -297,13 +292,17 @@ public class ReportServiceImpl implements IReportService {
 								root.addContent(listElement);
 							}					
 						} else if(classType.endsWith("Map")){					
+							@SuppressWarnings("rawtypes")
 							Map mapReport = (Map) reportFields[i]; 
+							@SuppressWarnings("rawtypes")
 							Iterator iter = mapReport.entrySet().iterator();
 							while(iter.hasNext()){						
+								@SuppressWarnings("rawtypes")
 								Map.Entry entry = (Map.Entry)iter.next(); 
 								if(entry != null){
 									Element mapElement = new Element("element_"+(i+1));						
 									if(entry.getKey().getClass().getSimpleName().endsWith("List")){
+										@SuppressWarnings("rawtypes")
 										List report = (List)entry.getValue();								
 										for (int j = 0; j < report.size(); j++) {	
 											Element mapKeyElement = new Element(mapElement.getName()+"_1");
@@ -321,6 +320,7 @@ public class ReportServiceImpl implements IReportService {
 										mapElement.addContent(mapKeyElement);
 									}							
 									if(entry.getValue().getClass().getSimpleName().endsWith("List")){
+										@SuppressWarnings("rawtypes")
 										List report = (List)entry.getValue();								
 										for (int j = 0; j < report.size(); j++) {							
 											Element mapValueElement = new Element(mapElement.getName()+"_2");
@@ -712,6 +712,9 @@ public class ReportServiceImpl implements IReportService {
 	        Result res = new StreamResult(out);
 	
 	        //Start XSLT transformation and FOP processing
+	        transformer.transform(src, res);
+	        
+	        out.close();
 		}catch (Exception e) {
 			if(e instanceof FileNotFoundException) {
 				throw ((FileNotFoundException)e); 
