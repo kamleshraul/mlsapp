@@ -2277,7 +2277,8 @@ class EditingControllerUtility{
 		int i = 0;
 		for(Long deviceId : deviceIds){
 			flags[i] = false;
-			if(WorkflowDetails.findIfWorkflowExists(session, houseType, deviceId.toString(), workflowSubTypeInitial, locale) > 0){
+			Integer workflowCount = WorkflowDetails.findIfWorkflowExists(session, houseType, deviceId.toString(), workflowSubTypeInitial, locale);
+			if( workflowCount != null && workflowCount > 0){
 				//TODO: completeness criteria is very primitive needs to be enhanced to include member and speaker
 				//wf Separately rather than including them as whole in 'COMPLETE or PENDING criteria
 				//change the way to find member wf then calculate how many member wfs have been
