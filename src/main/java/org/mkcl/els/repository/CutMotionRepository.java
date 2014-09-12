@@ -440,5 +440,32 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		tQuery.setParameter("locale", locale);
 		
 		return tQuery.getResultList();
+	}
+
+	public Boolean isExist(final Integer number, final DeviceType deviceType,
+			final Session session, final String locale) {
+		try{
+			StringBuffer strQuery=new StringBuffer();
+			strQuery.append("SELECT cm FROM CutMotion cm " +
+					" WHERE cm.session.id=:sessionId" +
+					" AND cm.number=:number" +
+					" AND cm.deviceType.id=:deviceTypeId" +
+					" AND cm.locale=:locale");
+			Query query = this.em().createQuery(strQuery.toString());
+			query.setParameter("deviceTypeId", deviceType.getId());
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("number", number);
+			query.setParameter("locale", locale);
+			
+			CutMotion motion = (CutMotion) query.getSingleResult();
+			if(motion!=null){
+				return true;
+			}else{
+				return false;
+			}
+		}catch(Exception e) {
+			logger.error(e.getMessage());
+			return false;
+		}
 	}	
 }
