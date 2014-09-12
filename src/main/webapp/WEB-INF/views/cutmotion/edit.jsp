@@ -289,7 +289,7 @@
 				</c:if>
 				
 				<c:if test="${!(empty domain.internalNumber)}">
-					<p style="dispay: none;">
+					<p style="display: none;">
 						<label class="small"><spring:message code="cutmotion.number" text="CutMotion Number"/>*</label>
 						<input id="formattedInternalNumber" name="formattedInternalNumber" value="${formattedInternalNumber}" class="sText" readonly="readonly">		
 						<input id="internalNumber" name="internalNumber" value="${domain.internalNumber}" type="hidden">

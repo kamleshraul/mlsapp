@@ -255,15 +255,15 @@
 				<h2><spring:message code="cutmotion.new.heading" text="Enter Motion Details"/></h2>
 				<form:errors path="version" cssClass="validationError"/>	
 				
-				<security:authorize access="hasAnyRole('CMOIS_CLERK')">	
+				<security:authorize access="hasAnyRole('CMOIS_CLERK','CMOIS_TYPIST')">	
 					<p>
 						<label class="small"><spring:message code="cutmotion.number" text="Motion Number"/>*</label>
-						<form:input path="number" cssClass="sText"/>
+						<form:input path="number" cssClass="sText integer"/>
 						<form:errors path="number" cssClass="validationError"/>
 						<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
 					</p>
 					
-					<p style="dispay: none;">
+					<p style="display: none;">
 						<label class="small"><spring:message code="cutmotion.internalnumber" text="Motion Number"/>*</label>
 						<form:input path="internalNumber" cssClass="sText"/>
 						<form:errors path="internalNumber" cssClass="validationError"/>

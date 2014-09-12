@@ -89,7 +89,7 @@
 	<div>
 	<div class="commandbar">
 		<div class="commandbarContent">	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','CMOIS_CLERK')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','CMOIS_CLERK','CMOIS_TYPIST')">			
 				<a href="#" id="new_record" class="butSim">
 					<spring:message code="generic.new" text="New"/>
 				</a> |
