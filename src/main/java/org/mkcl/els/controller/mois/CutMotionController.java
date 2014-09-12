@@ -38,6 +38,7 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
@@ -247,33 +248,46 @@ public class CutMotionController extends GenericController<CutMotion>{
 	}
 
 	@Override
-	protected String modifyURLPattern(final String urlPattern,final HttpServletRequest request,final ModelMap model,final String locale) {
-		/**** For MOIS roles other than member and clerk assistant grid is visible ****/
-		String role=request.getParameter("role");
-		String newUrlPattern=urlPattern;
-		if(role.contains("CMOIS_")&& (role.contains("CLERK"))){
-			newUrlPattern=urlPattern+"?usergroup=clerk";
-		}else if(role.contains("CMOIS_")&& (!role.contains("CLERK"))){
-			newUrlPattern=urlPattern+"?usergroup=assistant";
+	protected String modifyURLPattern(final String urlPattern,final HttpServletRequest request,final ModelMap model,final String locale) {		
+		
+		 /**** Controlling Grids Starts ****/
+		String role = request.getParameter("role");
+		String houseType = request.getParameter("houseType");
+		String newUrlPattern = urlPattern;
+		CustomParameter assistantGridAllowedFor = CustomParameter.findByName(CustomParameter.class, "CMOIS_ASSISTANTGRID_ALLOWED_FOR","");
+		CustomParameter memberGridAllowedFor = CustomParameter.findByName(CustomParameter.class,"CMOIS_MEMBERGRID_ALLOWED_FOR","");
+		CustomParameter typistGridAllowedFor = CustomParameter.findByName(CustomParameter.class,"CMOIS_TYPISTGRID_ALLOWED_FOR","");
+		if(memberGridAllowedFor != null
+				&& role != null && !role.isEmpty()
+				&& houseType != null && !houseType.isEmpty()
+				&& memberGridAllowedFor.getValue().contains(role)){
+			newUrlPattern = urlPattern + "?usergroup=member&houseType=" + houseType;
+		}else if(typistGridAllowedFor != null && role != null && !role.isEmpty() 
+				&& houseType != null && !houseType.isEmpty()
+				&& typistGridAllowedFor.getValue().contains(role)){
+			newUrlPattern = urlPattern + "?usergroup=typist&houseType=" + houseType;
+		}else if(assistantGridAllowedFor != null && role != null && !role.isEmpty()
+				&& houseType != null && !houseType.isEmpty()
+				&& assistantGridAllowedFor.getValue().contains(role)){
+			newUrlPattern = urlPattern + "?usergroup=assistant&houseType=" + houseType;	
 		}
-		return newUrlPattern;
+		/**** Controlling Grids Ends ****/
+		return newUrlPattern;		
 	}
 
 	@Override
 	protected String modifyNewUrlPattern(final String servletPath,
 			final HttpServletRequest request, final ModelMap model, final String string) {
-		/**** Member and Clerk can only create new motions ****/
-		String role=request.getParameter("role");		
-		if(role!=null){
-			if(!role.isEmpty()){
-				if(role.startsWith("MEMBER_")||role.equals("CMOIS_TYPIST")){
-					return servletPath;
-				}
-			}
-		}			
-		/**** For others permission denied ****/
+		
+		/**** New Operations Allowed For Starts ****/
+		String role = request.getParameter("role");	
+		CustomParameter newOperationAllowedTo = CustomParameter.findByName(CustomParameter.class, "CMOIS_NEW_OPERATION_ALLOWED_TO", "");
+		if(newOperationAllowedTo != null && role != null && !role.isEmpty() && newOperationAllowedTo.getValue().contains(role)){
+			return servletPath;			
+		}		
 		model.addAttribute("errorcode","permissiondenied");
 		return servletPath.replace("new","error");
+		/**** New Operations Allowed For Starts ****/ 		
 	}
 
 	@Override
@@ -527,40 +541,29 @@ public class CutMotionController extends GenericController<CutMotion>{
 			final HttpServletRequest request, 
 			final ModelMap model,
 			final String locale) {
-
-		/****
-		 * if request parameter contains edit=false then editreadonly page is
-		 * displayed
-		 ****/
+		
+		/**** Edit Page Starts ****/
 		String edit = request.getParameter("edit");
-		String readonly = request.getParameter("readonly");
-		if (edit != null && readonly != null) {
-			if (!readonly.isEmpty()) {
-				if (readonly.equals("yes")) {
-					return newUrlPattern.replace("edit", "editreadonly");
-				}
-			}
-			if (!Boolean.parseBoolean(edit)) {
-				return newUrlPattern.replace("edit", "editreadonly");
+		if(edit != null){
+			if(!Boolean.parseBoolean(edit)){
+				return newUrlPattern.replace("edit","editreadonly");
 			}
 		}
-
-		/**** for Member and Clerk edit page is displayed ****/
-		/**** for assistant assistant page ****/
-		/**** for other cmois usergroupTypes editreadonly page ****/
+		CustomParameter editPage = CustomParameter.findByName(CustomParameter.class, "CMOIS_EDIT_OPERATION_EDIT_PAGE", "");
+		CustomParameter assistantPage = CustomParameter.findByName(CustomParameter.class, "CMOIS_EDIT_OPERATION_ASSISTANT_PAGE", "");
 		Set<Role> roles = this.getCurrentUser().getRoles();
-		for (Role i : roles) {
-			if (i.getType().startsWith("MEMBER_") || i.getType().contains("CLERK")) {
+		for(Role i:roles){
+			if(editPage != null && editPage.getValue().contains(i.getType())) {
 				return newUrlPattern;
-			} else if (i.getType().contains("ASSISTANT") || i.getType().contains("SECTION_OFFICER")) {
+			}else if(assistantPage != null && assistantPage.getValue().contains(i.getType())) {
 				return newUrlPattern.replace("edit", "assistant");
-			} else if (i.getType().startsWith("CMOIS_")) {
+			}else if(i.getType().startsWith("CMOIS_")) {
 				return newUrlPattern.replace("edit", "editreadonly");
 			}
-		}
-		/**** for others permission denied ****/
-		model.addAttribute("errorcode", "permissiondenied");
+		}		
+		model.addAttribute("errorcode","permissiondenied");
 		return "cutmotion/error";
+		/**** Edit Page Ends ****/
 	}
 
 	@Override
@@ -1018,12 +1021,13 @@ public class CutMotionController extends GenericController<CutMotion>{
 			final HttpServletRequest request) {
 		/**** Supporting Members and various Validations ****/
 		populateSupportingMembers(domain,request);
+		String role = request.getParameter("role");
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
 		}
-		String operation=request.getParameter("operation");
-		if(operation!=null){
+		String operation = request.getParameter("operation");
+		if(operation != null){
 			if(!operation.isEmpty()){
 				if(operation.equals("approval")){/**** Approval ****/
 					
@@ -1068,6 +1072,17 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 				}else /**** Submission ****/
 					if(operation.equals("submit")){
+						
+						if(role.equals("CMOIS_TYPIST")){
+							if(domain.getNumber()==null){
+								result.rejectValue("number","NumberEmpty");
+								//check for duplicate motion
+							}
+							Boolean flag = CutMotion.isExist(domain.getNumber(),domain.getDeviceType(), domain.getSession(), domain.getLocale());
+							if(flag){
+								result.rejectValue("number", "NonUnique","Duplicate Parameter");
+							}
+						}
 						/**** Submission ****/
 						if(domain.getHouseType()==null){
 							result.rejectValue("houseType","HousetypeEmpty");
@@ -1123,6 +1138,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 			final HttpServletRequest request) {
 		/**** Supporting Members and various Validations ****/
 		populateSupportingMembers(domain,request);
+		String role = request.getParameter("role");
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
@@ -1163,6 +1179,16 @@ public class CutMotionController extends GenericController<CutMotion>{
 				}
 			}else /**** Submission By Member/Clerk****/
 				if(operation.equals("submit")){
+					if(role.equals("CMOIS_TYPIST")){
+						if(domain.getNumber()==null){
+							result.rejectValue("number","NumberEmpty");
+							//check for duplicate motion
+						}
+						/*Boolean flag = CutMotion.isExist(domain.getNumber(),domain.getDeviceType(), domain.getSession(), domain.getLocale());
+						if(flag){
+							result.rejectValue("number", "NonUnique","Duplicate Parameter");
+						}*/
+					}
 					/**** Submission ****/
 					if(domain.getHouseType()==null){
 						result.rejectValue("houseType","HousetypeEmpty");
@@ -1187,6 +1213,17 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 				}else /**** Start Workflow By assistant ****/
 					if(operation.equals("startworkflow")){
+						if(role.equals("CMOIS_TYPIST")){
+							if(domain.getNumber()==null){
+								result.rejectValue("number","NumberEmpty");
+								//check for duplicate motion
+							}
+							/*Boolean flag = CutMotion.isExist(domain.getNumber(),domain.getDeviceType(), domain.getSession(), domain.getLocale());
+							if(flag){
+								result.rejectValue("number", "NonUnique","Duplicate Parameter");
+							}*/
+						}
+						
 						if(domain.getHouseType()==null){
 							result.rejectValue("houseType","HousetypeEmpty");
 						}
