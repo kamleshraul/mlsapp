@@ -342,7 +342,7 @@
 		
 		/**** displaying grid ****/					
 		function showRosterList() {
-				//$("#selectionDiv1").show();				
+				$("#selectionDiv1").show();				
 				showTabByIdAndUrl('list_tab','editing/list?houseType='+$('#selectedHouseType').val()
 						+$("#selectedSessionYear").val()
 						+'&sessionType='+$("#selectedSessionType").val()
