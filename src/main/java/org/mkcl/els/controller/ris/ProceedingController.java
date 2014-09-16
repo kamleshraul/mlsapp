@@ -84,7 +84,6 @@ public class ProceedingController extends GenericController<Proceeding>{
 	@Override
 	protected void populateModule(final ModelMap model,final HttpServletRequest request,
 			final String locale,final AuthUser currentUser) {	
-
 		/**** House Types ****/
 		List<HouseType> houseTypes = new ArrayList<HouseType>();
 		String houseType=this.getCurrentUser().getHouseType();
@@ -108,7 +107,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 		try {
 			lastSessionCreated = Session.findLatestSession(authUserHouseType);
 		} catch (ELSException e) {
-			// TODO Auto-generated catch block
+			model.addAttribute("errorcode","nosessionentriesfound");
 			e.printStackTrace();
 		}
 		Integer year=new GregorianCalendar().get(Calendar.YEAR);
@@ -138,11 +137,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 		List<Language> languages = new ArrayList<Language>();
 		try {
 			languages = Language.findAllLanguagesByModule("RIS",locale);
+			model.addAttribute("languages",languages);
 		} catch (ELSException e) {
-			// TODO Auto-generated catch block
+			model.addAttribute("errorcode", "languagesnotset");
 			e.printStackTrace();
 		}
-		model.addAttribute("languages",languages);
+		
 
 		/******Reporter*********/
 		User user = null;
@@ -150,7 +150,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			user = User.findByUserName(this.getCurrentUser().getUsername(),locale);
 			model.addAttribute("ugparam",user.getId());
 		} catch (ELSException e) {
-			// TODO Auto-generated catch block
+			model.addAttribute("errorcode", "userdoesnotexist");
 			e.printStackTrace();
 		}
 			
@@ -167,7 +167,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			houseType = session.getHouse().getType();
 			model.addAttribute("session",session.getId());
 			
-			/**** Previou Slot ****/
+			/**** Previous Slot ****/
 			Slot previousSlot = Slot.findPreviousSlot(slot);
 			
 			if(previousSlot!=null){
@@ -179,6 +179,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 						Part previousPart = previousParts.get(previousParts.size()-1);
 						model.addAttribute("previousPartMainHeading", previousPart.getMainHeading());
 						model.addAttribute("previousPartPageHeading", previousPart.getPageHeading());
+						model.addAttribute("previousPartSpecialHeading", previousPart.getSpecialHeading());
+						if(previousPart.getChairPersonRole()!=null){
+							model.addAttribute("previousPartChairPersonRole",previousPart.getChairPersonRole().getId());
+							//model.addAttribute("previousPartChairPerson", previousPart.getChairPerson());
+						}
 						if(previousPart.getDeviceType()!=null){
 							model.addAttribute("previousPartDeviceType",previousPart.getDeviceType().getId());
 							if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.QUESTION)){
@@ -206,13 +211,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 				ministries = Ministry.findMinistriesAssignedToGroups(session.getHouse().getType(), session.getYear(), session.getType(), session.getLocale());
 				model.addAttribute("ministries", ministries);
 			} catch (ELSException e) {
-				// TODO Auto-generated catch block
+				logger.error("Ministries not assigned to Group");
 				e.printStackTrace();
 			}
+			/****slot****/
+			model.addAttribute("slot", domain.getSlot().getId());
+			model.addAttribute("slotName",domain.getSlot().getName());
 		}
-		/****slot****/
-		model.addAttribute("slot", domain.getSlot().getId());
-		model.addAttribute("slotName",domain.getSlot().getName());
+		
 		
 		/****Members****/
 		List<Member> members=Member.findAll(Member.class, "firstName", "asc", domain.getLocale());
@@ -231,6 +237,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 						roles.add(memberRole);
 					}
 				}
+			}else{
+				model.addAttribute("errorcode","allowedmemberrolesforrislowerhousenotset");
+				logger.error("Custom Parameter ALLOWED_MEMBERROLES_FOR_RIS_LOWERHOUSE not set");
 			}
 		}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
 			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE", "");
@@ -243,6 +252,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 						roles.add(memberRole);
 					}
 				}
+			}else{
+				model.addAttribute("errorcode","allowedmemberrolesforrisupperhousenotset");
+				logger.error("Custom Parameter ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE not set");
 			}
 		}
 		
@@ -289,7 +301,13 @@ public class ProceedingController extends GenericController<Proceeding>{
 	@Override
 	protected void preValidateUpdate(final Proceeding domain,
 			final BindingResult result, final HttpServletRequest request) {
-		populateParts(domain, request, result);
+		String strPartCount = request.getParameter("partCount");
+		if(strPartCount !=null && strPartCount.isEmpty() && strPartCount.equals("undefined") ){
+			populateParts(domain, request, result);
+		}else{
+			result.rejectValue("version", "partCountEmpty");
+		}
+		
 
 	}
 
@@ -349,6 +367,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 				part.setPageHeading(pageHeading);
 			}
 			
+			/****Special Heading****/
+			String specialHeading=request.getParameter("specialHeading"+i);
+			if(specialHeading!=null && !specialHeading.isEmpty()){
+				part.setSpecialHeading(specialHeading);
+			}
+			
 			/****Member role and Chairperson****/
 			String strRole=request.getParameter("chairPersonRole"+i);
 			String strChairPerson = request.getParameter("chairPerson"+i);
@@ -374,7 +398,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 							}
 							part.setChairPerson(chairPersonMember.getFullname());
 						} catch (ELSException e) {
-							// TODO Auto-generated catch block
+							result.rejectValue("version", "noactivememberrole");
 							e.printStackTrace();
 						}
 					}
@@ -489,6 +513,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 			}else{
 				part.setIsInterrupted(false);
 			}
+			
+			/**** Is Interrupted ****/
+			String strIsSubstitutionRequired=request.getParameter("isSubstitutionRequired"+i);
+			if(strIsSubstitutionRequired!=null && !strIsSubstitutionRequired.isEmpty()){
+				part.setIsSubstitutionRequired(true);
+			}else{
+				part.setIsSubstitutionRequired(false);
+			}
 					
 			/****Reporter****/
 			part.setReporter(domain.getSlot().getReporter());
@@ -500,7 +532,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 	@Override
 	protected void customValidateUpdate(final Proceeding domain,
 			final BindingResult result, final HttpServletRequest request) {
-
+		
 	}
 
 	// Not Used Currently... If Bookmarking is implemented uncomment following code
@@ -569,7 +601,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 			String strIsInterrupted = request.getParameter("isInterrupted"+strPartCount);
 			String strMainHeading = request.getParameter("mainHeading"+strPartCount);
 			String strPageHeading = request.getParameter("pageHeading"+strPartCount);
+			String strSpecialHeading = request.getParameter("specialHeading"+strPartCount);
 			String strIsConstituencyRequired = request.getParameter("isConstituencyRequired"+strPartCount);
+			String strIsSubstitutionRequired = request.getParameter("isSubstitutionRequired"+strPartCount);
 			String strOrderNo = request.getParameter("partOrder"+strPartCount);
 			String strDeviceId = request.getParameter("deviceId"+strPartCount);
 			String strReporter = request.getParameter("partReporter"+strPartCount);
@@ -661,6 +695,13 @@ public class ProceedingController extends GenericController<Proceeding>{
 							}
 						}
 					}
+				}else{
+					if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty() ){
+						SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
+						Ministry ministry = Ministry.find(subDepartment,locale);
+						part.setPrimaryMemberMinistry(ministry);
+						part.setPrimaryMemberSubDepartment(subDepartment);
+					}
 				}
 				
 			}
@@ -713,11 +754,23 @@ public class ProceedingController extends GenericController<Proceeding>{
 				part.setPageHeading(strPageHeading);
 			}
 			
+			/**** Special Heading ****/
+			if(strSpecialHeading!=null && !strSpecialHeading.isEmpty()){
+				part.setSpecialHeading(strSpecialHeading);
+			}
+			
 			/**** Is Constituency Required****/
 			if(strIsConstituencyRequired!=null && !strIsConstituencyRequired.isEmpty()){
 				part.setIsConstituencyRequired(true);
 			}else{
 				part.setIsConstituencyRequired(false);
+			}
+			
+			/**** Is Constituency Required****/
+			if(strIsSubstitutionRequired!=null && !strIsSubstitutionRequired.isEmpty()){
+				part.setIsSubstitutionRequired(true);
+			}else{
+				part.setIsSubstitutionRequired(false);
 			}
 			
 			/**** Order No ****/
@@ -744,6 +797,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			childVO.setMainHeading(part.getMainHeading());
 			childVO.setVersion(part.getVersion());
 			childVO.setPageHeading(part.getPageHeading());
+			childVO.setSpecialHeading(part.getSpecialHeading());
 			
 			if(part.getChairPersonRole()!=null){
 				childVO.setMemberrole(part.getChairPersonRole().getId().toString());
@@ -754,35 +808,60 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(part.getPrimaryMember()!=null){
 				childVO.setPrimaryMember(part.getPrimaryMember().getId().toString());
 				childVO.setPrimaryMemberName(part.getPrimaryMember().getFullname());
+			}else{
+				childVO.setPrimaryMember("");
 			}
 			
 			
 			if(part.getPrimaryMemberDesignation()!=null){
 				childVO.setPrimaryMemberDesignation(part.getPrimaryMemberDesignation().getId().toString());
+				childVO.setPrimaryMemberDesignationName(part.getPrimaryMemberDesignation().getName());
+			}else{
+				childVO.setPrimaryMemberDesignation("");
 			}
 			
+			if(part.getPrimaryMemberMinistry()!=null){
+				childVO.setPrimaryMemberMinistry(part.getPrimaryMemberMinistry().getId().toString());
+				childVO.setPrimaryMemberMinistryName(part.getPrimaryMemberMinistry().getName());
+			}else{
+				childVO.setPrimaryMemberMinistry("");
+			}
 			
 			if(part.getPrimaryMemberSubDepartment()!=null){
 				childVO.setPrimaryMemberSubDepartment(part.getPrimaryMemberSubDepartment().getId().toString());
+				childVO.setPrimaryMemberSubDepartmentName(part.getPrimaryMemberSubDepartment().getName());
+			}else{
+				childVO.setPrimaryMemberSubDepartment("");
 			}
 			
 			
 			if(part.getSubstituteMember()!=null){
 				childVO.setSubstituteMember(part.getSubstituteMember().getId().toString());
+				childVO.setSubstituteMemberName(part.getSubstituteMember().getFullname());
+			}else{
+				childVO.setSubstituteMember("");
 			}
 			
 			
 			if(part.getSubstituteMemberDesignation()!=null){
 				childVO.setSubstituteMemberDesignation(part.getSubstituteMemberDesignation().getId().toString());
+				childVO.setSubstituteMemberDesignationName(part.getSubstituteMemberDesignation().getName());
+			}else{
+				childVO.setSubstituteMemberDesignation("");
 			}
 			
 			if(part.getSubstituteMemberMinistry()!=null){
 				childVO.setSubstituteMemberMinistry(part.getSubstituteMemberMinistry().getId().toString());
+				childVO.setSubstituteMemberMinistry(part.getSubstituteMemberMinistry().getName());
+			}else{
+				childVO.setSubstituteMemberMinistry("");
 			}
-			
 			
 			if(part.getSubstituteMemberSubDepartment()!=null){
 				childVO.setSubstituteMemberSubDepartment(part.getSubstituteMemberSubDepartment().getId().toString());
+				childVO.setSubstituteMemberSubDepartmentName(part.getSubstituteMemberSubDepartment().getName());
+			}else{
+				childVO.setSubstituteMemberSubDepartment("");
 			}
 			
 			
@@ -797,35 +876,40 @@ public class ProceedingController extends GenericController<Proceeding>{
 				childVO.setConstituencyRequired(part.getIsConstituencyRequired());
 			}
 			
-			
 			if(part.getIsInterrupted()!=null){
 				childVO.setInterrupted(part.getIsInterrupted());
 			}
 			
+			if(part.getIsSubstitutionRequired()!=null){
+				childVO.setSubstitutionRequired(part.getIsSubstitutionRequired());
+			}
 			
 			if(part.getDeviceType()!=null){
 				childVO.setDeviceType(part.getDeviceType().getId().toString());
+			}else{
+				childVO.setDeviceType("");
+				childVO.setDeviceId("");
 			}
-			
-			
+						
 			if(part.getDeviceId()!=null){
 				childVO.setDeviceId(part.getDeviceId().toString());
 			}
-			
 			
 			if(part.getPublicRepresentative()!=null && !part.getPublicRepresentative().isEmpty()){
 				childVO.setPublicRepresentative(part.getPublicRepresentative());
 				if(part.getPublicRepresentativeDetail()!=null && !part.getPublicRepresentativeDetail().isEmpty()){
 					childVO.setPublicRepresentativeDetails(part.getPublicRepresentativeDetail());
 				}
+			}else{
+				childVO.setPublicRepresentative("");
+				childVO.setPublicRepresentativeDetails("");
 			}
 			
 			childVO.setProceedingContent(part.getProceedingContent());
 			childVO.setProceeding(part.getProceeding().getId());
 			childVO.setReporter(part.getReporter().getId());
 		}
-		
-	    return childVO;
+		return childVO;
 		//return null;
 		
 	}
@@ -855,13 +939,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 					}
 				}
 			}
-		}
-		
-		/****Bookmark size****/
-		if(strPart!=null&&!strPart.isEmpty()){
-			Part part=Part.findById(Part.class, Long.parseLong(strPart));
-			List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "masterPart", part, "id", "asc", locale.toString());
-			model.addAttribute("bookmarkSize",bookmarks.size());
+		}else{
+			logger.error("Custom Parameter ALLOWED_LANGUAGES_FOR_BOOKMARKING is not set");
 		}
 		model.addAttribute("count", strCount);
 		model.addAttribute("languages", mainlanguages);
@@ -996,6 +1075,173 @@ public class ProceedingController extends GenericController<Proceeding>{
 	}
 	
 	
+	
+	@RequestMapping(value="/part/updateMemberDetail",method=RequestMethod.POST)
+	public @ResponseBody ChildVO savePartMemberDetail(final HttpServletRequest request, final Locale locale,final ModelMap model){
+		ChildVO childVO=new ChildVO();
+			
+			String strPrimaryMember = request.getParameter("editPrimaryMember");
+			String strPrimaryMemberDesignation = request.getParameter("editPrimaryMemberDesignation");
+			String strPrimaryMemberSubDepartment = request.getParameter("editPrimaryMemberSubDepartment");
+			String strPublicRepresentative = request.getParameter("editPublicRepresentative");
+			String strPublicRepresentativeDetail = request.getParameter("editPublicRepresentativeDetail");
+			String strChairPersonRole = request.getParameter("editChairPersonRole");
+			String strChairPerson = request.getParameter("editChairPerson");
+			String strIsConstituencyRequired = request.getParameter("editIsConstituencyRequired");
+			String strIsSubstitutionRequired = request.getParameter("editIsSubstitutionRequired");
+			String strPartId = request.getParameter("editPartId");
+			if(strPartId!=null && !strPartId.isEmpty()){
+				Part part = Part.findById(Part.class, Long.parseLong(strPartId));
+				/**** ChairPerson and Member Role ****/
+				if(strChairPersonRole!=null && !strChairPersonRole.isEmpty()){
+					MemberRole memberRole = MemberRole.findById(MemberRole.class, Long.parseLong(strChairPersonRole));
+					if(!part.getChairPersonRole().equals(memberRole)){
+						part.setChairPersonRole(memberRole);
+						if(strChairPerson!=null && !strChairPerson.isEmpty()){
+							part.setChairPerson(strChairPerson);
+						}
+					}
+				}
+				
+				/**** Primary member ****/
+				if(strPrimaryMember!=null && !strPrimaryMember.isEmpty()){
+					Member member = Member.findById(Member.class, Long.parseLong(strPrimaryMember));
+					if(part.getPrimaryMember()!=null ){
+						if(!part.getPrimaryMember().equals(member)){
+							part.setPrimaryMember(member);
+						}
+					}
+				}
+				
+				/**** Primary Member Designation****/
+				if(strPrimaryMemberDesignation!=null && !strPrimaryMemberDesignation.isEmpty()){
+					Designation designation = Designation.findById(Designation.class, Long.parseLong(strPrimaryMemberDesignation));
+					part.setPrimaryMemberDesignation(designation);
+					if(designation.getType().equals(ApplicationConstants.STATE_MINISTER)){
+						if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty() ){
+							SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
+							Ministry ministry = Ministry.find(subDepartment,locale);
+							Member member = MemberMinister.find(ministry,locale);
+							if(member!=null){
+								/**** Substitute Member , Ministry, Designation, SubDepartment****/
+								part.setSubstituteMember(member);
+								part.setSubstituteMemberMinistry(ministry);
+								part.setSubstituteMemberSubDepartment(subDepartment);
+								List<MemberMinister> memberMinisters=member.getMemberMinisters();
+								for(MemberMinister mm:memberMinisters){
+									if((mm.getMinistryFromDate()==null || mm.getMinistryFromDate().before(new Date()))
+										&& (mm.getMinistryToDate()==null || mm.getMinistryToDate().after(new Date()))){
+										part.setSubstituteMemberDesignation(mm.getDesignation());
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				
+				/**** Public Representative ****/
+				if(strPublicRepresentative!=null && !strPublicRepresentative.isEmpty()){
+					part.setPublicRepresentative(strPublicRepresentative);
+					/**** Public Representative Details****/
+					if(strPublicRepresentativeDetail!=null && !strPublicRepresentativeDetail.isEmpty()){
+						part.setPublicRepresentativeDetail(strPublicRepresentativeDetail);
+					}
+				}
+						
+				
+				/**** Is Constituency Required****/
+				if(strIsConstituencyRequired!=null && !strIsConstituencyRequired.isEmpty()){
+					part.setIsConstituencyRequired(true);
+				}else{
+					part.setIsConstituencyRequired(false);
+				}
+				
+				/**** Is Constituency Required****/
+				if(strIsSubstitutionRequired!=null && !strIsSubstitutionRequired.isEmpty()){
+					part.setIsSubstitutionRequired(true);
+				}else{
+					part.setIsSubstitutionRequired(false);
+				}
+				
+				part.merge();
+				
+				/**** ChildVO****/
+				
+				childVO.setVersion(part.getVersion());
+					
+				if(part.getPrimaryMember()!=null){
+					childVO.setPrimaryMember(part.getPrimaryMember().getId().toString());
+					childVO.setPrimaryMemberName(part.getPrimaryMember().getFullname());
+				}
+				
+				if(part.getChairPersonRole()!=null){
+					childVO.setMemberrole(part.getChairPersonRole().getId().toString());
+				}
+				
+							
+				if(part.getPrimaryMemberDesignation()!=null){
+					childVO.setPrimaryMemberDesignation(part.getPrimaryMemberDesignation().getId().toString());
+					childVO.setPrimaryMemberDesignationName(part.getPrimaryMemberDesignation().getName());
+				}
+				
+				
+				if(part.getPrimaryMemberSubDepartment()!=null){
+					childVO.setPrimaryMemberSubDepartment(part.getPrimaryMemberSubDepartment().getId().toString());
+					childVO.setPrimaryMemberSubDepartmentName(part.getPrimaryMemberSubDepartment().getName());
+				}
+				
+				
+				if(part.getSubstituteMember()!=null){
+					childVO.setSubstituteMember(part.getSubstituteMember().getId().toString());
+					childVO.setSubstituteMemberName(part.getSubstituteMember().getFullname());
+				}
+				
+				
+				if(part.getSubstituteMemberDesignation()!=null){
+					childVO.setSubstituteMemberDesignation(part.getSubstituteMemberDesignation().getId().toString());
+					childVO.setSubstituteMemberDesignationName(part.getSubstituteMemberDesignation().getName());
+				}
+				
+				if(part.getSubstituteMemberMinistry()!=null){
+					childVO.setSubstituteMemberMinistry(part.getSubstituteMemberMinistry().getId().toString());
+					childVO.setSubstituteMemberMinistryName(part.getSubstituteMemberMinistry().getName());
+				}
+				
+				
+				if(part.getSubstituteMemberSubDepartment()!=null){
+					childVO.setSubstituteMemberSubDepartment(part.getSubstituteMemberSubDepartment().getId().toString());
+					childVO.setSubstituteMemberSubDepartmentName(part.getSubstituteMemberSubDepartment().getName());
+				}
+				
+				
+				if(part.getIsConstituencyRequired()!=null){
+					if(part.getIsConstituencyRequired()){
+						if(part.getPrimaryMember()!=null){
+							Constituency constituency = part.getPrimaryMember().findConstituency();
+							childVO.setConstituency(constituency.getName());
+						}
+						
+					}
+					childVO.setConstituencyRequired(part.getIsConstituencyRequired());
+				}
+				
+						
+				if(part.getPublicRepresentative()!=null && !part.getPublicRepresentative().isEmpty()){
+					childVO.setPublicRepresentative(part.getPublicRepresentative());
+					if(part.getPublicRepresentativeDetail()!=null && !part.getPublicRepresentativeDetail().isEmpty()){
+						childVO.setPublicRepresentativeDetails(part.getPublicRepresentativeDetail());
+					}
+				}
+			}
+				
+			return childVO;
+		//return null;
+		
+	}
+	
+	
+	
 	/****Citations****/
 	@RequestMapping(value="part/citations",method=RequestMethod.GET)
 	public String getCitations(final HttpServletRequest request, final Locale locale,
@@ -1051,771 +1297,6 @@ public class ProceedingController extends GenericController<Proceeding>{
 		return "";
 	}
 
-	/**************************Parts Related ***********************************/
-	
-	
-	@RequestMapping(value = "/part/module", method = RequestMethod.GET)
-	public String indexPart(final ModelMap model, final HttpServletRequest request,
-			final @RequestParam(required = false) String formtype,
-			final Locale locale) {
-		final String servletPath = request.getServletPath().replaceFirst("\\/","");
-		/******* Hook **********/
-		populateModule(model, request, locale.toString(), this.getCurrentUser());
-		/***********************/
-		if (formtype != null) {
-			if (formtype.equals("g")) {
-				String urlPattern=servletPath.split("\\/module")[0];
-				String messagePattern=urlPattern.replaceAll("\\/",".");
-				model.addAttribute("messagePattern", messagePattern);
-				model.addAttribute("urlPattern", urlPattern);
-				return "generic/module";
-			}
-		}
-		//here making provisions for displaying error pages
-		if(model.containsAttribute("errorcode")){
-			return servletPath.replace("module","error");
-		}else{
-			return servletPath;
-		}
-	}
-
-	@RequestMapping(value = "/part/list", method = RequestMethod.GET)
-	public String listPart(@RequestParam(required = false) final String formtype,
-			final ModelMap model, final Locale locale,
-			final HttpServletRequest request) {
-		final String servletPath = request.getServletPath().replaceFirst("\\/","");
-		String urlPattern=servletPath.split("\\/list")[0];
-		String messagePattern=urlPattern.replaceAll("\\/",".");
-		String newurlPattern=modifyURLPattern(urlPattern,request,model,locale.toString());
-		Grid grid;
-		try {
-			grid = Grid.findByDetailView(newurlPattern, locale.toString());
-			model.addAttribute("gridId", grid.getId());
-		} catch (ELSException e) {
-			e.printStackTrace();
-		}
-		
-		/******* Hook **********/
-		populateList(model, request, locale.toString(), this.getCurrentUser());
-		/***********************/
-		if (formtype != null) {
-			if (formtype.equals("g")) {
-				model.addAttribute("messagePattern", messagePattern);
-				model.addAttribute("urlPattern", urlPattern);
-				return "generic/list";
-			}
-		}
-		//here making provisions for displaying error pages
-		if(model.containsAttribute("errorcode")){
-			return servletPath.replace("list","error");
-		}else{
-			return servletPath;
-		}
-	}
-
-	@RequestMapping(value = "/part/new", method = RequestMethod.GET)
-	public String newPart(final ModelMap model, final Locale locale,
-			final HttpServletRequest request) {
-		final String servletPath = request.getServletPath().replaceFirst("\\/","");
-		String urlPattern=servletPath.split("\\/new")[0];
-		String messagePattern=urlPattern.replaceAll("\\/",".");
-		model.addAttribute("messagePattern", messagePattern);
-		model.addAttribute("urlPattern", urlPattern);
-		//THIS IS USED TO REMOVE THE BUG WHERE IN RECORD UPDATED MESSAGE
-		//APPEARS WHEN CLICKED ON NEW REOCRD
-		model.addAttribute("type", "");
-		Part domain=new Part();
-		Proceeding proceeding=null;
-		Session session=null;
-		domain.setLocale(locale.toString());
-		String strProceeding= request.getParameter("proceeding");
-		if(strProceeding!=null && !strProceeding.isEmpty()){
-			/****Proceeding****/
-			proceeding=Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
-			model.addAttribute("proceeding", proceeding.getId());
-			Slot slot=proceeding.getSlot();
-			if(slot!=null){
-				/****slot****/
-				model.addAttribute("slotName", slot.getName());
-				model.addAttribute("currentSlot", slot.getId());
-				
-				/****Reporter****/
-				model.addAttribute("reporter", slot.getReporter().getId());
-				
-				/****session****/
-				Roster roster=slot.getRoster();
-				session=roster.getSession();
-				model.addAttribute("session",session.getId());
-				
-				/****Ministries****/
-				List<Ministry> ministries;
-				try {
-					ministries = Ministry.findMinistriesAssignedToGroups(session.getHouse().getType(), session.getYear(), session.getType(), session.getLocale());
-					model.addAttribute("ministries", ministries);
-				} catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				/****Bookmarks****/
-				List<Bookmark> bk=new ArrayList<Bookmark>();
-				if(proceeding!=null){
-					List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "slot", slot, "bookmarkKey", "asc", locale.toString());
-					List<Bookmark> bookmarks1=Bookmark.findAllByFieldName(Bookmark.class, "language", proceeding.getSlot().findLanguage(), "id", "asc", locale.toString());
-					for(Bookmark b:bookmarks1){
-						if(b.getSlot()==null){
-							String key=b.getBookmarkKey();
-							String[] keyArr=key.split("-");
-							String[] keyArr1=keyArr[1].split("~");
-							String[] keyArry2=keyArr1[1].split("_");
-							String[] slotArr=keyArry2[0].split("/");
-							for(int i=0;i<slotArr.length;i++){
-								if(slotArr[i].equals(proceeding.getSlot().getName())){
-									bk.add(b);
-								}
-							}
-						}
-					}
-					if(!bookmarks.isEmpty()){
-						bk.addAll(bookmarks);
-					}
-					model.addAttribute("bookmarks", bk);
-				}
-			}
-		/****Parts****/
-		List<Part> parts=Part.findAllByFieldName(Part.class, "proceeding", proceeding, "id", "desc", locale.toString());
-			if(parts.isEmpty()){
-				model.addAttribute("orderNo", "1");
-			}else{
-				model.addAttribute("orderNo", parts.size()+1);
-				model.addAttribute("lastPartId",parts.get(parts.size()-1).getId());
-				model.addAttribute("mainHeading",parts.get(0).getMainHeading());
-				model.addAttribute("pageHeading",parts.get(0).getPageHeading());
-			}
-
-		}
-		/****MemberRole****/
-		String strHouseType=this.getCurrentUser().getHouseType();
-		HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
-		List<MemberRole> roles=MemberRole.findAllByFieldName(MemberRole.class, "houseType", houseType, "name", "asc", locale.toString());
-		model.addAttribute("roles", roles);
-		
-		/****Devicetype****/
-		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "desc", locale.toString());
-		model.addAttribute("deviceTypes", deviceTypes);
-		
-		/****Domain****/
-		model.addAttribute("domain", domain);
-
-		/****Designations****/
-		List<Designation> designations=Designation.findAll(Designation.class,"name", "asc", locale.toString());
-		model.addAttribute("designations",designations);
-
-		/****Party****/
-		List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),locale.toString());
-		model.addAttribute("parties", parties);
- 
-		/****HouseTypes****/
-		List<HouseType> houseTypes=HouseType.findAll(HouseType.class, "name", "desc", locale.toString());
-		model.addAttribute("houseTypes", houseTypes);
-		//here making provisions for displaying error pages
-		if(model.containsAttribute("errorcode")){
-			return servletPath.replace("new","error");
-		}else{
-			String modifiedNewUrlPattern=modifyNewUrlPattern(servletPath,request,model,locale.toString());
-			return modifiedNewUrlPattern;
-		}
-	}
-
-
-
-
-	@RequestMapping(value = "/part",method = RequestMethod.POST)
-	public String createPart(final ModelMap model,
-			final HttpServletRequest request,
-			final RedirectAttributes redirectAttributes,
-			final Locale locale,
-			@Valid @ModelAttribute("domain") final Part domain,
-			final BindingResult result) {
-		model.addAttribute("domain", domain);
-		/*****Hook*************/
-		validateCreatePart(domain, result, request);
-		/*****Hook*************/
-		populateCreatePartIfNoErrors(model, domain, request);
-		/**********************/
-		if(domain.getId()!=null){
-			((BaseDomain) domain).merge();
-		}else{
-			((BaseDomain) domain).persist();
-		}
-		redirectAttributes.addFlashAttribute("type", "success");
-		//this is done so as to remove the bug due to which update message appears even though there
-		//is a fresh new/edit request i.e after creating/updating records if we click on
-		//new /edit then success message appears
-		request.getSession().setAttribute("type","success");
-		redirectAttributes.addFlashAttribute("msg", "create_success");
-		model.addAttribute("currentId",domain.getId());
-		String returnUrl = "redirect:/proceeding/part/new?proceeding="+domain.getProceeding().getId();
-		return returnUrl;
-	}
-
-	
-	protected void populateCreatePartIfNoErrors(final ModelMap model,
-			final Part domain, final HttpServletRequest request) {
-		domain.setEntryDate(new Date());
-		String strMember=request.getParameter("primaryMember");
-		String strProceeding=request.getParameter("proceeding");
-		String strReporter=request.getParameter("reporter");
-		String strRole=request.getParameter("chairPersonRole");
-		String strChairPerson=request.getParameter("chairPerson");
-		String strPrimaryMemberMinistry=request.getParameter("primaryMemberMinistry");
-		String strPrimaryMemberDesignation=request.getParameter("primaryMemberDesignation");
-		String strPrimaryMemberSubDepartment=request.getParameter("primaryMemberSubDepartment");
-		String strSubstituteMember=request.getParameter("substituteMember");
-		String strSubstituteMinistry=request.getParameter("substituteMemberMinistry");
-		String strSubstituteDesignation=request.getParameter("substituteMemberDesignation");
-		String strSubstituteSubDepartment=request.getParameter("substituteMemberSubDepartment");
-		String strDeviceId=request.getParameter("deviceId");
-		String strDeviceType=request.getParameter("deviceType");
-		Proceeding proceeding=null;
-		/****Proceeding****/
-		if(strProceeding!=null && !strProceeding.equals("")){
-			proceeding=Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
-			domain.setProceeding(proceeding);
-		}
-		/****Reporter****/
-		if(strReporter!=null && !strReporter.equals("")){
-			Reporter reporter=Reporter.findById(Reporter.class, Long.parseLong(strReporter));
-			domain.setReporter(reporter);
-		}
-		/****Member****/
-		if(strMember!=null && !strMember.equals("")){
-			Member member=Member.findById(Member.class, Long.parseLong(strMember));
-			domain.setPrimaryMember(member);
-		}
-		/****MemberRole and ChairPerson****/
-		if(strRole!=null && !strRole.equals("")){
-			MemberRole mr=MemberRole.findById(MemberRole.class, Long.parseLong(strRole));
-			domain.setChairPersonRole(mr);
-			Member member=null;
-			if(mr!=null){
-				Slot slot=proceeding.getSlot();
-				Roster roster=slot.getRoster();
-				Session session=roster.getSession();
-				House house=session.getHouse();
-				List<HouseMemberRoleAssociation> hmras;
-				try {
-					hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, mr, new Date(), domain.getLocale());
-					for(HouseMemberRoleAssociation h:hmras){
-						if(h.getRole().equals(mr)){
-							member=h.getMember();
-							break;
-						}
-					}
-					domain.setChairPerson(member.getFullname());
-				} catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	
-			}
-		}
-		
-		/****Revised Content****/
-		domain.setRevisedContent(domain.getProceedingContent());
-		/****Primary member Designation****/
-		if(strPrimaryMemberDesignation!=null && !strPrimaryMemberDesignation.isEmpty()){
-			Designation designation=Designation.findById(Designation.class, Long.parseLong(strPrimaryMemberDesignation));
-			domain.setPrimaryMemberDesignation(designation);
-		}else{
-			domain.setPrimaryMemberDesignation(null);
-		}
-		/****Primary member Ministry****/
-		if(strPrimaryMemberMinistry!=null && !strPrimaryMemberMinistry.isEmpty()){
-			Ministry ministry=Ministry.findById(Ministry.class, Long.parseLong(strPrimaryMemberMinistry));
-			domain.setPrimaryMemberMinistry(ministry);
-		}
-		
-		if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty()){
-			SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
-			domain.setPrimaryMemberSubDepartment(subDepartment);
-		}
-
-		/****Substitute member ****/
-		if(strSubstituteMember!=null && !strSubstituteMember.isEmpty()){
-			Member member=Member.findById(Member.class, Long.parseLong(strSubstituteMember));
-			domain.setSubstituteMember(member);
-		}
-
-		/****Substitute member Designation****/
-		if(strSubstituteDesignation!=null && !strSubstituteDesignation.isEmpty()){
-			Designation designation=Designation.findById(Designation.class, Long.parseLong(strSubstituteDesignation));
-			domain.setSubstituteMemberDesignation(designation);
-		}else{
-			domain.setSubstituteMemberDesignation(null);
-		}
-
-		/****Substitute member ministry****/
-		if(strSubstituteMinistry!=null && !strSubstituteMinistry.isEmpty()){
-			Ministry ministry=Ministry.findById(Ministry.class, Long.parseLong(strSubstituteMinistry));
-			domain.setSubstituteMemberMinistry(ministry);
-		}
-		
-		if(strSubstituteSubDepartment!=null && !strSubstituteSubDepartment.isEmpty()){
-			SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubstituteSubDepartment));
-			domain.setSubstituteMemberSubDepartment(subDepartment);
-		}
-		
-		/****DeviceType****/
-		if(strDeviceType!=null && !strDeviceType.isEmpty()){
-			DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
-			domain.setDeviceType(deviceType);
-		}
-		
-		/****Device id****/
-		if(strDeviceId!=null && !strDeviceId.isEmpty()){
-			domain.setDeviceId(Long.parseLong(strDeviceId));
-		}
-	}
-
-	private void validateCreatePart(final Part domain, final BindingResult result,
-			final HttpServletRequest request) {
-
-	}
-
-	@RequestMapping(value = "/part/{id}/edit", method = RequestMethod.GET)
-	public String editPart(final @PathVariable("id") Long id, final ModelMap model,
-			final HttpServletRequest request) {
-		final String servletPath = request.getServletPath().replaceFirst("\\/","");
-		String urlPattern=servletPath.split("\\/edit")[0].replace("/"+id,"");
-		String messagePattern=urlPattern.replaceAll("\\/",".");
-		model.addAttribute("messagePattern", messagePattern);
-		model.addAttribute("urlPattern", urlPattern);
-		Part domain = Part.findById(Part.class, id);
-		Slot slot=domain.getProceeding().getSlot();
-		Session session=null;
-		if(slot!=null){
-			/****Current Slot****/
-			model.addAttribute("currentSlot",slot.getId());
-			model.addAttribute("slotName", slot.getName());
-			/****Reporter****/
-			model.addAttribute("reporter", slot.getReporter().getId());
-			
-			/****Session****/
-			Roster roster=slot.getRoster();
-			 session=roster.getSession();
-			model.addAttribute("session",session.getId());
-			
-			/****Ministries****/
-			List<Ministry> ministries;
-			try {
-				ministries = Ministry.findMinistriesAssignedToGroups(session.getHouse().getType(), session.getYear(), session.getType(), session.getLocale());
-				model.addAttribute("ministries", ministries);
-			} catch (ELSException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			
-			
-			/****Primary member ministry****/
-			if(domain.getPrimaryMemberMinistry()!=null){
-				model.addAttribute("primaryMemberMinistrySelected", domain.getPrimaryMemberMinistry().getId());
-				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(domain.getPrimaryMemberMinistry(), domain.getLocale());
-				model.addAttribute("subDepartments",subDepartments);
-			}
-			
-			/****substitute member Ministry****/
-			if(domain.getSubstituteMemberMinistry()!=null){
-				model.addAttribute("substituteMemberMinistrySelected", domain.getSubstituteMemberMinistry().getId());
-				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(domain.getSubstituteMemberMinistry(), domain.getLocale());
-				model.addAttribute("subDepartments",subDepartments);
-			}
-
-			/****Bookmarks****/
-			List<Bookmark> bk=new ArrayList<Bookmark>();
-			List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "slot", slot, "bookmarkKey", "asc", domain.getLocale());
-			//if(bookmarks.isEmpty()){
-				List<Bookmark> bookmarks1=Bookmark.findAllByFieldName(Bookmark.class, "language", domain.getProceeding().getSlot().findLanguage(), "id", "asc", domain.getLocale());
-				for(Bookmark b:bookmarks1){
-					if(b.getSlot()==null){
-						String key=b.getBookmarkKey();
-						String[] keyArr=key.split("-");
-						String[] keyArr1=keyArr[1].split("~");
-						String[] keyArry2=keyArr1[1].split("_");
-						String[] slotArr=keyArry2[0].split("/");
-						for(int i=0;i<slotArr.length;i++){
-							if(slotArr[i].equals(domain.getProceeding().getSlot().getName())){
-								bk.add(b);
-							}
-						}
-					}
-				}
-				if(!bookmarks.isEmpty()){
-					bk.addAll(bookmarks);
-				}
-				model.addAttribute("bookmarks", bk);
-
-			/*}else{
-				model.addAttribute("bookmarks", bookmarks);
-			}*/
-		}
-		
-		/****MemberRoles****/
-		String strHouseType=this.getCurrentUser().getHouseType();
-		HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, domain.getLocale());
-		List<MemberRole> roles=MemberRole.findAllByFieldName(MemberRole.class, "houseType", houseType, "name", "asc", domain.getLocale());
-		model.addAttribute("roles", roles);
-		
-		/****Proceeding****/
-		model.addAttribute("proceeding",domain.getProceeding().getId());
-		
-		/****Primary member ****/
-		if(domain.getPrimaryMember()!=null){
-			model.addAttribute("primaryMember",domain.getPrimaryMember().getId());
-			model.addAttribute("formattedPrimaryMember", domain.getPrimaryMember().getFullname());
-		}
-		
-		/****Substitute member ****/
-		if(domain.getSubstituteMember()!=null){
-			model.addAttribute("substituteMember",domain.getPrimaryMember().getId());
-			model.addAttribute("formattedSubstituteMember", domain.getSubstituteMember().getFullname());
-		}
-		/**********Domain*************/
-		model.addAttribute("domain", domain);
-		
-		/****Designations****/
-		List<Designation> designations=Designation.findAll(Designation.class,"name", "asc", domain.getLocale());
-		model.addAttribute("designations",designations);
-		/****Primary member Designation****/
-		if(domain.getPrimaryMemberDesignation()!=null){
-			model.addAttribute("primaryMemberDesignationSelected", domain.getPrimaryMemberDesignation().getId());
-		}
-		/****Substitute member Designation****/
-		if(domain.getSubstituteMemberDesignation()!=null){
-			model.addAttribute("substituteMemberDesignationSelected", domain.getSubstituteMemberDesignation().getId());
-		}
-		
-		if(domain.getSubstituteMemberSubDepartment()!=null){
-			model.addAttribute("substituteMemberSubDepartmentSelected",domain.getSubstituteMemberSubDepartment().getId());
-		}
-		
-		if(domain.getPrimaryMemberSubDepartment()!=null){
-			model.addAttribute("primaryMemberSubDepartmentSelected",domain.getPrimaryMemberSubDepartment().getId());
-		}
-		/**** Part DeviceType****/
-		if(domain.getDeviceType()!=null){
-			DeviceType deviceType=domain.getDeviceType();
-			model.addAttribute("selectedDeviceType",deviceType.getId());
-			String device=deviceType.getDevice();
-			int deviceNumber=0;
-			if(domain.getDeviceId()!=null){
-				if(device.equals("Bill")){
-					Bill bill=Bill.findById(Bill.class, domain.getDeviceId());
-					deviceNumber=bill.getNumber();
-				}else if(device.equals("Resolution")){
-					Resolution resolution=Resolution.findById(Resolution.class, domain.getDeviceId());
-					deviceNumber=resolution.getNumber();
-				}else if(device.equals("Question")){
-					Question question=Question.findById(Question.class, domain.getDeviceId());
-					deviceNumber=question.getNumber();
-				}else if(device.equals("Motion")){
-					Motion motion=Motion.findById(Motion.class, domain.getDeviceId());
-					deviceNumber=motion.getNumber();
-				}
-			}
-			model.addAttribute("deviceNumber", deviceNumber);
-		}
-		
-		
-		/****DeviceTypes****/
-		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "asc", domain.getLocale());
-		model.addAttribute("deviceTypes", deviceTypes);
-		
-		/****Party****/
-		List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),domain.getLocale());
-		model.addAttribute("parties", parties);
-		
-		//this is done so as to remove the bug due to which update message appears even though there
-		//is a fresh new/edit request i.e after creating/updating records if we click on
-		//new /edit then success message appears
-		if(request.getSession().getAttribute("type")==null){
-			model.addAttribute("type","");
-		}else{
-			model.addAttribute("type",request.getSession().getAttribute("type"));
-			request.getSession().removeAttribute("type");
-		}
-		//here making provisions for displaying error pages
-		if(model.containsAttribute("errorcode")){
-			return urlPattern+"/"+"error";
-		}else{
-			String newUrlPattern=urlPattern+"/edit";
-			String modifiedEditUrlPattern=modifyEditUrlPattern(newUrlPattern,request,model,domain.getLocale());
-			return modifiedEditUrlPattern;
-		}
-	}
-
-
-	@Transactional
-	@RequestMapping(value = "/part",method = RequestMethod.PUT)
-	public String updatePart(final @Valid @ModelAttribute("domain") Part domain,
-			final BindingResult result, final ModelMap model,
-			final RedirectAttributes redirectAttributes,
-			final HttpServletRequest request) {
-		final String servletPath = request.getServletPath().replaceFirst("\\/","");
-		String messagePattern=servletPath.replaceAll("\\/",".");
-		model.addAttribute("messagePattern", messagePattern);
-		model.addAttribute("urlPattern", servletPath);
-		domain.setEntryDate(new Date());
-		preValidateUpdatePart(domain, result, request);
-		validateUpdatePart(domain, result, request);
-		model.addAttribute("domain", domain);
-		//	        if (result.hasErrors()) {
-		//	            /*****Hook*************/
-		//	            populateUpdatePartIfErrors(model, domain, request);
-		//	            String newUrlPattern=servletPath+"/edit";
-		//	            String modifiedEditUrlPattern=modifyEditUrlPattern(newUrlPattern,request,model,domain.getLocale());
-		//	            return modifiedEditUrlPattern;            
-		//	        }
-		/*****Hook*************/
-		populateUpdatePartIfNoErrors(model, domain, request);
-		/**********************/
-		((BaseDomain) domain).merge();
-		redirectAttributes.addFlashAttribute("type", "success");
-		//this is done so as to remove the bug due to which update message appears even though there
-		//is a fresh new/edit request i.e after creating/updating records if we click on
-		//new /edit then success message appears
-		request.getSession().setAttribute("type","success");
-		redirectAttributes.addFlashAttribute("msg", "update_success");
-		String returnUrl = "redirect:/" + servletPath + "/"
-				+ ((BaseDomain) domain).getId() + "/edit";
-		return returnUrl;
-	}
-
-
-	private void preValidateUpdatePart(Part domain, BindingResult result,
-			HttpServletRequest request) {
-		String strMember=request.getParameter("primaryMember");
-		String strProceeding=request.getParameter("proceeding");
-		String strReporter=request.getParameter("reporter");
-		String strRole=request.getParameter("chairPersonRole");
-		String strPrimaryMemberMinistry=request.getParameter("primaryMemberMinistry");
-		String strPrimaryMemberDesignation=request.getParameter("primaryMemberDesignation");
-		String strPrimaryMemberSubDepartment=request.getParameter("primaryMemberSubDepartment");
-		String strSubstituteMember=request.getParameter("substituteMember");
-		String strSubstituteMinistry=request.getParameter("substituteMemberMinistry");
-		String strSubstituteSubDepartment=request.getParameter("substituteMemberSubDepartment");
-		String strSubstituteDesignation=request.getParameter("substituteMemberDesignation");
-		String strDeviceType=request.getParameter("deviceType");
-		Proceeding proceeding=null;
-		/****Proceeding****/
-		if(strProceeding!=null && !strProceeding.equals("")){
-			proceeding=Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
-			domain.setProceeding(proceeding);
-		}
-		
-		/****Reporter****/
-		if(strReporter!=null && !strReporter.equals("")){
-			Reporter reporter=Reporter.findById(Reporter.class, Long.parseLong(strReporter));
-			domain.setReporter(reporter);
-		}
-		
-		/****Primary Member ****/
-		if(strMember!=null && !strMember.equals("")){
-			Member member=Member.findById(Member.class, Long.parseLong(strMember));
-			domain.setPrimaryMember(member);
-		}
-		
-		/****MemberRole and Chairperson****/
-		if(strRole!=null && !strRole.equals("")){
-			MemberRole mr=MemberRole.findById(MemberRole.class, Long.parseLong(strRole));
-			domain.setChairPersonRole(mr);
-			Member member=null;
-			if(mr!=null){
-				Slot slot=proceeding.getSlot();
-				Roster roster=slot.getRoster();
-				Session session=roster.getSession();
-				House house=session.getHouse();
-				List<HouseMemberRoleAssociation> hmras;
-				try {
-					hmras = HouseMemberRoleAssociation.findActiveHouseMemberRoles(house, mr, new Date(), domain.getLocale());
-					for(HouseMemberRoleAssociation h:hmras){
-						if(h.getRole().equals(mr)){
-							member=h.getMember();
-							break;
-						}
-					}
-					domain.setChairPerson(member.getFullname());
-				} catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-					
-				
-			}
-		}
-		/****Revised Content****/
-		domain.setRevisedContent(domain.getProceedingContent());
-		
-		/****Primary Member Designation****/
-		if(strPrimaryMemberDesignation!=null && !strPrimaryMemberDesignation.isEmpty()){
-			Designation designation=Designation.findById(Designation.class, Long.parseLong(strPrimaryMemberDesignation));
-			domain.setPrimaryMemberDesignation(designation);
-		}else{
-			domain.setPrimaryMemberDesignation(null);
-		}
-		/****Primary Member Ministry****/
-		if(strPrimaryMemberMinistry!=null && !strPrimaryMemberMinistry.isEmpty()){
-			Ministry ministry=Ministry.findById(Ministry.class, Long.parseLong(strPrimaryMemberMinistry));
-			domain.setPrimaryMemberMinistry(ministry);
-		}
-
-	
-		if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty()){
-			SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
-			domain.setPrimaryMemberSubDepartment(subDepartment);
-		}
-		/****Substitute Member ****/
-		if(strSubstituteMember!=null && !strSubstituteMember.isEmpty()){
-			Member member=Member.findById(Member.class, Long.parseLong(strSubstituteMember));
-			domain.setSubstituteMember(member);
-		}
-
-		/****Substitute Member Designation****/
-		if(strSubstituteDesignation!=null && !strSubstituteDesignation.isEmpty()){
-			Designation designation=Designation.findById(Designation.class, Long.parseLong(strSubstituteDesignation));
-			domain.setSubstituteMemberDesignation(designation);
-		}else{
-			domain.setSubstituteMemberDesignation(null);
-		}
-
-		/****Substitute Member Ministry****/
-		if(strSubstituteMinistry!=null && !strSubstituteMinistry.isEmpty()){
-			Ministry ministry=Ministry.findById(Ministry.class, Long.parseLong(strSubstituteMinistry));
-			domain.setSubstituteMemberMinistry(ministry);
-		}
-
-		if(strSubstituteSubDepartment!=null && !strSubstituteSubDepartment.isEmpty()){
-			SubDepartment subDepartment=SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubstituteSubDepartment));
-			domain.setSubstituteMemberSubDepartment(subDepartment);
-		}
-		/****DeviceType****/
-		if(strDeviceType!=null && !strDeviceType.isEmpty()){
-			DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
-			domain.setDeviceType(deviceType);
-		}
-	}
-
-
-	protected void populateUpdatePartIfNoErrors(final ModelMap model,
-			final Part domain, final HttpServletRequest request) {
-		/****Here Updating the Bookmark key with the content to be replaced in Revised Content and not in Proceeding Content****/
-		List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "masterPart", domain, "id", "asc", domain.getLocale());
-		if(!bookmarks.isEmpty()){
-			for(Bookmark b:bookmarks){
-				if(domain.getProceedingContent().contains(b.getBookmarkKey())){
-					String content=domain.getProceedingContent();
-					if(b.getTextToBeReplaced()!=null && !b.getTextToBeReplaced().equals("")){
-						String revisedContent=content.replaceAll(b.getBookmarkKey(), b.getTextToBeReplaced());
-						domain.setRevisedContent(revisedContent);
-					}
-				}
-			}
-		}
-
-	}
-
-	private void validateUpdatePart(final Part domain, final BindingResult result,
-			final HttpServletRequest request) {
-
-	}
-	
-	
-
-	
-	@RequestMapping(value="/part/updatetext",method=RequestMethod.POST)
-	public @ResponseBody String updateBookmark(final HttpServletRequest request, final Locale locale,final ModelMap model){
-		String strBookmark=request.getParameter("bookmark");
-		String strText=request.getParameter("textToBeAdded");
-		String strPart=request.getParameter("part");
-		String strSlot=request.getParameter("currentSlot");
-		if(strBookmark!=null && !strBookmark.equals("")){
-			/****Bookmark****/
-			Bookmark bookmark=Bookmark.findById(Bookmark.class, Long.parseLong(strBookmark));
-			if(strText!=null && !strText.equals("")){
-				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				String server=null;
-				String param=null;
-				if(customParameter!=null){
-					server=customParameter.getValue();
-					if(!strText.isEmpty()){
-						if(server.equals("TOMCAT")){
-							try {
-								param = new String(strText.getBytes("ISO-8859-1"),"UTF-8");
-
-							}catch (UnsupportedEncodingException e) {
-								logger.error("Cannot Encode the Parameter.");
-							}
-						}
-					}
-				}
-				/****Slave part****/
-				if(strPart!=null && !strPart.isEmpty()){
-					Part part=Part.findById(Part.class, Long.parseLong(strPart));
-					bookmark.setSlavePart(part);
-					List<Bookmark> bookmarks=Bookmark.findAllByFieldName(Bookmark.class, "masterPart", part, "id", "asc", locale.toString());
-					if(!bookmarks.isEmpty()){
-						for(Bookmark b:bookmarks){
-							if(part.getProceedingContent().contains(b.getBookmarkKey())){
-								String content=part.getProceedingContent();
-								if(b.getTextToBeReplaced()!=null && !b.getTextToBeReplaced().equals("")){
-									String revisedContent=content.replaceAll(b.getBookmarkKey(), b.getTextToBeReplaced());
-									part.setRevisedContent(revisedContent);
-									param=param.replaceAll(b.getBookmarkKey(), b.getTextToBeReplaced());
-								}
-							}
-						}
-					}
-				}
-				/****Slave slot****/
-				if(strSlot!=null && !strSlot.isEmpty()){
-					Slot slot=Slot.findById(Slot.class, Long.parseLong(strSlot));
-					bookmark.setSlot(slot);
-				}
-				/****Reporter replacing the bookmark****/
-				bookmark.setBookmarkReplacedBy(bookmark.getSlot().getReporter());
-				
-				/****Replacing Date****/
-				bookmark.setBookmarkReplacedDate(new Date());
-				
-				/****Text replaced****/
-				
-				bookmark.setTextToBeReplaced(param);
-				Part masterPart=bookmark.getMasterPart();
-				Slot slot=masterPart.getProceeding().getSlot();
-				
-				try {
-					List<Part> parts=Part.findAllPartRosterSearchTerm(slot.getRoster(), bookmark.getBookmarkKey(), locale.toString());
-					for(Part p:parts){
-						String masterContent=p.getRevisedContent();
-						masterContent=masterContent.replace(bookmark.getBookmarkKey(), param);
-						p.setRevisedContent(masterContent);
-						p.merge();
-					}
-				} catch (ELSException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				bookmark.merge();
-				return "success";
-			}
-		}
-		return null;
-
-	}
-
-	
-	
 	/****Reports Related****/
 	
 	@RequestMapping(value="/part/proceedingwiseReport",method=RequestMethod.GET)
@@ -1925,13 +1406,26 @@ public class ProceedingController extends GenericController<Proceeding>{
 				childVO.setId(p.getId());
 				childVO.setProceedingContent(p.getRevisedContent());
 				childVO.setChairperson(p.getChairPerson());
-				childVO.setMainHeading(p.getMainHeading());
+				if(p.getPageHeading()!=null){
+					childVO.setPageHeading(p.getPageHeading());
+				}else{
+					childVO.setPageHeading("");
+				}
+				if(p.getMainHeading()!=null){
+					childVO.setMainHeading(p.getMainHeading());
+				}else{
+					childVO.setMainHeading("");
+				}
+				if(p.getSpecialHeading()!=null){
+					childVO.setSpecialHeading(p.getSpecialHeading());
+				}else{
+					childVO.setSpecialHeading("");
+				}
 				if(p.getChairPersonRole()!=null){
 					childVO.setMemberrole(p.getChairPersonRole().getName());
 				}
 				
 				childVO.setOrderNo(p.getOrderNo());
-				childVO.setPageHeading(p.getPageHeading());
 				Member primaryMember=p.getPrimaryMember();
 				if(primaryMember!=null){
 					List<HouseMemberRoleAssociation> hrma=primaryMember.getHouseMemberRoleAssociations();
@@ -2184,13 +1678,33 @@ public class ProceedingController extends GenericController<Proceeding>{
 						ChildVO childVO=new ChildVO();
 						childVO.setId(p.getId());
 						childVO.setProceedingContent(p.getRevisedContent());
-						childVO.setChairperson(p.getChairPerson());
-						childVO.setMainHeading(p.getMainHeading());
+						if(p.getPageHeading()!=null){
+							childVO.setPageHeading(p.getPageHeading());
+						}else{
+							childVO.setPageHeading("");
+						}
+						if(p.getMainHeading()!=null){
+							childVO.setMainHeading(p.getMainHeading());
+						}else{
+							childVO.setMainHeading("");
+						}
+						if(p.getSpecialHeading()!=null){
+							childVO.setSpecialHeading(p.getSpecialHeading());
+						}else{
+							childVO.setSpecialHeading("");
+						}
+						
+						
 						if(p.getChairPersonRole()!=null){
 							childVO.setMemberrole(p.getChairPersonRole().getName());
+							if(p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_CHAIRMAN)
+								|| p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_SPEAKER)){
+								childVO.setChairperson(p.getChairPerson());
+							}else{
+								childVO.setChairperson("");
+							}
 						}
 						childVO.setOrderNo(p.getOrderNo());
-						childVO.setPageHeading(p.getPageHeading());
 						Member primaryMember=p.getPrimaryMember();
 						if(primaryMember!=null){
 							List<HouseMemberRoleAssociation> hrma=primaryMember.getHouseMemberRoleAssociations();
@@ -2213,18 +1727,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 						
 							
 							if(p.getIsConstituencyRequired()){
-								House house=null;
-								house=House.find(houseType, new Date(), locale.toString());
-								MasterVO masterVo=null;
-								if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-									 masterVo=Member.findConstituencyByAssemblyId(primaryMember.getId(), house.getId());
-									
-								}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-									Date currentDate=new Date();
-									String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-									masterVo=Member.findConstituencyByCouncilDates(primaryMember.getId(), house.getId(), "DATE", date, date);
+								Constituency constituency=p.getPrimaryMember().findConstituency();
+								if(constituency!=null){
+									childVO.setConstituency(constituency.getName());
 								}
-								childVO.setConstituency(masterVo.getName());
 							}
 							if(p.getPrimaryMemberDesignation()!=null){
 							childVO.setPrimaryMemberDesignation(p.getPrimaryMemberDesignation().getName());
@@ -2238,15 +1744,17 @@ public class ProceedingController extends GenericController<Proceeding>{
 						}
 						Member substituteMember=p.getSubstituteMember();
 						if(substituteMember!=null){
-							childVO.setSubstituteMember(substituteMember.getFullname());
-							if(p.getSubstituteMemberDesignation()!=null){
-								childVO.setSubstituteMemberDesignation(p.getSubstituteMemberDesignation().getName());
-							}
-							if(p.getSubstituteMemberMinistry()!=null){
-								childVO.setSubstituteMemberMinistry(p.getSubstituteMemberMinistry().getName());
-							}
-							if(p.getSubstituteMemberSubDepartment()!=null){
-								childVO.setSubstituteMemberSubDepartment(p.getSubstituteMemberSubDepartment().getName());
+							if(p.getIsSubstitutionRequired()){
+								childVO.setSubstituteMember(substituteMember.getFullname());
+								if(p.getSubstituteMemberDesignation()!=null){
+									childVO.setSubstituteMemberDesignation(p.getSubstituteMemberDesignation().getName());
+								}
+								if(p.getSubstituteMemberMinistry()!=null){
+									childVO.setSubstituteMemberMinistry(p.getSubstituteMemberMinistry().getName());
+								}
+								if(p.getSubstituteMemberSubDepartment()!=null){
+									childVO.setSubstituteMemberSubDepartment(p.getSubstituteMemberSubDepartment().getName());
+								}
 							}
 						}
 						if(p.getPublicRepresentative()!=null){
@@ -2346,13 +1854,31 @@ public class ProceedingController extends GenericController<Proceeding>{
 						ChildVO childVO=new ChildVO();
 						childVO.setId(p.getId());
 						childVO.setProceedingContent(p.getRevisedContent());
-						childVO.setChairperson(p.getChairPerson());
-						childVO.setMainHeading(p.getMainHeading());
+						if(p.getPageHeading()!=null){
+							childVO.setPageHeading(p.getPageHeading());
+						}else{
+							childVO.setPageHeading("");
+						}
+						if(p.getMainHeading()!=null){
+							childVO.setMainHeading(p.getMainHeading());
+						}else{
+							childVO.setMainHeading("");
+						}
+						if(p.getSpecialHeading()!=null){
+							childVO.setSpecialHeading(p.getSpecialHeading());
+						}else{
+							childVO.setSpecialHeading("");
+						}
 						if(p.getChairPersonRole()!=null){
 							childVO.setMemberrole(p.getChairPersonRole().getName());
+							if(p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_CHAIRMAN)
+									|| p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_SPEAKER)){
+									childVO.setChairperson(p.getChairPerson());
+							}else{
+									childVO.setChairperson("");
+							}
 						}
 						childVO.setOrderNo(p.getOrderNo());
-						childVO.setPageHeading(p.getPageHeading());
 						Member primaryMember=p.getPrimaryMember();
 						if(primaryMember!=null){
 							List<HouseMemberRoleAssociation> hrma=primaryMember.getHouseMemberRoleAssociations();
@@ -2375,18 +1901,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 						
 							
 							if(p.getIsConstituencyRequired()){
-								House house=null;
-								house=House.find(houseType, new Date(), locale.toString());
-								MasterVO masterVo=null;
-								if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-									 masterVo=Member.findConstituencyByAssemblyId(primaryMember.getId(), house.getId());
-									
-								}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-									Date currentDate=new Date();
-									String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-									masterVo=Member.findConstituencyByCouncilDates(primaryMember.getId(), house.getId(), "DATE", date, date);
+								Constituency constituency=p.getPrimaryMember().findConstituency();
+								if(constituency!=null){
+									childVO.setConstituency(constituency.getName());
 								}
-								childVO.setConstituency(masterVo.getName());
 							}
 							if(p.getPrimaryMemberDesignation()!=null){
 							childVO.setPrimaryMemberDesignation(p.getPrimaryMemberDesignation().getName());
@@ -2400,15 +1918,17 @@ public class ProceedingController extends GenericController<Proceeding>{
 						}
 						Member substituteMember=p.getSubstituteMember();
 						if(substituteMember!=null){
-							childVO.setSubstituteMember(substituteMember.getFullname());
-							if(p.getSubstituteMemberDesignation()!=null){
-								childVO.setSubstituteMemberDesignation(p.getSubstituteMemberDesignation().getName());
-							}
-							if(p.getSubstituteMemberMinistry()!=null){
-								childVO.setSubstituteMemberMinistry(p.getSubstituteMemberMinistry().getName());
-							}
-							if(p.getSubstituteMemberSubDepartment()!=null){
-								childVO.setSubstituteMemberSubDepartment(p.getSubstituteMemberSubDepartment().getName());
+							if(p.getIsSubstitutionRequired()){
+								childVO.setSubstituteMember(substituteMember.getFullname());
+								if(p.getSubstituteMemberDesignation()!=null){
+									childVO.setSubstituteMemberDesignation(p.getSubstituteMemberDesignation().getName());
+								}
+								if(p.getSubstituteMemberMinistry()!=null){
+									childVO.setSubstituteMemberMinistry(p.getSubstituteMemberMinistry().getName());
+								}
+								if(p.getSubstituteMemberSubDepartment()!=null){
+									childVO.setSubstituteMemberSubDepartment(p.getSubstituteMemberSubDepartment().getName());
+								}
 							}
 						}
 						if(p.getPublicRepresentative()!=null){
@@ -2599,13 +2119,31 @@ public class ProceedingController extends GenericController<Proceeding>{
 						ChildVO childVO=new ChildVO();
 						childVO.setId(p.getId());
 						childVO.setProceedingContent(p.getRevisedContent());
-						childVO.setChairperson(p.getChairPerson());
-						childVO.setMainHeading(p.getMainHeading());
+						if(p.getPageHeading()!=null){
+							childVO.setPageHeading(p.getPageHeading());
+						}else{
+							childVO.setPageHeading("");
+						}
+						if(p.getMainHeading()!=null){
+							childVO.setMainHeading(p.getMainHeading());
+						}else{
+							childVO.setMainHeading("");
+						}
+						if(p.getSpecialHeading()!=null){
+							childVO.setSpecialHeading(p.getSpecialHeading());
+						}else{
+							childVO.setSpecialHeading("");
+						}
 						if(p.getChairPersonRole()!=null){
 							childVO.setMemberrole(p.getChairPersonRole().getName());
+							if(p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_CHAIRMAN)
+									|| p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_SPEAKER)){
+									childVO.setChairperson(p.getChairPerson());
+							}else{
+									childVO.setChairperson("");
+							}
 						}
 						childVO.setOrderNo(p.getOrderNo());
-						childVO.setPageHeading(p.getPageHeading());
 						Member primaryMember=p.getPrimaryMember();
 						if(primaryMember!=null){
 							List<HouseMemberRoleAssociation> hrma=primaryMember.getHouseMemberRoleAssociations();
@@ -2628,18 +2166,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 						
 							
 							if(p.getIsConstituencyRequired()){
-								House house=null;
-								house=House.find(houseType, new Date(), locale.toString());
-								MasterVO masterVo=null;
-								if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-									 masterVo=Member.findConstituencyByAssemblyId(primaryMember.getId(), house.getId());
-									
-								}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-									Date currentDate=new Date();
-									String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-									masterVo=Member.findConstituencyByCouncilDates(primaryMember.getId(), house.getId(), "DATE", date, date);
+								Constituency constituency=p.getPrimaryMember().findConstituency();
+								if(constituency!=null){
+									childVO.setConstituency(constituency.getName());
 								}
-								childVO.setConstituency(masterVo.getName());
 							}
 							if(p.getPrimaryMemberDesignation()!=null){
 							childVO.setPrimaryMemberDesignation(p.getPrimaryMemberDesignation().getName());
@@ -2653,15 +2183,17 @@ public class ProceedingController extends GenericController<Proceeding>{
 						}
 						Member substituteMember=p.getSubstituteMember();
 						if(substituteMember!=null){
-							childVO.setSubstituteMember(substituteMember.getFullname());
-							if(p.getSubstituteMemberDesignation()!=null){
-								childVO.setSubstituteMemberDesignation(p.getSubstituteMemberDesignation().getName());
-							}
-							if(p.getSubstituteMemberMinistry()!=null){
-								childVO.setSubstituteMemberMinistry(p.getSubstituteMemberMinistry().getName());
-							}
-							if(p.getSubstituteMemberSubDepartment()!=null){
-								childVO.setSubstituteMemberSubDepartment(p.getSubstituteMemberSubDepartment().getName());
+							if(p.getIsSubstitutionRequired()){
+								childVO.setSubstituteMember(substituteMember.getFullname());
+								if(p.getSubstituteMemberDesignation()!=null){
+									childVO.setSubstituteMemberDesignation(p.getSubstituteMemberDesignation().getName());
+								}
+								if(p.getSubstituteMemberMinistry()!=null){
+									childVO.setSubstituteMemberMinistry(p.getSubstituteMemberMinistry().getName());
+								}
+								if(p.getSubstituteMemberSubDepartment()!=null){
+									childVO.setSubstituteMemberSubDepartment(p.getSubstituteMemberSubDepartment().getName());
+								}
 							}
 						}
 						if(p.getPublicRepresentative()!=null){
@@ -2942,13 +2474,31 @@ public class ProceedingController extends GenericController<Proceeding>{
 						ChildVO childVO=new ChildVO();
 						childVO.setId(p.getId());
 						childVO.setProceedingContent(p.getRevisedContent());
-						childVO.setChairperson(p.getChairPerson());
-						childVO.setMainHeading(p.getMainHeading());
+						if(p.getPageHeading()!=null){
+							childVO.setPageHeading(p.getPageHeading());
+						}else{
+							childVO.setPageHeading("");
+						}
+						if(p.getMainHeading()!=null){
+							childVO.setMainHeading(p.getMainHeading());
+						}else{
+							childVO.setMainHeading("");
+						}
+						if(p.getSpecialHeading()!=null){
+							childVO.setSpecialHeading(p.getSpecialHeading());
+						}else{
+							childVO.setSpecialHeading("");
+						}
 						if(p.getChairPersonRole()!=null){
 							childVO.setMemberrole(p.getChairPersonRole().getName());
+							if(p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_CHAIRMAN)
+									|| p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_SPEAKER)){
+									childVO.setChairperson(p.getChairPerson());
+							}else{
+									childVO.setChairperson("");
+							}
 						}
 						childVO.setOrderNo(p.getOrderNo());
-						childVO.setPageHeading(p.getPageHeading());
 						Member primaryMember=p.getPrimaryMember();
 						if(primaryMember!=null){
 							List<HouseMemberRoleAssociation> hrma=primaryMember.getHouseMemberRoleAssociations();
@@ -2971,18 +2521,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 						
 							
 							if(p.getIsConstituencyRequired()){
-								House house=null;
-								house=House.find(houseType, new Date(), locale.toString());
-								MasterVO masterVo=null;
-								if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-									 masterVo=Member.findConstituencyByAssemblyId(primaryMember.getId(), house.getId());
-									
-								}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-									Date currentDate=new Date();
-									String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-									masterVo=Member.findConstituencyByCouncilDates(primaryMember.getId(), house.getId(), "DATE", date, date);
+								Constituency constituency=p.getPrimaryMember().findConstituency();
+								if(constituency!=null){
+									childVO.setConstituency(constituency.getName());
 								}
-								childVO.setConstituency(masterVo.getName());
 							}
 							if(p.getPrimaryMemberDesignation()!=null){
 							childVO.setPrimaryMemberDesignation(p.getPrimaryMemberDesignation().getName());
@@ -3119,11 +2661,31 @@ public class ProceedingController extends GenericController<Proceeding>{
 									ChildVO childVO=new ChildVO();
 									childVO.setId(part1.getId());
 									childVO.setProceedingContent(part1.getRevisedContent());
-									childVO.setChairperson(part1.getChairPerson());
-									childVO.setMainHeading(part1.getMainHeading());
-									childVO.setMemberrole(part1.getChairPersonRole().getName());
+									if(part1.getChairPersonRole()!=null){
+										childVO.setMemberrole(part1.getChairPersonRole().getName());
+										if(part1.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_CHAIRMAN)
+												|| part1.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_SPEAKER)){
+												childVO.setChairperson(part1.getChairPerson());
+										}else{
+												childVO.setChairperson("");
+										}
+									}
 									childVO.setOrderNo(part1.getOrderNo());
-									childVO.setPageHeading(part1.getPageHeading());
+									if(part1.getPageHeading()!=null){
+										childVO.setPageHeading(part1.getPageHeading());
+									}else{
+										childVO.setPageHeading("");
+									}
+									if(part1.getMainHeading()!=null){
+										childVO.setMainHeading(part1.getMainHeading());
+									}else{
+										childVO.setMainHeading("");
+									}
+									if(part1.getSpecialHeading()!=null){
+										childVO.setSpecialHeading(part1.getSpecialHeading());
+									}else{
+										childVO.setSpecialHeading("");
+									}
 									Member pMember=part1.getPrimaryMember();
 									Member sMember=part1.getSubstituteMember();
 									if(pMember!=null){
@@ -3147,18 +2709,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 									
 										
 										if(part1.getIsConstituencyRequired()){
-											House house=null;
-											house=House.find(houseType, new Date(), locale.toString());
-											MasterVO masterVo=null;
-											if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-												 masterVo=Member.findConstituencyByAssemblyId(pMember.getId(), house.getId());
-												
-											}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-												Date currentDate=new Date();
-												String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-												masterVo=Member.findConstituencyByCouncilDates(pMember.getId(), house.getId(), "DATE", date, date);
+											Constituency constituency=part1.getPrimaryMember().findConstituency();
+											if(constituency!=null){
+												childVO.setConstituency(constituency.getName());
 											}
-											childVO.setConstituency(masterVo.getName());
 										}
 										if(part1.getPrimaryMemberDesignation()!=null){
 										childVO.setPrimaryMemberDesignation(part1.getPrimaryMemberDesignation().getName());
@@ -3372,13 +2926,31 @@ public class ProceedingController extends GenericController<Proceeding>{
 						ChildVO childVO=new ChildVO();
 						childVO.setId(p.getId());
 						childVO.setProceedingContent(p.getRevisedContent());
-						childVO.setChairperson(p.getChairPerson());
-						childVO.setMainHeading(p.getMainHeading());
+						if(p.getPageHeading()!=null){
+							childVO.setPageHeading(p.getPageHeading());
+						}else{
+							childVO.setPageHeading("");
+						}
+						if(p.getMainHeading()!=null){
+							childVO.setMainHeading(p.getMainHeading());
+						}else{
+							childVO.setMainHeading("");
+						}
+						if(p.getSpecialHeading()!=null){
+							childVO.setSpecialHeading(p.getSpecialHeading());
+						}else{
+							childVO.setSpecialHeading("");
+						}
 						if(p.getChairPersonRole()!=null){
 							childVO.setMemberrole(p.getChairPersonRole().getName());
+							if(p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_CHAIRMAN)
+									|| p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_SPEAKER)){
+									childVO.setChairperson(p.getChairPerson());
+							}else{
+									childVO.setChairperson("");
+							}
 						}
 						childVO.setOrderNo(p.getOrderNo());
-						childVO.setPageHeading(p.getPageHeading());
 						Member primaryMember=p.getPrimaryMember();
 						if(primaryMember!=null){
 							List<HouseMemberRoleAssociation> hrma=primaryMember.getHouseMemberRoleAssociations();
@@ -3401,18 +2973,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 						
 							
 							if(p.getIsConstituencyRequired()){
-								House house=null;
-								house=House.find(houseType, new Date(), locale.toString());
-								MasterVO masterVo=null;
-								if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-									 masterVo=Member.findConstituencyByAssemblyId(primaryMember.getId(), house.getId());
-									
-								}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-									Date currentDate=new Date();
-									String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-									masterVo=Member.findConstituencyByCouncilDates(primaryMember.getId(), house.getId(), "DATE", date, date);
-								}
-								childVO.setConstituency(masterVo.getName());
+								Constituency constituency = p.getPrimaryMember().findConstituency();
+								childVO.setConstituency(constituency.getName());
 							}
 							if(p.getPrimaryMemberDesignation()!=null){
 							childVO.setPrimaryMemberDesignation(p.getPrimaryMemberDesignation().getName());
@@ -3705,6 +3267,18 @@ public class ProceedingController extends GenericController<Proceeding>{
 					partDraft.setReplacedPageHeading(partText);
 					partDraft.setMainHeading(part.getMainHeading());
 					partDraft.setRevisedContent(part.getRevisedContent());
+				}else if(partField.equals("specialHeading")){
+					partDraft.setOriginalText(part.getRevisedContent());
+					part.setSpecialHeading(partText);
+					partDraft.setOriginalSpecialHeading(part.getSpecialHeading());
+					partDraft.setReplacedSpecialHeading(partText);
+					partDraft.setSpecialHeading(partText);
+					partDraft.setRevisedContent(part.getRevisedContent());
+					partDraft.setReplacedText(part.getRevisedContent());
+					partDraft.setMainHeading(part.getMainHeading());
+					partDraft.setOriginalMainHeading(part.getMainHeading());
+					partDraft.setPageHeading(part.getPageHeading());
+					partDraft.setOriginalPageHeading(part.getPageHeading());
 				}else{
 					partDraft.setOriginalText(part.getRevisedContent());
 					part.setRevisedContent(partText);
