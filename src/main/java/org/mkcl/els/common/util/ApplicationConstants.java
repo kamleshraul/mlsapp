@@ -1045,6 +1045,10 @@ public class ApplicationConstants {
 	public static String STATE_MINISTER="state_minister";
 	
 	public static String QUESTION_PROCESSED_SENDTODEPARTMENT="question_processed_sendToDepartment";
+	
+	public static final String PANEL_CHAIRMAN = "PANEL_CHAIRMAN";
+	
+	public static final String PANEL_SPEAKER = "PANEL_SPEAKER";
 
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
@@ -1469,6 +1473,7 @@ public class ApplicationConstants {
 	public static final String CUTMOTIONDATE_RECOMMEND_DATE_DISCUSS = "cutmotiondate_recommend_datediscuss";
 	
 	public static final String CUTMOTION_REASSIGN_REJECTION_NUMBER = "CUTMOTION_REASSIGN_REJECTION_NUMBER";
+
 		
 	/**** CutMotion****/
 }
