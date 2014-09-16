@@ -16,6 +16,8 @@ public class ProceedingRepository extends BaseRepository<Proceeding, Serializabl
 		try{
 			String query2="DELETE from bookmarks where master_part="+partId+" OR slave_part="+partId;
 			this.em().createNativeQuery(query2).executeUpdate();
+			String query = "DELETE FROM parts_drafts_association WHERE part_id ="+partId;
+			this.em().createNativeQuery(query).executeUpdate();
 			String query3="DELETE from parts WHERE id="+partId;
 			this.em().createNativeQuery(query3).executeUpdate();
 		}catch(Exception e){
