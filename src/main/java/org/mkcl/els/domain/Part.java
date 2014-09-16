@@ -101,6 +101,11 @@ public class Part  extends BaseDomain implements Serializable{
 	
 	private Boolean isConstituencyRequired;
 	
+	private Boolean isSubstitutionRequired;
+	
+	@Column(length=30000)
+	private String specialHeading;
+	
 	
 	
 	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
@@ -488,6 +493,22 @@ public class Part  extends BaseDomain implements Serializable{
 	public void setSubstituteMemberSubDepartment(
 			SubDepartment substituteMemberSubDepartment) {
 		this.substituteMemberSubDepartment = substituteMemberSubDepartment;
+	}
+
+	public Boolean getIsSubstitutionRequired() {
+		return isSubstitutionRequired;
+	}
+
+	public void setIsSubstitutionRequired(Boolean isSubstitutionRequired) {
+		this.isSubstitutionRequired = isSubstitutionRequired;
+	}
+
+	public String getSpecialHeading() {
+		return specialHeading;
+	}
+
+	public void setSpecialHeading(String specialHeading) {
+		this.specialHeading = specialHeading;
 	}
 
 	

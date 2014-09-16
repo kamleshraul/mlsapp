@@ -24,6 +24,9 @@ public class PartDraft extends BaseDomain implements Serializable {
 
 	@Column(length = 30000)
 	private String pageHeading;
+	
+	@Column(length = 30000)
+	private String specialHeading;
 
 	@Column(length = 30000)
 	private String revisedContent;
@@ -66,6 +69,10 @@ public class PartDraft extends BaseDomain implements Serializable {
 	private String replacedMainHeading;
 	
 	private String replacedPageHeading;
+	
+	private String originalSpecialHeading;
+	
+	private String replacedSpecialHeading;
 	
 	
 	public PartDraft() {
@@ -235,6 +242,32 @@ public class PartDraft extends BaseDomain implements Serializable {
 	public void setReplacedPageHeading(String replacedPageHeading) {
 		this.replacedPageHeading = replacedPageHeading;
 	}
+
+	public String getSpecialHeading() {
+		return specialHeading;
+	}
+
+	public void setSpecialHeading(String specialHeading) {
+		this.specialHeading = specialHeading;
+	}
+
+	public String getOriginalSpecialHeading() {
+		return originalSpecialHeading;
+	}
+
+	public void setOriginalSpecialHeading(String originalSpecialHeading) {
+		this.originalSpecialHeading = originalSpecialHeading;
+	}
+
+	public String getReplacedSpecialHeading() {
+		return replacedSpecialHeading;
+	}
+
+	public void setReplacedSpecialHeading(String replacedSpecialHeading) {
+		this.replacedSpecialHeading = replacedSpecialHeading;
+	}
+	
+	
 	
 	
 }
