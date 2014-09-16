@@ -1,21 +1,21 @@
 <div id='deviceContent'>
 	<p style="text-align:center"><b>$questionSubject</b></p>
 	<p><b> * $questionNumber       $questionPrimaryMember 
-	#if($supportingMember!='')
+	#if($supportingMember!='' && $supportingMember)
 		$supportingMember
 	#end
 	</b>: $questionText
 	</p>
 	#if($minister!='')
 	<p>
-		#if($answer!='')
+		#if($answer!='' && $answer)
 			$minister : $answer
 		#else
 			<div style="text-align:center"><b>(उत्तर आले नाही )</b></div>
 		#end	
 	</p>
 	#else
-		#if($answer!='')
+		#if($answer!='' &&  $answer)
 			$answer
 		#else
 		  <b>(उत्तर आले नाही)</b>
