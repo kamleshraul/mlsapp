@@ -3195,7 +3195,7 @@ public class ReferenceController extends BaseController {
 								masterVo.setValue(p.getPrimaryMember().getFullname());
 							}
 							masterVo.setId(p.getId());
-							masterVo.setValue(proceeding.getSlot().getName());
+							//masterVo.setValue(proceeding.getSlot().getName());
 							masterVo.setName(p.getRevisedContent());
 							masterVOs.add(masterVo);
 						}
@@ -5552,6 +5552,7 @@ public class ReferenceController extends BaseController {
 		CutMotionDate cutMotionDate = CutMotionDate.findById(CutMotionDate.class, new Long(request.getParameter("cutMotionDate")));
 		return CutMotionDateControllerUtility.getActors(request, cutMotionDate, locale.toString());
 	}
+	
 	@RequestMapping(value="/findParty", method=RequestMethod.GET)
 	public @ResponseBody Long findPartyByMemberId(final HttpServletRequest request,
 			final Locale locale){
@@ -5562,6 +5563,26 @@ public class ReferenceController extends BaseController {
 			return party.getId();
 		}
 		return null;
+	}
+
+	@RequestMapping(value="/getDeviceNumber",method=RequestMethod.GET)
+	public @ResponseBody MasterVO getDeviceNumber(HttpServletRequest request, Locale locale){
+		String strDeviceId = request.getParameter("deviceId");
+		String strDeviceType = request.getParameter("deviceType");
+		MasterVO masterVO=new MasterVO();
+		if(strDeviceType!=null && !strDeviceType.isEmpty()
+			&& strDeviceId!=null && !strDeviceId.isEmpty()){
+			DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			String device=deviceType.getDevice();
+			if(device.equals(ApplicationConstants.QUESTION)){
+				Question question=Question.findById(Question.class, Long.parseLong(strDeviceId));
+				masterVO.setName(question.getNumber().toString());
+			}else if(device.equals(ApplicationConstants.RESOLUTION)){
+				Resolution resolution = Resolution.findById(Resolution.class, Long.parseLong(strDeviceId));
+				masterVO.setName(resolution.getNumber().toString());
+			}
+		}
+		return masterVO;
 	}
 	
 	@RequestMapping(value="/section/findSeriesByLanguage", method=RequestMethod.GET)
