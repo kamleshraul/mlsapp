@@ -156,8 +156,10 @@
 	      											<fo:block>
 	      											<xsl:for-each select="./childVOs">
 	      												<xsl:choose>
-			      											<xsl:when test="position()=1 or (preceding-sibling::childVOs[1]/pageHeading!=pageHeading and preceding-sibling::childVOs[1]/mainHeading!=mainHeading) or (preceding-sibling::childVOs[1]/pageHeading!=pageHeading) or (preceding-sibling::childVOs[1]/mainHeading!=mainHeading) ">
+			      											<xsl:when test="position()=1 or (preceding-sibling::childVOs[1]/pageHeading!=pageHeading and preceding-sibling::childVOs[1]/mainHeading!=mainHeading) or (preceding-sibling::childVOs[1]/pageHeading!=pageHeading) or (preceding-sibling::childVOs[1]/mainHeading!=mainHeading) or(preceding-sibling::childVOs[1]/specialHeading!=specialHeading) ">
 			      												<fo:block break-before="page"></fo:block>
+			      												<fo:block>&#160;</fo:block>
+	  															<fo:block>&#160;</fo:block>
 	      														<fo:block>
 																	<xsl:if test="position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole">
 																		<fo:block text-align="center" font-weight="bold">
@@ -181,13 +183,19 @@
 															 				</fo:block>
 															 				<fo:block>&#160;</fo:block>															 		
 															 			</xsl:when>
+															 			<xsl:when test="string-length(./specialHeading)>0 or string-length(./specialHeading)>0">
+															 				<fo:block text-align="center">
+															 					<xsl:value-of select="./specialHeading"></xsl:value-of> 
+															 				</fo:block>
+															 				<fo:block>&#160;</fo:block>															 		
+															 			</xsl:when>
 																 	</xsl:choose>
 																 	<fo:block>&#160;</fo:block>
 																 	<fo:inline>
 																		<xsl:choose>
 																			<xsl:when test="position() = 1 or (preceding-sibling::childVOs[1]/primaryMember!=./primaryMember)">
 																				<xsl:choose>
-																					<xsl:when test="primaryMemberMinistry!='' or primaryMember='अध्यक्ष'">
+																					<xsl:when test="(primaryMemberMinistry!='' and primaryMemberMinistry!=null) or primaryMember='अध्यक्ष' ">
 																						<fo:inline font-weight="bold" >
 																							<xsl:value-of select="./primaryMember"></xsl:value-of>
 																							<xsl:if test="constituency!=''">
@@ -204,18 +212,19 @@
 																						</fo:inline>
 																					</xsl:otherwise>
 																				</xsl:choose>
-																				<xsl:if test="primaryMemberDesignation!=''">
-																					(<xsl:value-of select="primaryMemberDesignation"></xsl:value-of>)	
-																				</xsl:if>
-																				<xsl:if test="primaryMemberMinistry!=''">
-																					(<xsl:value-of select="primaryMemberMinistry"></xsl:value-of>)
-																				</xsl:if>
-																				<xsl:if test="primaryMemberSubDepartment!=''">
-																					(<xsl:value-of select="primaryMemberSubDepartment"></xsl:value-of>)
-																				</xsl:if>
+																				<xsl:choose>
+																					<xsl:when test="primaryMemberSubDepartment!='' and primaryMemberSubDepartment!=null">
+																						(<xsl:value-of select="primaryMemberSubDepartment"></xsl:value-of> &#160; <xsl:value-of select="primaryMemberDesignation"></xsl:value-of> )
+																					</xsl:when>
+																					<xsl:otherwise>
+																						<xsl:if test="primaryMemberDesignation!='' and primaryMemberDesignation!=null">
+																								(<xsl:value-of select="primaryMemberDesignation"></xsl:value-of>)
+																						</xsl:if>
+																					</xsl:otherwise>
+																				</xsl:choose>
 																				<xsl:if test="substituteMember!=''">
 																					<xsl:choose>
-																						<xsl:when test="substituteMemberMinistry!=''">
+																						<xsl:when test="substituteMemberMinistry!='' and substituteMemberMinistry!=null">
 																							<fo:inline font-weight="bold" >
 																								,<xsl:value-of select="substituteMember"></xsl:value-of>
 																							</fo:inline>
@@ -226,15 +235,8 @@
 																							</fo:inline>
 																						</xsl:otherwise>
 																					</xsl:choose>
-																					
-																					<xsl:if test="substituteMemberDesignation!=''">
-																						(<xsl:value-of select="substituteMemberDesignation"></xsl:value-of>)	
-																					</xsl:if>
-																					<xsl:if test="substituteMemberMinistry!=''">
+																					<xsl:if test="substituteMemberMinistry!='' and substituteMemberMinistry!=null">
 																						(<xsl:value-of select="substituteMemberMinistry"></xsl:value-of>)	
-																					</xsl:if>
-																					<xsl:if test="substituteMemberSubDepartment!=''">
-																						(<xsl:value-of select="substituteMemberSubDepartment"></xsl:value-of>)	
 																					</xsl:if>
 																					यांच्या करिता
 																				</xsl:if>
@@ -287,18 +289,19 @@
 																					</fo:inline>
 																					</xsl:otherwise>
 																				</xsl:choose>
-																				<xsl:if test="primaryMemberDesignation!=''">
-																					(<xsl:value-of select="primaryMemberDesignation"></xsl:value-of>)	
-																				</xsl:if>
-																				<xsl:if test="primaryMemberMinistry!=''">
-																					(<xsl:value-of select="primaryMemberMinistry"></xsl:value-of>)
-																				</xsl:if>
-																				<xsl:if test="primaryMemberSubDepartment!=''">
-																					(<xsl:value-of select="primaryMemberSubDepartment"></xsl:value-of>)
-																				</xsl:if>
+																				<xsl:choose>
+																					<xsl:when test="primaryMemberSubDepartment!=''  and primaryMemberSubDepartment!=null">
+																						(<xsl:value-of select="primaryMemberSubDepartment"></xsl:value-of> &#160; <xsl:value-of select="primaryMemberDesignation"></xsl:value-of> )
+																					</xsl:when>
+																					<xsl:otherwise>
+																						<xsl:if test="primaryMemberDesignation!='' and primaryMemberDesignation!=null">
+																								(<xsl:value-of select="primaryMemberDesignation"></xsl:value-of>)
+																						</xsl:if>
+																					</xsl:otherwise>
+																				</xsl:choose>
 																				<xsl:if test="substituteMember!=''">
 																					<xsl:choose>
-																						<xsl:when test="substituteMemberMinistry!=''">
+																						<xsl:when test="substituteMemberMinistry!='' and substituteMemberMinistry!=null">
 																							<fo:inline font-weight="bold" >
 																								,<xsl:value-of select="substituteMember"></xsl:value-of>
 																							</fo:inline>
@@ -309,16 +312,11 @@
 																							</fo:inline>
 																						</xsl:otherwise>
 																					</xsl:choose>
-																					<xsl:if test="substituteMemberDesgination!=''">
-																						(<xsl:value-of select="substituteMemberDesgination"></xsl:value-of>)	
+																					
+																					<xsl:if test="substituteMemberMinistry!='' and substituteMemberMinistry!=null">
+																						&#160;(<xsl:value-of select="substituteMemberMinistry"></xsl:value-of>)	
 																					</xsl:if>
-																					<xsl:if test="substituteMemberMinistry!=''">
-																						(<xsl:value-of select="substituteMemberMinistry"></xsl:value-of>)	
-																					</xsl:if>
-																					<xsl:if test="substituteMemberSubDepartment!=''">
-																						(<xsl:value-of select="substituteMemberSubDepartment"></xsl:value-of>)	
-																					</xsl:if>
-																				यांच्या करिता
+																					यांच्या करिता
 																				</xsl:if>
 																				:																														
 																			</xsl:when>
