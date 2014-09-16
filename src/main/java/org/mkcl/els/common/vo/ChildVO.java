@@ -20,21 +20,37 @@ public class ChildVO {
 	
 	private String primaryMemberDesignation;
 	
+	private String primaryMemberDesignationName;
+	
 	private String primaryMemberMinistry;
+	
+	private String primaryMemberMinistryName;
 	
 	private String primaryMemberSubDepartment;
 	
+	private String primaryMemberSubDepartmentName;
+	
 	private String substituteMember;
+	
+	private String substituteMemberName;
 	
 	private String substituteMemberDesignation;
 	
+	private String substituteMemberDesignationName;
+	
 	private String substituteMemberMinistry;
 	
+	private String substituteMemberMinistryName;
+	
 	private String substituteMemberSubDepartment;
+	
+	private String substituteMemberSubDepartmentName;
 	
 	private String pageHeading;
 	
 	private String mainHeading;
+	
+	private String specialHeading;
 	
 	private String chairperson;
 	
@@ -54,6 +70,7 @@ public class ChildVO {
 	
 	private boolean isConstituencyRequired;
 
+	private boolean isSubstitutionRequired;
 	
 	public ChildVO() {
 		super();
@@ -350,6 +367,99 @@ public class ChildVO {
 
 	public void setConstituencyRequired(boolean isConstituencyRequired) {
 		this.isConstituencyRequired = isConstituencyRequired;
+	}
+
+
+	public String getSpecialHeading() {
+		return specialHeading;
+	}
+
+
+	public void setSpecialHeading(String specialHeading) {
+		this.specialHeading = specialHeading;
+	}
+
+
+	public boolean isSubstitutionRequired() {
+		return isSubstitutionRequired;
+	}
+
+
+	public void setSubstitutionRequired(boolean isSubstitutionRequired) {
+		this.isSubstitutionRequired = isSubstitutionRequired;
+	}
+
+
+	public String getPrimaryMemberDesignationName() {
+		return primaryMemberDesignationName;
+	}
+
+
+	public void setPrimaryMemberDesignationName(String primaryMemberDesignationName) {
+		this.primaryMemberDesignationName = primaryMemberDesignationName;
+	}
+
+
+	public String getPrimaryMemberMinistryName() {
+		return primaryMemberMinistryName;
+	}
+
+
+	public void setPrimaryMemberMinistryName(String primaryMemberMinistryName) {
+		this.primaryMemberMinistryName = primaryMemberMinistryName;
+	}
+
+
+	public String getPrimaryMemberSubDepartmentName() {
+		return primaryMemberSubDepartmentName;
+	}
+
+
+	public void setPrimaryMemberSubDepartmentName(
+			String primaryMemberSubDepartmentName) {
+		this.primaryMemberSubDepartmentName = primaryMemberSubDepartmentName;
+	}
+
+
+	public String getSubstituteMemberName() {
+		return substituteMemberName;
+	}
+
+
+	public void setSubstituteMemberName(String substituteMemberName) {
+		this.substituteMemberName = substituteMemberName;
+	}
+
+
+	public String getSubstituteMemberDesignationName() {
+		return substituteMemberDesignationName;
+	}
+
+
+	public void setSubstituteMemberDesignationName(
+			String substituteMemberDesignationName) {
+		this.substituteMemberDesignationName = substituteMemberDesignationName;
+	}
+
+
+	public String getSubstituteMemberMinistryName() {
+		return substituteMemberMinistryName;
+	}
+
+
+	public void setSubstituteMemberMinistryName(String substituteMemberMinistryName) {
+		this.substituteMemberMinistryName = substituteMemberMinistryName;
+	}
+
+
+	public String getSubstituteMemberSubDepartmentName() {
+		return substituteMemberSubDepartmentName;
+	}
+
+
+	public void setSubstituteMemberSubDepartmentName(
+			String substituteMemberSubDepartmentName) {
+		this.substituteMemberSubDepartmentName = substituteMemberSubDepartmentName;
 	}
 	
 	
