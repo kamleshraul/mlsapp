@@ -62,13 +62,16 @@ public class CitationController extends GenericController<Citation>{
 		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "desc", domain.getLocale());
         model.addAttribute("deviceTypes", deviceTypes);
         DeviceType deviceType=domain.getDeviceType();
+       
         List<Status> statuses = new ArrayList<Status>();
+        if(deviceType!=null){
 		try {
 			statuses = Status.findStartingWith(deviceType.getDevice(), "name", "asc", domain.getLocale());
 		} catch (ELSException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        }
         model.addAttribute("statuses", statuses);
     }
 
