@@ -6,59 +6,23 @@
 	<title><spring:message code="proceeding.list" text="List Of Proceedings"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		var currentRowId="";
-		var dataIds=new Array();
-		var columnNo=new Array();
-		var colVal=new Array();
 		$(document).ready(function(){	
-			$(document).keydown(function (e){
+			 $(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					e.preventDefault();
+					//console.log("partCount="+partCount);
+					$('#addPart'+$('#partCount').val()).trigger('click');
 					e.stopPropagation();
-					console.log("partCount="+partCount);
-					$('#addPart'+partCount).trigger('click');
-					return false;
+					//return false;
 				}
 				if(e.which==83 && e.ctrlKey){
 					e.preventDefault();
+					$('#savePart'+$('#partCount').val()).trigger('click');
 					e.stopPropagation();
-					$('#savePart').trigger('click');
 				}
+				
 			}); 
-			/* $(document).keydown(function (e){
-				if(e.which==78 && e.ctrlKey){
-					e.preventDefault();
-					dataIds=$('#grid').jqGrid('getDataIDs');
-					newPart($('#key').val());
-				}
-				if(e.which==83 && e.ctrlKey){
-					e.preventDefault();
-					$('#submit').trigger('click');
-				}
-				if(e.which==76 && e.ctrlKey){
-					e.preventDefault();
-					showPartList($('key').val());
-				}
-				if(e.which==79 && e.ctrlKey){
-					e.preventDefault();
-					editPart($('#key').val(),$('#internalKey').val());
-				}
-				if(e.which==8 && e.ctrlKey){
-					e.preventDefault();
-					deletePart();
-				}
-				if(e.which==89 && e.ctrlKey){
-					e.preventDefault();
-					nextPart();
-				}
-				if(e.which==90 && e.ctrlKey){
-					e.preventDefault();
-					previousPart();
-				}
-				if(e.keyCode == 38 || e.keyCode == 40){
-					scrollRowsInGrid(e);
-		        }
-			}); */
+
 			/*Tooltip*/
 			$(".toolTip").hide();					
 			/**** here we are trying to add date mask in grid search when field names ends with date ****/
@@ -116,9 +80,6 @@
 				editProceeding(); 	
 			}); 
 			
-			$('#part_tab').click(function(){
-				showPartList($('#key').val());
-			});
 			loadRosterDayFromSessions();			
 			/**** show roster list method is called by default.****/
 			showProceedingList();				
@@ -217,9 +178,11 @@
 					} else {
 						$("#selectedDay").empty();
 					}
+				}).done(function(){
+					$("#selectedDay").trigger("change");
 				});
 			}
-			//reloadProceedingGrid();			
+			//		
 		}
 		
 		function rosterWiseReport(){
@@ -245,81 +208,12 @@
 			showTabByIdAndUrl('part_tab', 'proceeding/part/list?proceeding='+key);
 		}
 		
-		function editPart(key,internalKey){
-			 columnNo=$('#grid').jqGrid('getGridParam','colModel');
-			for(var j=0;j<columnNo.length;j++){
-					var colname=columnNo[j].name;
-					console.log(columnNo[j].name);
-					if(colname=="orderNo"){
-						colval=$('#grid').getCol(colname,false);
-					}
-			}
-			 showTabByIdAndUrl('part_tab','proceeding/part/'+internalKey+'/edit');	
-		}
-		
-		function previousPart(){
-			var prevId=-1;
-			var i;
-			for(i=dataIds.length-1;i>=0;i--){
-				if(currentRowId==dataIds[i]){
-					i--;
-					prevId=dataIds[i];
-					break;
-				}
-			}
-			if(i>=0){
-				showTabByIdAndUrl('part_tab','proceeding/part/'+prevId+'/edit');
-			}
-			
-		}
-		
-		
-		function nextPart(){
-			var nextRowId = -1;
-			var i=0;
-			for(i = 0; i < dataIds.length; i++){
-				if(dataIds[i]==currentRowId){
-					i++;
-					nextRowId = dataIds[i];
-					break;
-				}
-			}
-						
-			if(i<dataIds.length){
-				showTabByIdAndUrl('part_tab','proceeding/part/'+nextRowId+'/edit');
-			}
-			
-		}
-		
-		function newPart(key){
-			columnNo=$('#grid').jqGrid('getGridParam','colModel');
-			for(var j=0;j<columnNo.length;j++){
-				var colname=columnNo[j].name;
-				if(colname=="orderNo"){
-					colval=$('#grid').getCol(colname,true);
-				}
-			}
-			dataIds=$('#grid').jqGrid('getDataIDs');
-			$("#selectionDiv1").hide();
-			if(key!=null&&key!=""){
-				showTabByIdAndUrl('part_tab','proceeding/part/new?proceeding='+key);
-			}
-		}
-		
 		function proceedingwiseReport(){
 			var params="proceeding="+$('#key').val()+
 			'&language=' + $("#selectedLanguage").val();
 			showTabByIdAndUrl('details_tab', 'proceeding/part/proceedingwiseReport?'+params);
 		}
-		
-		
-		function goToPart(orderNoText){
-			for(var k=0;k<colval.length;k++){
-				if(colval[k].value==orderNoText){
-						showTabByIdAndUrl('part_tab','proceeding/part/'+colval[k].id+'/edit');
-				}
-			}
-		} 
+
 		
 	</script>
 </head>

@@ -8,41 +8,23 @@
 	<script type="text/javascript">
 	/**** Global Variables ****/
 	var orderCount=0;
-	var partCount=parseInt($('#partCount').val());
-	var totalPartCount=0;
+	var editWindowOpen= false;
 	var controlId='';
+	var totalPartCount=0;
+	var partCount=parseInt($('#partCount').val());
 	totalPartCount=partCount+totalPartCount;
-	
 	$(document).ready(function(){
 		
 		loadWysiwyg();
 		
 		/***Add Part***/
-		$('.addPartButton').click(function(){
-			var buttonId=this.id;
-			console.log("Button Id:"+buttonId);
-			var buttonCount=buttonId.split("addPart")[1];
-			console.log("buttonCount"+buttonCount);
-			addPart(parseInt(buttonCount));
-		});
+		loadAddPartClickEvent();
+		
+		/****Add Bookmark****/
+		loadBookmarkClickEvent();
 		
 		/***Edit part***/
-		$('.editableContent').dblclick(function(e){
-			 controlId=$(this).attr('id');
-			 
-			 showEditor(e);
-			 console.log(controlId);
-			 var text = window.getSelection().toString().trim();
-			 var newContent = $('#'+controlId).html();
-			 
-			 console.log(text);
-			 newContent = newContent.replace(/<span class='highlightedText'.*?>/g,"");
-			 newContent = newContent.replace(text,"<span class='highlightedText' style='background: yellow;'>"+text+"</span>");
-			$('#prevContent').val($('#'+controlId).html());
-			$('#textDemo').children('div.wysiwyg').css('width','600px');
-			$('#ttA').wysiwyg('setContent',newContent);
-			
-		});
+		//editPartContent();
 		
 		/***Replace All Functionality***/
 		$("#replaceAll").click(function(){
@@ -65,33 +47,247 @@
 			}
 		});
 		
-		/****Add Bookmark****/
-		$('.addBookmark').click(function(){
-			var id=this.id;
-			var count=id.split("bookmark");
-			elementCount=count[count.length-1];
-			$.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val()+'&count='+elementCount+'&currentPart='+$('#partId'+elementCount).val(),function(data){
-				    $.fancybox.open(data, {autoSize: false, width:800, height:500});
-			    },'html');
-			    return false;
-		});
-		
-		/***Registering the wysiwyg for a pop up texteditor***/
-		$('#ttA').wysiwyg({
-				controls:{
-					hide: {
-						visible: true,
-						tags: ['hide'],
-						exec: function () {
-							hideEditor();
-						},
-						tooltip: "Hide"
-				}
-			}
-		});
-		
-		
+		/****Edit Proceeding Content****/
+		 $('.editableContent').dblclick(function(e){
+			  if (!editWindowOpen) {			
+					controlId=$(this).attr('id');
+					 var divId = this.id;
+					//var spanId=divId.split("span");
+					console.log(divId);
+					$('#previousContent').val($(this).html());
+					var text = window.getSelection().toString().trim();
+					var newContent = $(this).text();
+					console.log(text);
+					newContent = newContent.replace(/<span class='highlightedText'.*?>/g,"");
+					newContent = newContent.replace(text,"<span class='highlightedText' style='background: yellow;'>"+text+"</span>"); 
+					 
+						var inputbox = "<textarea id='editContent' class='inputbox wysiwyg sTextarea'>"+newContent+"</textarea>"; 
+						$(this).html(inputbox); 
+						editWindowOpen=true;
+						$('#editContent').wysiwyg({
+							 resizeOptions: {maxWidth: 600},
+							 controls:{
+								 fullscreen: {
+										visible: true,
+										hotkey:{
+											"ctrl":1|0,
+											"key":122
+										},
+										exec: function () {
+											if ($.wysiwyg.fullscreen) {
+												$.wysiwyg.fullscreen.init(this);
+											}
+										},
+										tooltip: "Fullscreen"
+									},
+								 },
+							 events: {
+								blur: function() {
+									saveAndHide();	
+								}
+							 }
+						});
+						$("textarea.inputbox").focus(); 
+						$("div.wysiwyg").css('width','700px');
+					} 	
+				
+			});
 		 
+		 /****Edit Other Part Details****/
+		 $('.editDetails').dblclick(function(){
+				var divId = this.id;
+				var tempId = divId.split('member');
+				var divText= 
+				 "<div id='editDetail' style='border:2px solid;height:170px;width: 900px;'>"+
+				 "<form action='proceeding/part/updateMemberDetail'>"+
+			 		"<p align='right' style='margin-top: 5px;margin-right:15px;'>"+
+			    		"<a href='javascript:void(0)' id='editPublicLink'  class='imgLink publicLink' title='Public'>PU</a>"+
+			 		"</p>"+
+			 		"<p style='margin-top:5px;'>"+
+					 "<label class='small'>"+$('#roleMessage').val()+"</label>"+
+					 "<select name='editChairPersonRole' id='editChairPersonRole' class='sSelect'>"+
+						 $('#roleMaster').html()+
+				     "</select>"+
+				     "<label class='small' style='margin-left: 110px;' >"+$('#chairPersonMessage').val()+"</label>"+
+				 	 "<select name='editChairPerson' id='editChairPerson' class='sSelect' >"+
+			    	 "</select>"+
+			     	"</p>"+
+			     	"<div id='member'>"+
+				     "<p style='margin-top:5px;'>"+
+				         "<label class='small'>"+$('#primaryMemberNameMessage').val()+"</label>"+
+				         "<input type='text' class='autosuggest editFormattedMember sText' name='editFormattedPrimaryMember' id='editFormattedPrimaryMember' value='"+$('#primaryMemberName'+tempId[1]).val()+"' />"+
+					     "<input name='editPrimaryMember' id='editPrimaryMember' type='hidden' value='"+$('#primaryMember'+tempId[1]).val()+"'/>"+
+					 "</p>"+
+					 "<p class='minister' >"+
+			             "<label class='small'>"+$('#primaryMemberDesignationMessage').val()+"</label>"+
+			             "<select name='editPrimaryMemberDesignation' id='editPrimaryMemberDesignation' class='sSelect'>"+
+					      	$('#designationMaster').html()+
+					      "</select>"+
+					      "<label class='small' style='margin-left: 110px;'>"+$('#primaryMemberSubDepartmentMessage').val()+"</label>"+
+					      "<select name='editPrimaryMemberSubDepartment' id='editPrimaryMemberSubDepartment'  class='sSelect'>"+
+					     	 $('#subDepartmentMaster').html()+
+					      "</select>"+
+		             "</p>"+
+		             "<p>"+
+					     "<label  class='small' >"+$('#isConstituencyRequiredMessage').val()+"</label>"+
+					     "<input type='checkbox' id='editIsConstituencyRequired' name='editIsConstituencyRequired' class='sCheck'  >"+
+					     "<label  class='small' style='margin-left: 285px;'>"+$('#isSubstitutionRequiredMessage').val()+"</label>"+
+					     "<input type='checkbox' id='editIsSubstitutionRequired' name='editIsSubstitutionRequired' class='sCheck'  >"+
+				     "</p>"+
+				     "</div>"+
+				     "<div id='public' style='display:none;'>"+
+				     	"<p>"+
+				     	"<label class='small'>"+$('#publicRepresentativeMessage').val()+"</label>"+
+			             "<input type='text' class='sText' name='editPublicRepresentative' id='editPublicRepresentative'/>"+
+				     	"</p>"+
+				     	"<p>"+
+				     	"<label class='small'>"+$('#publicRepresentativeDetailMessage').val()+"</label>"+
+					     "<textarea class='sTextArea' name='editPublicRepresentativeDetail' id='editPublicRepresentativeDetail'/>"+
+				     	"</p>"+
+				     "</div>"+
+				     	"<h2></h2>"+
+						"<p class='tright'>"+
+							"<input id='submit' type='button' value='submit' class='butDef submit'>"+
+						"</p>"+
+						"<input type='hidden' id='editPartId' name='editPartId' value='"+$('#partId'+tempId[1]).val()+"'/>"+
+					  "</form>"+
+				"</div>";
+				$('#'+divId).empty();
+				$('#'+divId).html(divText);
+				
+				/****Populate the chairperson based on the role selected by the user.****/
+				 $('#editChairPersonRole').change(function(){
+						$.get('ref/getchairperson?chairPersonRole='+$(this).val()+'&proceeding='+$('#proceedingId').val(),function(data){
+							$("#editChairPerson").empty();
+							var chairPersonText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+							if(data.length>0){
+								if(data.length==1){
+									chairPersonText+="<option value='"+data[0]+"' selected='selected'>"+data[0];
+								}else{
+									for(var i=0;i<data.length;i++){
+										chairPersonText+="<option value='"+data[i]+"'>"+data[i];
+									}
+								}
+							$("#editChairPerson").html(chairPersonText);
+						}else{
+							$("#editChairPerson").empty();
+							var chairPersonText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+							$("#editChairPerson").html(chairPersonText);	
+						}
+						});
+					});
+				
+				/****Auto Setting of chaipersonrole,member,designation,department,isconstituency required of the current part****/
+				$('#editChairPersonRole option').each(function(){
+					 if($(this).val()==$('#chairPersonRole'+tempId[1]).val()){
+						 $(this).attr('selected',true);
+						 $('#editChairPersonRole').change();
+					 } 
+			 	});
+				 
+						 
+				 $('#editPrimaryMemberDesignation option').each(function(){
+					 if($(this).val()==$('#primaryMemberDesignation'+tempId[1]).val()){
+						 $(this).attr('selected',true);
+					 } 
+			 	});
+				 
+				 $('#editPrimaryMemberSubDepartment option').each(function(){
+					 if($(this).val()==$('#primaryMemberSubDepartment'+tempId[1]).val()){
+						 $(this).attr('selected',true);
+					 } 
+			 	});
+				 
+				 if($('#isConstituencyRequired'+tempId[1]).val()=='true'){
+					 $('#editIsConstituencyRequired').attr('checked',true);
+				 }
+				 
+				 if($('#isSubstitutionRequired'+tempId[1]).val()=='true'){
+					 $('#editIsSubstitutionRequired').attr('checked',true);
+				 }
+				 
+				 
+				 $( ".editFormattedMember").autocomplete({
+						minLength:3,			
+						source:'ref/member/getmembers?session='+$("#session").val(),
+						select:function(event,ui){	
+							id=this.id;
+							$("#editPrimaryMember").val(ui.item.id);
+						}	
+				  });
+				 
+				 /**** Submit****/
+				 $('#submit').click(function(){
+					 $.post($("form[action='proceeding/part/updateMemberDetail']").attr('action'),
+								$("form[action='proceeding/part/updateMemberDetail']").serialize(),function(data){
+					 		if(data!=null){
+					 			var memberText='';
+					 			if(data.primaryMemberName!=null && data.primaryMemberName!=''){
+					 				$('#primayMember'+tempId[1]).val(data.primaryMember);
+					 				$('#primayMemberName'+tempId[1]).val(data.primaryMemberName);
+									if(data.constituency!=null && data.constituency!=''){
+										$('#isConstituencyRequired'+tempId[1]).val(data.isConstituencyRequired);
+										memberText= memberText + data.primaryMemberName + "("+ data.constituency +")";
+									}else{
+										memberText= memberText + data.primaryMemberName;
+									}
+									if(data.primaryMemberDesignation!=null && data.primaryMemberDesignation!=''){
+										$('#primayMemberDesignation'+tempId[1]).val( data.primaryMemberDesignation);
+										memberText= memberText + "("+data.primaryMemberDesignationName+")";
+									}
+									if(data.primaryMemberMinistry !=null && data.primaryMemberMinistry !=''){
+										$('#primaryMemberMinistry'+tempId[1]).val( data.primaryMemberMinistry);
+										memberText= memberText + "("+data.primaryMemberMinistryName+")";
+									}
+									if(data.primaryMemberSubDepartment !=null && data.primaryMemberSubDepartment !=''){
+										$('#primaryMemberSubDepartment'+tempId[1]).val( data.primaryMemberSubDepartment);
+										memberText= memberText + "("+data.primaryMemberSubDepartmentName+")";
+									}
+									if(data.substituteMember!=null && data.substituteMember!=''){
+										$('#substituteMember'+tempId[1]).val(data.substituteMember);
+										memberText= memberText + ","+data.substituteMemberName;
+										if(data.substituteMemberDesignation!=null && data.substituteMemberDesignation!=''){
+											$('#substituteMemberDesignation'+tempId[1]).val( data.substituteMemberDesignation);
+											memberText= memberText + "("+data.substituteMemberDesignationName+")";
+										}
+										if(data.substituteMemberMinistry !=null && data.substituteMemberMinistry !=''){
+											$('#substituteMemberMinistry'+tempId[1]).val( data.substituteMemberMinistry);
+											memberText= memberText + "("+data.substituteMemberMinistryName+")";
+										}
+										if(data.substituteMemberSubDepartment !=null && data.substituteMemberSubDepartment !=''){
+											$('#substituteMemberSubDepartment'+tempId[1]).val(data.substituteMemberSubDepartment);
+											memberText= memberText + "("+data.substituteMemberSubDepartmentName+")";
+										}
+										memberText = memberText + $('#subsituteMemberText').val();
+									}
+								}else if(data.publicRepresentative != null && data.publicRepresentative !=''){
+									$('#publicRepresentative'+tempId[1]).val(data.publicRepresentative);
+									$('#publicRepresentativeDetail'+tempId[1]).val(data.publicRepresentativeDetail);
+									memberText= memberText + data.publicRepresentative;
+								}		
+					 			$('#'+divId).empty;
+					 			$('#'+divId).html(memberText);
+					 		}else{
+					 			$.unblockUI();
+								if($("#ErrorMsg").val()!=''){
+									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+								}else{
+									$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+								}
+								scrollTop();
+					 		}
+					 }).fail(function(){
+							$.unblockUI();
+							if($("#ErrorMsg").val()!=''){
+								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+							}else{
+								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+							}
+							scrollTop();
+					});
+			 });
+		});
+	 
 	});
 	
 	/***Add Part***/
@@ -134,13 +330,17 @@
 			 "</div>"+
 			 "<div id='div2' style='border:2px solid;height:320px;margin-top:2px;'>"+
 			   "<p id='ip' align='right' style='margin-top: 5px;margin-right:15px;'>"+
-			   		"<a href='javascript:void(0)' id='interruptedProceeding' class='imgLink' title='Interrupted Proceeding'>IP</a>"+			   "</p>"+
-			   "<p>"+
+			   		"<a href='javascript:void(0)' id='interruptedProceeding' class='imgLink' title='Interrupted Proceeding'>IP</a>"+			   
+			   		"<a href='javascript:void(0)' id='specialHeading' class='imgLink' title='Special Heading'>SH</a>"+			   
+			   "<p class='pageHeadingP'>"+
 			   		"<textarea class='proceedingContentwysiwyg' name='pageHeading"+partCount+"' id='pageHeading"+partCount+"'/>"+
 			   "</p>"+
-			    "<p style='margin-top:20px;'>"+
+			    "<p style='margin-top:20px;' class='mainHeadingP'>"+
 			   	 	"<textarea class='proceedingContentwysiwyg' name='mainHeading"+partCount+"' id='mainHeading"+partCount+"'/>"+
-			    "</p>"+ 				     
+			    "</p>"+ 		
+			    "<p style='display:none;' class='specialHeadingP'>"+
+		   	 		"<textarea class='proceedingContentwysiwyg' name='specialHeading"+partCount+"' id='specialHeading"+partCount+"'/>"+
+		    	"</p>"+
 			    "<p class='order"+partCount+"'style='display:none;'>"+
 		     		"<label class='small'>"+$('#orderMessage').val()+"</label>"+
 		     		"<input type='text' class='sInteger' name='partOrder"+partCount+"' id='partOrder"+partCount+"'/>"+
@@ -175,6 +375,8 @@
 	             "<p>"+
 				     "<label  class='small' style='width:160px;'>"+$('#isConstituencyRequiredMessage').val()+"</label>"+
 				     "<input type='checkbox' id='isConstituencyRequired"+partCount+"' name='isConstituencyRequired"+partCount+"' class='sCheck'  style='margin-left:20px;'>"+
+				     "<label  class='small' style='width:160px;margin-left: 75px;'>"+$('#isSubstitutionRequiredMessage').val()+"</label>"+
+				     "<input type='checkbox' id='isSubstitutionRequired"+partCount+"' name='isSubstitutionRequired"+partCount+"' class='sCheck'  style='margin-left: 20px;'>"+
 			     "</p>"+
 			     "</div>"+
 			     "<div id='public' style='display:none;'>"+
@@ -207,9 +409,9 @@
 		  "<input type='hidden' id='partRevisedContent"+partCount+"' name='partRevisedContent"+partCount+"'>"+
 		  "<input type='hidden' id='partProceeding"+partCount+"' name='partProceeding"+partCount+"' value='"+$('#proceedingId').val() +"'>"+
 	      "<div id='addDeleteButtons"+partCount+"'>"+
-	      "<a href='javascript:void(0)' id='addPart"+partCount+"' class=' addNewPartButton'><img src='./resources/images/add.jpg' title='Add Part' class='imageLink' /></a>"+
+	      //"<a href='javascript:void(0)' id='addPart"+partCount+"' class=' addNewPartButton' style='display:none;'><img src='./resources/images/add.jpg' title='Add Part' class='imageLink' /></a>"+
 		  "<a href='javascript:void(0)'  id='deletePart"+partCount+"' class=' deletePartButton' onclick='deletePart("+partCount+");'><img src='./resources/images/delete.jpg' title='Delete Part' class='imageLink' /></a>"+
-		  "<a href='javascript:void(0)' id='savePart' class='saveButton'><img src='./resources/images/save.jpg' title='Save Part' class='imageLink' /></a>"+
+		  "<a href='javascript:void(0)' id='savePart"+partCount+"' class='saveButton'><img src='./resources/images/save.jpg' title='Save Part' class='imageLink' /></a>"+
 		  "</div>"+
 	     "</div>";
 	    
@@ -241,6 +443,12 @@
 	  		if($('#previousPartPageHeading').val()!=null && $('#previousPartPageHeading').val()!=''){
 	  			$('#pageHeading'+partCount).wysiwyg('setContent',$('#previousPartPageHeading').val());
 	  		}
+	  		if($('#previousPartSpecialHeading').val()!=null && $('#previousPartSpecialHeading').val()!=''){
+	  			$('#specialHeading'+partCount).wysiwyg('setContent',$('#previousPartSpecialHeading').val());
+	  			$('.mainHeadingP').hide();
+	  			$('.pageHeadingP').hide();
+	  			$('.specialHeadingP').css('display','inline-block');
+	  		}
 	  		if($('#previousPartDeviceType').val()!=null && $('#previousPartDeviceType').val()!=''){
 	  			 $('#deviceType'+partCount+' option').each(function(){
 	  				if($(this).val()==$('#previousPartDeviceType').val()){
@@ -248,14 +456,21 @@
 	  				 } 
 	  			  });
 	  		}
-	  		if($('#previousPartDeviceNumber').val()!=null || $('#previousPartDeviceNumber').val()!=''){
+	  		if($('#previousPartDeviceNumber').val()!=null && $('#previousPartDeviceNumber').val()!=''){
 	  			 $('#deviceNo'+partCount).val($('#previousPartDeviceNumber').val());
 	  		}
-	  		if($('#previousPartDeviceId').val()!=null || $('#previousPartDeviceId').val()!=''){
+	  		if($('#previousPartDeviceId').val()!=null && $('#previousPartDeviceId').val()!=''){
 	  			$('#deviceId'+partCount).val($('#previousPartDeviceId').val());
 	  		}
+	  		if($('#previousPartChairPersonRole').val()!=null && $('#previousPartChairPerson').val()!=''){
+	  			 $('#chairPersonRole'+partCount+' option').each(function(){
+					 if($('#previousPartChairPersonRole').val()==$(this).val()){
+						 $(this).attr('selected',true);
+					 } 
+			 	});
+	  		}
 	  		
-	  		 /** When the User insert a part in between two parts, the orderNo needs to be updated of the parts below the current inserted part**/
+	  		/** When the User insert a part in between two parts, the orderNo needs to be updated of the parts below the current inserted part**/
 		    for(var i = currentCount+1;i<partCount;i++){
 	      		$('#partOrder'+i).val(i+1);
 	      	}
@@ -265,8 +480,17 @@
 	    	loadWysiwyg(contentNo);
 		    loadImageCss();
 		    loadDeviceNoChangeEvent();
-		    $('#mainHeading'+partCount).wysiwyg('setContent',$('#mainHeading-'+currentCount).html());
-		    $('#pageHeading'+partCount).wysiwyg('setContent',$('#pageHeading-'+currentCount).html());
+		    if($('#specialHeading-'+currentCount).html()!=null  && $('#specialHeading-'+currentCount).html()!=''){
+		    	$('#specialHeading'+partCount).wysiwyg('setContent',$('#specialHeading-'+currentCount).html().trim());
+		    	$('.specialHeadingP').css('display','inline-block');
+		    	$('.mainHeadingP').hide();
+		    	$('.pageHeadingP').hide();
+		    }else{
+		    	$('#mainHeading'+partCount).wysiwyg('setContent',$('#mainHeading-'+currentCount).html().trim());
+			    $('#pageHeading'+partCount).wysiwyg('setContent',$('#pageHeading-'+currentCount).html().trim());
+		    }
+		    
+		    
 		    
 		    /** The Main Heading, page Heading, DeviceType , Device of previous part of current slot is set **/
 		    $('#chairPersonRole'+partCount+' option').each(function(){
@@ -287,6 +511,7 @@
 						  $('#deviceNo'+partCount).val(data.name);
 					  }
 				  });
+				  $('#deviceId'+partCount).val($('#deviceId'+currentCount).val());
 			} 
 		    
 		    
@@ -338,6 +563,7 @@
 					$("#chairPerson"+partCount).empty();
 					var chairPersonText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 					if(data.length>0){
+						console.log(data);
 						if(data.length==1){
 							chairPersonText+="<option value='"+data[0]+"' selected='selected'>"+data[0];
 						}else{
@@ -360,16 +586,22 @@
 		  
 		 
 		  /***Save Part****/
-		  $('#savePart').click(function(){
+		  $('.saveButton').click(function(){
 			  var parameters="?partCount="+partCount;
 			  var savetext='';
-			  /** if Flag is True then single part will be saved using form[action='proceeding/part/save']
+			  
+			 $('.proceedingContentwysiwyg').each(function(){
+				 var wysiwygVal=$(this).val().trim();
+					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+						$(this).val("");
+					}
+			 });
+			 /** if Flag is True then single part will be saved using form[action='proceeding/part/save']
 			   ** else the entire proceeding is updated using form[action='proceeding']**/
-			  if(flag){
-				  $.post($("form[action='proceeding/part/save']").attr('action')+parameters,
+			   if(flag){
+				   $.post($("form[action='proceeding/part/save']").attr('action')+parameters,
 							$("form[action='proceeding/part/save']").serialize(),function(data){
-						if(data!=null){		
-							if(data!=null){
+							if(data!=null && data.id!=null){
 								if($('#part'+partCount).parent().attr("id")=='partForm'+partCount){
 									$('#partForm'+partCount).remove();
 								}else{
@@ -392,6 +624,12 @@
 											data.mainHeading+
 										"</span>";
 								}
+								if(data.specialHeading!=null && data.specialHeading!=''){
+									savetext=savetext + 
+									"<span id='specialHeading-"+partCount+"' class='editableContent'>"+ 
+										data.specialHeading+
+									"</span>";
+								}
 								savetext=savetext+	
 									"<br>"+
 									"</div>";
@@ -399,15 +637,36 @@
 									if(data.constituency!=null && data.constituency!=''){
 										savetext= savetext + "<div class='member"+partCount+"' style='display: inline-block;'>"+
 										data.primaryMemberName+ 
-										"("+ data.constituency +")"+
-										":"+
-										"</div>";
+										"("+ data.constituency +")";
 									}else{
 										savetext= savetext + "<div class='member"+partCount+"' style='display: inline-block;'>"+
-										data.primaryMemberName+ 
-										":"+
-										"</div>";
+										data.primaryMemberName;
+										
 									}
+									if(data.primaryMemberDesignation!=null && data.primaryMemberDesignation!=''){
+										savetext= savetext + "("+data.primaryMemberDesignationName+")";
+									}
+									if(data.primaryMemberMinistry !=null && data.primaryMemberMinistry !=''){
+										savetext= savetext + "("+data.primaryMemberMinistryName+")";
+									}
+									if(data.primaryMemberSubDepartment !=null && data.primaryMemberSubDepartment !=''){
+										savetext= savetext + "("+data.primaryMemberSubDepartmentName+")";
+									}
+									if(data.substituteMember!=null && data.substituteMember!=''){
+										savetext= savetext + ","+data.substituteMemberName;
+										if(data.substituteMemberDesignation!=null && data.substituteMemberDesignation!=''){
+											savetext= savetext + "("+data.substituteMemberDesignationName+")";
+										}
+										if(data.substituteMemberMinistry !=null && data.substituteMemberMinistry !=''){
+											savetext= savetext + "("+data.substituteMemberMinistryName+")";
+										}
+										if(data.substituteMemberSubDepartment !=null && data.substituteMemberSubDepartment !=''){
+											savetext= savetext + "("+data.substituteMemberSubDepartmentName+")";
+										}
+										savetext = savetext + $('#subsituteMemberText').val();
+									}
+									savetext = savetext + ":"+
+									"</div>";
 									
 								}else if(data.publicRepresentative != null && data.publicRepresentative !=''){
 									savetext= savetext + "<div class='member"+partCount+"' style='display: inline-block;'>"+
@@ -433,6 +692,7 @@
 									"<input type='hidden' id='chairPersonRole"+partCount+"' name='chairPersonRole"+partCount+"' value='"+data.memberrole+"'>"+
 									"<input type='hidden' id='partContent"+partCount+"' name='partContent"+partCount+"' value='"+data.proceedingContent+"'>"+
 									"<input type='hidden' id='primaryMember"+partCount+"' name='primaryMember"+partCount+"' value='"+data.primaryMember+"'>"+
+									"<input type='hidden' id='primaryMemberName"+partCount+"' name='primaryMemberName"+partCount+"' value='"+data.primaryMemberName+"'>"+
 									"<input type='hidden' id='primaryMemberMinistry"+partCount+"' name='primaryMemberMinistry"+partCount+"' value='"+data.primaryMemberMinistry+"'>"+
 									"<input type='hidden' id='primaryMemberDesignation"+partCount+"' name='primaryMemberDesignation"+partCount+"' value='"+data.primaryMemberDesignation+"'>"+
 									"<input type='hidden' id='primaryMemberSubDepartment"+partCount+"' name='primaryMemberSubDepartment"+partCount+"' value='"+data.primaryMemberSubDepartment+"'>"+
@@ -447,6 +707,7 @@
 									 "<input type='hidden' id='deviceId"+partCount+"' name='deviceId"+partCount+"' value='"+data.deviceId+"'>"+
 									 "<input type='hidden' id='partEntryDate"+partCount+"' name='partEntryDate"+partCount+"' value='"+data.entryDate+"'>"+
 									"<input type='hidden' id='isConstituencyRequired"+partCount+"' name='isConstituencyRequired"+partCount+"' value='"+data.isConstituencyRequired+"'>"+
+									"<input type='hidden' id='isSubstitutionRequired"+partCount+"' name='isSubstitutionRequired"+partCount+"' value='"+data.isSubstitutionRequired+"'>"+
 									"<input type='hidden' id='isInterrupted"+partCount+"' name='isInterrupted"+partCount+"' value='"+data.isInterrupted+"'>"+
 									"<input type='hidden' id='partRevisedContent"+partCount+"' name='partRevisedContent"+partCount+"' value='"+data.proceedingContent+"'>"+ 
 									"<input type='hidden' id='partProceeding"+partCount+"' name='partProceeding"+partCount+"' value='"+$('#id').val()+"'>"+
@@ -467,10 +728,14 @@
 						   	$('#formattedPrimaryMember'+partCount).focus();
 						    
 							}
-						} else{
-							alert("unsuccessful");
-						} 
 					}).fail(function(){
+						$.unblockUI();
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						scrollTop();
 					});
 			  }else{
 				  $.post("proceeding",
@@ -478,46 +743,262 @@
 					 	 $('.tabContent').html(data);
 	   					$('html').animate({scrollTop:0}, 'slow');
 	   				 	$('body').animate({scrollTop:0}, 'slow');
-				  });
+				  }).fail(function(){
+						$.unblockUI();
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						scrollTop();
+					});
 			  }
 			});
 		  
 		  /**Registering events for dynamic content**/
 		   
-		  /**Add part**/
-		  $('#addPart'+partCount).click(function(){
-			 	var buttonId=this.id;
-				var buttonCount=buttonId.split("addPart")[1];
-				addPart(parseInt(buttonCount));
-		  }); 
-		  
-		  /**Add Bookmark**/
-		  $('.addBookmark').click(function(){
-				var id=this.id;
-				var count=id.split("bookmark");
-				elementCount=count[count.length-1];
-				$.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val()+'&count='+elementCount+'&currentPart='+$('#partId'+elementCount).val(),function(data){
-					    $.fancybox.open(data, {autoSize: false, width:800, height:500});
-				    },'html');
-				    return false;
-			});
-		  
-		  /**Edit Content**/
-		  $('.editableContent').dblclick(function(e){
-				controlId=$(this).attr('id');
-				showEditor(e);
-				var text=window.getSelection().toString().trim();
-				var newContent = $('#'+controlId).html();
-				console.log(text);
-				newContent=content.replace(/<span class='highlightedText'.*?>/g,"");
-				newContent = newContent.replace(text,"<span class='highlightedText' style='background: yellow;'>"+text+"</span>");
-				$('#prevContent').val($('#'+controlId).html());
-				$('#textDemo').children('div.wysiwyg').css('width','600px');
-				$('#ttA').wysiwyg('setContent',newContent);
+		 /***Add Part***/
+		 	loadAddPartClickEvent();
+		
+		 /****Add Bookmark****/
+		 	loadBookmarkClickEvent();
+				  
+	 	 /****Edit Content****/
+	 	 	/****Edit Proceeding Content****/
+		 $('.editableContent').dblclick(function(e){
+			  if (!editWindowOpen) {			
+					controlId=$(this).attr('id');
+					 var divId = this.id;
+					//var spanId=divId.split("span");
+					console.log(divId);
+					$('#previousContent').val($(this).html());
+					var text = window.getSelection().toString().trim();
+					var newContent = $(this).text();
+					console.log(text);
+					newContent = newContent.replace(/<span class='highlightedText'.*?>/g,"");
+					newContent = newContent.replace(text,"<span class='highlightedText' style='background: yellow;'>"+text+"</span>"); 
+					 
+						var inputbox = "<textarea id='editContent' class='inputbox wysiwyg sTextarea'>"+newContent+"</textarea>"; 
+						$(this).html(inputbox); 
+						editWindowOpen=true;
+						$('#editContent').wysiwyg({
+							 resizeOptions: {maxWidth: 600},
+							 controls:{
+								 fullscreen: {
+										visible: true,
+										hotkey:{
+											"ctrl":1|0,
+											"key":122
+										},
+										exec: function () {
+											if ($.wysiwyg.fullscreen) {
+												$.wysiwyg.fullscreen.init(this);
+											}
+										},
+										tooltip: "Fullscreen"
+									},
+								 },
+							 events: {
+								blur: function() {
+									saveAndHide();	
+								}
+							 }
+						});
+						$("textarea.inputbox").focus(); 
+						$("div.wysiwyg").css('width','700px');
+					} 	
 				
 			});
 		 
-		  /****To import the mainHeading and PageHeading of Interrupted Proceeding****/
+		 /****Edit Other Part Details****/
+		 $('.editDetails').dblclick(function(){
+				var divId = this.id;
+				var tempId = divId.split('member');
+				var divText= 
+				 "<div id='editDetail' style='border:2px solid;height:170px;width: 900px;'>"+
+				 "<form action='proceeding/part/updateMemberDetail'>"+
+			 		"<p align='right' style='margin-top: 5px;margin-right:15px;'>"+
+			    		"<a href='javascript:void(0)' id='editPublicLink'  class='imgLink publicLink' title='Public'>PU</a>"+
+			 		"</p>"+
+			 		"<p style='margin-top:5px;'>"+
+					 "<label class='small'>"+$('#roleMessage').val()+"</label>"+
+					 "<select name='editChairPersonRole' id='editChairPersonRole' class='sSelect'>"+
+						 $('#roleMaster').html()+
+				     "</select>"+
+				     "<label class='small' style='margin-left: 110px;' >"+$('#chairPersonMessage').val()+"</label>"+
+				 	 "<select name='editChairPerson' id='editChairPerson' class='sSelect' >"+
+			    	 "</select>"+
+			     	"</p>"+
+			     	"<div id='member'>"+
+				     "<p style='margin-top:5px;'>"+
+				         "<label class='small'>"+$('#primaryMemberNameMessage').val()+"</label>"+
+				         "<input type='text' class='autosuggest editFormattedMember sText' name='editFormattedPrimaryMember' id='editFormattedPrimaryMember' value='"+$('#primaryMemberName'+tempId[1]).val()+"' />"+
+					     "<input name='editPrimaryMember' id='editPrimaryMember' type='hidden' value='"+$('#primaryMember'+tempId[1]).val()+"'/>"+
+					 "</p>"+
+					 "<p class='minister' >"+
+			             "<label class='small'>"+$('#primaryMemberDesignationMessage').val()+"</label>"+
+			             "<select name='editPrimaryMemberDesignation' id='editPrimaryMemberDesignation' class='sSelect'>"+
+					      	$('#designationMaster').html()+
+					      "</select>"+
+					      "<label class='small' style='margin-left: 110px;'>"+$('#primaryMemberSubDepartmentMessage').val()+"</label>"+
+					      "<select name='editPrimaryMemberSubDepartment' id='editPrimaryMemberSubDepartment'  class='sSelect'>"+
+					     	 $('#subDepartmentMaster').html()+
+					      "</select>"+
+		             "</p>"+
+		             "<p>"+
+					     "<label  class='small' >"+$('#isConstituencyRequiredMessage').val()+"</label>"+
+					     "<input type='checkbox' id='editIsConstituencyRequired' name='editIsConstituencyRequired' class='sCheck'  >"+
+					     "<label  class='small' style='margin-left: 285px;'>"+$('#isSubstitutionRequiredMessage').val()+"</label>"+
+					     "<input type='checkbox' id='editIsSubstitutionRequired' name='editIsSubstitutionRequired' class='sCheck'  >"+
+				     "</p>"+
+				     "</div>"+
+				     "<div id='public' style='display:none;'>"+
+				     	"<p>"+
+				     	"<label class='small'>"+$('#publicRepresentativeMessage').val()+"</label>"+
+			             "<input type='text' class='sText' name='editPublicRepresentative' id='editPublicRepresentative'/>"+
+				     	"</p>"+
+				     	"<p>"+
+				     	"<label class='small'>"+$('#publicRepresentativeDetailMessage').val()+"</label>"+
+					     "<textarea class='sTextArea' name='editPublicRepresentativeDetail' id='editPublicRepresentativeDetail'/>"+
+				     	"</p>"+
+				     "</div>"+
+				     	"<h2></h2>"+
+						"<p class='tright'>"+
+							"<input id='submit' type='button' value='submit' class='butDef submit'>"+
+						"</p>"+
+						"<input type='hidden' id='editPartId' name='editPartId' value='"+$('#partId'+tempId[1]).val()+"'/>"+
+					  "</form>"+
+				"</div>";
+				$('#'+divId).empty();
+				$('#'+divId).html(divText);
+				
+				/****Populate the chairperson based on the role selected by the user.****/
+				 $('#editChairPersonRole').change(function(){
+						$.get('ref/getchairperson?chairPersonRole='+$(this).val()+'&proceeding='+$('#proceedingId').val(),function(data){
+							$("#editChairPerson").empty();
+							var chairPersonText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+							if(data.length>0){
+								if(data.length==1){
+									chairPersonText+="<option value='"+data[0]+"' selected='selected'>"+data[0];
+								}else{
+									for(var i=0;i<data.length;i++){
+										chairPersonText+="<option value='"+data[i]+"'>"+data[i];
+									}
+								}
+							$("#editChairPerson").html(chairPersonText);
+						}else{
+							$("#editChairPerson").empty();
+							var chairPersonText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+							$("#editChairPerson").html(chairPersonText);	
+						}
+						});
+					});
+				
+				/****Auto Setting of chaipersonrole,member,designation,department,isconstituency required of the current part****/
+				$('#editChairPersonRole option').each(function(){
+					 if($(this).val()==$('#chairPersonRole'+tempId[1]).val()){
+						 $(this).attr('selected',true);
+						 $('#editChairPersonRole').change();
+					 } 
+			 	});
+				 
+						 
+				 $('#editPrimaryMemberDesignation option').each(function(){
+					 if($(this).val()==$('#primaryMemberDesignation'+tempId[1]).val()){
+						 $(this).attr('selected',true);
+					 } 
+			 	});
+				 
+				 $('#editPrimaryMemberSubDepartment option').each(function(){
+					 if($(this).val()==$('#primaryMemberSubDepartment'+tempId[1]).val()){
+						 $(this).attr('selected',true);
+					 } 
+			 	});
+				 
+				 if($('#isConstituencyRequired'+tempId[1]).val()=='true'){
+					 $('#editIsConstituencyRequired').attr('checked',true);
+				 }
+				 
+				 if($('#isSubstitutionRequired'+tempId[1]).val()=='true'){
+					 $('#editIsSubstitutionRequired').attr('checked',true);
+				 }
+				 
+				 $( ".editFormattedMember").autocomplete({
+						minLength:3,			
+						source:'ref/member/getmembers?session='+$("#session").val(),
+						select:function(event,ui){	
+							id=this.id;
+							$("#editPrimaryMember").val(ui.item.id);
+						}	
+				  });
+				 
+				 /**** Submit****/
+				 $('#submit').click(function(){
+					 $.post($("form[action='proceeding/part/updateMemberDetail']").attr('action'),
+								$("form[action='proceeding/part/updateMemberDetail']").serialize(),function(data){
+					 		if(data!=null &&(data.primaryMember!=null || data.publicRepresentative!=null)){
+					 			var memberText='';
+					 			if(data.primaryMemberName!=null && data.primaryMemberName!=''){
+					 				$('#primayMember'+tempId[1]).val(data.primaryMember);
+					 				$('#primayMemberName'+tempId[1]).val(data.primaryMemberName);
+									if(data.constituency!=null && data.constituency!=''){
+										$('#isConstituencyRequired'+tempId[1]).val(data.isConstituencyRequired);
+										memberText= memberText + data.primaryMemberName + "("+ data.constituency +")";
+									}else{
+										memberText= memberText + data.primaryMemberName;
+									}
+									if(data.primaryMemberDesignation!=null && data.primaryMemberDesignation!=''){
+										$('#primayMemberDesignation'+tempId[1]).val( data.primaryMemberDesignation);
+										memberText= memberText + "("+data.primaryMemberDesignationName+")";
+									}
+									if(data.primaryMemberMinistry !=null && data.primaryMemberMinistry !=''){
+										$('#primaryMemberMinistry'+tempId[1]).val( data.primaryMemberMinistry);
+										memberText= memberText + "("+data.primaryMemberMinistryName+")";
+									}
+									if(data.primaryMemberSubDepartment !=null && data.primaryMemberSubDepartment !=''){
+										$('#primaryMemberSubDepartment'+tempId[1]).val( data.primaryMemberSubDepartment);
+										memberText= memberText + "("+data.primaryMemberSubDepartmentName+")";
+									}
+									if(data.substituteMember!=null && data.substituteMember!=''){
+										$('#substituteMember'+tempId[1]).val(data.substituteMember);
+										memberText= memberText + ","+data.substituteMemberName;
+										if(data.substituteMemberDesignation!=null && data.substituteMemberDesignation!=''){
+											$('#substituteMemberDesignation'+tempId[1]).val( data.substituteMemberDesignation);
+											memberText= memberText + "("+data.substituteMemberDesignationName+")";
+										}
+										if(data.substituteMemberMinistry !=null && data.substituteMemberMinistry !=''){
+											$('#substituteMemberMinistry'+tempId[1]).val( data.substituteMemberMinistry);
+											memberText= memberText + "("+data.substituteMemberMinistryName+")";
+										}
+										if(data.substituteMemberSubDepartment !=null && data.substituteMemberSubDepartment !=''){
+											$('#substituteMemberSubDepartment'+tempId[1]).val(data.substituteMemberSubDepartment);
+											memberText= memberText + "("+data.substituteMemberSubDepartmentName+")";
+										}
+										memberText = memberText + $('#subsituteMemberText').val();
+									}
+								}else if(data.publicRepresentative != null && data.publicRepresentative !=''){
+									$('#publicRepresentative'+tempId[1]).val(data.publicRepresentative);
+									$('#publicRepresentativeDetail'+tempId[1]).val(data.publicRepresentativeDetail);
+									memberText= memberText + data.publicRepresentative;
+								}		
+					 			$('#'+divId).empty;
+					 			$('#'+divId).html(memberText);
+					 		}
+					 }).fail(function(){
+							$.unblockUI();
+							if($("#ErrorMsg").val()!=''){
+								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+							}else{
+								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+							}
+							scrollTop();
+					});
+			 });
+		});
+	 	 
+		 /****Load Citation****/
+	 	 	loadViewCitationClick(partCount);
+		 /****To import the mainHeading and PageHeading of Interrupted Proceeding****/
 			$('#interruptedProceeding').click(function(){
 				var offset=$(this).offset();
 				$("#interruptedProceedingDiv").css({'left':offset.left+10+'px','top':offset.top+10+'px','position':'absolute'});
@@ -527,12 +1008,12 @@
 					$("#interruptedProceedingDiv").slideDown('slow');
 				}
 			});
-			
 		  
-			$('#searchBy').change(function(){
+		  	$('#searchBy').change(function(){
 				$.get('ref/getInterruptedProceedings?selectedDate='+$('#searchByDate').val()+"&searchBy="+$(this).val()+'&language='+$("#selectedLanguage").val(),function(data){
 					var text="";
 					if(data.length>0){
+						text=text+"<option value=' '>"+$('#pleaseSelectMsg').val()+"</option>"; 
 					 for(var i=0;i<data.length;i++){
 						 text=text+"<option value='"+data[i].value +"'>"+data[i].name+"</option>"; 
 					 }
@@ -540,7 +1021,7 @@
 					 $('#iProceeding').css('display','inline');
 				}
 			});
-		 });
+		  });
 			
 			$('#iProceeding').change(function(){
 				var strAction=$(this).val().split("#");
@@ -550,14 +1031,27 @@
 				$('#pageHeadingP').css('display','block');
 			});
 			
-			loadViewCitationClick(partCount);
-			
-			
 			$('.publicLink').click(function(){
 				$('#public').toggle();
 				$('#member').toggle();
 			});
 			
+			/****Special heading****/
+			$('#specialHeading').click(function(){
+				if($('.specialHeadingP').css('display')=='none'){
+					$('.specialHeadingP').css('display','inline-block');
+					$('#mainHeading'+partCount).wysiwyg('setContent',"");
+					$('#pageHeading'+partCount).wysiwyg('setContent',"");
+					$('.mainHeadingP').hide();
+					$('.pageHeadingP').hide();
+				}else{
+					$('.specialHeadingP').css('display','none');
+					$('#specialHeading'+partCount).wysiwyg('setContent',"");
+					$('.mainHeadingP').show();
+					$('.pageHeadingP').show();
+				}
+				
+			});
 			
 			
 	      return partCount;	
@@ -678,52 +1172,6 @@
 		$('.searchByDate').css({'width':'70px','font-size':'12px'});
 	}
 	
-	
-	function hideEditor(){
-		$("#textDemo").fadeOut();
-		return false;
-	}
-	
-	function showEditor(e){
-		var pageWidth=$(window).width();
-		var pageHeight=$(window).height();
-		
-		var clickX=e.clientX;
-		var clickY=e.clientY;
-		
-		/****To Adjust the location of the editor when shown to the user by height****/ 
-		if((clickY+$('#textDemo').height()) > pageHeight){
-			var diffH=$('#textDemo').height() - clickY;
-			if(diffH < 0){
-				$('#textDemo').css('top', (pageHeight - clickY) + 'px');
-			}else{
-				$('#textDemo').css('top', diffH + 'px');
-			}
-		}else{
-		
-			var diffH=$('#textDemo').height() - clickY;
-			$('#textDemo').css('top', clickY + 'px');
-		}
-		
-		/****To Adjust the location of the editor when shown to the user by width****/
-		if((clickX+$('#textDemo').width()) > pageWidth){
-			var diffW=$('#textDemo').width() - clickX;
-			
-			if(diffW < 0){
-				$('#textDemo').css('left', (pageWidth - clickX) + 'px');
-			}else{
-				$('#textDemo').css('left', diffW + 'px');
-			}
-			
-		}else{
-		
-			var diffW=$('#textDemo').width() - clickX;
-			$('#textDemo').css('left', clickX + 'px');
-		}
-		$("#textDemo").fadeIn();
-	}
-	
-	
 	function getSelectionText() {
 	    var text = "";
 	    if (window.getSelection) {
@@ -766,8 +1214,7 @@
 	
 	/**Save the Edited Part and Hide the Text Editor**/
 	function saveAndHide(){
-		hideEditor();
-		var content = $("#ttA").val().trim();
+		var content = $("#editContent").val().trim();
 		var newContent=content.replace(/<span.*?>/g,"");
 		newContent=newContent.replace("</span>","");
 		var elementId=$('#'+controlId).attr('class').split(' ')[2];
@@ -780,10 +1227,10 @@
 		}
 		var params = "?editedBy="+$('#editingUser').val()+"&partField="+tempId[0]+"&partId="+tempId[1]+"&undoCount="+$("#undoCount").val();;
 		$("#data").val(newContent);
-		if($("#prevcontent").val()!=newContent){
+		if($("#previousContent").val()!=newContent){
         	$.post($("form[action='proceeding/part/updatePart']").attr('action')+params,
 					$("form[action='proceeding/part/updatePart']").serialize(),function(data){
-				if(data!=null){		
+				if(data!=null && data!=''){		
 					$("#"+controlId).empty();
 					$("#"+controlId).html(newContent);
 					var undoData=$(".ppsp").html();
@@ -797,8 +1244,17 @@
 				}else{
 					$("#undoCount").val((parseInt($("#undoCount").val()) - 1));
 				}  
+			}).fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
 			});
         }
+		editWindowOpen=false;
 	}
 	
 	/****function to import the content of devices by device No****/
@@ -813,6 +1269,14 @@
 					$('#partContent'+mainId).wysiwyg('setContent',pContent+$('#deviceContent').html());
 			   		$('#deviceId'+mainId).val(parseInt($('#dId').html()));
 				}
+			}).fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
 			});
 		});
 	}
@@ -826,6 +1290,28 @@
 		    return false;
 		});	
 	}
+	
+	function loadAddPartClickEvent(){
+		$('.addPartButton').click(function(){
+			var buttonId=this.id;
+			var buttonCount=buttonId.split("addPart")[1];
+			addPart(parseInt(buttonCount));
+			return false;
+		});
+	}
+	
+	function loadBookmarkClickEvent(){
+		$('.addBookmark').click(function(){
+			var id=this.id;
+			var count=id.split("bookmark");
+			elementCount=count[count.length-1];
+			$.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val()+'&count='+elementCount+'&currentPart='+$('#partId'+elementCount).val(),function(data){
+				    $.fancybox.open(data, {autoSize: false, width:800, height:500});
+			    },'html');
+			    return false;
+		});
+	}
+	
 	
 	
 	/**Replace All Functionality**/
@@ -861,6 +1347,12 @@
 			}
 		}).fail(function(){
 			$.unblockUI();
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
 		});
 	}
 	
@@ -919,6 +1411,12 @@
 					$.unblockUI();
 				}).fail(function(){
 					$.unblockUI();
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
 				});
 			}
 		});
@@ -974,6 +1472,12 @@
 					$.unblockUI();
 				}).fail(function(){
 					$.unblockUI();
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
 				});
 			}
 		});
@@ -1084,6 +1588,10 @@
 	</style>
 </head>
 <body>
+	<p id="error_p" style="display: none;">&nbsp;</p>
+	<c:if test="${error!=''}">
+		<h3 style="color: #FF0000;">${error}</h3>
+	</c:if>
 	<div class="fields clearfix watermark">
 	<div id="replaceToolDiv">
 			<form action="proceeding/part/replace" method="post">
@@ -1129,30 +1637,41 @@
 										${outer.mainHeading}
 									</span>
 								</c:if>
+								<c:if test="${outer.specialHeading!=null and outer.specialHeading!='' }">
+									<span id='specialHeading-${count}' class='specialHeading${count} editableContent specialHeading-${outer.id} '> 
+										${outer.specialHeading}
+									</span>
+								</c:if>
 								<br>
 							</div>
 							<c:if test="${outer.primaryMember!=null and outer.primaryMember!=''}"> 
-								<div class="member${count}" style="display: inline-block;">
+								<div class="member${count} editDetails" id='member${count}' style="display: inline-block;">
 									${outer.primaryMember.getFullname()} 
 									<c:if test="${outer.isConstituencyRequired==true }">
 										<c:if test="${outer.primaryMember.findConstituency() !=null }">
 											(${outer.primaryMember.findConstituency().name})
 										</c:if>
 									</c:if>
+									<c:if test="${outer.primaryMemberDesignation!=null}">
+										(${outer.primaryMemberDesignation.name})
+									</c:if>
 									<c:if test="${outer.primaryMemberMinistry!=null}">
 										(${outer.primaryMemberMinistry.name})
-										<c:if test="${outer.primaryMemberSubDepartment!=null}">
+									</c:if>
+									<c:if test="${outer.primaryMemberSubDepartment!=null}">
 											(${outer.primaryMemberSubDepartment.name})
-										</c:if>
 									</c:if>
 									<c:if test="${outer.substituteMember!=null }">
 										${outer.substituteMember.getFullname()} 
 									</c:if>
+									<c:if test="${outer.substituteMemberDesignation!=null}">
+										(${outer.substituteMemberDesignation.name})
+									</c:if>
 									<c:if  test="${outer.substituteMemberMinistry!=null }">
 										(${outer.substituteMemberMinistry.name})
-										<c:if test="${outer.substituteMemberSubDepartment!=null}">
+									</c:if>
+									<c:if test="${outer.substituteMemberSubDepartment!=null}">
 											(${outer.substituteMemberSubDepartment.name})
-										</c:if>
 									</c:if>
 										:
 								</div>
@@ -1174,9 +1693,12 @@
 						<input type='hidden' id='partOrder${count}' name='partOrder${count}' value="${outer.orderNo}">
 						<input type='hidden' id='mainHeading${count}' name='mainHeading${count}' value="${outer.mainHeading}">
 						<input type='hidden' id='pageHeading${count}' name='pageHeading${count}' value="${outer.pageHeading}">
+						<input type='hidden' id='specialHeading${count}' name='specialHeading${count}' value="${outer.specialHeading}">
 						<input type='hidden' id='chairPersonRole${count}' name='chairPersonRole${count}' value="${outer.chairPersonRole.id}">
+						<input type='hidden' id='chairPerson${count}' name='chairPerson${count}' value="${outer.chairPerson}">
 						<input type='hidden' id='partContent${count}' name='partContent${count}' value='${outer.proceedingContent}'>
 						<input type='hidden' id='primaryMember${count}' name='primaryMember${count}' value="${outer.primaryMember.id}">
+						<input type='hidden' id='primaryMemberName${count}' name='primaryMemberName${count}' value="${outer.primaryMember.getFullname()}">
 						<input type='hidden' id='primaryMemberMinistry${count}' name='primaryMemberMinistry${count}' value="${outer.primaryMemberMinistry.id}">
 						<input type='hidden' id='primaryMemberDesignation${count}' name='primaryMemberDesignation${count}' value="${outer.primaryMemberDesignation.id}">
 						<input type='hidden' id='primaryMemberSubDepartment${count}' name='primaryMemberSubDepartment${count}' value="${outer.primaryMemberSubDepartment.id}">
@@ -1191,6 +1713,7 @@
 						<input type='hidden' id='partEntryDate${count}' name='partEntryDate${count}'>
 						<input type='hidden' id='isConstituencyRequired${count}' name='isConstituencyRequired${count}' value='${outer.isConstituencyRequired}'>
 						<input type='hidden' id='isInterrupted${count}' name='isInterrupted${count}' value='${outer.isInterrupted}'>
+						<input type='hidden' id='isSubstitutionRequired${count}' name='isSubstitutionRequired${count}' value='${outer.isSubstitutionRequired}'>
 						<input type='hidden' id='partRevisedContent${count}' name='partRevisedContent${count}'>
 						<input type='hidden' id='deviceId${count}' name='deviceId${count}' value='${outer.deviceId}'>
 						<input type='hidden' id='partProceeding${count}' name='partProceeding${count}' value='${id}'>
@@ -1302,7 +1825,8 @@
 	<div id='interruptedProceedingDiv' style='display:none;background:#10466e;border-radius:10px;padding:5px;'>
 		<input id='searchByDate' type='text' class=' sText datemask searchByDate' style='margin-left:2px;'/>
 		<select id='searchBy' class='sSelect searchBy' style='margin-left:2px;vertical-align:top;min-width:230px;'>
-			<option class='searchBy' selected='selected' value='pageHeading'><spring:message code='part.pageHeadingMessage' text='Page heading'></spring:message></option>
+			<option class='searchBy' selected='selected' value=''><spring:message code='client.prompt.select' text='Please Select'/></option>
+			<option class='searchBy' value='pageHeading'><spring:message code='part.pageHeadingMessage' text='Page heading'></spring:message></option>
 			<option class='searchBy' value='mainHeading'><spring:message code='part.mainHeadingMessage' text='Main heading'></spring:message></option>
 		</select>
 		<hr>
@@ -1310,12 +1834,15 @@
 		</select>	
 	</div>
 	
+	<input id="ErrorMsg" type="hidden" name ="ErrorMsg" value="" />
 	<input id="prevcontent" type="hidden" name ="prevContent" value="" />
 	<input type="hidden" id="proceedingId" name="proceedingId" value="${proceeding}">
 	<input type="hidden" id="editingUser" name="editingUser" value="${userName}">
 	<input type="hidden" id="proceedingReporter" name="proceedingReporter" value="${reporter}">
 	<input type="hidden" id="isInterruptedMessage" name="isInterruptedMessage" value="<spring:message code='part.isInterrupted' text='Is Interrupted'></spring:message>" disabled="disabled"/>
 	<input type="hidden" id="isConstituencyRequiredMessage" name="isConstituencyRequiredMessage" value="<spring:message code='part.isConstituencyRequired' text='Is Constituency Required'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="isSubstitutionRequiredMessage" name="isSubstitutionRequiredMessage" value="<spring:message code='part.isSubstitutionRequired' text='Is Substitution Required'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="specialHeadingMessage" name="specialHeadingMessage" value="<spring:message code='part.specialHeading' text='Special Heading'></spring:message>" disabled="disabled"/>
 	<input type="hidden" id="deviceTypeMessage" name="deviceTypeMessage" value="<spring:message code='part.deviceType' text='Device Type'></spring:message>" disabled="disabled"/>
 	<input type="hidden" id="deviceNoMessage" name="deviceNoMessage" value="<spring:message code='part.deviceNo' text='Device No'></spring:message>" disabled="disabled"/>
 	<input type="hidden" id="primaryMemberDesignationMessage" name="primaryMemberDesignationMessage" value="<spring:message code='part.designation' text='Designation'></spring:message>" disabled="disabled"/>
@@ -1332,11 +1859,14 @@
 	<input type="hidden" id="session" value="${session}"/>
 	<input type="hidden" id="previousPartMainHeading" name="previousPartMainHeading" value="${previousPartMainHeading }">
 	<input type="hidden" id="previousPartPageHeading" name="previousPartPageHeading" value="${previousPartPageHeading }">
+	<input type="hidden" id="previousPartSpecialHeading" name="previousPartSpecialHeading" value="${previousPartSpecialHeading }">
 	<input type="hidden" id="previousPartDeviceType" name="previousPartDeviceType" value="${previousPartDeviceType }">
 	<input type="hidden" id="previousPartDeviceId" name="previousPartDeviceId" value="${previousPartDeviceId }">
 	<input type="hidden" id="previousPartDeviceNumber" name="previousPartDeviceNumber" value="${previousPartDeviceNumber}">
-
+	<input type="hidden" id="previousPartChairPersonRole" name="previousPartChairPersonRole" value="${previousPartChairPersonRole }">
+	<input type="hidden" id="subsituteMemberText" name="subsituteMemberText" value="<spring:message code='part.subsituteMemberText' text='yanchya Tarfe'></spring:message>" disabled="disabled"/>
 	<input type="hidden" id="publicRepresentativeMessage" name="publicRepresentativeMessage" value="<spring:message code='part.publicRepresentative' text='Public Representative'></spring:message>" disabled="disabled"/>
-<input type="hidden" id="publicRepresentativeDetailMessage" name="publicRepresentativeDetailMessage" value="<spring:message code='part.publicRepresentativeDetail' text='Public Representative Detail'></spring:message>" disabled="disabled"/>
+	<input type="hidden" id="publicRepresentativeDetailMessage" name="publicRepresentativeDetailMessage" value="<spring:message code='part.publicRepresentativeDetail' text='Public Representative Detail'></spring:message>" disabled="disabled"/>
+	<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
 </body>
 </html>

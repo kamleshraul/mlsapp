@@ -160,6 +160,14 @@
 									</tr>
 									<tr><td colspan="3" height="30px"> </td></tr>
 								</c:when>
+								<c:when test="${r[25]!=null and r[25]!='' }">
+									<tr>
+										<td colspan="3" style="text-align:center;">
+											<b>${r[25]}</b>
+										</td>
+									</tr>
+									<tr><td colspan="3" height="30px"> </td></tr>
+								</c:when>
 							</c:choose>
 							<tr>
 							
@@ -167,347 +175,51 @@
 								<c:choose>
 									<c:when test="${r[15]!=null}">
 										<c:choose>
-											<c:when test="${r[10]!=null}">
-												<c:choose>
-													<c:when test="${r[23]!=null}">
-														<c:choose>
-															<c:when test="${r[11]!=null}">
-																<c:choose>
-																	<c:when test="${r[16]!=null }">
-																		<c:choose>
-																			<c:when test="${r[12] !=null}">
-																				<c:choose>
-																					<c:when test="${r[13]!=null }">
-																						<c:choose>
-																							<c:when test="${r[24]!=null}">
-																								<c:choose>
-																									<c:when test="${r[22]!=null}">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:when>
-																							<c:otherwise>
-																								<c:choose>
-																									<c:when test="${r[22]!=null}">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:otherwise>
-																						</c:choose>
-																					</c:when>
-																					<c:otherwise>
-																						<c:choose>
-																							<c:when test="${r[24]!=null}">
-																								<c:choose>
-																									<c:when test="${r[22]!=null }">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:when>
-																							<c:otherwise>
-																								<c:choose>
-																									<c:when test="${r[22]!=null}">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:otherwise>
-																						</c:choose>
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[22]!=null}">
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:when>
-																	<c:otherwise>
-																		<c:choose>
-																			<c:when test="${r[22]!=null}">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
-																			</c:when>
-																			<c:otherwise>
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
-																			</c:otherwise>
-																		</c:choose>
-																	</c:otherwise>
-																</c:choose>
-															</c:when>
-															<c:otherwise>
-																<c:choose>
-																	<c:when test="${r[16]!=null }">
-																		<c:choose>
-																			<c:when test="${r[12] !=null}">
-																				<c:choose>
-																					<c:when test="${r[13]!=null }">
-																						<c:choose>
-																							<c:when test="${r[24]!=null}">
-																								<c:choose>
-																									<c:when test="${r[22]!=null}">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]}  (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:when>
-																							<c:otherwise>
-																								<c:choose>
-																									<c:when test="${r[22]!=null }">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:otherwise>
-																						</c:choose>
-																					</c:when>
-																					<c:otherwise>
-																						<c:choose>
-																							<c:when test="${r[24]!=null}">
-																								<c:choose>
-																									<c:when test="${r[22]!=null}">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:when>
-																							<c:otherwise>
-																								<c:choose>
-																									<c:when test="${r[22]!=null}">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:otherwise>
-																						</c:choose>
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[22]!=null}">
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:when>
-																	<c:otherwise>
-																		<c:choose>
-																			<c:when test="${r[22]!=null }">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
-																			</c:when>
-																			<c:otherwise>
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}):</b> ${r[0]}
-																			</c:otherwise>
-																		</c:choose>
-																	</c:otherwise>
-																</c:choose>
-															</c:otherwise>
-														</c:choose>
-													</c:when>
-													<c:otherwise>
-														<c:choose>
-															<c:when test="${r[16]!=null }">
-																<c:choose>
-																	<c:when test="${r[12] !=null}">
-																		<c:choose>
-																			<c:when test="${r[13]!=null }">
-																				<c:choose>
-																					<c:when test="${r[24]!=null}">
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) ,${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:when>
-																					<c:otherwise>
-																						<c:choose>
-																							<c:when test="${r[22]!=null}">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[24]!=null}">
-																						<c:choose>
-																							<c:when test="${r[22]!=null}">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:when>
-																					<c:otherwise>
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) ,${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:when>
-																	<c:otherwise>
-																		<c:choose>
-																			<c:when test="${r[22]!=null }">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																			</c:when>
-																			<c:otherwise>
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																			</c:otherwise>
-																		</c:choose>
-																	</c:otherwise>
-																</c:choose>
-															</c:when>
-															<c:otherwise>
-																<c:choose>
-																	<c:when test="${r[22]!=null }">
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}):</b> ${r[0]}
-																	</c:when>
-																	<c:otherwise>
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}):</b> ${r[0]}
-																	</c:otherwise>
-																</c:choose>
-															</c:otherwise>
-														</c:choose>
-													</c:otherwise>
-												</c:choose>
+											<c:when test="${r[11]!=null and r[11]!=''}">
+												<b>${r[15]}</b>	
 											</c:when>
 											<c:otherwise>
-												<c:choose>
-													<c:when test="${r[16]!=null }">
-														<c:choose>
-															<c:when test="${r[12] !=null}">
-																<c:choose>
-																	<c:when test="${r[13]!=null }">
-																		<c:choose>
-																			<c:when test="${r[24]!=null}">
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]},${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} ,${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:when>
-																	<c:otherwise>
-																		<c:choose>
-																			<c:when test="${r[24]!=null}">
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]},${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} ,${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:otherwise>
-																</c:choose>
-															</c:when>
-															<c:otherwise>
-																<c:choose>
-																	<c:when test="${r[22]!=null }">
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																	</c:when>
-																	<c:otherwise>
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]},${r[17]} ${inplaceOf}: </b> ${r[0]}
-																	</c:otherwise>
-																</c:choose>
-															</c:otherwise>
-														</c:choose>
-													</c:when>
-													<c:otherwise>
-														<c:choose>
-															<c:when test="${r[22]!=null }">
-																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]} (${r[22]}): ${r[0]}
-															</c:when>
-															<c:otherwise>
-																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]}: ${r[0]}
-															</c:otherwise>
-														</c:choose>
-													</c:otherwise>
-												</c:choose>
+												${r[15]}
 											</c:otherwise>
 										</c:choose>
+										<c:if test="${r[22]!=null and r[22]!=''}">
+											(${r[22]})
+										</c:if>
+										<c:choose>
+											<c:when test="${r[23]!=null and r[23]!=''}">
+												(<b>${r[23]}</b>
+												<c:if test="${r[11]!=null and r[11]!='' }">
+													<b>${r[11]}</b>)
+												</c:if>
+											</c:when>
+											<c:otherwise>
+												<c:if test="${r[11]!=null and r[11]!=''}">
+													<b>${r[11]}</b>)
+												</c:if>
+											</c:otherwise>
+										</c:choose>
+										<c:if test="${r[16]!=null }">
+											<c:choose>
+												<c:when test="${r[12]!=null and r[12]!=''}">
+													,<b>${r[17]} (${r[12]})</b>
+												</c:when>
+												<c:otherwise>
+													,${r[17]}
+												</c:otherwise>
+											</c:choose>
+										</c:if>
+										
+										:
 									</c:when>
 									<c:otherwise>
 										<c:choose>
 											<c:when test="${r[4]!=null or r[4]!=''}">
-												&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}): ${r[0]}
+												&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}):
 											</c:when>
-											<c:otherwise>
-												&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[0]}	
-											</c:otherwise>
 										</c:choose>
 									</c:otherwise>
 								</c:choose>
+								${r[0]}
 							</td>
 							</tr>
 							<!-- <tr><td colspan="3" height="30px"> </td></tr> -->
@@ -523,350 +235,53 @@
 						</c:if>
 						<tr>
 						<td colspan="3" class="content" >
-						<c:choose>
-							<c:when test="${r[15]!=null and r[14]!=member}">
-								<c:choose>
-									<c:when test="${r[10]!=null}">
-										<c:choose>
-											<c:when test="${r[23]!=null}">
-												<c:choose>
-													<c:when test="${r[11]!=null}">
-														<c:choose>
-															<c:when test="${r[16]!=null }">
-																<c:choose>
-																	<c:when test="${r[12] !=null}">
-																		<c:choose>
-																			<c:when test="${r[13]!=null }">
-																				<c:choose>
-																					<c:when test="${r[24]!=null}">
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:when>
-																					<c:otherwise>
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[24]!=null}">
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:when>
-																					<c:otherwise>
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																		</c:when>
-																		<c:otherwise>
-																			<c:choose>
-																				<c:when test="${r[22]!=null }">
-																					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																				</c:when>
-																				<c:otherwise>
-																					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																				</c:otherwise>
-																			</c:choose>
-																		</c:otherwise>
-																	</c:choose>
-																</c:when>
-																<c:otherwise>
-																	<c:choose>
-																		<c:when test="${r[22]!=null }">
-																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
-																		</c:when>
-																		<c:otherwise>
-																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
-																		</c:otherwise>
-																	</c:choose>
-																</c:otherwise>
-															</c:choose>
-														</c:when>
-														<c:otherwise>
-															<c:choose>
-																<c:when test="${r[16]!=null }">
-																	<c:choose>
-																		<c:when test="${r[12] !=null}">
-																			<c:choose>
-																				<c:when test="${r[13]!=null }">
-																					<c:choose>
-																						<c:when test="${r[24]!=null}">
-																							<c:choose>
-																								<c:when test="${r[22]!=null }">
-																									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																								</c:when>
-																								<c:otherwise>
-																									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]}  (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																								</c:otherwise>
-																							</c:choose>
-																						</c:when>
-																						<c:otherwise>
-																							<c:choose>
-																								<c:when test="${r[22]!=null }">
-																									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																								</c:when>
-																								<c:otherwise>
-																									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																								</c:otherwise>
-																							</c:choose>
-																						</c:otherwise>
-																					</c:choose>
-																				</c:when>
-																				<c:otherwise>
-																					<c:choose>
-																						<c:when test="${r[24]!=null}">
-																							<c:choose>
-																								<c:when test="${r[22]!=null }">
-																									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																								</c:when>
-																								<c:otherwise>
-																									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																								</c:otherwise>
-																							</c:choose>
-																						</c:when>
-																						<c:otherwise>
-																							<c:choose>
-																								<c:when test="${r[22]!=null }">
-																									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																								</c:when>
-																								<c:otherwise>
-																									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																								</c:otherwise>
-																							</c:choose>
-																						</c:otherwise>
-																					</c:choose>
-																				</c:otherwise>
-																			</c:choose>
-																		</c:when>
-																		<c:otherwise>
-																			<c:choose>
-																				<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																				</c:when>
-																				<c:otherwise>
-																					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																				</c:otherwise>
-																			</c:choose>
-																		</c:otherwise>
-																	</c:choose>
-																</c:when>
-																<c:otherwise>
-																	<c:choose>
-																		<c:when test="${r[22]!=null }">
-																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
-																		</c:when>
-																		<c:otherwise>
-																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}):</b> ${r[0]}
-																		</c:otherwise>
-																	</c:choose>
-																</c:otherwise>
-															</c:choose>
-														</c:otherwise>
-													</c:choose>
+							<c:choose>
+								<c:when test="${r[15]!=null and r[14]!= member}">
+									<c:choose>
+										<c:when test="${r[11]!=null and r[11]!='' }">
+											<b>${r[15]}</b>	
+										</c:when>
+										<c:otherwise>
+											${r[15]}
+										</c:otherwise>
+									</c:choose>
+									<c:if  test="${r[22]!=null and r[22]!=''}">
+										(${r[22]})
+									</c:if>
+									<c:choose>
+										<c:when test="${r[23]!=null and r[23]!=''}">
+											(<b>${r[23]}</b>
+											<c:if test="${r[11]!=null and r[11]!='' }">
+												<b>${r[11]}</b>)
+											</c:if>
+										</c:when>
+										<c:otherwise>
+											<c:if test="${r[11]!=null and r[11]!='' }">
+												<b>${r[11]}</b>)
+											</c:if>
+										</c:otherwise>
+									</c:choose>
+									<c:if test="${r[16]!=null }">
+											<c:choose>
+												<c:when test="${r[12]!=null and r[12]!='' }">
+													,<b>${r[17]} (${r[12]})</b>
 												</c:when>
 												<c:otherwise>
-													<c:choose>
-														<c:when test="${r[16]!=null }">
-															<c:choose>
-																<c:when test="${r[12] !=null}">
-																	<c:choose>
-																		<c:when test="${r[13]!=null }">
-																			<c:choose>
-																				<c:when test="${r[24]!=null}">
-																					<c:choose>
-																						<c:when test="${r[22]!=null }">
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) ,${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																						</c:when>
-																						<c:otherwise>
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																						</c:otherwise>
-																					</c:choose>
-																				</c:when>
-																				<c:otherwise>
-																					<c:choose>
-																						<c:when test="${r[22]!=null }">
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																						</c:when>
-																						<c:otherwise>
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																						</c:otherwise>
-																					</c:choose>
-																				</c:otherwise>
-																			</c:choose>
-																		</c:when>
-																		<c:otherwise>
-																			<c:choose>
-																				<c:when test="${r[24]!=null}">
-																					<c:choose>
-																						<c:when test="${r[22]!=null }">
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																						</c:when>
-																						<c:otherwise>
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																						</c:otherwise>
-																					</c:choose>
-																				</c:when>
-																				<c:otherwise>
-																					<c:choose>
-																						<c:when test="${r[22]!=null }">
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																						</c:when>
-																						<c:otherwise>
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) ,${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																						</c:otherwise>
-																					</c:choose>
-																				</c:otherwise>
-																			</c:choose>
-																		</c:otherwise>
-																	</c:choose>
-																</c:when>
-																<c:otherwise>
-																	<c:choose>
-																		<c:when test="${r[22]!=null }">
-																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																		</c:when>
-																		<c:otherwise>
-																			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																		</c:otherwise>
-																	</c:choose>
-																</c:otherwise>
-															</c:choose>
-														</c:when>
-														<c:otherwise>
-															<c:choose>
-																<c:when test="${r[22]!=null }">
-																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}):</b> ${r[0]}
-																</c:when>
-																<c:otherwise>
-																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}):</b> ${r[0]}
-																</c:otherwise>
-															</c:choose>
-														</c:otherwise>
-													</c:choose>
+													,${r[17]}
 												</c:otherwise>
 											</c:choose>
-											</c:when>
-											<c:otherwise>
-												<c:choose>
-													<c:when test="${r[16]!=null }">
-														<c:choose>
-															<c:when test="${r[12] !=null}">
-																<c:choose>
-																	<c:when test="${r[13]!=null }">
-																		<c:choose>
-																			<c:when test="${r[24]!=null}">
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]},${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} ,${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:when>
-																	<c:otherwise>
-																		<c:choose>
-																			<c:when test="${r[24]!=null}">
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]},${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} ,${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:otherwise>
-																</c:choose>
-															</c:when>
-															<c:otherwise>
-																<c:choose>
-																	<c:when test="${r[22]!=null }">
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																	</c:when>
-																	<c:otherwise>
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]},${r[17]} ${inplaceOf}: </b> ${r[0]}
-																	</c:otherwise>
-																</c:choose>
-															</c:otherwise>
-														</c:choose>
-													</c:when>
-													<c:otherwise>
-														<c:choose>
-															<c:when test="${r[22]!=null }">
-																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]} (${r[22]}): ${r[0]}
-															</c:when>
-															<c:otherwise>
-																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]}: ${r[0]}
-															</c:otherwise>
-														</c:choose>
-													</c:otherwise>
-												</c:choose>
-											</c:otherwise>
-										</c:choose>
-							</c:when>
-							<c:otherwise>
-								<c:choose>
-									<c:when test="${r[4]!=null or r[4]!=''}">
-										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b> (${r[5]}): ${r[0]}
-									</c:when>
-									<c:otherwise>
-										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[0]}	
-									</c:otherwise>
-								</c:choose>
-							</c:otherwise>
-						</c:choose>
+										</c:if>
+									:
+								</c:when>
+								<c:otherwise>
+									<c:choose>
+										<c:when test="${r[4]!=null or r[4]!=''}">
+											&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}):
+										</c:when>
+									</c:choose>
+								</c:otherwise>
+							</c:choose>
+							${r[0]}
 						</td>
 					</tr>
 					<tr><td colspan="3" height="30px"> </td></tr>
@@ -874,6 +289,7 @@
 				</c:choose>
 			</c:when>
 			<c:otherwise>
+				<c:set var="count" value="1" />
 				<c:if test="${nextReporter!=null && nextReporter!='' }">
 					<tr>
 						<td colspan="3" align="right">
@@ -928,350 +344,54 @@
 						<c:choose>
 							<c:when test="${r[15]!=null}">
 								<c:choose>
-									<c:when test="${r[10]!=null}">
-										<c:choose>
-											<c:when test="${r[23]!=null}">
-												<c:choose>
-													<c:when test="${r[11]!=null}">
-														<c:choose>
-															<c:when test="${r[16]!=null }">
-																<c:choose>
-																	<c:when test="${r[12] !=null}">
-																		<c:choose>
-																			<c:when test="${r[13]!=null }">
-																				<c:choose>
-																					<c:when test="${r[24]!=null}">
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:when>
-																							<c:otherwise>
-																								<c:choose>
-																									<c:when test="${r[22]!=null }">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:otherwise>
-																						</c:choose>
-																					</c:when>
-																					<c:otherwise>
-																						<c:choose>
-																							<c:when test="${r[24]!=null}">
-																								<c:choose>
-																									<c:when test="${r[22]!=null }">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:when>
-																							<c:otherwise>
-																								<c:choose>
-																									<c:when test="${r[22]!=null }">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:otherwise>
-																						</c:choose>
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:when>
-																	<c:otherwise>
-																		<c:choose>
-																			<c:when test="${r[22]!=null }">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
-																			</c:when>
-																			<c:otherwise>
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[11]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
-																			</c:otherwise>
-																		</c:choose>
-																	</c:otherwise>
-																</c:choose>
-															</c:when>
-															<c:otherwise>
-																<c:choose>
-																	<c:when test="${r[16]!=null }">
-																		<c:choose>
-																			<c:when test="${r[12] !=null}">
-																				<c:choose>
-																					<c:when test="${r[13]!=null }">
-																						<c:choose>
-																							<c:when test="${r[24]!=null}">
-																								<c:choose>
-																									<c:when test="${r[22]!=null }">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]}  (${r[10]}) (${r[23]}),r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:when>
-																							<c:otherwise>
-																								<c:choose>
-																									<c:when test="${r[22]!=null }">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:otherwise>
-																						</c:choose>
-																					</c:when>
-																					<c:otherwise>
-																						<c:choose>
-																							<c:when test="${r[24]!=null}">
-																								<c:choose>
-																									<c:when test="${r[22]!=null }">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:when>
-																							<c:otherwise>
-																								<c:choose>
-																									<c:when test="${r[22]!=null }">
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:when>
-																									<c:otherwise>
-																										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																									</c:otherwise>
-																								</c:choose>
-																							</c:otherwise>
-																						</c:choose>
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:when>
-																	<c:otherwise>
-																		<c:choose>
-																			<c:when test="${r[22]!=null }">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) (${r[23]}):</b> ${r[0]}
-																			</c:when>
-																			<c:otherwise>
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) (${r[23]}):</b> ${r[0]}
-																			</c:otherwise>
-																		</c:choose>
-																	</c:otherwise>
-																</c:choose>
-															</c:otherwise>
-														</c:choose>
-													</c:when>
-													<c:otherwise>
-														<c:choose>
-															<c:when test="${r[16]!=null }">
-																<c:choose>
-																	<c:when test="${r[12] !=null}">
-																		<c:choose>
-																			<c:when test="${r[13]!=null }">
-																				<c:choose>
-																					<c:when test="${r[24]!=null}">
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}) ,${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:when>
-																					<c:otherwise>
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[24]!=null}">
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:when>
-																					<c:otherwise>
-																						<c:choose>
-																							<c:when test="${r[22]!=null }">
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																							</c:when>
-																							<c:otherwise>
-																								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}) ,${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																							</c:otherwise>
-																						</c:choose>
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:when>
-																	<c:otherwise>
-																		<c:choose>
-																			<c:when test="${r[22]!=null }">
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																			</c:when>
-																			<c:otherwise>
-																				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																			</c:otherwise>
-																		</c:choose>
-																	</c:otherwise>
-																</c:choose>
-															</c:when>
-															<c:otherwise>
-																<c:choose>
-																	<c:when test="${r[22]!=null }">
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}) (${r[10]}):</b> ${r[0]}
-																	</c:when>
-																	<c:otherwise>
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[10]}):</b> ${r[0]}
-																	</c:otherwise>
-																</c:choose>
-															</c:otherwise>
-														</c:choose>
-													</c:otherwise>
-												</c:choose>
-											</c:when>
-											<c:otherwise>
-												<c:choose>
-													<c:when test="${r[16]!=null }">
-														<c:choose>
-															<c:when test="${r[12] !=null}">
-																<c:choose>
-																	<c:when test="${r[13]!=null }">
-																		<c:choose>
-																			<c:when test="${r[24]!=null}">
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]},${r[17]} (${r[12]}) (${r[13]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]}) (${r[13]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} ,${r[17]} (${r[12]}) (${r[13]})  ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:when>
-																	<c:otherwise>
-																		<c:choose>
-																			<c:when test="${r[24]!=null}">
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]},${r[17]} (${r[12]}) (${r[24]}) ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:when>
-																			<c:otherwise>
-																				<c:choose>
-																					<c:when test="${r[22]!=null }">
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																					</c:when>
-																					<c:otherwise>
-																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} ,${r[17]} (${r[12]})  ${inplaceOf}: </b> ${r[0]}
-																					</c:otherwise>
-																				</c:choose>
-																			</c:otherwise>
-																		</c:choose>
-																	</c:otherwise>
-																</c:choose>
-															</c:when>
-															<c:otherwise>
-																<c:choose>
-																	<c:when test="${r[22]!=null }">
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]} (${r[22]}),${r[17]} ${inplaceOf}: </b> ${r[0]}
-																	</c:when>
-																	<c:otherwise>
-																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[15]},${r[17]} ${inplaceOf}: </b> ${r[0]}
-																	</c:otherwise>
-																</c:choose>
-															</c:otherwise>
-														</c:choose>
-													</c:when>
-													<c:otherwise>
-														<c:choose>
-															<c:when test="${r[22]!=null }">
-																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]} (${r[22]}): ${r[0]}
-															</c:when>
-															<c:otherwise>
-																&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[15]}: ${r[0]}
-															</c:otherwise>
-														</c:choose>
-													</c:otherwise>
-												</c:choose>
-											</c:otherwise>
-										</c:choose>
+									<c:when test="${r[11]!=null and r[11]!='' }">
+										<b>${r[15]}</b>	
+									</c:when>
+									<c:otherwise>
+										${r[15]}
+									</c:otherwise>
+								</c:choose>
+								<c:if  test="${r[22]!=null and r[22]!=''}">
+									(${r[22]})
+								</c:if>
+								<c:choose>
+									<c:when test="${r[23]!=null and r[23]!=''}">
+										(<b>${r[23]}</b>
+										<c:if test="${r[11]!=null and r[11]!='' }">
+											<b>${r[11]}</b>)
+										</c:if>
+									</c:when>
+									<c:otherwise>
+										<c:if test="${r[11]!=null and r[11]!='' }">
+											<b>${r[11]}</b>)
+										</c:if>
+									</c:otherwise>
+								</c:choose>
+								<c:if test="${r[16]!=null }">
+									<c:choose>
+										<c:when test="${r[12]!=null and r[12]!='' }">
+											,<b>${r[17]} (${r[12]})</b>
 										</c:when>
 										<c:otherwise>
-											<c:choose>
-												<c:when test="${r[4]!=null or r[4]!=''}">
-													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}): ${r[0]}
-												</c:when>
-												<c:otherwise>
-													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${r[0]}	
-												</c:otherwise>
-											</c:choose>
+											,${r[17]}
 										</c:otherwise>
 									</c:choose>
-							</td>
-						</tr>
-						<tr><td colspan="3" height="30px"> </td></tr>
+							</c:if>
+								:
+							</c:when>
+							<c:otherwise>
+								<c:choose>
+									<c:when test="${r[4]!=null or r[4]!=''}">
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}):
+									</c:when>
+								</c:choose>
+							</c:otherwise>
+						</c:choose>
+						${r[0]}
+						
+					</td>
+				</tr>
+				<tr><td colspan="3" height="30px"> </td></tr>
 				</c:otherwise>						
 			</c:choose>
 				
