@@ -550,7 +550,7 @@
 	        <xsl:variable name="pageSequenceVariable">
 				<xsl:choose>
 					<xsl:when test="$formatOut='application/pdf'">
-						<xsl:value-of select="'standard'"></xsl:value-of>
+						<xsl:value-of select="'otherPages'"></xsl:value-of>
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:value-of select="'otherPages'"></xsl:value-of>
@@ -787,12 +787,12 @@
 	                					</fo:block>
 	                				</xsl:when>
 	                				<xsl:otherwise>
+	                					<fo:block font-weight="normal">
 	                					<fo:inline font-weight="bold">
 			                				<xsl:value-of select="answeredBy"/> : 
 			                			</fo:inline>
-			                			<fo:inline font-weight="normal">
-			                				<xsl:apply-templates select="answer"></xsl:apply-templates>
-			                			</fo:inline>
+			                			<xsl:apply-templates select="answer"></xsl:apply-templates>
+			                			</fo:block>
 	                				</xsl:otherwise>
 	                			</xsl:choose>	                			
 	                		</fo:block>
@@ -805,28 +805,75 @@
 	                	<fo:block font-size="12pt">&#160;</fo:block>
 	                	<xsl:choose>
 	                		<xsl:when test="$formatOut='application/pdf'">
-	                			<fo:block font-size="11pt">
-			                		विधान भवन : 
+	                			<fo:block font-size="10pt" font-weight="bold" text-align="left">
+	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
+	                					<fo:table-column column-number="1" column-width="3cm" />
+				                        <fo:table-column column-number="2" column-width="5cm" />
+				                        <fo:table-column column-number="3" column-width="4cm" />
+				                        <fo:table-body>
+				                        	<fo:table-row border-collapse="collapse">
+				                        		<fo:table-cell>
+				     								<fo:block text-align="left">
+				     									विधान भवन :
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block>
+				     									&#160;
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block text-align="center">
+				     									<xsl:value-of select="userName"/>
+				     								</fo:block>
+				     							</fo:table-cell>
+				                        	</fo:table-row>
+				                        	<fo:table-row border-collapse="collapse">
+				                        		<fo:table-cell>
+				     								<fo:block text-align="left">
+				     									<xsl:value-of select="sessionPlace"/>.
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block>
+				     									&#160;
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block text-align="center">
+				     									प्रधान सचिव,
+				     								</fo:block>
+				     								<fo:block></fo:block>
+				     								<fo:block text-align="center">
+				     									महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
+				     								</fo:block>
+				     							</fo:table-cell>
+				                        	</fo:table-row>
+				                        </fo:table-body>
+	                				</fo:table>
+			                		<!-- विधान भवन : 
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	                			                		                		
+			                		         			                		                		
 			                		<fo:inline font-weight="bold">
 			                			<xsl:value-of select="userName"/>
 			                		</fo:inline>
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<xsl:value-of select="sessionPlace"/>.
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;
+			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;			                		
 			                		प्रधान सचिव,
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<fo:block text-align="right">
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
-			                		</fo:block>
+			                		</fo:block> -->
 			                	</fo:block>
+			                	<fo:block>_______________________________________________________________________</fo:block>
+			                	<fo:block text-align="center">
+			                		मुद्रणपूर्व सर्व प्रकिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+			                	</fo:block>
+			                	<fo:block></fo:block>
+				     			<fo:block text-align="center">
+				     				मुद्रण: शासकीय मध्यवर्ती मुद्रणालय, <xsl:value-of select="sessionPlace"/>.
+				     			</fo:block>
 	                		</xsl:when>
 	                		<xsl:when test="$formatOut='WORD'">
 	                			<fo:block font-size="10pt" font-weight="bold" text-align="left">
@@ -1369,12 +1416,9 @@
   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-->
 
   <xsl:template match="table">
-    <fo:table-and-caption xsl:use-attribute-sets="table-and-caption">
-      <xsl:call-template name="make-table-caption"/>
-      <fo:table xsl:use-attribute-sets="table">
-        <xsl:call-template name="process-table"/>
-      </fo:table>
-    </fo:table-and-caption>
+    <fo:table xsl:use-attribute-sets="table">
+      <xsl:call-template name="process-table"/>
+    </fo:table>
   </xsl:template>
 
   <xsl:template name="make-table-caption">
