@@ -475,12 +475,9 @@
   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-->
 
   <xsl:template match="table">
-    <fo:table-and-caption xsl:use-attribute-sets="table-and-caption">
-      <xsl:call-template name="make-table-caption"/>
-      <fo:table xsl:use-attribute-sets="table">
-        <xsl:call-template name="process-table"/>
-      </fo:table>
-    </fo:table-and-caption>
+    <fo:table xsl:use-attribute-sets="table">
+      <xsl:call-template name="process-table"/>
+    </fo:table>
   </xsl:template>
 
   <xsl:template name="make-table-caption">
