@@ -64,6 +64,22 @@
 			background: none !important;
 			background: white !important;
 		}
+		
+		@media screen{
+			#reportDiv{
+				box-shadow: 2px 2px 2px 2px #000000; 
+				border: 1px solid black;
+				background: #F2F0F2; 
+			}
+		}
+		
+		@media print{
+			#reportDiv{
+				/*box-shadow: 2px 2px 2px 2px #000000; */
+				/*border: 1px solid black;*/
+				background: #F2F0F2; 
+			}
+		}	
 	</style>
 </head>
 
