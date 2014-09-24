@@ -7,6 +7,8 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillAmendmentMotion;
+import org.mkcl.els.domain.CutMotion;
+import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.SupportingMember;
@@ -31,8 +33,19 @@ public class WorkflowService implements IWorkflowService{
 	        Question question=Question.findById(Question.class,Long.parseLong(strDeviceId));
 	        supportingMembers=question.getSupportingMembers();
         }else if(strDeviceType.startsWith("motions")){
-	        Motion motion=Motion.findById(Motion.class,Long.parseLong(strDeviceId));
-	        supportingMembers=motion.getSupportingMembers();
+        	
+        	if(strDeviceType.startsWith("motions_cutmotion")){
+        		CutMotion motion = CutMotion.findById(CutMotion.class,Long.parseLong(strDeviceId));
+ 		        supportingMembers = motion.getSupportingMembers();
+        	}else if(strDeviceType.startsWith("motions_eventmotion")){
+        		EventMotion motion = EventMotion.findById(EventMotion.class,Long.parseLong(strDeviceId));
+ 		        supportingMembers = motion.getSupportingMembers();
+        	}else if(strDeviceType.startsWith("motions_discussionmotion")){
+        		
+        	}else{        	
+		        Motion motion=Motion.findById(Motion.class,Long.parseLong(strDeviceId));
+		        supportingMembers=motion.getSupportingMembers();
+        	}
         }else if(strDeviceType.startsWith("bills")){
 	        Bill bill=Bill.findById(Bill.class,Long.parseLong(strDeviceId));
 	        supportingMembers=bill.getSupportingMembers();
