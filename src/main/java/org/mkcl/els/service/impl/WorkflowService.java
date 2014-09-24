@@ -6,6 +6,7 @@ import java.util.List;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.Bill;
+import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.SupportingMember;
@@ -27,14 +28,17 @@ public class WorkflowService implements IWorkflowService{
         List<String> supportingMembersNames=new ArrayList<String>();
         List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
         if(strDeviceType.startsWith("questions")){
-        Question question=Question.findById(Question.class,Long.parseLong(strDeviceId));
-        supportingMembers=question.getSupportingMembers();
+	        Question question=Question.findById(Question.class,Long.parseLong(strDeviceId));
+	        supportingMembers=question.getSupportingMembers();
         }else if(strDeviceType.startsWith("motions")){
-        Motion motion=Motion.findById(Motion.class,Long.parseLong(strDeviceId));
-        supportingMembers=motion.getSupportingMembers();
+	        Motion motion=Motion.findById(Motion.class,Long.parseLong(strDeviceId));
+	        supportingMembers=motion.getSupportingMembers();
         }else if(strDeviceType.startsWith("bills")){
-        Bill bill=Bill.findById(Bill.class,Long.parseLong(strDeviceId));
-        supportingMembers=bill.getSupportingMembers();
+	        Bill bill=Bill.findById(Bill.class,Long.parseLong(strDeviceId));
+	        supportingMembers=bill.getSupportingMembers();
+        }else if(strDeviceType.startsWith("billamendmotions")){
+            BillAmendmentMotion billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,Long.parseLong(strDeviceId));
+            supportingMembers=billAmendmentMotion.getSupportingMembers();
         }
         //we will send approval to members whose status is still request not send.this is ok incase a new member has been added
         for(SupportingMember i:supportingMembers){
