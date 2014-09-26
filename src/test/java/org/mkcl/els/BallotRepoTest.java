@@ -25,6 +25,7 @@ import org.mkcl.els.common.vo.ResolutionBallotVO;
 import org.mkcl.els.common.vo.StarredBallotVO;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
@@ -128,8 +129,9 @@ public class BallotRepoTest extends AbstractTest {
 		
 		try {
 			Session session = Session.findById(Session.class, (long)50);
+			Group group = Group.findByNumberHouseTypeSessionTypeYear(new Integer(1), session.getHouse().getType(), session.getType(), session.getYear());
 			DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(4));
-			for(BallotMemberVO bmvo: Ballot.findPreBallotMemberVO(session, deviceType, FormaterUtil.formatStringToDate("2013-07-17", ApplicationConstants.DB_DATEFORMAT) , "mr_IN")){
+			for(BallotMemberVO bmvo: Ballot.findPreBallotMemberVO(session, deviceType, group, FormaterUtil.formatStringToDate("2013-07-17", ApplicationConstants.DB_DATEFORMAT) , "mr_IN")){
 				logger.info("Member Name: " + bmvo.getMemberName());
 			}
 		} catch (Exception e) {
