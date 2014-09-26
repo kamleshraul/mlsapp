@@ -405,7 +405,32 @@
 			
 			
 			//======================================================
+				
+			$("#view_log").click(function(){
+				showLog();
+			});
 		});	
+		
+		//---------------------------------functions---------------
+		function showLog(){
+			var parameters;
+			if($("#category").val()=='question'){
+				parameters = "houseType="+$("#selectedHouseType").val()
+								 +"&sessionYear="+$("#selectedSessionYear").val()
+								 +"&sessionType="+$("#selectedSessionType").val()
+								 +"&questionType="+$("#selectedQuestionType").val()
+								 +"&group="+$("#ugparam").val()
+								 +"&status="+$("#selectedStatus").val()
+								 +"&role="+$("#srole").val() 
+								 + "&answeringDate=" + $("#selectedAnsweringDate").val()
+								 +"&category=question";
+				resourceURL = 'ballot/viewlog?' + parameters;
+				
+				$.get(resourceURL,function(data){
+						$.fancybox.open(data);
+				},'html');
+			}
+		}
 		
 	</script>
 	<style type="text/css">
@@ -467,6 +492,9 @@
 			<a href="#" id="view_ballot" class="butSim">
 				<spring:message code="ballotinitial.viewballot" text="View Ballot"/>
 			</a>
+			<a href="#" id="view_log" class="butSim">
+				<spring:message code="ballotinitial.viewlog" text="View Log"/>
+			</a>
 			<c:if test="${deviceTypeType != 'bills_nonofficial' and not(fn:contains(deviceTypeType, 'resolutions_')) and not(fn:contains(deviceTypeType, 'halfhour'))}"> |
 				 <a href="#" id="update_yaadi" class="butSim">
 					<spring:message code="ballotinitial.updateyaadi" text="Update Questions in Yaadi"/>
@@ -476,7 +504,7 @@
 				</a> | 
 				<a href="#" id="view_suchi" class="butSim">
 					<spring:message code="ballotinitial.viewsuchi" text="View Suchi"/>
-				</a>
+				</a>				
 				<c:if test="${not empty outputFormats}">				
 					<select id="outputFormat" name="outputFormat">
 						<option value="" selected="selected">Please Select Output Format</option>
