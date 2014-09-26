@@ -17,7 +17,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -768,6 +767,18 @@ public class Bill extends Device implements Serializable {
 				locale);
 	}
     
+    public static List<Bill> findAllByYear(final Integer billYear, final String locale) {
+    	return getBillRepository().findAllByYear(billYear, locale);
+    }
+    
+    public static List<Bill> findAllByIntroducingHouseType(final String introducingHouseType, final String locale) {
+    	return getBillRepository().findAllByIntroducingHouseType(introducingHouseType, locale);
+    }
+    
+    public static List<Bill> findAllInYearByIntroducingHouseType(final Integer billYear, final String introducingHouseType, final String locale) {
+    	return getBillRepository().findAllInYearByIntroducingHouseType(billYear, introducingHouseType, locale);
+    }
+    
     public String formatNumber() {
 		if(getNumber()!=null){
 			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
@@ -1310,6 +1321,10 @@ public class Bill extends Device implements Serializable {
 			return null;
 		}
 	}
+	
+	public BillDraft findLatestDraftOnOrBeforeGivenTime(final Date givenTime) {		
+		return getBillRepository().findLatestDraftOnOrBeforeGivenTime(this, givenTime);
+	}
 
 	public static BillDraft findDraftByRecommendationStatus(final Bill bill, final Status recommendationStatus) {
 		return getBillRepository().findDraftByRecommendationStatus(bill, recommendationStatus);
@@ -1345,7 +1360,7 @@ public class Bill extends Device implements Serializable {
 			}
 		}
 		return billYear;
-	}
+	}	
 	
 	public static Bill findByNumberYearAndHouseType(final int billNumber, final int billYear, final Long houseTypeId, final String locale) {
 		return getBillRepository().findByNumberYearAndHouseType(billNumber, billYear, houseTypeId, locale);
@@ -1407,6 +1422,10 @@ public class Bill extends Device implements Serializable {
 	
 	public static List<Section> findAllInternalSections(final Long billId, final String language, final String sectionHierarchyOrder) throws ELSException {
 		return getBillRepository().findAllInternalSections(billId, language, sectionHierarchyOrder);
+	}
+	
+	public String findLanguagesOfContentDrafts() {
+		return getBillRepository().findLanguagesOfContentDrafts(this);
 	}
 	
 	//-----------------------------Getters And Setters--------------------------------
@@ -1987,6 +2006,46 @@ public class Bill extends Device implements Serializable {
 
 	public void setFileSent(Boolean fileSent) {
 		this.fileSent = fileSent;
+	}
+	
+	public Integer findYear() {
+		Integer billYear = null;
+		if(this.getOriginalType()!=null) {
+			if(this.getOriginalType().getType()!=null) {
+				if(this.getOriginalType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+					if(this.getAdmissionDate()!=null) {
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTime(this.getAdmissionDate());
+						billYear =  calendar.get(Calendar.YEAR);
+					}
+				} else if(this.getOriginalType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+					if(this.getSubmissionDate()!=null) {
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTime(this.getSubmissionDate());
+						billYear = calendar.get(Calendar.YEAR);
+					}
+				}
+			}
+		}
+		return billYear;
+	}
+
+	public String findNumberingHouseType() {
+		String numberingHouseTypeName = null;
+		if(this.getType()!=null) {
+			if(this.getType().getType()!=null) {
+				HouseType numberingHouseType = null;
+				if(this.getType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+					numberingHouseType = this.getHouseType();					
+				} else if(this.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+					numberingHouseType = this.getIntroducingHouseType();					
+				}
+				if(numberingHouseType!=null) {
+					numberingHouseTypeName =  numberingHouseType.getName();
+				}
+			}
+		}
+		return numberingHouseTypeName;
 	}
 	
 }

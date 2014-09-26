@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -16,10 +18,8 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.ActSearchVO;
-import org.mkcl.els.common.vo.BillSearchVO;
 import org.mkcl.els.common.vo.OrdinanceSearchVO;
 import org.mkcl.els.common.vo.Reference;
-import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillDraft;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -28,7 +28,6 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MessageResource;
-import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Section;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
@@ -117,6 +116,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		query.setParameter("billId", billId);
 		query.setParameter("username", username);
 		query.setMaxResults(1);
+		@SuppressWarnings("rawtypes")
 		List resultList = query.getResultList();
 		if(resultList!=null&&!resultList.isEmpty()) {
 			remarks = (String) query.getResultList().get(0);
@@ -124,7 +124,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		return remarks;
 	}
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<Object[]> getRevisions(final Long billId, final String thingToBeRevised, final String locale) {	
 		List<Object[]> revisions = new ArrayList<Object[]>();
 		String query = "";
@@ -460,6 +460,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				" WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL + "' THEN year(bill.submission_date)="+year +
 				" END " +
 				" ORDER BY bill.number DESC";		
+		@SuppressWarnings("rawtypes")
 		List results = this.em().createNativeQuery(queryString).setFirstResult(0).setMaxResults(1).getResultList();
 		if(results == null) {
 			return 0;
@@ -523,6 +524,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 			tQuery.setParameter("sessionId", session.getId());
 			tQuery.setParameter("admittedStatus", admitted.getId());
 			tQuery.setParameter("locale", locale);
+			@SuppressWarnings("unchecked")
 			List<Bill> bills = tQuery.getResultList();
 			return bills;
 		}catch(Exception e){
@@ -625,6 +627,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 			tQuery.setParameter("houseType_lowerhouse", ApplicationConstants.LOWER_HOUSE);
 			tQuery.setParameter("houseType_upperhouse", ApplicationConstants.UPPER_HOUSE);
 			tQuery.setParameter("locale", locale);
+			@SuppressWarnings("unchecked")
 			List<Bill> bills = tQuery.getResultList();
 			return bills;
 		}catch(Exception e){
@@ -722,6 +725,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 			tQuery.setParameter("houseType_lowerhouse", ApplicationConstants.LOWER_HOUSE);
 			tQuery.setParameter("houseType_upperhouse", ApplicationConstants.UPPER_HOUSE);
 			tQuery.setParameter("locale", locale);
+			@SuppressWarnings("unchecked")
 			List<Bill> bills = tQuery.getResultList();
 			return bills;
 		}catch(Exception e){
@@ -855,6 +859,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		tQuery.setParameter("houseType_lowerhouse", ApplicationConstants.LOWER_HOUSE);
 		tQuery.setParameter("houseType_upperhouse", ApplicationConstants.UPPER_HOUSE);
 		tQuery.setParameter("locale", locale);
+		@SuppressWarnings("unchecked")
 		List<Member> members = tQuery.getResultList();
 		return members;
 		}catch(Exception e){
@@ -943,6 +948,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		tQuery.setParameter("houseType_lowerhouse", ApplicationConstants.LOWER_HOUSE);
 		tQuery.setParameter("houseType_upperhouse", ApplicationConstants.UPPER_HOUSE);
 		tQuery.setParameter("locale", locale);
+		@SuppressWarnings("unchecked")
 		List<Member> members = tQuery.getResultList();
 		return members;
 		}catch(Exception e){
@@ -1029,6 +1035,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 			query.setParameter("memberId", memberID);
 			query.setParameter("internalStatusId", internalStatus.getId());
 			query.setParameter("ballotStatusId", ballotStatus.getId());
+			@SuppressWarnings("unchecked")
 			List<Bill> bills = query.getResultList();
 			bill = randomBill(bills);
 			return bill;
@@ -1143,6 +1150,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 			tQuery.setParameter("currentHouseTypeId", session.getHouse().getType().getId());
 			tQuery.setParameter("discussionDate", discussionDate);
 			tQuery.setParameter("locale", locale);
+			@SuppressWarnings("unchecked")
 			List<Bill> bills = tQuery.getResultList();
 			return bills;
 		}catch(Exception e){
@@ -1203,6 +1211,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 					" FROM ("+selectQuery + matchQuery + orderByQuery+") as rs LIMIT "+start+","+noOfRecords;
 		}
 		
+		@SuppressWarnings("rawtypes")
 		List resultList = this.em().createNativeQuery(finalQuery).getResultList();
 		String actId = "";
 		ActSearchVO actSearchVO = new ActSearchVO();
@@ -1305,6 +1314,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 					" FROM ("+selectQuery + matchQuery + orderByQuery+") as rs LIMIT "+start+","+noOfRecords;
 		}
 		
+		@SuppressWarnings("rawtypes")
 		List resultList = this.em().createNativeQuery(finalQuery).getResultList();
 		String actId = "";
 		OrdinanceSearchVO ordSearchVO = new OrdinanceSearchVO();
@@ -1354,6 +1364,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		return ordSearchVOs;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Object> findBillDataForDocketReport(final String billId, final String language) {
 		List<Object> billData = new ArrayList<Object>();
 		String queryString = "SELECT b.id AS billId, b.number AS billNumber, " +
@@ -1493,6 +1504,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				" AND bd.internalstatus_id="+underConsiderationStatus.getId() +				
 				" AND bd.recommendationstatus_id="+introducedStatus.getId() +				
 				" ORDER BY bd.id asc";
+		@SuppressWarnings("rawtypes")
 		List result = this.em().createNativeQuery(query).setMaxResults(1).getResultList();
 		if(result!=null) {
 			if(!result.isEmpty()) {
@@ -1541,6 +1553,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				" AND bd.internalstatus_id="+underConsiderationStatus.getId() +
 				" AND bd.recommendationstatus_id="+consideredStatus.getId() +				
 				" ORDER BY bd.id asc";
+		@SuppressWarnings("rawtypes")
 		List result = this.em().createNativeQuery(query).setMaxResults(1).getResultList();
 		if(result!=null) {
 			if(!result.isEmpty()) {
@@ -1561,6 +1574,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				" AND bd.internalstatus_id="+underConsiderationStatus.getId() +
 				" AND bd.recommendationstatus_id="+toBeDiscussedStatus.getId() +				
 				" ORDER BY bd.id asc";
+		@SuppressWarnings("rawtypes")
 		List result = this.em().createNativeQuery(query).setMaxResults(1).getResultList();
 		if(result!=null) {
 			if(!result.isEmpty()) {
@@ -1654,6 +1668,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		//query.setParameter("sessionId", session.getId());
 		query.setParameter("recStatus", ApplicationConstants.BILL_PROCESSED_INTRODUCED);
 		query.setParameter("locale", locale);
+		@SuppressWarnings("unchecked")
 		List<Bill> bills = query.getResultList();
 				
 		return bills;
@@ -1694,6 +1709,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		eligibleStatuses.add(ApplicationConstants.BILL_SYSTEM_TO_BE_PUTUP);
 		query.setParameter("eligibleStatuses", eligibleStatuses);
 		query.setParameter("billSubmissionDate", bill.getSubmissionDate());
+		@SuppressWarnings("rawtypes")
 		List result = query.getResultList();
 		if(result!=null) {
 			if(!result.isEmpty()) {
@@ -1703,12 +1719,27 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		return false;
 	}
 	
+	public BillDraft findLatestDraftOnOrBeforeGivenTime(final Bill bill, final Date givenTime) {
+		String strQuery="SELECT DISTINCT bd FROM Bill m JOIN m.drafts bd WHERE bd.editedOn<=:givenTime"+
+				" AND m.id=:billId ORDER BY bd.id "+ApplicationConstants.DESC;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("givenTime",givenTime);
+		query.setParameter("billId",bill.getId());
+		@SuppressWarnings("unchecked")
+		List<BillDraft> drafts=query.getResultList();
+		if(drafts!=null&&!drafts.isEmpty()){
+			return drafts.get(0);
+		}
+		return null;
+	}
+	
 	public BillDraft findDraftByRecommendationStatus(final Bill bill, final Status recommendationStatus) {
 		String strQuery="SELECT bd FROM Bill m JOIN m.drafts bd WHERE bd.recommendationStatus.id=:recommendationStatus"+
 				" AND m.id=:bill ORDER BY bd.id "+ApplicationConstants.DESC;
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("recommendationStatus",recommendationStatus.getId());
 		query.setParameter("bill",bill.getId());
+		@SuppressWarnings("unchecked")
 		List<BillDraft> drafts=query.getResultList();
 		if(drafts!=null&&!drafts.isEmpty()){
 			return drafts.get(0);
@@ -1723,6 +1754,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		query.setParameter("recommendationStatus",recommendationStatus.getId());
 		query.setParameter("houseRound",houseRound);
 		query.setParameter("bill",bill.getId());		
+		@SuppressWarnings("unchecked")
 		List<BillDraft> drafts=query.getResultList();
 		if(drafts!=null&&!drafts.isEmpty()){
 			return drafts.get(0);
@@ -1730,6 +1762,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		return null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<BillDraft> findStatusUpdationDraftsForGivenHouse(final Bill bill, final HouseType houseType) {
 		Status statusForBeginningStatusUpdation = Status.findByType(ApplicationConstants.BILL_PROCESSED_UNDERCONSIDERATION, bill.getLocale());
 		String strQuery="SELECT bd FROM Bill m JOIN m.drafts bd JOIN bd.houseType" +
@@ -1856,6 +1889,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		return result;			
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<Section> findAllSectionsInGivenLanguage(final Long billId, final String language) throws ELSException {
 		String strQuery = "SELECT bs FROM Bill b JOIN b.sections bs" +
 				" WHERE b.id=:billId AND bs.language=:language";
@@ -1873,6 +1907,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<Section> findAllSectionsInGivenLanguageForGivenHierarchyLevel(final Long billId, final String language, final int hierarchyLevel) throws ELSException {
 		Query query = null;
 		
@@ -1912,6 +1947,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<Section> findAllSiblingSectionsForGivenSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
 		String[] sectionNumberArr = sectionNumber.split("\\.");
 		
@@ -1966,6 +2002,7 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<Section> findAllSectionsAtHierarchyLevelOfGivenSection(final Long billId, final String language, final String sectionNumber) throws ELSException {
 		String[] sectionNumberArr = sectionNumber.split("\\.");
 		
@@ -2078,5 +2115,108 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 		} catch(Exception e) {
 			throw new ELSException("some_error", "Some Error Occured");
 		}		
+	}
+	
+	public List<Bill> findAllByYear(final Integer billYear, final String locale) {
+		String queryString =  " SELECT b.* FROM bills b" 
+						    + " INNER JOIN devicetypes dt ON (dt.id=b.originaldevicetype_id)"
+							+ " WHERE b.locale=:locale"
+							+ " AND CASE"
+							+ "   		WHEN dt.type='"+ApplicationConstants.NONOFFICIAL_BILL+"'"
+							+ "             THEN YEAR(b.admission_date)=:billYear"
+							+ "   		WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL+"'"
+							+ "             THEN YEAR(b.submission_date)=:billYear"
+							+ "   		ELSE FALSE"
+							+ " 	END"
+							+ " ORDER BY b.number";
+		Query query = this.em().createNativeQuery(queryString, Bill.class);
+		query.setParameter("locale", locale);
+		query.setParameter("billYear", billYear);
+		@SuppressWarnings("unchecked")
+		List<Bill> billsForGivenYear = query.getResultList();
+		return billsForGivenYear;
+	}
+	
+	public List<Bill> findAllByIntroducingHouseType(final String introducingHouseType, final String locale) {
+		String queryString =  " SELECT b.* FROM bills b" 
+						    + " INNER JOIN devicetypes dt ON (dt.id=b.originaldevicetype_id)"
+						    + " LEFT JOIN housetypes ht ON (ht.id=b.housetype_id)"
+						    + " LEFT JOIN housetypes iht ON (iht.id=b.introducing_housetype_id)"
+							+ " WHERE b.locale=:locale"
+							+ " AND CASE"
+							+ "   		WHEN dt.type='"+ApplicationConstants.NONOFFICIAL_BILL+"'"
+							+ "             THEN ht.type=:introducingHouseType"
+							+ "   		WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL+"'"
+							+ "             THEN iht.type=:introducingHouseType"
+							+ "   		ELSE FALSE"
+							+ " 	END"
+							+ " ORDER BY b.number";
+		Query query = this.em().createNativeQuery(queryString, Bill.class);
+		query.setParameter("locale", locale);
+		query.setParameter("introducingHouseType", introducingHouseType);
+		@SuppressWarnings("unchecked")
+		List<Bill> billsForGivenIntroducingHouseType = query.getResultList();
+		return billsForGivenIntroducingHouseType;
+	}
+	
+	public List<Bill> findAllInYearByIntroducingHouseType(final Integer billYear, final String introducingHouseType, final String locale) {
+		String queryString =  " SELECT b.* FROM bills b" 
+						    + " INNER JOIN devicetypes dt ON (dt.id=b.originaldevicetype_id)"
+						    + " LEFT JOIN housetypes ht ON (ht.id=b.housetype_id)"
+						    + " LEFT JOIN housetypes iht ON (iht.id=b.introducing_housetype_id)"
+							+ " WHERE b.locale=:locale"
+							+ " AND CASE"
+							+ "   		WHEN dt.type='"+ApplicationConstants.NONOFFICIAL_BILL+"'"
+							+ "             THEN YEAR(b.admission_date)=:billYear"
+							+ "   		WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL+"'"
+							+ "             THEN YEAR(b.submission_date)=:billYear"
+							+ "   		ELSE FALSE"
+							+ " 	END"
+							+ " AND CASE"
+							+ "   		WHEN dt.type='"+ApplicationConstants.NONOFFICIAL_BILL+"'"
+							+ "             THEN ht.type=:introducingHouseType"
+							+ "   		WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL+"'"
+							+ "             THEN iht.type=:introducingHouseType"
+							+ "   		ELSE FALSE"
+							+ " 	END"
+							+ " ORDER BY b.number";
+		Query query = this.em().createNativeQuery(queryString, Bill.class);
+		query.setParameter("locale", locale);
+		query.setParameter("billYear", billYear);
+		query.setParameter("introducingHouseType", introducingHouseType);
+		@SuppressWarnings("unchecked")
+		List<Bill> billsForGivenIntroducingHouseType = query.getResultList();
+		return billsForGivenIntroducingHouseType;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public String findLanguagesOfContentDrafts(final Bill bill) {
+		StringBuffer languagesOfContentDrafts = new StringBuffer();
+		Set<String> setOfLanguagesOfContentDrafts = new HashSet<String>();
+		//======== first get languages from revised content drafts if any =======
+		String queryString = "SELECT rcd.language.type FROM Bill b JOIN b.revisedContentDrafts rcd WHERE b.id=:billId";
+		Query query = this.em().createQuery(queryString);
+		query.setParameter("billId", bill.getId());
+		List<String> revisedContentDraftLanguages = query.getResultList();
+		if(revisedContentDraftLanguages!=null) {
+			for(String revisedContentDraftLanguage: revisedContentDraftLanguages) {
+				setOfLanguagesOfContentDrafts.add(revisedContentDraftLanguage);
+			}
+		}
+		//======== now get languages from content drafts =======
+		queryString = "SELECT cd.language.type FROM Bill b JOIN b.contentDrafts cd WHERE b.id=:billId";
+		query = this.em().createQuery(queryString);
+		query.setParameter("billId", bill.getId());
+		List<String> contentDraftLanguages = query.getResultList();
+		if(contentDraftLanguages!=null) {
+			for(String contentDraftLanguage: contentDraftLanguages) {
+				setOfLanguagesOfContentDrafts.add(contentDraftLanguage);
+			}
+		}
+		for(String language: setOfLanguagesOfContentDrafts) {
+			languagesOfContentDrafts.append(language + "#");			
+		}
+		languagesOfContentDrafts.deleteCharAt(languagesOfContentDrafts.length()-1);
+		return languagesOfContentDrafts.toString();
 	}
 }
