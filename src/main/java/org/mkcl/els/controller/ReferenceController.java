@@ -5743,4 +5743,134 @@ public class ReferenceController extends BaseController {
 		}
 		return ministries;
 	}
+	
+	@RequestMapping(value="/findBillsForGivenCombinationOfYearAndHouseType", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> findBillsForGivenCombinationOfYearAndHouseType(final HttpServletRequest request, final Locale locale) {
+		List<MasterVO> billMasterVOs = new ArrayList<MasterVO>();
+		String billYear = request.getParameter("billYear");
+		String billHouseType = request.getParameter("billHouseType");
+		List<Bill> bills = null;
+		if((billYear==null || billYear.isEmpty() || billYear.equals("0"))
+				&& (billHouseType==null || billHouseType.isEmpty())) {
+			bills = Bill.findAll(Bill.class, "number", ApplicationConstants.ASC, locale.toString());								
+		} else if((billYear!=null && !billYear.isEmpty() && !billYear.equals("0"))
+				&& (billHouseType==null || billHouseType.isEmpty())) {
+			bills = Bill.findAllByYear(Integer.parseInt(billYear), locale.toString());						
+		} else if((billYear==null || billYear.isEmpty() || billYear.equals("0"))
+				&& (billHouseType!=null && !billHouseType.isEmpty())) {
+			bills = Bill.findAllByIntroducingHouseType(billHouseType, locale.toString());							
+		} else {
+			bills = Bill.findAllInYearByIntroducingHouseType(Integer.parseInt(billYear), billHouseType, locale.toString());
+		}
+		if(bills!=null && !bills.isEmpty()) {
+			for(Bill bill: bills) {
+				MasterVO billMasterVO = new MasterVO();
+				billMasterVO.setId(bill.getId());
+				if(bill.getNumber()!=null) {
+					billMasterVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(bill.getNumber(), locale.toString()));
+				} else {
+					billMasterVO.setFormattedNumber("-");
+				}				
+				billMasterVOs.add(billMasterVO);				
+			}
+		}
+		return billMasterVOs;
+		
+	}
+	
+	@RequestMapping(value="/billamendmentmotion/getReferredSectionText", method=RequestMethod.GET)
+	public @ResponseBody MasterVO getReferredSectionTextForBillAmendmentMotion(HttpServletRequest request, Locale locale) throws ELSException, UnsupportedEncodingException {
+		MasterVO jsonData = new MasterVO();
+		String referredSectionText = "";
+		String billId = request.getParameter("billId");
+		String sectionNumber = request.getParameter("sectionNumber");
+		String language = request.getParameter("language");
+		if(billId==null || billId.isEmpty() || sectionNumber==null || sectionNumber.isEmpty() || language==null || language.isEmpty()) {
+			throw new ELSException();
+		}
+		CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(deploymentServer == null || deploymentServer.getValue() == null || deploymentServer.getValue().isEmpty()){
+			throw new ELSException();	
+		}
+		if(deploymentServer.getValue().equals("TOMCAT")){		
+			sectionNumber = new String(sectionNumber.getBytes("ISO-8859-1"), "UTF-8");		
+		}
+		Section referredSection = Bill.findSection(Long.parseLong(billId), language, sectionNumber);
+		if(referredSection!=null) {
+			jsonData.setId(referredSection.getId());
+			referredSectionText = referredSection.getText();			
+		} else {
+			jsonData.setId(new Long("0"));
+			referredSectionText = "";			
+		}		
+		jsonData.setName(referredSectionText);
+		return jsonData;
+	}
+	
+	@RequestMapping(value="/billamendmentmotion/getReferredBillDraft", method=RequestMethod.GET)
+	public @ResponseBody MasterVO getReferredBillDraftForBillAmendmentMotion(HttpServletRequest request, Locale locale) throws ELSException, UnsupportedEncodingException {
+		MasterVO jsonData = new MasterVO();
+		String referredSectionText = "";
+		String billId = request.getParameter("billId");
+		String language = request.getParameter("language");
+		if(billId==null || billId.isEmpty() || language==null || language.isEmpty()) {
+			throw new ELSException();
+		}
+		Bill bill = Bill.findById(Bill.class, Long.parseLong(billId));
+		if(bill == null) {
+			throw new ELSException();
+		}
+		referredSectionText = bill.findTextOfGivenDraftTypeInGivenLanguage("revised_contentDraft", language);
+		if(referredSectionText==null || referredSectionText.isEmpty()) {
+			referredSectionText = bill.findTextOfGivenDraftTypeInGivenLanguage("contentDraft", language);
+		}	
+		jsonData.setName(referredSectionText==null?"":referredSectionText);
+		return jsonData;
+	}
+	
+	@RequestMapping(value="/billamendmentmotion/amendedBillInfo", method=RequestMethod.GET)
+	public String getAmendedBillInfoForBillAmendmentMotion(HttpServletRequest request, ModelMap model, Locale locale) throws ELSException, UnsupportedEncodingException {
+		String returnPath = "error";
+		String amendedBillInfo = request.getParameter("amendedBillInfo");
+		if(amendedBillInfo!=null && !amendedBillInfo.isEmpty()) {			
+			CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(deploymentServer == null || deploymentServer.getValue() == null || deploymentServer.getValue().isEmpty()){
+				throw new ELSException();	
+			}
+			if(deploymentServer.getValue().equals("TOMCAT")){		
+				amendedBillInfo = new String(amendedBillInfo.getBytes("ISO-8859-1"), "UTF-8");
+			}
+			String[] amendedBillInfoParts = amendedBillInfo.split("~");
+			model.addAttribute("amendedBillInfoParts", amendedBillInfoParts);
+			returnPath = "billamendmentmotion/templates/amendedBillInfo";
+		}		
+		return returnPath;
+	}
+	
+	@RequestMapping(value="/parseNumbersSeparatedByGivenDelimiter", method=RequestMethod.GET)
+	public @ResponseBody String parseNumbersSeparatedByGivenDelimiter(HttpServletRequest request, Locale locale) throws ELSException, UnsupportedEncodingException, ParseException {
+		StringBuffer parsedNumbers = new StringBuffer("");
+		String requestedNumbers = request.getParameter("numbers");
+		String delimiter = request.getParameter("delimiter");
+		if(requestedNumbers==null || requestedNumbers.isEmpty() 
+				|| delimiter==null || delimiter.isEmpty()) {
+			throw new ELSException();
+		} else {
+			CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(deploymentServer == null || deploymentServer.getValue() == null || deploymentServer.getValue().isEmpty()){
+				throw new ELSException();	
+			}
+			if(deploymentServer.getValue().equals("TOMCAT")){
+				requestedNumbers = new String(requestedNumbers.getBytes("ISO-8859-1"), "UTF-8");
+			}
+			for(String i: requestedNumbers.split(delimiter)) {
+				parsedNumbers.append(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(i.trim()));
+				parsedNumbers.append(",");
+			}
+			if(parsedNumbers.length()>1) {
+				parsedNumbers.deleteCharAt(parsedNumbers.length()-1);
+			}
+		}
+		return parsedNumbers.toString().isEmpty()?"0":parsedNumbers.toString();
+	}
 }

@@ -235,7 +235,7 @@ public class QuestionReportController extends BaseController{
 				} else {
 					formattedText = question.getSubject();
 				}
-				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
+				//formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
 				letterVO.setSubject(formattedText);
 				if(question.getParent()!=null) {
 					formattedText = question.getQuestionText();
@@ -246,7 +246,7 @@ public class QuestionReportController extends BaseController{
 						formattedText = question.getQuestionText();
 					}
 				}				
-				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
+				//formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
 				letterVO.setQuestionText(formattedText);	
 				/**** populating member names with customized formatting ****/
 				String memberNameFormat = ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME;
@@ -339,7 +339,7 @@ public class QuestionReportController extends BaseController{
 
 				/** referenced question details (later should come through referenced entities) **/
 				if(question.getQuestionreferenceText()!=null) {
-					formattedText = FormaterUtil.formatNumbersInGivenText(question.getQuestionreferenceText(), question.getLocale());
+					formattedText = question.getQuestionreferenceText();//FormaterUtil.formatNumbersInGivenText(question.getQuestionreferenceText(), question.getLocale());
 					letterVO.setQuestionReferenceText(formattedText);
 				} else {
 					letterVO.setQuestionReferenceText("");
@@ -349,7 +349,7 @@ public class QuestionReportController extends BaseController{
 				String statusType=status.getType();
 				if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION) || statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 					if(question.getRejectionReason()!=null && !question.getRejectionReason().isEmpty()) {
-						formattedText = FormaterUtil.formatNumbersInGivenText(question.getRejectionReason(), question.getLocale());
+						formattedText = question.getRejectionReason();//FormaterUtil.formatNumbersInGivenText(question.getRejectionReason(), question.getLocale());
 						if(formattedText.endsWith("<br><p></p>")) {
 							formattedText = formattedText.substring(0, formattedText.length()-11);
 						} else if(formattedText.endsWith("<p></p>")) {
@@ -363,7 +363,7 @@ public class QuestionReportController extends BaseController{
 				
 				/** factual position (clarification) received from department **/
 				if(question.getFactualPosition()!=null) {
-					formattedText = FormaterUtil.formatNumbersInGivenText(question.getFactualPosition(), question.getLocale());
+					formattedText = question.getFactualPosition();//FormaterUtil.formatNumbersInGivenText(question.getFactualPosition(), question.getLocale());
 					if(formattedText.endsWith("<br><p></p>")) {
 						formattedText = formattedText.substring(0, formattedText.length()-11);
 					} else if(formattedText.endsWith("<p></p>")) {
@@ -421,7 +421,7 @@ public class QuestionReportController extends BaseController{
 				} else {
 					formattedText = "";
 				}
-				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, locale.toString());
+				//formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, locale.toString());
 				if(formattedText.endsWith("<br><p></p>")) {
 					formattedText = formattedText.substring(0, formattedText.length()-11);
 				} else if(formattedText.endsWith("<p></p>")) {
@@ -436,7 +436,7 @@ public class QuestionReportController extends BaseController{
 				} else {
 					formattedText = "";					
 				}
-				formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, locale.toString());
+				//formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, locale.toString());
 				if(formattedText.endsWith("<br><p></p>")) {
 					formattedText = formattedText.substring(0, formattedText.length()-11);
 				} else if(formattedText.endsWith("<p></p>")) {
@@ -1565,9 +1565,12 @@ public class QuestionReportController extends BaseController{
 					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
 					if(houseType==null) {
 						houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
-					}					
+					}
+					model.addAttribute("houseType", houseType.getId());
 					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+					model.addAttribute("sessionType", sessionType.getId());
 					Integer sessionYear = Integer.parseInt(strSessionYear);
+					model.addAttribute("sessionYear", sessionYear);
 					if(houseType==null || sessionType==null) {
 						logger.error("**** HouseType or SessionType Not Found ****");
 						model.addAttribute("type", "HOUSETYPE_NOTFOUND_OR_SESSIONTYPE_NOTFOUND");
@@ -1627,7 +1630,12 @@ public class QuestionReportController extends BaseController{
 		try{
 			String strMember = request.getParameter("member");
 			String strQuestionType = request.getParameter("questionType");
-			String strSession = request.getParameter("session");			
+			String strHouseType = request.getParameter("houseType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSession = request.getParameter("session");
+			String groups = request.getParameter("groups");
+			String status = request.getParameter("status");
 			
 			if(strMember!=null && strQuestionType!=null && strSession!=null){
 				if(!strMember.isEmpty() && !strQuestionType.isEmpty()&& !strSession.isEmpty()){					
@@ -1636,6 +1644,31 @@ public class QuestionReportController extends BaseController{
 					queryParameters.put("sessionId", new String[]{strSession});
 					queryParameters.put("memberId", new String[]{strMember});
 					queryParameters.put("questionTypeId", new String[]{strQuestionType});
+					queryParameters.put("houseTypeId", new String[]{strHouseType});
+					queryParameters.put("sessionTypeId", new String[]{strSessionType});
+					queryParameters.put("sessionYear", new String[]{strSessionYear});							
+					String groupNumberLimitParameter = ((CustomParameter) CustomParameter.findByName(CustomParameter.class, "DEFAULT_GROUP_NUMBER", "")).getValue();
+					if(groups==null || groups.isEmpty() || groups.equals("0")) {
+						for(Integer i=1; i<=Integer.parseInt(groupNumberLimitParameter); i++) {
+							queryParameters.put("group"+i, new String[]{i.toString()});
+						}						
+					} else {						
+						for(Integer i=1; i<=Integer.parseInt(groupNumberLimitParameter); i++) {
+							boolean isGroupSelectedByUser = false;
+							for(String grpNo: groups.split(",")) {
+								if(i.toString().equals(grpNo)) {
+									isGroupSelectedByUser = true;
+									break;
+								}
+							}
+							if(isGroupSelectedByUser) {
+								queryParameters.put("group"+i, new String[]{i.toString()});
+							} else {
+								queryParameters.put("group"+i, new String[]{"-1"});
+							}
+						}
+					}
+					queryParameters.put("statusId", new String[]{status});
 					queryParameters.put("locale", new String[]{locale.toString()});
 					List resultList = Query.findReport("QIS_MEMBERWISE_QUESTIONS", queryParameters);
 					if(resultList!=null && !resultList.isEmpty()) {													
@@ -2696,9 +2729,9 @@ class QuestionReportHelper{
 //			}				
 			yaadiQuestion[4] = allMemberNames;
 			if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
-				yaadiQuestion[5] = FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale);
+				yaadiQuestion[5] = q.getRevisedSubject();//FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale);
 			} else if(q.getSubject()!=null && !q.getSubject().isEmpty()) {
-				yaadiQuestion[5] = FormaterUtil.formatNumbersInGivenText(q.getSubject(), locale);
+				yaadiQuestion[5] = q.getSubject();//FormaterUtil.formatNumbersInGivenText(q.getSubject(), locale);
 			}
 			String content = q.getRevisedQuestionText();
 			if(content!=null && !content.isEmpty()) {
@@ -2707,7 +2740,7 @@ class QuestionReportHelper{
 				} else if(content.endsWith("<p></p>")) {
 					content = content.substring(0, content.length()-7);					
 				}
-				content = FormaterUtil.formatNumbersInGivenText(content, locale);				
+				//content = FormaterUtil.formatNumbersInGivenText(content, locale);				
 			} else {
 				content = q.getQuestionText();
 				if(content!=null && !content.isEmpty()) {
@@ -2716,7 +2749,7 @@ class QuestionReportHelper{
 					} else if(content.endsWith("<p></p>")) {
 						content = content.substring(0, content.length()-7);					
 					}
-					content = FormaterUtil.formatNumbersInGivenText(content, locale);					
+					//content = FormaterUtil.formatNumbersInGivenText(content, locale);					
 				}
 			}	
 			yaadiQuestion[6] = content;
@@ -2727,7 +2760,7 @@ class QuestionReportHelper{
 				} else if(answer.endsWith("<p></p>")) {
 					answer = answer.substring(0, answer.length()-7);					
 				}
-				answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
+				//answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 			}				
 			yaadiQuestion[7] = answer;
 			Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
@@ -2748,7 +2781,7 @@ class QuestionReportHelper{
 			/** referenced question details (later should come through referenced entities) **/
 			String questionReferenceText = q.getQuestionreferenceText();
 			if(questionReferenceText!=null) {
-				questionReferenceText = FormaterUtil.formatNumbersInGivenText(questionReferenceText, locale);
+				//questionReferenceText = FormaterUtil.formatNumbersInGivenText(questionReferenceText, locale);
 				yaadiQuestion[11] = questionReferenceText;
 			} else {
 				yaadiQuestion[11] = "";

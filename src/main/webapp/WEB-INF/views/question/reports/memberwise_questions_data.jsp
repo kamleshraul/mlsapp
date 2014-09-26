@@ -5,12 +5,13 @@
 	</c:when>
 	<c:otherwise>
 		<div id="reportDiv" >
-			<h2 align="center">${memberwiseQuestions[0][0]}, ${memberwiseQuestions[0][9]}</h2>
+			<h2 align="center">${memberwiseQuestions[0][0]}, ${memberwiseQuestions[0][10]}</h2>
 			<table class="strippedTable" border="1" style="margin-top: 20px; margin-left: 25px; font-size: 15px;">
 				<thead>
 					<tr>
 						<th style="text-align: center;font-size: 15px;"><spring:message code="general.srnumber" text="S.No."/></th>
 						<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.number" text="Question Number"/></th>
+						<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.groupNumber" text="Group Number"/></th>
 						<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.subject" text="Subject"/></th>
 						<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.workstatus" text="Work Status"/></th>
 					</tr>
@@ -23,6 +24,9 @@
 							</td>
 							<td style="padding-left: 15px; font-weight: bold;vertical-align: top;text-align: center;">
 								${question[1]}
+							</td>
+							<td style="padding-left: 15px; font-weight: bold;vertical-align: top;text-align: center;">
+								${question[9]}
 							</td>
 							<td style="padding-left: 15px;vertical-align: top;">
 								${formatter.formatNumbersInGivenText(question[2], locale)}
