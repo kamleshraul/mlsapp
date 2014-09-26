@@ -45,9 +45,11 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.StarredBallotVO;
 import org.mkcl.els.common.xmlvo.MemberBallotTotalQuestionReportXmlVO;
 import org.mkcl.els.common.xmlvo.MemberwiseQuestionsXmlVO;
+import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BallotEntry;
 import org.mkcl.els.domain.Bill;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceSequence;
@@ -70,9 +72,11 @@ import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionPlace;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -409,8 +413,11 @@ public class BallotController extends BaseController{
 			final HttpServletRequest request,
 			final Locale locale) {
 		String retVal = "ballot/error";
-		try {
-
+		try {		
+			
+			/**** To save the log of activity, id of the class ****/
+			String classId = null;
+			
 			model.addAttribute("formater", new FormaterUtil());
 			model.addAttribute("locale", locale.toString());
 			
@@ -500,6 +507,16 @@ public class BallotController extends BaseController{
 					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
 					List ballotVOs = org.mkcl.els.domain.Query.findReport("STARRED_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
+					
+					/**** Log the details of the viewer ****/					
+					if(ballotVOs != null && !ballotVOs.isEmpty()){
+						Object[] objs = (Object[])ballotVOs.get(0);
+						if(objs[4] != null){
+							classId = objs[4].toString();
+						}
+					}
+					/**** Log the details of the viewer ****/
+					
 					model.addAttribute("ballotVOs", ballotVOs);
 					/** Add number of rounds to model */
 					CustomParameter noOfRoundsParameter = CustomParameter.findByName(CustomParameter.class,"QUESTION_BALLOT_NO_OF_ROUNDS", "");
@@ -534,7 +551,13 @@ public class BallotController extends BaseController{
 
 					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDQ_ASSEMBLY_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
-
+					
+					if(ballotVOs != null && !ballotVOs.isEmpty()){
+						Object[] objs = (Object[])ballotVOs.get(0);
+						if(objs[6] != null){
+							classId = objs[6].toString();
+						}
+					}
 					model.addAttribute("ballotVOs", ballotVOs);
 					retVal = "ballot/halfhour_member_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
@@ -563,6 +586,14 @@ public class BallotController extends BaseController{
 					}
 					model.addAttribute("serialnumber", serialNumber);
 					model.addAttribute("ballotVOs", ballotVOs);
+					
+					if(ballotVOs != null && !ballotVOs.isEmpty()){
+						Object[] objs = (Object[])ballotVOs.get(0);
+						if(objs[1] != null){
+							classId = objs[1].toString();
+						}
+					}
+					
 					serialNumber = null;
 					retVal = "ballot/hds_membersubjectcombo_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
@@ -587,6 +618,8 @@ public class BallotController extends BaseController{
 						List<MasterVO> serialNumber = new ArrayList<MasterVO>(report.size());
 						parametersMap = null;				
 
+						
+						
 						StringBuilder voIds = new StringBuilder();
 						for(int i = 0; i < report.size(); i++){
 							serialNumber.add(new MasterVO((i + 1), FormaterUtil.formatNumberNoGrouping((i + 1), locale.toString())));
@@ -634,6 +667,13 @@ public class BallotController extends BaseController{
 					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDQ_COUNCIL_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
 
+					if(ballotVOs != null && !ballotVOs.isEmpty()){
+						Object[] objs = (Object[])ballotVOs.get(0);
+						if(objs[11] != null){
+							classId = objs[11].toString();
+						}
+					}
+					
 					model.addAttribute("ballotVOs", ballotVOs);
 
 					retVal = "ballot/halfhour_ballot";
@@ -651,7 +691,12 @@ public class BallotController extends BaseController{
 
 					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDQ_COUNCIL_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
-
+					if(ballotVOs != null && !ballotVOs.isEmpty()){
+						Object[] objs = (Object[])ballotVOs.get(0);
+						if(objs[11] != null){
+							classId = objs[11].toString();
+						}
+					}
 					model.addAttribute("ballotVOs", ballotVOs);
 
 					retVal = "ballot/halfhour_ballot";
@@ -675,12 +720,61 @@ public class BallotController extends BaseController{
 					retVal = "ballot/nonofficial_bill_membersubjectcombo_ballot";
 				}
 			}
+			
+			locActivity(classId, request, locale.toString());
+			
 		}
 		catch(Exception e) {
 			logger.error("error", e);
 			model.addAttribute("type", "INSUFFICIENT_PARAMETERS_FOR_VIEWING_BALLOT");
 			retVal = "ballot/error";
 		}
+		return retVal;
+	}
+	
+	@RequestMapping(value = "/viewlog", method = RequestMethod.GET)
+	public String viewBallotViewLig(Model model, HttpServletRequest request, Locale locale){
+		String retVal = "ballot/error";
+		try{
+			String strHouseType = request.getParameter("houseType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");
+			String strQuestionType = request.getParameter("questionType");
+			String strGroup = request.getParameter("group");
+			String strStatus = request.getParameter("status");
+			String strRole = request.getParameter("role"); 
+			String strAnsweringDate = request.getParameter("answeringDate");
+			String strCategory = request.getParameter("category");
+			
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			Integer sessionYear = new Integer(strSessionYear);
+			SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strQuestionType));
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+			QuestionDates qdAnsweringDate = QuestionDates.findById(QuestionDates.class, new Long(strAnsweringDate));
+			Date answeringDate = qdAnsweringDate.getAnsweringDate();
+			Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale.toString());
+			List<ActivityLog> loggers = ActivityLog.findAllByFieldName(ActivityLog.class, "classId", ballot.getId().toString(), "id", ApplicationConstants.ASC, locale.toString());
+			List<MasterVO> data = new ArrayList<MasterVO>();
+			for(ActivityLog al : loggers){
+				MasterVO mv = new MasterVO();
+				Credential cr = al.getCredetial();
+				if(cr != null){
+					User user = User.findByUserName(cr.getUsername(), locale.toString());
+					if(user != null){
+						mv.setName(user.getTitle()+" " +user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+						mv.setValue(FormaterUtil.formatDateToString(al.getTimeOfAction(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale.toString()));
+					}
+				}
+				data.add(mv);
+			}
+			model.addAttribute("data", data);
+			
+			retVal = "ballot/showlogger";
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		return retVal;
 	}
 	
@@ -3906,7 +4000,17 @@ public class BallotController extends BaseController{
 						
 						if(ballot != null){
 							Status yaadiLaid = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_YAADILAID, locale.toString());
-							int done = Ballot.updateByYaadi(ballot, yaadiLaid);
+							String editedBy = this.getCurrentUser().getActualUsername();
+							Date editedOn = new Date();
+							List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+							String editedAs = null;
+							for(UserGroup ug : userGroups){
+								if(ug.getUserGroupType() != null){
+									editedAs = ug.getUserGroupType().getName();
+									break;
+								}
+							}
+							int done = Ballot.updateByYaadi(ballot, yaadiLaid, editedAs, editedBy, editedOn);
 							if(done == 0){
 								retVal = "NO UPDATION";
 							}else{
@@ -3946,5 +4050,21 @@ public class BallotController extends BaseController{
 			model.addAttribute("error", e.getParameter());
 			return "ballot/error";
 		}
+	}
+	
+	/**** Log the details of the viewer ****/
+	@Transactional
+	private void locActivity(final String id, final HttpServletRequest request, final String locale){
+		/**** Log the details of the viewer ****/
+		ActivityLog activityLogger = new ActivityLog();
+		activityLogger.setLocale(locale);
+		Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), null);
+		activityLogger.setEventClass("Ballot");
+		activityLogger.setClassId(id);
+		activityLogger.setCredetial(credential);
+		activityLogger.setTimeOfAction(new Date());
+		activityLogger.setLinkClicked(request.getServletPath());
+		activityLogger.persist();
+		/**** Log the details of the viewer ****/			
 	}
 }
