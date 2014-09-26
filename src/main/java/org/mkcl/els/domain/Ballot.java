@@ -34,6 +34,7 @@ import org.hibernate.mapping.Array;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.BallotMemberVO;
 import org.mkcl.els.common.vo.BallotVO;
 import org.mkcl.els.common.vo.BillBallotVO;
@@ -3300,9 +3301,10 @@ public class Ballot extends BaseDomain implements Serializable {
 	}
 
 	public static int updateByYaadi(final Ballot ballot, 
-			final Status status) {
+			final Status status, final String editedAs, 
+			final String editedBy, final Date editedOn) {
 		
-		return getRepository().updateByYaadi(ballot, status);
+		return getRepository().updateByYaadi(ballot, status, editedAs, editedBy, editedOn);
 		
 	}
 }

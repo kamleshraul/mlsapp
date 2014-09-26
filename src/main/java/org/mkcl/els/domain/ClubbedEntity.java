@@ -171,6 +171,18 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 		return getClubbedEntityRepository().fullTextSearchClubbing(param, question, start, noOfRecords, locale,requestMap);
 	}
     
+    /**** Search questions for seacrhfacility ****/
+    public static List<QuestionSearchVO> fullTextSearchForSearching(final String param,
+    		final DeviceType deviceType,
+    		final Session session,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, 
+			String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchForSearchFacility(param, deviceType, session, start, noOfRecords, locale,requestMap);
+	}
+    
     /**** Club question ****/
     public static String club(final Long questionBeingProcessed,final Long questionBeingClubbed,final String locale){
         return getClubbedEntityRepository().club(questionBeingProcessed,questionBeingClubbed,locale);
