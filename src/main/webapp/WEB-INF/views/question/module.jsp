@@ -168,6 +168,12 @@
 			yaadiUpdate();
 		});
 		
+		/**** Search Tab ****/
+		$('#search_tab').click(function() {
+			$("#selectionDiv1").hide();
+			searchInt();
+		});
+		
 		/**** status changes then reload grid****/
 		$("#selectedSubDepartment").change(function() {
 			var value = $(this).val();
@@ -842,6 +848,36 @@
 			$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
 		},'html'); */
 	}
+	
+	/**** Search Facility ****/
+	function searchInt(id){
+		//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var params="searchfacility=yes&usergroup="+$("#currentusergroup").val()
+			        +"&usergroupType="+$("#currentusergroupType").val()+
+			        "&houseType="+$("#selectedHouseType").val()+
+			        "&sessionType="+$("#selectedSessionType").val()+
+			        "&sessionYear="+$("#selectedSessionYear").val();		
+		/* $.get('clubentity/init?'+params,function(data){
+			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			if(data){
+				$.unblockUI();
+			}
+			$("#clubbingResultDiv").html(data);
+			$("#clubbingResultDiv").show();
+			$("#referencingResultDiv").hide();
+			$("#assistantDiv").hide();
+			$("#backToQuestionDiv").show();			
+		},'html').fail(function(){
+			$.unblockUI();
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		}); */
+		showTabByIdAndUrl('search_tab','clubentity/init?'+params);
+	}
 </script>
 </head>
 <body>
@@ -869,7 +905,7 @@
 				</a></li>
 			</security:authorize>
 			<security:authorize
-				access="hasAnyRole('QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
+				access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
 				<li><a id="yaadiupdate_tab" href="#" class="tab"> <spring:message
 							code="generic.yaadiupdate" text="Yaadi Questions Update">
 						</spring:message>
@@ -927,6 +963,9 @@
 				</a></li>
 
 			</security:authorize>
+				<li>
+					<a id="search_tab" href="#" class="tab"><spring:message code="question.searchT" text="Search"></spring:message></a>
+				</li>
 		</ul>
 		<div class="commandbarContent" style="margin-top: 10px;"
 			id="selectionDiv1">
