@@ -23,6 +23,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.WorkflowDetails;
@@ -236,6 +237,206 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		return questionSearchVOs;
 	}
 
+	
+	/**** Free Text Search Begins ****/
+	@SuppressWarnings("rawtypes")
+	public List<QuestionSearchVO> fullTextSearchForSearchFacility(final String param, 
+			final DeviceType deviceType,
+			final Session session,
+			final Integer start,
+			final Integer noofRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		HouseType housetype = session.getHouse().getType();
+		StringBuffer deviceTypeQuery = new StringBuffer();
+		String orderByQuery="";
+
+		/**** Condition 1 :must not contain processed question ****/
+		/**** Condition 2 :parent must be null ****/
+		String selectQuery="SELECT q.id as id,q.number as number,"+
+				"  q.subject as subject,q.revised_subject as revisedSubject,"+
+				"  q.question_text as questionText,q.revised_question_text as revisedQuestionText,"+
+				"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"+
+				"  sety.session_type as sessionType ,g.number as groupnumber,"+
+				"  mi.name as ministry,d.name as department,sd.name as subdepartment,st.type as statustype," +
+				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, qd1.answering_date as answeringDate"+
+				"  FROM questions as q "+
+				"  LEFT JOIN housetypes as ht ON(q.housetype_id=ht.id) "+
+				"  LEFT JOIN sessions as s ON(q.session_id=s.id) "+
+				"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "+
+				"  LEFT JOIN status as st ON(q.recommendationstatus_id=st.id) "+
+				"  LEFT JOIN devicetypes as dt ON(q.devicetype_id=dt.id) "+
+				"  LEFT JOIN members as m ON(q.member_id=m.id) "+
+				"  LEFT JOIN titles as t ON(m.title_id=t.id) "+
+				"  LEFT JOIN groups as g ON(q.group_id=g.id) "+
+				"  LEFT JOIN question_dates as qd ON(q.answering_date=qd.id) "+
+				"  LEFT JOIN question_dates as qd1 ON(q.chart_answering_date=qd1.id) "+
+				"  LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
+				"  LEFT JOIN departments as d ON(q.department_id=d.id) "+
+				"  LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
+				"  WHERE q.parent is NULL ";	
+		if(deviceType!=null){
+			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+				/**** Starred Questions :starred questions:recommendation status >=to_be_put_up,<=yaadi_laid,same session
+				 **** unstarred questions:recommendation status >=assistant_processed,<=yaadi_laid,same house type
+				 ****/
+				deviceTypeQuery.append(" AND (");
+				deviceTypeQuery.append(" (st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP+"')");
+				deviceTypeQuery.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
+				deviceTypeQuery.append(" AND s.id="+ session.getId() +" AND dt.type='"+ApplicationConstants.STARRED_QUESTION +"')");
+				deviceTypeQuery.append(" OR ");
+				deviceTypeQuery.append(" (st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
+				deviceTypeQuery.append(" AND q.housetype_id="+ housetype.getId() +" AND dt.type='"+ApplicationConstants.UNSTARRED_QUESTION +"')");
+				deviceTypeQuery.append(")");
+				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
+						" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+				/**** unstarred questions:recommendation status >=assistant_processed,<=yaadi_laid,same house type ****/
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
+				deviceTypeQuery.append(" AND q.housetype_id="+housetype.getId() +" AND dt.type='"+ApplicationConstants.UNSTARRED_QUESTION +"'");
+				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
+						" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+				/**** short notice questions:recommendation status >=assistant_processed,<=yaadi_laid,same session ****/
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
+				deviceTypeQuery.append(" AND s.id="+ session.getId() +" AND dt.type='"+ApplicationConstants.SHORT_NOTICE_QUESTION +"'");
+				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
+						" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+				/**** Half hour discussion from questions Questions :recommendation status >=assistant_processed,<=yaadi_laid,same session****/
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
+				deviceTypeQuery.append(" AND s.id="+session.getId() +" AND dt.type='"+ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION +"'");
+				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
+						" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;				
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				/**** Half hour discussion from questions Questions :recommendation status >=assistant_processed,<=yaadi_laid,same session****/
+				deviceTypeQuery.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED+"')");
+				deviceTypeQuery.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.QUESTION_PROCESSED_YAADILAID+"')");
+				deviceTypeQuery.append(" AND s.id="+session.getId() +" AND dt.type='"+ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE +"'");
+				orderByQuery=" ORDER BY dt.type "+ApplicationConstants.ASC+" ,s.start_date "+ApplicationConstants.DESC+
+						" ,q.number "+ApplicationConstants.ASC+" ,st.priority "+ApplicationConstants.ASC;				
+			}
+		}
+
+		String filter=addFilter(requestMap);
+
+		/**** full text query ****/
+		String searchQuery=null;
+		if(!param.contains("+")&&!param.contains("-")){
+			searchQuery=" AND (( match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+					"against('"+param+"' in natural language mode)"+
+					")||q.subject LIKE '"+param+"%'||q.question_text LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%')";
+		}else if(param.contains("+")&&!param.contains("-")){
+			String[] parameters=param.split("\\+");
+			StringBuffer buffer=new StringBuffer();
+			for(String i:parameters){
+				buffer.append("+"+i+" ");
+			}
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+					"against('"+buffer.toString()+"' in boolean  mode)";
+		}else if(!param.contains("+")&&param.contains("-")){
+			String[] parameters=param.split("-");
+			StringBuffer buffer=new StringBuffer();
+			for(String i:parameters){
+				buffer.append(i+" "+"-");
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+					"against('"+buffer.toString()+"' in boolean  mode)";
+		}else if(param.contains("+")||param.contains("-")){
+			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+					"against('"+param+"' in boolean  mode)";
+		}		
+		/**** Final Query ****/
+		String query=selectQuery+deviceTypeQuery.toString()+filter+searchQuery+orderByQuery;
+		String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.questionText, "+
+				" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.answeringDate FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
+
+		List results=this.em().createNativeQuery(finalQuery).getResultList();
+		List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
+		if(results!=null){
+			for(Object i:results){
+				Object[] o=(Object[]) i;
+				QuestionSearchVO questionSearchVO=new QuestionSearchVO();
+				if(o[0]!=null){
+					questionSearchVO.setId(Long.parseLong(o[0].toString()));
+				}
+				if(o[1]!=null){
+					questionSearchVO.setNumber(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[1].toString())));
+				}
+				if(o[3]!=null){
+					if(!o[3].toString().isEmpty()){
+						questionSearchVO.setSubject(higlightText(o[3].toString(),param));
+					}else{
+						if(o[2]!=null){
+							questionSearchVO.setSubject(higlightText(o[2].toString(),param));
+						}
+					}
+				}else{
+					if(o[2]!=null){
+						questionSearchVO.setSubject(higlightText(o[2].toString(),param));
+					}
+				}				
+				if(o[5]!=null){
+					if(!o[5].toString().isEmpty()){
+						questionSearchVO.setQuestionText(higlightText(o[5].toString(),param));
+					}else{
+						if(o[4]!=null){
+							questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
+						}
+					}
+				}else{
+					if(o[4]!=null){
+						questionSearchVO.setQuestionText(higlightText(o[4].toString(),param));
+					}
+				}
+				if(o[6]!=null){
+					questionSearchVO.setStatus(o[6].toString());
+				}
+				if(o[7]!=null){
+					questionSearchVO.setDeviceType(o[7].toString());
+				}
+				if(o[8]!=null){
+					questionSearchVO.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[8].toString())));
+				}
+				if(o[9]!=null){
+					questionSearchVO.setSessionType(o[9].toString());
+				}
+				if(o[10]!=null){
+					questionSearchVO.setFormattedGroup(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[10].toString())));
+					questionSearchVO.setGroup(o[10].toString());
+				}
+				if(o[11]!=null){
+					questionSearchVO.setMinistry(o[11].toString());
+				}
+				if(o[12]!=null){
+					questionSearchVO.setDepartment(o[12].toString());
+				}
+				if(o[13]!=null){
+					questionSearchVO.setSubDepartment(o[13].toString());
+				}
+				if(o[14]!=null){
+					questionSearchVO.setStatusType(o[14].toString());
+				}
+				if(o[15]!=null){
+					questionSearchVO.setFormattedPrimaryMember(o[15].toString());
+				}
+				if(o[16]!=null){
+					questionSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[16].toString(), ApplicationConstants.DB_DATEFORMAT), ApplicationConstants.SERVER_DATEFORMAT, locale));
+				}
+				questionSearchVOs.add(questionSearchVO);
+			}
+		}
+		return questionSearchVOs;
+	}
 
 	/**** Free Text Search Begins ****/
 	@SuppressWarnings("rawtypes")

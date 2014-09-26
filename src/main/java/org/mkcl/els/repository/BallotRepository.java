@@ -21,6 +21,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.BallotEntry;
@@ -36,6 +37,7 @@ import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.UserGroup;
 import org.springframework.stereotype.Repository;
 
 import com.ibm.icu.impl.ICURWLock.Stats;
@@ -582,10 +584,13 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		return ballotMembers;
 	}
 
-	public int updateByYaadi(final Ballot ballot, final Status status) {
+	public int updateByYaadi(final Ballot ballot, final Status status, final String editedAs, final String editedBy, final Date editedOn) {
 		
 		StringBuffer strQuery = new StringBuffer("UPDATE questions q SET" +
-				" q.recommendationstatus_id=:yaadiLaid" + 
+				" q.recommendationstatus_id=:yaadiLaid," +
+				" q.edited_as=:editedAs," +
+				" q.edited_by=:editedBy," +
+				" q.edited_on=:editedOn" +
 				" WHERE q.id IN (SELECT ds.device_id" +
 				" FROM ballots b" +
 				" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
@@ -599,6 +604,9 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		Query query = this.em().createNativeQuery(strQuery.toString());
 		query.setParameter("sessionId", ballot.getSession().getId());
 		query.setParameter("yaadiLaid", status.getId());
+		query.setParameter("editedAs", editedAs);
+		query.setParameter("editedBy", editedBy);
+		query.setParameter("editedOn", editedOn);
 		query.setParameter("deviceTypeId", ballot.getDeviceType().getId());
 		query.setParameter("answeringDate", ballot.getAnsweringDate());
 		return query.executeUpdate();		
