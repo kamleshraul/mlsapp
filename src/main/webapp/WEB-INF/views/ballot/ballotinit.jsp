@@ -427,7 +427,7 @@
 				resourceURL = 'ballot/viewlog?' + parameters;
 				
 				$.get(resourceURL,function(data){
-						$.fancybox.open(data);
+						$.fancybox.open(data, {autoSize:false,width:840,height:700});
 				},'html');
 			}
 		}
