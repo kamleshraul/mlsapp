@@ -5,10 +5,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<script type="text/javascript">
 			$(document).ready(function() {	
-				$('.questionNumber').click(function() {
-					var id = $(this).attr("id");
-					editQuestion(id);
-				});
+				
 			});
 		</script>
 		<style type="text/css" media="screen">
@@ -62,8 +59,13 @@
 			
 			<c:otherwise>
 				<div id="reportDiv" >
-					<table class="strippedTable">
+					<table class="strippedTable" style="width: 750px !important;">
 						<thead>
+							<tr>
+								<th colspan="2" style="text-align: center; font-size: 14px; font-weight: bold;">
+									<spring:message code="log.ballotview" text="Ballot View Log"/>
+								</th>
+							</tr>
 							<tr>
 								<th>
 									<spring:message code="log.users" text="User"/>
