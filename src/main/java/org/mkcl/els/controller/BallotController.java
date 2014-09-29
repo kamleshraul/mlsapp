@@ -751,8 +751,15 @@ public class BallotController extends BaseController{
 			SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
 			DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strQuestionType));
 			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-			QuestionDates qdAnsweringDate = QuestionDates.findById(QuestionDates.class, new Long(strAnsweringDate));
-			Date answeringDate = qdAnsweringDate.getAnsweringDate();
+			Date answeringDate = null;
+			
+			if(deviceType != null && deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+				QuestionDates qdAnsweringDate = QuestionDates.findById(QuestionDates.class, new Long(strAnsweringDate));
+				answeringDate = qdAnsweringDate.getAnsweringDate();
+			}else{
+				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, ApplicationConstants.SERVER_DATEFORMAT); 
+			}
+			
 			Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale.toString());
 			List<ActivityLog> loggers = ActivityLog.findAllByFieldName(ActivityLog.class, "classId", ballot.getId().toString(), "id", ApplicationConstants.ASC, locale.toString());
 			List<MasterVO> data = new ArrayList<MasterVO>();
