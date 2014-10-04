@@ -58,6 +58,13 @@
 			}else{
 				$("#shortNoticeAnswerDateDiv").hide();
 			}
+			
+			$('#groupChangeLink').click(function(){
+				var selectedWorkflowDetailsId = $('#grid').jqGrid('getGridParam', 'selrow'); 
+				$.get('ref/testchart?wfid='+selectedWorkflowDetailsId,function(data){
+					$.prompt(data);
+				});
+			});
 		});
 	</script>
 </head>
@@ -74,14 +81,17 @@
 			</a>  |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
-			</a>  
+			</a>  |
+		<%-- 	<a href="#" id="groupChangeLink" class="butSim">
+						<spring:message code="question.groupChange" text="Group Change"/>
+			</a> | --%>
 			<security:authorize access="hasAnyRole('BILL_DEPARTMENT_USER')">			
 			| <a href="#" id="provide_date" class="butSim">
 				<spring:message code="generic.giveintroductiondate" text="Provide Introduction Date"/>
-			</a>
+			</a> |
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
-			|	<a href="#" id="generateIntimationLetter" class="butSim">
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER','QIS_DEPARTMENT_USER')">
+				<a href="#" id="generateIntimationLetter" class="butSim">
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
 				</a> 				
 				<select id="intimationLetterFilter" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">

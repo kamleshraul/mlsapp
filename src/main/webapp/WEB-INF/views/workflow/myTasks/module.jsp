@@ -37,7 +37,7 @@
 			/**** session type changes then reload grid****/
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
-				if(value!=""){			
+				if(value!=""){	
 					reloadMyTaskGrid();
 				}			
 			});
@@ -75,14 +75,17 @@
 						|| device.indexOf('bills_')==0){
 					$("#groupDiv").hide();
 				}else{
-					$("#groupDiv").show();
+					// The Group Div is to be hidden for department user
+					if($('#currentusergroupType').val()!='department'){
+						$("#groupDiv").show();
+					}
 				}
 				
 			});	
 			/**** status changes then reload grid****/			
 			$("#selectedStatus").change(function(){
 				var value=$(this).val();
-				if(value!=""){				
+				if(value!=""){	
 					reloadMyTaskGrid();
 				}
 			});
@@ -105,7 +108,9 @@
 					} else {
 						reloadMyTaskGrid();
 					} */	
-					showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid);
+					// Department users are allowed to search by number,subject and member ,
+					//so new mytask grid is defined in db for department users.
+					showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val());
 				}
 			});
 
@@ -157,7 +162,9 @@
 		        }
 			});
 			var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
-			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid);
+			// Department users are allowed to search by number,subject and member ,
+			//so new mytask grid is defined in db for department users.
+			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val());
 			pendingNewTasks();
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
 				setInterval(function(){pendingNewTasks();}, 900000);
@@ -179,6 +186,8 @@
 				}
 				$("#newMessageDiv").toggle();
 			});
+			//Some filters are not required for department screen. this filters are hidden in departmentutility function
+			departmentUtility();
 						
 		});
 				
@@ -231,7 +240,9 @@
 		function showList() {
 			$("#selectionDiv").show();
 			var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
-			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid);
+			// Department users are allowed to search by number,subject and member ,
+			//so new mytask grid is defined in db for department users.
+			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val());
 		}
 		
 		function process(row) {
@@ -326,7 +337,8 @@
 				var baseURL=oldURL.split("?")[0];
 				newURL=baseURL+"?"+$("#gridURLParams").val();
 				$("#grid").setGridParam({"url":newURL});
-				$("#grid").trigger("reloadGrid");							
+				$("#grid").trigger("reloadGrid");	
+				
 		}	
 		
 		
@@ -336,6 +348,11 @@
 				var selectedSubWorkflowText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 				if(data.length>0){
 					for(var i=0;i<data.length;i++){
+						/* if(data[i].value=='question_final_admission'){
+							selectedSubWorkflowText+="<option value='"+data[i].value+"' selected='selected'>"+data[i].name;
+						}else{
+							selectedSubWorkflowText+="<option value='"+data[i].value+"'>"+data[i].name;
+						} */
 						selectedSubWorkflowText+="<option value='"+data[i].value+"'>"+data[i].name;
 					}
 				}else{
@@ -510,6 +527,13 @@
 			$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab','question/report/shortnoticeanswerdatereport?wfdId='+ wfId);
 		}		
+		
+		function departmentUtility(){
+			if($('#currentusergroupType').val()=='department'){
+				$('#moduleFilter').css('display','none');
+				$('#groupDiv').css('display','none');
+			}
+		}
 	</script>
 	
 	<style type="text/css">
@@ -669,7 +693,8 @@
 			<c:forEach items="${deviceTypes}" var="i">
 			<option value="${i.name}"><c:out value="${i.name}"></c:out></option>			
 			</c:forEach>
-			</select> |	
+			</select> |
+			<div id='moduleFilter'>
 			<a href="#" id="moduletypeLabel" class="butSim">
 				<spring:message code="mytask.module" text="Module"/>
 			</a>
@@ -677,7 +702,8 @@
 				<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
 				<option value="REPORTING"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
 				<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>				
-			</select> |				
+			</select> |
+			</div>	
 			<a href="#" id="statusLabel" class="butSim">
 				<spring:message code="mytask.status" text="Status"/>
 			</a>
@@ -687,7 +713,7 @@
 			<option value="TIMEOUT"><spring:message code="mytask.timeout" text="Timeout"></spring:message></option>
 			</select> |	
 			<hr>
-			<div id="groupDiv" style="display: inline;">
+			<div id="groupDiv" style='display: inline;'>
 				<a href="#" id="workflowLabel" class="butSim">
 					<spring:message code="mytask.group" text="Group"/>
 				</a>
@@ -748,7 +774,6 @@
 					<option value="6">6</option>		
 				</select>|
 			</c:if>		
-			<hr>		
 		</div>
 		<div id="nextTaskDiv" style="display: none;">
 			<a href="#" id="next_task" class="butSim" style="text-decoration: none;">	
