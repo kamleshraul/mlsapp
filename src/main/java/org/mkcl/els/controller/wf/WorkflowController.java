@@ -482,9 +482,18 @@ public class WorkflowController extends BaseController {
 			final String string) {
 		String newUrlPattern=urlPattern;
 		String deviceTypeForGrid = request.getParameter("deviceTypeForGrid");
-		if(deviceTypeForGrid!=null && !deviceTypeForGrid.isEmpty() 
-				&& deviceTypeForGrid.equals(ApplicationConstants.BILLAMENDMENT_MOTION)) {
-			newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.BILLAMENDMENT_MOTION;
+		String strCurrentUserGroupType = request.getParameter("currentusergroupType");
+		if(deviceTypeForGrid!=null && !deviceTypeForGrid.isEmpty() ){
+			if(deviceTypeForGrid.equals(ApplicationConstants.BILLAMENDMENT_MOTION)) {
+				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.BILLAMENDMENT_MOTION;
+			}else {
+				if(strCurrentUserGroupType!=null && !strCurrentUserGroupType.isEmpty()){
+					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)){
+						newUrlPattern = urlPattern + "?usergroup="+ApplicationConstants.DEPARTMENT;
+					}
+				}
+				
+			}
 		} 
 		return newUrlPattern;
 	}
