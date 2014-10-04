@@ -691,6 +691,8 @@ public class ApplicationConstants {
 	public static final String TRANSMIT_PRESS_COPIES_WORKFLOW_URLPATTERN_BILL="workflow/bill/transmitpresscopies";
 
 	public static final String LAY_LETTER_WORKFLOW_URLPATTERN_BILL="workflow/bill/layletter";
+	
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_BILLAMENDMENTMOTION="workflow/billamendmentmotion/supportingmember";
 
 	/**** Advanced Search Status Filter ****/
 	public static final String UNPROCESSED_FILTER="UNPROCESSED";
@@ -1476,4 +1478,41 @@ public class ApplicationConstants {
 
 		
 	/**** CutMotion****/
+	
+	/****************Bill Amendment Motion********************/
+	public static final String BILLAMENDMENT_MOTION = "motions_billamendment";
+	/**** member status  ****/	
+	public static final String BILLAMENDMENTMOTION_INCOMPLETE="billamendmentmotion_incomplete";
+
+	public static final String BILLAMENDMENTMOTION_COMPLETE="billamendmentmotion_complete";
+
+	public static final String BILLAMENDMENTMOTION_SUBMIT="billamendmentmotion_submit";
+	
+	public static final String BILLAMENDMENTMOTION_SYSTEM_ASSISTANT_PROCESSED="billamendmentmotion_system_assistantprocessed";
+	
+	/**** Translation & Its Workflow Status ****/
+	public static final String BILLAMENDMENTMOTION_TRANSLATION_NOTSEND = "translation_notsend";
+
+	public static final String BILLAMENDMENTMOTION_TRANSLATION_COMPLETED = "translation_completed";
+
+	public static final String BILLAMENDMENTMOTION_TRANSLATION_TIMEOUT = "translation_timeout";
+
+	public static final String BILLAMENDMENTMOTION_TRANSLATION_CANCELLED = "translation_cancelled";
+
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_TRANSLATION="billamendmentmotion_recommend_translation";
+
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_REJECT_TRANSLATION="billamendmentmotion_recommend_reject_translation";
+
+	public static final String BILLAMENDMENTMOTION_FINAL_TRANSLATION="billamendmentmotion_final_translation";
+
+	public static final String BILLAMENDMENTMOTION_FINAL_REJECT_TRANSLATION="billamendmentmotion_final_reject_translation";
+
+	/**** Opinion Seeking From Law and JD & Its Workflow Status ****/
+	public static final String BILLAMENDMENTMOTION_OPINION_FROM_LAWANDJD_NOTSEND = "opinionFromLawAndJD_notsend";
+
+	public static final String BILLAMENDMENTMOTION_OPINION_FROM_LAWANDJD_RECEIVED = "opinionFromLawAndJD_received";
+
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_OPINION_FROM_LAWANDJD="billamendmentmotion_recommend_opinionFromLawAndJD";
+
+	public static final String BILLAMENDMENTMOTION_FINAL_OPINION_FROM_LAWANDJD="billamendmentmotion_final_opinionFromLawAndJD";
 }
