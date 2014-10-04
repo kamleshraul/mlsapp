@@ -461,18 +461,32 @@ public class WorkflowController extends BaseController {
 	 */
 	private String list(final ModelMap model,
 			final HttpServletRequest request,
-			final Locale locale) {
+			final Locale locale) {		
 		String resourcePath = this.getResourcePath(request);
 		String urlPattern = resourcePath.split("\\/list")[0];
+		String newurlPattern=modifyURLPattern(urlPattern,request,model,locale.toString());
 		Grid grid;
 		try {
-			grid = Grid.findByDetailView(urlPattern, locale.toString());
+			grid = Grid.findByDetailView(newurlPattern, locale.toString());
 			model.addAttribute("gridId", grid.getId());
 		} catch (ELSException e) {
 			e.printStackTrace();
 			model.addAttribute("error", e.getParameter());
 		}
 		return resourcePath;
+	}
+
+	private String modifyURLPattern(final String urlPattern, 
+			final HttpServletRequest request, 
+			final ModelMap model, 
+			final String string) {
+		String newUrlPattern=urlPattern;
+		String deviceTypeForGrid = request.getParameter("deviceTypeForGrid");
+		if(deviceTypeForGrid!=null && !deviceTypeForGrid.isEmpty() 
+				&& deviceTypeForGrid.equals(ApplicationConstants.BILLAMENDMENT_MOTION)) {
+			newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.BILLAMENDMENT_MOTION;
+		} 
+		return newUrlPattern;
 	}
 
 	/**

@@ -99,7 +99,13 @@
 						$('#selectedItemsCount').show();
 						$('#selectedFileCount').show();
 					} 
-					reloadMyTaskGrid();
+					var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+					/* if(deviceTypeForGrid=='motions_billamendment') {
+						
+					} else {
+						reloadMyTaskGrid();
+					} */	
+					showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid);
 				}
 			});
 
@@ -150,7 +156,8 @@
 					scrollRowsInGrid(e);
 		        }
 			});
-			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list');	
+			var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid);
 			pendingNewTasks();
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
 				setInterval(function(){pendingNewTasks();}, 900000);
@@ -223,7 +230,8 @@
 		
 		function showList() {
 			$("#selectionDiv").show();
-			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list');								
+			var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid);
 		}
 		
 		function process(row) {
