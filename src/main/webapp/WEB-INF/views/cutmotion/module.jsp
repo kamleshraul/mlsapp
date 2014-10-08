@@ -348,7 +348,7 @@
 			<select name="selectedCutMotionType" id="selectedCutMotionType" style="width: 100px; height: 25px;">
 				<c:forEach items="${motionTypes}" var="i">
 					<c:choose>
-						<c:when test="${cutmotionType==i.id}">
+						<c:when test="${motionType==i.id}">
 							<option value="${i.id}" selected="selected"><c:out value="${i.name}" /></option>
 						</c:when>
 						<c:otherwise>
@@ -358,7 +358,7 @@
 				</c:forEach>
 			</select> 
 			<select id="deviceTypeMaster" style="display: none;">
-				<c:forEach items="${cutMotionTypes}" var="i">
+				<c:forEach items="${motionTypes}" var="i">
 					<option value="${i.id }">${i.type }</option>
 				</c:forEach>
 			</select>|
