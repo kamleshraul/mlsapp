@@ -691,8 +691,6 @@ public class ApplicationConstants {
 	public static final String TRANSMIT_PRESS_COPIES_WORKFLOW_URLPATTERN_BILL="workflow/bill/transmitpresscopies";
 
 	public static final String LAY_LETTER_WORKFLOW_URLPATTERN_BILL="workflow/bill/layletter";
-	
-	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_BILLAMENDMENTMOTION="workflow/billamendmentmotion/supportingmember";
 
 	/**** Advanced Search Status Filter ****/
 	public static final String UNPROCESSED_FILTER="UNPROCESSED";
@@ -822,6 +820,9 @@ public class ApplicationConstants {
 	
 	/**** Prefix of cutmotions ****/
 	public static final String DEVICE_CUTMOTIONS="motions_cutmotion_";
+	
+	/**** Prefix of eventmotion ****/
+	public static final String DEVICE_EVENTMOTIONS="motions_eventmotion_";
 
 	/** Prefix of resolutions **/
 	public static final String DEVICE_RESOLUTIONS="resolutions_";
@@ -943,6 +944,10 @@ public class ApplicationConstants {
 
 	public static final String MOTION_FINAL_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER="motion_final_clarificationNotReceivedFromMember";
 
+	public static final String MOTION_PROCESSED_UNDISCUSSED = "motion_processed_undiscussed";
+	
+	public static final String MOTION_PROCESSED_DISCUSSED = "motion_processed_discussed";
+	
 	/**** Put Up ****/
 	public static final String MOTION_PUTUP_NAMECLUBBING="motion_putup_nameclubbing";
 
@@ -1047,10 +1052,6 @@ public class ApplicationConstants {
 	public static String STATE_MINISTER="state_minister";
 	
 	public static String QUESTION_PROCESSED_SENDTODEPARTMENT="question_processed_sendToDepartment";
-	
-	public static final String PANEL_CHAIRMAN = "PANEL_CHAIRMAN";
-	
-	public static final String PANEL_SPEAKER = "PANEL_SPEAKER";
 
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
@@ -1475,44 +1476,46 @@ public class ApplicationConstants {
 	public static final String CUTMOTIONDATE_RECOMMEND_DATE_DISCUSS = "cutmotiondate_recommend_datediscuss";
 	
 	public static final String CUTMOTION_REASSIGN_REJECTION_NUMBER = "CUTMOTION_REASSIGN_REJECTION_NUMBER";
-
 		
 	/**** CutMotion****/
 	
-	/****************Bill Amendment Motion********************/
-	public static final String BILLAMENDMENT_MOTION = "motions_billamendment";
-	/**** member status  ****/	
-	public static final String BILLAMENDMENTMOTION_INCOMPLETE="billamendmentmotion_incomplete";
-
-	public static final String BILLAMENDMENTMOTION_COMPLETE="billamendmentmotion_complete";
-
-	public static final String BILLAMENDMENTMOTION_SUBMIT="billamendmentmotion_submit";
+	/**** EventMotion ****/
+	public static final String EVENTMOTION_CONDOLENCE = "motions_eventmotion_condolence";
+	public static final String EVENTMOTION_CONGRATULATORY = "motions_eventmotion_congratulatory";
+	/**** Statuses ****/
 	
-	public static final String BILLAMENDMENTMOTION_SYSTEM_ASSISTANT_PROCESSED="billamendmentmotion_system_assistantprocessed";
+	public static final String EVENTMOTION_INCOMPLETE = "eventmotion_incomplete";
+	public static final String EVENTMOTION_COMPLETE = "eventmotion_complete";
+	public static final String EVENTMOTION_SUBMIT = "eventmotion_submit";
 	
-	/**** Translation & Its Workflow Status ****/
-	public static final String BILLAMENDMENTMOTION_TRANSLATION_NOTSEND = "translation_notsend";
-
-	public static final String BILLAMENDMENTMOTION_TRANSLATION_COMPLETED = "translation_completed";
-
-	public static final String BILLAMENDMENTMOTION_TRANSLATION_TIMEOUT = "translation_timeout";
-
-	public static final String BILLAMENDMENTMOTION_TRANSLATION_CANCELLED = "translation_cancelled";
-
-	public static final String BILLAMENDMENTMOTION_RECOMMEND_TRANSLATION="billamendmentmotion_recommend_translation";
-
-	public static final String BILLAMENDMENTMOTION_RECOMMEND_REJECT_TRANSLATION="billamendmentmotion_recommend_reject_translation";
-
-	public static final String BILLAMENDMENTMOTION_FINAL_TRANSLATION="billamendmentmotion_final_translation";
-
-	public static final String BILLAMENDMENTMOTION_FINAL_REJECT_TRANSLATION="billamendmentmotion_final_reject_translation";
-
-	/**** Opinion Seeking From Law and JD & Its Workflow Status ****/
-	public static final String BILLAMENDMENTMOTION_OPINION_FROM_LAWANDJD_NOTSEND = "opinionFromLawAndJD_notsend";
-
-	public static final String BILLAMENDMENTMOTION_OPINION_FROM_LAWANDJD_RECEIVED = "opinionFromLawAndJD_received";
-
-	public static final String BILLAMENDMENTMOTION_RECOMMEND_OPINION_FROM_LAWANDJD="billamendmentmotion_recommend_opinionFromLawAndJD";
-
-	public static final String BILLAMENDMENTMOTION_FINAL_OPINION_FROM_LAWANDJD="billamendmentmotion_final_opinionFromLawAndJD";
+	public static final String EVENTMOTION_RECOMMEND_ADMISSION = "eventmotion_recommend_admission";
+	public static final String EVENTMOTION_RECOMMEND_REJECTION = "eventmotion_recommend_rejection";
+	public static final String EVENTMOTION_RECOMMEND_NAMECLUBBING = "eventmotion_recommend_nameclubbing";
+	public static final String EVENTMOTION_RECOMMEND_SENDBACK = "eventmotion_recommend_sendback";
+	public static final String EVENTMOTION_RECOMMEND_DISCUSS = "eventmotion_recommend_discuss";
+	public static final String EVENTMOTION_RECOMMEND_PATRAKDATEAPPROVAL = "eventmotion_recommend_patrakdateapproval";
+	
+	public static final String EVENTMOTION_SYSTEM_ASSISTANT_PROCESSED = "eventmotion_system_assistantprocessed";
+	public static final String EVENTMOTION_SYSTEM_PUTUP = "eventmotion_system_putup";
+	public static final String EVENTMOTION_SYSTEM_CLUBBEDWITHPENDING = "eventmotion_system_clubbedwithpending";
+	public static final String EVENTMOTION_SYSTEM_CLUBBED = "eventmotion_system_clubbed";
+	
+	public static final String EVENTMOTION_FINAL_ADMISSION = "eventmotion_final_admission";
+	public static final String EVENTMOTION_FINAL_REJECTION = "eventmotion_final_rejection";
+	public static final String EVENTMOTION_FINAL_PATRAKDATEAPPROVAL = "eventmotion_final_patrakdateapproval";
+	
+	public static final String EVENTMOTION_PUTUP_NAMECLUBBING = "eventmotion_putup_nameclubbing";
+	public static final String EVENTMOTION_PUTUP_ONHOLD = "eventmotion_putup_onhold";
+	
+	public static final String EVENTMOTION_PROCESSED_SENDTOSECTIONOFFICER = "eventmotion_processed_sendToSectionOfficer";
+	public static final String EVENTMOTION_PROCESSED_SENDTODEPARTMENT = "eventmotion_processed_sendToDepartment";
+	public static final String EVENTMOTION_PROCESSED_ANSWERRECEIVED = "eventmotion_processed_answerReceived";
+	public static final String EVENTMOTION_PROCESSED_REJECTIONWITHREASON ="eventmotion_processed_rejectionWithReason";
+	
+	public static final String EVENTMOTION_GET_REVISION = "EVENTMOTION_GET_REVISION";
+		
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_EVENTMOTION = "workflow/eventmotion";
+	
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_EVENTMOTION = "workflow/eventmotion/supportingmember";
+	/**** EventMotion ****/
 }
