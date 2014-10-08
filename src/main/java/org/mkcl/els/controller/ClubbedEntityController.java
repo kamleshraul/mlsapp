@@ -63,6 +63,8 @@ public class ClubbedEntityController extends BaseController{
 				sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
 				
 				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				
+				model.addAttribute("houseType", houseType.getType());
 			}catch(Exception e){
 				logger.error("error", e);
 			}
@@ -107,6 +109,18 @@ public class ClubbedEntityController extends BaseController{
 			model.addAttribute("sessionType", session.getType().getId());
 			model.addAttribute("whichDevice", "questions_");
 			
+			CustomParameter csptSearchByFacility = CustomParameter.findByName(CustomParameter.class, "SEARCHFACILITY_SEARCH_BY", "");
+			if(csptSearchByFacility != null && csptSearchByFacility.getValue() != null && ! csptSearchByFacility.getValue().isEmpty()){
+				List<MasterVO> searchByData = new ArrayList<MasterVO>();
+				for(String sf : csptSearchByFacility.getValue().split(";")){
+					String[] data = sf.split(":");
+					MasterVO newVO = new MasterVO();
+					newVO.setValue(data[0]);
+					newVO.setName(data[1]);
+					searchByData.add(newVO);
+				}
+				model.addAttribute("searchBy", searchByData);
+			}			
 			retVal = "question/searchfacility/init";
 			
 		}else{
@@ -582,8 +596,51 @@ public class ClubbedEntityController extends BaseController{
 			String start = request.getParameter("start");
 			String noOfRecords = request.getParameter("record");
 			
-			DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
-			Session session = Session.findById(Session.class, new Long(strSession));
+			
+			String strHouseType = request.getParameter("houseType");
+ 			String strSessionYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");
+			
+			DeviceType deviceType = null;
+			Session session = null;
+			HouseType houseType = null;
+			Integer sessionYear = null;
+			SessionType sessionType = null;
+			
+			if(strHouseType != null && !strHouseType.isEmpty() && !strHouseType.equals("-")){
+				houseType = HouseType.findByType(strHouseType, locale.toString());
+			}
+			
+			if(strSessionYear != null && !strSessionYear.isEmpty() && !strSessionYear.equals("-")){
+				sessionYear = new Integer(strSessionYear);
+			}
+			
+			if(strSessionType != null && !strSessionType.isEmpty() && !strSessionType.equals("-")){
+				sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+			}
+			
+			if(houseType != null && sessionYear != null && sessionType != null){
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+			}
+			
+			if(strDeviceType != null && !strDeviceType.isEmpty()){
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+			}
+			
+			if(session == null){
+				session = Session.findById(Session.class, new Long(strSession));
+			}
+			
+			
+			String strSearchBy = request.getParameter("searchBy");
+			if(strSearchBy != null && !strSearchBy.isEmpty()){
+				if(strSearchBy.equals("searchByNumber")){
+					
+					return Question.searchByNumber(session, new Integer(param), locale.toString());
+				}else if(strSearchBy.equals("searchByMember")){
+					
+				}
+			}
 			
 			Map<String,String[]> requestMap = request.getParameterMap();
 			if(start != null && noOfRecords != null){

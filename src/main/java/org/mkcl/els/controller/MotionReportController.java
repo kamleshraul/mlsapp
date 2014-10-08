@@ -17,24 +17,48 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("motion/report")
 public class MotionReportController extends BaseController{
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@RequestMapping(value = "/motion/genreport", method = RequestMethod.GET)
+	public String getMotionReport(HttpServletRequest request, Model model, Locale locale){
+		String retVal = "motion/error";
+		try{
+			genReport(request, model, locale);
+			retVal = "motion/reports/" + request.getParameter("reportout");
+		}catch(Exception e){
+			logger.error("error", e);
+			model.addAttribute("errorcode", "general_error");
+		}
+		
+		return retVal;
+	}
+	
 	@RequestMapping(value="/cutmotion/genreport", method=RequestMethod.GET)
 	public String getCutMotionReport(HttpServletRequest request, Model model, Locale locale){
-		
-		Map<String, String[]> requestMap = request.getParameterMap();
-		List report = Query.findReport(request.getParameter("report"), requestMap);
-		if(report != null && !report.isEmpty()){
-			Object[] obj = (Object[])report.get(0);
-			if(obj != null){
-				
-				model.addAttribute("topHeader", obj[0].toString().split(";"));
-			}
+		String retVal = "cutmotion/error";
+		try{
+			genReport(request, model, locale);
+			retVal = "cutmotion/reports/" + request.getParameter("reportout");
+		}catch(Exception e){
+			logger.error("error", e);
+			model.addAttribute("errorcode", "general_error");
 		}
-		model.addAttribute("formater", new FormaterUtil());
-		model.addAttribute("locale", locale.toString());
-		model.addAttribute("report", report);
 		
-		return "cutmotion/reports/" + request.getParameter("reportout");		
+		return retVal;		
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void genReport(HttpServletRequest request, Model model, Locale locale){
+			Map<String, String[]> requestMap = request.getParameterMap();
+			List report = Query.findReport(request.getParameter("report"), requestMap);
+			if(report != null && !report.isEmpty()){
+				Object[] obj = (Object[])report.get(0);
+				if(obj != null){
+					
+					model.addAttribute("topHeader", obj[0].toString().split(";"));
+				}
+			}
+			model.addAttribute("formater", new FormaterUtil());
+			model.addAttribute("locale", locale.toString());
+			model.addAttribute("report", report);
 	}
 }
 //	
