@@ -441,7 +441,7 @@
 				if(data){				
 					
 					if($('#whichDevice').val()=='questions_') {
-						postData={param:$("#searchvalue").val(),deviceType:$("#selectedQuestionType").val(),session:data.id,record:record,start:start};
+						postData={param:$("#searchvalue").val(),searchBy:$("#searchBy").val(),deviceType:$("#selectedQuestionType").val(),session:data.id,record:record,start:start};
 						if($("#houseTypeCommon").length>0){
 							postData['houseType']=$("#houseTypeCommon").val();
 						}
@@ -781,299 +781,105 @@ td>table{
 </c:if>
 <div class="commandbarContent" id="advancedSearch">
 
+	<a href="#" class="butSim">
+		<spring:message code="advancedsearch.searchType" text="Search By"/>
+	</a>			
+	<select name="searchBy" id="searchBy" style="width:100px;height: 25px;">				
+		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>	
+		<c:forEach items="${searchBy}" var="sb">
+			<option value="${sb.value}">${sb.name}</option>
+		</c:forEach>
+	</select> |
+	<a href="#" class="butSim">
+		<spring:message code="advancedsearch.deviceType" text="Device Type"/>
+	</a>		
+	<select name="deviceTypeStarred" id="deviceTypeStarred" style="width:100px;height: 25px;">			
+		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+		<c:forEach items="${deviceTypes}" var="i">
+			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
+		</c:forEach>
+	</select> 
+	<select id="deviceTypeStarredMaster" style="display:none;">
+		<c:forEach items="${deviceTypes}" var="i">
+			<option value="${i.id}"><c:out value="${i.type}"></c:out></option>			
+		</c:forEach>
+	</select> |
+	<a href="#" class="butSim">
+		<spring:message code="advancedsearch.sessionyear" text="Year"/>
+	</a>			
+	<select name="sessionYearStarred" id="sessionYearStarred" style="width:100px;height: 25px;">				
+		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+		<c:forEach var="i" items="${years}">
 			<c:choose>
-			<c:when test="${deviceType=='questions_starred'}">
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.deviceType" text="Device Type"/>
-			</a>		
-			<select name="deviceTypeStarred" id="deviceTypeStarred" style="width:100px;height: 25px;">			
-				<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-				<c:forEach items="${deviceTypes}" var="i">
+				<c:when test="${sessionYear==i.id}">
 					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
-				</c:forEach>
-			</select> 
-			<select id="deviceTypeStarredMaster" style="display:none;">
-				<c:forEach items="${deviceTypes}" var="i">
-					<option value="${i.id}"><c:out value="${i.type}"></c:out></option>			
-				</c:forEach>
-			</select> |			
-			<a href="#" class="butSim unstarred">
-				<spring:message code="advancedsearch.sessionyear" text="Year"/>
-			</a>			
-			<select name="sessionYearStarred" id="sessionYearStarred" style="width:100px;height: 25px;" class="unstarred">				
-				<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-				<c:forEach var="i" items="${years}">
-					<c:choose>
-						<c:when test="${sessionYear==i.id}">
-							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
-						</c:when>
-						<c:otherwise>
-							<option value="${i.id}" ><c:out value="${i.name}"></c:out></option>			
-						</c:otherwise>
-					</c:choose>
-				</c:forEach> 
-			</select> |			
-			<a href="#" class="butSim unstarred">
-				<spring:message code="advancedsearch.sessionType" text="Session Type"/>
-			</a>			
-			<select name="sessionTypeStarred" id="sessionTypeStarred" style="width:100px;height: 25px;" class="unstarred">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			<c:forEach items="${sessionTypes}" var="i">
-			<c:choose>
-			<c:when test="${sessionType==i.id}">
-			<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>
-			</c:when>
-			<c:otherwise>
-			<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>	
-			</c:otherwise>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}" ><c:out value="${i.name}"></c:out></option>			
+				</c:otherwise>
 			</c:choose>
-			</c:forEach> 
-			</select> |			
-			<a href="#" class="butSim">
-				<spring:message code="question.group" text="Group"/>
-			</a>			
-			<select name="groupStarred" id="groupStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			<c:forEach items="${groups}" var="i">			
+		</c:forEach> 
+	</select> |			
+	<a href="#" class="butSim">
+		<spring:message code="advancedsearch.sessionType" text="Session Type"/>
+	</a>			
+	<select name="sessionTypeStarred" id="sessionTypeStarred" style="width:100px;height: 25px;">				
+		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+		<c:forEach items="${sessionTypes}" var="i">
+			<c:choose>
+				<c:when test="${sessionType==i.id}">
+					<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>	
+				</c:otherwise>
+			</c:choose>
+		</c:forEach> 
+	</select> |		
+	
+	<a href="#" class="butSim">
+		<spring:message code="question.group" text="Group"/>
+	</a>			
+	<select name="groupStarred" id="groupStarred" style="width:100px;height: 25px;">				
+		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+		<c:forEach items="${groups}" var="i">			
 			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-			</c:forEach> 
-			</select> |			
-			<a href="#" class="butSim">
-				<spring:message code="question.answeringDate" text="Answering Date"/>
-			</a>			
-			<select name="answeringDateStarred" id="answeringDateStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			</select> |
-			<hr>			
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.ministry" text="Ministry"/>
-			</a>			
-			<select name="ministryStarred" id="ministryStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			</select> |			
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.department" text="Department"/>
-			</a>			
-			<select name="departmentStarred" id="departmentStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			</select> |			
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.subdepartment" text="Sub Department"/>
-			</a>			
-			<select name="subDepartmentStarred" id="subDepartmentStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			</select> |			
-			<a href="#" class="butSim">
-				<spring:message code="question.status" text="Status"/>
-			</a>			
-			<select name="statusStarred" id="statusStarred" class="sSelect">			
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			<option value="UNPROCESSED"><spring:message code='question.unprocessed' text='Un Processed'/></option>
-			<option value="PENDING"><spring:message code='question.pending' text='Pending'/></option>
-			<option value="APPROVED"><spring:message code='question.approved' text='Approved'/></option>
-			</select> |
-			</c:when>
-			
-			
-			<c:when test="${deviceType=='questions_unstarred'}">
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.sessionyear" text="Year"/>
-			</a>			
-			<select name="sessionYearStarred" id="sessionYearStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			<c:forEach var="i" items="${years}">
-			<c:choose>
-			<c:when test="${sessionYear==i.id}">
-			<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>			
-			</c:when>
-			<c:otherwise>
-			<option value="${i.id}" ><c:out value="${i.name}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>
-			</c:forEach> 
-			</select> |			
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.sessionType" text="Session Type"/>
-			</a>			
-			<select name="sessionTypeStarred" id="sessionTypeStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			<c:forEach items="${sessionTypes}" var="i">
-			<c:choose>
-			<c:when test="${sessionType==i.id}">
-			<option value="${i.id}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>
-			</c:when>
-			<c:otherwise>
-			<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>	
-			</c:otherwise>
-			</c:choose>
-			</c:forEach> 
-			</select> |		
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.ministry" text="Ministry"/>
-			</a>			
-			<select name="ministryStarred" id="ministryStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			</select> |			
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.department" text="Department"/>
-			</a>			
-			<select name="departmentStarred" id="departmentStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			</select> |	
-			<hr>		
-			<a href="#" class="butSim">
-				<spring:message code="advancedsearch.subdepartment" text="Sub Department"/>
-			</a>			
-			<select name="subDepartmentStarred" id="subDepartmentStarred" style="width:100px;height: 25px;">				
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			</select> |			
-			<a href="#" class="butSim">
-				<spring:message code="question.status" text="Status"/>
-			</a>			
-			<select name="statusStarred" id="statusStarred" class="sSelect">			
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			<option value="UNPROCESSED"><spring:message code='question.unprocessed' text='Un Processed'/></option>
-			<option value="PENDING"><spring:message code='question.pending' text='Pending'/></option>
-			<option value="APPROVED"><spring:message code='question.approved' text='Approved'/></option>
-			</select> |
-			</c:when>	
-			
-			<c:when test="${deviceType=='bills_nonofficial'}">
-			<a href="#" class="butSim">
-				<spring:message code="bill.language" text="Language"/>
-			</a>		
-			<select name="languageAllowed" id="languageAllowed" class="sSelect">			
-			<option value="-" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			<c:forEach var="i" items="${languagesAllowedForBill}">
-				<option value="${i.type}">${i.name}</option>			
-			</c:forEach>
-			</select>&nbsp;&nbsp;&nbsp;| 
-			<a href="#" class="butSim">
-				<spring:message code="bill.status" text="Status"/>
-			</a>			
-			<select name="statusStarred" id="statusStarred" class="sSelect">			
-			<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-			<option value="UNPROCESSED"><spring:message code='bill.unprocessed' text='Un Processed'/></option>
-			<option value="PENDING"><spring:message code='bill.pending' text='Pending'/></option>
-			<option value="APPROVED"><spring:message code='bill.approved' text='Approved'/></option>
-			</select>			
-			</c:when>		
-			<c:when test="${fn:startsWith(deviceType,'motions_')}">
-				<%-- <a href="#" class="butSim">
-					<spring:message code="advancedsearch.deviceType" text="Device Type"/>*
-				</a>		
-				<select name="deviceTypeStarred" id="deviceTypeStarred" style="width:100px;height: 25px;">			
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-					<c:forEach items="${deviceTypes}" var="i">
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
-					</c:forEach>
-				</select> 
-				<select id="deviceTypeStarredMaster" style="display:none;">
-					<c:forEach items="${deviceTypes}" var="i">
-						<option value="${i.id}"><c:out value="${i.type}"></c:out></option>			
-					</c:forEach>
-				</select> |	 --%>
-				<a href="#" class="butSim">
-					<spring:message code="advancedsearch.sessionyear" text="Year"/>
-				</a>			
-				<select name="sessionYearStarred" id="sessionYearStarred" style="width:100px;height: 25px;">				
-					<option value="-" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-					<c:forEach var="i" items="${years}">
-						<c:choose>
-							<c:when test="${sessionYear==i.id}">
-								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
-							</c:when>
-							<c:otherwise>
-								<option value="${i.id}" ><c:out value="${i.name}"></c:out></option>			
-							</c:otherwise>
-						</c:choose>
-					</c:forEach> 
-				</select> |			
-				<a href="#" class="butSim">
-					<spring:message code="advancedsearch.sessionType" text="Session Type"/>
-				</a>			
-				<select name="sessionTypeStarred" id="sessionTypeStarred" style="width:100px;height: 25px;">				
-					<option value="-" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-					<c:forEach items="${sessionTypes}" var="i">
-						<c:choose>
-							<c:when test="${sessionType==i.id}">
-								<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>
-							</c:when>
-							<c:otherwise>
-								<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>	
-							</c:otherwise>
-						</c:choose>
-					</c:forEach> 
-				</select> |
-				<a href="#" class="butSim">
-					<spring:message code="advancedsearch.ministry" text="Ministry"/>
-				</a>			
-				<select name="ministryStarred" id="ministryStarred" style="width:100px;height: 25px;">				
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-				</select> |
-				<a href="#" class="butSim">
-					<spring:message code="advancedsearch.department" text="Department"/>
-				</a>			
-				<select name="departmentStarred" id="departmentStarred" style="width:100px;height: 25px;">				
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-				</select> |	
-				<hr>
-				<a href="#" class="butSim">
-					<spring:message code="advancedsearch.subdepartment" text="Sub Department"/>
-				</a>			
-				<select name="subDepartmentStarred" id="subDepartmentStarred" style="width:100px;height: 25px;">				
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-				</select> |			
-				<a href="#" class="butSim">
-					<spring:message code="question.status" text="Status"/>
-				</a>			
-				<select name="statusStarred" id="statusStarred" class="sSelect">			
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-					<option value="UNPROCESSED"><spring:message code='question.unprocessed' text='Un Processed'/></option>
-					<option value="PENDING"><spring:message code='question.pending' text='Pending'/></option>
-					<option value="APPROVED"><spring:message code='question.approved' text='Approved'/></option>
-				</select> |
-			</c:when>
-			<c:otherwise>					
-				<a href="#" class="butSim">
-					<spring:message code="question.group" text="Group"/>
-				</a>			
-				<select name="groupStarred" id="groupStarred" style="width:100px;height: 25px;">				
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-					<c:forEach items="${groups}" var="i">			
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-					</c:forEach> 
-				</select> |						
-				<a href="#" class="butSim">
-					<spring:message code="advancedsearch.ministry" text="Ministry"/>
-				</a>			
-				<select name="ministryStarred" id="ministryStarred" style="width:100px;height: 25px;">				
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-				</select> |			
-				<a href="#" class="butSim">
-					<spring:message code="advancedsearch.department" text="Department"/>
-				</a>			
-				<select name="departmentStarred" id="departmentStarred" style="width:100px;height: 25px;">				
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-				</select> |			
-				<a href="#" class="butSim">
-					<spring:message code="advancedsearch.subdepartment" text="Sub Department"/>
-				</a>			
-				<select name="subDepartmentStarred" id="subDepartmentStarred" style="width:100px;height: 25px;">				
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-				</select> |	
-				<hr>		
-				<a href="#" class="butSim">
-					<spring:message code="question.status" text="Status"/>
-				</a>			
-				<select name="statusStarred" id="statusStarred" class="sSelect">			
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-					<option value="UNPROCESSED"><spring:message code='question.unprocessed' text='Un Processed'/></option>
-					<option value="PENDING"><spring:message code='question.pending' text='Pending'/></option>
-					<option value="APPROVED"><spring:message code='question.approved' text='Approved'/></option>
-				</select> |
-			</c:otherwise>
-			</c:choose>						
+		</c:forEach> 
+	</select> |			
+	<a href="#" class="butSim">
+		<spring:message code="question.answeringDate" text="Answering Date"/>
+	</a>			
+	<select name="answeringDateStarred" id="answeringDateStarred" style="width:100px;height: 25px;">				
+		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+	</select> |
+	<hr>			
+	<a href="#" class="butSim">
+		<spring:message code="advancedsearch.ministry" text="Ministry"/>
+	</a>			
+	<select name="ministryStarred" id="ministryStarred" style="width:100px;height: 25px;">				
+		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+	</select> |			
+	<a href="#" class="butSim">
+		<spring:message code="advancedsearch.department" text="Department"/>
+	</a>			
+	<select name="departmentStarred" id="departmentStarred" style="width:100px;height: 25px;">				
+	<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+	</select> |			
+	<a href="#" class="butSim">
+		<spring:message code="advancedsearch.subdepartment" text="Sub Department"/>
+	</a>			
+	<select name="subDepartmentStarred" id="subDepartmentStarred" style="width:100px;height: 25px;">				
+	<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+	</select> |			
+	<a href="#" class="butSim">
+		<spring:message code="question.status" text="Status"/>
+	</a>			
+	<select name="statusStarred" id="statusStarred" class="sSelect">			
+	<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+	<option value="UNPROCESSED"><spring:message code='question.unprocessed' text='Un Processed'/></option>
+	<option value="PENDING"><spring:message code='question.pending' text='Pending'/></option>
+	<option value="APPROVED"><spring:message code='question.approved' text='Approved'/></option>
+	</select> |				
 </div>	
 
 
