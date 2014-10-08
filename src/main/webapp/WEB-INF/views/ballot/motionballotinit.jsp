@@ -79,7 +79,7 @@
 			 +"&attendance="+$("#selectedAttendance").val();
 			var resourceURL = 'motion/assignnumber?'+ parameters;
 			$.get(resourceURL, function(data){
-				$.prompt(data);
+				$.fancybox.open(data, {autoSize:false,width:840,height:700});
 			},'html');
 		}
 	</script>
