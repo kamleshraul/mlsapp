@@ -59,6 +59,9 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     @ManyToOne(fetch=FetchType.LAZY)
     private CutMotion cutMotion;  
     
+    @ManyToOne(fetch=FetchType.LAZY)
+    private EventMotion eventMotion;
+    
     /** The bill. */
     @ManyToOne(fetch=FetchType.LAZY)
     private Bill bill;
@@ -146,6 +149,14 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 
 	public void setCutMotion(CutMotion cutMotion) {
 		this.cutMotion = cutMotion;
+	}
+	
+	public EventMotion getEventMotion(){
+		return eventMotion;
+	}
+	
+	public void setEventMotion(EventMotion eventMotion){
+		this.eventMotion = eventMotion;
 	}
 
     public Bill getBill() {

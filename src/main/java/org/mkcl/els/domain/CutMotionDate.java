@@ -1,6 +1,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,10 +18,12 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.repository.CutMotionDateRepository;
 import org.mkcl.els.repository.WorkflowConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
 @Configurable
 @Entity
@@ -113,6 +116,12 @@ public class CutMotionDate extends BaseDomain implements Serializable{
 	 /** The remarks. */
     @Column(length=10000)
 	private String remarks;
+    
+    /**** DRAFTS ****/
+    /** The drafts. */
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "cutmotiondate_drafts_association", joinColumns = { @JoinColumn(name = "cutmotiondate_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "cutmotiondate_draft_id", referencedColumnName = "id") })
+	private List<CutMotionDateDraft> drafts; 
 	
 	/** The CutMotionDate repository. */
 	@Autowired
@@ -160,8 +169,66 @@ public class CutMotionDate extends BaseDomain implements Serializable{
         CutMotionDate d = (CutMotionDate) super.merge();
         return d;
     }
-	/**** Method ****/
 	
+	/**
+     * Adds the question draft.
+     */
+    private void addCutMotiondateDraft() {
+        if(! this.getStatus().getType().equals(ApplicationConstants.QUESTION_INCOMPLETE) &&
+        		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_COMPLETE)) {
+            CutMotionDateDraft draft = new CutMotionDateDraft();
+            draft.setDeviceType(this.getDeviceType());
+            draft.setRemarks(this.getRemarks());
+                                  
+            draft.setEditedAs(this.getEditedAs());
+            draft.setEditedBy(this.getEditedBy());
+            draft.setEditedOn(this.getEditedOn());
+                        
+            draft.setStatus(this.getStatus());
+            draft.setInternalStatus(this.getInternalStatus());
+            draft.setRecommendationStatus(this.getRecommendationStatus());
+            
+            if(this.getDepartmentDates() != null && !this.getDepartmentDates().isEmpty()){
+            	draft.setDepartmentDates(this.getDepartmentDates());
+            }       
+            
+            if(this.getId() != null) {
+                CutMotionDate cutMotionDate = CutMotionDate.findById(CutMotionDate.class, this.getId());
+                List<CutMotionDateDraft> originalDrafts = cutMotionDate.getDrafts();
+                if(originalDrafts != null){
+                    originalDrafts.add(draft);
+                }
+                else{
+                    originalDrafts = new ArrayList<CutMotionDateDraft>();
+                    originalDrafts.add(draft);
+                }
+                this.setDrafts(originalDrafts);
+            }
+            else {
+                List<CutMotionDateDraft> originalDrafts = new ArrayList<CutMotionDateDraft>();
+                originalDrafts.add(draft);
+                this.setDrafts(originalDrafts);
+            }
+        }
+    }
+    
+    @Override
+	@Transactional
+	public CutMotionDate persist() {
+    	addCutMotiondateDraft();
+        return (CutMotionDate)super.persist();
+	}
+    
+    @Override
+	@Transactional
+	public CutMotionDate merge() {
+    	 addCutMotiondateDraft();
+    	 return (CutMotionDate) super.merge();
+	}
+    
+	/**** Method ****/
+
+
 	/**** Getters and Setters ****/
 	public DeviceType getDeviceType() {
 		return deviceType;
@@ -297,6 +364,14 @@ public class CutMotionDate extends BaseDomain implements Serializable{
 
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
+	}
+
+	public List<CutMotionDateDraft> getDrafts() {
+		return drafts;
+	}
+
+	public void setDrafts(List<CutMotionDateDraft> drafts) {
+		this.drafts = drafts;
 	}
 	
 	/**** Getters & Setters ****/

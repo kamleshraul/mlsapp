@@ -472,7 +472,24 @@ import org.springframework.beans.factory.annotation.Configurable;
 		
 		return getMotionRepository().findAllByBatch(session, motionType, startTime, endTime, locale);
 	}
+	
+	public static List<Motion> findAllUndiscussed(final Session session,
+			final DeviceType motionType,
+			final Status status,
+			final String locale) {
+		
+		return getMotionRepository().findAllUndiscussed(session, motionType, status, locale);
+	}
 
+	public static List<Motion> findAllUndiscussedByMember(final Session session,
+			final DeviceType motionType,
+			final Status status,
+			final Member primaryMember,
+			final String locale) {
+		
+		return getMotionRepository().findAllUndiscussedByMember(session, motionType, status, primaryMember, locale);
+	}
+	
 	public String formatNumber() {
 		if(getNumber()!=null){
 			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());

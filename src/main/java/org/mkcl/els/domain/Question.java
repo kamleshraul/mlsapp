@@ -34,6 +34,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
+import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.repository.QuestionRepository;
@@ -2692,11 +2693,70 @@ public class Question extends Device implements Serializable {
 				question,locale);
 	}
 
-
+	public static List<Question> findBySessionNumber(final Session session, final Integer number, final String locale){
+		return getQuestionRepository().findBySessionNumber(session, number, locale);
+	}
+	
 	public boolean containsClubbingFromSecondBatch(final Session session,final Member member,
 			String locale) throws ELSException {
 		return getQuestionRepository().containsClubbingFromSecondBatch(session,member,this,
 				locale);
 	}
 	
+	public static List<QuestionSearchVO> searchByNumber(final Session session, final Integer number, final String locale){
+		List<QuestionSearchVO> result = new ArrayList<QuestionSearchVO>();
+		try{
+			List<Question> data = Question.findBySessionNumber(session, number, locale);
+			
+			if(data != null){
+				for(Question i : data){
+					
+					QuestionSearchVO questionSearchVO = new QuestionSearchVO();
+					questionSearchVO.setId(i.getId());
+											
+					if(i.getNumber() != null){
+						questionSearchVO.setNumber(FormaterUtil.getNumberFormatterNoGrouping(locale).format(i.getNumber()));
+					}
+					
+					if(i.getRevisedSubject() != null && !i.getRevisedSubject().isEmpty()){
+						questionSearchVO.setSubject(i.getRevisedSubject());
+					}else{
+						questionSearchVO.setSubject(i.getSubject());
+						
+					}				
+					
+					if(i.getRevisedQuestionText() != null && !i.getRevisedQuestionText().isEmpty()){
+						questionSearchVO.setQuestionText(i.getRevisedQuestionText());
+					}else{
+						questionSearchVO.setQuestionText(i.getQuestionText());
+					}
+					
+					questionSearchVO.setStatus(i.getInternalStatus().getName());
+					questionSearchVO.setDeviceType(i.getType().getName());
+					questionSearchVO.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(locale).format(i.getSession().getYear()));
+					questionSearchVO.setSessionType(i.getSession().getType().getSessionType());
+					
+					questionSearchVO.setFormattedGroup(FormaterUtil.getNumberFormatterNoGrouping(locale).format(i.getGroup().getNumber()));
+					questionSearchVO.setGroup(i.getGroup().getId().toString());
+					
+						
+					questionSearchVO.setMinistry(i.getMinistry().getName());					
+					questionSearchVO.setDepartment(i.getDepartment().getName());
+					questionSearchVO.setSubDepartment(i.getSubDepartment().getName());
+					
+					questionSearchVO.setStatusType(i.getStatus().getType());
+					
+					questionSearchVO.setFormattedPrimaryMember(i.getPrimaryMember().getFullnameLastNameFirst());
+					
+					questionSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(i.getChartAnsweringDate().getAnsweringDate(), ApplicationConstants.SERVER_DATEFORMAT, locale));
+					
+					result.add(questionSearchVO);
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return result;
+	}	
 }

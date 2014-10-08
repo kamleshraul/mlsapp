@@ -448,7 +448,19 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String workflowType,final String level) throws ELSException {
 		return getWorkflowDetailsRepository().create(domain,task, workflowType,level);
 	}*/
+	
+	/**** EventMotion Related 
+	 * @throws ELSException ****/
+	public static List<WorkflowDetails> create(final EventMotion domain,final List<Task> tasks,
+			final String supportingMemberWorkflow, final String assigneeLevel) throws ELSException {		
+		return getWorkflowDetailsRepository().create(domain, tasks, supportingMemberWorkflow,assigneeLevel);
+	}
 
+	public static WorkflowDetails create(final EventMotion domain,final Task task,
+			final String workflowType,final String level) throws ELSException {
+		return getWorkflowDetailsRepository().create(domain, task, workflowType,level);
+	}
+	
 	public static List<WorkflowDetails> findAll(final String strHouseType,
 			final String strSessionType,final String strSessionYear,final String strMotionType,
 			final String strStatus,final String strWorkflowSubType,final String assignee,
