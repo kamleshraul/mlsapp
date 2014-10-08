@@ -209,7 +209,39 @@
 				 var resource='motion/bulksubmission/assistant/int';
 				 var resourceURL=resource+"?"+parameters;	
 				showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);				
-		}				
+		}	
+		
+		function showDiscussionSelection(){
+			var parameters = "houseType="+$("#selectedHouseType").val()
+			 +"&sessionYear="+$("#selectedSessionYear").val()
+			 +"&sessionType="+$("#selectedSessionType").val()
+			 +"&motionType="+$("#selectedMotionType").val()
+			 +"&ugparam="+$("#ugparam").val()
+			 +"&status="+$("#selectedStatus").val()
+			 +"&role="+$("#srole").val()
+			 +"&usergroup="+$("#currentusergroup").val()
+			 +"&usergroupType="+$("#currentusergroupType").val();
+				
+			 var resource = 'motion/discussionselection';
+			 var resourceURL = resource+"?"+parameters;	
+			 $("#selectionDiv").hide();
+			 $("#selectionDiv1").hide();
+			showTabByIdAndUrl('details_tab', resourceURL);
+		}
+		
+		function showJodPatra(){
+			var url = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
+			
+			$.get(url,function(data){
+				if(data){
+					showTabByIdAndUrl('details_tab','motion/report/motion/genreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedMotionType").val()+"&statusId=" + $("#selectedStatus").val() + "&locale="+$("#moduleLocale").val()+"&report=MOTION_JODPATRA_REPORT&reportout=motionjodpatra");
+				}
+			});
+			var resourceURL = resource+"?"+parameters;	
+			$("#selectionDiv").hide();
+			$("#selectionDiv1").hide();
+			showTabByIdAndUrl('details_tab', resourceURL);
+		}
 	</script>
 </head>
 <body>

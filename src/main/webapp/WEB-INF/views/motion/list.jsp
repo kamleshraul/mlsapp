@@ -39,6 +39,15 @@
 			});
 			//---ADDED BY VIKAS------------------
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());		
+			
+			$("#discussionSelection").click(function(){
+				showDiscussionSelection();
+			});
+			
+			$("#jodPatra").click(function(){
+				showJodPatra();
+			});
+			
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -82,7 +91,17 @@
 			</security:authorize>			
 			<a href="#" id="search" class="butSim">
 				<spring:message code="motion.search" text="Search"/>
-			</a> |				
+			</a> |
+			<security:authorize access="hasAnyRole('MOIS_ASSISTANT')">
+				<a href="#" id="discussionSelection" class="butSim">
+					<spring:message code="motion.discussionSelection" text="Discussion Selection"/>
+				</a> |			
+			</security:authorize>
+			<security:authorize access="hasAnyRole('MOIS_SECTION_OFFICER')">
+				<a href="#" id="jodPatra" class="butSim">
+					<spring:message code="motion.jodpatra" text="Remained Motions"/>
+				</a> |			
+			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
 	</div>
