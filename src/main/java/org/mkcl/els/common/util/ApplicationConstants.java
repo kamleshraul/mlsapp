@@ -692,6 +692,13 @@ public class ApplicationConstants {
 
 	public static final String LAY_LETTER_WORKFLOW_URLPATTERN_BILL="workflow/bill/layletter";
 
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_DISCUSSIONMOTION="workflow/discussionmotion/supportingmember";
+	
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_DISCUSSIONMOTION="workflow/discussionmotion";
+	
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_BILLAMENDMENTMOTION="workflow/billamendmentmotion/supportingmember";
+
+
 	/**** Advanced Search Status Filter ****/
 	public static final String UNPROCESSED_FILTER="UNPROCESSED";
 
@@ -820,6 +827,9 @@ public class ApplicationConstants {
 	
 	/**** Prefix of cutmotions ****/
 	public static final String DEVICE_CUTMOTIONS="motions_cutmotion_";
+	
+	/**** Prefix of discussionmotions ****/
+	public static final String DEVICE_DISCUSSIONMOTIONS="motions_discussionmotion_";
 	
 	/**** Prefix of eventmotion ****/
 	public static final String DEVICE_EVENTMOTIONS="motions_eventmotion_";
@@ -1052,6 +1062,10 @@ public class ApplicationConstants {
 	public static String STATE_MINISTER="state_minister";
 	
 	public static String QUESTION_PROCESSED_SENDTODEPARTMENT="question_processed_sendToDepartment";
+
+	public static final String PANEL_CHAIRMAN = "PANEL_CHAIRMAN";
+	
+	public static final String PANEL_SPEAKER = "PANEL_SPEAKER";
 
 	/****Custom Parameters name ****/
 	public static final String RESOLUTION_CHART_WITHDEVICES_VIEW = "RESOLUTION_CHART_WITHDEVICES_VIEW";
@@ -1478,6 +1492,23 @@ public class ApplicationConstants {
 	public static final String CUTMOTION_REASSIGN_REJECTION_NUMBER = "CUTMOTION_REASSIGN_REJECTION_NUMBER";
 		
 	/**** CutMotion****/
+
+	/**** DiscussionMotion ****/
+	public static final String MOTIONS_DISCUSSIONMOTION_SHORTDURATION = "motions_discussionmotion_shortduration";
+	
+	/****Statuses for Discussion motion ****/
+	public static final String DISCUSSIONMOTION_INCOMPLETE = "discussionmotion_incomplete";
+	public static final String DISCUSSIONMOTION_COMPLETE = "discussionmotion_complete";
+	public static final String DISCUSSIONMOTION_SUBMIT = "discussionmotion_submit";
+	
+	public static final String DISCUSSIONMOTION_SYSTEM_ASSISTANT_PROCESSED = "discussionmotion_system_assistantprocessed";
+	public static final String DISCUSSIONMOTION_RECOMMEND_ADMISSION = "discussionmotion_recommend_admission";
+	public static final String DISCUSSIONMOTION_RECOMMEND_REJECTION = "discussionmotion_recommend_rejection";
+	public static final String DISCUSSIONMOTION_RECOMMEND_NAMECLUBBING = "discussionmotion_recommend_nameclubbing";
+	public static final String DISCUSSIONMOTION_RECOMMEND_SENDBACK = "discussionmotion_recommend_sendback";
+	public static final String DISCUSSIONMOTION_RECOMMEND_DISCUSS = "discussionmotion_recommend_discuss";
+	public static final String DISCUSSIONMOTION_FINAL_ADMISSION = "discussionmotion_final_admission" ;
+	
 	
 	/**** EventMotion ****/
 	public static final String EVENTMOTION_CONDOLENCE = "motions_eventmotion_condolence";
@@ -1518,4 +1549,16 @@ public class ApplicationConstants {
 	
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_EVENTMOTION = "workflow/eventmotion/supportingmember";
 	/**** EventMotion ****/
+	
+	/****************Bill Amendment Motion********************/
+	public static final String BILLAMENDMENT_MOTION = "motions_billamendment";
+	/**** member status  ****/	
+	public static final String BILLAMENDMENTMOTION_INCOMPLETE="billamendmentmotion_incomplete";
+
+	public static final String BILLAMENDMENTMOTION_COMPLETE="billamendmentmotion_complete";
+
+	public static final String BILLAMENDMENTMOTION_SUBMIT="billamendmentmotion_submit";
+
+	
+
 }
