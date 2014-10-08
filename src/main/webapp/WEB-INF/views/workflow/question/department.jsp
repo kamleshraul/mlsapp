@@ -684,7 +684,7 @@
 		$('#submit').click(function(){
 			$(".wysiwyg").each(function(){
 				var wysiwygVal=$(this).val().trim();
-				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"||wysiwygVal==$('#defaultAnswerMessage').val()){
 					$(this).val("");
 				}
 			});
@@ -727,6 +727,22 @@
 		/**** To make the next task available ****/
 		$("#reanswer_workflow").click(function() {
 			resendAnswer();
+		});
+		
+		$('#answer').wysiwyg({
+			initialContent:$('#defaultAnswerMessage').val(),
+			events : {
+				focus:function(e){
+					if($('#workflowstatus').val()!='COMPLETED'){
+						$('#answer').wysiwyg('setContent','');
+					}
+				},
+				blur:function(e){
+					if($('#answer').wysiwyg('getContent')==""){
+						$('#answer').wysiwyg('setContent',$('#defaultAnswerMessage').val());
+					}
+				}
+			}
 		});
 	});
 	
@@ -952,7 +968,7 @@
 	<p>
 		<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
 		<input type="text" readonly="readonly" value="${constituency}" class="sText">
-		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
+		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;display:none;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
 	</p>			
 	
 	<c:if test="${not (selectedQuestionType!='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
@@ -1074,36 +1090,36 @@
 			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
 	</c:if>
-	
+
 	<p>
 		<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
-			<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
+			<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;display:none;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
 			<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse') }">
-				<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
+				<a href="#" id="reviseQuestionText" style="margin-right: 20px;display:none;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
 			</c:if>
 		</c:if>
 	
 		<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 			<c:choose>
 				<c:when test="${(selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-					<a href="#" id="reviseReason" style="margin-left: 10px;"><spring:message code="question.reviseReason" text="Revise Reason"></spring:message></a>
+					<a href="#" id="reviseReason" style="margin-left: 10px;display:none;"><spring:message code="question.reviseReason" text="Revise Reason"></spring:message></a>
 				</c:when>
 				<c:otherwise>
 					<c:choose>
 						<c:when test="${selectedQuestionType=='questions_shortnotice'}">
-							<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 20px;display:none;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
 						</c:when>
 						<c:otherwise>
-							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
+							<a href="#" id="reviseReason" style="margin-left: 162px;display:none;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
 						</c:otherwise>
 					</c:choose>					
 				</c:otherwise>
 			</c:choose>		
 			<c:if test="${selectedQuestionType!='questions_shortnotice'}">	
-				<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
+				<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;display:none;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 			</c:if>
 		</c:if>
-		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+		<a href="#" id="viewRevision" style="display:none;"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	
 	<p class="revise1" id="revisedSubjectDiv">
@@ -1268,7 +1284,7 @@
 		<h2></h2>
 		<p class="tright">
 			<%-- <c:if test="${currTimeMillis <= sendbacktimelimit}"> --%>
-				<input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef">
+				<input id="sendBack" type="button" value="<spring:message code='question.sendback' text='Send Back'/>" class="butDef">
 			<%-- </c:if> --%>
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</p>
@@ -1390,5 +1406,14 @@
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 <input type="hidden" id="maxReansweringAttempts" value="${maxAnsweringAttempts}" />
 <input type="hidden" id="sendBackTimeLimit" value="${sendbacktimelimit}" />
+<c:choose>
+	<c:when test="${workflowstatus=='COMPLETED'}">
+		<input type="hidden" id="defaultAnswerMessage" value=""/>
+	</c:when>
+	<c:otherwise>
+		<input type="hidden" id="defaultAnswerMessage" value="<spring:message code='question.defaultAnswer' text='Please Enter your Answer here.'/>"/>
+	</c:otherwise>
+</c:choose>
+ 
 </body>
 </html>
