@@ -285,6 +285,7 @@
 		<pattern>/motion/*/edit</pattern>
 		<pattern>/motion/*/delete</pattern>
 		<pattern>/motion</pattern>	
+		<apttern>/motion/discussionselection</apttern>
 		<pattern>/motion/bulksubmission/assistant/int</pattern>	
 		<pattern>/motion/bulksubmission/assistant/view</pattern>		
 		<pattern>/motion/bulksubmission/assistant/update</pattern>
@@ -303,6 +304,15 @@
 		<pattern>/cutmotiondate/*/edit</pattern>
 		<pattern>/cutmotiondate/*/delete</pattern>
 		<pattern>/cutmotiondate</pattern>	
+		
+		<pattern>/eventmotion/new</pattern>
+		<pattern>/eventmotion/*/edit</pattern>
+		<pattern>/eventmotion/*/delete</pattern>
+		<pattern>/eventmotion</pattern>	
+		<pattern>/eventmotion/bulksubmission/assistant/int</pattern>	
+		<pattern>/eventmotion/bulksubmission/assistant/view</pattern>		
+		<pattern>/eventmotion/bulksubmission/assistant/update</pattern>
+		<pattern>/workflow/eventmotion</pattern>
 		
 		<pattern>/bill/new</pattern>
 		<pattern>/bill/*/edit</pattern>
