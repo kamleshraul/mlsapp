@@ -694,7 +694,7 @@
 			<option value="${i.name}"><c:out value="${i.name}"></c:out></option>			
 			</c:forEach>
 			</select> |
-			<div id='moduleFilter'>
+			<div id='moduleFilter' style='display:inline;'>
 			<a href="#" id="moduletypeLabel" class="butSim">
 				<spring:message code="mytask.module" text="Module"/>
 			</a>
