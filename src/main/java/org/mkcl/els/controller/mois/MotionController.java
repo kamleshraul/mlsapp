@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -12,7 +13,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
+import org.activiti.engine.impl.cmd.GetIdentityLinksForTaskCmd;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -30,12 +33,15 @@ import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.DiscussionDateDevice;
+import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
@@ -55,6 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -2201,30 +2208,32 @@ public class MotionController extends GenericController<Motion>{
 				/****  find first batch and second batch start and end time of submission ****/
 				
 				/****reset counter to 1 and start assigning the postBallotNumber as per ballot position ****/
-				int counter = ApplicationConstants.MOTION_FIRST_BATCH_START_COUNTER; 
-						//Motion.findMaxPostBallotNo(session.getHouse().getType(), session, deviceType, locale.toString());
+				int counter = 0;
+						//Motion.findMaxPostBallotNo(session.getHouse().getType(), session, deviceType, locale.toString());				
 				for (MemberBallot mbal : memBallots) {
 					if (mbal.getMember() != null) {
 						List<Motion> motions = Motion.findAllByMemberBatchWise(session, mbal.getMember(), deviceType, firstBatchStartTime, firstBatchEndTime, locale.toString());
 
 						for (Motion m : motions) {
-							if(m.getPostBallotNumber() == null){
-								counter++;
-								m.setPostBallotNumber(counter);
-								m.simpleMerge();
-							}
+							
+							counter++;
+							m.setPostBallotNumber(counter);
+							m.simpleMerge();
+							
 						}
 					}
 				}
 				
-				/**** find all second batch motions and assign the incremental postBallotNumbers to them ****/
-				List<Motion> allMotions = Motion.findAllByBatch(session, deviceType, secondBatchStartTime, secondBatchEndTime, locale.toString());
-				for(Motion m : allMotions){
-					if(m.getPostBallotNumber() == null){
-						counter++;
-						m.setPostBallotNumber(counter);
-						m.simpleMerge();
-					}
+				if(counter >= ApplicationConstants.MOTION_FIRST_BATCH_START_COUNTER){
+					/**** find all second batch motions and assign the incremental postBallotNumbers to them ****/
+					List<Motion> allMotions = Motion.findAllByBatch(session, deviceType, secondBatchStartTime, secondBatchEndTime, locale.toString());
+					for(Motion m : allMotions){
+						
+							counter++;
+							m.setPostBallotNumber(counter);
+							m.simpleMerge();
+						
+					}	
 				}
 				
 				/****Show success of failure message****/
@@ -2232,12 +2241,269 @@ public class MotionController extends GenericController<Motion>{
 					model.addAttribute("errorcode", "numberassignment_success");
 				}else{
 					model.addAttribute("errorcode", "numberassignment_failure");
-				}				
+				}
 			}
 		}catch(Exception e){
 			logger.error("error", e);
 			model.addAttribute("errorcode", "general_error");
 		}
+		return retVal;
+	}
+	
+	@RequestMapping(value = "/discussionselection", method = RequestMethod.GET)
+	public String getDiscussionSelection(final HttpServletRequest request, final ModelMap model, final Locale locale){
+		String retVal = "motion/error";
+		try{
+			String strHouseType = request.getParameter("houseType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");
+			String strMotionType = request.getParameter("motionType");
+			String strUser = request.getParameter("ugparam");
+			String strStatus = request.getParameter("status");
+			String strRole = request.getParameter("role");
+			String strUsergroup = request.getParameter("usergroup");
+			String strUsergroupType = request.getParameter("usergroupType");
+			
+			Session session = null;
+			if(strHouseType != null && !strHouseType.isEmpty()
+					&& strSessionYear != null && ! strSessionYear.isEmpty()
+					&& strSessionType != null && !strSessionType.isEmpty()){
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+				Integer sessionYear = new Integer(strSessionYear);
+				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+				
+				if(houseType != null && sessionYear != null && sessionType != null){
+					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+					
+					if(session != null){
+						model.addAttribute("session", session.getId());
+					}
+				}				
+			}
+			
+			String userHouseType = this.getCurrentUser().getHouseType();
+			
+			List<HouseType> houseTypes = new ArrayList<HouseType>();
+			if (userHouseType.equals("lowerhouse")) {
+				houseTypes = HouseType.findAllByFieldName(HouseType.class,"type", userHouseType, "name",ApplicationConstants.ASC, locale.toString());
+			} else if (userHouseType.equals("upperhouse")) {
+				houseTypes = HouseType.findAllByFieldName(HouseType.class,"type", userHouseType, "name",ApplicationConstants.ASC, locale.toString());
+			} else if (userHouseType.equals("bothhouse")) {
+				houseTypes = HouseType.findAll(HouseType.class, "type",ApplicationConstants.ASC, locale.toString());
+			}
+			model.addAttribute("houseTypes", houseTypes);
+			if (userHouseType.equals("bothhouse")) {
+				userHouseType = "lowerhouse";
+			}
+			model.addAttribute("houseType", userHouseType);
+
+			/**** Session Types. ****/
+			List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType",ApplicationConstants.ASC, locale.toString());
+			/**** Latest Session of a House Type ****/
+			HouseType authUserHouseType = HouseType.findByFieldName(HouseType.class, "type", userHouseType, locale.toString());
+			Session lastSessionCreated;
+
+			lastSessionCreated = Session.findLatestSession(authUserHouseType);
+
+			/***
+			 * Session Year and Session Type.Default is the type and year of
+			 * last created session in a particular housetype
+			 ****/
+			Integer year = new GregorianCalendar().get(Calendar.YEAR);
+			if (lastSessionCreated.getId() != null) {
+				year = lastSessionCreated.getYear();
+				model.addAttribute("sessionType", lastSessionCreated.getType().getId());
+			} else {
+				model.addAttribute("errorcode", "nosessionentriesfound");
+			}
+			model.addAttribute("sessionTypes", sessionTypes);
+			/**** Years ****/
+			CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class,"HOUSE_FORMATION_YEAR", "");
+			List<MasterVO> years = new ArrayList<MasterVO>();
+			if (houseFormationYear != null) {
+				Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+				for (int i = year; i >= formationYear; i--) {
+					MasterVO yearVO = new MasterVO();
+					yearVO.setNumber(i);
+					yearVO.setValue(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));
+					years.add(yearVO);
+				}
+			} else {
+				model.addAttribute("errorcode", "houseformationyearnotset");
+			}
+			model.addAttribute("years", years);
+			model.addAttribute("sessionYear", year);
+			
+			/**** Load Parties Start ****/
+			List<Party> parties = Party.findActiveParties(locale.toString());
+			model.addAttribute("parties", parties);
+			
+			/**** Load Parties End ****/
+			Date sessionStartDate = session.getStartDate();
+			Date sessionEndDate = session.getEndDate();
+			List<Reference> references = new ArrayList<Reference>();
+
+			if((sessionStartDate != null) && (sessionStartDate != null)){
+				Calendar start = Calendar.getInstance();
+
+				Calendar end = Calendar.getInstance();
+
+				List<Date> dates = new ArrayList<Date>();
+
+				start.setTime(sessionStartDate);
+				end.setTime(sessionEndDate);
+
+				for (; !start.after(end); start.add(Calendar.DATE, 1)) {
+					Date current = start.getTime();
+					if(!Holiday.isHolidayOnDate(current, locale.toString())){
+						dates.add(current);
+					}
+				}
+				//--------------------------------------------------------
+
+				Collections.sort(dates);
+
+				for(Date date: dates){
+
+					Reference reference = new Reference();
+
+					reference.setId(FormaterUtil.formatDateToString(date, ApplicationConstants.SERVER_DATEFORMAT));
+					reference.setName(FormaterUtil.formatDateToString(date, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+
+					references.add(reference);    
+				}
+			}
+						
+			model.addAttribute("currDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT));
+			
+			model.addAttribute("sessionStartDate", FormaterUtil.formatDateToString(sessionStartDate, ApplicationConstants.SERVER_DATEFORMAT));
+			model.addAttribute("formattedSessionStartDate", FormaterUtil.formatDateToString(sessionStartDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+			
+			model.addAttribute("sessionEndDate", FormaterUtil.formatDateToString(sessionEndDate, ApplicationConstants.SERVER_DATEFORMAT));
+			model.addAttribute("formattedSessionEndDate", FormaterUtil.formatDateToString(sessionEndDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+			model.addAttribute("sessionDates", references);
+			/**** Load Session Dates ****/
+			
+			DeviceType deviceType = null;
+			if(strMotionType != null && !strMotionType.isEmpty()){
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strMotionType));
+			}
+			
+			model.addAttribute("deviceType", deviceType.getId());
+			
+			List<DiscussionDateDevice> discussionDateDevices = DiscussionDateDevice.findBySessionDeviceType(session, deviceType, ApplicationConstants.DESC, locale.toString());
+			Map<String, String> discussionDates = new HashMap<String, String>();
+			for(DiscussionDateDevice d : discussionDateDevices){
+				if(d.getDiscussionDate() != null){
+					discussionDates.put(FormaterUtil.formatDateToString(d.getDiscussionDate(), ApplicationConstants.SERVER_DATEFORMAT), d.getDevices());
+				}
+			}
+			model.addAttribute("discussionDateMap", discussionDates);
+			
+			/**** Load Motions ****/
+			Status admitted = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale.toString());
+			List<Motion> motions = Motion.findAllUndiscussed(lastSessionCreated, deviceType, admitted, locale.toString());
+			List<Reference> motionRefs = new ArrayList<Reference>();
+			for(Motion m : motions){
+				Reference ref = new Reference();
+				ref.setId(m.getId().toString());
+				if(m.getNumber() != null){
+					ref.setName(m.getNumber().toString());
+					ref.setName(FormaterUtil.formatNumberNoGrouping(m.getNumber(), locale.toString()));
+				}else if(m.getPostBallotNumber() != null){
+					ref.setName(m.getPostBallotNumber().toString());
+					ref.setName(FormaterUtil.formatNumberNoGrouping(m.getPostBallotNumber(), locale.toString()));
+				}
+				motionRefs.add(ref);
+			}
+			model.addAttribute("motions", motionRefs);
+			/**** Load Motions ****/
+						
+			retVal = "motion/discussionselection";
+		}catch(Exception e){
+			logger.error("error", e);
+			model.addAttribute("errorcode","GENERAL_ERROR");
+		}
+		
+		return retVal;
+	}
+	
+	@Transactional
+	@RequestMapping(value = "/discussionselection", method=RequestMethod.POST)
+	public String postDiscussionSelection(final HttpServletRequest request, final ModelMap model, final Locale locale){
+		String retVal = "motion/error";
+		try{
+			/*String strHouseType = request.getParameter("houseType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");*/
+			
+			String strSession = request.getParameter("session");
+			String strDeviceType = request.getParameter("deviceType");
+			String strData = request.getParameter("devices");
+			String strDate = request.getParameter("discussDate");
+			
+			Session session = null;
+			/*if(strHouseType != null && !strHouseType.isEmpty()
+					&& strSessionYear != null && ! strSessionYear.isEmpty()
+					&& strSessionType != null && !strSessionType.isEmpty()){
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+				Integer sessionYear = new Integer(strSessionYear);
+				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+				
+				if(houseType != null && sessionYear != null && sessionType != null){
+					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+					
+					if(session != null){
+						model.addAttribute("session", session.getId());
+					}
+				}				
+			}*/
+			Date discussDate = null;
+			if(strDate != null){
+				discussDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT);
+			}
+			session = Session.findById(Session.class, new Long(strSession));
+			
+			DeviceType deviceType = null;
+			if(strDeviceType != null && !strDeviceType.isEmpty()){
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+			}
+			
+			DiscussionDateDevice discussionDateDevice = DiscussionDateDevice.findBySessionDeviceTypeDate(session, deviceType, new Date(), locale.toString());
+			if(discussionDateDevice == null){
+				discussionDateDevice = new DiscussionDateDevice();
+				discussionDateDevice.setLocale(locale.toString());
+				discussionDateDevice.setDeviceType(deviceType);
+				discussionDateDevice.setSession(session);
+				discussionDateDevice.setDevices(strData);
+				discussionDateDevice.setDiscussionDate(new Date());
+				discussionDateDevice.persist();
+			}else if(discussionDateDevice != null){
+				if(discussionDateDevice.getLocale() == null){
+					discussionDateDevice.setLocale(locale.toString());
+				}
+				if(discussionDateDevice.getDeviceType() == null){
+					discussionDateDevice.setDeviceType(deviceType);
+				}
+				if(discussionDateDevice.getSession() == null){
+					discussionDateDevice.setSession(session);
+				}
+				if(strData.isEmpty()){
+					discussionDateDevice.setDevices(null);
+				}else{
+					discussionDateDevice.setDevices(strData);
+				}
+				if(discussionDateDevice.getDiscussionDate() == null){
+					discussionDateDevice.setDiscussionDate(discussDate);
+				}
+				discussionDateDevice.merge();
+			}
+			retVal = "redirect:/motion/discussionselection";
+		}catch(Exception e){
+			logger.error("error", e);
+			model.addAttribute("errorcode","GENERAL_ERROR");
+		}
+		
 		return retVal;
 	}
 }

@@ -38,7 +38,6 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Motion;
-import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
@@ -1084,7 +1083,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 							}
 						}
 						/**** Submission ****/
-						if(domain.getHouseType()==null){
+						if(domain.getHouseType() == null){
 							result.rejectValue("houseType","HousetypeEmpty");
 						}
 						if(domain.getDeviceType()==null){
@@ -1346,16 +1345,17 @@ public class CutMotionController extends GenericController<CutMotion>{
 		}
 		/**** Status ,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
 		/**** In case of submission ****/
-		String operation=request.getParameter("operation");
-		String usergroupType=request.getParameter("usergroupType");
-		if(domain.getHouseType()!=null && domain.getSession()!=null
-				&&  domain.getDeviceType()!=null && domain.getPrimaryMember()!=null && domain.getMinistry()!=null &&
+		String operation = request.getParameter("operation");
+		String usergroupType = request.getParameter("usergroupType");
+		if(domain.getHouseType() != null && domain.getSession()!=null
+				&&  domain.getDeviceType() != null && domain.getPrimaryMember()!=null && domain.getMinistry()!=null &&
 				(!domain.getMainTitle().isEmpty())
 				&&(!domain.getNoticeContent().isEmpty())){
 			if(operation!=null){
 				if(!operation.isEmpty()){
 					if(operation.trim().equals("submit")){
-						if(usergroupType!=null&&!(usergroupType.isEmpty())&&(usergroupType.equals("member")||usergroupType.equals("clerk"))){
+						CustomParameter csptAllowedUserGroupsToSubmit = CustomParameter.findByName(CustomParameter.class, "CMOIS_ALLOWED_USERGROUPTYPES_TO_SUBMIT", "");
+						if(usergroupType != null && !(usergroupType.isEmpty()) && csptAllowedUserGroupsToSubmit != null && csptAllowedUserGroupsToSubmit.getValue() != null && csptAllowedUserGroupsToSubmit.getValue().contains(usergroupType)){
 							/****  submission date is set ****/
 							if(domain.getSubmissionDate()==null){
 								domain.setSubmissionDate(new Date());
