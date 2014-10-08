@@ -5873,4 +5873,172 @@ public class ReferenceController extends BaseController {
 		}
 		return parsedNumbers.toString().isEmpty()?"0":parsedNumbers.toString();
 	}
+	
+	/**
+	 * @param request
+	 * @param locale
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/party/memberbyparty", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getMemberByParty(
+			final HttpServletRequest request, final Locale locale,
+			final ModelMap model){
+		String strPartyId = request.getParameter("partyId");
+		String type = this.getCurrentUser().getHouseType();
+		HouseType houseType = null;
+		if(type != null && !type.isEmpty()){
+			 houseType = HouseType.findByType(type, locale.toString());
+		}
+		House house = House.find(houseType, new Date(), locale.toString());
+		if(strPartyId != null && !strPartyId.isEmpty()){
+			Party party = Party.findById(Party.class, Long.parseLong(strPartyId));
+			List<Member> members = Member.findActiveMembersByParty(party,house,locale.toString());
+			List<MasterVO> memberVOs = new ArrayList<MasterVO>();
+			for(Member m : members){
+				if(m != null){
+					MasterVO vo = new MasterVO();
+					vo.setId(m.getId());
+					if(m.getAliasEnabled() && m.getAlias() != null && !m.getAlias().isEmpty()){
+						vo.setName(m.getAlias());
+					}else{
+						vo.setName(m.getTitle().getName() + " " + m.getFirstName() + " " + m.getLastName());
+					}
+					memberVOs.add(vo);
+				}
+			}
+			return memberVOs;
+		}
+		return null;
+	}
+	
+	@RequestMapping(value = "/member/motions", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getMotions(HttpServletRequest request, Locale locale){
+		List<Reference> motions = new ArrayList<Reference>();
+		try{
+			String strHouseType = request.getParameter("houseType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");
+			String strDeviceType = request.getParameter("deviceType");
+			
+			Session session = null;
+			if(strHouseType != null && !strHouseType.isEmpty()
+					&& strSessionYear != null && !strSessionYear.isEmpty()
+					&& strSessionType != null && !strSessionType.isEmpty()){
+				
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+				Integer sessionYear = new Integer(strSessionYear);
+				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+								
+				if(houseType != null && sessionType != null){
+					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				}
+			}
+			
+			DeviceType deviceType = null;
+			if(strDeviceType != null && !strDeviceType.isEmpty()){
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+						
+			}
+			
+			Member member = null;
+			String strMember = request.getParameter("member");
+			if(strMember != null && !strMember.isEmpty()){
+				member = Member.findById(Member.class, new Long(strMember));
+			}
+			Status admitted = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale.toString());
+			if(member != null && deviceType != null && admitted != null){
+				List<Motion> mots = Motion.findAllUndiscussedByMember(session, deviceType, admitted, member, locale.toString());
+				
+				for(Motion m : mots){
+					Reference ref = new Reference();
+					ref.setId(m.getId().toString());
+					if(m.getNumber() != null){
+						ref.setName(m.getNumber().toString());
+						ref.setName(FormaterUtil.formatNumberNoGrouping(m.getNumber(), locale.toString()));
+					}else if(m.getPostBallotNumber() != null){
+						ref.setName(m.getPostBallotNumber().toString());
+						ref.setName(FormaterUtil.formatNumberNoGrouping(m.getPostBallotNumber(), locale.toString()));
+					}
+					motions.add(ref);
+				}
+			}
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return motions; 
+	}
+	
+	@RequestMapping(value = "/alladmitted/motions", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getAllMotions(HttpServletRequest request, Locale locale){
+		List<Reference> motions = new ArrayList<Reference>();
+		try{
+			String strHouseType = request.getParameter("houseType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");
+			String strDeviceType = request.getParameter("deviceType");
+			
+			Session session = null;
+			if(strHouseType != null && !strHouseType.isEmpty()
+					&& strSessionYear != null && !strSessionYear.isEmpty()
+					&& strSessionType != null && !strSessionType.isEmpty()){
+				
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+				Integer sessionYear = new Integer(strSessionYear);
+				SessionType sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+								
+				if(houseType != null && sessionType != null){
+					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				}
+			}
+			
+			DeviceType deviceType = null;
+			if(strDeviceType != null && !strDeviceType.isEmpty()){
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+						
+			}
+						
+			Status admitted = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale.toString());
+			if(deviceType != null && admitted != null){
+				List<Motion> mots = Motion.findAllUndiscussed(session, deviceType, admitted, locale.toString());
+				
+				for(Motion m : mots){
+					Reference ref = new Reference();
+					ref.setId(m.getId().toString());
+					if(m.getNumber() != null){
+						ref.setName(m.getNumber().toString());
+						ref.setName(FormaterUtil.formatNumberNoGrouping(m.getNumber(), locale.toString()));
+					}else if(m.getPostBallotNumber() != null){
+						ref.setName(m.getPostBallotNumber().toString());
+						ref.setName(FormaterUtil.formatNumberNoGrouping(m.getPostBallotNumber(), locale.toString()));
+					}
+					motions.add(ref);
+				}
+			}
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return motions; 
+	}
+	
+	@RequestMapping(value = "/decodestring", method = RequestMethod.GET)
+	public @ResponseBody Reference getDecodedString(HttpServletRequest request, Locale locale){
+		Reference ref = new Reference();
+		try{
+			CustomParameter csptServeCustomParameter = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			String strData = request.getParameter("data");
+			if(csptServeCustomParameter != null){
+				if(csptServeCustomParameter.getValue().equals("TOMCAT")){
+					String strDS = new String(strData.getBytes("ISO-8859-1"), "UTF-8");
+					ref.setName(strDS);
+				}						
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return ref;
+	}
 }
