@@ -20,6 +20,7 @@ import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
@@ -1370,5 +1371,141 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		}
 		
 		return wfActors;
+	}
+	
+	//----EventMotion actors
+	public List<Reference> findEventMotionActorsVO(final EventMotion motion,
+			final Status internalStatus, final UserGroup userGroup,
+			final int level, final String locale) {
+		String status = internalStatus.getType();
+		WorkflowConfig workflowConfig = null;
+		UserGroupType userGroupType = null;
+		WorkflowActor currentWorkflowActor = null;
+		List<Reference> references = new ArrayList<Reference>();
+		List<WorkflowActor> allEligibleActors = new ArrayList<WorkflowActor>();
+		/****
+		 * Note :Here this can be configured so that list of workflows which
+		 * goes back is read dynamically
+		 ****/
+		if (status.equals(ApplicationConstants.EVENTMOTION_RECOMMEND_SENDBACK)
+				|| status.equals(ApplicationConstants.EVENTMOTION_RECOMMEND_DISCUSS)) {
+			workflowConfig = getLatest(motion, motion.getInternalStatus().getType(), locale.toString());
+			userGroupType = userGroup.getUserGroupType();
+			currentWorkflowActor = getWorkflowActor(workflowConfig, userGroupType, level);
+			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig, currentWorkflowActor, ApplicationConstants.DESC);
+		} else {
+			workflowConfig = getLatest(motion, status, locale.toString());
+			userGroupType = userGroup.getUserGroupType();
+			currentWorkflowActor = getWorkflowActor(workflowConfig, userGroupType, level);
+			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig, currentWorkflowActor, ApplicationConstants.ASC);
+		}
+		HouseType houseType = motion.getHouseType();
+		DeviceType deviceType = motion.getDeviceType();
+		for (WorkflowActor i : allEligibleActors) {
+			UserGroupType userGroupTypeTemp = i.getUserGroupType();
+			List<UserGroup> userGroups = UserGroup.findAllByFieldName(
+					UserGroup.class, "userGroupType", userGroupTypeTemp,
+					"activeFrom", ApplicationConstants.DESC, locale);
+			for (UserGroup j : userGroups) {
+				int noOfComparisons = 0;
+				int noOfSuccess = 0;
+				Map<String, String> params = j.getParameters();
+				if (houseType != null) {
+					HouseType bothHouse = HouseType.findByFieldName(HouseType.class, "type", "bothhouse", locale);
+					if (params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale) != null
+							&& !params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale).contains(bothHouse.getName())) {
+						if (params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale).contains(houseType.getName())) {
+							noOfComparisons++;
+							noOfSuccess++;
+						} else {
+							noOfComparisons++;
+						}
+					}
+				}
+				if (deviceType != null) {
+					if (params.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale) != null
+							&& params.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale).contains(deviceType.getName())) {
+						noOfComparisons++;
+						noOfSuccess++;
+					} else {
+						noOfComparisons++;
+					}
+				}
+				
+				
+				Date fromDate = j.getActiveFrom();
+				Date toDate = j.getActiveTo();
+				Date currentDate = new Date();
+				noOfComparisons++;
+				if (((fromDate == null || currentDate.after(fromDate) || currentDate.equals(fromDate)) 
+						&& (toDate == null || currentDate.before(toDate) || currentDate.equals(toDate)))) {
+					noOfSuccess++;
+				}
+				/**** Include Leave Module ****/
+				if (noOfComparisons == noOfSuccess) {
+					Reference reference = new Reference();
+					User user = User.findByFieldName(User.class, "credential", j.getCredential(), locale);
+					reference.setId(j.getCredential().getUsername() + "#"
+							+ j.getUserGroupType().getType() + "#"
+							+ i.getLevel() + "#" + userGroupTypeTemp.getName()
+							+ "#" + user.getTitle() + " " + user.getFirstName()
+							+ " " + user.getMiddleName() + " "
+							+ user.getLastName());
+					reference.setName(userGroupTypeTemp.getName());
+					references.add(reference);
+					break;
+				}
+			}
+		}
+
+		return references;
+	}
+
+	public WorkflowActor findNextEventMotionActor(
+			final HouseType houseType,
+			final UserGroup userGroup, 
+			final Status status, 
+			final String workflowName,
+			final Integer assigneeLevel, 
+			final String locale) {
+		WorkflowActor wfActor = null;
+		
+		WorkflowConfig wfConfig = this.getLatest(houseType, workflowName, locale);
+		UserGroupType userGroupType = userGroup.getUserGroupType();
+		WorkflowActor currentWfActor = this.getWorkflowActor(wfConfig, userGroupType, assigneeLevel);
+		
+		if(status.getType().equals(ApplicationConstants.EVENTMOTION_RECOMMEND_SENDBACK)
+				|| status.getType().equals(ApplicationConstants.EVENTMOTION_RECOMMEND_DISCUSS)) {
+			wfActor = getNextWorkflowActor(wfConfig, currentWfActor, ApplicationConstants.DESC);
+		}
+		else {
+			wfActor = getNextWorkflowActor(wfConfig, currentWfActor, ApplicationConstants.ASC);
+		}
+		
+		return wfActor;
+	}
+	
+	private WorkflowConfig getLatest(final EventMotion motion,final String internalStatus,final String locale) {
+		/**** Latest Workflow Configurations ****/
+		String[] temp = internalStatus.split("_");
+		String workflowName = temp[temp.length-1]+"_workflow";
+		String strQuery = "SELECT wc FROM WorkflowConfig wc" +
+				" JOIN wc.workflow wf" +
+				" JOIN wc.deviceType d " +
+				" JOIN wc.houseType ht" +
+				" WHERE d.id=:deviceTypeId" +
+				" AND wf.type=:workflow"+
+				" AND ht.id=:houseTypeId" +
+				" AND wc.isLocked=true ORDER BY wc.id "+ApplicationConstants.DESC ;				
+		javax.persistence.Query query = this.em().createQuery(strQuery);
+		query.setParameter("deviceTypeId", motion.getDeviceType().getId());
+		query.setParameter("workflow", workflowName);
+		query.setParameter("houseTypeId", motion.getHouseType().getId());
+		try{
+			return (WorkflowConfig) query.getResultList().get(0);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return new WorkflowConfig();
+		}	
 	}
 }

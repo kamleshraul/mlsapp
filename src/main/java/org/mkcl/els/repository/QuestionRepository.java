@@ -3162,4 +3162,14 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		}		
 		return isNumberedYaadiFilled;
 	}
+	
+	public List<Question> findBySessionNumber(final Session session, final Integer number, final String locale){
+		StringBuffer query = new StringBuffer("SELECT q FROM Question q WHERE q.session=:session AND q.number=:number AND q.locale=:locale");
+		
+		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
+		tQuery.setParameter("session", session);
+		tQuery.setParameter("number", number);
+		tQuery.setParameter("locale", locale);
+		return tQuery.getResultList();
+	}
 }

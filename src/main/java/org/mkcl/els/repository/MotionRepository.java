@@ -219,8 +219,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 			//Date startTime = session.getParameter("");
 			Status status=Status.findByFieldName(Status.class,"type",ApplicationConstants.MOTION_COMPLETE, locale);
 			String strQuery="SELECT m FROM Motion m WHERE m.session=:session AND m.primaryMember=:primaryMember" +
-					" AND m.type=:motionType AND m.locale=:locale AND m.status=:status" + 
-					" AND m.submissionDate" +
+					" AND m.type=:motionType AND m.locale=:locale AND m.status.priority>=:priority" +
 					" AND m.submissionDate>=:startTime" +
 					" AND m.submissionDate<=:endTime" +
 					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
@@ -231,7 +230,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 			query.setParameter("locale",locale);
 			query.setParameter("startTime",startTime);			
 			query.setParameter("endTime", endTime);
-			query.setParameter("status",status);
+			query.setParameter("priority", status.getPriority());
 			motions = query.getResultList();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -252,9 +251,8 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		try {
 			//Date startTime = session.getParameter("");
 			Status status=Status.findByFieldName(Status.class,"type",ApplicationConstants.MOTION_COMPLETE, locale);
-			String strQuery="SELECT m FROM Motion m WHERE m.session=:session AND m.primaryMember=:primaryMember" +
-					" AND m.type=:motionType AND m.locale=:locale AND m.status=:status" + 
-					" AND m.submissionDate" +
+			String strQuery="SELECT m FROM Motion m WHERE m.session=:session" +
+					" AND m.type=:motionType AND m.locale=:locale AND m.status.priority>=:priority" +
 					" AND m.submissionDate>=:startTime" +
 					" AND m.submissionDate<=:endTime" +
 					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
@@ -264,7 +262,70 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 			query.setParameter("locale",locale);
 			query.setParameter("startTime",startTime);			
 			query.setParameter("endTime", endTime);
-			query.setParameter("status",status);
+			query.setParameter("priority",status.getPriority());
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
+	}
+	
+	public List<Motion> findAllUndiscussed(final Session session,
+			final DeviceType motionType, 
+			final Status status,
+			final String locale) {
+		
+		List<Motion> motions = new ArrayList<Motion>();
+		
+		try {
+			Status undiscussed = Status.findByType(ApplicationConstants.MOTION_PROCESSED_UNDISCUSSED, locale);
+			String strQuery="SELECT m FROM Motion m" +
+					" WHERE m.session=:session" +
+					" AND m.type=:motionType" +
+					" AND m.locale=:locale" +
+					" AND m.status=:status" + 
+					" AND m.recommendationDtatus=:undiscussed" +
+					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
+			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale", locale);
+			query.setParameter("undiscussed", undiscussed.getId());
+			query.setParameter("status", status);
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
+	}
+	
+	public List<Motion> findAllUndiscussedByMember(final Session session,
+			final DeviceType motionType, 
+			final Status status,
+			final Member primaryMember,
+			final String locale) {
+		
+		List<Motion> motions = new ArrayList<Motion>();
+		
+		try {
+			Status undiscussed = Status.findByType(ApplicationConstants.MOTION_PROCESSED_UNDISCUSSED, locale);
+			String strQuery = "SELECT m FROM Motion m" +
+					" WHERE m.session=:session" +
+					" AND m.type=:motionType" +
+					" AND m.locale=:locale" +
+					" AND m.status=:status" + 
+					" AND m.recommendationDtatus=:undiscussed" +
+					" AND m.primaryMember=:member" +
+					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
+			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale", locale);
+			query.setParameter("status", status);
+			query.setParameter("undiscussed", undiscussed.getId());
+			query.setParameter("member", primaryMember);
 			motions = query.getResultList();
 		} catch (Exception e) {
 			logger.error("error", e);
