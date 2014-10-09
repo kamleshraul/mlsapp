@@ -168,7 +168,7 @@
 		#groupChangedDiv{
 			background: #D4F4FF scroll no-repeat;
 			width: 300px;
-			height: 25px;
+			height: 300px;
 			border: 1px solid black;
 			z-index: 4000;
 			bottom: 25px;
@@ -406,6 +406,7 @@
 		<div style="color: #000; border: 1px solid black; background: #0F0; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.processedCount' text='Processed Count'/>">${report[2][15]}</a></div>
 		<div style="color: #FFF; border: 1px solid black; background: #00F; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.clubbedCount' text='Clubbed Count'/>">${report[2][16]}</a></div>
 		<div style="color: #000; border: 1px solid black; background: #CCE57F; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.admitCount' text='Admitted Count'/>">${report[2][24]}</a></div>
+		<div style="color: #000; border: 1px solid black; background: #rgb(175,175,175); width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.rejectCount' text='Rejected Count'/>">${report[2][25]}</a></div>
 		<div style="color: #000; border: 1px solid black; background: #FF9980; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.UnstarredCount' text='Unstarred Count'/>" >${report[2][26]}</a></div>
 	</div>
 	
