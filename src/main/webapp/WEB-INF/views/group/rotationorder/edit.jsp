@@ -28,6 +28,9 @@
 				$('#lastReceivingDateFromDepartment'+i).val("");
 				$('#lastReceivingDateFromDepartment'+i).attr('disabled', true);
 				
+				$('#lastDateForChangingDepartment'+i).val("");
+				$('#lastDateForChangingDepartment'+i).attr('disabled', true);
+				
 				$('#yaadiPrintingDate'+i).val("");
 				$('#yaadiPrintingDate'+i).attr('disabled', true);
 				
@@ -63,6 +66,9 @@
 				$('#lastReceivingDateFromDepartment'+j).attr('disabled', false);
 				$('#lastReceivingDateFromDepartment'+j).val($('#lastReceivingDateFromDepartmentHidden'+j).val());
 				
+				$('#lastDateForChangingDepartment'+j).attr('disabled', false);
+				$('#lastDateForChangingDepartment'+j).val($('#lastDateForChangingDepartmentHidden'+j).val());
+				
 				$('#yaadiPrintingDate'+j).attr('disabled', false);
 				$('#yaadiPrintingDate'+j).val($('#yaadiPrintingDateHidden'+j).val());
 				
@@ -92,6 +98,10 @@
 				$('#lastReceivingDateFromDepartmentHidden'+j).val($('#lastReceivingDateFromDepartment'+j).val());
 				$('#lastReceivingDateFromDepartment'+j).attr('disabled', true);
 				$('#lastReceivingDateFromDepartment'+j).val("");
+				
+				$('#lastDateForChangingDepartmentHidden'+j).val($('#lastDateForChangingDepartment'+j).val());
+				$('#lastDateForChangingDepartment'+j).attr('disabled', true);
+				$('#lastDateForChangingDepartment'+j).val("");
 					
 				$('#yaadiPrintingDateHidden'+j).val($('#yaadiPrintingDate'+j).val());
 				$('#yaadiPrintingDate'+j).attr('disabled', true);
@@ -249,6 +259,17 @@
 								<td>							
 									<input style="width: 70px;" class="datemask sText" type="text" id="lastReceivingDateFromDepartment${i.count-1}" name="lastReceivingDateFromDepartment${i.count-1}" value="${lastReceivingDatesFromDepartment[i.count-1]}">	
 									<input type="hidden" id="lastReceivingDateFromDepartmentHidden${i.count-1}" value="${lastReceivingDatesFromDepartment[i.count-1]}">	
+								</td>
+								</c:forEach>
+							</tr>						
+							<tr></tr>
+							
+							<tr>
+								<th><label style="width: 250px;"><spring:message code="group.rotationorder.lastDateForChangingDepartment" text="Last Date For Changing Department"/></label></th>
+								<c:forEach begin="1" end="${dateCount}" varStatus="i">
+								<td>							
+									<input style="width: 70px;" class="datemask sText" type="text" id="lastDateForChangingDepartment${i.count-1}" name="lastDateForChangingDepartment${i.count-1}" value="${lastDatesForChangingDepartment[i.count-1]}">	
+									<input type="hidden" id="lastDateForChangingDepartmentHidden${i.count-1}" value="${lastDatesForChangingDepartment[i.count-1]}">	
 								</td>
 								</c:forEach>
 							</tr>						

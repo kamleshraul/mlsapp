@@ -52,6 +52,9 @@ public class QuestionDates extends BaseDomain implements Serializable {
 
     @Temporal(TemporalType.DATE)
     private Date lastReceivingDateFromDepartment;
+    
+    @Temporal(TemporalType.DATE)
+    private Date lastDateForChangingDepartment;
 
     @Temporal(TemporalType.DATE)
     private Date yaadiPrintingDate;
@@ -148,7 +151,15 @@ public class QuestionDates extends BaseDomain implements Serializable {
     }
 
 
-    public Date getYaadiPrintingDate() {
+    public Date getLastDateForChangingDepartment() {
+		return lastDateForChangingDepartment;
+	}
+
+	public void setLastDateForChangingDepartment(Date lastDateForChangingDepartment) {
+		this.lastDateForChangingDepartment = lastDateForChangingDepartment;
+	}
+
+	public Date getYaadiPrintingDate() {
         return yaadiPrintingDate;
     }
 

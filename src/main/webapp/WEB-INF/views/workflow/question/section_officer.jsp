@@ -1400,6 +1400,12 @@
 			</c:if>
 		</c:otherwise>
 	</c:choose>	
+	<c:if test="${selectedQuestionType == 'questions_starred'}">
+	<p>
+		<label class="small"><spring:message code="question.lastDateForChangingDepartment" text="Last Date For Changing Department"/></label>
+		<input id="lastDateForChangingDepartment" class="datemask sText" value="${formattedLastDateForChangingDepartment}" readonly="readonly"/>
+	</p>
+	</c:if>
 	<c:if test="${!(empty isReanswered)}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.reanswer" text="Re-Answer"/></label>

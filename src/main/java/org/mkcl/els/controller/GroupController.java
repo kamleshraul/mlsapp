@@ -564,6 +564,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	    	List<String> submissionDates=new ArrayList<String>();
 	    	List<String> lastSendingDatesToDepartment=new ArrayList<String>();
 	    	List<String> lastReceivingDatesFromDepartment=new ArrayList<String>();
+	    	List<String> lastDatesForChangingDepartment=new ArrayList<String>();
 	    	List<String> yaadiPrintingDates=new ArrayList<String>();
 	    	List<String> yaadiReceivingDates=new ArrayList<String>();
 	    	List<String> suchhiPrintingDates=new ArrayList<String>();
@@ -700,6 +701,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	    		Date submissionDate = null;
 	    		Date lastReceivingDateFromDepartment = null;
 	    		Date lastSendingDateToDepartment = null;
+	    		Date lastDateForChangingDepartment = null;
 	    		Date yaadiPrintingDate = null;
 	    		Date yaadiReceivingDate = null;
 	    		Date suchhiPrintingDate = null;
@@ -726,6 +728,19 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	    		if(session.getParameter("questions_starred_lastSendingDateToDepartment_difference") != null) {
 	    			difference = Integer.parseInt(session.getParameter("questions_starred_lastSendingDateToDepartment_difference"));
 	    			lastSendingDateToDepartment = Holiday.getLastWorkingDateFrom(answeringDate, difference, domain.getLocale());
+	    		} else {
+	    			model.addAttribute("errorcode", "sessionparametersnotset");
+	    			return urlPattern.replace("rotationorder","error");
+	    		}
+	    		
+	    		if(session.getParameter("questions_starred_lastDateForChangingDepartment_difference") != null) {
+	    			difference = Integer.parseInt(session.getParameter("questions_starred_lastDateForChangingDepartment_difference"));
+	    			if(difference<0) {
+	    				difference -=  domain.getNumber() - 1;
+	    			} else {
+	    				difference +=  domain.getNumber() - 1;
+	    			}
+	    			lastDateForChangingDepartment = Holiday.getLastWorkingDateFrom(answeringDate, difference, domain.getLocale());
 	    		} else {
 	    			model.addAttribute("errorcode", "sessionparametersnotset");
 	    			return urlPattern.replace("rotationorder","error");
@@ -800,6 +815,12 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	    			else {
 	    				lastReceivingDatesFromDepartment.add("");
 	    			}
+	    			if(qd.getLastDateForChangingDepartment()!=null) {
+	    				lastDatesForChangingDepartment.add(dateFormat.format(qd.getLastDateForChangingDepartment()));
+	    			}
+	    			else {
+	    				lastDatesForChangingDepartment.add("");
+	    			}
 	    			if(qd.getYaadiPrintingDate()!=null) {
 	    				yaadiPrintingDates.add(dateFormat.format(qd.getYaadiPrintingDate()));
 	    			}
@@ -855,6 +876,12 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	    				lastSendingDatesToDepartment.add("");
 	    			}
 	    			
+	    			if(lastDateForChangingDepartment != null) {
+	    				lastDatesForChangingDepartment.add(dateFormat.format(lastDateForChangingDepartment));
+	    			} else {
+	    				lastDatesForChangingDepartment.add("");
+	    			}
+	    			
 	    			if(yaadiPrintingDate != null) {
 	    				yaadiPrintingDates.add(dateFormat.format(yaadiPrintingDate));
 	    			} else {
@@ -895,6 +922,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 	    	model.addAttribute("submissionDates",submissionDates);
 	    	model.addAttribute("lastSendingDatesToDepartment",lastSendingDatesToDepartment);
 	    	model.addAttribute("lastReceivingDatesFromDepartment",lastReceivingDatesFromDepartment);
+	    	model.addAttribute("lastDatesForChangingDepartment",lastDatesForChangingDepartment);
 	    	model.addAttribute("yaadiPrintingDates",yaadiPrintingDates);
 	    	model.addAttribute("yaadiReceivingDates",yaadiReceivingDates);
 	    	model.addAttribute("suchhiPrintingDates",suchhiPrintingDates);
@@ -958,6 +986,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 			Date submissionDate=null;
 			Date lastSendingDateToDepartment=null;
 			Date lastReceivingDateFromDepartment=null;
+			Date lastDateForChangingDepartment=null;
 			Date yaadiPrintingDate=null;
 			Date yaadiReceivingDate=null;
 			Date suchhiPrintingDate=null;
@@ -1009,6 +1038,16 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 						if(strLastReceivingDateFromDepartment!=null){
 							if(!strLastReceivingDateFromDepartment.isEmpty())
 								lastReceivingDateFromDepartment=sf.parse(strLastReceivingDateFromDepartment);
+						}
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					String strLastDateForChangingDepartment=request.getParameter("lastDateForChangingDepartment"+i);
+					try {
+						if(strLastDateForChangingDepartment!=null){
+							if(!strLastDateForChangingDepartment.isEmpty())
+								lastDateForChangingDepartment=sf.parse(strLastDateForChangingDepartment);
 						}
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
@@ -1084,6 +1123,7 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 					questionDate.setFinalSubmissionDate(submissionDate);
 					questionDate.setLastSendingDateToDepartment(lastSendingDateToDepartment);
 					questionDate.setLastReceivingDateFromDepartment(lastReceivingDateFromDepartment);
+					questionDate.setLastDateForChangingDepartment(lastDateForChangingDepartment);
 					questionDate.setYaadiPrintingDate(yaadiPrintingDate);
 					questionDate.setYaadiReceivingDate(yaadiReceivingDate);
 					questionDate.setSuchhiPrintingDate(suchhiPrintingDate);

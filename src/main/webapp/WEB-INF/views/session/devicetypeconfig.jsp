@@ -755,6 +755,12 @@
 				</p>
 				
 				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_lastDateForChangingDepartment_difference" text="Last Date For Changing Department Difference" /></label>
+					<c:set var="key" value="questions_starred_lastDateForChangingDepartment_difference"></c:set>
+					<input type="text" class="sText" id="questions_starred_lastDateForChangingDepartment_difference" name="questions_starred_lastDateForChangingDepartment_difference" value="${questions_starred_lastdateforchangingdepartment_difference}" />
+				</p>
+				
+				<p>
 					<label class="small"><spring:message code="session.deviceType.questions_starred_speakerSendingDate_difference" text="Speaker Sending Date Difference" /></label>
 					<c:set var="key" value="questions_starred_speakerSendingDate_difference"></c:set>
 					<input type="text" class="sText" id="questions_starred_speakerSendingDate_difference" name="questions_starred_speakerSendingDate_difference" value="${questions_starred_speakersendingdate_difference}" />

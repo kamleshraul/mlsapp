@@ -919,6 +919,11 @@ public class QuestionWorkflowController  extends BaseController{
 		if(domain.getAnswerReceivedDate()!=null) {
 			model.addAttribute("formattedAnswerReceivedDate", FormaterUtil.formatDateToString(domain.getAnswerReceivedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 		}
+		if(domain.getAnsweringDate()!=null){
+			if(domain.getAnsweringDate().getLastDateForChangingDepartment()!=null){
+				model.addAttribute("formattedLastDateForChangingDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastDateForChangingDepartment()));
+			}
+		}
 	}
 
 	private void populateInternalStatus(final ModelMap model,final Question domain,final String locale) {
