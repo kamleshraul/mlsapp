@@ -99,6 +99,12 @@ public class ApplicationConstants {
 
 	/** The Constant UPPERHOUSEGRID. */
 	public static final String UPPERHOUSEGRID="MEMBER_UPPERHOUSEGRID";
+	
+	/*************** SECURITY PARAMETERS ***************/
+	/** The Constant DEFAULT_PASSWORD. */
+	public static final String DEFAULT_PASSWORD = "123";
+	//====================================================
+	
 	//related to question module
 	/** The Constant QIS_ACTOR_LIST_CUSTOMPARAM_NAME. */
 	public static final String QIS_ACTOR_LIST_CUSTOMPARAM_NAME="QIS_ACTOR_LIST";
@@ -632,6 +638,8 @@ public class ApplicationConstants {
 	public static final String RECOMMENDATION_FROM_PRESIDENT_DEPARTMENT = "recommendationFromPresident_department";
 
 	public static final String PRESS = "press";
+	
+	public static final String OPINION_ABOUT_BILLAMENDMENTMOTION_DEPARTMENT = "opinionAboutBillAmendmentMotion_department";
 
 	/**** My Task Status ****/
 	public static final String MYTASK_PENDING="PENDING";
@@ -697,6 +705,8 @@ public class ApplicationConstants {
 	public static final String APPROVAL_WORKFLOW_URLPATTERN_DISCUSSIONMOTION="workflow/discussionmotion";
 	
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_BILLAMENDMENTMOTION="workflow/billamendmentmotion/supportingmember";
+	
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_BILLAMENDMENTMOTION="workflow/billamendmentmotion";
 
 
 	/**** Advanced Search Status Filter ****/
@@ -1007,6 +1017,8 @@ public class ApplicationConstants {
 	public static final String QUESTION_FIND_MEMBERWISE_REPORTVO_QUESTIONQUERY = "QUESTION_FIND_MEMBERWISE_REPORTVO_QUESTIONQUERY";
 
 	public static final String MOTION_GET_REVISION = "MOTION_GET_REVISION";
+	
+	public static final String BILLAMENDMENTMOTION_GET_REVISION = "BILLAMENDMENTMOTION_GET_REVISION";
 
 	public static final String MEMBERMINISTER_FIND_ASSIGNED_SUBDEPARTMENTSVO = "MEMBERMINISTER_FIND_ASSIGNED_SUBDEPARTMENTSVO";
 
@@ -1558,7 +1570,68 @@ public class ApplicationConstants {
 	public static final String BILLAMENDMENTMOTION_COMPLETE="billamendmentmotion_complete";
 
 	public static final String BILLAMENDMENTMOTION_SUBMIT="billamendmentmotion_submit";
-
 	
+	public static final String BILLAMENDMENTMOTION_SYSTEM_ASSISTANT_PROCESSED="billamendmentmotion_system_assistantprocessed";
+	
+	public static final String BILLAMENDMENTMOTION_SYSTEM_CLUBBED="billamendmentmotion_system_clubbed";
+
+	/**** System status  ****/	
+	public static final String BILLAMENDMENTMOTION_SYSTEM_CLUBBED_WITH_PENDING="billamendmentmotion_system_clubbedwithpending";
+	
+	/**** Translation & Its Workflow Status ****/
+	public static final String BILLAMENDMENTMOTION_TRANSLATION_NOTSEND = "translation_notsend";
+
+	public static final String BILLAMENDMENTMOTION_TRANSLATION_COMPLETED = "translation_completed";
+
+	public static final String BILLAMENDMENTMOTION_TRANSLATION_TIMEOUT = "translation_timeout";
+
+	public static final String BILLAMENDMENTMOTION_TRANSLATION_CANCELLED = "translation_cancelled";
+
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_TRANSLATION="billamendmentmotion_recommend_translation";
+
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_REJECT_TRANSLATION="billamendmentmotion_recommend_reject_translation";
+
+	public static final String BILLAMENDMENTMOTION_FINAL_TRANSLATION="billamendmentmotion_final_translation";
+
+	public static final String BILLAMENDMENTMOTION_FINAL_REJECT_TRANSLATION="billamendmentmotion_final_reject_translation";
+
+	/**** Opinion Seeking From Law and JD & Its Workflow Status ****/
+	public static final String BILLAMENDMENTMOTION_OPINION_FROM_LAWANDJD_NOTSEND = "opinionFromLawAndJD_notsend";
+
+	public static final String BILLAMENDMENTMOTION_OPINION_FROM_LAWANDJD_RECEIVED = "opinionFromLawAndJD_received";
+
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_OPINION_FROM_LAWANDJD="billamendmentmotion_recommend_opinionFromLawAndJD";
+
+	public static final String BILLAMENDMENTMOTION_FINAL_OPINION_FROM_LAWANDJD="billamendmentmotion_final_opinionFromLawAndJD";
+	
+	/**** Recommendation status ****/	
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_ADMISSION="billamendmentmotion_recommend_admission";
+
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_REJECTION="billamendmentmotion_recommend_rejection";
+
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_NAMECLUBBING="billamendmentmotion_recommend_nameclubbing";
+
+	//	public static final String BILLAMENDMENTMOTION_RECOMMEND_REJECT_NAMECLUBBING="billamendmentmotion_recommend_reject_nameclubbing";
+
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_SENDBACK="billamendmentmotion_recommend_sendback";	
+
+	public static final String BILLAMENDMENTMOTION_RECOMMEND_DISCUSS="billamendmentmotion_recommend_discuss";
+
+	/**** Final status ****/ 
+	public static final String BILLAMENDMENTMOTION_FINAL_ADMISSION="billamendmentmotion_final_admission";    
+
+	public static final String BILLAMENDMENTMOTION_FINAL_REJECTION="billamendmentmotion_final_rejection";
+	
+	public static final String BILLAMENDMENTMOTION_FINAL_NAMECLUBBING = "billamendmentmotion_final_nameclubbing";
+
+	public static final String BILLAMENDMENTMOTION_FINAL_REJECT_NAMECLUBBING = "billamendmentmotion_final_reject_nameclubbing";
+	
+	/**** Processed status ****/ 
+	public static final String BILLAMENDMENTMOTION_PROCESSED_REJECTIONWITHREASON = "billamendmentmotion_processed_rejectionWithReason";
+	
+	/**** Put Up ****/
+	public static final String BILLAMENDMENTMOTION_PUTUP_NAMECLUBBING="billamendmentmotion_putup_nameclubbing";
+	
+	public static final String BILLAMENDMENTMOTION_PUTUP_REJECTION="billamendmentmotion_putup_rejection";	
 
 }
