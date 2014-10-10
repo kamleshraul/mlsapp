@@ -130,6 +130,8 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	private Long previousWorkflowDetail;
 	
+	private String numericalDevice;
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date sendBackBefore;
 	
@@ -167,150 +169,6 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(device, deviceType, workflowType);
 	}
 
-	public String getProcessId() {
-		return processId;
-	}
-
-	public void setProcessId(String processId) {
-		this.processId = processId;
-	}
-
-	public String getTaskId() {
-		return taskId;
-	}
-
-	public void setTaskId(String taskId) {
-		this.taskId = taskId;
-	}
-
-	public String getAssignee() {
-		return assignee;
-	}
-
-	public void setAssignee(String assignee) {
-		this.assignee = assignee;
-	}	
-	
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setCompletionTime(Date completionTime) {
-		this.completionTime = completionTime;
-	}
-
-	public Date getCompletionTime() {
-		return completionTime;
-	}
-
-	public void setWorkflowType(String workflowType) {
-		this.workflowType = workflowType;
-	}
-
-	public String getWorkflowType() {
-		return workflowType;
-	}
-
-	public void setDeviceId(String deviceId) {
-		this.deviceId = deviceId;
-	}
-
-	public String getDeviceId() {
-		return deviceId;
-	}
-
-	public void setDeviceType(String deviceType) {
-		this.deviceType = deviceType;
-	}
-
-	public String getDeviceType() {
-		return deviceType;
-	}
-
-	public void setDeviceNumber(String deviceNumber) {
-		this.deviceNumber = deviceNumber;
-	}
-
-	public String getDeviceNumber() {
-		return deviceNumber;
-	}
-
-	public void setDeviceOwner(String deviceOwner) {
-		this.deviceOwner = deviceOwner;
-	}
-
-	public String getDeviceOwner() {
-		return deviceOwner;
-	}
-
-	public void setInternalStatus(String internalStatus) {
-		this.internalStatus = internalStatus;
-	}
-
-	public String getInternalStatus() {
-		return internalStatus;
-	}
-
-	public void setRecommendationStatus(String recommendationStatus) {
-		this.recommendationStatus = recommendationStatus;
-	}
-
-	public String getRecommendationStatus() {
-		return recommendationStatus;
-	}
-
-	public void setHouseType(String houseType) {
-		this.houseType = houseType;
-	}
-
-	public String getHouseType() {
-		return houseType;
-	}
-
-	public void setSessionType(String sessionType) {
-		this.sessionType = sessionType;
-	}
-
-	public String getSessionType() {
-		return sessionType;
-	}
-
-	public void setSessionYear(String sessionYear) {
-		this.sessionYear = sessionYear;
-	}
-
-	public String getSessionYear() {
-		return sessionYear;
-	}
-
-	public void setRemarks(String remarks) {
-		this.remarks = remarks;
-	}
-
-	public String getRemarks() {
-		return remarks;
-	}
-
-	public void setUrlPattern(String urlPattern) {
-		this.urlPattern = urlPattern;
-	}
-
-	public String getUrlPattern() {
-		return urlPattern;
-	}
-
-	public void setForm(String form) {
-		this.form = form;
-	}
-
-	public String getForm() {
-		return form;
-	}
-
 	public static WorkflowDetails create(final Question question,final Task task,final String workflowType,
 			final String assigneeLevel) throws ELSException {
 		return getWorkflowDetailsRepository().create(question,task,workflowType,assigneeLevel);
@@ -326,43 +184,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getWorkflowDetailsRepository().find(fieldValuePair, locale);
 	}
 
-	public void setAssigneeUserGroupName(String assigneeUserGroupName) {
-		this.assigneeUserGroupName = assigneeUserGroupName;
-	}
-
-	public String getAssigneeUserGroupName() {
-		return assigneeUserGroupName;
-	}
-
-	public void setAssigneeLevel(String assigneeLevel) {
-		this.assigneeLevel = assigneeLevel;
-	}
-
-	public String getAssigneeLevel() {
-		return assigneeLevel;
-	}
-
 	public static List<WorkflowDetails> create(final Question question,final List<Task> tasks,
 			final String workflowType,final String assigneeLevel) throws ELSException {
 		return getWorkflowDetailsRepository().create(question,tasks, workflowType,assigneeLevel);
 	}
-
-	public void setAssignmentTime(Date assignmentTime) {
-		this.assignmentTime = assignmentTime;
-	}
-
-	public Date getAssignmentTime() {
-		return assignmentTime;
-	}
-
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-
-	public String getSubject() {
-		return subject;
-	}
-
+	
 	public static WorkflowDetails findCurrentWorkflowDetail(final Motion motion) throws ELSException {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(motion);
 	}
@@ -377,38 +203,6 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution, final String workflowHouseType) throws ELSException {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(resolution, workflowHouseType);
-	}
-
-	public void setWorkflowSubType(String workflowSubType) {
-		this.workflowSubType = workflowSubType;
-	}
-
-	public String getWorkflowSubType() {
-		return workflowSubType;
-	}
-
-	public void setAssigneeUserGroupId(String assigneeUserGroupId) {
-		this.assigneeUserGroupId = assigneeUserGroupId;
-	}
-
-	public String getAssigneeUserGroupId() {
-		return assigneeUserGroupId;
-	}
-
-	public void setAssigneeUserGroupType(String assigneeUserGroupType) {
-		this.assigneeUserGroupType = assigneeUserGroupType;
-	}
-
-	public String getAssigneeUserGroupType() {
-		return assigneeUserGroupType;
-	}	
-
-	public String getGroupNumber() {
-		return groupNumber;
-	}
-
-	public void setGroupNumber(String groupNumber) {
-		this.groupNumber = groupNumber;
 	}
 
 	/**** Motion Related 
@@ -500,6 +294,286 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return null;
 	}
 	
+	public static WorkflowDetails findCurrentWorkflowDetail(
+			final UserGroup userGroup, 
+			final String domainIds,
+			final String workflowType,
+			final String status,
+			final String locale) {
+		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
+				userGroup, domainIds, workflowType, status, locale);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(
+			final UserGroup userGroup, 
+			final String deviceId,
+			final String domainIds,
+			final String workflowType,
+			final String status,
+			final String locale) {
+		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
+				userGroup, deviceId, domainIds, workflowType, status, locale);
+	}
+	
+	/**** Bill Related 
+	 * @param customStatus TODO****/
+	public static WorkflowDetails create(final Bill bill,final Task task,final String workflowType,
+			String customStatus, final String userGroupType, final String assigneeLevel) {
+		return getWorkflowDetailsRepository().create(bill,task,workflowType,
+				customStatus,userGroupType, assigneeLevel);
+	}
+	
+	public static WorkflowDetails create(final Bill bill,final HouseType houseType,final Boolean isActorAcrossHouse,final PrintRequisition printRequisition,final Task task,final String workflowType,
+			final String userGroupType, final String assigneeLevel) {
+		return getWorkflowDetailsRepository().create(bill,houseType,isActorAcrossHouse,printRequisition,task,workflowType,
+				userGroupType,assigneeLevel);
+	}
+	
+	public static List<WorkflowDetails> create(final Bill bill,final List<Task> tasks,
+			final String workflowType,String customStatus, final String assigneeLevel) {
+		return getWorkflowDetailsRepository().create(bill,tasks,
+				workflowType,customStatus, assigneeLevel);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final Bill bill, String workflowType) {
+		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(bill, workflowType);
+	}
+
+	
+	public static Integer findIfWorkflowExists(final Session session,
+							final HouseType houseType,
+							final String deviceId,
+							final String workflowSubTypeInitial,
+							final String locale){
+		return getWorkflowDetailsRepository().findIfWorkflowExists(session, houseType, deviceId, workflowSubTypeInitial, locale);				
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static List findCompleteness(final Session session,
+			final HouseType houseType,
+			final String deviceId,
+			final String locale){
+		return getWorkflowDetailsRepository().findCompleteness(session, houseType, deviceId, locale);
+	}
+	
+	/**** Getter Setter ****/
+	
+	public String getProcessId() {
+		return processId;
+	}
+
+	public void setProcessId(String processId) {
+		this.processId = processId;
+	}
+
+	public String getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
+	}
+
+	public String getAssignee() {
+		return assignee;
+	}
+
+	public void setAssignee(String assignee) {
+		this.assignee = assignee;
+	}	
+	
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setCompletionTime(Date completionTime) {
+		this.completionTime = completionTime;
+	}
+
+	public Date getCompletionTime() {
+		return completionTime;
+	}
+
+	public void setWorkflowType(String workflowType) {
+		this.workflowType = workflowType;
+	}
+
+	public String getWorkflowType() {
+		return workflowType;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
+	}
+
+	public String getDeviceType() {
+		return deviceType;
+	}
+
+	public void setDeviceNumber(String deviceNumber) {
+		this.deviceNumber = deviceNumber;
+	}
+
+	public String getDeviceNumber() {
+		return deviceNumber;
+	}
+
+	public String getNumericalDevice() {
+		return numericalDevice;
+	}
+
+	public void setNumericalDevice(String numericalDevice) {
+		this.numericalDevice = numericalDevice;
+	}
+
+	public void setDeviceOwner(String deviceOwner) {
+		this.deviceOwner = deviceOwner;
+	}
+
+	public String getDeviceOwner() {
+		return deviceOwner;
+	}
+
+	public void setInternalStatus(String internalStatus) {
+		this.internalStatus = internalStatus;
+	}
+
+	public String getInternalStatus() {
+		return internalStatus;
+	}
+
+	public void setRecommendationStatus(String recommendationStatus) {
+		this.recommendationStatus = recommendationStatus;
+	}
+
+	public String getRecommendationStatus() {
+		return recommendationStatus;
+	}
+
+	public void setHouseType(String houseType) {
+		this.houseType = houseType;
+	}
+
+	public String getHouseType() {
+		return houseType;
+	}
+
+	public void setSessionType(String sessionType) {
+		this.sessionType = sessionType;
+	}
+
+	public String getSessionType() {
+		return sessionType;
+	}
+
+	public void setSessionYear(String sessionYear) {
+		this.sessionYear = sessionYear;
+	}
+
+	public String getSessionYear() {
+		return sessionYear;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setUrlPattern(String urlPattern) {
+		this.urlPattern = urlPattern;
+	}
+
+	public String getUrlPattern() {
+		return urlPattern;
+	}
+
+	public void setForm(String form) {
+		this.form = form;
+	}
+
+	public String getForm() {
+		return form;
+	}
+	
+	public void setAssigneeUserGroupName(String assigneeUserGroupName) {
+		this.assigneeUserGroupName = assigneeUserGroupName;
+	}
+
+	public String getAssigneeUserGroupName() {
+		return assigneeUserGroupName;
+	}
+
+	public void setAssigneeLevel(String assigneeLevel) {
+		this.assigneeLevel = assigneeLevel;
+	}
+
+	public String getAssigneeLevel() {
+		return assigneeLevel;
+	}
+
+	public void setAssignmentTime(Date assignmentTime) {
+		this.assignmentTime = assignmentTime;
+	}
+
+	public Date getAssignmentTime() {
+		return assignmentTime;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
+	public String getSubject() {
+		return subject;
+	}	
+	
+	public void setWorkflowSubType(String workflowSubType) {
+		this.workflowSubType = workflowSubType;
+	}
+
+	public String getWorkflowSubType() {
+		return workflowSubType;
+	}
+
+	public void setAssigneeUserGroupId(String assigneeUserGroupId) {
+		this.assigneeUserGroupId = assigneeUserGroupId;
+	}
+
+	public String getAssigneeUserGroupId() {
+		return assigneeUserGroupId;
+	}
+
+	public void setAssigneeUserGroupType(String assigneeUserGroupType) {
+		this.assigneeUserGroupType = assigneeUserGroupType;
+	}
+
+	public String getAssigneeUserGroupType() {
+		return assigneeUserGroupType;
+	}	
+
+	public String getGroupNumber() {
+		return groupNumber;
+	}
+
+	public void setGroupNumber(String groupNumber) {
+		this.groupNumber = groupNumber;
+	}
+	
 	public void setText(String text) {
 		this.text = text;
 	}
@@ -574,67 +648,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		this.nextWorkflowActorId = nextWorkflowActorId;
 	}
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(
-			final UserGroup userGroup, 
-			final String domainIds,
-			final String workflowType,
-			final String status,
-			final String locale) {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
-				userGroup, domainIds, workflowType, status, locale);
-	}
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(
-			final UserGroup userGroup, 
-			final String deviceId,
-			final String domainIds,
-			final String workflowType,
-			final String status,
-			final String locale) {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
-				userGroup, deviceId, domainIds, workflowType, status, locale);
-	}
-	
-	/**** Bill Related 
-	 * @param customStatus TODO****/
-	public static WorkflowDetails create(final Bill bill,final Task task,final String workflowType,
-			String customStatus, final String userGroupType, final String assigneeLevel) {
-		return getWorkflowDetailsRepository().create(bill,task,workflowType,
-				customStatus,userGroupType, assigneeLevel);
-	}
-	
-	public static WorkflowDetails create(final Bill bill,final HouseType houseType,final Boolean isActorAcrossHouse,final PrintRequisition printRequisition,final Task task,final String workflowType,
-			final String userGroupType, final String assigneeLevel) {
-		return getWorkflowDetailsRepository().create(bill,houseType,isActorAcrossHouse,printRequisition,task,workflowType,
-				userGroupType,assigneeLevel);
-	}
-	
-	public static List<WorkflowDetails> create(final Bill bill,final List<Task> tasks,
-			final String workflowType,String customStatus, final String assigneeLevel) {
-		return getWorkflowDetailsRepository().create(bill,tasks,
-				workflowType,customStatus, assigneeLevel);
-	}
-	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Bill bill, String workflowType) {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(bill, workflowType);
-	}
-
-	
-	public static Integer findIfWorkflowExists(final Session session,
-							final HouseType houseType,
-							final String deviceId,
-							final String workflowSubTypeInitial,
-							final String locale){
-		return getWorkflowDetailsRepository().findIfWorkflowExists(session, houseType, deviceId, workflowSubTypeInitial, locale);				
-	}
-	
-	@SuppressWarnings("rawtypes")
-	public static List findCompleteness(final Session session,
-			final HouseType houseType,
-			final String deviceId,
-			final String locale){
-		return getWorkflowDetailsRepository().findCompleteness(session, houseType, deviceId, locale);
-	}
 		
 	public String getModule() {
 		return module;
