@@ -714,6 +714,14 @@ public class QuestionController extends GenericController<Question>{
 				return newUrlPattern.replace("edit","editreadonly");
 			}
 		}
+		/**** for printing ****/
+		String editPrint = request.getParameter("editPrint");
+		if(editPrint != null){
+			if(Boolean.parseBoolean(editPrint)){
+				return newUrlPattern.replace("edit","editprint");
+			}
+		}
+		
 		CustomParameter editPage = CustomParameter.findByName(CustomParameter.class, "QIS_EDIT_OPERATION_EDIT_PAGE", "");
 		CustomParameter assistantPage = CustomParameter.findByName(CustomParameter.class, "QIS_EDIT_OPERATION_ASSISTANT_PAGE", "");
 		Set<Role> roles=this.getCurrentUser().getRoles();
