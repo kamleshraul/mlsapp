@@ -566,7 +566,7 @@
 				<c:when test="${formattedInternalNumber!=null}">
 					<input id="formattedNumber" name="formattedNumber" value="${formattedInternalNumber}" class="sText" readonly="readonly">
 				</c:when>
-				<c:when test="${formattedNumber}">
+				<c:when test="${formattedNumber!=null}">
 					<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">
 				</c:when>
 			</c:choose>		
@@ -873,7 +873,7 @@
 		<h2></h2>
 		<p class="tright">		
 			<c:if test="${bulkedit!='yes'}">
-				<c:if test="${internalStatusType=='cutmotion_submit'}">
+				<c:if test="${internalStatusType=='cutmotion_submit' || internalStatusType=='cutmotion_system_assistantprocessed'}">
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					<input id="startworkflow" type="button" value="<spring:message code='cutmotion.putupmotion' text='Put Up Motion'/>" class="butDef">
 				</c:if>
