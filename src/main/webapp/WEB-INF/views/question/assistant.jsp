@@ -398,7 +398,7 @@
 	    /**** Contact Details ****/
 	    $("#viewContacts").click(function(){
 		    var primaryMember=$("#primaryMember").val();
-		    var supportingMembers=$("#selectedSupportingMembers").val();
+		    var supportingMembers=$("select[name='selectedSupportingMembers']").val();
 		    var members=primaryMember;
 		    if(supportingMembers!=null){
 			    if(supportingMembers!=''){
@@ -661,7 +661,7 @@
 	  
 	  /*****AutoSuggest Multiple for supporting members******/
 		
-	var controlName=$(".autosuggestmultiple").attr("id");
+		var controlName=$(".autosuggestmultiple").attr("id");
 		$("select[name='"+controlName+"']").hide();	
 		$( ".autosuggestmultiple" ).change(function(){
 			//if we are removing a value from autocomplete box then that value needs to be removed from the attached select box also.
@@ -739,7 +739,60 @@
 				return false;
 			}
 		});
-	  
+		
+		$("#printIt").click(function(){
+			/* $.get('question/'+$("#id").val()+'/edit?editPrint=true&usergroup=' + $("#currentusergroup").val() + '&usergroupType=' + $("#currentusergroupType").val(),function(data){
+				if(data){
+					var divD = $("<div></div>").html(data);
+					$(divD).print();
+				}
+			},'html'); */
+			//var text = "<div><p>"+$("#selectedSupportingMembers").val()+"</p><p>"+$("#subject").val()+"</p><p>"+$("#questionText").val()+"</p><spring:message code='generic.new' text='new' /></div>";
+			var myWindow = window.open('question/'+$("#id").val()+'/edit?editPrint=true&usergroup=' + 
+						$("#currentusergroup").val() + '&usergroupType=' + $("#currentusergroupType").val(),'_blank','width=700,height=768,scrollbars=1,menubar=yes');
+			myWindow.print();
+			/* var doc = myWindow.document;
+			doc.open();
+			doc.write(text);
+			doc.close(); */
+			/*
+			channelmode=yes|no|1|0
+			directories=yes|no|1|0
+			fullscreen=yes|no|1|0
+			height=pixels
+			left=pixels
+			location=yes|no|1|0
+			menubar=yes|no|1|0
+			resizable=yes|no|1|0
+			scrollbars=yes|no|1|0
+			status=yes|no|1|0
+			titlebar=yes|no|1|0
+			toolbar=yes|no|1|0
+			top=pixels
+			width=pixels
+
+			*/
+			/* var form = $("form").clone();
+			var formHeader = $(form).children().filter("h2")[0];
+			var formData = $(form).children().filter("p");
+			var text = $("<div></div>").append($(formHeader)).append("<hr>");
+			for(var i = 0; i < formData.length; i++){
+				if($(formData[i]).css('display')!='none'){
+					var putEle = $(formData[i]);
+					$(putEle).children().filter("select").each(function(){
+						$(this).css({'max-width':'100px !important','width':'100px !important'});
+					});
+					
+					$(text).append($(putEle));
+				}
+			}
+			var wind = window.open('','_blank','width=700,height=768,scrollbars=1,menubar=yes');
+			var doc = wind.document;
+			doc.open();
+			doc.write($(text).html());
+			doc.close(); */
+			
+		});	  
 	});
 	
   	function split( val ) {
@@ -803,83 +856,165 @@
 	<h3 style="color: #FF0000;">${error}</h3>
 </c:if>
 <div class="fields clearfix watermark">
-
-<div id="assistantDiv">
-<form:form action="question" method="PUT" modelAttribute="domain">
-	<%@ include file="/common/info.jsp" %>
-	<h2>${formattedQuestionType}: ${formattedNumber}</h2>
-	<form:errors path="version" cssClass="validationError"/>
-	
-	<p style="display:none;">
-		<label class="small"><spring:message code="question.houseType" text="House Type"/>*</label>
-		<input id="formattedHouseType" name="formattedHouseType" value="${formattedHouseType}" class="sText" readonly="readonly">
-		<input id="houseType" name="houseType" value="${houseType}" type="hidden">
-		<form:errors path="houseType" cssClass="validationError"/>			
-	</p>
-	
-	<p style="display:none;">
-		<label class="small"><spring:message code="question.year" text="Year"/>*</label>
-		<input id="formattedSessionYear" name="formattedSessionYear" value="${formattedSessionYear}" class="sText" readonly="readonly">
-		<input id="sessionYear" name="sessionYear" value="${sessionYear}" type="hidden">
-	</p>
-	
-	<p style="display:none;">
-		<label class="small"><spring:message code="question.sessionType" text="Session Type"/>*</label>		
-		<input id="formattedSessionType" name="formattedSessionType" value="${formattedSessionType}" class="sText" readonly="readonly">
-		<input id="sessionType" name="sessionType" value="${sessionType}" type="hidden">		
-		<input type="hidden" id="session" name="session" value="${session}"/>
-		<form:errors path="session" cssClass="validationError"/>	
-	</p>
-	
-	<p style="display:none;">
-		<label class="small"><spring:message code="question.type" text="Type"/>*</label>
-		<input id="formattedQuestionType" name="formattedQuestionType" value="${formattedQuestionType}" class="sText" readonly="readonly">
-		<input id="type" name="type" value="${questionType}" type="hidden">		
-		<form:errors path="type" cssClass="validationError"/>		
-	</p>	
-	
-	<p>
+<a id="printIt" href="javascript:void(0);"><spring:message code="generic.print" text="Print" /></a>
+<div id="reportDiv">
+	<div id="assistantDiv">
+	<form:form action="question" method="PUT" modelAttribute="domain">
+		<%@ include file="/common/info.jsp" %>
+		<h2>${formattedQuestionType}: ${formattedNumber}</h2>
+		<form:errors path="version" cssClass="validationError"/>
+		
+		<p style="display:none;">
+			<label class="small"><spring:message code="question.houseType" text="House Type"/>*</label>
+			<input id="formattedHouseType" name="formattedHouseType" value="${formattedHouseType}" class="sText" readonly="readonly">
+			<input id="houseType" name="houseType" value="${houseType}" type="hidden">
+			<form:errors path="houseType" cssClass="validationError"/>			
+		</p>
+		
+		<p style="display:none;">
+			<label class="small"><spring:message code="question.year" text="Year"/>*</label>
+			<input id="formattedSessionYear" name="formattedSessionYear" value="${formattedSessionYear}" class="sText" readonly="readonly">
+			<input id="sessionYear" name="sessionYear" value="${sessionYear}" type="hidden">
+		</p>
+		
+		<p style="display:none;">
+			<label class="small"><spring:message code="question.sessionType" text="Session Type"/>*</label>		
+			<input id="formattedSessionType" name="formattedSessionType" value="${formattedSessionType}" class="sText" readonly="readonly">
+			<input id="sessionType" name="sessionType" value="${sessionType}" type="hidden">		
+			<input type="hidden" id="session" name="session" value="${session}"/>
+			<form:errors path="session" cssClass="validationError"/>	
+		</p>
+		
+		<p style="display:none;">
+			<label class="small"><spring:message code="question.type" text="Type"/>*</label>
+			<input id="formattedQuestionType" name="formattedQuestionType" value="${formattedQuestionType}" class="sText" readonly="readonly">
+			<input id="type" name="type" value="${questionType}" type="hidden">		
+			<form:errors path="type" cssClass="validationError"/>		
+		</p>	
+		
+		<p>
+			<c:choose>
+				<c:when test="${fn:contains(selectedQuestionType,'questions_halfhourdiscussion')}">
+					<label class="small"><spring:message code="question.halfhour.number" text="Notice Number"/>*</label>
+				</c:when>
+				<c:otherwise>
+					<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
+				</c:otherwise>
+			</c:choose>
+		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
+		<input id="number" name="number" value="${domain.number}" type="hidden">
+		<form:errors path="number" cssClass="validationError"/>
+		
+		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+			
+			<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
+			<input class="sInteger integer" type="text" name="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" id="halfHourDiscussionReference_questionNumber" />
+			<form:errors path="halfHourDiscusionFromQuestionReference" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			<label class="small"><a id="halfhourdiscussion_referred_question" href="#" ><spring:message code="question.halfhour.questionrefview" text="See Referred Question"/></a></label>	
+			
+		</c:if>
+		
+		<c:if test="${selectedQuestionType=='questions_starred'}">
+			<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
+			<input name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
+			<input name="priority" id="priority"  type="hidden" value="${priority }">	
+			<form:errors path="priority" cssClass="validationError"/>
+		</c:if>
+		</p>
+			
+		<p>		
+		<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
+		<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+		<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
+		
 		<c:choose>
-			<c:when test="${fn:contains(selectedQuestionType,'questions_halfhourdiscussion')}">
-				<label class="small"><spring:message code="question.halfhour.number" text="Notice Number"/>*</label>
+			<c:when test="${selectedQuestionType=='questions_starred'}">
+				<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
+				<select name="answeringDate" id="answeringDate" class="sSelect">
+					<c:forEach items="${answeringDates }" var="i">
+						<c:choose>
+							<c:when test="${i.id==answeringDate }">
+								<option value="${i.id }" selected="selected">${i.name}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${i.id }" >${i.name}</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
 			</c:when>
-			<c:otherwise>
-				<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
-			</c:otherwise>
 		</c:choose>
-	<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
-	<input id="number" name="number" value="${domain.number}" type="hidden">
-	<form:errors path="number" cssClass="validationError"/>
-	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+			
+		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
+			<c:if test="${discussionDateSelected != null}">
+				<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+				<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="sText" readonly="readonly" />
+				<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
+				<form:errors path="discussionDate" cssClass="validationError"/>
+			</c:if>
+		</c:if>
+		</p>
 		
-		<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
-		<input class="sInteger integer" type="text" name="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" id="halfHourDiscussionReference_questionNumber" />
-		<form:errors path="halfHourDiscusionFromQuestionReference" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-		<label class="small"><a id="halfhourdiscussion_referred_question" href="#" ><spring:message code="question.halfhour.questionrefview" text="See Referred Question"/></a></label>	
+		<c:choose>
+			<c:when test="${selectedQuestionType=='questions_starred'}">
+				<p>
+					<c:if test="${formattedChartAnsweringDate !=null}">
+						<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
+						<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
+					</c:if>	
+					<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+				</p>
+			</c:when>
+			
+		</c:choose>
+		<p>
+		<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
+		<select name="ministry" id="ministry" class="sSelect">
+		<c:forEach items="${ministries }" var="i">
+		<c:choose>
+		<c:when test="${i.id==ministrySelected }">
+		<option value="${i.id }" selected="selected">${i.name}</option>
+		</c:when>
+		<c:otherwise>
+		<option value="${i.id }" >${i.name}</option>
+		</c:otherwise>
+		</c:choose>
+		</c:forEach>
+		</select>		
+		<form:errors path="ministry" cssClass="validationError"/>
+		<c:choose>	
+			<c:when test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
+				<label class="small"><spring:message code="question.group" text="Group"/>*</label>
+				<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">		
+				<input type="hidden" id="group" name="group" value="${group }">
+				<form:errors path="group" cssClass="validationError"/>
+			</c:when>	
+		</c:choose>
+		</p>	
 		
-	</c:if>
-	
-	<c:if test="${selectedQuestionType=='questions_starred'}">
-		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
-		<input name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
-		<input name="priority" id="priority"  type="hidden" value="${priority }">	
-		<form:errors path="priority" cssClass="validationError"/>
-	</c:if>
-	</p>
-		
-	<p>		
-	<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
-	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
-	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
-	
-	<c:choose>
-		<c:when test="${selectedQuestionType=='questions_starred'}">
-			<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
-			<select name="answeringDate" id="answeringDate" class="sSelect">
-				<c:forEach items="${answeringDates }" var="i">
+		<p>
+			<c:if test="${selectedQuestionType=='xyz'}" >
+				<%--Scrapped code keeping just for future use if ever arise --%>
+				<label class="small"><spring:message code="question.department" text="Department"/></label>
+				<select name="department" id="department" class="sSelect">
+				<c:forEach items="${departments }" var="i">
+				<c:choose>
+				<c:when test="${i.id==departmentSelected }">
+				<option value="${i.id }" selected="selected">${i.name}</option>
+				</c:when>
+				<c:otherwise>
+				<option value="${i.id }" >${i.name}</option>
+				</c:otherwise>
+				</c:choose>
+				</c:forEach>
+				</select>
+				<form:errors path="department" cssClass="validationError"/>
+			</c:if>
+			<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
+			<select name="subDepartment" id="subDepartment" class="sSelect">
+				<c:forEach items="${subDepartments }" var="i">
 					<c:choose>
-						<c:when test="${i.id==answeringDate }">
+						<c:when test="${i.id==subDepartmentSelected }">
 							<option value="${i.id }" selected="selected">${i.name}</option>
 						</c:when>
 						<c:otherwise>
@@ -887,546 +1022,466 @@
 						</c:otherwise>
 					</c:choose>
 				</c:forEach>
-			</select>
-		</c:when>
-	</c:choose>
+			</select>		
+			<form:errors path="subDepartment" cssClass="validationError"/>	
+		</p>	
+			
 		
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
-		<c:if test="${discussionDateSelected != null}">
-			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
-			<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="sText" readonly="readonly" />
-			<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
-			<form:errors path="discussionDate" cssClass="validationError"/>
+		<p>
+		<label class="centerlabel"><spring:message code="question.members" text="Members"/></label>
+		<textarea class="autosuggestmultiple" id="selectedSupportingMembers" rows="2" cols="50">${memberNames}</textarea>
+		<c:if test="${!(empty primaryMember)}">
+			<input id="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">
 		</c:if>
-	</c:if>
-	</p>
-	
-	<c:choose>
-		<c:when test="${selectedQuestionType=='questions_starred'}">
-			<p>
-				<c:if test="${formattedChartAnsweringDate !=null}">
-					<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
-					<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
-				</c:if>	
-				<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
-			</p>
-		</c:when>
-		
-	</c:choose>
-	<p>
-	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
-	<select name="ministry" id="ministry" class="sSelect">
-	<c:forEach items="${ministries }" var="i">
-	<c:choose>
-	<c:when test="${i.id==ministrySelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>		
-	<form:errors path="ministry" cssClass="validationError"/>
-	<c:choose>	
-		<c:when test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
-			<label class="small"><spring:message code="question.group" text="Group"/>*</label>
-			<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">		
-			<input type="hidden" id="group" name="group" value="${group }">
-			<form:errors path="group" cssClass="validationError"/>
-		</c:when>	
-	</c:choose>
-	</p>	
-	
-	<p>
-		<c:if test="${selectedQuestionType=='xyz'}" >
-			<%--Scrapped code keeping just for future use if ever arise --%>
-			<label class="small"><spring:message code="question.department" text="Department"/></label>
-			<select name="department" id="department" class="sSelect">
-			<c:forEach items="${departments }" var="i">
-			<c:choose>
-			<c:when test="${i.id==departmentSelected }">
-			<option value="${i.id }" selected="selected">${i.name}</option>
-			</c:when>
-			<c:otherwise>
-			<option value="${i.id }" >${i.name}</option>
-			</c:otherwise>
-			</c:choose>
-			</c:forEach>
+		<c:if test="${!(empty supportingMembers)}">
+			<select  name="selectedSupportingMembers" multiple="multiple" style="display: none;">
+			<c:forEach items="${supportingMembers}" var="i">
+			<option value="${i.id}" class="${i.getFullname()}" selected="selected"></option>
+			</c:forEach>		
 			</select>
-			<form:errors path="department" cssClass="validationError"/>
-		</c:if>
-		<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
-		<select name="subDepartment" id="subDepartment" class="sSelect">
-			<c:forEach items="${subDepartments }" var="i">
+		</c:if>	
+		</p>
+		
+		<p>
+			<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
+			<input type="text" readonly="readonly" value="${constituency}" class="sText">
+			<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="./resources/images/contactus.jpg" width="40" height="25"></a>		
+		</p>		
+		
+		<c:choose>
+		<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">
+		<p>
+				<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin-left: 162px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
+				<a href="#" id="dereferencing" onclick="dereferencingInt(${referencedHDS});" style="margin: 20px;"><spring:message code="question.dereferencing" text="Dereferencing"></spring:message></a>
+				<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
+		</p>
+		<p>
+				<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
+				<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
+				<input type="hidden" id="parent" name="parent" value="${parent}">
+		</p>	
+		</c:when>
+		<c:otherwise>
+		<p>
+				<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
+				<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
+				<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
+		</p>
+		<p>
+				<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
+				<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
+				<input type="hidden" id="parent" name="parent" value="${parent}">
+		</p>		
+		<p>
+				<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
 				<c:choose>
-					<c:when test="${i.id==subDepartmentSelected }">
-						<option value="${i.id }" selected="selected">${i.name}</option>
+					<c:when test="${!(empty clubbedQuestions) }">
+						<c:forEach items="${clubbedQuestions }" var="i">
+							<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						</c:forEach>
+						<a href="javascript:void(0);" id="viewClubbedQuestionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="question.clubbed.texts" text="C"></spring:message></a>
 					</c:when>
 					<c:otherwise>
-						<option value="${i.id }" >${i.name}</option>
+						<c:out value="-"></c:out>
 					</c:otherwise>
 				</c:choose>
-			</c:forEach>
-		</select>		
-		<form:errors path="subDepartment" cssClass="validationError"/>	
-	</p>	
-		
-	
-	<p>
-	<label class="centerlabel"><spring:message code="question.members" text="Members"/></label>
-	<textarea id="selectedSupportingMembers" class="autosuggestmultiple"  rows="2" cols="50">${memberNames}</textarea>
-	<c:if test="${!(empty primaryMember)}">
-		<input id="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">
-	</c:if>
-	<c:if test="${!(empty supportingMembers)}">
-		<select  name="selectedSupportingMembers" multiple="multiple">
-		<c:forEach items="${supportingMembers}" var="i">
-		<option value="${i.id}" class="${i.getFullname()}" selected="selected"></option>
-		</c:forEach>		
-		</select>
-	</c:if>	
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
-		<input type="text" readonly="readonly" value="${constituency}" class="sText">
-		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="./resources/images/contactus.jpg" width="40" height="25"></a>		
-	</p>		
-	
-	<c:choose>
-	<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">
-	<p>
-			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin-left: 162px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
-			<a href="#" id="dereferencing" onclick="dereferencingInt(${referencedHDS});" style="margin: 20px;"><spring:message code="question.dereferencing" text="Dereferencing"></spring:message></a>
-			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
-	</p>
-	<p>
-			<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
-			<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
-			<input type="hidden" id="parent" name="parent" value="${parent}">
-	</p>	
-	</c:when>
-	<c:otherwise>
-	<p>
-			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
-			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
-			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
-	</p>
-	<p>
-			<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
-			<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
-			<input type="hidden" id="parent" name="parent" value="${parent}">
-	</p>		
-	<p>
-			<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
-			<c:choose>
-				<c:when test="${!(empty clubbedQuestions) }">
+				<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
 					<c:forEach items="${clubbedQuestions }" var="i">
-						<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						<option value="${i.id}" selected="selected"></option>
 					</c:forEach>
-					<a href="javascript:void(0);" id="viewClubbedQuestionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="question.clubbed.texts" text="C"></spring:message></a>
+				</select>
+		</p>
+		</c:otherwise>		
+		</c:choose>			
+		
+		<p>
+			<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
+			<c:choose>
+				<c:when test="${!(empty referencedQuestions) }">
+					<c:forEach items="${referencedQuestions }" var="i" varStatus="index">
+						<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						&nbsp;(${referencedQuestionsSessionAndDevice[index.count-1]})	
+					</c:forEach>
 				</c:when>
 				<c:otherwise>
 					<c:out value="-"></c:out>
 				</c:otherwise>
 			</c:choose>
-			<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
-				<c:forEach items="${clubbedQuestions }" var="i">
-					<option value="${i.id}" selected="selected"></option>
-				</c:forEach>
-			</select>
-	</p>
-	</c:otherwise>		
-	</c:choose>			
-	
-	<p>
-		<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
-		<c:choose>
-			<c:when test="${!(empty referencedQuestions) }">
-				<c:forEach items="${referencedQuestions }" var="i" varStatus="index">
-					<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-					&nbsp;(${referencedQuestionsSessionAndDevice[index.count-1]})	
-				</c:forEach>
-			</c:when>
-			<c:otherwise>
-				<c:out value="-"></c:out>
-			</c:otherwise>
-		</c:choose>
-		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">	
-			<input type="hidden" id="referencedHDS" name="referencedHDS" value="${referencedHDS}" />
-		</c:if>
-		<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">	
-			<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
-				<c:forEach items="${referencedQuestions }" var="i">
-					<option value="${i.id}" selected="selected"></option>
-				</c:forEach>
-			</select>
-		</c:if>
-	</p>
-	
-	<p>	
-		<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
-		<form:textarea path="subject" rows="2" cols="50"></form:textarea>
-		<form:errors path="subject" cssClass="validationError"/>	
-	</p>
-
-	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-		<p>
-			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-			<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="questionText" cssClass="validationError"/>	
+			<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">	
+				<input type="hidden" id="referencedHDS" name="referencedHDS" value="${referencedHDS}" />
+			</c:if>
+			<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">	
+				<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
+					<c:forEach items="${referencedQuestions }" var="i">
+						<option value="${i.id}" selected="selected"></option>
+					</c:forEach>
+				</select>
+			</c:if>
 		</p>
 		
-		<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
+		<p>	
+			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
+			<form:textarea path="subject" rows="2" cols="50"></form:textarea>
+			<form:errors path="subject" cssClass="validationError"/>	
+		</p>
+	
+		<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 			<p>
-				<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
-				<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
-				<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+				<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
+				<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="questionText" cssClass="validationError"/>	
 			</p>
-		</c:if>
-	</c:if>
-	
-	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'  or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-		<p>
-			<c:choose>
-				<c:when test="${selectedQuestionType=='questions_shortnotice'}">
-					<label class="wysiwyglabel"><spring:message code="question.shortnoticeReason" text="Reason"/>*</label>
-				</c:when>
-				<c:otherwise>
-					<label class="wysiwyglabel"><spring:message code="question.halfhourReason" text="Points to be discussed"/>*</label>
-				</c:otherwise>
-			</c:choose>
-			<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-		</p>
-	</c:if>	
-	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-		<p>
-			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
-			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
-		</p>
-	</c:if>
-	
-	<p>
-		<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
-			<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
-			<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-				<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
+			
+			<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
+				<p>
+					<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+					<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
+					<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+				</p>
 			</c:if>
 		</c:if>
 		
-		<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-			<c:choose>
-				<c:when test="${(selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-					<a href="#" id="reviseReason" style="margin-left: 10px;"><spring:message code="question.reviseReason" text="Revise Reason"></spring:message></a>
-				</c:when>
-				<c:otherwise>
-					<c:choose>
-						<c:when test="${selectedQuestionType=='questions_shortnotice'}">
-							<a href="#" id="reviseReason" style="margin-right: 20px;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
-						</c:when>
-						<c:otherwise>
-							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
-						</c:otherwise>
-					</c:choose>					
-				</c:otherwise>
-			</c:choose>		
-			<c:if test="${selectedQuestionType!='questions_shortnotice'}">	
-				<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
-			</c:if>
-		</c:if>
-		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
-		<br />
-	</p>
-	
-	<p style="display:none;" class="revise4" id="revisedBriefExplanationDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedBriefExplanation" text="Revised Brief Explanation"/></label>
-	<form:textarea path="revisedBriefExplanation" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedBriefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
-	
-	
-	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
-	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
-	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
-	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
-	
-	<p style="display:none;" class="revise2" id="revisedQuestionTextDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
-	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
-	
-	<p style="display:none;" class="revise3" id="revisedReasonDiv">
-	<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
-	<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
-	
-	<p id="internalStatusDiv">
-	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
-	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
-	</p>
-	
-	<c:if test="${(internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred' &&selectedQuestionType=='questions_starred')
-	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
-	||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_putup_nameclubbibg')&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
-	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
-	||(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse')
-	||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse')}">
-		<security:authorize access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">		
-		<p>
-			<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
-			<select id="changeInternalStatus" class="sSelect">
-			<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-			<c:forEach items="${internalStatuses}" var="i">
+		<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'  or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+			<p>
 				<c:choose>
-					<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-						<c:if test="${i.type=='question_recommend_admission' or i.type=='question_recommend_rejection' or i.type=='question_recommend_sendback' or i.type=='question_recommend_discuss'}">
-							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-						</c:if>
+					<c:when test="${selectedQuestionType=='questions_shortnotice'}">
+						<label class="wysiwyglabel"><spring:message code="question.shortnoticeReason" text="Reason"/>*</label>
 					</c:when>
 					<c:otherwise>
-						<c:if test="${(i.type!='question_recommend_sendback'&&i.type!='question_recommend_discuss') }">
-						<c:choose>
-						<c:when test="${i.type=='question_system_groupchanged' }">
-						<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-						</c:when>
-						<c:otherwise>
-						<c:choose>
-						<c:when test="${i.id==internalStatusSelected }">
-						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-						</c:when>
-						<c:otherwise>
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-						</c:otherwise>
-						</c:choose>
-						</c:otherwise>
-						</c:choose>
-						</c:if>
+						<label class="wysiwyglabel"><spring:message code="question.halfhourReason" text="Points to be discussed"/>*</label>
 					</c:otherwise>
 				</c:choose>
-			</c:forEach>
-			</select>
-			
-			<select id="internalStatusMaster" style="display:none;">
-			<c:forEach items="${internalStatuses}" var="i">
-			<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-			</c:forEach>
-			</select>	
-			<form:errors path="internalStatus" cssClass="validationError"/>	
-		</p>
-		</security:authorize>
-
-		<p id="actorDiv" style="display: none;">
-			<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
-			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
-			<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
-		</p>		
-
-	</c:if>		
+				<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+		</c:if>	
 		
-	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
-	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
-	<c:if test="${fn:contains(internalStatusType, 'question_final')}">
-		<form:hidden path="actor"/>
-	</c:if>
-	<c:if test="${!(empty domain.factualPosition) || 
-			(internalStatusType=='question_final_clarificationNeededFromDepartment'&& houseTypeType=='upperhouse')
-			 }">
-		<p>
-		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
-		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-		</p>
-	</c:if>	
-	
-	<c:if test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_rejection'}">
-		<p>
-			<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-			<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
-		</p>
-	</c:if>
-	<c:if test="${selectedQuestionType=='questions_starred' || selectedQuestionType=='questions_shortnotice'}">
-		<c:choose>
-			<c:when test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_admission'}">
-				<p>
-				<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
-				<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
-				</p>
-			</c:when>
-			<c:when test="${houseTypeType=='lowerhouse' && !(empty domain.answer)}">
-				<p>
-				<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
-				<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
-				</p>
-			</c:when>
-		</c:choose>
-	</c:if>
-	
-	<c:choose>
-		<c:when test="${(not empty domain.answer) and (fn:contains(allowedDeviceTypesForAnswerRelatedDates, selectedQuestionType))}">
+		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 			<p>
-				<label class="small"><spring:message code="question.answerRequestedDate" text="Answer Requested Date"/></label>
-				<input id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+				<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
+				<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 			</p>
-			<p>
-				<label class="small"><spring:message code="question.answerReceivedDate" text="Answer Received Date"/></label>
-				<input id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
-			</p>
-		</c:when>
-		<c:otherwise>
-			<c:if test="${not empty formattedAnswerRequestedDate}">
-				<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
-			</c:if>
-			<c:if test="${not empty formattedAnswerReceivedDate}">
-				<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
-			</c:if>
-		</c:otherwise>
-	</c:choose>
-	
-	<p>
-	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
-	</p>
-	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
-	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>	
-	
-	<div class="fields">
-		<h2></h2>
-		<p class="tright">
-		<c:choose>
-			<c:when test="${bulkedit!='yes'}">
-				<c:if test="${internalStatusType=='question_submit'
-							||internalStatusType=='question_system_assistantprocessed'
-							||((internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_system_groupchanged' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred') && selectedQuestionType=='questions_starred')
-							||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_shortnotice')
-							||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_halfhourdiscussion_from_question')
-							||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_unstarred')
-							||((internalStatusType=='question_system_putup' || internalStatusType=='question_system_groupchanged') && (selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse'))
-							||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && (selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse'))
-							}">
-					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<security:authorize access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
-					<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
-					</security:authorize>					
+		</c:if>
+		
+		<p>
+			<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
+				<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
+				<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+					<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
 				</c:if>
-				<%--- Remove the Following if conditions after session... Hack given for the council branch  --%>
+			</c:if>
+			
+			<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+				<c:choose>
+					<c:when test="${(selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+						<a href="#" id="reviseReason" style="margin-left: 10px;"><spring:message code="question.reviseReason" text="Revise Reason"></spring:message></a>
+					</c:when>
+					<c:otherwise>
+						<c:choose>
+							<c:when test="${selectedQuestionType=='questions_shortnotice'}">
+								<a href="#" id="reviseReason" style="margin-right: 20px;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
+							</c:when>
+							<c:otherwise>
+								<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
+							</c:otherwise>
+						</c:choose>					
+					</c:otherwise>
+				</c:choose>		
+				<c:if test="${selectedQuestionType!='questions_shortnotice'}">	
+					<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
+				</c:if>
+			</c:if>
+			<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
+			<br />
+		</p>
+		
+		<p style="display:none;" class="revise4" id="revisedBriefExplanationDiv">
+		<label class="wysiwyglabel"><spring:message code="question.revisedBriefExplanation" text="Revised Brief Explanation"/></label>
+		<form:textarea path="revisedBriefExplanation" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="revisedBriefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+		
+		
+		<p style="display:none;" class="revise1" id="revisedSubjectDiv">
+		<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
+		<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
+		<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+		
+		<p style="display:none;" class="revise2" id="revisedQuestionTextDiv">
+		<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
+		<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+		
+		<p style="display:none;" class="revise3" id="revisedReasonDiv">
+		<label class="wysiwyglabel"><spring:message code="question.revisedReason" text="Revised Reason"/></label>
+		<form:textarea path="revisedReason" rows="2" cols="50" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="revisedReason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+		
+		<p id="internalStatusDiv">
+		<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
+		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
+		</p>
+		
+		<c:if test="${(internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred' &&selectedQuestionType=='questions_starred')
+		||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
+		||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_putup_nameclubbibg')&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
+		||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
+		||(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse')
+		||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse')}">
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">		
+			<p>
+				<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
+				<select id="changeInternalStatus" class="sSelect">
+				<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+				<c:forEach items="${internalStatuses}" var="i">
+					<c:choose>
+						<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+							<c:if test="${i.type=='question_recommend_admission' or i.type=='question_recommend_rejection' or i.type=='question_recommend_sendback' or i.type=='question_recommend_discuss'}">
+								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+							</c:if>
+						</c:when>
+						<c:otherwise>
+							<c:if test="${(i.type!='question_recommend_sendback'&&i.type!='question_recommend_discuss') }">
+							<c:choose>
+							<c:when test="${i.type=='question_system_groupchanged' }">
+							<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+							</c:when>
+							<c:otherwise>
+							<c:choose>
+							<c:when test="${i.id==internalStatusSelected }">
+							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+							</c:when>
+							<c:otherwise>
+							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+							</c:otherwise>
+							</c:choose>
+							</c:otherwise>
+							</c:choose>
+							</c:if>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+				</select>
 				
-				<c:if test="${fn:contains(internalStatusType, 'question_final')}">
-					<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT','HDS_ASSISTANT')">
-						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					</security:authorize>					
-				</c:if>
-				<%-- <c:if test="${(internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing'&& selectedQuestionType=='questions_starred')
-							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
-							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
-							||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
-							||(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_halfhourdiscussion_standalone')}">		
-					<c:if test="${bulkedit!='yes'}">
-						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-						<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
-					</c:if>
-				</c:if> --%>
+				<select id="internalStatusMaster" style="display:none;">
+				<c:forEach items="${internalStatuses}" var="i">
+				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+				</c:forEach>
+				</select>	
+				<form:errors path="internalStatus" cssClass="validationError"/>	
+			</p>
+			</security:authorize>
+	
+			<p id="actorDiv" style="display: none;">
+				<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
+				<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
+				<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
+			</p>		
+	
+		</c:if>		
+			
+		<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
+		<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
+		<c:if test="${fn:contains(internalStatusType, 'question_final')}">
+			<form:hidden path="actor"/>
+		</c:if>
+		<c:if test="${!(empty domain.factualPosition) || 
+				(internalStatusType=='question_final_clarificationNeededFromDepartment'&& houseTypeType=='upperhouse')
+				 }">
+			<p>
+			<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+			<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+		</c:if>	
+		
+		<c:if test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_rejection'}">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+				<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
+			</p>
+		</c:if>
+		<c:if test="${selectedQuestionType=='questions_starred' || selectedQuestionType=='questions_shortnotice'}">
+			<c:choose>
+				<c:when test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_admission'}">
+					<p>
+					<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+					<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+					</p>
+				</c:when>
+				<c:when test="${houseTypeType=='lowerhouse' && !(empty domain.answer)}">
+					<p>
+					<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+					<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+					</p>
+				</c:when>
+			</c:choose>
+		</c:if>
+		
+		<c:choose>
+			<c:when test="${(not empty domain.answer) and (fn:contains(allowedDeviceTypesForAnswerRelatedDates, selectedQuestionType))}">
+				<p>
+					<label class="small"><spring:message code="question.answerRequestedDate" text="Answer Requested Date"/></label>
+					<input id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+				</p>
+				<p>
+					<label class="small"><spring:message code="question.answerReceivedDate" text="Answer Received Date"/></label>
+					<input id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+				</p>
 			</c:when>
 			<c:otherwise>
-				<c:if test="${bulkedit=='yes'}">
-					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+				<c:if test="${not empty formattedAnswerRequestedDate}">
+					<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+				</c:if>
+				<c:if test="${not empty formattedAnswerReceivedDate}">
+					<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
 				</c:if>
 			</c:otherwise>
 		</c:choose>
-	</p>
-	</div>
-	<form:hidden path="id"/>
-	<form:hidden path="locale"/>
-	<form:hidden path="version"/>
-	<form:hidden path="workflowStarted"/>	
-	<form:hidden path="endFlag"/>
-	<form:hidden path="level"/>
-	<form:hidden path="localizedActorName"/>
-	<form:hidden path="workflowDetailsId"/>
-	<form:hidden path="file"/>
-	<form:hidden path="fileIndex"/>	
-	<form:hidden path="fileSent"/>
-	
-	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
-	<input type="hidden" name="status" id="status" value="${status }">
-	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
-	<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${dataEnteredBy }">
-	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
-	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
-	<input type="hidden" name="workflowStartedOnDate" id="workflowStartedOnDate" value="${workflowStartedOnDate }">
-	<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">	
-	<input id="role" name="role" value="${role}" type="hidden">
-	<input id="taskid" name="taskid" value="${taskid}" type="hidden">
-	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
-	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
-	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
-	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
-	<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
-	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse'}">
-		<!-- --------------------------PROCESS VARIABLES -------------------------------- -->
-	
 		
-	<input id="mailflag" name="mailflag" value="${pv_mailflag}" type="hidden">
-	<input id="timerflag" name="timerflag" value="${pv_timerflag}" type="hidden">
-	<input id="reminderflag" name="reminderflag" value="${pv_reminderflag}" type="hidden">	
+		<p>
+		<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
+		</p>
+		
+		<p>
+		<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
+		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
+		</p>	
+		
+		<div class="fields">
+			<h2></h2>
+			<p class="tright">
+			<c:choose>
+				<c:when test="${bulkedit!='yes'}">
+					<c:if test="${internalStatusType=='question_submit'
+								||internalStatusType=='question_system_assistantprocessed'
+								||((internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_system_groupchanged' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred') && selectedQuestionType=='questions_starred')
+								||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_shortnotice')
+								||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_halfhourdiscussion_from_question')
+								||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_unstarred')
+								||((internalStatusType=='question_system_putup' || internalStatusType=='question_system_groupchanged') && (selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse'))
+								||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && (selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse'))
+								}">
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						<security:authorize access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
+						<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
+						</security:authorize>					
+					</c:if>
+					<%--- Remove the Following if conditions after session... Hack given for the council branch  --%>
+					
+					<c:if test="${fn:contains(internalStatusType, 'question_final')}">
+						<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT','HDS_ASSISTANT')">
+							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						</security:authorize>					
+					</c:if>
+					<%-- <c:if test="${(internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing'&& selectedQuestionType=='questions_starred')
+								||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
+								||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
+								||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
+								||(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_halfhourdiscussion_standalone')}">		
+						<c:if test="${bulkedit!='yes'}">
+							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+							<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
+						</c:if>
+					</c:if> --%>
+				</c:when>
+				<c:otherwise>
+					<c:if test="${bulkedit=='yes'}">
+						<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+					</c:if>
+				</c:otherwise>
+			</c:choose>
+		</p>
+		</div>
+		<form:hidden path="id"/>
+		<form:hidden path="locale"/>
+		<form:hidden path="version"/>
+		<form:hidden path="workflowStarted"/>	
+		<form:hidden path="endFlag"/>
+		<form:hidden path="level"/>
+		<form:hidden path="localizedActorName"/>
+		<form:hidden path="workflowDetailsId"/>
+		<form:hidden path="file"/>
+		<form:hidden path="fileIndex"/>	
+		<form:hidden path="fileSent"/>
+		
+		<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
+		<input type="hidden" name="status" id="status" value="${status }">
+		<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
+		<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${dataEnteredBy }">
+		<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
+		<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
+		<input type="hidden" name="workflowStartedOnDate" id="workflowStartedOnDate" value="${workflowStartedOnDate }">
+		<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">	
+		<input id="role" name="role" value="${role}" type="hidden">
+		<input id="taskid" name="taskid" value="${taskid}" type="hidden">
+		<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
+		<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
+		<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
+		<input type="hidden" name="originalType" id="originalType" value="${originalType}">
+		<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
+		
+		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse'}">
+			<!-- --------------------------PROCESS VARIABLES -------------------------------- -->
+		
+			
+		<input id="mailflag" name="mailflag" value="${pv_mailflag}" type="hidden">
+		<input id="timerflag" name="timerflag" value="${pv_timerflag}" type="hidden">
+		<input id="reminderflag" name="reminderflag" value="${pv_reminderflag}" type="hidden">	
+		
+		<!-- mail related variables -->
+		<input id="mailto" name="mailto" value="${pv_mailto}" type="hidden" />
+		<input id="mailfrom" name="mailfrom" value="${pv_mailfrom}" type="hidden" />
+		<input id="mailsubject" name="mailsubject" value="${pv_mailsubject}" type="hidden" />
+		<input id="mailcontent" name="mailcontent" value="${pv_mailcontent}" type="hidden" />
+		
+		<!-- timer related variables -->
+		<input id="timerduration" name="timerduration" value="${pv_timerduration}" type="hidden">
+		<input id="lasttimerduration" name="lasttimerduration" value="${pv_lasttimerduration}" type="hidden">	
+		
+		<!-- reminder related variables -->
+		<input id="reminderto" name="reminderto" value="${pv_reminderto}" type="hidden">
+		<input id="reminderfrom" name="reminderfrom" value="${pv_reminderfrom}" type="hidden">
+		<input id="remindersubject" name="remindersubject" value="${pv_remindersubject}" type="hidden">
+		<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">	
+		</c:if>		
+		
+		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+				<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${referredQuestionNumber}" />
+				<input type="hidden" name="referenceDeviceType" id="referenceDeviceType" value="${domain.referenceDeviceType}"/>
+				<input type="hidden" name="referenceDeviceMember" id="referenceDeviceMember" value="${domain.referenceDeviceMember}"/>
+				<input type="hidden" name="referenceDeviceAnswerDate" id="referenceDeviceAnswerDate" value="${refDeviceAnswerDate}"/>
+		</c:if>
+		<c:if test="${domain.ballotStatus!=null}">
+			<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${domain.ballotStatus.id}"/>		
+		</c:if>
+	</form:form>
+	<input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
+	<input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
 	
-	<!-- mail related variables -->
-	<input id="mailto" name="mailto" value="${pv_mailto}" type="hidden" />
-	<input id="mailfrom" name="mailfrom" value="${pv_mailfrom}" type="hidden" />
-	<input id="mailsubject" name="mailsubject" value="${pv_mailsubject}" type="hidden" />
-	<input id="mailcontent" name="mailcontent" value="${pv_mailcontent}" type="hidden" />
+	<input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
+	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
+	<input id="confirmQuestionSubmission" value="<spring:message code='confirm.questionsubmission.message' text='Do you want to submit the question.'></spring:message>" type="hidden">
+	<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='question.startworkflowmessage' text='Do You Want To Put Up Question?'></spring:message>" type="hidden">
+	<input id="ministrySelected" value="${ministrySelected }" type="hidden">
+	<input id="departmentSelected" value="${ departmentSelected}" type="hidden">
+	<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
+	<input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
+	<input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
+	<input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+	<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
+	<input id="questionType" type="hidden" value="${selectedQuestionType}" />
+	<input type="hidden" id="hdsRefEntity" value="${hdsRefEntity}" />
 	
-	<!-- timer related variables -->
-	<input id="timerduration" name="timerduration" value="${pv_timerduration}" type="hidden">
-	<input id="lasttimerduration" name="lasttimerduration" value="${pv_lasttimerduration}" type="hidden">	
-	
-	<!-- reminder related variables -->
-	<input id="reminderto" name="reminderto" value="${pv_reminderto}" type="hidden">
-	<input id="reminderfrom" name="reminderfrom" value="${pv_reminderfrom}" type="hidden">
-	<input id="remindersubject" name="remindersubject" value="${pv_remindersubject}" type="hidden">
-	<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">	
-	</c:if>		
-	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-			<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${referredQuestionNumber}" />
-			<input type="hidden" name="referenceDeviceType" id="referenceDeviceType" value="${domain.referenceDeviceType}"/>
-			<input type="hidden" name="referenceDeviceMember" id="referenceDeviceMember" value="${domain.referenceDeviceMember}"/>
-			<input type="hidden" name="referenceDeviceAnswerDate" id="referenceDeviceAnswerDate" value="${refDeviceAnswerDate}"/>
-	</c:if>
-	<c:if test="${domain.ballotStatus!=null}">
-		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${domain.ballotStatus.id}"/>		
-	</c:if>
-</form:form>
-<input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
-<input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
-
-<input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
-<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
-<input id="confirmQuestionSubmission" value="<spring:message code='confirm.questionsubmission.message' text='Do you want to submit the question.'></spring:message>" type="hidden">
-<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='question.startworkflowmessage' text='Do You Want To Put Up Question?'></spring:message>" type="hidden">
-<input id="ministrySelected" value="${ministrySelected }" type="hidden">
-<input id="departmentSelected" value="${ departmentSelected}" type="hidden">
-<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-<input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
-<input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
-<input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
-<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
-<input id="questionType" type="hidden" value="${selectedQuestionType}" />
-<input type="hidden" id="hdsRefEntity" value="${hdsRefEntity}" />
-
-<ul id="contextMenuItems" >
-<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
-<li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
-</ul>
+	<ul id="contextMenuItems" >
+	<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
+	<li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
+	</ul>
+	</div>
 </div>
 
 </div>

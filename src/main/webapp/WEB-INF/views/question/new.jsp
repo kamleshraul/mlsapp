@@ -531,9 +531,9 @@
 			},
 			change:function(event,ui){
 				var ministryVal=ui.item.id;	
-				console.log(ministryVal);
+				//console.log(ministryVal);
 				if(ministryVal!=''){
-					console.log(ministryVal);
+					//console.log(ministryVal);
 					loadGroup(ministryVal);
 					loadSubDepartments(ministryVal);
 				}else{
@@ -572,8 +572,7 @@
 <form:form action="question" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<div id="reportDiv">
-	<h2><spring:message code="question.new.heading" text="Enter Question Details"/> (${formattedQuestionType})		
-	</h2>
+	<h2><spring:message code="question.new.heading" text="Enter Question Details"/> (${formattedQuestionType})</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<security:authorize access="hasAnyRole('QIS_TYPIST','HDS_TYPIST')">	
