@@ -78,6 +78,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						}
 						if(question.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getNumber()));
+							workflowDetails.setNumericalDevice(question.getNumber().toString());
 						}
 						if(question.getPrimaryMember()!=null){
 							workflowDetails.setDeviceOwner(question.getPrimaryMember().getFullname());
@@ -198,6 +199,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 								}
 								if(question.getNumber()!=null){
 									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getNumber()));
+									workflowDetails.setNumericalDevice(question.getNumber().toString());
 								}
 								if(question.getPrimaryMember()!=null){
 									workflowDetails.setDeviceOwner(question.getPrimaryMember().getFullname());
@@ -425,6 +427,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						}
 						if(resolution.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(resolution.getLocale()).format(resolution.getNumber()));
+							workflowDetails.setNumericalDevice(resolution.getNumber().toString());
 						}
 						if(resolution.getMember()!=null){
 							workflowDetails.setDeviceOwner(resolution.getMember().getFullname());
@@ -541,6 +544,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 								}
 								if(domain.getNumber()!=null){
 									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
+									workflowDetails.setNumericalDevice(domain.getNumber().toString());
 								}
 								if(domain.getPrimaryMember()!=null){
 									workflowDetails.setDeviceOwner(domain.getPrimaryMember().getFullname());
@@ -641,6 +645,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						}
 						if(domain.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
+							workflowDetails.setNumericalDevice(domain.getNumber().toString());
 						}
 						if(domain.getPrimaryMember()!=null){
 							workflowDetails.setDeviceOwner(domain.getPrimaryMember().getFullname());
@@ -745,6 +750,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 								}
 								if(domain.getNumber() != null){
 									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
+									workflowDetails.setNumericalDevice(domain.getNumber().toString());
 								}
 								if(domain.getPrimaryMember() != null){
 									workflowDetails.setDeviceOwner(domain.getPrimaryMember().getFullname());
@@ -848,6 +854,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						}
 						if (domain.getNumber() != null) {
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
+							workflowDetails.setNumericalDevice(domain.getNumber().toString());
 						}
 						if (domain.getPrimaryMember() != null) {
 							workflowDetails.setDeviceOwner(domain.getPrimaryMember().getFullname());
@@ -1147,6 +1154,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						}
 						if(bill.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
+							workflowDetails.setNumericalDevice(bill.getNumber().toString());
 						}
 						if(bill.getPrimaryMember()!=null){
 							workflowDetails.setDeviceOwner(bill.getPrimaryMember().getFullname());
@@ -1253,6 +1261,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						}
 						if(bill.getNumber()!=null){
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
+							workflowDetails.setNumericalDevice(bill.getNumber().toString());
 						}
 						if(bill.getPrimaryMember()!=null){
 							workflowDetails.setDeviceOwner(bill.getPrimaryMember().getFullname());
@@ -1395,6 +1404,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 								}
 								if(bill.getNumber()!=null){
 									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
+									workflowDetails.setNumericalDevice(bill.getNumber().toString());
 								}
 								if(bill.getPrimaryMember()!=null){
 									workflowDetails.setDeviceOwner(bill.getPrimaryMember().getFullname());
@@ -1644,6 +1654,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 								}
 								if(domain.getNumber() != null){
 									workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
+									workflowDetails.setNumericalDevice(domain.getNumber().toString());
 								}
 								if(domain.getMember() != null){
 									workflowDetails.setDeviceOwner(domain.getMember().getFullname());
@@ -1747,6 +1758,7 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						}
 						if (domain.getNumber() != null) {
 							workflowDetails.setDeviceNumber(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getNumber()));
+							workflowDetails.setNumericalDevice(domain.getNumber().toString());
 						}
 						if (domain.getMember() != null) {
 							workflowDetails.setDeviceOwner(domain.getMember().getFullname());

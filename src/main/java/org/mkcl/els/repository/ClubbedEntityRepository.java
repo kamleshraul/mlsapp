@@ -274,7 +274,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				"  LEFT JOIN ministries as mi ON(q.ministry_id=mi.id) "+
 				"  LEFT JOIN departments as d ON(q.department_id=d.id) "+
 				"  LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "+
-				"  WHERE q.parent is NULL ";	
+				"  WHERE q.locale='"+locale+"'";	
 		if(deviceType!=null){
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
 				/**** Starred Questions :starred questions:recommendation status >=to_be_put_up,<=yaadi_laid,same session
@@ -330,35 +330,41 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 
 		/**** full text query ****/
 		String searchQuery=null;
-		if(!param.contains("+")&&!param.contains("-")){
-			searchQuery=" AND (( match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-					"against('"+param+"' in natural language mode)"+
-					")||q.subject LIKE '"+param+"%'||q.question_text LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%')";
-		}else if(param.contains("+")&&!param.contains("-")){
-			String[] parameters=param.split("\\+");
-			StringBuffer buffer=new StringBuffer();
-			for(String i:parameters){
-				buffer.append("+"+i+" ");
-			}
-			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-					"against('"+buffer.toString()+"' in boolean  mode)";
-		}else if(!param.contains("+")&&param.contains("-")){
-			String[] parameters=param.split("-");
-			StringBuffer buffer=new StringBuffer();
-			for(String i:parameters){
-				buffer.append(i+" "+"-");
-			}
-			buffer.deleteCharAt(buffer.length()-1);
-			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-					"against('"+buffer.toString()+"' in boolean  mode)";
-		}else if(param.contains("+")||param.contains("-")){
-			searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
-					"against('"+param+"' in boolean  mode)";
-		}		
+		String query = null;
+		if(requestMap.get("number") != null){
+			query = selectQuery+deviceTypeQuery.toString()+filter+orderByQuery;
+		}else{
+			if(!param.contains("+")&&!param.contains("-")){
+				searchQuery=" AND (( match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+						"against('"+param+"' in natural language mode)"+
+						")||q.subject LIKE '"+param+"%'||q.question_text LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%')";
+			}else if(param.contains("+")&&!param.contains("-")){
+				String[] parameters=param.split("\\+");
+				StringBuffer buffer=new StringBuffer();
+				for(String i:parameters){
+					buffer.append("+"+i+" ");
+				}
+				searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+						"against('"+buffer.toString()+"' in boolean  mode)";
+			}else if(!param.contains("+")&&param.contains("-")){
+				String[] parameters=param.split("-");
+				StringBuffer buffer=new StringBuffer();
+				for(String i:parameters){
+					buffer.append(i+" "+"-");
+				}
+				buffer.deleteCharAt(buffer.length()-1);
+				searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+						"against('"+buffer.toString()+"' in boolean  mode)";
+			}else if(param.contains("+")||param.contains("-")){
+				searchQuery=" AND match(q.subject,q.question_text,q.revised_subject,q.revised_question_text) "+
+						"against('"+param+"' in boolean  mode)";
+			}	
+			
+			query = selectQuery + deviceTypeQuery.toString() + filter + searchQuery + orderByQuery;
+		}
 		/**** Final Query ****/
-		String query=selectQuery+deviceTypeQuery.toString()+filter+searchQuery+orderByQuery;
-		String finalQuery="SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.questionText, "+
-				" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.answeringDate FROM ("+query+") as rs LIMIT "+start+","+noofRecords;
+		String finalQuery = "SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.questionText, "+
+				" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.answeringDate FROM (" + query + ") as rs LIMIT " + start + "," + noofRecords;
 
 		List results=this.em().createNativeQuery(finalQuery).getResultList();
 		List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
@@ -649,6 +655,19 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 
 	private String addFilter(Map<String, String[]> requestMap) {
 		StringBuffer buffer=new StringBuffer();
+		
+		if(requestMap.get("number") != null){
+			String deviceNumber = requestMap.get("number")[0];
+			if((!deviceNumber.isEmpty()) && (!deviceNumber.equals("-"))){
+				buffer.append(" AND q.number=" + deviceNumber);
+			}
+		}
+		if(requestMap.get("primaryMember") != null){
+			String member = requestMap.get("primaryMember")[0];
+			if((!member.isEmpty()) && (!member.equals("-"))){
+				buffer.append(" AND q.member_id=" + member);
+			}
+		}
 		if(requestMap.get("deviceType")!=null){
 			String deviceType=requestMap.get("deviceType")[0];
 			if((!deviceType.isEmpty())&&(!deviceType.equals("-"))){
