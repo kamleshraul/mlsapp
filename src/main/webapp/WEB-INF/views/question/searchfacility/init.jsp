@@ -4,6 +4,7 @@
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
+	var primaryMemberControlName=$(".autosuggest").attr("id");
 	var start=0;
 	var record=10;
 	var previousSearchTerm="";
@@ -258,6 +259,30 @@
 				$(".toolTip").hide();
 				}
 			});
+			
+			$("#formattedPrimaryMember").autocomplete({
+				minLength:3,			
+				source:'ref/member/supportingmembers/fromsession?houseType1='+$("#houseTypeCommon").val()+'&houseType2='+$("#houseTypeCommon").val()+
+						'&sessionYear1='+$("#sessionYearStarred").val()+'&sessionYear2='+$("#selectedSessionYear").val()+
+						'&sessionType1='+$("#sessionTypeStarred").val()+'&sessionType2='+$("#selectedSessionType").val(),
+				select:function(event,ui){			
+				$("#primaryMember").val(ui.item.id);
+				}			
+			});		
+			
+			$("#searchBy").change(function(){
+				var value = $(this).val();
+				if(value != '-'){
+					if(value == 'searchByNumber'){						
+						$("#searchByMemberDiv").css({'display': 'none'});
+					}else if(value == 'searchByMember'){
+						$("#searchByMemberDiv").css({'display': 'inline-block'});					
+					}
+				}else{
+					$("#searchByMemberDiv").css({'display': 'none'});
+				}
+			});
+			
 	});
 		
 		/**** Group ****/
@@ -441,7 +466,29 @@
 				if(data){				
 					
 					if($('#whichDevice').val()=='questions_') {
-						postData={param:$("#searchvalue").val(),searchBy:$("#searchBy").val(),deviceType:$("#selectedQuestionType").val(),session:data.id,record:record,start:start};
+						postData={param:$("#searchvalue").val(),session:data.id,record:record,start:start};
+						
+						var deviceType = $("#deviceTypeStarred").val();
+						var commonDevice = $("#selectedQuestionType").val();
+						if(deviceType!='' && deviceType!='-'){
+							postData['deviceType']=deviceType;
+						}else if(commonDevice!='' && commonDevice!='-'){
+							postData['deviceType']=commonDevice;
+						}
+						
+						var searchByy = $("#searchBy").val();
+						if(searchByy=='searchByNumber'){
+							if($("#searchvalue").val()!=''){
+								postData['number']=$("#searchvalue").val();	
+							}
+						}
+						
+						if(searchByy=='searchByMember'){
+							if($("#primaryMember").val()!=''){
+								postData['primaryMember']=$("#primaryMember").val();	
+							}
+						}
+						
 						if($("#houseTypeCommon").length>0){
 							postData['houseType']=$("#houseTypeCommon").val();
 						}
@@ -789,7 +836,11 @@ td>table{
 		<c:forEach items="${searchBy}" var="sb">
 			<option value="${sb.value}">${sb.name}</option>
 		</c:forEach>
-	</select> |
+	</select> 	
+	<div id="searchByMemberDiv" style="display: none;">
+		<input type="text" class="sText autosuggest" style="width: 150px;" id="formattedPrimaryMember"/>
+		<input type="hidden" style="width: 60px;" id="primaryMember"/>
+	</div>|
 	<a href="#" class="butSim">
 		<spring:message code="advancedsearch.deviceType" text="Device Type"/>
 	</a>		
@@ -836,7 +887,7 @@ td>table{
 			</c:choose>
 		</c:forEach> 
 	</select> |		
-	
+	<hr>
 	<a href="#" class="butSim">
 		<spring:message code="question.group" text="Group"/>
 	</a>			
@@ -851,8 +902,7 @@ td>table{
 	</a>			
 	<select name="answeringDateStarred" id="answeringDateStarred" style="width:100px;height: 25px;">				
 		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-	</select> |
-	<hr>			
+	</select> |				
 	<a href="#" class="butSim">
 		<spring:message code="advancedsearch.ministry" text="Ministry"/>
 	</a>			
@@ -863,14 +913,16 @@ td>table{
 		<spring:message code="advancedsearch.department" text="Department"/>
 	</a>			
 	<select name="departmentStarred" id="departmentStarred" style="width:100px;height: 25px;">				
-	<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-	</select> |			
+		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+	</select> |
+	
+	<hr>			
 	<a href="#" class="butSim">
 		<spring:message code="advancedsearch.subdepartment" text="Sub Department"/>
-	</a>			
+	</a>	
 	<select name="subDepartmentStarred" id="subDepartmentStarred" style="width:100px;height: 25px;">				
-	<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-	</select> |			
+		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+	</select> |	
 	<a href="#" class="butSim">
 		<spring:message code="question.status" text="Status"/>
 	</a>			
