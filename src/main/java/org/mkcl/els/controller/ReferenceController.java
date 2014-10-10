@@ -1785,13 +1785,17 @@ public class ReferenceController extends BaseController {
 			final Locale locale,
 			@RequestParam("session")final Long session,
 			final ModelMap model){
-		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
-		List<MasterVO> memberVOs=new ArrayList<MasterVO>();
-		List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
-		Session selectedSession=Session.findById(Session.class,session);
-		House house=selectedSession.getHouse();
-		Long primaryMemberId=null;
-		if(request.getParameter("primaryMemberId")!=null){
+		return getAutoCompleteData(request, session, locale);
+	}
+	
+	private List<AutoCompleteVO> getAutoCompleteData(HttpServletRequest request, Long session,Locale locale){
+		CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+		List<MasterVO> memberVOs = new ArrayList<MasterVO>();
+		List<AutoCompleteVO> autoCompleteVOs = new ArrayList<AutoCompleteVO>();
+		Session selectedSession = Session.findById(Session.class, session);
+		House house = selectedSession.getHouse();
+		Long primaryMemberId = null;
+		if(request.getParameter("primaryMemberId") != null){
 			if(!request.getParameter("primaryMemberId").isEmpty()){
 				primaryMemberId = Long.parseLong(request.getParameter("primaryMemberId"));
 			}
@@ -1802,30 +1806,91 @@ public class ReferenceController extends BaseController {
 		//		if(primaryMemberId==null){
 		//			return autoCompleteVOs;
 		//		}
-		if(customParameter!=null){
-			String server=customParameter.getValue();
+		if(customParameter != null){
+			String server = customParameter.getValue();
 			if(server.equals("TOMCAT")){
-				String strParam=request.getParameter("term");
+				String strParam = request.getParameter("term");
 				try {
-					String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
-					memberVOs=HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house, selectedSession, locale.toString(), param,primaryMemberId);
+					String param = new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+					memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house, selectedSession, locale.toString(), param,primaryMemberId);
 				}
 				catch (UnsupportedEncodingException e){
 					e.printStackTrace();
 				}
 			}else{
-				String param=request.getParameter("term");
-				memberVOs=HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house,selectedSession, locale.toString(), param, primaryMemberId);
+				String param = request.getParameter("term");
+				memberVOs = HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house,selectedSession, locale.toString(), param, primaryMemberId);
 			}
 		}
-		for(MasterVO i:memberVOs){
-			AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
+		for(MasterVO i : memberVOs){
+			AutoCompleteVO autoCompleteVO = new AutoCompleteVO();
 			autoCompleteVO.setId(i.getId());
 			autoCompleteVO.setValue(i.getName());
 			autoCompleteVOs.add(autoCompleteVO);
 		}
-
+		
 		return autoCompleteVOs;
+	}
+	
+	@RequestMapping(value = "/member/supportingmembers/fromsession", method = RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getMemberAutosuggest(final HttpServletRequest request,
+			final Locale locale){
+		HouseType houseType = null;
+		SessionType sessionType = null;
+		Integer sessionYear = null;
+		Session session = null;
+		
+		try{
+			String strHouseType1 = request.getParameter("houseType1");
+			String strSessionYear1 = request.getParameter("sessionYear1");
+			String strSessionType1 = request.getParameter("sessionType1");
+			String strHouseType2 = request.getParameter("houseType2");
+			String strSessionYear2 = request.getParameter("sessionYear2");
+			String strSessionType2 = request.getParameter("sessionType2");
+			
+			if(strHouseType1 != null && !strHouseType1.isEmpty()){
+				try{
+					houseType = HouseType.findByType(strHouseType1, locale.toString());
+				}catch(Exception e){
+					logger.error("error", e);
+					if(strHouseType2 != null && !strHouseType2.isEmpty()){
+						houseType = HouseType.findByType(strHouseType2, locale.toString());
+					}
+				}
+			}
+			
+			if(strSessionType1 != null && !strSessionType1.isEmpty()){
+				try{
+					sessionType = SessionType.findById(SessionType.class, new Long(strSessionType1));
+				}catch(Exception e){
+					logger.error("error", e);
+					if(strSessionType2 != null && !strSessionType2.isEmpty()){
+						sessionType = SessionType.findById(SessionType.class, new Long(strSessionType2));
+					}
+				}
+			}
+			
+			if(strSessionYear1 != null && !strSessionYear1.isEmpty()){
+				try{
+					sessionYear = Integer.parseInt(strSessionYear1);
+				}catch(Exception e){
+					logger.error("error", e);
+					if(strSessionYear2 != null && !strSessionYear2.isEmpty()){
+						sessionYear = Integer.parseInt(strSessionYear2);;
+					}
+				}
+			}
+			
+			try{
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+			}catch(Exception e){
+				logger.error("error", e);
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return getAutoCompleteData(request, session.getId(), locale);
 	}
 
 	/**

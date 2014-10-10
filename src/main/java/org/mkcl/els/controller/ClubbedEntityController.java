@@ -70,7 +70,7 @@ public class ClubbedEntityController extends BaseController{
 			}
 			
 			try{
-				model.addAttribute("deviceTypes", DeviceType.findAllowedTypesInStarredClubbing(locale.toString()));
+				model.addAttribute("deviceTypes", DeviceType.findDeviceTypesStartingWith("questions_", locale.toString()));
 			}catch (ELSException e) {
 				model.addAttribute("ClubbedEntityController","Request can not be completed at the moment.");
 			}
@@ -630,18 +630,7 @@ public class ClubbedEntityController extends BaseController{
 			if(session == null){
 				session = Session.findById(Session.class, new Long(strSession));
 			}
-			
-			
-			String strSearchBy = request.getParameter("searchBy");
-			if(strSearchBy != null && !strSearchBy.isEmpty()){
-				if(strSearchBy.equals("searchByNumber")){
-					
-					return Question.searchByNumber(session, new Integer(param), locale.toString());
-				}else if(strSearchBy.equals("searchByMember")){
-					
-				}
-			}
-			
+						
 			Map<String,String[]> requestMap = request.getParameterMap();
 			if(start != null && noOfRecords != null){
 				if((!start.isEmpty()) && (!noOfRecords.isEmpty())){
