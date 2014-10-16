@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.mkcl.els.common.exception.ELSException;
-import org.mkcl.els.domain.Chart;
-import org.mkcl.els.domain.ChartEntry;
+import org.mkcl.els.domain.chart.Chart;
+import org.mkcl.els.domain.chart.ChartEntry;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
