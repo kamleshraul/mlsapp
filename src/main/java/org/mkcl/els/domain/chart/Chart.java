@@ -1,4 +1,4 @@
-package org.mkcl.els.domain;
+package org.mkcl.els.domain.chart;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,6 +22,19 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.ChartVO;
 import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.domain.BaseDomain;
+import org.mkcl.els.domain.ClubbedEntity;
+import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Device;
+import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Group;
+import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.QuestionDates;
+import org.mkcl.els.domain.Resolution;
+import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.Status;
 import org.mkcl.els.repository.ChartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;

@@ -7,7 +7,7 @@
  * File: org.mkcl.els.domain.ChartEntry.java
  * Created On: Jan 10, 2013
  */
-package org.mkcl.els.domain;
+package org.mkcl.els.domain.chart;
 
 import java.io.Serializable;
 import java.util.List;
@@ -21,9 +21,11 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.mkcl.els.domain.BaseDomain;
+import org.mkcl.els.domain.Device;
+import org.mkcl.els.domain.Member;
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ChartEntry.
  *
@@ -113,7 +115,5 @@ public class ChartEntry extends BaseDomain implements Serializable {
 	public void setDevices(List<Device> devices) {
 		this.devices = devices;
 	}
-
-	
 
 }
