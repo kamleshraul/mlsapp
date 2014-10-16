@@ -27,7 +27,7 @@ import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.BaseDomain;
-import org.mkcl.els.domain.Chart;
+import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
