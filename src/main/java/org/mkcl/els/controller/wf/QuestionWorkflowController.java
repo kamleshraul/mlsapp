@@ -39,7 +39,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.controller.QuestionReportController;
-import org.mkcl.els.domain.Chart;
+import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.ClarificationNeededFrom;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
