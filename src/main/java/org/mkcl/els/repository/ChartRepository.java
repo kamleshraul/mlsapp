@@ -13,8 +13,6 @@ import javax.persistence.TypedQuery;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.domain.Chart;
-import org.mkcl.els.domain.ChartEntry;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
@@ -26,6 +24,8 @@ import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.chart.Chart;
+import org.mkcl.els.domain.chart.ChartEntry;
 import org.springframework.stereotype.Repository;
 
 @Repository
