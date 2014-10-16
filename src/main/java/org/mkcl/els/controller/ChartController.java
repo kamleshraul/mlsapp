@@ -16,7 +16,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.ChartVO;
 import org.mkcl.els.common.vo.MasterVO;
-import org.mkcl.els.domain.Chart;
+import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
