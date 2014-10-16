@@ -35,7 +35,7 @@ import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.common.xmlvo.ResolutionXmlVO;
 import org.mkcl.els.controller.GenericController;
-import org.mkcl.els.domain.Chart;
+import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
