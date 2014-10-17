@@ -33,7 +33,6 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
-import org.mkcl.els.repository.CutMotionRepository;
 import org.mkcl.els.repository.EventMotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -147,6 +146,12 @@ public class EventMotion extends Device implements Serializable {
 	@JoinColumn(name = "member_id")
 	private Member member;
 	
+	
+	private String exMember;
+	
+	private Boolean exMemberEnabled;
+	
+	
 	private String designationOfPerson;
 	
 	private String tenureOfPerson;
@@ -251,7 +256,7 @@ public class EventMotion extends Device implements Serializable {
 
 	@Override
 	public EventMotion persist() {
-		if(this.getStatus().getType().equals(ApplicationConstants.CUTMOTION_SUBMIT)) {
+		if(this.getStatus().getType().equals(ApplicationConstants.EVENTMOTION_SUBMIT)) {
 			if(this.getNumber() == null) {
 				synchronized (this) {
 					Integer number = EventMotion.assignEventMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(),this.getLocale());
@@ -274,8 +279,8 @@ public class EventMotion extends Device implements Serializable {
 	}
 
 	private void addEventMotionDraft() {
-		if(! this.getStatus().getType().equals(ApplicationConstants.CUTMOTION_INCOMPLETE) &&
-				! this.getStatus().getType().equals(ApplicationConstants.CUTMOTION_COMPLETE)) {
+		if(! this.getStatus().getType().equals(ApplicationConstants.EVENTMOTION_INCOMPLETE) &&
+				! this.getStatus().getType().equals(ApplicationConstants.EVENTMOTION_COMPLETE)) {
 			EventMotionDraft draft = new EventMotionDraft();
 			draft.setLocale(this.getLocale());
 			draft.setRemarks(this.getRemarks());
@@ -327,7 +332,7 @@ public class EventMotion extends Device implements Serializable {
 	@Override
 	public EventMotion merge() {
 		EventMotion motion = null;
-		if(this.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SUBMIT)) {
+		if(this.getInternalStatus().getType().equals(ApplicationConstants.EVENTMOTION_SUBMIT)) {
 			if(this.getNumber() == null) {
 				synchronized (this) {
 					Integer number = EventMotion.assignEventMotionNo(this.getHouseType(), this.getSession(), this.getDeviceType(),this.getLocale());
@@ -348,8 +353,8 @@ public class EventMotion extends Device implements Serializable {
 		if(motion != null) {
 			return motion;
 		}else {
-			if(this.getInternalStatus().getType().equals(ApplicationConstants.MOTION_INCOMPLETE) 
-					|| this.getInternalStatus().getType().equals(ApplicationConstants.MOTION_COMPLETE)) {
+			if(this.getInternalStatus().getType().equals(ApplicationConstants.EVENTMOTION_INCOMPLETE) 
+					|| this.getInternalStatus().getType().equals(ApplicationConstants.EVENTMOTION_COMPLETE)) {
 				return (EventMotion) super.merge();
 			}else {
 				EventMotion oldMotion = EventMotion.findById(EventMotion.class, this.getId());
@@ -385,7 +390,7 @@ public class EventMotion extends Device implements Serializable {
 			final Status internalStatus,
 			final Integer itemsCount,
 			final String locale) {
-		return null;
+		return getEventMotionRepository().findAllByStatus(session, eventMotionType, internalStatus, itemsCount, locale);
 	}	
 
 	public EventMotionDraft findLatestDraft() {
@@ -413,17 +418,17 @@ public class EventMotion extends Device implements Serializable {
 	}
 	
 	public static List<EventMotion> findAllByFile(final Session session,
-			final DeviceType cutMotionType,
+			final DeviceType eventMotionType,
 			final Integer file,
 			final String locale) {
-		return null;//getCutMotionRepository().findAllByFile(session, cutMotionType, file, locale);
+		return getEventMotionRepository().findAllByFile(session, eventMotionType, file, locale);
 	}
 
 	public static List<EventMotion> findBySessionDeviceTypeSubdepartment(final Session session,
-			final DeviceType cutMotionType,
+			final DeviceType eventMotionType,
 			final SubDepartment subDepartment,
 			final String locale) {
-		return null;//getCutMotionRepository().findBySessionDeviceTypeSubdepartment(session, cutMotionType, subDepartment, locale);
+		return getEventMotionRepository().findBySessionDeviceTypeSubdepartment(session, eventMotionType, subDepartment, locale);
 	}
 	
 	public static Integer findMaxNumberBySubdepartment(final Session session,
@@ -442,7 +447,7 @@ public class EventMotion extends Device implements Serializable {
 		return null;//getCutMotionRepository().getMotion(sessionId,deviceTypeId,dNumber,locale);
 	}
 	
-	public static List<EventMotion> findFinalizedCutMotions(final Session session,
+	public static List<EventMotion> findFinalizedEventMotions(final Session session,
 			final DeviceType deviceType, 
 			final SubDepartment subDepartment,
 			final Status status,
@@ -453,10 +458,18 @@ public class EventMotion extends Device implements Serializable {
 	
 	public static List<EventMotion> findAllByMember(final Session session,
 			final Member primaryMember,
-			final DeviceType cutMotionType,
+			final DeviceType eventMotionType,
 			final Integer itemsCount,
 			final String locale) {
-		return getEventMotionRepository().findAllByMember(session, primaryMember, cutMotionType,itemsCount, locale);
+		return getEventMotionRepository().findAllByMember(session, primaryMember, eventMotionType,itemsCount, locale);
+	}
+	
+	public static List<EventMotion> findAllByCreator(final Session session,
+			final String creator,
+			final DeviceType eventMotionType,
+			final Integer itemsCount,
+			final String locale) {
+		return getEventMotionRepository().findAllByCreator(session, creator, eventMotionType, itemsCount, locale);
 	}
 
 	/**** Getter Setters ****/
@@ -626,6 +639,22 @@ public class EventMotion extends Device implements Serializable {
 
 	public void setMember(Member member) {
 		this.member = member;
+	}
+
+	public String getExMember() {
+		return exMember;
+	}
+
+	public void setExMember(String exMember) {
+		this.exMember = exMember;
+	}
+
+	public Boolean getExMemberEnabled() {
+		return exMemberEnabled;
+	}
+
+	public void setExMemberEnabled(Boolean exMemberEnabled) {
+		this.exMemberEnabled = exMemberEnabled;
 	}
 
 	public List<SupportingMember> getSupportingMembers() {
