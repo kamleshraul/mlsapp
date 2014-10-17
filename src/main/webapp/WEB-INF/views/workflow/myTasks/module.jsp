@@ -404,6 +404,8 @@
 			}else if($('#deviceTypeType').val().contains("motions_")){
 				if($('#deviceTypeType').val().indexOf("motions_cutmotion_")==0){
 					resourceURL="workflow/cutmotion/bulkapproval/init";	
+				}else if($('#deviceTypeType').val().indexOf("motions_eventmotion_")==0){
+					resourceURL="workflow/eventmotion/bulkapproval/init";					
 				}else{
 					resourceURL="workflow/cutmotion/bulkapproval/init";
 				}				
