@@ -46,6 +46,7 @@ import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.Abbreviation;
 import org.mkcl.els.domain.Airport;
 import org.mkcl.els.domain.Bill;
+import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.BillKind;
 import org.mkcl.els.domain.BillType;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -100,7 +101,6 @@ import org.mkcl.els.domain.River;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Sanctuary;
 import org.mkcl.els.domain.Section;
-import org.mkcl.els.domain.SectionOrder;
 import org.mkcl.els.domain.SectionOrderSeries;
 import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.SupportingMember;
@@ -119,7 +119,6 @@ import org.mkcl.els.domain.Tehsil;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
-import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
@@ -6105,5 +6104,30 @@ public class ReferenceController extends BaseController {
 		}
 		
 		return ref;
+	}
+	
+	@RequestMapping(value="/billamendmentmotion/actors",method=RequestMethod.POST)
+	public @ResponseBody List<Reference> findActorsForBillAmendmentMotion(final HttpServletRequest request,final ModelMap model,
+			final Locale locale) throws ELSException {
+		List<Reference> actors=new ArrayList<Reference>();
+		String strBillAmendmentMotion=request.getParameter("billamendmentmotion");
+		String strInternalStatus=request.getParameter("status");		
+		String strUserGroup=request.getParameter("usergroup");
+		String strLevel=request.getParameter("level");
+		if(strBillAmendmentMotion!=null && !strBillAmendmentMotion.isEmpty() 
+				&& strInternalStatus!=null && !strInternalStatus.isEmpty() 
+				&& strUserGroup!=null && !strUserGroup.isEmpty() 
+				&& strLevel!=null && !strLevel.isEmpty()) {
+			Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
+			if(internalStatus.getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECT_TRANSLATION)) {
+				return actors;
+			}
+			BillAmendmentMotion billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,Long.parseLong(strBillAmendmentMotion));
+			UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+			actors=WorkflowConfig.findBillAmendmentMotionActorsVO(billAmendmentMotion,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+		} else {
+			throw new ELSException();
+		}
+		return actors;
 	}
 }

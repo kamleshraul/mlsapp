@@ -306,7 +306,7 @@ public class Bill extends Device implements Serializable {
     @Column(length=30000)
     private String remarks;
     
-    /** The remarks. */
+    /** The remarks for translation. */
     @Column(length=30000)
     private String remarksForTranslation;
     

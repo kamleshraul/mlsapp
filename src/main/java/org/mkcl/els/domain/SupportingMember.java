@@ -121,6 +121,14 @@ public class SupportingMember extends BaseDomain implements Serializable{
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="introducing_housetype_id")
     private HouseType approvedIntroducingHouseType;
+    
+    //==============bill amendment motion related fields============//
+    /** The approved section amendment. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @JoinTable(name="supportingmembers_sectionamendments",
+    joinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="sectionamendment_id", referencedColumnName="id")})
+    private List<SectionAmendment> approvedSectionAmendments;
 
     /** The remarks. */
     @Column(length=30000)
@@ -346,6 +354,17 @@ public class SupportingMember extends BaseDomain implements Serializable{
 	public void setApprovedIntroducingHouseType(
 			HouseType approvedIntroducingHouseType) {
 		this.approvedIntroducingHouseType = approvedIntroducingHouseType;
+	}
+
+
+	public List<SectionAmendment> getApprovedSectionAmendments() {
+		return approvedSectionAmendments;
+	}
+
+
+	public void setApprovedSectionAmendments(
+			List<SectionAmendment> approvedSectionAmendments) {
+		this.approvedSectionAmendments = approvedSectionAmendments;
 	}
 
 

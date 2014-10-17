@@ -37,10 +37,6 @@ public class BillAmendmentMotionDraft extends Device implements Serializable{
 	private static final long serialVersionUID = 1L;    
 
 	//=============== BASIC ATTRIBUTES ====================	
-    /** The subject. */
-    @Column(length=30000)
-    private String subject;     
-    
     /** The amendment. */
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
     @JoinTable(name="billamendmentmotiondrafts_sectionamendments",
@@ -82,37 +78,19 @@ public class BillAmendmentMotionDraft extends Device implements Serializable{
     
     /** The parent. */
 	@ManyToOne(fetch=FetchType.LAZY)
-	private Motion parent;
+	private BillAmendmentMotion parent;
 	
 	/** The clubbed entities. */
     @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="billamendmentmotiondrafts_clubbingentities", joinColumns={@JoinColumn(name="motiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
+    @JoinTable(name="billamendmentmotiondrafts_clubbingentities", joinColumns={@JoinColumn(name="billamendmentmotiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="clubbed_entity_id", referencedColumnName="id")})
     private List<ClubbedEntity> clubbedEntities;
     
     /** The referenced entities. */
     @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="billamendmentmotiondrafts_referencedentities", joinColumns={@JoinColumn(name="motiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
+    @JoinTable(name="billamendmentmotiondrafts_referencedentities", joinColumns={@JoinColumn(name="billamendmentmotiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
     private List<ReferencedEntity> referencedEntities;
 
-    /**
-     * ** Setters and Getters ***.
-     *
-     * @return the subject
-     */
-	public String getSubject() {
-		return subject;
-	}
-
-	/**
-	 * Sets the subject.
-	 *
-	 * @param subject the new subject
-	 */
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-
-	public List<SectionAmendment> getSectionAmendments() {
+    public List<SectionAmendment> getSectionAmendments() {
 		return sectionAmendments;
 	}
 
@@ -272,11 +250,11 @@ public class BillAmendmentMotionDraft extends Device implements Serializable{
 		return referencedEntities;
 	}
 
-	public void setParent(Motion parent) {
+	public void setParent(BillAmendmentMotion parent) {
 		this.parent = parent;
 	}
 
-	public Motion getParent() {
+	public BillAmendmentMotion getParent() {
 		return parent;
 	}  
 }

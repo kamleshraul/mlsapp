@@ -135,6 +135,14 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date sendBackBefore;
 	
+	/**** Attributes for bill amendment motion ****/
+	@Column(length=1000)
+	private String amendedBillInfo;
+	
+	@Column(length=1000)
+	private String defaultAmendedSectionNumberInfo;
+	//================================================
+	
 	/**** Attributes for Non Device Types viz, Committee ****/
 	// Comma separated Ids
 	@Column(length=1000)
@@ -335,10 +343,27 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 				workflowType,customStatus, assigneeLevel);
 	}
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Bill bill, String workflowType) {
+	public static WorkflowDetails findCurrentWorkflowDetail(final Bill bill, final String workflowType) {
 		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(bill, workflowType);
 	}
 
+	/**** BillAmendmentMotion Related 
+	 * @throws ELSException ****/
+	public static WorkflowDetails create(final BillAmendmentMotion bill,final Task task,final String workflowType,
+			String customStatus, final String userGroupType, final String assigneeLevel) {
+		return getWorkflowDetailsRepository().create(bill,task,workflowType,
+				customStatus,userGroupType, assigneeLevel);
+	}
+	
+	public static List<WorkflowDetails> create(final BillAmendmentMotion billAmendmentMotion,final List<Task> tasks,
+			final String workflowType,String customStatus, final String assigneeLevel) {
+		return getWorkflowDetailsRepository().create(billAmendmentMotion,tasks,
+				workflowType,customStatus, assigneeLevel);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final BillAmendmentMotion billAmendmentMotion, final String workflowType){
+		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(billAmendmentMotion, workflowType);
+	}
 	
 	public static Integer findIfWorkflowExists(final Session session,
 							final HouseType houseType,
@@ -744,6 +769,23 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 
 	public void setAcknowledgementDecision(String acknowledgementDecision) {
 		this.acknowledgementDecision = acknowledgementDecision;
+	}
+
+	public String getAmendedBillInfo() {
+		return amendedBillInfo;
+	}
+
+	public void setAmendedBillInfo(String amendedBillInfo) {
+		this.amendedBillInfo = amendedBillInfo;
+	}
+
+	public String getDefaultAmendedSectionNumberInfo() {
+		return defaultAmendedSectionNumberInfo;
+	}
+
+	public void setDefaultAmendedSectionNumberInfo(
+			String defaultAmendedSectionNumberInfo) {
+		this.defaultAmendedSectionNumberInfo = defaultAmendedSectionNumberInfo;
 	}
 
 	public Date getAnsweringDate() {

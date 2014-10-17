@@ -24,6 +24,8 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.util.RomanNumeral;
+import org.mkcl.els.repository.SectionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -86,6 +88,26 @@ public class Section extends BaseDomain implements Serializable {
     		inverseJoinColumns={@JoinColumn(name="section_draft_id", referencedColumnName="id")})
     private List<SectionDraft> drafts;
     
+    /** The section repository. */
+    @Autowired
+    private transient SectionRepository sectionRepository;
+    
+    
+    //=============== DOMAIN METHODS ====================
+    /**
+     * Gets the section repository.
+     *
+     * @return the section repository
+     */
+    private static SectionRepository getSectionRepository() {
+    	SectionRepository sectionRepository = new Section().sectionRepository;
+        if (sectionRepository == null) {
+            throw new IllegalStateException(
+            	"SectionRepository has not been injected in Section Domain");
+        }
+        return sectionRepository;
+    }
+    
     @Override
     public Section persist() {
     	addSectionDraft();
@@ -128,6 +150,10 @@ public class Section extends BaseDomain implements Serializable {
             this.setDrafts(originalDrafts);
         }
     }
+    
+    public SectionDraft findLatestDraftOnOrBeforeGivenTime(final Date givenTime) {		
+		return getSectionRepository().findLatestDraftOnOrBeforeGivenTime(this, givenTime);
+	}
     
     public String findOrder() {
     	if(this.getHierarchyOrder()!=null && !this.getHierarchyOrder().isEmpty()) {

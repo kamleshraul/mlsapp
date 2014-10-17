@@ -218,6 +218,12 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 				userGroup,level,locale);
 	}
 	
+	public static List<Reference> findBillAmendmentMotionActorsVO(final BillAmendmentMotion billAmendmentMotion,
+			final Status internalStatus,final UserGroup userGroup,final int level, final String locale) {
+		return getWorkflowConfigRepository().findBillAmendmentMotionActorsVO(billAmendmentMotion,
+				internalStatus, userGroup,level,locale);
+	}
+	
 	public static WorkflowActor findNextEditingActor(final HouseType houseType,
 			final UserGroup userGroup, 
 			final Status status, 

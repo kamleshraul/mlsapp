@@ -10,6 +10,9 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -17,6 +20,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.vo.ChartVO;
 import org.mkcl.els.repository.LanguageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -87,6 +91,21 @@ public class Language extends BaseDomain implements Serializable {
 	
 	public static String findLocaleForLanguage(final Language language) throws ELSException {
 		return getLanguageRepository().findLocaleForLanguage(language);
+	}
+	
+	public static List<Language> sort(final List<Language> languages) {
+		List<Language> newLanguages = new ArrayList<Language>();
+		newLanguages.addAll(languages);
+		Comparator<Language> c = new Comparator<Language>() {
+			@Override
+			public int compare(final Language lang1, final Language lang2) {
+				Integer lang1_Priority = lang1.getPriority();
+				Integer lang2_Priority = lang2.getPriority();
+				return lang1_Priority.compareTo(lang2_Priority);
+			}
+		};	
+		Collections.sort(newLanguages, c);
+		return newLanguages;
 	}
     // ------------------------------------------Getters/Setters-----------------------------------
     /**

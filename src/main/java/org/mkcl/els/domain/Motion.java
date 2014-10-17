@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Table(name="motions")
 @JsonIgnoreProperties({"houseType", "session", "type", 
 	"recommendationStatus", "supportingMembers",
-	"department", "drafts", "parent", "clubbedEntities", "amendments"})
+	"department", "drafts", "parent", "clubbedEntities"})
 	public class Motion extends Device implements Serializable{
 
 	

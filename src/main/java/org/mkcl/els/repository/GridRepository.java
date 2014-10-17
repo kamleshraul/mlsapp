@@ -12,6 +12,7 @@ package org.mkcl.els.repository;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -155,8 +156,18 @@ public class GridRepository extends BaseRepository<Grid, Long> {
 					query.setParameter(i.getName(),
 							decodedParam);
 				} else if (i.getParameterType().getSimpleName().equals("Long")) {
-					query.setParameter(i.getName(),
-							Long.parseLong(requestMap.get(i.getName())[0]));
+						try {
+						Long singleValue = Long.parseLong(requestMap.get(i.getName())[0]);
+						query.setParameter(i.getName(), singleValue);
+					} catch(NumberFormatException e) {	
+						List<Long> multipleValues = new ArrayList<Long>();
+						if(requestMap.get(i.getName())[0]!=null && !requestMap.get(i.getName())[0].isEmpty()) {
+							for(String strValue: requestMap.get(i.getName())[0].split(",")) {
+								multipleValues.add(Long.parseLong(strValue));
+							}
+						}
+						query.setParameter(i.getName(), multipleValues);						
+					}				
 				} else if (i.getParameterType().getSimpleName().equals("Integer")) {
 					query.setParameter(i.getName(),
 							Integer.parseInt(requestMap.get(i.getName())[0]));
@@ -204,8 +215,18 @@ public class GridRepository extends BaseRepository<Grid, Long> {
 					countQuery.setParameter(i.getName(),
 							decodedParam);
 				} else if (i.getParameterType().getSimpleName().equals("Long")) {
-					countQuery.setParameter(i.getName(),
-							Long.parseLong(requestMap.get(i.getName())[0]));
+					try {
+						Long singleValue = Long.parseLong(requestMap.get(i.getName())[0]);
+						countQuery.setParameter(i.getName(), singleValue);
+					} catch(NumberFormatException e) {	
+						List<Long> multipleValues = new ArrayList<Long>();
+						if(requestMap.get(i.getName())[0]!=null && !requestMap.get(i.getName())[0].isEmpty()) {
+							for(String strValue: requestMap.get(i.getName())[0].split(",")) {
+								multipleValues.add(Long.parseLong(strValue));
+							}
+						}
+						countQuery.setParameter(i.getName(), multipleValues);						
+					}
 				} else if (i.getParameterType().getSimpleName().equals("Integer")) {
 					countQuery.setParameter(i.getName(),
 							Integer.parseInt(requestMap.get(i.getName())[0]));

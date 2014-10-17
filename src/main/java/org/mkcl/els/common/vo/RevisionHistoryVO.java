@@ -9,6 +9,8 @@
  */
 package org.mkcl.els.common.vo;
 
+import java.util.List;
+
 import javax.persistence.Column;
 
 // TODO: Auto-generated Javadoc
@@ -54,6 +56,10 @@ private String editedAs;
   //-------------------------For Government Resolution-
     /** The discussion date. */
 	private String discussionDate;
+	
+	//-------------------------For bill amendment motion----------------------//
+	/** The section amendments in given languages. */
+	private List<SectionAmendmentVO> sectionAmendments;
 
 
 	/**
@@ -195,6 +201,14 @@ private String editedAs;
 
 	public void setDiscussionDate(final String discussionDate) {
 		this.discussionDate = discussionDate;
+	}
+
+	public List<SectionAmendmentVO> getSectionAmendments() {
+		return sectionAmendments;
+	}
+
+	public void setSectionAmendments(List<SectionAmendmentVO> sectionAmendments) {
+		this.sectionAmendments = sectionAmendments;
 	}
 	
 }

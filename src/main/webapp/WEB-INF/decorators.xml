@@ -261,10 +261,12 @@
 		<pattern>/workflow/question/supportingmember</pattern>	
 		<pattern>/workflow/motion/supportingmember</pattern>
 		<pattern>/workflow/bill/supportingmember</pattern>
+		<pattern>/workflow/billamendmentmotion/supportingmember</pattern>
 		<pattern>workflow/question</pattern>
 		<pattern>workflow/resolution</pattern>
 		<pattern>workflow/motion</pattern>	
 		<pattern>workflow/bill</pattern>
+		<pattern>workflow/billamendmentmotion</pattern>
 		<pattern>/workflow/myTasks/*/process</pattern>	
 		
 		<pattern>/holiday</pattern>
@@ -323,6 +325,12 @@
 		<pattern>/bill/bulksubmission/assistant/view</pattern>		
 		<pattern>/bill/bulksubmission/assistant/update</pattern>	
 		<pattern>/workflow/bill</pattern>	
+		
+		<pattern>/billamendmentmotion/new</pattern>
+		<pattern>/billamendmentmotion/*/edit</pattern>
+		<pattern>/billamendmentmotion/*/delete</pattern>
+		<pattern>/billamendmentmotion</pattern>
+		<pattern>/workflow/billamendmentmotion</pattern>
 		
 		<pattern>/act/new</pattern>
 		<pattern>/act/*/edit</pattern>

@@ -29,9 +29,9 @@ public class SectionAmendment extends BaseDomain implements Serializable {
 	@JoinColumn(name="amendedsection_id")
 	private Section amendedSection;
 	
-	/** The language. */
-    @Column(length = 300)
-	private String language;
+	@ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="language_id")
+    private Language language;
 	
 	/** The content. */
     @Column(length=30000)
@@ -54,11 +54,11 @@ public class SectionAmendment extends BaseDomain implements Serializable {
 		this.amendedSection = amendedSection;
 	}
 
-	public String getLanguage() {
+	public Language getLanguage() {
 		return language;
 	}
 
-	public void setLanguage(String language) {
+	public void setLanguage(Language language) {
 		this.language = language;
 	}
 

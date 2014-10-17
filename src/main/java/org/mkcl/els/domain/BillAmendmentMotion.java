@@ -1,9 +1,10 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,10 +17,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.repository.BillAmendmentMotionRepository;
-import org.mkcl.els.repository.MotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -27,8 +32,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name="billamendmentmotions")
 @JsonIgnoreProperties(value={"houseType", "session", "type", "supportingMembers",
-		"amendedBill", "sectionAmendments", "recommendationStatus", 
-		"parent", "clubbedEntities", "referencedEntities"})
+		"sectionAmendments", "revisedSectionAmendments", "recommendationStatus", 
+		"parent", "clubbedEntities", "referencedEntities", "drafts", "amendedBill"})
 public class BillAmendmentMotion extends Device implements Serializable {
 	
 	/** The Constant serialVersionUID. */
@@ -93,18 +98,16 @@ public class BillAmendmentMotion extends Device implements Serializable {
 	@Column(length=1000)
 	private String editedAs;
 	
-	/** The subject. */
-	@Column(length=30000)
-	private String subject;
-
-	/**** The subject. ****/
-	@Column(length=30000)
-	private String revisedSubject;
-	
 	/** The amended bill. */
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="amendedbill_id")
 	private Bill amendedBill;
+	
+	@Transient
+	private String amendedBillInfo;
+	
+	@Transient
+	private String amendedBillLanguages;
 	
 	/** The amendment. */
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
@@ -112,6 +115,24 @@ public class BillAmendmentMotion extends Device implements Serializable {
     joinColumns={@JoinColumn(name="billamendmentmotion_id", referencedColumnName="id")},
     inverseJoinColumns={@JoinColumn(name="sectionamendment_id", referencedColumnName="id")})
     private List<SectionAmendment> sectionAmendments;
+    
+    /** The revised amendment. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @JoinTable(name="billamendmentmotions_revisedsectionamendments",
+    joinColumns={@JoinColumn(name="billamendmentmotion_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="revised_sectionamendment_id", referencedColumnName="id")})
+    private List<SectionAmendment> revisedSectionAmendments;
+    
+    @Transient
+    private String defaultAmendedSectionNumberInfo;
+    
+    /** The date of opinion sought from law and judiciary department. */
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateOfOpinionSoughtFromLawAndJD;
+    
+    /** The opinion sought from law and judiciary department. */
+    @Column(length=30000)
+    private String opinionSoughtFromLawAndJD;
     
     /** ** The Status ***. */
 	@ManyToOne(fetch=FetchType.LAZY)
@@ -131,6 +152,10 @@ public class BillAmendmentMotion extends Device implements Serializable {
 	/** ** Remarks ***. */
 	@Column(length=30000)
 	private String remarks;
+	
+	/** The remarks for translation. */
+    @Column(length=30000)
+    private String remarksForTranslation;
 	
 	/** The parent. */
 	@ManyToOne(fetch=FetchType.LAZY)
@@ -193,10 +218,9 @@ public class BillAmendmentMotion extends Device implements Serializable {
 			DeviceType type, Integer number, Member primaryMember,
 			List<SupportingMember> supportingMembers, Date submissionDate,
 			Date creationDate, String createdBy, String dataEnteredBy,
-			Date editedOn, String editedBy, String editedAs, String subject,
-			String revisedSubject, Bill amendedBill,
+			Date editedOn, String editedBy, String editedAs, Bill amendedBill,
 			List<SectionAmendment> sectionAmendments, Status status,
-			Status internalStatus, Status recommendationStatus, String remarks,
+			Status internalStatus, Status recommendationStatus, String remarks, String remarksForTranslation,
 			BillAmendmentMotion parent, List<ClubbedEntity> clubbedEntities,
 			List<ReferencedEntity> referencedEntities,
 			List<BillAmendmentMotionDraft> drafts) {
@@ -214,14 +238,13 @@ public class BillAmendmentMotion extends Device implements Serializable {
 		this.editedOn = editedOn;
 		this.editedBy = editedBy;
 		this.editedAs = editedAs;
-		this.subject = subject;
-		this.revisedSubject = revisedSubject;
 		this.amendedBill = amendedBill;
 		this.sectionAmendments = sectionAmendments;
 		this.status = status;
 		this.internalStatus = internalStatus;
 		this.recommendationStatus = recommendationStatus;
 		this.remarks = remarks;
+		this.remarksForTranslation = remarksForTranslation;
 		this.parent = parent;
 		this.clubbedEntities = clubbedEntities;
 		this.referencedEntities = referencedEntities;
@@ -233,19 +256,264 @@ public class BillAmendmentMotion extends Device implements Serializable {
 	}
 	
 	/**** Domain Methods ****/
-	private static BillAmendmentMotionRepository getMotionRepository() {
-		BillAmendmentMotionRepository motionRepository = new BillAmendmentMotion().billAmendmentMotionRepository;
-		if (motionRepository == null) {
+	private static BillAmendmentMotionRepository getBillAmendmentMotionRepository() {
+		BillAmendmentMotionRepository billAmendmentMotionRepository = new BillAmendmentMotion().billAmendmentMotionRepository;
+		if (billAmendmentMotionRepository == null) {
 			throw new IllegalStateException(
-			"MotionRepository has not been injected in Motion Domain");
+			"BillAmendmentMotionRepository has not been injected in BillAmendmentMotion Domain");
 		}
-		return motionRepository;
+		return billAmendmentMotionRepository;
 	}
 	
-	public Motion simpleMerge() {
-		Motion m = (Motion) super.merge();
+	@Override
+    public BillAmendmentMotion persist() {
+    	if(this.getStatus().getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_SUBMIT)) {
+    		if(this.getNumber() == null) {
+				synchronized (this) {
+					Integer number = BillAmendmentMotion.assignBillAmendmentMotionNo(this.getAmendedBill());
+					this.setNumber(number + 1);
+				}
+			}
+    		addBillAmendmentMotionDraft();
+    	}
+    	return (BillAmendmentMotion)super.persist();
+    }	
+
+	@Override
+    public BillAmendmentMotion merge() {
+		BillAmendmentMotion billAmendmentMotion = null;
+    	if(this.getStatus().getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_SUBMIT)) {
+    		if(this.getNumber() == null) {
+				synchronized (this) {
+					Integer number = BillAmendmentMotion.assignBillAmendmentMotionNo(this.getAmendedBill());
+					this.setNumber(number + 1);
+				}
+			}
+    		addBillAmendmentMotionDraft();
+    		billAmendmentMotion = (BillAmendmentMotion)super.merge();
+    	} else if(this.getInternalStatus().getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_SYSTEM_ASSISTANT_PROCESSED)) {
+    		if(this.getClubbedEntities() == null || this.getReferencedEntities()==null) {
+				BillAmendmentMotion oldBillAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, this.getId());   
+				if(this.getClubbedEntities() == null) {
+					this.setClubbedEntities(oldBillAmendmentMotion.getClubbedEntities());
+				}
+				if(this.getReferencedEntities()==null) {
+					this.setReferencedEntities(oldBillAmendmentMotion.getReferencedEntities());
+				}    				
+			}    		
+    		addBillAmendmentMotionDraft();
+    		billAmendmentMotion = (BillAmendmentMotion)super.merge();
+    	}
+    	if(billAmendmentMotion != null) {
+    		return billAmendmentMotion;
+    	} else {
+    		if(this.getInternalStatus().getType().equals(ApplicationConstants.BILL_INCOMPLETE) 
+                	|| 
+                	this.getInternalStatus().getType().equals(ApplicationConstants.BILL_COMPLETE)) {
+                    return (BillAmendmentMotion) super.merge();
+                }
+                else {
+                	if(this.getClubbedEntities() == null || this.getReferencedEntities()==null) {
+                		BillAmendmentMotion oldBillAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, this.getId());   
+        				if(this.getClubbedEntities() == null) {
+        					this.setClubbedEntities(oldBillAmendmentMotion.getClubbedEntities());
+        				}
+        				if(this.getReferencedEntities()==null) {
+        					this.setReferencedEntities(oldBillAmendmentMotion.getReferencedEntities());
+        				}    				
+        			}
+                	addBillAmendmentMotionDraft();
+                	return (BillAmendmentMotion)super.merge();
+                }
+    	}    	
+    }
+	
+	/**
+     * The merge function, besides updating BillAmendmentMotion, performs various actions
+     * based on BillAmendmentMotion's status. What if we need just the simple functionality
+     * of updation? Use this method.
+     *
+     * @return the billAmendmentMotion
+     */
+	public BillAmendmentMotion simpleMerge() {
+		BillAmendmentMotion m = (BillAmendmentMotion) super.merge();
 		return m;
+	}	
+	
+	private static Integer assignBillAmendmentMotionNo(Bill amendedBill) {	
+		return getBillAmendmentMotionRepository().assignBillAmendmentMotionNo(amendedBill);
 	}
+	
+	public String formatNumber() {
+		if(getNumber()!=null){
+			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
+			return format.format(this.getNumber());
+		}else{
+			return "";
+		}
+	}
+	
+	/**
+     * Adds the billamendmentmotion draft.
+     */
+    private void addBillAmendmentMotionDraft() {
+        if(! this.getStatus().getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_INCOMPLETE) 
+        		&& ! this.getStatus().getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_COMPLETE)) {
+            BillAmendmentMotionDraft draft = new BillAmendmentMotionDraft();
+            draft.setRemarks(this.getRemarks());           
+            
+            draft.setEditedAs(this.getEditedAs());
+            draft.setEditedBy(this.getEditedBy());
+            draft.setEditedOn(this.getEditedOn());
+            
+            draft.setStatus(this.getStatus());
+            draft.setInternalStatus(this.getInternalStatus());
+            draft.setRecommendationStatus(this.getRecommendationStatus());  
+            
+            if(this.getRevisedSectionAmendments()!= null && !this.getRevisedSectionAmendments().isEmpty()) {            	
+            	draft.setSectionAmendments(this.addRevisedSectionAmendmentsForDraft(this.getRevisedSectionAmendments()));
+            } else {
+            	draft.setSectionAmendments(this.addSectionAmendmentsForDraft(this.getSectionAmendments()));
+            }
+            
+            draft.setParent(this.getParent());
+            draft.setClubbedEntities(this.getClubbedEntities());
+            
+            if(this.getId() != null) {
+                BillAmendmentMotion billAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, this.getId());
+                List<BillAmendmentMotionDraft> originalDrafts = billAmendmentMotion.getDrafts();
+                if(originalDrafts != null){
+                    originalDrafts.add(draft);
+                }
+                else{
+                    originalDrafts = new ArrayList<BillAmendmentMotionDraft>();
+                    originalDrafts.add(draft);
+                }
+                this.setDrafts(originalDrafts);
+            }
+            else {
+                List<BillAmendmentMotionDraft> originalDrafts = new ArrayList<BillAmendmentMotionDraft>();
+                originalDrafts.add(draft);
+                this.setDrafts(originalDrafts);
+            }
+        }
+    }
+
+	private List<SectionAmendment> addSectionAmendmentsForDraft(List<SectionAmendment> sectionAmendments) {
+		if(sectionAmendments!=null) {
+    		List<SectionAmendment> sectionAmendmentsForDraft = new ArrayList<SectionAmendment>();
+        	for(SectionAmendment sectionAmendment : sectionAmendments) {
+        		SectionAmendment sectionAmendmentForDraft = new SectionAmendment();
+        		sectionAmendmentForDraft.setLanguage(sectionAmendment.getLanguage());
+        		sectionAmendmentForDraft.setSectionNumber(sectionAmendment.getSectionNumber());
+        		sectionAmendmentForDraft.setAmendedSection(sectionAmendment.getAmendedSection());
+        		sectionAmendmentForDraft.setAmendingContent(sectionAmendment.getAmendingContent());        		
+        		sectionAmendmentForDraft.setLocale(sectionAmendment.getLocale());
+        		sectionAmendmentsForDraft.add(sectionAmendmentForDraft);
+        	}
+        	return sectionAmendmentsForDraft;
+    	} else {
+    		return null;
+    	}		
+	}
+	
+	private List<SectionAmendment> addRevisedSectionAmendmentsForDraft(List<SectionAmendment> revisedSectionAmendments) {
+		List<SectionAmendment> revisedSectionAmendmentsForDraft = new ArrayList<SectionAmendment>();    	
+    	String[] languagesForDraft = this.getAmendedBillLanguages().split("#");
+    	for(String languageForDraft : languagesForDraft) {
+    		SectionAmendment existingSectionAmendment = null;//findDraftOfGivenTypeInGivenLanguage(revisedTypeOfDraft, languageForDraft);
+    		if(revisedSectionAmendments != null) {
+        		for(SectionAmendment revisedSectionAmendment: revisedSectionAmendments) {
+        			if(revisedSectionAmendment.getLanguage().getType().equals(languageForDraft)) {
+        				existingSectionAmendment = revisedSectionAmendment;
+        				break;
+        			}
+        		}
+        	}
+    		if(existingSectionAmendment==null) {    			
+    			List<SectionAmendment> sectionAmendments = this.getSectionAmendments();
+    			if(sectionAmendments != null) {
+            		for(SectionAmendment sectionAmendment: sectionAmendments) {
+            			if(sectionAmendment.getLanguage().getType().equals(languageForDraft)) {
+            				existingSectionAmendment = sectionAmendment;
+            				break;
+            			}
+            		}
+            	}
+    		}
+    		if(existingSectionAmendment!=null) {
+    			SectionAmendment revisedSectionAmendmentForDraft = new SectionAmendment();
+        		revisedSectionAmendmentForDraft.setLanguage(existingSectionAmendment.getLanguage());
+        		revisedSectionAmendmentForDraft.setSectionNumber(existingSectionAmendment.getSectionNumber());
+        		revisedSectionAmendmentForDraft.setAmendedSection(existingSectionAmendment.getAmendedSection());
+        		revisedSectionAmendmentForDraft.setAmendingContent(existingSectionAmendment.getAmendingContent());
+        		revisedSectionAmendmentForDraft.setLocale(existingSectionAmendment.getLocale());
+        		revisedSectionAmendmentsForDraft.add(revisedSectionAmendmentForDraft);
+    		}
+    	}    	
+    	return revisedSectionAmendmentsForDraft;		
+	}	
+	
+	public static List<BillAmendmentMotion> findAllReadyForSubmissionByMember(final Session session,
+			final Member primaryMember,
+			final DeviceType motionType,
+			final Integer itemsCount,
+			final String locale) throws ELSException{
+		return getBillAmendmentMotionRepository().findAllReadyForSubmissionByMember(session, primaryMember, motionType, itemsCount, locale);
+	}
+	
+	public static int findHighestFileNo(final Session session,final DeviceType motionType,final String locale) {
+		return getBillAmendmentMotionRepository().findHighestFileNo(session,motionType,locale);
+	}
+	
+	public Status findAuxiliaryWorkflowStatus(String workflowType) throws ELSException {
+		if(workflowType==null) {
+			ELSException elsException=new ELSException();
+			elsException.setParameter("BillAmendmentMotion_findAuxillaryWorkflowStatus", "workflow type is null");
+			throw elsException;
+		}
+		Status auxiliaryWorkflowStatus = null;
+		WorkflowDetails workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(this, this.getType(), workflowType);
+		if(workflowDetails!=null) {
+			
+			if(workflowDetails.getCustomStatus()==null) {
+				ELSException elsException=new ELSException();
+				elsException.setParameter("BillAmendmentMotion_findAuxillaryWorkflowStatus", "custom status not set for workflow.");
+				throw elsException;
+			} else {
+				auxiliaryWorkflowStatus = Status.findByType(workflowDetails.getCustomStatus(), this.getLocale());
+				if(auxiliaryWorkflowStatus==null) {
+					ELSException elsException=new ELSException();
+					elsException.setParameter("BillAmendmentMotion_findAuxillaryWorkflowStatus", "status with type '" + workflowDetails.getCustomStatus() + "' not found");
+					throw elsException;
+				}
+			}
+		}				
+		return auxiliaryWorkflowStatus;
+	}
+	
+	public SectionAmendment findSectionAmendmentInGivenLanguage(String language) {
+		SectionAmendment sectionAmendmentInGivenLanguage = null;
+		if(this.getSectionAmendments()!=null) {
+			for(SectionAmendment s: this.getSectionAmendments()) {
+				if(s.getLanguage().getType().equals(language)) {
+					sectionAmendmentInGivenLanguage = s;
+				}
+			}
+		}
+		return sectionAmendmentInGivenLanguage;
+	}
+	
+	/**
+     * Gets the revisions.
+     *
+     * @param questionId the bill amendment motion id
+     * @param locale the locale
+     * @return the revisions
+     */
+    public static List<RevisionHistoryVO> findRevisions(final Long billAmendmentMotionId, final String locale) {
+        return getBillAmendmentMotionRepository().findRevisions(billAmendmentMotionId,locale);
+    }
 
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
@@ -352,22 +620,6 @@ public class BillAmendmentMotion extends Device implements Serializable {
 		this.editedAs = editedAs;
 	}
 
-	public String getSubject() {
-		return subject;
-	}
-
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-
-	public String getRevisedSubject() {
-		return revisedSubject;
-	}
-
-	public void setRevisedSubject(String revisedSubject) {
-		this.revisedSubject = revisedSubject;
-	}
-
 	public Bill getAmendedBill() {
 		return amendedBill;
 	}
@@ -376,12 +628,123 @@ public class BillAmendmentMotion extends Device implements Serializable {
 		this.amendedBill = amendedBill;
 	}
 
+	public String getAmendedBillInfo() {
+		this.amendedBillInfo = "";
+		if(this.amendedBill!=null) {
+			Integer billYear = this.amendedBill.findYear();
+			if(billYear!=null) {
+				this.amendedBillInfo += this.amendedBill.getLocale();
+				this.amendedBillInfo += "#";
+				this.amendedBillInfo += FormaterUtil.formatNumberNoGrouping(billYear, this.amendedBill.getLocale());		
+			} else {
+				return this.amendedBillInfo;
+			}
+			this.amendedBillInfo += "#";
+			String numberingHouseType = this.amendedBill.findNumberingHouseType();
+			if(numberingHouseType!=null) {
+				this.amendedBillInfo += numberingHouseType;
+			} else {
+				return this.amendedBillInfo;
+			}
+			this.amendedBillInfo += "#";
+			Integer billNumber = this.amendedBill.getNumber();
+			if(billNumber!=null) {
+				this.amendedBillInfo += FormaterUtil.formatNumberNoGrouping(billNumber, this.amendedBill.getLocale());		
+			} else {
+				return this.amendedBillInfo;
+			}
+		}
+		return this.amendedBillInfo;
+	}
+
+	public String getAmendedBillLanguages() {
+//		if(amendedBillLanguages==null) {
+//			amendedBillLanguages = amendedBill.findLanguagesOfContentDrafts();
+//		}
+		return amendedBillLanguages;
+	}
+
+	public void setAmendedBillLanguages(String amendedBillLanguages) {
+		this.amendedBillLanguages = amendedBillLanguages;
+	}
+
 	public List<SectionAmendment> getSectionAmendments() {
 		return sectionAmendments;
 	}
 
 	public void setSectionAmendments(List<SectionAmendment> sectionAmendments) {
 		this.sectionAmendments = sectionAmendments;
+	}
+
+	public List<SectionAmendment> getRevisedSectionAmendments() {
+		return revisedSectionAmendments;
+	}
+
+	public void setRevisedSectionAmendments(
+			List<SectionAmendment> revisedSectionAmendments) {
+		this.revisedSectionAmendments = revisedSectionAmendments;
+	}
+
+	public String getDefaultAmendedSectionNumberInfo() {
+		String defaultAmendedSectionNumber = this.findDefaultAmendedSectionNumber();
+		if(defaultAmendedSectionNumber!=null) {
+			this.defaultAmendedSectionNumberInfo = this.getLocale();
+			this.defaultAmendedSectionNumberInfo += "#";
+			this.defaultAmendedSectionNumberInfo += defaultAmendedSectionNumber;
+		}
+		return this.defaultAmendedSectionNumberInfo;
+	}
+
+	public String findDefaultAmendedSectionNumber() {		
+		String defaultAmendedSectionNumber = "";
+		if(this.getSectionAmendments()!=null && !this.getSectionAmendments().isEmpty()) {		
+			String defaultAmendedSectionLanguage = this.getSession().getParameter(this.amendedBill.getType().getType()+"_defaultTitleLanguage");
+	    	if(defaultAmendedSectionLanguage!=null&&!defaultAmendedSectionLanguage.isEmpty()) {
+	    		if(this.getRevisedSectionAmendments()!=null && !this.getRevisedSectionAmendments().isEmpty()) {
+	    			for(SectionAmendment sa: this.getRevisedSectionAmendments()) {
+            			if(sa.getLanguage().getType().equals(defaultAmendedSectionLanguage)) {
+            				defaultAmendedSectionNumber = sa.getSectionNumber();
+            				break;
+            			}
+            		}
+        			if(defaultAmendedSectionNumber==null || defaultAmendedSectionNumber.isEmpty()) {
+        				if(this.getSectionAmendments()!=null && !this.getSectionAmendments().isEmpty()) {
+        					for(SectionAmendment sa: this.getSectionAmendments()) {
+    	            			if(sa.getLanguage().getType().equals(defaultAmendedSectionLanguage)) {
+    	            				defaultAmendedSectionNumber = sa.getSectionNumber();
+    	            				break;
+    	            			}
+    	            		}
+        	        	}
+        			}
+	        	} else if(this.getSectionAmendments()!=null && !this.getSectionAmendments().isEmpty()) {
+	        		for(SectionAmendment sa: this.getSectionAmendments()) {
+            			if(sa.getLanguage().getType().equals(defaultAmendedSectionLanguage)) {
+            				defaultAmendedSectionNumber = sa.getSectionNumber();
+            				break;
+            			}
+            		}
+	        	}
+	    	}
+		}
+		return defaultAmendedSectionNumber;
+	}
+
+	public Date getDateOfOpinionSoughtFromLawAndJD() {
+		return dateOfOpinionSoughtFromLawAndJD;
+	}
+
+	public void setDateOfOpinionSoughtFromLawAndJD(
+			Date dateOfOpinionSoughtFromLawAndJD) {
+		this.dateOfOpinionSoughtFromLawAndJD = dateOfOpinionSoughtFromLawAndJD;
+	}
+
+	public String getOpinionSoughtFromLawAndJD() {
+		return opinionSoughtFromLawAndJD;
+	}
+
+	public void setOpinionSoughtFromLawAndJD(String opinionSoughtFromLawAndJD) {
+		this.opinionSoughtFromLawAndJD = opinionSoughtFromLawAndJD;
 	}
 
 	public Status getStatus() {
@@ -414,6 +777,14 @@ public class BillAmendmentMotion extends Device implements Serializable {
 
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
+	}
+
+	public String getRemarksForTranslation() {
+		return remarksForTranslation;
+	}
+
+	public void setRemarksForTranslation(String remarksForTranslation) {
+		this.remarksForTranslation = remarksForTranslation;
 	}
 
 	public BillAmendmentMotion getParent() {

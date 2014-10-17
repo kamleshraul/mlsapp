@@ -1,0 +1,5 @@
+﻿#if($amendedBillInfoParts.get(0)=='mr_IN')
+	सन $amendedBillInfoParts.get(1) चे $amendedBillInfoParts.get(2) विधेयक क्रमांक $amendedBillInfoParts.get(3)
+#elseif($amendedBillInfoParts.get(0)=='en_US')
+	$amendedBillInfoParts.get(2) bill number $amendedBillInfoParts.get(3) of year $amendedBillInfoParts.get(1)
+#end

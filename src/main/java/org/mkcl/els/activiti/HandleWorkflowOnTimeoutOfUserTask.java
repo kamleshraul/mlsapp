@@ -9,6 +9,7 @@ import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Bill;
+import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
@@ -39,6 +40,8 @@ public class HandleWorkflowOnTimeoutOfUserTask extends ActivitiServiceImpl {
 			domain = Question.findById(Question.class, Long.parseLong(deviceId));
 		} else if(deviceType.getType().startsWith("bills")) {
 			domain = Bill.findById(Bill.class, Long.parseLong(deviceId));
+		} else if(deviceType.getType().equals(ApplicationConstants.BILLAMENDMENT_MOTION)) {
+			domain = BillAmendmentMotion.findById(BillAmendmentMotion.class, Long.parseLong(deviceId));
 		}
 		
 		//houseType
@@ -60,6 +63,9 @@ public class HandleWorkflowOnTimeoutOfUserTask extends ActivitiServiceImpl {
 		} else if(deviceType.getType().startsWith("bills")) {	
 			Bill bill = (Bill) domain;
 			currentWorkflowDetails = WorkflowDetails.findCurrentWorkflowDetail(bill, String.valueOf(execution.getVariable("pv_workflowtype")));
+		} else if(deviceType.getType().equals(ApplicationConstants.BILLAMENDMENT_MOTION)) {	
+			BillAmendmentMotion billAmendmentMotion = (BillAmendmentMotion) domain;
+			currentWorkflowDetails = WorkflowDetails.findCurrentWorkflowDetail(billAmendmentMotion, String.valueOf(execution.getVariable("pv_workflowtype")));
 		}		
 		
 		//current level
@@ -108,6 +114,29 @@ public class HandleWorkflowOnTimeoutOfUserTask extends ActivitiServiceImpl {
 				//update workflowdetails
 				currentWorkflowDetails.setStatus("TIMEOUT");
 				Status translationTimeoutStatus = Status.findByType(ApplicationConstants.BILL_TRANSLATION_TIMEOUT, bill.getLocale());
+				currentWorkflowDetails.setCustomStatus(translationTimeoutStatus.getType());
+				currentWorkflowDetails.setCompletionTime(new Date());
+				currentWorkflowDetails.merge();							
+				return;	
+			}					
+		} else if(deviceType.getType().equals(ApplicationConstants.BILLAMENDMENT_MOTION)) {
+			BillAmendmentMotion billAmendmentMotion = (BillAmendmentMotion) domain;
+			if(currentWorkflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
+					&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.TRANSLATOR)
+					&& currentWorkflowDetails.getCustomStatus().equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_TRANSLATION)) {
+				//----------------properties updated before task completion----------------//
+				Map<String,String> properties=new HashMap<String, String>();
+				properties.put("pv_endflag","end");
+				properties.put("pv_timerflag", "off");	
+				properties.put("pv_mailflag", "off");
+				//find current task to be completed
+				org.mkcl.els.common.vo.ProcessInstance processInstance = processService.findProcessInstanceById(execution.getProcessInstanceId());
+				org.mkcl.els.common.vo.Task task = processService.getCurrentTask(processInstance);				
+				//complete task	
+				processService.completeTask(task, properties);
+				//update workflowdetails
+				currentWorkflowDetails.setStatus("TIMEOUT");
+				Status translationTimeoutStatus = Status.findByType(ApplicationConstants.BILLAMENDMENTMOTION_TRANSLATION_TIMEOUT, billAmendmentMotion.getLocale());
 				currentWorkflowDetails.setCustomStatus(translationTimeoutStatus.getType());
 				currentWorkflowDetails.setCompletionTime(new Date());
 				currentWorkflowDetails.merge();							

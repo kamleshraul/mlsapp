@@ -1255,6 +1255,7 @@ public class BillController extends GenericController<Bill> {
 		/**** Remove unwanted actions for relevant workflows ****/
 		if(usergroupType!=null&&!(usergroupType.isEmpty())
 				&&(usergroupType.equals(ApplicationConstants.ASSISTANT)||usergroupType.equals(ApplicationConstants.SECTION_OFFICER))){
+			@SuppressWarnings("unchecked")
 			List<Status> internalStatuses = (List<Status>) model.get("internalStatuses");
 			List<Status> statusesToRemove = new ArrayList<Status>();
 			for(Status i: internalStatuses) {
@@ -2648,73 +2649,48 @@ public class BillController extends GenericController<Bill> {
 		List<TextDraft> revisedTitles = this.updateDraftsOfGivenType(domain, "revised_title", request);
 		domain.setRevisedTitles(revisedTitles);
 		
-		/**** Checking if it's submission request or normal update ****/
+		/**** Status ,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
+		/**** In case of submission ****/
 		String operation=request.getParameter("operation");
 		String strUserGroupType=request.getParameter("usergroupType");
 		if(domain.getHouseType()!=null && domain.getSession()!=null
 				&&  domain.getType()!=null && domain.getPrimaryMember()!=null && (domain.getTitles()!=null && !domain.getTitles().isEmpty())
 				){
-			if(operation!=null){
-				if(!operation.isEmpty()){
-					if(operation.trim().equals("submit")){
-						if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("clerk"))){
-							/****  submission date is set ****/
-							if(domain.getSubmissionDate()==null){
-								domain.setSubmissionDate(new Date());
-							}
-							/**** only those supporting memebers will be included who have approved the requests ****/
-							List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
-							if(domain.getSupportingMembers()!=null){
-								if(!domain.getSupportingMembers().isEmpty()){
-									for(SupportingMember i:domain.getSupportingMembers()){
-										if(i.getDecisionStatus().getType().trim().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
-											supportingMembers.add(i);
-										}
-									}
-									domain.setSupportingMembers(supportingMembers);
+			if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("clerk"))){
+				if(operation!=null && !operation.isEmpty() && operation.trim().equals("submit")){
+					/****  submission date is set ****/
+					if(domain.getSubmissionDate()==null){
+						domain.setSubmissionDate(new Date());
+					}
+					/**** only those supporting memebrs will be included who have approved the requests ****/
+					List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
+					if(domain.getSupportingMembers()!=null){
+						if(!domain.getSupportingMembers().isEmpty()){
+							for(SupportingMember i:domain.getSupportingMembers()){
+								if(i.getDecisionStatus().getType().trim().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+									supportingMembers.add(i);
 								}
 							}
-							/**** Status,Internal status and recommendation status is set to submit ****/
-							Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.BILL_SUBMIT, domain.getLocale());
-							domain.setStatus(newstatus);
-							domain.setInternalStatus(newstatus);
-							domain.setRecommendationStatus(newstatus);
+							domain.setSupportingMembers(supportingMembers);
 						}
-					} else {
-						/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
-						if(domain.getStatus().getType().equals(ApplicationConstants.BILL_INCOMPLETE)
-								|| domain.getStatus().getType().equals(ApplicationConstants.BILL_COMPLETE)){
-							Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.BILL_COMPLETE, domain.getLocale());
-							domain.setStatus(status);
-							domain.setInternalStatus(status);
-							domain.setRecommendationStatus(status);
-						}						
-					}
-				} else {
-					/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
-					if(!domain.getStatus().getType().equals(ApplicationConstants.BILL_SUBMIT)){
-						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.BILL_COMPLETE, domain.getLocale());
-						domain.setStatus(status);
-						domain.setInternalStatus(status);
-						domain.setRecommendationStatus(status);
-					}
-				}
-			} else {
-				/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
-				Status submit = Status.findByType(ApplicationConstants.BILL_SUBMIT, domain.getLocale()); 
-				if(domain.getStatus().getPriority() < submit.getPriority()/*.getType().equals(ApplicationConstants.BILL_SUBMIT)*/){
+					}								
+					/**** Status,Internal status and recommendation status is set to submit ****/
+					Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.BILL_SUBMIT, domain.getLocale());
+					domain.setStatus(newstatus);
+					domain.setInternalStatus(newstatus);
+					domain.setRecommendationStatus(newstatus);				
+				} else{
 					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.BILL_COMPLETE, domain.getLocale());
 					domain.setStatus(status);
 					domain.setInternalStatus(status);
 					domain.setRecommendationStatus(status);
 				}
-			}
-		} else {
-			/**** If all mandatory fields have not been set then status,internal status and recommendation status is set to incomplete ****/
+			}			
+		} else{
 			Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.BILL_INCOMPLETE, domain.getLocale());
 			domain.setStatus(status);
 			domain.setInternalStatus(status);
-			domain.setRecommendationStatus(status);			
+			domain.setRecommendationStatus(status);
 		}
 		/**** Edited On,Edited By and Edited As is set ****/
 		domain.setEditedOn(new Date());

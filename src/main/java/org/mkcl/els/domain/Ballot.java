@@ -2888,9 +2888,9 @@ public class Ballot extends BaseDomain implements Serializable {
 				deviceVO.setMemberNames(allMemberNames);
 				//=============================================================================
 				if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
-					deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
+					deviceVO.setSubject(q.getRevisedSubject());
 				} else if(q.getSubject()!=null && !q.getSubject().isEmpty()) {
-					deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getSubject(), locale));
+					deviceVO.setSubject(q.getSubject());
 				}
 				String content = q.getRevisedQuestionText();
 				if(content!=null && !content.isEmpty()) {
@@ -2899,7 +2899,7 @@ public class Ballot extends BaseDomain implements Serializable {
 					} else if(content.endsWith("<p></p>")) {
 						content = content.substring(0, content.length()-7);					
 					}
-					content = FormaterUtil.formatNumbersInGivenText(content, locale);
+					//content = FormaterUtil.formatNumbersInGivenText(content, locale);
 					deviceVO.setContent(content);
 				} else {
 					content = q.getQuestionText();
@@ -2909,7 +2909,7 @@ public class Ballot extends BaseDomain implements Serializable {
 						} else if(content.endsWith("<p></p>")) {
 							content = content.substring(0, content.length()-7);					
 						}
-						content = FormaterUtil.formatNumbersInGivenText(content, locale);
+						//content = FormaterUtil.formatNumbersInGivenText(content, locale);
 						deviceVO.setContent(content);
 					}
 				}						
@@ -2920,7 +2920,7 @@ public class Ballot extends BaseDomain implements Serializable {
 					} else if(answer.endsWith("<p></p>")) {
 						answer = answer.substring(0, answer.length()-7);					
 					}
-					answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
+					//answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 				}				
 				deviceVO.setAnswer(answer);				
 				Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
@@ -2941,7 +2941,7 @@ public class Ballot extends BaseDomain implements Serializable {
 				/** referenced question details (later should come through referenced entities) **/
 				String questionReferenceText = q.getQuestionreferenceText();
 				if(questionReferenceText!=null) {
-					questionReferenceText = FormaterUtil.formatNumbersInGivenText(questionReferenceText, locale);
+					//questionReferenceText = FormaterUtil.formatNumbersInGivenText(questionReferenceText, locale);
 					deviceVO.setQuestionReferenceText(questionReferenceText);
 				} else {
 					deviceVO.setQuestionReferenceText("");
@@ -3161,9 +3161,9 @@ public class Ballot extends BaseDomain implements Serializable {
 					deviceVO.setMemberNames(allMemberNames);
 					//=============================================================================	
 					if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
-						deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale));
+						deviceVO.setSubject(q.getRevisedSubject());
 					} else if(q.getSubject()!=null && !q.getSubject().isEmpty()) {
-						deviceVO.setSubject(FormaterUtil.formatNumbersInGivenText(q.getSubject(), locale));
+						deviceVO.setSubject(q.getSubject());
 					}
 					String content = q.getRevisedQuestionText();
 					if(content!=null && !content.isEmpty()) {
@@ -3172,7 +3172,7 @@ public class Ballot extends BaseDomain implements Serializable {
 						} else if(content.endsWith("<p></p>")) {
 							content = content.substring(0, content.length()-7);							
 						}
-						content = FormaterUtil.formatNumbersInGivenText(content, locale);
+						//content = FormaterUtil.formatNumbersInGivenText(content, locale);
 						deviceVO.setContent(content);
 					} else {
 						content = q.getQuestionText();
@@ -3182,7 +3182,7 @@ public class Ballot extends BaseDomain implements Serializable {
 							} else if(content.endsWith("<p></p>")) {
 								content = content.substring(0, content.length()-7);							
 							}
-							content = FormaterUtil.formatNumbersInGivenText(content, locale);
+							//content = FormaterUtil.formatNumbersInGivenText(content, locale);
 							deviceVO.setContent(content);
 						}
 					}							
@@ -3193,7 +3193,7 @@ public class Ballot extends BaseDomain implements Serializable {
 						} else if(answer.endsWith("<p></p>")) {
 							answer = answer.substring(0, answer.length()-7);							
 						}
-						answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
+						//answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 					}				
 					deviceVO.setAnswer(answer);				
 					Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());

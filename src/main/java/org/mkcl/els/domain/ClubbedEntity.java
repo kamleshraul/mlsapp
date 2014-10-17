@@ -65,6 +65,10 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     /** The bill. */
     @ManyToOne(fetch=FetchType.LAZY)
     private Bill bill;
+    
+    /** The bill amendment motion. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    private BillAmendmentMotion billAmendmentMotion;
 
 	@Autowired
     private transient ClubbedEntityRepository clubbedEntityRepository;
@@ -165,6 +169,14 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 
 	public void setBill(Bill bill) {
 		this.bill = bill;
+	}
+
+	public BillAmendmentMotion getBillAmendmentMotion() {
+		return billAmendmentMotion;
+	}
+
+	public void setBillAmendmentMotion(BillAmendmentMotion billAmendmentMotion) {
+		this.billAmendmentMotion = billAmendmentMotion;
 	}
 
 	/**

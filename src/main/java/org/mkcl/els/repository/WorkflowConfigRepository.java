@@ -16,6 +16,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.Bill;
+import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Department;
@@ -1019,6 +1020,95 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		return references;
 	}
 	
+	/**
+	 * 
+	 * @param billAmendmentMotion
+	 * @param internalStatus (though this is normally internal status, but for some cases this can be recommendation status, 
+	 * translation status or even opinionFromLawAndJD status)
+	 * @param userGroup
+	 * @param level
+	 * @param locale
+	 * @return
+	 */
+	public List<Reference> findBillAmendmentMotionActorsVO(final BillAmendmentMotion billAmendmentMotion,
+			final Status internalStatus,final UserGroup userGroup,final int level,final String locale) {
+		String status=internalStatus.getType();
+		WorkflowConfig workflowConfig=null;
+		UserGroupType userGroupType=null;
+		WorkflowActor currentWorkflowActor=null;
+		List<Reference> references=new ArrayList<Reference>();
+		List<WorkflowActor> allEligibleActors=new ArrayList<WorkflowActor>();
+		/**** Note :Here this can be configured so that list of workflows which
+			 * goes back is read  dynamically ****/
+		if(status.equals(ApplicationConstants.BILLAMENDMENTMOTION_RECOMMEND_SENDBACK)				
+				||status.equals(ApplicationConstants.BILLAMENDMENTMOTION_RECOMMEND_DISCUSS)								
+		){
+			workflowConfig=getLatest(billAmendmentMotion,billAmendmentMotion.getInternalStatus().getType(),locale.toString());
+			userGroupType=userGroup.getUserGroupType();
+			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
+			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
+		} else{
+			workflowConfig=getLatest(billAmendmentMotion,status,locale.toString());
+			userGroupType=userGroup.getUserGroupType();
+			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
+			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+		}
+		HouseType houseType=billAmendmentMotion.getHouseType();
+		DeviceType deviceType=billAmendmentMotion.getType();
+		for(WorkflowActor i:allEligibleActors){
+			UserGroupType userGroupTypeTemp=i.getUserGroupType();
+			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
+					userGroupTypeTemp, "activeFrom",ApplicationConstants.DESC, locale);
+			for(UserGroup j:userGroups){
+				int noOfComparisons=0;
+				int noOfSuccess=0;
+				Map<String,String> params=j.getParameters();
+				if(houseType!=null){
+					HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
+					if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
+							noOfComparisons++;
+							noOfSuccess++;
+						}else{
+							noOfComparisons++;
+						}
+					}
+				}
+				if(deviceType!=null){
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}					
+				Date fromDate=j.getActiveFrom();
+				Date toDate=j.getActiveTo();
+				Date currentDate=new Date();
+				noOfComparisons++;
+				if(((fromDate==null||currentDate.after(fromDate)||currentDate.equals(fromDate))
+						&&(toDate==null||currentDate.before(toDate)||currentDate.equals(toDate)))
+				){
+					noOfSuccess++;
+				}
+				/**** Include Leave Module ****/
+				if(noOfComparisons==noOfSuccess){
+					Reference reference=new Reference();
+					User user=User.findByFieldName(User.class,"credential",j.getCredential(), locale);
+					reference.setId(j.getCredential().getUsername()
+							+"#"+j.getUserGroupType().getType()
+							+"#"+i.getLevel()
+							+"#"+userGroupTypeTemp.getName()
+							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+					reference.setName(userGroupTypeTemp.getName());
+					references.add(reference);
+					break;
+				}				
+			}
+		}				
+		return references;
+	}
+	
 	private WorkflowConfig getLatest(final Bill bill,final String internalStatus,final String locale) {
 		HouseType houseTypeForWorkflow = Bill.findHouseTypeForWorkflow(bill);
 		/**** Latest Workflow Configurations ****/
@@ -1056,6 +1146,24 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		}	
 	}
 	
+	private WorkflowConfig getLatest(final BillAmendmentMotion billAmendmentMotion,final String internalStatus,final String locale) {
+		HouseType houseTypeForWorkflow = billAmendmentMotion.getHouseType();
+		/**** Latest Workflow Configurations ****/
+		String[] temp=internalStatus.split("_");
+		String workflowName=temp[temp.length-1]+"_workflow";				
+		String query="SELECT wc FROM WorkflowConfig wc JOIN wc.workflow wf JOIN wc.deviceType d " +
+		" JOIN wc.houseType ht "+
+		" WHERE d.id="+billAmendmentMotion.getType().getId()+
+		" AND wf.type='"+workflowName+"' "+
+		" AND ht.id="+houseTypeForWorkflow.getId()+
+		" AND wc.isLocked=true ORDER BY wc.id "+ApplicationConstants.DESC ;				
+		try{
+			return (WorkflowConfig) this.em().createQuery(query).getResultList().get(0);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return new WorkflowConfig();
+		}	
+	}
 	
 	public WorkflowActor findNextEditingActor(final HouseType houseType,
 			final UserGroup userGroup, 

@@ -2,7 +2,6 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -170,10 +169,85 @@ public class BillDraft extends BaseDomain implements Serializable{
     /** The house round for bill. */
     private Integer houseRound;
     
+    //======================Constructors======================//
     public BillDraft() {
 		super();
 	}
+    
+    //======================Domain Methods======================//
+    public String findTextOfGivenDraftTypeInGivenLanguage(final String draftType, final String language) {
+    	String text = "";
+    	if(draftType.equals("title")) {
+    		if(this.getTitles()!=null) {
+        		if(!this.getTitles().isEmpty()) {
+    				for(TextDraft td: this.getTitles()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("contentDraft")) {
+    		if(this.getContentDrafts()!=null) {
+        		if(!this.getContentDrafts().isEmpty()) {
+    				for(TextDraft td: this.getContentDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("statementOfObjectAndReasonDraft")) {
+    		if(this.getStatementOfObjectAndReasonDrafts()!=null) {
+        		if(!this.getStatementOfObjectAndReasonDrafts().isEmpty()) {
+    				for(TextDraft td: this.getStatementOfObjectAndReasonDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("financialMemorandumDraft")) {
+    		if(this.getFinancialMemorandumDrafts()!=null) {
+        		if(!this.getFinancialMemorandumDrafts().isEmpty()) {
+    				for(TextDraft td: this.getFinancialMemorandumDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("statutoryMemorandumDraft")) {
+    		if(this.getStatutoryMemorandumDrafts()!=null) {
+        		if(!this.getStatutoryMemorandumDrafts().isEmpty()) {
+    				for(TextDraft td: this.getStatutoryMemorandumDrafts()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	} else if(draftType.equals("annexureForAmendingBill")) {
+    		if(this.getAnnexuresForAmendingBill()!=null) {
+        		if(!this.getAnnexuresForAmendingBill().isEmpty()) {
+    				for(TextDraft td: this.getAnnexuresForAmendingBill()) {
+            			if(td.getLanguage().getType().equals(language)) {
+            				text = td.getText();
+            				break;
+            			}
+            		}
+    			}
+        	}
+    	}
+    	return text;
+    }
 
+    //======================Getters & Setters======================//
 	public DeviceType getType() {
 		return type;
 	}
