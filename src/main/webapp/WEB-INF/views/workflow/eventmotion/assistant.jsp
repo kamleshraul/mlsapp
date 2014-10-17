@@ -739,6 +739,7 @@
 		<p style="display: inline-block;">
 			<a href="#" id="reviseEventTitle" style="margin-left: 50px;margin-right: 20px;"><spring:message code="eventmotion.reviseEventTitle" text="Revise Event Title"></spring:message></a>
 			<a href="#" id="reviseDescription" style="margin-right: 20px;"><spring:message code="eventmotion.reviseDescription" text="Revise Description"></spring:message></a>
+			<a href="#" id="viewRevision" style="margin-right: 20px;"><spring:message code="eventmotion.viewrevision" text="Revisions"></spring:message></a>
 		</p>
 	</div>
 	

@@ -91,23 +91,23 @@
 			<div style="overflow: scroll;">
 			<table class="uiTable">
 				<tr>					
-					<th><spring:message code="cutmotion.submitall" text="Submit All"></spring:message>
+					<th><spring:message code="eventmotion.submitall" text="Submit All"></spring:message>
 					<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>					
 					<c:if test="${workflowSubType=='request_to_supporting_member'}">
-					<th><spring:message code="cutmotion.type" text="Device"></spring:message></th>
-					<th><spring:message code="cutmotion.member" text="Member"></spring:message></th>
-					<th><spring:message code="cutmotion.mainTitle" text="Main Title"></spring:message></th>
-					<th><spring:message code="cutmotion.lastdecision" text="Last Decision"></spring:message></th>
+					<th><spring:message code="eventmotion.type" text="Device"></spring:message></th>
+					<th><spring:message code="eventmotion.member" text="Member"></spring:message></th>
+					<th><spring:message code="eventmotion.eventTitle" text="Event Title"></spring:message></th>
+					<th><spring:message code="eventmotion.lastdecision" text="Last Decision"></spring:message></th>
 					<th></th>
 					</c:if>
 					<c:if test="${workflowSubType!='request_to_supporting_member'}">
-					<th><spring:message code="cutmotion.type" text="Device"></spring:message></th>					
-					<th><spring:message code="cutmotion.number" text="Number"></spring:message></th>
-					<th><spring:message code="cutmotion.member" text="Member"></spring:message></th>
-					<th><spring:message code="cutmotion.mainTitle" text="Main Title"></spring:message></th>
-					<th><spring:message code="cutmotion.lastremark" text="Last Remark"></spring:message></th>
-					<th><spring:message code="cutmotion.lastremarkby" text="Last Remark By"></spring:message></th>	
-					<th><spring:message code="cutmotion.lastdecision" text="Last Decision"></spring:message></th>
+					<th><spring:message code="eventmotion.type" text="Device"></spring:message></th>					
+					<th><spring:message code="eventmotion.number" text="Number"></spring:message></th>
+					<th><spring:message code="eventmotion.member" text="Member"></spring:message></th>
+					<th><spring:message code="eventmotion.eventTitle" text="Event Title"></spring:message></th>
+					<th><spring:message code="eventmotion.lastremark" text="Last Remark"></spring:message></th>
+					<th><spring:message code="eventmotion.lastremarkby" text="Last Remark By"></spring:message></th>	
+					<th><spring:message code="eventmotion.lastdecision" text="Last Decision"></spring:message></th>
 					</c:if>									
 				</tr>			
 				<c:forEach items="${bulkapprovals}" var="i">
@@ -124,7 +124,7 @@
 								</c:choose>
 									<td>${i.deviceType}</td>
 									<td>${i.member}</td>
-									<td>${i.mainTitle}</td>
+									<td>${i.subject}</td>
 									<td>${i.lastDecision}</td>	
 									<td>
 									<a href="#" class="details" id="device${i.deviceId}"><spring:message code="cutmotion.Notice Content" text="Notice Content"></spring:message></a>

@@ -503,13 +503,13 @@
 		<div>
 			<p style="display: inline-block;">
 				<label class="small"><spring:message code="eventmotion.designationOfPerson" text="Designation"/>*</label>
-				<input name="designationOfPerson" id="designationOfPerson" type="text" value="${domain.designationOfPerson}" class="sText">		
+				<input name="designationOfPerson" id="designationOfPerson" type="text" value="${domain.designationOfPerson}" class="sText" readonly="readonly">		
 				<form:errors path="designationOfPerson" cssClass="validationError"/>
 			</p>
 			
 			<p style="display: inline-block;">
 				<label class="small"><spring:message code="eventmotion.constituencyOfPerson" text="Contituency"/>*</label>
-				<input name="constituencyOfPerson" id="constituencyOfPerson" type="text" value="${domain.constituencyOfPerson}" class="sText">		
+				<input name="constituencyOfPerson" id="constituencyOfPerson" type="text" value="${domain.constituencyOfPerson}" class="sText" readonly="readonly">		
 				<form:errors path="constituencyOfPerson" cssClass="validationError"/>		
 			</p>
 		</div>
@@ -519,14 +519,14 @@
 		<c:if test="${selectedMotionType=='motions_eventmotion_condolence'}">
 			<p style="display: inline-block;">
 				<label class="small"><spring:message code="eventmotion.tenureOfPerson" text="Tenure"/>*</label>
-				<input name="tenureOfPerson" id="tenureOfPerson" type="text" value="${domain.tenureOfPerson}" class="sText">		
+				<input name="tenureOfPerson" id="tenureOfPerson" type="text" value="${domain.tenureOfPerson}" class="sText" readonly="readonly">		
 				<form:errors path="tenureOfPerson" cssClass="validationError"/>
 			</p>
 		</c:if>
 		
 		<p style="display: inline-block;">
 			<label class="small"><spring:message code="eventmotion.eventDate" text="Event Date"/>*</label>
-			<input name="formattedEventDate" id="formattedEventDate" type="text" value="${formattedEventDate}" class="sText datemask">
+			<input name="formattedEventDate" id="formattedEventDate" type="text" value="${formattedEventDate}" class="sText datemask" readonly="readonly">
 			<input name="eventDate" id="eventDate" type="hidden" value="${eventDate}">		
 			<form:errors path="eventDate" cssClass="validationError"/>
 		</p>
@@ -546,6 +546,14 @@
 						<label class="small"><spring:message code="generic.primaryMemberConstituency" text="Constituency"/>*</label>
 						<input type="text" readonly="readonly" value="${constituency}" class="sText">
 						<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
+					</p>
+				</div>
+			</c:if>
+			<c:if test="${domain.exMemberEnabled}">
+				<div>
+					<p style="display: inline-block;">
+						<label class="small"><spring:message code="generic.exmembers" text="Public Body"/></label>
+						<input id="exMember" name="exMember" value="${domain.exMember}" class="sText" readonly="readonly">
 					</p>
 				</div>
 			</c:if>
@@ -738,6 +746,7 @@
 		<p style="display: inline-block;">
 			<a href="#" id="reviseEventTitle" style="margin-left: 50px;margin-right: 20px;"><spring:message code="eventmotion.reviseEventTitle" text="Revise Event Title"></spring:message></a>
 			<a href="#" id="reviseDescription" style="margin-right: 20px;"><spring:message code="eventmotion.reviseDescription" text="Revise Description"></spring:message></a>
+			<a href="#" id="viewRevision" style="margin-right: 20px;"><spring:message code="eventmotion.viewrevision" text="Revisions"></spring:message></a>
 		</p>
 	</div>
 	
@@ -825,6 +834,7 @@
 	<input id="role" name="role" value="${role}" type="hidden">
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
+	<input type="hidden" name="exMemberEnabled" id="exMemberEnabled" value="${domain.exMemberEnabled}" />
 </form:form>
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">

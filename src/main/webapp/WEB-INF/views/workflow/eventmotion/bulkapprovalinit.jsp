@@ -29,7 +29,7 @@
 	});		
 	/**** Display Motions File or Status Wise ****/
 	function viewContent(){		
-		 var resource='workflow/cutmotion/bulkapproval/view';
+		 var resource='workflow/eventmotion/bulkapproval/view';
 		 $.post(resource,{
 			  houseType:$("#apprhouseType").val()
 			 ,sessionYear:$("#apprsessionYear").val()
@@ -59,9 +59,9 @@
 	function loadActors(value){
 		var motion=$("#motionId").val();
 		if(motion!=undefined&&motion!=''){
-			var params="cutmotion="+motion+"&status="+value+
+			var params="eventmotion="+motion+"&status="+value+
 			"&usergroup="+$("#apprusergroup").val()+"&level=1";
-			var resourceURL='ref/cutmotion/actors?'+params;				
+			var resourceURL='ref/eventmotion/actors?'+params;				
 			$.get(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
 					var length=data.length;
@@ -76,7 +76,7 @@
 					}
 					text+="<option value='-'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 					$("#appractor").html(text);
-					if(!$("#currentusergroupType").val()=='speaker'){
+					if($("#currentusergroupType").val()!='speaker'){
 						$("#actorDiv").show();
 					}else{
 						$("#actorDiv").hide();
@@ -135,9 +135,10 @@
 			buttons: {Ok:true, Cancel:false}, callback: function(v){
 	        if(v){
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				$.post('workflow/cutmotion/bulkapproval/update?actor='+next+"&level="+level,
+				$.post('workflow/eventmotion/bulkapproval/update?actor='+next+"&level="+level,
 			        	{items:items
-			        	 ,status:status
+			        	 ,aprstatus:status
+			        	 ,status:$("#selectedStatus").val()
 			        	 ,houseType:$("#apprhouseType").val()
 						 ,sessionYear:$("#apprsessionYear").val()
 						 ,sessionType:$("#apprsessionType").val()
@@ -147,7 +148,8 @@
 						 ,usergroupType:$("#apprusergroupType").val()
 						 ,file:$("#apprfile").val()
 						 ,itemscount:$("#appritemscount").val()
-						 ,workflowSubType:$("#apprworkflowSubType").val()
+						 ,aprworkflowSubType:$("#apprworkflowSubType").val()
+						 ,workflowSubType:$("#selectedSubWorkflow").val()
 					 	},
 	    	            function(data){
 	       					$('html').animate({scrollTop:0}, 'slow');
@@ -176,7 +178,7 @@
 <p>
 	<c:choose>
 	<c:when test="${workflowSubType=='request_to_supporting_member'}">
-	<label class="small"><spring:message code="cutmotion.decisionstatus" text="Decision?"/></label>	
+	<label class="small"><spring:message code="eventmotion.decisionstatus" text="Decision?"/></label>	
 	<select id="apprInternalStatus" class="sSelect">
 	<c:forEach items="${internalStatuses}" var="i">
 				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
@@ -185,7 +187,7 @@
 	<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
 	</c:when>
 	<c:otherwise>
-	<label class="small"><spring:message code="cutmotion.putupfor" text="Put up for"/></label>
+	<label class="small"><spring:message code="eventmotion.putupfor" text="Put up for"/></label>
 	<select id="apprInternalStatusWf" class="sSelect">
 	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 	<c:forEach items="${internalStatuses}" var="i">
@@ -193,7 +195,7 @@
 	</c:forEach>
 	</select>
 	<span id="actorDiv" style="margin: 10px;display: none;">
-		<label class="small"><spring:message code="cutmotion.nextactor" text="Next Users"/></label>
+		<label class="small"><spring:message code="eventmotion.nextactor" text="Next Users"/></label>
 		<select id="appractor" class="sSelect"></select>
 	</span>	
 	<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
