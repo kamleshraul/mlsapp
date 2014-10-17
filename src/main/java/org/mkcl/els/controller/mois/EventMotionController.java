@@ -1253,6 +1253,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 		
 		/**** Status ,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
 		/**** In case of submission ****/
+		CustomParameter csptUsersAllowedToCompleteMotion = CustomParameter.findByName(CustomParameter.class, "EMOIS_ALLOWED_USERGROUPTYPES_TO_COMPLETE_MOTION_" + domain.getDeviceType().getType().toUpperCase(), "");
 		String operation = request.getParameter("operation");
 		String usergroupType=request.getParameter("usergroupType");
 		boolean allowOperation = false;
@@ -1329,40 +1330,56 @@ public class EventMotionController extends GenericController<EventMotion>{
 							domain.setWorkflowStarted("NO");
 						}
 					}else{
-						if(usergroupType != null&&!(usergroupType.isEmpty()) && usergroupType.equals("member")){
-							Status status = Status.findByFieldName(Status.class, "type", ApplicationConstants.EVENTMOTION_COMPLETE, domain.getLocale());
+						if(csptUsersAllowedToCompleteMotion != null && csptUsersAllowedToCompleteMotion.getValue() != null && !csptUsersAllowedToCompleteMotion.getValue().isEmpty()){
+							if(usergroupType != null&&!(usergroupType.isEmpty())){
+								if(csptUsersAllowedToCompleteMotion.getValue().contains(usergroupType)){
+									Status status = Status.findByFieldName(Status.class, "type", ApplicationConstants.EVENTMOTION_COMPLETE, domain.getLocale());
+									domain.setStatus(status);
+									domain.setInternalStatus(status);
+									domain.setRecommendationStatus(status);
+									domain.setWorkflowStarted("NO");
+								}
+							}
+						}
+					}
+				}else{
+					if(csptUsersAllowedToCompleteMotion != null && csptUsersAllowedToCompleteMotion.getValue() != null && !csptUsersAllowedToCompleteMotion.getValue().isEmpty()){
+						if(usergroupType != null&&!(usergroupType.isEmpty())){
+							if(csptUsersAllowedToCompleteMotion.getValue().contains(usergroupType)){
+								Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.EVENTMOTION_COMPLETE, domain.getLocale());
+								domain.setStatus(status);
+								domain.setInternalStatus(status);
+								domain.setRecommendationStatus(status);
+								domain.setWorkflowStarted("NO");
+							}
+						}
+					}
+				}
+			}else{				
+				if(csptUsersAllowedToCompleteMotion != null && csptUsersAllowedToCompleteMotion.getValue() != null && !csptUsersAllowedToCompleteMotion.getValue().isEmpty()){
+					if(usergroupType != null&&!(usergroupType.isEmpty())){
+						if(csptUsersAllowedToCompleteMotion.getValue().contains(usergroupType)){
+							Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.EVENTMOTION_COMPLETE, domain.getLocale());
 							domain.setStatus(status);
 							domain.setInternalStatus(status);
 							domain.setRecommendationStatus(status);
 							domain.setWorkflowStarted("NO");
 						}
 					}
-				}else{
-					if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.EVENTMOTION_COMPLETE, domain.getLocale());
-						domain.setStatus(status);
-						domain.setInternalStatus(status);
-						domain.setRecommendationStatus(status);
-						domain.setWorkflowStarted("NO");
-					}
-				}
-			}else{
-				if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.EVENTMOTION_COMPLETE, domain.getLocale());
-					domain.setStatus(status);
-					domain.setInternalStatus(status);
-					domain.setRecommendationStatus(status);
-					domain.setWorkflowStarted("NO");
 				}
 			}
 		}
 		/**** Drafts ****/
 		else{
-			if(usergroupType != null && !(usergroupType.isEmpty()) && usergroupType.equals("member")){
-				Status status = Status.findByFieldName(Status.class, "type", ApplicationConstants.EVENTMOTION_INCOMPLETE, domain.getLocale());
-				domain.setStatus(status);
-				domain.setInternalStatus(status);
-				domain.setRecommendationStatus(status);
+			if(csptUsersAllowedToCompleteMotion != null && csptUsersAllowedToCompleteMotion.getValue() != null && !csptUsersAllowedToCompleteMotion.getValue().isEmpty()){
+				if(usergroupType != null&&!(usergroupType.isEmpty())){
+					if(csptUsersAllowedToCompleteMotion.getValue().contains(usergroupType)){
+						Status status = Status.findByFieldName(Status.class, "type", ApplicationConstants.EVENTMOTION_INCOMPLETE, domain.getLocale());
+						domain.setStatus(status);
+						domain.setInternalStatus(status);
+						domain.setRecommendationStatus(status);
+					}
+				}
 			}
 		}
 		/**** add creation date and created by ****/
@@ -1395,7 +1412,8 @@ public class EventMotionController extends GenericController<EventMotion>{
 		/**** Checking if its submission request or normal update ****/
 		String operation = request.getParameter("operation");		
 		String usergroupType = request.getParameter("usergroupType");
-						
+		CustomParameter csptUsersAllowedToCompleteMotion = CustomParameter.findByName(CustomParameter.class, "EMOIS_ALLOWED_USERGROUPTYPES_TO_COMPLETE_MOTION_" + domain.getDeviceType().getType().toUpperCase(), "");
+		
 		/**** Question status will be complete if all mandatory fields have been filled ****/
 		boolean allowOperation = false;
 		if(domain.getDeviceType() != null){
@@ -1415,12 +1433,18 @@ public class EventMotionController extends GenericController<EventMotion>{
 			}
 		}
 		
+		CustomParameter csptAllowedUserToSubmit = CustomParameter.findByName(CustomParameter.class, "EMOIS_ALLOWED_USERGROUPTYPES_TO_SUBMIT", "");
+		
 		if(allowOperation){			
 			if(operation!=null){
 				if(!operation.isEmpty()){
 					/**** Submission request ****/
 					if(operation.trim().equals("submit")){
-						if(usergroupType!=null&&!(usergroupType.isEmpty())&&(usergroupType.equals("member")||usergroupType.equals("clerk"))){
+						boolean flagToSubmit = false;
+						if(csptAllowedUserToSubmit != null && csptAllowedUserToSubmit.getValue() != null && !csptAllowedUserToSubmit.getValue().isEmpty()){
+							flagToSubmit = true;
+						}
+						if(usergroupType != null && flagToSubmit && csptAllowedUserToSubmit.getValue().contains(usergroupType)){
 							/**** Submission date is set ****/
 							if(domain.getSubmissionDate()==null){
 								domain.setSubmissionDate(new Date());
@@ -1786,8 +1810,8 @@ public class EventMotionController extends GenericController<EventMotion>{
 	@RequestMapping(value="/revisions/{motionId}",method=RequestMethod.GET)
 	public String getDrafts(final Locale locale,@PathVariable("motionId")  final Long motionId,
 			final ModelMap model){
-		List<RevisionHistoryVO> drafts = CutMotion.getRevisions(motionId,locale.toString());
-		CutMotion m = CutMotion.findById(CutMotion.class, motionId);
+		List<RevisionHistoryVO> drafts = EventMotion.getRevisions(motionId,locale.toString());
+		EventMotion m = EventMotion.findById(EventMotion.class, motionId);
 		if(m != null){
 			if(m.getDeviceType() != null){
 				if(m.getDeviceType().getType() != null){
@@ -1801,10 +1825,12 @@ public class EventMotionController extends GenericController<EventMotion>{
 
 	/**** Citations ****/
 	@RequestMapping(value="/citations/{deviceType}",method=RequestMethod.GET)
-	public String getCitations(final HttpServletRequest request, final Locale locale,@PathVariable("deviceType")  final Long type,
+	public String getCitations(final HttpServletRequest request, final Locale locale,
+			@PathVariable("deviceType")  final Long type,
 			final ModelMap model){
 		DeviceType deviceType = DeviceType.findById(DeviceType.class,type);
-		List<Citation> deviceTypeBasedcitations = Citation.findAllByFieldName(Citation.class,"deviceType",deviceType, "text",ApplicationConstants.ASC, locale.toString());
+		List<Citation> deviceTypeBasedcitations = Citation.findAllByFieldName(Citation.class,"deviceType", deviceType, 
+				"text",ApplicationConstants.ASC, locale.toString());
 		Status status=null;
 		if(request.getParameter("status") != null){
 			status=Status.findById(Status.class, Long.parseLong(request.getParameter("status")));
@@ -1828,12 +1854,14 @@ public class EventMotionController extends GenericController<EventMotion>{
 	public String getBulkSubmissionView(final HttpServletRequest request,
 			final Locale locale, final ModelMap model) {
 		try {
-			Member primaryMember = Member.findMember(this.getCurrentUser().getFirstName(), this.getCurrentUser().getMiddleName(), this.getCurrentUser().getLastName(), this.getCurrentUser().getBirthDate(), locale.toString());
+			String creator = this.getCurrentUser().getActualUsername();
 			String strHouseType = request.getParameter("houseType");
 			String strSessionType = request.getParameter("sessionType");
 			String strSessionYear = request.getParameter("sessionYear");
-			String strMotionType = request.getParameter("cutMotionType");
+			String strMotionType = request.getParameter("eventMotionType");
 			String strLocale = locale.toString();
+			String strUsergroupType = request.getParameter("usergroupType");
+					
 			String strItemsCount = request.getParameter("itemscount");
 			
 			if (strHouseType != null && !(strHouseType.isEmpty())
@@ -1841,16 +1869,28 @@ public class EventMotionController extends GenericController<EventMotion>{
 					&& strSessionYear != null && !(strSessionYear.isEmpty())
 					&& strMotionType != null && !(strMotionType.isEmpty())
 					&& strItemsCount != null && !(strItemsCount.isEmpty())) {
-				
+								
 				HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
 				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
 				Integer sessionYear = Integer.parseInt(strSessionYear);
 				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 				DeviceType motionType = DeviceType.findById(DeviceType.class, Long.parseLong(strMotionType));
 				Integer itemsCount = Integer.parseInt(strItemsCount);
-				List<CutMotion> motions = new ArrayList<CutMotion>();
-				if (primaryMember != null) {
-					motions = CutMotion.findAllByMember(session, primaryMember, motionType, itemsCount, strLocale);
+				
+				CustomParameter csptUsersAllowedForBulkSubmission = CustomParameter.findByName(CustomParameter.class, 
+						"EMOIS_ALLOWED_USERS_FOR_BULKSUBMISSION_" + motionType.getType().toUpperCase(), "");
+				
+				List<EventMotion> motions = new ArrayList<EventMotion>();
+				if (creator != null) {
+					if(csptUsersAllowedForBulkSubmission != null && csptUsersAllowedForBulkSubmission.getValue() != null 
+							&& !csptUsersAllowedForBulkSubmission.getValue().isEmpty()){
+						if(strUsergroupType != null && !strUsergroupType.isEmpty()){
+							if(csptUsersAllowedForBulkSubmission.getValue().contains(strUsergroupType)){
+								motions = EventMotion.findAllByCreator(session, creator, motionType, itemsCount, 
+										locale.toString());
+							}
+						}
+					}
 				}
 				model.addAttribute("motions", motions);
 				model.addAttribute("size", motions.size());
@@ -1883,10 +1923,10 @@ public class EventMotionController extends GenericController<EventMotion>{
 		if (selectedItems != null && !selectedItems.isEmpty()) {
 			String[] items = selectedItems.split(",");
 
-			List<CutMotion> motions = new ArrayList<CutMotion>();
+			List<EventMotion> motions = new ArrayList<EventMotion>();
 			for (String i : items) {
 				Long id = Long.parseLong(i);
-				CutMotion motion = CutMotion.findById(CutMotion.class, id);
+				EventMotion motion = EventMotion.findById(EventMotion.class, id);
 
 				/**** Update Supporting Member ****/
 				List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
@@ -1899,8 +1939,8 @@ public class EventMotionController extends GenericController<EventMotion>{
 								/**** Update Supporting Member ****/
 								sm.setDecisionStatus(timeoutStatus);
 								sm.setApprovalDate(new Date());
-								sm.setApprovedText(motion.getNoticeContent());
-								sm.setApprovedSubject(motion.getMainTitle());
+								sm.setApprovedText(motion.getDescription());
+								sm.setApprovedSubject(motion.getEventTitle());
 								sm.setApprovalType("ONLINE");
 								/**** Update Workflow Details ****/
 								String strWorkflowdetails = sm.getWorkflowDetailsId();
@@ -1925,7 +1965,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 				}
 
 				/**** Update Status(es) ****/
-				Status newstatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTION_SUBMIT, motion.getLocale());
+				Status newstatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.EVENTMOTION_SUBMIT, motion.getLocale());
 				motion.setStatus(newstatus);
 				motion.setInternalStatus(newstatus);
 				motion.setRecommendationStatus(newstatus);
@@ -1961,7 +2001,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 		String strHouseType = request.getParameter("houseType");
 		String strSessionType = request.getParameter("sessionType");
 		String strSessionYear = request.getParameter("sessionYear");
-		String strMotionType = request.getParameter("cutMotionType");
+		String strMotionType = request.getParameter("eventMotionType");
 		String strStatus = request.getParameter("status");
 		String strRole = request.getParameter("role");
 		String strUsergroup = request.getParameter("usergroup");
@@ -1989,7 +2029,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 			 * Decision Status Available To Assistant(At this stage)
 			 * MOTION_PUT_UP_OPTIONS_+MOTION_TYPE+HOUSE_TYPE+USERGROUP_TYPE
 			 ****/
-			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class, "CUTMOTION_PUT_UP_OPTIONS_" 
+			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class, "EVENTMOTION_PUT_UP_OPTIONS_" 
 							+ motionType.getType().toUpperCase() + "_"
 							+ houseType.getType().toUpperCase() + "_"
 							+ strUsergroupType.toUpperCase(), "");
@@ -1998,7 +2038,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 				internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(), locale.toString());
 				model.addAttribute("internalStatuses", internalStatuses);
 			} catch (ELSException e) {
-				return "cutmotion/bulksubmission";
+				return "eventmotion/bulksubmission";
 			}
 
 			/**** Request Params To Model Attribute ****/
@@ -2028,7 +2068,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 	public String bulkSubmissionAssistant(final HttpServletRequest request,
 			final Locale locale, final Model model) {
 		String[] selectedItems = request.getParameterValues("items[]");
-		String strStatus = request.getParameter("status");
+		String strStatus = request.getParameter("aprstatus");
 		StringBuffer assistantProcessed = new StringBuffer();
 		StringBuffer recommendAdmission = new StringBuffer();
 		StringBuffer recommendRejection = new StringBuffer();
@@ -2038,7 +2078,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 			if (strStatus.equals("-")) {
 				for (String i : selectedItems) {
 					Long id = Long.parseLong(i);
-					CutMotion motion = CutMotion.findById(CutMotion.class, id);
+					EventMotion motion = EventMotion.findById(EventMotion.class, id);
 					if (!motion.getInternalStatus().getType().equals(ApplicationConstants.EVENTMOTION_SYSTEM_ASSISTANT_PROCESSED)) {
 						/**** Create Process ****/
 						try {
@@ -2152,48 +2192,50 @@ public class EventMotionController extends GenericController<EventMotion>{
 	
 	public void getBulkSubmissionMotions(final Model model,final HttpServletRequest request,final String locale){
 		/**** Request Params ****/
-		String strHouseType=request.getParameter("houseType");
-		String strSessionType=request.getParameter("sessionType");
-		String strSessionYear=request.getParameter("sessionYear");
-		String strMotionType=request.getParameter("eventMotionType");			
-		String strStatus=request.getParameter("status");
-		String strRole=request.getParameter("role");
-		String strUsergroup=request.getParameter("usergroup");
-		String strUsergroupType=request.getParameter("usergroupType");
-		String strItemsCount=request.getParameter("itemscount");
-		String strFile=request.getParameter("file");
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strMotionType = request.getParameter("eventMotionType");			
+		String strStatus = request.getParameter("status");
+		String strRole = request.getParameter("role");
+		String strUsergroup = request.getParameter("usergroup");
+		String strUsergroupType = request.getParameter("usergroupType");
+		String strItemsCount = request.getParameter("itemscount");
+		String strFile = request.getParameter("file");
 		/**** Locale ****/
-		String strLocale=locale;
+		String strLocale = locale;
 		/**** Null and Empty Check ****/
-		if(strHouseType!=null&&!(strHouseType.isEmpty())
-				&&strSessionType!=null&&!(strSessionType.isEmpty())
-				&&strSessionYear!=null&&!(strSessionYear.isEmpty())
-				&&strMotionType!=null&&!(strMotionType.isEmpty())
-				&&strStatus!=null&&!(strStatus.isEmpty())
-				&&strRole!=null&&!(strRole.isEmpty())
-				&&strUsergroup!=null&&!(strUsergroup.isEmpty())
-				&&strUsergroupType!=null&&!(strUsergroupType.isEmpty())
-				&&strItemsCount!=null&&!(strItemsCount.isEmpty())
-				&&strFile!=null&&!(strFile.isEmpty())){
-			List<EventMotion> motions=new ArrayList<EventMotion>();
-			HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, strLocale);
-			SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-			Integer sessionYear=Integer.parseInt(strSessionYear);
+		if(strHouseType != null && !(strHouseType.isEmpty())
+				&& strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear != null && !(strSessionYear.isEmpty())
+				&& strMotionType != null && !(strMotionType.isEmpty())
+				&& strStatus != null && !(strStatus.isEmpty())
+				&& strRole != null && !(strRole.isEmpty())
+				&& strUsergroup != null && !(strUsergroup.isEmpty())
+				&& strUsergroupType != null && !(strUsergroupType.isEmpty())
+				&& strItemsCount != null && !(strItemsCount.isEmpty())
+				&& strFile != null && !(strFile.isEmpty())){
+			
+			List<EventMotion> motions = new ArrayList<EventMotion>();
+			HouseType houseType = HouseType.findByFieldName(HouseType.class,"type",strHouseType, strLocale);
+			SessionType sessionType = SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+			Integer sessionYear = Integer.parseInt(strSessionYear);
 			Session session;
 			try {
 				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 				
-				DeviceType motionType=DeviceType.findById(DeviceType.class,Long.parseLong(strMotionType));
-				if(strFile!=null&&!strFile.isEmpty()&&!strFile.equals("-")){
-					Integer file=Integer.parseInt(strFile);
+				DeviceType motionType = DeviceType.findById(DeviceType.class,Long.parseLong(strMotionType));
+				if(strFile != null && !strFile.isEmpty() && !strFile.equals("-")){
+					Integer file = Integer.parseInt(strFile);
 					motions = EventMotion.findAllByFile(session,motionType,file,strLocale);
-				}else if(strItemsCount!=null&&!strItemsCount.isEmpty()){
-					Integer itemsCount=Integer.parseInt(strItemsCount);
-					Status internalStatus=Status.findById(Status.class,Long.parseLong(strStatus));
+				}else if(strItemsCount != null && !strItemsCount.isEmpty()){
+					Integer itemsCount = Integer.parseInt(strItemsCount);
+					Status internalStatus = Status.findById(Status.class,Long.parseLong(strStatus));
 					motions = EventMotion.findAllByStatus(session,motionType,internalStatus,itemsCount,strLocale);
-				}				
+				}			
+				model.addAttribute("selectedDeviceType", motionType.getType());
 				model.addAttribute("motions",motions);
-				if(motions!=null&&!motions.isEmpty()){
+				if(motions != null && !motions.isEmpty()){
 					model.addAttribute("motionId",motions.get(0).getId());
 				}
 				
