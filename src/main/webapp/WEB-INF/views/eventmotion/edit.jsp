@@ -249,14 +249,58 @@
 			    return false;
 		    });  
 		    
-			if($("#currentStatus").val()=='motion_submit'){
+		    /**** send for submission ****/
+			$("#submitEventMotion").click(function(e){			
+				//removing <p><br></p>  from wysiwyg editor
+				$(".wysiwyg").each(function(){
+					var wysiwygVal=$(this).val().trim();
+					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+						$(this).val("");
+					}
+				});			
+				$.prompt($('#submissionMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+			        	$.post($('form').attr('action')+'?operation=submit',  
+			    	            $("form").serialize(),  
+			    	            function(data){
+			       					$('.tabContent').html(data);
+			       					$('html').animate({scrollTop:0}, 'slow');
+			       				 	$('body').animate({scrollTop:0}, 'slow');	
+			    					$.unblockUI();	   				 	   				
+			    	            }).fail(function(){
+			    					$.unblockUI();
+			    					if($("#ErrorMsg").val()!=''){
+			    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			    					}else{
+			    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			    					}
+			    					scrollTop();
+			    				});
+			        }
+				}});			
+		        return false;  
+		    }); 
+		    
+			if($("#currentStatus").val()=='eventmotion_submit'){
 				$("#ministry").attr("disabled","disabled");
 				$("#subDepartment").attr("disabled","disabled");
-				$("#mainTitle").attr("readonly","readonly");
+				$("#eventTitle").attr("readonly","readonly");
 				$("#details").attr("readonly","readonly");
 				$("#selectedSupportingMembers").attr("readonly","readonly");			
 			}	
 					
+			$("#number").change(function(){
+				$.get('ref/eventmotionbynumberandsession?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType').val(),function(data){
+					if(data){
+						$('#numberError').css('display','inline');
+					}else{
+						$('#numberError').css('display','none');
+					}
+				});
+			});
+			
 			/**** To prevent copy paste in supporting member field ****/
 			$("#selectedSupportingMembers").bind('copy paste', function (e) {
 			       e.preventDefault();
@@ -275,20 +319,35 @@
 	
 	<div class="fields clearfix watermark">
 	
-		<form:form action="cutmotion" method="PUT" modelAttribute="domain">
+		<form:form action="eventmotion" method="PUT" modelAttribute="domain">
 			<%@ include file="/common/info.jsp" %>
 			<div id="reportDiv">
 				<h2>${formattedMotionType} ${formattedNumber}</h2>
 				<form:errors path="version" cssClass="validationError"/>
 				<div>
-					<c:if test="${!(empty domain.number)}">
-						<p style="display: inline-block;">
-							<label class="small"><spring:message code="eventmotion.number" text="Event Number"/>*</label>
-							<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
-							<input id="number" name="number" value="${domain.number}" type="hidden">
-							<form:errors path="number" cssClass="validationError"/>
-						</p>
-					</c:if>				
+					<c:choose>
+						<c:when test="${!(empty domain.number)}">
+							<p style="display: inline-block;">
+								<label class="small"><spring:message code="eventmotion.number" text="Event Number"/>*</label>
+								<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
+								<input id="number" name="number" value="${domain.number}" type="hidden">
+								<form:errors path="number" cssClass="validationError"/>
+							</p>
+						</c:when>
+						<c:when test="${empty(domain.number)}">
+							<security:authorize access="hasAnyRole('EMOIS_CLERK','EMOIS_TYPIST')">	
+								<p>
+									<label class="small"><spring:message code="eventmotion.number" text="Motion Number"/>*</label>
+									<form:input path="number" cssClass="sText integer"/>
+									<form:errors path="number" cssClass="validationError"/>
+									<span id='numberError' style="display: none; color: red;">
+										<spring:message code="eventMotion.domain.NonUnique" text="Duplicate Number"></spring:message>
+									</span>
+									<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
+								</p>					
+							</security:authorize>
+						</c:when>
+					</c:choose>				
 		
 					<c:if test="${!(empty submissionDate)}">
 						<p style="display: inline-block;">
@@ -328,17 +387,27 @@
 				</p>	
 		
 				<div>
-					<p style="display: inline-block;">
-						<label class="small"><spring:message code="generic.primaryMember" text="Primary Member"/>*</label>
-						<input id="formattedPrimaryMember" name="formattedPrimaryMember"  value="${formattedPrimaryMember}" type="text" class="sText"  readonly="readonly" class="sText">
-						<input id="member" name="member" value="${primaryMember}" type="hidden">		
-						<form:errors path="member" cssClass="validationError"/>		
-					</p>
-					
-					<p style="display: inline-block;">
-						<label class="small"><spring:message code="generic.primaryMemberConstituency" text="Constituency"/>*</label>
-						<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
-					</p>
+					<c:choose>
+						<c:when test="${not (domain.exMemberEnabled)}">
+							<p style="display: inline-block;">
+								<label class="small"><spring:message code="generic.primaryMember" text="Primary Member"/>*</label>
+								<input id="formattedPrimaryMember" name="formattedPrimaryMember"  value="${formattedPrimaryMember}" type="text" class="sText"  readonly="readonly" class="sText">
+								<input id="member" name="member" value="${primaryMember}" type="hidden">		
+								<form:errors path="member" cssClass="validationError"/>		
+							</p>
+							
+							<p style="display: inline-block;">
+								<label class="small"><spring:message code="generic.primaryMemberConstituency" text="Constituency"/>*</label>
+								<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
+							</p>
+						</c:when>
+						<c:when test="${domain.exMemberEnabled}">
+							<p style="display: inline-block;">
+								<label class="small"><spring:message code="generic.public" text="Public Body"/>*</label>
+								<input id="exMember" name="exMember"  value="${domain.exMember}" type="text" class="sText"  readonly="readonly" class="sText">		
+							</p>							
+						</c:when>
+					</c:choose>
 				</div>	
 	
 				<c:if test="${selectedMotionType=='motions_eventmotion_congratulatory'}">
@@ -448,8 +517,9 @@
 				<c:choose>
 					<c:when test="${memberStatusType=='eventmotion_complete' or memberStatusType=='eventmotion_incomplete'}">
 						<p class="tright">
-							<security:authorize access="hasAnyRole('EMOIS_CLERK','EMOIS_TYPIST')">	
-								<input id="submitEventMotion" type="button" value="<spring:message code='eventmotion.submitmotion' text='Submit Motion'/>" class="butDef">			
+							<security:authorize access="hasAnyRole('EMOIS_CLERK', 'EMOIS_TYPIST')">	
+								<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">			
+								<input id="submitEventMotion" type="button" value="<spring:message code='eventmotion.submitmotion' text='Submit Motion'/>" class="butDef">				
 							</security:authorize>
 							<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 								<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
@@ -461,21 +531,24 @@
 							</security:authorize>			
 						</p>
 					</c:when>	
-					<c:otherwise>
+					<%-- <c:otherwise>
 						<p class="tright">
-							<security:authorize access="hasAnyRole('EMOIS_CLERK', 'EMOIS_TYPIST')">	
-								<input id="submitEventMotion" type="button" value="<spring:message code='motion.submitmotion' text='Submit Motion'/>" class="butDef" disabled="disabled">				
-							</security:authorize>			
-							<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
-								<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
-								<c:if test="${selectedMotionType=='motions_eventmotion_congratulatory'}">
-									<input id="sendforapproval" type="button" value="<spring:message code='generic.sendforapproval' text='Send For Approval'/>" class="butDef" disabled="disabled">
-								</c:if>
+							<c:if test="${memberStatusType!='eventmotion_submit'}">
+								<security:authorize access="hasAnyRole('EMOIS_CLERK', 'EMOIS_TYPIST')">	
+									<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">			
+									<input id="submitEventMotion" type="button" value="<spring:message code='eventmotion.submitmotion' text='Submit Motion'/>" class="butDef">				
+								</security:authorize>			
+								<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
+									<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
+									<c:if test="${selectedMotionType=='motions_eventmotion_congratulatory'}">
+										<input id="sendforapproval" type="button" value="<spring:message code='generic.sendforapproval' text='Send For Approval'/>" class="butDef" disabled="disabled">
+									</c:if>
 								<input id="submitEventMotion" type="button" value="<spring:message code='eventmotion.submitmotion' text='Submit Motion'/>" class="butDef" disabled="disabled">
 								<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef" disabled="disabled">
 							</security:authorize>
+							</c:if>	
 						</p>
-					</c:otherwise>
+					</c:otherwise> --%>
 				</c:choose>		
 			</div>
 			<form:hidden path="version" />

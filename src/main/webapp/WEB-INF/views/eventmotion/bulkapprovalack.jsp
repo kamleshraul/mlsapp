@@ -15,11 +15,11 @@
 	</c:if>
 	<table class="uiTable">
 		<tr>
-			<th><spring:message code="cutmotion.number" text="Number"></spring:message></th>
-			<th><spring:message code="cutmotion.member" text="Member"></spring:message></th>
-			<th><spring:message code="cutmotion.mainTitle" text="Main Title"></spring:message></th>
-			<th><spring:message code="cutmotion.putupfor" text="Put Up For"></spring:message></th>
-			<th><spring:message code="cutmotion.sendto" text="Send To"></spring:message></th>			
+			<th><spring:message code="eventmotion.number" text="Number"></spring:message></th>
+			<th><spring:message code="eventmotion.member" text="Member"></spring:message></th>
+			<th><spring:message code="eventmotion.mainTitle" text="Main Title"></spring:message></th>
+			<th><spring:message code="eventmotion.putupfor" text="Put Up For"></spring:message></th>
+			<th><spring:message code="eventmotion.sendto" text="Send To"></spring:message></th>			
 		</tr>			
 		<c:forEach items="${motions}" var="i">
 			<tr>

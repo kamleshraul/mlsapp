@@ -550,6 +550,14 @@
 					</p>
 				</div>
 			</c:if>
+			<c:if test="${domain.exMemberEnabled}">
+				<div>
+					<p style="display: inline-block;">
+						<label class="small"><spring:message code="generic.exmembers" text="Public Body"/></label>
+						<input id="exMember" name="exMember" value="${domain.exMember}" class="sText" readonly="readonly">
+					</p>
+				</div>
+			</c:if>
 		</c:when>
 		<c:when test="${selectedMotionType=='motions_eventmotion_congratulatory'}">
 			<p>
@@ -739,6 +747,7 @@
 		<p style="display: inline-block;">
 			<a href="#" id="reviseEventTitle" style="margin-left: 50px;margin-right: 20px;"><spring:message code="eventmotion.reviseEventTitle" text="Revise Event Title"></spring:message></a>
 			<a href="#" id="reviseDescription" style="margin-right: 20px;"><spring:message code="eventmotion.reviseDescription" text="Revise Description"></spring:message></a>
+			<a href="#" id="viewRevision" style="margin-right: 20px;"><spring:message code="eventmotion.viewrevision" text="Revisions"></spring:message></a>
 		</p>
 	</div>
 	
@@ -752,37 +761,74 @@
 		<label class="wysiwyglabel"><spring:message code="eventmotion.revisedDescription" text="Revised Description"/></label>
 		<form:textarea path="revisedDescription" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="revisedDescription" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>	
-	<div>		
-		<p style="display: inline-block;">	
-			<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
-			<select id="changeInternalStatus" class="sSelect">
-				<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-				<c:forEach items="${internalStatuses}" var="i">
-					<c:choose>
-						<c:when test="${i.id==internalStatusSelected }">
-							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-						</c:when>
-						<c:otherwise>
-							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-			</select>
-			
-			<select id="internalStatusMaster" style="display:none;">
-				<c:forEach items="${internalStatuses}" var="i">
-					<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-				</c:forEach>
-			</select>	
-			<form:errors path="internalStatus" cssClass="validationError"/>	
-		</p>
-		
-		<p id="actorDiv" style="display: inline-block;">
-			<label class="small"><spring:message code="generic.nextactor" text="Next Users"/></label>
-			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-		</p>
-	</div>
+	</p>
+	
+	<c:choose>	
+		<c:when test="${domain.workflowStarted=='NO'}">
+			<div>		
+				<p style="display: inline-block;">	
+					<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
+					<select id="changeInternalStatus" class="sSelect">
+						<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+						<c:forEach items="${internalStatuses}" var="i">
+							<c:choose>
+								<c:when test="${i.id==internalStatusSelected }">
+									<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+					
+					<select id="internalStatusMaster" style="display:none;">
+						<c:forEach items="${internalStatuses}" var="i">
+							<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+						</c:forEach>
+					</select>	
+					<form:errors path="internalStatus" cssClass="validationError"/>	
+				</p>
+				
+				<p id="actorDiv" style="display: inline-block;">
+					<label class="small"><spring:message code="generic.nextactor" text="Next Users"/></label>
+					<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+				</p>
+			</div>
+		</c:when>
+		<c:when test="${domain.workflowStarted=='YES'}">
+			<div style="display: none;">		
+				<p style="display: inline-block;">	
+					<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
+					<select id="changeInternalStatus" class="sSelect">
+						<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+						<c:forEach items="${internalStatuses}" var="i">
+							<c:choose>
+								<c:when test="${i.id==internalStatusSelected }">
+									<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+					
+					<select id="internalStatusMaster" style="display:none;">
+						<c:forEach items="${internalStatuses}" var="i">
+							<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+						</c:forEach>
+					</select>	
+					<form:errors path="internalStatus" cssClass="validationError"/>	
+				</p>
+				
+				<p id="actorDiv" style="display: inline-block;">
+					<label class="small"><spring:message code="generic.nextactor" text="Next Users"/></label>
+					<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+				</p>
+			</div>
+		</c:when>
+	</c:choose>
 	
 	<p>
 		<label class="wysiwyglabel"><spring:message code="generic.remarks" text="Remarks"/></label>
@@ -831,7 +877,8 @@
 	<input type="hidden" name="taskReceivedOnDate" id="taskReceivedOnDate" value="${taskReceivedOnDate }">	
 	<input id="role" name="role" value="${role}" type="hidden">
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
-	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
+	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
+	<input type="hidden" name="exMemberEnabled" id="exMemberEnabled" value="${domain.exMemberEnabled}" />	
 </form:form>
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">

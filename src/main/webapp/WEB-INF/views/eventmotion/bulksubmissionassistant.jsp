@@ -27,7 +27,7 @@
 						items.push($(this).attr("id").split("chk")[1]);
 						}
 					});
-		        	$.post('cutmotion/bulksubmission/assistant?items='+items
+		        	$.post('eventmotion/bulksubmission/assistant?items='+items
 		        			+"&usergroupType="+$("#usergroupType").val(),  		    	             
 		    	            function(data){
 		       					$('html').animate({scrollTop:0}, 'slow');
@@ -64,14 +64,22 @@
 					<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
 					<th><spring:message code="motion.number" text="Number"></spring:message></th>
 					<th><spring:message code="motion.member" text="Member"></spring:message></th>
-					<th><spring:message code="motion.subject" text="Subject"></spring:message></th>
+					<th><spring:message code="motion.eventTitle" text="Event Title"></spring:message></th>
 				</tr>			
 				<c:forEach items="${motions}" var="i">
 					<tr>
 						<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"></td>
 						<td>${i.formatNumber()}</td>
-						<td>${i.primaryMember.getFullname()}</td>
-						<td>${i.subject}</td>
+						<td><c:choose>
+								<c:when test="${i.member!=null}">
+									${i.member.getFullname()}
+								</c:when>
+								<c:when test="${not(empty i.exMember)}">
+									${i.exMember}
+								</c:when>
+							</c:choose>
+						</td>
+						<td>${i.eventTitle}</td>
 					</tr>
 				</c:forEach>
 			</table>

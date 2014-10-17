@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <html>
 <head>
-	<title><spring:message code="question.revisions" text="Revisions" /></title>
+	<title><spring:message code="eventmotion.revisions" text="Revisions" /></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<style>
 		td{min-width:150px; max-width:350px;min-height:30px;}
@@ -17,13 +17,13 @@
 		<c:when test="${!(empty drafts) }">
 			<table class="uiTable">
 				<tr>
-					<th><spring:message code="cutmotion.revisedas" text="Revised As"></spring:message></th>
-					<th><spring:message code="cutmotion.decision" text="Decision"></spring:message></th>
-					<th><spring:message code="cutmotion.remark" text="Remarks"></spring:message></th>
-					<th><spring:message code="cutmotion.revisedon" text="Revised On"></spring:message></th>
-					<th><spring:message code="cutmotion.mainTitle" text="Main Title"></spring:message></th>
-					<th><spring:message code="cutmotion.noticeContent" text="Content"></spring:message></th>
-					<th><spring:message code="cutmotion.revisedby" text="Revised By"></spring:message></th>
+					<th><spring:message code="eventmotion.revisedas" text="Revised As"></spring:message></th>
+					<th><spring:message code="eventmotion.decision" text="Decision"></spring:message></th>
+					<th><spring:message code="eventmotion.remark" text="Remarks"></spring:message></th>
+					<th><spring:message code="eventmotion.revisedon" text="Revised On"></spring:message></th>
+					<th><spring:message code="eventmotion.mainTitle" text="Event Title"></spring:message></th>
+					<th><spring:message code="eventmotion.noticeContent" text="Content"></spring:message></th>
+					<th><spring:message code="eventmotion.revisedby" text="Revised By"></spring:message></th>
 				</tr>
 				
 				<c:forEach items="${drafts}" var="i">

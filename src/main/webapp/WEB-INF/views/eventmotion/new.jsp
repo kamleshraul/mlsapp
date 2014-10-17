@@ -199,6 +199,7 @@
 			}});			
 	        return false;  
 	    }); 
+		
 		/**** send for submission ****/
 		$("#submitEventMotion").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -238,6 +239,28 @@
 		$("#selectedSupportingMembers").bind('copy paste', function (e) {
 		       e.preventDefault();
 		 });
+		
+		$("#exMemberEnabled").click(function(){
+			var checkVal = $(this).attr('checked');
+			if(checkVal=='checked'){
+				$("#currentMemberDiv").css({'display':'none'});
+				$("#exMemberDiv").css({'display':'inline-block'});
+			}else{
+				$("#currentMemberDiv").css({'display':'inline-block'});
+				$("#exMemberDiv").css({'display':'none'});
+			}
+		});
+		
+		$("#number").change(function(){
+			$.get('ref/eventmotionbynumberandsession?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType').val(),function(data){
+				if(data){
+					$('#numberError').css('display','inline');
+				}else{
+					$('#numberError').css('display','none');
+				}
+			});
+		});
+		
 	});
 	</script>
 </head>
@@ -261,6 +284,9 @@
 						<label class="small"><spring:message code="eventmotion.number" text="Motion Number"/>*</label>
 						<form:input path="number" cssClass="sText integer"/>
 						<form:errors path="number" cssClass="validationError"/>
+						<span id='numberError' style="display: none; color: red;">
+							<spring:message code="eventMotion.domain.NonUnique" text="Duplicate Number"></spring:message>
+						</span>
 						<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
 					</p>					
 				</security:authorize>
@@ -306,13 +332,43 @@
 					</p>
 				</security:authorize>
 				
-				<security:authorize access="hasAnyRole('EMOIS_CLERK','EMOIS_TYPIST')">		
-					<p>
-						<label class="small"><spring:message code="generic.primaryMember" text="Primary Member"/>*</label>
-						<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
-						<input name="member" id="primaryMember" type="hidden" value="${primaryMember}">		
-						<form:errors path="member" cssClass="validationError"/>		
-					</p>						
+				<security:authorize access="hasAnyRole('EMOIS_CLERK','EMOIS_TYPIST')">
+					<div>		
+						<c:choose>
+							<c:when test="${not (domain.exMemberEnabled)}">
+								<div id="currentMemberDiv" style="width: 400px; display: inline-block;">
+									<label class="small"><spring:message code="generic.primaryMember" text="Primary Member"/>*</label>
+									<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
+									<input name="member" id="primaryMember" type="hidden" value="${primaryMember}">		
+									<form:errors path="member" cssClass="validationError"/>		
+								</div>
+								<div id="exMemberDiv" style="width: 400px; display: none;">
+									<label class="small"><spring:message code="generic.exMember" text="Ex Member"/>*</label>
+									<input id="exMember" name="exMember" type="text" class="sText" value="${domain.exMember}">
+								</div>	
+								<div style="display: inline-block; width: 200px;">
+									<input id="exMemberEnabled" name="exMemberEnabled" type="checkbox" class="sCheck">
+									<label class="small"><spring:message code="generic.exMemberEnabled" text="Enable Ex-Member?"/></label>						
+								</div>					
+							</c:when>
+							<c:when test="${domain.exMemberEnabled}">
+								<div id="currentMemberDiv" style="width: 400px; display: none;">
+									<label class="small"><spring:message code="generic.primaryMember" text="Primary Member"/>*</label>
+									<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
+									<input name="member" id="primaryMember" type="hidden" value="${primaryMember}">		
+									<form:errors path="member" cssClass="validationError"/>		
+								</div>
+								<div id="exMemberDiv" style="width: 400px; display: inline-block;">
+									<label class="small"><spring:message code="generic.exMember" text="Ex Member"/>*</label>
+									<input id="exMember" name="exMember" type="text" class="sText" value="${domain.exMember}">
+								</div>	
+								<div style="display: inline-block; width: 200px;">
+									<input id="exMemberEnabled" name="exMemberEnabled" type="checkbox" class="sCheck" checked="checked">
+									<label class="small"><spring:message code="generic.exMemberEnabled" text="Enable Ex-Member?"/></label>						
+								</div>
+							</c:when>
+						</c:choose>
+					</div>
 				</security:authorize>
 				
 				<c:if test="${selectedMotionType=='motions_eventmotion_congratulatory'}">
@@ -417,7 +473,8 @@
 				<h2></h2>
 				<p class="tright">
 					<security:authorize access="hasAnyRole('EMOIS_CLERK','EMOIS_TYPIST')">	
-						<input id="submitEventMotion" type="button" value="<spring:message code='eventmotion.submitmotion' text='Submit Motion'/>" class="butDef">			
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">			
+						<input id="submitEventMotion" type="button" value="<spring:message code='eventmotion.submitmotion' text='Submit Motion'/>" class="butDef">
 					</security:authorize>
 					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">

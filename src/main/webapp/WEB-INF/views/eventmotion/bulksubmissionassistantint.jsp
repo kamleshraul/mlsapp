@@ -32,14 +32,14 @@
 		var parameters = "houseType="+$("#assihouseType").val()
 		 +"&sessionYear="+$("#assisessionYear").val()
 		 +"&sessionType="+$("#assisessionType").val()
-		 +"&cutMotionType="+$("#assimotionType").val()
+		 +"&eventMotionType="+$("#assimotionType").val()
 		 +"&status="+$("#assistatus").val()
 		 +"&role="+$("#assirole").val()
 		 +"&usergroup="+$("#assiusergroup").val()
 		 +"&usergroupType="+$("#assiusergroupType").val()
 		 +"&file="+$("#assifile").val()
 		 +"&itemscount="+$("#assiitemscount").val();	
-		 var resource='cutmotion/bulksubmission/assistant/view';
+		 var resource='eventmotion/bulksubmission/assistant/view';
 		 var resourceURL=resource+"?"+parameters;
 		 $.get(resourceURL,function(data){
 			 $("#bulkResultDiv").empty();
@@ -58,9 +58,9 @@
 	function loadActors(value){
 		var motion=$("#motionId").val();
 		if(motion!=undefined&&motion!=''){
-			var params="cutmotion="+motion+"&status="+value+
+			var params="eventmotion="+motion+"&status="+value+
 			"&usergroup="+$("#assiusergroup").val()+"&level=1";
-			var resourceURL='ref/cutmotion/actors?'+params;				
+			var resourceURL='ref/eventmotion/actors?'+params;				
 			$.get(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
 					var length=data.length;
@@ -119,13 +119,14 @@
 			buttons: {Ok:true, Cancel:false}, callback: function(v){
 	        if(v){
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				$.post('cutmotion/bulksubmission/assistant/update?actor='+next+"&level="+level,
+				$.post('eventmotion/bulksubmission/assistant/update?actor='+next+"&level="+level,
 			        	{items:items
-			        	,status:status
+			        	,aprstatus:status
+			        	,status:$("#selectedStatus").val()
 			        	,houseType:$("#assihouseType").val()
 			   		 	,sessionYear:$("#assisessionYear").val()
 					 	,sessionType:$("#assisessionType").val()
-					 	,cutMotionType:$("#assimotionType").val()
+					 	,eventMotionType:$("#assimotionType").val()
 					 	,role:$("#assirole").val()
 					 	,usergroup:$("#assiusergroup").val()
 					 	,usergroupType:$("#assiusergroupType").val()

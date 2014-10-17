@@ -30,7 +30,7 @@ $(document).ready(function(){
 /**** Edit Motions ****/
 function editMotion(id,readonly){
 	var motionid=id.split("edit")[1];
-	var href='cutmotion/'+motionid+'/edit';
+	var href='eventmotion/'+motionid+'/edit';
 	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			
 	var params="role="+$("#assirole").val()+"&usergroup="+$("#assiusergroup").val()+"&usergroupType="+
 				$("#assiusergroupType").val()+"&bulkedit=yes"
@@ -69,26 +69,42 @@ function editMotion(id,readonly){
 					<tr>
 						<th><spring:message code="motion.submitall" text="Submit All"></spring:message>
 						<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
-						<th><spring:message code="cutmotion.number" text="Number"></spring:message></th>
-						<th><spring:message code="cutmotion.member" text="Member"></spring:message></th>
-						<th><spring:message code="cutmotion.subject" text="Main Title"></spring:message></th>
-						<th><spring:message code="cutmotion.currentstatus" text="To Be Put Up For?"></spring:message></th>
+						<th><spring:message code="eventmotion.number" text="Number"></spring:message></th>
+						<th><spring:message code="eventmotion.member" text="Member"></spring:message></th>
+						<th><spring:message code="eventmotion.eventTitle" text="Event Title"></spring:message></th>
+						<th><spring:message code="eventmotion.currentstatus" text="To Be Put Up For?"></spring:message></th>
 					</tr>			
 					<c:forEach items="${motions}" var="i">
 						<tr class="${i.fileSent}">
 							<c:choose>
-							<c:when test="${!i.fileSent}">
-							<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
-							<a href="#" class="edit" id="edit${i.id}"><spring:message code="motion.edit" text="Edit"></spring:message></a></td>
-							</c:when>
-							<c:otherwise>
-							<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
-							<a href="#" class="readonly" id="edit${i.id}"><spring:message code="motion.edit" text="Edit"></spring:message></a></td>
-							</c:otherwise>
+								<c:when test="${!i.fileSent}">
+									<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
+									<a href="#" class="edit" id="edit${i.id}"><spring:message code="motion.edit" text="Edit"></spring:message></a></td>
+								</c:when>
+								<c:otherwise>
+									<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
+									<a href="#" class="readonly" id="edit${i.id}"><spring:message code="motion.edit" text="Edit"></spring:message></a></td>
+								</c:otherwise>
 							</c:choose>
 							<td>${i.formatNumber()}</td>
-							<td>${i.primaryMember.getFullname()}</td>
-							<td>${i.mainTitle}</td>
+							<td>
+								<c:choose>
+									<c:when test="${selectedMotion=='motions_eventmotion_condolence'}">
+										<c:choose>
+											<c:when test="${i.exMemberEnabled}">
+												${i.exMember}
+											</c:when>
+											<c:otherwise>
+												${i.member.getFullName()}
+											</c:otherwise>
+										</c:choose>
+									</c:when>
+									<c:when test="${selectedMotion=='motions_eventmotion_congratulatory'}">
+										${i.member.getFullname()}
+									</c:when>
+								</c:choose>
+							</td>
+							<td>${i.eventTitle}</td>
 							<td>${i.internalStatus.name}</td>
 						</tr>
 					</c:forEach>

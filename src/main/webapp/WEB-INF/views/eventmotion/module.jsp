@@ -217,8 +217,7 @@
 					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
 					+ "&usergroup=" + $("#currentusergroup").val()
 					+ "&usergroupType=" + $("#currentusergroupType").val()
-					+ "&file=" + $("#selectedFileCount").val() + "&group="
-					+ $("#ugparam").val();
+					+ "&file=" + $("#selectedFileCount").val();
 
 		var resourceURL = 'eventmotion/bulksubmission/assistant/int?' + parameters + "&itemscount=" + $("#selectedItemsCount").val();
 	
@@ -279,10 +278,10 @@
 		<ul class="tabs">
 			<li><a id="list_tab" class="selected tab" href="#"> <spring:message code="generic.list" text="List"/></a></li>
 			<li><a id="details_tab" href="#" class="tab"> <spring:message code="generic.details" text="Details" /></a></li>
-			<security:authorize access="hasAnyRole('NO_ROLE')">
+			<security:authorize access="hasAnyRole('EMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 				<li><a id="bulkputup_tab" href="#" class="tab"> <spring:message code="generic.bulkputup" text="Bulk Putup" /></a></li>
 			</security:authorize>
-			<security:authorize access="hasAnyRole('NO_ROLE')">
+			<security:authorize access="hasAnyRole('EMOIS_ASSISTANT')">
 				<li>
 					<a id="bulkputupassistant_tab" href="#" class="tab"> <spring:message code="generic.bulkputup" text="Bulk Putup" /></a>
 				</li>
@@ -384,7 +383,7 @@
 						</option>
 					</c:forEach>
 				</select>
-				<security:authorize access="hasAnyRole('NO_ROLE')">
+				<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 					<hr>
 					<a href="#" id="select_itemcount" class="butSim"> 
 						<spring:message code="cutmotion.itemcount" text="No. of Motions(Bulk Putup)" />
@@ -399,7 +398,7 @@
 					</select>|	
 					</security:authorize>
 			</security:authorize>
-			<security:authorize access="hasAnyRole('NO_ROLE')">
+			<security:authorize access="hasAnyRole('EMOIS_TYPIST','EMOIS_CLERK','EMOIS_ASSISTANT',)">
 				<a href="#" id="select_itemcount" class="butSim"> <spring:message code="cutmotion.itemcount" text="No. of Motions(Bulk Putup)" /></a>
 				<select name="selectedItemsCount" id="selectedItemsCount"
 					style="width: 100px; height: 25px;">
@@ -409,17 +408,18 @@
 					<option value="25">25</option>
 					<option value="10">10</option>
 					<option value="5">05</option>
-				</select>|	
-				<a href="#" id="select_filecount" class="butSim"> <spring:message code="cutmotion.filecount" text="Select File(Bulk Putup)" /></a>
-				<select name="selectedFileCount" id="selectedFileCount" style="width: 100px; height: 25px;">
-					<option value="-"><spring:message code='please.select' text='Please Select' /></option>
-					<c:if test="${highestFileNo>0 }">
-						<c:forEach var="i" begin="1" step="1" end="${highestFileNo}">
-							<option value="${i}">${i}</option>
-						</c:forEach>
-					</c:if>
-				</select>|	
-				<hr>
+				</select>
+				<c:if test="${highestFileNo==0}">|	
+					<a href="#" id="select_filecount" class="butSim"> <spring:message code="cutmotion.filecount" text="Select File(Bulk Putup)" /></a>
+					<select name="selectedFileCount" id="selectedFileCount" style="width: 100px; height: 25px;">
+						<option value="-"><spring:message code='please.select' text='Please Select' /></option>
+						<c:if test="${highestFileNo>0 }">
+							<c:forEach var="i" begin="1" step="1" end="${highestFileNo}">
+								<option value="${i}">${i}</option>
+							</c:forEach>
+						</c:if>
+					</select>|	
+				</c:if>
 			</security:authorize>
 			<hr>
 		</div>		
