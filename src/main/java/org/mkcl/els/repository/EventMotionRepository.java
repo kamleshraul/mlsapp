@@ -155,7 +155,7 @@ public class EventMotionRepository extends BaseRepository<EventMotion, Serializa
 		List<EventMotion> motions = new ArrayList<EventMotion>();
 		
 		try {
-			Status status = Status.findByFieldName(Status.class,"type",ApplicationConstants.CUTMOTION_COMPLETE, locale);
+			Status status = Status.findByFieldName(Status.class,"type",ApplicationConstants.EVENTMOTION_COMPLETE, locale);
 			String strQuery = "SELECT cm FROM EventMotion cm"
 					+ " WHERE cm.session=:session"
 					+ " AND cm.member=:primaryMember" 
@@ -177,6 +177,38 @@ public class EventMotionRepository extends BaseRepository<EventMotion, Serializa
 		
 		return motions;
 	}	
+	
+	public List<EventMotion> findAllByCreator(final Session session,
+			final String creator,
+			final DeviceType eventMotionType,
+			final Integer itemsCount,
+			final String locale) {
+		
+		List<EventMotion> motions = new ArrayList<EventMotion>();
+		
+		try {
+			Status status = Status.findByFieldName(Status.class,"type",ApplicationConstants.EVENTMOTION_COMPLETE, locale);
+			String strQuery = "SELECT cm FROM EventMotion cm"
+					+ " WHERE cm.session=:session"
+					+ " AND cm.createdBy=:createdBy" 
+					+ " AND cm.deviceType=:eventMotionType"
+					+ " AND cm.locale=:locale"
+					+ " AND cm.status=:status ORDER BY cm.id "+ ApplicationConstants.DESC;
+			TypedQuery<EventMotion> query = this.em().createQuery(strQuery, EventMotion.class);
+			query.setMaxResults(itemsCount);
+			query.setParameter("session", session);
+			query.setParameter("createdBy", creator);
+			query.setParameter("eventMotionType", eventMotionType);
+			query.setParameter("locale",locale);
+			query.setParameter("status",status);
+			motions = query.getResultList();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		} 
+		
+		return motions;
+	}
 
 	public List<EventMotion> findAllByStatus(final Session session,
 			final DeviceType eventMotionType,
