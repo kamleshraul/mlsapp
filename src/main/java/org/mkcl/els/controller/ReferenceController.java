@@ -66,6 +66,7 @@ import org.mkcl.els.domain.Division;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Election;
 import org.mkcl.els.domain.ElectionType;
+import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.Fort;
 import org.mkcl.els.domain.Ghat;
 import org.mkcl.els.domain.GovernmentCorporation;
@@ -5260,6 +5261,46 @@ public class ReferenceController extends BaseController {
 		return flag;
 	}
 	
+	@RequestMapping(value = "/eventmotionbynumberandsession", method = RequestMethod.GET)
+	public @ResponseBody Boolean eventMotionByNumberAndSession(HttpServletRequest request, Locale locale){
+		Boolean flag = false;
+		String strNumber = request.getParameter("number");
+		String strSession = request.getParameter("session");
+		String strDeviceType = request.getParameter("deviceType");
+		if(strNumber != null && !strNumber.isEmpty() 
+			&& strSession != null && !strSession.isEmpty()){
+			Session session = Session.findById(Session.class, Long.parseLong(strSession));
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			Integer motionNumber = null;
+			if(csptDeployment != null){
+				String server = csptDeployment.getValue();
+				if(server.equals("TOMCAT")){
+					try {
+						strNumber = new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");
+						motionNumber = FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+								
+					} catch (UnsupportedEncodingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}else{
+					try {
+						motionNumber = FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			flag = EventMotion.isExist(motionNumber, deviceType, session, locale.toString());
+		}
+		return flag;
+	}
+	
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/pendingtasksdevices", method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getPendingTasksDeviceId(HttpServletRequest request, Locale locale){
@@ -5595,6 +5636,29 @@ public class ReferenceController extends BaseController {
 		return actors;
 	}
 
+	@RequestMapping(value="/eventmotion/actors", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> findEventMotionActors(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		
+		List<Reference> actors = new ArrayList<Reference>();
+		String strCutmotion = request.getParameter("eventmotion");
+		String strInternalStatus = request.getParameter("status");
+		String strUserGroup = request.getParameter("usergroup");
+		String strLevel = request.getParameter("level");
+		if (strCutmotion != null && strInternalStatus != null
+				&& strUserGroup != null && strLevel != null) {
+			if ((!strCutmotion.isEmpty()) && (!strInternalStatus.isEmpty())
+					&& (!strUserGroup.isEmpty()) && (!strLevel.isEmpty())) {
+				Status internalStatus = Status.findById(Status.class, Long.parseLong(strInternalStatus));
+				EventMotion motion = EventMotion.findById(EventMotion.class, Long.parseLong(strCutmotion));
+				UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
+				actors = WorkflowConfig.findEventMotionActorsVO(motion, internalStatus, userGroup, Integer.parseInt(strLevel), locale.toString());
+			}
+		}
+		return actors;
+	}
+	
 	@RequestMapping(value="/bill/findsectionbyhierarchyorder", method=RequestMethod.GET)
 	public @ResponseBody String findBillSectionByHierarchyOrder(final HttpServletRequest request, final Locale locale) throws ELSException {
 		String returnValue = "";
