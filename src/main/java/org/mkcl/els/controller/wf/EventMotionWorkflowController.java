@@ -906,7 +906,7 @@ public class EventMotionWorkflowController extends BaseController {
 	public String bulkApproval(final HttpServletRequest request,
 			final Locale locale, final Model model) {
 		String[] selectedItems = request.getParameterValues("items[]");
-		String strStatus = request.getParameter("status");
+		String strStatus = request.getParameter("aprstatus");
 		String strWorkflowSubType = request.getParameter("workflowSubType");
 		StringBuffer recommendAdmissionMsg = new StringBuffer();
 		StringBuffer recommendRejectionMsg = new StringBuffer();
