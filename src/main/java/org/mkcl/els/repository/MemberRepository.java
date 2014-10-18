@@ -2451,6 +2451,31 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		}
 
 	}
+	
+	public Member findMember(final String firstName,
+			final String lastName, 
+			final Date birthDate, 
+			final String locale) {
+		Search search=new Search();
+		if(!firstName.isEmpty()){
+			search.addFilterEqual("firstName",firstName);
+		}
+		
+		if(!lastName.isEmpty()){
+			search.addFilterEqual("lastName",lastName);
+		}
+		if(birthDate!=null){
+			search.addFilterEqual("birthDate", birthDate);
+		}
+		search.addSort("lastName",false);
+		List<Member> members=this.search(search);
+		if(!members.isEmpty()){
+			return members.get(0);
+		}else{
+			return new Member();
+		}
+
+	}
 
 	public List<MemberContactVO> getContactDetails(final String[] members) {
 		/*
