@@ -622,6 +622,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 				lastName,birthDate,locale);
 	}
 	
+	public static Member findMember(final String firstName,
+			final String lastName, final Date birthDate, final String locale) {
+		return getMemberRepository().findMember(firstName, lastName, birthDate, locale);
+	}
+	
 	public static List<MemberContactVO> getContactDetails(final String[] members) {
 		return getMemberRepository().getContactDetails(members);
 	}
