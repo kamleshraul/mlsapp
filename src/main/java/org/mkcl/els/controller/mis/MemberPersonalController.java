@@ -376,6 +376,8 @@ public class MemberPersonalController extends GenericController<Member> {
 		if(domain.getBirthDate()==null){
 			result.rejectValue("birthDate", "BirthDateEmpty");
 		}
+		
+		validateMember(domain, result);
 	}
 
 	/* (non-Javadoc)
@@ -495,5 +497,32 @@ public class MemberPersonalController extends GenericController<Member> {
 	protected void populateUpdateIfNoErrors(final ModelMap model,
 			final Member domain, final HttpServletRequest request) {
 		populateIfNoErrors(model, domain, request);
+	}
+	
+	private void validateMember(Member domain, BindingResult result) {
+		// Validation for same member entered
+		Member member = null;
+		if (domain.getFirstName() != null 
+				&& !domain.getFirstName().isEmpty()
+				&& domain.getMiddleName() != null
+				&& !domain.getMiddleName().isEmpty()
+				&& domain.getLastName() != null
+				&& !domain.getLastName().isEmpty()
+				&& domain.getBirthDate() != null) {
+			member = Member.findMember(domain.getFirstName(), domain.getMiddleName(), domain.getLastName(),
+					domain.getBirthDate(), domain.getLocale());
+		} else if (domain.getFirstName() != null
+				&& !domain.getFirstName().isEmpty()
+				&& domain.getLastName() != null
+				&& !domain.getLastName().isEmpty()
+				&& domain.getBirthDate() != null) {
+			member = Member.findMember(domain.getFirstName(),
+					domain.getLastName(), domain.getBirthDate(),
+					domain.getLocale());
+		}
+
+		if (member != null) {
+			result.rejectValue("version", "Member Already Exists.");
+		}
 	}
 }
