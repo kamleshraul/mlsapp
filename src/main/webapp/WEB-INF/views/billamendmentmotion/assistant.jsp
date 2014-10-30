@@ -185,7 +185,6 @@
 			$('.revisedSectionAmendment_sectionNumber').each(function() {
 				var currentLanguage = this.id.split("_")[3];
 				if($('#revisedSectionAmendment_sectionNumber_Para_'+currentLanguage).css('display')=='none') {	
-					alert($(this).attr('id'));
 					$(this).val("");
 				}				
 			});
