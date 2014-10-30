@@ -124,7 +124,7 @@ public class SupportingMember extends BaseDomain implements Serializable{
     
     //==============bill amendment motion related fields============//
     /** The approved section amendment. */
-    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
     @JoinTable(name="supportingmembers_sectionamendments",
     joinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")},
     inverseJoinColumns={@JoinColumn(name="sectionamendment_id", referencedColumnName="id")})
