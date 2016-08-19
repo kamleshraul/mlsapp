@@ -275,12 +275,20 @@
 	
 	<!-- district is a simple input field and not a form input field because
 		 it is not an attribute of the CommitteeTour instance. -->
-
-	
 	<p>
-		<label class="small"><spring:message code="committeetour.district" text="District"/></label>
-		<form:select path="districts" items="${districts}" id="district" name="district" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
-		<form:errors path="districts" cssClass="validationError"/>
+	<label class="small"><spring:message code="committeetour.district" text="District" />*</label>
+	<select class="sSelect" id="district" name="district">
+		<c:forEach items="${districts}" var="i">
+			<c:choose>
+				<c:when test="${district.id == i.id}">
+					<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
+	</select>
 	</p>
 	
 	<p>

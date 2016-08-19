@@ -112,7 +112,7 @@
 		<p>
 		<label class="small"><spring:message code="nonCommitteeMemberTypes" text="Non Committee members Type" /></label>
 		<select id="nonCommitteeMemberTypes" name="nonCommitteeMemberTypes" class="sSelect">
-		<option value=""><spring:message code='please.select' text='Please Select'/></option>
+		<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 			<c:forEach items="${nonCommitteeMemberTypes}" var="i">
 				<c:choose>
 					<c:when test="${nonCommitteeMemberType.id == i.id}">

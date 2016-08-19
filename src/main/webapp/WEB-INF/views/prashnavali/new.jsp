@@ -123,7 +123,18 @@
 	
 	<p>
 	<label class="small"><spring:message code="committeetour.committeename" text="Committee Name" />*</label>
-
+<%-- 	<select class="sSelect" id="committeeName" name="committeeName">
+		<c:forEach items="${committeeNames}" var="i">
+			<c:choose>
+				<c:when test="${committeeName.id == i.id}">
+					<option value="${i.id}" selected="selected"><c:out value="${i.displayName}"></c:out></option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id}"><c:out value="${i.displayName}"></c:out></option>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
+	</select> --%>
 	<input type="text" id="committeeDisplayName" name="committeeDisplayName" value="${committeeDisplayName}" readonly="readonly" class="sText"/>
 	<input type="hidden" id="committeeName" name="committeeName" value="${committeName}"/>
 	<form:errors path="committee" cssClass="validationError"/>
@@ -161,7 +172,7 @@
 					
 					<input type='button' id='${questionCount}' class='button' value='<spring:message code="prashnavalinfo.delete" text="Delete Prashnavali Info"></spring:message>' onclick='prashnavaliInfo(${questionCount});'/>
 					
-					
+					<!-- Hidden variables required for each instance of TourItinerary -->
 					<input type='hidden' id='prasInfoId${questionCount}' name='prasInfoId${questionCount}' value="${outer.id}">
 					<input type='hidden' id='prasInfoVersion${questionCount}' name='prasInfoVersion${questionCount}' value="${outer.version}">
 					<input type='hidden' id='prasInfoLocale${questionCount}' name='prasInfoVersion${questionCount}' value="${domain.locale}">
