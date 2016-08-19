@@ -16,6 +16,7 @@ import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -270,7 +271,7 @@ public class RotationOrderController extends BaseController {
 		            model.addAttribute("dates", rotationOrderVOs);
 		            
 		            
-		            List ministryreport = getMinistryReport(locale, model);
+		            List ministryreport = getMinistryReport(locale, session.getStartDate(), model);
 		            model.addAttribute("ministryreport", ministryreport);
 				}catch (ELSException e) {
 					model.addAttribute("error", e.getParameter());
@@ -420,11 +421,20 @@ public class RotationOrderController extends BaseController {
 	public String viewMinistryReport(ModelMap model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 		
 		try{
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strHouseType = request.getParameter("houseType");
+			if(strSessionType != null && !strSessionType.isEmpty()
+				&& strSessionYear != null && !strSessionYear.isEmpty()
+				&& strHouseType != null && !strHouseType.isEmpty()){
+				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+				Session session = Session.
+						findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+				List ministryreport = getMinistryReport(locale, session.getStartDate(), model);
+	            model.addAttribute("ministryreport", ministryreport);
+			}
 			
-			Map<String, String[]> parameters = new HashMap<String, String[]>();
-            parameters.put("locale", new String[]{locale.toString()});
-            List ministryreport = getMinistryReport(locale, model);
-            model.addAttribute("ministryreport", ministryreport);
             
 		}catch (Exception e) {
 			String msg = e.getMessage();
@@ -447,23 +457,34 @@ public class RotationOrderController extends BaseController {
 	
 	@RequestMapping(value="/viewministrydepartmentreport", method=RequestMethod.GET)
 	public void viewMinistryDepartmentReport(ModelMap model, HttpServletRequest request, HttpServletResponse response, Locale locale){
-		List ministryreport = getMinistryReport(locale, model);
-		model.addAttribute("ministryreport", ministryreport);
-		
-		Map reportFields = simplifyMinistryDepartmentReport(ministryreport);
-		
-		try {
-			String strOutputFormat = request.getParameter("outputFormat");
-			File reportFile = generateReportUsingFOP(new Object[]{reportFields}, "template_ministrydepartment", strOutputFormat, "ministry department report", locale.toString());
-			openOrSaveReportFileFromBrowser(response, reportFile, strOutputFormat);
-		} catch (Exception e) {
-			
-			e.printStackTrace();
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strHouseType = request.getParameter("houseType");
+		if(strSessionType != null && !strSessionType.isEmpty()
+			&& strSessionYear != null && !strSessionYear.isEmpty()
+			&& strHouseType != null && !strHouseType.isEmpty()){
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			try {
+				Session session = Session.
+						findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+				List ministryreport = getMinistryReport(locale, session.getStartDate(), model);
+				model.addAttribute("ministryreport", ministryreport);
+				
+				Map reportFields = simplifyMinistryDepartmentReport(ministryreport);
+				String strOutputFormat = request.getParameter("outputFormat");
+				File reportFile = generateReportUsingFOP(new Object[]{reportFields}, "template_ministrydepartment", strOutputFormat, "ministry department report", locale.toString());
+				openOrSaveReportFileFromBrowser(response, reportFile, strOutputFormat);
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+			}
 		}
 	}
 	
-	private List getMinistryReport(Locale locale, ModelMap model){
+	private List getMinistryReport(Locale locale, Date onDate, ModelMap model){
 		Map<String, String[]> parameters = new HashMap<String, String[]>();
+		 parameters.put("onDate", new String[]{onDate.toString()});
         parameters.put("locale", new String[]{locale.toString()});
         List ministryreport = Query.findReport(ApplicationConstants.ROTATIONORDER_MINISTRY_DEPARTMENTS_REPORT, parameters);
         

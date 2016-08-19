@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.repository;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -16,16 +17,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
-import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.Reference;
-import org.mkcl.els.domain.Ballot;
-import org.mkcl.els.domain.BallotEntry;
+import org.mkcl.els.domain.ballot.Ballot;
+import org.mkcl.els.domain.ballot.BallotEntry;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
@@ -34,13 +36,12 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotAttendance;
 import org.mkcl.els.domain.MemberRole;
+import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
-import org.mkcl.els.domain.UserGroup;
 import org.springframework.stereotype.Repository;
 
-import com.ibm.icu.impl.ICURWLock.Stats;
 
 /**
  * The Class BallotRepository
@@ -446,6 +447,51 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 			throw elsException;	
 		}
 	}
+	
+	
+	public void updateBallotStandalones(final Ballot ballot,
+			final Status ballotStatus) throws ELSException{
+		Session session = ballot.getSession();
+		DeviceType deviceType = ballot.getDeviceType();
+		Date answeringDate = ballot.getAnsweringDate();
+		String locale = ballot.getLocale();
+		
+		String query = "UPDATE standalone_motions" +
+				" SET ballotstatus_id =:ballotStatusID," + 
+				" discussion_date=:answeringDate" +
+				" WHERE id IN (" +
+				" SELECT qid FROM (" +
+				" SELECT q.id AS qid FROM standalone_motions q WHERE q.id IN (" +
+				" SELECT ds.device_id FROM ballots AS b JOIN ballots_ballot_entries AS bbe" +
+				" JOIN ballot_entries_device_sequences AS beds" +
+				" JOIN device_sequences AS ds" +
+				" WHERE b.id = bbe.ballot_id" +
+				" AND bbe.ballot_entry_id = beds.ballot_entry_id" +
+				" AND beds.device_sequence_id = ds.id" +
+				" AND b.session_id =:sessionId" + 
+				" AND b.devicetype_id = :deviceTypeId" + 
+				" AND b.answering_date =:answeringDate" + 
+				" AND b.locale =:locale" +
+				" )) AS rs" +
+				" )";
+		
+		try{
+			Query jpQuery = this.em().createNativeQuery(query);
+			jpQuery.setParameter("ballotStatusID", ballotStatus.getId());
+			jpQuery.setParameter("sessionId", session.getId());
+			jpQuery.setParameter("deviceTypeId", deviceType.getId());
+			jpQuery.setParameter("answeringDate", answeringDate);
+			jpQuery.setParameter("locale", locale);		
+		
+			jpQuery.executeUpdate();
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("BallotRepository_void_updateBallotStandalones", "Cann't update the ballot standalones.");
+			throw elsException;	
+		}
+	}
 
 	public String createBallot(final Session session,final DeviceType deviceType,
 			final Boolean attendance,final String locale) throws ELSException{
@@ -458,6 +504,15 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 			if(ballotType!=null){
 				if(ballotType.getValue().equals("MEMBER_BALLOT_FROM_PRESENT_MEMBERS")){
 					flag=memberBallotFromPresentMembers(session,deviceType,locale);
+				}		
+			}else{
+				flag="CUSTOM_PARAMETER_NOT_SET";
+			}
+			
+			CustomParameter includeParties = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_INCLUDE_PARTIES", "");
+			if(includeParties!=null){
+				if(includeParties.getValue().equalsIgnoreCase("yes")){
+					flag=memberBallotFromPresentParties(session,deviceType,locale);
 				}		
 			}else{
 				flag="CUSTOM_PARAMETER_NOT_SET";
@@ -512,6 +567,51 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		return "SUCCESS";
 	}
 
+	private String memberBallotFromPresentParties(final Session session,
+			final DeviceType deviceType,final String locale) throws ELSException{
+		String query="SELECT m FROM MemberBallot m WHERE m.locale=:locale" +
+						" AND m.session.id=:sessionId AND m.deviceType.id=:deviceTypeId";
+		
+		Integer count = null;
+		
+		try{
+			Query jpQuery = this.em().createQuery(query);
+			jpQuery.setParameter("sessionId", session.getId());
+			jpQuery.setParameter("deviceTypeId", deviceType.getId());
+			jpQuery.setParameter("locale", locale);
+		
+			count = jpQuery.getResultList().size();
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("BallotRepository_String_memberBallotFromPresentMembers", ".");
+			throw elsException;	
+		}
+		List<MemberBallotAttendance> memAttendance = MemberBallotAttendance.findAll(session, deviceType, "true", "", locale);
+		if(memAttendance != null && !memAttendance.isEmpty() && (count>=memAttendance.size())){
+			return "SUCCESS";
+		}else{
+			List<Party> parties = MemberBallotAttendance.findPartiesByAttendance(session, deviceType, true, locale);
+			Collections.shuffle(parties);
+			int order = count + 1;
+			Date date=new Date();
+			for(Party i: parties){
+				MemberBallot memberBallot = new MemberBallot();
+				memberBallot.setSession(session);
+				memberBallot.setDeviceType(deviceType);
+				memberBallot.setParty(i);
+				memberBallot.setBallotDate(date);
+				memberBallot.setPosition(order);
+				memberBallot.setAttendance(true);
+				memberBallot.setLocale(locale);
+				memberBallot.persist();
+				order++;
+			}
+		}
+		return "SUCCESS";
+	}
+	
 	public List<Reference> viewBallot(final Session session,final DeviceType deviceType,
 			final Boolean attendance,final String locale) {
 		List<Reference> references=new ArrayList<Reference>();
@@ -547,7 +647,12 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 			
 			
 			for(MemberBallot i:ballots){
-				Reference reference=new Reference(String.valueOf(i.getPosition()),i.getMember().getFullname());
+				Reference reference = null;
+				if(i.getMember() != null){
+					reference = new Reference(String.valueOf(i.getPosition()), i.getMember().getFullname());
+				}else if(i.getParty() != null){
+					reference = new Reference(String.valueOf(i.getPosition()), i.getParty().getName());
+				}
 				references.add(reference);
 			}
 		}catch (Exception e) {
@@ -591,6 +696,7 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 				" q.edited_as=:editedAs," +
 				" q.edited_by=:editedBy," +
 				" q.edited_on=:editedOn" +
+				/*" q.yaadistatus_id=:yaadiLaid" +*/
 				" WHERE q.id IN (SELECT ds.device_id" +
 				" FROM ballots b" +
 				" INNER JOIN ballots_ballot_entries bbe ON(bbe.ballot_id=b.id)" +
@@ -610,5 +716,165 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		query.setParameter("deviceTypeId", ballot.getDeviceType().getId());
 		query.setParameter("answeringDate", ballot.getAnsweringDate());
 		return query.executeUpdate();		
-	}	
+	}
+	
+	public Ballot find(final Device device) throws ELSException{
+		Ballot ballot = null;
+		
+		StringBuffer strQuery = new StringBuffer();
+		strQuery.append(
+			"SELECT b" +
+			" FROM Ballot b JOIN b.ballotEntries be" +
+			" JOIN be.deviceSequences ds" +
+			" JOIN ds.device d" +
+			" WHERE d.id = :deviceId");
+		
+		TypedQuery<Ballot> jpQuery = this.em().createQuery(strQuery.toString(), Ballot.class);
+		jpQuery.setParameter("deviceId", device.getId());
+		try {
+			ballot = jpQuery.getSingleResult();
+		}catch(EntityNotFoundException enfe){
+			logger.error(enfe.getMessage());
+		}catch (NoResultException nre) {
+			logger.error(nre.getMessage());
+		}catch(Exception e) {	
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("BallotRepository_Ballot_find(DT)", "Ballot not found.");
+			throw elsException;
+		}
+		return ballot;		
+	}
+	
+	public List<Ballot> find(final Session session,
+			final DeviceType deviceType,
+			final String locale) throws ELSException{
+		List<Ballot> ballots = new ArrayList<Ballot>();
+		String query = "SELECT b FROM Ballot b" +
+				" WHERE b.session.id=:sessionId" + 
+				" AND b.deviceType.id=:deviceTypeId" +  
+				" AND b.locale=:locale";
+		
+		try{
+			TypedQuery<Ballot> jpQuery = em().createQuery(query, Ballot.class);
+			jpQuery.setParameter("sessionId", session.getId());
+			jpQuery.setParameter("deviceTypeId", deviceType.getId());
+			jpQuery.setParameter("locale", locale);
+		
+			ballots = jpQuery.getResultList();
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("BallotRepository_Ballot_find", "No ballot found.");
+			throw elsException;	
+		}
+		
+		return ballots;
+	}
+
+	public void removeBallotUH(Ballot ballot) throws ELSException  {
+		Long SessionId = ballot.getSession().getId();
+		Long deviceTypeId = ballot.getDeviceType().getId();
+		Date answeringDate = ballot.getAnsweringDate();
+		Long ballotId = ballot.getId();
+		try{
+		/*
+		 * Updating the ballot status of questions present in ballot to be deleted as NULL
+		 * */
+		String updateQuestionQuery = "UPDATE questions SET ballotstatus_id=NULL WHERE id IN("
+									 +" SELECT rs.questionid FROM "
+									 +"(SELECT q.id AS questionid FROM ballots AS b"
+										+" JOIN ballots_ballot_entries AS bbe"
+										+" JOIN ballot_entries AS be"
+										+" JOIN ballot_entries_device_sequences AS beds"
+										+" JOIN device_sequences AS ds"
+										+" JOIN questions AS q"
+										+" WHERE bbe.ballot_id=b.id AND"
+										+" bbe.ballot_entry_id=be.id AND"
+										+" beds.ballot_entry_id=be.id AND"
+										+" beds.device_sequence_id=ds.id AND"
+										+" ds.device_id=q.id AND"
+										+" b.session_id=:sessionId AND"
+										+" b.devicetype_id=:deviceTypeId AND"
+										+" b.answering_date=:answeringDate"
+										+" ) AS rs"
+										+")";
+		
+		Query updateQuery = this.em().createNativeQuery(updateQuestionQuery);
+		updateQuery.setParameter("sessionId", SessionId);
+		updateQuery.setParameter("deviceTypeId", deviceTypeId);
+		updateQuery.setParameter("answeringDate", answeringDate);
+		updateQuery.executeUpdate();
+		//ballot.remove();
+		
+		//Selecting the device_sequences to be deleted
+		String strSelectQuery1 = "SELECT id FROM device_sequences "
+								+" WHERE id IN(SELECT device_sequence_id FROM ballot_entries_device_sequences"
+								+" WHERE ballot_entry_id IN(SELECT ballot_entry_id FROM ballots_ballot_entries WHERE ballot_id=:ballotId))";
+		Query selectQuery1 = this.em().createNativeQuery(strSelectQuery1);
+		selectQuery1.setParameter("ballotId", ballotId);
+		List<BigInteger> result1 = selectQuery1.getResultList();
+	
+		
+//		//Deleting the ballot_entries_device_sequences
+		String strDeleteQuery1 = "DELETE FROM ballot_entries_device_sequences " +
+							  "WHERE ballot_entry_id IN (SELECT ballot_entry_id " +
+							  "FROM ballots_ballot_entries WHERE ballot_id=:ballotId)";
+		Query deleteQuery1 = this.em().createNativeQuery(strDeleteQuery1);
+		deleteQuery1.setParameter("ballotId", ballotId);
+		deleteQuery1.executeUpdate();
+		
+		//Deleting the device_sequences
+		String strDeleteQuery2 = "DELETE FROM device_sequences " +
+							  "WHERE id IN (:ballotIds)";
+		Query deleteQuery2 = this.em().createNativeQuery(strDeleteQuery2);
+		deleteQuery2.setParameter("ballotIds", result1);
+		deleteQuery2.executeUpdate();
+		
+		//Selecting the Ballot Entries to be deleted 
+		String strSelectQuery3 = "SELECT id FROM ballot_entries WHERE id IN ("
+				+ "	SELECT ballot_entry_id FROM ballots_ballot_entries WHERE ballot_id=:ballotId)";
+		Query selectQuery3 = this.em().createNativeQuery(strSelectQuery3);
+		selectQuery3.setParameter("ballotId", ballotId);
+		List<BigInteger> result3 = selectQuery3.getResultList();
+		
+		//Deleting the ballots_ballot_entries 
+		String strDeleteQuery3 = "DELETE FROM ballots_ballot_entries WHERE ballot_id=:ballotId";
+		Query deleteQuery3 = this.em().createNativeQuery(strDeleteQuery3);
+		deleteQuery3.setParameter("ballotId", ballotId);
+		deleteQuery3.executeUpdate();
+		
+		//Deleting the ballot_entries
+		String strDeleteQuery4 = "DELETE FROM ballot_entries " +
+							  "WHERE id  IN (:ballotIds)";
+		Query deleteQuery4 = this.em().createNativeQuery(strDeleteQuery4);
+		deleteQuery4.setParameter("ballotIds", result3);
+		deleteQuery4.executeUpdate();
+		
+		//Deleting the ballot
+		String strDeleteQuery5 = "DELETE FROM ballots WHERE id=:ballotId";
+		Query deleteQuery5 = this.em().createNativeQuery(strDeleteQuery5);
+		deleteQuery5.setParameter("ballotId", ballotId);
+		deleteQuery5.executeUpdate();
+		}catch(Exception e){
+			throw new ELSException();
+		}
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Question> findQuestionsForBallotEntry(final BallotEntry be) {
+		List<Question> questions = null;
+		String queryString = "SELECT * FROM questions WHERE id IN (" +
+				" SELECT ds.device_id FROM ballot_entries be" +
+				" JOIN ballot_entries_device_sequences beds ON (beds.ballot_entry_id=be.id)" +
+				" JOIN device_sequences ds ON (ds.id=beds.device_sequence_id)" +
+				" WHERE be.id=:ballotEntryId)";
+		Query query = this.em().createNativeQuery(queryString, Question.class);
+		query.setParameter("ballotEntryId", be.getId());
+		questions = query.getResultList();
+		return questions;
+	}
 }

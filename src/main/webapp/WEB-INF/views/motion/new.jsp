@@ -25,7 +25,8 @@
 	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
 			if(data.length>0){
@@ -48,6 +49,19 @@
 		});
 	}		
 	$(document).ready(function(){	
+		
+		$('#number').change(function(){
+			$.get('ref/motionnumberinsession?'+
+					'number=' + $(this).val() +
+					'&session=' + $('#session').val() +
+					'&deviceType=' + $('#type').val(),function(data){
+				if(data){
+					$('#numberError').css('display','inline');
+				}else{
+					$('#numberError').css('display','none');
+				}
+			});
+		});
 		
 		/**** Ministry Changes ****/	
 		$("#ministry").change(function(){
@@ -217,15 +231,14 @@
 		       					$('html').animate({scrollTop:0}, 'slow');
 		       				 	$('body').animate({scrollTop:0}, 'slow');	
 		    					$.unblockUI();	   				 	   				
-		    	            }).fail(function(){
-		    					$.unblockUI();
-		    					if($("#ErrorMsg").val()!=''){
-		    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-		    					}else{
-		    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-		    					}
-		    					scrollTop();
-		    				});
+		    	            }).fail(function (jqxhr, textStatus, err) {
+		    	            	$.unblockUI();
+		    	            	$("#error_p").html("Server returned an error\n" + err +
+	                                    "\n" + textStatus + "\n" +
+	                                    "Please try again later.\n"+jqxhr.status+"\n"+jqxhr.statusText).css({'color':'red', 'display':'block'});
+		    	            	
+		    	            	scrollTop();
+                            });
 		        }
 			}});			
 	        return false;  
@@ -235,6 +248,12 @@
 		$("#selectedSupportingMembers").bind('copy paste', function (e) {
 		       e.preventDefault();
 		 });
+		
+		$("#new_record2").click(function(){
+			$("#selectionDiv1").hide();	
+			newMotion();
+		});
+		
 	});
 	</script>
 </head>
@@ -245,18 +264,25 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <div class="fields clearfix watermark">
-
+	<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','MOIS_TYPIST')">			
+		<a href="#" id="new_record2" class="butSim">
+			<spring:message code="motion.new" text="New"/>
+		</a> |
+	</security:authorize>
 <form:form action="motion" method="POST" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<div id="reportDiv">
-	<h2><spring:message code="question.new.heading" text="Enter Motion Details"/>		
+	<h2><spring:message code="motion.new.heading" text="Enter Motion Details"/>		
 	</h2>
 	<form:errors path="version" cssClass="validationError"/>	
 	
-	<security:authorize access="hasAnyRole('MOIS_CLERK')">	
+	<security:authorize access="hasAnyRole('MOIS_CLERK','MOIS_TYPIST')">	
 	<p>
-		<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
+		<label class="small"><spring:message code="motion.number" text="Motion Number"/>*</label>
 		<form:input path="number" cssClass="sText"/>
+		<span id='numberError' style="display: none; color: red;">
+			<spring:message code="MotionNumber.domain.NonUnique" text="Duplicate Number"></spring:message>
+		</span>
 		<form:errors path="number" cssClass="validationError"/>
 		<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
 	</p>
@@ -303,7 +329,7 @@
 	</p>
 	</security:authorize>
 	
-	<security:authorize access="hasAnyRole('MOIS_CLERK')">		
+	<security:authorize access="hasAnyRole('MOIS_CLERK','MOIS_TYPIST')">		
 	<p>
 		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/>*</label>
 		<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
@@ -333,7 +359,7 @@
 	
 	<p>
 		<label class="wysiwyglabel"><spring:message code="motion.details" text="Details"/>*</label>
-		<form:textarea path="details" cssClass="wysiwyg"></form:textarea>
+		<form:textarea path="details" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 		<form:errors path="details" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
 	
@@ -389,7 +415,8 @@
 	 <div class="fields">
 		<h2></h2>
 		<p class="tright">
-			<security:authorize access="hasAnyRole('MOIS_CLERK')">	
+			<security:authorize access="hasAnyRole('MOIS_CLERK','MOIS_TYPIST')">	
+			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 			<input id="submitMotion" type="button" value="<spring:message code='motion.submitmotion' text='Submit Motion'/>" class="butDef">			
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
@@ -419,7 +446,7 @@
 <input id="supportingMembersEmptyMsg" value="<spring:message code='client.error.supportingmemberempty' text='Supporting Member is required to send for approval.'/>" type="hidden">
 <input id="sendForApprovalMsg" value="<spring:message code='client.prompt.approve' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
-<input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the motion.'></spring:message>" type="hidden">
+<input id="submissionMsg" value="<spring:message code='client.motion.prompt.submit' text='Do you want to submit the motion.'></spring:message>" type="hidden">
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </div>
 </body>

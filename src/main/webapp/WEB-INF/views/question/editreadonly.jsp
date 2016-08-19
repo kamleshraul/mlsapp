@@ -46,11 +46,15 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <div class="fields clearfix watermark">
-<form:form action="question" method="PUT" modelAttribute="domain">
+<%-- <form:form action="question" method="PUT" modelAttribute="domain"> --%>
 
-	<%@ include file="/common/info.jsp" %>
-	<h2>${formattedQuestionType}: ${formattedNumber}</h2>
-	<form:errors path="version" cssClass="validationError"/>
+	<%-- <%@ include file="/common/info.jsp" %> --%>
+	<h2>
+		${formattedQuestionType}: ${formattedNumber}
+		<c:if test="${not empty yaadiDetailsText}">
+			&nbsp;&nbsp;(${yaadiDetailsText})
+		</c:if>
+	</h2>
 		
 	<p>
 		<c:choose>
@@ -165,10 +169,10 @@
 		<input type="text" readonly="readonly" value="${constituency}" class="sText">
 	</p>			
 	
-	<c:if test="${domain.type.type!='questions_halfhourdiscussion_standalone'}">
+	
 	<p>
-	<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
-	<a href="#" id="p${parent}" ><c:out value="${formattedParentNumber}"></c:out></a>
+		<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
+		<a href="#" id="p${parent}" ><c:out value="${formattedParentNumber}"></c:out></a>
 	</p>	
 	
 	<p>
@@ -184,7 +188,7 @@
 	</c:otherwise>
 	</c:choose>	
 	</p>
-	</c:if>
+	
 	<p>
 	<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
 	<c:choose>
@@ -201,43 +205,52 @@
 	
 	<p>	
 	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
-	<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
+	<textarea id="subjectEdit" readonly="readonly" rows="2" cols="50">${domain.subject}</textarea>
 	</p>
 	
 	<p>
-	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
+		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
+		<textarea id="questionTextEdit" class="wysiwyg" readonly="readonly">${domain.questionText}</textarea>
 	</p>
 	
-	<c:if test="${domain.type.type=='questions_starred' or domain.type.type=='questions_unstarred'}">
+	<c:if test="${not empty domain.answer}">
 		<p>
-			<label class="wysiwyglabel"><spring:message code="question.questionreferenceText" text="Reference Text"/>*</label>
-			<form:textarea path="questionreferenceText" cssClass="wysiwyg" readonly="true"></form:textarea>
+			<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+			<textarea id="answerEdit" class="wysiwyg" readonly="readonly">${domain.answer}</textarea>
 		</p>
+	</c:if>
+	
+	<c:if test="${domain.type.type=='questions_starred' or domain.type.type=='questions_unstarred'}">
+		<c:if test="${domain.questionreferenceText!=null}">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.questionreferenceText" text="Reference Text"/>*</label>
+				<textarea id="questionreferenceTextEdit" class="wysiwyg" readonly="readonly">${domain.questionreferenceText}</textarea>
+			</p>
+		</c:if>
 	</c:if>
 	
 	<c:if test="${domain.type.type=='questions_shortnotice' or domain.type.type=='questions_halfhourdiscussion_from_question'}">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
-		<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
+		<textarea id="reasonEdit" class="wysiwyg" readonly="readonly">${domain.reason}</textarea>
 	</p>
 	</c:if>
 	
 	<c:if test="${domain.type.type=='questions_halfhourdiscussion_from_question'}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
-			<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
+			<textarea id="briefExplanationEdit" class="wysiwyg" readonly="readonly">${domain.briefExplanation}</textarea>
 		</p>
 	</c:if>
 	
 	<p style="display:none;" class="revise" id="revisedSubjectEditDiv">
 	<label class="centerlabel"><spring:message code="question.revisedSubject" text="Revised Subject"/></label>
-	<textarea id="revisedSubjectEdit" rows="2" cols="50" class="sTextarea">${domain.revisedSubject}</textarea>
+	<textarea id="revisedSubjectEdit" rows="2" cols="50" class="sTextarea" readonly="readonly">${domain.revisedSubject}</textarea>
 	</p>
 	
 	<p style="display:none;" class="revise" id="revisedQuestionTextEditDiv">
 	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
-	<textarea id="revisedQuestionTextEdit" class="wysiwyg">${domain.revisedQuestionText}</textarea>
+	<textarea id="revisedQuestionTextEdit" class="wysiwyg" readonly="readonly">${domain.revisedQuestionText}</textarea>
 	</p>
 	
 	<p id="internalStatusDiv">
@@ -256,14 +269,14 @@
 		
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
-	<textarea id="remarksEdit" class="wysiwyg">${domain.remarks}</textarea>
+	<textarea id="remarksEdit" class="wysiwyg" readonly="readonly">${domain.remarks}</textarea>
 	</p>
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 <input id="edit_ministrySelected" value="${ministrySelected }" type="hidden">
 <input id="edit_departmentSelected" value="${ departmentSelected}" type="hidden">
 <input id="edit_subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="edit_answeringDateSelected" value="${ answeringDate}" type="hidden">
-</form:form>
+<%-- </form:form> --%>
 </div>
 </body>
 </html>

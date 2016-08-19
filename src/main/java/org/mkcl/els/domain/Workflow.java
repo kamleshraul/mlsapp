@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.exception.ELSException;
 import org.springframework.beans.factory.annotation.Configurable;
 
 // TODO: Auto-generated Javadoc
@@ -56,7 +57,19 @@ public class Workflow extends BaseDomain{
         this.name = name;
         this.type = type;
     }
+    
+    public static Workflow findByType(final String typeName, final String locale) {
+		return Workflow.findByFieldName(Workflow.class, "type", typeName, locale);
+	}
 
+    public static Workflow findByStatus(final Status status, final String locale) throws ELSException {
+    	if(status==null) {
+    		throw new ELSException("Workflow_findByStatus", "STATUS_NOT_SET");
+    	}
+    	String[] temp=status.getType().split("_");
+		String workflowType=temp[temp.length-1]+"_workflow";
+		return Workflow.findByType(workflowType, locale);	
+    }
 
     /**
      * Gets the name.

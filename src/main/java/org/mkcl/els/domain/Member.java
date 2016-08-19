@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -430,6 +431,23 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMemberRepository().findBiography(id,locale);
 	}
 	
+	public String getFirstNameAliasLastName(){
+		StringBuffer sb = new StringBuffer();
+    	if(this.getTitle()!=null){
+    		sb.append(this.getTitle().getName().trim());
+    		sb.append(" ");
+    	}
+    	sb.append(this.getFirstName().trim());
+    	sb.append(" ");
+    	if(this.getAliasEnabled() && this.getAlias().trim().length() > 0){
+    		sb.append("(");
+    		sb.append(this.getAlias().trim());
+    		sb.append(") ");
+    	}    	
+    	sb.append(this.getLastName().trim());
+    	return sb.toString().trim();
+	}
+	
 	/**
 	 * Gets the fullname.
 	 *
@@ -635,6 +653,10 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMemberRepository().findConstituency(this.getId());
 	}
 
+	public static Constituency findConstituency(Member member, Date onDate) {
+		return getMemberRepository().findConstituency(member, onDate);
+	}
+	
 	public Party findParty() {
 		return getMemberRepository().findParty(this.getId());
 	}
@@ -770,14 +792,27 @@ import org.springframework.beans.factory.annotation.Configurable;
 		boolean isSupportingOrClubbedMemberToBeAddedForDevice = false;
 //		HouseType houseType = null;
 //		DeviceType deviceType = null;
-		Session session = null;
-		Date currentDate = new Date();
+		Session session = null;		
 		if(device!=null) {
 			if(device instanceof Question) {
 				Question question = (Question) device;
 //				houseType = question.getHouseType();
 //				deviceType = question.getType();
 				session = question.getSession();
+				/** parameter for date on which to check if member was/is active as per session **/
+				Date activeOnCheckDate = null;
+				Date currentDate = new Date();				
+				if(currentDate.compareTo(session.getStartDate())<=0) {
+					activeOnCheckDate = session.getStartDate();
+				} else if(currentDate.compareTo(session.getStartDate())>0
+						&& currentDate.compareTo(session.getEndDate())<0) {
+					activeOnCheckDate = new Date();
+				} else {
+					activeOnCheckDate = session.getEndDate();
+				}
+				/** parameter for date on which to check if member was/is active at the submission time of device **/
+				Date activeOnCheckDateAtSubmission = question.getSubmissionDate();
+				
 				String locale=question.getLocale();
 //				if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE) 
 //						&& deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
@@ -802,13 +837,15 @@ import org.springframework.beans.factory.annotation.Configurable;
 //						}
 						
 						MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
-						HouseMemberRoleAssociation hmra=Member.find(this,memberRole,currentDate,locale);
-						if(hmra!=null){
-							boolean isMemberAllowed=isMemberAllowed(hmra,question);
+						HouseMemberRoleAssociation hmra=Member.find(this,memberRole,activeOnCheckDate,locale);
+						HouseMemberRoleAssociation hmraAtSubmission=Member.find(this,memberRole,activeOnCheckDateAtSubmission,locale);						
+						if(hmra!=null && hmraAtSubmission!=null){
+							boolean isMemberAllowed=isMemberAllowed(hmraAtSubmission,question);
 							if(isMemberAllowed){
-								boolean isActivePresidingOfficer=this.isActiveMemberInAnyOfGivenRolesOn(ApplicationConstants.NON_MEMBER_ROLES.split(","),currentDate, locale);
+								boolean isActivePresidingOfficer=this.isActiveMemberInAnyOfGivenRolesOn(
+										ApplicationConstants.NON_MEMBER_ROLES.split(","),activeOnCheckDate, locale);
 								if(!isActivePresidingOfficer){
-									boolean isMinister=this.isActiveMinisterOn(currentDate, locale);
+									boolean isMinister=this.isActiveMinisterOn(activeOnCheckDate, locale);
 									if(!isMinister){
 										isSupportingOrClubbedMemberToBeAddedForDevice=true;
 									}
@@ -817,15 +854,100 @@ import org.springframework.beans.factory.annotation.Configurable;
 						}
 						
 //				} 
-			}			
+			}else if(device instanceof StandaloneMotion) {
+				StandaloneMotion question = (StandaloneMotion) device;
+				session = question.getSession();
+				/** parameter for date on which to check if member was/is active as per session **/
+				Date activeOnCheckDate = null;
+				Date currentDate = new Date();
+				if(currentDate.compareTo(session.getStartDate())<=0) {
+					activeOnCheckDate = session.getStartDate();
+				} else if(currentDate.compareTo(session.getStartDate())>0
+						&& currentDate.compareTo(session.getEndDate())<0) {
+					activeOnCheckDate = new Date();
+				} else {
+					activeOnCheckDate = session.getEndDate();
+				}
+				String locale = question.getLocale();
+				MemberRole memberRole = MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
+				HouseMemberRoleAssociation hmra = Member.find(this,memberRole,activeOnCheckDate,locale);
+				if(hmra!=null){
+					boolean isMemberAllowed = isMemberAllowed(hmra,question);
+					if(isMemberAllowed){
+						boolean isActivePresidingOfficer = this.isActiveMemberInAnyOfGivenRolesOn(
+								ApplicationConstants.NON_MEMBER_ROLES.split(","),activeOnCheckDate, locale);
+						if(!isActivePresidingOfficer){
+							boolean isMinister=this.isActiveMinisterOn(activeOnCheckDate, locale);
+							if(!isMinister){
+								isSupportingOrClubbedMemberToBeAddedForDevice=true;
+							}
+						}
+					}
+				}
+			}else if(device instanceof Motion) {
+				Motion question = (Motion) device;
+				session = question.getSession();
+				/** parameter for date on which to check if member was/is active as per session **/
+				Date activeOnCheckDate = null;
+				Date currentDate = new Date();
+				if(currentDate.compareTo(session.getStartDate())<=0) {
+					activeOnCheckDate = session.getStartDate();
+				} else if(currentDate.compareTo(session.getStartDate())>0
+						&& currentDate.compareTo(session.getEndDate())<0) {
+					activeOnCheckDate = new Date();
+				} else {
+					activeOnCheckDate = session.getEndDate();
+				}
+				String locale = question.getLocale();
+				MemberRole memberRole = MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
+				HouseMemberRoleAssociation hmra = Member.find(this,memberRole,activeOnCheckDate,locale);
+				if(hmra!=null){
+					boolean isMemberAllowed = isMemberAllowed(hmra,question);
+					if(isMemberAllowed){
+						boolean isActivePresidingOfficer = this.isActiveMemberInAnyOfGivenRolesOn(
+								ApplicationConstants.NON_MEMBER_ROLES.split(","),activeOnCheckDate, locale);
+						if(!isActivePresidingOfficer){
+							boolean isMinister=this.isActiveMinisterOn(activeOnCheckDate, locale);
+							if(!isMinister){
+								isSupportingOrClubbedMemberToBeAddedForDevice=true;
+							}
+						}
+					}
+				}
+			}
 		}
 		return isSupportingOrClubbedMemberToBeAddedForDevice;
 	}
 	
-	private Boolean isMemberAllowed(HouseMemberRoleAssociation hmra,Question question){
-		if(hmra!=null && question!=null){
-			if(hmra.getFromDate().before(question.getSubmissionDate())
-				&& hmra.getToDate().after(question.getSubmissionDate())){
+	private Boolean isMemberAllowed(HouseMemberRoleAssociation hmra, Device device){
+		if(hmra!=null && device!=null){
+			if(device instanceof Question){
+				Question q = (Question) device;
+				if(hmra.getFromDate().before(q.getSubmissionDate())
+						&& hmra.getToDate().after(q.getSubmissionDate())){
+					return true;
+				}
+			}else if(device instanceof Motion){
+				Motion q = (Motion) device;
+				if(hmra.getFromDate().before(q.getSubmissionDate())
+						&& hmra.getToDate().after(q.getSubmissionDate())){
+					return true;
+				}
+			}else if(device instanceof StandaloneMotion){
+				StandaloneMotion q = (StandaloneMotion) device;
+				if(hmra.getFromDate().before(q.getSubmissionDate())
+						&& hmra.getToDate().after(q.getSubmissionDate())){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private Boolean isMemberAllowed(HouseMemberRoleAssociation hmra, StandaloneMotion motion){
+		if(hmra!=null && motion!=null){
+			if(hmra.getFromDate().before(motion.getSubmissionDate())
+				&& hmra.getToDate().after(motion.getSubmissionDate())){
 				return true;
 			}
 		}
@@ -836,6 +958,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 			MemberRole memberRole, Date date, String locale) {
 		return getMemberRepository().find(member,memberRole,date,locale);
 	}
+	
 	// ------------------------------------------Getters/Setters-----------------------------------
 	/**
 	 * Gets the title.
@@ -1864,5 +1987,31 @@ import org.springframework.beans.factory.annotation.Configurable;
 		this.deathRemarks = deathRemarks;
 	}
 	
+	public static List<Member> findActiveMinisters(final Date onDate,
+			final String locale) {
+		List<Member> members = getMemberRepository().findActiveMinisters(onDate, locale);
+		
+		// A member can be assigned multiple ministries, hence members may contain
+		// duplicate names. Remove the duplicates.
+		Map<Long, Member> map = new HashMap<Long, Member>();
+		for(Member m : members) {
+			Long id = m.getId();
+			if(map.get(id) == null) {
+				map.put(id, m);
+			}
+		}
+		
+		List<Member> uniqueMembers = new ArrayList<Member>();
+		Set<Long> keys = map.keySet();
+		for(Long k : keys) {
+			Member m = map.get(k);
+			uniqueMembers.add(m);
+		}
+		
+		return uniqueMembers;
+	}
+	public String findCurrentHouseType() {
+				return getMemberRepository().findHouseTypeByDate(this.getId(),new Date());
+	}
 	
 }

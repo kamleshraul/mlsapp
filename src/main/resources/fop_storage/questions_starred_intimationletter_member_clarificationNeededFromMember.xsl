@@ -176,7 +176,7 @@
 								</xsl:when> -->
 								<xsl:otherwise>
 									<xsl:choose>
-										<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+										<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
 											<xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री
 										</xsl:when>
 										<xsl:otherwise>

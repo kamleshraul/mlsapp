@@ -40,7 +40,7 @@
 			<c:when test="${deviceType=='questions_halfhourdiscussion_from_question'}">
 				<spring:message code="question.ballot.hdq.council.ballot" text="${deviceName}"/>
 			</c:when>
-			<c:when test="${deviceType=='questions_halfhourdiscussion_standalone'}">
+			<c:when test="${deviceType=='motions_standalonemotion_halfhourdiscussion'}">
 				<spring:message code="question.ballot.hds.council.ballot" text="${deviceName}"/>
 			</c:when>
 		</c:choose>
@@ -49,21 +49,26 @@
 	<div style="width: 100%;font-size: 16px; font-weight: bold; text-align: center; width:">
 		<spring:message code="question.ballot.discussionDate" text="Discussion Date"/> : ${answeringDate}
 	</div>
-<table class="strippedTable" border="1">
+	<c:set var="heads" value="${fn:split(ballotVOs[0][9],';')}"></c:set>
+	<table class="strippedTable" border="1">
 	<thead>
 		<tr>
-			<th style="width: 50px; text-align: center;"><spring:message code="general.srnumber" text="Serial Number"/></th>
-			<th style="width: 250px; text-align: center;"><spring:message code="member.name" text="Member Name"/></th>
-			<th style="width: 100px; text-align: center;"><spring:message code="question.number" text="Question Number"/></th>
-			<th style="width: 350px; text-align: center;"><spring:message code="question.subject" text="Subject"/></th>
+			<th style="width: 50px; text-align: center;">${heads[0]}</th>
+			<th style="width: 250px; text-align: center;">${heads[1]}</th>
+			<th style="width: 80px; text-align: center;">${heads[2]}</th>
+			<th style="width: 100px; text-align: center;">${heads[3]}</th>
+			<th style="width: 50px; text-align: center;">${heads[4]}</th>
+			<th style="width: 350px; text-align: center;">${heads[5]}</th>
 		</tr>
 	</thead>
 	<tbody>
 		<c:forEach items="${ballotVOs}" var="ballotVO" varStatus="counter">
 		<tr>
 			<td style="width: 50px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
-			<td style="width: 250px;">${ballotVO[0]}</td>
-			<td style="width: 100px;">${ballotVO[1]}</td>
+			<td style="width: 250px; text-align: center;">${ballotVO[0]}</td>
+			<td style="width: 80px; text-align: center;">${ballotVO[1]}</td>
+			<td style="width: 100px;">${ballotVO[11]}</td>
+			<td style="width: 50px; text-align: center;">${ballotVO[10]}</td>
 			<td style="width: 350px;">${ballotVO[2]}</td>
 		</tr>
 		</c:forEach>

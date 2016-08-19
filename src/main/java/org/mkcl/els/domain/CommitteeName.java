@@ -39,6 +39,9 @@ public class CommitteeName extends BaseDomain implements Serializable {
 	@Column(length=1500)
 	private String displayName;
 	
+	@Column(length=100)
+	private String shortName;
+	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="committee_type_id")
 	private CommitteeType committeeType;
@@ -61,6 +64,9 @@ public class CommitteeName extends BaseDomain implements Serializable {
 	
 	private Boolean isExpired;
 	
+	//For English Short forms of committees
+	private String type;
+	
 	@Autowired
 	private transient CommitteeNameRepository repository;
 
@@ -72,12 +78,14 @@ public class CommitteeName extends BaseDomain implements Serializable {
 	
 	public CommitteeName(final String name,
 			final String displayName,
+			final String shortName,
 			final CommitteeType committeeType,
 			final Date foundationDate,
 			final String locale) {
 		super(locale);
 		this.setName(name);
 		this.setDisplayName(displayName);
+		this.setShortName(shortName);
 		this.setCommitteeType(committeeType);
 		this.setFoundationDate(foundationDate);
 		this.setIsExpired(false);
@@ -177,6 +185,14 @@ public class CommitteeName extends BaseDomain implements Serializable {
 	public void setDisplayName(final String displayName) {
 		this.displayName = displayName;
 	}
+	
+	public String getShortName() {
+		return shortName;
+	}
+
+	public void setShortName(final String shortName) {
+		this.shortName = shortName;
+	}
 
 	public CommitteeType getCommitteeType() {
 		return committeeType;
@@ -250,4 +266,13 @@ public class CommitteeName extends BaseDomain implements Serializable {
 		this.isExpired = isExpired;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	
 }

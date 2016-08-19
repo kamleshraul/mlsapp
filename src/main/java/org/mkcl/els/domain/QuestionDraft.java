@@ -116,11 +116,6 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     @JoinColumn(name="ministry_id")
     private Ministry ministry;
 
-    /** The department. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="department_id")
-    private Department department;
-
     /** The sub department. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="subdepartment_id")
@@ -137,9 +132,10 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 
     /**** Referenced Entities ****/
     @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="questiondrafts_referencedentities", joinColumns={@JoinColumn(name="questiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
-    private List<ReferencedEntity> referencedEntities;
+    @JoinTable(name="questiondrafts_referencedeunits", joinColumns={@JoinColumn(name="questiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_unit_id", referencedColumnName="id")})
+    private List<ReferenceUnit> referencedEntities;
         
+   
     /**** For half hour discussion from question ****/
     /** The reason. */
     @Column(length=30000)
@@ -381,24 +377,6 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 	}
 
 	/**
-	 * Gets the department.
-	 *
-	 * @return the department
-	 */
-	public Department getDepartment() {
-		return department;
-	}
-
-	/**
-	 * Sets the department.
-	 *
-	 * @param department the new department
-	 */
-	public void setDepartment(final Department department) {
-		this.department = department;
-	}
-
-	/**
 	 * Gets the sub department.
 	 *
 	 * @return the sub department
@@ -462,11 +440,11 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 		return clubbedEntities;
 	}
 
-	public void setReferencedEntities(List<ReferencedEntity> referencedEntities) {
+	public void setReferencedEntities(List<ReferenceUnit> referencedEntities) {
 		this.referencedEntities = referencedEntities;
 	}
 
-	public List<ReferencedEntity> getReferencedEntities() {
+	public List<ReferenceUnit> getReferencedEntities() {
 		return referencedEntities;
 	}
 

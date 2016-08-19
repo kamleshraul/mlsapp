@@ -35,6 +35,8 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String primaryMemberDesignation;
 	
+	private String previousMinistryDesignation;
+	
 	private String memberNames;
 	
 	private String hasMoreMembers;
@@ -43,9 +45,19 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String subDepartment;
 	
+	private Boolean isSubDepartmentNameSameAsDepartmentName;
+	
+	private String previousDepartment;
+	
+	private String previousSubDepartment;
+	
 	private String answeringDate;
 	
+	private String nextAnsweringDate;
+	
 	private String discussionDate;
+	
+	private String ballotDate;
 	
 	private String questionReferenceText;
 	
@@ -71,7 +83,11 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String reason;
 	
-	private String briefExplanation;	
+	private String briefExplanation;
+	
+	private String referredQuestionYaadiNumber;
+	
+	private String referredQuestionYaadiLayingDate;
 
 	@XmlElement(name = "deviceType")
 	public String getDeviceType() {
@@ -181,6 +197,15 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 		this.primaryMemberDesignation = primaryMemberDesignation;
 	}
 
+	@XmlElement(name = "previousMinistryDesignation")
+	public String getPreviousMinistryDesignation() {
+		return previousMinistryDesignation;
+	}
+
+	public void setPreviousMinistryDesignation(String previousMinistryDesignation) {
+		this.previousMinistryDesignation = previousMinistryDesignation;
+	}
+
 	@XmlElement(name = "memberNames")
 	public String getMemberNames() {
 		return memberNames;
@@ -216,6 +241,34 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	public void setSubDepartment(String subDepartment) {
 		this.subDepartment = subDepartment;
 	}
+	
+	@XmlElement(name = "isSubDepartmentNameSameAsDepartmentName")
+	public Boolean getIsSubDepartmentNameSameAsDepartmentName() {
+		return isSubDepartmentNameSameAsDepartmentName;
+	}
+
+	public void setIsSubDepartmentNameSameAsDepartmentName(
+			Boolean isSubDepartmentNameSameAsDepartmentName) {
+		this.isSubDepartmentNameSameAsDepartmentName = isSubDepartmentNameSameAsDepartmentName;
+	}
+
+	@XmlElement(name = "previousDepartment")
+	public String getPreviousDepartment() {
+		return previousDepartment;
+	}
+
+	public void setPreviousDepartment(String previousDepartment) {
+		this.previousDepartment = previousDepartment;
+	}
+
+	@XmlElement(name = "previousSubDepartment")
+	public String getPreviousSubDepartment() {
+		return previousSubDepartment;
+	}
+
+	public void setPreviousSubDepartment(String previousSubDepartment) {
+		this.previousSubDepartment = previousSubDepartment;
+	}
 
 	@XmlElement(name = "answeringDate")
 	public String getAnsweringDate() {
@@ -226,6 +279,15 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 		this.answeringDate = answeringDate;
 	}
 
+	@XmlElement(name = "nextAnsweringDate")
+	public String getNextAnsweringDate() {
+		return nextAnsweringDate;
+	}
+
+	public void setNextAnsweringDate(String nextAnsweringDate) {
+		this.nextAnsweringDate = nextAnsweringDate;
+	}
+
 	@XmlElement(name = "discussionDate")
 	public String getDiscussionDate() {
 		return discussionDate;
@@ -233,6 +295,15 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 
 	public void setDiscussionDate(String discussionDate) {
 		this.discussionDate = discussionDate;
+	}
+
+	@XmlElement(name = "ballotDate")
+	public String getBallotDate() {
+		return ballotDate;
+	}
+
+	public void setBallotDate(String ballotDate) {
+		this.ballotDate = ballotDate;
 	}
 
 	@XmlElement(name = "questionReferenceText")
@@ -354,6 +425,24 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 
 	public void setBriefExplanation(String briefExplanation) {
 		this.briefExplanation = briefExplanation;
+	}
+
+	@XmlElement(name = "referredQuestionYaadiNumber")
+	public String getReferredQuestionYaadiNumber() {
+		return referredQuestionYaadiNumber;
+	}
+
+	public void setReferredQuestionYaadiNumber(String referredQuestionYaadiNumber) {
+		this.referredQuestionYaadiNumber = referredQuestionYaadiNumber;
+	}
+
+	@XmlElement(name = "referredQuestionYaadiLayingDate")
+	public String getReferredQuestionYaadiLayingDate() {
+		return referredQuestionYaadiLayingDate;
+	}
+
+	public void setReferredQuestionYaadiLayingDate(String referredQuestionYaadiLayingDate) {
+		this.referredQuestionYaadiLayingDate = referredQuestionYaadiLayingDate;
 	}	
 
 }

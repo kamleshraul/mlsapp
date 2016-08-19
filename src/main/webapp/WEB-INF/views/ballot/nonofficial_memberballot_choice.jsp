@@ -153,8 +153,8 @@
 		.memRes{
 			border: 1px solid black;
 			margin: 2px; 
-			width:12px; 
-			height:12px; 
+			width:14px; 
+			height:14px; 
 			float: left; 
 			position: relative; 
 			padding: 5px; 

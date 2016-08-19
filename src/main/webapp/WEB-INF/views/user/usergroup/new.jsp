@@ -8,29 +8,39 @@
 	<script type="text/javascript">	
 	function loadSubDepartments(){
 		var locale=$("#locale").val();		
-		var departments=$("#param_DEPARTMENT_"+locale).val();
+		//var departments=$("#param_DEPARTMENT_"+locale).val();
 		var ministries=$("#param_MINISTRY_"+locale).val();
-		if(departments!=''&&ministries!=''){
-		$.post('ref/subdepartments/byministriesdepartmentsname',{'departments':departments,'ministries':ministries},function(data){
-			$("#param_SUBDEPARTMENT_"+locale).empty();
-			var text="";
-			if(data.length>0){
-				for(var i=0;i<data.length;i++){
-					text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
+		if(ministries!=''){
+			$.post('ref/subdepartments/byministriesname',{'ministries':ministries},function(data){
+				var text="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						var flag = false;
+						$("#param_SUBDEPARTMENT_"+locale+" option").each(function(){
+							if($(this).attr("selected")=="selected" && $(this).val()==data[i].name){
+								flag=true;
+							}
+						 });
+						if(flag){
+							text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
+						}else{
+							text+="<option value='"+data[i].name+"'>"+data[i].name+"</option>";
+						}
+					}
+					$("#param_SUBDEPARTMENT_"+locale).empty();
+					$("#param_SUBDEPARTMENT_"+locale).html(text);
+					$.unblockUI();				
+				}else{
+					$.unblockUI();				
 				}
-				$("#param_SUBDEPARTMENT_"+locale).html(text);
-				$.unblockUI();				
-			}else{
-				$.unblockUI();				
-			}
-		});	
+			});	
 		}else{
 			$("#param_SUBDEPARTMENT_"+locale).empty();
 			$.unblockUI();			
 		}
 	}
 
-	function loadDepartments(){
+	/* function loadDepartments(){
 		var locale=$("#locale").val();		
 		var ministries=$("#param_MINISTRY_"+locale).val();
 		if(ministries!=''){
@@ -53,8 +63,8 @@
 		$("#param_DEPARTMENT_"+locale).empty();
 		$("#param_SUBDEPARTMENT_"+locale).empty();
 		$.unblockUI();				
-	}
-	}
+	} 
+	}*/
 
 	function loadCommitteeNames() {
 		var locale = $("#locale").val();
@@ -92,17 +102,17 @@
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');
-		$("select[multiple='multiple']").css("width","188px");		
+		$("select[multiple='multiple']").css("width","188px");	
 		var locale=$("#locale").val();		
 		$("#param_MINISTRY_"+locale).change(function(event){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
-		loadDepartments();
+		loadSubDepartments();
 		});		
 
-		$("#param_DEPARTMENT_"+locale).change(function(){
+		/* $("#param_DEPARTMENT_"+locale).change(function(){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
 		loadSubDepartments();		
-		});	
+		}); */	
 		$('#param_HOUSETYPE_' + locale).change(function(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			loadCommitteeNames();
@@ -140,23 +150,23 @@
 	</p>
 	<p>
 		<label class="small"><spring:message code="usergroup.devicetype" text="Device Type" /></label>			
-		<select  id="param_DEVICETYPE_${locale}" name="param_DEVICETYPE_${locale}" multiple="multiple" size="5">
+		<select  id="param_DEVICETYPE_${locale}" name="param_DEVICETYPE_${locale}" multiple="multiple" size="5" style="max-width:300px;min-width:275px;">
 			<c:forEach items="${deviceTypes}" var="i">				
-			<c:choose>
-			<c:when test="${fn:contains(selectedDeviceType,i.name)}">
-			<option value="${i.name}" selected="selected">${i.name}</option>			
-			</c:when>
-			<c:otherwise>
-			<option value="${i.name}">${i.name}</option>	
-			</c:otherwise>
-			</c:choose>
+				<c:choose>
+					<c:when test="${fn:contains(selectedDeviceType,i.name)}">
+						<option value="${i.name}" selected="selected">${i.name}</option>			
+					</c:when>
+					<c:otherwise>
+						<option value="${i.name}">${i.name}</option>	
+					</c:otherwise>
+				</c:choose>
 			</c:forEach>
 		</select>
 		
 	</p>
 	<p>
 		<label class="small"><spring:message code="usergroup.committeeName" text="Committee Name" /></label>
-		<select  id="param_COMMITTEENAME_${locale}" name="param_COMMITTEENAME_${locale}" multiple="multiple" size="5">
+		<select  id="param_COMMITTEENAME_${locale}" name="param_COMMITTEENAME_${locale}" multiple="multiple" size="5" style="max-width:300px;min-width:275px;">
 			<c:forEach items="${committeeNames}" var="i">				
 				<c:choose>
 					<c:when test="${fn:contains(selectedCommitteeName,i.name)}">
@@ -196,7 +206,7 @@
 		
 		
 	</p>
-	<p>
+	<%-- <p>
 		<label class="small"><spring:message code="usergroup.department" text="Departments" /></label>			
 		<select  id="param_DEPARTMENT_${locale}" name="param_DEPARTMENT_${locale}" multiple="multiple" size="5">
 			<c:forEach items="${departments}" var="i">				
@@ -211,7 +221,7 @@
 			</c:forEach>
 		</select>
 		
-	</p>	
+	</p> --%>	
 	<p>
 		<label class="small"><spring:message code="usergroup.subdepartment" text="Sub-Departments" /></label>			
 		<select  id="param_SUBDEPARTMENT_${locale}" name="param_SUBDEPARTMENT_${locale}" multiple="multiple" size="5">
@@ -227,7 +237,33 @@
 			</c:forEach>
 		</select>
 		
-	</p>	
+	</p>
+	<p>	
+	<label class="small"><spring:message code="usergroup.groupsAllowed" text="Groups Allowed" /></label>
+	<input type="text" id="param_GROUPSALLOWED_${locale}" name="param_GROUPSALLOWED_${locale}" value="${groupsAllowed}"/>
+	</p>
+	
+	<p>	
+		<label class="small"><spring:message code="usergroup.state" text="Current State of Actor" /></label>
+		<select id="param_ACTORSTATE_${locale}" name="param_ACTORSTATE_${locale}" class="sSelect">			
+			<c:forEach items="${actorstates}" var="ac">
+				<c:choose>
+					<c:when test="${selectedActorState==ac.id}">
+						<option value="${ac.id}" selected="selected">${ac.name}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${ac.id}">${ac.name}</option>			
+					</c:otherwise>
+				</c:choose>	
+			</c:forEach>
+		</select>
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="usergroup.state.remark" text="Remark" /></label>
+		<textarea rows="3" cols="50" name="param_ACTORREMARK_${locale}" id="param_ACTORREMARK_${locale}">${actorRemark}</textarea>
+	</p>
+	
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">

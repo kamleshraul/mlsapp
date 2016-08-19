@@ -112,7 +112,7 @@
 				$.prompt($('#sendTranslationMessage').val(),{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-			        	$("#endflag").val("end");
+			        	$("#endFlagForAuxillaryWorkflow").val("end");
 						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });						
 			        	$.post($('form').attr('action')+'?operation=sendTranslation',  
 			    	            $("form").serialize(),  
@@ -250,13 +250,19 @@
 					<form:hidden path="id"/>
 					<form:hidden path="locale"/>
 					<form:hidden path="version"/>
+					<form:hidden path="workflowStarted"/>	
+					<form:hidden path="endFlag"/>
+					<form:hidden path="level"/>
+					<form:hidden path="localizedActorName"/>
+					<form:hidden path="workflowDetailsId"/>
 					<form:hidden path="opinionSoughtFromLawAndJD"/>		
 					<form:hidden path="file"/>
 					<form:hidden path="fileIndex"/>	
 					<form:hidden path="fileSent"/>
-					<input id="level" name="level" value="${level}" type="hidden">
-					<input id="endflag" name="endflag" value="continue" type="hidden">
 					<input id="customStatus" name="customStatus" type="hidden">
+					<input id="levelForAuxillaryWorkflow" name="levelForAuxillaryWorkflow" value="${level}" type="hidden">
+					<input id="localizedActorNameForAuxillaryWorkflow" name="localizedActorNameForAuxillaryWorkflow" type="hidden">
+					<input id="endFlagForAuxillaryWorkflow" name="endFlagForAuxillaryWorkflow" value="end" type="hidden">
 					<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 					<input type="hidden" name="status" id="status" value="${status }">
 					<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">

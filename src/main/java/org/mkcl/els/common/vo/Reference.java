@@ -11,77 +11,86 @@ package org.mkcl.els.common.vo;
 
 /**
  * The Class Reference.
+ * 
  * @author amitd
  * @author sandeeps
  * @version v1.0.0
  */
 public class Reference {
 
-    // ---------------------------------Attributes-------------------------------------------------
-    /** The id. */
-    private String id;
+	// ---------------------------------Attributes-------------------------------------------------
+	/** The id. */
+	private String id;
 
-    /** The name. */
-    private String name;
-    
-    private String number;
+	/** The name. */
+	private String name;
 
-    // ---------------------------------Constructors-----------------------------------------------
-    /**
-     * Instantiates a new reference.
-     */
-    public Reference() {
-        super();
-    }
+	private String number;
 
-    /**
-     * Instantiates a new reference.
-     *
-     * @param id the id
-     * @param name the name
-     */
-    public Reference(final String id, final String name) {
-        super();
-        this.id = id;
-        this.name = name;
-    }
+	private String state;
 
-    // ------------------------------------------Getters/Setters-----------------------------------
-    /**
-     * Gets the id.
-     *
-     * @return the id
-     */
-    public String getId() {
-        return id;
-    }
+	private String remark;
 
-    /**
-     * Sets the id.
-     *
-     * @param id the new id
-     */
-    public void setId(final String id) {
-        this.id = id;
-    }
+	// ---------------------------------Constructors-----------------------------------------------
+	/**
+	 * Instantiates a new reference.
+	 */
+	public Reference() {
+		super();
+	}
 
-    /**
-     * Gets the name.
-     *
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
+	/**
+	 * Instantiates a new reference.
+	 * 
+	 * @param id
+	 *            the id
+	 * @param name
+	 *            the name
+	 */
+	public Reference(final String id, final String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
 
-    /**
-     * Sets the name.
-     *
-     * @param name the new name
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
+	// ------------------------------------------Getters/Setters-----------------------------------
+	/**
+	 * Gets the id.
+	 * 
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+
+	/**
+	 * Sets the id.
+	 * 
+	 * @param id
+	 *            the new id
+	 */
+	public void setId(final String id) {
+		this.id = id;
+	}
+
+	/**
+	 * Gets the name.
+	 * 
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * Sets the name.
+	 * 
+	 * @param name
+	 *            the new name
+	 */
+	public void setName(final String name) {
+		this.name = name;
+	}
 
 	public void setNumber(final String number) {
 		this.number = number;
@@ -91,4 +100,19 @@ public class Reference {
 		return number;
 	}
 
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 }

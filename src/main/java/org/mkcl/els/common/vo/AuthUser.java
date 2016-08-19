@@ -70,6 +70,8 @@ public class AuthUser extends User {
     private String startURL;
     
     private String groupsAllowed;
+    
+    private boolean allowedForMultiLogin;
 
     /**
      * Instantiates a new auth user.
@@ -91,6 +93,7 @@ public class AuthUser extends User {
     		final String actualUsername,
     		final String actualEmail, 
     		final boolean enabled,
+    		final boolean allowedForMultiLogin,
             final boolean accountNonExpired, 
             final boolean credentialsNonExpired,
             final boolean accountNonLocked,
@@ -104,6 +107,7 @@ public class AuthUser extends User {
         this.actualEmail=actualEmail;
         this.actualUsername=actualUsername;
         this.userGroups=userGroups;
+        this.allowedForMultiLogin=allowedForMultiLogin;
     }
 
     /**
@@ -303,6 +307,14 @@ public class AuthUser extends User {
 
 	public String getGroupsAllowed() {
 		return groupsAllowed;
+	}
+
+	public boolean isAllowedForMultiLogin() {
+		return allowedForMultiLogin;
+	}
+
+	public void setAllowedForMultiLogin(boolean allowedForMultiLogin) {
+		this.allowedForMultiLogin = allowedForMultiLogin;
 	}	
 
  }

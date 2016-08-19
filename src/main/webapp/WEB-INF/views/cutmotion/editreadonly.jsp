@@ -217,7 +217,8 @@
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+'&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){

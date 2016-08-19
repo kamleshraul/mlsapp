@@ -187,45 +187,61 @@
 
 
 <table id="presentTable">
-<tr>
-<th>
-<spring:message code="attendance.eligiblesList" text="List of Available Members"></spring:message>
-(<span id="availableCount">${allItemsCount}</span>)
-</th>
-<th>
-</th>
-<th>
-<span id="presenteesList" >
-<spring:message code="attendance.presenteesList" text="List of Present Members"></spring:message>
-(<span id="presenteeCount">${selectedItemsCount}</span>)
-</span>
-</th>
-<th>
-</th>
-</tr>
+	<tr>
+		<th>
+			<spring:message code="attendance.eligiblesList" text="List of Available Members"></spring:message>
+			(<span id="availableCount">${allItemsCount}</span>)
+		</th>
+		<th></th>
+		<th>
+			<span id="presenteesList" >
+				<spring:message code="attendance.presenteesList" text="List of Present Members"></spring:message>
+				(<span id="presenteeCount">${selectedItemsCount}</span>)
+			</span>
+		</th>
+		<th></th>
+	</tr>
 <tr>
 <td>
 <select id="allItems" multiple="multiple" style="height:300px;width:350px;margin-top:-50px;">
-<c:forEach items="${allItems }" var="i">
-<option value="${i.id}"><c:out value="${i.member.getFullname()}"></c:out></option>
-</c:forEach>
+	<c:forEach items="${allItems}" var="i">
+		<option value="${i.id}">
+			<c:choose>
+				<c:when test="${i.member!=null}">
+					<c:out value="${i.member.getFullname()}"></c:out>
+				</c:when>
+				<c:when test="${i.party!=null}">
+					<c:out value="${i.party.getName()}"></c:out>
+				</c:when>
+			</c:choose>
+		</option>
+	</c:forEach>
 </select>
 </td>
 <td>
-<input type="button" id="to2" value="&gt;" />
-<input type="button" id="allTo2" value="&gt;&gt;" />
-<br>
-<input type="button" id="allTo1" value="&lt;&lt;" />
-<input type="button" id="to1" value="&lt;"  />
+	<input type="button" id="to2" value="&gt;" />
+	<input type="button" id="allTo2" value="&gt;&gt;" />
+	<br>
+	<input type="button" id="allTo1" value="&lt;&lt;" />
+	<input type="button" id="to1" value="&lt;"  />
 </td>
 <td>
-<select id="selectedItems" multiple="multiple" style="height:300px;width:350px;" class="round${round }">
-<c:forEach items="${selectedItems}" var="i">
-<option value="${i.id}"><c:out value="${i.member.getFullname()}"></c:out></option>
-</c:forEach>
-</select>
-<br>
-<input type="button" value="<spring:message code='generic.submit' text='Submit'/>" id="submit" style="width:100px;height:40px;margin: 5px;margin-left:100px; " class="submit">
+	<select id="selectedItems" multiple="multiple" style="height:300px;width:350px;" class="round${round }">
+		<c:forEach items="${selectedItems}" var="i">
+			<option value="${i.id}">
+				<c:choose>
+					<c:when test="${i.member!=null}">
+						<c:out value="${i.member.getFullname()}"></c:out>
+					</c:when>
+					<c:when test="${i.party!=null}">
+						<c:out value="${i.party.getName()}"></c:out>
+					</c:when>
+				</c:choose>
+			</option>
+		</c:forEach>
+	</select>
+	<br>
+	<input type="button" value="<spring:message code='generic.submit' text='Submit'/>" id="submit" style="width:100px;height:40px;margin: 5px;margin-left:100px; " class="submit">
 </td>
 <td>
 <input id="up" type="button" value="&#x2191;" class="up"/>
@@ -248,11 +264,20 @@
 </tr>
 <tr>
 <td>
-<select id="selectedItems" multiple="multiple" style="height:300px;width:350px;" class="round${round }">
-<c:forEach items="${selectedItems}" var="i">
-<option value="${i.id}"><c:out value="${i.member.getFullname()}"></c:out></option>
-</c:forEach>
-</select>
+	<select id="selectedItems" multiple="multiple" style="height:300px;width:350px;" class="round${round }">
+		<c:forEach items="${selectedItems}" var="i">
+			<option value="${i.id}">
+				<c:choose>
+					<c:when test="${i.member!=null}">
+						<c:out value="${i.member.getFullname()}"></c:out>
+					</c:when>
+					<c:when test="${i.party!=null}">
+						<c:out value="${i.party.getName()}"></c:out>
+					</c:when>
+				</c:choose>
+			</option>
+		</c:forEach>
+	</select>
 <br>
 <input type="button" value="<spring:message code='generic.submit' text='SubmitA'/>" id="submit" style="width:100px;height:40px;margin: 5px;margin-left:100px; " class="submit">
 </td>
@@ -265,11 +290,20 @@
 </table>
 
 
-<select id="itemMaster" style="display:none;">
-<c:forEach items="${eligibles }" var="i">
-<option value="${i.id}"><c:out value="${i.member.getFullname()}"></c:out></option>
-</c:forEach>
-</select>
+	<select id="itemMaster" style="display:none;">
+		<c:forEach items="${eligibles }" var="i">
+			<option value="${i.id}">
+				<c:choose>
+					<c:when test="${i.member!=null}">
+						<c:out value="${i.member.getFullname()}"></c:out>
+					</c:when>
+					<c:when test="${i.party!=null}">
+						<c:out value="${i.party.getName()}"></c:out>
+					</c:when>
+				</c:choose>
+			</option>
+		</c:forEach>
+	</select>
 <input id="selectItemFirstMessage" value="<spring:message code='attendance.selectitem' text='Select an item first'/>" type="hidden">
 </div>
 </div>

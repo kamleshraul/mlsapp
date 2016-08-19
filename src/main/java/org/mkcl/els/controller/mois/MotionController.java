@@ -13,9 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
-import org.activiti.engine.impl.cmd.GetIdentityLinksForTaskCmd;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -42,16 +40,21 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Party;
+import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.ReferencedEntity;
+import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
@@ -61,7 +64,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -91,6 +93,7 @@ public class MotionController extends GenericController<Motion>{
 				/**** Access Control Based on Motion Type ****/
 				model.addAttribute("motionTypeType", deviceType.getType());
 
+				model.addAttribute("moduleLocale", locale);
 				/****
 				 * House Types .If housetype=bothhouse then lowerhouse will be
 				 * selected by default
@@ -158,31 +161,59 @@ public class MotionController extends GenericController<Motion>{
 						if (customParameter != null) {
 							String allowedUserGroups = customParameter.getValue();
 							for (UserGroup i : userGroups) {
-								if (allowedUserGroups.contains(i.getUserGroupType().getType())) {
-									/****
-									 * Authenticated User's usergroup and
-									 * usergroupType
-									 ****/
-									model.addAttribute("usergroup", i.getId());
-									userGroupType = i.getUserGroupType().getType();
-									model.addAttribute("usergroupType",userGroupType);
-									/**** Question Status Allowed ****/
-									CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class,
-													"MOTION_GRID_STATUS_ALLOWED_"+ userGroupType.toUpperCase(),"");
-									List<Status> status = new ArrayList<Status>();
-									if (allowedStatus != null) {
-										status = Status.findStatusContainedIn(allowedStatus.getValue(),locale);
-									} else {
-										CustomParameter defaultAllowedStatus = CustomParameter.findByName(CustomParameter.class,
-														"MOTION_GRID_STATUS_ALLOWED_BY_DEFAULT","");
-										if (defaultAllowedStatus != null) {
-											status = Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
-										} else {
-											model.addAttribute("errorcode","motion_status_allowed_by_default_not_set");
+								if(i.getActiveTo().compareTo(new Date()) > 0){
+									if (allowedUserGroups.contains(i.getUserGroupType().getType())) {
+																			
+										/****
+										 * Authenticated User's usergroup and
+										 * usergroupType
+										 ****/
+										model.addAttribute("usergroup", i.getId());
+										userGroupType = i.getUserGroupType().getType();
+										model.addAttribute("usergroupType",userGroupType);
+										
+										Map<String, String> parameters = UserGroup.findParametersByUserGroup(i);
+										/**** Sub department Filter Starts ****/
+										CustomParameter subDepartmentFilterAllowedFor = CustomParameter
+												.findByName(CustomParameter.class, "MOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR", "");
+										if (subDepartmentFilterAllowedFor != null){
+											
+											model.addAttribute("usersAllowedForDepartmentFilter", subDepartmentFilterAllowedFor.getValue());
+										
+											if(subDepartmentFilterAllowedFor.getValue().contains(userGroupType)) {
+										
+												if (parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale) != null
+														&& !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale).equals(" ")) {
+													String strSubDepartments = parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale);
+													String subDepartments[] = strSubDepartments.split("##");
+													List<SubDepartment> subDepts = new ArrayList<SubDepartment>();
+													for (int j = 0; j < subDepartments.length; j++) {
+														SubDepartment subDepartment = SubDepartment.findByName(SubDepartment.class, subDepartments[j], locale);
+														subDepts.add(subDepartment);
+													}
+													model.addAttribute("subDepartments", subDepts);
+												}
+											}
 										}
+										/**** Sub department Filter Ends ****/
+										/**** Question Status Allowed ****/
+										CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class,
+														"MOTION_GRID_STATUS_ALLOWED_"+ userGroupType.toUpperCase(),"");
+										List<Status> status = new ArrayList<Status>();
+										if (allowedStatus != null) {
+											status = Status.findStatusContainedIn(allowedStatus.getValue(),locale);
+										} else {
+											CustomParameter defaultAllowedStatus = CustomParameter.findByName(CustomParameter.class,
+															"MOTION_GRID_STATUS_ALLOWED_BY_DEFAULT","");
+											if (defaultAllowedStatus != null) {
+												status = Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
+											} else {
+												model.addAttribute("errorcode","motion_status_allowed_by_default_not_set");
+											}
+										}
+										model.addAttribute("status", status);
+										break;
 									}
-									model.addAttribute("status", status);
-									break;
 								}
 							}
 						} else {
@@ -222,6 +253,9 @@ public class MotionController extends GenericController<Motion>{
 					int highestFileNo = Motion.findHighestFileNo(lastSessionCreated, deviceType, locale);
 					model.addAttribute("highestFileNo", highestFileNo);
 				}
+				
+				
+				
 			} catch (ELSException e) {
 				model.addAttribute("MotionController", e.getParameter());
 			}
@@ -233,32 +267,59 @@ public class MotionController extends GenericController<Motion>{
 
 	@Override
 	protected String modifyURLPattern(final String urlPattern,final HttpServletRequest request,final ModelMap model,final String locale) {
-		/**** For MOIS roles other than member and clerk assistant grid is visible ****/
-		String role=request.getParameter("role");
-		String newUrlPattern=urlPattern;
-		if(role.contains("MOIS_")&& (role.contains("CLERK"))){
-			newUrlPattern=urlPattern+"?usergroup=clerk";
-		}else if(role.contains("MOIS_")&& (!role.contains("CLERK"))){
-			newUrlPattern=urlPattern+"?usergroup=assistant";
-		}
+		
+		/**** Controlling Grids Starts ****/
+		String role = request.getParameter("role");
+		String houseType = request.getParameter("houseType");
+		String newUrlPattern = urlPattern;
+		
+		CustomParameter assistantGridAllowedFor = CustomParameter.findByName(
+				CustomParameter.class, "MOIS_ASSISTANTGRID_ALLOWED_FOR", "");
+		
+		CustomParameter memberGridAllowedFor = CustomParameter.findByName(
+				CustomParameter.class, "MOIS_MEMBERGRID_ALLOWED_FOR", "");
+		
+		CustomParameter typistGridAllowedFor = CustomParameter.findByName(
+				CustomParameter.class, "MOIS_TYPISTGRID_ALLOWED_FOR", "");
+		
+		if (memberGridAllowedFor != null && role != null && !role.isEmpty()
+				&& houseType != null && !houseType.isEmpty()
+				&& memberGridAllowedFor.getValue().contains(role)) {
+			
+			newUrlPattern = urlPattern + "?usergroup=member&houseType=" + houseType;
+			
+		} else if (typistGridAllowedFor != null && role != null
+				&& !role.isEmpty() && houseType != null && !houseType.isEmpty()
+				&& typistGridAllowedFor.getValue().contains(role)) {
+			
+			newUrlPattern = urlPattern + "?usergroup=typist&houseType=" + houseType;
+			
+		} else if (assistantGridAllowedFor != null && role != null
+				&& !role.isEmpty() && houseType != null && !houseType.isEmpty()
+				&& assistantGridAllowedFor.getValue().contains(role)) {
+							
+			newUrlPattern = urlPattern + "?usergroup=assistant&houseType=" + houseType;
+			
+		}		
+		/**** Controlling Grids Ends ****/
 		return newUrlPattern;
 	}
 
 	@Override
 	protected String modifyNewUrlPattern(final String servletPath,
 			final HttpServletRequest request, final ModelMap model, final String string) {
-		/**** Member and Clerk can only create new motions ****/
-		String role=request.getParameter("role");		
-		if(role!=null){
-			if(!role.isEmpty()){
-				if(role.startsWith("MEMBER_")||role.equals("MOIS_CLERK")){
-					return servletPath;
-				}
-			}
-		}			
-		/**** For others permission denied ****/
+		
+		/**** New Operations Allowed For Starts ****/
+		String role = request.getParameter("role");	
+		CustomParameter newOperationAllowedTo = CustomParameter.findByName(CustomParameter.class,"MOIS_NEW_OPERATION_ALLOWED_TO","");
+		if(newOperationAllowedTo != null && role != null 
+				&& !role.isEmpty() 
+				&& newOperationAllowedTo.getValue().contains(role)){
+			return servletPath;			
+		}		
 		model.addAttribute("errorcode","permissiondenied");
 		return servletPath.replace("new","error");
+		/**** New Operations Allowed For Starts ****/
 	}
 
 	@Override
@@ -459,7 +520,8 @@ public class MotionController extends GenericController<Motion>{
 								if(ministry!=null){
 									model.addAttribute("ministrySelected",ministry.getId());						
 									/**** Sub Departments ****/
-									List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,locale);
+									List<SubDepartment> subDepartments=MemberMinister.
+											findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 									model.addAttribute("subDepartments",subDepartments);
 									SubDepartment subDepartment=domain.getSubDepartment();
 									if(subDepartment!=null){
@@ -500,44 +562,53 @@ public class MotionController extends GenericController<Motion>{
 	@Override
 	protected String modifyEditUrlPattern(String newUrlPattern,
 			final HttpServletRequest request, final ModelMap model, final String locale) {
-		/**** if request parameter contains edit=false then editreadonly page is displayed ****/
-		String edit=request.getParameter("edit");
-		String readonly=request.getParameter("readonly");
-		if(edit!=null && readonly!=null){
-			if(!readonly.isEmpty()){
-				if(readonly.equals("yes")){
-					return newUrlPattern.replace("edit","editreadonly");
-				}
-			}
+		
+		/**** Edit Page Starts ****/
+		String edit = request.getParameter("edit");
+		if(edit != null){
 			if(!Boolean.parseBoolean(edit)){
 				return newUrlPattern.replace("edit","editreadonly");
 			}
 		}
 		
-		/**** for Member and Clerk edit page is displayed ****/
-		/**** for assistant assistant page ****/
-		/**** for other qis usergroupTypes editreadonly page ****/
-		Set<Role> roles=this.getCurrentUser().getRoles();
-		for(Role i:roles){
-			if(i.getType().startsWith("MEMBER_")||i.getType().contains("CLERK")){
-				return newUrlPattern;
-			}else if(i.getType().contains("ASSISTANT")||i.getType().contains("SECTION_OFFICER")){
-				return newUrlPattern.replace("edit","assistant");
-			}else if(i.getType().startsWith("MOIS_")){
-				return newUrlPattern.replace("edit","editreadonly");
+		/**** for printing ****/
+		String editPrint = request.getParameter("editPrint");
+		if(editPrint != null){
+			if(Boolean.parseBoolean(editPrint)){
+				return newUrlPattern.replace("edit","editprint");
 			}
 		}
-		/**** for others permission denied ****/
+		
+		CustomParameter editPage = CustomParameter.findByName(CustomParameter.class, "MOIS_EDIT_OPERATION_EDIT_PAGE", "");
+		CustomParameter assistantPage = CustomParameter.findByName(CustomParameter.class, "MOIS_EDIT_OPERATION_ASSISTANT_PAGE", "");
+		Set<Role> roles=this.getCurrentUser().getRoles();
+		for(Role i:roles){
+			if(editPage != null && editPage.getValue().contains(i.getType())) {
+				return newUrlPattern;
+			}
+			else if(assistantPage != null && assistantPage.getValue().contains(i.getType())) {
+				return newUrlPattern.replace("edit", "assistant");
+			}
+			else if(i.getType().startsWith("MOIS_")) {
+				return newUrlPattern.replace("edit", "editreadonly");
+			}
+		}		
 		model.addAttribute("errorcode","permissiondenied");
 		return "motion/error";
+		/**** Edit Page Ends ****/
 	}
 
 	@Override
 	protected void populateEdit(final ModelMap model, Motion domain,
 			final HttpServletRequest request) {
+		
+		List<DeviceType> allDevices = DeviceType.findAll(DeviceType.class, "priority", ApplicationConstants.ASC, domain.getLocale());
+		model.addAttribute("allDevices", allDevices);
+		
 		/**** In case of bulk edit we can update only few parameters ****/
 		model.addAttribute("bulkedit",request.getParameter("bulkedit"));
 
+		model.addAttribute("olevel", domain.getLevel());
 		/**** Locale ****/
 		String locale=domain.getLocale();		
 
@@ -637,7 +708,7 @@ public class MotionController extends GenericController<Motion>{
 					 * members list will vary. ****/
 					Member m=i.getMember();
 					supportingMembers.add(m);
-					if(usergroupType.equals("clerk")){
+					if(usergroupType.equals("clerk") || usergroupType.equals("assistant")){
 						bufferFirstNamesFirst.append(m.getFullname()+",");
 					}else if((usergroupType.equals("member"))
 							&&domain.getInternalStatus()!=null
@@ -686,7 +757,8 @@ public class MotionController extends GenericController<Motion>{
 					if(ministry!=null){
 						model.addAttribute("ministrySelected",ministry.getId());						
 						/**** Sub Departments ****/
-						List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,locale);
+						List<SubDepartment> subDepartments=MemberMinister.
+								findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 						model.addAttribute("subDepartments",subDepartments);
 						SubDepartment subDepartment=domain.getSubDepartment();
 						if(subDepartment!=null){
@@ -770,44 +842,30 @@ public class MotionController extends GenericController<Motion>{
 			model.addAttribute("recommendationStatus",recommendationStatus.getId());
 			model.addAttribute("recommendationStatusType",recommendationStatus.getType());
 		}	
+		
 		/**** Referenced Entities are collected in refentities****/		
-		List<ReferencedEntity> referencedEntities=domain.getReferencedEntities();
+		List<ReferenceUnit> referencedEntities=domain.getReferencedUnits();
 		if(referencedEntities!=null&&!referencedEntities.isEmpty()){
-			List<Reference> refentities=new ArrayList<Reference>();
-			List<Reference> refmotionentities=new ArrayList<Reference>();
-			List<Reference> refquestionentities=new ArrayList<Reference>();
-			List<Reference> refresolutionentities=new ArrayList<Reference>();
-			for(ReferencedEntity re:referencedEntities){
+			List<ReferenceUnit> refmotionentities=new ArrayList<ReferenceUnit>();
+			List<ReferenceUnit> refquestionentities=new ArrayList<ReferenceUnit>();
+			List<ReferenceUnit> refresolutionentities=new ArrayList<ReferenceUnit>();
+			for(ReferenceUnit re : referencedEntities){
 				if(re.getDeviceType() != null){
-					if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_MOTIONS)){
-						Reference reference=new Reference();
-						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Motion)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Motion)re.getDevice()).getId()));
-						refentities.add(reference);	
-						refmotionentities.add(reference);
-					}else if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
-						Reference reference=new Reference();
-						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Motion)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Motion)re.getDevice()).getId()));
-						refentities.add(reference);	
-						refresolutionentities.add(reference);
-					}else if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
-						Reference reference=new Reference();
-						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Motion)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Motion)re.getDevice()).getId()));
-						refentities.add(reference);	
-						refquestionentities.add(reference);
+					if(re.getDeviceType().startsWith(ApplicationConstants.DEVICE_MOTIONS)){
+						refmotionentities.add(re);
+					}else if(re.getDeviceType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
+						refresolutionentities.add(re);
+					}else if(re.getDeviceType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)){	
+						refquestionentities.add(re);
 					}
 				}
 			}
 			model.addAttribute("referencedMotions",refmotionentities);
 			model.addAttribute("referencedQuestions",refquestionentities);
 			model.addAttribute("referencedResolutions",refresolutionentities);
-			model.addAttribute("referencedEntities",refentities);
+			model.addAttribute("referencedEntities",referencedEntities);
 		}	
+		
 		/**** Clubbed motions are collected in references ****/
 		List<ClubbedEntity> clubbedEntities=Motion.findClubbedEntitiesByPosition(domain);
 		if(clubbedEntities!=null&&!clubbedEntities.isEmpty()){
@@ -849,7 +907,11 @@ public class MotionController extends GenericController<Motion>{
 					model.addAttribute("parent",domain.getParent().getId());
 				}
 			}
-		}		
+		}	
+		if(domain.getParent()!=null){
+			model.addAttribute("formattedParentNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getParent().getNumber()));
+			model.addAttribute("parent",domain.getParent().getId());
+		}
 		/**** Populating Put up otions and Actors ****/
 		if(domain.getInternalStatus()!=null){
 			String internalStatusType=domain.getInternalStatus().getType();			
@@ -949,19 +1011,54 @@ public class MotionController extends GenericController<Motion>{
 							break;
 						}
 					}
-					/**** New Supporting Member ****/
-					if(supportingMember==null){
-						supportingMember=new SupportingMember();
-						supportingMember.setMember(member);
-						supportingMember.setLocale(domain.getLocale());
-						if(dataEntryType!=null&&!(dataEntryType.isEmpty())){
+					
+					String locale = domain.getLocale();
+					if(locale == null){
+						locale = ApplicationConstants.DEFAULT_LOCALE;
+					}
+					
+					CustomParameter csptAllowedForAutoApproval = CustomParameter.findByName(CustomParameter.class, "MOIS_SUPPORT_MEMBERAUTO_APPROVAL_ALLOWED", "");
+					Set<Role> roles = this.getCurrentUser().getRoles();
+					Role role = null;
+					for(Role r : roles){
+						if(r != null){
+							Credential cr = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), "");
+							UserGroup ug = UserGroup.findActive(cr, new Date(), locale);
+							if(ug != null){
+								role = r;
+								break;
+							}
+						}
+					}
+					if(csptAllowedForAutoApproval != null && csptAllowedForAutoApproval.getValue() != null 
+							&& !csptAllowedForAutoApproval.getValue().isEmpty() 
+							&& csptAllowedForAutoApproval.getValue().contains(role.getType())){
+						
+						if(supportingMember==null){
+							supportingMember=new SupportingMember();
+							supportingMember.setMember(member);
+							supportingMember.setLocale(domain.getLocale());							
 							supportingMember.setDecisionStatus(approvedStatus);
-							supportingMember.setApprovalType("OFFLINE");
+							supportingMember.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_AUTOAPPROVED);
 							supportingMember.setApprovedSubject(domain.getSubject());
-							supportingMember.setApprovedText(domain.getDetails());						
-						}else{
-							supportingMember.setDecisionStatus(notsendStatus);
-							supportingMember.setApprovalType("ONLINE");
+							supportingMember.setApprovedText(domain.getDetails());
+						}
+						
+					}else{
+						/**** New Supporting Member ****/
+						if(supportingMember==null){
+							supportingMember=new SupportingMember();
+							supportingMember.setMember(member);
+							supportingMember.setLocale(domain.getLocale());
+							if(dataEntryType!=null&&!(dataEntryType.isEmpty())){
+								supportingMember.setDecisionStatus(approvedStatus);
+								supportingMember.setApprovalType("OFFLINE");
+								supportingMember.setApprovedSubject(domain.getSubject());
+								supportingMember.setApprovedText(domain.getDetails());						
+							}else{
+								supportingMember.setDecisionStatus(notsendStatus);
+								supportingMember.setApprovalType("ONLINE");
+							}
 						}
 					}
 					/*** List is updated ****/
@@ -977,10 +1074,18 @@ public class MotionController extends GenericController<Motion>{
 			final HttpServletRequest request) {
 		/**** Supporting Members and various Validations ****/
 		populateSupportingMembers(domain,request);
+		
+		/**** To skip the optional fields ****/
+		String optionalFields = null;		
+		CustomParameter csptOptionalFields = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.MOTION_OPTIONAL_FIELDS_IN_VALIDATION, "");		
+		if(csptOptionalFields != null && csptOptionalFields.getValue() != null && !csptOptionalFields.getValue().isEmpty()){
+			optionalFields = csptOptionalFields.getValue();
+		}
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
 		}
+		
 		String operation=request.getParameter("operation");
 		if(operation!=null){
 			if(!operation.isEmpty()){
@@ -995,15 +1100,25 @@ public class MotionController extends GenericController<Motion>{
 					if(domain.getSession()==null){
 						result.rejectValue("session","SessionEmpty");
 					}
-					if(domain.getPrimaryMember()==null){
-						result.rejectValue("primaryMember","PrimaryMemberEmpty");
+					
+					if(optionalFields != null && !optionalFields.contains("primaryMember")){
+						if(domain.getPrimaryMember()==null){
+							result.rejectValue("primaryMember","PrimaryMemberEmpty");
+						}
 					}
-					if(domain.getSubject().isEmpty()){
-						result.rejectValue("subject","SubjectEmpty");
+					
+					if(optionalFields != null && !optionalFields.contains("subject")){
+						if(domain.getSubject().isEmpty()){
+							result.rejectValue("subject","SubjectEmpty");
+						}
 					}
-					if(domain.getDetails().isEmpty()){
-						result.rejectValue("details","DetailsEmpty");
-					}					
+					
+					if(optionalFields != null && !optionalFields.contains("details")){
+						if(domain.getDetails().isEmpty()){
+							result.rejectValue("details","DetailsEmpty");
+						}	
+					}
+					
 					if(domain.getSupportingMembers()==null){
 						result.rejectValue("supportingMembers","SupportingMembersEmpty");
 					} else if(domain.getSupportingMembers().isEmpty()){
@@ -1020,8 +1135,27 @@ public class MotionController extends GenericController<Motion>{
 							result.rejectValue("supportingMembers","SupportingMembersRequestAlreadySent");
 						}
 					}
+					
 				}else /**** Submission ****/
 					if(operation.equals("submit")){
+						String role = request.getParameter("role");
+						CustomParameter csptAutoGenForTypist = CustomParameter
+								.findByName(CustomParameter.class, domain.getType()
+										.getType().toUpperCase() + "_TYPIST_AUTO_GEN", "");
+						if(csptAutoGenForTypist != null
+								&& csptAutoGenForTypist.getValue().equalsIgnoreCase("no")){
+							if(role.equals("MOIS_TYPIST")){
+								if(domain.getNumber() == null){
+									result.rejectValue("number", "NumberEmpty");
+									//check for duplicate questions
+								}
+								Boolean flag = Motion.isExist(domain.getNumber(), domain.getType(), domain.getSession(), domain.getLocale());
+								
+								if(flag){
+									result.rejectValue("number", "NonUnique","Duplicate Parameter");
+								}
+							}
+						}
 						/**** Submission ****/
 						if(domain.getHouseType()==null){
 							result.rejectValue("houseType","HousetypeEmpty");
@@ -1032,18 +1166,79 @@ public class MotionController extends GenericController<Motion>{
 						if(domain.getSession()==null){
 							result.rejectValue("session","SessionEmpty");
 						}
-						if(domain.getPrimaryMember()==null){
-							result.rejectValue("primaryMember","PrimaryMemberEmpty");
-						}
-						if(domain.getSubject().isEmpty()){
-							result.rejectValue("subject","SubjectEmpty");
-						}
-						if(domain.getDetails().isEmpty()){
-							result.rejectValue("details","DetailsEmpty");
-						}
-						if(domain.getMinistry()==null){
-							result.rejectValue("ministry","MinistryEmpty");
+						
+						//submission date limit validations (configurable through custom parameters)
+						if(domain.getSession()!=null && domain.getType()!=null) {
+						
+							//submission start date limit validation
+							CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+							if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+								String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+								if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+									String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+									for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+										if(dt.trim().equals(domain.getType().getType().trim())) {
+											if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+												Integer batch = Motion.findBatch(domain, new Date());
+												String strSubDate = null;
+												
+												if(batch.equals(1)){
+													if(!Motion.allowedInFirstBatch(domain, new Date())){
+														strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_" + "firstBatchStartTime");
+														result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
+														break;
+													}
+												}
+												
+												if(batch.equals(2)){
+													if(!Motion.allowedInSecondBatch(domain, new Date())){
+														strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_" + "secondBatchStartTime");
+														result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
+														break;
+													}
+												}
+												
+												if(batch.equals(0)){
+													result.rejectValue("version","SubmissionNotAllowed_batch","Motion cannot be submitted.");
+													break;
+												}
+											}else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){												
+												
+												if(!Motion.isAllowedForSubmission(domain, new Date(), "")){
+													String strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_submissionStartTime");
+													result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
+													break;
+												}
+											}
+										}
+									}								
+								}
+							}
 						}						
+						
+						if(optionalFields != null && !optionalFields.contains("primaryMember")){
+							if(domain.getPrimaryMember()==null){
+								result.rejectValue("primaryMember","PrimaryMemberEmpty");
+							}
+						}
+						
+						if(optionalFields != null && !optionalFields.contains("subject")){
+							if(domain.getSubject().isEmpty()){
+								result.rejectValue("subject","SubjectEmpty");
+							}
+						}
+						
+						if(optionalFields != null && !optionalFields.contains("details")){
+							if(domain.getDetails().isEmpty()){
+								result.rejectValue("details","DetailsEmpty");
+							}	
+						}
+						
+						if(optionalFields != null && !optionalFields.contains("details")){
+							if(domain.getMinistry()==null){
+								result.rejectValue("ministry","MinistryEmpty");
+							}		
+						}					
 					}
 			}
 		}/**** Drafts ****/
@@ -1057,14 +1252,23 @@ public class MotionController extends GenericController<Motion>{
 			if(domain.getSession()==null){
 				result.rejectValue("session","SessionEmpty");
 			}
-			if(domain.getPrimaryMember()==null){
-				result.rejectValue("primaryMember","PrimaryMemberEmpty");
+			
+			if(optionalFields != null && !optionalFields.contains("primaryMember")){
+				if(domain.getPrimaryMember()==null){
+					result.rejectValue("primaryMember","PrimaryMemberEmpty");
+				}
 			}
-			if(domain.getSubject().isEmpty()){
-				result.rejectValue("subject","SubjectEmpty");
+			
+			if(optionalFields != null && !optionalFields.contains("subject")){
+				if(domain.getSubject().isEmpty()){
+					result.rejectValue("subject","SubjectEmpty");
+				}
 			}
-			if(domain.getDetails().isEmpty()){
-				result.rejectValue("details","DetailsEmpty");
+			
+			if(optionalFields != null && !optionalFields.contains("details")){
+				if(domain.getDetails().isEmpty()){
+					result.rejectValue("details","DetailsEmpty");
+				}	
 			}
 		}
 	}
@@ -1074,6 +1278,14 @@ public class MotionController extends GenericController<Motion>{
 			final HttpServletRequest request) {
 		/**** Supporting Members and various Validations ****/
 		populateSupportingMembers(domain,request);
+		
+		/**** To skip the optional fields ****/
+		String optionalFields = null;		
+		CustomParameter csptOptionalFields = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.MOTION_OPTIONAL_FIELDS_IN_VALIDATION, "");		
+		if(csptOptionalFields != null && csptOptionalFields.getValue() != null && !csptOptionalFields.getValue().isEmpty()){
+			optionalFields = csptOptionalFields.getValue();
+		}
+		
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
@@ -1091,15 +1303,31 @@ public class MotionController extends GenericController<Motion>{
 				if(domain.getSession()==null){
 					result.rejectValue("session","SessionEmpty");
 				}
-				if(domain.getPrimaryMember()==null){
-					result.rejectValue("primaryMember","PrimaryMemberEmpty");
+
+				if(optionalFields != null && !optionalFields.contains("primaryMember")){
+					if(domain.getPrimaryMember()==null){
+						result.rejectValue("primaryMember","PrimaryMemberEmpty");
+					}
 				}
-				if(domain.getSubject().isEmpty()){
-					result.rejectValue("subject","SubjectEmpty");
+				
+				if(optionalFields != null && !optionalFields.contains("subject")){
+					if(domain.getSubject().isEmpty()){
+						result.rejectValue("subject","SubjectEmpty");
+					}
 				}
-				if(domain.getDetails().isEmpty()){
-					result.rejectValue("details","DetailsEmpty");
-				}					
+				
+				if(optionalFields != null && !optionalFields.contains("details")){
+					if(domain.getDetails().isEmpty()){
+						result.rejectValue("details","DetailsEmpty");
+					}	
+				}
+				
+				if(optionalFields != null && !optionalFields.contains("details")){
+					if(domain.getMinistry()==null){
+						result.rejectValue("ministry","MinistryEmpty");
+					}		
+				}	
+				
 				if(domain.getSupportingMembers()==null){
 					result.rejectValue("supportingMembers","SupportingMembersEmpty");
 				} else if(domain.getSupportingMembers().isEmpty()){
@@ -1117,6 +1345,29 @@ public class MotionController extends GenericController<Motion>{
 				}
 			}else /**** Submission By Member/Clerk****/
 				if(operation.equals("submit")){
+					
+					String role = request.getParameter("role");
+					
+					CustomParameter csptAutoGenForTypist = CustomParameter.findByName(CustomParameter.class, domain.getType()
+									.getType().toUpperCase() + "_TYPIST_AUTO_GEN", "");
+					if(csptAutoGenForTypist != null
+							&& csptAutoGenForTypist.getValue().equalsIgnoreCase("no")){
+						if(role.equals("MOIS_TYPIST")){
+							//Empty check for number
+							if(domain.getNumber() == null){
+								result.rejectValue("number", "NumberEmpty");
+							}
+							// Check duplicate entry for question Number
+							Boolean flag = Motion.
+									isExist(domain.getNumber(),domain.getType(),domain.getSession(),domain.getLocale());
+							Motion motion = Motion.findById(Motion.class, domain.getId());
+							if(!motion.getNumber().equals(domain.getNumber())){
+								if(flag){
+									result.rejectValue("number", "NonUnique","Duplicate Parameter");
+								}
+							}
+						}
+					}
 					/**** Submission ****/
 					if(domain.getHouseType()==null){
 						result.rejectValue("houseType","HousetypeEmpty");
@@ -1127,18 +1378,81 @@ public class MotionController extends GenericController<Motion>{
 					if(domain.getSession()==null){
 						result.rejectValue("session","SessionEmpty");
 					}
-					if(domain.getPrimaryMember()==null){
-						result.rejectValue("primaryMember","PrimaryMemberEmpty");
+					
+					//submission date limit validations (configurable through custom parameters)
+					if(domain.getSession()!=null && domain.getType()!=null) {
+					
+						//submission start date limit validation
+						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+							if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+								String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+								for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+									if(dt.trim().equals(domain.getType().getType().trim())) {
+										
+										if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+											Integer batch = Motion.findBatch(domain, new Date());
+											String strSubDate = null;
+											
+											if(batch.equals(1)){
+												if(!Motion.allowedInFirstBatch(domain, new Date())){
+													strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_" + "firstBatchStartTime");
+													result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
+													break;
+												}
+											}
+											
+											if(batch.equals(2)){
+												if(!Motion.allowedInSecondBatch(domain, new Date())){
+													strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_" + "secondBatchStartTime");
+													result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
+													break;
+												}
+											}
+											
+											if(batch.equals(0)){
+												result.rejectValue("version","SubmissionNotAllowed_batch","Motion cannot be submitted.");
+												break;
+											}
+										}else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){												
+											
+											if(!Motion.isAllowedForSubmission(domain, new Date(), "")){
+												String strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_submissionStartTime");
+												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
+												break;
+											}
+										}
+									}
+								}								
+							}
+						}
 					}
-					if(domain.getSubject().isEmpty()){
-						result.rejectValue("subject","SubjectEmpty");
+
+					if(optionalFields != null && !optionalFields.contains("primaryMember")){
+						if(domain.getPrimaryMember()==null){
+							result.rejectValue("primaryMember","PrimaryMemberEmpty");
+						}
 					}
-					if(domain.getDetails().isEmpty()){
-						result.rejectValue("details","DetailsEmpty");
+					
+					if(optionalFields != null && !optionalFields.contains("subject")){
+						if(domain.getSubject().isEmpty()){
+							result.rejectValue("subject","SubjectEmpty");
+						}
 					}
-					if(domain.getMinistry()==null){
-						result.rejectValue("ministry","MinistryEmpty");
-					}						
+					
+					if(optionalFields != null && !optionalFields.contains("details")){
+						if(domain.getDetails().isEmpty()){
+							result.rejectValue("details","DetailsEmpty");
+						}	
+					}
+					
+					if(optionalFields != null && !optionalFields.contains("details")){
+						if(domain.getMinistry()==null){
+							result.rejectValue("ministry","MinistryEmpty");
+						}		
+					}	
+					
 				}else /**** Start Workflow By assistant ****/
 					if(operation.equals("startworkflow")){
 						if(domain.getHouseType()==null){
@@ -1150,21 +1464,38 @@ public class MotionController extends GenericController<Motion>{
 						if(domain.getSession()==null){
 							result.rejectValue("session","SessionEmpty");
 						}
-						if(domain.getPrimaryMember()==null){
-							result.rejectValue("primaryMember","PrimaryMemberEmpty");
+
+
+						if(optionalFields != null && !optionalFields.contains("primaryMember")){
+							if(domain.getPrimaryMember()==null){
+								result.rejectValue("primaryMember","PrimaryMemberEmpty");
+							}
 						}
-						if(domain.getSubject().isEmpty()){
-							result.rejectValue("subject","SubjectEmpty");
+						
+						if(optionalFields != null && !optionalFields.contains("subject")){
+							if(domain.getSubject().isEmpty()){
+								result.rejectValue("subject","SubjectEmpty");
+							}
 						}
-						if(domain.getDetails().isEmpty()){
-							result.rejectValue("details","DetailsEmpty");
+						
+						if(optionalFields != null && !optionalFields.contains("details")){
+							if(domain.getDetails().isEmpty()){
+								result.rejectValue("details","DetailsEmpty");
+							}	
 						}
-						if(domain.getMinistry()==null){
-							result.rejectValue("ministry","MinistryEmpty");
+						
+						if(optionalFields != null && !optionalFields.contains("details")){
+							if(domain.getMinistry()==null){
+								result.rejectValue("ministry","MinistryEmpty");
+							}		
+						}
+						
+						if(optionalFields != null && !optionalFields.contains("subDepartment")){
+							if(domain.getSubDepartment()==null){
+								result.rejectValue("subDepartment","SubDepartmentEmpty");
+							}		
 						}	
-						if(domain.getSubDepartment()==null){
-							result.rejectValue("subDepartment","SubDepartmentEmpty");
-						}	
+							
 						String internalStatusType=domain.getInternalStatus().getType();
 						if(internalStatusType.equals(ApplicationConstants.MOTION_SUBMIT)){
 							result.rejectValue("internalStatus","PutUpOptionEmpty");
@@ -1189,22 +1520,37 @@ public class MotionController extends GenericController<Motion>{
 			if(domain.getSession()==null){
 				result.rejectValue("session","SessionEmpty");
 			}
-			if(domain.getPrimaryMember()==null){
-				result.rejectValue("primaryMember","PrimaryMemberEmpty");
+
+			if(optionalFields != null && !optionalFields.contains("primaryMember")){
+				if(domain.getPrimaryMember()==null){
+					result.rejectValue("primaryMember","PrimaryMemberEmpty");
+				}
 			}
-			if(domain.getSubject().isEmpty()){
-				result.rejectValue("subject","SubjectEmpty");
+			
+			if(optionalFields != null && !optionalFields.contains("subject")){
+				if(domain.getSubject().isEmpty()){
+					result.rejectValue("subject","SubjectEmpty");
+				}
 			}
-			if(domain.getDetails().isEmpty()){
-				result.rejectValue("details","DetailsEmpty");
+			
+			if(optionalFields != null && !optionalFields.contains("details")){
+				if(domain.getDetails().isEmpty()){
+					result.rejectValue("details","DetailsEmpty");
+				}	
 			}
+			
 			String usergroupType=request.getParameter("usergroupType");
 			if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("assistant")){
-				if(domain.getMinistry()==null){
-					result.rejectValue("ministry","MinistryEmpty");
-				}	
-				if(domain.getSubDepartment()==null){
-					result.rejectValue("subDepartment","SubDepartmentEmpty");
+				if(optionalFields != null && !optionalFields.contains("details")){
+					if(domain.getMinistry()==null){
+						result.rejectValue("ministry","MinistryEmpty");
+					}		
+				}
+				
+				if(optionalFields != null && !optionalFields.contains("subDepartment")){
+					if(domain.getSubDepartment()==null){
+						result.rejectValue("subDepartment","SubDepartmentEmpty");
+					}		
 				}	
 			}
 		}
@@ -1266,105 +1612,213 @@ public class MotionController extends GenericController<Motion>{
 		/**** In case of submission ****/
 		String operation=request.getParameter("operation");
 		String usergroupType=request.getParameter("usergroupType");
-		if(domain.getHouseType()!=null && domain.getSession()!=null
-				&&  domain.getType()!=null && domain.getPrimaryMember()!=null && domain.getMinistry()!=null &&
-				(!domain.getSubject().isEmpty())
-				&&(!domain.getDetails().isEmpty())){
+		boolean isValid = false;
+		
+		/**** To skip the optional fields ****/
+		String optionalFields = null;		
+		CustomParameter csptOptionalFields = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.MOTION_OPTIONAL_FIELDS_IN_VALIDATION, "");		
+		if(csptOptionalFields != null && csptOptionalFields.getValue() != null && !csptOptionalFields.getValue().isEmpty()){
+			optionalFields = csptOptionalFields.getValue();
+		}
+		
+		if(optionalFields != null){
+			if(domain.getHouseType()!=null && domain.getSession()!=null
+					&& domain.getType()!=null){
+				boolean pmFlag = false;
+				boolean subFlag = false;
+				boolean detFlag = false;
+				boolean minFlag = false;
+				
+				if(!optionalFields.contains("primaryMember")){
+					if(domain.getPrimaryMember() != null){
+						pmFlag = true;
+					}
+				}else{
+					pmFlag = true;
+				}
+				
+				if(!optionalFields.contains("subject")){
+					if(domain.getSubject() != null){
+						subFlag = true;
+					}
+				}else{
+					subFlag = true;
+				}
+				
+				if(!optionalFields.contains("details")){
+					if(domain.getDetails() != null){
+						detFlag = true;
+					}
+				}else{
+					detFlag = true;
+				}
+				
+				if(!optionalFields.contains("ministry")){
+					if(domain.getMinistry() != null){
+						minFlag = true;
+					}
+				}else{
+					minFlag = true;
+				}
+				
+				isValid = (pmFlag && subFlag && detFlag && minFlag);
+			}	
+		}else{
+			if(domain.getHouseType()!=null && domain.getSession()!=null
+					&& domain.getType()!=null && domain.getPrimaryMember() != null 
+					&& domain.getSubject() != null && domain.getDetails() != null 
+					&& domain.getMinistry() != null){
+				isValid = true;
+			}
+		}
+		
+		if(isValid){
 			if(operation!=null){
 				if(!operation.isEmpty()){
 					if(operation.trim().equals("submit")){
-						if(usergroupType!=null&&!(usergroupType.isEmpty())&&(usergroupType.equals("member")||usergroupType.equals("clerk"))){
-							/****  submission date is set ****/
-							if(domain.getSubmissionDate()==null){
-								domain.setSubmissionDate(new Date());
-							}
-							/**** only those supporting memebrs will be included who have approved the requests ****/
-							List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
-							Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, domain.getLocale());
-							if(domain.getSupportingMembers()!=null){
-								if(!domain.getSupportingMembers().isEmpty()){
-									for(SupportingMember i:domain.getSupportingMembers()){
-										if(i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
-												i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
-											/**** Update Supporting Member ****/
-											i.setDecisionStatus(timeoutStatus);
-											i.setApprovalDate(new Date());	
-											i.setApprovedText(domain.getDetails());
-											i.setApprovedSubject(domain.getSubject());
-											i.setApprovalType("ONLINE");
-											/**** Update Workflow Details ****/
-											String strWorkflowdetails=i.getWorkflowDetailsId();
-											if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
-												WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
-												workflowDetails.setStatus("TIMEOUT");
-												workflowDetails.setCompletionTime(new Date());
-												workflowDetails.merge();
-												/**** Complete Task ****/
-												String strTaskId=workflowDetails.getTaskId();
-												Task task=processService.findTaskById(strTaskId);
-												processService.completeTask(task);
-											}		
+						CustomParameter csptUserGroupsAllowedToSubmit = CustomParameter.findByName(CustomParameter.class, "MOIS_USSERGROUPS_ALLOWED_TO_SUBMIT", "");
+						
+						if(csptUserGroupsAllowedToSubmit != null){
+							if(csptUserGroupsAllowedToSubmit.getValue() != null){
+								if(!csptUserGroupsAllowedToSubmit.getValue().isEmpty()){
+									if(usergroupType != null && !(usergroupType.isEmpty()) && (csptUserGroupsAllowedToSubmit.getValue().contains(usergroupType))){
+										/****  submission date is set ****/
+										if(domain.getSubmissionDate()==null){
+											domain.setSubmissionDate(new Date());
 										}
-										if(!i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
-											supportingMembers.add(i);
-										}		
+										/**** only those supporting memebrs will be included who have approved the requests ****/
+										List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
+										Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, domain.getLocale());
+										if(domain.getSupportingMembers()!=null){
+											if(!domain.getSupportingMembers().isEmpty()){
+												for(SupportingMember i:domain.getSupportingMembers()){
+													if(i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
+															i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
+														/**** Update Supporting Member ****/
+														i.setDecisionStatus(timeoutStatus);
+														i.setApprovalDate(new Date());	
+														i.setApprovedText(domain.getDetails());
+														i.setApprovedSubject(domain.getSubject());
+														i.setApprovalType("ONLINE");
+														/**** Update Workflow Details ****/
+														String strWorkflowdetails=i.getWorkflowDetailsId();
+														if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
+															WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+															workflowDetails.setStatus("TIMEOUT");
+															workflowDetails.setCompletionTime(new Date());
+															workflowDetails.merge();
+															/**** Complete Task ****/
+															String strTaskId=workflowDetails.getTaskId();
+															Task task=processService.findTaskById(strTaskId);
+															processService.completeTask(task);
+														}		
+													}
+													if(!i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
+														supportingMembers.add(i);
+													}		
+												}
+												domain.setSupportingMembers(supportingMembers);
+											}
+										}
+										/**** Status,Internal Status and recommendation Status is set ****/
+										Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, domain.getLocale());
+										domain.setStatus(newstatus);
+										domain.setInternalStatus(newstatus);
+										domain.setRecommendationStatus(newstatus);
 									}
-									domain.setSupportingMembers(supportingMembers);
 								}
 							}
-							/**** Status,Internal Status and recommendation Status is set ****/
-							Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, domain.getLocale());
-							domain.setStatus(newstatus);
-							domain.setInternalStatus(newstatus);
-							domain.setRecommendationStatus(newstatus);
+							
 						}
 					}else{
-						if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-							Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
+						CustomParameter csptUserGroupsAllowedToSubmit = CustomParameter.findByName(CustomParameter.class, "MOIS_USSERGROUPS_ALLOWED_TO_SUBMIT", "");
+						
+						if(csptUserGroupsAllowedToSubmit != null){
+							if(csptUserGroupsAllowedToSubmit.getValue() != null){
+								if(!csptUserGroupsAllowedToSubmit.getValue().isEmpty()){
+									if(usergroupType != null && !(usergroupType.isEmpty()) && (csptUserGroupsAllowedToSubmit.getValue().contains(usergroupType))){
+										Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
+										domain.setStatus(status);
+										domain.setInternalStatus(status);
+										domain.setRecommendationStatus(status);
+									}
+								}
+							}
+						}
+					}
+				}else{
+					CustomParameter csptUserGroupsAllowedToSubmit = CustomParameter.findByName(CustomParameter.class, "MOIS_USSERGROUPS_ALLOWED_TO_SUBMIT", "");
+					
+					if(csptUserGroupsAllowedToSubmit != null){
+						if(csptUserGroupsAllowedToSubmit.getValue() != null){
+							if(!csptUserGroupsAllowedToSubmit.getValue().isEmpty()){
+								if(usergroupType != null && !(usergroupType.isEmpty()) && (csptUserGroupsAllowedToSubmit.getValue().contains(usergroupType))){
+									Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
+									domain.setStatus(status);
+									domain.setInternalStatus(status);
+									domain.setRecommendationStatus(status);
+								}
+							}
+						}
+					}
+				}
+			}else{
+				CustomParameter csptUserGroupsAllowedToSubmit = CustomParameter.findByName(CustomParameter.class, "MOIS_USSERGROUPS_ALLOWED_TO_SUBMIT", "");
+				
+				if(csptUserGroupsAllowedToSubmit != null){
+					if(csptUserGroupsAllowedToSubmit.getValue() != null){
+						if(!csptUserGroupsAllowedToSubmit.getValue().isEmpty()){
+							if(usergroupType != null && !(usergroupType.isEmpty()) && (csptUserGroupsAllowedToSubmit.getValue().contains(usergroupType))){
+								Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
+								domain.setStatus(status);
+								domain.setInternalStatus(status);
+								domain.setRecommendationStatus(status);
+							}
+						}
+					}
+				}
+			}
+		}
+		/**** Drafts ****/
+		else{			
+			CustomParameter csptUserGroupsAllowedToSubmit = CustomParameter.findByName(CustomParameter.class, "MOIS_USSERGROUPS_ALLOWED_TO_SUBMIT", "");
+			
+			if(csptUserGroupsAllowedToSubmit != null){
+				if(csptUserGroupsAllowedToSubmit.getValue() != null){
+					if(!csptUserGroupsAllowedToSubmit.getValue().isEmpty()){
+						if(usergroupType != null && !(usergroupType.isEmpty()) && (csptUserGroupsAllowedToSubmit.getValue().contains(usergroupType))){
+							Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_INCOMPLETE, domain.getLocale());
 							domain.setStatus(status);
 							domain.setInternalStatus(status);
 							domain.setRecommendationStatus(status);
 						}
 					}
-				}else{
-					if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
-						domain.setStatus(status);
-						domain.setInternalStatus(status);
-						domain.setRecommendationStatus(status);
-					}
 				}
-			}else{
-				if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_COMPLETE, domain.getLocale());
-					domain.setStatus(status);
-					domain.setInternalStatus(status);
-					domain.setRecommendationStatus(status);
-				}
-			}
-		}
-		/**** Drafts ****/
-		else{
-			if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
-				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_INCOMPLETE, domain.getLocale());
-				domain.setStatus(status);
-				domain.setInternalStatus(status);
-				domain.setRecommendationStatus(status);
 			}
 		}
 		/**** add creation date and created by ****/
 		domain.setCreationDate(new Date());
-		if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("clerk")){
-			try {
-				Member member=domain.getPrimaryMember();
-				User user=User.findbyNameBirthDate(member.getFirstName(),member.getMiddleName(),member.getLastName(),member.getBirthDate());
-				domain.setCreatedBy(user.getCredential().getUsername());
-			} catch (ELSException e) {
-				model.addAttribute("error", e.getParameter());
-			}
-		}else{
-			domain.setCreatedBy(this.getCurrentUser().getActualUsername());
-		}
+		
+//		CustomParameter csptUserGroupsAllowedToSubmit = CustomParameter.findByName(CustomParameter.class, "MOIS_USSERGROUPS_ALLOWED_TO_SUBMIT", "");
+//		
+//		if(csptUserGroupsAllowedToSubmit != null){
+//			if(csptUserGroupsAllowedToSubmit.getValue() != null){
+//				if(!csptUserGroupsAllowedToSubmit.getValue().isEmpty()){
+//					if(usergroupType != null && !(usergroupType.isEmpty()) && (csptUserGroupsAllowedToSubmit.getValue().contains(usergroupType))){
+//						try {
+//							Member member=domain.getPrimaryMember();
+//							User user=User.findbyNameBirthDate(member.getFirstName(),member.getMiddleName(),member.getLastName(),member.getBirthDate());
+//							domain.setCreatedBy(user.getCredential().getUsername());
+//						} catch (ELSException e) {
+//							model.addAttribute("error", e.getParameter());
+//						}
+//					}else{
+//						domain.setCreatedBy(this.getCurrentUser().getActualUsername());
+//					}
+//				}
+//			}
+//		}
+		domain.setCreatedBy(this.getCurrentUser().getActualUsername());
 		domain.setDataEnteredBy(this.getCurrentUser().getActualUsername());
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
@@ -1385,16 +1839,77 @@ public class MotionController extends GenericController<Motion>{
 		/**** Checking if its submission request or normal update ****/
 		String operation=request.getParameter("operation");		
 		String usergroupType=request.getParameter("usergroupType");
-		/**** Question status will be complete if all mandatory fields have been filled ****/
-		if(domain.getHouseType()!=null&&domain.getType()!=null&&domain.getSession()!=null
-				&& domain.getPrimaryMember()!=null && domain.getMinistry()!=null &&
-				(!domain.getSubject().isEmpty())
-				&&(!domain.getDetails().isEmpty())){			
+		
+		/**** Motion status will be complete if all mandatory fields have been filled ****/
+		boolean isValid = false;
+		
+		/**** To skip the optional fields ****/
+		String optionalFields = null;		
+		CustomParameter csptOptionalFields = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.MOTION_OPTIONAL_FIELDS_IN_VALIDATION, "");		
+		if(csptOptionalFields != null && csptOptionalFields.getValue() != null && !csptOptionalFields.getValue().isEmpty()){
+			optionalFields = csptOptionalFields.getValue();
+		}
+		
+		if(optionalFields != null){
+			if(domain.getHouseType()!=null && domain.getSession()!=null
+					&& domain.getType()!=null){
+				boolean pmFlag = false;
+				boolean subFlag = false;
+				boolean detFlag = false;
+				boolean minFlag = false;
+				
+				if(!optionalFields.contains("primaryMember")){
+					if(domain.getPrimaryMember() != null){
+						pmFlag = true;
+					}
+				}else{
+					pmFlag = true;
+				}
+				
+				if(!optionalFields.contains("subject")){
+					if(domain.getSubject() != null && !domain.getSubject().isEmpty()){
+						subFlag = true;
+					}
+				}else{
+					subFlag = true;
+				}
+				
+				if(!optionalFields.contains("details")){
+					if(domain.getDetails() != null && !domain.getDetails().isEmpty()){
+						detFlag = true;
+					}
+				}else{
+					detFlag = true;
+				}
+				
+				if(!optionalFields.contains("ministry")){
+					if(domain.getMinistry() != null){
+						minFlag = true;
+					}
+				}else{
+					minFlag = true;
+				}
+				
+				isValid = (pmFlag && subFlag && detFlag && minFlag);
+			}	
+		}else{
+			if(domain.getHouseType()!=null && domain.getSession()!=null
+					&& domain.getType()!=null && domain.getPrimaryMember() != null
+					&& domain.getMinistry() != null
+					&& (domain.getSubject() != null && !domain.getSubject().isEmpty())
+					&& (domain.getDetails() != null && !domain.getDetails().isEmpty())){
+				isValid = true;
+			}
+		}
+		
+		CustomParameter csptAllowedToSubmit = CustomParameter.findByName(CustomParameter.class, "MOIS_USSERGROUPS_ALLOWED_TO_SUBMIT", "");
+		
+		if(isValid){			
 			if(operation!=null){
 				if(!operation.isEmpty()){
 					/**** Submission request ****/
 					if(operation.trim().equals("submit")){
-						if(usergroupType!=null&&!(usergroupType.isEmpty())&&(usergroupType.equals("member")||usergroupType.equals("clerk"))){
+						if(usergroupType!=null&&!(usergroupType.isEmpty())&&(csptAllowedToSubmit.getValue().contains(usergroupType))){
 							/**** Submission date is set ****/
 							if(domain.getSubmissionDate()==null){
 								domain.setSubmissionDate(new Date());
@@ -1473,6 +1988,11 @@ public class MotionController extends GenericController<Motion>{
 						domain.setRecommendationStatus(status);
 					}
 				}
+				if(domain.getActor() != null && !domain.getActor().isEmpty() && usergroupType.equals(ApplicationConstants.ASSISTANT)){
+					Status status = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+					domain.setInternalStatus(status);
+					domain.setRecommendationStatus(status);
+				}
 			}
 		}
 		/**** If all mandatory fields have not been set then status,internal status and recommendation status is set to incomplete ****/
@@ -1523,15 +2043,40 @@ public class MotionController extends GenericController<Motion>{
 			domain.setDepartment(domain.getSubDepartment().getDepartment());
 		}	
 		/**** In case of assistant if internal status=submit,ministry,department,group is set 
-		 * then change its internal and recommendstion status to assistant processed ****/
+		 * then change its internal and recommendstion status to assistant processed ****/		
+		
 		if(strUserGroupType!=null){
-			if(strUserGroupType.equals("assistant")){				
+			if(strUserGroupType.equals("assistant") ||strUserGroupType.equals("clerk")){				
 				String internalStatus = domain.getInternalStatus().getType();
-				if(internalStatus.equals(ApplicationConstants.MOTION_SUBMIT)&&domain.getMinistry()!=null&&domain.getSubDepartment()!=null) {
-					Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
-					domain.setInternalStatus(ASSISTANT_PROCESSED);
-					domain.setRecommendationStatus(ASSISTANT_PROCESSED);
+				if(internalStatus.equals(ApplicationConstants.MOTION_SUBMIT)) {
+					if(optionalFields != null && !optionalFields.contains("ministry")
+							&& !optionalFields.contains("subDepartment")){
+						if(domain.getMinistry()!=null&&domain.getSubDepartment()!=null){
+							Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+							domain.setInternalStatus(ASSISTANT_PROCESSED);
+							domain.setRecommendationStatus(ASSISTANT_PROCESSED);
+						}
+					}else{
+						Status ASSISTANT_PROCESSED = Status.findByType(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+						domain.setInternalStatus(ASSISTANT_PROCESSED);
+						domain.setRecommendationStatus(ASSISTANT_PROCESSED);
+					}
 				}	
+				
+				if(internalStatus.equals(ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED)){
+					if(optionalFields != null && !optionalFields.contains("ministry")
+							&& !optionalFields.contains("subDepartment")){
+						if(domain.getMinistry()!=null&&domain.getSubDepartment()!=null){
+							Status TOBE_PUTUP = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+							domain.setInternalStatus(TOBE_PUTUP);
+							domain.setRecommendationStatus(TOBE_PUTUP);
+						}
+					}else{
+						Status TOBE_PUTUP = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+						domain.setInternalStatus(TOBE_PUTUP);
+						domain.setRecommendationStatus(TOBE_PUTUP);
+					}
+				}
 				/**** File parameters are set when internal status is something other than 
 				 * submit,complete and incomplete and file is null .Then only the motion gets attached to a file.*/
 				String currentStatus=domain.getInternalStatus().getType();
@@ -1559,7 +2104,7 @@ public class MotionController extends GenericController<Motion>{
 					}
 				}
 			}
-		}		
+		}
 	}
 
 	@Override
@@ -1672,6 +2217,8 @@ public class MotionController extends GenericController<Motion>{
 				}else if(operation.equals("startworkflow")){
 					/**** Added by Sandeep Singh ****/
 					try {
+						UserGroupType usergroupType = null;
+						
 						ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 						Map<String,String> properties=new HashMap<String, String>();					
 						/**** Next user and usergroup ****/
@@ -1682,6 +2229,7 @@ public class MotionController extends GenericController<Motion>{
 								String[] temp=nextuser.split("#");
 								properties.put("pv_user",temp[0]);
 								level=temp[2];
+								usergroupType = UserGroupType.findByType(temp[1], domain.getLocale());
 							}
 						}
 						String endflag=domain.getEndFlag();
@@ -1697,8 +2245,56 @@ public class MotionController extends GenericController<Motion>{
 							if(!endflag.isEmpty()){
 								if(endflag.equals("continue")){
 									/**** Workflow Detail entry made only if its not the end of workflow ****/
-									WorkflowDetails workflowDetails=WorkflowDetails.create(domain,task,ApplicationConstants.APPROVAL_WORKFLOW,level);
+									//WorkflowDetails workflowDetails=WorkflowDetails.create(domain,task,ApplicationConstants.APPROVAL_WORKFLOW,level);
+									//motion.setWorkflowDetailsId(workflowDetails.getId());
+									
+									
+										
+									Workflow workflow = null;
+									
+									/*
+									 * START...
+									 */
+									/*if(domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_CLUBBING_POST_ADMISSION)
+										|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+											workflow = Workflow.findByStatus(domain.getRecommendationStatus(), domain.getLocale());
+										} else {
+											workflow = Workflow.findByStatus(domain.getInternalStatus(), domain.getLocale());
+									}*/
+									Status internalStatus = motion.getInternalStatus();
+									String internalStatusType = internalStatus.getType();
+									Status recommendationStatus = motion.getRecommendationStatus();
+									String recommendationStatusType = recommendationStatus.getType();
+
+									if(recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+										workflow = Workflow.findByStatus(recommendationStatus, domain.getLocale());
+									} 
+									else if(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.MOTION_FINAL_NAME_CLUBBING)
+											|| (internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+										workflow = Workflow.findByStatus(internalStatus, domain.getLocale());
+									} 
+									else {
+										workflow = Workflow.findByStatus(internalStatus, domain.getLocale());
+									}
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * ... END
+									 */
+									
+									WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,usergroupType,workflow.getType(),level);
 									motion.setWorkflowDetailsId(workflowDetails.getId());
+									//*****
 								}
 							}
 						}
@@ -1714,6 +2310,8 @@ public class MotionController extends GenericController<Motion>{
 						motion.simpleMerge();
 					} catch (ELSException e) {
 						model.addAttribute("error", e.getParameter());
+					} catch(Exception e){
+						model.addAttribute("error", e.getMessage());
 					}
 				}
 			}
@@ -1787,33 +2385,51 @@ public class MotionController extends GenericController<Motion>{
 	public String getBulkSubmissionView(final HttpServletRequest request,final Locale locale,
 			final ModelMap model){	
 		try {
-			Member primaryMember=Member.findMember(this.getCurrentUser().getFirstName(),this.getCurrentUser().getMiddleName(),this.getCurrentUser().getLastName(),this.getCurrentUser().getBirthDate(),locale.toString());
-			String strHouseType=request.getParameter("houseType");
-			String strSessionType=request.getParameter("sessionType");
-			String strSessionYear=request.getParameter("sessionYear");
-			String strMotionType=request.getParameter("motionType");
-			String strLocale=locale.toString();
-			String strItemsCount=request.getParameter("itemscount");
-			if(strHouseType!=null&&!(strHouseType.isEmpty())
-					&&strSessionType!=null&&!(strSessionType.isEmpty())
-					&&strSessionYear!=null&&!(strSessionYear.isEmpty())
-					&&strMotionType!=null&&!(strMotionType.isEmpty())
-					&&strItemsCount!=null&&!(strItemsCount.isEmpty())){
-				HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, strLocale);
-				SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
-				Integer sessionYear=Integer.parseInt(strSessionYear);
-				Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-				DeviceType motionType=DeviceType.findById(DeviceType.class,Long.parseLong(strMotionType));
-				Integer itemsCount=Integer.parseInt(strItemsCount);
-				List<Motion> motions= new ArrayList<Motion>();
-				if(primaryMember != null){
-					motions = Motion.findAllByMember(session,primaryMember,motionType,itemsCount,strLocale);
+			String userGroupType = request.getParameter("usergroupType");
+			List<Motion> motions= new ArrayList<Motion>();
+			if(userGroupType != null && !userGroupType.equals("")){
+				String strHouseType=request.getParameter("houseType");
+				String strSessionType=request.getParameter("sessionType");
+				String strSessionYear=request.getParameter("sessionYear");
+				String strMotionType=request.getParameter("motionType");
+				String strLocale=locale.toString();
+				String strFile = request.getParameter("file");
+				String strItemsCount=request.getParameter("itemscount");
+				if(strHouseType!=null&&!(strHouseType.isEmpty())
+						&&strSessionType!=null&&!(strSessionType.isEmpty())
+						&&strSessionYear!=null&&!(strSessionYear.isEmpty())
+						&&strMotionType!=null&&!(strMotionType.isEmpty())
+						&&strItemsCount!=null&&!(strItemsCount.isEmpty())){
+					HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, strLocale);
+					SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+					Integer sessionYear=Integer.parseInt(strSessionYear);
+					Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+					DeviceType motionType=DeviceType.findById(DeviceType.class,Long.parseLong(strMotionType));
+					Integer itemsCount=Integer.parseInt(strItemsCount);
+					if(userGroupType.equals(ApplicationConstants.TYPIST)){
+						CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_BULKPUTUP_FOR_TYPIST", "");
+						if(customParameter != null){
+							if(customParameter.getValue().equals("YES")){
+								motions = Motion.findAllCompleteByCreator(session, this.getCurrentUser().getUsername(),motionType,itemsCount,strLocale);
+							}
+						}
+					}else{
+						Member primaryMember=Member.findMember(this.getCurrentUser().getFirstName(),this.getCurrentUser().getMiddleName(),this.getCurrentUser().getLastName(),this.getCurrentUser().getBirthDate(),locale.toString());
+						if(primaryMember != null){
+							motions = Motion.findAllByMember(session,primaryMember,motionType,itemsCount,strLocale);
+						}
+					}
 				}
-				model.addAttribute("motions",motions);
-				model.addAttribute("size",motions.size());
-				String userGroupType = request.getParameter("usergroupType");
-				model.addAttribute("usergroupType", userGroupType);
-			}			
+				
+			}
+			
+			
+			
+			model.addAttribute("motions",motions);
+			model.addAttribute("size",motions.size());
+			
+			model.addAttribute("usergroupType", userGroupType);
+						
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		} catch (ELSException e) {
@@ -1841,68 +2457,239 @@ public class MotionController extends GenericController<Motion>{
 			String[] items = selectedItems.split(",");
 
 			List<Motion> motions = new ArrayList<Motion>();
-			for(String i : items) {
-				Long id = Long.parseLong(i);
-				Motion motion = Motion.findById(Motion.class, id);
+			Long firstId = null;
+			if(items != null && items.length > 0){
+				firstId = new Long(items[0]);
+			}
+			
+			try{
+//				Motion firstMotion = Motion.findById(Motion.class, firstId);
+//				String strSubDate = null;
+//				
+//				if(firstMotion != null){
+//					//submission date limit validations (configurable through custom parameters)
+//					if(firstMotion.getSession()!=null && firstMotion.getType()!=null) {
+//					
+//						//submission start date limit validation
+//						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+//						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+//							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+//							if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+//								String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+//								for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+//									if(dt.trim().equals(firstMotion.getType().getType().trim())) {
+//										
+//										if(firstMotion.getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+//											Integer batch = Motion.findBatch(firstMotion, new Date());
+//											
+//											if(batch.equals(1) || batch.equals(2)){
+//												if(Motion.allowedInFirstBatch(firstMotion, new Date()) 
+//														|| Motion.allowedInSecondBatch(firstMotion, new Date())){
+//													
+//													for(String i : items) {
+//														Long id = Long.parseLong(i);
+//														Motion motion = Motion.findById(Motion.class, id);
+//
+//														/**** Update Supporting Member ****/
+//														List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+//														Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
+//														if(motion.getSupportingMembers() != null) {
+//															if(! motion.getSupportingMembers().isEmpty()) {
+//																for(SupportingMember sm : motion.getSupportingMembers()) {
+//																	if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
+//																			sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
+//																		/**** Update Supporting Member ****/
+//																		sm.setDecisionStatus(timeoutStatus);
+//																		sm.setApprovalDate(new Date());	
+//																		sm.setApprovedText(motion.getDetails());
+//																		sm.setApprovedSubject(motion.getSubject());
+//																		sm.setApprovalType("ONLINE");
+//																		/**** Update Workflow Details ****/
+//																		String strWorkflowdetails=sm.getWorkflowDetailsId();
+//																		if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
+//																			WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+//																			workflowDetails.setStatus("TIMEOUT");
+//																			workflowDetails.setCompletionTime(new Date());
+//																			workflowDetails.merge();
+//																			/**** Complete Task ****/
+//																			String strTaskId=workflowDetails.getTaskId();
+//																			Task task=processService.findTaskById(strTaskId);
+//																			processService.completeTask(task);
+//																		}		
+//																	}
+//																	if(!sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
+//																		supportingMembers.add(sm);
+//																	}
+//																}
+//																motion.setSupportingMembers(supportingMembers);
+//															}
+//														}
+//
+//														/**** Update Status(es) ****/
+//														Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, motion.getLocale());
+//														motion.setStatus(newstatus);
+//														motion.setInternalStatus(newstatus);
+//														motion.setRecommendationStatus(newstatus);
+//
+//														/**** Edited On,Edited By and Edited As is set ****/
+//														motion.setSubmissionDate(new Date());
+//														motion.setEditedOn(new Date());
+//														motion.setEditedBy(this.getCurrentUser().getActualUsername());
+//														String strUserGroupType=request.getParameter("usergroupType");
+//														if(strUserGroupType!=null){
+//															UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, motion.getLocale());
+//															motion.setEditedAs(userGroupType.getName());
+//														}				
+//														/**** Bulk Submitted ****/
+//														motion.setBulkSubmitted(true);
+//														/**** Update the Motion object ****/
+//														motion = motion.merge();
+//														motions.add(motion);
+//													}
+//
+//													model.addAttribute("motions", motions);
+//												}
+//											}
+//										}else if(firstMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){												
+//											
+//											if(Motion.isAllowedForSubmission(firstMotion, new Date(), "")){
+//												for(String i : items) {
+//													Long id = Long.parseLong(i);
+//													Motion motion = Motion.findById(Motion.class, id);
+//
+//													/**** Update Supporting Member ****/
+//													List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+//													Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
+//													if(motion.getSupportingMembers() != null) {
+//														if(! motion.getSupportingMembers().isEmpty()) {
+//															for(SupportingMember sm : motion.getSupportingMembers()) {
+//																if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
+//																		sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
+//																	/**** Update Supporting Member ****/
+//																	sm.setDecisionStatus(timeoutStatus);
+//																	sm.setApprovalDate(new Date());	
+//																	sm.setApprovedText(motion.getDetails());
+//																	sm.setApprovedSubject(motion.getSubject());
+//																	sm.setApprovalType("ONLINE");
+//																	/**** Update Workflow Details ****/
+//																	String strWorkflowdetails=sm.getWorkflowDetailsId();
+//																	if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
+//																		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+//																		workflowDetails.setStatus("TIMEOUT");
+//																		workflowDetails.setCompletionTime(new Date());
+//																		workflowDetails.merge();
+//																		/**** Complete Task ****/
+//																		String strTaskId=workflowDetails.getTaskId();
+//																		Task task=processService.findTaskById(strTaskId);
+//																		processService.completeTask(task);
+//																	}		
+//																}
+//																if(!sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
+//																	supportingMembers.add(sm);
+//																}
+//															}
+//															motion.setSupportingMembers(supportingMembers);
+//														}
+//													}
+//
+//													/**** Update Status(es) ****/
+//													Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, motion.getLocale());
+//													motion.setStatus(newstatus);
+//													motion.setInternalStatus(newstatus);
+//													motion.setRecommendationStatus(newstatus);
+//
+//													/**** Edited On,Edited By and Edited As is set ****/
+//													motion.setSubmissionDate(new Date());
+//													motion.setEditedOn(new Date());
+//													motion.setEditedBy(this.getCurrentUser().getActualUsername());
+//													String strUserGroupType=request.getParameter("usergroupType");
+//													if(strUserGroupType!=null){
+//														UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, motion.getLocale());
+//														motion.setEditedAs(userGroupType.getName());
+//													}				
+//													/**** Bulk Submitted ****/
+//													motion.setBulkSubmitted(true);
+//													/**** Update the Motion object ****/
+//													motion = motion.merge();
+//													motions.add(motion);
+//												}
+//
+//												model.addAttribute("motions", motions);
+//											}
+//										}
+//									}
+//								}								
+//							}
+//						}
+//					}
+//				}
+				
+				
+				for(String i : items) {
+					Long id = Long.parseLong(i);
+					Motion motion = Motion.findById(Motion.class, id);
 
-				/**** Update Supporting Member ****/
-				List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-				Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
-				if(motion.getSupportingMembers() != null) {
-					if(! motion.getSupportingMembers().isEmpty()) {
-						for(SupportingMember sm : motion.getSupportingMembers()) {
-							if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
-									sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
-								/**** Update Supporting Member ****/
-								sm.setDecisionStatus(timeoutStatus);
-								sm.setApprovalDate(new Date());	
-								sm.setApprovedText(motion.getDetails());
-								sm.setApprovedSubject(motion.getSubject());
-								sm.setApprovalType("ONLINE");
-								/**** Update Workflow Details ****/
-								String strWorkflowdetails=sm.getWorkflowDetailsId();
-								if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
-									WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
-									workflowDetails.setStatus("TIMEOUT");
-									workflowDetails.setCompletionTime(new Date());
-									workflowDetails.merge();
-									/**** Complete Task ****/
-									String strTaskId=workflowDetails.getTaskId();
-									Task task=processService.findTaskById(strTaskId);
-									processService.completeTask(task);
-								}		
+					/**** Update Supporting Member ****/
+					List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+					Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
+					if(motion.getSupportingMembers() != null) {
+						if(! motion.getSupportingMembers().isEmpty()) {
+							for(SupportingMember sm : motion.getSupportingMembers()) {
+								if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
+										sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
+									/**** Update Supporting Member ****/
+									sm.setDecisionStatus(timeoutStatus);
+									sm.setApprovalDate(new Date());	
+									sm.setApprovedText(motion.getDetails());
+									sm.setApprovedSubject(motion.getSubject());
+									sm.setApprovalType("ONLINE");
+									/**** Update Workflow Details ****/
+									String strWorkflowdetails=sm.getWorkflowDetailsId();
+									if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
+										WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+										workflowDetails.setStatus("TIMEOUT");
+										workflowDetails.setCompletionTime(new Date());
+										workflowDetails.merge();
+										/**** Complete Task ****/
+										String strTaskId=workflowDetails.getTaskId();
+										Task task=processService.findTaskById(strTaskId);
+										processService.completeTask(task);
+									}		
+								}
+								if(!sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
+									supportingMembers.add(sm);
+								}
 							}
-							if(!sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
-								supportingMembers.add(sm);
-							}
+							motion.setSupportingMembers(supportingMembers);
 						}
-						motion.setSupportingMembers(supportingMembers);
 					}
+
+					/**** Update Status(es) ****/
+					Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, motion.getLocale());
+					motion.setStatus(newstatus);
+					motion.setInternalStatus(newstatus);
+					motion.setRecommendationStatus(newstatus);
+
+					/**** Edited On,Edited By and Edited As is set ****/
+					motion.setSubmissionDate(new Date());
+					motion.setEditedOn(new Date());
+					motion.setEditedBy(this.getCurrentUser().getActualUsername());
+					String strUserGroupType=request.getParameter("usergroupType");
+					if(strUserGroupType!=null){
+						UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, motion.getLocale());
+						motion.setEditedAs(userGroupType.getName());
+					}				
+					/**** Bulk Submitted ****/
+					motion.setBulkSubmitted(true);
+					/**** Update the Motion object ****/
+					motion = motion.merge();
+					motions.add(motion);
 				}
 
-				/**** Update Status(es) ****/
-				Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, motion.getLocale());
-				motion.setStatus(newstatus);
-				motion.setInternalStatus(newstatus);
-				motion.setRecommendationStatus(newstatus);
-
-				/**** Edited On,Edited By and Edited As is set ****/
-				motion.setSubmissionDate(new Date());
-				motion.setEditedOn(new Date());
-				motion.setEditedBy(this.getCurrentUser().getActualUsername());
-				String strUserGroupType=request.getParameter("usergroupType");
-				if(strUserGroupType!=null){
-					UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, motion.getLocale());
-					motion.setEditedAs(userGroupType.getName());
-				}				
-				/**** Bulk Submitted ****/
-				motion.setBulkSubmitted(true);
-				/**** Update the Motion object ****/
-				motion = motion.merge();
-				motions.add(motion);
+				model.addAttribute("motions", motions);
+			}catch(Exception e){
+				
 			}
-
-			model.addAttribute("motions", motions);
 		}
 		return "motion/bulksubmissionack";
 	}
@@ -1974,12 +2761,25 @@ public class MotionController extends GenericController<Motion>{
 	public String bulkSubmissionAssistant(final HttpServletRequest request,final Locale locale,
 			final Model model){	
 		String[] selectedItems = request.getParameterValues("items[]");
-		String strStatus=request.getParameter("status");
+		String strStatus=request.getParameter("aprstatus");
+		String refText = request.getParameter("reftext");
+		String remarks = request.getParameter("remarks");
 		StringBuffer assistantProcessed=new StringBuffer();
 		StringBuffer recommendAdmission=new StringBuffer();
 		StringBuffer recommendRejection=new StringBuffer();
 		if(selectedItems != null && selectedItems.length>0
 				&&strStatus!=null&&!strStatus.isEmpty()) {
+			
+			List<ReferenceUnit> refs = null;
+			for(String i : selectedItems){
+				Motion question = Motion.findById(Motion.class, new Long(i));
+				if(question != null){
+					if(question.getReferencedUnits() != null){
+						refs = question.getReferencedUnits();
+						break;
+					}
+				}
+			}
 			/**** As It Is Condition ****/
 			if(strStatus.equals("-")){
 				for(String i : selectedItems) {
@@ -2000,22 +2800,88 @@ public class MotionController extends GenericController<Motion>{
 							/**** Create Workdetails Entry ****/
 							Task task=processService.getCurrentTask(processInstance);
 							if(motion.getEndFlag()!=null&&!motion.getEndFlag().isEmpty()&&motion.getEndFlag().equals("continue")){
-								WorkflowDetails workflowDetails=WorkflowDetails.create(motion,task,ApplicationConstants.APPROVAL_WORKFLOW,motion.getLevel());
-								motion.setWorkflowDetailsId(workflowDetails.getId());
-								/**** Workflow Started ****/
-								motion.setWorkflowStarted("YES");
-								motion.setWorkflowStartedOn(new Date());
-								motion.setTaskReceivedOn(new Date());
-								motion.setFileSent(true);
-								motion.simpleMerge();
-							}	
+								
+								UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());								
+								try {
+
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * START...
+									 */
+									// workflowDetails = WorkflowDetails.
+									//		create(question,task,usergroupType, ApplicationConstants.APPROVAL_WORKFLOW, 
+									//				question.getLevel());
+									Workflow workflow = null;
+
+									Status internalStatus = motion.getInternalStatus();
+									String internalStatusType = internalStatus.getType();
+									Status recommendationStatus = motion.getRecommendationStatus();
+									String recommendationStatusType = recommendationStatus.getType();
+
+									if(recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+										workflow = Workflow.findByStatus(recommendationStatus, locale.toString());
+									} 
+									else if(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.MOTION_FINAL_NAME_CLUBBING)
+											|| (internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+										workflow = Workflow.findByStatus(internalStatus, locale.toString());
+									}
+									else {
+										workflow = Workflow.findByStatus(internalStatus, locale.toString());
+									}
+
+									String workflowType = workflow.getType();
+									String assigneeLevel = motion.getLevel();
+									WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, usergroupType, workflowType, assigneeLevel);
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * ... END
+									 */
+									
+									if(refs != null && !refs.isEmpty()) {
+										motion.setReferencedUnits(refs);
+									}
+									if(remarks != null){
+										motion.setRemarks(remarks);
+									}
+									if(refText != null){
+										motion.setRefText(refText);
+									}
+									
+									String strFile = request.getParameter("file");
+									if(strFile != null && !strFile.isEmpty()){
+										if(motion.getFile() == null){
+											motion.setFile(new Integer(strFile));
+										}
+									}
+									/**** Workflow Started ****/
+									motion.setWorkflowDetailsId(workflowDetails.getId());
+									motion.setWorkflowStarted("YES");
+									motion.setWorkflowStartedOn(new Date());
+									motion.setTaskReceivedOn(new Date());
+									motion.setFileSent(true);
+									motion.simpleMerge();
+								}catch(ELSException e){
+									model.addAttribute("error", e.getParameter());
+								}
+							}
 							if(motion.getInternalStatus().getType().equals(ApplicationConstants.MOTION_RECOMMEND_ADMISSION)){
 								recommendAdmission.append(motion.formatNumber()+",");
 							}else if(motion.getInternalStatus().getType().equals(ApplicationConstants.MOTION_RECOMMEND_REJECTION)){
 								recommendRejection.append(motion.formatNumber()+",");
 							}
-						} catch (ELSException e) {
-							model.addAttribute("error", e.getParameter());
+						} catch (Exception e) {
+							model.addAttribute("error", e);
 						}
 					}else{
 						assistantProcessed.append(motion.formatNumber()+",");
@@ -2059,7 +2925,69 @@ public class MotionController extends GenericController<Motion>{
 								/**** Create Workdetails Entry ****/
 								Task task=processService.getCurrentTask(processInstance);
 								if(motion.getEndFlag()!=null&&!motion.getEndFlag().isEmpty()&&motion.getEndFlag().equals("continue")){
-									WorkflowDetails workflowDetails=WorkflowDetails.create(motion,task,ApplicationConstants.APPROVAL_WORKFLOW,motion.getLevel());
+									UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * START...
+									 */
+									 // WorkflowDetails workflowDetails = WorkflowDetails.create(question, 
+									//		task, ApplicationConstants.APPROVAL_WORKFLOW, question.getLevel());
+									Workflow workflow = null;
+
+									Status internalStatus = motion.getInternalStatus();
+									String internalStatusType = internalStatus.getType();
+									Status recommendationStatus = motion.getRecommendationStatus();
+									String recommendationStatusType = recommendationStatus.getType();
+
+									if(recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+										workflow = Workflow.findByStatus(recommendationStatus, locale.toString());
+									} 
+									else if(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.MOTION_FINAL_NAME_CLUBBING)
+											|| (internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+										workflow = Workflow.findByStatus(internalStatus, locale.toString());
+									} 
+									else {
+										workflow = Workflow.findByStatus(internalStatus, locale.toString());
+									}
+
+									String workflowType = workflow.getType();
+									String assigneeLevel = motion.getLevel();
+									WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, usergroupType, workflowType, assigneeLevel); 
+									//workflowDetails = WorkflowDetails.create(motion, task, workflowType, assigneeLevel);
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * ... END
+									 */
+									
+									
+									if(refs != null && !refs.isEmpty()) {
+										motion.setReferencedUnits(refs);
+									}
+									if(remarks != null){
+										motion.setRemarks(remarks);
+									}
+									if(refText != null){
+										motion.setRefText(refText);
+									}
+									
+									String strFile = request.getParameter("file");
+									if(strFile != null && !strFile.isEmpty()){
+										if(motion.getFile() == null){
+											motion.setFile(new Integer(strFile));
+										}
+									}
+									
 									motion.setWorkflowDetailsId(workflowDetails.getId());
 									/**** Workflow Started ****/
 									motion.setWorkflowStarted("YES");
@@ -2236,7 +3164,7 @@ public class MotionController extends GenericController<Motion>{
 					}	
 				}
 				
-				/****Show success of failure message****/
+				/****Show success or failure message****/
 				if(counter >= ApplicationConstants.MOTION_FIRST_BATCH_START_COUNTER){
 					model.addAttribute("errorcode", "numberassignment_success");
 				}else{
@@ -2250,6 +3178,7 @@ public class MotionController extends GenericController<Motion>{
 		return retVal;
 	}
 	
+	@SuppressWarnings("unused")
 	@RequestMapping(value = "/discussionselection", method = RequestMethod.GET)
 	public String getDiscussionSelection(final HttpServletRequest request, final ModelMap model, final Locale locale){
 		String retVal = "motion/error";
@@ -2402,7 +3331,7 @@ public class MotionController extends GenericController<Motion>{
 			
 			/**** Load Motions ****/
 			Status admitted = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale.toString());
-			List<Motion> motions = Motion.findAllUndiscussed(lastSessionCreated, deviceType, admitted, locale.toString());
+			List<Motion> motions = Motion.findAllForDiscussion(lastSessionCreated, deviceType, admitted, locale.toString());
 			List<Reference> motionRefs = new ArrayList<Reference>();
 			for(Motion m : motions){
 				Reference ref = new Reference();
@@ -2476,9 +3405,10 @@ public class MotionController extends GenericController<Motion>{
 				discussionDateDevice.setDeviceType(deviceType);
 				discussionDateDevice.setSession(session);
 				discussionDateDevice.setDevices(strData);
-				discussionDateDevice.setDiscussionDate(new Date());
+				discussionDateDevice.setDiscussionDate(discussDate);
 				discussionDateDevice.persist();
 			}else if(discussionDateDevice != null){
+								
 				if(discussionDateDevice.getLocale() == null){
 					discussionDateDevice.setLocale(locale.toString());
 				}
@@ -2491,6 +3421,21 @@ public class MotionController extends GenericController<Motion>{
 				if(strData.isEmpty()){
 					discussionDateDevice.setDevices(null);
 				}else{
+					
+					String strDev = discussionDateDevice.getDevices();
+					for(String s : strDev.split("~")){
+						if(s != null){
+							if(!strData.contains(s)){
+								String strId = s.split(":")[0];
+								Motion m = Motion.findById(Motion.class, new Long(strId));
+								if(m != null){
+									m.setDiscussionDate(null);
+									m.simpleMerge();
+								}
+							}
+						}
+					}
+					
 					discussionDateDevice.setDevices(strData);
 				}
 				if(discussionDateDevice.getDiscussionDate() == null){
@@ -2498,10 +3443,207 @@ public class MotionController extends GenericController<Motion>{
 				}
 				discussionDateDevice.merge();
 			}
+			
+			if(strData != null && !strData.isEmpty()){
+				String[] strDevs = strData.split("~");
+				for(String s : strDevs){
+					String strId = s.split(":")[0];
+					Motion m = Motion.findById(Motion.class, new Long(strId));
+					if(m != null){
+						m.setDiscussionDate(discussDate);
+						m.simpleMerge();
+					}
+				}
+			}
+			
 			retVal = "redirect:/motion/discussionselection";
 		}catch(Exception e){
 			logger.error("error", e);
 			model.addAttribute("errorcode","GENERAL_ERROR");
+		}
+		
+		return retVal;
+	}
+	
+	//---------------------------Status update------------------
+	/**** Yaadi to discuss update ****/
+	@RequestMapping(value="/statusupdate/assistant/init", method=RequestMethod.GET)
+	public String getStatusUpdateInit(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		/**** Request Params ****/
+		String retVal = "motion/error";
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strDeviceType = request.getParameter("motionType");			
+		String strStatus = request.getParameter("status");
+		String strRole = request.getParameter("role");
+		String strUsergroup = request.getParameter("usergroup");
+		String strUsergroupType = request.getParameter("usergroupType");
+
+		/**** Locale ****/
+		String strLocale = locale.toString();
+
+		if(strHouseType != null && !(strHouseType.isEmpty())
+				&& strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear != null && !(strSessionYear.isEmpty())
+				&& strDeviceType != null && !(strDeviceType.isEmpty())
+				&& strStatus != null && !(strStatus.isEmpty())
+				&& strRole != null && !(strRole.isEmpty())
+				&& strUsergroupType != null && !(strUsergroupType.isEmpty())) {
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			
+			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class, "MOTION_STATUS_UPDATE_" + deviceType.getType().toUpperCase() + "_" + houseType.getType().toUpperCase() + "_" + strUsergroupType.toUpperCase(), "");
+
+			List<Status> internalStatuses;
+			try {
+				internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(),locale.toString());
+				model.addAttribute("internalStatuses", internalStatuses);
+			} catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+			}
+			/**** Request Params To Model Attribute ****/
+			model.addAttribute("houseType", strHouseType);
+			model.addAttribute("sessionType", strSessionType);
+			model.addAttribute("sessionYear", strSessionYear);
+			model.addAttribute("motionType", strDeviceType);
+			model.addAttribute("status", strStatus);
+			model.addAttribute("role", strRole);
+			model.addAttribute("usergroup", strUsergroup);
+			model.addAttribute("usergroupType", strUsergroupType);
+
+			retVal = "motion/statusupdateinit";
+		}else{
+			model.addAttribute("errorcode","CAN_NOT_INITIATE");
+		}
+
+		return retVal;
+	}
+	
+	@RequestMapping(value="/statusupdate/assistant/view", method=RequestMethod.GET)
+	public String getStatusUpdateAssistantView(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		this.getStatusUpdateMotions(model, request, locale.toString());
+		return "motion/statusupdateassistantview";
+	}
+	
+	@Transactional
+	@RequestMapping(value="/statusupdate/assistant/update", method=RequestMethod.POST)
+	public String statusUpdateAssistant(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		
+		boolean updated = false;
+		String page = "motion/error";
+		StringBuffer success = new StringBuffer();
+		
+		try{
+			String[] selectedItems = request.getParameterValues("items[]");
+			String strDecisionStatus = request.getParameter("decisionStatus");
+			String strStatus = request.getParameter("status");
+			
+			if(selectedItems != null && selectedItems.length > 0
+					&& strDecisionStatus != null && !strDecisionStatus.isEmpty()
+					&& strStatus != null && !strStatus.isEmpty()) {
+				/**** As It Is Condition ****/
+				if(!strStatus.equals("-")) {
+					for(String i : selectedItems) {
+						Long id = Long.parseLong(i);
+						Motion motion = Motion.findById(Motion.class, id);
+						Status status = Status.findById(Status.class, new Long(strDecisionStatus));
+						motion.setRecommendationStatus(status);
+						motion.simpleMerge();
+						updated = true;
+						success.append(FormaterUtil.formatNumberNoGrouping(motion.getNumber(), motion.getLocale())+",");
+					}
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			updated = false;
+		}
+		
+		if(updated){
+			this.getStatusUpdateMotions(model, request, locale.toString());
+			success.append(" updated successfully...");
+			model.addAttribute("success", success.toString());
+			page = "motion/statusupdateview";
+		}else{
+			model.addAttribute("failure", "update failed.");
+		}
+		
+		return page;
+	}
+	
+	private void getStatusUpdateMotions(final ModelMap model,
+	final HttpServletRequest request, 
+	final String locale) {
+		/**** Request Params ****/
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strDeviceType = request.getParameter("motionType");			
+		String strStatus = request.getParameter("status");
+		String strRole = request.getParameter("role");
+		String strUsergroup = request.getParameter("usergroup");
+		String strUsergroupType = request.getParameter("usergroupType");
+		
+		if(strHouseType != null && !(strHouseType.isEmpty())
+				&& strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear != null && !(strSessionYear.isEmpty())
+				&& strDeviceType != null && !(strDeviceType.isEmpty())
+				&& strStatus != null && !(strStatus.isEmpty())
+				&& strRole != null && !(strRole.isEmpty())
+				&& strUsergroup != null && !(strUsergroup.isEmpty())
+				&& strUsergroupType != null && !(strUsergroupType.isEmpty())) {
+			List<Motion> motions = new ArrayList<Motion>();
+		
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale);
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			Integer sessionYear = Integer.parseInt(strSessionYear);
+			Session session;
+			try {
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType,sessionType, sessionYear);
+		
+		
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));				
+				
+				Status internalStatus = Status.findById(Status.class,Long.parseLong(strStatus));
+				motions = Motion.findAllAdmittedUndisccussed(session, deviceType, internalStatus, locale);
+		
+				model.addAttribute("motions", motions);
+				if(motions != null && ! motions.isEmpty()) {
+					model.addAttribute("motionId", motions.get(0).getId());
+				}
+			} catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+				e.printStackTrace();
+			}
+		}
+	}
+	//---------------------------Status update------------------
+	
+	//--Similar nature submission
+	@RequestMapping(value = "filing/{id}/{file}/enter", method = RequestMethod.GET)
+	public @ResponseBody String filing(@PathVariable("id") Long id, @PathVariable("file") Integer file, HttpServletRequest request, Locale locale){
+		
+		String retVal = "FAILURE";
+		
+		try{
+			Motion sm = Motion.findById(Motion.class, id);
+			
+			if(sm != null){
+				sm.setFile(file);
+				sm.simpleMerge();
+				
+				retVal = "SUCCESS";
+			}			
+			
+		}catch(Exception e){
+			logger.error("error", e);
 		}
 		
 		return retVal;

@@ -18,20 +18,12 @@
 						url : 'ref/' + $('#states').val() + '/divisions',
 						datatype : 'json',
 						success : function(data) {
-							$('#divisions option').empty();
-							var options = "";
+							$('#divisions option').remove();
 							for ( var i = 0; i < data.length; i++) {
-								options += "<option value='"+data[i].id+"'>"
-										+ data[i].name + "</option>";
+								$('#divisions').append(
+										"<option value='"+data[i].id+"'>"
+												+ data[i].name + "</option>");
 							}
-							$('#divisions').html(options);
-							$('#divisions').sexyselect('destroy');
-							$('#divisions').sexyselect({
-								width : 250,
-								showTitle : false,
-								selectionMode : 'multiple',
-								styleize : true
-							});
 						}
 					}).fail(function(){
 						if($("#ErrorMsg").val()!=''){

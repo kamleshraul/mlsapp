@@ -1,20 +1,15 @@
 package org.mkcl.els.repository;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.MasterVO;
-import org.mkcl.els.common.vo.MinistryVO;
-import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.SubDepartment;
 import org.springframework.stereotype.Repository;
@@ -24,11 +19,8 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 
 	@SuppressWarnings("unchecked")
 	public List<Ministry> findUnassignedMinistries(final String locale) {
-		
 		List<Ministry> ministries = new ArrayList<Ministry>();
 		try{
-			CustomParameter dbDateFormat =
-				CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 			Date currDate = new Date();
 			/**
 			 * I am trying to mimic mm.ministryToDate > CURDATE(), but since
@@ -53,12 +45,8 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 	
 	@SuppressWarnings("unchecked")
 	public List<Ministry> findAssignedMinistries(final String locale) {
-		
 		List<Ministry> ministries = new ArrayList<Ministry>();
-		
 		try{
-			CustomParameter dbDateFormat =
-				CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 			Date currDate = new Date();
 			/**
 			 * I am trying to mimic mm.ministryToDate > CURDATE(), but since
@@ -74,6 +62,27 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 			javax.persistence.Query query=this.em().createQuery(strQuery);
 			query.setParameter("locale",locale);
 			query.setParameter("currentDate",currDate);
+			ministries = query.getResultList();
+		}catch (Exception e) {
+			logger.error("error", e);
+		}
+		return ministries;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Ministry> findAssignedMinistriesInSession(final Date startDate,final String locale) {
+		List<Ministry> ministries = new ArrayList<Ministry>();
+		try{
+			String strQuery = "SELECT m FROM Ministry m " +
+			"WHERE m.locale =:locale AND " +
+			" m.id IN " +
+				"(SELECT m.id FROM MemberMinister mm JOIN mm.ministry m " +
+				" WHERE mm.ministryFromDate<=:onDate" +
+				" AND (mm.ministryToDate IS NULL OR mm.ministryToDate>=:onDate)) " +
+			" ORDER BY m.name";
+			javax.persistence.Query query=this.em().createQuery(strQuery);
+			query.setParameter("locale",locale);
+			query.setParameter("onDate",startDate);
 			ministries = query.getResultList();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -120,6 +129,7 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
         return ministries;
     }
 
+	@SuppressWarnings("rawtypes")
 	public List<MasterVO> findMinistriesAssignedToGroupsByTerm(HouseType houseType,
 			Integer sessionYear, SessionType sessionType, String param,
 			String locale) {
@@ -153,28 +163,54 @@ public class MinistryRepository extends BaseRepository<Ministry, Long> {
 		return ministryVos;
 	}
 
-	public Ministry find(SubDepartment subDepartment,Locale locale) {
-		String strQuery= "SELECT m FROM MemberMinister mm"+ 
+	public Ministry find(final SubDepartment subDepartment,
+			final Date onDate,
+			final String locale) {
+		String strQuery = "SELECT m FROM MemberMinister mm"+ 
 						" JOIN mm.ministry m"+
 						" JOIN mm.memberDepartments md"+ 
 						" JOIN md.subDepartments msd"+ 
 						" WHERE msd.id=:subDepartmentId"+
-						" AND (mm.ministryToDate IS NULL OR mm.ministryToDate>=:currentDate)"+
-						" AND (mm.ministryFromDate IS NULL OR mm.ministryFromDate<=:currentDate)";
+						" AND (mm.ministryToDate IS NULL OR mm.ministryToDate>=:onDate)"+
+						" AND (mm.ministryFromDate IS NULL OR mm.ministryFromDate<=:onDate)";
 		
 		javax.persistence.Query query=this.em().createQuery(strQuery);
 		query.setParameter("subDepartmentId", subDepartment.getId());
-		query.setParameter("currentDate", new Date());
-		try{
+		query.setParameter("onDate", new Date());
+		
+		try {
 			Ministry ministry=(Ministry) query.getSingleResult();
 			return ministry;
-		}catch(Exception e){
-			return null;
 		}
-		
-		
-						
+		catch(Exception e) {
+			return null;
+		}		
 	}
-
+	
+	public Ministry findActiveNewMinistry(final SubDepartment subDepartment,
+			final Date onDate,
+			final String locale) {
+		String strQuery = "SELECT m FROM MemberMinister mm"+ 
+						" JOIN mm.ministry m"+
+						" JOIN mm.memberDepartments md"+ 
+						" JOIN md.subDepartments msd"+ 
+						" WHERE msd.id=:subDepartmentId"+
+						" AND (mm.ministryToDate IS NULL OR mm.ministryToDate>=:onDate)"+
+						" AND (mm.ministryFromDate IS NULL OR mm.ministryFromDate<=:onDate)" +
+						" AND (md.toDate IS NULL OR md.toDate>=:onDate)" +
+						" AND (md.fromDate IS NULL OR md.fromDate<=:onDate)";
+		
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("subDepartmentId", subDepartment.getId());
+		query.setParameter("onDate", new Date());
+		
+		try {
+			Ministry ministry=(Ministry) query.getSingleResult();
+			return ministry;
+		}
+		catch(Exception e) {
+			return null;
+		}		
+	}
 	
 }

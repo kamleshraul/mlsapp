@@ -37,6 +37,9 @@ public class XmlVO {
 	/** The session number. */
 	private String sessionNumber;
 	
+	/** The image element. */
+	private Boolean isImageElementPresent;
+	
 	/** The locale. */
 	private String locale;
 	
@@ -45,6 +48,9 @@ public class XmlVO {
 	
 	/** The report date. */
 	private String reportDate;
+	
+	/** The module. */
+	private String moduleName;
 	
 	/**
 	 * Gets the locale.
@@ -183,8 +189,32 @@ public class XmlVO {
 	 */
 	public void setSessionNumber(String sessionNumber) {
 		this.sessionNumber = sessionNumber;
+	}
+
+	public Boolean getIsImageElementPresent() {
+		if(isImageElementPresent!=null && isImageElementPresent.equals(true)) {
+			return true;
+		} else {
+			return false;
+		}		
+	}
+
+	public void setIsImageElementPresent(Boolean isImageElementPresent) {
+		this.isImageElementPresent = isImageElementPresent;
+	}
+
+	/**
+	 * @return the moduleName
+	 */
+	public String getModuleName() {
+		return moduleName;
+	}
+
+	/**
+	 * @param moduleName the moduleName to set
+	 */
+	public void setModuleName(String moduleName) {
+		this.moduleName = moduleName;
 	}	
-	
-	
 	
 }

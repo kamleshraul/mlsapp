@@ -244,7 +244,6 @@
 						$.post($('form').attr('action'), $("form").serialize()+'&billId='+$("#key").val()
 								+'&language='+$("#selectedLanguage").val()+'&usergroupType='+$("#currentusergroupType").val(),
 								function(data){
-									alert(data);
 									$.unblockUI();
 									console.log("success in updating data");
 									$('#grid_container').html(data);		       					

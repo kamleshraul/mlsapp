@@ -5,6 +5,36 @@
 	<spring:message code="roster.slot" text="Slot"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("#submit").click(function(){
+				$.prompt($('#submissionMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+						if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				        	$.post($('form').attr('action'),  
+				    	            $("form").serialize(),  
+				    	            function(data){
+				       					$('.tabContent').html(data);
+				       					$('html').animate({scrollTop:0}, 'slow');
+				       				 	$('body').animate({scrollTop:0}, 'slow');	
+				    					$.unblockUI();	   				 	   				
+				    	            }).fail(function (jqxhr, textStatus, err) {
+				    	            	$.unblockUI();
+				    	            	$("#error_p").html("Server returned an error\n" + err +
+			                                    "\n" + textStatus + "\n" +
+			                                    "Please try again later.\n"+jqxhr.status+"\n"+jqxhr.statusText).css({'color':'red', 'display':'block'});
+				    	            	
+				    	            	scrollTop();
+		                            });
+				        }
+					}
+				});
+				return false;
+				});
+			
+		});
+	</script>
 </head>
 
 <body>
@@ -23,14 +53,14 @@
 		<label class="small"><spring:message code="roster.slot.reporter" text="Reporter"/>*</label>
 		<select id="user" name="user" class="sSelect">
 		<c:forEach items="${users}"  var="i">
-		<c:choose>
-		<c:when test="${domain.reporter.user.id==i.id }">
-		<option selected="selected" value="${i.id}">${i.credential.username }(${i.findFullName()})</option>
-		</c:when>
-		<c:otherwise>
-		<option  value="${i.id}">${i.credential.username }(${i.findFullName()})</option>		
-		</c:otherwise>		
-		</c:choose>
+			<c:choose>
+				<c:when test="${domain.reporter.user.id==i.id }">
+					<option selected="selected" value="${i.id}">${i.credential.username }(${i.findFullName()})</option>
+				</c:when>
+				<c:otherwise>
+					<option  value="${i.id}">${i.credential.username }(${i.findFullName()})</option>		
+				</c:otherwise>		
+			</c:choose>
 		</c:forEach>
 		</select>		
 		<form:errors path="reporter" cssClass="validationError"/>	
@@ -70,8 +100,12 @@
 	<form:hidden path="version" />
 	<form:hidden path="locale"/>
 	<form:hidden path="id"/>
+	<form:hidden path="name"/>
 	<input type="hidden" id="roster" name="roster" value="${roster}"/>
+	<input type="hidden" id="completed" name="completed" value="${isCompleted}">
+	<input type="hidden" id="position" name="position" value="${reporterPosition}"/>
 </form:form>
+<input id="submissionMsg" value="<spring:message code='slot.prompt.submit' text='Do you want to update? '></spring:message>" type="hidden">
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
 </div>
 </body>

@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Table(name="parts")
 @JsonIgnoreProperties({"primaryMember","primaryMemberDesignation","substituteMember","primaryMemberMinistry"
-	,"reporter","chairPersonRole","proceeding","substituteMemberMinistry","substituteMemberDesignation","deviceType"})
+	,"reporter","chairPersonRole","proceeding","substituteMemberMinistry","substituteMemberDesignation","deviceType","partDrafts"})
 public class Part  extends BaseDomain implements Serializable{
 	
 	/****Attributes****/

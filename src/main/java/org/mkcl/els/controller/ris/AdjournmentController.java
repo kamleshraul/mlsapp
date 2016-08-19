@@ -47,8 +47,10 @@ public class AdjournmentController extends GenericController<Adjournment>{
 		/**** Roster ****/
 		String strRoster=request.getParameter("roster");
 		if(strRoster!=null&&!strRoster.isEmpty()){
+			SimpleDateFormat format=FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT,locale);
 			Roster roster=Roster.findById(Roster.class,Long.parseLong(strRoster));
 			model.addAttribute("roster",roster.getId());
+			model.addAttribute("rosterStartDate",format.format(roster.getStartTime()));
 		}
 	}
 

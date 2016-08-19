@@ -18,6 +18,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.BillSearchVO;
 import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
@@ -62,6 +63,12 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     @ManyToOne(fetch=FetchType.LAZY)
     private EventMotion eventMotion;
     
+    @ManyToOne(fetch=FetchType.LAZY)
+    private StandaloneMotion standaloneMotion;
+    
+    @ManyToOne(fetch=FetchType.LAZY)
+    private DiscussionMotion discussionMotion;
+    
     /** The bill. */
     @ManyToOne(fetch=FetchType.LAZY)
     private Bill bill;
@@ -69,6 +76,10 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
     /** The bill amendment motion. */
     @ManyToOne(fetch=FetchType.LAZY)
     private BillAmendmentMotion billAmendmentMotion;
+    
+    /** The adjournment motion. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    private AdjournmentMotion adjournmentMotion;
 
 	@Autowired
     private transient ClubbedEntityRepository clubbedEntityRepository;
@@ -162,8 +173,24 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 	public void setEventMotion(EventMotion eventMotion){
 		this.eventMotion = eventMotion;
 	}
+	
+    public StandaloneMotion getStandaloneMotion() {
+		return standaloneMotion;
+	}
 
-    public Bill getBill() {
+	public void setStandaloneMotion(StandaloneMotion standaloneMotion) {
+		this.standaloneMotion = standaloneMotion;
+	}
+	
+	public DiscussionMotion getDiscussionMotion() {
+		return discussionMotion;
+	}
+
+	public void setDiscussionMotion(DiscussionMotion discussionMotion) {
+		this.discussionMotion = discussionMotion;
+	}
+
+	public Bill getBill() {
 		return bill;
 	}
 
@@ -180,6 +207,20 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 	}
 
 	/**
+	 * @return the adjournmentMotion
+	 */
+	public AdjournmentMotion getAdjournmentMotion() {
+		return adjournmentMotion;
+	}
+
+	/**
+	 * @param adjournmentMotion the adjournmentMotion to set
+	 */
+	public void setAdjournmentMotion(AdjournmentMotion adjournmentMotion) {
+		this.adjournmentMotion = adjournmentMotion;
+	}
+
+	/**
      * Gets the device type.
      *
      * @return the device type
@@ -188,9 +229,10 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
         return deviceType;
     }    
     
-    /**** Search questions for clubbing ****/
+    /**** Search questions for clubbing 
+     * @throws ELSException ****/
     public static List<QuestionSearchVO> fullTextSearchClubbing(final String param,
-			final Question question,final int start,final int noOfRecords,final String locale,final Map<String, String[]> requestMap) {
+			final Question question,final int start,final int noOfRecords,final String locale,final Map<String, String[]> requestMap) throws ELSException {
 		return getClubbedEntityRepository().fullTextSearchClubbing(param, question, start, noOfRecords, locale,requestMap);
 	}
     
@@ -204,6 +246,15 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 			final Map<String, 
 			String[]> requestMap) {
 		return getClubbedEntityRepository().fullTextSearchForSearchFacility(param, deviceType, session, start, noOfRecords, locale,requestMap);
+	}
+    
+    public static List<QuestionSearchVO> fullTextSearchForSearching(final String param,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, 
+			String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchForSearchFacility(param, start, noOfRecords, locale,requestMap);
 	}
     
     /**** Club question ****/
@@ -285,6 +336,11 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
         return getClubbedEntityRepository().unclubBill(billBeingProcessed,billBeingClubbed,locale);
     }
 
+    /**** Unclub question ****/
+    public static String unclubMotion(final Long motionBeingProcessed,final Long motionBeingClubbed,final String locale){
+        return getClubbedEntityRepository().unclubMotion(motionBeingProcessed, motionBeingClubbed, locale);
+    }
+    
 	public static ClubbedEntity findByQuestion(final Question question,final String locale) {
 		return getClubbedEntityRepository().findByQuestion(question,locale);
 	}
@@ -298,5 +354,94 @@ public class ClubbedEntity extends BaseDomain implements Serializable{
 		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
 	}
     
+	public static List<MotionSearchVO> fullTextSearchFiling(final String param,
+			final Motion motion,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchFiling(param, motion, start, noOfRecords, locale, requestMap);
+	}
+	
+	public static List<QuestionSearchVO> fullTextSearchClubbing(final String param,
+			final StandaloneMotion motion,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
+	}
+	
+	public static List<QuestionSearchVO> fullTextSearchFiling(final String param,
+			final StandaloneMotion motion,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchFiling(param, motion, start, noOfRecords, locale, requestMap);
+	}
+	
+	public static List<QuestionSearchVO> fullTextSearchFiling(final String param,
+			final Resolution motion,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchFiling(param, motion, start, noOfRecords, locale, requestMap);
+	}
+	
+	/**** Club motion ****/
+    public static String clubStandalone(final Long motionBeingProcessed,final Long motionBeingClubbed,final String locale){
+        return getClubbedEntityRepository().clubStandalone(motionBeingProcessed, motionBeingClubbed, locale);
+    }
     
+    public static String unclubStandalone(final Long motionBeingProcessed,
+			final Long motionBeingClubbed, final String locale){
+    	return getClubbedEntityRepository().unclubStandalone(motionBeingProcessed, motionBeingClubbed, locale);
+    }
+    
+    public static List<MotionSearchVO> fullTextSearchClubbing(final String param,
+			final CutMotion motion,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
+	}
+    
+    public static List<MotionSearchVO> fullTextSearchClubbing(final String param,
+			final EventMotion motion,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
+	}
+    
+    public static List<MotionSearchVO> fullTextSearchClubbing(final String param,
+			final DiscussionMotion motion,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
+	}
+    
+    public static List<MotionSearchVO> fullTextSearchClubbing(final String param,
+			final AdjournmentMotion motion,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
+	}
+    
+    public static List<MotionSearchVO> fullTextSearchClubbing(final String param,
+			final BillAmendmentMotion motion,
+			final int start,
+			final int noOfRecords,
+			final String locale,
+			final Map<String, String[]> requestMap) {
+		return getClubbedEntityRepository().fullTextSearchClubbing(param, motion, start, noOfRecords, locale, requestMap);
+	}
 }

@@ -1,6 +1,6 @@
 <div id='deviceContent'>
 	<p style="text-align:center"><b>$questionSubject</b></p>
-	<p><b> * $questionNumber       $questionPrimaryMember 
+	<p><b> * $questionNumber       
 	#if($supportingMember!='' && $supportingMember)
 		$supportingMember
 	#end

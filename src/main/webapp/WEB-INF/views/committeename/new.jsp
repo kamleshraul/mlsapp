@@ -190,6 +190,12 @@
 		<form:errors path="displayName" cssClass="validationError"/>	
 	</p>
 	
+		<p> 
+		<label class="small"><spring:message code="committeename.shortName" text="Short Name"/>*</label>
+		<form:input path="shortName" cssClass="sText"/>
+		<form:errors path="shortName" cssClass="validationError"/>	
+	</p>
+	
 	<p>
 		<label class="small"><spring:message code="committeename.foundationDate" text="Foundation Date"/>*</label>
 		<form:input path="foundationDate" cssClass="datemask sText" />

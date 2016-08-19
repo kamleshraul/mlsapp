@@ -4,7 +4,13 @@
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-	
+		$(".ballotedMember").click(function(){
+			
+			var id = $(this).attr("id");
+			var classes = $("#"+id).attr("class").split(" ");
+			var position = classes[1].split("cb");
+			$('#'+id).attr('href',"resolution/report/acceptanceLetter?memberId="+id+"&position="+position[1]+"&discussionDate="+$("#selectedAnsweringDate").val()+"&reportFormat="+$("#reportForm").val());
+		});
 	</script>
 	
 	<link rel="stylesheet" type="text/css" href="./resources/css/printerfriendly.css?v=3" media="print" />
@@ -15,7 +21,7 @@
 	<c:if test="${(error!='') && (error!=null)}">
 		<h4 style="color: #FF0000;">${error}</h4>
 	</c:if>
-	<div id="reprotDiv">
+	<div id="reportDiv">
 		<c:choose>
 			<c:when test="${ballotVOs == null}">
 				<spring:message code="question.ballot.notCreated" text="Ballot is not Created"/>
@@ -37,7 +43,7 @@
 					<c:forEach items="${ballotVOs}" var="ballotVO" varStatus="counter">
 						<tr>
 							<td>${counter.count}</td>
-							<td>${ballotVO.memberName}</td>
+							<td><a id="${ballotVO.memberId}" class="ballotedMember cb${counter.count}" style="text-decoration: none; color: black">${ballotVO.memberName}</a></td>
 							<c:choose>
 								<c:when test="${ballotVO.memberChoiceNumber == null}">
 									<td><spring:message code="resolution.ballot.nochoice" text="No choice is made."/></td>
@@ -53,6 +59,7 @@
 		</c:choose>
 	</div>
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+	<input id="reportForm" type="hidden" value="<spring:message code='generic.report.format' text='WORD' />" />
 </body>
 
 </html>

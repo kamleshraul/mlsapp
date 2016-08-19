@@ -12,7 +12,7 @@
 		//fill contents required for the device type fields 
 		//called on document.ready & devicetype change events
 		function fillContent(deviceTypeSelected){
-			
+			//console.log(deviceTypeSelected);
 			//select div of selected device type
 		    var selectedDiv='#'+deviceTypeSelected;
 			
@@ -33,7 +33,7 @@
 		    }
 		   
 		  	//initialize ballot fields
-			if(deviceTypeSelected == 'questions_halfhourdiscussion_standalone' || deviceTypeSelected == 'resolutions_nonofficial') {
+			if(deviceTypeSelected == 'motions_standalonemotion_halfhourdiscussion' || deviceTypeSelected == 'resolutions_nonofficial') {
 				//pre-select ballot type which is already set
 				var ballotType=$("#"+deviceTypeSelected+"_ballotType_hidden").attr('title');			
 				$('#'+deviceTypeSelected+'_ballotType').val(ballotType);
@@ -62,7 +62,7 @@
 			
 		  	//initialize numberOfSupportingMembersComparator
 			if(
-			    (deviceTypeSelected=="questions_halfhourdiscussion_standalone")
+			    (deviceTypeSelected=="motions_standalonemotion_halfhourdiscussion")
 			  ||(deviceTypeSelected=="questions_halfhourdiscussion_from_question")
 			  ||(deviceTypeSelected=="questions_starred")
 			  ||(deviceTypeSelected=="questions_unstarred")
@@ -74,8 +74,8 @@
 			}			
 			
 			//------------------------initialize discussion days & dates---------------------//
-		    if(deviceTypeSelected == 'questions_halfhourdiscussion_standalone' 
-		    	|| deviceTypeSelected == 'questions_halfhourdiscussion_from_question' 
+		    if(deviceTypeSelected == 'motions_standalonemotion_halfhourdiscussion' 
+		    	|| deviceTypeSelected == 'questions_halfhourdiscussion_from_question'
 		    	|| deviceTypeSelected == 'resolutions_nonofficial'
 		    	|| deviceTypeSelected == 'bills_nonofficial') {
 				//if no discussion days are selected, hide discussion dates paragraph
@@ -185,7 +185,7 @@
 		  	
 		  	//initialize questions to be asked in factual position of non-official resolution
 		  	if(deviceTypeSelected == 'resolutions_nonofficial'
-		  			|| deviceTypeSelected == 'questions_halfhourdiscussion_standalone') {		  		
+		  			|| deviceTypeSelected == 'motions_standalonemotion_halfhourdiscussion') {		  		
 		  		initializeQuestionsAskedForClarification(deviceTypeSelected, "questionsAskedForFactualPosition");
 		  	} else if(deviceTypeSelected == 'questions_starred') {		  		
 		  		initializeQuestionsAskedForClarification(deviceTypeSelected, "clarificationFromMemberQuestions");
@@ -504,7 +504,7 @@
 				}
 				
 				//set questions to be asked in factual position
-				if(deviceTypeSeleted == 'resolutions_nonofficial' || deviceTypeSeleted == 'questions_halfhourdiscussion_standalone') {
+				if(deviceTypeSeleted == 'resolutions_nonofficial' || deviceTypeSeleted == 'motions_standalonemotion_halfhourdiscussion') {
 					var questionsAsked = "";
 					for(var i=1; i<=countOfQuestionsToBeAskedForFactualPosition; i++) {
 						var questionContent = $('#'+deviceTypeSeleted+'_questionsAskedForFactualPosition'+i).val();
@@ -632,6 +632,27 @@
 		<c:forEach  items="${deviceTypesEnabled}" var="i">
 			<c:if test="${i.type eq 'questions_starred'}">					
 			<div id="questions_starred" class="formDiv">
+				<p>
+					<label class="small"><spring:message code="session.deviceType.questions_starred_processingMode" text="Processing Mode" /></label>
+					<select id="questions_starred_processingMode" class="sSelect" name="questions_starred_processingMode">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<c:choose>
+							<c:when test="${questions_starred_processingmode=='lowerhouse'}">
+								<option value="lowerhouse" selected="selected"><spring:message code='generic.lowerhouse' text='Lowerhouse'/></option>
+								<option value="upperhouse"><spring:message code='generic.upperhouse' text='Upperhouse'/></option>
+							</c:when>
+							<c:when test="${questions_starred_processingmode=='upperhouse'}">
+								<option value="lowerhouse"><spring:message code='generic.lowerhouse' text='Lowerhouse'/></option>
+								<option value="upperhouse" selected="selected"><spring:message code='generic.upperhouse' text='Upperhouse'/></option>
+							</c:when>
+							<c:otherwise>
+								<option value="lowerhouse"><spring:message code='generic.lowerhouse' text='Lowerhouse'/></option>
+								<option value="upperhouse"><spring:message code='generic.upperhouse' text='Upperhouse'/></option>
+							</c:otherwise>
+						</c:choose>
+					</select>
+				</p>
+				
 				<p >
 					<label class="small"><spring:message code="session.deviceType.submissionStartDate" text="Submission Start Date" /></label>
 					<input type="text" class="datetimemask sText" name="questions_starred_submissionStartDate" id="questions_starred_submissionStartDate" value="${questions_starred_submissionstartdate}" />
@@ -900,60 +921,60 @@
 			</div>
 		</c:if>
 		
-		<c:if test="${i.type eq 'questions_halfhourdiscussion_standalone'}">					
-			<div id="questions_halfhourdiscussion_standalone" class="formDiv">
+		<c:if test="${i.type eq 'motions_standalonemotion_halfhourdiscussion'}">					
+			<div id="motions_standalonemotion_halfhourdiscussion" class="formDiv">
 				<p >
 					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
 							text="Submission Start Date" /></label>
-					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_standalone_submissionStartDate" id="questions_halfhourdiscussion_standalone_submissionStartDate"
-						value="${questions_halfhourdiscussion_standalone_submissionstartdate}" />
+					<input type="text" class="datetimemask sText" name="motions_standalonemotion_halfhourdiscussion_submissionStartDate" id="motions_standalonemotion_halfhourdiscussion_submissionStartDate"
+						value="${motions_standalonemotion_halfhourdiscussion_submissionstartdate}" />
 				</p>
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
-					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_standalone_submissionEndDate" id="questions_halfhourdiscussion_standalone_submissionEndDate" value="${questions_halfhourdiscussion_standalone_submissionenddate}" />
+					<input type="text" class="datetimemask sText" name="motions_standalonemotion_halfhourdiscussion_submissionEndDate" id="motions_standalonemotion_halfhourdiscussion_submissionEndDate" value="${motions_standalonemotion_halfhourdiscussion_submissionenddate}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
-					<input type="checkbox" class="sCheck isBallotingRequired" id="questions_halfhourdiscussion_standalone_isBallotingRequired" value="${questions_halfhourdiscussion_standalone_isballotingrequired}" >
-					<input type="hidden" id="questions_halfhourdiscussion_standalone_isBallotingRequired_Hidden" name="questions_halfhourdiscussion_standalone_isBallotingRequired" value="" />
+					<input type="checkbox" class="sCheck isBallotingRequired" id="motions_standalonemotion_halfhourdiscussion_isBallotingRequired" value="${motions_standalonemotion_halfhourdiscussion_isballotingrequired}" >
+					<input type="hidden" id="motions_standalonemotion_halfhourdiscussion_isBallotingRequired_Hidden" name="motions_standalonemotion_halfhourdiscussion_isBallotingRequired" value="" />
 				</p>	
 				
 				<p class="questions_halfhourdiscussion_standalone_ballotfields">
 					<label class="small"><spring:message code="session.deviceType.ballotType" text="Ballot Type" /></label>
-					<select class="sSelect" name="questions_halfhourdiscussion_standalone_ballotType" id="questions_halfhourdiscussion_standalone_ballotType">
+					<select class="sSelect" name="motions_standalonemotion_halfhourdiscussion_ballotType" id="motions_standalonemotion_halfhourdiscussion_ballotType">
 						<c:forEach items="${ballotTypes}" var="i">
 							<option value="${i.type}">${i.name}</option>
 						</c:forEach>
 					</select>
-					<label id="questions_halfhourdiscussion_standalone_ballotType_hidden" title="${questions_halfhourdiscussion_standalone_ballottype}"></label>
+					<label id="motions_standalonemotion_halfhourdiscussion_ballotType_hidden" title="${motions_standalonemotion_halfhourdiscussion_ballottype}"></label>
 				</p>	
 				
-				<p class="questions_halfhourdiscussion_standalone_ballotfields">
+				<p class="motions_standalonemotion_halfhourdiscussion_ballotfields">
 					<label class="small"><spring:message code="session.deviceType.ballotEvents" text="Ballot Events" /></label>
-					<select class="sSelectMultiple" name="questions_halfhourdiscussion_standalone_ballotEvents" id="questions_halfhourdiscussion_standalone_ballotEvents" multiple="multiple">
+					<select class="sSelectMultiple" name="motions_standalonemotion_halfhourdiscussion_ballotEvents" id="motions_standalonemotion_halfhourdiscussion_ballotEvents" multiple="multiple">
 						<c:forEach items="${ballotEvents}" var="i">
 							<option value="${i.type}">${i.name}</option>
 						</c:forEach>
 					</select>							
-					<label style="display: none;" id="questions_halfhourdiscussion_standalone_ballotEvents_hidden" title="${questions_halfhourdiscussion_standalone_ballotevents}"></label>
+					<label style="display: none;" id="motions_standalonemotion_halfhourdiscussion_ballotEvents_hidden" title="${motions_standalonemotion_halfhourdiscussion_ballotevents}"></label>
 				</p>		
 
 				<p>
 					<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date" /></label>
-					<input type="text" class="datetimemask sText" name="questions_halfhourdiscussion_standalone_firstBallotDate" id="questions_halfhourdiscussion_standalone_firstBallotDate" value="${questions_halfhourdiscussion_standalone_firstballotdate}" />
+					<input type="text" class="datetimemask sText" name="motions_standalonemotion_halfhourdiscussion_firstBallotDate" id="motions_standalonemotion_halfhourdiscussion_firstBallotDate" value="${motions_standalonemotion_halfhourdiscussion_firstballotdate}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.numberOfQuestions" text="Number of Questions" /></label>
-					<input type="text" class="sInteger" name="questions_halfhourdiscussion_standalone_numberOfQuestions" id="questions_halfhourdiscussion_standalone_numberOfQuestions" value="${questions_halfhourdiscussion_standalone_numberofquestions}" />
+					<input type="text" class="sInteger" name="motions_standalonemotion_halfhourdiscussion_numberOfQuestions" id="motions_standalonemotion_halfhourdiscussion_numberOfQuestions" value="${motions_standalonemotion_halfhourdiscussion_numberofquestions}" />
 				</p>
 				
 				<p style="display: inline;">
 					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
 					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
-					<select class="sSelect" name="questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator" id="questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator" style="width: auto; height: 22px; border: solid 1px #8d8e8d;">
+					<select class="sSelect" name="motions_standalonemotion_halfhourdiscussion_numberOfSupportingMembersComparator" id="motions_standalonemotion_halfhourdiscussion_numberOfSupportingMembersComparator" style="width: auto; height: 22px; border: solid 1px #8d8e8d;">
 						<option value=""><spring:message code='client.prompt.justSelect' text='Select'/></option>
 						<option value="eq">&#61;</option>
 						<option value="lt">&lt;</option>
@@ -961,16 +982,16 @@
 						<option value="le">&le;</option>
 						<option value="ge">&ge;</option>
 					</select>
-					<label id="questions_halfhourdiscussion_standalone_numberOfSupportingMembersComparator_hidden" title="${questions_halfhourdiscussion_standalone_numberofsupportingmemberscomparator}"></label>
+					<label id="motions_standalonemotion_halfhourdiscussion_numberOfSupportingMembersComparator_hidden" title="${motions_standalonemotion_halfhourdiscussion_numberofsupportingmemberscomparator}"></label>
 				</p>
 				
 				<p style="display: inline;">		
-					<input class="sText" type="text" name="questions_halfhourdiscussion_standalone_numberOfSupportingMembers" id="questions_halfhourdiscussion_standalone_numberOfSupportingMembers" value="${questions_halfhourdiscussion_standalone_numberofsupportingmembers}" style="width: 112px" />
+					<input class="sText" type="text" name="motions_standalonemotion_halfhourdiscussion_numberOfSupportingMembers" id="motions_standalonemotion_halfhourdiscussion_numberOfSupportingMembers" value="${motions_standalonemotion_halfhourdiscussion_numberofsupportingmembers}" style="width: 112px" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
-					<select class="sSelectMultiple discussionDays" name="questions_halfhourdiscussion_standalone_discussionDays" id="questions_halfhourdiscussion_standalone_discussionDays" multiple="multiple">
+					<select class="sSelectMultiple discussionDays" name="motions_standalonemotion_halfhourdiscussion_discussionDays" id="motions_standalonemotion_halfhourdiscussion_discussionDays" multiple="multiple">
 						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
 						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
 						<option value="Wednesday"><spring:message code="week.days.wednesday" text="Wednesday" /></option>
@@ -978,33 +999,33 @@
 						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
 						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
 					</select>
-					<label style="display: none;" id="questions_halfhourdiscussion_standalone_discussionDays_hidden" title="${questions_halfhourdiscussion_standalone_discussiondays}"></label>
+					<label style="display: none;" id="motions_standalonemotion_halfhourdiscussion_discussionDays_hidden" title="${motions_standalonemotion_halfhourdiscussion_discussiondays}"></label>
 				</p>
 				
-				<p id="questions_halfhourdiscussion_standalone_discussionDates_para">
+				<p id="motions_standalonemotion_halfhourdiscussion_discussionDates_para">
 					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Dates" /></label>
-					<select class="sSelectMultiple" name="questions_halfhourdiscussion_standalone_discussionDates" id="questions_halfhourdiscussion_standalone_discussionDates" multiple="multiple">
+					<select class="sSelectMultiple" name="motions_standalonemotion_halfhourdiscussion_discussionDates" id="motions_standalonemotion_halfhourdiscussion_discussionDates" multiple="multiple">
 					</select>
-					<label style="display: none;" id="questions_halfhourdiscussion_standalone_discussionDates_hidden" title="${questions_halfhourdiscussion_standalone_discussiondates}"></label>
+					<label style="display: none;" id="motions_standalonemotion_halfhourdiscussion_discussionDates_hidden" title="${motions_standalonemotion_halfhourdiscussion_discussiondates}"></label>
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.numberOfDaysForFactualPositionReceiving" text="Reply Day Numbers For Factual Position" /></label>
-					<input type="text" class="sInteger" name="questions_halfhourdiscussion_standalone_numberOfDaysForFactualPositionReceiving" id="questions_halfhourdiscussion_standalone_numberOfDaysForFactualPositionReceiving" value="${questions_halfhourdiscussion_standalone_numberofdaysforfactualpositionreceiving}" />
+					<input type="text" class="sInteger" name="motions_standalonemotion_halfhourdiscussion_numberOfDaysForFactualPositionReceiving" id="motions_standalonemotion_halfhourdiscussion_numberOfDaysForFactualPositionReceiving" value="${motions_standalonemotion_halfhourdiscussion_numberofdaysforfactualpositionreceiving}" />
 				</p>	
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.reminderDayNumberInHDSFactualPostion" text="Reminder Day Number For Factual Position" /></label>
-					<input type="text" class="sInteger" name="questions_halfhourdiscussion_standalone_reminderDayNumberForFactualPosition" id="questions_halfhourdiscussion_standalone_reminderDayNumberForFactualPosition" value="${questions_halfhourdiscussion_standalone_reminderdaynumberforfactualposition}" />
+					<input type="text" class="sInteger" name="motions_standalonemotion_halfhourdiscussion_reminderDayNumberForFactualPosition" id="motions_standalonemotion_halfhourdiscussion_reminderDayNumberForFactualPosition" value="${motions_standalonemotion_halfhourdiscussion_reminderdaynumberforfactualposition}" />
 				</p>
 				
 				<div>
 					<fieldset>
 					<legend style="text-align: left; width: 150px;"><label><spring:message code="session.deviceType.questionsAskedInHDSFactualPosition" text="Questions Asked For Factual Position" /></label></legend>
-					<div id="questions_halfhourdiscussion_standalone_questionsAskedForFactualPosition_div">
+					<div id="motions_standalonemotion_halfhourdiscussion_questionsAskedForFactualPosition_div">
 						
 					</div>					
-					<input type="hidden" id="questions_halfhourdiscussion_standalone_questionsAskedForFactualPosition" name="questions_halfhourdiscussion_standalone_questionsAskedForFactualPosition" value="${questions_halfhourdiscussion_standalone_questionsaskedforfactualposition}"/>
+					<input type="hidden" id="motions_standalonemotion_halfhourdiscussion_questionsAskedForFactualPosition" name="motions_standalonemotion_halfhourdiscussion_questionsAskedForFactualPosition" value="${motions_standalonemotion_halfhourdiscussion_questionsaskedforfactualposition}"/>
 					</fieldset>
 				</div>	
 				
@@ -1365,7 +1386,27 @@
 				<p>
 					<label class="small"><spring:message code="session.deviceType.ballotEndTime" text="Ballot End Time" /></label>
 					<input type="text" class="sText datetimemask" name="motions_calling_attention_ballotEndTime" id="motions_calling_attention_ballotEndTime" value="${motions_calling_attention_ballotendtime}" />
-				</p>					
+				</p>	
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfDaysForFactualPositionReceiving" text="Reply Day Numbers For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_calling_attention_numberOfDaysForFactualPositionReceiving" id="motions_calling_attention_numberOfDaysForFactualPositionReceiving" value="${motions_calling_attention_numberofdaysforfactualpositionreceiving}" />
+				</p>	
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.reminderDayNumberInHDSFactualPostion" text="Reminder Day Number For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_calling_attention_reminderDayNumberForFactualPosition" id="motions_calling_attention_reminderDayNumberForFactualPosition" value="${motions_calling_attention_reminderdaynumberforfactualposition}" />
+				</p>
+				
+				<div>
+					<fieldset>
+					<legend style="text-align: left; width: 150px;"><label><spring:message code="session.deviceType.questionsAskedInHDSFactualPosition" text="Questions Asked For Factual Position" /></label></legend>
+					<div id="motions_calling_attention_questionsAskedForFactualPosition_div">
+						
+					</div>					
+					<input type="hidden" id="motions_calling_attention_questionsAskedForFactualPosition" name="motions_calling_attention_questionsAskedForFactualPosition" value="${motions_calling_attention_questionsaskedforfactualposition}"/>
+					</fieldset>
+				</div>				
 			</div>
 		</c:if>
 		
@@ -1375,22 +1416,22 @@
 							
 				<p>
 					<label class="small"><spring:message code="session.deviceType.BudgetDate" text="Budget Date" /></label>
-					<input type="text" class="sText datetimemask" name="motion_cutmotion_budgetary_budgetDate" id="motions_budgetary__cutmotion_budgetDate" value="${motion_cutmotion_budgetary_budgetdate}" />
+					<input type="text" class="sText datetimemask" name="motions_cutmotion_budgetary_budgetDate" id="motions_budgetary__cutmotion_budgetDate" value="${motions_cutmotion_budgetary_budgetdate}" />
 				</p>
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.BudgetLayingDate" text="Budget Laying Date" /></label>
-					<input type="text" class="sText datetimemask" name="motion_cutmotion_budgetary_budgetLayDate" id="motion_cutmotion_budgetary_budgetLayDate" value="${motion_cutmotion_budgetary_budgetlaydate}" />
+					<input type="text" class="sText datetimemask" name="motions_cutmotion_budgetary_budgetLayDate" id="motions_cutmotion_budgetary_budgetLayDate" value="${motions_cutmotion_budgetary_budgetlaydate}" />
 				</p>	
 				
 				<p>
 					<label class="small"><spring:message code="session.deviceType.submissionEndDateFactor" text="Submission End Date Determinig Factor" /></label>
-					<input type="text" class="integer sText" name="motion_cutmotion_budgetary_submissionEndDateFactor" id="motion_cutmotion_budgetary_submissionEndDateFactor" value="${motion_cutmotion_budgetary_submissionenddatefactor}" style="height: 24px;" />
+					<input type="text" class="integer sText" name="motions_cutmotion_budgetary_submissionEndDateFactor" id="motions_cutmotion_budgetary_submissionEndDateFactor" value="${motions_cutmotion_budgetary_submissionenddatefactor}" style="height: 24px;" />
 				</p>
 					
 				<p style="display: inline;">
 					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Supporting Members" /></label>
-					<select class="sSelect"  style="width: 120px; margin-top: 10px; border: solid 1px #8d8e8d;" name="motion_cutmotion_budgetary_numberOfSupportingMembersComparator" id="motion_cutmotion_budgetary_numberOfSupportingMembersComparator">
+					<select class="sSelect"  style="width: 120px; margin-top: 10px; border: solid 1px #8d8e8d;" name="motions_cutmotion_budgetary_numberOfSupportingMembersComparator" id="motions_cutmotion_budgetary_numberOfSupportingMembersComparator">
 						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
 						<c:choose>
 							<c:when test="${motions_cutmotion_budgetary_numberofsupportingmemberscomparator=='equal'}">
@@ -1549,6 +1590,568 @@
 		</c:if>
 		<!-- cutmotion device type config ends-->
 		
+		<%-- eventmotion device config begins --%>
+		<c:if test="${i.type eq 'motions_eventmotion_condolence'}">					
+			<div id="motions_eventmotion_condolence" class="formDiv">		
+							
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
+							text="Submission Start Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_eventmotion_condolence_submissionStartDate" id="motions_eventmotion_condolence_submissionStartDate"
+						value="${motions_eventmotion_condolence_submissionstartdate}" />
+				</p>
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_eventmotion_condolence_submissionEndDate" id="motions_eventmotion_condolence_submissionEndDate" value="${motions_eventmotion_condolence_submissionenddate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
+					<input type="checkbox" class="sCheck isBallotingRequired" id="motions_eventmotion_condolence_isBallotingRequired" value="${motions_eventmotion_condolence_isballotingrequired}" >
+					<input type="hidden" id="motions_eventmotion_condolence_isBallotingRequired_Hidden" name="motions_eventmotion_condolence_isBallotingRequired" value="" />
+				</p>	
+				
+				<p class="motions_eventmotion_condolence_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotType" text="Ballot Type" /></label>
+					<select class="sSelect" name="motions_eventmotion_condolence_ballotType" id="motions_eventmotion_condolence_ballotType">
+						<c:forEach items="${ballotTypes}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label id="motions_eventmotion_condolence_ballotType_hidden" title="${motions_eventmotion_condolence_ballottype}"></label>
+				</p>	
+				
+				<p class="motions_eventmotion_condolence_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotEvents" text="Ballot Events" /></label>
+					<select class="sSelectMultiple" name="motions_eventmotion_condolence_ballotEvents" id="motions_eventmotion_condolence_ballotEvents" multiple="multiple">
+						<c:forEach items="${ballotEvents}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>							
+					<label style="display: none;" id="motions_eventmotion_condolence_ballotEvents_hidden" title="${motions_eventmotion_condolence_ballotevents}"></label>
+				</p>		
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_eventmotion_condolence_firstBallotDate" id="motions_eventmotion_condolence_firstBallotDate" value="${motions_eventmotion_condolence_firstballotdate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfQuestions" text="Number of Motions" /></label>
+					<input type="text" class="sInteger" name="motions_eventmotion_condolence_numberOfQuestions" id="motions_eventmotion_condolence_numberOfQuestions" value="${motions_eventmotion_condolence_numberofquestions}" />
+				</p>
+				
+				<p style="display: inline;">
+					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
+					<select class="sSelect" name="motions_eventmotion_condolence_numberOfSupportingMembersComparator" id="motions_eventmotion_condolence_numberOfSupportingMembersComparator" style="width: auto; height: 22px; border: solid 1px #8d8e8d;">
+						<option value=""><spring:message code='client.prompt.justSelect' text='Select'/></option>
+						<option value="eq">&#61;</option>
+						<option value="lt">&lt;</option>
+						<option value="gt">&gt;</option>
+						<option value="le">&le;</option>
+						<option value="ge">&ge;</option>
+					</select>
+					<label id="motions_eventmotion_condolence_numberOfSupportingMembersComparator_hidden" title="${motions_eventmotion_condolence_numberofsupportingmemberscomparator}"></label>
+				</p>
+				
+				<p style="display: inline;">		
+					<input class="sText" type="text" name="motions_eventmotion_condolence_numberOfSupportingMembers" id="motions_eventmotion_condolence_numberOfSupportingMembers" value="${motions_eventmotion_condolence_numberofsupportingmembers}" style="width: 112px" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
+					<select class="sSelectMultiple discussionDays" name="motions_eventmotion_condolence_discussionDays" id="motions_eventmotion_condolence_discussionDays" multiple="multiple">
+						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
+						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
+						<option value="Wednesday"><spring:message code="week.days.wednesday" text="Wednesday" /></option>
+						<option value="Thursday"><spring:message code="week.days.thursday" text="Thursday" /></option>
+						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
+						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
+					</select>
+					<label style="display: none;" id="motions_eventmotion_condolence_discussionDays_hidden" title="${motions_eventmotion_condolence_discussiondays}"></label>
+				</p>
+				
+				<p id="motions_eventmotion_condolence_discussionDates_para">
+					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Dates" /></label>
+					<select class="sSelectMultiple" name="motions_eventmotion_condolence_discussionDates" id="motions_eventmotion_condolence_discussionDates" multiple="multiple">
+					</select>
+					<label style="display: none;" id="motions_eventmotion_condolence_discussionDates_hidden" title="${motions_eventmotion_condolence_discussiondates}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfDaysForFactualPositionReceiving" text="Reply Day Numbers For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_eventmotion_condolence_numberOfDaysForFactualPositionReceiving" id="motions_eventmotion_condolence_numberOfDaysForFactualPositionReceiving" value="${motions_eventmotion_condolence_numberofdaysforfactualpositionreceiving}" />
+				</p>	
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.reminderDayNumberInHDSFactualPostion" text="Reminder Day Number For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_eventmotion_condolence_reminderDayNumberForFactualPosition" id="motions_eventmotion_condolence_reminderDayNumberForFactualPosition" value="${motions_eventmotion_condolence_reminderdaynumberforfactualposition}" />
+				</p>
+				
+				<div>
+					<fieldset>
+					<legend style="text-align: left; width: 150px;"><label><spring:message code="session.deviceType.questionsAskedInHDSFactualPosition" text="Questions Asked For Factual Position" /></label></legend>
+					<div id="motions_eventmotion_condolence_questionsAskedForFactualPosition_div">
+						
+					</div>					
+					<input type="hidden" id="motions_eventmotion_condolence_questionsAskedForFactualPosition" name="motions_eventmotion_condolence_questionsAskedForFactualPosition" value="${motions_eventmotion_condolence_questionsaskedforfactualposition}"/>
+					</fieldset>
+				</div>								
+			</div>
+		</c:if>	
+		
+		
+		<c:if test="${i.type eq 'motions_eventmotion_congratulatory'}">					
+			<div id="motions_eventmotion_congratulatory" class="formDiv">		
+							
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
+							text="Submission Start Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_eventmotion_congratulatory_submissionStartDate" id="motions_eventmotion_congratulatory_submissionStartDate"
+						value="${motions_eventmotion_congratulatory_submissionstartdate}" />
+				</p>
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_eventmotion_congratulatory_submissionEndDate" id="motions_eventmotion_congratulatory_submissionEndDate" value="${motions_eventmotion_congratulatory_submissionenddate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
+					<input type="checkbox" class="sCheck isBallotingRequired" id="motions_eventmotion_congratulatory_isBallotingRequired" value="${motions_eventmotion_congratulatory_isballotingrequired}" >
+					<input type="hidden" id="motions_eventmotion_congratulatory_isBallotingRequired_Hidden" name="motions_eventmotion_congratulatory_isBallotingRequired" value="" />
+				</p>	
+				
+				<p class="motions_eventmotion_congratulatory_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotType" text="Ballot Type" /></label>
+					<select class="sSelect" name="motions_eventmotion_congratulatory_ballotType" id="motions_eventmotion_congratulatory_ballotType">
+						<c:forEach items="${ballotTypes}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label id="motions_eventmotion_congratulatory_ballotType_hidden" title="${motions_eventmotion_congratulatory_ballottype}"></label>
+				</p>	
+				
+				<p class="motions_eventmotion_congratulatory_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotEvents" text="Ballot Events" /></label>
+					<select class="sSelectMultiple" name="motions_eventmotion_congratulatory_ballotEvents" id="motions_eventmotion_congratulatory_ballotEvents" multiple="multiple">
+						<c:forEach items="${ballotEvents}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>							
+					<label style="display: none;" id="motions_eventmotion_congratulatory_ballotEvents_hidden" title="${motions_eventmotion_congratulatory_ballotevents}"></label>
+				</p>		
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_eventmotion_congratulatory_firstBallotDate" id="motions_eventmotion_congratulatory_firstBallotDate" value="${motions_eventmotion_congratulatory_firstballotdate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfQuestions" text="Number of Motions" /></label>
+					<input type="text" class="sInteger" name="motions_eventmotion_congratulatory_numberOfQuestions" id="motions_eventmotion_congratulatory_numberOfQuestions" value="${motions_eventmotion_congratulatory_numberofquestions}" />
+				</p>
+				
+				<p style="display: inline;">
+					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
+					<select class="sSelect" name="motions_eventmotion_congratulatory_numberOfSupportingMembersComparator" id="motions_eventmotion_congratulatory_numberOfSupportingMembersComparator" style="width: auto; height: 22px; border: solid 1px #8d8e8d;">
+						<option value=""><spring:message code='client.prompt.justSelect' text='Select'/></option>
+						<option value="eq">&#61;</option>
+						<option value="lt">&lt;</option>
+						<option value="gt">&gt;</option>
+						<option value="le">&le;</option>
+						<option value="ge">&ge;</option>
+					</select>
+					<label id="motions_eventmotion_congratulatory_numberOfSupportingMembersComparator_hidden" title="${motions_eventmotion_congratulatory_numberofsupportingmemberscomparator}"></label>
+				</p>
+				
+				<p style="display: inline;">		
+					<input class="sText" type="text" name="motions_eventmotion_congratulatory_numberOfSupportingMembers" id="motions_eventmotion_congratulatory_numberOfSupportingMembers" value="${motions_eventmotion_congratulatory_numberofsupportingmembers}" style="width: 112px" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
+					<select class="sSelectMultiple discussionDays" name="motions_eventmotion_congratulatory_discussionDays" id="motions_eventmotion_congratulatory_discussionDays" multiple="multiple">
+						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
+						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
+						<option value="Wednesday"><spring:message code="week.days.wednesday" text="Wednesday" /></option>
+						<option value="Thursday"><spring:message code="week.days.thursday" text="Thursday" /></option>
+						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
+						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
+					</select>
+					<label style="display: none;" id="motions_eventmotion_congratulatory_discussionDays_hidden" title="${motions_eventmotion_congratulatory_discussiondays}"></label>
+				</p>
+				
+				<p id="motions_eventmotion_congratulatory_discussionDates_para">
+					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Dates" /></label>
+					<select class="sSelectMultiple" name="motions_eventmotion_congratulatory_discussionDates" id="motions_eventmotion_congratulatory_discussionDates" multiple="multiple">
+					</select>
+					<label style="display: none;" id="motions_eventmotion_congratulatory_discussionDates_hidden" title="${motions_eventmotion_congratulatory_discussiondates}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfDaysForFactualPositionReceiving" text="Reply Day Numbers For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_eventmotion_congratulatory_numberOfDaysForFactualPositionReceiving" id="motions_eventmotion_congratulatory_numberOfDaysForFactualPositionReceiving" value="${motions_eventmotion_congratulatory_numberofdaysforfactualpositionreceiving}" />
+				</p>	
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.reminderDayNumberInHDSFactualPostion" text="Reminder Day Number For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_eventmotion_congratulatory_reminderDayNumberForFactualPosition" id="motions_eventmotion_congratulatory_reminderDayNumberForFactualPosition" value="${motions_eventmotion_congratulatory_reminderdaynumberforfactualposition}" />
+				</p>
+				
+				<div>
+					<fieldset>
+					<legend style="text-align: left; width: 150px;"><label><spring:message code="session.deviceType.questionsAskedInHDSFactualPosition" text="Questions Asked For Factual Position" /></label></legend>
+					<div id="motions_eventmotion_congratulatory_questionsAskedForFactualPosition_div">
+						
+					</div>					
+					<input type="hidden" id="motions_eventmotion_congratulatory_questionsAskedForFactualPosition" name="motions_eventmotion_congratulatory_questionsAskedForFactualPosition" value="${motions_eventmotion_congratulatory_questionsaskedforfactualposition}"/>
+					</fieldset>
+				</div>								
+			</div>
+		</c:if>	
+		<%-- eventmotion device config ends --%>
+		
+		<%-- discussionmotion device config begins --%>
+		<c:if test="${i.type eq 'motions_discussion_shortduration'}">					
+			<div id="motions_discussion_shortduration" class="formDiv">		
+							
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
+							text="Submission Start Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussion_shortduration_submissionStartDate" id="motions_discussion_shortduration_submissionStartDate"
+						value="${motions_discussion_shortduration_submissionstartdate}" />
+				</p>
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussion_shortduration_submissionEndDate" id="motions_discussion_shortduration_submissionEndDate" value="${motions_discussion_shortduration_submissionenddate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
+					<input type="checkbox" class="sCheck isBallotingRequired" id="motions_discussion_shortduration_isBallotingRequired" value="${motions_discussion_shortduration_isballotingrequired}" >
+					<input type="hidden" id="motions_discussion_shortduration_isBallotingRequired_Hidden" name="motions_discussion_shortduration_isBallotingRequired" value="" />
+				</p>	
+				
+				<p class="motions_discussion_shortduration_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotType" text="Ballot Type" /></label>
+					<select class="sSelect" name="motions_discussion_shortduration_ballotType" id="motions_discussion_shortduration_ballotType">
+						<c:forEach items="${ballotTypes}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label id="motions_sdiscussion_shortduration_ballotType_hidden" title="${motions_discussion_shortduration_ballottype}"></label>
+				</p>	
+				
+				<p class="motions_discussion_shortduration_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotEvents" text="Ballot Events" /></label>
+					<select class="sSelectMultiple" name="motions_discussion_shortduration_ballotEvents" id="motions_discussion_shortduration_ballotEvents" multiple="multiple">
+						<c:forEach items="${ballotEvents}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>							
+					<label style="display: none;" id="motions_discussion_shortduration_ballotEvents_hidden" title="${motions_discussion_shortduration_ballotevents}"></label>
+				</p>		
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussion_shortduration_firstBallotDate" id="motions_discussion_shortduration_firstBallotDate" value="${motions_discussion_shortduration_firstballotdate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfQuestions" text="Number of Motions" /></label>
+					<input type="text" class="sInteger" name="motions_discussion_shortduration_numberOfQuestions" id="motions_discussion_shortduration_numberOfQuestions" value="${motions_discussion_shortduration_numberofquestions}" />
+				</p>
+				
+				<p style="display: inline;">
+					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
+					<select class="sSelect" name="motions_discussion_shortduration_numberOfSupportingMembersComparator" id="motions_discussion_shortduration_numberOfSupportingMembersComparator" style="width: auto; height: 22px; border: solid 1px #8d8e8d;">
+						<option value=""><spring:message code='client.prompt.justSelect' text='Select'/></option>
+						<option value="eq">&#61;</option>
+						<option value="lt">&lt;</option>
+						<option value="gt">&gt;</option>
+						<option value="le">&le;</option>
+						<option value="ge">&ge;</option>
+					</select>
+					<label id="motions_discussion_shortduration_numberOfSupportingMembersComparator_hidden" title="${motions_discussion_shortduration_numberofsupportingmemberscomparator}"></label>
+				</p>
+				
+				<p style="display: inline;">		
+					<input class="sText" type="text" name="motions_discussion_shortduration_numberOfSupportingMembers" id="motions_discussion_shortduration_numberOfSupportingMembers" value="${motions_discussion_shortduration_numberofsupportingmembers}" style="width: 112px" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
+					<select class="sSelectMultiple discussionDays" name="motions_discussion_shortduration_discussionDays" id="motions_discussion_shortduration_discussionDays" multiple="multiple">
+						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
+						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
+						<option value="Wednesday"><spring:message code="week.days.wednesday" text="Wednesday" /></option>
+						<option value="Thursday"><spring:message code="week.days.thursday" text="Thursday" /></option>
+						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
+						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
+					</select>
+					<label style="display: none;" id="motions_discussion_shortduration_discussionDays_hidden" title="${motions_discussion_shortduration_discussiondays}"></label>
+				</p>
+				
+				<p id="motions_discussion_shortduration_discussionDates_para">
+					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Dates" /></label>
+					<select class="sSelectMultiple" name="motions_discussion_shortduration_discussionDates" id="motions_discussion_shortduration_discussionDates" multiple="multiple">
+					</select>
+					<label style="display: none;" id="motions_discussion_shortduration_discussionDates_hidden" title="${motions_discussion_shortduration_discussiondates}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfDaysForFactualPositionReceiving" text="Reply Day Numbers For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_discussion_shortduration_numberOfDaysForFactualPositionReceiving" id="motions_discussion_shortduration_numberOfDaysForFactualPositionReceiving" value="${motions_discussion_shortduration_numberofdaysforfactualpositionreceiving}" />
+				</p>	
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.reminderDayNumberInHDSFactualPostion" text="Reminder Day Number For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_discussion_shortduration_reminderDayNumberForFactualPosition" id="motions_discussion_shortduration_reminderDayNumberForFactualPosition" value="${motions_discussion_shortduration_reminderdaynumberforfactualposition}" />
+				</p>
+				
+				<div>
+					<fieldset>
+					<legend style="text-align: left; width: 150px;"><label><spring:message code="session.deviceType.questionsAskedInHDSFactualPosition" text="Questions Asked For Factual Position" /></label></legend>
+					<div id="motions_discussion_shortduration_questionsAskedForFactualPosition_div">
+						
+					</div>					
+					<input type="hidden" id="motions_discussion_shortduration_questionsAskedForFactualPosition" name="motions_discussion_shortduration_questionsAskedForFactualPosition" value="${motions_discussion_shortduration_questionsaskedforfactualposition}"/>
+					</fieldset>
+				</div>								
+			</div>
+		</c:if>	
+		
+		
+		<c:if test="${i.type eq 'motions_discussion_publicimportance'}">					
+			<div id="motions_discussion_publicimportance" class="formDiv">		
+							
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
+							text="Submission Start Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussion_publicimportance_submissionStartDate" id="motions_discussion_publicimportance_submissionStartDate"
+						value="${motions_discussion_publicimportance_submissionstartdate}" />
+				</p>
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussion_publicimportance_submissionEndDate" id="motions_discussion_publicimportance_submissionEndDate" value="${motions_discussion_publicimportance_submissionenddate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
+					<input type="checkbox" class="sCheck isBallotingRequired" id="motions_discussion_publicimportance_isBallotingRequired" value="${motions_discussion_publicimportance_isballotingrequired}" >
+					<input type="hidden" id="motions_discussion_publicimportance_isBallotingRequired_Hidden" name="motions_discussion_publicimportance_isBallotingRequired" value="" />
+				</p>	
+				
+				<p class="motions_discussion_publicimportance_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotType" text="Ballot Type" /></label>
+					<select class="sSelect" name="motions_discussion_publicimportance_ballotType" id="motions_discussion_publicimportance_ballotType">
+						<c:forEach items="${ballotTypes}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label id="motions_discussion_pulicimportance_ballotType_hidden" title="${motions_discussion_publicimportance_ballottype}"></label>
+				</p>	
+				
+				<p class="motions_discussion_publicimportance_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotEvents" text="Ballot Events" /></label>
+					<select class="sSelectMultiple" name="motions_discussion_publicimportance_ballotEvents" id="motions_discussion_publicimportance_ballotEvents" multiple="multiple">
+						<c:forEach items="${ballotEvents}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>							
+					<label style="display: none;" id="motions_discussion_publicimportance_ballotEvents_hidden" title="${motions_discussion_publicimportance_ballotevents}"></label>
+				</p>		
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussion_publicimportance_firstBallotDate" id="motions_discussion_publicimportance_firstBallotDate" value="${motions_discussion_publicimportance_firstballotdate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfQuestions" text="Number of Motions" /></label>
+					<input type="text" class="sInteger" name="motions_discussion_publicimportance_numberOfQuestions" id="motions_discussion_publicimportance_numberOfQuestions" value="${motions_discussion_publicimportance_numberofquestions}" />
+				</p>
+				
+				<p style="display: inline;">
+					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
+					<select class="sSelect" name="motions_discussion_publicimportance_numberOfSupportingMembersComparator" id="motions_discussion_publicimportance_numberOfSupportingMembersComparator" style="width: auto; height: 22px; border: solid 1px #8d8e8d;">
+						<option value=""><spring:message code='client.prompt.justSelect' text='Select'/></option>
+						<option value="eq">&#61;</option>
+						<option value="lt">&lt;</option>
+						<option value="gt">&gt;</option>
+						<option value="le">&le;</option>
+						<option value="ge">&ge;</option>
+					</select>
+					<label id="motions_discussion_publicimportance_numberOfSupportingMembersComparator_hidden" title="${motions_discussion_publicimportance_numberofsupportingmemberscomparator}"></label>
+				</p>
+				
+				<p style="display: inline;">		
+					<input class="sText" type="text" name="motions_discussion_publicimportance_numberOfSupportingMembers" id="motions_discussion_publicimportance_numberOfSupportingMembers" value="${motions_discussion_publicimportance_numberofsupportingmembers}" style="width: 112px" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
+					<select class="sSelectMultiple discussionDays" name="motions_discussion_publicimportance_discussionDays" id="motions_discussion_publicimportance_discussionDays" multiple="multiple">
+						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
+						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
+						<option value="Wednesday"><spring:message code="week.days.wednesday" text="Wednesday" /></option>
+						<option value="Thursday"><spring:message code="week.days.thursday" text="Thursday" /></option>
+						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
+						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
+					</select>
+					<label style="display: none;" id="motions_discussion_publicimportance_discussionDays_hidden" title="${motions_discussion_publicimportance_discussiondays}"></label>
+				</p>
+				
+				<p id="motions_discussion_publicimportance_discussionDates_para">
+					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Dates" /></label>
+					<select class="sSelectMultiple" name="motions_discussion_publicimportance_discussionDates" id="motions_discussion_publicimportance_discussionDates" multiple="multiple">
+					</select>
+					<label style="display: none;" id="motions_discussion_publicimportance_discussionDates_hidden" title="${motions_discussion_publicimportance_discussiondates}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfDaysForFactualPositionReceiving" text="Reply Day Numbers For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_discussion_publicimportance_numberOfDaysForFactualPositionReceiving" id="motions_discussion_publicimportance_numberOfDaysForFactualPositionReceiving" value="${motions_discussion_publicimportance_numberofdaysforfactualpositionreceiving}" />
+				</p>	
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.reminderDayNumberInHDSFactualPostion" text="Reminder Day Number For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_discussion_publicimportance_reminderDayNumberForFactualPosition" id="motions_discussion_publicimportance_reminderDayNumberForFactualPosition" value="${motions_discussion_publicimportance_reminderdaynumberforfactualposition}" />
+				</p>
+				
+				<div>
+					<fieldset>
+					<legend style="text-align: left; width: 150px;"><label><spring:message code="session.deviceType.questionsAskedInHDSFactualPosition" text="Questions Asked For Factual Position" /></label></legend>
+					<div id="motions_discussion_publicimportance_questionsAskedForFactualPosition_div">
+						
+					</div>					
+					<input type="hidden" id="motions_discussion_publicimportance_questionsAskedForFactualPosition" name="motions_discussion_publicimportance_questionsAskedForFactualPosition" value="${motions_discussion_publicimportance_questionsaskedforfactualposition}"/>
+					</fieldset>
+				</div>								
+			</div>
+		</c:if>
+		
+		<c:if test="${i.type eq 'motions_discussion_lastweek'}">					
+			<div id="motions_discussion_lastweek" class="formDiv">		
+							
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
+							text="Submission Start Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussion_lastweek_submissionStartDate" id="motions_discussion_lastweek_submissionStartDate"
+						value="${motions_discussion_lastweek_submissionstartdate}" />
+				</p>
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussion_lastweek_submissionEndDate" id="motions_discussion_lastweek_submissionEndDate" value="${motions_discussion_lastweek_submissionenddate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.isBallotingRequired" text="is Ballotng Required" /></label>
+					<input type="checkbox" class="sCheck isBallotingRequired" id="motions_discussion_lastweek_isBallotingRequired" value="${motions_discussion_lastweek_isballotingrequired}" >
+					<input type="hidden" id="motions_discussion_lastweek_isBallotingRequired_Hidden" name="motions_discussion_lastweek_isBallotingRequired" value="" />
+				</p>	
+				
+				<p class="motions_discussion_lastweek_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotType" text="Ballot Type" /></label>
+					<select class="sSelect" name="motions_discussion_lastweek_ballotType" id="motions_discussion_lastweek_ballotType">
+						<c:forEach items="${ballotTypes}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>
+					<label id="motions_discussion_pulicimportance_ballotType_hidden" title="${motions_discussion_lastweek_ballottype}"></label>
+				</p>	
+				
+				<p class="motions_discussion_lastweek_ballotfields">
+					<label class="small"><spring:message code="session.deviceType.ballotEvents" text="Ballot Events" /></label>
+					<select class="sSelectMultiple" name="motions_discussion_lastweek_ballotEvents" id="motions_discussion_lastweek_ballotEvents" multiple="multiple">
+						<c:forEach items="${ballotEvents}" var="i">
+							<option value="${i.type}">${i.name}</option>
+						</c:forEach>
+					</select>							
+					<label style="display: none;" id="motions_discussion_lastweek_ballotEvents_hidden" title="${motions_discussion_lastweek_ballotevents}"></label>
+				</p>		
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.firstBallotDate" text="First Ballot Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussion_lastweek_firstBallotDate" id="motions_discussion_lastweek_firstBallotDate" value="${motions_discussion_lastweek_firstballotdate}" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfQuestions" text="Number of Motions" /></label>
+					<input type="text" class="sInteger" name="motions_discussion_lastweek_numberOfQuestions" id="motions_discussion_lastweek_numberOfQuestions" value="${motions_discussion_lastweek_numberofquestions}" />
+				</p>
+				
+				<p style="display: inline;">
+					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
+					<select class="sSelect" name="motions_discussion_lastweek_numberOfSupportingMembersComparator" id="motions_discussion_lastweek_numberOfSupportingMembersComparator" style="width: auto; height: 22px; border: solid 1px #8d8e8d;">
+						<option value=""><spring:message code='client.prompt.justSelect' text='Select'/></option>
+						<option value="eq">&#61;</option>
+						<option value="lt">&lt;</option>
+						<option value="gt">&gt;</option>
+						<option value="le">&le;</option>
+						<option value="ge">&ge;</option>
+					</select>
+					<label id="motions_discussion_lastweek_numberOfSupportingMembersComparator_hidden" title="${motions_discussion_lastweek_numberofsupportingmemberscomparator}"></label>
+				</p>
+				
+				<p style="display: inline;">		
+					<input class="sText" type="text" name="motions_discussion_lastweek_numberOfSupportingMembers" id="motions_discussion_lastweek_numberOfSupportingMembers" value="${motions_discussion_lastweek_numberofsupportingmembers}" style="width: 112px" />
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.discussionDays" text="Discussion Days" /></label>
+					<select class="sSelectMultiple discussionDays" name="motions_discussion_lastweek_discussionDays" id="motions_discussion_lastweek_discussionDays" multiple="multiple">
+						<option value="Monday"><spring:message code="week.days.monday" text="Monday" /></option>
+						<option value="Tuesday"><spring:message code="week.days.tuesday" text="Tuesday" /></option>
+						<option value="Wednesday"><spring:message code="week.days.wednesday" text="Wednesday" /></option>
+						<option value="Thursday"><spring:message code="week.days.thursday" text="Thursday" /></option>
+						<option value="Friday"><spring:message code="week.days.friday" text="Friday" /></option>
+						<option value="Saturday"><spring:message code="week.days.saturday" text="Saturday" /></option>
+					</select>
+					<label style="display: none;" id="motions_discussion_lastweek_discussionDays_hidden" title="${motions_discussion_lastweek_discussiondays}"></label>
+				</p>
+				
+				<p id="motions_discussion_lastweek_discussionDates_para">
+					<label class="small"><spring:message code="session.deviceType.discussionDates" text="Discussion Dates" /></label>
+					<select class="sSelectMultiple" name="motions_discussion_lastweek_discussionDates" id="motions_discussion_lastweek_discussionDates" multiple="multiple">
+					</select>
+					<label style="display: none;" id="motions_discussion_lastweek_discussionDates_hidden" title="${motions_discussion_lastweek_discussiondates}"></label>
+				</p>
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.numberOfDaysForFactualPositionReceiving" text="Reply Day Numbers For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_discussion_lastweek_numberOfDaysForFactualPositionReceiving" id="motions_discussion_lastweek_numberOfDaysForFactualPositionReceiving" value="${motions_discussion_lastweek_numberofdaysforfactualpositionreceiving}" />
+				</p>	
+				
+				<p>
+					<label class="small"><spring:message code="session.deviceType.reminderDayNumberInHDSFactualPostion" text="Reminder Day Number For Factual Position" /></label>
+					<input type="text" class="sInteger" name="motions_discussion_lastweek_reminderDayNumberForFactualPosition" id="motions_discussion_lastweek_reminderDayNumberForFactualPosition" value="${motions_discussion_lastweek_reminderdaynumberforfactualposition}" />
+				</p>
+				
+				<div>
+					<fieldset>
+					<legend style="text-align: left; width: 150px;"><label><spring:message code="session.deviceType.questionsAskedInHDSFactualPosition" text="Questions Asked For Factual Position" /></label></legend>
+					<div id="motions_discussion_lastweek_questionsAskedForFactualPosition_div">
+						
+					</div>					
+					<input type="hidden" id="motions_discussion_lastweek_questionsAskedForFactualPosition" name="motions_discussion_lastweek_questionsAskedForFactualPosition" value="${motions_discussion_lastweek_questionsaskedforfactualposition}"/>
+					</fieldset>
+				</div>								
+			</div>
+		</c:if>	
+		<%-- dicussionmotion device config ends --%>
+		
+		<%--bill coonfig --%>
 		<c:if test="${i.type eq 'bills_nonofficial'}">					
 			<div id="bills_nonofficial" class="formDiv">						
 				<p>
@@ -1862,6 +2465,25 @@
 					</c:choose>
 					<input type="hidden" id="bills_government_instructionalOrder" name="bills_government_instructionalOrder" value=""/>					
 				</p>		
+			</div>
+		</c:if>
+		
+		<c:if test="${i.type eq 'motions_adjournment'}">
+			<div id="motions_adjournment" class="formDiv">
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartTime" text="Submission Start Time"></spring:message></label>
+					<input type="text" class="sText" maxlength="5" name="motions_adjournment_submissionStartTime" id="motions_adjournment_submissionStartTime" value="${motions_adjournment_submissionstarttime}" />
+					<label style="margin-left: 5px;">
+						(<b>Format</b> = &nbsp;<spring:message code="generic.hour" text="hours"/> <b>:</b> <spring:message code="generic.minute" text="minutes"/>)
+					</label>
+				</p>
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionEndTime" text="Submission End Time"></spring:message></label>
+					<input type="text" class="sText" maxlength="5" name="motions_adjournment_submissionEndTime" id="motions_adjournment_submissionEndTime" value="${motions_adjournment_submissionendtime}" />
+					<label style="margin-left: 5px;">
+						(<b>Format</b> = &nbsp;<spring:message code="generic.hour" text="hours"/> <b>:</b> <spring:message code="generic.minute" text="minutes"/>)
+					</label>
+				</p>
 			</div>
 		</c:if>
 		

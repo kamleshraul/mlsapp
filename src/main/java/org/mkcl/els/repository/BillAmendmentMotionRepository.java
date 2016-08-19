@@ -15,8 +15,10 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.SectionAmendmentVO;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillAmendmentMotion;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Motion;
@@ -40,6 +42,31 @@ public class BillAmendmentMotionRepository extends BaseRepository<BillAmendmentM
 		} else {
 			return billAmendmentMotions.get(0).getNumber();
 		}		
+	}
+	
+	public Boolean isDuplicateNumberExist(final BillAmendmentMotion billAmendmentMotion) {
+		Boolean isDuplicateNumberExist = false;
+		
+		if(billAmendmentMotion!=null 
+				&& billAmendmentMotion.getAmendedBill()!=null
+				&& billAmendmentMotion.getNumber()!=null) {
+			String queryString = "SELECT m FROM BillAmendmentMotion m"
+					+ " LEFT JOIN m.amendedBill b"
+					+ " WHERE b.id=:billId"
+					+ " AND ((:motionId IS NOT NULL AND m.id<>:motionId) OR (:motionId IS NULL))"
+					+ " AND m.number=:motionNumber";
+			
+			TypedQuery<BillAmendmentMotion> query = this.em().createQuery(queryString, BillAmendmentMotion.class);
+			query.setParameter("billId", billAmendmentMotion.getAmendedBill().getId());
+			query.setParameter("motionNumber", billAmendmentMotion.getNumber());
+			query.setParameter("motionId", billAmendmentMotion.getId());
+			List<BillAmendmentMotion> duplicateMotions = query.setMaxResults(1).getResultList();
+			if(duplicateMotions!=null && !duplicateMotions.isEmpty()) {
+				isDuplicateNumberExist = true;
+			}
+		}
+		
+		return isDuplicateNumberExist;
 	}
 	
 	public List<BillAmendmentMotion> findAllReadyForSubmissionByMember(final Session session,
@@ -180,6 +207,24 @@ public class BillAmendmentMotionRepository extends BaseRepository<BillAmendmentM
 			billAmendmentMotionRevisionVOs.add(billAmendmentMotionRevisionVO);
 		}
 		return billAmendmentMotionRevisionVOs;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByPosition(final BillAmendmentMotion billAmendmentMotion) {
+		String strQuery = "SELECT ce FROM BillAmendmentMotion m JOIN m.clubbedEntities ce" +
+				" WHERE m.id =:billAmendmentMotionId ORDER BY ce.position " + ApplicationConstants.ASC;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("billAmendmentMotionId", billAmendmentMotion.getId());
+		return query.getResultList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByMotionNumber(final BillAmendmentMotion billAmendmentMotion, final String sortOrder) {
+		String strQuery = "SELECT ce FROM BillAmendmentMotion m JOIN m.clubbedEntities ce" +
+				" WHERE m.id =:billAmendmentMotionId ORDER BY ce.adjournmentMotion.number " + sortOrder;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("billAmendmentMotionId", billAmendmentMotion.getId());
+		return query.getResultList();
 	}
 	
 }

@@ -38,7 +38,7 @@
 <div id="reportDiv" >
 	<div style="text-align: center; max-width: 800px; width: 800px; margin-left: 25px;">
 		<h2 style="color: black; text-decoration: underline; font-family: 'Times New Roman';">
-			${report[0][6]}
+			${report[0][1]}
 		</h2>
 	</div>
 	<br />
@@ -59,7 +59,7 @@
 			<c:forEach items="${report}" var="r" varStatus="counter">
 				<tr>
 					<td>${formater.formatNumberNoGrouping(counter.count, locale)}</td>
-					<c:forEach begin="1" end="${columns-1}" var="rr">
+					<c:forEach begin="2" end="${columns}" var="rr">
 						<td>${r[rr]}</td>
 					</c:forEach>
 				</tr>

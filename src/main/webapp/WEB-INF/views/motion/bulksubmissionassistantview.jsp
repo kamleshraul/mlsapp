@@ -72,6 +72,7 @@ function editMotion(id,readonly){
 						<th><spring:message code="motion.number" text="Number"></spring:message></th>
 						<th><spring:message code="motion.member" text="Member"></spring:message></th>
 						<th><spring:message code="motion.subject" text="Subject"></spring:message></th>
+						<th><spring:message code="motion.remarks" text="Remarks"></spring:message></th>
 						<th><spring:message code="motion.currentstatus" text="To Be Put Up For?"></spring:message></th>
 					</tr>			
 					<c:forEach items="${motions}" var="i">
@@ -89,6 +90,7 @@ function editMotion(id,readonly){
 							<td>${i.formatNumber()}</td>
 							<td>${i.primaryMember.getFullname()}</td>
 							<td>${i.subject}</td>
+							<td>${i.remarks}</td>
 							<td>${i.internalStatus.name}</td>
 						</tr>
 					</c:forEach>

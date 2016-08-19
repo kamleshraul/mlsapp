@@ -15,7 +15,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -36,6 +39,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.ChartVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.ResolutionRevisionVO;
@@ -57,7 +61,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name="resolutions")
 @JsonIgnoreProperties({"houseType", "session", "type","recommendationStatusLowerHouse","recommendationStatusUpperHouse", "ballotStatus", 
-	  "drafts", "referencedResolution","ruleForDiscussionDate","discussionStatus"})
+	  "drafts", "referencedResolution","ruleForDiscussionDate","discussionStatus","submissionDate","creationDate","createdBy","dataEnteredBy","editedOn",
+	  "editedBy", "editedAs", "discussionDate", "revisedSubject", "noticeContent", "revisedNoticeContent","remarks","department",
+	  "factualPosition", "lastDateOfFactualPositionReceiving", "questionsAskedInFactualPosition", "rejectionReason"})
 public class Resolution extends Device implements Serializable{
 	
 	/** The Constant serialVersionUID. */
@@ -309,6 +315,8 @@ public class Resolution extends Device implements Serializable{
 	
 	/** The file upper house. */
 	private Integer fileUpperHouse;
+	
+	private Integer file;
 
 	/** The file index lower house. */
 	private Integer fileIndexLowerHouse;
@@ -330,6 +338,23 @@ public class Resolution extends Device implements Serializable{
     
     @OneToOne
     private VotingDetail votingDetail;
+    
+    @Column(length=30000)
+    private String referencedResolutionText;
+    
+    private Integer karyavaliNumber;
+    
+    @Temporal(TemporalType.DATE)
+    private Date KaryavaliGenerationDate;
+    
+    /****For sequenced number generation ****/ 
+    private transient volatile static Integer RESOLUTION_NON_CUR_NUM_LOWER_HOUSE = 0;
+    
+    private transient volatile static Integer RESOLUTION_NON_CUR_NUM_UPPER_HOUSE = 0;
+    
+    private transient volatile static Integer RESOLUTION_GOV_CUR_NUM_LOWER_HOUSE = 0;
+    
+    private transient volatile static Integer RESOLUTION_GOV_CUR_NUM_UPPER_HOUSE = 0;
     
     /** The resolution repository. */
     @Autowired
@@ -370,18 +395,28 @@ public class Resolution extends Device implements Serializable{
 	    	if(this.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
 	    		 if(this.getStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_SUBMIT)) {
 	    	            if(this.getNumber() == null) {
-	    	                synchronized (this) {
+	    	                synchronized (Resolution.class) {
 	    	                	if(this.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
-	    	                		Integer number = Resolution.assignResolutionNo(this.getHouseType(),
-	    	                                this.getSession(), this.getType(),this.getLocale());
-	    	                        this.setNumber(number + 1);
+	    	                		Integer number = null;
+	    	                		if(Resolution.getResolutionGovCurrentNumberLowerHouse() == 0){
+	    	                			number = Resolution.assignResolutionNo(this.getHouseType(),
+		    	                                this.getSession(), this.getType(),this.getLocale());
+	    	                			Resolution.updateResolutionGovCurrentNumberLowerHouse(number);
+	    	                		}
+	    	                        this.setNumber(Resolution.getResolutionGovCurrentNumberLowerHouse() + 1);
+	    	                        Resolution.updateResolutionGovCurrentNumberLowerHouse(Resolution.getResolutionGovCurrentNumberLowerHouse() + 1);
 	    	                	} 
 	    	                	else {
 	    	                		Integer count= Resolution.getMemberResolutionCountByNumber(this.getMember().getId(),this.getSession().getId(),this.getLocale());
 	        	                    if(count<5){
-	        	                    	Integer number = Resolution.assignResolutionNo(this.getHouseType(),
-	        	                                this.getSession(), this.getType(),this.getLocale());
-	        	                        this.setNumber(number + 1);
+	        	                    	Integer number = null;
+	        	                    	if(Resolution.getResolutionNonGovCurrentNumberLowerHouse() == 0){
+	        	                    		number = Resolution.assignResolutionNo(this.getHouseType(),
+		        	                                this.getSession(), this.getType(),this.getLocale());
+		    	                			Resolution.updateResolutionNonGovCurrentNumberLowerHouse(number);
+		    	                		}
+		    	                        this.setNumber(Resolution.getResolutionNonGovCurrentNumberLowerHouse() + 1);
+		    	                        Resolution.updateResolutionNonGovCurrentNumberLowerHouse(Resolution.getResolutionNonGovCurrentNumberLowerHouse() + 1);
 	        	                    }
 	    	                	}    	                	
 	    	                	addResolutionDraft();
@@ -392,18 +427,28 @@ public class Resolution extends Device implements Serializable{
 	    	}else if(this.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
 	    		if(this.getStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_SUBMIT)) {
 		            if(this.getNumber() == null) {
-		                synchronized (this) {
+		                synchronized (Resolution.class) {
 		                	if(this.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
-		                		Integer number = Resolution.assignResolutionNo(this.getHouseType(),
-		                                this.getSession(), this.getType(),this.getLocale());
-		                        this.setNumber(number + 1);
+		                		Integer number = null;
+		                		if(Resolution.getResolutionGovCurrentNumberUpperHouse() == 0){
+		                			number = Resolution.assignResolutionNo(this.getHouseType(),
+			                                this.getSession(), this.getType(),this.getLocale());
+    	                			Resolution.updateResolutionGovCurrentNumberUpperHouse(number);
+    	                		}
+    	                        this.setNumber(Resolution.getResolutionGovCurrentNumberUpperHouse() + 1);
+    	                        Resolution.updateResolutionGovCurrentNumberUpperHouse(Resolution.getResolutionGovCurrentNumberUpperHouse() + 1);
 		                	} 
 		                	else {
 		                		Integer count= Resolution.getMemberResolutionCountByNumber(this.getMember().getId(),this.getSession().getId(),this.getLocale());
 	    	                    if(count<5){
-	    	                    	Integer number = Resolution.assignResolutionNo(this.getHouseType(),
-	    	                                this.getSession(), this.getType(),this.getLocale());
-	    	                        this.setNumber(number + 1);
+	    	                    	Integer number = null;
+	    	                    	if(Resolution.getResolutionNonGovCurrentNumberUpperHouse() == 0){
+	    	                    		number = Resolution.assignResolutionNo(this.getHouseType(),
+		    	                                this.getSession(), this.getType(),this.getLocale());
+	    	                			Resolution.updateResolutionNonGovCurrentNumberUpperHouse(number);
+	    	                		}
+	    	                        this.setNumber(Resolution.getResolutionNonGovCurrentNumberUpperHouse() + 1);
+	    	                        Resolution.updateResolutionNonGovCurrentNumberUpperHouse(Resolution.getResolutionNonGovCurrentNumberUpperHouse() + 1);
 	    	                    }
 		                	}
 		                	addResolutionDraft();
@@ -431,18 +476,28 @@ public class Resolution extends Device implements Serializable{
 	        	if(this.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_SUBMIT)||
 	        			this.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_SYSTEM_ASSISTANT_PROCESSED)) {
 	                if(this.getNumber() == null) {
-	                    synchronized (this) {
+	                    synchronized (Resolution.class) {
 	                    	if(this.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
-		                		Integer number = Resolution.assignResolutionNo(this.getHouseType(),
-		                                this.getSession(), this.getType(),this.getLocale());
-		                        this.setNumber(number + 1);
+		                		Integer number = null;
+		                		if(Resolution.getResolutionGovCurrentNumberLowerHouse() == 0){
+		                			number = Resolution.assignResolutionNo(this.getHouseType(),
+			                                this.getSession(), this.getType(),this.getLocale());
+    	                			Resolution.updateResolutionGovCurrentNumberLowerHouse(number);
+    	                		}
+    	                        this.setNumber(Resolution.getResolutionGovCurrentNumberLowerHouse() + 1);
+    	                        Resolution.updateResolutionGovCurrentNumberLowerHouse(Resolution.getResolutionGovCurrentNumberLowerHouse() + 1);
 		                	} 
 		                	else {
 		                		Integer count= Resolution.getMemberResolutionCountByNumber(this.getMember().getId(),this.getSession().getId(),this.getLocale());
 	    	                    if(count<5){
-	    	                    	Integer number = Resolution.assignResolutionNo(this.getHouseType(),
-	    	                                this.getSession(), this.getType(),this.getLocale());
-	    	                        this.setNumber(number + 1);
+	    	                    	Integer number = null;
+	    	                    	if(Resolution.getResolutionNonGovCurrentNumberLowerHouse() == 0){
+	    	                    		number = Resolution.assignResolutionNo(this.getHouseType(),
+		    	                                this.getSession(), this.getType(),this.getLocale());
+	    	                			Resolution.updateResolutionNonGovCurrentNumberLowerHouse(number);
+	    	                		}
+	    	                        this.setNumber(Resolution.getResolutionNonGovCurrentNumberLowerHouse() + 1);
+	    	                        Resolution.updateResolutionNonGovCurrentNumberLowerHouse(Resolution.getResolutionNonGovCurrentNumberLowerHouse() + 1);
 	    	                    }
 		                	}
 	                        addResolutionDraft();
@@ -479,18 +534,28 @@ public class Resolution extends Device implements Serializable{
 	        }else if(this.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
 	        	if(this.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_SUBMIT)) {
 	                if(this.getNumber() == null) {
-	                    synchronized (this) {
+	                    synchronized (Resolution.class) {
 	                    	if(this.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
-		                		Integer number = Resolution.assignResolutionNo(this.getHouseType(),
-		                                this.getSession(), this.getType(),this.getLocale());
-		                        this.setNumber(number + 1);
+		                		Integer number = null;
+		                		if(Resolution.getResolutionGovCurrentNumberUpperHouse() == 0){
+		                			number = Resolution.assignResolutionNo(this.getHouseType(),
+			                                this.getSession(), this.getType(),this.getLocale());
+    	                			Resolution.updateResolutionGovCurrentNumberUpperHouse(number);
+    	                		}
+    	                        this.setNumber(Resolution.getResolutionGovCurrentNumberUpperHouse() + 1);
+    	                        Resolution.updateResolutionGovCurrentNumberUpperHouse(Resolution.getResolutionGovCurrentNumberUpperHouse() + 1);
 		                	} 
 		                	else {
 		                		Integer count= Resolution.getMemberResolutionCountByNumber(this.getMember().getId(),this.getSession().getId(),this.getLocale());
 	    	                    if(count<5){
-	    	                    	Integer number = Resolution.assignResolutionNo(this.getHouseType(),
-	    	                                this.getSession(), this.getType(),this.getLocale());
-	    	                        this.setNumber(number + 1);
+	    	                    	Integer number = null;
+	    	                    	if(Resolution.getResolutionNonGovCurrentNumberUpperHouse() == 0){
+	    	                    		number = Resolution.assignResolutionNo(this.getHouseType(),
+		    	                                this.getSession(), this.getType(),this.getLocale());
+	    	                			Resolution.updateResolutionNonGovCurrentNumberUpperHouse(number);
+	    	                		}
+	    	                        this.setNumber(Resolution.getResolutionNonGovCurrentNumberUpperHouse() + 1);
+	    	                        Resolution.updateResolutionNonGovCurrentNumberUpperHouse(Resolution.getResolutionNonGovCurrentNumberUpperHouse() + 1);
 	    	                    }
 		                	}
 	                        addResolutionDraft();
@@ -837,7 +902,7 @@ public class Resolution extends Device implements Serializable{
      * @return the member resolution count by number
      * @throws ELSException 
      */
-    private static Integer getMemberResolutionCountByNumber(Long memberId,Long sessionId,String locale) throws ELSException {
+    public static Integer getMemberResolutionCountByNumber(Long memberId,Long sessionId,String locale) throws ELSException {
     	 return getResolutionRepository().findMemberResolutionCountByNumber(memberId,sessionId,locale);
 	}
     
@@ -1340,6 +1405,302 @@ public class Resolution extends Device implements Serializable{
 		return  getResolutionRepository().getResolution(sessionId, deviceTypeId, dNumber,locale);
 	}
 	    
+	
+	public static Boolean isExist(Integer number, DeviceType type,
+			Session session, String locale) {
+		return  getResolutionRepository().isExist(number, type, session,locale);
+	}
+	
+	public String findAllMemberNamesWithConstituencies(String memberNameFormat) {
+		Session session = this.getSession();
+		House resolutionHouse = session.getHouse();
+		Date currentDate = new Date();
+		StringBuffer allMemberNamesBuffer = new StringBuffer("");
+		Member member = null;
+		String memberName = "";
+		String constituencyName = "";
+		
+		/** primary member **/
+		member = this.getMember();		
+		if(member==null) {
+			return allMemberNamesBuffer.toString();
+		}		
+		memberName = member.findNameInGivenFormat(memberNameFormat);
+		if(memberName!=null && !memberName.isEmpty()) {
+			allMemberNamesBuffer.append(memberName);
+			constituencyName = member.findConstituencyNameForYadiReport(resolutionHouse, "DATE", currentDate, currentDate);
+			if(!constituencyName.isEmpty()) {
+				allMemberNamesBuffer.append(" (" + constituencyName + ")");			
+			}
+		} else {
+			return allMemberNamesBuffer.toString();
+		}				
+		return allMemberNamesBuffer.toString();
+	}
+	
+	
+	public static MemberMinister findMemberMinisterIfExists(Resolution resolution) throws ELSException {
+		return  getResolutionRepository().findMemberMinisterIfExists(resolution);
+	}
+	
+	public static List<ChartVO> getAdmittedResolutions(Session session,
+			DeviceType deviceType, String locale) throws ELSException {
+		return  getResolutionRepository().getAdmittedResolutions(session, deviceType, locale);
+	}
+	
+	public static List<Resolution> findAdmittedResolutionByMember(Member member,DeviceType deviceType,
+			Session session, String locale) {
+		return  getResolutionRepository().getAdmittedResolutionsByMember(member, session, deviceType, locale);
+	}
+	
+	
+	public static List<Member> findActiveMembersWithResolutions(final Session session, final Date onDate, final DeviceType deviceType,final Status[] statuses,
+			final Date startTime,final Date endTime,final String sortBy,final String sortOrder,final String locale) throws ELSException {
+		MemberRole role = MemberRole.find(session.getHouse().getType(), "MEMBER", locale);
+		return  getResolutionRepository().findActiveMembersWithResolutions(session, role, onDate, deviceType, statuses, startTime, endTime, sortBy, sortOrder, locale);
+	}
+	
+	public static Integer findHighestKaryavaliNumber(DeviceType deviceType,
+			Session session, String locale) {
+		return  getResolutionRepository().findHighestKaryavaliNumber(deviceType, session, locale);
+	}
+
+	public static boolean isNumberedKaryavaliFilled(DeviceType deviceType,
+			Session session, Integer highestKaryavaliNumber, String locale) {
+		return  getResolutionRepository().isNumberedKaryavaliFilled(deviceType, session, highestKaryavaliNumber, locale);
+	}
+	
+	public static Date findResolutionKaryavaliDate(DeviceType deviceType,
+			Session session, Integer highestKaryavaliNumber, String locale) {
+		return  getResolutionRepository().findResolutionKaryavaliDate(deviceType,  highestKaryavaliNumber, session, locale);
+	}
+	
+	public static List<ChartVO> findEligibleAdmittedResolution(
+			Session session, Integer karyavaliNumber, Date KaryavaliDate,
+			Locale locale) throws ELSException {
+		return  getResolutionRepository().findEligibleAdmittedNonOfficialResolution(session, karyavaliNumber,  KaryavaliDate, locale);
+	}
+	
+	public static List<Resolution> findEligibleAdmittedResolutionByMember(
+			Member m, DeviceType deviceType, Session session, String locale) {
+		return  getResolutionRepository().getEligibleAdmittedResolutionsByMember(m, session, deviceType, locale);
+	}
+	
+	
+	public static List<ChartVO> findResolutionsByKaryavaliNumber(
+			Session session, Integer karyavaliNumber, Locale locale) throws ELSException {
+		return  getResolutionRepository().findNonOfficialResolutionsByKaryavaliNumber(session, karyavaliNumber, locale.toString());
+	}
+	
+	public static List<Resolution> findAdmittedNonOfficialResolutionByMemberAndKaryavaliNumber(
+			Member member, DeviceType deviceType, Session session,
+			Integer karyavaliNumber, String locale) {
+		return  getResolutionRepository().findAdmittedNonOfficialResolutionByMemberAndKaryavaliNumber(member,deviceType, session, karyavaliNumber, locale);
+	}
+	
+	public static List<Resolution> findDiscussedResolution(final Session session, final DeviceType deviceType,final String locale) {
+		return  getResolutionRepository().findDiscussedResolution( session, deviceType, locale);
+	}
+	
+	/****Calling attention atomic value ****/
+	public static void updateResolutionNonGovCurrentNumberLowerHouse(Integer num){
+		synchronized (Resolution.RESOLUTION_NON_CUR_NUM_LOWER_HOUSE) {
+			Resolution.RESOLUTION_NON_CUR_NUM_LOWER_HOUSE = num;								
+		}
+	}
+
+	public static synchronized Integer getResolutionNonGovCurrentNumberLowerHouse(){
+		return Resolution.RESOLUTION_NON_CUR_NUM_LOWER_HOUSE;
+	}
+	
+	public static void updateResolutionNonGovCurrentNumberUpperHouse(Integer num){
+		synchronized (Resolution.RESOLUTION_NON_CUR_NUM_UPPER_HOUSE) {
+			Resolution.RESOLUTION_NON_CUR_NUM_UPPER_HOUSE = num;								
+		}
+	}
+
+	public static synchronized Integer getResolutionNonGovCurrentNumberUpperHouse(){
+		return Resolution.RESOLUTION_NON_CUR_NUM_UPPER_HOUSE;
+	}
+	
+	public static void updateResolutionGovCurrentNumberLowerHouse(Integer num){
+		synchronized (Resolution.RESOLUTION_GOV_CUR_NUM_LOWER_HOUSE) {
+			Resolution.RESOLUTION_GOV_CUR_NUM_LOWER_HOUSE = num;								
+		}
+	}
+
+	public static synchronized Integer getResolutionGovCurrentNumberLowerHouse(){
+		return Resolution.RESOLUTION_GOV_CUR_NUM_LOWER_HOUSE;
+	}
+	
+	public static void updateResolutionGovCurrentNumberUpperHouse(Integer num){
+		synchronized (Resolution.RESOLUTION_GOV_CUR_NUM_UPPER_HOUSE) {
+			Resolution.RESOLUTION_GOV_CUR_NUM_UPPER_HOUSE = num;								
+		}
+	}
+
+	public static synchronized Integer getResolutionGovCurrentNumberUpperHouse(){
+		return Resolution.RESOLUTION_GOV_CUR_NUM_UPPER_HOUSE;
+	}
+	
+	public static org.mkcl.els.common.vo.Reference getCurNumber(final Session session, final DeviceType deviceType){
+    	
+    	org.mkcl.els.common.vo.Reference ref = new org.mkcl.els.common.vo.Reference();
+    	String strHouseType = session.getHouse().getType().getType();
+    	
+    	if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+    		
+			ref.setName(deviceType.getType());
+			if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
+				ref.setNumber(Resolution.getResolutionNonGovCurrentNumberLowerHouse().toString());
+			}else if(deviceType.getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)){
+				ref.setNumber(Resolution.getResolutionGovCurrentNumberLowerHouse().toString());
+			}
+    		ref.setId(ApplicationConstants.LOWER_HOUSE);
+    		
+    	}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+    		
+    		ref.setName(deviceType.getType());
+    		if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
+				ref.setNumber(Resolution.getResolutionNonGovCurrentNumberUpperHouse().toString());
+			}else if(deviceType.getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)){
+				ref.setNumber(Resolution.getResolutionGovCurrentNumberUpperHouse().toString());
+			}
+    		ref.setId(ApplicationConstants.UPPER_HOUSE);
+    	}
+    	
+    	return ref;
+    }
+    
+    public static void updateCurNumber(final Integer num, final String device){
+    	
+    	if(device.equals(device)){
+    		Resolution.updateResolutionNonGovCurrentNumberLowerHouse(num);
+    		Resolution.updateResolutionNonGovCurrentNumberUpperHouse(num);
+    		
+    		Resolution.updateResolutionGovCurrentNumberLowerHouse(num);
+    		Resolution.updateResolutionGovCurrentNumberUpperHouse(num);
+    	}
+    }
+    
+    public static boolean isAllowedForSubmission(final Resolution r, final Date date){
+    	
+    	Session session = r.getSession();
+    	
+    	if(r != null){
+    		if(session != null){
+    			Date startDate = FormaterUtil.formatStringToDate(session.getParameter(r.getType().getType() + "_submissionStartDate"), ApplicationConstants.DB_DATETIME_FORMAT);
+    			Date endDate = FormaterUtil.formatStringToDate(session.getParameter(r.getType().getType() + "_submissionEndDate"), ApplicationConstants.DB_DATETIME_FORMAT);
+    			
+    			if(date.after(startDate) && date.before(endDate)){
+    				return true;
+    			}
+    		}
+    	}
+    	
+    	return false;
+    }
+    
+    public void startWorkflow(final Resolution resolution, final Status status, final UserGroupType userGroupType, final Integer level, final String workflowHouseType, final Boolean isFlowOnRecomStatusAfterFinalDecision, final String locale) throws ELSException {
+    	String workflowHouseTypeForResolution = workflowHouseType;
+    	if(!this.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
+    		workflowHouseTypeForResolution = this.getHouseType().getType();
+    	}    	
+    	//end current workflow if exists
+		resolution.endWorkflow(resolution, workflowHouseTypeForResolution, locale);
+    	//update resolution statuses as per the workflow status
+    	resolution.updateForInitFlow(status, userGroupType, workflowHouseTypeForResolution, isFlowOnRecomStatusAfterFinalDecision, locale);
+    	//start required workflow
+		WorkflowDetails.startProcessAtGivenLevel(resolution, workflowHouseTypeForResolution, ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW, status, userGroupType.getType(), level, locale);
+    }
+    
+    public void updateForInitFlow(final Status status, final UserGroupType userGroupType, final String workflowHouseType, final Boolean isFlowOnRecomStatusAfterFinalDecision, final String locale) {
+    	/** update statuses for the required flow **/
+    	Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+    	parameterMap.put("locale", new String[]{locale});
+    	parameterMap.put("flowStatusType", new String[]{status.getType()});
+    	parameterMap.put("isAfterFinalDecision", new String[]{isFlowOnRecomStatusAfterFinalDecision.toString()});
+    	parameterMap.put("userGroupType", new String[]{userGroupType.getType()});
+    	List statusRecommendations = Query.findReport(ApplicationConstants.QUERYNAME_STATUS_RECOMMENDATIONS_FOR_INIT_FLOW, parameterMap);
+    	if(statusRecommendations!=null && !statusRecommendations.isEmpty()) {
+    		Object[] statuses = (Object[]) statusRecommendations.get(0);
+    		if(statuses[0]!=null && !statuses[0].toString().isEmpty()) {
+    			Status mainStatus = Status.findByType(statuses[0].toString(), locale);
+    			if(workflowHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+    				this.setStatusLowerHouse(mainStatus);
+    			} else if(workflowHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+    				this.setStatusUpperHouse(mainStatus);
+    			}    			
+    		}
+    		if(statuses[1]!=null && !statuses[1].toString().isEmpty()) {
+    			Status internalStatus = Status.findByType(statuses[1].toString(), locale);
+    			if(workflowHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+    				this.setInternalStatusLowerHouse(internalStatus);
+    			} else if(workflowHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+    				this.setInternalStatusUpperHouse(internalStatus);
+    			}
+    		}
+    		if(statuses[2]!=null && !statuses[2].toString().isEmpty()) {
+    			Status recommendationStatus = Status.findByType(statuses[2].toString(), locale);
+    			if(workflowHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+    				this.setRecommendationStatusLowerHouse(recommendationStatus);
+    			} else if(workflowHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+    				this.setRecommendationStatusUpperHouse(recommendationStatus);
+    			}
+    		}   
+    		this.simpleMerge();
+    	}		
+    }
+    
+    public void endWorkflow(final Resolution resolution, final String workflowHouseType, final String locale) throws ELSException {
+    	String workflowHouseTypeForResolution = workflowHouseType;
+    	if(!this.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
+    		workflowHouseTypeForResolution = this.getHouseType().getType();
+    	}
+    	HouseType houseTypeForWorkflow = HouseType.findByType(workflowHouseTypeForResolution, locale);
+    	WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(resolution, houseTypeForWorkflow.getName());
+		if(wfDetails != null) {
+			try {
+				WorkflowDetails.endProcess(wfDetails);
+			} catch(Exception e) {
+				wfDetails.setStatus(ApplicationConstants.MYTASK_COMPLETED);
+				wfDetails.setCompletionTime(new Date());
+				wfDetails.merge();
+			} finally {
+				resolution.removeExistingWorkflowAttributes(workflowHouseType);
+			}
+		} else {
+			resolution.removeExistingWorkflowAttributes(workflowHouseType);
+		}
+	}
+    
+    public void removeExistingWorkflowAttributes(String workflowHouseType) {
+    	if(!this.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
+    		workflowHouseType = this.getHouseType().getType();
+    	}
+		// Update resolution so as to remove existing workflow based attributes
+    	if(workflowHouseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+    		this.setEndFlagLowerHouse(null);
+    		this.setLevelLowerHouse("1");
+    		this.setTaskReceivedOnLowerHouse(null);
+    		this.setWorkflowDetailsIdLowerHouse(null);
+    		this.setWorkflowStartedLowerHouse("NO");
+    		this.setWorkflowStartedOnLowerHouse(null);
+    		this.setActorLowerHouse(null);
+    		this.setLocalizedActorNameLowerHouse("");
+    	} else if(workflowHouseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+    		this.setEndFlagUpperHouse(null);
+    		this.setLevelUpperHouse("1");
+    		this.setTaskReceivedOnUpperHouse(null);
+    		this.setWorkflowDetailsIdUpperHouse(null);
+    		this.setWorkflowStartedUpperHouse("NO");
+    		this.setWorkflowStartedOnUpperHouse(null);
+    		this.setActorUpperHouse(null);
+    		this.setLocalizedActorNameUpperHouse("");
+    	}			
+		this.simpleMerge();
+	}
+    
 	/**** Getters and Setters ****/
 	/**
 	 * Gets the house type.
@@ -2527,6 +2888,37 @@ public class Resolution extends Device implements Serializable{
 		this.votingDetail = votingDetail;
 	}
 
-	
+	public String getReferencedResolutionText() {
+		return referencedResolutionText;
+	}
 
+	public void setReferencedResolutionText(String referencedResolutionText) {
+		this.referencedResolutionText = referencedResolutionText;
+	}
+
+	public Integer getKaryavaliNumber() {
+		return karyavaliNumber;
+	}
+
+	public void setKaryavaliNumber(Integer karyavaliNumber) {
+		this.karyavaliNumber = karyavaliNumber;
+	}
+
+	public Date getKaryavaliGenerationDate() {
+		return KaryavaliGenerationDate;
+	}
+
+	public void setKaryavaliGenerationDate(Date karyavaliGenerationDate) {
+		KaryavaliGenerationDate = karyavaliGenerationDate;
+	}
+
+	public Integer getFile() {
+		return file;
+	}
+
+	public void setFile(Integer file) {
+		this.file = file;
+	}
+
+	
 }

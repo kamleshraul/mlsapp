@@ -600,9 +600,10 @@
 	                        <fo:table-column column-number="1" column-width="1cm" />
 	                        <fo:table-column column-number="2" column-width="2cm" />
 	                        <fo:table-column column-number="3" column-width="2.8cm" />
-	                        <xsl:if test="./houseType='lowerhouse'">
+	                        <!-- <xsl:if test="./houseType='lowerhouse'">
 	                        	<fo:table-column column-number="4" column-width="2.8cm" />
-	                        </xsl:if>
+	                        </xsl:if> -->
+	                        <fo:table-column column-number="4" column-width="2.8cm" />
 	                        <fo:table-column column-number="5" column-width="2.8cm" />
 	                        <fo:table-column column-number="6" column-width="2.8cm" />
 	                        <fo:table-column column-number="7" column-width="2.8cm" />
@@ -610,12 +611,12 @@
 	                        <fo:table-column column-number="9" column-width="2.8cm" />
 	                        <fo:table-column column-number="10" column-width="2.8cm" />
 	                        <fo:table-column column-number="11" column-width="2.8cm" />
-	                        <fo:table-column column-number="12" column-width="2.8cm" />
 							<fo:table-header>
 							<fo:table-row>
 								<xsl:choose>									
                         			<xsl:when test="./houseType='lowerhouse'">
-                        				<fo:table-cell number-columns-spanned="12">
+                        				<!-- <fo:table-cell number-columns-spanned="12"> -->
+                        				<fo:table-cell number-columns-spanned="11">
 	                        				<fo:block font-size="20px" font-weight="bold" text-align="center">महाराष्ट्र विधानसभा</fo:block>
 											<fo:block font-size="16px" font-weight="normal" text-align="center">
 												<xsl:choose>
@@ -659,68 +660,68 @@
 								</xsl:choose>	
 								</fo:table-row>
 							   <fo:table-row border="solid 0.1mm black">
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    गट
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    वार
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्नाच्या उत्तराचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्न सूचना मिळण्याचा अखेरचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<xsl:if test="./houseType='lowerhouse'">
-					                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-					                        	    <fo:block text-align="center" font-weight="bold">
-			                                                                    प्रश्न मा. अध्यक्षांकडे पाठविण्याचा दिनांक 
-				                                    </fo:block>
-					                        	</fo:table-cell>
-				                        	</xsl:if>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्न विभागाकडे पाठविण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    विभागाकडून उत्तर येण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    यादी मुद्रणालायास पाठविण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    यादी मुद्रणालायाकडून येण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्न सूची मुद्रणालायास पाठविण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्न सूची मुद्रणालायाकडून येण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
-				                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-				                        	    <fo:block text-align="center" font-weight="bold">
-		                                                                    प्रश्न सूची वितरित करण्याचा दिनांक
-			                                    </fo:block>
-				                        	</fo:table-cell>
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    गट
+	                                    </fo:block>
+		                        	</fo:table-cell>
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    वार
+	                                    </fo:block>
+		                        	</fo:table-cell>
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    प्रश्नाच्या उत्तराचा दिनांक
+	                                    </fo:block>
+		                        	</fo:table-cell>
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    प्रश्न सूचना मिळण्याचा अखेरचा दिनांक
+	                                    </fo:block>
+		                        	</fo:table-cell>
+		                        	<!-- <xsl:if test="./houseType='lowerhouse'">
+			                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+			                        	    <fo:block text-align="center" font-weight="bold">
+	                                                                    प्रश्न मा. अध्यक्षांकडे पाठविण्याचा दिनांक 
+		                                    </fo:block>
+			                        	</fo:table-cell>
+		                        	</xsl:if> -->
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    प्रश्न विभागाकडे पाठविण्याचा दिनांक
+	                                    </fo:block>
+		                        	</fo:table-cell>
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    विभागाकडून उत्तर येण्याचा दिनांक
+	                                    </fo:block>
+		                        	</fo:table-cell>
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    यादी मुद्रणालायास पाठविण्याचा दिनांक
+	                                    </fo:block>
+		                        	</fo:table-cell>
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    यादी मुद्रणालायाकडून येण्याचा दिनांक
+	                                    </fo:block>
+		                        	</fo:table-cell>
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    प्रश्न सूची मुद्रणालायास पाठविण्याचा दिनांक
+	                                    </fo:block>
+		                        	</fo:table-cell>
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    प्रश्न सूची मुद्रणालायाकडून येण्याचा दिनांक
+	                                    </fo:block>
+		                        	</fo:table-cell>
+		                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+		                        	    <fo:block text-align="center" font-weight="bold">
+                                                                    प्रश्न सूची वितरित करण्याचा दिनांक
+	                                    </fo:block>
+		                        	</fo:table-cell>
 				            	</fo:table-row>				
 							</fo:table-header>
 	                        <fo:table-body>
@@ -729,7 +730,8 @@
 		                        		<fo:table-row>	
 		                        			<xsl:choose>
 			                        			<xsl:when test="./houseType='lowerhouse'">
-													<fo:table-cell border-width="0.5pt" border-style="solid" number-columns-spanned="12"><fo:block>&#160;</fo:block></fo:table-cell>
+													<!-- <fo:table-cell border-width="0.5pt" border-style="solid" number-columns-spanned="12"><fo:block>&#160;</fo:block></fo:table-cell> -->
+													<fo:table-cell border-width="0.5pt" border-style="solid" number-columns-spanned="11"><fo:block>&#160;</fo:block></fo:table-cell>
 												</xsl:when>
 												<xsl:when test="./houseType='upperhouse'">
 													<fo:table-cell border-width="0.5pt" border-style="solid" number-columns-spanned="11"><fo:block>&#160;</fo:block></fo:table-cell>
@@ -742,7 +744,7 @@
 			                            <xsl:for-each select="./rotationOrderDatesList/rotationOrderDate" >
 			                            	<xsl:if test="$count=rowId or $count > rowId">
 												<fo:table-row>	
-													<fo:table-cell border-width="0.5pt" border-style="solid" number-columns-spanned="12"><fo:block>&#160;</fo:block></fo:table-cell>
+													<fo:table-cell border-width="0.5pt" border-style="solid" number-columns-spanned="11"><fo:block>&#160;</fo:block></fo:table-cell>
 												</fo:table-row>	
 											</xsl:if>
 			                                <fo:table-row border="solid 0.1mm black">	                                	
@@ -769,13 +771,13 @@
 			                                        	<xsl:value-of select="finalSubmissionDate" />
 			                                        </fo:block>
 			                                    </fo:table-cell>
-			                                    <xsl:if test="houseType='lowerhouse'">
+			                                    <!-- <xsl:if test="houseType='lowerhouse'">
 				                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
 				                                        <fo:block  text-align="center">
 				                                        	<xsl:value-of select="speakerSendingDate" />
 				                                        </fo:block>
 				                                    </fo:table-cell>
-			                                    </xsl:if>
+			                                    </xsl:if> -->
 			                                    <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
 			                                        <fo:block  text-align="center">
 			                                        	<xsl:value-of select="lastSendingDateToDepartment" />

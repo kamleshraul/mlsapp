@@ -5,7 +5,7 @@
 	</c:when>
 	<c:otherwise>
 		<div id="reportDiv" >
-			<h2 align="center">${memberwiseQuestions[0][0]}, ${memberwiseQuestions[0][10]}</h2>
+			<h2 align="center">${memberwiseQuestions[0][0]}, ${memberwiseQuestions[0][9]}</h2>
 			<table class="strippedTable" border="1" style="margin-top: 20px; margin-left: 25px; font-size: 15px;">
 				<thead>
 					<tr>
@@ -26,7 +26,7 @@
 								${question[1]}
 							</td>
 							<td style="padding-left: 15px; font-weight: bold;vertical-align: top;text-align: center;">
-								${question[9]}
+								${formatter.formatNumberNoGrouping(question[10],locale)}
 							</td>
 							<td style="padding-left: 15px;vertical-align: top;">
 								${formatter.formatNumbersInGivenText(question[2], locale)}

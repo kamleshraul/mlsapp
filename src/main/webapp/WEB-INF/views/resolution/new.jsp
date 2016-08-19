@@ -12,36 +12,37 @@
 	<script type="text/javascript">
 	
 	var memberControlName=$(".autosuggest").attr("id");
-	function loadDepartments(ministry){
-		$.get('ref/departments/'+ministry,function(data){
-			$("#department").empty();
-			var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
-			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-				departmentText+="<option value='"+data[i].id+"'>"+data[i].name;
-			}
-			$("#department").html(departmentText);			
-			loadSubDepartments(ministry,data[0].id);
-			}else{
-				$("#department").empty();
-				var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
-				$("#department").html(departmentText);			
-				$("#subDepartment").empty();			
-			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});
-	}
+//	function loadDepartments(ministry){
+//		$.get('ref/departments/'+ministry,function(data){
+//			$("#department").empty();
+//			var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
+//			if(data.length>0){
+//			for(var i=0;i<data.length;i++){
+//				departmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+//			}
+//			$("#department").html(departmentText);			
+//			loadSubDepartments(ministry,data[0].id);
+//			}else{
+//				$("#department").empty();
+//				var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
+//				$("#department").html(departmentText);			
+//				$("#subDepartment").empty();			
+//			}
+//		}).fail(function(){
+//			if($("#ErrorMsg").val()!=''){
+//				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+//			}else{
+//				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+//			}
+//		scrollTop();
+//		});
+//	}
 	
 	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
 			if(data.length>0){
@@ -91,7 +92,7 @@
 	
 	$(document).ready(function(){
 		
-		/**** Auto Suggest(clerk login)- Member ****/		
+		/**** Auto Suggest(typist login)- Member ****/		
 		$( ".autosuggest").autocomplete({
 			minLength:3,			
 			source:'ref/member/supportingmembers?session='+$("#session").val(),
@@ -238,15 +239,14 @@
 			       					$('html').animate({scrollTop:0}, 'slow');
 			       				 	$('body').animate({scrollTop:0}, 'slow');	
 			    					$.unblockUI();	   				 	   				
-			    	            }).fail(function(){
-			    	    			$.unblockUI();
-			    	    			if($("#ErrorMsg").val()!=''){
-			    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			    	    			}else{
-			    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			    	    			}
-			    	    			scrollTop();
-			    	    		});
+			    	            }).fail(function (jqxhr, textStatus, err) {
+			    	            	$.unblockUI();
+			    	            	$("#error_p").html("Server returned an error\n" + err +
+		                                    "\n" + textStatus + "\n" +
+		                                    "Please try again later.\n"+jqxhr.status+"\n"+jqxhr.statusText).css({'color':'red', 'display':'block'});
+			    	            	
+			    	            	scrollTop();
+	                            });
 			        }
 				}});		
 			}
@@ -269,13 +269,13 @@
 		<h2><spring:message code="resolution.new.heading" text="Enter Resolution Details"/>		
 		</h2>
 		<form:errors path="version" cssClass="validationError"/>	
-		<%-- <security:authorize access="hasAnyRole('ROIS_CLERK')">	
+		<security:authorize access="hasAnyRole('ROIS_TYPIST')">	
 		<p>
 			<label class="small"><spring:message code="resolution.number" text="Resolution Number"/>*</label>
 			<form:input path="number" cssClass="sText"/>
 			<form:errors path="number" cssClass="validationError"/>
 		</p>
-		</security:authorize> --%>
+		</security:authorize>
 	
 		<p style="display:none;">
 			<label class="small"><spring:message code="resolution.houseType" text="House Type"/>*</label>
@@ -317,7 +317,7 @@
 			<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
 		</p>
 		</security:authorize>
-		<security:authorize access="hasAnyRole('ROIS_CLERK')">		
+		<security:authorize access="hasAnyRole('ROIS_TYPIST')">		
 		<p>
 			<label class="small"><spring:message code="resolution.member" text="Member"/>*</label>
 			<input id="formattedMember" name="formattedMember" type="text" class="sText autosuggest" value="${formattedMember}">
@@ -334,7 +334,7 @@
 	
 		<p>
 			<label class="wysiwyglabel"><spring:message code="resolution.noticeContent" text="Notice Content"/>*</label>
-			<form:textarea path="noticeContent" cssClass="wysiwyg"></form:textarea>
+			<form:textarea path="noticeContent" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 			<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
 		
@@ -411,14 +411,15 @@
 		<c:if test="${selectedResolutionType == 'resolutions_government'}">
 			<p id="remarksParagraph" hidden="true">
 				<label class="wysiwyglabel"><spring:message code="resolution.remarks" text="Remarks"/></label>
-				<form:textarea id="remarks" path="remarks" cssClass="wysiwyg"></form:textarea>
+				<form:textarea id="remarks" path="remarks" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 			</p>
 		</c:if>		
 		</div>
 		 <div class="fields">
 			<h2></h2>
 			<p class="tright">
-			<security:authorize access="hasAnyRole('ROIS_CLERK')">	
+			<security:authorize access="hasAnyRole('ROIS_TYPIST')">	
+				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 				<input id="submitresolution" type="button" value="<spring:message code='resolution.submitResolution' text='Submit resolution'/>" class="butDef">			
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		

@@ -192,11 +192,12 @@
 		</div>	
 	</c:forEach>
 	</c:if>
-	</div>		
+	</div>	
+	
 	<div class="fields">
 		<h2></h2>
 		<c:choose>
-			<c:when test="${internalStatusType=='cutmotiondate_datecomplete' or internalStatusType=='cutmotiondate_dateincomplete'}" >
+			<c:when test="${internalstatusType=='cutmotiondate_datecomplete' or internalstatusType=='cutmotiondate_dateincomplete'}" >
 				<p class="tright">
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					<input id="submitcutmotiondate" type="button" value="<spring:message code='cutmotiondate.submitdate' text='Submit Date'/>" class="butDef">

@@ -103,4 +103,32 @@ public class DeviceTypeRepository extends BaseRepository<DeviceType, Serializabl
         
 		return deviceTypes;
 	}
+	
+	public List<DeviceType> getDevicesContainedIn(final String strDevices, final String locale){
+		List<DeviceType> devices = new ArrayList<DeviceType>();
+		try{
+			StringBuffer strQuery = new StringBuffer("SELECT d FROM DeviceType d WHERE d.locale=:locale");
+			
+			String[] arrDevices = strDevices.split(","); 
+			for(int i = 0; i < arrDevices.length; i++){
+				if(i == 0){
+					strQuery.append(" AND (d.type=:dev" + i);
+				}else{
+					strQuery.append(" OR d.type=:dev" + i);
+				}
+			}
+			strQuery.append(")");
+			
+			TypedQuery<DeviceType> query = this.em().createQuery(strQuery.toString(), DeviceType.class);
+			query.setParameter("locale", locale);
+			for(int i = 0; i < arrDevices.length; i++){
+				query.setParameter("dev" + i, arrDevices[i]);				
+			}
+			devices = query.getResultList();
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return devices;
+	}
 }

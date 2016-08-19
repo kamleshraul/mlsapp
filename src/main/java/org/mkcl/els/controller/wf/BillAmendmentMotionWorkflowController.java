@@ -21,6 +21,8 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.controller.mois.BillAmendmentMotionController;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -36,6 +38,8 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
@@ -413,8 +417,10 @@ public class BillAmendmentMotionWorkflowController extends BaseController {
 		/**** UserGroup and UserGroup Type ****/
 		String usergroup = workflowDetails.getAssigneeUserGroupId();
 		model.addAttribute("usergroup",usergroup);
+		UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.parseLong(usergroup));
 		String usergroupType = workflowDetails.getAssigneeUserGroupType();
 		model.addAttribute("usergroupType",usergroupType);
+		UserGroupType userGroupType = UserGroupType.findByType(usergroupType, locale);
 		//=================== Member related things ==================/
 		String memberNames=null;
 		/**** Primary Member ****/		
@@ -510,6 +516,29 @@ public class BillAmendmentMotionWorkflowController extends BaseController {
 		}
 		/**** Created By ****/
 		model.addAttribute("createdBy",domain.getCreatedBy());
+		/**** Referenced Motions Starts ****/
+		CustomParameter clubbedReferencedEntitiesVisibleUserGroups = CustomParameter.
+				findByName(CustomParameter.class, "BAMOIS_ALLOWED_USERGROUP_TO_DO_VIEW_CLUBBING_REFERENCING", "");   
+		if(clubbedReferencedEntitiesVisibleUserGroups != null){
+			List<UserGroupType> userGroupTypes = 
+					this.populateListOfObjectExtendingBaseDomainByDelimitedTypes(UserGroupType.class, clubbedReferencedEntitiesVisibleUserGroups.getValue(), ",", locale);
+			Boolean isUserGroupAllowed = this.isObjectExtendingBaseDomainAvailableInList(userGroupTypes, userGroupType);
+			if(isUserGroupAllowed){
+				//populate parent
+				if(domain.getParent()!=null){
+					model.addAttribute("formattedParentNumber",FormaterUtil.formatNumberNoGrouping(domain.getParent().getNumber(), locale));
+					model.addAttribute("parent",domain.getParent().getId());
+				}
+				//populate referenced entity
+//				if(domain.getReferencedAdjournmentMotion()!=null){
+//					Reference referencedEntityReference = BillAmendmentMotionController.populateReferencedEntityAsReference(domain, locale);
+//					model.addAttribute("referencedMotion",referencedEntityReference);
+//				}
+				// Populate clubbed entities
+				List<Reference> clubEntityReferences = BillAmendmentMotionController.populateClubbedEntityReferences(domain, locale);
+				model.addAttribute("clubbedMotionsToShow",clubEntityReferences);
+			}
+		}
 		/**** Status,Internal Status and recommendation Status ****/
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();
@@ -533,6 +562,13 @@ public class BillAmendmentMotionWorkflowController extends BaseController {
 		/**** list of put up options available ****/			
 		if(!workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
 				&& !workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
+//			if(workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
+//					|| workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
+//					|| workflowDetails.getWorkflowType().equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
+//				populateInternalStatus(model,domain,domain.getRecommendationStatus(),domain.getLocale());
+//			} else {
+//				populateInternalStatus(model,domain,domain.getInternalStatus(),domain.getLocale());
+//			}
 			populateInternalStatus(model,domain,workflowDetails.getWorkflowType(),locale);
 		} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
 				&& !workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)) {
@@ -669,62 +705,62 @@ public class BillAmendmentMotionWorkflowController extends BaseController {
 		}
 		/**** Populating Put up options and Actors ****/							
 		if(usergroupType!=null&&!usergroupType.isEmpty()){				
-			UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(usergroup));
 			String currentStatusType=null;	
-			List<Reference> actors=new ArrayList<Reference>();
+//			List<Reference> actors=new ArrayList<Reference>();
 			CustomParameter finalApprovingAuthority=null;
 			String recommendedAction = null;
 			Status statusRecommended = null;
-			if(workflowDetails.getWorkflowType().equals(ApplicationConstants.APPROVAL_WORKFLOW)) {
-				if(domain.getInternalStatus()!=null) {					
-					actors = WorkflowConfig.findBillAmendmentMotionActorsVO(domain, domain.getInternalStatus(), userGroup, 1, locale);
-					statusRecommended = domain.getInternalStatus();
-					currentStatusType = domain.getInternalStatus().getType();
-					if(currentStatusType!=null) {
-						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
-						recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
-						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
-							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
-								statusRecommended = Status.findByType("billamendmentmotion_final_"+recommendedAction, locale);
-								model.addAttribute("hideActorsFlag",true);
-								if(statusRecommended!=null) {
-									domain.setInternalStatus(statusRecommended);
-									domain.setRecommendationStatus(statusRecommended);
-								}
-							}
-						}						
-					}
-				}								
-			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
-				if(domain.getInternalStatus()!=null) {
-					actors = WorkflowConfig.findBillAmendmentMotionActorsVO(domain, domain.getInternalStatus(), userGroup, 1, locale);
-					statusRecommended = domain.getInternalStatus();
-					currentStatusType = domain.getInternalStatus().getType();
-					if(currentStatusType!=null) {
-						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
-						if(currentStatusType.contains("reject")) {
-							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-2]
-									+ "_" + currentStatusType.split("_")[currentStatusType.split("_").length-1] ;
-						} else {
-							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
-						}
-						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
-							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
-								statusRecommended = Status.findByType("billamendmentmotion_final_"+recommendedAction, locale);
-								model.addAttribute("hideActorsFlag",true);
-								if(statusRecommended!=null) {
-									domain.setInternalStatus(statusRecommended);
-									domain.setRecommendationStatus(statusRecommended);
-								}
-							}
-						}						
-					}
-				}				
-			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {				
+//			if(workflowDetails.getWorkflowType().equals(ApplicationConstants.APPROVAL_WORKFLOW)) {
+//				if(domain.getInternalStatus()!=null) {					
+//					actors = WorkflowConfig.findBillAmendmentMotionActorsVO(domain, domain.getInternalStatus(), userGroup, 1, locale);
+//					statusRecommended = domain.getInternalStatus();
+//					currentStatusType = domain.getInternalStatus().getType();
+//					if(currentStatusType!=null) {
+//						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+//						recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
+//						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
+//							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
+//								statusRecommended = Status.findByType("billamendmentmotion_final_"+recommendedAction, locale);
+//								model.addAttribute("hideActorsFlag",true);
+//								if(statusRecommended!=null) {
+//									domain.setInternalStatus(statusRecommended);
+//									domain.setRecommendationStatus(statusRecommended);
+//								}
+//							}
+//						}						
+//					}
+//				}								
+//			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
+//				if(domain.getInternalStatus()!=null) {
+//					actors = WorkflowConfig.findBillAmendmentMotionActorsVO(domain, domain.getInternalStatus(), userGroup, 1, locale);
+//					statusRecommended = domain.getInternalStatus();
+//					currentStatusType = domain.getInternalStatus().getType();
+//					if(currentStatusType!=null) {
+//						finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+//						if(currentStatusType.contains("reject")) {
+//							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-2]
+//									+ "_" + currentStatusType.split("_")[currentStatusType.split("_").length-1] ;
+//						} else {
+//							recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
+//						}
+//						if(finalApprovingAuthority!=null&&recommendedAction!=null) {
+//							if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
+//								statusRecommended = Status.findByType("billamendmentmotion_final_"+recommendedAction, locale);
+//								model.addAttribute("hideActorsFlag",true);
+//								if(statusRecommended!=null) {
+//									domain.setInternalStatus(statusRecommended);
+//									domain.setRecommendationStatus(statusRecommended);
+//								}
+//							}
+//						}						
+//					}
+//				}				
+//			} else 
+			if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {				
 				if(translationStatus!=null) {
-					if(!(usergroupType.equals(ApplicationConstants.TRANSLATOR) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
-						actors = WorkflowConfig.findBillAmendmentMotionActorsVO(domain, translationStatus, userGroup, 1, locale);
-					}					
+//					if(!(usergroupType.equals(ApplicationConstants.TRANSLATOR) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
+//						actors = WorkflowConfig.findBillAmendmentMotionActorsVO(domain, translationStatus, userGroup, 1, locale);
+//					}					
 					statusRecommended = translationStatus;
 					currentStatusType = translationStatus.getType();
 					if(currentStatusType!=null) {
@@ -745,9 +781,9 @@ public class BillAmendmentMotionWorkflowController extends BaseController {
 				}					
 			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {				
 				if(opinionFromLawAndJDStatus!=null) {
-					if(!(usergroupType.equals(ApplicationConstants.OPINION_ABOUT_BILLAMENDMENTMOTION_DEPARTMENT) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
-						actors = WorkflowConfig.findBillAmendmentMotionActorsVO(domain, opinionFromLawAndJDStatus, userGroup, 1, locale);
-					}					
+//					if(!(usergroupType.equals(ApplicationConstants.OPINION_ABOUT_BILLAMENDMENTMOTION_DEPARTMENT) && workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED))) {
+//						actors = WorkflowConfig.findBillAmendmentMotionActorsVO(domain, opinionFromLawAndJDStatus, userGroup, 1, locale);
+//					}					
 					statusRecommended = opinionFromLawAndJDStatus;
 					currentStatusType = opinionFromLawAndJDStatus.getType();
 					if(currentStatusType!=null) {
@@ -766,11 +802,52 @@ public class BillAmendmentMotionWorkflowController extends BaseController {
 						}						
 					}
 				}
+			} else {
+				if(workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
+						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
+						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
+//					actors = WorkflowConfig.findBillAmendmentMotionActorsVO(domain, recommendationStatus, userGroup, Integer.parseInt(domain.getLevel()), locale);
+					statusRecommended = domain.getRecommendationStatus();
+					currentStatusType = domain.getRecommendationStatus().getType();
+				}else{
+//					actors = WorkflowConfig.findBillAmendmentMotionActorsVO(domain, internalStatus, userGroup, Integer.parseInt(domain.getLevel()), locale);
+					statusRecommended = domain.getInternalStatus();
+					currentStatusType = domain.getInternalStatus().getType();
+				}
+				if(currentStatusType!=null) {
+					if(currentStatusType.contains("reject") && !currentStatusType.endsWith("rejection")) {
+						recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-2]
+								+ "_" + currentStatusType.split("_")[currentStatusType.split("_").length-1] ;
+					} else {
+						recommendedAction = currentStatusType.split("_")[currentStatusType.split("_").length-1];
+					}
+					finalApprovingAuthority = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+workflowDetails.getWorkflowType().toUpperCase()+"_FINAL_AUTHORITY", "");
+					if(finalApprovingAuthority==null) {
+						finalApprovingAuthority = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_"+workflowDetails.getWorkflowType().toUpperCase()+"_FINAL_AUTHORITY", "");
+					}					
+					if(finalApprovingAuthority==null) {
+						finalApprovingAuthority = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+					}
+					if(finalApprovingAuthority!=null&&recommendedAction!=null) {
+						if(finalApprovingAuthority.getValue().contains(usergroupType)) {							
+							statusRecommended = Status.findByType("billamendmentmotion_final_"+recommendedAction, locale);
+							model.addAttribute("hideActorsFlag",true);
+							if(statusRecommended!=null) {
+								if(!workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
+										&& !workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
+										&& !workflowDetails.getWorkflowType().equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
+									domain.setInternalStatus(statusRecommended);
+								} 								
+								domain.setRecommendationStatus(statusRecommended);
+							}
+						}
+					}						
+				}
 			}
 			if(statusRecommended!=null) {
 				model.addAttribute("internalStatusSelected",statusRecommended.getId());
 			}				
-			model.addAttribute("actors",actors);
+//			model.addAttribute("actors",actors);
 //			if(actors!=null&&!actors.isEmpty()){
 //				String nextActor=actors.get(0).getId();
 //				String[] actorArr=nextActor.split("#");
@@ -794,339 +871,415 @@ public class BillAmendmentMotionWorkflowController extends BaseController {
 	public String updateMyTask(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale,@Valid @ModelAttribute("domain") final BillAmendmentMotion domain,final BindingResult result) {
-		BillAmendmentMotion billAmendmentMotion = null;
 		/**** Workflowdetails ****/
-		String strWorkflowdetails=(String) request.getParameter("workflowdetails");
-		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
-		if(workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)) {
-			/**** display message ****/
-			model.addAttribute("type","taskalreadycompleted");
-			return "workflow/info";
-		}
-		/**** amended bill ****/
-		//String amendedBillId = request.getP
-		/** Custom Status for Auxillary Workflows **/
-		Status customStatus = null;		
-		if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
-				|| workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) { 
-			if(request.getParameter("customStatus")!=null && !request.getParameter("customStatus").isEmpty()) {
-				customStatus = Status.findById(Status.class, Long.parseLong(request.getParameter("customStatus")));
-				workflowDetails.setCustomStatus(customStatus.getType());
-			}			
-		}		
-		if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
-				&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)) {
-			if(billAmendmentMotion==null) {
-				billAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, domain.getId());
+		String strWorkflowdetails = (String) request.getParameter("workflowdetails");
+		WorkflowDetails workflowDetails = 
+				WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+		String userGroupType = workflowDetails.getAssigneeUserGroupType();
+		try {
+			BillAmendmentMotion billAmendmentMotion = null;
+			if(workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)) {
+				/**** display message ****/
+				model.addAttribute("type","taskalreadycompleted");
+				return "workflow/info";
+			}
+			/**** amended bill ****/
+			//String amendedBillId = request.getP
+			/** Custom Status for Auxillary Workflows **/
+			Status customStatus = null;		
+			if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
+					|| workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) { 
+				if(request.getParameter("customStatus")!=null && !request.getParameter("customStatus").isEmpty()) {
+					customStatus = Status.findById(Status.class, Long.parseLong(request.getParameter("customStatus")));
+					workflowDetails.setCustomStatus(customStatus.getType());
+				}			
 			}		
-			billAmendmentMotion.setAmendedBillLanguages(domain.getAmendedBillLanguages());
+			if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
+					&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)) {
+				if(billAmendmentMotion==null) {
+					billAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, domain.getId());
+				}		
+				billAmendmentMotion.setAmendedBillLanguages(domain.getAmendedBillLanguages());
+				/**** add/update revised section amendments in domain ****/
+				billAmendmentMotion.getRevisedSectionAmendments().clear();
+				List<SectionAmendment> revisedSectionAmendments = new ArrayList<SectionAmendment>();
+				try {
+					revisedSectionAmendments = this.updateRevisedSectionAmendments(domain, request);
+				} catch (ELSException e) {
+					e.printStackTrace();			
+				}
+				if(revisedSectionAmendments!=null) {
+					for(SectionAmendment rsa: revisedSectionAmendments) {
+						billAmendmentMotion.getRevisedSectionAmendments().add(rsa);
+					}
+				}
+				billAmendmentMotion.setEditedOn(new Date());
+				billAmendmentMotion.setEditedBy(this.getCurrentUser().getActualUsername());
+				billAmendmentMotion.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+				billAmendmentMotion.merge();
+				if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
+					if(request.getParameter("operation").equals("saveTranslation")) {
+						model.addAttribute("type","success");
+						model.addAttribute("workflowdetails",workflowDetails.getId());
+						model.addAttribute("workflowstatus",workflowDetails.getStatus());
+						model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
+						model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
+						populateModel(billAmendmentMotion, model, request, workflowDetails);
+						return "workflow/billamendmentmotion/"+userGroupType;
+					} else if(request.getParameter("operation").equals("sendTranslation")) {
+						String endFlag=request.getParameter("endFlagForAuxillaryWorkflow");
+						Map<String,String> properties=new HashMap<String, String>();
+						String level="";
+						String nextUserGroupType="";
+						String nextuser = request.getParameter("actor");
+						if(nextuser!=null){
+							if(!nextuser.isEmpty()){
+								String[] temp=nextuser.split("#");
+								nextUserGroupType=temp[1];
+								properties.put("pv_user",temp[0]);
+								level=temp[2];
+							}
+						}
+						properties.put("pv_deviceId",String.valueOf(billAmendmentMotion.getId()));
+						properties.put("pv_deviceTypeId",String.valueOf(billAmendmentMotion.getType().getId()));		
+						properties.put("pv_endflag", endFlag);
+						properties.put("pv_timerflag", "off");
+						properties.put("pv_mailflag", "off");		
+						String strTaskId=workflowDetails.getTaskId();
+						Task task=processService.findTaskById(strTaskId);
+						processService.completeTask(task,properties);		
+						if(endFlag!=null){
+							if(!endFlag.isEmpty()){
+								if(endFlag.equals("continue")){					
+									ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+									Task newtask=processService.getCurrentTask(processInstance);
+									/**** Workflow Detail entry made only if its not the end of workflow ****/
+									if(customStatus!=null) {
+										WorkflowDetails.create(domain,newtask,workflowDetails.getWorkflowType(),customStatus.getType(),nextUserGroupType, level);
+									} else {
+										WorkflowDetails.create(domain,newtask,workflowDetails.getWorkflowType(),null,nextUserGroupType, level);
+									}
+									
+								}
+							}
+						}
+						workflowDetails.setStatus("COMPLETED");
+						workflowDetails.setCompletionTime(new Date());			
+						Status translationCompletedStatus = Status.findByType(ApplicationConstants.BILLAMENDMENTMOTION_TRANSLATION_COMPLETED, billAmendmentMotion.getLocale());
+						workflowDetails.setCustomStatus(translationCompletedStatus.getType());
+						workflowDetails.merge();
+						/**** display message ****/
+						model.addAttribute("type","taskcompleted");
+						return "workflow/info";					
+					}
+				}
+			}
+			/**** Binding Supporting Members ****/
+			String[] strSupportingMembers=request.getParameterValues("selectedSupportingMembers");
+			List<SupportingMember> members=new ArrayList<SupportingMember>();
+			if(domain.getId()!=null){
+				if(billAmendmentMotion==null) {
+					billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,domain.getId());
+				}			
+				members=billAmendmentMotion.getSupportingMembers();
+			}
+			if(strSupportingMembers!=null){
+				if(strSupportingMembers.length>0){
+					List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
+					for(String i:strSupportingMembers){
+						SupportingMember supportingMember=null;
+						Member member=Member.findById(Member.class, Long.parseLong(i));
+						/**** If supporting member is already present then do nothing ****/
+						for(SupportingMember j:members){
+							if(j.getMember().getId().equals(member.getId())){
+								supportingMember=j;
+								supportingMembers.add(supportingMember);
+								break;
+							}
+						}					
+					}
+					domain.setSupportingMembers(supportingMembers);
+				}
+			}
+//			/**** Binding Supporting Members ****/
+//			String[] strSupportingMembers=request.getParameterValues("supportingMembers");
+//			if(strSupportingMembers!=null){
+//				if(strSupportingMembers.length>0){
+//					List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
+//					for(String i:strSupportingMembers){
+//						SupportingMember supportingMember=SupportingMember.findById(SupportingMember.class, Long.parseLong(i));
+//						supportingMembers.add(supportingMember);
+//					}
+//					domain.setSupportingMembers(supportingMembers);
+//				}
+//			}
+			/***** To retain the clubbed bill amendment motions when moving through workflow ****/
+			String[] strClubbedEntities= request.getParameterValues("clubbedEntities");
+			if(strClubbedEntities!=null){
+				if(strClubbedEntities.length>0){
+					List<ClubbedEntity> clubbedEntities=new ArrayList<ClubbedEntity>();
+					for(String i:strClubbedEntities){
+						ClubbedEntity clubbedEntity=ClubbedEntity.findById(ClubbedEntity.class, Long.parseLong(i));
+						clubbedEntities.add(clubbedEntity);
+					}
+					domain.setClubbedEntities(clubbedEntities);
+				}
+			}
+			/***** To retain the parent billamendmentmotion when moving through workflow ****/
+			String strParentBillAmendmentMotion = request.getParameter("parent");
+			if(strParentBillAmendmentMotion!=null) {
+				if(!strParentBillAmendmentMotion.isEmpty()) {
+					BillAmendmentMotion parentBillAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, Long.parseLong(strParentBillAmendmentMotion));
+					domain.setParent(parentBillAmendmentMotion);
+				}
+			}
+			/**** Updating domain ****/
+			domain.setEditedOn(new Date());
+			domain.setEditedBy(this.getCurrentUser().getActualUsername());
+			domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+			/**** updating various dates including submission date and creation date ****/
+			String strCreationDate=request.getParameter("setCreationDate");
+			String strSubmissionDate=request.getParameter("setSubmissionDate");
+			String strDateOfOpinionSoughtFromLawAndJD=request.getParameter("setDateOfOpinionSoughtFromLawAndJD");
+			CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+			if(dateTimeFormat!=null){
+				SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
+				try {
+					if(strSubmissionDate!=null){
+						domain.setSubmissionDate(format.parse(strSubmissionDate));
+					}
+					if(strCreationDate!=null){
+						domain.setCreationDate(format.parse(strCreationDate));
+					}	
+					if(strDateOfOpinionSoughtFromLawAndJD!=null&&!strDateOfOpinionSoughtFromLawAndJD.isEmpty()) {
+						domain.setDateOfOpinionSoughtFromLawAndJD(format.parse(strDateOfOpinionSoughtFromLawAndJD));
+					}
+				}
+				catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+			/**** add/update section amendments in domain ****/
+			List<SectionAmendment> sectionAmendments = new ArrayList<SectionAmendment>();
+			try {
+				sectionAmendments = this.updateSectionAmendments(domain, request);
+			} catch (ELSException e) {
+				e.printStackTrace();			
+			}
+			domain.setSectionAmendments(sectionAmendments);
 			/**** add/update revised section amendments in domain ****/
-			billAmendmentMotion.getRevisedSectionAmendments().clear();
 			List<SectionAmendment> revisedSectionAmendments = new ArrayList<SectionAmendment>();
 			try {
 				revisedSectionAmendments = this.updateRevisedSectionAmendments(domain, request);
 			} catch (ELSException e) {
 				e.printStackTrace();			
 			}
-			if(revisedSectionAmendments!=null) {
-				for(SectionAmendment rsa: revisedSectionAmendments) {
-					billAmendmentMotion.getRevisedSectionAmendments().add(rsa);
+			domain.setRevisedSectionAmendments(revisedSectionAmendments);
+			
+			/**** added by dhananjayb.. required in case when domain is updated with start of new workflow before completion of current workflow ****/
+			String endFlagForCurrentWorkflow = domain.getEndFlag();				
+			
+			if(domain.getDrafts()==null) {
+				if(billAmendmentMotion==null) {
+					billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,domain.getId());
+				}
+				domain.setDrafts(billAmendmentMotion.getDrafts());
+			}
+			
+			String currentDeviceTypeWorkflowType = workflowDetails.getWorkflowType();
+			if(!currentDeviceTypeWorkflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW) 
+					&& !currentDeviceTypeWorkflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
+				Workflow workflowFromUpdatedStatus = domain.findWorkflowFromStatus();
+				
+				//String sendbackactor=request.getParameter("sendbackactor");
+				if(workflowFromUpdatedStatus!=null) {
+					currentDeviceTypeWorkflowType = workflowFromUpdatedStatus.getType();
 				}
 			}
-			billAmendmentMotion.setEditedOn(new Date());
-			billAmendmentMotion.setEditedBy(this.getCurrentUser().getActualUsername());
-			billAmendmentMotion.setEditedAs(workflowDetails.getAssigneeUserGroupName());
-			billAmendmentMotion.merge();
+				
+			performAction(domain, request);	
+			domain.merge();
+			
+			/**** Complete Task ****/			
 			if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
-				if(request.getParameter("operation").equals("saveTranslation")) {
+				if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW) 
+						&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.OPINION_ABOUT_BILLAMENDMENTMOTION_DEPARTMENT)
+						&& request.getParameter("operation").equals("saveOpinionFromLawAndJD")) {
 					model.addAttribute("type","success");
 					model.addAttribute("workflowdetails",workflowDetails.getId());
 					model.addAttribute("workflowstatus",workflowDetails.getStatus());
 					model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
 					model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
+					/** Stale State Exception **/
+					billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,domain.getId());
 					populateModel(billAmendmentMotion, model, request, workflowDetails);
-					String userGroupType = workflowDetails.getAssigneeUserGroupType();
 					return "workflow/billamendmentmotion/"+userGroupType;
-				} else if(request.getParameter("operation").equals("sendTranslation")) {
-					String endflag=request.getParameter("endflag");
-					Map<String,String> properties=new HashMap<String, String>();
-					String level="";
-					String nextUserGroupType="";
-					String nextuser = request.getParameter("actor");
-					if(nextuser!=null){
-						if(!nextuser.isEmpty()){
-							String[] temp=nextuser.split("#");
-							nextUserGroupType=temp[1];
-							properties.put("pv_user",temp[0]);
-							level=temp[2];
-						}
+				}
+			}		
+			String endFlag="";	
+			Map<String,String> properties=new HashMap<String, String>();
+			String level="";
+			String nextUserGroupType="";
+			String nextuser = request.getParameter("actor");
+			if(nextuser!=null){
+				if(!nextuser.isEmpty()){
+					String[] temp=nextuser.split("#");
+					nextUserGroupType=temp[1];
+					properties.put("pv_user",temp[0]);
+					level=temp[2];
+				}
+			}
+			if(workflowDetails.getWorkflowType().equals(ApplicationConstants.TRANSLATION_WORKFLOW)
+					|| workflowDetails.getWorkflowType().equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
+				endFlag=request.getParameter("endFlagForAuxillaryWorkflow");
+			} else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
+				endFlag = endFlagForCurrentWorkflow;
+			} else {
+				endFlag=request.getParameter("endFlag");
+			}					
+			properties.put("pv_deviceId",String.valueOf(domain.getId()));
+			properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));		
+			properties.put("pv_endflag", endFlag);
+			/**** set timer for translation ****/
+			if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)
+					&& customStatus.getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_TRANSLATION)
+					&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)) {
+				properties.put("pv_workflowtype", ApplicationConstants.TRANSLATION_WORKFLOW);
+				properties.put("pv_timerflag", "set");
+				String lastTimerDuration;
+				String translationTimeoutDays = domain.getSession().getParameter(domain.getType().getType()+"_translationTimeoutDays");
+				//CustomParameter translationTimeoutDays = CustomParameter.findByName(CustomParameter.class, "BILLAMENDMENTMOTION_TRANSLATION_TIMEOUT_DAYS", "");
+				if(translationTimeoutDays!=null) {
+					lastTimerDuration = "PT"+translationTimeoutDays+"M";
+				} else {
+					lastTimerDuration = "PT10M";
+				}
+				properties.put("pv_timerduration", "PT1M");
+				properties.put("pv_reminderflag", "off");
+				properties.put("pv_lasttimerduration", lastTimerDuration);
+			} else {
+				properties.put("pv_timerflag", "off");
+			}
+			properties.put("pv_mailflag", "off");		
+			String strTaskId=workflowDetails.getTaskId();
+			Task task=processService.findTaskById(strTaskId);
+			processService.completeTask(task,properties);
+			if(endFlag!=null){
+				if(!endFlag.isEmpty()){
+					if(endFlag.equals("continue")){					
+						ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+						Task newtask=processService.getCurrentTask(processInstance);
+						/**** Workflow Detail entry made only if its not the end of workflow ****/
+						if(customStatus!=null) {
+							WorkflowDetails.create(domain,newtask,currentDeviceTypeWorkflowType,customStatus.getType(),nextUserGroupType, level);
+						} else {
+							WorkflowDetails.create(domain,newtask,currentDeviceTypeWorkflowType,null,nextUserGroupType, level);
+						}					
 					}
-					properties.put("pv_deviceId",String.valueOf(billAmendmentMotion.getId()));
-					properties.put("pv_deviceTypeId",String.valueOf(billAmendmentMotion.getType().getId()));		
-					properties.put("pv_endflag", endflag);
-					properties.put("pv_timerflag", "off");
-					properties.put("pv_mailflag", "off");		
-					String strTaskId=workflowDetails.getTaskId();
-					Task task=processService.findTaskById(strTaskId);
-					processService.completeTask(task,properties);		
-					if(endflag!=null){
-						if(!endflag.isEmpty()){
-							if(endflag.equals("continue")){					
-								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-								Task newtask=processService.getCurrentTask(processInstance);
-								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								if(customStatus!=null) {
-									WorkflowDetails.create(domain,newtask,workflowDetails.getWorkflowType(),customStatus.getType(),nextUserGroupType, level);
-								} else {
-									WorkflowDetails.create(domain,newtask,workflowDetails.getWorkflowType(),null,nextUserGroupType, level);
-								}
-								
+				}
+			}
+			workflowDetails.setStatus("COMPLETED");
+			workflowDetails.setCompletionTime(new Date());
+			/**** Stale State Exception ****/
+			billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,domain.getId());
+			if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {
+				if(customStatus.getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_TRANSLATION)) {
+					if(domain.getRemarks()!=null && !domain.getRemarks().isEmpty()) {
+						billAmendmentMotion.setRemarksForTranslation(domain.getRemarks());
+					}				
+					billAmendmentMotion.simpleMerge();
+				}
+				if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
+					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)
+						&& request.getParameter("operation").equals("sendTranslation")) {
+						Status translationCompletedStatus = Status.findByType(ApplicationConstants.BILLAMENDMENTMOTION_TRANSLATION_COMPLETED, billAmendmentMotion.getLocale());
+						workflowDetails.setCustomStatus(translationCompletedStatus.getType());					
+					}
+				}
+			} else if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
+				if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
+					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.OPINION_ABOUT_BILLAMENDMENTMOTION_DEPARTMENT)
+						&& request.getParameter("operation").equals("sendOpinionFromLawAndJD")) {
+						Status opinionFromLawAndJDReceivedStatus = Status.findByType(ApplicationConstants.BILLAMENDMENTMOTION_OPINION_FROM_LAWANDJD_RECEIVED, billAmendmentMotion.getLocale());
+						workflowDetails.setCustomStatus(opinionFromLawAndJDReceivedStatus.getType());
+						if(domain.getOpinionSoughtFromLawAndJD()!=null) {
+							if(!domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
+								billAmendmentMotion.setDateOfOpinionSoughtFromLawAndJD(new Date());
+								billAmendmentMotion.simpleMerge();
 							}
 						}
 					}
-					workflowDetails.setStatus("COMPLETED");
-					workflowDetails.setCompletionTime(new Date());			
-					Status translationCompletedStatus = Status.findByType(ApplicationConstants.BILLAMENDMENTMOTION_TRANSLATION_COMPLETED, billAmendmentMotion.getLocale());
-					workflowDetails.setCustomStatus(translationCompletedStatus.getType());
-					workflowDetails.merge();
-					/**** display message ****/
-					model.addAttribute("type","taskcompleted");
-					return "workflow/info";					
 				}
 			}
-		}
-		/**** Binding Supporting Members ****/
-		String[] strSupportingMembers=request.getParameterValues("selectedSupportingMembers");
-		List<SupportingMember> members=new ArrayList<SupportingMember>();
-		if(domain.getId()!=null){
-			if(billAmendmentMotion==null) {
-				billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,domain.getId());
-			}			
-			members=billAmendmentMotion.getSupportingMembers();
-		}
-		if(strSupportingMembers!=null){
-			if(strSupportingMembers.length>0){
-				List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
-				for(String i:strSupportingMembers){
-					SupportingMember supportingMember=null;
-					Member member=Member.findById(Member.class, Long.parseLong(i));
-					/**** If supporting member is already present then do nothing ****/
-					for(SupportingMember j:members){
-						if(j.getMember().getId().equals(member.getId())){
-							supportingMember=j;
-							supportingMembers.add(supportingMember);
-							break;
-						}
-					}					
-				}
-				domain.setSupportingMembers(supportingMembers);
-			}
-		}
-//		/**** Binding Supporting Members ****/
-//		String[] strSupportingMembers=request.getParameterValues("supportingMembers");
-//		if(strSupportingMembers!=null){
-//			if(strSupportingMembers.length>0){
-//				List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
-//				for(String i:strSupportingMembers){
-//					SupportingMember supportingMember=SupportingMember.findById(SupportingMember.class, Long.parseLong(i));
-//					supportingMembers.add(supportingMember);
-//				}
-//				domain.setSupportingMembers(supportingMembers);
-//			}
-//		}
-		/***** To retain the clubbed bill amendment motions when moving through workflow ****/
-		String[] strClubbedEntities= request.getParameterValues("clubbedEntities");
-		if(strClubbedEntities!=null){
-			if(strClubbedEntities.length>0){
-				List<ClubbedEntity> clubbedEntities=new ArrayList<ClubbedEntity>();
-				for(String i:strClubbedEntities){
-					ClubbedEntity clubbedEntity=ClubbedEntity.findById(ClubbedEntity.class, Long.parseLong(i));
-					clubbedEntities.add(clubbedEntity);
-				}
-				domain.setClubbedEntities(clubbedEntities);
-			}
-		}
-		/***** To retain the parent billamendmentmotion when moving through workflow ****/
-		String strParentBillAmendmentMotion = request.getParameter("parent");
-		if(strParentBillAmendmentMotion!=null) {
-			if(!strParentBillAmendmentMotion.isEmpty()) {
-				BillAmendmentMotion parentBillAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, Long.parseLong(strParentBillAmendmentMotion));
-				domain.setParent(parentBillAmendmentMotion);
-			}
-		}
-		/**** Updating domain ****/
-		domain.setEditedOn(new Date());
-		domain.setEditedBy(this.getCurrentUser().getActualUsername());
-		domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
-		/**** updating various dates including submission date and creation date ****/
-		String strCreationDate=request.getParameter("setCreationDate");
-		String strSubmissionDate=request.getParameter("setSubmissionDate");
-		String strDateOfOpinionSoughtFromLawAndJD=request.getParameter("setDateOfOpinionSoughtFromLawAndJD");
-		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
-		if(dateTimeFormat!=null){
-			SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
-			try {
-				if(strSubmissionDate!=null){
-					domain.setSubmissionDate(format.parse(strSubmissionDate));
-				}
-				if(strCreationDate!=null){
-					domain.setCreationDate(format.parse(strCreationDate));
-				}	
-				if(strDateOfOpinionSoughtFromLawAndJD!=null&&!strDateOfOpinionSoughtFromLawAndJD.isEmpty()) {
-					domain.setDateOfOpinionSoughtFromLawAndJD(format.parse(strDateOfOpinionSoughtFromLawAndJD));
-				}
-			}
-			catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
-		/**** add/update section amendments in domain ****/
-		List<SectionAmendment> sectionAmendments = new ArrayList<SectionAmendment>();
-		try {
-			sectionAmendments = this.updateSectionAmendments(domain, request);
+			workflowDetails.merge();		
+			/**** display message ****/
+			model.addAttribute("type","taskcompleted");
+			return "workflow/info";
 		} catch (ELSException e) {
-			e.printStackTrace();			
+			model.addAttribute("error", e.getParameter());
+		} catch (Exception e) {
+			String message = e.getMessage();
+			if(message == null){
+				message = "** There is some problem, request may not complete successfully.";
+			}
+			model.addAttribute("error", message);
+			e.printStackTrace();
 		}
-		domain.setSectionAmendments(sectionAmendments);
-		/**** add/update revised section amendments in domain ****/
-		List<SectionAmendment> revisedSectionAmendments = new ArrayList<SectionAmendment>();
-		try {
-			revisedSectionAmendments = this.updateRevisedSectionAmendments(domain, request);
-		} catch (ELSException e) {
-			e.printStackTrace();			
-		}
-		domain.setRevisedSectionAmendments(revisedSectionAmendments);
-		
-		performAction(domain, request);	
-		domain.merge();
-		
-		/**** Complete Task ****/
-		String currentDeviceTypeWorkflowType = workflowDetails.getWorkflowType();
-		if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
-			if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW) 
-					&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.OPINION_ABOUT_BILLAMENDMENTMOTION_DEPARTMENT)
-					&& request.getParameter("operation").equals("saveOpinionFromLawAndJD")) {
-				model.addAttribute("type","success");
-				model.addAttribute("workflowdetails",workflowDetails.getId());
-				model.addAttribute("workflowstatus",workflowDetails.getStatus());
-				model.addAttribute("workflowtype", workflowDetails.getWorkflowType());
-				model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
-				/** Stale State Exception **/
-				billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,domain.getId());
-				populateModel(billAmendmentMotion, model, request, workflowDetails);
-				String userGroupType = workflowDetails.getAssigneeUserGroupType();
-				return "workflow/billamendmentmotion/"+userGroupType;
-			}
-		}		
-		String endflag="";	
-		Map<String,String> properties=new HashMap<String, String>();
-		String level="";
-		String nextUserGroupType="";
-		String nextuser = request.getParameter("actor");
-		if(nextuser!=null){
-			if(!nextuser.isEmpty()){
-				String[] temp=nextuser.split("#");
-				nextUserGroupType=temp[1];
-				properties.put("pv_user",temp[0]);
-				level=temp[2];
-			}
-		}
-		endflag=request.getParameter("endflag");		
-		properties.put("pv_deviceId",String.valueOf(domain.getId()));
-		properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));		
-		properties.put("pv_endflag", endflag);
-		/**** set timer for translation ****/
-		if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)
-				&& customStatus.getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_TRANSLATION)
-				&& workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)) {
-			properties.put("pv_workflowtype", ApplicationConstants.TRANSLATION_WORKFLOW);
-			properties.put("pv_timerflag", "set");
-			String lastTimerDuration;
-			String translationTimeoutDays = domain.getSession().getParameter(domain.getType().getType()+"_translationTimeoutDays");
-			//CustomParameter translationTimeoutDays = CustomParameter.findByName(CustomParameter.class, "BILLAMENDMENTMOTION_TRANSLATION_TIMEOUT_DAYS", "");
-			if(translationTimeoutDays!=null) {
-				lastTimerDuration = "PT"+translationTimeoutDays+"M";
-			} else {
-				lastTimerDuration = "PT10M";
-			}
-			properties.put("pv_timerduration", "PT1M");
-			properties.put("pv_reminderflag", "off");
-			properties.put("pv_lasttimerduration", lastTimerDuration);
-		} else {
-			properties.put("pv_timerflag", "off");
-		}
-		properties.put("pv_mailflag", "off");		
-		String strTaskId=workflowDetails.getTaskId();
-		Task task=processService.findTaskById(strTaskId);
-		processService.completeTask(task,properties);
-		if(endflag!=null){
-			if(!endflag.isEmpty()){
-				if(endflag.equals("continue")){					
-					ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-					Task newtask=processService.getCurrentTask(processInstance);
-					/**** Workflow Detail entry made only if its not the end of workflow ****/
-					if(customStatus!=null) {
-						WorkflowDetails.create(domain,newtask,currentDeviceTypeWorkflowType,customStatus.getType(),nextUserGroupType, level);
-					} else {
-						WorkflowDetails.create(domain,newtask,currentDeviceTypeWorkflowType,null,nextUserGroupType, level);
-					}					
-				}
-			}
-		}
-		workflowDetails.setStatus("COMPLETED");
-		workflowDetails.setCompletionTime(new Date());
-		/**** Stale State Exception ****/
-		billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,domain.getId());
-		if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.TRANSLATION_WORKFLOW)) {
-			if(customStatus.getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_TRANSLATION)) {
-				if(domain.getRemarks()!=null && !domain.getRemarks().isEmpty()) {
-					billAmendmentMotion.setRemarksForTranslation(domain.getRemarks());
-				}				
-				billAmendmentMotion.simpleMerge();
-			}
-			if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
-				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.TRANSLATOR)
-					&& request.getParameter("operation").equals("sendTranslation")) {
-					Status translationCompletedStatus = Status.findByType(ApplicationConstants.BILLAMENDMENTMOTION_TRANSLATION_COMPLETED, billAmendmentMotion.getLocale());
-					workflowDetails.setCustomStatus(translationCompletedStatus.getType());					
-				}
-			}
-		} else if(currentDeviceTypeWorkflowType.equals(ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW)) {
-			if(request.getParameter("operation")!=null && !request.getParameter("operation").isEmpty()) {
-				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.OPINION_ABOUT_BILLAMENDMENTMOTION_DEPARTMENT)
-					&& request.getParameter("operation").equals("sendOpinionFromLawAndJD")) {
-					Status opinionFromLawAndJDReceivedStatus = Status.findByType(ApplicationConstants.BILLAMENDMENTMOTION_OPINION_FROM_LAWANDJD_RECEIVED, billAmendmentMotion.getLocale());
-					workflowDetails.setCustomStatus(opinionFromLawAndJDReceivedStatus.getType());
-					if(domain.getOpinionSoughtFromLawAndJD()!=null) {
-						if(!domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
-							billAmendmentMotion.setDateOfOpinionSoughtFromLawAndJD(new Date());
-							billAmendmentMotion.simpleMerge();
-						}
-					}
-				}
-			}
-		}
-		workflowDetails.merge();		
-		/**** display message ****/
-		model.addAttribute("type","taskcompleted");
-		return "workflow/info";
+		return "workflow/adjournmentmotion/"+userGroupType;		
 	}
 	
-	private void performAction(final BillAmendmentMotion domain, HttpServletRequest request) {
+	private void performAction(final BillAmendmentMotion domain, HttpServletRequest request) throws ELSException {
 		String internalStatus=domain.getInternalStatus().getType();
 		String recommendationStatus=domain.getRecommendationStatus().getType();
+		/**** Admission ****/
 		if(internalStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_ADMISSION)
 				&&recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_ADMISSION)){
 			performActionOnAdmission(domain, request);
-		} else if(internalStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECTION)
-				&&recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_PROCESSED_REJECTIONWITHREASON)){
+		} 
+		/**** Rejection ****/
+		else if(internalStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECTION)
+				&&recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECTION)){
 			performActionOnRejection(domain, request);
-		} else if(internalStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_NAMECLUBBING)&&
+		} 
+		/**** Clubbing is approved ****/
+		else if(internalStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_CLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_CLUBBING)){
+			performActionOnClubbing(domain);
+		}
+		/**** Clubbing is rejected ****/
+		else if(internalStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECT_CLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECT_CLUBBING)){
+			performActionOnClubbingRejection(domain);
+		}
+		/**** Name clubbing is approved ****/
+		else if(internalStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_NAMECLUBBING)&&
 				recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_NAMECLUBBING)){
-			performActionOnNameClubbing(domain, request);
-		} else if(internalStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECT_NAMECLUBBING)&&
+			performActionOnNameClubbing(domain);
+		}		
+		/**** Name clubbing is rejected ****/		
+		else if(internalStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECT_NAMECLUBBING)&&
 				recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECT_NAMECLUBBING)){
-			performActionOnNameClubbingRejection(domain, request);
+			performActionOnNameClubbingRejection(domain);
+		}	
+		/**** Clubbing Post Admission is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_CLUBBING_POST_ADMISSION)){
+			performActionOnClubbingPostAdmission(domain);
+		}
+		/**** Clubbing Post Admission is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECT_CLUBBING_POST_ADMISSION)){
+			performActionOnClubbingRejectionPostAdmission(domain);
+		}
+		/**** Unclubbing is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_UNCLUBBING)){
+			performActionOnUnclubbing(domain);
+		}
+		/**** Unclubbing is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_REJECT_UNCLUBBING)){
+			performActionOnUnclubbingRejection(domain);
+		}
+		/**** Admission Due To Reverse Clubbing is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)){
+			performActionOnAdmissionDueToReverseClubbing(domain);
 		}
 	}
 	
@@ -1176,38 +1329,146 @@ public class BillAmendmentMotionWorkflowController extends BaseController {
 		}
 	}
 	
-	private void performActionOnNameClubbing(BillAmendmentMotion domain, HttpServletRequest request) {
-		Status finalStatus=Status.findByType(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_ADMISSION, domain.getLocale());
-		domain.setStatus(finalStatus);		
-		domain.setInternalStatus(finalStatus);
-//		domain.setRecommendationStatus(finalStatus);
+private void performActionOnClubbing(BillAmendmentMotion domain) throws ELSException {
 		
-//		if(domain.getParent()!=null) {
-//			if(domain.getParent().getInternalStatus().getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_PROCESSED_TOBEINTRODUCED)) {
-//				domain.setInternalStatus(domain.getParent().getInternalStatus());
-//			} else {
-//				domain.setInternalStatus(finalStatus);				
-//			}
-//			if(domain.getParent().getRecommendationStatus().getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_PROCESSED_DEPARTMENTINTIMATED)) {
-//				domain.setRecommendationStatus(domain.getParent().getRecommendationStatus());
-//				//send department intimation here
-//			} else {
-//				domain.setRecommendationStatus(finalStatus);
-//			}
-//		}
-		this.copyOriginalToEmptyRevisedSectionAmendments(domain, request);		
+		BillAmendmentMotion.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
 	}
 	
-	private void performActionOnNameClubbingRejection(BillAmendmentMotion domain, HttpServletRequest request) {
-		if(domain.getStatus().equals(ApplicationConstants.BILLAMENDMENTMOTION_SUBMIT)) {
-			Status internalStatusExpected = Status.findByType(ApplicationConstants.BILLAMENDMENTMOTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
-			domain.setInternalStatus(internalStatusExpected);
-		} else if(domain.getStatus().equals(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_ADMISSION)) {
-			domain.setInternalStatus(domain.getStatus());
-//			domain.setRecommendationStatus(domain.getStatus());
-		}
-		domain.setParent(null);
-		this.copyOriginalToEmptyRevisedSectionAmendments(domain, request);		
+	private void performActionOnClubbingRejection(BillAmendmentMotion domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		BillAmendmentMotion.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+
+	private void performActionOnNameClubbing(BillAmendmentMotion domain) throws ELSException {
+		
+		BillAmendmentMotion.updateClubbing(domain);
+
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		if(!domain.getRecommendationStatus().getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+			domain.setActor(null);
+			domain.setLocalizedActorName("");
+			domain.setWorkflowDetailsId(null);
+			domain.setLevel("1");
+			domain.setWorkflowStarted("NO");
+			domain.setEndFlag(null);		
+		}		
+	}
+	
+	private void performActionOnNameClubbingRejection(BillAmendmentMotion domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+//		domain = ClubbedEntity.unclub(domain);
+		BillAmendmentMotion.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);	
+	}
+
+	private void performActionOnClubbingPostAdmission(BillAmendmentMotion domain) throws ELSException {
+		
+		BillAmendmentMotion.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnClubbingRejectionPostAdmission(BillAmendmentMotion domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		BillAmendmentMotion.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnclubbing(BillAmendmentMotion domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		BillAmendmentMotion.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnclubbingRejection(BillAmendmentMotion domain) throws ELSException {
+		/** Back to clubbed state as it was before sending for unclubbing **/
+		domain.setInternalStatus(domain.getParent().getInternalStatus());
+		domain.setRecommendationStatus(domain.getParent().getInternalStatus());
+		domain.simpleMerge();
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnAdmissionDueToReverseClubbing(BillAmendmentMotion domain) throws ELSException {
+		Status admitStatus = Status.findByType(ApplicationConstants.BILLAMENDMENTMOTION_FINAL_ADMISSION, domain.getLocale());
+		Workflow processWorkflow = Workflow.findByStatus(admitStatus, domain.getLocale());
+		UserGroupType assistantUGT = UserGroupType.findByType(ApplicationConstants.ASSISTANT, domain.getLocale());
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		WorkflowDetails.startProcessAtGivenLevel(domain, ApplicationConstants.APPROVAL_WORKFLOW, processWorkflow, assistantUGT, 6, domain.getLocale());
 	}
 	
 	private void populateInternalStatus(ModelMap model,BillAmendmentMotion domain,String workflowType,String locale) {

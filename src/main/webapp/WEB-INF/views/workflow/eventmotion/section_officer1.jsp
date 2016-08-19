@@ -163,7 +163,7 @@
 	function loadActors(value){
 		if(value!='-'){
 		var params="cutmotion="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 		var resourceURL='ref/cutmotion/actors?'+params;
 	    var sendback=$("#internalStatusMaster option[value='cutmotion_recommend_sendback']").text();			
 	    var discuss=$("#internalStatusMaster option[value='cutmotion_recommend_discuss']").text();		
@@ -217,7 +217,8 @@
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -913,6 +914,7 @@
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
+<input id="originalLevel" type="hidden" value="${level}" />
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

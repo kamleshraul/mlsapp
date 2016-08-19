@@ -80,8 +80,8 @@ public class EditingWorkflowController extends BaseController{
 			strSessionType = decodedStrings[1];
 			strSessionYear = decodedStrings[2];
 			
-			UserGroup speakerUserGroup = UserGroup.findByFieldName(UserGroup.class, "userGroupType.type", ApplicationConstants.SPEAKER, locale.toString());
-			UserGroup chairmanUserGroup = UserGroup.findByFieldName(UserGroup.class, "userGroupType.type", ApplicationConstants.CHAIRMAN, locale.toString());
+			UserGroup speakerUserGroup = UserGroup.findActive(ApplicationConstants.SPEAKER, new Date(), locale.toString());
+			UserGroup chairmanUserGroup = UserGroup.findActive(ApplicationConstants.CHAIRMAN, new Date(), locale.toString());
 			User speaker = EditingWorkflowUtility.getUser(speakerUserGroup, locale.toString());
 			User chairman = EditingWorkflowUtility.getUser(chairmanUserGroup, locale.toString());
 			Member memSpeaker = Member.findMember(speaker.getFirstName(), speaker.getMiddleName(), speaker.getLastName(), speaker.getBirthDate(), locale.toString());
@@ -401,6 +401,10 @@ public class EditingWorkflowController extends BaseController{
 				status = Status.findByType(strStatus, locale.toString());
 			}
 			
+			if(status == null){
+				status = Status.findByType(currentWorkflow.getWorkflowSubType(), locale.toString());
+			}
+			
 			/****User has sent the next actor of the  workflow****/
 			WorkflowActor wfActor = null;
 			if(strNextActor != null && !strNextActor.isEmpty()){
@@ -591,7 +595,7 @@ class EditingWorkflowUtility{
 			if(username!=null){
 				if(!username.isEmpty()){
 					Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
-					UserGroup userGroup=UserGroup.findByFieldName(UserGroup.class,"credential",credential, locale);
+					UserGroup userGroup=UserGroup.findActive(credential, new Date(),locale);
 					userGroupId=String.valueOf(userGroup.getId());
 					userGroupType=userGroup.getUserGroupType().getType();
 					userGroupName=userGroup.getUserGroupType().getName();

@@ -88,7 +88,7 @@
 	/**** Clubbing ****/
 	function clubbingInt(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		var params="id="+id
+		var params="cutMotionId="+id
 					+"&usergroup="+$("#currentusergroup").val()
 			        +"&usergroupType="+$("#currentusergroupType").val();		
 		$.get('clubentity/init?'+params,function(data){
@@ -217,7 +217,8 @@
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry=' + ministry + '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -276,7 +277,7 @@
 		});
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
-			console.log($("#subDepartment").val());
+			//console.log($("#subDepartment").val());
 			if($(this).val()!=''){
 				loadSubDepartments($(this).val());
 			}else{
@@ -295,7 +296,7 @@
 		/**** Revise mainTitle and text****/
 		$("#reviseMainTitle").click(function(){
 			$(".revise1").toggle();
-			console.log("revise1: " + $("#revisedMainTitleDiv").css("display") + ": "+$("#mainTitle").val());
+			//console.log("revise1: " + $("#revisedMainTitleDiv").css("display") + ": "+$("#mainTitle").val());
 			if($("#revisedMainTitleDiv").css("display")=="none"){
 				$("#revisedMainTitle").val("");	
 			}else{
@@ -306,7 +307,7 @@
 		
 		$("#reviseSecondaryTitle").click(function(){
 			$(".revise2").toggle();
-			console.log("revise2: " + $("#revisedSecondaryTitleDiv").css("display") + ": "+$("#secondaryTitle").val());
+			//console.log("revise2: " + $("#revisedSecondaryTitleDiv").css("display") + ": "+$("#secondaryTitle").val());
 			if($("#revisedSecondaryTitleDiv").css("display")=="none"){
 				$("#revisedSecondaryTitle").val("");	
 			}else{
@@ -317,7 +318,7 @@
 		
 		$("#reviseSubTitle").click(function(){
 			$(".revise3").toggle();
-			console.log("revise3: " + $("#revisedSubTitleDiv").css("display")  + ": "+$("#subTitle").val());
+			//console.log("revise3: " + $("#revisedSubTitleDiv").css("display")  + ": "+$("#subTitle").val());
 			if($("#revisedSubTitleDiv").css("display")=="none"){
 				$("#revisedSubTitle").val("");	
 			}else{
@@ -328,7 +329,7 @@
 		
 		$("#reviseNoticeContent").click(function(){
 			$(".revise4").toggle();		
-			console.log("revise4: " + $("#revisedNoticeContentDiv").css("display") + ": "+$("#noticeContent").val());
+			//console.log("revise4: " + $("#revisedNoticeContentDiv").css("display") + ": "+$("#noticeContent").val());
 			if($("#revisedNoticeContentDiv").css("display")=="none"){
 				$("#revisedNoticeContent").wysiwyg("setContent","");
 			}else{
@@ -427,12 +428,13 @@
 				if(id.indexOf("cq")!=-1){
 				var motionId=$("#id").val();
 				var clubId=id.split("cq")[1];				
-				$.post('clubentity/cutmotion/unclubbing?pId='+motionId+"&cId="+clubId,function(data){
-					if(data=='SUCCESS'){
-					$.prompt("Unclubbing Successful");				
+				$.post('clubentity/unclubbing?pId='+motionId+"&cId="+clubId+"&whichDevice=motions_cutmotion_",function(data){
+					if(data=='UNCLUBBING_SUCCESS'){
+						$.prompt("Unclubbing Successful");				
 					}else{
 						$.prompt("Unclubbing Failed");
 					}		
+					refreshEdit(motionId);
 				},'html').fail(function(){
 					if($("#ErrorMsg").val()!=''){
 						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -481,7 +483,8 @@
 	    }
 	    if($("#revisedNoticeContent").val()!=''){
 	    	$("#revisedNoticeContentDiv").show();
-	    }  	  
+	    }  
+
 		/**** On Bulk Edit ****/
 		$("#submitBulkEdit").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -692,42 +695,52 @@
 		</p>
 	</c:if>	
 	
-	<c:if test="${!(empty clubbedEntities) }">
-		<p>
-			<label class="small"><spring:message code="generic.clubbed" text="Clubbed Motions"></spring:message></label>
-			<c:choose>
-				<c:when test="${!(empty clubbedEntities) }">
+	<p>
+		<label class="small"><spring:message code="generic.clubbed" text="Clubbed Motions"></spring:message></label>
+		<c:choose>
+			<c:when test="${!(empty clubbedEntities) }">
+				<c:choose>
+					<c:when test="${!(empty clubbedEntities) }">
+						<c:forEach items="${clubbedEntities }" var="i">
+							<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						</c:forEach>
+					</c:when>
+					<c:otherwise>
+						<c:out value="-"></c:out>
+					</c:otherwise>
+				</c:choose>
+				<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
 					<c:forEach items="${clubbedEntities }" var="i">
-						<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						<option value="${i.id}" selected="selected"></option>
 					</c:forEach>
-				</c:when>
-				<c:otherwise>
-					<c:out value="-"></c:out>
-				</c:otherwise>
-			</c:choose>
-			<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
-				<c:forEach items="${clubbedEntities }" var="i">
-					<option value="${i.id}" selected="selected"></option>
-				</c:forEach>
-			</select>
-		</p>
-	</c:if>
+				</select>
+			</c:when>
+			<c:otherwise>
+				<c:out value="-"></c:out>
+			</c:otherwise>
+		</c:choose>
+	</p>
 		
-	<c:if test="${!(empty referencedMotions) }">		
-		<p>
-			<label class="small"><spring:message code="cutmotion.referencedmotions" text="Referenced Motions"></spring:message></label>
-			<c:choose>
-				<c:when test="${!(empty referencedMotions) }">
-					<c:forEach items="${referencedMotions }" var="i">
-						<a href="#" id="rq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-					</c:forEach>
-				</c:when>
-				<c:otherwise>
-					<c:out value="-"></c:out>
-				</c:otherwise>
-			</c:choose>		
-		</p>
-	</c:if>
+	<p>
+		<label class="small"><spring:message code="cutmotion.referencedmotions" text="Referenced Motions"></spring:message></label>
+		<c:choose>
+			<c:when test="${!(empty referencedMotions) }">
+				<c:choose>
+					<c:when test="${!(empty referencedMotions) }">
+						<c:forEach items="${referencedMotions }" var="i">
+							<a href="#" id="rq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						</c:forEach>
+					</c:when>
+					<c:otherwise>
+						<c:out value="-"></c:out>
+					</c:otherwise>
+				</c:choose>
+			</c:when>
+			<c:otherwise>
+				<c:out value="-"></c:out>
+			</c:otherwise>
+		</c:choose>		
+	</p>
 		
 	<c:if test="${!(empty referencedQuestions) }">		
 		<p>
@@ -834,34 +847,37 @@
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<p>	
-		<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
-		<select id="changeInternalStatus" class="sSelect">
-			<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-			<c:forEach items="${internalStatuses}" var="i">
-				<c:choose>
-					<c:when test="${i.id==internalStatusSelected }">
-						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</select>
+	<c:if test="${internalStatusType=='cutmotion_system_assistantprocessed'}">
+		<p>	
+			<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
+			<select id="changeInternalStatus" class="sSelect">
+				<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+				<c:forEach items="${internalStatuses}" var="i">
+					<c:choose>
+						<c:when test="${i.id==internalStatusSelected }">
+							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+						</c:when>
+						<c:otherwise>
+							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</select>
+			
+			<select id="internalStatusMaster" style="display:none;">
+				<c:forEach items="${internalStatuses}" var="i">
+					<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+				</c:forEach>
+			</select>	
+			<form:errors path="internalStatus" cssClass="validationError"/>	
+		</p>
 		
-		<select id="internalStatusMaster" style="display:none;">
-			<c:forEach items="${internalStatuses}" var="i">
-				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-			</c:forEach>
-		</select>	
-		<form:errors path="internalStatus" cssClass="validationError"/>	
-	</p>
+		<p id="actorDiv" style="display: none;">
+			<label class="small"><spring:message code="generic.nextactor" text="Next Users"/></label>
+			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+		</p>
+	</c:if>
 	
-	<p id="actorDiv">
-		<label class="small"><spring:message code="generic.nextactor" text="Next Users"/></label>
-		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-	</p>
 	
 	<p>
 		<label class="wysiwyglabel"><spring:message code="generic.remarks" text="Remarks"/></label>

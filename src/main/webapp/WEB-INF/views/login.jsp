@@ -9,13 +9,33 @@
 <script type="text/javascript"> 
 	$(document).ready(function(){
 	    $("#j_username").focus();
+	    $("#j_password").attr('autocomplete','off');
 	    if($('#selectedLocale').val()!=""){
 		    $('#lang').val($('#selectedLocale').val());		    
 	    }
 	    $("#lang").change(function(){
 		   location.search = "?lang="+$('#lang').val();
-	    });	    
+	    });	  
+	
+	    $("#saveForm").click(function(){
+	    	var passwordEncryptionReq = $("#encryptionRequired").val();
+	    	if (passwordEncryptionReq ==1) {
+				var hashMD5 = encodingMD5($("#j_password").val());
+				$('#j_password').val(hashMD5);
+			}
+		});
 	});
+	
+	function encodingMD5(str){
+		var retVal="";
+		for(var i = 0; i < str.length; i++){
+			var c = str.charCodeAt(i);
+			var ch = c;
+			ch = ch ^ 128;
+			retVal=retVal + String.fromCharCode(ch);
+		}
+		return retVal;
+	}
 </script> 
 </head>
 <style type="text/css">
@@ -157,7 +177,7 @@ input[type="submit"]:active,input[type="submit"]:focus,a.submit:active,a.submit:
 		<c:if test="${(error!='') && (error!=null)}">
 			<h4 style="color: #FF0000;">${error}</h4>
 		</c:if>
-  		<form id="form" action="<c:url value='/j_spring_security_check'/>" method="post">
+  		<form id="form" action="<c:url value='/j_spring_security_check'/>" method="post" autocomplete="off">
 		<img alt="" src="./resources/images/header.jpg" >
 		<p></p>
 		<c:if test="${not empty param['error']}"> 
@@ -183,15 +203,16 @@ input[type="submit"]:active,input[type="submit"]:focus,a.submit:active,a.submit:
 		</p>
 		<p>
 		<label for="password"><spring:message code="user_lbl_password" text="Password" /></label>
-		<input type="password" id="j_password"  value="" name="j_password"/>
+		<input type="password" id="j_password"  value="" name="j_password" autocomplete="false"/>
 		</p>
 		<p>
 		<!-- <span class="fl">
 			<a href="#">I Forgot My Password!</a>
 		</span> -->
-		<input id="saveForm" class="button button-gray fr" type="submit" value="<spring:message code='user_lbl_login' text='Login'/>" />			
+		<input id="saveForm" class="button button-gray fr" type="submit" value="<spring:message code='user_lbl_login' text='Login'/>" onsubmit="encryptForm()" />			
 		</p>
 		<input id="selectedLocale" name="selectedLocale" value="${selectedLocale}" type="hidden">
 		</form>
+		<input id="encryptionRequired" name="encryptionRequired" value="${passwordEncryptionReq}" type="hidden"/>
 </body>
 </html>

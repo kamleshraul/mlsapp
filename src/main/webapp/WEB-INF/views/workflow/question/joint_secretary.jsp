@@ -8,18 +8,21 @@
 	<script type="text/javascript">
 	/**** detail of clubbed and refernced questions ****/		
 	function viewQuestionDetail(id){
-		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
-		var parameters="houseType="+$("#selectedHouseType").val()
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var deviceId = $("#deviceTypeMasterIds option[value='"+$("#selectedDeviceType").val()+"']").text();
+		/* var parameters="houseType="+$("#selectedHouseType").val()
 		+"&sessionYear="+$("#selectedSessionYear").val()
 		+"&sessionType="+$("#selectedSessionType").val()
-		+"&questionType="+$("#selectedQuestionType").val()
+		+"&questionType="+deviceId
 		+"&ugparam="+$("#ugparam").val()
 		+"&status="+$("#selectedStatus").val()
 		+"&role="+$("#srole").val()
 		+"&usergroup="+$("#currentusergroup").val()
 		+"&usergroupType="+$("#currentusergroupType").val()
 		+"&edit=false";
-		var resourceURL='question/'+id+'/edit?'+parameters;
+		var resourceURL='question/'+id+'/edit?'+parameters; */
+		var parameters="questionType="+deviceId+"&qid="+id
+		var resourceURL='question/viewquestion?'+parameters;
 		$.get(resourceURL,function(data){
 			$.unblockUI();
 			$.fancybox.open(data,{autoSize:false,width:750,height:700});
@@ -32,7 +35,7 @@
 			}
 			scrollTop();
 		});	
-	}	
+	}		
 	/**** Clubbing ****/
 	function clubbingInt(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -84,10 +87,11 @@
 	/**** refresh clubbing and referencing ****/
 	function refreshEdit(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var deviceId = $("#deviceTypeMasterIds option[value='"+$("#selectedDeviceType").val()+"']").text();
 		var parameters="houseType="+$("#selectedHouseType").val()
 		+"&sessionYear="+$("#selectedSessionYear").val()
 		+"&sessionType="+$("#selectedSessionType").val()
-		+"&questionType="+$("#selectedQuestionType").val()
+		+"&questionType="+deviceId
 		+"&ugparam="+$("#ugparam").val()
 		+"&status="+$("#selectedStatus").val()
 		+"&role="+$("#srole").val()
@@ -110,67 +114,194 @@
 	function loadActors(value){
 		if(value!='-'){
 		var valueToSend = "";
-		var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
-		var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
-		var admitDate = $("#internalStatusMaster option[value='question_processed_admitDate']").text();
-		var resubmitDate = $("#internalStatusMaster option[value='question_processed_resubmitDate']").text();
-		var nameclubbing=$("#internalStatusMaster option[value='question_final_nameclubbing']").text();    
+		var sendback = '';
+		var discuss = '';
+		var admitDate = '';
+		var resubmitDate = '';
+		var clubbingApproved = '';
+		var clubbingRejected = '';
+		var nameclubbingApproved = '';
+		var nameclubbingRejected = '';
+		var clubbingPostAdmissionRecommendApprove = '';
+		var clubbingPostAdmissionRecommendReject = '';
+		var clubbingPostAdmissionApproved = '';
+		var clubbingPostAdmissionRejected = '';
+		var unclubbingRecommendApprove = '';
+		var unclubbingRecommendReject = '';
+		var unclubbingApproved = '';
+		var unclubbingRejected = '';
+		var admitDueToReverseClubbingRecommendApprove = '';
+		var admitDueToReverseClubbing = '';
+		var recommendRejection = '';
+		var finalRejection = '';
+		
+		
+		var deviceTypeType = $('#selectedQuestionType').val();
+		if(deviceTypeType == 'questions_starred'){
+			sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
+			discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
+			admitDate = $("#internalStatusMaster option[value='question_processed_admitDate']").text();
+			resubmitDate = $("#internalStatusMaster option[value='question_processed_resubmitDate']").text();
+			clubbingApproved = $("#internalStatusMaster option[value='question_final_clubbing']").text();
+			clubbingRejected = $("#internalStatusMaster option[value='question_final_reject_clubbing']").text();
+			nameclubbingApproved = $("#internalStatusMaster option[value='question_final_nameclubbing']").text();
+			nameclubbingRejected = $("#internalStatusMaster option[value='question_final_reject_nameclubbing']").text();
+			clubbingPostAdmissionRecommendApprove = $("#internalStatusMaster option[value='question_recommend_clubbingPostAdmission']").text();
+			clubbingPostAdmissionRecommendReject = $("#internalStatusMaster option[value='question_recommend_reject_clubbingPostAdmission']").text();
+			clubbingPostAdmissionApproved = $("#internalStatusMaster option[value='question_final_clubbingPostAdmission']").text();
+			clubbingPostAdmissionRejected = $("#internalStatusMaster option[value='question_final_reject_clubbingPostAdmission']").text();
+			unclubbingRecommendApprove = $("#internalStatusMaster option[value='question_recommend_unclubbing']").text();
+			unclubbingRecommendReject = $("#internalStatusMaster option[value='question_recommend_reject_unclubbing']").text();
+			unclubbingApproved = $("#internalStatusMaster option[value='question_final_unclubbing']").text();
+			unclubbingRejected = $("#internalStatusMaster option[value='question_final_reject_unclubbing']").text();
+			admitDueToReverseClubbingRecommendApprove = $("#internalStatusMaster option[value='question_recommend_admitDueToReverseClubbing']").text();
+			admitDueToReverseClubbingApproved = $("#internalStatusMaster option[value='question_final_admitDueToReverseClubbing']").text();
+			recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
+			finalRejection = $("#internalStatusMaster option[value='question_final_rejection']").text();
+		}else if(deviceTypeType == 'questions_unstarred') {
+			sendback=$("#internalStatusMaster option[value='question_unstarred_recommend_sendback']").text();			
+			discuss=$("#internalStatusMaster option[value='question_unstarred_recommend_discuss']").text();		
+			admitDate = $("#internalStatusMaster option[value='question_unstarred_processed_admitDate']").text();
+			resubmitDate = $("#internalStatusMaster option[value='question_unstarred_processed_resubmitDate']").text();
+			clubbingApproved = $("#internalStatusMaster option[value='question_unstarred_final_clubbing']").text();
+			clubbingRejected = $("#internalStatusMaster option[value='question_unstarred_final_reject_clubbing']").text();
+			nameclubbingApproved = $("#internalStatusMaster option[value='question_unstarred_final_nameclubbing']").text();
+			nameclubbingRejected = $("#internalStatusMaster option[value='question_unstarred_final_reject_nameclubbing']").text();
+			clubbingPostAdmissionRecommendApprove = $("#internalStatusMaster option[value='question_unstarred_recommend_clubbingPostAdmission']").text();
+			clubbingPostAdmissionRecommendReject = $("#internalStatusMaster option[value='question_unstarred_recommend_reject_clubbingPostAdmission']").text();
+			clubbingPostAdmissionApproved = $("#internalStatusMaster option[value='question_unstarred_final_clubbingPostAdmission']").text();
+			clubbingPostAdmissionRejected = $("#internalStatusMaster option[value='question_unstarred_final_reject_clubbingPostAdmission']").text();
+			unclubbingRecommendApprove = $("#internalStatusMaster option[value='question_unstarred_recommend_unclubbing']").text();
+			unclubbingRecommendReject = $("#internalStatusMaster option[value='question_unstarred_recommend_reject_unclubbing']").text();
+			unclubbingApproved = $("#internalStatusMaster option[value='question_unstarred_final_unclubbing']").text();
+			unclubbingRejected = $("#internalStatusMaster option[value='question_unstarred_final_reject_unclubbing']").text();
+			admitDueToReverseClubbingRecommendApprove = $("#internalStatusMaster option[value='question_unstarred_recommend_admitDueToReverseClubbing']").text();
+			admitDueToReverseClubbingApproved = $("#internalStatusMaster option[value='question_unstarred_final_admitDueToReverseClubbing']").text();
+			recommendRejection = $("#internalStatusMaster option[value='question_unstarred_recommend_rejection']").text();
+			finalRejection = $("#internalStatusMaster option[value='question_unstarred_final_rejection']").text();
+		}else if(deviceTypeType == 'questions_shortnotice') {
+			sendback=$("#internalStatusMaster option[value='question_shortnotice_recommend_sendback']").text();			
+			discuss=$("#internalStatusMaster option[value='question_shortnotice_recommend_discuss']").text();		
+			admitDate = $("#internalStatusMaster option[value='question_shortnotice_processed_admitDate']").text();
+			resubmitDate = $("#internalStatusMaster option[value='question_shortnotice_processed_resubmitDate']").text();
+			clubbingApproved = $("#internalStatusMaster option[value='question_shortnotice_final_clubbing']").text();
+			clubbingRejected = $("#internalStatusMaster option[value='question_shortnotice_final_reject_clubbing']").text();
+			nameclubbingApproved = $("#internalStatusMaster option[value='question_shortnotice_final_nameclubbing']").text();
+			nameclubbingRejected = $("#internalStatusMaster option[value='question_shortnotice_final_reject_nameclubbing']").text();
+			clubbingPostAdmissionRecommendApprove = $("#internalStatusMaster option[value='question_shortnotice_recommend_clubbingPostAdmission']").text();
+			clubbingPostAdmissionRecommendReject = $("#internalStatusMaster option[value='question_shortnotice_recommend_reject_clubbingPostAdmission']").text();
+			clubbingPostAdmissionApproved = $("#internalStatusMaster option[value='question_shortnotice_final_clubbingPostAdmission']").text();
+			clubbingPostAdmissionRejected = $("#internalStatusMaster option[value='question_shortnotice_final_reject_clubbingPostAdmission']").text();
+			unclubbingRecommendApprove = $("#internalStatusMaster option[value='question_shortnotice_recommend_unclubbing']").text();
+			unclubbingRecommendReject = $("#internalStatusMaster option[value='question_shortnotice_recommend_reject_unclubbing']").text();
+			unclubbingApproved = $("#internalStatusMaster option[value='question_shortnotice_final_unclubbing']").text();
+			unclubbingRejected = $("#internalStatusMaster option[value='question_shortnotice_final_reject_unclubbing']").text();
+			admitDueToReverseClubbingRecommendApprove = $("#internalStatusMaster option[value='question_shortnotice_recommend_admitDueToReverseClubbing']").text();
+			admitDueToReverseClubbingApproved = $("#internalStatusMaster option[value='question_shortnotice_final_admitDueToReverseClubbing']").text();
+			recommendRejection = $("#internalStatusMaster option[value='question_shortnotice_recommend_rejection']").text();
+			finalRejection = $("#internalStatusMaster option[value='question_shortnotice_final_rejection']").text();
+		}else if(deviceTypeType == 'questions_halfhourdiscussion_from_question') {
+			sendback=$("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_sendback']").text();			
+			discuss=$("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_discuss']").text();		
+			admitDate = $("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_admitDate']").text();
+			resubmitDate = $("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_resubmitDate']").text();
+			clubbingApproved = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_clubbing']").text();
+			clubbingRejected = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_reject_clubbing']").text();
+			nameclubbingApproved = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_nameclubbing']").text();
+			nameclubbingRejected = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_reject_nameclubbing']").text();
+			clubbingPostAdmissionRecommendApprove = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_clubbingPostAdmission']").text();
+			clubbingPostAdmissionRecommendReject = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_reject_clubbingPostAdmission']").text();
+			clubbingPostAdmissionApproved = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_clubbingPostAdmission']").text();
+			clubbingPostAdmissionRejected = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_reject_clubbingPostAdmission']").text();
+			unclubbingRecommendApprove = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_unclubbing']").text();
+			unclubbingRecommendReject = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_reject_unclubbing']").text();
+			unclubbingApproved = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_unclubbing']").text();
+			unclubbingRejected = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_reject_unclubbing']").text();
+			admitDueToReverseClubbingRecommendApprove = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_admitDueToReverseClubbing']").text();
+			admitDueToReverseClubbingApproved = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_admitDueToReverseClubbing']").text();
+			recommendRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_rejection']").text();
+			finalRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_rejection']").text();
+		}
+		    
 		var changedInternalStatus = $("#changeInternalStatus").val();
-		if(changedInternalStatus == admitDate || 
-			changedInternalStatus == resubmitDate) {
+		if(changedInternalStatus == admitDate 
+				|| changedInternalStatus == resubmitDate) {
 			valueToSend = $("#internalStatus").val();
-		}else if(value==nameclubbing){
+		} else if(value==clubbingApproved || value==clubbingRejected					
+				|| value==nameclubbingApproved || value == nameclubbingRejected
+				|| value==clubbingPostAdmissionApproved || value==clubbingPostAdmissionRejected
+				|| value==unclubbingApproved || value == unclubbingRejected
+				|| value==admitDueToReverseClubbing){
 			$("#endFlag").val("end");
+			if(value!=clubbingPostAdmissionApproved && value!=clubbingPostAdmissionRejected
+					&& value!=unclubbingApproved && value!=unclubbingRejected
+					&& value!=admitDueToReverseClubbing) {
+				$("#internalStatus").val(value);
+			}				
 			$("#recommendationStatus").val(value);
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			return false;
-		}
-		else {
+		} else {
 			valueToSend = value;
 		}
 		var params="question="+$("#id").val()+"&status="+valueToSend+
-			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 		var resourceURL='ref/question/actors?'+params;
 
 		$.post(resourceURL,function(data){
-			if(data!=undefined||data!=null||data!=''){
-				var length=data.length;
+			if(data!=undefined || data!=null || data!=''){
+				 var actor1="";
+				 var actCount = 1;
+				 
 				$("#actor").empty();
 				var text="";
-				for(var i=0;i<data.length;i++){
-				text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+				for(var i = 0 ; i < data.length ; i++){
+					var ugt = data[i].id.split("#")[1];
+					if(ugt!='member' && data[i].state!='active'){
+						text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name + "</option>";
+					}else{
+						text += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";	
+						if(actCount == 1){
+							actor1=data[i].id;
+							actCount++;
+						}
+					}
 				}
 				$("#actor").html(text);
 				$("#actorDiv").show();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value != sendback && value != discuss
-						&& value != admitDate && value != resubmitDate){
-				$("#internalStatus").val(value);
-				}
-				if(value==sendback||value==discuss){
+						&& value != admitDate && value != resubmitDate
+						&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
+						&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
+						&& value != admitDueToReverseClubbingRecommendApprove){
+					$("#internalStatus").val(value);
+				} else {
 					$("#internalStatus").val($("#oldInternalStatus").val());
 				}
 				$("#recommendationStatus").val(value);				
 				/**** setting level,localizedActorName ****/
-				 var actor1=data[0].id;
+				 //var actor1=data[0].id;
 				 var temp=actor1.split("#");
 				 $("#level").val(temp[2]);		    
 				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
 				 $("#actorName").val(temp[4]);
 				 $("#actorName").css('display','inline');
-			}else{
-			$("#actor").empty();
-			$("#actorDiv").hide();
-			/**** in case of sendback and discuss only recommendation status is changed ****/
-			if(value != sendback && value != discuss
-						&& value != admitDate && value != resubmitDate){
-			$("#internalStatus").val(value);
-			}
-			if(value==sendback||value==discuss){
-				$("#internalStatus").val($("#oldInternalStatus").val());
-			}
-		    $("#recommendationStatus").val(value);
+			}else {
+				$("#actor").empty();
+				$("#actorDiv").hide();
+				/**** in case of sendback and discuss only recommendation status is changed ****/
+				if(value != sendback && value != discuss
+						&& value != admitDate && value != resubmitDate
+						&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
+						&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
+						&& value != admitDueToReverseClubbingRecommendApprove){
+					$("#internalStatus").val(value);
+				} else {
+					$("#internalStatus").val($("#oldInternalStatus").val());
+				}
+				$("#recommendationStatus").val(value);
 			}
 		}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
@@ -186,33 +317,62 @@
 			$("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 		}
+		
+		var valueType = '';
+		if(value != sendback && value != discuss
+				&& value != admitDate && value != resubmitDate
+				&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
+				&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
+				&& value != admitDueToReverseClubbingRecommendApprove){
+				valueType = value;
+			}else{
+				valueType = $("#internalStatus").val();
+		}
+		if(valueType == recommendRejection || (valueType!='' && valueType == finalRejection)){
+	    	if($("#copyOfRejectionReason").val()!=''){
+	    		$("#rejectionReason").val($("#copyOfRejectionReason").val());
+	    	}
+	    	$("#rejectionReasonP").css("display","block");
+	    }else{
+	    	$("#rejectionReasonP").css("display","none");
+	    	$("#copyOfRejectionReason").val($("#rejectionReason").val());
+	    	$("#rejectionReason").val("");
+	   }
 	}
 	/**** group changed ****/
 	function groupChanged(){
 		var newgroup=$("#group").val();
-		if(newgroup==''){
-		    var groupChanged=$("#internalStatusMaster option[value='question_system_groupchanged']").text();			
-			$("#changeInternalStatus").val("-");
+		var deviceTypeType = $('#selectedQuestionType').val();
+		if(deviceTypeType == 'questions_starred') {
+			 groupChanged = $("#internalStatusMaster option[value='question_system_groupchanged']").text();
+		} else if(deviceTypeType == 'questions_unstarred') {
+			 groupChanged = $("#internalStatusMaster option[value='question_unstarred_system_groupchanged']").text();
+		} else if(deviceTypeType == 'questions_shortnotice') {
+			 groupChanged = $("#internalStatusMaster option[value='question_shortnotice_system_groupchanged']").text();
+		} else if(deviceTypeType == 'questions_halfhourdiscussion_from_question') {
+			 groupChanged = 
+				 $("#internalStatusMaster option[value='question_halfHourFromQuestion_system_groupchanged']").text();
+		}
+		if(newgroup ==''){
+		    $("#changeInternalStatus").val("-");
 		    $("#changeInternalStatus option").show();			    
-		    $("#changeInternalStatus option[value=']"+groupChanged+"'").hide();
+		    $("#changeInternalStatus option[value=']" + groupChanged + "'").hide();
 		    $("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 		    $.prompt($("#ministryEmptyMsg").val());
 		    return false;
 		}
-	    var oldgroup=$("#oldgroup").val();
-		    if(oldgroup!=newgroup){
-			    var groupChanged=$("#internalStatusMaster option[value='question_system_groupchanged']").text();
+	    var oldgroup = $("#oldgroup").val();
+		    if(oldgroup != newgroup){
 			    $("#changeInternalStatus").val(newStatus);
 			    $("#changeInternalStatus option").hide();			    
-			    $("#changeInternalStatus option[value=']"+groupChanged+"'").show();
+			    $("#changeInternalStatus option[value=']" + groupChanged + "'").show();
 			    $("#internalStatus").val(groupChanged);
 			    $("#recommendationStatus").val(groupChanged);
 		    }else{
-		    	var groupChanged=$("#internalStatusMaster option[value='question_system_groupchanged']").text();
-			    $("#changeInternalStatus").val("-");
+		    	$("#changeInternalStatus").val("-");
 			    $("#changeInternalStatus option").show();			    
-			    $("#changeInternalStatus option[value=']"+groupChanged+"'").hide();
+			    $("#changeInternalStatus option[value=']" + groupChanged + "'").hide();
 			    $("#internalStatus").val($("#oldInternalStatus").val());
 			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());			    
 		    }  
@@ -220,36 +380,24 @@
 	}
 	/**** sub departments ****/
 	function loadSubDepartments(ministry,department){
-		/* $.get('ref/subdepartments/'+ministry+'/'+department,function(data){
+		$.get('ref/ministry/subdepartments?ministry=' + ministry + '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
-			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-				subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
-			}
-			$("#subDepartment").html(subDepartmentText);
-			}else{
-				$("#subDepartment").empty();
-				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
-				$("#subDepartment").html(subDepartmentText);
-			}
-			groupChanged();
-		}); */
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
-			$("#subDepartment").empty();
-			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
-			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-				subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+			var subDepartmentText = 
+				"<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
+			if(data.length > 0){
+			for(var i = 0 ; i < data.length ; i++){
+				subDepartmentText += "<option value='" + data[i].id + "'>" + data[i].name;
 			}
 			$("#subDepartment").html(subDepartmentText);			
 			}else{
 				$("#subDepartment").empty();
-				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
+				var subDepartmentText =
+					"<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
 				$("#subDepartment").html(subDepartmentText);				
 			}
 		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
+			if($("#ErrorMsg").val() != ''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 			}else{
 				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
@@ -257,37 +405,13 @@
 			scrollTop();
 		});
 	}
-	/**** departments ****/
-	function loadDepartments(ministry){
-		$.get('ref/departments/'+ministry,function(data){
-			$("#department").empty();
-			var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-				departmentText+="<option value='"+data[i].id+"'>"+data[i].name;
-			}
-			$("#department").html(departmentText);
-			loadSubDepartments(ministry,data[0].id);
-			}else{
-				$("#department").empty();
-				var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-				$("#department").html(departmentText);				
-				$("#subDepartment").empty();
-				groupChanged();				
-			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});
-	}
+	
     /**** groups ****/
 	function loadGroup(ministry){
-		if(ministry!=''){
-		$.get('ref/ministry/'+ministry+'/group?houseType='+$("#houseType").val()+'&sessionYear='+$("#sessionYear").val()+'&sessionType='+$("#sessionType").val(),function(data){
+		if(ministry != ''){
+		$.get('ref/ministry/' + ministry + '/group?houseType='+$("#houseType").val()
+				+ '&sessionYear=' + $("#sessionYear").val()
+				+ '&sessionType=' + $("#sessionType").val(),function(data){
 			$("#formattedGroup").val(data.name);
 			$("#group").val(data.id);
 			loadDepartments(ministry);			
@@ -304,10 +428,10 @@
 	/**** Load Clarifications ****/
 	function loadClarifications(){
 		$.get('ref/clarifications',function(data){
-			if(data.length>0){
-				var text="";
-				for( var i=0;i<data.length;i++){
-					text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+			if(data.length > 0){
+				var text = "";
+				for( var i = 0 ; i < data.length ; i++){
+					text += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
 				}
 				$("#clarificationNeededFrom").empty();
 				$("#clarificationNeededFrom").html(text);
@@ -329,10 +453,10 @@
 		
 		/*******Actor changes*************/
 		$("#actor").change(function(){
-		    var actor=$(this).val();
-		    var temp=actor.split("#");
+		    var actor = $(this).val();
+		    var temp = actor.split("#");
 		    $("#level").val(temp[2]);		    
-		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+		    $("#localizedActorName").val(temp[3] + "(" + temp[4] + ")");
 		    $("#actorName").val(temp[4]);
 		    $("#actorName").css('display','inline');
 	    });
@@ -352,22 +476,18 @@
 			}else{
 				$("#formattedGroup").val("");
 				$("#group").val("");				
-				$("#department").empty();				
 				$("#subDepartment").empty();				
 				$("#answeringDate").empty();		
-				$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
 				groupChanged();					
 			}
 		});
-		/**** Department Changes ****/
-		$("#department").change(function(){
-			loadSubDepartments($("#ministry").val(),$(this).val());
-		});
+		
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
-			$.get('question/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
+			$.get('question/citations/' + $("#type").val() + 
+					"?status=" + $("#internalStatus").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html').fail(function(){
     			if($("#ErrorMsg").val()!=''){
@@ -378,7 +498,8 @@
     			scrollTop();
     		});
 		    return false;
-		});									
+		});			
+		
 		/**** Revise subject and text****/
 		$("#reviseSubject").click(function(){
 			$(".revise1").toggle();
@@ -389,6 +510,7 @@
 			}						
 			return false;			
 		});	
+		
 		$("#reviseQuestionText").click(function(){
 			$(".revise2").toggle();		
 			if($("#revisedQuestionTextDiv").css("display")=="none"){
@@ -409,6 +531,7 @@
 			}						
 			return false;			
 		});	
+		
 		$("#reviseBriefExplanation").click(function(){
 			$(".revise4").toggle();		
 			if($("#revisedBriefExplanationDiv").css("display")=="none"){
@@ -419,13 +542,13 @@
 			return false;			
 		});
 	
-		if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_shortnotice'
-			|| $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone'){
+		if($('#selectedQuestionType').val() == 'questions_halfhourdiscussion_from_question' 
+				|| $('#selectedQuestionType').val() == 'questions_shortnotice'){
 		
 			if($("#revisedReason").val()!=''){
 			    $("#revisedReasonDiv").show();
 		    }
-			if($('#selectedQuestionType').val()=='questions_halfhourdiscussion_from_question' || $('#selectedQuestionType').val()=='questions_halfhourdiscussion_standalone'){
+			if($('#selectedQuestionType').val() == 'questions_halfhourdiscussion_from_question'){
 			    if($("#revisedBriefExplanation").val()!=''){
 			    	$("#revisedBriefExplanationDiv").show();
 			    }
@@ -433,22 +556,22 @@
 		}
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
-		    $.get('question/revisions/'+$("#id").val(),function(data){
+		    $.get('question/revisions/' + $("#id").val(),function(data){
 			    $.fancybox.open(data,{autoSize: false, width: 800, height:700});
 		    });
 		    return false;
 	    });
 	    /**** Contact Details ****/
 	    $("#viewContacts").click(function(){
-		    var primaryMember=$("#primaryMember").val();
-		    var supportingMembers=$("#supportingMemberIds").val();
-		    var members=primaryMember;
-		    if(supportingMembers!=null){
-			    if(supportingMembers!=''){
-				    members=members+","+supportingMembers;
+		    var primaryMember = $("#primaryMember").val();
+		    var supportingMembers = $("#supportingMemberIds").val();
+		    var members = primaryMember;
+		    if(supportingMembers != null){
+			    if(supportingMembers != ''){
+				    members = members + "," + supportingMembers;
 			    }
 		    }
-		    $.get('question/members/contacts?members='+members,function(data){
+		    $.get('question/members/contacts?members=' + members,function(data){
 			    $.fancybox.open(data);
 		    }).fail(function(){
     			if($("#ErrorMsg").val()!=''){
@@ -462,8 +585,8 @@
 	    });	    
 	    /**** Internal Status Changes ****/   
 	    $("#changeInternalStatus").change(function(){
-		    var value=$(this).val();
-		    if(value!='-'){
+		    var value = $(this).val();
+		    if(value != '-'){
 			   // var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
 			    loadActors(value);			    
 		    }else{
@@ -477,8 +600,9 @@
 		$("#startworkflow").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
-				var wysiwygVal=$(this).val().trim();
-				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+				var wysiwygVal = $(this).val().trim();
+				if(wysiwygVal == "<p></p>" || wysiwygVal == "<p><br></p>"
+						||wysiwygVal == "<br><p></p>"){
 					$(this).val("");
 				}
 			});			
@@ -509,8 +633,9 @@
 		$("#submitBulkEdit").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
 			$(".wysiwyg").each(function(){
-				var wysiwygVal=$(this).val().trim();
-				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+				var wysiwygVal = $(this).val().trim();
+				if(wysiwygVal == "<p></p>" || wysiwygVal == "<p><br></p>"
+						||wysiwygVal == "<br><p></p>"){
 					$(this).val("");
 				}
 			});								
@@ -528,13 +653,13 @@
 	        menu: 'contextMenuItems'
 	    },
 	        function(action, el, pos) {
-			var id=$(el).attr("id");
-			if(action=='unclubbing'){
-				if(id.indexOf("cq")!=-1){
-				var questionId=$("#id").val();
-				var clubId=id.split("cq")[1];				
-				$.post('clubentity/unclubbing?pId='+questionId+"&cId="+clubId,function(data){
-					if(data=='SUCCESS'){
+			var id = $(el).attr("id");
+			if(action == 'unclubbing'){
+				if(id.indexOf("cq") != -1){
+				var questionId = $("#id").val();
+				var clubId = id.split("cq")[1];				
+				$.post('clubentity/unclubbing?pId='+questionId+"&cId="+clubId+"&whichDevice=questions_"+"&usergroupType="+$("#currentusergroupType").val(),function(data){
+					if(data=='SUCCESS' || data=='UNCLUBBING_SUCCESS'){
 					$.prompt("Unclubbing Successful");				
 					}else{
 						$.prompt("Unclubbing Failed");
@@ -550,12 +675,12 @@
 				}else{
 					$.prompt("Unclubbing not allowed");
 				}			
-			}else if(action=='dereferencing'){
-				if(id.indexOf("rq")!=-1){					
-				var questionId=$("#id").val();
-				var refId=id.split("rq")[1];				
-				$.post('refentity/dereferencing?pId='+questionId+"&rId="+refId,function(data){
-					if(data=='SUCCESS'){
+			}else if(action == 'dereferencing'){
+				if(id.indexOf("rq") != -1){					
+				var questionId = $("#id").val();
+				var refId = id.split("rq")[1];				
+				$.post('refentity/dereferencing?pId=' + questionId + "&rId=" + refId,function(data){
+					if(data == 'SUCCESS'){
 						$.prompt("Dereferencing Successful");				
 						}else{
 							$.prompt("Dereferencing Failed");
@@ -574,22 +699,19 @@
 			}
 	    });			    
 	    /**** On Page Load ****/
-	    if($("#ministrySelected").val()==''){
+	    if($("#ministrySelected").val() == ''){
 			$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 		}else{
 			$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
 		}
-		if($("#departmentSelected").val()==''){
-			$("#department").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
-		}else{
-			$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
-		}
-		if($("#subDepartmentSelected").val()==''){
+		
+		if($("#subDepartmentSelected").val() == ''){
 			$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 		}else{
 			$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 		}
-		if($("#answeringDateSelected").val()==''){
+		
+		if($("#answeringDateSelected").val() == ''){
 		$("#answeringDate").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
 		}else{
 		$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
@@ -617,7 +739,11 @@
 				var locale='${domain.locale}';
 				
 				
-				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&deviceTypeId='+deviceTypeTemp+'&locale='+locale+'&view=view';
+				var url = 'ref/questionid?strQuestionNumber='+questionNumber
+						+'&strSessionId='+sessionId
+						+'&deviceTypeId='+deviceTypeTemp
+						+'&locale='+locale
+						+'&view=view';
 				
 				//alert(url);
 				
@@ -628,7 +754,7 @@
 						$.prompt('Please provide valid question number.');
 					}else{
 						$('#halfHourDiscussionReference_questionId_H').val(data.id);
-						$.get('question/viewquestion?qid='+data.id,function(data){
+						$.get('question/viewquestion?qid='+data.id +'&questionType=' + deviceTypeTemp,function(data){
 							$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
 						},'html');
 					}
@@ -646,7 +772,6 @@
 		});
 		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
 		$("#ministry option[selected!='selected']").hide();
-		$("#department option[selected!='selected']").hide();
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load Actors On Start Up ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
@@ -656,6 +781,34 @@
 			$("#changeInternalStatus").change();
 			//loadActors($("#changeInternalStatus").val());
 		}
+		
+		
+		$("#remarks").change(function(){
+			var recommendRejection = '';
+			var finalRejection = '';
+			var deviceTypeType = $('#selectedQuestionType').val();
+			if(deviceTypeType == 'questions_starred'){
+				recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
+				finalRejection = $("#internalStatusMaster option[value='question_final_rejection']").text();
+			}else if(deviceTypeType == 'questions_unstarred') {
+				recommendRejection = $("#internalStatusMaster option[value='question_unstarred_recommend_rejection']").text();
+				finalRejection = $("#internalStatusMaster option[value='question_unstarred_final_rejection']").text();
+			}else if(deviceTypeType == 'questions_shortnotice') {
+				recommendRejection = $("#internalStatusMaster option[value='question_shortnotice_recommend_rejection']").text();
+				finalRejection = $("#internalStatusMaster option[value='question_shortnotice_final_rejection']").text();
+			}else if(deviceTypeType == 'questions_halfhourdiscussion_from_question') {
+				recommendRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_rejection']").text();
+				finalRejection = $("#internalStatusMaster option[value='question_shortnotice_final_rejection']").text();
+			}
+			
+			if($("#internalStatus").val()==recommendRejection || $("#internalStatus").val()==finalRejection){
+				if($("#remarks").val()!=''){
+					if($("#rejectionReason").val()!= $("#remarks").val()){
+						$("#rejectionReason").val($("#remarks").val());
+					}
+				}
+			} 
+		});
 	});
 	</script>
 	 <style type="text/css">
@@ -722,7 +875,7 @@
 	
 	<p>
 		<c:choose>
-			<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' || selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
+			<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 				<label class="small"><spring:message code="question.halfhour.number" text="Notice Number"/>*</label>
 			</c:when>
 			<c:otherwise>
@@ -762,7 +915,7 @@
 		</c:if>
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
 	</c:if>
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
+	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 		<c:if test="${not (discussionDateSelected==null && (empty discussionDateSelected))}">
 			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
 			<input id="formattedDiscussionDate"value="${formattedDiscussionDateSelected }" class="sText" readonly="readonly">
@@ -771,68 +924,64 @@
 		</c:if>
 	</c:if>
 	</p>
-	<c:if test="${selectedQuestionType=='questions_starred'}">
+	
+	<c:choose>
+	<c:when test="${selectedQuestionType=='questions_starred'}">
 		<p>
-		<c:if test="${formattedChartAnsweringDate !=null}">
+		<c:if test="${not empty formattedChartAnsweringDate}">
 			<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
 			<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
 		</c:if>	
 		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 		</p>
-	</c:if>
+	</c:when>
+	<c:when test="${selectedQuestionType=='questions_unstarred'}">
+		<c:if test="${not empty formattedChartAnsweringDate}">
+			<p>
+				<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
+				<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
+				<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+			</p>
+		</c:if>
+	</c:when>
+	</c:choose>
+	
 	<p>
 	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 	<select name="ministry" id="ministry" class="sSelect" >
-	<c:forEach items="${ministries }" var="i">
-	<c:choose>
-	<c:when test="${i.id==ministrySelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
+		<c:forEach items="${ministries }" var="i">
+			<c:choose>
+				<c:when test="${i.id==ministrySelected }">
+					<option value="${i.id }" selected="selected">${i.name}</option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id }" >${i.name}</option>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
 	</select>		
 	<form:errors path="ministry" cssClass="validationError"/>	
-	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
-		<label class="small"><spring:message code="question.group" text="Group"/>*</label>
-		<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">		
-		<input type="hidden" id="group" name="group" value="${group }">
-		<form:errors path="group" cssClass="validationError"/>
-	</c:if>		
+	
+	<label class="small"><spring:message code="question.group" text="Group"/>*</label>
+	<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">		
+	<input type="hidden" id="group" name="group" value="${group }">
+	<form:errors path="group" cssClass="validationError"/>
+	
 	</p>	
 	
 	<p>
 	<label class="small"><spring:message code="question.department" text="Department"/></label>
-	<c:if test="${selectedQuestionType=='xyz'}">
-	<select name="department" id="department" class="sSelect" >
-	<c:forEach items="${departments }" var="i">
-	<c:choose>
-	<c:when test="${i.id==departmentSelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>
-	<form:errors path="department" cssClass="validationError"/>
-	<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
-	</c:if>
-	
 	<select name="subDepartment" id="subDepartment" class="sSelect" >
-	<c:forEach items="${subDepartments }" var="i">
-	<c:choose>
-	<c:when test="${i.id==subDepartmentSelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
+		<c:forEach items="${subDepartments }" var="i">
+			<c:choose>
+				<c:when test="${i.id==subDepartmentSelected }">
+					<option value="${i.id }" selected="selected">${i.name}</option>
+				</c:when>
+				<c:otherwise>
+					<option value="${i.id }" >${i.name}</option>
+				</c:otherwise>
+			</c:choose>
+		</c:forEach>
 	</select>		
 	<form:errors path="subDepartment" cssClass="validationError"/>	
 	</p>	
@@ -866,7 +1015,7 @@
 		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
 	</p>			
 	
-	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_standalone'}">
+	
 	<p style="display:none;">
 		<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
 		<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
@@ -881,64 +1030,51 @@
 		<p>
 		<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
 		<c:choose>
-		<c:when test="${!(empty clubbedQuestions) }">
-		<c:forEach items="${clubbedQuestions }" var="i">
-		<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-		</c:forEach>
-		</c:when>
-		<c:otherwise>
-		<c:out value="-"></c:out>
-		</c:otherwise>
+			<c:when test="${!(empty clubbedQuestions) }">
+				<c:forEach items="${clubbedQuestions }" var="i">
+					<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+				</c:forEach>
+			</c:when>
+			<c:otherwise>
+				<c:out value="-"></c:out>
+			</c:otherwise>
 		</c:choose>
 		<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
-		<c:forEach items="${clubbedQuestions }" var="i">
-		<option value="${i.id}" selected="selected"></option>
-		</c:forEach>
+			<c:forEach items="${clubbedQuestions }" var="i">
+				<option value="${i.id}" selected="selected"></option>
+			</c:forEach>
 		</select>
 		</p>
-		<p>
-		<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
-		<c:choose>
-		<c:when test="${!(empty referencedQuestions) }">
-		<c:forEach items="${referencedQuestions }" var="i">
-		<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-		</c:forEach>
-		</c:when>
-		<c:otherwise>
-		<c:out value="-"></c:out>
-		</c:otherwise>
-		</c:choose>
-		<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
-		<c:forEach items="${referencedQuestions }" var="i">
-		<option value="${i.id}" selected="selected"></option>
-		</c:forEach>
-		</select>
-	</p>
-	</c:if>
-	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">
-		<%-- <p>
-			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin-left: 162px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
-			<a href="#" id="dereferencing" onclick="dereferencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.dereferencing" text="Dereferencing"></spring:message></a>
-			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
-		</p> --%>
-		
 		<p>
 			<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
 			<c:choose>
 				<c:when test="${!(empty referencedQuestions) }">
-					<c:forEach items="${referencedQuestions }" var="i" varStatus="index">
-						<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-						&nbsp;(${referencedQuestionsSessionAndDevice[index.count-1]})	
+					<c:forEach items="${referencedQuestions }" var="i">
+						<c:choose>
+							<c:when test="${i.state=='questions_unstarred'}">
+								<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;">
+									${i.name}, <spring:message code='device.unstarred' text='Unstarred'/> ${i.remark}
+								</a>
+							</c:when>
+							<c:otherwise>
+								<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;">
+									${i.name}, ${i.remark}
+								</a>
+							</c:otherwise>
+						</c:choose>
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
 					<c:out value="-"></c:out>
 				</c:otherwise>
 			</c:choose>
-			<input type="hidden" name="referencedHDS" id="referencedHDS" value="${referencedHDS}" />
+			<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
+				<c:forEach items="${referencedQuestions }" var="i">
+					<option value="${i.id}" selected="selected"></option>
+				</c:forEach>
+			</select>
 		</p>
-	</c:if>
+	
 	
 	<p>	
 	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
@@ -946,23 +1082,25 @@
 	<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 	
-	<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+	
+	<p>
+	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
+	<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
+	<form:errors path="questionText" cssClass="validationError"/>	
+	</p>
+	
+	<c:if test="${selectedQuestionType=='questions_starred' 
+			or selectedQuestionType=='questions_unstarred'}">
 		<p>
-		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-		<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="questionText" cssClass="validationError"/>	
+			<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+			<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
-		
-		<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
-			<p>
-				<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
-				<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
-				<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-			</p>
-		</c:if>
 	</c:if>
+	
 		
-	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+	<c:if test="${selectedQuestionType=='questions_shortnotice'
+			 or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 	<p>
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
@@ -978,7 +1116,7 @@
 	</p>
 	</c:if>	
 	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+	<c:if test="${selectedQuestionType == 'questions_halfhourdiscussion_from_question'}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
 			<form:textarea path="briefExplanation" cssClass="wysiwyg" readonly="true"></form:textarea>
@@ -987,29 +1125,20 @@
 	</c:if>
 	
 	<p>
-		<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
+		<c:if test="${selectedQuestionType != 'questions_halfhourdiscussion_from_question'}">
 			<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
-			<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse') }">
-				<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
-			</c:if>
+			<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
 		</c:if>
 	
-		<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+		<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 			<c:choose>
-				<c:when test="${(selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-					<a href="#" id="reviseReason" style="margin-left: 10px;"><spring:message code="question.reviseReason" text="Revise Reason"></spring:message></a>
+				<c:when test="${selectedQuestionType=='questions_shortnotice'}">
+					<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
 				</c:when>
 				<c:otherwise>
-					<c:choose>
-						<c:when test="${selectedQuestionType=='questions_shortnotice'}">
-							<a href="#" id="reviseReason" style="margin-left: 20px;"><spring:message code="question.revise.shortnotice.reason" text="Revise Reason"></spring:message></a>
-						</c:when>
-						<c:otherwise>
-							<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
-						</c:otherwise>
-					</c:choose>					
+					<a href="#" id="reviseReason" style="margin-left: 162px;"><spring:message code="question.revise.halfhour.reason" text="Revise Reason"></spring:message></a>
 				</c:otherwise>
-			</c:choose>		
+			</c:choose>					
 			<c:if test="${selectedQuestionType!='questions_shortnotice'}">	
 				<a href="#" id="reviseBriefExplanation" style="margin: 0px 20px 10px 10px;"><spring:message code="question.reviseBriefExplanation" text="Revise Brief Explanation"></spring:message></a>
 			</c:if>
@@ -1052,95 +1181,131 @@
 		<form:errors path="dateOfAnsweringByMinister" cssClass="validationError"/>
 		</p>
 	</c:if>
+	<c:if test="${!(empty domain.factualPosition)}">
+		<p>
+		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+	</c:if>
+	
+	<c:if test="${!(empty domain.factualPositionFromMember)}">
+		<p>
+		<label class="wysiwyglabel"><spring:message code="question.factualPositionFromMember" text="Factual Position From Member"/></label>
+		<form:textarea path="factualPositionFromMember" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="factualPositionFromMember" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+	</c:if>
+	
+	<c:choose>
+		<c:when  test="${!(empty domain.rejectionReason)}">
+			<p id="rejectionReasonP">
+				<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+				<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
+			</p>
+		</c:when>
+		<c:otherwise>
+			<p id="rejectionReasonP" style="display:none;">
+				<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+				<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
+			</p>
+		</c:otherwise>
+	</c:choose>
 	
 	<p style="text-align: right; width: 720px;">
 		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
 	<table class="uiTable" style="margin-left:165px;">
-	<thead>
-	<tr>
-	<th>
-	<spring:message code="qis.latestrevisions.user" text="Usergroup"></spring:message>
-	</th>
-	<th>
-	<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
-	</th>
-	<th>
-	<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
-	</th>
-	</tr>
-	</thead>
-	<tbody>	
-	<c:set var="startingActor" value="${startingActor}"></c:set>
-	<c:set var="count" value="0"></c:set>
-	<c:set var="startingActorCount" value="0"></c:set>
-	<c:forEach items="${latestRevisions}" var="i">	
-	<c:choose>
-	<c:when test="${i[0]==startingActor}">	
-	<c:set var="startingActorCount" value="${count}"></c:set>
-	<c:set var="count" value="${count+1 }"></c:set>
-	</c:when>
-	<c:otherwise>
-	<c:set var="count" value="${count+1 }"></c:set>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	
-	<c:set var="count" value="0"></c:set>
-	<c:forEach items="${latestRevisions }" var="i">
-	<c:choose>
-	<c:when test="${count>= startingActorCount}">
-	<tr>
-		<td>
-		${i[0]}<br>${i[1]}
-		</td>
-		<td>
-		${i[3]}
-		</td>
-		<td>
-		${i[4]}
-		</td>
-	</tr>
-	<c:set var="count" value="${count+1 }"></c:set>
-	</c:when>
-	<c:otherwise>
-	<c:set var="count" value="${count+1 }"></c:set>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	<c:if test="${workflowstatus != 'COMPLETED'}">
-		<tr>
-			<td>
-				${userName}<br>
-				${userGroupName}
-			</td>
-			<td>
-				<select id="changeInternalStatus" class="sSelect">
-					<c:forEach items="${internalStatuses}" var="i">
-						<c:choose>
-							<c:when test="${i.type=='question_system_groupchanged' }">
-								<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-							</c:when>
-							<c:otherwise>
+		<thead>
+			<tr>
+				<th>
+					<spring:message code="qis.latestrevisions.user" text="Usergroup"></spring:message>
+				</th>
+				<th>
+					<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
+				</th>
+				<th>
+					<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
+				</th>
+			</tr>
+		</thead>
+		<tbody>	
+			<c:set var="startingActor" value="${startingActor}"></c:set>
+			<c:set var="count" value="0"></c:set>
+			<c:set var="startingActorCount" value="0"></c:set>
+			<c:forEach items="${latestRevisions}" var="i">	
+				<c:choose>
+					<c:when test="${i[0]==startingActor}">	
+						<c:set var="startingActorCount" value="${count}"></c:set>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:when>
+					<c:otherwise>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+			
+			<c:set var="count" value="0"></c:set>
+			<c:forEach items="${latestRevisions }" var="i">
+				<c:choose>
+					<c:when test="${count>= startingActorCount}">
+						<tr>
+							<td>
+							${i[0]}<br>${i[1]}
+							</td>
+							<td>
+							<c:choose>
+								<c:when test="${fn:endsWith(i[12],'recommend_sendback')
+										|| fn:endsWith(i[12],'recommend_discuss')}">
+									${i[3]}
+								</c:when>
+								<c:otherwise>${i[2]}</c:otherwise>
+							</c:choose>							
+							</td>
+							<td>
+							${i[4]}
+							</td>
+						</tr>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:when>
+					<c:otherwise>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+			<c:if test="${workflowstatus != 'COMPLETED'}">
+				<tr>
+					<td>
+						${userName}<br>
+						${userGroupName}
+					</td>
+					<td>
+						<select id="changeInternalStatus" class="sSelect">
+							<c:forEach items="${internalStatuses}" var="i">
 								<c:choose>
-									<c:when test="${i.id==internalStatus }">
-										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									<c:when test="${i.type=='question_system_groupchanged' }">
+										<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
 									</c:when>
 									<c:otherwise>
-										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+										<c:choose>
+											<c:when test="${i.id==internalStatus }">
+												<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+											</c:when>
+											<c:otherwise>
+												<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+											</c:otherwise>
+										</c:choose>
 									</c:otherwise>
 								</c:choose>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-				</select>
-			</td>
-			<td>
-				<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
-			</td>
-		</tr>
-	</c:if>	
-	</tbody>
+							</c:forEach>
+						</select>
+					</td>
+					<td>
+						<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+					</td>
+				</tr>
+			</c:if>	
+		</tbody>
 	</table>
 	<c:if test="${workflowstatus != 'COMPLETED'}">
 		<p>
@@ -1151,9 +1316,9 @@
 	<c:if test="${workflowstatus!='COMPLETED' }">	
 	<p>
 	<select id="internalStatusMaster" style="display:none;">
-	<c:forEach items="${internalStatuses}" var="i">
-	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-	</c:forEach>
+		<c:forEach items="${internalStatuses}" var="i">
+			<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+		</c:forEach>
 	</select>	
 	<form:errors path="internalStatus" cssClass="validationError"/>	
 	</p>
@@ -1176,15 +1341,6 @@
 		</p>
 	</c:if>	
 	
-	<c:if test="${houseTypeType=='upperhouse'}">
-		<c:if test="${internalStatusType == 'question_recommend_rejection' or internalStatusType == 'question_final_rejection'}">
-		<p>
-			<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-			<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
-		</p>
-		</c:if>
-	</c:if>
-			
 	<c:if test="${workflowstatus!='COMPLETED' }">
 	<div class="fields">
 		<h2></h2>
@@ -1207,9 +1363,10 @@
 	<form:hidden path="level"/>
 	<form:hidden path="localizedActorName"/>
 	<form:hidden path="workflowDetailsId"/>
-	<form:hidden path="file"/>
-	<form:hidden path="fileIndex"/>	
-	<form:hidden path="fileSent"/>
+	<form:hidden path="answer"/>
+	<c:if test="${domain.ballotStatus!=null}">
+		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		
+	</c:if>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
@@ -1235,17 +1392,19 @@
 			<input type="hidden" name="referenceDeviceType" id="referenceDeviceType" value="${domain.referenceDeviceType}"/>
 			<input type="hidden" name="referenceDeviceMember" id="referenceDeviceMember" value="${domain.referenceDeviceMember}"/>
 			<input type="hidden" name="referenceDeviceAnswerDate" id="referenceDeviceAnswerDate" value="${refDeviceAnswerDate}"/>
-	</c:if>				
+	</c:if>	
+	
+	<input type="hidden" id="yaadiNumber" name="yaadiNumber" value="${domain.yaadiNumber}"/>
+	<input type="hidden" id="yaadiLayingDate" name="yaadiLayingDate" value="${yaadiLayingDate}"/>			
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
-
+<input id="originalLevel" name="originalLevel" value="${domain.level}" type="hidden">
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 <input id="confirmQuestionSubmission" value="<spring:message code='confirm.questionsubmission.message' text='Do you want to submit the question.'></spring:message>" type="hidden">
 <input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='question.startworkflowmessage' text='Do You Want To Put Up Question?'></spring:message>" type="hidden">
 <input id="ministrySelected" value="${ministrySelected }" type="hidden">
-<input id="departmentSelected" value="${ departmentSelected}" type="hidden">
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
@@ -1254,6 +1413,8 @@
 <input id="selectedQuestionType" value="${selectedQuestionType}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
+<input type="hidden" id="srole" value="${role}" />
+
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
@@ -1271,7 +1432,7 @@
 
 <div id="referencingresultDiv" style="display:none;">
 </div>
-
+<input type="hidden" id="copyOfRejectionReason" name="copyOfRejectionReason"/>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 </html>

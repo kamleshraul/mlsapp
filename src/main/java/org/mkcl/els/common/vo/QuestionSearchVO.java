@@ -34,7 +34,13 @@ public class QuestionSearchVO {
 	private String status;
 	
 	/** The device type. */
-	private String deviceType;	
+	private String deviceType;
+	
+	/** The device type type. */
+	private String deviceTypeType;
+	
+	/** * The Session ***. */
+	private Long sessionId;
 	
 	/** * The Session Year ***. */
 	private String sessionYear;
@@ -48,14 +54,23 @@ public class QuestionSearchVO {
 	
 	private String ministry;
 	
+	private String formattedMinistry;
+	
 	private String department;
 	
 	private String subDepartment;
+	
+	private String formattedSubDepartment;
 	
 	private String classification;
 	
 	private String statusType;
 	
+	private String answer;
+	
+	private String formattedParentNumber;
+	
+	private String formattedClubbedNumbers;
 	//===========added for portlet proceedings 
 	private String primaryMember;
 	
@@ -66,6 +81,16 @@ public class QuestionSearchVO {
 	private String[] formattedSupportingMembers;
 	
 	private String chartAnsweringDate;
+	
+	private String discussionDate;
+	
+	private String yaadiDate;
+	
+	private String yaadiNumber;
+	
+	private String actor;	
+	
+	private String ballotStatus;
 	
 	/**
 	 * Gets the id.
@@ -176,6 +201,34 @@ public class QuestionSearchVO {
 	}
 	
 	/**
+	 * @return the deviceTypeType
+	 */
+	public String getDeviceTypeType() {
+		return deviceTypeType;
+	}
+
+	/**
+	 * @param deviceTypeType the deviceTypeType to set
+	 */
+	public void setDeviceTypeType(String deviceTypeType) {
+		this.deviceTypeType = deviceTypeType;
+	}
+
+	/**
+	 * @return the sessionId
+	 */
+	public Long getSessionId() {
+		return sessionId;
+	}
+
+	/**
+	 * @param sessionId the sessionId to set
+	 */
+	public void setSessionId(Long sessionId) {
+		this.sessionId = sessionId;
+	}
+
+	/**
 	 * Gets the session year.
 	 *
 	 * @return the session year
@@ -227,8 +280,24 @@ public class QuestionSearchVO {
 		return ministry;
 	}
 
+	public String getFormattedMinistry() {
+		return formattedMinistry;
+	}
+
+	public void setFormattedMinistry(String formattedMinistry) {
+		this.formattedMinistry = formattedMinistry;
+	}
+
 	public void setDepartment(final String department) {
 		this.department = department;
+	}
+	
+	public String getFormattedSubDepartment() {
+		return formattedSubDepartment;
+	}
+
+	public void setFormattedSubDepartment(String formattedSubDepartment) {
+		this.formattedSubDepartment = formattedSubDepartment;
 	}
 
 	public String getDepartment() {
@@ -259,6 +328,14 @@ public class QuestionSearchVO {
 		return statusType;
 	}
 
+	public void setAnswer(String answer){
+		this.answer = answer;
+	}
+	
+	public String getAnswer(){
+		return answer;
+	}
+	
 	public void setFormattedGroup(final String formattedGroup) {
 		this.formattedGroup = formattedGroup;
 	}
@@ -307,7 +384,61 @@ public class QuestionSearchVO {
 		this.chartAnsweringDate = chartAnsweringDate;
 	}
 
-	
+	public String getActor() {
+		return actor;
+	}
 
+	public void setActor(String actor) {
+		this.actor = actor;
+	}
+
+	public String getBallotStatus() {
+		return ballotStatus;
+	}
+
+	public void setBallotStatus(String ballotStatus) {
+		this.ballotStatus = ballotStatus;
+	}
+
+	public String getDiscussionDate() {
+		return discussionDate;
+	}
+
+	public void setDiscussionDate(String discussionDate) {
+		this.discussionDate = discussionDate;
+	}
+
+	public String getYaadiDate() {
+		return yaadiDate;
+	}
+
+	public void setYaadiDate(String yaadiDate) {
+		this.yaadiDate = yaadiDate;
+	}
+
+	public String getYaadiNumber() {
+		return yaadiNumber;
+	}
+
+	public void setYaadiNumber(String yaadiNumber) {
+		this.yaadiNumber = yaadiNumber;
+	}
+
+	public String getFormattedParentNumber() {
+		return formattedParentNumber;
+	}
+
+	public void setFormattedParentNumber(String formattedParentNumber) {
+		this.formattedParentNumber = formattedParentNumber;
+	}
+
+	public String getFormattedClubbedNumbers() {
+		return formattedClubbedNumbers;
+	}
+
+	public void setFormattedClubbedNumbers(String formattedClubbedNumbers) {
+		this.formattedClubbedNumbers = formattedClubbedNumbers;
+	}	
+	
 	
 }

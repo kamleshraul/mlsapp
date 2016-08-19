@@ -27,12 +27,12 @@ public class CutMotionDepartmentDatePriority extends BaseDomain implements Seria
 	private static final long serialVersionUID = 1L;
 	
 	/**** Department ****/
-	@ManyToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="department_id")
 	private Department department;
 	
 	/**** SubDepartment ****/
-	@ManyToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="subdepartment_id")
 	private SubDepartment subDepartment;
 	

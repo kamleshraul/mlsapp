@@ -102,7 +102,7 @@
 	<p style="display:none;">
 		<select id="partyTypes" class="sSelect">
 			<c:forEach items="${parties}" var="i">
-				<option value="${i.id}"><c:out value="${i.type}"></c:out></option>
+				<option value="${i.id}"><c:out value="${i.partyType.type}"></c:out></option>
 			</c:forEach>
 		</select>
 	</p>

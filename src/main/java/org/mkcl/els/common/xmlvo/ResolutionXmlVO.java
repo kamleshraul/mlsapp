@@ -15,6 +15,8 @@ public class ResolutionXmlVO extends XmlVO {
 		
 	private String date;
 	
+	private Integer karyavaliNumber;
+	
 	public ResolutionXmlVO() {
 		
 	}
@@ -37,5 +39,16 @@ public class ResolutionXmlVO extends XmlVO {
 	public void setDate(final String date) {
 		this.date = date;
 	}
+
+	@XmlElement(name = "karyavaliNumber")
+	public Integer getKaryavaliNumber() {
+		return karyavaliNumber;
+	}
+
+	public void setKaryavaliNumber(Integer karyavaliNumber) {
+		this.karyavaliNumber = karyavaliNumber;
+	}
+	
+	
 	
 }

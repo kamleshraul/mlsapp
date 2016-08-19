@@ -8,21 +8,38 @@
 	<script type="text/javascript">
 		
 		$(document).ready(function(){
+			
+			$("#reportDiv").find( "*" ).css( "line-height", "200%" );
+			$("#reportDiv").find( "*" ).css( "font-size", "16px" );
+			
 			var outputFormat="";
 				$('#viewReport').click(function(){
-					var params="houseType=" + $('#selectedHouseType').val()
-					+ '&sessionYear=' + $("#selectedSessionYear").val()
-					+ '&sessionType=' + $("#selectedSessionType").val()
-					+ '&language=' + $("#selectedLanguage").val()
-					+ '&day=' +$('#selectedDay').val()
-					+ '&outputFormat=' +outputFormat;
-					if($('#outputFormat').val()!=""){
-						$(this).attr('href','proceeding/viewreport?'+params);
+					if($('#selectedModule').val()=="COMMITTEE"){
+						var params="committeeMeeting=" + $("#selectedCommitteeMeeting").val()
+						+ '&language=' + $("#selectedLanguage").val()
+						+ '&day=' +$('#selectedDay').val()
+						+ '&outputFormat=' +outputFormat;
+						if($('#outputFormat').val()!=""){
+							$(this).attr('href','proceeding/viewreport?'+params);
+						}else{
+							alert("select the file format");
+							return false;
+						}
 					}else{
-						alert("select the file format");
-						return false;
-					}
+						var params="houseType=" + $('#selectedHouseType').val()
+						+ '&sessionYear=' + $("#selectedSessionYear").val()
+						+ '&sessionType=' + $("#selectedSessionType").val()
+						+ '&language=' + $("#selectedLanguage").val()
+						+ '&day=' +$('#selectedDay').val()
+						+ '&outputFormat=' +outputFormat;
+						if($('#outputFormat').val()!=""){
+							$(this).attr('href','proceeding/viewreport?'+params);
+						}else{
+							alert("select the file format");
+							return false;
+						}
 					
+					}
 				});
 				
 				$('#sessionWiseReport').click(function(){
@@ -115,7 +132,9 @@
 		</select>				
 	</c:if>
 	<a id="viewReport" target="_blank" class="reportLink">rosterwisereport</a>
-	<a id="sessionWiseReport" target="_blank" class="reportLink">sessionwisereport</a>
+	<c:if test="${committeeMeeting==null && committeeMeeting==''}">
+		<a id="sessionWiseReport" target="_blank" class="reportLink">sessionwisereport</a>
+	</c:if>
 <div class="fields clearfix watermark" style="margin-top: 30px;">
 	<%@ include file="/common/info.jsp" %>
 	
@@ -191,7 +210,7 @@
 							</c:choose>
 							<tr>
 							
-							<td colspan="3" style="text-align: justify;" >
+							<td colspan="3" style="text-align: justify; line-height:200%;" >
 								<c:choose>
 									<c:when test="${r[15]!=null}">
 										<c:choose>
@@ -254,7 +273,7 @@
 								<tr><td colspan="3" height="30px"> </td></tr>
 						</c:if>
 						<tr>
-						<td colspan="3" class="content" >
+						<td colspan="3" class="content" style="line-height:200%;">
 							<c:choose>
 								<c:when test="${r[15]!=null and r[14]!= member}">
 									<c:choose>
@@ -290,13 +309,21 @@
 													,${r[17]}
 												</c:otherwise>
 											</c:choose>
-										</c:if>
+									</c:if>
 									:
 								</c:when>
 								<c:otherwise>
 									<c:choose>
-										<c:when test="${r[4]!=null or r[4]!=''}">
-											&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}):
+										<c:when test="${r[4]!=null and  r[4]!=''}">
+											<c:choose>
+												<c:when test="${r[5]!= null and r[5]!='' }">
+													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}):
+												</c:when>
+												<c:otherwise>
+													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>:
+												</c:otherwise>
+											</c:choose>
+											
 										</c:when>
 									</c:choose>
 								</c:otherwise>
@@ -322,7 +349,7 @@
 				<table class="doBreak">
 					<thead>
 						<tr>
-							<th class="left" width="200px">${r[7]}</th>
+							<th class="left" width="200px">${r[25]}/${r[7]}</th>
 							<th class="center" width="400px"><spring:message code="part.generalNotice" text="Unedited Copy"/></th>
 							<th class="right" width="200px">${r[6]} - ${count}</th>
 						</tr>
@@ -360,7 +387,7 @@
 						</c:when>
 					</c:choose>
 					<tr>
-					<td colspan="3" style="text-align: justify;" >
+					<td colspan="3" style="text-align: justify;line-height:200%" >
 						<c:choose>
 							<c:when test="${r[15]!=null}">
 								<c:choose>
@@ -401,8 +428,15 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${r[4]!=null or r[4]!=''}">
-										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}):
+									<c:when test="${r[4]!=null and  r[4]!=''}">
+										<c:choose>
+												<c:when test="${r[5]!= null and r[5]!='' }">
+													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}):
+												</c:when>
+												<c:otherwise>
+													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>:
+												</c:otherwise>
+											</c:choose>
 									</c:when>
 								</c:choose>
 							</c:otherwise>

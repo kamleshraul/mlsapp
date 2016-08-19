@@ -129,6 +129,11 @@ public class SupportingMember extends BaseDomain implements Serializable{
     joinColumns={@JoinColumn(name="supportingmember_id", referencedColumnName="id")},
     inverseJoinColumns={@JoinColumn(name="sectionamendment_id", referencedColumnName="id")})
     private List<SectionAmendment> approvedSectionAmendments;
+    
+    //============== adjournment motion related fields ============//
+    /** The approved section amendment. */
+    @Temporal(TemporalType.DATE)
+    private Date approvedAdjourningDate;
 
     /** The remarks. */
     @Column(length=30000)
@@ -365,6 +370,16 @@ public class SupportingMember extends BaseDomain implements Serializable{
 	public void setApprovedSectionAmendments(
 			List<SectionAmendment> approvedSectionAmendments) {
 		this.approvedSectionAmendments = approvedSectionAmendments;
+	}
+
+
+	public Date getApprovedAdjourningDate() {
+		return approvedAdjourningDate;
+	}
+
+
+	public void setApprovedAdjourningDate(Date approvedAdjourningDate) {
+		this.approvedAdjourningDate = approvedAdjourningDate;
 	}
 
 

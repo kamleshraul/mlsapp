@@ -49,6 +49,8 @@ public class Slot extends BaseDomain implements Serializable{
 	
 	private Boolean blnDeleted=false;
 	
+	private Boolean completed;
+	
 	@Autowired
 	private transient SlotRepository slotRepository;
 
@@ -130,6 +132,10 @@ public class Slot extends BaseDomain implements Serializable{
 	public static Slot findPreviousSlot(Slot slot) {
 		return getSlotRepository().findPreviousSlot(slot);
 	}
+	
+	public static List<Slot> findActiveSlots(Roster roster2) {
+		return getSlotRepository().findActiveSlots(roster2);
+	}
 	/*********** Setters and Getters ************/	
 	
 	public Reporter getReporter() {
@@ -187,10 +193,22 @@ public class Slot extends BaseDomain implements Serializable{
 	public String getName() {
 		return name;
 	}
+	
 	public Boolean getBlnDeleted() {
 		return blnDeleted;
 	}
+	
 	public void setBlnDeleted(Boolean blnDeleted) {
 		this.blnDeleted = blnDeleted;
 	}
+	
+	public Boolean getCompleted() {
+		return completed;
+	}
+
+
+	public void setCompleted(Boolean completed) {
+		this.completed = completed;
+	}
+	
 }

@@ -40,8 +40,7 @@
 			 ,role:$("#apprrole").val()
 			 ,usergroup:$("#apprusergroup").val()
 			 ,usergroupType:$("#apprusergroupType").val()
-			 ,file:$("#apprfile").val()
-			 ,itemscount:$("#appritemscount").val()
+			  ,itemscount:$("#appritemscount").val()
 			 ,workflowSubType:$("#apprworkflowSubType").val()
 			 ,group:$('#apprGroup').val()
 			 ,answeringDate:$('#apprAnsweringDate').val()
@@ -65,15 +64,17 @@
 		
 		if(question!=undefined&&question!=''){
 			var params="question="+question+"&status=";
-			if(($("#currentusergroupType").val()=='assistant' || $("#currentusergroupType").val()=='section_officer') && ($("#apprworkflowSubType").val().indexOf("final")>-1)){
-				if(deviceType=='questions_halfhourdiscussion_standalone' ||
-						deviceType=='questions_halfhourdiscussion_from_question'){
-					params += $("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text()+"&level="+$("#questionLevel").val();
+			if(($("#currentusergroupType").val()=='assistant' 
+					|| $("#currentusergroupType").val()=='section_officer') 
+					&& ($("#apprworkflowSubType").val().indexOf("final")>-1)){
+				if(deviceType=='questions_halfhourdiscussion_from_question'){
+					params += $("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text()
+						+ "&level=" + $("#questionLevel").val();
 				}else{
-					params += $("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text()+"&level=8";
+					params += $("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text() + "&level=8";
 				}
 			}else{
-				params += value+"&level=1";
+				params += value+"&level="+$("#questionLevel").val();
 			}
 			params +="&usergroup="+$("#apprusergroup").val() ;
 			var resourceURL='ref/question/actors?'+params;				
@@ -112,10 +113,10 @@
 	function bulkPutUpUpdate(){
 		var next="";
 		var level="";
-		if($("#appractor").val()!=null&&$("#appractor").val()=='-'){
-			$.prompt($("#selectActorMsg").val());
-			return false;
-		}else if($("#appractor").val()!=null&&$("#appractor").val()!="-"){
+		/* if($("#appractor").val()!=null&&$("#appractor").val()=='-'){
+			//$.prompt($("#selectActorMsg").val());
+			//return false;
+		}else */ if($("#appractor").val()!=null&&$("#appractor").val()!="-"){
 			var temp=$("#appractor").val().split("#");
 			next=temp[1];	
 			level=temp[2];			
@@ -137,8 +138,8 @@
 			return false;	
 		}	
 		var internalstatus="";
-		if($("#apprworkflowSubType").val()=='request_to_supporting_member'){
-		status=$("#apprInternalStatus").val();
+		if($("#apprworkflowSubType").val() == 'request_to_supporting_member'){
+			status=$("#apprInternalStatus").val();
 		}else{
 			internalstatus=$("#apprInternalStatusWf").val();			
 		}
@@ -156,7 +157,6 @@
 						 ,role:$("#apprrole").val()
 						 ,usergroup:$("#apprusergroup").val()
 						 ,usergroupType:$("#apprusergroupType").val()
-						 ,file:$("#apprfile").val()
 						 ,itemscount:$("#appritemscount").val()
 						 ,workflowSubType:$("#apprworkflowSubType").val()
 						 ,status:$("#apprstatus").val()
@@ -189,27 +189,27 @@
 <p>
 	<c:choose>
 	<c:when test="${workflowSubType=='request_to_supporting_member'}">
-	<label class="small"><spring:message code="question.decisionstatus" text="Decision?"/></label>	
-	<select id="apprInternalStatus" class="sSelect">
-	<c:forEach items="${internalStatuses}" var="i">
-				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-	</c:forEach>
-	</select>	
-	<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
+		<label class="small"><spring:message code="question.decisionstatus" text="Decision?"/></label>	
+		<select id="apprInternalStatus" class="sSelect">
+		<c:forEach items="${internalStatuses}" var="i">
+			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+		</c:forEach>
+		</select>	
+		<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
 	</c:when>
 	<c:otherwise>
-	<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
-	<select id="apprInternalStatusWf" class="sSelect">
-	<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-	<c:forEach items="${internalStatuses}" var="i">
+		<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
+		<select id="apprInternalStatusWf" class="sSelect">
+			<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+			<c:forEach items="${internalStatuses}" var="i">
 				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-	</c:forEach>
-	</select>
-	<span id="actorDiv" style="margin: 10px;display: none;">
-		<label class="small"><spring:message code="question.nextactor" text="Next Users"/></label>
-		<select id="appractor" class="sSelect"></select>
-	</span>	
-	<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
+			</c:forEach>
+		</select>
+		<span id="actorDiv" style="margin: 10px;display: none;">
+			<label class="small"><spring:message code="question.nextactor" text="Next Users"/></label>
+			<select id="appractor" class="sSelect"></select>
+		</span>	
+		<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
 	</c:otherwise>
 	</c:choose>		
 </p>
@@ -224,7 +224,6 @@
 <input type="hidden" id="apprusergroup" value="${usergroup }">
 <input type="hidden" id="apprusergroupType" value="${usergroupType }">
 <input type="hidden" id="appritemscount" value="${itemscount }">
-<input type="hidden" id="apprfile" value="${file }">	
 <input type="hidden" id="apprGroup" value="${group}">
 <input type="hidden" id="apprAnsweringDate" value="${answeringDate }">	
 <input id="apprworkflowSubType" value="${workflowSubType }" type="hidden">

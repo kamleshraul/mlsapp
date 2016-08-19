@@ -26,8 +26,10 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillAmendmentMotion;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
@@ -46,6 +48,7 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
@@ -244,7 +247,7 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 				}
 				/****
 				 * Roles and ugparam.Role will be used to decide who can create
-				 * new motions(member and clerk).for member and clerk only those
+				 * new motions(member and typist).for member and typist only those
 				 * motions will be visible which are created by them.For other
 				 * mois users all motions will be visible.
 				 ****/
@@ -254,7 +257,7 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 						model.addAttribute("role", i.getType());
 						model.addAttribute("ugparam", this.getCurrentUser().getActualUsername());
 						break;
-					} else if (i.getType().contains("BAMOIS_CLERK")) {
+					} else if (i.getType().equals("BAMOIS_TYPIST")) {
 						model.addAttribute("role", i.getType());
 						model.addAttribute("ugparam", this.getCurrentUser().getActualUsername());
 						break;
@@ -278,12 +281,12 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 	
 	@Override
 	protected String modifyURLPattern(final String urlPattern,final HttpServletRequest request,final ModelMap model,final String locale) {
-		/**** For BAMOIS roles other than member and clerk assistant grid is visible ****/
+		/**** For BAMOIS roles other than member and typist assistant grid is visible ****/
 		String role=request.getParameter("role");
 		String newUrlPattern=urlPattern;
-		if(role.contains("BAMOIS_")&& (role.contains("CLERK"))){
-			newUrlPattern=urlPattern+"?usergroup=clerk";
-		}else if(role.contains("BAMOIS_")&& (!role.contains("CLERK"))){
+		if(role.contains("BAMOIS_")&& (role.contains("TYPIST"))){
+			newUrlPattern=urlPattern+"?usergroup=typist";
+		}else if(role.contains("BAMOIS_")&& (!role.contains("TYPIST"))){
 			newUrlPattern=urlPattern+"?usergroup=assistant";
 		}
 		return newUrlPattern;
@@ -292,11 +295,11 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 	@Override
 	protected String modifyNewUrlPattern(final String servletPath,
 			final HttpServletRequest request, final ModelMap model, final String string) {
-		/**** Member and Clerk can only create new motions ****/
+		/**** Member and typist can only create new motions ****/
 		String role=request.getParameter("role");		
 		if(role!=null){
 			if(!role.isEmpty()){
-				if(role.startsWith("MEMBER_")||role.equals("BAMOIS_CLERK")){
+				if(role.startsWith("MEMBER_")||role.equals("BAMOIS_TYPIST")){
 					return servletPath;
 				}
 			}
@@ -325,12 +328,12 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 				return newUrlPattern.replace("edit","editreadonly");
 			}
 		}
-		/**** for Member and Clerk edit page is displayed ****/
+		/**** for Member and typist edit page is displayed ****/
 		/**** for assistant assistant page ****/
 		/**** for other bamois usergroupTypes editreadonly page ****/
 		Set<Role> roles=this.getCurrentUser().getRoles();
 		for(Role i:roles){
-			if(i.getType().startsWith("MEMBER_")||i.getType().contains("CLERK")){
+			if(i.getType().startsWith("MEMBER_")||i.getType().contains("TYPIST")){
 				return newUrlPattern;
 			}else if(i.getType().contains("ASSISTANT")||i.getType().contains("SECTION_OFFICER")){
 				return newUrlPattern.replace("edit","assistant");
@@ -641,13 +644,20 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 			model.addAttribute("role",role);
 			request.getSession().removeAttribute("role");
 		}
-		/****UserGroupType****/
-		String usergroupType=request.getParameter("usergroupType");
-		if(usergroupType!=null){
-			model.addAttribute("usergroupType",usergroupType);
+		/**** UserGroupType ****/
+		UserGroupType userGroupType=null;
+		try {
+			userGroupType = this.populateObjectExtendingBaseDomainByStringFieldName(request, "usergroupType", UserGroupType.class, "type", locale);
+		} catch (ELSException e1) {
+			model.addAttribute("errorcode", "usergrouptype_populateError");	
+			return;		
+		}
+		if(userGroupType!=null){
+			model.addAttribute("usergroupType",userGroupType.getType());
 		}else{
-			usergroupType=(String) request.getSession().getAttribute("usergroupType");
-			model.addAttribute("usergroupType",usergroupType);
+			String strUserGroupType=(String) request.getSession().getAttribute("usergroupType");
+			userGroupType = UserGroupType.findByType(strUserGroupType, locale);
+			model.addAttribute("usergroupType",strUserGroupType);
 			request.getSession().removeAttribute("usergroupType");
 		}
 		/*****UserGroup*******/
@@ -754,6 +764,29 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 		}
 		/**** Created By ****/
 		model.addAttribute("createdBy",domain.getCreatedBy());
+		/**** Referenced Motions Starts ****/
+		CustomParameter clubbedReferencedEntitiesVisibleUserGroups = CustomParameter.
+				findByName(CustomParameter.class, "BAMOIS_ALLOWED_USERGROUP_TO_DO_VIEW_CLUBBING_REFERENCING", "");   
+		if(clubbedReferencedEntitiesVisibleUserGroups != null){
+			List<UserGroupType> userGroupTypes = 
+					this.populateListOfObjectExtendingBaseDomainByDelimitedTypes(UserGroupType.class, clubbedReferencedEntitiesVisibleUserGroups.getValue(), ",", locale);
+			Boolean isUserGroupAllowed = this.isObjectExtendingBaseDomainAvailableInList(userGroupTypes, userGroupType);
+			if(isUserGroupAllowed){
+				//populate parent
+				if(domain.getParent()!=null){
+					model.addAttribute("formattedParentNumber",FormaterUtil.formatNumberNoGrouping(domain.getParent().getNumber(), locale));
+					model.addAttribute("parent",domain.getParent().getId());
+				}
+				//populate referenced entity
+//				if(domain.getReferencedAdjournmentMotion()!=null){
+//					Reference referencedEntityReference = BillAmendmentMotionController.populateReferencedEntityAsReference(domain, locale);
+//					model.addAttribute("referencedMotion",referencedEntityReference);
+//				}
+				// Populate clubbed entities
+				List<Reference> clubEntityReferences = BillAmendmentMotionController.populateClubbedEntityReferences(domain, locale);
+				model.addAttribute("clubbedMotionsToShow",clubEntityReferences);
+			}
+		}
 		/**** Status,Internal Status and recommendation Status ****/
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();
@@ -775,11 +808,17 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 		model.addAttribute("internalStatusPriority", internalStatus.getPriority());
 		model.addAttribute("formattedInternalStatus", internalStatus.getName());
 		/**** in case of assistant and other approving BAMOIS actors ****/
-		if(usergroupType!=null&&!(usergroupType.isEmpty())&&
-				(usergroupType.equals(ApplicationConstants.ASSISTANT)||usergroupType.equals(ApplicationConstants.SECTION_OFFICER))){
+		if(userGroupType!=null &&
+				(userGroupType.getType().equals(ApplicationConstants.ASSISTANT)||userGroupType.getType().equals(ApplicationConstants.SECTION_OFFICER))){
 			model.addAttribute("level",1);
 			/**** list of put up options available ****/
-			populateInternalStatus(model,internalStatus.getType(),usergroupType,locale,deviceType.getType());
+			if(recommendationStatus.getType().equals(ApplicationConstants.ADJOURNMENTMOTION_PUTUP_CLUBBING_POST_ADMISSION)
+					|| recommendationStatus.getType().equals(ApplicationConstants.ADJOURNMENTMOTION_PUTUP_UNCLUBBING)
+					|| recommendationStatus.getType().equals(ApplicationConstants.ADJOURNMENTMOTION_PUTUP_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+				populateInternalStatus(model,recommendationStatus.getType(),userGroupType.getType(),locale,deviceType.getType());
+			} else {
+				populateInternalStatus(model,internalStatus.getType(),userGroupType.getType(),locale,deviceType.getType());
+			}
 		}
 		if(recommendationStatus==null) {
 			logger.error("recommendation status is not set for this bill having id="+domain.getId()+".");
@@ -819,8 +858,8 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 		}
 		/**** Added by dhananjayb ****/
 		/**** Remove unwanted actions for relevant workflows ****/
-		if(usergroupType!=null&&!(usergroupType.isEmpty())
-				&&(usergroupType.equals(ApplicationConstants.ASSISTANT)||usergroupType.equals(ApplicationConstants.SECTION_OFFICER))){
+		if(userGroupType!=null
+				&&(userGroupType.getType().equals(ApplicationConstants.ASSISTANT)||userGroupType.getType().equals(ApplicationConstants.SECTION_OFFICER))){
 			@SuppressWarnings("unchecked")
 			List<Status> internalStatuses = (List<Status>) model.get("internalStatuses");
 			List<Status> statusesToRemove = new ArrayList<Status>();
@@ -845,7 +884,7 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 		/**** Populating Put up options and Actors ****/
 		if(domain.getInternalStatus()!=null){
 			String internalStatusType=domain.getInternalStatus().getType();					
-			if(usergroupType!=null&&!usergroupType.isEmpty()&&usergroupType.equals("assistant")
+			if(userGroupType!=null && userGroupType.getType().equals("assistant")
 					&&(internalStatusType.equals(ApplicationConstants.BILLAMENDMENTMOTION_RECOMMEND_ADMISSION)							
 							||internalStatusType.equals(ApplicationConstants.BILLAMENDMENTMOTION_RECOMMEND_REJECTION)							
 					)){				
@@ -971,80 +1010,112 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 	@Override
 	protected void customValidateCreate(final BillAmendmentMotion domain, final BindingResult result,
 			final HttpServletRequest request) {
-		/**** Supporting Members and various Validations ****/
-		populateSupportingMembers(domain,request);
-		/**** Version Mismatch ****/
-		if (domain.isVersionMismatch()) {
-			result.rejectValue("version", "VersionMismatch", "concurrent updation is not allowed.");
-		}
-		/**** fields validation ****/
-		if(domain.getHouseType()==null){
-			result.rejectValue("houseType","HousetypeEmpty","Housetype is not set.");
-		}
-		if(domain.getType()==null){
-			result.rejectValue("type","DeviceTypeEmpty","Devicetype is not set.");
-		}
-		if(domain.getSession()==null){
-			result.rejectValue("session","SessionEmpty","Session is not set.");
-		}
-		if(domain.getPrimaryMember()==null){
-			result.rejectValue("primaryMember","PrimaryMemberEmpty", "primary member is not set.");
-		}
-		/**** section amendments validation ****/
-		boolean isSectionAmendmentInAtleastOneLanguage = false;		
-		for(String amendingBillLanguage: domain.getAmendedBillLanguages().split("#")) {
-			String amendingContentInThisLanguage = request.getParameter("sectionAmendment_amendingContent_"+amendingBillLanguage);
-			if(amendingContentInThisLanguage!=null && !amendingContentInThisLanguage.isEmpty()) {
-				isSectionAmendmentInAtleastOneLanguage = true;
-//				String sectionNumberInThisLanguage = request.getParameter("sectionAmendment_sectionNumber_"+amendingBillLanguage);
-//				if(sectionNumberInThisLanguage==null || sectionNumberInThisLanguage.isEmpty()) {
-//					result.rejectValue("version","SectionNumberEmpty","Please fill section numbers for all languages.");
-//				}
+		try {
+			String role = request.getParameter("role");
+			/**** Supporting Members and various Validations ****/
+			populateSupportingMembers(domain,role,request);
+			/**** Version Mismatch ****/
+			if (domain.isVersionMismatch()) {
+				result.rejectValue("version", "VersionMismatch", "concurrent updation is not allowed.");
 			}
-		}
-		if(isSectionAmendmentInAtleastOneLanguage==false) {
-			result.rejectValue("version","ContentEmpty","Please fill amendment content in atleast one language.");
-		}
-		String operation=request.getParameter("operation");
-		if(operation!=null){
-			if(!operation.isEmpty()){
-				if(operation.equals("approval")){
-					/**** Approval ****/					
-					if(domain.getSupportingMembers()==null){
-						result.rejectValue("supportingMembers","SupportingMembersEmpty","there are no supporting members for approval.");
-					} else if(domain.getSupportingMembers().isEmpty()){
-						result.rejectValue("supportingMembers","there are no supporting members for approval.");						
-					} else {
-//						if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
-//							validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
-//						}else if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
-//							validateNumberOfSupportingMembersForHalfHourDiscussionStandalone(domain, result, request);
-//						}
-
-						//check if request is already sent for approval
-						int count=0;
-						for(SupportingMember i:domain.getSupportingMembers()){
-							if(i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
-								count++;
-							}
-						}
-						if(count==0){
-							result.rejectValue("supportingMembers","SupportingMembersRequestAlreadySent","request already sent to selected supporting members.");
-						}
-					}
-				}else if(operation.equals("submit")){
-					/**** Submission ****/						
-										
+			/**** fields validation ****/
+			if(domain.getHouseType()==null){
+				result.rejectValue("houseType","HousetypeEmpty","Housetype is not set.");
+			}
+			if(domain.getType()==null){
+				result.rejectValue("type","DeviceTypeEmpty","Devicetype is not set.");
+			}
+			if(domain.getSession()==null){
+				result.rejectValue("session","SessionEmpty","Session is not set.");
+			}
+			if(domain.getPrimaryMember()==null){
+				result.rejectValue("primaryMember","PrimaryMemberEmpty", "primary member is not set.");
+			}	
+			if(role.equals("BAMOIS_TYPIST")){
+				//Empty check for number
+				if(domain.getNumber()==null){
+					result.rejectValue("number","NumberEmpty");
+				}
+				// Check duplicate entry for bill Number
+				Boolean flag = BillAmendmentMotion.isDuplicateNumberExist(domain);
+				if(flag){
+					result.rejectValue("number", "NonUnique","Duplicate Number");
 				}
 			}
-		}
+			/**** section amendments validation ****/
+			boolean isSectionAmendmentInAtleastOneLanguage = false;		
+			for(String amendingBillLanguage: domain.getAmendedBillLanguages().split("#")) {
+				String amendingContentInThisLanguage = request.getParameter("sectionAmendment_amendingContent_"+amendingBillLanguage);
+				if(amendingContentInThisLanguage!=null && !amendingContentInThisLanguage.isEmpty()) {
+					isSectionAmendmentInAtleastOneLanguage = true;
+//					String sectionNumberInThisLanguage = request.getParameter("sectionAmendment_sectionNumber_"+amendingBillLanguage);
+//					if(sectionNumberInThisLanguage==null || sectionNumberInThisLanguage.isEmpty()) {
+//						result.rejectValue("version","SectionNumberEmpty","Please fill section numbers for all languages.");
+//					}
+				}
+			}
+			if(isSectionAmendmentInAtleastOneLanguage==false) {
+				result.rejectValue("version","ContentEmpty","Please fill amendment content in atleast one language.");
+			}		
+			String operation=request.getParameter("operation");
+			if(operation!=null){
+				if(!operation.isEmpty()){
+					if(operation.equals("approval")){
+						/**** Approval ****/					
+						if(domain.getSupportingMembers()==null){
+							result.rejectValue("supportingMembers","SupportingMembersEmpty","there are no supporting members for approval.");
+						} else if(domain.getSupportingMembers().isEmpty()){
+							result.rejectValue("supportingMembers","there are no supporting members for approval.");						
+						} else {
+//							if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+//								validateNumberOfSupportingMembersForHalfHourDiscussionFromQuestion(domain, result, request);
+//							}else if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+//								validateNumberOfSupportingMembersForHalfHourDiscussionStandalone(domain, result, request);
+//							}
+
+							//check if request is already sent for approval
+							int count=0;
+							for(SupportingMember i:domain.getSupportingMembers()){
+								if(i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
+									count++;
+								}
+							}
+							if(count==0){
+								result.rejectValue("supportingMembers","SupportingMembersRequestAlreadySent","request already sent to selected supporting members.");
+							}
+						}
+					}else if(operation.equals("submit")){
+						/**** Submission ****/						
+											
+					}
+				}
+			}
+		} catch(ELSException e) {
+			// TODO Auto-generated catch block
+			logger.debug("customValidateCreate", e);
+			request.setAttribute("error",e.getParameter());
+			e.printStackTrace();
+		} catch(Exception e) {
+			// TODO Auto-generated catch block
+			logger.debug("customValidateCreate", e);
+			request.setAttribute("error","Some Error..");
+			e.printStackTrace();
+		} 		
 	}
 	
 	@Override
 	protected void customValidateUpdate(final BillAmendmentMotion domain, final BindingResult result,
 			final HttpServletRequest request) {
+		String role = request.getParameter("role");
 		/**** Supporting Members and various Validations ****/
-		populateSupportingMembers(domain,request);
+		try {
+			populateSupportingMembers(domain,role,request);
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			logger.debug("customValidateCreate", e);
+			request.setAttribute("error",e.getParameter());
+			e.printStackTrace();
+		}
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch", "concurrent updation is not allowed.");
@@ -1061,6 +1132,17 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 		}
 		if(domain.getPrimaryMember()==null){
 			result.rejectValue("primaryMember","PrimaryMemberEmpty", "primary member is not set.");
+		}
+		if(role.equals("BAMOIS_TYPIST")){
+			//Empty check for number
+			if(domain.getNumber()==null){
+				result.rejectValue("number","NumberEmpty");
+			}
+			// Check duplicate entry for bill Number
+			Boolean flag = BillAmendmentMotion.isDuplicateNumberExist(domain);
+			if(flag){
+				result.rejectValue("number", "NonUnique","Duplicate Number");
+			}
 		}
 		String usergroupType=request.getParameter("usergroupType");
 		/**** section amendments validation ****/
@@ -1282,7 +1364,7 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 			if(operation!=null){
 				if(!operation.isEmpty()){
 					if(operation.trim().equals("submit")){
-						if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("clerk"))){
+						if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("typist"))){
 							/****  submission date is set ****/
 							if(domain.getSubmissionDate()==null){
 								domain.setSubmissionDate(new Date());
@@ -1292,8 +1374,13 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 							if(domain.getSupportingMembers()!=null){
 								if(!domain.getSupportingMembers().isEmpty()){
 									for(SupportingMember i:domain.getSupportingMembers()){
-										if(i.getDecisionStatus().getType().trim().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+										if(strUserGroupType.equals("typist")){
 											supportingMembers.add(i);
+										}else{
+											String decisionStatusType =i.getDecisionStatus().getType().trim();
+											if(decisionStatusType.equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+												supportingMembers.add(i);
+											}
 										}
 									}
 									domain.setSupportingMembers(supportingMembers);
@@ -1331,7 +1418,8 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 		}
 		/**** add creation date and created by ****/
 		domain.setCreationDate(new Date());
-		if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("clerk")){
+		if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())
+				&& (strUserGroupType.equals("member") || strUserGroupType.equals("typist"))){
 			Member member=domain.getPrimaryMember();
 			User user = null;
 			try {
@@ -1383,7 +1471,7 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 		if(domain.getHouseType()!=null && domain.getSession()!=null
 				&&  domain.getType()!=null && domain.getPrimaryMember()!=null && (domain.getSectionAmendments()!=null && !domain.getSectionAmendments().isEmpty())
 				){
-			if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("clerk"))){
+			if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("typist"))){
 				if(operation!=null && !operation.isEmpty() && operation.trim().equals("submit")){
 					/****  submission date is set ****/
 					if(domain.getSubmissionDate()==null){
@@ -1586,8 +1674,8 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 							level=temp[2];
 						}
 					}
-					String endflag=request.getParameter("endflag");
-					properties.put("pv_endflag",endflag);	
+					String endFlagForAuxillaryWorkflow=request.getParameter("endFlagForAuxillaryWorkflow");
+					properties.put("pv_endflag",endFlagForAuxillaryWorkflow);	
 					properties.put("pv_timerflag", "off");
 					properties.put("pv_mailflag", "off");					
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
@@ -1597,9 +1685,9 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 					BillAmendmentMotion billAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, domain.getId());
 					/**** Process Started and task created ****/
 					Task task=processService.getCurrentTask(processInstance);
-					if(endflag!=null){
-						if(!endflag.isEmpty()){
-							if(endflag.equals("continue")){
+					if(endFlagForAuxillaryWorkflow!=null){
+						if(!endFlagForAuxillaryWorkflow.isEmpty()){
+							if(endFlagForAuxillaryWorkflow.equals("continue")){
 								/**** Workflow Detail entry made only if its not the end of workflow ****/
 								WorkflowDetails.create(domain,task,ApplicationConstants.TRANSLATION_WORKFLOW,ApplicationConstants.BILLAMENDMENTMOTION_RECOMMEND_TRANSLATION,nextUserGroupType, level);
 							}
@@ -1623,16 +1711,16 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 							level=temp[2];
 						}
 					}
-					String endflag=request.getParameter("endflag");
-					properties.put("pv_endflag",endflag);	
+					String endFlagForAuxillaryWorkflow=request.getParameter("endFlagForAuxillaryWorkflow");
+					properties.put("pv_endflag",endFlagForAuxillaryWorkflow);	
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
 					properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
 					ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);
 					/**** Process Started and task created ****/
 					Task task=processService.getCurrentTask(processInstance);
-					if(endflag!=null){
-						if(!endflag.isEmpty()){
-							if(endflag.equals("continue")){
+					if(endFlagForAuxillaryWorkflow!=null){
+						if(!endFlagForAuxillaryWorkflow.isEmpty()){
+							if(endFlagForAuxillaryWorkflow.equals("continue")){
 								/**** Workflow Detail entry made only if its not the end of workflow ****/
 								WorkflowDetails.create(domain,task,ApplicationConstants.OPINION_FROM_LAWANDJD_WORKFLOW,ApplicationConstants.BILLAMENDMENTMOTION_RECOMMEND_OPINION_FROM_LAWANDJD,nextUserGroupType, level);
 							}
@@ -1653,24 +1741,26 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 							level=temp[2];
 						}
 					}
-					String endflag=request.getParameter("endflag");
-					properties.put("pv_endflag",endflag);	
+					String endFlag=request.getParameter("endFlag");
+					properties.put("pv_endflag",endFlag);	
 					properties.put("pv_deviceId",String.valueOf(domain.getId()));
 					properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
-					ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);				
+					ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);	
+					/**** Stale State Exception ****/
+					BillAmendmentMotion billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,domain.getId());
 					/**** Process Started and task created ****/
 					Task task=processService.getCurrentTask(processInstance);
-					if(endflag!=null){
-						if(!endflag.isEmpty()){
-							if(endflag.equals("continue")){
+					if(endFlag!=null){
+						if(!endFlag.isEmpty()){
+							if(endFlag.equals("continue")){
 								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								String workflowDetailsType = "";
-								/*if(domain.getInternalStatus().getType().equals(ApplicationConstants.BILLAMENDMENTMOTION_RECOMMEND_NAMECLUBBING)) {
-									workflowDetailsType = ApplicationConstants.NAMECLUBBING_WORKFLOW;
-								} else {
-									*/workflowDetailsType = ApplicationConstants.APPROVAL_WORKFLOW;
-								//}
-								WorkflowDetails.create(domain,task,workflowDetailsType,null,nextUserGroupType, level);
+								Workflow workflow = null;
+								try {
+									workflow = billAmendmentMotion.findWorkflowFromStatus();	
+								} catch (ELSException e) {
+									model.addAttribute("error", e.getParameter());
+								}
+								WorkflowDetails.create(domain,task,workflow.getType(),null,nextUserGroupType, level);
 							}
 						}
 					}																	
@@ -1876,7 +1966,7 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 		return "billamendmentmotion/supportingmember";
 	}
 
-	private void populateSupportingMembers(final BillAmendmentMotion domain,final HttpServletRequest request){
+	private void populateSupportingMembers(final BillAmendmentMotion domain,final String role,final HttpServletRequest request) throws ELSException{
 		/**** Supporting Members selected by Member in new/edit ****/
 		String[] selectedSupportingMembers=request.getParameterValues("selectedSupportingMembers");
 		try{
@@ -1920,6 +2010,74 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 						supportingMember.setMember(member);
 						supportingMember.setLocale(domain.getLocale());
 						supportingMember.setDecisionStatus(notsendStatus);
+						/** Auto approval for submission by typist etc. roles **/
+						CustomParameter supportingMemberAutoApprovalAllowedTo = 
+								CustomParameter.findByName(CustomParameter.class, 
+										"BAMOIS_SUPPORTINGMEMBER_AUTO_APPROVAL_ALLOWED_TO", "");
+						if(supportingMemberAutoApprovalAllowedTo != null) {
+							if(supportingMemberAutoApprovalAllowedTo.getValue().contains(role)) {
+								Status APPROVED = Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_APPROVED, domain.getLocale());
+								supportingMember.setDecisionStatus(APPROVED);								
+								supportingMember.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_AUTOAPPROVED);
+								supportingMember.setApprovalDate(new Date());
+								//-------------------set approved section amendments----------------//
+								String billAmendmentMotionId = request.getParameter("billAmendmentMotion");
+								if(billAmendmentMotionId!=null && !billAmendmentMotionId.isEmpty()) {
+									BillAmendmentMotion billAmendmentMotion = BillAmendmentMotion.findById(BillAmendmentMotion.class, Long.parseLong(billAmendmentMotionId));	
+									String amendedBillLanguages = request.getParameter("amendedBillLanguages");
+									String languagesAllowedInSession = amendedBillLanguages;
+									List<SectionAmendment> approvedSectionAmendments = new ArrayList<SectionAmendment>();
+									for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
+										String approvedSectionNumberInThisLanguage = request.getParameter("sectionAmendment_sectionNumber_"+languageAllowedInSession);
+										String approvedSectionAmendmentContentInThisLanguage = request.getParameter("sectionAmendment_amendingContent_"+languageAllowedInSession);
+										if(approvedSectionAmendmentContentInThisLanguage!=null && !approvedSectionAmendmentContentInThisLanguage.isEmpty()) {
+											SectionAmendment approvedSectionAmendment = new SectionAmendment();		
+											approvedSectionAmendment.setSectionNumber(approvedSectionNumberInThisLanguage);
+											approvedSectionAmendment.setAmendingContent(approvedSectionAmendmentContentInThisLanguage);	
+											if(approvedSectionAmendment.getLanguage()==null) {
+												Language thisLanguage;
+												String sectionAmendmentLanguageId = request.getParameter("sectionAmendment_language_id_"+languageAllowedInSession);
+												if(sectionAmendmentLanguageId!=null && !sectionAmendmentLanguageId.isEmpty()) {
+													thisLanguage = Language.findById(Language.class, Long.parseLong(sectionAmendmentLanguageId));
+												} else {
+													thisLanguage = Language.findByFieldName(Language.class, "type", languageAllowedInSession, domain.getLocale());
+												}					
+												approvedSectionAmendment.setLanguage(thisLanguage);
+											}
+											if(approvedSectionAmendment.getAmendedSection()==null) {
+												Section thisSection;
+												String amendedSectionId = request.getParameter("sectionAmendment_amendedSection_id_"+languageAllowedInSession);
+												if(amendedSectionId!=null && !amendedSectionId.isEmpty()) {
+													thisSection = Section.findById(Section.class, Long.parseLong(amendedSectionId));
+												} else {
+													thisSection = Bill.findSection(billAmendmentMotion.getAmendedBill().getId(), languageAllowedInSession, approvedSectionNumberInThisLanguage);
+												}
+												approvedSectionAmendment.setAmendedSection(thisSection);
+											}														
+											approvedSectionAmendment.setLocale(domain.getLocale());
+											approvedSectionAmendments.add(approvedSectionAmendment);
+										}
+									}
+									supportingMember.setApprovedSectionAmendments(approvedSectionAmendments);			
+//									/**** Set Position ****/
+//									if(domain.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+//										if(bill.getSupportingMembers()!=null) {
+//											if(!bill.getSupportingMembers().isEmpty()) {
+//												synchronized (domain) {
+//													Collections.sort(bill.getSupportingMembers(), SupportingMember.COMPARE_BY_POSITION);
+//													Integer currentHighestPosition = bill.getSupportingMembers().get(bill.getSupportingMembers().size()-1).getPosition();
+//													if(currentHighestPosition==null) {
+//														domain.setPosition(1);
+//													} else {
+//														domain.setPosition(currentHighestPosition + 1);
+//													}
+//												}						
+//											}
+//										}
+//									}			
+								}								
+							}
+						}
 					}
 					/*** List is updated ****/
 					supportingMembers.add(supportingMember);
@@ -2083,5 +2241,30 @@ public class BillAmendmentMotionController extends GenericController<BillAmendme
 			}
 		}
 		return revisedSectionAmendments;
+	}
+	
+	public static List<Reference> populateClubbedEntityReferences(BillAmendmentMotion domain, String locale) {
+		List<Reference> references = new ArrayList<Reference>();
+		List<ClubbedEntity> clubbedEntities=BillAmendmentMotion.findClubbedEntitiesByPosition(domain);
+		if(clubbedEntities!=null){
+			for(ClubbedEntity ce:clubbedEntities){
+				Reference reference=new Reference();
+				reference.setId(String.valueOf(ce.getId()));
+				reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getBillAmendmentMotion().getNumber()));
+				reference.setNumber(String.valueOf(ce.getBillAmendmentMotion().getId()));
+				references.add(reference);
+			}
+		}
+		return references;
+	}	
+	
+	public static Reference populateReferencedEntityAsReference(BillAmendmentMotion domain, String locale) {
+		Reference reference=new Reference();
+//		reference.setId(String.valueOf(domain.getReferencedBillAmendmentMotion().getId()));
+//		Integer number = ((BillAmendmentMotion)domain.getReferencedBillAmendmentMotion().getDevice()).getNumber();
+//		reference.setName(FormaterUtil.
+//				getNumberFormatterNoGrouping(domain.getLocale()).format(number));
+//		reference.setNumber(String.valueOf(((BillAmendmentMotion)domain.getReferencedBillAmendmentMotion().getDevice()).getId()));
+		return reference;
 	}
 }

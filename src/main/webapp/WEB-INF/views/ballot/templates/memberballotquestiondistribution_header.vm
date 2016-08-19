@@ -5,9 +5,9 @@
 	विधानपरिषदेच्या
 #end
  सन $sessionYear मधील $sessionCountName ($sessionTypeName) अधिवेशनात उत्तरीत होणाऱ्या $questionTypeName सूचनांपैकी $questionSubmissionDate रोजी 
-#if($dayTime=='0')
-	सकाळी 
-#elseif($dayTime=='1')
-	दुपारी 
-#end
-$questionSubmissionStartTime ते $questionSubmissionEndTime या वेळेत घेण्यात आलेल्या प्रश्न सूचनांचा तपशील
+##if($dayTime=='0')
+##	सकाळी 
+##elseif($dayTime=='1')
+##	दुपारी 
+##end
+दुपारी १२.०० ते १.०० या वेळेत घेण्यात आलेल्या प्रश्न सूचनांचा तपशील

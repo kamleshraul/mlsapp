@@ -74,6 +74,9 @@ public class Document implements Serializable {
     private long fileSize;
 
     private String createdBy;
+    
+    @Column(length = 100000)
+    private String path;
 
     /** The document repository. */
     @Autowired
@@ -108,6 +111,19 @@ public class Document implements Serializable {
         this.createdOn = createdOn;
         this.fileData = fileData;
         this.fileSize = fileSize;
+    }
+    
+    public Document(final String tag, final String type,
+            final String originalFileName, final Date createdOn,
+            final byte[] fileData, final long fileSize,final String path) {
+        super();
+        this.tag = tag;
+        this.type = type;
+        this.originalFileName = originalFileName;
+        this.createdOn = createdOn;
+        this.fileData = fileData;
+        this.fileSize = fileSize;
+        this.path = path;
     }
 
     // ---------------------------------------Domain_Methods---------------------------------------
@@ -328,4 +344,14 @@ public class Document implements Serializable {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+    
+    
 }

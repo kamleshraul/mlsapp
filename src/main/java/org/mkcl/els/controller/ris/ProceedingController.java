@@ -1,7 +1,10 @@
 package org.mkcl.els.controller.ris;
 
 import java.io.File;
-
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -13,12 +16,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.commons.io.FileUtils;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -33,10 +38,16 @@ import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Bookmark;
 import org.mkcl.els.domain.Citation;
+import org.mkcl.els.domain.Committee;
+import org.mkcl.els.domain.CommitteeMeeting;
+import org.mkcl.els.domain.CommitteeMember;
+import org.mkcl.els.domain.CommitteeName;
+import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Designation;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
@@ -64,9 +75,16 @@ import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,11 +92,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/proceeding")
 public class ProceedingController extends GenericController<Proceeding>{
+	
+	@Autowired 
+	Environment env;
+
 
 	/*****************Proceeding Related**************/
 	@Override
@@ -154,6 +177,13 @@ public class ProceedingController extends GenericController<Proceeding>{
 			e.printStackTrace();
 		}
 			
+		/*** CommitteeType ***/
+		List<CommitteeType> committeeTypes = CommitteeType.findAll(CommitteeType.class, "name", "ASC", locale);
+		model.addAttribute("committeeTypes", committeeTypes);
+		
+		/*** Committee Meetings***/
+//		List<CommitteeMeeting> committeeMeetings = Roster.findCommitteeMeetingByUserId(user.getId(), locale);
+//		model.addAttribute("committeeMeetings", committeeMeetings);
 	}
 
 	@Override
@@ -164,127 +194,161 @@ public class ProceedingController extends GenericController<Proceeding>{
 			Slot slot=domain.getSlot();
 			Roster roster=slot.getRoster();
 			Session session=roster.getSession();
-			houseType = session.getHouse().getType();
-			model.addAttribute("session",session.getId());
-			
-			/**** Previous Slot ****/
-			Slot previousSlot = Slot.findPreviousSlot(slot);
-			
-			if(previousSlot!=null){
-				Proceeding previousProceeding = Proceeding.findByFieldName(Proceeding.class, "slot", previousSlot, domain.getLocale());
-				if(previousProceeding != null){
-					List<Part> previousParts = previousProceeding.getParts();
-					if(!previousParts.isEmpty()){
-						/**** Last Part of previous part ****/
-						Part previousPart = previousParts.get(previousParts.size()-1);
-						model.addAttribute("previousPartMainHeading", previousPart.getMainHeading());
-						model.addAttribute("previousPartPageHeading", previousPart.getPageHeading());
-						model.addAttribute("previousPartSpecialHeading", previousPart.getSpecialHeading());
-						if(previousPart.getChairPersonRole()!=null){
-							model.addAttribute("previousPartChairPersonRole",previousPart.getChairPersonRole().getId());
-							//model.addAttribute("previousPartChairPerson", previousPart.getChairPerson());
-						}
-						if(previousPart.getDeviceType()!=null){
-							model.addAttribute("previousPartDeviceType",previousPart.getDeviceType().getId());
-							if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.QUESTION)){
-								Question question = Question.findById(Question.class, previousPart.getDeviceId());
-								model.addAttribute("previousPartDeviceId",question.getId());
-								model.addAttribute("previousPartDeviceNumber",question.getNumber());
-							}else if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.RESOLUTION)){
-								Resolution resolution = Resolution.findById(Resolution.class, previousPart.getDeviceId());
-								model.addAttribute("previousPartDeviceId",resolution.getId());
-								model.addAttribute("previousPartDeviceNumber",resolution.getNumber());
+			CommitteeMeeting committeeMeeting = roster.getCommitteeMeeting();
+			/****slot****/
+			model.addAttribute("slotId", domain.getSlot().getId());
+			model.addAttribute("slotName",domain.getSlot().getName());
+			String startTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy HH:mm", domain.getLocale());
+			String endTime = FormaterUtil.formatDateToString(domain.getSlot().getEndTime(), "dd-MM-yyyy HH:mm", domain.getLocale());
+			request.setAttribute("slotDate", slot.getStartTime());
+			model.addAttribute("slotStartTime", startTime);
+			model.addAttribute("slotEndTime", endTime);
+			if(session!=null){
+				houseType = session.getHouse().getType();
+				model.addAttribute("session",session.getId());
+				
+				/**** Previous Slot ****/
+				Slot previousSlot = Slot.findPreviousSlot(slot);
+				List<Slot> slots = Slot.findSlotsByReporterAndRoster(slot.getRoster(), slot.getReporter());
+				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+				for(Slot s : slots){
+					if(s.getStartTime().after(slot.getStartTime())){
+						MasterVO masterVO = new MasterVO();
+						masterVO.setName(s.getName());
+						masterVO.setType(FormaterUtil.formatDateToString(s.getStartTime(), "dd-MM-yyyy HH:mm", domain.getLocale()));
+						masterVO.setValue(FormaterUtil.formatDateToString(s.getEndTime(), "dd-MM-yyyy HH:mm", domain.getLocale()));
+						masterVOs.add(masterVO);
+					}
+				}
+				
+				model.addAttribute("nextSlots", masterVOs);
+				
+				if(previousSlot!=null){
+					Proceeding previousProceeding = Proceeding.findByFieldName(Proceeding.class, "slot", previousSlot, domain.getLocale());
+					if(previousProceeding != null){
+						List<Part> previousParts = previousProceeding.getParts();
+						if(!previousParts.isEmpty()){
+							/**** Last Part of previous part ****/
+							Part previousPart = previousParts.get(previousParts.size()-1);
+							model.addAttribute("previousPartMainHeading", previousPart.getMainHeading());
+							model.addAttribute("previousPartPageHeading", previousPart.getPageHeading());
+							model.addAttribute("previousPartSpecialHeading", previousPart.getSpecialHeading());
+							if(previousPart.getChairPersonRole()!=null){
+								model.addAttribute("previousPartChairPersonRole",previousPart.getChairPersonRole().getId());
+								//model.addAttribute("previousPartChairPerson", previousPart.getChairPerson());
+							}
+							if(previousPart.getDeviceType()!=null){
+								model.addAttribute("previousPartDeviceType",previousPart.getDeviceType().getId());
+								if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.QUESTION)){
+									Question question = Question.findById(Question.class, previousPart.getDeviceId());
+									model.addAttribute("previousPartDeviceId",question.getId());
+									model.addAttribute("previousPartDeviceNumber",question.getNumber());
+								}else if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.RESOLUTION)){
+									Resolution resolution = Resolution.findById(Resolution.class, previousPart.getDeviceId());
+									model.addAttribute("previousPartDeviceId",resolution.getId());
+									model.addAttribute("previousPartDeviceNumber",resolution.getNumber());
+								}
 							}
 						}
 					}
 				}
-			}
-			
-			
-			/****Party****/
-			List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),domain.getLocale());
-			model.addAttribute("parties", parties);
-			
-			/****Ministries****/
-			List<Ministry> ministries;
-			try {
-				ministries = Ministry.findMinistriesAssignedToGroups(session.getHouse().getType(), session.getYear(), session.getType(), session.getLocale());
-				model.addAttribute("ministries", ministries);
-			} catch (ELSException e) {
-				logger.error("Ministries not assigned to Group");
-				e.printStackTrace();
-			}
-			/****slot****/
-			model.addAttribute("slot", domain.getSlot().getId());
-			model.addAttribute("slotName",domain.getSlot().getName());
-		}
-		
-		
-		/****Members****/
-		List<Member> members=Member.findAll(Member.class, "firstName", "asc", domain.getLocale());
-		model.addAttribute("members",members);
-		
-		/****MemberRoles****/
-		List<MemberRole> roles= new ArrayList<MemberRole>();
-		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_LOWERHOUSE", "");
-			if(customParameter!=null){
-				String allowedMemberRoles = customParameter.getValue();
-				String strMemberRoles[] = allowedMemberRoles.split(",");
-				for(int i=0; i< strMemberRoles.length;i++){
-					MemberRole memberRole = MemberRole.findByFieldName(MemberRole.class, "type", strMemberRoles[i], domain.getLocale());
-					if(memberRole!=null){
-						roles.add(memberRole);
+				
+				
+				/****Party****/
+				List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),domain.getLocale());
+				model.addAttribute("parties", parties);
+				
+				/****Ministries****/
+				List<Ministry> ministries;
+				try {
+					ministries = Ministry.findMinistriesAssignedToGroups(session.getHouse().getType(), session.getYear(), session.getType(), session.getLocale());
+					model.addAttribute("ministries", ministries);
+				} catch (ELSException e) {
+					logger.error("Ministries not assigned to Group");
+					e.printStackTrace();
+				}
+				
+				
+				/****Members****/
+				List<Member> members=Member.findAll(Member.class, "firstName", "asc", domain.getLocale());
+				model.addAttribute("members",members);
+				
+				/****MemberRoles****/
+				List<MemberRole> roles= new ArrayList<MemberRole>();
+				if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+					CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_LOWERHOUSE", "");
+					if(customParameter!=null){
+						String allowedMemberRoles = customParameter.getValue();
+						String strMemberRoles[] = allowedMemberRoles.split(",");
+						for(int i=0; i< strMemberRoles.length;i++){
+							MemberRole memberRole = MemberRole.findByFieldName(MemberRole.class, "type", strMemberRoles[i], domain.getLocale());
+							if(memberRole!=null){
+								roles.add(memberRole);
+							}
+						}
+					}else{
+						model.addAttribute("errorcode","allowedmemberrolesforrislowerhousenotset");
+						logger.error("Custom Parameter ALLOWED_MEMBERROLES_FOR_RIS_LOWERHOUSE not set");
+					}
+				}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+					CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE", "");
+					if(customParameter!=null){
+						String allowedMemberRoles = customParameter.getValue();
+						String strMemberRoles[] = allowedMemberRoles.split(",");
+						for(int i=0; i< strMemberRoles.length;i++){
+							MemberRole memberRole = MemberRole.findByFieldName(MemberRole.class, "type", strMemberRoles[i], domain.getLocale());
+							if(memberRole!=null){
+								roles.add(memberRole);
+							}
+						}
+					}else{
+						model.addAttribute("errorcode","allowedmemberrolesforrisupperhousenotset");
+						logger.error("Custom Parameter ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE not set");
 					}
 				}
-			}else{
-				model.addAttribute("errorcode","allowedmemberrolesforrislowerhousenotset");
-				logger.error("Custom Parameter ALLOWED_MEMBERROLES_FOR_RIS_LOWERHOUSE not set");
-			}
-		}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE", "");
-			if(customParameter!=null){
-				String allowedMemberRoles = customParameter.getValue();
-				String strMemberRoles[] = allowedMemberRoles.split(",");
-				for(int i=0; i< strMemberRoles.length;i++){
-					MemberRole memberRole = MemberRole.findByFieldName(MemberRole.class, "type", strMemberRoles[i], domain.getLocale());
-					if(memberRole!=null){
-						roles.add(memberRole);
-					}
+				
+				model.addAttribute("roles", roles);
+				
+				/****Designation****/
+				List<Designation> designations=Designation.findAll(Designation.class, "name", "asc", domain.getLocale());
+				model.addAttribute("designations",designations);
+				
+				
+				/****SubDepartments****/
+				List<SubDepartment> subDepartments=SubDepartment.findAll(SubDepartment.class, "name", "asc", domain.getLocale());
+				model.addAttribute("subDepartments",subDepartments);
+				
+				/****DeviceType****/
+				CustomParameter deviceTypesGoneLive = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_GONE_LIVE", "");
+				String strDevices = deviceTypesGoneLive.getValue();
+				String[] devTypes = strDevices.split(",");
+				List<DeviceType> deviceTypes = new ArrayList<DeviceType>();
+				for(String d : devTypes){
+					DeviceType deviceType = DeviceType.findByType(d, domain.getLocale());
+					deviceTypes.add(deviceType);
 				}
-			}else{
-				model.addAttribute("errorcode","allowedmemberrolesforrisupperhousenotset");
-				logger.error("Custom Parameter ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE not set");
+				model.addAttribute("deviceTypes", deviceTypes);
+				
+			}else if(committeeMeeting!=null){
+				model.addAttribute("committeeMeeting",committeeMeeting.getId());
+				Committee committee = committeeMeeting.getCommittee();
+				CommitteeName committeeName = committee.getCommitteeName();
+				model.addAttribute("committeeName", committeeName.getDisplayName());
+				
 			}
-		}
-		
-		model.addAttribute("roles", roles);
-		
-		/****Designation****/
-		List<Designation> designations=Designation.findAll(Designation.class, "name", "asc", domain.getLocale());
-		model.addAttribute("designations",designations);
-		
-		
-		/****SubDepartments****/
-		List<SubDepartment> subDepartments=SubDepartment.findAll(SubDepartment.class, "name", "asc", domain.getLocale());
-		model.addAttribute("subDepartments",subDepartments);
-		
-		/****DeviceType****/
-		List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name", "desc", domain.getLocale());
-		model.addAttribute("deviceTypes", deviceTypes);
-		
+			
 		/****Parts****/
 		List<Part> parts=Part.findAllByFieldName(Part.class, "proceeding", domain, "orderNo", "asc", domain.getLocale());
 		model.addAttribute("parts", parts);
 		if(parts.isEmpty()){
-			model.addAttribute("partCount", 0);
+			model.addAttribute("partCount", 1);
 		}else{
 			model.addAttribute("partCount", domain.getParts().size());
 		}
 
 		/****Proceeding Id****/
 		model.addAttribute("proceeding",domain.getId());
-		
+				
 		/****Locale****/
 		model.addAttribute("locale",domain.getLocale());
 		
@@ -295,6 +359,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 		/****Undo Counts and RedoCount for Editing Functionality****/
 		model.addAttribute("undoCount", 0);
 		model.addAttribute("redoCount", 0);
+		
+		model.addAttribute("documentId",domain.getDocumentId());
+		}
 
 	}
 
@@ -302,7 +369,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 	protected void preValidateUpdate(final Proceeding domain,
 			final BindingResult result, final HttpServletRequest request) {
 		String strPartCount = request.getParameter("partCount");
-		if(strPartCount !=null && strPartCount.isEmpty() && strPartCount.equals("undefined") ){
+		if(strPartCount !=null && !strPartCount.isEmpty() && !strPartCount.equals("undefined") ){
 			populateParts(domain, request, result);
 		}else{
 			result.rejectValue("version", "partCountEmpty");
@@ -310,26 +377,47 @@ public class ProceedingController extends GenericController<Proceeding>{
 		
 
 	}
+	
+	@Override
+	protected String modifyEditUrlPattern(final String editUrlPattern, 
+    		final HttpServletRequest request, 
+    		final ModelMap model, 
+    		final String locale) {
+		Date previousSystemDate = FormaterUtil.formatStringToDate("30/07/2016", "dd/MM/yyyy");
+		Date slotStartTime = (Date) request.getAttribute("slotDate");
+		if(slotStartTime.before(previousSystemDate)){
+			
+				return editUrlPattern.replace("edit", "edit2");
+			
+		}
+        return editUrlPattern;
+    }
 
 	private void populateParts(Proceeding domain, HttpServletRequest request,
 			BindingResult result) {
 		List<Part> parts = new ArrayList<Part>();
 		Integer partCount = Integer.parseInt(request.getParameter("partCount"));
 		for (int i = 1; i <= partCount; i++) {
+			
 			Part part=new Part();
+			
+			/****Part Id****/
+			String id=request.getParameter("partId"+ i);
+			if(id!=null){
+				if(!id.isEmpty()){
+					part = Part.findById(Part.class, Long.parseLong(id));
+					if(part.getPartDrafts() != null && part.getPartDrafts().isEmpty()){
+						part.setPartDrafts(part.getPartDrafts());
+					}
+				}
+			}
 			/****PrimaryMember****/
 			String strMember=request.getParameter("primaryMember"+i);
 			if(strMember!=null && !strMember.equals("")){
 				Member member=Member.findById(Member.class, Long.parseLong(strMember));
 				part.setPrimaryMember(member);
 			}
-			/****Part Id****/
-			String id=request.getParameter("partId"+ i);
-			if(id!=null){
-				if(!id.isEmpty()){
-					part.setId(Long.parseLong(id));
-				}
-			}
+			
 
 			/****OrderNo****/
 			String order=request.getParameter("partOrder"+ i);
@@ -411,6 +499,13 @@ public class ProceedingController extends GenericController<Proceeding>{
 			String content=request.getParameter("partContent"+i);
 			if(content!=null && !content.isEmpty()){
 				part.setProceedingContent(content);
+				
+			}
+			
+			String revisedContent = request.getParameter("partRevisedContent"+i);
+			if(revisedContent != null && !revisedContent.isEmpty()){
+				part.setRevisedContent(revisedContent);
+			}else if(content != null && !content.isEmpty()){
 				part.setRevisedContent(content);
 			}
 			
@@ -658,7 +753,6 @@ public class ProceedingController extends GenericController<Proceeding>{
 								part.setChairPerson(member.getFullname());
 							}
 						} catch (ELSException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -676,21 +770,23 @@ public class ProceedingController extends GenericController<Proceeding>{
 				Designation designation = Designation.findById(Designation.class, Long.parseLong(strPrimaryMemberDesignation));
 				part.setPrimaryMemberDesignation(designation);
 				if(designation.getType().equals(ApplicationConstants.STATE_MINISTER)){
-					if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty() ){
-						SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
-						Ministry ministry = Ministry.find(subDepartment,locale);
-						Member member = MemberMinister.find(ministry,locale);
-						if(member!=null){
-							/**** Substitute Member , Ministry, Designation, SubDepartment****/
-							part.setSubstituteMember(member);
-							part.setSubstituteMemberMinistry(ministry);
-							part.setSubstituteMemberSubDepartment(subDepartment);
-							List<MemberMinister> memberMinisters=member.getMemberMinisters();
-							for(MemberMinister mm:memberMinisters){
-								if((mm.getMinistryFromDate()==null || mm.getMinistryFromDate().before(new Date()))
-									&& (mm.getMinistryToDate()==null || mm.getMinistryToDate().after(new Date()))){
-									part.setSubstituteMemberDesignation(mm.getDesignation());
-									break;
+					if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty()){
+						if(strIsSubstitutionRequired !=null && !strIsSubstitutionRequired.isEmpty()){
+							SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
+							Ministry ministry = Ministry.find(subDepartment, new Date(), locale.toString());
+							Member member = MemberMinister.find(ministry,locale);
+							if(member!=null){
+								/**** Substitute Member , Ministry, Designation, SubDepartment****/
+								part.setSubstituteMember(member);
+								part.setSubstituteMemberMinistry(ministry);
+								part.setSubstituteMemberSubDepartment(subDepartment);
+								List<MemberMinister> memberMinisters=member.getMemberMinisters();
+								for(MemberMinister mm:memberMinisters){
+									if((mm.getMinistryFromDate()==null || mm.getMinistryFromDate().before(new Date()))
+										&& (mm.getMinistryToDate()==null || mm.getMinistryToDate().after(new Date()))){
+										part.setSubstituteMemberDesignation(mm.getDesignation());
+										break;
+									}
 								}
 							}
 						}
@@ -698,7 +794,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				}else{
 					if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty() ){
 						SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
-						Ministry ministry = Ministry.find(subDepartment,locale);
+						Ministry ministry = Ministry.find(subDepartment, new Date(), locale.toString());
 						part.setPrimaryMemberMinistry(ministry);
 						part.setPrimaryMemberSubDepartment(subDepartment);
 					}
@@ -787,6 +883,21 @@ public class ProceedingController extends GenericController<Proceeding>{
 			part.setLocale(locale.toString());
 			
 			if(part.getId()!=null){
+				if(part!=null){
+					PartDraft partDraft=new PartDraft();
+					partDraft.setPageHeading(part.getPageHeading());
+					partDraft.setRevisedContent(part.getRevisedContent());
+					partDraft.setMainHeading(part.getMainHeading());
+					partDraft.setRevisedContent(part.getRevisedContent());
+					partDraft.setOriginalText(part.getProceedingContent());
+					String editedBy = request.getParameter("editingUser");
+					partDraft.setEditedBy(editedBy);
+					partDraft.setLocale(locale.toString());
+					partDraft.setEditedOn(new Date());
+					partDraft.setUniqueIdentifierForUndo(UUID.randomUUID().toString());
+					partDraft.setWorkflowCopy(false);
+					part.getPartDrafts().add(partDraft);
+			}
 				((BaseDomain)part).merge();
 			}else{
 				((BaseDomain)part).persist();
@@ -965,12 +1076,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 		MasterVO masterVO= new MasterVO();
 		if(isPart != null && !isPart.isEmpty()){
 			if(!Boolean.parseBoolean(isPart)){
-				if(strLanguage != null && !strLanguage.isEmpty()
-						&& strPart != null && !strPart.isEmpty()
-						&& strSlavePart != null && !strSlavePart.isEmpty()
+				if(/*strLanguage != null && !strLanguage.isEmpty()
+						&&*/ strPart != null && !strPart.isEmpty()
+						/*&& strSlavePart != null && !strSlavePart.isEmpty()*/
 						&& strPreviousContent != null && !strPreviousContent.isEmpty()
 						&& strReplacedContent != null && !strReplacedContent.isEmpty()
-						&& strSlot != null && !strSlot.isEmpty()){
+						/*&& strSlot != null && !strSlot.isEmpty()*/){
 						Language language = Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
 						Part masterPart = Part.findById(Part.class, Long.parseLong(strPart));
 						Part slavePart = Part.findById(Part.class, Long.parseLong(strSlavePart));
@@ -1110,6 +1221,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 						if(!part.getPrimaryMember().equals(member)){
 							part.setPrimaryMember(member);
 						}
+					}else{
+						part.setPrimaryMember(member);
 					}
 				}
 				
@@ -1120,7 +1233,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 					if(designation.getType().equals(ApplicationConstants.STATE_MINISTER)){
 						if(strPrimaryMemberSubDepartment!=null && !strPrimaryMemberSubDepartment.isEmpty() ){
 							SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPrimaryMemberSubDepartment));
-							Ministry ministry = Ministry.find(subDepartment,locale);
+							Ministry ministry = Ministry.find(subDepartment, new Date(), locale.toString());
 							Member member = MemberMinister.find(ministry,locale);
 							if(member!=null){
 								/**** Substitute Member , Ministry, Designation, SubDepartment****/
@@ -1281,7 +1394,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			final ModelMap model){
 		String strPartyId=request.getParameter("partyId");
 		String strCount=request.getParameter("partCount");
-		String type=this.getCurrentUser().getHouseType();
+		String type=request.getParameter("housetype");
 		HouseType houseType=null;
 		if(type!=null && !type.isEmpty()){
 			 houseType=HouseType.findByType(type, locale.toString());
@@ -1393,6 +1506,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 			ParentVO parentVO=new ParentVO();
 			parentVO.setId(slot.getId());
 			parentVO.setName(slot.getName());
+			if(session != null){
+				House house = session.getHouse();
+				parentVO.setHouseType(house.getType().getType());
+			}
 			SimpleDateFormat dateFormat=new SimpleDateFormat("dd/MM/yyyy");
 			SimpleDateFormat dateFormat1=new SimpleDateFormat("HH:mm");
 			String startDate=dateFormat.format(slot.getStartTime());
@@ -1404,7 +1521,16 @@ public class ProceedingController extends GenericController<Proceeding>{
 			for(Part p:parts){
 				ChildVO childVO=new ChildVO();
 				childVO.setId(p.getId());
-				childVO.setProceedingContent(p.getRevisedContent());
+				if(p.getRevisedContent() != null){
+					
+					String revisedContent = p.getRevisedContent().replaceAll("<!-- pagebreak -->", "<p style='page-break-after: always;'><!-- pagebreak --></p>");
+					revisedContent = revisedContent.replaceAll("<br><p></p>", "");
+					revisedContent = revisedContent.replaceAll("<p></p>", "");
+					revisedContent = revisedContent.replaceAll("<div></div>", "");
+					revisedContent = revisedContent.replaceAll("<span></span>", "");
+					childVO.setProceedingContent(revisedContent);
+				}
+				
 				childVO.setChairperson(p.getChairPerson());
 				if(p.getPageHeading()!=null){
 					childVO.setPageHeading(p.getPageHeading());
@@ -1429,8 +1555,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 				Member primaryMember=p.getPrimaryMember();
 				if(primaryMember!=null){
 					List<HouseMemberRoleAssociation> hrma=primaryMember.getHouseMemberRoleAssociations();
+					
 					for(HouseMemberRoleAssociation h:hrma){
-						if(h.getHouse().equals(session.getHouse())){
+						if(h.getFromDate().before(session.getEndDate()) && h.getToDate().after(session.getEndDate())){
 							MemberRole memberRole=h.getRole();
 							if(memberRole.getType().toLowerCase().equals(ApplicationConstants.SPEAKER)
 									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_SPEAKER)
@@ -1440,24 +1567,41 @@ public class ProceedingController extends GenericController<Proceeding>{
 									||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
 								childVO.setPrimaryMember(memberRole.getName());
 							}else{
-								childVO.setPrimaryMember(primaryMember.getFullname());
+								childVO.setPrimaryMember(primaryMember.findFirstLastName());
 							}
-
 						}
 					}
+					
+					
 									
 					if(p.getIsConstituencyRequired()){
-						House house=roster.getSession().getHouse();
-						MasterVO masterVo=null;
-						if(house.getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-							 masterVo=Member.findConstituencyByAssemblyId(primaryMember.getId(), house.getId());
-							
-						}else if(house.getType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-							Date currentDate=new Date();
-							String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-							masterVo=Member.findConstituencyByCouncilDates(primaryMember.getId(), house.getId(), "DATE", date, date);
+//						House house=roster.getSession().getHouse();
+//						MasterVO masterVo=null;
+//						if(house.getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+//							 masterVo=Member.findConstituencyByAssemblyId(primaryMember.getId(), house.getId());
+//							
+//						}else if(house.getType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+//							Date currentDate=new Date();
+//							String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
+//							masterVo=Member.findConstituencyByCouncilDates(primaryMember.getId(), house.getId(), "DATE", date, date);
+//						}
+						if(p.getIsConstituencyRequired()){
+							Constituency constituency=p.getPrimaryMember().findConstituency();
+							if(constituency!=null){
+								String cn = constituency.getName();
+								if(cn.contains("(")){
+									String[] constituencies = cn.split("\\(");
+									childVO.setConstituency(constituencies[0]);
+								}else if(cn.contains("-")){
+									String[] constituencies = cn.split("-");
+									childVO.setConstituency(constituencies[1]);
+								}else{
+									childVO.setConstituency(cn);
+								}
+								
+							}
 						}
-						childVO.setConstituency(masterVo.getName());
+						
 					}
 					if(p.getPrimaryMemberDesignation()!=null){
 					childVO.setPrimaryMemberDesignation(p.getPrimaryMemberDesignation().getName());
@@ -1491,13 +1635,31 @@ public class ProceedingController extends GenericController<Proceeding>{
 				childVOs.add(childVO); 
 			}
 			parentVO.setChildVOs(childVOs);
+			Slot previousSlot = Roster.findPreviousSlot(slot);
+			if(previousSlot != null){
+				parentVO.setReporter(previousSlot.getReporter().getUser().getTitle() + " " + previousSlot.getReporter().getUser().getLastName());
+			}
+			Slot nextSlot = Roster.findNextSlot(slot);
+			if(nextSlot != null){
+				parentVO.setNextReporter(nextSlot.getReporter().getUser().getTitle() + " " + nextSlot.getReporter().getUser().getLastName());
+			}
+			//parentVO.setReporter(slot.getReporter().getUser().getFirstName());
+			List<User> users=Slot.findDifferentLanguageUsersBySlot(slot);
+			String languageReporter="";
+			for(int i=0;i<users.size();i++){
+				languageReporter=languageReporter+users.get(i).getFirstName();
+				if(i+1<users.size()){
+					languageReporter=languageReporter+"/";
+				}
+			}
+			parentVO.setLanguageReporter(languageReporter);
 			parentVOs.add(parentVO);
 			ProceedingXMLVO proceedingXMLVO=new ProceedingXMLVO();
 			proceedingXMLVO.setParentVOs(parentVOs);
 			if(!parentVOs.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word1", reportFormat, "karyavrutt_slotwise", locale.toString());
+						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word2", reportFormat,slot.getName(), locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1530,16 +1692,18 @@ public class ProceedingController extends GenericController<Proceeding>{
 		String strSessionYear=request.getParameter("sessionYear");
 		String strLanguage=request.getParameter("language");
 		String strDay=request.getParameter("day");
+		String strCommitteeMeeting = request.getParameter("committeeMeeting");
+		Roster roster = null;
+		Language language = null;
+		Session session = null;
 		if(strHouseType!=null&&!strHouseType.equals("")&&
 				strSessionType!=null&&!strSessionType.equals("")&&
 				strSessionYear!=null&&!strSessionYear.equals("")&&
 				strLanguage!=null&&!strLanguage.equals("")&&
 				strDay!=null&&!strDay.equals("")){
-
 			HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 			SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
-			Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
-			Session session = null;
+			language=Language.findById(Language.class, Long.parseLong(strLanguage));
 			try {
 				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
 			} catch (NumberFormatException e) {
@@ -1549,7 +1713,16 @@ public class ProceedingController extends GenericController<Proceeding>{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+			roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+		}else if(strLanguage != null && !strLanguage.equals("")
+				&& strDay != null && !strDay.equals("") 
+				&& strCommitteeMeeting!=null && !strCommitteeMeeting.equals("")){
+			language = Language.findById(Language.class, Long.parseLong(strLanguage));
+			CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
+			roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+			model.addAttribute("committeeMeeting", committeeMeeting.getId());
+		}
+		if(roster!=null){
 			Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 			parametersMap.put("locale", new String[]{locale.toString()});
 			parametersMap.put("languageId", new String[]{language.getId().toString()});
@@ -1644,20 +1817,26 @@ public class ProceedingController extends GenericController<Proceeding>{
 		String strLanguage=request.getParameter("language");
 		String strDay=request.getParameter("day");
 		String reportFormat=request.getParameter("outputFormat");
+		String strCommitteeMeeting = request.getParameter("committeeMeeting");
 		File reportFile = null;
-
+		List<ParentVO> parentVOs=new ArrayList<ParentVO>();
+		Roster roster = null;
+		Language language = null;
+		Session session = null;
+		String committeeShortName = null;
+		HouseType houseType = null;
 		if(strHouseType!=null&&!strHouseType.equals("")&&
 				strSessionType!=null&&!strSessionType.equals("")&&
 				strSessionYear!=null&&!strSessionYear.equals("")&&
 				strLanguage!=null&&!strLanguage.equals("")&&
 				strDay!=null&&!strDay.equals("")){
 
-			HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+			houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 			SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
-			Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
-			Session session = null;
+			language=Language.findById(Language.class, Long.parseLong(strLanguage));
 			try {
 				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+				roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
 			} catch (NumberFormatException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1665,11 +1844,25 @@ public class ProceedingController extends GenericController<Proceeding>{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			List<ParentVO> parentVOs=new ArrayList<ParentVO>();
-			Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
-			List<Slot> slots =Slot.findAllByFieldName(Slot.class, "roster", roster, "name", "asc", locale.toString());
+		}else if(strLanguage!=null&&!strLanguage.equals("")
+				&& strDay!=null&&!strDay.equals("")
+				&& strCommitteeMeeting != null && !strCommitteeMeeting.equals("")){
+			language = Language.findById(Language.class, Long.parseLong(strLanguage));
+			CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
+			roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+			Committee committee = committeeMeeting.getCommittee();
+			CommitteeName committeeName = committee.getCommitteeName();
+			committeeShortName = committeeName.getShortName();
+			
+		}
+			
+		if(roster != null){
+			List<Slot> slots =Slot.findActiveSlots(roster);
 			for(Slot s:slots){
 				ParentVO parentVO=new ParentVO();
+				if(houseType != null){
+					parentVO.setHouseType(houseType.getType());
+				}
 				List<ChildVO> childVOs=new ArrayList<ChildVO>();
 				List<Proceeding> proceedings=Proceeding.findAllFilledProceedingBySlot(s);
 				for(Proceeding proc:proceedings){
@@ -1677,7 +1870,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 					for(Part p:parts){
 						ChildVO childVO=new ChildVO();
 						childVO.setId(p.getId());
-						childVO.setProceedingContent(p.getRevisedContent());
+//						String content = p.getRevisedContent();
+//						content = content.replaceAll("align=\"justify\" style=\"line-height: 200%; font-size: 16px;", "");
+						String revisedContent = p.getRevisedContent().replaceAll("<p><!-- pagebreak --></p>", "<p style='page-break-after: always;'><!-- pagebreak --></p>");
+						revisedContent = revisedContent.replaceAll("<br><p></p>", "");
+						revisedContent = revisedContent.replaceAll("<p></p>", "");
+						revisedContent = revisedContent.replaceAll("<div></div>", "");
+						revisedContent = revisedContent.replaceAll("<span></span>", "");
+						childVO.setProceedingContent(revisedContent);
 						if(p.getPageHeading()!=null){
 							childVO.setPageHeading(p.getPageHeading());
 						}else{
@@ -1693,23 +1893,26 @@ public class ProceedingController extends GenericController<Proceeding>{
 						}else{
 							childVO.setSpecialHeading("");
 						}
-						
-						
+											
 						if(p.getChairPersonRole()!=null){
 							childVO.setMemberrole(p.getChairPersonRole().getName());
-							if(p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_CHAIRMAN)
-								|| p.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_SPEAKER)){
+							if(p.getChairPersonRole().getType().equalsIgnoreCase(ApplicationConstants.PANEL_CHAIRMAN)
+								|| p.getChairPersonRole().getType().equalsIgnoreCase(ApplicationConstants.PANEL_SPEAKER)
+								|| p.getChairPersonRole().getType().equalsIgnoreCase(ApplicationConstants.SPEAKER)
+								|| p.getChairPersonRole().getType().equalsIgnoreCase(ApplicationConstants.CHAIRMAN)){
 								childVO.setChairperson(p.getChairPerson());
 							}else{
 								childVO.setChairperson("");
 							}
+						}else{
+							childVO.setMemberrole("");
 						}
 						childVO.setOrderNo(p.getOrderNo());
 						Member primaryMember=p.getPrimaryMember();
 						if(primaryMember!=null){
 							List<HouseMemberRoleAssociation> hrma=primaryMember.getHouseMemberRoleAssociations();
 							for(HouseMemberRoleAssociation h:hrma){
-								if(h.getHouse().equals(session.getHouse())){
+								if(h.getFromDate().before(session.getEndDate()) && h.getToDate().after(session.getEndDate())){
 									MemberRole memberRole=h.getRole();
 									if(memberRole.getType().toLowerCase().equals(ApplicationConstants.SPEAKER)
 											||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_SPEAKER)
@@ -1719,9 +1922,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 											||memberRole.getType().toLowerCase().equals(ApplicationConstants.DEPUTY_CHIEF_MINISTER)){
 										childVO.setPrimaryMember(memberRole.getName());
 									}else{
-										childVO.setPrimaryMember(primaryMember.getFullname());
+										childVO.setPrimaryMember(primaryMember.findFirstLastName());
 									}
-		
 								}
 							}
 						
@@ -1729,7 +1931,16 @@ public class ProceedingController extends GenericController<Proceeding>{
 							if(p.getIsConstituencyRequired()){
 								Constituency constituency=p.getPrimaryMember().findConstituency();
 								if(constituency!=null){
-									childVO.setConstituency(constituency.getName());
+									String cn = constituency.getName();
+									if(cn.contains("(")){
+										String[] constituencies = cn.split("\\(");
+										childVO.setConstituency(constituencies[0]);
+									}else if(cn.contains("-")){
+										String[] constituencies = cn.split("-");
+										childVO.setConstituency(constituencies[1]);
+									}else{
+										childVO.setConstituency(cn);
+									}
 								}
 							}
 							if(p.getPrimaryMemberDesignation()!=null){
@@ -1741,6 +1952,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 							if(p.getPrimaryMemberSubDepartment()!=null){
 								childVO.setPrimaryMemberSubDepartment(p.getPrimaryMemberSubDepartment().getName());
 							}
+						}else{
+							childVO.setPrimaryMember("");
 						}
 						Member substituteMember=p.getSubstituteMember();
 						if(substituteMember!=null){
@@ -1772,9 +1985,14 @@ public class ProceedingController extends GenericController<Proceeding>{
 					SimpleDateFormat dateFormat1=new SimpleDateFormat("HH:mm");
 					String startDate=dateFormat.format(s.getStartTime());
 					String startTime=dateFormat1.format(s.getStartTime());
-					parentVO.setStartDate(startDate);
+					if(committeeShortName != null && !committeeShortName.isEmpty()){
+						parentVO.setStartDate(committeeShortName +"/"+startDate);
+					}else{
+						parentVO.setStartDate(startDate);
+					}
+					
 					parentVO.setStartTime(startTime);
-					parentVO.setReporter(s.getReporter().getUser().getFirstName());
+					parentVO.setReporter(s.getReporter().getUser().getTitle() + " " + s.getReporter().getUser().getLastName());
 					List<User> users=Slot.findDifferentLanguageUsersBySlot(s);
 					String languageReporter="";
 					for(int i=0;i<users.size();i++){
@@ -1795,7 +2013,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!parentVOs.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word1", reportFormat, "karyavrutt_rosterwise", locale.toString());
+						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word2", reportFormat, "karyavrutt_rosterwise", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1969,7 +2187,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!parentVOs.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word1", reportFormat, "karyavrutt_sessionwise", locale.toString());
+						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word2", reportFormat, "karyavrutt_sessionwise", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -2003,6 +2221,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 		String strLanguage=request.getParameter("language");
 		String strDay=request.getParameter("day");
 		String strUser=request.getParameter("user");
+		String strCommitteeMeeting = request.getParameter("committeeMeeting");
+		Roster roster = null;
+		User user = null; 
+		Language language = null;
+		Session session = null;
 		if(strHouseType!=null&&!strHouseType.equals("")&&
 				strSessionType!=null&&!strSessionType.equals("")&&
 				strSessionYear!=null&&!strSessionYear.equals("")&&
@@ -2012,19 +2235,28 @@ public class ProceedingController extends GenericController<Proceeding>{
 
 			HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 			SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
-			Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
-			Session session = null;
+			language=Language.findById(Language.class, Long.parseLong(strLanguage));
+			user=User.findById(User.class, Long.parseLong(strUser));
+			
 			try {
 				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
 			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ELSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
-			User user=User.findById(User.class, Long.parseLong(strUser));
+			roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+		}else if(strLanguage!=null && !strLanguage.equals("")
+				&& strDay!=null && !strDay.equals("")
+				&& strUser!=null && !strUser.equals("")
+				&& strCommitteeMeeting != null && !strCommitteeMeeting.equals("")){
+			language=Language.findById(Language.class, Long.parseLong(strLanguage));
+			user=User.findById(User.class, Long.parseLong(strUser));
+			CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
+			roster=Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+		}
+		if(roster != null && user != null){
+			
 			Reporter reporter= Roster.findByUser(roster, user);
 			Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 			parametersMap.put("locale", new String[]{locale.toString()});
@@ -2077,38 +2309,46 @@ public class ProceedingController extends GenericController<Proceeding>{
 
 	@RequestMapping(value="/reporterwiseproceeding",method=RequestMethod.GET)
 	public @ResponseBody void getReporterwiseProceedingReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale){
-		String strHouseType=request.getParameter("houseType");
-		String strSessionType=request.getParameter("sessionType");
-		String strSessionYear=request.getParameter("sessionYear");
-		String strLanguage=request.getParameter("language");
-		String strDay=request.getParameter("day");
-		String reportFormat=request.getParameter("outputFormat");
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strLanguage = request.getParameter("language");
+		String strDay = request.getParameter("day");
+		String reportFormat = request.getParameter("outputFormat");
+		String strCommitteeMeeting = request.getParameter("committeeMeeting");
 		File reportFile = null;
-
-		if(strHouseType!=null&&!strHouseType.equals("")&&
-				strSessionType!=null&&!strSessionType.equals("")&&
-				strSessionYear!=null&&!strSessionYear.equals("")&&
-				strLanguage!=null&&!strLanguage.equals("")&&
-				strDay!=null&&!strDay.equals("")){
+		Roster roster = null;
+		Language language = null;
+		Session session = null;
+		if(strHouseType != null && !strHouseType.equals("")
+				&& strSessionType != null && !strSessionType.equals("")
+				&& strSessionYear != null && !strSessionYear.equals("")
+				&& strLanguage != null && !strLanguage.equals("")
+				&& strDay != null && !strDay.equals("")){
 
 			HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 			SessionType sessionType=SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
-			Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
-			Session session = null;
+			language=Language.findById(Language.class, Long.parseLong(strLanguage));
 			try {
 				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
 			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ELSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
-			User user=User.findById(User.class, this.getCurrentUser().getUserId());
-			Reporter reporter=Roster.findByUser(roster, user);
-			List<Slot> slots=Slot.findSlotsByReporterAndRoster(roster,reporter);
-			List<ParentVO> parentVOs=new ArrayList<ParentVO>();
+			roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
+		}else if(strLanguage!=null && !strLanguage.equals("")
+				&& strDay!=null && !strDay.equals("")
+				&& strCommitteeMeeting != null && !strCommitteeMeeting.equals("")){
+			language = Language.findById(Language.class, Long.parseLong(strLanguage));
+			CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
+			roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+		}
+		if(roster != null){
+			User user = User.findById(User.class, this.getCurrentUser().getUserId());
+			Reporter reporter = Roster.findByUser(roster, user);
+			List<Slot> slots = Slot.findSlotsByReporterAndRoster(roster,reporter);
+			List<ParentVO> parentVOs = new ArrayList<ParentVO>();
 			for(Slot s:slots){
 				ParentVO parentVO=new ParentVO();
 				List<ChildVO> childVOs=new ArrayList<ChildVO>();
@@ -2234,7 +2474,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!parentVOs.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word1", reportFormat, "karyavrutt_reporterwise", locale.toString());
+						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word2", reportFormat, "karyavrutt_reporterwise", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -2587,7 +2827,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!parentVOs.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word1", reportFormat, "karyavrutt_memberwise", locale.toString());
+						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word2", reportFormat, "karyavrutt_memberwise", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -2776,7 +3016,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!parentVOs.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word1", reportFormat, "karyavrutt_memberwise1", locale.toString());
+						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word2", reportFormat, "karyavrutt_memberwise1", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -3035,7 +3275,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			if(!parentVOs.isEmpty()){
 				if(reportFormat.equals("WORD")) {
 					try {
-						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word1", reportFormat, "karyavrutt_memberwise2", locale.toString());
+						reportFile = generateReportUsingFOP(proceedingXMLVO, "template_ris_proceeding_content_merge_report_word2", reportFormat, "karyavrutt_memberwise2", locale.toString());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -3304,4 +3544,223 @@ public class ProceedingController extends GenericController<Proceeding>{
 		}
 		return masterVO;
 	}
+	
+	
+	/*** Facility to Upload proceedings for a given Slot***/
+	@RequestMapping(value="/{id}/uploadproceeding",method=RequestMethod.GET)
+    public String populateDocument(final @PathVariable("id") Long id, 
+    		final ModelMap model,
+            final HttpServletRequest request){
+		Proceeding domain =  Proceeding.findById(Proceeding.class, id);
+		model.addAttribute("domain", domain);
+		HouseType houseType = null;
+		if(domain.getSlot()!=null){
+			Slot slot=domain.getSlot();
+			Roster roster=slot.getRoster();
+			Session session=roster.getSession();
+			CommitteeMeeting committeeMeeting = roster.getCommitteeMeeting();
+			if(session!=null){
+				houseType = session.getHouse().getType();
+				model.addAttribute("session",session.getId());
+				
+				/**** Previous Slot ****/
+//				Slot previousSlot = Slot.findPreviousSlot(slot);
+//				
+//				if(previousSlot!=null){
+//					Proceeding previousProceeding = Proceeding.findByFieldName(Proceeding.class, "slot", previousSlot, domain.getLocale());
+//					if(previousProceeding != null){
+//						
+//					}
+//				}
+				
+				/****slot****/
+				model.addAttribute("slot", domain.getSlot().getId());
+				model.addAttribute("slotName",domain.getSlot().getName());
+							
+			}else if(committeeMeeting!=null){
+				model.addAttribute("committeeMeeting",committeeMeeting.getId());
+			}
+			
+			/****Proceeding Id****/
+			model.addAttribute("proceeding",domain.getId());
+			
+			/****Locale****/
+			model.addAttribute("locale",domain.getLocale());
+			
+			/***Reporter***/
+			model.addAttribute("reporter",domain.getSlot().getReporter().getId());
+			model.addAttribute("userName", this.getCurrentUser().getUsername());
+			
+			/***Document uploaded***/
+			model.addAttribute("documentId",domain.getDocumentId());
+			if(domain.getDocumentId() != null){
+				Document document = null;
+				try {
+					document = Document.findByTag(domain.getDocumentId());
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				model.addAttribute("documentName", document.getOriginalFileName());
+			}
+		}
+		 if(request.getSession().getAttribute("type")==null){
+	            model.addAttribute("type","");
+         }else{
+        	model.addAttribute("type",request.getSession().getAttribute("type"));
+            request.getSession().removeAttribute("type");
+         }
+		
+		return "proceeding/uploadproceeding";
+		
+	}
+	
+	
+	@RequestMapping(value="/uploadproceeding",method=RequestMethod.POST)
+    public  @ResponseBody String saveDocument(
+    		@RequestParam(required = false) final MultipartFile file,
+            final ModelMap model,
+            final RedirectAttributes redirectAttributes,
+            final HttpServletRequest request){
+		String returnUrl = null;
+		try{
+			if(file != null){
+				String proceedingId = request.getParameter("proceedingId");
+				Proceeding domain = Proceeding.findById(Proceeding.class, Long.parseLong(proceedingId));
+				CustomParameter storageCustomParameter = CustomParameter
+		                    .findByName(CustomParameter.class, "DOCUMENT_STORAGE_USED","");
+				if(storageCustomParameter != null){
+					/***Saving the document url in Document domain only***/
+					Document document = new Document();
+		            document.setCreatedOn(new Date());
+		            document.setOriginalFileName(file.getOriginalFilename());
+		            document.setFileSize(file.getSize());
+		            document.setType(file.getContentType());
+		            CustomParameter customParameter = CustomParameter
+		                    .findByName(
+		                            CustomParameter.class, "FILE_PREFIX",
+		                            "");
+		            document.setTag(customParameter.getValue()
+		                    + String.valueOf(UUID.randomUUID().hashCode()));
+					if(storageCustomParameter.getValue().equals("drive")){
+						//Getting the current active profile				
+						String[] profiles = env.getActiveProfiles();
+						Properties prop = new Properties();
+						if(profiles.length > 0){
+							String propertyFile = "props/"+profiles[0]+"/app.properties";
+							InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propertyFile);
+							if (inputStream != null) {
+								prop.load(inputStream);
+							} 
+						}
+						
+						/***Path to save the document***/
+						String filePath = prop.getProperty("drive.path");
+						String fileNameToCreate = filePath + file.getOriginalFilename();
+						File newFile = new File(fileNameToCreate);
+						FileUtils.writeByteArrayToFile(newFile, file.getBytes());
+						document.setPath(fileNameToCreate);
+					}else{
+						 document.setFileData(file.getBytes());
+					}
+				    document = document.persist();
+		            domain.setDocumentId(document.getTag());
+		            domain.persist();
+				}
+				 redirectAttributes.addFlashAttribute("type", "success");
+			     //this is done so as to remove the bug due to which update message appears even though there
+			     //is a fresh new/edit request i.e after creating/updating records if we click on
+			     //new /edit then success message appears
+			     request.getSession().setAttribute("type","success");
+			     redirectAttributes.addFlashAttribute("msg", "create_success");
+			    /* returnUrl = "redirect:proceeding/"+ domain.getId() +"/uploadproceeding";*/
+	            returnUrl = "success";
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	   
+        return returnUrl;
+	}
+	
+	
+	@RequestMapping(value = "/{tag}", method = RequestMethod.GET)
+    public void get(@PathVariable final String tag,
+                    final HttpServletRequest request,
+                    final HttpServletResponse response) {
+        Document document = null;
+        try {
+        	document = Document.findByTag(tag);
+            response.setContentType(document.getType());
+            response.setContentLength((int) document.getFileSize());
+            response.setHeader("Content-Disposition", "attachment; filename=\""
+                    + document.getOriginalFileName() + "\"");
+            CustomParameter storageCustomParameter = CustomParameter
+                    .findByName(CustomParameter.class, "DOCUMENT_STORAGE_USED","");
+            if(storageCustomParameter != null){
+            	 if(storageCustomParameter.getValue().equals("drive")){
+                 	String filePath = document.getPath();
+                 	java.io.File file = new java.io.File(filePath);
+                 	FileInputStream inputStream = new FileInputStream(file);
+                 	FileCopyUtils.copy(
+                 			inputStream, response.getOutputStream());
+                 }else{
+                 	FileCopyUtils.copy(
+                             document.getFileData(), response.getOutputStream());
+                 }
+            }
+        } catch (IOException e) {
+            logger.error("Error occured while downloading file:" + e.toString());
+        }catch (ELSException e) {
+			logger.error(e.getMessage());			
+		}
+    }
+	
+	@Transactional
+    @RequestMapping(value = "/remove/{tag}", method = RequestMethod.DELETE)
+    public @ResponseBody Boolean remove(@PathVariable("tag") final String tag,
+                   final HttpServletRequest request) {
+        Document document =null;
+        Boolean success = false;
+        try{
+        	 String proceedingId = request.getParameter("proceedingId");
+        	 Proceeding domain = Proceeding.findById(Proceeding.class, Long.parseLong(proceedingId));
+        	 domain.setDocumentId(null);
+        	 domain.merge();
+        	 document = Document.findByTag(tag);
+        	 CustomParameter storageCustomParameter = CustomParameter
+                     .findByName(CustomParameter.class, "DOCUMENT_STORAGE_USED","");
+             if(storageCustomParameter != null){
+             	 if(storageCustomParameter.getValue().equals("drive")){
+               	String filePath = document.getPath();
+             	java.io.File file = new java.io.File(filePath);
+             	file.delete();
+             	//Files.deleteIfExists(file.toPath());
+             	 }
+        	 document.remove();
+        	 success = true;
+             }
+		}catch (ELSException e) {
+			logger.error(e.getMessage());
+		}
+         return success;
+    }
+	
+	@RequestMapping(value="/{id}/complete", method=RequestMethod.POST)
+	public @ResponseBody Boolean completeSlot(final @PathVariable("id") Long id, final HttpServletRequest request, final ModelMap model, final Locale locale){
+		Boolean returnValue = false;
+		try{
+			Proceeding proceeding = Proceeding.findById(Proceeding.class, id);
+			Slot slot = proceeding.getSlot();
+			slot.setCompleted(true);
+			slot.merge();
+			returnValue = true;
+					
+		}catch (Exception e) {
+			returnValue = false;
+			e.printStackTrace();
+		}
+		return returnValue;
+	}
+	
 }

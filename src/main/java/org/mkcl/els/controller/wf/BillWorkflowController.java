@@ -24,6 +24,7 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.controller.bis.BillController;
 import org.mkcl.els.domain.Act;
 import org.mkcl.els.domain.BillKind;
 import org.mkcl.els.domain.BillType;
@@ -253,6 +254,7 @@ public class BillWorkflowController extends BaseController {
 		if(deviceType!=null){
 			model.addAttribute("deviceType", deviceType.getName());
 			model.addAttribute("deviceTypeId", deviceType.getId());
+			model.addAttribute("selectedDeviceTypeForBill", deviceType.getType());
 		}
 		/**** Bill Type ****/		
 		BillType billType=bill.getBillType();
@@ -369,9 +371,11 @@ public class BillWorkflowController extends BaseController {
 			List<TextDraft> titles = new ArrayList<TextDraft>();
 			for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
 				String titleTextInThisLanguage = request.getParameter("title_text_"+languageAllowedInSession);
+				String titleShortTextInThisLanguage = request.getParameter("title_shortText_"+languageAllowedInSession);
 				if(titleTextInThisLanguage!=null && !titleTextInThisLanguage.isEmpty()) {
 					TextDraft title = new TextDraft();				
 					title.setText(titleTextInThisLanguage);	
+					title.setShortText(titleShortTextInThisLanguage);	
 					Language thisLanguage;
 					String titleLanguageId = request.getParameter("title_language_id_"+languageAllowedInSession);
 					if(titleLanguageId!=null && !titleLanguageId.isEmpty()) {
@@ -389,9 +393,12 @@ public class BillWorkflowController extends BaseController {
 			List<TextDraft> contentDrafts = new ArrayList<TextDraft>();
 			for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
 				String contentDraftTextInThisLanguage = request.getParameter("contentDraft_text_"+languageAllowedInSession);
-				if(contentDraftTextInThisLanguage!=null && !contentDraftTextInThisLanguage.isEmpty()) {
+				String contentDraftFileInThisLanguage = request.getParameter("contentDraft-file-"+languageAllowedInSession);
+				if((contentDraftTextInThisLanguage!=null && !contentDraftTextInThisLanguage.isEmpty())
+						|| (contentDraftFileInThisLanguage!=null && !contentDraftFileInThisLanguage.isEmpty())) {
 					TextDraft contentDraft = new TextDraft();				
 					contentDraft.setText(contentDraftTextInThisLanguage);	
+					contentDraft.setFile(contentDraftFileInThisLanguage);	
 					Language thisLanguage;
 					String contentDraftLanguageId = request.getParameter("contentDraft_language_id_"+languageAllowedInSession);
 					if(contentDraftLanguageId!=null && !contentDraftLanguageId.isEmpty()) {
@@ -847,7 +854,7 @@ public class BillWorkflowController extends BaseController {
 			String strCurrentUserGroup=workflowDetails.getAssigneeUserGroupId();
 			if(expectedStatus!=null && strCurrentUserGroup!=null) {
 				UserGroup currentUserGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strCurrentUserGroup));
-				CustomParameter finalAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "BILL_LAYLETTER_FINAL_AUTHORITY", "");
+				CustomParameter finalAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "BILL_LAYLETTER_FINAL_AUTHORITY"+"_"+houseTypeForWorkflow.getType().toUpperCase(), "");
 				if(finalAuthorityParameter.getValue().contains(workflowDetails.getAssigneeUserGroupType())) {
 					endflag="end";
 				} else {
@@ -1285,7 +1292,8 @@ public class BillWorkflowController extends BaseController {
 		if(ministry!=null){
 			model.addAttribute("ministrySelected",ministry.getId());
 			model.addAttribute("formattedMinistry",ministry.getName());
-			List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
+			List<SubDepartment> assignedSubDepartments = 
+					MemberMinister.findAssignedSubDepartments(ministry, selectedSession.getEndDate(), locale);
 			model.addAttribute("subDepartments", assignedSubDepartments);
 			SubDepartment subDepartment=domain.getSubDepartment();
 			if(subDepartment!=null){
@@ -1320,7 +1328,8 @@ public class BillWorkflowController extends BaseController {
 					ministry = memberMinisters.get(0).getMinistry();
 					model.addAttribute("ministrySelected",ministry.getId());
 					model.addAttribute("formattedMinistry",ministry.getName());
-					List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
+					List<SubDepartment> assignedSubDepartments = 
+							MemberMinister.findAssignedSubDepartments(ministry, selectedSession.getStartDate(), locale);
 					model.addAttribute("subDepartments", assignedSubDepartments);
 					if(!assignedSubDepartments.isEmpty()) {
 						SubDepartment subDepartment=assignedSubDepartments.get(0);
@@ -1623,12 +1632,15 @@ public class BillWorkflowController extends BaseController {
 			Status internaStatus=domain.getInternalStatus();
 			HouseType houseTypeForWorkflow = Bill.findHouseTypeForWorkflow(domain);
 			/**** Final Approving Authority(Final Status) ****/
-			CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_OPINION_FROM_LAWANDJD_FINAL_AUTHORITY", "");
-			CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-			CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-			CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+houseTypeForWorkflow.getType().toUpperCase()+"_OPINION_FROM_LAWANDJD_FINAL_AUTHORITY", "");
+			if(finalApprovingAuthority==null) {
+				finalApprovingAuthority = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_OPINION_FROM_LAWANDJD_FINAL_AUTHORITY", "");
+			}
+			CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+			CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "BILL_OPINION_FROM_LAWANDJD_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
 			if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
-				CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_OPINION_FROM_LAWANDJD_OPTIONS_"+usergroupType.toUpperCase(),"");
+				CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"BILL_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseTypeForWorkflow.getType().toUpperCase()+"_OPINION_FROM_LAWANDJD_WORKFLOW_FINAL_AUTHORITY","");
 				if(finalApprovingAuthorityStatus!=null){
 					try {
 						opinionFromLawAndJDStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
@@ -2047,6 +2059,10 @@ public class BillWorkflowController extends BaseController {
 			/**** display message ****/
 			model.addAttribute("type","taskalreadycompleted");
 			return "workflow/info";
+		} else if(workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_TIMEOUT)) {
+			/**** display message ****/
+			model.addAttribute("type","taskalreadytimedout");
+			return "workflow/info";
 		}
 		/** Custom Status for Auxillary Workflows **/
 		Status customStatus = null;		
@@ -2138,37 +2154,37 @@ public class BillWorkflowController extends BaseController {
 			}				
 			/**** add/update revised titles in domain ****/
 			bill.getRevisedTitles().clear();
-			List<TextDraft> revisedTitles = this.updateDraftsOfGivenType(bill, "revised_title", request);
+			List<TextDraft> revisedTitles = BillController.updateDraftsOfGivenType(bill, "revised_title", request);
 			for(TextDraft rt: revisedTitles) {
 				bill.getRevisedTitles().add(rt);
 			}
 			/**** add/update revised content drafts in domain ****/
 			bill.getRevisedContentDrafts().clear();
-			List<TextDraft> revisedContentDrafts = this.updateDraftsOfGivenType(bill, "revised_contentDraft", request);
+			List<TextDraft> revisedContentDrafts = BillController.updateDraftsOfGivenType(bill, "revised_contentDraft", request);
 			for(TextDraft rcd: revisedContentDrafts) {
 				bill.getRevisedContentDrafts().add(rcd);
 			}
 			/**** add/update revised 'statement of object and reason drafts' in domain ****/
 			bill.getRevisedStatementOfObjectAndReasonDrafts().clear();
-			List<TextDraft> revisedStatementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(bill, "revised_statementOfObjectAndReasonDraft", request);		
+			List<TextDraft> revisedStatementOfObjectAndReasonDrafts = BillController.updateDraftsOfGivenType(bill, "revised_statementOfObjectAndReasonDraft", request);		
 			for(TextDraft rsor: revisedStatementOfObjectAndReasonDrafts) {
 				bill.getRevisedStatementOfObjectAndReasonDrafts().add(rsor);
 			}	
 			/**** add/update revised financial memorandum drafts in domain ****/
 			bill.getRevisedFinancialMemorandumDrafts().clear();
-			List<TextDraft> revisedFinancialMemorandumDrafts = this.updateDraftsOfGivenType(bill, "revised_financialMemorandumDraft", request);		
+			List<TextDraft> revisedFinancialMemorandumDrafts = BillController.updateDraftsOfGivenType(bill, "revised_financialMemorandumDraft", request);		
 			for(TextDraft rfm: revisedFinancialMemorandumDrafts) {
 				bill.getRevisedFinancialMemorandumDrafts().add(rfm);
 			}	
 			/**** add/update revised statutory memorandum drafts in domain ****/
 			bill.getRevisedStatutoryMemorandumDrafts().clear();
-			List<TextDraft> revisedStatutoryMemorandumDrafts = this.updateDraftsOfGivenType(bill, "revised_statutoryMemorandumDraft", request);
+			List<TextDraft> revisedStatutoryMemorandumDrafts = BillController.updateDraftsOfGivenType(bill, "revised_statutoryMemorandumDraft", request);
 			for(TextDraft rsm: revisedStatutoryMemorandumDrafts) {
 				bill.getRevisedStatutoryMemorandumDrafts().add(rsm);
 			}		
 			/**** add/update revised annexures for amending bill in domain ****/
 			bill.getRevisedAnnexuresForAmendingBill().clear();
-			List<TextDraft> revisedAnnexuresForAmendingBill = this.updateDraftsOfGivenType(bill, "revised_annexureForAmendingBill", request);
+			List<TextDraft> revisedAnnexuresForAmendingBill = BillController.updateDraftsOfGivenType(bill, "revised_annexureForAmendingBill", request);
 			for(TextDraft ra: revisedAnnexuresForAmendingBill) {
 				bill.getRevisedAnnexuresForAmendingBill().add(ra);
 			}
@@ -2373,44 +2389,44 @@ public class BillWorkflowController extends BaseController {
 			}
 		}	
 		/**** add/update titles in domain ****/
-		List<TextDraft> titles = this.updateDraftsOfGivenType(domain, "title", request);
+		List<TextDraft> titles = BillController.updateDraftsOfGivenType(domain, "title", request);
 		domain.setTitles(titles);	
 		/**** add/update revised titles in domain ****/
-		List<TextDraft> revisedTitles = this.updateDraftsOfGivenType(domain, "revised_title", request);
+		List<TextDraft> revisedTitles = BillController.updateDraftsOfGivenType(domain, "revised_title", request);
 		domain.setRevisedTitles(revisedTitles);
 		/**** add/update content drafts in domain ****/
-		List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(domain, "contentDraft", request);
+		List<TextDraft> contentDrafts = BillController.updateDraftsOfGivenType(domain, "contentDraft", request);
 		domain.setContentDrafts(contentDrafts);	
 		/**** add/update revised content drafts in domain ****/
-		List<TextDraft> revisedContentDrafts = this.updateDraftsOfGivenType(domain, "revised_contentDraft", request);
+		List<TextDraft> revisedContentDrafts = BillController.updateDraftsOfGivenType(domain, "revised_contentDraft", request);
 		domain.setRevisedContentDrafts(revisedContentDrafts);	
 		
 		/**** add/update 'statement of object and reason drafts' in domain ****/
-		List<TextDraft> statementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(domain, "statementOfObjectAndReasonDraft", request);		
+		List<TextDraft> statementOfObjectAndReasonDrafts = BillController.updateDraftsOfGivenType(domain, "statementOfObjectAndReasonDraft", request);		
 		domain.setStatementOfObjectAndReasonDrafts(statementOfObjectAndReasonDrafts);
 		/**** add/update revised 'statement of object and reason drafts' in domain ****/
-		List<TextDraft> revisedStatementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(domain, "revised_statementOfObjectAndReasonDraft", request);		
+		List<TextDraft> revisedStatementOfObjectAndReasonDrafts = BillController.updateDraftsOfGivenType(domain, "revised_statementOfObjectAndReasonDraft", request);		
 		domain.setRevisedStatementOfObjectAndReasonDrafts(revisedStatementOfObjectAndReasonDrafts);
 		
 		/**** add/update financial memorandum drafts in domain ****/
-		List<TextDraft> financialMemorandumDrafts = this.updateDraftsOfGivenType(domain, "financialMemorandumDraft", request);		
+		List<TextDraft> financialMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "financialMemorandumDraft", request);		
 		domain.setFinancialMemorandumDrafts(financialMemorandumDrafts);
 		/**** add/update revised financial memorandum drafts in domain ****/
-		List<TextDraft> revisedFinancialMemorandumDrafts = this.updateDraftsOfGivenType(domain, "revised_financialMemorandumDraft", request);		
+		List<TextDraft> revisedFinancialMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "revised_financialMemorandumDraft", request);		
 		domain.setRevisedFinancialMemorandumDrafts(revisedFinancialMemorandumDrafts);
 		
 		/**** add/update statutory memorandum drafts in domain ****/
-		List<TextDraft> statutoryMemorandumDrafts = this.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
+		List<TextDraft> statutoryMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
 		domain.setStatutoryMemorandumDrafts(statutoryMemorandumDrafts);
 		/**** add/update revised statutory memorandum drafts in domain ****/
-		List<TextDraft> revisedStatutoryMemorandumDrafts = this.updateDraftsOfGivenType(domain, "revised_statutoryMemorandumDraft", request);
+		List<TextDraft> revisedStatutoryMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "revised_statutoryMemorandumDraft", request);
 		domain.setRevisedStatutoryMemorandumDrafts(revisedStatutoryMemorandumDrafts);
 		
 		/**** add/update annexures for amending bill in domain ****/
-		List<TextDraft> annexuresForAmendingBill = this.updateDraftsOfGivenType(domain, "annexureForAmendingBill", request);
+		List<TextDraft> annexuresForAmendingBill = BillController.updateDraftsOfGivenType(domain, "annexureForAmendingBill", request);
 		domain.setAnnexuresForAmendingBill(annexuresForAmendingBill);	
 		/**** add/update revised annexures for amending bill in domain ****/
-		List<TextDraft> revisedAnnexuresForAmendingBill = this.updateDraftsOfGivenType(domain, "revised_annexureForAmendingBill", request);
+		List<TextDraft> revisedAnnexuresForAmendingBill = BillController.updateDraftsOfGivenType(domain, "revised_annexureForAmendingBill", request);
 		domain.setRevisedAnnexuresForAmendingBill(revisedAnnexuresForAmendingBill);
 		
 		/**** retain sections ****/
@@ -2641,6 +2657,7 @@ public class BillWorkflowController extends BaseController {
 					TextDraft title = new TextDraft();
 					title.setLanguage(languageAllowedForTitle);
 					title.setText("");
+					title.setShortText("");
 					titles.add(title);
 				}
 			}
@@ -2648,6 +2665,7 @@ public class BillWorkflowController extends BaseController {
 			if(domain.getRevisedTitles()!=null && !domain.getRevisedTitles().isEmpty()) {
 				for(TextDraft revisedTitle: domain.getRevisedTitles()) {
 					model.addAttribute("revisedTitle_"+revisedTitle.getLanguage().getType(), revisedTitle.getText());
+					model.addAttribute("revisedTitle_shortText_"+revisedTitle.getLanguage().getType(), revisedTitle.getShortText());
 					model.addAttribute("revisedTitle_id_"+revisedTitle.getLanguage().getType(), revisedTitle.getId());
 				}
 			}
@@ -2663,6 +2681,7 @@ public class BillWorkflowController extends BaseController {
 					TextDraft contentDraft = new TextDraft();
 					contentDraft.setLanguage(languageAllowedForContentDraft);
 					contentDraft.setText("");
+					contentDraft.setFile("");
 					contentDrafts.add(contentDraft);
 				}
 			}
@@ -2670,6 +2689,7 @@ public class BillWorkflowController extends BaseController {
 			if(domain.getRevisedContentDrafts()!=null && !domain.getRevisedContentDrafts().isEmpty()) {
 				for(TextDraft revisedContentDraft: domain.getRevisedContentDrafts()) {
 					model.addAttribute("revisedContentDraft_"+revisedContentDraft.getLanguage().getType(), revisedContentDraft.getText());
+					model.addAttribute("revisedContentDraft-file-"+revisedContentDraft.getLanguage().getType(), revisedContentDraft.getFile());
 					model.addAttribute("revisedContentDraft_id_"+revisedContentDraft.getLanguage().getType(), revisedContentDraft.getId());
 				}
 			}
@@ -2751,6 +2771,7 @@ public class BillWorkflowController extends BaseController {
 					TextDraft annexureForAmendingBill = new TextDraft();
 					annexureForAmendingBill.setLanguage(languageAllowedForAnnexureForAmendingBill);
 					annexureForAmendingBill.setText("");
+					annexureForAmendingBill.setFile("");
 					annexuresForAmendingBill.add(annexureForAmendingBill);
 				}
 			}
@@ -2758,6 +2779,7 @@ public class BillWorkflowController extends BaseController {
 			if(domain.getRevisedAnnexuresForAmendingBill()!=null && !domain.getRevisedAnnexuresForAmendingBill().isEmpty()) {
 				for(TextDraft revisedAnnexureForAmendingBill: domain.getRevisedAnnexuresForAmendingBill()) {
 					model.addAttribute("revisedAnnexureForAmendingBill_"+revisedAnnexureForAmendingBill.getLanguage().getType(), revisedAnnexureForAmendingBill.getText());
+					model.addAttribute("revisedAnnexureForAmendingBill-file-"+revisedAnnexureForAmendingBill.getLanguage().getType(), revisedAnnexureForAmendingBill.getFile());
 					model.addAttribute("revisedAnnexureForAmendingBill_id_"+revisedAnnexureForAmendingBill.getLanguage().getType(), revisedAnnexureForAmendingBill.getId());
 				}
 			}
@@ -2767,50 +2789,6 @@ public class BillWorkflowController extends BaseController {
 			model.addAttribute("errorcode",deviceType.getType() + "__languagesAllowed_notset");
 			return false;
 		}
-	}
-	
-	private List<TextDraft> updateDraftsOfGivenType(Bill domain, String typeOfDraft, HttpServletRequest request) {
-		List<TextDraft> draftsOfGivenType = new ArrayList<TextDraft>();
-		String languagesAllowedInSession = domain.getSession().getParameter(domain.getType().getType() + "_languagesAllowed");
-		for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
-			String draftTextInThisLanguage = request.getParameter(typeOfDraft+"_text_"+languageAllowedInSession);
-//			if(draftTextInThisLanguage.contains("esor revised")) {
-//				draftTextInThisLanguage = "";
-//			}
-			if(draftTextInThisLanguage!=null && !draftTextInThisLanguage.isEmpty()) {
-				TextDraft draftOfGivenType = null;				
-				String draftIdInThisLanguage = request.getParameter(typeOfDraft+"_id_"+languageAllowedInSession);
-				if(draftIdInThisLanguage!=null && !draftIdInThisLanguage.isEmpty()) {
-					draftOfGivenType = TextDraft.findById(TextDraft.class, Long.parseLong(draftIdInThisLanguage));					
-				} else {
-					draftOfGivenType = new TextDraft();
-				}
-				draftOfGivenType.setText(draftTextInThisLanguage);
-				if(draftOfGivenType.getLanguage()==null) {
-					Language thisLanguage;
-					String draftLanguageId = request.getParameter(typeOfDraft+"_language_id_"+languageAllowedInSession);
-					if(draftLanguageId!=null && !draftLanguageId.isEmpty()) {
-						thisLanguage = Language.findById(Language.class, Long.parseLong(draftLanguageId));
-					} else {
-						thisLanguage = Language.findByFieldName(Language.class, "type", languageAllowedInSession, domain.getLocale());
-					}					
-					draftOfGivenType.setLanguage(thisLanguage);
-				}
-				draftOfGivenType.setLocale(domain.getLocale());
-				draftsOfGivenType.add(draftOfGivenType);
-			} 
-//			else if(draftTextInThisLanguage!=null && draftTextInThisLanguage.isEmpty()) {
-//				String draftIdInThisLanguage = request.getParameter(typeOfDraft+"_id_"+languageAllowedInSession);
-//				TextDraft draftOfGivenType = null;
-//				if(draftIdInThisLanguage!=null && !draftIdInThisLanguage.isEmpty()) {
-//					draftOfGivenType = TextDraft.findById(TextDraft.class, Long.parseLong(draftIdInThisLanguage));
-//					if(draftOfGivenType!=null) {
-//						draftOfGivenType.remove();
-//					}
-//				}
-//			}
-		}
-		return draftsOfGivenType;	
 	}
 	
 	private void copyOriginalToEmptyRevisedDraftsOfGivenType(Bill domain, String typeOfDraft, HttpServletRequest request) {
@@ -2833,9 +2811,16 @@ public class BillWorkflowController extends BaseController {
 		String languagesAllowedInSession = domain.getSession().getParameter(domain.getType().getType() + "_languagesAllowed");
 		for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
 			String reviseDraftTextInThisLanguage = request.getParameter("revised_" + typeOfDraft+"_text_"+languageAllowedInSession);
+			String reviseDraftShortTextInThisLanguage = request.getParameter("revised_" + typeOfDraft+"_shortText_"+languageAllowedInSession);
+			String typeOfDraftForFileField = typeOfDraft.replaceAll("_", "-");
+			String reviseDraftFileInThisLanguage = request.getParameter("revised-" + typeOfDraftForFileField+"-file-"+languageAllowedInSession);
 			TextDraft revisedDraftOfGivenType = null;
-			if(reviseDraftTextInThisLanguage==null || reviseDraftTextInThisLanguage.isEmpty()) {
+			if((reviseDraftTextInThisLanguage==null || reviseDraftTextInThisLanguage.isEmpty())
+					&& (reviseDraftShortTextInThisLanguage==null || reviseDraftShortTextInThisLanguage.isEmpty())
+					&& (reviseDraftFileInThisLanguage==null || reviseDraftFileInThisLanguage.isEmpty())) {
 				String originalDraftTextInThisLanguage = request.getParameter(typeOfDraft+"_text_"+languageAllowedInSession);
+				String originalDraftShortTextInThisLanguage = request.getParameter(typeOfDraft+"_shortText_"+languageAllowedInSession);
+				String originalDraftFileInThisLanguage = request.getParameter(typeOfDraftForFileField+"-file-"+languageAllowedInSession);
 				String revisedDraftIdInThisLanguage = request.getParameter("revised_" + typeOfDraft+"_id_"+languageAllowedInSession);
 				if(revisedDraftIdInThisLanguage!=null && !revisedDraftIdInThisLanguage.isEmpty()) {
 					revisedDraftOfGivenType = TextDraft.findById(TextDraft.class, Long.parseLong(revisedDraftIdInThisLanguage));					
@@ -2853,6 +2838,8 @@ public class BillWorkflowController extends BaseController {
 					revisedDraftOfGivenType = new TextDraft();
 				}
 				revisedDraftOfGivenType.setText(originalDraftTextInThisLanguage);
+				revisedDraftOfGivenType.setShortText(originalDraftShortTextInThisLanguage);
+				revisedDraftOfGivenType.setFile(originalDraftFileInThisLanguage);
 				if(revisedDraftOfGivenType.getLanguage()==null) {
 					Language thisLanguage;
 					String draftLanguageId = request.getParameter(typeOfDraft+"_language_id_"+languageAllowedInSession);

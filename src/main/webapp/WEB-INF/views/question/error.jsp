@@ -249,4 +249,13 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${errorcode eq 'submission_not_allowed'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.submission_not_allowed" text="Submission is not allowed at the moment."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 </c:choose>

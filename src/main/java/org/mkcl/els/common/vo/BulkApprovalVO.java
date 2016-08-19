@@ -22,6 +22,12 @@ public class BulkApprovalVO {
 	
 	private String supportingMemberId;
 	
+	private String remarks;
+	
+	private String reason;
+	
+	private String briefExpanation;
+	
 	/**** PENDING<COMPLETED<TIMEOUT ****/
 	private String currentStatus;
 	
@@ -34,6 +40,14 @@ public class BulkApprovalVO {
 		this.supportingMemberId = supportingMemberId;
 	}
 
+	public void setRemarks(String remarks){
+		this.remarks = remarks;
+	}
+	
+	public String getRemarks(){
+		return remarks;
+	}
+	
 	public String getDeviceId() {
 		return deviceId;
 	}
@@ -88,6 +102,24 @@ public class BulkApprovalVO {
 
 	public void setLastDecision(final String lastDecision) {
 		this.lastDecision = lastDecision;
+	}
+	
+	
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	public String getBriefExpanation() {
+		return briefExpanation;
+	}
+
+	public void setBriefExpanation(String briefExpanation) {
+		this.briefExpanation = briefExpanation;
 	}
 
 	public BulkApprovalVO(final String deviceId, 

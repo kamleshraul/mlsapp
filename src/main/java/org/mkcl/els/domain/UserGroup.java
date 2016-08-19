@@ -158,6 +158,10 @@ public class UserGroup extends BaseDomain implements Serializable {
 		return getUserGroupRepository().findEventMotionActor(motion, userGroupType, level, locale);
 	} 
 	
+	public static Reference findDiscussionMotionActor(final DiscussionMotion motion,final String userGroupType,final String level,final String locale) throws ELSException {
+		return getUserGroupRepository().findDiscussionMotionActor(motion, userGroupType, level, locale);
+	}
+	
 	public static UserGroup findUserGroup(String houseType, String userGroupType, String deviceType, String ministry, String subDepartment) throws ELSException {
 		return getUserGroupRepository().findUserGroup(houseType, userGroupType, deviceType, ministry, subDepartment);
 	}
@@ -172,7 +176,46 @@ public class UserGroup extends BaseDomain implements Serializable {
 			final String locale) throws ELSException {
 		return getUserGroupRepository().findQuestionActor(question, actor, level, locale);
 	}
+	
+	public static Reference findStandaloneMotionActor(final StandaloneMotion question, 
+			final String actor,
+			final String level, 
+			final String locale) throws ELSException {
+		return getUserGroupRepository().findStandaloneMotionActor(question, actor, level, locale);
+	}
 	public static Map<String, String> findParametersByUserGroup(UserGroup userGroup) {
 		return getUserGroupRepository().findParametersByUserGroup(userGroup);
 	}
+	
+	public static UserGroup findActive(Credential credential,
+			UserGroupType usergroupType, Date onDate, String locale) {
+		return getUserGroupRepository().findActive(credential, usergroupType, onDate, locale);
+	}
+	
+	public static UserGroup findActive(final String usergroupType, final Date onDate, final String locale) {
+		return getUserGroupRepository().findActive(usergroupType, onDate, locale);
+	}
+	
+	public static UserGroup findActive(Credential credential, Date onDate, String locale) {
+		return getUserGroupRepository().findActive(credential, onDate, locale);
+	}
+	
+	public static boolean isActiveInSession(final Session session,
+			final UserGroup userGroup,
+			final String locale) throws ELSException {
+		boolean retVal = false;
+		
+		if(userGroup.getActiveFrom().before(session.getStartDate())
+				&& userGroup.getActiveTo().after(session.getEndDate())){
+			
+			retVal = true;
+			
+		}else{
+			
+			retVal = false;
+		}
+		return retVal;
+	}
+	
+	
 }

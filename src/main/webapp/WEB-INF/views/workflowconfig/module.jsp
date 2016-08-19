@@ -27,12 +27,31 @@
 				}	
 			});	
 			/**** device type changes then reload grid****/			
-			$("#selectedDeviceType").change(function(){
-				var value=$(this).val();
-				if(value!=""){				
-				reloadWorkflowConfigGrid();
-				}
-			});	
+				$("#selectedDeviceType").change(function(){
+					var value=$(this).val();
+					if(value!=""){				
+						if($("#selectedModule option[value='']").html==null){
+							prependOptionToSelectedModule();
+						}else{
+							$("#selectedModule").val('');
+						}
+						reloadWorkflowConfigGrid();
+					}
+
+		    	});	
+			
+				$('#selectedModule').change(function(){
+					var value = $(this).val();
+					if(value!=""){
+						if($("#selectedDeviceType option[value='']").html()==null){
+							prependOptionToSelectedDeviceType();
+						}else{
+							$("#selectedDeviceType").val('');
+						}
+						
+					}
+					reloadWorkflowConfigGrid();
+				});
 			/**** listWorkflowConfig method is called by default.****/
 			listWorkflowConfig();	
 		});
@@ -40,7 +59,8 @@
 		/**** displaying grid ****/					
 		function listWorkflowConfig() {
 				showTabByIdAndUrl('list_tab','workflowconfig/list?houseType='+$('#selectedHouseType').val()
-						+'&deviceType='+$("#selectedDeviceType").val());
+						+'&deviceType='+$("#selectedDeviceType").val()
+						+'&module='+$("selectedModule").val());
 		}
 		/**** new question ****/
 		function newWorkflowConfig() {
@@ -113,7 +133,8 @@
 		/**** reload grid ****/
 		function reloadWorkflowConfigGrid(){
 				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()+
-						"&deviceType="+$("#selectedDeviceType").val());
+						"&deviceType="+$("#selectedDeviceType").val()+
+						"&module="+$("#selectedModule").val());
 				var oldURL=$("#grid").getGridParam("url");
 				var baseURL=oldURL.split("?")[0];
 				newURL=baseURL+"?"+$("#gridURLParams").val();
@@ -123,13 +144,20 @@
 
 		function onPageLoad() {
 			prependOptionToSelectedDeviceType();
+			prependOptionToSelectedModule();
 		}
 
 		function prependOptionToSelectedDeviceType() {
-			var optionValue = $('#allOption').val();
+			var optionValue = $('#pleaseSelectOption').val();
 			var option = "<option value='0' selected>" + optionValue + "</option>";
 			$('#selectedDeviceType').prepend(option);
 		}	
+		
+		function prependOptionToSelectedModule() {
+			var optionValue = $('#pleaseSelectOption').val();
+			var option = "<option value='' selected>" + optionValue + "</option>";
+			$('#selectedModule').prepend(option);
+		}
 	</script>
 </head>
 <body>
@@ -153,6 +181,7 @@
 				<spring:message code="workflowconfig.houseType" text="House Type"/>
 			</a>
 			<select name="selectedHouseType" id="selectedHouseType" style="width:100px;height: 25px;">			
+			<option value="0" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
 			<c:forEach items="${houseTypes}" var="i">
 			<c:choose>
 			<c:when test="${houseType==i.type}">
@@ -178,8 +207,14 @@
 			</c:otherwise>
 			</c:choose>
 			</c:forEach>
-			</select> |								
-			<hr>						
+			</select> |	
+			<a id="moduletypeLabel" class="butSim" href="#"> Module </a>
+				<select name="selectedModule" id="selectedModule" style="width:100px;height: 25px;">			
+					<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
+					<option value="REPORTING"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
+					<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>				
+				</select> 	|						
+			<hr>	
 		</div>				
 		
 		<div class="tabContent">
@@ -194,6 +229,7 @@
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
 				<input type="hidden" id="allOption" name="allOption" value="<spring:message code='generic.allOption' text='---- All ----'></spring:message>">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+		<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
 		</div> 		
 </body>
 </html>

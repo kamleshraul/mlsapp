@@ -83,8 +83,11 @@
 		<br>
 		<tr>
 			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-				$details
+				$details <br> vikas
 			</td>
+		</tr>
+		<tr>
+			<td colspan="3">vikas $data.get(0)</td>
 		</tr>
 	</table>
 </div>

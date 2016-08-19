@@ -196,7 +196,6 @@
 					+'&usergroup='+$("#currentusergroup").val()
 					+'&usergroupType='+$("#currentusergroupType").val());
 			var oldURL=$("#grid").getGridParam("url");
-			console.log("oldURL: "+ oldURL);
 			var baseURL=oldURL.split("?")[0];
 			newURL=baseURL+"?"+$("#gridURLParams").val();
 			$("#grid").setGridParam({"url":newURL});

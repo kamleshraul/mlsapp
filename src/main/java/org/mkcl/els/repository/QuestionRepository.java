@@ -10,13 +10,15 @@
 package org.mkcl.els.repository;
 
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.persistence.EntityNotFoundException;
@@ -27,16 +29,13 @@ import javax.persistence.TypedQuery;
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
-import org.apache.bcel.generic.BALOAD;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseCountVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
-import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
-import org.mkcl.els.domain.Ballot;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
@@ -46,12 +45,16 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.YaadiDetails;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class QuestionRepository.
@@ -74,7 +77,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	 * @throws ELSException 
 	 */
 	@SuppressWarnings("unchecked")
-	public Integer assignQuestionNo(final HouseType houseType, final Session session,
+	public synchronized Integer assignQuestionNo(final HouseType houseType, final Session session,
 			final DeviceType questionType, final String locale) throws ELSException {
 		String strHouseType = houseType.getType();
 		String strQuestionType = questionType.getType();
@@ -96,19 +99,10 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			else if(strQuestionType.equals(
 					ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 				query = "SELECT q" +
-					" FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt" +
-					" WHERE h.id = " + house + 
+					" FROM Question q JOIN q.session s JOIN q.type dt" +
+					" WHERE s.id=" + session.getId() + 
 					" AND (dt.type = '" + 
 						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION + "') " +
-					" ORDER BY q.number " + ApplicationConstants.DESC;
-			}
-			else if(strQuestionType.equals(
-					ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
-				query = "SELECT q" +
-					" FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt" +
-					" WHERE h.id = " + house + 
-					" AND (dt.type = '" + 
-						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE + "') " +
 					" ORDER BY q.number " + ApplicationConstants.DESC;
 			}
 		}
@@ -143,15 +137,6 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					" AND q.submissionDate >= '" + lowerHouseFormationDate + "'" +
 					" AND (dt.type = '" + 
 						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION + "')" +
-					" ORDER BY q.number " + ApplicationConstants.DESC;
-			}
-			else if(strQuestionType.equals(
-					ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
-				query = "SELECT q" +
-					" FROM Question q JOIN q.session s JOIN s.house h JOIN q.type dt" +
-					" WHERE h.id = " + house + 
-					" AND (dt.type = '" + 
-						ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE + "') " +
 					" ORDER BY q.number " + ApplicationConstants.DESC;
 			}
 		}
@@ -194,34 +179,6 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		query.setParameter("questionId",questionId);
 		List results = query.getResultList();
 		List<RevisionHistoryVO> questionRevisionVOs = new ArrayList<RevisionHistoryVO>();
-//		for(Object i:results) {
-//			Object[] o = (Object[]) i;
-//			RevisionHistoryVO questionRevisionVO = new RevisionHistoryVO();
-//			if(o[0] != null) {
-//				questionRevisionVO.setEditedAs(o[0].toString());
-//			}
-//			else {
-//				UserGroupType userGroupType = 
-//					UserGroupType.findByFieldName(UserGroupType.class, "type", "member", locale);
-//				questionRevisionVO.setEditedAs(userGroupType.getName());
-//			}
-//			questionRevisionVO.setEditedBY(o[1].toString());
-//			questionRevisionVO.setEditedOn(o[2].toString());
-//			questionRevisionVO.setStatus(o[3].toString());
-//			questionRevisionVO.setDetails(o[4].toString());
-//			questionRevisionVO.setSubject(o[5].toString());
-//			if(o[6] != null){
-//				questionRevisionVO.setRemarks(o[6].toString());
-//			}
-//			if(o[7] != null){
-//				questionRevisionVO.setReason(o[7].toString());
-//			}
-//			if(o[8] != null){
-//				questionRevisionVO.setBriefExplanation(o[8].toString());
-//			}
-//			
-//			questionRevisionVOs.add(questionRevisionVO);
-//		}
 		diff_match_patch d=new diff_match_patch();
 		for(int i=0;i<results.size();i++){
 			Object[] o = (Object[]) results.get(i);
@@ -238,11 +195,23 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 						UserGroupType.findByFieldName(UserGroupType.class, "type", "member", locale);
 				questionRevisionVO.setEditedAs(userGroupType.getName());
 			}
-			questionRevisionVO.setEditedBY(o[1].toString());
-			questionRevisionVO.setEditedOn(o[2].toString());
-			questionRevisionVO.setStatus(o[3].toString());
+			if(o[1]!=null) {
+				questionRevisionVO.setEditedBY(o[1].toString());
+			} else {
+				questionRevisionVO.setEditedBY("");
+			}
+			if(o[2]!=null) {
+				questionRevisionVO.setEditedOn(o[2].toString());
+			} else {
+				questionRevisionVO.setEditedOn("");
+			}
+			if(o[3]!=null) {
+				questionRevisionVO.setStatus(o[3].toString());
+			} else {
+				questionRevisionVO.setStatus("");
+			}			
 			if(o1!=null){
-				if(!o[4].toString().isEmpty() && !o1[4].toString().isEmpty()){
+				if(o[4]!=null && !o[4].toString().isEmpty() && o1[4]!=null && !o1[4].toString().isEmpty()){
 					LinkedList<Diff> diff=d.diff_main(o1[4].toString(), o[4].toString());
 					String question=d.diff_prettyHtml(diff);
 					if(question.contains("&lt;")){
@@ -256,14 +225,22 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					}
 					questionRevisionVO.setDetails(question);
 				}else{
-					questionRevisionVO.setDetails(o[4].toString());
+					if(o[4]!=null) {
+						questionRevisionVO.setDetails(o[4].toString());
+					} else {
+						questionRevisionVO.setDetails("");
+					}					
 				}
 
 			}else{
-				questionRevisionVO.setDetails(o[4].toString());
+				if(o[4]!=null) {
+					questionRevisionVO.setDetails(o[4].toString());
+				} else {
+					questionRevisionVO.setDetails("");
+				}
 			}
 			if(o1!=null){
-				if(!o[5].toString().isEmpty() && !o1[5].toString().isEmpty()){
+				if(o[5]!=null && !o[5].toString().isEmpty() && o1[5]!=null && !o1[5].toString().isEmpty()){
 					LinkedList<Diff> diff=d.diff_main(o1[5].toString(), o[5].toString());
 					String question=d.diff_prettyHtml(diff);
 					if(question.contains("&lt;")){
@@ -277,14 +254,24 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 					}
 					questionRevisionVO.setSubject(question);
 				}else{
-					questionRevisionVO.setSubject(o[5].toString());
+					if(o[5]!=null) {
+						questionRevisionVO.setSubject(o[5].toString());
+					} else {
+						questionRevisionVO.setSubject("");
+					}					
 				}
 
 			}else{
-				questionRevisionVO.setSubject(o[5].toString());
+				if(o[5]!=null) {
+					questionRevisionVO.setSubject(o[5].toString());
+				} else {
+					questionRevisionVO.setSubject("");
+				}
 			}
-			if(o[6] != null){
+			if(o[6]!=null) {
 				questionRevisionVO.setRemarks(o[6].toString());
+			} else {
+				questionRevisionVO.setRemarks("");
 			}
 
 			if(o1!=null){
@@ -375,18 +362,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		StringBuffer query = new StringBuffer(
 				" SELECT q FROM Question q" +
 				" WHERE q.session.id=:sessionId AND q.primaryMember.id=:memberId AND q.type.id=:deviceTypeId");
-		
-		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			query.append(" AND q.number IS NOT NULL");
-		}
-		
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-		
-			query.append(" AND q.group.id=:groupId AND q.answeringDate IS NULL");
-		}
-		
+
+		query.append(" AND q.group.id=:groupId AND q.answeringDate IS NULL");
 		query.append(" AND q.submissionDate <=:strFinalSubmissionDate AND q.locale=:locale");
 		query.append(this.getStatusFilters(internalStatuses));
 		if(sortOrder.equals(ApplicationConstants.ASC)) {
@@ -401,10 +378,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("memberId", member.getId());
 		tQuery.setParameter("deviceTypeId", deviceType.getId());
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			tQuery.setParameter("groupId", group.getId());
-		}
+		tQuery.setParameter("groupId", group.getId());
 		tQuery.setParameter("strFinalSubmissionDate", finalSubmissionDate);
 		tQuery.setParameter("locale", locale);
 		List<Question> questions = tQuery.getResultList();
@@ -434,42 +408,24 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			final Status[] internalStatuses,
 			final Integer maxNoOfQuestions,
 			final String locale) {
-		/*String strAnsweringDate = null;
-		if(!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
-			strAnsweringDate = this.answeringDateAsString(answeringDate);
-		}
-		String strFinalSubmissionDate = this.submissionDateAsString(finalSubmissionDate);*/
-
 		StringBuffer query = new StringBuffer(
 				" SELECT q FROM Question q" +
 				" WHERE q.session.id=:sessionId AND q.primaryMember.id=:memberId "+
 				" AND q.type.id=:deviceTypeId");
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			query.append(
-				" AND q.group.id=:groupId AND q.answeringDate.answeringDate<=:strAnsweringDate");
-		}
-		
+
+		query.append(" AND q.group.id=:groupId AND q.answeringDate.answeringDate<=:strAnsweringDate");
 		query.append(" AND q.submissionDate<=:strFinalSubmissionDate AND q.locale=:locale");
-		
 		query.append(this.getStatusFilters(internalStatuses));
-		
-		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			query.append(" AND q.number IS NOT NULL ORDER BY q.number ASC");
-		}else{
-			query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
-		}
+		query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
+		query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
+
 
 		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("memberId", member.getId());
 		tQuery.setParameter("deviceTypeId", deviceType.getId());
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			tQuery.setParameter("groupId", group.getId());
-			tQuery.setParameter("strAnsweringDate", answeringDate);
-		}
+		tQuery.setParameter("groupId", group.getId());
+		tQuery.setParameter("strAnsweringDate", answeringDate);
 		tQuery.setParameter("strFinalSubmissionDate", finalSubmissionDate);
 		tQuery.setParameter("locale", locale);
 		tQuery.setMaxResults(maxNoOfQuestions);
@@ -661,10 +617,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				" SELECT q FROM Question q" +
 				" WHERE q.session.id=:sessionId AND q.primaryMember.id=:memberId"+
 				" AND q.type.id =:deviceTypeId");
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			query.append(" AND q.group.id=:groupId");
-		}
+
+		query.append(" AND q.group.id=:groupId");
 		query.append(" AND q.answeringDate.answeringDate=:strAnsweringDate"+
 				" AND q.submissionDate<=:strFinalSubmissionDate AND q.locale=:locale");
 		query.append(this.getStatusFilters(internalStatuses));
@@ -681,10 +635,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("memberId", member.getId());
 		tQuery.setParameter("deviceTypeId", deviceType.getId());
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			tQuery.setParameter("groupId", group.getId());
-		}
+		tQuery.setParameter("groupId", group.getId());
 		tQuery.setParameter("strAnsweringDate", answeringDate);
 		tQuery.setParameter("strFinalSubmissionDate", finalSubmissionDate);
 		tQuery.setParameter("locale", locale);
@@ -724,10 +675,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				" SELECT q FROM Question q" +
 				" WHERE q.session.id=:sessionId AND q.primaryMember.id=:memberId"+
 				" AND q.type.id=:deviceTypeId");
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				query.append(" AND q.group.id=:groupId AND q.answeringDate.answeringDate<:strAnsweringDate");
-		}
+		query.append(" AND q.group.id=:groupId AND q.answeringDate.answeringDate<:strAnsweringDate");
 		query.append(" AND q.submissionDate<=:strFinalSubmissionDate AND q.locale=:locale");
 		query.append(this.getStatusFilters(internalStatuses));
 		query.append(this.getQuestionFilters(excludeQuestions));
@@ -736,12 +684,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("memberId", member.getId());
 		tQuery.setParameter("deviceTypeId", deviceType.getId());
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			tQuery.setParameter("groupId", group.getId());
-			tQuery.setParameter("strAnsweringDate", answeringDate);
-		}
-		
+		tQuery.setParameter("groupId", group.getId());
+		tQuery.setParameter("strAnsweringDate", answeringDate);
 		tQuery.setParameter("strFinalSubmissionDate", finalSubmissionDate);
 		tQuery.setParameter("locale", locale);
 		List<Question> questions = tQuery.getResultList();
@@ -784,12 +728,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				" SELECT q FROM Question q" +
 				" WHERE q.session.id =:sessionId AND q.primaryMember.id =:memberId"+
 				" AND q.type.id =:deviceTypeId");
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				query.append(" AND q.group.id =:groupId AND q.answeringDate = null");
-		}else{
-			query.append(" AND q.number IS NOT NULL");
-		}
+		query.append(" AND q.group.id =:groupId AND q.answeringDate = null");
 		query.append(" AND q.submissionDate <=:strFinalSubmissionDate AND q.locale =:locale");
 		query.append(this.getStatusFilters(internalStatuses));
 		query.append(this.getQuestionFilters(excludeQuestions));
@@ -804,10 +743,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("memberId", member.getId());
 		tQuery.setParameter("deviceTypeId",  deviceType.getId());
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			tQuery.setParameter("groupId", group.getId());
-		}
+		tQuery.setParameter("groupId", group.getId());
 		tQuery.setParameter("strFinalSubmissionDate", finalSubmissionDate);
 		tQuery.setParameter("locale", locale);
 		tQuery.setMaxResults(maxNoOfQuestions);
@@ -849,37 +785,19 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				" SELECT q FROM Question q" +
 				" WHERE q.session.id =:sessionId AND q.primaryMember.id =:memberId"+
 				" AND q.type.id =:deviceTypeId");
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				query.append(" AND q.group.id=:groupId AND q.answeringDate.answeringDate <=:strAnsweringDate" );
-		}
-		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			query.append(" AND q.number IS NOT NULL" );
-		}
+		query.append(" AND q.group.id=:groupId AND q.answeringDate.answeringDate <=:strAnsweringDate" );
 		query.append(
 				" AND q.submissionDate>=:strStartTime AND q.submissionDate<=:strEndTime" +
 				" AND q.locale=:locale");
 		query.append(this.getStatusFilters(internalStatuses));
-		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			query.append(" ORDER BY q.number ASC");
-		}else{
-			query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
-		}
+		query.append(" ORDER BY q.answeringDate.answeringDate DESC, q.number ASC");
 
 		TypedQuery<Question> tQuery = this.em().createQuery(query.toString(), Question.class);
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("memberId", member.getId());
 		tQuery.setParameter("deviceTypeId",  deviceType.getId());
-		
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			
-			tQuery.setParameter("groupId", group.getId());
-			tQuery.setParameter("strAnsweringDate", answeringDate);
-		}
-		
+		tQuery.setParameter("groupId", group.getId());
+		tQuery.setParameter("strAnsweringDate", answeringDate);
 		tQuery.setParameter("strEndTime", endTime);
 		tQuery.setParameter("strStartTime", startTime);
 		tQuery.setParameter("locale", locale);
@@ -922,20 +840,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				" SELECT q FROM Question q" +
 				" WHERE q.session.id=:sessionId AND q.primaryMember.id=:memberId"+
 				" AND q.type.id=:deviceTypeId");
-		
-				if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-						&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-					query.append(" AND q.group.id=:groupId AND q.answeringDate IS NULL");
-				}
-				
-				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-						&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-					query.append(" AND q.number IS NOT NULL");
-				}
-				
-				query.append(" AND q.submissionDate>=:strStartTime AND q.submissionDate<=:strEndTime" +
-							" AND q.locale=:locale");
-				
+		query.append(" AND q.group.id=:groupId AND q.answeringDate IS NULL");
+		query.append(" AND q.submissionDate>=:strStartTime AND q.submissionDate<=:strEndTime AND q.locale=:locale");
 		query.append(this.getStatusFilters(internalStatuses));
 		if(sortOrder.equals(ApplicationConstants.ASC)) {
 			query.append(" ORDER BY q.number ASC");
@@ -948,10 +854,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("memberId", member.getId());
 		tQuery.setParameter("deviceTypeId",  deviceType.getId());
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			tQuery.setParameter("groupId", group.getId());
-		}
+		tQuery.setParameter("groupId", group.getId());
 		tQuery.setParameter("strEndTime",endTime);
 		tQuery.setParameter("strStartTime", startTime);
 		tQuery.setParameter("locale", locale);
@@ -991,10 +894,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				" SELECT q FROM Question q" +
 				" WHERE q.session.id=:sessionId AND q.primaryMember.id=:memberId"+
 				" AND q.type.id=:deviceTypeId");
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			query.append(" AND q.group.id=:groupId");
-		}
+		query.append(" AND q.group.id=:groupId");
 		query.append(" AND q.answeringDate.answeringDate<=:strAnsweringDate" +
 				" AND q.submissionDate>=:strStartTime AND q.submissionDate<=:strEndTime"+
 				" AND q.locale=:locale");
@@ -1005,10 +905,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("memberId", member.getId());
 		tQuery.setParameter("deviceTypeId",  deviceType.getId());
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			tQuery.setParameter("groupId", group.getId());
-		}
+		tQuery.setParameter("groupId", group.getId());
 		tQuery.setParameter("strEndTime", endTime);
 		tQuery.setParameter("strStartTime", startTime);
 		tQuery.setParameter("strAnsweringDate", answeringDate);
@@ -1048,10 +945,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				" SELECT q FROM Question q" +
 				" WHERE q.session.id =:sessionId AND q.primaryMember.id =:memberId "+
 				" AND q.type.id =:deviceTypeId");
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			query.append(" AND q.group.id =:groupId ");
-		}
+		query.append(" AND q.group.id =:groupId ");
 		query.append(" AND q.answeringDate IS NULL"+
 				" AND q.submissionDate>=:strStartTime AND q.submissionDate<=:strEndTime"+
 				" AND q.locale=:locale"
@@ -1068,11 +962,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("memberId", member.getId());
 		tQuery.setParameter("deviceTypeId",  deviceType.getId());
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			tQuery.setParameter("groupId", group.getId());
-		}
-		
+		tQuery.setParameter("groupId", group.getId());
 		tQuery.setParameter("strStartTime", startTime);
 		tQuery.setParameter("strEndTime", endTime);
 		tQuery.setParameter("locale", locale);
@@ -1118,10 +1008,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				" AND q.submissionDate>=:strStartTime AND q.submissionDate<=:strEndTime"+
 				" AND q.locale=:locale");
 		query.append(this.getStatusFilters(internalStatuses));
-		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			query.append(" AND q.ballotStatus IS NULL");
-		}else if(!hasParent) {
+		if(!hasParent) {
 				query.append(" AND q.parent IS NULL");
 		}
 		if(sortOrder.equals(ApplicationConstants.ASC)) {
@@ -1443,7 +1330,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	 * @param locale the locale
 	 * @return the list
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	public List<Member> findPrimaryMembersByBallot(final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,
@@ -1464,16 +1351,35 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		// CustomParameter parameter = 
 		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
 		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-		StringBuffer query = new StringBuffer("SELECT m.* FROM members m WHERE m.id IN(SELECT DISTINCT" +
-												" q.member_id" +
-												" FROM questions q" +
-												" WHERE q.session_id=:sessionId" + 
-												" AND q.devicetype_id=:deviceTypeId" +
-												" AND (q.discussion_date IS NULL OR q.discussion_date<=:strDiscussionDate)" +
-												" AND q.submission_date>=:strStartTime" + 
-												" AND q.submission_date<=:strEndTime" +
-												" AND q.locale=:locale" +
-												" AND q.number IS NOT NULL");
+		CustomParameter csptUseForLottery = CustomParameter.findByName(CustomParameter.class, "USE_FOR_LOTTERY", "");
+		
+		StringBuffer query = null;
+		if(csptUseForLottery != null && csptUseForLottery.getValue() != null && !csptUseForLottery.getValue().isEmpty()){
+			if(csptUseForLottery.getValue().equals("yes")){
+				query = new StringBuffer("SELECT m.* FROM members m WHERE m.id IN(SELECT DISTINCT" +
+						" q.member_id" +
+						" FROM questions q" +
+						" WHERE q.session_id=:sessionId" + 
+						" AND q.devicetype_id=:deviceTypeId" +
+						" AND (q.discussion_date IS NULL OR q.discussion_date=:strDiscussionDate)" +
+						" AND q.submission_date>=:strStartTime" + 
+						" AND q.submission_date<=:strEndTime" +
+						" AND q.locale=:locale" +
+						" AND q.number IS NOT NULL");
+			}else if(csptUseForLottery.getValue().equals("no")){
+				query = new StringBuffer("SELECT m.* FROM members m WHERE m.id IN(SELECT DISTINCT" +
+						" q.member_id" +
+						" FROM questions q" +
+						" WHERE q.session_id=:sessionId" + 
+						" AND q.devicetype_id=:deviceTypeId" +
+						" AND (q.discussion_date IS NULL OR q.discussion_date<=:strDiscussionDate)" +
+						" AND q.submission_date>=:strStartTime" + 
+						" AND q.submission_date<=:strEndTime" +
+						" AND q.locale=:locale" +
+						" AND q.number IS NOT NULL");
+			}
+		}
+		
 		
 		query.append(this.getStatusFiltersNative(internalStatuses));
 		
@@ -1660,6 +1566,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	 * @param locale the locale
 	 * @return the list
 	 */
+	@Transactional
 	@SuppressWarnings("unchecked")
 	public List<Member> findPrimaryMembersForBallot(final Session session,
 			final DeviceType deviceType,
@@ -1680,13 +1587,28 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		// CustomParameter parameter = 
 		//		CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
 		// String strDate = new DateFormater().formatDateToString(date, parameter.getValue());
-		StringBuffer query = new StringBuffer(
-				"SELECT m.* FROM members m WHERE m.id IN (SELECT DISTINCT(q.member_id) FROM questions q" +
-				" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId"+
-				" AND (q.discussion_date IS NULL OR q.discussion_date<=:strDiscussionDate)" +
-				" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime"+
-				" AND q.locale=:locale" +
-				" AND q.ballotstatus_id IS NULL");
+		CustomParameter csptUseForLottery = CustomParameter.findByName(CustomParameter.class, "USE_FOR_LOTTERY", "");
+		StringBuffer query = null;
+		if(csptUseForLottery != null && csptUseForLottery.getValue() != null && !csptUseForLottery.getValue().isEmpty()){
+			if(csptUseForLottery.getValue().equalsIgnoreCase("yes")){
+				query = new StringBuffer(
+						"SELECT m.* FROM members m WHERE m.id IN (SELECT DISTINCT(q.member_id) FROM questions q" +
+								" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId"+
+								" AND (q.discussion_date IS NULL OR q.discussion_date=:strDiscussionDate)" +
+								" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime"+
+								" AND q.locale=:locale" +
+								" AND q.ballotstatus_id IS NULL");
+			}else if(csptUseForLottery.getValue().equalsIgnoreCase("no")){
+				query = new StringBuffer(
+						"SELECT m.* FROM members m WHERE m.id IN (SELECT DISTINCT(q.member_id) FROM questions q" +
+								" WHERE q.session_id=:sessionId AND q.devicetype_id=:deviceTypeId"+
+								" AND (q.discussion_date IS NULL OR q.discussion_date<=:strDiscussionDate)" +
+								" AND q.submission_date>=:strStartTime AND q.submission_date<=:strEndTime"+
+								" AND q.locale=:locale" +
+								" AND q.ballotstatus_id IS NULL");
+			}
+		}
+		 
 		query.append(this.getStatusFiltersNative(internalStatuses));
 		
 		if(!hasParent) {
@@ -1828,11 +1750,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		//		new DateFormater().formatDateToString(endTime, dbTimestamp.getValue());
 
 		String strActiveOn = FormaterUtil.formatDateToString(activeOn, "yyyy-MM-dd");
-		String strAnsweringDate = null;
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			strAnsweringDate=FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
-		}
+		String strAnsweringDate=FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
 		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
 		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
 
@@ -1845,22 +1763,10 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 
 		query.append(" (");
 		query.append(" SELECT DISTINCT(q.primaryMember.id)");
-		
-		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			query.append(" FROM Question q");
-		}else{
-				query.append(" FROM Question q LEFT JOIN q.answeringDate qd");
-		}
-		
+		query.append(" FROM Question q LEFT JOIN q.answeringDate qd");
 		query.append(" WHERE q.session.id=:sessionId AND q.type.id=:deviceTypeId");
-				
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			query.append(
-			" AND q.group.id=:groupId AND " +
+		query.append(" AND q.group.id=:groupId AND " +
 			" (qd.answeringDate<=:strAnsweringDate OR qd IS NULL)");
-		}
 		query.append(
 			" AND q.submissionDate>=:strStartTime AND q.submissionDate<=:strEndTime"+
 			" AND q.locale=:locale");
@@ -1876,11 +1782,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setParameter("locale", locale);
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("deviceTypeId", deviceType.getId());
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			tQuery.setParameter("groupId", group.getId());
-			tQuery.setParameter("strAnsweringDate", answeringDate);
-		}
+		tQuery.setParameter("groupId", group.getId());
+		tQuery.setParameter("strAnsweringDate", answeringDate);
 		tQuery.setParameter("strStartTime", startTime);
 		tQuery.setParameter("strEndTime", endTime);
 		List<Member> members = tQuery.getResultList();
@@ -1914,11 +1817,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		//		new DateFormater().formatDateToString(endTime, dbTimestamp.getValue());
 
 		String strActiveOn = FormaterUtil.formatDateToString(activeOn, "yyyy-MM-dd");
-		String strAnsweringDate = null;
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			strAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
-		}
+		String strAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
 		String strStartTime = FormaterUtil.formatDateToString(startTime, "yyyy-MM-dd HH:mm:ss");
 		String strEndTime = FormaterUtil.formatDateToString(endTime, "yyyy-MM-dd HH:mm:ss");
 
@@ -1931,20 +1830,10 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 
 		query.append(" (");
 		query.append(" SELECT DISTINCT(q.primaryMember.id)");
-		
-		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			query.append("FROM Question q");
-		}else{
-			query.append(" FROM Question q LEFT JOIN q.answeringDate qd");
-		}
+		query.append(" FROM Question q LEFT JOIN q.answeringDate qd");
 		query.append(" WHERE q.session.id=:sessionId AND q.type.id=:deviceTypeId ");
-		
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			query.append(" AND q.group.id=:groupId AND " +
-					"(qd.answeringDate<=:strAnsweringDate OR qd IS NULL)");
-		}
+		query.append(" AND q.group.id=:groupId AND " +
+				"(qd.answeringDate<=:strAnsweringDate OR qd IS NULL)");
 		query.append(
 		" AND q.submissionDate >=:strStartTime AND q.submissionDate <=:strEndTime" +
 		" AND q.locale =:locale");
@@ -1959,11 +1848,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setParameter("locale", locale);
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("deviceTypeId", deviceType.getId());
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			tQuery.setParameter("groupId", group.getId());
-			tQuery.setParameter("strAnsweringDate", answeringDate);
-		}
+		tQuery.setParameter("groupId", group.getId());
+		tQuery.setParameter("strAnsweringDate", answeringDate);
 		tQuery.setParameter("strStartTime", startTime);
 		tQuery.setParameter("strEndTime", endTime);
 		List<Member> members = tQuery.getResultList();
@@ -2063,9 +1949,9 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			final String locale) throws ELSException {
 		try{
 		String startDate = session.getParameter(
-				ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+				ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME);
 		String endDate = session.getParameter(
-				ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+				ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME);
 		
 		MemberBallotMemberWiseReportVO memberBallotMemberWiseReportVO =
 			new MemberBallotMemberWiseReportVO();
@@ -2170,7 +2056,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		CustomParameter customParameter = 
 			CustomParameter.findByName(CustomParameter.class,"DB_DATETIMEFORMAT", "");
 		String startTime = session.getParameter(
-				ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+				ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME);
 		String endTime = session.getParameter("questions_starred_submissionFirstBatchEndDate");
 		
 		List<Question> questions = new ArrayList<Question>();
@@ -2216,15 +2102,23 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	 */
 	private String getStatusFilters(final Status[] internalStatuses) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" AND(");
+		
 		int n = internalStatuses.length;
+		if(n > 0) {
+			sb.append(" AND(");
+		}
+		
 		for(int i = 0; i < n; i++) {
 			sb.append(" q.internalStatus.id = " + internalStatuses[i].getId());
 			if(i < n - 1) {
 				sb.append(" OR");
 			}
 		}
-		sb.append(")");
+		
+		if(n > 0) {
+			sb.append(")");
+		}
+		
 		return sb.toString();
 	}
 	
@@ -2282,15 +2176,23 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	 */
 	private String getQuestionFilters(final Question[] excludeQuestions) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" AND(");
+		
 		int n = excludeQuestions.length;
+		if(n > 0) {
+			sb.append(" AND(");
+		}
+		
 		for(int i = 0; i < n; i++) {
 			sb.append(" q.id != " + excludeQuestions[i].getId());
 			if(i < n - 1) {
 				sb.append(" AND");
 			}
 		}
-		sb.append(")");
+		
+		if(n > 0) {
+			sb.append(")");
+		}
+		
 		return sb.toString();
 	}
 
@@ -2340,7 +2242,24 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			final Integer itemsCount,
 			final String locale) throws ELSException{
 		try{
-			Status status=Status.findByFieldName(Status.class,"type",ApplicationConstants.QUESTION_COMPLETE, locale);
+			Status status = null;
+			if(questionType != null){
+				if(questionType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+					status = Status.findByType(ApplicationConstants.QUESTION_COMPLETE, locale);
+				}
+				else if(questionType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+					status = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_COMPLETE, locale);
+				}
+				else if(questionType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+					status = Status.findByType(ApplicationConstants.QUESTION_SHORTNOTICE_COMPLETE, locale);
+				}
+				else if(questionType.getType().
+						equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+					status = Status.
+							findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_COMPLETE, locale);
+				}
+			}
+			
 			String query="SELECT q FROM Question q WHERE q.session.id=:sessionId"+
 					" AND q.type.id=:deviceTypeId AND q.primaryMember.id=:memberId"+
 					" AND q.locale=:locale AND q.status.id=:statusId"+
@@ -2482,10 +2401,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			final String locale) throws ELSException {
 		StringBuffer strquery=new StringBuffer("SELECT q FROM Question q WHERE q.session.id=:sessionId"+
 				" AND q.type.id=:deviceTypeId");
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			strquery.append(" AND q.group.id=:groupId");
-		}
+		strquery.append(" AND q.group.id=:groupId");
 		strquery.append(" AND q.locale=:locale AND q.file=:file"+
 				" ORDER BY q.fileIndex");
 		try{
@@ -2493,11 +2409,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		q.setParameter("sessionId", session.getId());
 		q.setParameter("deviceTypeId", deviceType.getId());
 		q.setParameter("locale", locale);
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			q.setParameter("groupId", group.getId());
-		}
-		q.setParameter("file", file);
+		q.setParameter("groupId", group.getId());
 		return q.getResultList();
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -2514,25 +2426,20 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			final Group group,
 			final Integer itemsCount,
 			final String locale) throws ELSException {
-		StringBuffer query=new StringBuffer("SELECT q FROM Question q WHERE q.session.id=:sessionId"+
-				" AND q.type.id=:deviceTypeId AND q.locale=:locale");
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				query.append(" AND q.group.id=:groupId");
-		}
-		query.append(" AND q.internalStatus.id=:internalStatusId"+
-				" AND q.workflowStarted=:workflowStarted AND q.parent IS  NULL"+
-				" ORDER BY q.number");
+		
+		String query = "SELECT q FROM Question q WHERE q.session.id=:sessionId"+
+				" AND q.type.id=:deviceTypeId AND q.locale=:locale"+
+				" AND q.group.id=:groupId  AND q.internalStatus.id=:internalStatusId"+
+				" AND q.workflowStarted=:workflowStarted " +
+				" AND ((q.internalStatus IS NOT NULL AND q.internalStatus.type LIKE '%clubbing%' AND q.parent IS NOT NULL) OR (q.parent IS  NULL)))"+
+				" ORDER BY q.number";
 		try{
 			TypedQuery<Question> q=this.em().createQuery(query.toString(), Question.class);
 			q.setMaxResults(itemsCount);
 			q.setParameter("sessionId", session.getId());
 			q.setParameter("deviceTypeId", deviceType.getId());
 			q.setParameter("locale", locale);
-			if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-					&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				q.setParameter("groupId", group.getId());
-			}
+			q.setParameter("groupId", group.getId());
 			q.setParameter("internalStatusId", internalStatus.getId());
 			q.setParameter("workflowStarted", "NO");
 			return q.getResultList();
@@ -2540,7 +2447,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			e.printStackTrace();
 			logger.error(e.getMessage());
 			ELSException elsException=new ELSException();
-			elsException.setParameter("QuestionRepository_List<Question>_findAllByStatus", "Cannot get the Question");
+			elsException.setParameter("QuestionRepository_List<Question>_findAllByStatus",
+					"Cannot get the Question");
 			throw elsException;
 		}
 	}
@@ -2552,20 +2460,16 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			final String locale) throws ELSException {
 		StringBuffer query=new StringBuffer("SELECT q FROM Question q WHERE q.session.id=:sessionId"+
 				" AND q.type.id=:deviceTypeId AND q.locale=:locale");
-		if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				query.append(" AND q.group.id=:groupId");
-		}
+		query.append(" AND q.group.id=:groupId");
+		query.append(" AND q.parent IS NULL");
 		query.append(" AND q.recommendationStatus.id=:recommendationStatusId ORDER BY q.number");
+		
 		try{
 			TypedQuery<Question> q=this.em().createQuery(query.toString(), Question.class);
 			q.setParameter("sessionId", session.getId());
 			q.setParameter("deviceTypeId", deviceType.getId());
 			q.setParameter("locale", locale);
-			if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-					&& session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				q.setParameter("groupId", group.getId());
-			}
+			q.setParameter("groupId", group.getId());
 			q.setParameter("recommendationStatusId", recommendationStatus.getId());
 			return q.getResultList();
 		}catch(Exception e) {
@@ -2577,103 +2481,6 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		}
 	}
 
-	public int findHighestFileNo(final Session session,final DeviceType deviceType,
-			final String locale) throws ELSException {
-			String strQuery="SELECT q FROM Question q WHERE q.session.id=:sessionId"+
-				" AND q.type.id=:deviceTypeId AND q.locale=:locale"+
-				" AND q.file IS NOT NULL"+
-				" ORDER BY q.file DESC";
-			try{
-			TypedQuery<Question> query=this.em().createQuery(strQuery, Question.class);
-			query.setParameter("sessionId", session.getId());
-			query.setParameter("deviceTypeId", deviceType.getId());
-			query.setParameter("locale", locale);
-			List<Question> questions= query.getResultList();
-			if(questions==null){
-				return 0;
-			}else if(questions.isEmpty()){
-				return 0;
-			}else{
-				 return questions.get(0).getFile();
-			}
-			}catch(Exception e) {
-				e.printStackTrace();
-				logger.error(e.getMessage());
-				ELSException elsException=new ELSException();
-				elsException.setParameter("QuestionRepository_int_findHighestFileNo", "Cannot get the file No.");
-				throw elsException;
-			}
-	}
-
-	public Reference findCurrentFile(final Question domain) throws ELSException {
-		StringBuffer strQuery=new StringBuffer("SELECT q FROM Question q WHERE q.session.id=:sessionId"+
-				" AND q.type.id=:deviceTypeId AND q.locale=:locale");
-		if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& domain.getSession().getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				strQuery.append(" AND q.group.id=:groupId");
-		}
-		strQuery.append(" AND q.file IS NOT NULL"+
-				" ORDER BY q.file DESC,q.fileIndex DESC");
-		try{
-		TypedQuery<Question> query=this.em().createQuery(strQuery.toString(), Question.class);
-		query.setParameter("sessionId", domain.getSession().getId());
-		query.setParameter("deviceTypeId", domain.getType().getId());
-		query.setParameter("locale", domain.getLocale());
-		if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& domain.getSession().getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-			query.setParameter("groupId", domain.getGroup().getId());
-		}
-		List<Question> questions=query.getResultList();
-		Question question=null;
-		if(questions!=null&&!questions.isEmpty()){
-			question=questions.get(0);
-		}
-		if(question==null){
-			return new Reference(String.valueOf(1),String.valueOf(1));
-		}else if(question.getFile()==null){
-			return new Reference(String.valueOf(1),String.valueOf(1));
-		}else if(question.getFile()!=null&&question.getFileIndex()==null){
-			return new Reference(String.valueOf(question.getFile()),String.valueOf(1));
-		}else{
-			CustomParameter customParameter=CustomParameter.
-			findByName(CustomParameter.class,"FILE_"+domain.getType().getType().toUpperCase(), "");
-			int fileSize=Integer.parseInt(customParameter.getValue());
-			StringBuffer query1=new StringBuffer("SELECT q FROM Question q WHERE q.session.id=:sessionId"+
-					" AND q.type.id=:deviceTypeId AND q.locale=:locale");
-			if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-					&& domain.getSession().getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-					query1.append(" AND q.group.id=:groupId");
-			}
-			query1.append(" AND q.file=:file AND q.file IS NOT NULL"+
-					" ORDER BY q.fileIndex DESC");
-			Query q=this.em().createQuery(query1.toString());
-			q.setParameter("sessionId", question.getSession().getId());
-			q.setParameter("deviceTypeId", question.getType().getId());
-			q.setParameter("locale", question.getLocale());
-			if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-					&& domain.getSession().getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				q.setParameter("groupId", question.getGroup().getId());
-			}
-			
-			q.setParameter("file", question.getFile());
-			
-			List<Question> qL = q.getResultList();
-			Integer count = ((qL != null)? qL.size(): -1);
-			
-			if(count==fileSize){
-				return new Reference(String.valueOf(question.getFile()+1),String.valueOf(1));
-			}else{
-				return new Reference(String.valueOf(question.getFile()),String.valueOf(question.getFileIndex()+1));
-			}
-		}
-		}catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e.getMessage());
-			ELSException elsException=new ELSException();
-			elsException.setParameter("QuestionRepository_Reference_findCurrentFile", "Cannot get the current file");
-			throw elsException;
-		}
-	}
 	
 	//todos 1
 		@SuppressWarnings("unchecked")
@@ -2775,26 +2582,63 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				" FROM Question q join q.drafts qd" +
 				" WHERE q.id=:qid" +
 				" ORDER BY qd.id DESC";
+		try{
 		TypedQuery<QuestionDraft> tQuery = 
 			this.em().createQuery(query, QuestionDraft.class);
 		tQuery.setParameter("qid", id);
 		tQuery.setMaxResults(1);
 		QuestionDraft draft = tQuery.getSingleResult();
 		return draft;
+		}catch(Exception e){
+			return null;
+		}
 	}
 
 	public QuestionDraft findSecondPreviousDraft(final Long id) {
+		QuestionDraft draft = null;
 		String query = "SELECT qd" +
-				" FROM Question q join q.drafts qd" +
-				" WHERE q.id=:qid" +
-				" ORDER BY qd.id DESC";
+					" FROM Question q join q.drafts qd" +
+					" WHERE q.id=:qid" +
+					" ORDER BY qd.id DESC";
 		TypedQuery<QuestionDraft> tQuery = 
 			this.em().createQuery(query, QuestionDraft.class);
 		tQuery.setParameter("qid", id);
-		tQuery.setFirstResult(1);
-		tQuery.setMaxResults(1);
-		QuestionDraft draft = tQuery.getSingleResult();
+		List<QuestionDraft> drafts = tQuery.getResultList();
+		if(drafts.size()>1){
+			draft = drafts.get(1);
+		}
 		return draft;
+	}
+	
+	public QuestionDraft findLatestPreviousGroupDraft(final Question question) {
+		QuestionDraft latestPreviousGroupDraft = null;
+		String query = "SELECT qd" +
+					" FROM Question q join q.drafts qd" +
+					" WHERE q.id=:qid" +
+					" AND qd.recommendationStatus.id=:groupChangedStatusId" +
+					" ORDER BY qd.id DESC";
+		TypedQuery<QuestionDraft> tQuery = 
+			this.em().createQuery(query, QuestionDraft.class);
+		tQuery.setParameter("qid", question.getId());
+		Status groupChangedStatus = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED, question.getLocale());
+		tQuery.setParameter("groupChangedStatusId", groupChangedStatus.getId());
+		List<QuestionDraft> drafts = tQuery.getResultList();
+		if(!drafts.isEmpty()){
+			QuestionDraft latestGroupChangedDraft = drafts.get(0);
+			query = "SELECT qd" +
+					" FROM Question q join q.drafts qd" +
+					" WHERE q.id=:qid" +
+					" AND qd.id<:latestGroupChangedDraftId" +
+					" ORDER BY qd.id DESC";
+			tQuery = this.em().createQuery(query, QuestionDraft.class);
+			tQuery.setParameter("qid", question.getId());
+			tQuery.setParameter("latestGroupChangedDraftId", latestGroupChangedDraft.getId());
+			drafts = tQuery.getResultList();
+		}
+		if(!drafts.isEmpty()){
+			latestPreviousGroupDraft = drafts.get(1); //as group change event creates 2 drafts..so we need 2nd previous draft
+		}
+		return latestPreviousGroupDraft;
 	}
 	
 	public QuestionDraft findPutupDraft(final Long id, final String putupStatus, final String putupActorUsergroupName) {
@@ -2814,24 +2658,20 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return draft;
 	}
 	
-	public boolean isAdmittedThroughNameClubbing(final Question question) {
-		boolean isAdmittedThroughNameClubbing = false;
-		String query = "SELECT qd" +
-				" FROM Question q join q.drafts qd" +
-				" WHERE q.id=:qid" +
-				" AND q.internalStatus.type='" + ApplicationConstants.QUESTION_FINAL_ADMISSION + "'" +
-				" AND qd.internalStatus.type='" + ApplicationConstants.QUESTION_RECOMMEND_NAMECLUBBING + "'" +
-				" ORDER BY qd.id DESC";
-		TypedQuery<QuestionDraft> tQuery = this.em().createQuery(query, QuestionDraft.class);
-		tQuery.setParameter("qid", question.getId());		
+	public boolean isAdmittedThroughClubbing(final Question question) {
+		boolean isAdmittedThroughClubbing = false;
+		org.mkcl.els.domain.Query query = org.mkcl.els.domain.Query.findByFieldName(Query.class, "keyField", "IS_QUESTION_ADMITTED_THROUGH_CLUBBING", question.getLocale());
+		Query tQuery = this.em().createNativeQuery(query.getQuery(), QuestionDraft.class);
+		tQuery.setParameter("questionId", question.getId());
+		@SuppressWarnings("unchecked")
 		List<QuestionDraft> drafts = tQuery.getResultList();
 		if(drafts!=null && !drafts.isEmpty()) {
-			isAdmittedThroughNameClubbing = true;
+			isAdmittedThroughClubbing = true;
 		}		
-		return isAdmittedThroughNameClubbing;
+		return isAdmittedThroughClubbing;
 	}
 	
-	public MemberMinister findMemberMinisterIfExists(Question question) throws ELSException {
+	public MemberMinister findMemberMinisterIfExists(final Question question) throws ELSException {
 		MemberMinister  memberMinister = null;
 		Session session = question.getSession();
 		if(session==null) {
@@ -2839,7 +2679,49 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			throw new ELSException("question_session_null", "This question has no session.");
 		}
 		try{			
-			String queryString = "SELECT mm FROM MemberMinister mm JOIN mm.ministry mi JOIN mm.house h JOIN mm.member m " +
+			String queryString = "SELECT mm FROM MemberMinister mm JOIN mm.ministry mi JOIN mm.member m " +
+					"WHERE mi.id IN " +
+					"(SELECT gm.id FROM Group g join g.ministries gm " +
+					"WHERE g.houseType.id=:houseTypeId AND g.sessionType.id=:sessionTypeId"+
+					" AND g.year=:sessionYear AND g.locale=:locale) " +
+					" AND mi.id=:ministryId " +
+					" AND mm.ministryFromDate<=:questionDate AND (mm.ministryToDate>=:questionDate  OR mm.ministryToDate IS NULL) " +
+//					" AND mm.ministryFromDate<=:questionSubmissionDate AND (mm.ministryToDate>=:questionSubmissionDate  OR mm.ministryToDate IS NULL) " +
+					" AND mm.locale=:locale";
+			
+			TypedQuery<MemberMinister> query = this.em().createQuery(queryString, MemberMinister.class);
+			query.setParameter("houseTypeId", session.getHouse().getType().getId());
+			query.setParameter("sessionTypeId", session.getType().getId());
+			query.setParameter("sessionYear", session.getYear());
+			query.setParameter("locale", question.getLocale());
+			//query.setParameter("houseId", session.getHouse().getId());
+			query.setParameter("ministryId", question.getMinistry().getId());
+			if(question.getChartAnsweringDate()!=null) {
+				query.setParameter("questionDate", question.getChartAnsweringDate().getAnsweringDate());
+			} else {
+				query.setParameter("questionDate", question.getSubmissionDate());
+			}			
+			//query.setParameter("questionSubmissionDate", question.getSubmissionDate());
+			memberMinister = query.getSingleResult();
+		}catch (NoResultException  e) {
+			return null;
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return null;
+		}
+		return memberMinister;
+	}
+	
+	public MemberMinister findMemberMinisterIfExists(final Question question, final Ministry ministry) throws ELSException {
+		MemberMinister  memberMinister = null;
+		Session session = question.getSession();
+		if(session==null) {
+			logger.error("This question has no session.");
+			throw new ELSException("question_session_null", "This question has no session.");
+		}
+		try{			
+			String queryString = "SELECT mm FROM MemberMinister mm JOIN mm.ministry mi JOIN mm.member m " +
 					"WHERE mi.id IN " +
 					"(SELECT gm.id FROM Group g join g.ministries gm " +
 					"WHERE g.houseType.id=:houseTypeId AND g.sessionType.id=:sessionTypeId"+
@@ -2854,7 +2736,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			query.setParameter("sessionYear", session.getYear());
 			query.setParameter("locale", question.getLocale());
 			//query.setParameter("houseId", session.getHouse().getId());
-			query.setParameter("ministryId", question.getMinistry().getId());
+			query.setParameter("ministryId", ministry.getId());
 			query.setParameter("questionSubmissionDate", question.getSubmissionDate());
 			memberMinister = query.getSingleResult();
 		}catch (NoResultException  e) {
@@ -2879,9 +2761,9 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)||
 					deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)||
 					deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+				strQuery.append(" AND q.type.type<>'questions_halfhourdiscussion_from_question'");
 				 query=this.em().createQuery(strQuery.toString());
-			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)||
-					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
 				strQuery.append(" AND q.type.id=:deviceTypeId"); 
 				query=this.em().createQuery(strQuery.toString());
 				query.setParameter("deviceTypeId", deviceType.getId());
@@ -2918,8 +2800,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	public boolean containsClubbingFromSecondBatch(final Session session,
 			final Member member,final Question question,final String locale) throws ELSException{
 		try {
-			String startTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_SECONDBATCH_SUBMISSION_STARTTIME_UH);
-			String endTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_SECONDBATCH_SUBMISSION_ENDTIME_UH);
+			String startTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_SECONDBATCH_SUBMISSION_STARTTIME);
+			String endTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_SECONDBATCH_SUBMISSION_ENDTIME);
 			Date startDate=FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT,"en_US").parse(startTime);
 			Date endDate=FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT,"en_US").parse(endTime);
 			String strQuery="SELECT qce FROM Question q LEFT JOIN q.clubbedEntities qce "
@@ -2970,15 +2852,15 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				throw new ELSException("error", "question.yaadiNumberingParameterNotSet");
 			}
 			queryString += " AND q.locale=:locale";
-			try {
-				TypedQuery<Integer> query = this.em().createQuery(queryString, Integer.class);
-				query.setParameter("houseId", session.getHouse().getId());
-				query.setParameter("deviceTypeString", deviceTypeString);
-				if(yaadiNumberingParameter.equals("session")) {
-					query.setParameter("sessionStartDate", session.getStartDate());
-					query.setParameter("sessionEndDate", session.getEndDate());
-				}				
-				query.setParameter("locale", locale);
+			TypedQuery<Integer> query = this.em().createQuery(queryString, Integer.class);
+			query.setParameter("houseId", session.getHouse().getId());
+			query.setParameter("deviceTypeString", deviceTypeString);
+			if(yaadiNumberingParameter.equals("session")) {
+				query.setParameter("sessionStartDate", session.getStartDate());
+				query.setParameter("sessionEndDate", session.getEndDate());
+			}				
+			query.setParameter("locale", locale);
+			try {				
 				highestYaadiNumber = query.getSingleResult();
 			} catch(Exception e) {
 				highestYaadiNumber = 0;
@@ -3069,23 +2951,45 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			} else {
 				deviceTypeString = deviceType.getType();
 			}
+			List<Long> removedDevicesNotEligibleForNumberedYaadi = YaadiDetails.findRemovedDevicesNotEligibleForNumberedYaadi(deviceType, session, locale);
 			String queryString = "SELECT q FROM Question q"
+					+ " LEFT JOIN q.primaryMember.houseMemberRoleAssociations mhr"
 					+ " WHERE q.type.type=:deviceTypeString"
 					+ " AND q.session.house.id=:houseId"
+					+ " AND q.parent IS NULL"
 					+ " AND q.yaadiNumber IS NULL"
 					+ " AND q.yaadiLayingDate IS NULL"
 					+ " AND q.status.type=:admissionStatusType"
-					+ " AND q.answer IS NOT NULL"
+					+ " AND q.answer IS NOT NULL AND q.answer <> '' AND q.answer <> '<p></p>' AND q.answer <> '<br><p></p>' "
 					+ " AND q.locale=:locale"
-					+ " ORDER BY q.number";
+					+ " AND mhr.fromDate<=:curDate"
+					+ " AND mhr.toDate>=:curDate";
+			if(removedDevicesNotEligibleForNumberedYaadi!=null && !removedDevicesNotEligibleForNumberedYaadi.isEmpty()) {
+				queryString += " AND q.id NOT IN :removedDevicesNotEligibleForNumberedYaadi";
+			}
+			queryString += " ORDER BY q.number";
 			String numberOfQuestionsInYaadiParameter = session.getParameter(deviceTypeString + "_" + "numberOfQuestionsInYaadi");
 			if(numberOfQuestionsInYaadiParameter!=null) {
 				Integer numberOfQuestionsInYaadi = Integer.parseInt(numberOfQuestionsInYaadiParameter);
 				TypedQuery<Question> query = this.em().createQuery(queryString, Question.class);
 				query.setParameter("houseId", session.getHouse().getId());
-				query.setParameter("deviceTypeString", deviceTypeString);		
-				query.setParameter("admissionStatusType", ApplicationConstants.QUESTION_FINAL_ADMISSION);				
+				query.setParameter("deviceTypeString", deviceTypeString);	
+				String admissionStatus = "";
+				if(deviceTypeString.equals(ApplicationConstants.STARRED_QUESTION)) {
+					admissionStatus = ApplicationConstants.QUESTION_FINAL_ADMISSION;
+				} else if(deviceTypeString.equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+					admissionStatus = ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION;
+				} else if(deviceTypeString.equals(ApplicationConstants.SHORT_NOTICE_QUESTION)) {
+					admissionStatus = ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION;
+				} else if(deviceTypeString.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+					admissionStatus = ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION;
+				}
+				query.setParameter("admissionStatusType", admissionStatus);
+				query.setParameter("curDate", new Date());
 				query.setParameter("locale", locale);
+				if(removedDevicesNotEligibleForNumberedYaadi!=null && !removedDevicesNotEligibleForNumberedYaadi.isEmpty()) {
+					query.setParameter("removedDevicesNotEligibleForNumberedYaadi", removedDevicesNotEligibleForNumberedYaadi);
+				}				
 				questions = query.setMaxResults(numberOfQuestionsInYaadi-numberOfQuestionsSetInYaadi)
 									.getResultList();
 				if(questions==null) {
@@ -3171,5 +3075,365 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		tQuery.setParameter("number", number);
 		tQuery.setParameter("locale", locale);
 		return tQuery.getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	public Question find(final Session session,
+			final DeviceType deviceType,
+			final Integer qNumber, 
+			final String locale) {
+	
+		String strQuery="SELECT q FROM Question q " +
+				"WHERE q.session.id=:sessionId " +
+				"AND q.number=:number " +
+				"AND q.type.id=:deviceTypeId " +
+				"AND q.locale=:locale";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("number", qNumber);
+		query.setParameter("deviceTypeId", deviceType.getId());
+		query.setParameter("locale", locale);
+		
+		List<Question> questions = query.getResultList();		
+		if(questions != null && !questions.isEmpty()){
+			return questions.get(0);
+		}
+		
+		return null;  
+	}
+	
+	public List<Question> find(final Group group, 
+			final DeviceType deviceType, 
+			final Status GTEQinternalStatus,
+			final Status LTrecommendationStatus,
+			final String locale) {
+		String strQuery = "SELECT q" +
+				" FROM Question q" +
+				" WHERE q.group.id=:groupId" +
+				" AND q.type.id=:deviceTypeId" +
+				" AND q.internalStatus.priority>=:internalStatusPriority" +
+				" AND q.recommendationStatus.priority<:recommendationStatusPriority" +
+				" AND q.locale=:locale";
+		
+		TypedQuery<Question> query = this.em().createQuery(strQuery, Question.class);
+		query.setParameter("groupId", group.getId());
+		query.setParameter("deviceTypeId", deviceType.getId());
+		query.setParameter("internalStatusPriority", GTEQinternalStatus.getPriority());
+		query.setParameter("recommendationStatusPriority", LTrecommendationStatus.getPriority());
+		query.setParameter("locale", locale);
+		
+		List<Question> questions = query.getResultList();
+		return questions;
+	}
+	
+	public List<Question> find(final Member member,
+			final Session session, 
+			final DeviceType deviceType, 
+			final Status GTEQinternalStatus,
+			final Status LTrecommendationStatus,
+			final String locale) {
+		String strQuery = "SELECT q" +
+				" FROM Question q" +
+				" WHERE q.primaryMember.id=:primaryMemberId" +
+				" AND q.session.id=:sessionId" +
+				" AND q.type.id=:deviceTypeId" +
+				" AND q.internalStatus.priority>=:internalStatusPriority" +
+				" AND q.recommendationStatus.priority<:recommendationStatusPriority" +
+				" AND q.locale=:locale";
+		
+		TypedQuery<Question> query = this.em().createQuery(strQuery, Question.class);
+		query.setParameter("primaryMemberId", member.getId());
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("deviceTypeId", deviceType.getId());
+		query.setParameter("internalStatusPriority", GTEQinternalStatus.getPriority());
+		query.setParameter("recommendationStatusPriority", LTrecommendationStatus.getPriority());
+		query.setParameter("locale", locale);
+		
+		List<Question> questions = query.getResultList();
+		return questions;
+	}
+
+	public List<Question> findWhereMemberIsSupportingMember(final Member member,
+			final Session session, 
+			final DeviceType deviceType, 
+			final Status GTEQinternalStatus,
+			final Status LTrecommendationStatus, 
+			final String locale) {
+		String strQuery = "SELECT q" +
+				" FROM Question q JOIN q.supportingMembers sm JOIN sm.member m" +
+				" WHERE m.id=:memberId" +
+				" AND q.session.id=:sessionId" +
+				" AND q.type.id=:deviceTypeId" +
+				" AND q.internalStatus.priority>=:internalStatusPriority" +
+				" AND q.recommendationStatus.priority<:recommendationStatusPriority" +
+				" AND q.locale=:locale";
+		
+		TypedQuery<Question> query = this.em().createQuery(strQuery, Question.class);
+		query.setParameter("memberId", member.getId());
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("deviceTypeId", deviceType.getId());
+		query.setParameter("internalStatusPriority", GTEQinternalStatus.getPriority());
+		query.setParameter("recommendationStatusPriority", LTrecommendationStatus.getPriority());
+		query.setParameter("locale", locale);
+		
+		List<Question> questions = query.getResultList();
+		return questions;
+	}
+	
+	public QuestionDates findNextAnsweringDate(final Question question) {
+		QuestionDates nextQuestionDates = null;
+		String strQuery = "SELECT qd" +
+				" FROM Question q JOIN q.group g JOIN g.questionDates qd" +
+				" WHERE q.id=:qid" +
+				" AND qd.answeringDate>:currentAnsweringDate" +
+				" ORDER BY qd.answeringDate ASC";
+		TypedQuery<QuestionDates> query = this.em().createQuery(strQuery, QuestionDates.class);
+		query.setParameter("qid", question.getId());
+		QuestionDates currentQuestionDates = Question.findQuestionDatesForStarredQuestion(question);
+		query.setParameter("currentAnsweringDate", currentQuestionDates.getAnsweringDate());
+		List<QuestionDates> nextQuestionDatesList = query.getResultList();
+		if(!nextQuestionDatesList.isEmpty()) {
+			nextQuestionDates = nextQuestionDatesList.get(0);
+		}
+		return nextQuestionDates;
+	}
+
+	public QuestionDraft findLatestGroupChangedDraft(final Question question) {
+		String strQuery = "SELECT qd FROM Question q JOIN q.drafts qd" +
+				" WHERE qd.ministry != q.ministry " +
+				" AND qd.subDepartment != q.subDepartment" +
+				" AND q.id=:questionId" +
+				" ORDER BY qd.id desc";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("questionId", question.getId());
+		List<QuestionDraft> questionDrafts = query.getResultList();
+		if(questionDrafts != null && !questionDrafts.isEmpty()){
+			return questionDrafts.get(0);
+		}else{
+			return null;
+		}
+	}
+
+	public QuestionDraft findGroupChangedDraft(Question question) {
+		String strQuery = "SELECT qd FROM Question q JOIN q.drafts qd" +
+				" WHERE qd.ministry = q.ministry " +
+				" AND qd.subDepartment = q.subDepartment" +
+				" AND q.id=:questionId" +
+				" ORDER BY qd.id";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("questionId", question.getId());
+		List<QuestionDraft> questionDrafts = query.getResultList();
+		if(questionDrafts != null && !questionDrafts.isEmpty()){
+			return questionDrafts.get(0);
+		}else{
+			return null;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Member> findMembersHavingQuestionSubmittedInFirstBatch(final Session session, final DeviceType deviceType, final String locale) throws ELSException {
+		try {
+			/**** Here we are assuming that submission time,start time,end time are all stored in same format in db ****/
+			String startTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME);
+			String endTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME);
+			
+			List<Member> members=new ArrayList<Member>();
+			
+			if(startTime!=null && !startTime.isEmpty() && endTime!=null && !endTime.isEmpty()) {
+				
+				org.mkcl.els.domain.Query query = 
+						org.mkcl.els.domain.Query.findByFieldName(Query.class, "keyField", "ACTIVE_MEMBERS_HAVING_QUESTIONS_SUBMITTED_IN_FIRST_BATCH_FOR_GIVEN_SESSION", locale);
+				
+				Query persistenceQuery = this.em().createNativeQuery(query.getQuery(), Member.class);
+				persistenceQuery.setParameter("sessionId", session.getId());
+				persistenceQuery.setParameter("houseId", session.getHouse().getId());
+				/** parameter for date on which to check whether member is active or not **/
+				Date activeOnCheckDate = null;
+				if(new Date().compareTo(session.getStartDate())<=0) {
+					activeOnCheckDate = session.getStartDate();
+				} else if(new Date().compareTo(session.getStartDate())>0
+						&& new Date().compareTo(session.getEndDate())<0) {
+					activeOnCheckDate = new Date();
+				} else {
+					activeOnCheckDate = session.getEndDate();
+				}	
+				persistenceQuery.setParameter("activeOnCheckDate", FormaterUtil.formatDateToString(activeOnCheckDate, ApplicationConstants.DB_DATEFORMAT));
+				persistenceQuery.setParameter("deviceTypeId", deviceType.getId());
+				/** parameter for status priority of questions **/
+				Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, locale);
+				persistenceQuery.setParameter("submitStatusPriority", submitStatus.getPriority());
+				persistenceQuery.setParameter("firstBatchStartTime", startTime);
+				persistenceQuery.setParameter("firstBatchEndTime", endTime);
+				
+				members = persistenceQuery.getResultList();				
+				
+			}
+			
+			return members;
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("QuestionRepository_List<Member>findMembersHavingQuestionSubmittedInFirstBatch", "No member found.");
+			throw elsException;
+		}		
+	}
+
+	public List<Object[]> findUnstarredAcrossSessionDepartmentwiseQuestions(final String sessionIds, final String locale) {
+		List<Object[]> unstarredAcrossSessionDepartmentwiseQuestions = new ArrayList<Object[]>();
+		if(sessionIds!=null && !sessionIds.isEmpty()) {
+			List<String> sessionIdList = new ArrayList<String>();	
+			for(String val : sessionIds.split(",")){
+				sessionIdList.add(val);
+			}
+			org.mkcl.els.domain.Query query = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "UNSTARRED_QUESTIONS_ACROSS_SESSION_DEPARTMENTWISE", locale);
+			if(query!=null) {
+				Query persistenceQuery=this.em().createNativeQuery(query.getQuery());
+				persistenceQuery.setParameter("sessionIds", sessionIdList);
+				@SuppressWarnings("unchecked")
+				List<Object[]> resultList = persistenceQuery.getResultList();
+				if(resultList!=null && !resultList.isEmpty()) {
+					Object[] departmentwiseQuestionDetails = new Object[2];
+					List<Object[]> questionsInDepartment = new ArrayList<Object[]>();
+					String departmentName = resultList.get(0)[2].toString();
+					long serialCount = 1;
+					for(Object[] result: resultList) {
+						if(result[2].toString().equals(departmentName)) {
+							result[0] = FormaterUtil.formatNumberNoGrouping(serialCount, locale);
+							questionsInDepartment.add(result);
+							serialCount++;
+						} else {
+							departmentwiseQuestionDetails[0] = departmentName;
+							departmentwiseQuestionDetails[1] = questionsInDepartment;
+							unstarredAcrossSessionDepartmentwiseQuestions.add(departmentwiseQuestionDetails);
+							departmentwiseQuestionDetails = new Object[2];
+							departmentName = result[2].toString();
+							questionsInDepartment = new ArrayList<Object[]>();
+							serialCount = 1;
+							result[0] = FormaterUtil.formatNumberNoGrouping(serialCount, locale);
+							questionsInDepartment.add(result);		
+							serialCount++;
+						}
+					}
+				}
+			}
+		}
+		return unstarredAcrossSessionDepartmentwiseQuestions;
+	}
+	
+	public int updateUnBallot(final Member member, final Session session,
+			final DeviceType deviceType, final Status internalStatus,
+			final Date discussionDate) {
+		StringBuffer strQuery = new StringBuffer("UPDATE questions SET ballotstatus_id=NULL,discussion_date=NULL WHERE " + 
+								" member_id=:memberId " +
+								" AND devicetype_id=:deviceTypeId " +
+								" AND session_id=:sessionId " + 
+								" AND internalstatus_id=:statusId " +
+								" AND discussion_date=:discussionDate");
+		Query query = this.em().createNativeQuery(strQuery.toString(), Question.class);
+		query.setParameter("memberId", member.getId());
+		query.setParameter("deviceTypeId", deviceType.getId());
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("statusId", internalStatus.getId());
+		query.setParameter("discussionDate", discussionDate);		
+		return query.executeUpdate();
+	}
+
+	public List<Date> findAvailableYaadiLayingDatesForSession(final DeviceType deviceType, final Session session, final String locale) throws ELSException {
+		List<Date> availableYaadiLayingDates = new ArrayList<Date>();
+		if(session==null || session.getId()==null) {
+			logger.error("**** Session is null ****");
+			throw new ELSException("error", "session_null");
+		}
+		String deviceTypeString = null;
+		if(deviceType==null) {
+			deviceTypeString = ApplicationConstants.UNSTARRED_QUESTION;
+		} else {
+			deviceTypeString = deviceType.getType();
+		}
+		String yaadiNumberingParameter = session.getParameter(deviceTypeString + "_" + "yaadiNumberingParameter");
+		if(yaadiNumberingParameter!=null) {				
+			if(yaadiNumberingParameter.equals("session")) {
+				Calendar start = Calendar.getInstance();
+				start.setTime(session.getStartDate());
+				Calendar end = Calendar.getInstance();
+				end.setTime(session.getEndDate());
+				for (Calendar current=start; !current.after(end); current.add(Calendar.DATE, 1)) {
+					availableYaadiLayingDates.add(current.getTime());
+				}
+			} else if(yaadiNumberingParameter.equals("house")) {
+				List<Session> sessionsInHouse = Session.findAllByFieldName(Session.class, "house", session.getHouse(), "startDate", ApplicationConstants.DESC, locale);
+				if(sessionsInHouse!=null && !sessionsInHouse.isEmpty()) {
+					Calendar start = null;
+					Calendar end = null;
+					Calendar current = null;
+					for(Session s: sessionsInHouse) {
+						start = Calendar.getInstance();
+						start.setTime(s.getStartDate());
+						end = Calendar.getInstance();
+						end.setTime(s.getEndDate());
+						for (current=start; !current.after(end); current.add(Calendar.DATE, 1)) {
+							availableYaadiLayingDates.add(current.getTime());
+						}
+					}
+					sessionsInHouse = null;
+				}
+			}
+		} else {
+			logger.error("**** Session parameter 'yaadiNumberingParameter' is not set for session with ID = " + session.getId() +". ****");
+			throw new ELSException("error", "question.yaadiNumberingParameterNotSet");
+		}
+		return availableYaadiLayingDates;
+	}
+
+	public Boolean isNumberedYaadiFinalized(final DeviceType deviceType, final Session session, final Integer yaadiNumber, final Date yaadiLayingDate, final String locale) {
+		Boolean isNumberedYaadiFinalized = false;
+		String deviceTypeString = null;
+		if(deviceType==null) {
+			deviceTypeString = ApplicationConstants.UNSTARRED_QUESTION;
+		} else {
+			deviceTypeString = deviceType.getType();
+		}
+		String queryString = "SELECT COUNT(q) FROM Question q"
+				+ " WHERE q.type.type=:deviceTypeString"				
+				+ " AND q.yaadiNumber=:yaadiNumber"
+				+ " AND q.yaadiLayingDate=:yaadiLayingDate"
+				+ " AND q.recommendationStatus IS NOT NULL"
+				+ " AND q.recommendationStatus.type LIKE :yaadiLaidStatusType"
+				+ " AND q.locale=:locale";
+		Query query = this.em().createQuery(queryString);
+		query.setParameter("deviceTypeString", deviceTypeString);
+		query.setParameter("yaadiNumber", yaadiNumber);
+		query.setParameter("yaadiLayingDate", yaadiLayingDate);
+		query.setParameter("yaadiLaidStatusType", "%processed_yaadilaid");
+		query.setParameter("locale", locale);
+		try {
+			Long finalizedQuestionsCount = (Long) query.getSingleResult();
+			if(finalizedQuestionsCount!=null && finalizedQuestionsCount.longValue()>0) {
+				isNumberedYaadiFinalized = true;
+			}
+		} catch (NoResultException nre) {
+			isNumberedYaadiFinalized = false;
+		}		
+		return isNumberedYaadiFinalized;
+	}
+	
+	public List<Question> findAll(final Session session, final DeviceType deviceType, final Integer number, final String locale) throws ELSException {
+		
+		try{
+			StringBuilder strQuery = new StringBuilder("SELECT q FROM Questions q" +
+					" WHERE q.session.id=:sessionId" +
+					" AND q.type.id=:deviceTypeId" +
+					" AND q.number=:number");
+			TypedQuery<Question> query = em().createQuery(strQuery.toString(), Question.class);
+			return query.getResultList();
+		}catch(Exception e){
+			throw new ELSException(e.getMessage(), e.toString());
+		}
+	}
+	
+	public boolean getState(Question q){
+		return this.em().contains(q);
 	}
 }

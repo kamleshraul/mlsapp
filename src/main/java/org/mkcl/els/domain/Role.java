@@ -105,6 +105,14 @@ public class Role extends BaseDomain implements Serializable {
         return getRoleRepository().findRolesByRoleType(persistenceClass,fieldName,fieldValue,sortBy, sortOrder);
     }
 
+    public static String findDelimitedQISRoles(final String locale) throws ELSException {
+		return getRoleRepository().findDelimitedQISRoles(locale);
+	}
+
+	public static Role findByType(String type, String locale) {
+		Role role = Role.findByFieldName(Role.class, "type", type, locale);
+		return role;
+	}
     // -------------- Getters & Setters
     // --------------------------------------------------------------------------
     /**
@@ -158,13 +166,5 @@ public class Role extends BaseDomain implements Serializable {
 	public String getLocalizedName() {
 		return localizedName;
 	}
-
-	public static String findDelimitedQISRoles(final String locale) throws ELSException {
-		return getRoleRepository().findDelimitedQISRoles(locale);
-	}
-
-
-
-
 
 }

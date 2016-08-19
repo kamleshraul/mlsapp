@@ -38,7 +38,6 @@
 		 +"&role="+$("#assirole").val()
 		 +"&usergroup="+$("#assiusergroup").val()
 		 +"&usergroupType="+$("#assiusergroupType").val()
-		 +"&file="+$("#assifile").val()
 		 +"&itemscount="+$("#assiitemscount").val()
 		 +"&group="+$("#assigroup").val();
 	
@@ -124,7 +123,7 @@
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				$.post('question/bulksubmission/assistant/update?actor='+next+"&level="+level,
 			        	{items:items
-			        	,status:status
+			        	,currentStatus:status
 			        	,houseType:$("#assihouseType").val()
 			   		 	,sessionYear:$("#assisessionYear").val()
 					 	,sessionType:$("#assisessionType").val()
@@ -132,9 +131,9 @@
 					 	,role:$("#assirole").val()
 					 	,usergroup:$("#assiusergroup").val()
 					 	,usergroupType:$("#assiusergroupType").val()
-					 	,file:$("#assifile").val()
-					 	,itemscount:+$("#assiitemscount").val()
-					 	,group:+$("#assigroup").val()
+					 	,itemscount:$("#assiitemscount").val()
+					 	,group:$("#assigroup").val()
+					 	,status:$("#assistatus").val()
 					 	},
 	    	            function(data){
 	       					$('html').animate({scrollTop:0}, 'slow');
@@ -190,7 +189,6 @@
 	<input type="hidden" id="assiusergroup" value="${usergroup }">
 	<input type="hidden" id="assiusergroupType" value="${usergroupType }">
 	<input type="hidden" id="assiitemscount" value="${itemscount }">
-	<input type="hidden" id="assifile" value="${file }">	
 	<input type="hidden" id="assigroup" value="${group}">
 	<input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the motions.'></spring:message>" type="hidden">
 	<input id="selectActorMsg" value="<spring:message code='client.prompt.selectactor' text='Please select the actor.'></spring:message>" type="hidden">

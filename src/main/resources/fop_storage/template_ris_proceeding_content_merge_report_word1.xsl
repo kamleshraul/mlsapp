@@ -111,6 +111,11 @@
 														प्रथम <xsl:value-of select="preceding-sibling::slot[1]/reporter"></xsl:value-of>
 													</fo:block>	
 												</xsl:when>
+												<xsl:when test="./reporter!=''">
+													<fo:block>
+														प्रथम <xsl:value-of select="./reporter"></xsl:value-of>
+													</fo:block>	
+												</xsl:when>
 												<xsl:otherwise>
 													<fo:block></fo:block>	
 												</xsl:otherwise>
@@ -125,6 +130,8 @@
       							</fo:table-body>
       						</fo:table>
 	      				</fo:block>
+	      				<fo:block>&#160;</fo:block>
+	      				<fo:block>&#160;</fo:block>
 			   	     </fo:static-content>  
 				<!-- footer -->
 		    	<fo:static-content flow-name="ra-common">
@@ -137,20 +144,32 @@
 			        <!-- content as per report -->
 			      	<fo:block font-family="{$font}" font-size="16px">
 			      		<fo:block>&#160;</fo:block>
-	  					<xsl:for-each select="./childVOs">
-				   			<xsl:choose>
-  								<xsl:when test="preceding-sibling::slot[1]/name!=./name">
+			      		<xsl:for-each select="./childVOs">
+			      			<xsl:choose>
+  								<xsl:when test="preceding-sibling::slot[1]/name!=../name">
   									<fo:block text-align="center">
-										<xsl:if test="position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole">
-											<fo:block text-align="center" font-weight="bold">
-												(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
-											</fo:block>
-											<fo:block>&#160;</fo:block>
+  										<xsl:if test="(position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole) and string-length(./memberrole)>0">
+											<xsl:if test="string-length(./chairperson)>0">
+												<xsl:choose>
+													<xsl:when test="../houseType='upperhouse'">
+														<fo:block text-align="center" font-weight="bold">
+															(सभापतीस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
+														</fo:block>
+													</xsl:when>
+													<xsl:otherwise>
+														<fo:block text-align="center" font-weight="bold">
+															(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
+														</fo:block>
+													</xsl:otherwise>
+												</xsl:choose>
+												
+												<fo:block>&#160;</fo:block>
+											</xsl:if>
 										</xsl:if>
 										<xsl:choose>
 									 		<xsl:when test="string-length(./pageHeading)>0 and string-length(./mainHeading)>0">
 								 				<fo:block text-align="justify">
-								 					<fo:inline font-weight="bold">पु. शी. : </fo:inline><xsl:value-of select="./pageHeading"></xsl:value-of>
+								 					<fo:inline font-weight="bold">पृ. शी. : </fo:inline><xsl:value-of select="./pageHeading"></xsl:value-of>
 								 				</fo:block>	
 								 				<fo:block text-align="center">
 								 					<fo:inline font-weight="bold">मु. शी. : </fo:inline> <xsl:value-of select="./mainHeading"></xsl:value-of>
@@ -159,7 +178,7 @@
 										 	</xsl:when>
 								 			<xsl:when test="string-length(./pageHeading)>0 or string-length(./mainHeading)>0">
 								 				<fo:block text-align="center">
-								 					<fo:inline font-weight="bold">पु. शी./ मु. शी. :</fo:inline> <xsl:value-of select="./pageHeading"></xsl:value-of> <xsl:value-of select="./mainHeading"></xsl:value-of>
+								 					<fo:inline font-weight="bold">पृ. शी./ मु. शी. :</fo:inline> <xsl:value-of select="./pageHeading"></xsl:value-of> <xsl:value-of select="./mainHeading"></xsl:value-of>
 								 				</fo:block>
 								 				<fo:block>&#160;</fo:block>															 		
 								 			</xsl:when>
@@ -171,10 +190,11 @@
 								 			</xsl:when>
 									 	</xsl:choose>
 									 	<fo:inline font-weight="bold" text-align="justify">
+									 		
 											<xsl:choose>
-												<xsl:when test="primaryMember!='' and primaryMember!=null">
+												<xsl:when test="(position()=1 or boolean(preceding-sibling::childVOs[position()-1])=false or preceding-sibling::childVOs[1]/primaryMember!=./primaryMember) and string-length(./primaryMember)>0">
 													<xsl:choose>
-														<xsl:when test="primaryMemberMinistry!='' or primaryMember='अध्यक्ष'">
+														<xsl:when test="./primaryMemberMinistry!='' or ./primaryMember='अध्यक्ष'">
 															<fo:inline font-weight="bold" >
 																<xsl:value-of select="./primaryMember"></xsl:value-of>
 																<xsl:if test="constituency!=''">
@@ -192,39 +212,39 @@
 														</xsl:otherwise>
 													</xsl:choose>
 													<xsl:choose>
-														<xsl:when test="primaryMemberSubDepartment !=''">
-															(<xsl:value-of select="primaryMemberSubDepartment"></xsl:value-of>  <xsl:value-of select="primaryMemberDesignation"></xsl:value-of> )
+														<xsl:when test="./primaryMemberSubDepartment !=''">
+															(<xsl:value-of select="./primaryMemberSubDepartment"></xsl:value-of>  <xsl:value-of select="./primaryMemberDesignation"></xsl:value-of> )
 														</xsl:when>
 														<xsl:otherwise>
 															<xsl:if test="primaryMemberDesignation!=''">
-																	(<xsl:value-of select="primaryMemberDesignation"></xsl:value-of>)
+																	(<xsl:value-of select="./primaryMemberDesignation"></xsl:value-of>)
 															</xsl:if>
 														</xsl:otherwise>
 													</xsl:choose>
-													<xsl:if test="substituteMember!=''">
+													<xsl:if test="./substituteMember!=''">
 														<xsl:choose>
-															<xsl:when test="substituteMemberMinistry!=''">
+															<xsl:when test="./substituteMemberMinistry!=''">
 																<fo:inline font-weight="bold" >
-																	,<xsl:value-of select="substituteMember"></xsl:value-of>
+																	,<xsl:value-of select="./substituteMember"></xsl:value-of>
 																</fo:inline>
 															</xsl:when>
 															<xsl:otherwise>
 																<fo:inline font-weight="normal" >
-																	,<xsl:value-of select="substituteMember"></xsl:value-of>
+																	,<xsl:value-of select="./substituteMember"></xsl:value-of>
 																</fo:inline>
 															</xsl:otherwise>
 														</xsl:choose>
-														<xsl:if test="substituteMemberMinistry!=''">
-															(<xsl:value-of select="substituteMemberMinistry"></xsl:value-of>)	
+														<xsl:if test="./substituteMemberMinistry!=''">
+															(<xsl:value-of select="./substituteMemberMinistry"></xsl:value-of>)	
 														</xsl:if>
 														यांच्या करिता
 													</xsl:if>
 													:																														
 												</xsl:when>
-												<xsl:when test="publicRepresentative!=''">
-													<xsl:value-of select="publicRepresentative"></xsl:value-of>	
-													<xsl:if test="publicRepresentativeDetails!=''">
-														(<xsl:value-of select="publicRepresentativeDetails"></xsl:value-of>)
+												<xsl:when test="string-length(./publicRepresentative)>0 and ./publicRepresentative!=''">
+													<xsl:value-of select="./publicRepresentative"></xsl:value-of>	
+													<xsl:if test="./publicRepresentativeDetails!=''">
+														(<xsl:value-of select="./publicRepresentativeDetails"></xsl:value-of>)
 													</xsl:if>
 													:																			
 												</xsl:when>
@@ -234,26 +254,45 @@
 											</xsl:choose>
 										</fo:inline>
 										<fo:inline font-weight="normal" text-align="justify">
-											<xsl:apply-templates select="proceedingContent"></xsl:apply-templates>
+											<xsl:apply-templates select="./proceedingContent"></xsl:apply-templates>
 										</fo:inline>
 									</fo:block>
 									<fo:block>&#160;</fo:block>
 								</xsl:when>
   								<xsl:otherwise>
   									<xsl:choose>
-    									<xsl:when test="(preceding-sibling::childVOs[1]/pageHeading!=pageHeading and preceding-sibling::childVOs[1]/mainHeading!=mainHeading) or (preceding-sibling::childVOs[1]/pageHeading!=pageHeading) or (preceding-sibling::childVOs[1]/mainHeading!=mainHeading) or (preceding-sibling::childVOs[1]/specialHeading!=specialHeading) ">
-    										<fo:block break-before="page" text-align="justify">
+    									<xsl:when test="(preceding-sibling::childVOs[1]/pageHeading!=./pageHeading and preceding-sibling::childVOs[1]/mainHeading!=./mainHeading) 
+    										or (preceding-sibling::childVOs[1]/pageHeading!=./pageHeading) 
+    										or (preceding-sibling::childVOs[1]/mainHeading!=./mainHeading) 
+    										or (preceding-sibling::childVOs[1]/specialHeading!=./specialHeading)
+    										or position()=1 ">
+    										<xsl:if test="position()!=1">
+    											<fo:block break-before="page">&#160;</fo:block>
+    										</xsl:if>
+    										<fo:block text-align="justify">
     										<fo:block>&#160;</fo:block>
-	  											<xsl:if test="position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole">
-													<fo:block text-align="center" font-weight="bold">
-														(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
-													</fo:block>
-													<fo:block>&#160;</fo:block>
+    										
+	  											<xsl:if test="(position()=1 and string-length(./memberrole)>0) or (preceding-sibling::childVOs[1]/memberrole!=./memberrole)">
+		  											<xsl:if test="string-length(./chairperson)>0">
+														<xsl:choose>
+															<xsl:when test="../houseType='upperhouse'">
+																<fo:block text-align="center" font-weight="bold">
+																	(सभापतीस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
+																</fo:block>
+															</xsl:when>
+															<xsl:otherwise>
+																<fo:block text-align="center" font-weight="bold">
+																	(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
+																</fo:block>
+															</xsl:otherwise>
+														</xsl:choose>
+														<fo:block>&#160;</fo:block>
+													</xsl:if>
 												</xsl:if>
 												<xsl:choose>
 											 		<xsl:when test="string-length(./pageHeading)>0 and string-length(./mainHeading)>0">
 										 				<fo:block text-align="center">
-										 					<fo:inline font-weight="bold">पु. शी. : </fo:inline><xsl:value-of select="./pageHeading"></xsl:value-of>
+										 					<fo:inline font-weight="bold">पृ. शी. : </fo:inline><xsl:value-of select="./pageHeading"></xsl:value-of>
 										 				</fo:block>	
 										 				<fo:block text-align="center">
 										 					<fo:inline font-weight="bold">मु. शी. : </fo:inline> <xsl:value-of select="./mainHeading"></xsl:value-of>
@@ -262,7 +301,7 @@
 												 	</xsl:when>
 										 			<xsl:when test="string-length(./pageHeading)>0 or string-length(./mainHeading)>0">
 										 				<fo:block text-align="center">
-										 					<fo:inline font-weight="bold">पु. शी./ मु. शी. :</fo:inline> <xsl:value-of select="./pageHeading"></xsl:value-of> <xsl:value-of select="./mainHeading"></xsl:value-of>
+										 					<fo:inline font-weight="bold">पृ. शी./ मु. शी. :</fo:inline> <xsl:value-of select="./pageHeading"></xsl:value-of> <xsl:value-of select="./mainHeading"></xsl:value-of>
 										 				</fo:block>
 										 				<fo:block>&#160;</fo:block>															 		
 										 			</xsl:when>
@@ -275,10 +314,11 @@
 										 			
 											 	</xsl:choose>
 											 	<fo:inline font-weight="bold" text-align="justify">
+											 		
 													<xsl:choose>
-														<xsl:when test="position() = 1 or (preceding-sibling::childVOs[1]/primaryMember!=./primaryMember)">
+														<xsl:when test="(position()=1 or boolean(preceding-sibling::childVOs[position()-1])=false or preceding-sibling::childVOs[1]/primaryMember!=./primaryMember) and string-length(./primaryMember)>0">
 															<xsl:choose>
-																<xsl:when test="(primaryMemberMinistry!='' and primaryMemberMinistry!=null) or primaryMember='अध्यक्ष'">
+																<xsl:when test="(string-length(./primaryMemberMinistry)>0 and ./primaryMemberMinistry!='' and ./primaryMemberMinistry!=null) or ./primaryMember='अध्यक्ष'">
 																	<fo:inline font-weight="bold" >
 																		<xsl:value-of select="./primaryMember"></xsl:value-of>
 																		<xsl:if test="constituency!=''">
@@ -289,46 +329,46 @@
 																<xsl:otherwise>
 																<fo:inline font-weight="normal" >
 																	<xsl:value-of select="./primaryMember"></xsl:value-of>
-																	<xsl:if test="constituency!=''">
-																			(<xsl:value-of select="constituency"></xsl:value-of>)
+																	<xsl:if test="./constituency!=''">
+																			(<xsl:value-of select="./constituency"></xsl:value-of>)
 																	</xsl:if>
 																</fo:inline>
 																</xsl:otherwise>
 															</xsl:choose>
 															<xsl:choose>
-																<xsl:when test="primaryMemberSubDepartment!=''">
-																	(<xsl:value-of select="primaryMemberSubDepartment"></xsl:value-of> &#160; <xsl:value-of select="primaryMemberDesignation"></xsl:value-of> )
+																<xsl:when test="./primaryMemberSubDepartment!=''">
+																	(<xsl:value-of select="./primaryMemberSubDepartment"></xsl:value-of> &#160; <xsl:value-of select="./primaryMemberDesignation"></xsl:value-of> )
 																</xsl:when>
 																<xsl:otherwise>
-																	<xsl:if test="primaryMemberDesignation!=''">
-																			(<xsl:value-of select="primaryMemberDesignation"></xsl:value-of>)
+																	<xsl:if test="./primaryMemberDesignation!=''">
+																			(<xsl:value-of select="./primaryMemberDesignation"></xsl:value-of>)
 																	</xsl:if>
 																</xsl:otherwise>
 															</xsl:choose>
-															<xsl:if test="substituteMember!=''">
+															<xsl:if test="./substituteMember!=''">
 																<xsl:choose>
-																	<xsl:when test="substituteMemberMinistry!=''">
+																	<xsl:when test="./substituteMemberMinistry!=''">
 																		<fo:inline font-weight="bold" >
-																			,<xsl:value-of select="substituteMember"></xsl:value-of>
+																			,<xsl:value-of select="./substituteMember"></xsl:value-of>
 																		</fo:inline>
 																	</xsl:when>
 																	<xsl:otherwise>
 																		<fo:inline font-weight="normal" >
-																			,<xsl:value-of select="substituteMember"></xsl:value-of>
+																			,<xsl:value-of select="./substituteMember"></xsl:value-of>
 																		</fo:inline>
 																	</xsl:otherwise>
 																</xsl:choose>
-																<xsl:if test="substituteMemberMinistry!='' and substituteMemberMinistry!=null">
-																	(<xsl:value-of select="substituteMemberMinistry"></xsl:value-of>)	
+																<xsl:if test="string-length(./substituteMemberMinistry)>0 and ./substituteMemberMinistry!='' and ./substituteMemberMinistry!=null">
+																	(<xsl:value-of select="./substituteMemberMinistry"></xsl:value-of>)	
 																</xsl:if>
 																यांच्या करिता
 															</xsl:if>
 															:																														
 														</xsl:when>
-														<xsl:when test="publicRepresentative!=''">
-															<xsl:value-of select="publicRepresentative"></xsl:value-of>	
-															<xsl:if test="publicRepresentativeDetails!=''">
-																(<xsl:value-of select="publicRepresentativeDetails"></xsl:value-of>)
+														<xsl:when test="string-length(./publicRepresentative)>0 and ./publicRepresentative!=''">
+															<xsl:value-of select="./publicRepresentative"></xsl:value-of>	
+															<xsl:if test="./publicRepresentativeDetails!=''">
+																(<xsl:value-of select="./publicRepresentativeDetails"></xsl:value-of>)
 															</xsl:if>
 															:																			
 														</xsl:when>
@@ -338,73 +378,84 @@
 													</xsl:choose>
 												</fo:inline>
 												<fo:inline font-weight="normal" text-align="justify">
-													<xsl:apply-templates select="proceedingContent"></xsl:apply-templates>
+													<xsl:apply-templates select="./proceedingContent"></xsl:apply-templates>
 												</fo:inline>
 											</fo:block>
 										</xsl:when>
  										<xsl:otherwise>
  											<fo:block text-align="justify">
 												<fo:inline font-weight="bold" text-align="justify">
-													<xsl:if test="position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole">
-														<fo:block text-align="center" font-weight="bold">
-															(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
-														</fo:block>
-														<fo:block>&#160;</fo:block>
+													<xsl:if test="(position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole) and string-length(./memberrole)>0">
+														<xsl:if test="string-length(./chairperson)>0">
+															<xsl:choose>
+																<xsl:when test="../houseType='upperhouse'">
+																	<fo:block text-align="center" font-weight="bold">
+																		(सभापतीस्थानी  माननीय <xsl:apply-templates select="./memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="./chairperson"></xsl:apply-templates>)
+																	</fo:block>
+																</xsl:when>
+																<xsl:otherwise>
+																	<fo:block text-align="center" font-weight="bold">
+																		(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="./memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="./chairperson"></xsl:apply-templates>)
+																	</fo:block>
+																</xsl:otherwise>
+															</xsl:choose>
+															<fo:block>&#160;</fo:block>
+														</xsl:if>
 													</xsl:if>
 													<xsl:choose>
-													<xsl:when test="position() = 1 or (preceding-sibling::childVOs[1]/primaryMember!=./primaryMember)">
+													<xsl:when test="(position()=1 or boolean(preceding-sibling::childVOs[position()-1])=false or preceding-sibling::childVOs[1]/primaryMember!=./primaryMember) and string-length(./primaryMember)>0">
 														<xsl:choose>
-															<xsl:when test="primaryMemberMinistry!='' or primaryMember='अध्यक्ष'">
+															<xsl:when test="./primaryMemberMinistry!='' or ./primaryMember='अध्यक्ष' or ./primaryMember='सभापती'">
 																<fo:inline font-weight="bold" >
 																	<xsl:value-of select="./primaryMember"></xsl:value-of>
-																	<xsl:if test="constituency!=''">
-																		(<xsl:value-of select="constituency"></xsl:value-of>)
+																	<xsl:if test="./constituency!=''">
+																		(<xsl:value-of select="./constituency"></xsl:value-of>)
 																	</xsl:if>	
 																</fo:inline>
 															</xsl:when>
 															<xsl:otherwise>
 															<fo:inline font-weight="normal" >
 																<xsl:value-of select="./primaryMember"></xsl:value-of>
-																<xsl:if test="constituency!=''">
-																		(<xsl:value-of select="constituency"></xsl:value-of>)
+																<xsl:if test="./constituency!=''">
+																		(<xsl:value-of select="./constituency"></xsl:value-of>)
 																</xsl:if>
 															</fo:inline>
 															</xsl:otherwise>
 														</xsl:choose>
 														<xsl:choose>
-															<xsl:when test="primaryMemberSubDepartment!=''">
-																(<xsl:value-of select="primaryMemberSubDepartment"></xsl:value-of> &#160; <xsl:value-of select="primaryMemberDesignation"></xsl:value-of> )
+															<xsl:when test="./primaryMemberSubDepartment!=''">
+																(<xsl:value-of select="./primaryMemberSubDepartment"></xsl:value-of> &#160; <xsl:value-of select="./primaryMemberDesignation"></xsl:value-of> )
 															</xsl:when>
 															<xsl:otherwise>
-																<xsl:if test="primaryMemberDesignation!=''">
-																		(<xsl:value-of select="primaryMemberDesignation"></xsl:value-of>)
+																<xsl:if test="./primaryMemberDesignation!=''">
+																		(<xsl:value-of select="./primaryMemberDesignation"></xsl:value-of>)
 																</xsl:if>
 															</xsl:otherwise>
 														</xsl:choose>
-														<xsl:if test="substituteMember!=''">
+														<xsl:if test="./substituteMember!=''">
 															<xsl:choose>
-																<xsl:when test="substituteMemberMinistry!=''">
+																<xsl:when test="./substituteMemberMinistry!=''">
 																	<fo:inline font-weight="bold" >
-																		,<xsl:value-of select="substituteMember"></xsl:value-of>
+																		,<xsl:value-of select="./substituteMember"></xsl:value-of>
 																	</fo:inline>
 																</xsl:when>
 																<xsl:otherwise>
 																	<fo:inline font-weight="normal" >
-																		,<xsl:value-of select="substituteMember"></xsl:value-of>
+																		,<xsl:value-of select="./substituteMember"></xsl:value-of>
 																	</fo:inline>
 																</xsl:otherwise>
 															</xsl:choose>
-															<xsl:if test="substituteMemberMinistry!=''">
-																(<xsl:value-of select="substituteMemberMinistry"></xsl:value-of>)	
+															<xsl:if test="./substituteMemberMinistry!=''">
+																(<xsl:value-of select="./substituteMemberMinistry"></xsl:value-of>)	
 															</xsl:if>
 															यांच्या करिता
 														</xsl:if>
 														:																														
 													</xsl:when>
-													<xsl:when test="publicRepresentative!=''">
-														<xsl:value-of select="publicRepresentative"></xsl:value-of>	
-														<xsl:if test="publicRepresentativeDetails!=''">
-															(<xsl:value-of select="publicRepresentativeDetails"></xsl:value-of>)
+													<xsl:when test="string-length(./publicRepresentative)>0 and ./publicRepresentative!=''">
+														<xsl:value-of select="./publicRepresentative"></xsl:value-of>	
+														<xsl:if test="./publicRepresentativeDetails!=''">
+															(<xsl:value-of select="./publicRepresentativeDetails"></xsl:value-of>)
 														</xsl:if>
 														:																			
 													</xsl:when>
@@ -414,7 +465,7 @@
 												</xsl:choose>
 											</fo:inline>
 											<fo:inline font-weight="normal" text-align="justify">
-												<xsl:apply-templates select="proceedingContent"></xsl:apply-templates>
+												<xsl:apply-templates select="./proceedingContent"></xsl:apply-templates>
 											</fo:inline>
 										</fo:block>
 									</xsl:otherwise>
@@ -422,11 +473,23 @@
   							</xsl:otherwise>
   						</xsl:choose>
   					</xsl:for-each>
-  					<xsl:if test="following-sibling::slot[1]/reporter!=''">
-						<fo:block text-align="end">
-							यांच्या नंतर &#160;<xsl:apply-templates select="following-sibling::slot[1]/reporter"></xsl:apply-templates>
-						</fo:block>
-					</xsl:if>
+  					<xsl:choose>
+  						<xsl:when test="following-sibling::slot[1]/reporter!=''">
+  							<fo:block text-align="end">
+								या नंतर &#160;<xsl:apply-templates select="following-sibling::slot[1]/reporter"></xsl:apply-templates>
+							</fo:block>
+  						</xsl:when>
+  						<xsl:when test="string-length(./nextReporter)>0 and  ./nextReporter!=''">
+  							<fo:block text-align="end">
+								या नंतर &#160;<xsl:apply-templates select="./nextReporter"></xsl:apply-templates>
+							</fo:block>
+  						</xsl:when>
+  						<xsl:otherwise>
+  							<fo:block text-align="end">
+								 &#160;
+							</fo:block>
+  						</xsl:otherwise>
+  					</xsl:choose>
   				</fo:block>
      		</fo:flow>
   		 </fo:page-sequence>

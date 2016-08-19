@@ -66,7 +66,7 @@
 		+"&houseType="+$("#houseTypeType").val()
 		+"&usergroup="+$("#currentusergroup").val()
         +"&usergroupType="+$("#currentusergroupType").val()
-        +"&deviceType="+$("#questionType").val();
+        +"&deviceType="+$("#questionTypeType").val();
 		$.get('refentity/init?'+params,function(data){
 			$.unblockUI();			
 			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
@@ -115,26 +115,88 @@
 	function loadActors(value){
 		if(value!='-'){
 			var params="question="+$("#id").val()+"&status="+value+
-			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 			var resourceURL='ref/question/actors?'+params;
-		    var sendback=$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
-		    var discuss=$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
+			var sendback = '';
+			var discuss = '';
+			var clubbingPostAdmission = '';
+			var clubbingWithUnstarredFromPreviousSession = '';
+			var unclubbing = '';
+			var admitDueToReverseClubbing = '';
+			var recommendRejection = '';
+			var finalRejection = '';
+		    var deviceTypeType = $('#questionTypeType').val();
+		    
+		    if(deviceTypeType == 'questions_starred'){
+				sendback = $("#internalStatusMaster option[value='question_recommend_sendback']").text();			
+				discuss = $("#internalStatusMaster option[value='question_recommend_discuss']").text();		
+				clubbingPostAdmission = $("#internalStatusMaster option[value='question_recommend_clubbingPostAdmission']").text();
+				clubbingWithUnstarredFromPreviousSession = $("#internalStatusMaster option[value='question_recommend_clubbingWithUnstarredFromPreviousSession']").text();
+				unclubbing = $("#internalStatusMaster option[value='question_recommend_unclubbing']").text();
+				admitDueToReverseClubbing = $("#internalStatusMaster option[value='question_recommend_admitDueToReverseClubbing']").text();
+				recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
+				finalRejection = $("#internalStatusMaster option[value='question_final_rejection']").text();
+			
+		    }else if(deviceTypeType == 'questions_unstarred') {
+				sendback = $("#internalStatusMaster option[value='question_unstarred_recommend_sendback']").text();			
+				discuss = $("#internalStatusMaster option[value='question_unstarred_recommend_discuss']").text();		
+				clubbingPostAdmission = $("#internalStatusMaster option[value='question_unstarred_recommend_clubbingPostAdmission']").text();
+				clubbingWithUnstarredFromPreviousSession = $("#internalStatusMaster option[value='question_unstarred_recommend_clubbingWithUnstarredFromPreviousSession']").text();
+				unclubbing = $("#internalStatusMaster option[value='question_unstarred_recommend_unclubbing']").text();
+				admitDueToReverseClubbing = $("#internalStatusMaster option[value='question_unstarred_recommend_admitDueToReverseClubbing']").text();	
+				recommendRejection = $("#internalStatusMaster option[value='question_unstarred_recommend_rejection']").text();
+				finalRejection = $("#internalStatusMaster option[value='question_unstarred_final_rejection']").text();
+			
+			}else if(deviceTypeType == 'questions_shortnotice') {
+				sendback = $("#internalStatusMaster option[value='question_shortnotice_recommend_sendback']").text();			
+				discuss = $("#internalStatusMaster option[value='question_shortnotice_recommend_discuss']").text();		
+				clubbingPostAdmission = $("#internalStatusMaster option[value='question_shortnotice_recommend_clubbingPostAdmission']").text();
+				clubbingWithUnstarredFromPreviousSession = $("#internalStatusMaster option[value='question_shortnotice_recommend_clubbingWithUnstarredFromPreviousSession']").text();
+				unclubbing = $("#internalStatusMaster option[value='question_shortnotice_recommend_unclubbing']").text();
+				admitDueToReverseClubbing = $("#internalStatusMaster option[value='question_shortnotice_recommend_admitDueToReverseClubbing']").text();
+				recommendRejection = $("#internalStatusMaster option[value='question_shortnotice_recommend_rejection']").text();
+				finalRejection = $("#internalStatusMaster option[value='question_shortnotice_final_rejection']").text();
+			
+			}else if(deviceTypeType == 'questions_halfhourdiscussion_from_question') {
+				sendback = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_sendback']").text();			
+				discuss = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_discuss']").text();		
+				clubbingPostAdmission = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_clubbingPostAdmission']").text();
+				unclubbing = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_unclubbing']").text();
+				admitDueToReverseClubbing = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_admitDueToReverseClubbing']").text();
+				recommendRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_rejection']").text();
+				finalRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_rejection']").text();
+			}
+		    
+		     
 			$.post(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
+					 var actor1="";
+					 var actCount = 1;
 					$("#actor").empty();
 					var text="";
 					for(var i=0;i<data.length;i++){
-					text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						if(data[i].state!="active"){
+							text+="<option value='"+data[i].id+"' disabled='disabled'>"+data[i].name+"</option>";
+						}else{
+							text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+							if(actCount == 1){
+								actor1=data[i].id;
+								actCount++;
+							}
+						}
 					}
 					$("#actor").html(text);
 					$("#actorDiv").show();				
 					/**** in case of sendback and discuss only recommendation status is changed ****/
-					if(value!=sendback&&value!=discuss){
-					$("#internalStatus").val(value);
+					if(value!=sendback && value!=discuss
+							&& value!=clubbingPostAdmission 
+							&& value!=clubbingWithUnstarredFromPreviousSession
+							&& value!=unclubbing
+							&& value!=admitDueToReverseClubbing){
+						$("#internalStatus").val(value);
 					}
 					$("#recommendationStatus").val(value);			
 					/**** setting level,localizedActorName ****/
-					 var actor1=data[0].id;
 					 var temp=actor1.split("#");
 					 $("#level").val(temp[2]);		    
 					 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
@@ -144,10 +206,14 @@
 					$("#actor").empty();
 					$("#actorDiv").hide();
 					/**** in case of sendback and discuss only recommendation status is changed ****/
-					if(value!=sendback&&value!=discuss){
-					$("#internalStatus").val(value);
+					if(value!=sendback && value!=discuss
+							&& value!=clubbingPostAdmission 
+							&& value!=clubbingWithUnstarredFromPreviousSession
+							&& value!=unclubbing
+							&& value!=admitDueToReverseClubbing){
+						$("#internalStatus").val(value);
 					}
-				    $("#recommendationStatus").val(value);
+					$("#recommendationStatus").val(value);
 				}
 			}).fail(function(){
 				if($("#ErrorMsg").val()!=''){
@@ -163,6 +229,28 @@
 			$("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 		}
+		
+		 var valueType = '';
+		 if(value!=sendback && value!=discuss
+					&& value!=clubbingPostAdmission 
+					&& value!=clubbingWithUnstarredFromPreviousSession
+					&& value!=unclubbing
+					&& value!=admitDueToReverseClubbing){
+				valueType = value;
+			}else{
+				valueType = $("#internalStatus").val();
+			}
+			if(valueType == recommendRejection || (valueType!='' && valueType == finalRejection)){
+		    	if($("#copyOfRejectionReason").val()!=''){
+		    		$("#rejectionReason").val($("#copyOfRejectionReason").val());
+		    	}
+		    	$("#rejectionReasonP").css("display","block");
+		    }else{
+		    	$("#rejectionReasonP").css("display","none");
+		    	$("#copyOfRejectionReason").val($("#rejectionReason").val());
+		    	$("#rejectionReason").val("");
+		   }
+		
 	}
 	/**** group changed ****/
 	function groupChanged(){
@@ -197,7 +285,8 @@
 	}
 	/**** sub departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
 			if(data.length>0){
@@ -219,49 +308,26 @@
 			scrollTop();
 		});
 	}
-	/**** departments ****/
-	function loadDepartments(ministry){
-		$.get('ref/departments/'+ministry,function(data){
-			$("#department").empty();
-			var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-				departmentText+="<option value='"+data[i].id+"'>"+data[i].name;
-			}
-			$("#department").html(departmentText);
-			loadSubDepartments(ministry,data[0].id);
-			}else{
-				$("#department").empty();
-				var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-				$("#department").html(departmentText);				
-				$("#subDepartment").empty();
-				groupChanged();				
-			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});
-	}
+	
     /**** groups ****/
-	function loadGroup(ministry){
-		if(ministry!=''){
-		$.get('ref/ministry/'+ministry+'/group?houseType='+$("#houseType").val()+'&sessionYear='+$("#sessionYear").val()+'&sessionType='+$("#sessionType").val(),function(data){
-			$("#formattedGroup").val(data.name);
-			$("#group").val(data.id);
-			//loadDepartments(ministry);
-			loadSubDepartments(ministry);
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});
+	function loadGroup(subdepartment){
+		if(subdepartment!=''){
+			$.get('ref/subdepartment/' + subdepartment + '/group?'+
+					'session=' + $("#session").val(),function(data){
+				$("#formattedGroup").val(data.name);
+				$("#group").val(data.id);			
+				//loadAnsweringDates(data.id);			
+			}).fail(function(){
+				if($("#ErrorMsg").val() != ''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+		}else{
+			$("#formattedGroup").val("");
+			$("#group").val("");
 		}
 	}		
 	/**** Load Clarifications ****/
@@ -310,8 +376,9 @@
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
 			if($(this).val()!=''){
-				loadGroup($(this).val());
-				//loadSubDepartments($(this).val());
+				$("#formattedGroup").val("");
+				$("#group").val("");
+				loadSubDepartments($(this).val());
 			}else{
 				$("#formattedGroup").val("");
 				$("#group").val("");				
@@ -321,13 +388,10 @@
 				$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-				groupChanged();					
+				//groupChanged();					
 			}
 		});
-		/**** Department Changes ****/
-		/* $("#department").change(function(){
-			loadSubDepartments($("#ministry").val(),$(this).val());
-		}); */
+		
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
 			$.get('question/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
@@ -341,7 +405,8 @@
 				scrollTop();
 			});
 		    return false;
-		});								
+		});	
+		
 		/**** Revise subject and text****/
 		$("#reviseSubject").click(function(){
 			$(".revise1").toggle();
@@ -361,6 +426,7 @@
 			}				
 			return false;			
 		});	
+		
 		/**** Revise reason and brief explanation****/
 		$("#reviseReason").click(function(){
 			$(".revise3").toggle();
@@ -371,6 +437,7 @@
 			}						
 			return false;			
 		});	
+		
 		$("#reviseBriefExplanation").click(function(){
 			$(".revise4").toggle();		
 			if($("#revisedBriefExplanationDiv").css("display")=="none"){
@@ -421,8 +488,7 @@
 	    $("#changeInternalStatus").change(function(){
 		    var value=$(this).val();
 		    if(value!='-'){
-			    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();			    
-			    loadActors(value);	
+		    	loadActors(value);	
 			    $("#submit").attr("disabled","disabled");
 			    $("#startworkflow").removeAttr("disabled");		    
 		    }else{
@@ -445,31 +511,75 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});			
-			$.prompt($('#startWorkflowMessage').val(),{
-				buttons: {Ok:true, Cancel:false}, callback: function(v){
-		        if(v){
-					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
-		        	$.post($('form').attr('action')+'?operation=startworkflow',  
-		    	            $("form").serialize(),  
-		    	            function(data){
-		       					$('.tabContent').html(data);
-		       					$('html').animate({scrollTop:0}, 'slow');
-		       				 	$('body').animate({scrollTop:0}, 'slow');	
-		    					$.unblockUI();	   				 	   				
-		    	            }).fail(function(){
-		    					$.unblockUI();
-		    					if($("#ErrorMsg").val()!=''){
-		    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-		    					}else{
-		    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-		    					}
-		    					scrollTop();
-		    				});
-    	            }
-			}});			
+			});
+			
+			// For Client side validation of Revised QuestionText, Revised Subject and Rejection Reason
+			// Added by Anand
+			 var startworkflowAllowed = true;
+			 var recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
+			 if($("#questionTypeType").val()=="questions_starred"
+					|| $("questionTypeType").val()=="questions_unstarred"){
+				if($("#revisedSubject").val()==null || $("#revisedSubject").val()==""){
+					startworkflowAllowed = false;
+					$.prompt("Revised Subject Empty");
+				}else if($("#revisedQuestionText").val()==null || $("#revisedQuestionText").val()==""){
+					startworkflowAllowed = false
+					$.prompt("Revised QuestionText Empty");
+				}else if(recommendRejection == $("#internalStatus").val()){
+					if($("#rejectionReason").val()==null || $("#rejectionReason").val()==""){
+						startworkflowAllowed = false;
+						$.prompt("Rejection Reason Empty");
+					}
+				}
+				
+			}
+			 
+			 if(startworkflowAllowed){
+					$.prompt($('#startWorkflowMessage').val(),{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+				        	$.post($('form').attr('action')+'?operation=startworkflow',  
+				    	            $("form").serialize(),  
+				    	            function(data){
+				       					$('.tabContent').html(data);
+				       					$('html').animate({scrollTop:0}, 'slow');
+				       				 	$('body').animate({scrollTop:0}, 'slow');	
+				    					$.unblockUI();	   				 	   				
+				    	            }).fail(function(){
+				    					$.unblockUI();
+				    					if($("#ErrorMsg").val()!=''){
+				    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				    					}else{
+				    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				    					}
+				    					scrollTop();
+				    				});
+		    	            }
+					}});
+			 }
 	        return false;  
 	    });
+	    /**** On Update Validations If Any ****/
+		$("#submit").click(function(e){
+			if($('#questionTypeType').val()=='questions_unstarred') {
+				var answer = $('#answer').val();
+				if(answer!=undefined && answer!='' && answer!='-' 
+						&& answer!='<p>-</p>' && answer!='<p></p>' && answer!='<p></p>-' && answer!='-<p></p>'
+						&& answer!='<br><p></p>' && answer!='<p><br></p>' && answer!='-<br><p></p>'
+						&& answer!='<p>-<br></p>' && answer!='<p><br>-</p>') {
+					if($('#answerRequestedDate').val()=='') {
+						$.prompt("Please update answer requested date for the question!");
+						return false;
+					} else {
+						if($('#answerReceivedDate').val()=='') {
+							$.prompt("Please update answer received date for the question!");
+							return false;
+						}
+					}
+				}
+			}			
+		});
 		/**** On Bulk Edit ****/
 		$("#submitBulkEdit").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -494,7 +604,7 @@
 					scrollTop();
 				});
 	        return false;  
-	    }); 
+	    }); 		
 		
 		/**** To show/hide viewClubbedQuestionTextsDiv to view clubbed questions text starts****/
 		$("#clubbedQuestionTextsDiv").hide();
@@ -533,54 +643,66 @@
 		/**** To show/hide viewClubbedQuestionTextsDiv to view clubbed questions text end****/
 		
 	    /**** Right Click Menu ****/
-		$(".clubbedRefQuestions").contextMenu({
-	        menu: 'contextMenuItems'
-	    },
+		$(".clubbedRefQuestions").contextMenu({menu: 'contextMenuItems'},
 	        function(action, el, pos) {
-			var id=$(el).attr("id");
-			if(action=='unclubbing'){
-				if(id.indexOf("cq")!=-1){
-				var questionId=$("#id").val();
-				var clubId=id.split("cq")[1];				
-				$.post('clubentity/unclubbing?pId='+questionId+"&cId="+clubId+"&whichDevice=questions_",function(data){
-					if(data=='SUCCESS'){
-					$.prompt("Unclubbing Successful");				
+				var id=$(el).attr("id");
+				if(action=='unclubbing'){
+					if(id.indexOf("cq")!=-1){
+						var questionId=$("#id").val();
+						var clubId=id.split("cq")[1];		
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+						$.post('clubentity/unclubbing?pId='+questionId+"&cId="+clubId+"&whichDevice=questions_"+"&usergroupType="+$("#currentusergroupType").val(),function(data){
+								if(data=='SUCCESS' || data=='UNCLUBBING_SUCCESS'){
+									$.prompt("Unclubbing Successful");
+								}else{
+									$.prompt("Unclubbing Failed");
+								}		
+								
+								$.unblockUI();
+							},'html').fail(function(){
+								if($("#ErrorMsg").val()!=''){
+									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+								}else{
+									$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+								}
+								$.unblockUI();
+								scrollTop();
+						});	
 					}else{
-						$.prompt("Unclubbing Failed");
-					}		
-				},'html').fail(function(){
-					if($("#ErrorMsg").val()!=''){
-						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						$.prompt("Unclubbing not allowed");
+					}			
+				}else if(action=='dereferencing'){
+					if(id.indexOf("rq")!=-1){					
+						var questionId=$("#id").val();
+						var refId=id.split("rq")[1];	
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+						$.post('refentity/dereferencing?pId='+questionId+"&rId="+refId+"&device=" + $("#questionTypeType").val(),function(data){
+							if(data=='SUCCESS'){
+								$.prompt("Dereferencing Successful");
+								/* $.prompt("Dereferencing Successful",{
+									buttons: {Ok:true, Cancel:false}, callback: function(v){
+								        refreshEdit($("#id").val());
+									}
+								}); */
+							}else{
+								$.prompt("Dereferencing Failed");
+							}
+							$.unblockUI();
+							
+							refreshEdit($("#id").val());
+						},'html').fail(function(){
+							if($("#ErrorMsg").val()!=''){
+								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+							}else{
+								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+							}
+							$.blockUI();
+							scrollTop();
+						});	
 					}else{
-						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-					}
-					scrollTop();
-				});	
-				}else{
-					$.prompt("Unclubbing not allowed");
-				}			
-			}else if(action=='dereferencing'){
-				if(id.indexOf("rq")!=-1){					
-				var questionId=$("#id").val();
-				var refId=id.split("rq")[1];				
-				$.post('refentity/dereferencing?pId='+questionId+"&rId="+refId,function(data){
-					if(data=='SUCCESS'){
-						$.prompt("Dereferencing Successful");				
-						}else{
-							$.prompt("Dereferencing Failed");
-						}							
-				},'html').fail(function(){
-					if($("#ErrorMsg").val()!=''){
-						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-					}else{
-						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-					}
-					scrollTop();
-				});	
-				}else{
-					$.prompt("Referencing not allowed");					
-				}			
-			}
+						$.prompt("Referencing not allowed");					
+					}			
+				}
 	    });			    
 	    /**** On Page Load ****/
 	    if($("#ministrySelected").val()==''){
@@ -618,6 +740,17 @@
 	    	$("#revisedBriefExplanationDiv").show();
 	    }   
 	    
+	    $("#remarks").change(function(){
+	    	if($(this).val()!=''){
+	    		var recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
+			   	if(recommendRejection == $("#internalStatus").val()){
+			   		var rejectionReason = $(this).val().replace("<p></p>","");
+			    	$("#rejectionReason").val(rejectionReason.trim());
+			    }
+	    	}
+	    	
+	    });
+	    
 	  //--------------vikas dhananjay 20012013--------------------------
 		//for viewing the refernced question
 		$('#halfhourdiscussion_referred_question').click(function(){
@@ -625,23 +758,22 @@
 			var questionNumber = $('#halfHourDiscussionReference_questionNumber').val();
 			var deviceTypeTemp='${questionType}';
 			if(questionNumber!=""){
-				
 				var sessionId = '${session}';
 				var locale='${domain.locale}';
-				
-				
-				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&deviceTypeId='+deviceTypeTemp+'&locale='+locale+'&view=view';
-				
-				//alert(url);
-				
+				var url = 'ref/questionid?strQuestionNumber=' + questionNumber
+						+ '&strSessionId=' + sessionId 
+						+ '&deviceTypeId=' + deviceTypeTemp 
+						+'&locale=' + locale 
+						+'&view=view';
 				$.get(url, function(data) {
-					if(data.id==0){
+					if(data.id == 0){
 						$.prompt('No question found.');
-					}else if(data.id==-1){
+					}else if(data.id == -1){
 						$.prompt('Please provide valid question number.');
 					}else{
 						$('#halfHourDiscussionReference_questionId_H').val(data.id);
-						$.get('question/viewquestion?qid='+data.id,function(data){
+						$.get('question/viewquestion?qid=' + data.id 
+								+ '&questionType=' + deviceTypeTemp ,function(data){
 							$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
 						},'html');
 					}
@@ -681,7 +813,8 @@
 		$( ".autosuggestmultiple" ).autocomplete({
 			minLength:3,
 			source: function( request, response ) {
-				$.getJSON( 'ref/member/supportingmembers?session='+$("#session").val()+'&primaryMemberId='+$('#primaryMember').val(), {
+				$.getJSON( 'ref/member/supportingmembers?session='+$("#session").val()
+						+'&primaryMemberId='+$('#primaryMember').val(), {
 					term: extractLast( request.term )
 				}, response ).fail(function(){
 					$.unblockUI();
@@ -741,58 +874,25 @@
 		});
 		
 		$("#printIt").click(function(){
-			/* $.get('question/'+$("#id").val()+'/edit?editPrint=true&usergroup=' + $("#currentusergroup").val() + '&usergroupType=' + $("#currentusergroupType").val(),function(data){
-				if(data){
-					var divD = $("<div></div>").html(data);
-					$(divD).print();
-				}
-			},'html'); */
-			//var text = "<div><p>"+$("#selectedSupportingMembers").val()+"</p><p>"+$("#subject").val()+"</p><p>"+$("#questionText").val()+"</p><spring:message code='generic.new' text='new' /></div>";
-			var myWindow = window.open('question/'+$("#id").val()+'/edit?editPrint=true&usergroup=' + 
-						$("#currentusergroup").val() + '&usergroupType=' + $("#currentusergroupType").val(),'_blank','width=700,height=768,scrollbars=1,menubar=yes');
-			myWindow.print();
-			/* var doc = myWindow.document;
-			doc.open();
-			doc.write(text);
-			doc.close(); */
-			/*
-			channelmode=yes|no|1|0
-			directories=yes|no|1|0
-			fullscreen=yes|no|1|0
-			height=pixels
-			left=pixels
-			location=yes|no|1|0
-			menubar=yes|no|1|0
-			resizable=yes|no|1|0
-			scrollbars=yes|no|1|0
-			status=yes|no|1|0
-			titlebar=yes|no|1|0
-			toolbar=yes|no|1|0
-			top=pixels
-			width=pixels
-
-			*/
-			/* var form = $("form").clone();
-			var formHeader = $(form).children().filter("h2")[0];
-			var formData = $(form).children().filter("p");
-			var text = $("<div></div>").append($(formHeader)).append("<hr>");
-			for(var i = 0; i < formData.length; i++){
-				if($(formData[i]).css('display')!='none'){
-					var putEle = $(formData[i]);
-					$(putEle).children().filter("select").each(function(){
-						$(this).css({'max-width':'100px !important','width':'100px !important'});
-					});
-					
-					$(text).append($(putEle));
-				}
-			}
-			var wind = window.open('','_blank','width=700,height=768,scrollbars=1,menubar=yes');
-			var doc = wind.document;
-			doc.open();
-			doc.write($(text).html());
-			doc.close(); */
 			
+			var myWindow = window.open('question/'+$("#id").val()+'/edit?editPrint=true&usergroup=' + 
+						$("#currentusergroup").val() + '&usergroupType=' + $("#currentusergroupType").val(),
+						'_blank','width=700,height=768,scrollbars=1,menubar=yes');
+			myWindow.print();
 		});	  
+		
+		$('#subDepartment').change(function(){
+			loadGroup($(this).val());
+		});
+		
+		$('#isAllowedInYaadi').click(function() {
+			if($(this).is(':checked')) {
+				$(this).val("true");
+			} else {
+				$(this).val("false");
+			}
+			alert("isAllowedInYaadi: " + $(this).val());
+		});
 	});
 	
   	function split( val ) {
@@ -861,7 +961,12 @@
 	<div id="assistantDiv">
 	<form:form action="question" method="PUT" modelAttribute="domain">
 		<%@ include file="/common/info.jsp" %>
-		<h2>${formattedQuestionType}: ${formattedNumber}</h2>
+		<h2>
+			${formattedQuestionType}: ${formattedNumber}
+			<c:if test="${not empty yaadiDetailsText}">
+				&nbsp;&nbsp;(${yaadiDetailsText})
+			</c:if>
+		</h2>
 		<form:errors path="version" cssClass="validationError"/>
 		
 		<p style="display:none;">
@@ -945,13 +1050,24 @@
 			</c:when>
 		</c:choose>
 			
-		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
-			<c:if test="${discussionDateSelected != null}">
-				<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
-				<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="sText" readonly="readonly" />
-				<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
-				<form:errors path="discussionDate" cssClass="validationError"/>
-			</c:if>
+		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+			
+			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+			<select name="discussionDate" id="discussionDate" class="sSelect">
+				<option value="">--<spring:message code="please.select" text="Select"/>--</option>
+				<c:forEach items="${discussionDates}" var="i">
+					<c:choose>
+						<c:when test="${i.value==discussionDateSelected }">
+							<option value="${i.value}" selected="selected">${i.name}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${i.value}" >${i.name}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</select>
+			<form:errors path="discussionDate" cssClass="validationError"/>
+			
 		</c:if>
 		</p>
 		
@@ -965,7 +1081,15 @@
 					<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 				</p>
 			</c:when>
-			
+			<c:when test="${selectedQuestionType == 'questions_unstarred'}">
+				<c:if test="${formattedChartAnsweringDate !=null}">
+				<p>
+					<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
+					<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
+					<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+				</p>
+				</c:if>
+			</c:when>			
 		</c:choose>
 		<p>
 		<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
@@ -993,23 +1117,6 @@
 		</p>	
 		
 		<p>
-			<c:if test="${selectedQuestionType=='xyz'}" >
-				<%--Scrapped code keeping just for future use if ever arise --%>
-				<label class="small"><spring:message code="question.department" text="Department"/></label>
-				<select name="department" id="department" class="sSelect">
-				<c:forEach items="${departments }" var="i">
-				<c:choose>
-				<c:when test="${i.id==departmentSelected }">
-				<option value="${i.id }" selected="selected">${i.name}</option>
-				</c:when>
-				<c:otherwise>
-				<option value="${i.id }" >${i.name}</option>
-				</c:otherwise>
-				</c:choose>
-				</c:forEach>
-				</select>
-				<form:errors path="department" cssClass="validationError"/>
-			</c:if>
 			<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
 			<select name="subDepartment" id="subDepartment" class="sSelect">
 				<c:forEach items="${subDepartments }" var="i">
@@ -1048,20 +1155,16 @@
 			<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="./resources/images/contactus.jpg" width="40" height="25"></a>		
 		</p>		
 		
+		<c:set var="isClubbingReferencingAllowed" value="yes"/>		
+		<c:if test="${internalStatusType=='question_submit' 
+						or internalStatusType=='question_ustarred_submit' 
+						or internalStatusType=='question_shortnotice_submit'
+						or internalStatusType=='question_halfHourFromQuestion_submit' 
+						or (selectedQuestionType=='questions_starred' && internalStatusType=='question_system_assistantprocessed')}">
+			<c:set var="isClubbingReferencingAllowed" value="no"/>
+		</c:if>
 		<c:choose>
-		<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">
-		<p>
-				<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin-left: 162px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
-				<a href="#" id="dereferencing" onclick="dereferencingInt(${referencedHDS});" style="margin: 20px;"><spring:message code="question.dereferencing" text="Dereferencing"></spring:message></a>
-				<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="question.refresh" text="Refresh"></spring:message></a>	
-		</p>
-		<p>
-				<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
-				<a href="#" id="p${parent}" onclick="viewQuestionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
-				<input type="hidden" id="parent" name="parent" value="${parent}">
-		</p>	
-		</c:when>
-		<c:otherwise>
+		<c:when test="${isClubbingReferencingAllowed=='yes'}">
 		<p>
 				<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="question.clubbing" text="Clubbing"></spring:message></a>
 				<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="question.referencing" text="Referencing"></spring:message></a>
@@ -1077,7 +1180,7 @@
 				<c:choose>
 					<c:when test="${!(empty clubbedQuestions) }">
 						<c:forEach items="${clubbedQuestions }" var="i">
-							<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+							<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 14px;"><c:out value="${i.name}"></c:out></a>
 						</c:forEach>
 						<a href="javascript:void(0);" id="viewClubbedQuestionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="question.clubbed.texts" text="C"></spring:message></a>
 					</c:when>
@@ -1091,33 +1194,50 @@
 					</c:forEach>
 				</select>
 		</p>
-		</c:otherwise>		
-		</c:choose>			
-		
 		<p>
 			<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
 			<c:choose>
 				<c:when test="${!(empty referencedQuestions) }">
-					<c:forEach items="${referencedQuestions }" var="i" varStatus="index">
-						<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-						&nbsp;(${referencedQuestionsSessionAndDevice[index.count-1]})	
+					<c:forEach items="${referencedQuestions }" var="i">
+						<c:choose>
+							<c:when test="${i.state=='questions_unstarred'}">
+								<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;">
+									${i.name}, <spring:message code='device.unstarred' text='Unstarred'/> ${i.remark}
+								</a>
+							</c:when>
+							<c:otherwise>
+								<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;">
+									${i.name}, ${i.remark}
+								</a>
+							</c:otherwise>
+						</c:choose>
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
 					<c:out value="-"></c:out>
 				</c:otherwise>
 			</c:choose>
-			<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">	
-				<input type="hidden" id="referencedHDS" name="referencedHDS" value="${referencedHDS}" />
-			</c:if>
-			<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">	
-				<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
-					<c:forEach items="${referencedQuestions }" var="i">
-						<option value="${i.id}" selected="selected"></option>
-					</c:forEach>
-				</select>
-			</c:if>
+			<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
+				<c:forEach items="${referencedQuestions }" var="i">
+					<option value="${i.id}" selected="selected"></option>
+				</c:forEach>
+			</select>			
 		</p>
+		</c:when>
+		<c:otherwise>
+			<input type="hidden" id="parent" name="parent" value="${parent}">
+			<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
+				<c:forEach items="${clubbedQuestions }" var="i">
+					<option value="${i.id}" selected="selected"></option>
+				</c:forEach>
+			</select>
+			<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
+				<c:forEach items="${referencedQuestions }" var="i">
+					<option value="${i.id}" selected="selected"></option>
+				</c:forEach>
+			</select>
+		</c:otherwise>
+		</c:choose>			
 		
 		<p>	
 			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
@@ -1125,23 +1245,23 @@
 			<form:errors path="subject" cssClass="validationError"/>	
 		</p>
 	
-		<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+		
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
+			<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="questionText" cssClass="validationError"/>	
+		</p>
+		
+		<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
 			<p>
-				<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-				<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
-				<form:errors path="questionText" cssClass="validationError"/>	
+				<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+				<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			</p>
-			
-			<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
-				<p>
-					<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
-					<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
-					<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-				</p>
-			</c:if>
 		</c:if>
 		
-		<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'  or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+		
+		<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' }">
 			<p>
 				<c:choose>
 					<c:when test="${selectedQuestionType=='questions_shortnotice'}">
@@ -1156,7 +1276,7 @@
 			</p>
 		</c:if>	
 		
-		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 			<p>
 				<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
 				<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
@@ -1167,12 +1287,10 @@
 		<p>
 			<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
 				<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="question.reviseSubject" text="Revise Subject"></spring:message></a>
-				<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-					<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
-				</c:if>
+				<a href="#" id="reviseQuestionText" style="margin-right: 20px;"><spring:message code="question.reviseQuestionText" text="Revise Question"></spring:message></a>
 			</c:if>
 			
-			<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+			<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 				<c:choose>
 					<c:when test="${(selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
 						<a href="#" id="reviseReason" style="margin-left: 10px;"><spring:message code="question.reviseReason" text="Revise Reason"></spring:message></a>
@@ -1226,42 +1344,41 @@
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 		</p>
 		
-		<c:if test="${(internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred' &&selectedQuestionType=='questions_starred')
-		||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
-		||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_putup_nameclubbibg')&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
-		||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
-		||(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse')
-		||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse')}">
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">		
+		<c:if test="${(internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing'
+						|| internalStatusType == 'question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit'
+						|| internalStatusType == 'question_putup_clubbing' || internalStatusType == 'question_putup_nameclubbing' 
+						|| recommendationStatusType == 'question_putup_clubbingPostAdmission' || recommendationStatusType == 'question_putup_clubbingWithUnstarredFromPreviousSession'
+						|| recommendationStatusType == 'question_putup_unclubbing' || recommendationStatusType == 'question_putup_admitDueToReverseClubbing'
+						|| internalStatusType == 'question_unstarred_system_assistantprocessed'
+						|| internalStatusType == 'question_unstarred_putup_clubbing' || internalStatusType == 'question_unstarred_putup_nameclubbing'
+						|| recommendationStatusType == 'question_unstarred_putup_clubbingPostAdmission' || recommendationStatusType == 'question_unstarred_putup_clubbingWithUnstarredFromPreviousSession'
+						|| recommendationStatusType == 'question_unstarred_putup_unclubbing' || recommendationStatusType == 'question_unstarred_putup_admitDueToReverseClubbing'
+						|| internalStatusType == 'question_shortnotice_system_assistantprocessed'
+						|| internalStatusType == 'question_shortnotice_putup_clubbing' || internalStatusType == 'question_shortnotice_putup_nameclubbing' 
+						|| recommendationStatusType == 'question_shortnotice_putup_clubbingPostAdmission' || recommendationStatusType == 'question_shortnotice_putup_clubbingWithUnstarredFromPreviousSession'
+						|| recommendationStatusType == 'question_shortnotice_putup_unclubbing' || recommendationStatusType == 'question_shortnotice_putup_admitDueToReverseClubbing'
+						|| internalStatusType == 'question_halfHourFromQuestion_system_assistantprocessed' 
+						|| internalStatusType == 'question_halfHourFromQuestion_putup_clubbing' || internalStatusType == 'question_halfHourFromQuestion_putup_nameclubbing' 
+						|| recommendationStatusType == 'question_halfHourFromQuestion_putup_clubbingPostAdmission' || recommendationStatusType == 'question_halfHourFromQuestion_putup_unclubbing' || recommendationStatusType == 'question_halfHourFromQuestion_putup_admitDueToReverseClubbing')	
+				&& (recommendationStatusType ne 'question_recommend_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_final_clubbingWithUnstarredFromPreviousSession'
+						&& recommendationStatusType ne 'question_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_final_reject_clubbingWithUnstarredFromPreviousSession'
+						&& recommendationStatusType ne 'question_unstarred_recommend_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_unstarred_final_clubbingWithUnstarredFromPreviousSession'
+						&& recommendationStatusType ne 'question_unstarred_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_unstarred_final_reject_clubbingWithUnstarredFromPreviousSession'
+						&& recommendationStatusType ne 'question_shortnotice_recommend_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_clubbingWithUnstarredFromPreviousSession'
+						&& recommendationStatusType ne 'question_shortnotice_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_reject_clubbingWithUnstarredFromPreviousSession')
+		}">
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT')">		
 			<p>
 				<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 				<select id="changeInternalStatus" class="sSelect">
 				<option value="-"><spring:message code='please.select' text='Please Select'/></option>
 				<c:forEach items="${internalStatuses}" var="i">
 					<c:choose>
-						<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-							<c:if test="${i.type=='question_recommend_admission' or i.type=='question_recommend_rejection' or i.type=='question_recommend_sendback' or i.type=='question_recommend_discuss'}">
-								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-							</c:if>
+						<c:when test="${i.id==internalStatusSelected }">
+							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
 						</c:when>
 						<c:otherwise>
-							<c:if test="${(i.type!='question_recommend_sendback'&&i.type!='question_recommend_discuss') }">
-							<c:choose>
-							<c:when test="${i.type=='question_system_groupchanged' }">
-							<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
-							</c:when>
-							<c:otherwise>
-							<c:choose>
-							<c:when test="${i.id==internalStatusSelected }">
-							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-							</c:when>
-							<c:otherwise>
 							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-							</c:otherwise>
-							</c:choose>
-							</c:otherwise>
-							</c:choose>
-							</c:if>
 						</c:otherwise>
 					</c:choose>
 				</c:forEach>
@@ -1277,7 +1394,7 @@
 			</security:authorize>
 	
 			<p id="actorDiv" style="display: none;">
-				<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
+				<label class="small"><spring:message code="question.nextactor" text="Next Users"/></label>
 				<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }" />
 				<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
 			</p>		
@@ -1286,12 +1403,10 @@
 			
 		<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 		<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
-		<c:if test="${fn:contains(internalStatusType, 'question_final')}">
+		<c:if test="${fn:contains(internalStatusType, 'question_final')||fn:contains(internalStatusType, 'question_unstarred_final')}">
 			<form:hidden path="actor"/>
 		</c:if>
-		<c:if test="${!(empty domain.factualPosition) || 
-				(internalStatusType=='question_final_clarificationNeededFromDepartment'&& houseTypeType=='upperhouse')
-				 }">
+		<c:if test="${!(empty domain.factualPosition)}">
 			<p>
 			<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
 			<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
@@ -1299,31 +1414,64 @@
 			</p>
 		</c:if>	
 		
-		<c:if test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_rejection'}">
+		<c:if test="${!(empty domain.factualPositionFromMember)}">
 			<p>
-				<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-				<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
+			<label class="wysiwyglabel"><spring:message code="question.factualPositioFromMember" text="Factual Position From Member"/></label>
+			<form:textarea path="factualPositionFromMember" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="factualPositionFromMember" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			</p>
-		</c:if>
-		<c:if test="${selectedQuestionType=='questions_starred' || selectedQuestionType=='questions_shortnotice'}">
-			<c:choose>
-				<c:when test="${houseTypeType=='upperhouse' && internalStatusType=='question_final_admission'}">
+		</c:if>	
+		
+		<c:choose>
+			<c:when  test="${!(empty domain.rejectionReason)}">
+				<p id="rejectionReasonP">
+					<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+					<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
+				</p>
+			</c:when>
+			<c:otherwise>
+				<p id="rejectionReasonP" style="display:none;">
+					<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+					<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
+				</p>
+			</c:otherwise>
+		</c:choose>
+		
+		<c:if test="${selectedQuestionType=='questions_starred'
+		 || selectedQuestionType=='questions_shortnotice'
+		 || selectedQuestionType=='questions_unstarred'}">
+			<%-- <c:choose>
+				<c:when test="${houseTypeType=='upperhouse' && (domain.ballotStatus != null)}">
 					<p>
 					<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 					<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
 					</p>
+					<input type="hidden" id="ballotStatus" name="ballotStatus" value="${ballotStatusId}"/>
 				</c:when>
-				<c:when test="${houseTypeType=='lowerhouse' && !(empty domain.answer)}">
+				<c:when test="${houseTypeType=='lowerhouse' &&  (domain.ballotStatus != null)}">
 					<p>
 					<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 					<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
 					</p>
+					<input type="hidden" id="ballotStatus" name="ballotStatus" value="${ballotStatusId}"/>
 				</c:when>
-			</c:choose>
+			</c:choose> --%>
+			<c:if test="${fn:contains(internalStatusType, 'question_final') || fn:contains(internalStatusType, 'question_unstarred_final')}">
+				<p>
+					<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
+					<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+				</p>
+				<c:if test="${selectedQuestionType=='questions_unstarred' and empty domain.parent and not empty domain.answer and isRemovedFromYaadiDetails=='true'}">
+					<p>
+						<label class="small"><spring:message code="question.allowInYaadi" text="Allow In Yaadi?"/></label>
+						<input class="sCheck" type="checkbox" id="isAllowedInYaadi" name="isAllowedInYaadi">
+					</p>
+				</c:if>
+			</c:if>
 		</c:if>
 		
 		<c:choose>
-			<c:when test="${(not empty domain.answer) and (fn:contains(allowedDeviceTypesForAnswerRelatedDates, selectedQuestionType))}">
+			<c:when test="${(fn:contains(internalStatusType, 'final_admission')) and (fn:contains(allowedDeviceTypesForAnswerRelatedDates, selectedQuestionType))}">
 				<p>
 					<label class="small"><spring:message code="question.answerRequestedDate" text="Answer Requested Date"/></label>
 					<input id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
@@ -1357,37 +1505,44 @@
 			<p class="tright">
 			<c:choose>
 				<c:when test="${bulkedit!='yes'}">
-					<c:if test="${internalStatusType=='question_submit'
-								||internalStatusType=='question_system_assistantprocessed'
-								||((internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing' ||internalStatusType=='question_system_groupchanged' ||internalStatusType=='question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit' ||internalStatusType=='question_putup_convertToUnstarred') && selectedQuestionType=='questions_starred')
-								||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_shortnotice')
-								||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_halfhourdiscussion_from_question')
-								||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && selectedQuestionType=='questions_unstarred')
-								||((internalStatusType=='question_system_putup' || internalStatusType=='question_system_groupchanged') && (selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse'))
-								||((internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_groupchanged') && (selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='upperhouse'))
-								}">
-						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-						<security:authorize access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
+					<c:if test="${(internalStatusType=='question_submit' || internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_putup'
+									|| internalStatusType =='question_system_groupchanged' || internalStatusType=='question_putup_rejection' || internalStatusType=='question_putup_convertToUnstarredAndAdmit'
+									|| internalStatusType == 'question_putup_clubbing' || internalStatusType == 'question_putup_nameclubbing' 
+									|| recommendationStatusType == 'question_putup_clubbingPostAdmission' || recommendationStatusType == 'question_putup_clubbingWithUnstarredFromPreviousSession'
+									|| recommendationStatusType == 'question_putup_unclubbing' || recommendationStatusType == 'question_putup_admitDueToReverseClubbing'
+									|| internalStatusType =='question_unstarred_system_assistantprocessed' || internalStatusType == 'question_unstarred_system_groupchanged' || internalStatusType =='question_unstarred_submit'
+									|| internalStatusType == 'question_unstarred_putup_clubbing' || internalStatusType == 'question_unstarred_putup_nameclubbing'
+									|| recommendationStatusType == 'question_unstarred_putup_clubbingPostAdmission' || recommendationStatusType == 'question_unstarred_putup_clubbingWithUnstarredFromPreviousSession'
+									|| recommendationStatusType == 'question_unstarred_putup_unclubbing' || recommendationStatusType == 'question_unstarred_putup_admitDueToReverseClubbing'
+									|| internalStatusType =='question_shortnotice_system_assistantprocessed' || internalStatusType=='question_shortnotice_system_groupchanged'|| internalStatusType =='question_shortnotice_submit'
+									|| internalStatusType == 'question_shortnotice_putup_clubbing' || internalStatusType == 'question_shortnotice_putup_nameclubbing' 
+									|| recommendationStatusType == 'question_shortnotice_putup_clubbingPostAdmission' || recommendationStatusType == 'question_shortnotice_putup_clubbingWithUnstarredFromPreviousSession'
+									|| recommendationStatusType == 'question_shortnotice_putup_unclubbing' || recommendationStatusType == 'question_shortnotice_putup_admitDueToReverseClubbing'
+									|| internalStatusType =='question_halfHourFromQuestion_system_assistantprocessed' || internalStatusType=='question_halfHourFromQuestion_system_groupchanged' ||internalStatusType=='question_halfHourFromQuestion_submit'
+									|| internalStatusType == 'question_halfHourFromQuestion_putup_clubbing' || internalStatusType == 'question_halfHourFromQuestion_putup_nameclubbing' 
+									|| recommendationStatusType == 'question_halfHourFromQuestion_putup_clubbingPostAdmission' || recommendationStatusType == 'question_halfHourFromQuestion_putup_unclubbing' || recommendationStatusType == 'question_halfHourFromQuestion_putup_admitDueToReverseClubbing')
+							&& (recommendationStatusType ne 'question_recommend_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_final_clubbingWithUnstarredFromPreviousSession'
+									&& recommendationStatusType ne 'question_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_final_reject_clubbingWithUnstarredFromPreviousSession'
+									&& recommendationStatusType ne 'question_unstarred_recommend_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_unstarred_final_clubbingWithUnstarredFromPreviousSession'
+									&& recommendationStatusType ne 'question_unstarred_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_unstarred_final_reject_clubbingWithUnstarredFromPreviousSession'
+									&& recommendationStatusType ne 'question_shortnotice_recommend_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_clubbingWithUnstarredFromPreviousSession'
+									&& recommendationStatusType ne 'question_shortnotice_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_reject_clubbingWithUnstarredFromPreviousSession')
+					}">
+						<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT')">
+							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						</security:authorize>
+						<security:authorize access="hasAnyRole('QIS_ASSISTANT')">
 						<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
 						</security:authorize>					
 					</c:if>
 					<%--- Remove the Following if conditions after session... Hack given for the council branch  --%>
 					
-					<c:if test="${fn:contains(internalStatusType, 'question_final')}">
-						<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT','HDS_ASSISTANT')">
+					<c:if test="${fn:contains(internalStatusType, 'question_final') || fn:contains(internalStatusType, 'question_unstarred_final')}">
+						<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT')">
 							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 						</security:authorize>					
 					</c:if>
-					<%-- <c:if test="${(internalStatusType=='question_system_putup'||internalStatusType=='question_putup_nameclubbing'&& selectedQuestionType=='questions_starred')
-								||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_shortnotice')
-								||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_halfhourdiscussion_from_question')
-								||(internalStatusType=='question_system_assistantprocessed'&&selectedQuestionType=='questions_unstarred')
-								||(internalStatusType=='question_system_putup'&&selectedQuestionType=='questions_halfhourdiscussion_standalone')}">		
-						<c:if test="${bulkedit!='yes'}">
-							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-							<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
-						</c:if>
-					</c:if> --%>
+					
 				</c:when>
 				<c:otherwise>
 					<c:if test="${bulkedit=='yes'}">
@@ -1405,10 +1560,7 @@
 		<form:hidden path="level"/>
 		<form:hidden path="localizedActorName"/>
 		<form:hidden path="workflowDetailsId"/>
-		<form:hidden path="file"/>
-		<form:hidden path="fileIndex"/>	
-		<form:hidden path="fileSent"/>
-		
+	
 		<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 		<input type="hidden" name="status" id="status" value="${status }">
 		<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
@@ -1424,31 +1576,7 @@
 		<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
 		<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 		<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
-		
-		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' && houseTypeType=='lowerhouse'}">
-			<!-- --------------------------PROCESS VARIABLES -------------------------------- -->
-		
-			
-		<input id="mailflag" name="mailflag" value="${pv_mailflag}" type="hidden">
-		<input id="timerflag" name="timerflag" value="${pv_timerflag}" type="hidden">
-		<input id="reminderflag" name="reminderflag" value="${pv_reminderflag}" type="hidden">	
-		
-		<!-- mail related variables -->
-		<input id="mailto" name="mailto" value="${pv_mailto}" type="hidden" />
-		<input id="mailfrom" name="mailfrom" value="${pv_mailfrom}" type="hidden" />
-		<input id="mailsubject" name="mailsubject" value="${pv_mailsubject}" type="hidden" />
-		<input id="mailcontent" name="mailcontent" value="${pv_mailcontent}" type="hidden" />
-		
-		<!-- timer related variables -->
-		<input id="timerduration" name="timerduration" value="${pv_timerduration}" type="hidden">
-		<input id="lasttimerduration" name="lasttimerduration" value="${pv_lasttimerduration}" type="hidden">	
-		
-		<!-- reminder related variables -->
-		<input id="reminderto" name="reminderto" value="${pv_reminderto}" type="hidden">
-		<input id="reminderfrom" name="reminderfrom" value="${pv_reminderfrom}" type="hidden">
-		<input id="remindersubject" name="remindersubject" value="${pv_remindersubject}" type="hidden">
-		<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">	
-		</c:if>		
+		<input id="questionType" name= "questionType" type="hidden" value="${questionType}" />
 		
 		<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
 				<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${referredQuestionNumber}" />
@@ -1459,6 +1587,9 @@
 		<c:if test="${domain.ballotStatus!=null}">
 			<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${domain.ballotStatus.id}"/>		
 		</c:if>
+		
+		<input type="hidden" id="yaadiNumber" name="yaadiNumber" value="${domain.yaadiNumber}"/>
+		<input type="hidden" id="yaadiLayingDate" name="yaadiLayingDate" value="${yaadiLayingDate}"/>
 	</form:form>
 	<input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 	<input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
@@ -1468,14 +1599,15 @@
 	<input id="confirmQuestionSubmission" value="<spring:message code='confirm.questionsubmission.message' text='Do you want to submit the question.'></spring:message>" type="hidden">
 	<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='question.startworkflowmessage' text='Do You Want To Put Up Question?'></spring:message>" type="hidden">
 	<input id="ministrySelected" value="${ministrySelected }" type="hidden">
-	<input id="departmentSelected" value="${ departmentSelected}" type="hidden">
 	<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 	<input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 	<input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
-	<input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+	<input id="originalLevel" value="${ domain.level}" type="hidden">
+	<input id="oldRecommendationStatus" value="${ recommendationStatus}" type="hidden">
+	<input id="questionTypeType" value="${selectedQuestionType}" type="hidden"/>
 	<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
-	<input id="questionType" type="hidden" value="${selectedQuestionType}" />
-	<input type="hidden" id="hdsRefEntity" value="${hdsRefEntity}" />
+	
+
 	
 	<ul id="contextMenuItems" >
 	<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
@@ -1486,17 +1618,19 @@
 
 </div>
 
-<div id="clubbingResultDiv" style="display:none;">
-</div>
+	<div id="clubbingResultDiv" style="display:none;">
+	</div>
 
 <!--To show the questionTexts of the clubbed questions -->
 <div id="clubbedQuestionTextsDiv">
-	<h1>Assistant Questio texts of clubbed questions</h1>
+	<h1>Assistant Question texts of clubbed questions</h1>
 </div>
 <div id="hideClubQTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
 
 <div id="referencingResultDiv" style="display:none;">
 </div>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+<input type="hidden" id="copyOfRejectionReason" name="copyOfRejectionReason"/>
+<input type="hidden" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'/>"/>
 </body>
 </html>

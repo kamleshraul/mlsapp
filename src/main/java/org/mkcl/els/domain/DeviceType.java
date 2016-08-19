@@ -65,6 +65,14 @@ public class DeviceType extends BaseDomain implements Serializable {
     private String device;
 
 	private Integer priority;
+	
+	/** The name as displayed in lowerhouse. */
+    @Column(length = 150)
+    private String name_lowerhouse;
+    
+    /** The name as displayed in upperhouse. */
+    @Column(length = 150)
+    private String name_upperhouse;
     
     @Autowired
     private transient DeviceTypeRepository deviceTypeRepository;
@@ -124,39 +132,54 @@ public class DeviceType extends BaseDomain implements Serializable {
     public static List<DeviceType> findAllowedTypesInMotionClubbing(final String locale) throws ELSException {
     	return getDeviceTypeRepository().getAllowedTypesInMotionClubbing(locale);
     }
+    
+    public static List<DeviceType> findDevicesContainedIn(final String strDevices, final String locale){
+    	return getDeviceTypeRepository().getDevicesContainedIn(strDevices, locale);
+    }
+    
+    public static List<DeviceType> findOriginalDeviceTypesForGivenDeviceType(DeviceType deviceType) {
+    	List<DeviceType> originalDeviceTypesForGivenDeviceType = null;
+    	
+    	if(deviceType!=null) {
+    		originalDeviceTypesForGivenDeviceType = new ArrayList<DeviceType>();
+    		originalDeviceTypesForGivenDeviceType.add(deviceType);
+    		
+    		CustomParameter csptOriginalDeviceTypesForGivenDeviceType = CustomParameter.findByName(CustomParameter.class, "ORIGINAL_DEVICETYPES_FOR_"+deviceType.getType().toUpperCase(), "");
+    		if(csptOriginalDeviceTypesForGivenDeviceType!=null && csptOriginalDeviceTypesForGivenDeviceType.getValue()!=null) {
+    			for(String dt: csptOriginalDeviceTypesForGivenDeviceType.getValue().split(",")) {
+    				if(!dt.isEmpty() && !dt.trim().isEmpty() && !dt.trim().equals(deviceType.getType().trim())) {
+    					DeviceType originalDeviceType = DeviceType.findByType(dt.trim(), deviceType.getLocale());
+        				if(originalDeviceType!=null) {
+        					originalDeviceTypesForGivenDeviceType.add(originalDeviceType);
+        				}
+    				}    				
+    			}    			
+    		}
+    	}
+    	
+		return originalDeviceTypesForGivenDeviceType;
+    }
 
     // ----------------------------Getters/Setters------------------------//
-
-
     public String getName() {
         return name;
     }
-
-
 
     public void setName(final String name) {
         this.name = name;
     }
 
-
-
     public Map<String, String> getParameters() {
         return parameters;
     }
-
-
 
     public void setParameters(final Map<String, String> parameters) {
         this.parameters = parameters;
     }
 
-
-
     public String getType() {
         return type;
     }
-
-
 
     public void setType(final String type) {
         this.type = type;
@@ -177,4 +200,29 @@ public class DeviceType extends BaseDomain implements Serializable {
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
+
+	public String getName_lowerhouse() {
+		if(name_lowerhouse!=null) {
+			return name_lowerhouse;
+		} else {
+			return name;
+		}		
+	}
+
+	public void setName_lowerhouse(String name_lowerhouse) {
+		this.name_lowerhouse = name_lowerhouse;
+	}
+
+	public String getName_upperhouse() {
+		if(name_upperhouse!=null) {
+			return name_upperhouse;
+		} else {
+			return name;
+		}
+	}
+
+	public void setName_upperhouse(String name_upperhouse) {
+		this.name_upperhouse = name_upperhouse;
+	}
+	
 }

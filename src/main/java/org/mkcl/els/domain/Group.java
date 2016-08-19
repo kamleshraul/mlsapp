@@ -4,11 +4,12 @@
  * Copyright (c) 2012 MKCL.  All rights reserved.
  *
  * Project: e-Legislature
- * File: org.mkcl.els.domain.GroupInformation.java
+ * File: org.mkcl.els.domain.Group.java
  * Created On: 19 Jun, 2012
  */
 package org.mkcl.els.domain;
 
+import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -39,63 +41,194 @@ import org.mkcl.els.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class GroupInformation.
- *
  * @author Dhananjay
- * @since v1.1.0
  */
 @Configurable
 @Entity
 @Table(name = "groups")
-@JsonIgnoreProperties({"questionDates","ministries"})
+@JsonIgnoreProperties({"questionDates", "ministries", "subdepartments", "session"})
 public class Group extends BaseDomain implements Serializable {
 
-    // ---------------------------------Attributes------------------------//
-    /** The Constant serialVersionUID. */
-    private static final transient long serialVersionUID = 1L;
+	private static final long serialVersionUID = -7996071320394227121L;
 
-    /** The house type. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="housetype_id")
-    private HouseType houseType;
+	//===============================================
+	//
+	//=============== ATTRIBUTES ====================
+	//
+	//===============================================
+	@ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="session_id")
+    private Session session;
 
-    /** The year. */
-    @Column(name="group_year")
-    private Integer year;
-
-    /** The session type. */
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="sessiontype_id")
-    private SessionType sessionType;
-
-    /** The group. */
+    @Column(name="number")
     private Integer number;
 
-        /** The ministries. */
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "groups_ministries",
-    joinColumns = @JoinColumn(name = "group_id",
-    referencedColumnName = "id"),
-    inverseJoinColumns = @JoinColumn(name = "ministry_id",
-    referencedColumnName = "id"))
+    @JoinTable(name = "groups_ministries", 
+    		joinColumns = 
+    			@JoinColumn(name = "group_id", referencedColumnName = "id"),
+    		inverseJoinColumns = 
+    			@JoinColumn(name = "ministry_id", referencedColumnName = "id"))
     private List<Ministry> ministries;
 
-    /** The question dates. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "groups_subdepartments", 
+    		joinColumns = 
+    			@JoinColumn(name = "group_id", referencedColumnName = "id"),
+    		inverseJoinColumns = 
+    			@JoinColumn(name = "subdepartment_id", referencedColumnName = "id"))
+    private List<SubDepartment> subdepartments;
+    
     @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
     @JoinColumn(name = "group_id", referencedColumnName = "id")
     private List<QuestionDates> questionDates;
 
+    // Kept for backward compatibility. To be removed.
+	@ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="housetype_id")
+    private HouseType houseType;
+
+	// Kept for backward compatibility. To be removed.
+    @Column(name="group_year")
+    private Integer year;
+
+    // Kept for backward compatibility. To be removed.
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="sessiontype_id")
+    private SessionType sessionType;
+
     @Autowired
     private transient GroupRepository groupRepository;
-
-    // ---------------------------------Constructors----------------------//
+    
+    
+    //===============================================
+	//
+	//=============== CONSTRUCTORS ==================
+	//
+	//===============================================
+    /**
+	 * Do not use this constructor to create Group instances.
+	 * This constructor is kept here because JPA needs an 
+	 * Entity to have a default public Constructor.
+	 */
     public Group() {
 		super();
 	}
+    
+    public Group(final Session session, 
+    		final Integer number,
+    		final String locale) {
+    	super(locale);
+    	this.setSession(session);
+    	this.setNumber(number);
+    	this.setMinistries(new ArrayList<Ministry>());
+    	this.setQuestionDates(new ArrayList<QuestionDates>());
+    }
 
-    public static GroupRepository getGroupRepository() {
+    
+    //===============================================
+	//
+	//=============== VIEW METHODS ==================
+	//
+	//===============================================
+    public static List<QuestionDatesVO> findAllGroupDatesFormatted(
+    		final HouseType houseType,
+            final SessionType sessionType, 
+            final Integer sessionYear, 
+            final String str) {
+		return Group.getRepository().findAllGroupDatesFormatted(houseType,
+	               sessionType,sessionYear,str);
+    }
+    
+    public static List<MasterVO> findQuestionDateByGroup(
+    		final HouseType houseType,
+    		final SessionType sessionType,
+            final Integer sessionYear,
+            final Integer groupNumber,
+            final String locale) throws ELSException {
+        return Group.getRepository().findQuestionDateByGroup(houseType, 
+        		sessionType, sessionYear, groupNumber, locale);
+    }
+    
+    /**
+     * Used In Jsp of Member Ballot Member Wise Report
+     */
+	public  List<Ministry> findMinistriesByPriority() throws ELSException {
+		Long groupId = this.getId();
+		
+		if(groupId != null){
+			return Group.getRepository().findMinistriesByPriority(this);
+		}
+		else{
+			return new ArrayList<Ministry>();
+		}
+	}
+	
+	/**
+     * Used In Jsp of Member Ballot Member Wise Report
+     */
+	public  List<MasterVO> findQuestionDateByGroup() throws ELSException {
+		Session session = this.getSession();
+		Integer number = this.getNumber();
+		String locale = this.getLocale();
+		
+		if(session != null && number != null && locale != null) {
+			HouseType houseType = session.getHouse().getType();
+			SessionType sessionType = session.getType();
+			Integer year = session.getYear();
+			
+			return Group.getRepository().findQuestionDateByGroup(houseType,
+					sessionType, year, number, locale);
+	    }
+		else {
+	    	return new ArrayList<MasterVO>();
+	    }
+	}
+	
+	/**
+	 * Used in various jsps
+	 */
+	public String formatNumber() {
+		Integer number = this.getNumber();
+		String locale = this.getLocale();
+		
+		if(number != null) {
+			NumberFormat format = 
+				FormaterUtil.getNumberFormatterNoGrouping(locale);
+			return format.format(number);
+		}
+		else {
+			return "";
+		}
+	}
+	 
+	public  List<Reference> findQuestionDateReferenceVOByGroup(
+			) throws ELSException {
+		Session session = this.getSession();
+		Integer number = this.getNumber();
+		String locale = this.getLocale();
+		
+		if(session != null && number != null && locale != null) {
+			HouseType houseType = session.getHouse().getType();
+			SessionType sessionType = session.getType();
+			Integer year = session.getYear();
+			
+	        return Group.getRepository().findQuestionDateReferenceVOByGroup(
+	        		houseType, sessionType, year, number, locale);
+    	}
+		else {
+    		return new ArrayList<Reference>();
+    	}
+	}
+ 
+    
+    //===============================================
+	//
+	//=============== DOMAIN METHODS ================
+	//
+	//===============================================
+    private static GroupRepository getRepository() {
     	GroupRepository groupRepository = new Group().groupRepository;
         if (groupRepository == null) {
             throw new IllegalStateException(
@@ -104,31 +237,33 @@ public class Group extends BaseDomain implements Serializable {
         return groupRepository;
     }
     
-    // ----------------------------Domain Methods-------------------------//
-    public static List<Group> findByHouseTypeSessionTypeYear(
-			final HouseType houseType, final SessionType sessionType, final Integer sessionYear) throws ELSException {
-		return getGroupRepository().findByHouseTypeSessionTypeYear(
-				houseType,sessionType,sessionYear);
-	}    
-    
-	public static List<String> findAnsweringDates(final Long id, final String locale) throws ELSException {
-		return getGroupRepository().findAnsweringDates(id, locale);
+    // Non static methods
+    /**
+	 * Returns null if @param answeringDate is not one of the
+	 * answering dates mentioned for this Group.
+	 */
+	public Date getFinalSubmissionDate(final Date answeringDate) {
+		List<QuestionDates> qDateList = this.getQuestionDates();
+		
+		for(QuestionDates qd : qDateList) {
+			if(qd.getAnsweringDate().equals(answeringDate)) {
+				Date date = qd.getFinalSubmissionDate();
+				CustomParameter parameter =
+					CustomParameter.findByName(CustomParameter.class, 
+							"DB_TIMESTAMP", "");
+				String formatType = parameter.getValue();
+				String strDate = 
+					FormaterUtil.formatDateToString(date, formatType);
+				String newStrDate = strDate.replaceFirst("00:00:00", "23:59:59");
+				Date submissionDate =
+					FormaterUtil.formatStringToDate(newStrDate, formatType);
+				return submissionDate;
+			}
+		}
+		return null;
 	}
-
-	public static Group findByNumberHouseTypeSessionTypeYear(final Integer groupNumber,
-	            final HouseType houseType, final SessionType sessionType, final Integer year) throws ELSException {
-        return getGroupRepository().findByNumberHouseTypeSessionTypeYear(groupNumber,
-                houseType, sessionType, year);
-    }
-
-	public static Group find(final Ministry ministry, final Session session, final String locale) throws ELSException {
-		HouseType houseType = session.getHouse().getType();
-		Integer year = session.getYear();
-		SessionType sessionType = session.getType();
-		return getGroupRepository().find(ministry, houseType, year, sessionType, locale);
-	}
-
-	/**
+	
+    /**
 	 * Returns an empty list if there are no answering dates.
 	 */
 	public List<Date> getAnsweringDates() {
@@ -139,7 +274,7 @@ public class Group extends BaseDomain implements Serializable {
 		}
 		return answeringDates;
 	}
-
+	
 	/**
 	 * Returns a sorted list of answering dates sorted as per
 	 * @param sortOrder
@@ -165,90 +300,178 @@ public class Group extends BaseDomain implements Serializable {
 		}
 		return answeringDates;
 	}
-
-	/**
-	 * Returns null if @param answeringDate is not one of the
-	 * answering dates mentioned for this Group.
-	 */
-	public Date getFinalSubmissionDate(final Date answeringDate) {
-		List<QuestionDates> qDateList = this.getQuestionDates();
-		for(QuestionDates qd : qDateList) {
-			if(qd.getAnsweringDate().equals(answeringDate)) {
-				Date date = qd.getFinalSubmissionDate();
-				CustomParameter parameter =
-					CustomParameter.findByName(CustomParameter.class, "DB_TIMESTAMP", "");
-				String formatType = parameter.getValue();
-				String strDate = FormaterUtil.formatDateToString(date, formatType);
-				String newStrDate = strDate.replaceFirst("00:00:00", "23:59:59");
-				Date submissionDate =
-					FormaterUtil.formatStringToDate(newStrDate, formatType);
-				return submissionDate;
+	
+	public QuestionDates findQuestionDatesByGroupAndAnsweringDate(
+			final Date answeringDate){
+		List<QuestionDates> questionDates=this.getQuestionDates();
+		for(QuestionDates q:questionDates){
+			if(q.getAnsweringDate().equals(answeringDate)){
+				return q;
 			}
 		}
 		return null;
-	}
-
-	//To have get the rotation order (question_dates) of the group
-	 public  QuestionDates findQuestionDatesByGroupAndAnsweringDate(final Date answeringDate){
-		 //Group group=Group.findById(Group.class, groupId);
-		 List<QuestionDates> questionDates=this.getQuestionDates();
-		 for(QuestionDates q:questionDates){
-			 if(q.getAnsweringDate().equals(answeringDate)){
-				 return q;
-			 }
-		 }
-		 return null;
     }
-
-	public static List<QuestionDatesVO> findAllGroupDatesFormatted(final HouseType houseType,
-	            final SessionType sessionType, final Integer sessionYear, final String string) {
-		return getGroupRepository().findAllGroupDatesFormatted(houseType,
-	               sessionType,sessionYear,string);
-	}
 	
 	public boolean isRotationOrderSet() {
 		boolean isRotationOrderSet = false;
 		List<QuestionDates> questionDates = this.getQuestionDates();
-		if(questionDates!=null && !questionDates.isEmpty()) {
+		if(questionDates != null && ! questionDates.isEmpty()) {
 			isRotationOrderSet = true;
 		}
 		return isRotationOrderSet;
 	}
 	
-    // ----------------------------Getters/Setters------------------------//
-	public HouseType getHouseType() {
-		return houseType;
+    
+    // Static methods
+    public static Group find(final Ministry ministry, 
+    		final Session session, 
+    		final String locale) throws ELSException {
+		HouseType houseType = session.getHouse().getType();
+		Integer year = session.getYear();
+		SessionType sessionType = session.getType();
+		
+		return Group.getRepository().find(ministry, houseType, 
+				year, sessionType, locale);
 	}
-
-	public void setHouseType(final HouseType houseType) {
-		this.houseType = houseType;
-	}
-
-
-
-    public Integer getYear() {
-        return year;
+    
+    public static Group find(final Ministry ministry, 
+    		final HouseType houseType,
+            final Integer sessionYear, 
+            final SessionType sessionType, 
+            final String locale) throws ELSException {
+        return Group.getRepository().find(ministry, houseType, 
+        		sessionYear, sessionType, locale);
     }
-
-
-    public void setYear(final Integer year) {
-        this.year = year;
+    
+    /**
+	 * Find Group based on @param session & where group has a
+	 * QuestionDates object which has attribute 
+	 * answeringDate = @param answeringDate. 
+	 * 
+	 * Returns null if such a Group does not exist.
+	 * @throws ELSException 
+	 */
+	public static Group find(final Session session, 
+			final Date answeringDate,
+			final String locale) throws ELSException {
+		return Group.getRepository().find(session, answeringDate, locale);
+	}
+    
+    public static Group findByNumberHouseTypeSessionTypeYear(
+    		final Integer groupNumber,
+            final HouseType houseType, 
+            final SessionType sessionType, 
+            final Integer year) throws ELSException {
+    	return Group.getRepository().findByNumberHouseTypeSessionTypeYear(
+    			groupNumber, houseType, sessionType, year);
     }
-
-    public SessionType getSessionType() {
-		return sessionType;
+    
+    public static List<Group> findByHouseTypeSessionTypeYear(
+			final HouseType houseType, 
+			final SessionType sessionType, 
+			final Integer sessionYear) throws ELSException {
+		return Group.getRepository().findByHouseTypeSessionTypeYear(
+				houseType, sessionType, sessionYear);
+	} 
+    
+    public static List<Ministry> findMinistriesByName(
+    		final Long groupid) throws ELSException {
+		return Group.getRepository().findMinistriesByName(groupid);
 	}
-
-	public void setSessionType(final SessionType sessionType) {
-		this.sessionType = sessionType;
+	
+	public static List<Ministry> findMinistriesByPriority(
+			final Long groupid) throws ELSException {
+		return Group.getRepository().findMinistriesByPriority(groupid);
+	}	
+	
+	public static List<Ministry> findMinistriesByPriority(
+			final Group group) throws ELSException {
+		return Group.getRepository().findMinistriesByPriority(group);
 	}
-
+	
+	public static List<Ministry> findMinistriesInGroupsForSessionExcludingGivenGroup(
+			final HouseType houseType, 
+			final SessionType sessionType, 
+			final Integer sessionYear, 
+			final Integer groupNumber, 
+			final String locale) throws ELSException {
+		return Group.getRepository()
+			.findMinistriesInGroupsForSessionExcludingGivenGroup(houseType, 
+					sessionType, sessionYear, groupNumber, locale);
+    }	
+	
+	public static List<Ministry> findMinistriesInGroupsForSession(
+			final HouseType houseType, 
+			final SessionType sessionType, 
+			final Integer sessionYear, 
+			final String locale) throws ELSException {
+		return Group.getRepository().findMinistriesInGroupsForSession(
+				houseType, sessionType, sessionYear, locale);
+    }
+	
+    public static List<String> findAnsweringDates(final Long id, 
+    		final String locale) throws ELSException {
+		return Group.getRepository().findAnsweringDates(id, locale);
+	}  
+    
+    public static List<Integer> findGroupNumbersForSessionExcludingGivenGroup(
+    		final HouseType houseType, 
+    		final SessionType sessionType, 
+    		final Integer sessionYear, 
+    		final Integer groupNumber, 
+    		final String locale) throws ELSException {
+		return Group.getRepository()
+			.findGroupNumbersForSessionExcludingGivenGroup(houseType,
+					sessionType, sessionYear, groupNumber, locale);
+    }
+	
+	public static List<Integer> findGroupNumbersForSession(
+			final HouseType houseType, 
+			final SessionType sessionType, 
+			final Integer sessionYear, 
+			final String locale) throws ELSException {
+		return Group.getRepository().findGroupNumbersForSession(houseType,
+				sessionType, sessionYear, locale);
+    }
+	
+	/**
+	 * This method is the launchpad for the set of actions to be performed
+	 * on devices when cabinet re-shuffle happens.
+	 * @throws FileNotFoundException 
+	 */
+	public static void reshuffle(final Group group) throws ELSException {
+		// Invoke the reshuffle method on all the concerned devices
+		Question.onGroupReshuffle(group);
+		
+		// TODO: Invoke the same on other devices too. Ex: Resolution, Bill, Motion, etc
+	}
+	
+	public static Group find(final SubDepartment subdepartment, 
+			final Session session,
+			final Locale locale) throws ELSException {
+		return Group.getRepository().find(subdepartment, session, locale.toString());
+	}
+	
+	
+	//===============================================
+	//
+	//=============== GETTERS/SETTERS ===============
+	//
+	//===============================================
 	public Integer getNumber() {
 		return number;
 	}
 
 	public void setNumber(final Integer number) {
 		this.number = number;
+	}
+	
+	public Session getSession() {
+		return session;
+	}
+	
+	public void setSession(Session session) {
+		this.session = session;
 	}
 
 	public List<Ministry> getMinistries() {
@@ -267,91 +490,35 @@ public class Group extends BaseDomain implements Serializable {
 		this.questionDates = questionDates;
 	}
 
-    public static Group find(final Ministry ministry, final HouseType houseType,
-            final Integer sessionYear, final SessionType sessionType, final String locale) throws ELSException {
-        return getGroupRepository().find(ministry,houseType,sessionYear,sessionType,locale);
-    }   
+	public HouseType getHouseType() {
+		return houseType;
+	}
 
-    public static List<MasterVO> findQuestionDateByGroup(final HouseType houseType,final SessionType sessionType,
-            final Integer sessionYear,final Integer groupNumber,final String locale) throws ELSException {
-        return getGroupRepository().findQuestionDateByGroup(houseType,sessionType,sessionYear,groupNumber,locale);
-    }   
+	public void setHouseType(HouseType houseType) {
+		this.houseType = houseType;
+	}
 
-	public static List<Ministry> findMinistriesByName(final Long groupid) throws ELSException {
-		return getGroupRepository().findMinistriesByName(groupid);
+	public Integer getYear() {
+		return year;
 	}
-	
-	public static List<Ministry> findMinistriesByPriority(final Long groupid) throws ELSException {
-		return getGroupRepository().findMinistriesByPriority(groupid);
-	}	
-	
-	public static List<Ministry> findMinistriesByPriority(final Group group) throws ELSException {
-		return getGroupRepository().findMinistriesByPriority(group);
+
+	public void setYear(Integer year) {
+		this.year = year;
 	}
-	
-	/**** Used In Jsp of Member Ballot Member Wise Report 
-	 * @throws ELSException ****/
-	public  List<Ministry> findMinistriesByPriority() throws ELSException {
-		if(getId()!=null){
-		return getGroupRepository().findMinistriesByPriority(getId());
-		}else{
-			return new ArrayList<Ministry>();
-		}
+
+	public SessionType getSessionType() {
+		return sessionType;
 	}
-	/**** Used In Jsp of Member Ballot Member Wise Report 
-	 * @throws ELSException ****/
-	 public  List<MasterVO> findQuestionDateByGroup() throws ELSException {
-	    	if(getHouseType()!=null&&getSessionType()!=null&&getYear()!=null&&getNumber()!=null&&getLocale()!=null){
-	        return getGroupRepository().findQuestionDateByGroup(getHouseType(),getSessionType(),
-	               getYear(),getNumber(),getLocale());
-	    	}else{
-	    		return new ArrayList<MasterVO>();
-	    	}
-	 }	 
-	 public  List<Reference> findQuestionDateReferenceVOByGroup() throws ELSException {
-	    	if(getHouseType()!=null&&getSessionType()!=null&&getYear()!=null&&getNumber()!=null&&getLocale()!=null){
-	        return getGroupRepository().findQuestionDateReferenceVOByGroup(getHouseType(),getSessionType(),
-	               getYear(),getNumber(),getLocale());
-	    	}else{
-	    		return new ArrayList<Reference>();
-	    	}
-	 }
-	 /**** Used in various jsps ****/
-	 public String formatNumber(){
-		 if(getNumber()!=null){
-	        NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(this.getLocale());
-	        return format.format(this.getNumber());
-		 }else{
-			 return "";
-		 }
-	 }
-	 /**
-	 * Find Group based on @param session & where group has a
-	 * QuestionDates object which has attribute 
-	 * answeringDate = @param answeringDate. 
-	 * 
-	 * Returns null if such a Group does not exist.
-	 * @throws ELSException 
-	 */
-	public static Group find(final Session session, 
-			final Date answeringDate,
-			final String locale) throws ELSException {
-		return Group.getGroupRepository().find(session, answeringDate, locale);
+
+	public void setSessionType(SessionType sessionType) {
+		this.sessionType = sessionType;
 	}
-	
-	public static List<Ministry> findMinistriesInGroupsForSessionExcludingGivenGroup(final HouseType houseType, final SessionType sessionType, final Integer sessionYear, final Integer groupNumber, final String locale) throws ELSException {
-		return getGroupRepository().findMinistriesInGroupsForSessionExcludingGivenGroup(houseType,sessionType,sessionYear,groupNumber,locale);
-    }	
-	
-	public static List<Ministry> findMinistriesInGroupsForSession(final HouseType houseType, final SessionType sessionType, final Integer sessionYear, final String locale) throws ELSException {
-		return getGroupRepository().findMinistriesInGroupsForSession(houseType,sessionType,sessionYear,locale);
-    }
-	
-	public static List<Integer> findGroupNumbersForSessionExcludingGivenGroup(final HouseType houseType, final SessionType sessionType, final Integer sessionYear, final Integer groupNumber, final String locale) throws ELSException {
-		return getGroupRepository().findGroupNumbersForSessionExcludingGivenGroup(houseType,sessionType,sessionYear,groupNumber,locale);
-    }
-	
-	public static List<Integer> findGroupNumbersForSession(final HouseType houseType, final SessionType sessionType, final Integer sessionYear, final String locale) throws ELSException {
-		return getGroupRepository().findGroupNumbersForSession(houseType,sessionType,sessionYear,locale);
-    }
+
+	public List<SubDepartment> getSubdepartments() {
+		return subdepartments;
+	}
+
+	public void setSubdepartments(List<SubDepartment> subdepartments) {
+		this.subdepartments = subdepartments;
+	}
 }

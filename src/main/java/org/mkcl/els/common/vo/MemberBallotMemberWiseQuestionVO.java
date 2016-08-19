@@ -21,6 +21,8 @@ public class MemberBallotMemberWiseQuestionVO {
 	private String originalDeviceType;
 	
 	private String currentDeviceType;
+	
+	private String clubbingInformation;
 
 	public void setSno(String sno) {
 		this.sno = sno;
@@ -100,6 +102,14 @@ public class MemberBallotMemberWiseQuestionVO {
 
 	public void setCurrentDeviceType(String currentDeviceType) {
 		this.currentDeviceType = currentDeviceType;
+	}
+
+	public String getClubbingInformation() {
+		return clubbingInformation;
+	}
+
+	public void setClubbingInformation(String clubbingInformation) {
+		this.clubbingInformation = clubbingInformation;
 	}
 	
 	

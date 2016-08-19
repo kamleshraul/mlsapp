@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -14,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.repository.RosterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "rosters")
-@JsonIgnoreProperties({"session","language","reporters"})
+@JsonIgnoreProperties({"session","language","reporters","committeeMeeting"})
 public class Roster extends BaseDomain implements Serializable{
 
 	/*********Fields **************/
@@ -60,7 +60,12 @@ public class Roster extends BaseDomain implements Serializable{
 		@JoinColumn(name = "roster_id", referencedColumnName = "id"),
 		inverseJoinColumns = @JoinColumn(name = "reporter_id",
 				referencedColumnName = "id"))
-				private List<Reporter> reporters = new ArrayList<Reporter>();		 
+				private List<Reporter> reporters = new ArrayList<Reporter>();
+	
+	@ManyToOne
+	private CommitteeMeeting committeeMeeting;
+	
+	private Boolean publish;
 
 	@Autowired
 	private transient RosterRepository rosterRepository;
@@ -143,8 +148,32 @@ public class Roster extends BaseDomain implements Serializable{
 		return getRosterRepository().findRosterBySessionLanguageAndDay(session,day,language,locale);
 	}
 	
-	public static Roster findRosterByDate(Date sDate,Language language, String locale) {
-		return getRosterRepository().findRosterByDate(sDate,language,locale);
+	public static List<Roster> findAllRosterByCommitteeMeeting(
+			CommitteeMeeting committeeMeeting, Language language,
+			String locale) {
+		return getRosterRepository().findAllRosterByCommitteeMeeting(committeeMeeting, language, locale);
+	}
+	
+	public static Roster findRosterByDate(Date sDate,Language language,Session session, String locale) {
+		return getRosterRepository().findRosterByDate(sDate,language,session,locale);
+	}
+	
+	public static Roster findRosterByCommitteeMeetingLanguageAndDay(CommitteeMeeting committeeMeeting,
+			Language language, int day, String locale) {
+		return getRosterRepository().findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, day, language, locale);
+	}
+	
+	public static List<CommitteeMeeting> findCommitteeMeetingByUserId(Long userId,
+			String locale) {
+		return getRosterRepository().findCommitteeMeetingByUserId(userId, locale);
+	}
+	
+	public static Slot findPreviousSlot(Slot slot) {
+		return getRosterRepository().findPreviousSlot(slot);
+	}
+	
+	public static Slot findNextSlot(Slot slot) {
+		return getRosterRepository().findNextSlot(slot);
 	}
 	/*********** Setters and Getters ************/
 
@@ -235,8 +264,21 @@ public class Roster extends BaseDomain implements Serializable{
 	public void setReporterChangedFrom(Date reporterChangedFrom) {
 		this.reporterChangedFrom = reporterChangedFrom;
 	}
-	
-	
 
-		
+	public CommitteeMeeting getCommitteeMeeting() {
+		return committeeMeeting;
+	}
+
+	public void setCommitteeMeeting(CommitteeMeeting committeeMeeting) {
+		this.committeeMeeting = committeeMeeting;
+	}
+
+	public Boolean getPublish() {
+		return publish;
+	}
+
+	public void setPublish(Boolean publish) {
+		this.publish = publish;
+	}
+
 }

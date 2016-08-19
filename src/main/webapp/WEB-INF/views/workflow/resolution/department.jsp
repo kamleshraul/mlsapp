@@ -14,7 +14,7 @@
         +"&usergroupType="+$("#currentusergroupType").val()
         +"&deviceType="+$("#deviceType").val();
 		+"&usergroupType="+$("#usergroupType").val();
-		alert(params);
+		
 		$.get('refentity/init?'+params,function(data){
 			$.unblockUI();			
 			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
@@ -204,7 +204,8 @@
 	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -439,7 +440,10 @@
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load Actors On page Load ****/
 		if($('#bulkedit').val()!='yes'&& $('#workflowstatus').val()!='COMPLETED'){
-			loadActors($("#changeInternalStatus").val());
+			var statusType = $("#internalStatusType").val().split("_");
+			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			$("#changeInternalStatus").val(id);
+			/* loadActors($("#changeInternalStatus").val()); */
 		} 
 		
 		
@@ -845,6 +849,7 @@
 		</p>
 	</div>
 	</c:if>
+	<form:hidden path="file"/>
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -918,6 +923,7 @@
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input id="isRepeatWorkFlow" type="hidden" value="${isRepeatWorkFlow}" />
 <input id="houseTypeType" type="hidden" value="${houseTypeForStatus}"/>
+<input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </div>
 </div>

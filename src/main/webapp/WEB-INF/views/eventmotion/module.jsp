@@ -266,6 +266,25 @@
 		});
 
 	}
+	
+	function showEventGenReport(){
+		var url = "motion/report/eventmotion/genreport?"
+		+ "reportout=evgenreport&report=EMOIS_GEN_REPORT"
+		+ "&userName="+$("#authusername").val();
+		
+		var urlSession = "ref/sessionbyhousetype/"
+			+ $("#selectedHouseType").val() + "/" 
+			+ $("#selectedSessionYear").val() + "/"
+			+ $("#selectedSessionType").val();
+		$.get(urlSession, function(data){
+			if(data){
+				$("#selectionDiv").hide();
+				$("#selectionDiv1").hide();
+				url += '&sessionId=' + data.id + '&locale=' + $("#moduleLocale").val()+'&deviceTypeId='+$("#selectedEventMotionType").val();
+				showTabByIdAndUrl('details_tab', url);
+			}
+		});
+	}
 </script>
 <style type="text/css">
 	.butSim:link{

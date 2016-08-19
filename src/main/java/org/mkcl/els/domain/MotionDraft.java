@@ -100,8 +100,8 @@ public class MotionDraft extends Device implements Serializable{
     
     //--------------------------Referenced Entities------------------------------------------
     @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="motiondrafts_referencedentities", joinColumns={@JoinColumn(name="motiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
-    private List<ReferencedEntity> referencedEntities;
+    @JoinTable(name="motiondrafts_referencedunits", joinColumns={@JoinColumn(name="motiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_unit_id", referencedColumnName="id")})
+    List<ReferenceUnit> referencedUnits;
 
     /**
      * ** Setters and Getters ***.
@@ -337,12 +337,12 @@ public class MotionDraft extends Device implements Serializable{
 		this.clubbedEntities = clubbedEntities;
 	}
 
-	public void setReferencedEntities(List<ReferencedEntity> referencedEntities) {
-		this.referencedEntities = referencedEntities;
+	public void setReferencedUnits(List<ReferenceUnit> referencedUnits) {
+		this.referencedUnits = referencedUnits;
 	}
 
-	public List<ReferencedEntity> getReferencedEntities() {
-		return referencedEntities;
+	public List<ReferenceUnit> getReferencedUnits() {
+		return referencedUnits;
 	}
 
 	public void setParent(Motion parent) {

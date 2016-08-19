@@ -32,6 +32,12 @@
 			
 			showTabByIdAndUrl('list_tab','sectionorderseries/list?language='+$("#selectedLanguage").val());	
 			
+			$("#details_tab").click(function(){
+				$("#selectionDiv1").hide();
+				var rowid=$("#masterKey").val();			
+				showTabByIdAndUrl('details_tab','sectionorderseries/'+rowid+'/edit?'+$("#gridURLParams").val());
+			});
+			
 			$('#selectedLanguage').change(function() {
 				var value=$(this).val();
 				if(value!=""){

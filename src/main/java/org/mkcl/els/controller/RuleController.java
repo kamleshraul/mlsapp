@@ -44,6 +44,11 @@ public class RuleController extends GenericController<Rule> {
 		if(!titlesPopulated) {
 			return;
 		}
+		/**** populating contentDrafts ****/
+		boolean contentDraftsPopulated = populateContentDraftsForRule(model, domain, locale);		
+		if(!contentDraftsPopulated) {
+			return;
+		}
 	}
 	
 	@Override
@@ -62,6 +67,11 @@ public class RuleController extends GenericController<Rule> {
 		/**** populating titles ****/
 		boolean titlesPopulated = populatedTitlesForRule(model, domain, domain.getLocale());		
 		if(!titlesPopulated) {
+			return;
+		}
+		/**** populating contentDrafts ****/
+		boolean contentDraftsPopulated = populateContentDraftsForRule(model, domain, domain.getLocale());	
+		if(!contentDraftsPopulated) {
 			return;
 		}
 	}
@@ -92,6 +102,9 @@ public class RuleController extends GenericController<Rule> {
 		/**** add/update titles in domain ****/
 		List<TextDraft> titles = this.updateDraftsOfGivenType(domain, "title", request);
 		domain.setTitles(titles);
+		/**** add/update contentDrafts in domain ****/
+		List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(domain, "contentDraft", request);
+		domain.setContentDrafts(contentDrafts);
 		populateNew(model, domain, domain.getLocale(), request);
 		model.addAttribute("type", "error");
 		model.addAttribute("msg", "create_failed");
@@ -103,6 +116,9 @@ public class RuleController extends GenericController<Rule> {
 		/**** add/update titles in domain ****/
 		List<TextDraft> titles = this.updateDraftsOfGivenType(domain, "title", request);
 		domain.setTitles(titles);		
+		/**** add/update contentDrafts in domain ****/
+		List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(domain, "contentDraft", request);
+		domain.setContentDrafts(contentDrafts);
 	}
 	
 	@Override
@@ -117,6 +133,9 @@ public class RuleController extends GenericController<Rule> {
 		/**** add/update titles in domain ****/
 		List<TextDraft> titles = this.updateDraftsOfGivenType(domain, "title", request);
 		domain.setTitles(titles);
+		/**** add/update contentDrafts in domain ****/
+		List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(domain, "contentDraft", request);
+		domain.setContentDrafts(contentDrafts);
 		populateEdit(model, domain, request);
 		model.addAttribute("type", "error");
 		model.addAttribute("msg", "create_failed");
@@ -127,7 +146,10 @@ public class RuleController extends GenericController<Rule> {
 			HttpServletRequest request) {
 		/**** add/update titles in domain ****/
 		List<TextDraft> titles = this.updateDraftsOfGivenType(domain, "title", request);
-		domain.setTitles(titles);		
+		domain.setTitles(titles);	
+		/**** add/update contentDrafts in domain ****/
+		List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(domain, "contentDraft", request);
+		domain.setContentDrafts(contentDrafts);
 	}
 	
 	private boolean populateYearsForRule(ModelMap model, Rule domain, String locale) {
@@ -196,7 +218,48 @@ public class RuleController extends GenericController<Rule> {
     					}
     				}
     				model.addAttribute("titles",titles);
-    				return false;
+    				return true;
+    			} logger.error("**** Custom Parameter 'RULE_LANGUAGES_ALLOWED' is set with empty value. ****");
+    			model.addAttribute("errorcode", "rule_languages_allowed_notset");
+    			return false;
+    		} logger.error("**** Custom Parameter 'RULE_LANGUAGES_ALLOWED' is set with null value. ****");
+			model.addAttribute("errorcode", "rule_languages_allowed_notset");
+			return false;
+    	} else{
+			logger.error("**** Custom Parameter 'RULE_LANGUAGES_ALLOWED' is not set. ****");
+			model.addAttribute("errorcode", "rule_languages_allowed_notset");
+			return false;
+		}		
+	}
+	
+	private boolean populateContentDraftsForRule(ModelMap model, Rule domain, String locale) {
+		CustomParameter languagesAllowedForRuleParameter = CustomParameter.findByName(CustomParameter.class, "RULE_LANGUAGES_ALLOWED", "");
+    	if(languagesAllowedForRuleParameter!=null) {    		
+    		String languagesAllowedForRule = languagesAllowedForRuleParameter.getValue();
+    		if(languagesAllowedForRule!=null) {
+    			if(!languagesAllowedForRule.isEmpty()) {
+    				List<Language> languagesAllowedForContentDraft = new ArrayList<Language>();
+    				for(String languageAllowedForRule: languagesAllowedForRule.split("#")) {	
+    					Language languageAllowed = Language.findByFieldName(Language.class, "type", languageAllowedForRule, domain.getLocale());
+    					languagesAllowedForContentDraft.add(languageAllowed);
+    				}
+    				List<TextDraft> contentDrafts = new ArrayList<TextDraft>();
+    				if(domain.getContentDrafts()!=null && !domain.getContentDrafts().isEmpty()) {				
+    					contentDrafts.addAll(domain.getContentDrafts());
+    					for(TextDraft contentDraft: domain.getContentDrafts()) {
+    						languagesAllowedForContentDraft.remove(contentDraft.getLanguage());					
+    					}				
+    				}
+    				if(!languagesAllowedForContentDraft.isEmpty()) {								
+    					for(Language languageAllowedForContentDraft: languagesAllowedForContentDraft) {
+    						TextDraft contentDraft = new TextDraft();
+    						contentDraft.setLanguage(languageAllowedForContentDraft);
+    						contentDraft.setText("");
+    						contentDrafts.add(contentDraft);
+    					}
+    				}
+    				model.addAttribute("contentDrafts",contentDrafts);
+    				return true;
     			} logger.error("**** Custom Parameter 'RULE_LANGUAGES_ALLOWED' is set with empty value. ****");
     			model.addAttribute("errorcode", "rule_languages_allowed_notset");
     			return false;
@@ -219,7 +282,7 @@ public class RuleController extends GenericController<Rule> {
 		if(domain.getEditionYear()==null){
 			result.rejectValue("year","YearEmpty","Edition Year is not set.");
 		}
-		if(domain.getNumber()==null){
+		if(domain.getNumber()==null || domain.getNumber().isEmpty()){
 			result.rejectValue("number","NumberEmpty","Number is not set.");
 		}
 		/**** title validation ****/
@@ -235,6 +298,18 @@ public class RuleController extends GenericController<Rule> {
 		}
 		if(isTitleInAtleastOneLanguage==false) {
 			result.rejectValue("version","TitleEmpty","Please enter the title in atleast one language.");
+		}
+		/**** contentDraft validation ****/
+		boolean isContentDraftInAtleastOneLanguage = false;			
+		for(String languageAllowedForRule: languagesAllowedForRule.split("#")) {
+			String contentDraftTextInThisLanguage = request.getParameter("contentDraft_text_"+languageAllowedForRule);
+			if(contentDraftTextInThisLanguage!=null && !contentDraftTextInThisLanguage.isEmpty()) {
+				isContentDraftInAtleastOneLanguage = true;
+				break;
+			}
+		}
+		if(isContentDraftInAtleastOneLanguage==false) {
+			result.rejectValue("version","ContentDraftEmpty","Please enter the content draft in atleast one language.");
 		}
 	}
 	

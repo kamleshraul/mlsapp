@@ -77,9 +77,9 @@
 					</xsl:variable>
 	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
 						<fo:block text-align="right">
-							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
+							<fo:block margin-right="1.0cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
+								<xsl:when test="houseType='lowerhouse'">ब कक्ष</xsl:when>
 								<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
 							</xsl:choose>
 							</fo:block>						
@@ -94,11 +94,24 @@
 							<fo:block>प्रति,</fo:block>						
 							<fo:block font-weight="bold">सचिव</fo:block>
 							<xsl:choose>
-								<xsl:when test="department=subDepartment">
+								<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true'">
 									<fo:block font-weight="bold"><xsl:value-of select="department"/></fo:block>
 								</xsl:when>
 								<xsl:otherwise>
-									<fo:block font-weight="bold"><xsl:value-of select="department"/> (<xsl:value-of select="subDepartment"/>)</fo:block>
+									<xsl:choose>
+										<xsl:when test="subDepartment='सार्वजनिक बांधकाम (सार्वजनिक उपक्रम)'">
+											<fo:block font-weight="bold"><xsl:value-of select="department"/> (सार्वजनिक उपक्रम)</fo:block>
+										</xsl:when>
+										<xsl:when test="subDepartment='सार्वजनिक बांधकाम (सार्वजनिक उपक्रम वगळून)'">
+											<fo:block font-weight="bold"><xsl:value-of select="department"/> (सार्वजनिक उपक्रम वगळून)</fo:block>
+										</xsl:when>
+										<xsl:when test="subDepartment='सार्वजनिक बांधकाम (सार्वजनिक उपक्रमांसह)'">
+											<fo:block font-weight="bold"><xsl:value-of select="department"/> (सार्वजनिक उपक्रमांसह)</fo:block>
+										</xsl:when>
+										<xsl:otherwise>
+											<fo:block font-weight="bold"><xsl:value-of select="department"/> (<xsl:value-of select="subDepartment"/>)</fo:block>
+										</xsl:otherwise>
+									</xsl:choose>
 								</xsl:otherwise>
 							</xsl:choose>
 							<fo:block>महाराष्ट्र शासन मंत्रालय, मुंबई - ४०० ०३२</fo:block>							
@@ -116,7 +129,12 @@
 								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
 								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
 							</xsl:choose>
-							स्वीकृत केला आहे. सदरहू प्रश्नाचे उत्तर महाराष्‍ट्र विधानमंडळ नियमांतील नियम ७०(२) अन्वये तीस दिवसांच्‍या आत म्‍हणजे दिनांक __________ पावेतो या सचिवालयास पाठविण्‍यात यावे – 
+							स्वीकृत केला आहे. सदरहू प्रश्नाचे उत्तर
+							<xsl:choose>
+								<xsl:when test="houseType='lowerhouse'">महाराष्ट्र विधानसभा नियम ७२ (२)</xsl:when>
+								<xsl:when test="houseType='upperhouse'">महाराष्‍ट्र विधानमंडळ नियमांतील नियम ७०(२)</xsl:when>
+							</xsl:choose>							
+							अन्वये तीस दिवसांच्‍या आत म्‍हणजे दिनांक __________ पावेतो या सचिवालयास पाठविण्‍यात यावे – 
 						</fo:block>	
 						<fo:block font-size="4px">&#160;</fo:block>				
 						<fo:block>
@@ -138,7 +156,7 @@
 									<xsl:otherwise>
 										<fo:block>(१) माननीय मुख्यमंत्री</fo:block>
 										<xsl:choose>
-											<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+											<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
 												<fo:block>(२) माननीय  <fo:inline font-weight="bold"><xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री</fo:inline></fo:block>
 											</xsl:when>
 											<xsl:otherwise>
@@ -188,7 +206,7 @@
 								</xsl:when> -->
 								<xsl:otherwise>
 									<xsl:choose>
-										<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+										<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
 											<xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री
 										</xsl:when>
 										<xsl:otherwise>

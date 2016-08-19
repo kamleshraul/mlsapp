@@ -103,7 +103,7 @@
 							<fo:block>प्रति,</fo:block>						
 							<fo:block font-weight="bold">सचिव,</fo:block>
 							<xsl:choose>
-								<xsl:when test="department=subDepartment">
+								<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true'">
 									<fo:block font-weight="bold"><xsl:value-of select="department"/>,</fo:block>
 								</xsl:when>
 								<xsl:otherwise>
@@ -151,7 +151,7 @@
 									<xsl:otherwise>
 										<fo:block>(१) माननीय <fo:inline font-weight="bold">मुख्यमंत्री </fo:inline></fo:block>									
 										<xsl:choose>
-											<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+											<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
 												<fo:block>(२) माननीय  <fo:inline font-weight="bold"><xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री</fo:inline></fo:block>
 											</xsl:when>
 											<xsl:otherwise>
@@ -203,7 +203,7 @@
 								</xsl:when> -->
 								<xsl:otherwise>
 									<xsl:choose>
-										<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+										<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
 											<xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री
 										</xsl:when>
 										<xsl:otherwise>
@@ -241,11 +241,24 @@
 							<fo:block margin-left="0.40cm">सचिव</fo:block>
 							<fo:block margin-left="0.40cm">
 							<xsl:choose>
-								<xsl:when test="department=subDepartment">
+								<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true'">
 									<xsl:value-of select="department"/>
 								</xsl:when>
 								<xsl:otherwise>
-									<xsl:value-of select="department"/> (<xsl:value-of select="subDepartment"/>)
+									<xsl:choose>
+										<xsl:when test="subDepartment='सार्वजनिक बांधकाम (सार्वजनिक उपक्रम)'">
+											<xsl:value-of select="department"/> (सार्वजनिक उपक्रम)
+										</xsl:when>
+										<xsl:when test="subDepartment='सार्वजनिक बांधकाम (सार्वजनिक उपक्रम वगळून)'">
+											<xsl:value-of select="department"/> (सार्वजनिक उपक्रम वगळून)
+										</xsl:when>
+										<xsl:when test="subDepartment='सार्वजनिक बांधकाम (सार्वजनिक उपक्रमांसह)'">
+											<xsl:value-of select="department"/> (सार्वजनिक उपक्रमांसह)
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="department"/> (<xsl:value-of select="subDepartment"/>)
+										</xsl:otherwise>
+									</xsl:choose>
 								</xsl:otherwise>
 							</xsl:choose>	
 							</fo:block>							
@@ -290,7 +303,7 @@
 									</xsl:when>
 									<xsl:otherwise>
 										<xsl:choose>
-											<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+											<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
 												<xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री
 											</xsl:when>
 											<xsl:otherwise>
@@ -326,7 +339,7 @@
 									</xsl:when> -->
 									<xsl:otherwise>
 										<xsl:choose>
-											<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+											<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
 												<xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री
 											</xsl:when>
 											<xsl:otherwise>
@@ -373,7 +386,7 @@
 									</xsl:when>
 									<xsl:otherwise>
 										<xsl:choose>
-											<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+											<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
 												<fo:block>(१) माननीय  <fo:inline font-weight="bold"><xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री  यांच्या माहितीसाठी सादर अग्रेषित.</fo:inline></fo:block>
 											</xsl:when>
 											<xsl:otherwise>

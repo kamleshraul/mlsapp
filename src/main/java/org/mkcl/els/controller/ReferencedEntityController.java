@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.text.html.parser.TagElement;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
@@ -16,13 +18,20 @@ import org.mkcl.els.common.vo.ResolutionSearchVO;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Act;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.CutMotion;
+import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.DiscussionMotion;
+import org.mkcl.els.domain.EventMotion;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.StandaloneMotion;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -30,19 +39,48 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.opensymphony.module.sitemesh.html.rules.TagReplaceRule;
+
 @Controller
 @RequestMapping("/refentity")
 public class ReferencedEntityController {
 
 	@RequestMapping(value="/init",method=RequestMethod.GET)
 	public String getReferencing(final HttpServletRequest request,
-			final ModelMap model){
+			final ModelMap model, Locale locale){
 		String strDeviceId=request.getParameter("id");
 		String strDeviceType = request.getParameter("deviceType");
+		String strUsergroup = request.getParameter("usergroup");
 		String strUsergroupType = request.getParameter("usergroupType");
 		String strHouseType = request.getParameter("houseType");
 		
 		try{
+			
+			List<DeviceType> devices = DeviceType.findAll(DeviceType.class, "priority", ApplicationConstants.ASC, locale.toString());
+			
+			model.addAttribute("allDevices", devices);
+			
+			if(strHouseType != null && !strHouseType.isEmpty()){
+				HouseType hs = HouseType.findByType(strHouseType, locale.toString());
+				if(hs != null){
+					Session session = Session.findLatestSession(hs);
+					model.addAttribute("currSession", session.getId());
+				}
+			}
+			CustomParameter csptSessionCount = CustomParameter.findByName(CustomParameter.class, "SESSION_COUNT_FOR_REFERENCING", "");
+			if(csptSessionCount != null && csptSessionCount.getValue() != null && !csptSessionCount.getValue().isEmpty()){
+				List<Reference> references = new ArrayList<Reference>();
+				int sessionCount = Integer.parseInt(csptSessionCount.getValue());
+				for(int i = 1; i <= sessionCount; i++){
+					Reference ref = new Reference();
+					ref.setId(String.valueOf(i));
+					ref.setName(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));
+					references.add(ref);
+				}
+				
+				model.addAttribute("sessionCount", references);
+			}
+			model.addAttribute("usergroup", strUsergroup);
 			model.addAttribute("houseType", strHouseType);
 			if(strDeviceId!=null && strUsergroupType!=null && strDeviceType!=null /*&& strHouseType != null*/){
 				if(!strDeviceId.isEmpty()){
@@ -55,7 +93,17 @@ public class ReferencedEntityController {
 					}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_BILLS)){
 						model.addAttribute("whichDevice", ApplicationConstants.DEVICE_BILLS);
 					}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_MOTIONS)){
-						model.addAttribute("whichDevice", ApplicationConstants.DEVICE_MOTIONS);
+						if(strDeviceType.startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)){
+							model.addAttribute("whichDevice", ApplicationConstants.DEVICE_CUTMOTIONS);
+						}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_STANDALONE)){
+							model.addAttribute("whichDevice", ApplicationConstants.DEVICE_STANDALONE);
+						}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_EVENTMOTIONS)){
+							model.addAttribute("whichDevice", ApplicationConstants.DEVICE_EVENTMOTIONS);
+						}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_DISCUSSIONMOTIONS)){
+							model.addAttribute("whichDevice", ApplicationConstants.DEVICE_DISCUSSIONMOTIONS);
+						}else{
+							model.addAttribute("whichDevice", ApplicationConstants.DEVICE_MOTIONS);
+						}
 					}
 					
 					if(strUsergroupType != null){
@@ -96,18 +144,18 @@ public class ReferencedEntityController {
 									model.addAttribute("subject",question.getSubject());
 								}
 								
-								List<ReferencedEntity> referencedEntities= new ArrayList<ReferencedEntity>();
+								List<ReferenceUnit> referencedEntities= new ArrayList<ReferenceUnit>();
 								if(question.getReferencedEntities() != null){
 									referencedEntities = question.getReferencedEntities();
 								}
-								List<Reference> references=new ArrayList<Reference>();
-								StringBuffer buffer=new StringBuffer();
+								List<Reference> references = new ArrayList<Reference>();
+								StringBuffer buffer = new StringBuffer();
 								if(!referencedEntities.isEmpty()){
-									for(ReferencedEntity i:referencedEntities){
+									for(ReferenceUnit i : referencedEntities){
 										
 										Reference reference=new Reference();
 										reference.setId(String.valueOf(i.getId()));
-										reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(((Question)i.getDevice()).getNumber())));
+										reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(i.getNumber())));
 										buffer.append(i.getId()+",");
 										references.add(reference);
 										
@@ -232,59 +280,269 @@ public class ReferencedEntityController {
 							        model.addAttribute("exactReferences", billSearchVOs);
 								}
 							}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_MOTIONS)){
-								Motion motion = Motion.findById(Motion.class, Long.parseLong(strDeviceId));
-								int year = motion.getSession().getYear();
-								CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
-								List<Reference> years = new ArrayList<Reference>();
-								if(houseFormationYear != null){
-									Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
-									for(int j = year; j >= formationYear; j--){
-										Reference yearReference = new Reference(String.valueOf(j),FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(j));
-										years.add(yearReference);
+								if(strDeviceType.startsWith(ApplicationConstants.DEVICE_STANDALONE)){
+									StandaloneMotion motion = StandaloneMotion.findById(StandaloneMotion.class, Long.parseLong(strDeviceId));
+									int year = motion.getSession().getYear();
+									CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+									List<Reference> years = new ArrayList<Reference>();
+									if(houseFormationYear != null){
+										Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+										for(int j = year; j >= formationYear; j--){
+											Reference yearReference = new Reference(String.valueOf(j),FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(j));
+											years.add(yearReference);
+										}
+									}else{
+										model.addAttribute("flag", "houseformationyearnotset");
+										return "referencing/error";
 									}
-								}else{
-									model.addAttribute("flag", "houseformationyearnotset");
-									return "referencing/error";
-								}
-								model.addAttribute("years",years);
-								model.addAttribute("sessionYear",year);
-								List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, motion.getLocale());
-								model.addAttribute("sessionTypes",sessionTypes);
-								model.addAttribute("sessionType", motion.getSession().getType().getId());
-								model.addAttribute("refSession", motion.getSession().getId());
-								model.addAttribute("refHouseType", motion.getSession().getHouse().getType().getType());
-								
-								if(motion.getRevisedSubject() != null){
-									if(!motion.getRevisedSubject().isEmpty()){
-										model.addAttribute("subject", motion.getRevisedSubject());
+									model.addAttribute("years",years);
+									model.addAttribute("sessionYear",year);
+									List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, motion.getLocale());
+									model.addAttribute("sessionTypes",sessionTypes);
+									model.addAttribute("sessionType", motion.getSession().getType().getId());
+									model.addAttribute("refSession", motion.getSession().getId());
+									model.addAttribute("refHouseType", motion.getSession().getHouse().getType().getType());
+									
+									if(motion.getRevisedSubject() != null){
+										if(!motion.getRevisedSubject().isEmpty()){
+											model.addAttribute("subject", motion.getRevisedSubject());
+										}else{
+											model.addAttribute("subject", motion.getSubject());
+										}
 									}else{
 										model.addAttribute("subject", motion.getSubject());
 									}
+									
+									List<ReferenceUnit> referencedEntities= new ArrayList<ReferenceUnit>();
+									if(motion.getReferencedEntities() != null){
+										referencedEntities = motion.getReferencedEntities();
+									}
+									List<Reference> references = new ArrayList<Reference>();
+									StringBuffer buffer = new StringBuffer();
+									if(!referencedEntities.isEmpty()){
+										for(ReferenceUnit i:referencedEntities){
+											
+											Reference reference = new Reference();
+											reference.setId(String.valueOf(i.getId()));
+											reference.setName(FormaterUtil.formatNumberNoGrouping(i.getNumber(), locale.toString()));
+											buffer.append(i.getId()+",");
+											references.add(reference);
+											
+											model.addAttribute("referencedEntities",references);
+											model.addAttribute("referencedEntitiesIds",buffer.toString());
+										}
+									}
+									model.addAttribute("id", Long.parseLong(strDeviceId));
+									model.addAttribute("number", FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
+								}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)){
+									CutMotion motion = CutMotion.findById(CutMotion.class, Long.parseLong(strDeviceId));
+									int year = motion.getSession().getYear();
+									CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+									List<Reference> years = new ArrayList<Reference>();
+									if(houseFormationYear != null){
+										Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+										for(int j = year; j >= formationYear; j--){
+											Reference yearReference = new Reference(String.valueOf(j),FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(j));
+											years.add(yearReference);
+										}
+									}else{
+										model.addAttribute("flag", "houseformationyearnotset");
+										return "referencing/error";
+									}
+									model.addAttribute("years",years);
+									model.addAttribute("sessionYear",year);
+									List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, motion.getLocale());
+									model.addAttribute("sessionTypes",sessionTypes);
+									model.addAttribute("sessionType", motion.getSession().getType().getId());
+									model.addAttribute("refSession", motion.getSession().getId());
+									model.addAttribute("refHouseType", motion.getSession().getHouse().getType().getType());
+									
+									if(motion.getRevisedMainTitle() != null){
+										if(!motion.getRevisedMainTitle().isEmpty()){
+											model.addAttribute("subject", motion.getRevisedMainTitle());
+										}else{
+											model.addAttribute("subject", motion.getMainTitle());
+										}
+									}else{
+										model.addAttribute("subject", motion.getMainTitle());
+									}
+									
+									List<ReferenceUnit> referencedEntities= new ArrayList<ReferenceUnit>();
+									if(motion.getReferencedEntities() != null){
+										referencedEntities = motion.getReferencedEntities();
+									}
+									List<Reference> references = new ArrayList<Reference>();
+									StringBuffer buffer = new StringBuffer();
+									if(!referencedEntities.isEmpty()){
+										for(ReferenceUnit i:referencedEntities){
+											
+											Reference reference = new Reference();
+											reference.setId(String.valueOf(i.getId()));
+											reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(i.getNumber())));
+											buffer.append(i.getId()+",");
+											references.add(reference);
+											
+											model.addAttribute("referencedEntities",references);
+											model.addAttribute("referencedEntitiesIds",buffer.toString());
+										}
+									}
+									model.addAttribute("id", Long.parseLong(strDeviceId));
+									model.addAttribute("number", FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
+								}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_EVENTMOTIONS)){
+									EventMotion motion = EventMotion.findById(EventMotion.class, Long.parseLong(strDeviceId));
+									int year = motion.getSession().getYear();
+									CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+									List<Reference> years = new ArrayList<Reference>();
+									if(houseFormationYear != null){
+										Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+										for(int j = year; j >= formationYear; j--){
+											Reference yearReference = new Reference(String.valueOf(j),FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(j));
+											years.add(yearReference);
+										}
+									}else{
+										model.addAttribute("flag", "houseformationyearnotset");
+										return "referencing/error";
+									}
+									model.addAttribute("years",years);
+									model.addAttribute("sessionYear",year);
+									List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, motion.getLocale());
+									model.addAttribute("sessionTypes",sessionTypes);
+									model.addAttribute("sessionType", motion.getSession().getType().getId());
+									model.addAttribute("refSession", motion.getSession().getId());
+									model.addAttribute("refHouseType", motion.getSession().getHouse().getType().getType());
+									
+									if(motion.getRevisedEventTitle() != null){
+										if(!motion.getRevisedEventTitle().isEmpty()){
+											model.addAttribute("subject", motion.getRevisedEventTitle());
+										}else{
+											model.addAttribute("subject", motion.getEventTitle());
+										}
+									}else{
+										model.addAttribute("subject", motion.getEventTitle());
+									}
+									
+									List<ReferenceUnit> referencedEntities= new ArrayList<ReferenceUnit>();
+									if(motion.getReferencedEntities() != null){
+										referencedEntities = motion.getReferencedEntities();
+									}
+									List<Reference> references = new ArrayList<Reference>();
+									StringBuffer buffer = new StringBuffer();
+									if(!referencedEntities.isEmpty()){
+										for(ReferenceUnit i:referencedEntities){
+											
+											Reference reference = new Reference();
+											reference.setId(String.valueOf(i.getId()));
+											reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(i.getNumber())));
+											buffer.append(i.getId()+",");
+											references.add(reference);
+											
+											model.addAttribute("referencedEntities",references);
+											model.addAttribute("referencedEntitiesIds",buffer.toString());
+										}
+									}
+									model.addAttribute("id", Long.parseLong(strDeviceId));
+									model.addAttribute("number", FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
+								}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_DISCUSSIONMOTIONS)){
+									DiscussionMotion motion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(strDeviceId));
+									int year = motion.getSession().getYear();
+									CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+									List<Reference> years = new ArrayList<Reference>();
+									if(houseFormationYear != null){
+										Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+										for(int j = year; j >= formationYear; j--){
+											Reference yearReference = new Reference(String.valueOf(j),FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(j));
+											years.add(yearReference);
+										}
+									}else{
+										model.addAttribute("flag", "houseformationyearnotset");
+										return "referencing/error";
+									}
+									model.addAttribute("years",years);
+									model.addAttribute("sessionYear",year);
+									List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, motion.getLocale());
+									model.addAttribute("sessionTypes",sessionTypes);
+									model.addAttribute("sessionType", motion.getSession().getType().getId());
+									model.addAttribute("refSession", motion.getSession().getId());
+									model.addAttribute("refHouseType", motion.getSession().getHouse().getType().getType());
+									
+									if(motion.getRevisedSubject() != null){
+										if(!motion.getRevisedSubject().isEmpty()){
+											model.addAttribute("subject", motion.getRevisedSubject());
+										}else{
+											model.addAttribute("subject", motion.getSubject());
+										}
+									}else{
+										model.addAttribute("subject", motion.getSubject());
+									}
+									
+									List<ReferenceUnit> referencedEntities= new ArrayList<ReferenceUnit>();
+									if(motion.getReferencedEntities() != null){
+										referencedEntities = motion.getReferencedEntities();
+									}
+									List<Reference> references = new ArrayList<Reference>();
+									StringBuffer buffer = new StringBuffer();
+									if(!referencedEntities.isEmpty()){
+										for(ReferenceUnit i:referencedEntities){
+											
+											Reference reference = new Reference();
+											reference.setId(String.valueOf(i.getId()));
+											reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(i.getNumber())));
+											buffer.append(i.getId()+",");
+											references.add(reference);
+											
+											model.addAttribute("referencedEntities",references);
+											model.addAttribute("referencedEntitiesIds",buffer.toString());
+										}
+									}
+									model.addAttribute("id", Long.parseLong(strDeviceId));
+									model.addAttribute("number", FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
 								}else{
-									model.addAttribute("subject", motion.getSubject());
-								}
-								
-								List<ReferencedEntity> referencedEntities= new ArrayList<ReferencedEntity>();
-								if(motion.getReferencedEntities() != null){
-									referencedEntities = motion.getReferencedEntities();
-								}
-								List<Reference> references = new ArrayList<Reference>();
-								StringBuffer buffer = new StringBuffer();
-								if(!referencedEntities.isEmpty()){
-									for(ReferencedEntity i:referencedEntities){
-										
-										Reference reference = new Reference();
-										reference.setId(String.valueOf(i.getId()));
-										reference.setName(String.valueOf(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(((Motion)i.getDevice()).getNumber())));
-										buffer.append(i.getId()+",");
-										references.add(reference);
-										
-										model.addAttribute("referencedEntities",references);
+									Motion motion = Motion.findById(Motion.class, Long.parseLong(strDeviceId));
+									int year = motion.getSession().getYear();
+									CustomParameter houseFormationYear = CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+									List<Reference> years = new ArrayList<Reference>();
+									if(houseFormationYear != null){
+										Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+										for(int j = year; j >= formationYear; j--){
+											Reference yearReference = new Reference(String.valueOf(j),FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(j));
+											years.add(yearReference);
+										}
+									}else{
+										model.addAttribute("flag", "houseformationyearnotset");
+										return "referencing/error";
+									}
+									model.addAttribute("years",years);
+									model.addAttribute("sessionYear",year);
+									List<SessionType> sessionTypes = SessionType.findAll(SessionType.class,"sessionType",ApplicationConstants.ASC, motion.getLocale());
+									model.addAttribute("sessionTypes",sessionTypes);
+									model.addAttribute("sessionType", motion.getSession().getType().getId());
+									model.addAttribute("refSession", motion.getSession().getId());
+									model.addAttribute("refHouseType", motion.getSession().getHouse().getType().getType());
+									
+									if(motion.getRevisedSubject() != null){
+										if(!motion.getRevisedSubject().isEmpty()){
+											model.addAttribute("subject", motion.getRevisedSubject());
+										}else{
+											model.addAttribute("subject", motion.getSubject());
+										}
+									}else{
+										model.addAttribute("subject", motion.getSubject());
+									}
+									
+									List<ReferenceUnit> referencedEntities= new ArrayList<ReferenceUnit>();
+									if(motion.getReferencedUnits() != null){
+										referencedEntities = motion.getReferencedUnits();
+									}
+									
+									StringBuffer buffer = null;
+									if(!referencedEntities.isEmpty()){
+										buffer = new StringBuffer(ReferenceUnit.getReferences(referencedEntities));
+										model.addAttribute("referencedEntities", motion.getReferencedUnits());
 										model.addAttribute("referencedEntitiesIds",buffer.toString());
 									}
+									model.addAttribute("id", Long.parseLong(strDeviceId));
+									model.addAttribute("number", FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
 								}
-								model.addAttribute("id", Long.parseLong(strDeviceId));
-								model.addAttribute("number", FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
 							}
 						}
 					}
@@ -307,15 +565,47 @@ public class ReferencedEntityController {
         String questionId=request.getParameter("question");
         String start=request.getParameter("start");
         String noOfRecords=request.getParameter("record");
+        String strSessionCount = request.getParameter("sessionCount");
+        Integer sessionYear = null;
+        String strSessionYear = request.getParameter("questionSessionYear");
+        if(strSessionYear!=null && !strSessionYear.isEmpty() && !strSessionYear.equals("-")) {
+        	sessionYear = Integer.parseInt(strSessionYear);
+        }
+        Long sessionType = null;
+        String strSessionType = request.getParameter("questionSessionType");
+        if(strSessionType!=null && !strSessionType.isEmpty() && !strSessionType.equals("-")) {
+        	sessionType = Long.parseLong(strSessionType);
+        }
         if(questionId!=null&&start!=null&&noOfRecords!=null&&strHouseType!=null){
-            if((!questionId.isEmpty())&&(!start.isEmpty())&&(!noOfRecords.isEmpty())&&(!strHouseType.isEmpty())){
+            if((!questionId.isEmpty())&&(!start.isEmpty())&&(!noOfRecords.isEmpty())&&(!strHouseType.isEmpty())
+            		&& (strSessionCount != null && !strSessionCount.isEmpty())){
+            	
                 Question question=Question.findById(Question.class, Long.parseLong(questionId));
+                int sessionCount = Integer.parseInt(strSessionCount);
+                questionSearchVOs=ReferencedEntity.fullTextSearchReferencing(param,question,sessionCount,sessionYear,sessionType,Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
+            }
+        }       
+        return questionSearchVOs;
+    }
+	
+	@RequestMapping(value="/searchhds",method=RequestMethod.POST)
+    public @ResponseBody List<QuestionSearchVO> searchStandaloneForReferencing(final HttpServletRequest request,
+            final Locale locale){
+		List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
+		String strHouseType = request.getParameter("houseType");
+        String param=request.getParameter("param").trim();
+        String motionId=request.getParameter("motion");
+        String start=request.getParameter("start");
+        String noOfRecords=request.getParameter("record");
+        if(motionId!=null&&start!=null&&noOfRecords!=null&&strHouseType!=null){
+            if((!motionId.isEmpty())&&(!start.isEmpty())&&(!noOfRecords.isEmpty())&&(!strHouseType.isEmpty())){
+                StandaloneMotion question = StandaloneMotion.findById(StandaloneMotion.class, Long.parseLong(motionId));
                 if(question.getType() != null){
-                	if(question.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
+                	if(question.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)
                 			&& strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
                 		questionSearchVOs = searchHDSLowerHouseForReferencing(question, request, locale);
                 	}else{
-                    	questionSearchVOs=ReferencedEntity.fullTextSearchReferencing(param,question,Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
+                    	questionSearchVOs=ReferencedEntity.fullTextSearchReferencingHDS(param, question,Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
                     }
                 }
             }
@@ -342,7 +632,7 @@ public class ReferencedEntityController {
         return motionSearchVOs;
     }
 	
-	private List<QuestionSearchVO> searchHDSLowerHouseForReferencing(final Question question, 
+	private List<QuestionSearchVO> searchHDSLowerHouseForReferencing(final StandaloneMotion question, 
 			final HttpServletRequest request, 
 			final Locale locale){
 		List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
@@ -365,14 +655,14 @@ public class ReferencedEntityController {
 				                    	session = Session.findSessionByHouseTypeSessionTypeYear(question.getHouseType(), sessionType, Integer.parseInt(questionSessionYear));
 				                    }
 				                    if(session != null){
-				                    	questionSearchVOs=ReferencedEntity.fullTextSearchReferencingQuestionHDS(param,question, session, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
+				                    	questionSearchVOs=ReferencedEntity.fullTextSearchReferencingHDS(param,question, session, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
 				                    }
 			                   }else{
-			                	   questionSearchVOs=ReferencedEntity.fullTextSearchReferencingQuestionHDS(param,question, false, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
+			                	   questionSearchVOs=ReferencedEntity.fullTextSearchReferencingHDS(param,question, false, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
 			                	}
 	                		}
 	                	}else{
-	                		questionSearchVOs=ReferencedEntity.fullTextSearchReferencingQuestionHDS(param,question, false, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
+	                		questionSearchVOs=ReferencedEntity.fullTextSearchReferencingHDS(param,question, false, Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
 	                	}
                 	}catch(Exception e){
                 		e.printStackTrace();
@@ -534,12 +824,28 @@ public class ReferencedEntityController {
 		String strpId=request.getParameter("pId");
 		String strrId=request.getParameter("rId");
 		String device=request.getParameter("device");
+		String targetDevice=request.getParameter("targetDevice");
+		
 		Boolean status=false;
 		if(strpId!=null&&strrId!=null&&device!=null){
 			if(!strpId.isEmpty()&&!strrId.isEmpty()&&!device.isEmpty()){
 				Long primaryId=Long.parseLong(strpId);
 				Long referencingId=Long.parseLong(strrId);
-				status=ReferencedEntity.referencing(device, primaryId, referencingId, locale.toString());				
+				
+				if(targetDevice != null && !targetDevice.isEmpty()){
+					DeviceType targetDevType = null;
+					try{
+						targetDevType = DeviceType.findById(DeviceType.class, new Long(targetDevice));
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+					
+					if(targetDevType != null){
+						status = ReferencedEntity.referencingMotion(targetDevType, device, primaryId, referencingId, locale.toString());
+					}
+				}else{
+					status = ReferencedEntity.referencing(device, primaryId, referencingId, locale.toString());
+				}
 			}
 		}
 		if(status){
@@ -557,12 +863,29 @@ public class ReferencedEntityController {
 		String strpId=request.getParameter("pId");
 		String strrId=request.getParameter("rId");
 		String device=request.getParameter("device");
+		String targetDevice = request.getParameter("targetDevice");
+		
 		Boolean status=false;
 		if(strpId!=null&&strrId!=null&&device!=null){
 			if(!strpId.isEmpty()&&!strrId.isEmpty()&&!device.isEmpty()){
 				Long primaryId=Long.parseLong(strpId);
 				Long referencingId=Long.parseLong(strrId);
-				status=ReferencedEntity.deReferencing(device, primaryId, referencingId, locale.toString());				
+				if(targetDevice != null && !targetDevice.isEmpty()){
+					DeviceType targetDevType = null;
+					try{
+						targetDevType = DeviceType.findById(DeviceType.class, new Long(targetDevice));
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+					
+					if(targetDevType != null){
+						status = ReferencedEntity.deReferencingMotion(targetDevType, device, primaryId, referencingId, locale.toString());
+					}
+				}else{
+					status=ReferencedEntity.deReferencing(device, primaryId, referencingId, locale.toString());
+				}
+				
+								
 			}
 		}
 		if(status){

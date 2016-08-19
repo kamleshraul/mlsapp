@@ -12,8 +12,8 @@ package org.mkcl.els.common.interceptor;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -38,10 +38,6 @@ public class FileUpload extends HttpServlet {
     /** The Constant serialVersionUID. */
     private static final transient long serialVersionUID = 1L;
 
-    /** The Constant log. */
-    private static final Logger log = Logger.getLogger(FileUpload.class
-            .getName());
-
     /*
      * (non-Javadoc)
      *
@@ -57,24 +53,36 @@ public class FileUpload extends HttpServlet {
             FileItemFactory factory = new DiskFileItemFactory();
             ServletFileUpload upload = new ServletFileUpload(factory);
             List<FileItem> files = upload.parseRequest(req);
+            Boolean isAllowed = true;
             FileItem file = files.get(0);
-            Document document = new Document();
-            document.setCreatedOn(new Date());
-            document.setFileData(file.get());
-            document.setOriginalFileName(file.getName());
-            document.setFileSize(file.getSize());
-            document.setType(file.getContentType());
-            document.setCreatedBy(req.getParameter("authusername"));
-            CustomParameter customParameter = CustomParameter.findByName(
-                    CustomParameter.class, "FILE_PREFIX", "");
-            document.setTag(customParameter.getValue()
-                    + String.valueOf(System.currentTimeMillis()));
-            document = document.persist();
-            // If the file uploaded is a Process file
-            if(FileUtil.fileExtension(file.getName()).equals("bar")){
-                res.sendRedirect("workflow/deploy/" + document.getTag() + "/create.json");
-            } else {
-                res.sendRedirect("file/" + document.getTag() + "/info.json");
+            // To check whether the image uploaded is corrupted or proper file
+            if(file.getContentType().contains("image")){
+            	 if(ImageIO.read(file.getInputStream())==null){
+            		 isAllowed = false;
+            	 }
+            }
+            if(isAllowed){
+            	 Document document = new Document();
+                 document.setCreatedOn(new Date());
+                 document.setFileData(file.get());
+                 document.setOriginalFileName(file.getName());
+                 document.setFileSize(file.getSize());
+                 document.setType(file.getContentType());
+                 document.setCreatedBy(req.getParameter("authusername"));
+                 CustomParameter customParameter = CustomParameter.findByName(
+                         CustomParameter.class, "FILE_PREFIX", "");
+                 document.setTag(customParameter.getValue()
+                         + String.valueOf(System.currentTimeMillis()));
+                 document = document.persist();
+                 // If the file uploaded is a Process file
+                 if(FileUtil.fileExtension(file.getName()).equals("bar")){
+                     res.sendRedirect("workflow/deploy/" + document.getTag() + "/create.json");
+                 } else {
+                     res.sendRedirect("file/" + document.getTag() + "/info.json");
+                 }
+            }else{
+            	// redirected to photo page so that proper error message can be displayed incase of corrupted file
+            	res.sendRedirect("file/photo/" + null +".json");
             }
         }
         catch (Exception ex) {

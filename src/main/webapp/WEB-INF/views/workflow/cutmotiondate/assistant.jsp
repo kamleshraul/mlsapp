@@ -406,9 +406,13 @@
 										<c:otherwise>
 											<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
 										</c:otherwise>
-									</c:choose>	
+									</c:choose>
 								</c:forEach>
 							</select>
+						</p>
+							
+						<p style="display: none;">
+							<input type="hidden" name="deptSubmissionDate${count}"  value="${formater.formatDateToString(outer.submissionEndDate, 'dd/MM/yyyy', pageLocale)}"/>
 						</p>
 						<input type='button' style="margin-left: 10px;" class='button' id='${count}' value='<spring:message code="cutmotiondate.deleteDepartment" text="Delete Department"></spring:message>' onclick='deleteDepartment(${count});'/>
 						<input type='hidden' id='departmentId${count}' name='departmentId${count}' value="${outer.id}">

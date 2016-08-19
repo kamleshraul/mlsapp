@@ -18,6 +18,7 @@ import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallotAttendance;
+import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Session;
 import org.springframework.stereotype.Repository;
 
@@ -680,6 +681,15 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 				}else{
 					flag="CUSTOM_PARAMETER_NOT_SET";
 				}
+				
+				CustomParameter includeParties=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_INCLUDE_PARTIES", "");
+				if(includeParties!=null){
+					if(includeParties.getValue().equalsIgnoreCase("yes")){
+						flag = attendanceActiveParties(house, session,deviceType,locale);
+					}			
+				}else{
+					flag="CUSTOM_PARAMETER_NOT_SET";
+				}
 			}
 		}catch(Exception ex){
 			logger.error("Member Attendance creation failed.",ex);
@@ -732,8 +742,7 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		List<Member> members=new ArrayList<Member>();
 		members=Member.findActiveMembers(house, new Date(), ApplicationConstants.ASC, locale);
 		for(Member i:members){
-			MemberBallotAttendance memberBallotAttendance=new 
-					MemberBallotAttendance(session,deviceType,i,false,locale);			
+			MemberBallotAttendance memberBallotAttendance = new MemberBallotAttendance(session,deviceType,i,false,locale);			
 			memberBallotAttendance.persist();
 		}		
 		return "SUCCESS";
@@ -745,6 +754,21 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 		return null;
 	}
 
+	private String attendanceActiveParties(final House house, 
+			final Session session,
+			final DeviceType deviceType,
+			final String locale) {
+		
+		List<Party> parties = new ArrayList<Party>(); 
+		parties = Party.findAll(Party.class, "name", ApplicationConstants.ASC, locale);
+		
+		for(Party i : parties){
+			MemberBallotAttendance memberBallotAttendance = new MemberBallotAttendance(session,deviceType,i,false,locale);			
+			memberBallotAttendance.persist();
+		}		
+		return "SUCCESS";
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List<MemberBallotAttendance> findAll(final Session session,
 			final DeviceType deviceType,
@@ -782,13 +806,16 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			strQuery.append(" AND m.attendance=:attendance");
 		}
 
-		strQuery.append(" ORDER BY ");
-
-		if(sortOrder.equals("member")){
-			strQuery.append(" m.member.lastName ASC");
-		}else{
-			strQuery.append(" m.position ASC");
+		if(!sortOrder.isEmpty()){
+			strQuery.append(" ORDER BY ");
+			
+			if(sortOrder.equals("member")){
+				strQuery.append(" m.member.lastName ASC");
+			}else{
+				strQuery.append(" m." + sortOrder + " ASC");
+			}
 		}
+		
 		try{
 			Query jpQuery = this.em().createQuery(strQuery.toString());
 			jpQuery.setParameter("sessionId", session.getId());
@@ -837,6 +864,36 @@ public class MemberBallotAttendanceRepository extends BaseRepository<MemberBallo
 			logger.error(e.getMessage());
 			ELSException elsException = new ELSException();
 			elsException.setParameter("MemberBallotAttendanceRepository_List<Member>_findMembersByAttendance", "No member found.");
+			throw elsException;
+		}	
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Party> findPartiesByAttendance(final Session session,
+			final DeviceType deviceType,
+			final Boolean attendance,
+			final String locale) throws ELSException {
+
+		String query = "SELECT p FROM MemberBallotAttendance mba" +
+				" JOIN mba.party p" +
+				" WHERE mba.session.id=:sessionId" +
+				" AND mba.deviceType.id=:deviceTypeId" +
+				" AND mba.attendance=:attendance" +
+				" AND mba.locale=:locale ORDER BY mba.position";
+
+		try{
+			Query jpQuery = this.em().createQuery(query);
+			jpQuery.setParameter("sessionId", session.getId());
+			jpQuery.setParameter("deviceTypeId", deviceType.getId());
+			jpQuery.setParameter("attendance", attendance);
+			jpQuery.setParameter("locale", locale);
+
+			return jpQuery.getResultList();
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("MemberBallotAttendanceRepository_List<Party>_findMembersByAttendance", "No member found.");
 			throw elsException;
 		}	
 	}

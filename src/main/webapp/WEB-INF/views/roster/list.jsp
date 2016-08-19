@@ -6,12 +6,23 @@
 	<script type="text/javascript">	
 		$(document).ready(function(){
 			$(".toolTip").hide();
-			/**** grid params which is sent to load grid data being sent ****/		
-			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
-					+"&sessionYear="+$("#selectedSessionYear").val()
-					+"&sessionType="+$("#selectedSessionType").val()
-					+'&language='+$("#selectedLanguage").val()					
-					);
+			/**** grid params which is sent to load grid data being sent ****/	
+			if($('#selectedModule').val()=="COMMITTEE"){
+				$("#gridURLParams").val("houseType=''"
+						+"&sessionYear=0"
+						+"&sessionType=0"
+						+"&language="+$("#selectedLanguage").val()
+						+"&committeeMeeting="+$("#selectedCommitteeMeeting").val()
+						);
+			}else{
+				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
+						+"&sessionYear="+$("#selectedSessionYear").val()
+						+"&sessionType="+$("#selectedSessionType").val()
+						+"&language="+$("#selectedLanguage").val()
+						+"&committeeMeeting=0"
+						);
+			}
+			
 			/**** new roster ****/
 			$('#new_record').click(function(){
 				newRoster();
@@ -33,6 +44,12 @@
 			/****To see the roster of the day****/
 			$("#view_roster").click(function() {
 				viewRoster();
+			});
+			
+			/****Publish the roster proceeding for Committees & Editing****/
+			$("#publish").click(function(){
+				currentSelectedRow=$('#key').val();
+				publishRoster(currentSelectedRow);
 			});
 		});	
 		function rowSelectHandler(rowid,status){			
@@ -71,6 +88,9 @@
 			</a> |
 			<a href="#" id="view_roster" class="butSim">
 				<spring:message code="roster.roster" text="Roster"/>
+			</a> |
+			<a href="#" id="publish" class="butSim">
+				<spring:message code="roster.publish" text="Publish"/>
 			</a> |					
 			<p>&nbsp;</p>
 		</div>

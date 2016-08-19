@@ -59,18 +59,22 @@
 		$('.contentDraft').each(function() {
 			var currentLanguage = this.id.split("_")[2];				
 			if(currentLanguage==$('#defaultBillLanguage').val()) {		
-				$('#contentDraft_para_'+currentLanguage).show();					
+				$('#contentDraft_para_'+currentLanguage).show();
+				$('#contentDraft_FileDiv_'+currentLanguage).show();
 			} else {
-				$('#contentDraft_para_'+currentLanguage).hide();										
+				$('#contentDraft_para_'+currentLanguage).hide();
+				$('#contentDraft_FileDiv_'+currentLanguage).hide();
 			}
 		});
 		/**** toggle contentDraft for given language icon ****/
 		$('.toggleContentDraft').click(function() {
 			var currentLanguage = this.id.split("_")[1];				
 			if($('#contentDraft_para_'+currentLanguage).css('display')=='none') {
-				$('#contentDraft_para_'+currentLanguage).show();					
+				$('#contentDraft_para_'+currentLanguage).show();
+				$('#contentDraft_FileDiv_'+currentLanguage).show();
 			} else {
-				$('#contentDraft_para_'+currentLanguage).hide();					
+				$('#contentDraft_para_'+currentLanguage).hide();
+				$('#contentDraft_FileDiv_'+currentLanguage).hide();
 			}
 			return false;
 		});
@@ -250,7 +254,13 @@
 		
 		.impIcons{
 			box-shadow: 2px 2px 2px black;
-		}						
+		}	
+		
+		.textdraft_file {
+			float: right; 
+			margin: -210px 20px;
+			position: relative;
+		}					
 	</style>
 </head>
 
@@ -402,7 +412,15 @@
 					<div id="contentDraft_para_${i.language.type}" style="display:none;">
 					<p>
 						<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.contentDraft" text="Draft"/></label>
-						<textarea class="wysiwyg contentDraft" id="contentDraft_text_${i.language.type}" name="contentDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
+						<textarea class="wysiwyg contentDraft" id="contentDraft_text_${i.language.type}" name="contentDraft_text_${i.language.type}">${i.text}</textarea>
+						<div class="textdraft_file" id="contentDraft_FileDiv_${i.language.type}">
+							<jsp:include page="/common/file_load.jsp">
+								<jsp:param name="fileid" value="contentDraft-file-${i.language.type}" />
+								<jsp:param name="filetag" value="${i.file}" />
+								<jsp:param name="isUploadAllowed" value="false" />
+								<jsp:param name="isRemovable" value="false" />
+							</jsp:include>			
+						</div>
 						<input type="hidden" name="contentDraft_id_${i.language.type}" value="${i.id}">
 						<input type="hidden" name="contentDraft_language_id_${i.language.type}" value="${i.language.id}">						
 					</p>						
@@ -525,6 +543,55 @@
 			</div>
 		</fieldset>
 	</div>
+	
+	<c:if test="${selectedDeviceTypeForBill=='bills_government'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="bill.opinionSoughtFromLawAndJD" text="Opinion from Law & Judiciary Department"/></label>
+			<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg"></form:textarea>
+			<div class="textdraft_file" id="opinionSoughtFromLawAndJD_FileDiv">
+				<jsp:include page="/common/file_load.jsp">
+					<jsp:param name="fileid" value="opinionSoughtFromLawAndJDFile" />
+					<jsp:param name="filetag" value="${domain.opinionSoughtFromLawAndJDFile}" />
+					<jsp:param name="isRemovable" value="false" />
+					<jsp:param name="isUploadAllowed" value="false" />
+				</jsp:include>							
+			</div>
+			<form:errors path="opinionSoughtFromLawAndJD" />
+		</p>
+		<c:if test="${not empty dateOfOpinionSoughtFromLawAndJD}">
+			<p>
+			<label class="small"><spring:message code="bill.dateOfOpinionSoughtFromLawAndJD" text="Date Of Opinion Sought From Law And JD"/></label>
+			<input id="formattedDateOfOpinionSoughtFromLawAndJD" name="formattedDateOfOpinionSoughtFromLawAndJD" value="${formattedDateOfOpinionSoughtFromLawAndJD}" class="sText" readonly="readonly">
+			<input id="setDateOfOpinionSoughtFromLawAndJD" name="setDateOfOpinionSoughtFromLawAndJD" type="hidden"  value="${dateOfOpinionSoughtFromLawAndJD}">	
+			</p>
+		</c:if>
+		
+		<p>
+			<label class="wysiwyglabel"><spring:message code="bill.recommendationFromGovernor" text="Recommendation From Governor"/></label>
+			<form:textarea id="recommendationFromGovernor" path="recommendationFromGovernor" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="recommendationFromGovernor" />
+		</p>
+		<c:if test="${not empty dateOfRecommendationFromGovernor}">
+			<p>
+			<label class="small"><spring:message code="bill.dateOfRecommendationFromGovernor" text="Date Of Recommendation From Governor"/></label>
+			<input id="formattedDateOfRecommendationFromGovernor" name="formattedDateOfRecommendationFromGovernor" value="${formattedDateOfRecommendationFromGovernor}" class="sText" readonly="readonly">
+			<input id="setDateOfRecommendationFromGovernor" name="setDateOfRecommendationFromGovernor" type="hidden"  value="${dateOfRecommendationFromGovernor}">	
+			</p>
+		</c:if>
+		
+		<p>
+			<label class="wysiwyglabel"><spring:message code="bill.recommendationFromPresident" text="Recommendation From President"/></label>
+			<form:textarea id="recommendationFromPresident" path="recommendationFromPresident" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="recommendationFromPresident" />
+		</p>
+		<c:if test="${not empty dateOfRecommendationFromPresident}">
+			<p>
+			<label class="small"><spring:message code="bill.dateOfRecommendationFromPresident" text="Date Of Recommendation From President"/></label>
+			<input id="formattedDateOfRecommendationFromPresident" name="formattedDateOfRecommendationFromPresident" value="${formattedDateOfRecommendationFromPresident}" class="sText" readonly="readonly">
+			<input id="setDateOfRecommendationFromPresident" name="setDateOfRecommendationFromPresident" type="hidden"  value="${dateOfRecommendationFromPresident}">	
+			</p>
+		</c:if>
+	</c:if>
 	
 	<c:choose>
 	<c:when test="${status=='COMPLETED'}">

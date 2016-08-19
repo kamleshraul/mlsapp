@@ -67,8 +67,8 @@ public class MemberBallotChoiceRepository extends BaseRepository<MemberBallotCho
 		
 		try{
 			/**** Here we are assuming that submission time,start time,end time are all stored in same format in db ****/
-			String startTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
-			String endTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+			String startTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME);
+			String endTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME);
 			
 			List<Question> questions=new ArrayList<Question>();
 			

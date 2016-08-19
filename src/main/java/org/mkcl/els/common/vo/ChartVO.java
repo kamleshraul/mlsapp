@@ -117,7 +117,7 @@ public class ChartVO {
 				public int compare(final ChartVO c1, final ChartVO c2) {
 					if(deviceType.startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
 						/*****Added by Anand to sort the chart by the number *******/
-						if(!(c1.getDeviceVOs()==null)){
+						if(c1.getDeviceVOs()!=null){
 							Integer c1Number=c1.getDeviceVOs().get(0).getNumber();
 							Integer c2Number=c2.getDeviceVOs().get(0).getNumber();
 							return c1Number.compareTo(c2Number);
@@ -127,7 +127,7 @@ public class ChartVO {
 							return c1MemberName.compareTo(c2MemberName);
 						}
 					}else if(deviceType.startsWith(ApplicationConstants.DEVICE_QUESTIONS)){
-						if(deviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+						if(deviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 							if(!(c1.getDeviceVOs()==null)){
 								Integer c1Number=c1.getDeviceVOs().get(0).getNumber();
 								Integer c2Number=c2.getDeviceVOs().get(0).getNumber();

@@ -18,6 +18,10 @@ public class ParentVO {
 	
 	private String startTime;
 	
+	private String houseType;
+	
+	private String nextReporter;
+	
 	private List<ChildVO> childVOs;
 
 	public ParentVO() {
@@ -92,10 +96,22 @@ public class ParentVO {
 	public void setChildVOs(List<ChildVO> childVOs) {
 		this.childVOs = childVOs;
 	}
-	
-	
-	
-	
-	
 
+	public String getHouseType() {
+		return houseType;
+	}
+
+	public void setHouseType(String houseType) {
+		this.houseType = houseType;
+	}
+
+	public String getNextReporter() {
+		return nextReporter;
+	}
+
+	public void setNextReporter(String nextReporter) {
+		this.nextReporter = nextReporter;
+	}
+	
+	
 }

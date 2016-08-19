@@ -21,6 +21,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.TableGenerator;
 import javax.persistence.Version;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.repository.BaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -205,6 +206,13 @@ public class BaseDomain {
     public static <T extends BaseDomain> T findById(final Class persistenceClass, 
     		final Long id) {
         return (T) getBaseRepository().findById(persistenceClass, id);
+    }
+    
+    @SuppressWarnings({ "rawtypes" })
+	@Transactional(readOnly = true)
+    public static <T extends BaseDomain> List<T> findAllHavingIdIn(final Class persistenceClass, 
+    		final String[] domainIds ) {    	
+        return getBaseRepository().findAllHavingIdIn(persistenceClass, domainIds);
     }
 
     /**

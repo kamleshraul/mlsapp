@@ -59,7 +59,7 @@
 						<th><spring:message code="general.srnumber" text="Serial Number"/></th>
 						<th><spring:message code="member.name" text="Member Name"/></th>
 						<th><spring:message code="resolution.number" text="Resolution Number"/></th>
-						<th><spring:message code="resolution.subject" text="Subject"/></th>
+						<%-- <th><spring:message code="resolution.subject" text="Subject"/></th> --%>
 						<th><spring:message code="resolution.selectfordiscussion" text="To Be Discussed"/></th>
 					</tr>
 			
@@ -68,7 +68,7 @@
 							<td>${serialnumber[counter.count - 1].name}</td>
 							<td>${report[2]}</td>
 							<td>${report[3]}</td>
-							<td>${report[4]}</td>
+							<%-- <td>${report[4]}</td> --%>
 							<td align="center">
 								<c:choose>
 									<c:when test="${report[6]=='checked'}">

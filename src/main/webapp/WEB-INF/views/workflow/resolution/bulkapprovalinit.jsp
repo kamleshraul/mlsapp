@@ -38,6 +38,7 @@
 			 ,file:$("#apprfile").val()
 			 ,itemscount:$("#appritemscount").val()
 			 ,workflowSubType:$("#apprworkflowSubType").val()
+			 ,file:$("#apprfile").val()
 		 },function(data){
 			 $("#bulkResultDiv").empty();
 			 $("#bulkResultDiv").html(data);
@@ -72,7 +73,9 @@
 					}
 					text+="<option value='-'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 					$("#appractor").html(text);
-					$("#actorDiv").show();								
+					$("#actorDiv").show();	
+					/* $("#refTextDiv").show();
+					$("#remarkDiv").show(); */
 				}else{
 					$("#appractor").empty();
 					$("#actorDiv").hide();	
@@ -130,6 +133,9 @@
 						 ,file:$("#apprfile").val()
 						 ,itemscount:$("#appritemscount").val()
 						 ,workflowSubType:$("#apprworkflowSubType").val()
+						,file:$("#apprfile").val()
+						 ,remarks:$("remarks").val()
+						 ,refertext:$("#refText").val()
 					 	},
 	    	            function(data){
 	       					$('html').animate({scrollTop:0}, 'slow');
@@ -168,7 +174,15 @@
 		<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
 		<select id="appractor" class="sSelect"></select>
 	</span>	
-	<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
+	<p>
+		<label class="small"><spring:message code="question.remarks" text="Remarks"/></label>
+		<textarea name="remarks" id="remarks" class="sTextArea" ></textarea>
+		<label class="small" style="margin-left:10px;"><spring:message code="question.refText" text="ReferencedText"/></label>
+		<textarea name="refText" id="refText" class="sTextArea"></textarea>
+		<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>
+	</p>	
+			
+			
 		
 </p>
 <div id="bulkResultDiv">	

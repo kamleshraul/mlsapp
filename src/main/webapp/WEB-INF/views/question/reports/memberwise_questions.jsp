@@ -144,7 +144,7 @@
 	<input type="text" class="sText" id="groupNumbers" name="groupNumbers" style="width: 200px;" value="<spring:message code='generic.allSelected' text='All Selected'/>"/>
 	<input type="hidden" id="groups" name="groups" value="0"/>
 	<label style="margin: 10px;"><spring:message code="memberwisereport.status" text="Status" /></label>
-	<select id="status"></select>
+	<select id="status" style="width: 250px;"></select>
 </p>
 <div id="listQuestionsDiv">
 </div>

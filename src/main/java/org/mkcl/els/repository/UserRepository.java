@@ -150,8 +150,17 @@ public class UserRepository extends BaseRepository<User,Long>{
 	
 	public User findbyNameBirthDate(final String firstName,final String middleName,final String lastName,
 			final Date birthDate) throws ELSException {
-		String strQuery="SELECT u FROM User u WHERE u.firstName=:firstName AND u.middleName=:middleName"+
-				" AND u.lastName=:lastName AND u.birthDate=:birthDate";
+		String strQuery="SELECT u FROM User u "
+				+ "WHERE ("
+				+ "(u.firstName=:firstName AND u.middleName=:middleName AND u.lastName=:lastName) "
+				+ " OR "
+				+ "(u.firstName=:firstName AND u.lastName=:lastName) "
+				+ " OR "
+				+ "(u.middleName=:middleName AND u.lastName=:lastName) "
+				+ " OR "
+				+ "(u.firstName=:firstName AND u.middleName=:middleName) "
+				+ ")"
+				+ "AND u.birthDate=:birthDate";
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("firstName", firstName);
 		query.setParameter("middleName",middleName);

@@ -11,15 +11,22 @@ import javax.persistence.Query;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CutMotion;
+import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Resolution;
+import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.StandaloneMotion;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowConfig;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -234,6 +241,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 			throw elsException;
 		}
 	}
+	
 	public UserGroup findUserGroup(final String houseType,final String userGroupType,final String deviceType,final String ministry,final String subDepartment) throws ELSException {
 		Date currentDate=new Date();  
 		String queryString = "SELECT u FROM UserGroup u JOIN u.userGroupType ugt WHERE " +
@@ -444,6 +452,191 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 		}
 
 	}
+	
+	public Reference findStandaloneMotionActor(final StandaloneMotion question, 
+			final String actor,
+			final String level, 
+			final String locale) throws ELSException {
+		try{
+			Reference reference = new Reference();
+
+			UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, 
+					"type", actor, locale);
+			List<UserGroup> userGroups = UserGroup.findAllByFieldName(UserGroup.class, "userGroupType",
+					userGroupType, "activeFrom", ApplicationConstants.DESC, locale);
+			for(UserGroup j : userGroups) {
+				int noOfComparisons = 0;
+				int noOfSuccess = 0;
+				Map<String, String> params = j.getParameters();
+
+				if(question.getHouseType() != null) {
+					HouseType bothHouse = HouseType.findByFieldName(HouseType.class, "type", 
+							"bothhouse", locale);
+					if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null &&! params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale).contains(
+							bothHouse.getName())) {
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(
+								question.getHouseType().getName())) {
+							noOfComparisons++;
+							noOfSuccess++;
+						}
+						else {
+							noOfComparisons++;
+						}
+					}
+				}
+
+				if(question.getType() != null) {
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale).contains(
+							question.getType().getName())) {
+						noOfComparisons++;
+						noOfSuccess++;
+					}
+					else {
+						noOfComparisons++;
+					}
+				}
+
+				if(question.getMinistry() != null) {
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && params.get(ApplicationConstants.MINISTRY_KEY + "_" + locale).contains(
+							question.getMinistry().getName())) {
+						noOfComparisons++;
+						noOfSuccess++;
+					}
+					else {
+						noOfComparisons++;
+					}
+				}
+
+				if(question.getSubDepartment() != null) {
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale).contains(
+							question.getSubDepartment().getName())) {
+						noOfComparisons++;
+						noOfSuccess++;
+					}
+					else {
+						noOfComparisons++;
+					}
+				}
+
+				Date fromDate = j.getActiveFrom();
+				Date toDate = j.getActiveTo();
+				Date currentDate = new Date();
+
+				noOfComparisons++;
+				if(((fromDate == null || currentDate.after(fromDate) || currentDate.equals(fromDate)) &&
+						(toDate == null || currentDate.before(toDate) || currentDate.equals(toDate)))) {
+					noOfSuccess++;
+				}
+
+				/**** Include Leave Module ****/
+				if(noOfComparisons == noOfSuccess) {
+					User user = User.findByFieldName(User.class, "credential", j.getCredential(), locale);
+					reference.setId(j.getCredential().getUsername()
+							+ "#" + j.getUserGroupType().getType()
+							+ "#" + level
+							+ "#" + userGroupType.getName()
+							+ "#" + user.getTitle() + " " + user.getFirstName() + " "
+							+ user.getMiddleName() + " " +user.getLastName());
+					reference.setName(userGroupType.getName());
+				}
+			}
+			return reference;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("UserGroupRepository_Reference_findMotionActor", "No Actor Found");
+			throw elsException;
+		}
+
+	}
+	
+	public Reference findDiscussionMotionActor(final DiscussionMotion motion,final String userGroupType,final String level,final String locale) throws ELSException {
+		try{
+			Reference reference=new Reference();
+			UserGroupType userGroupTypeTemp=UserGroupType.findByFieldName(UserGroupType.class,"type",userGroupType, locale);
+			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
+					userGroupTypeTemp, "activeFrom",ApplicationConstants.DESC, locale);
+			
+			List<Ministry> domainMinistries = motion.getMinistries();
+			List<SubDepartment> domainSubDepartments = motion.getSubDepartments();
+			
+			for(UserGroup j:userGroups){
+				int noOfComparisons=0;
+				int noOfSuccess=0;
+				Map<String,String> params=j.getParameters();
+				if(motion.getHouseType()!=null){
+					HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
+					if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(motion.getHouseType().getName())){
+							noOfComparisons++;
+							noOfSuccess++;
+						}else{
+							noOfComparisons++;
+						}
+					}
+				}
+				if(motion.getType()!=null){
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(motion.getType().getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}
+				
+				
+				if(domainMinistries != null) {
+					if (params.get(ApplicationConstants.MINISTRY_KEY + "_" + locale) != null
+							&& WorkflowConfig.containsGivenData(domainMinistries, 
+									params.get(ApplicationConstants.MINISTRY_KEY + "_" + locale))) {
+						noOfComparisons++;
+						noOfSuccess++;
+					} else {
+						noOfComparisons++;
+					}
+				}
+				if(domainSubDepartments != null) {
+					
+					if (params.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale) != null
+							&& WorkflowConfig.containsGivenData(domainSubDepartments, 
+									params.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale))) {
+						noOfComparisons++;
+						noOfSuccess++;
+					} else {
+						noOfComparisons++;
+					}
+				}
+				
+				Date fromDate=j.getActiveFrom();
+				Date toDate=j.getActiveTo();
+				Date currentDate=new Date();
+				noOfComparisons++;
+				if(((fromDate==null||currentDate.after(fromDate)||currentDate.equals(fromDate))
+						&&(toDate==null||currentDate.before(toDate)||currentDate.equals(toDate)))
+						){
+					noOfSuccess++;
+				}
+				/**** Include Leave Module ****/
+				if(noOfComparisons==noOfSuccess){
+					User user=User.findByFieldName(User.class,"credential",j.getCredential(), locale);
+					reference.setId(j.getCredential().getUsername()
+							+"#"+j.getUserGroupType().getType()
+							+"#"+level
+							+"#"+userGroupTypeTemp.getName()
+							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+					reference.setName(userGroupTypeTemp.getName());
+				}
+			}
+			return reference;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("UserGroupRepository_Reference_findMotionActor", "No Actor Found");
+			throw elsException;
+		}
+	}
 
 	public Map<String, String> findParametersByUserGroup(UserGroup userGroup) {
 		String strQuery="SELECT u FROM UserGroup u WHERE u.id=:userGroupId";
@@ -451,5 +644,59 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 		query.setParameter("userGroupId", userGroup.getId());
 		UserGroup ug1=  (UserGroup) query.getSingleResult();
 		return ug1.getParameters();
+	}
+
+	public UserGroup findActive(final Credential credential,
+			final UserGroupType usergroupType,
+			final Date onDate, String locale) {
+		String strQuery = "SELECT ug FROM UserGroup ug " +
+				" WHERE ug.userGroupType.id=:usergroupTypeId "+
+				" AND ug.activeFrom<=:onDate"+
+				" AND ug.activeTo>=:onDate"+
+				" AND ug.credential.id=:credentialId";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("usergroupTypeId", usergroupType.getId());
+		query.setParameter("onDate", onDate);
+		query.setParameter("credentialId", credential.getId());
+		List<UserGroup> userGroups = query.getResultList();
+		if(userGroups.size()>0){
+			return userGroups.get(0);
+		}else{
+			return null;
+		}
+	}
+	
+	public UserGroup findActive(final String userGroupType,
+			final Date onDate, String locale) {
+		String strQuery = "SELECT ug FROM UserGroup ug" +
+				" WHERE ug.userGroupType.type=:userGroupType"+
+				" AND ug.activeFrom<=:onDate"+
+				" AND ug.activeTo>=:onDate";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("userGroupType", userGroupType);
+		query.setParameter("onDate", onDate);
+		List<UserGroup> userGroups = query.getResultList();
+		if(userGroups.size()>0){
+			return userGroups.get(0);
+		}else{
+			return null;
+		}
+	}
+
+	public UserGroup findActive(final Credential credential,
+			final Date onDate, String locale) {
+		String strQuery = "SELECT ug FROM UserGroup ug " +
+				" WHERE ug.activeFrom<=:onDate"+
+				" AND ug.activeTo>=:onDate"+
+				" AND ug.credential.id=:credentialId";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("onDate", onDate);
+		query.setParameter("credentialId", credential.getId());
+		List<UserGroup> userGroups = query.getResultList();
+		if(userGroups.size()>0){
+			return userGroups.get(0);
+		}else{
+			return null;
+		}
 	}
 }

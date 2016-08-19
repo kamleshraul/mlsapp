@@ -12,6 +12,8 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -25,6 +27,9 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.repository.CredentialRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -54,6 +59,9 @@ public class Credential extends BaseDomain implements Serializable {
 
     /** The enabled. */
     private boolean enabled;
+    
+    /** The is allowed for multi login. default is false. */
+    private boolean allowedForMultiLogin = false;
 
     /** The email. */
     @Column(length = 200)
@@ -71,8 +79,25 @@ public class Credential extends BaseDomain implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLoginTime;
     
+    private String otpCode;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date otpExpiryTime;    
+    
+    @Autowired
+	private transient CredentialRepository repository;
+    
+    private int passwordChangeCount;    
 
-    // ---------------------------------Constructors----------------------------------------------
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date passwordChangeDateTime;    
+    
+    /** The high security password. */
+    @Column(length = 20)
+    private String highSecurityPassword;
+ 
+
+	// ---------------------------------Constructors----------------------------------------------
     /**
      * Instantiates a new credential.
      */
@@ -99,6 +124,122 @@ public class Credential extends BaseDomain implements Serializable {
         this.lastLoginTime = lastLoginTime;
     }
     // -------------------------------Domain_Methods----------------------------------------------
+    
+    private static CredentialRepository getRepository() {
+    	CredentialRepository repository = new Credential().repository;
+		
+		if(repository == null) {
+			throw new IllegalStateException(
+				"CredentialRepository has not been injected in" +
+				" Credential Domain");
+		}
+		
+		return repository;
+	}
+    
+    public static String generatePassword(int length){
+    	return (new Credential()).genPassword(length);
+    }
+    
+    private String genPassword(int length){
+    	StringBuffer[] charType = {new StringBuffer("alpha"), new StringBuffer("numeral"), new StringBuffer("special")};
+    	int charTypeLength = charType.length;
+    	
+    	StringBuffer[] charCase = {new StringBuffer("upper"),new StringBuffer("lower")};
+    	int charCaseLength = charCase.length;
+    	
+    	Random rnd = new Random();
+    	
+    	StringBuffer retVal = new StringBuffer();
+    	for(int i = 0; i < length; i++){
+    		int indexCharType = (int)(Math.abs(rnd.nextLong()) % charTypeLength);
+    		
+    		while(indexCharType < 0 || indexCharType > charTypeLength){
+    			indexCharType = (int)(Math.abs(rnd.nextLong()) % charTypeLength);
+    		}
+    		
+    		String strCharType = charType[indexCharType].toString();
+    		
+    		if(strCharType.equals("alpha")){
+    			int indexCharCase = (int)(Math.abs(rnd.nextLong()) % charCaseLength);
+    			
+    			while(indexCharCase < 0 || indexCharCase > charCaseLength){
+        			indexCharCase = (int)(Math.abs(rnd.nextLong()) % charCaseLength);
+        		}
+    			
+    			retVal.append(genAlphas(charCase[indexCharCase].toString()));
+    		}else if(strCharType.equals("numeral")){
+    			retVal.append(genNumerals());    			
+    		}else if(strCharType.equals("special")){
+    			retVal.append(genSpecials());
+    		}  		
+    		
+    	}
+    	return retVal.toString();
+    }
+    
+    private String genAlphas(String letterCase){
+    	String alphas = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    	StringBuffer retVal = new StringBuffer();
+    	
+    	if(letterCase.equals("upper")){
+    		Random rnd = new Random();
+    		int index = Math.abs(rnd.nextInt()) % 25;
+    		while(index < 0 || index > 25){
+    			index = Math.abs(rnd.nextInt()) % 25;
+    		}
+    		
+    		//char c = (char)(((int)alphas.charAt(index)) + Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+    	    retVal.append(alphas.charAt(index));
+    		
+    	}else if(letterCase.equals("lower")){
+    		Random rnd = new Random();
+    		int index = (int)Math.abs(rnd.nextLong()) % 51;
+    		while(index < 25 || index > 51){
+    			index = (int)Math.abs(rnd.nextLong()) % 51;
+    		}
+    		
+    		//char c = (char)(((int)alphas.charAt(index)) + Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+    		retVal.append(alphas.charAt(index));
+    	}
+    	
+    	return retVal.toString();
+    }
+    
+    private String genNumerals(){
+    	String nums = "0123456789";
+    	StringBuffer retVal = new StringBuffer();
+    	Random rnd = new Random();
+    	int length = nums.length() - 1;
+    	int index = (int)(Math.abs(rnd.nextLong()) % length);
+		while(index < 0 || index > (length - 1)){
+			index = (int)(Math.abs(rnd.nextLong()) % length);
+		}
+		//char c = (char)(((int)nums.charAt(index)) + Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+		retVal.append(nums.charAt(index));
+    	
+    	return retVal.toString();
+    }
+    
+    private String genSpecials(){
+    	String specials = "!@#$%^&*()";
+    	StringBuffer retVal = new StringBuffer();
+    	Random rnd = new Random();
+    	int length = specials.length() - 1;
+    	int index = (int)(Math.abs(rnd.nextLong()) % length);
+		while(index < 0 || index > (length - 1)){
+			index = (int)(Math.abs(rnd.nextLong()) % length);
+		}
+		
+		//char c = (char)(((int)specials.charAt(index)) + Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+		retVal.append(specials.charAt(index));
+    	
+    	return retVal.toString();
+    }
+    
+    public static List<Credential> findAllCredentialsByRole(final String role){
+    	return getRepository().findAllCredentialsByRole(role);
+    }
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the username.
@@ -145,7 +286,6 @@ public class Credential extends BaseDomain implements Serializable {
         return enabled;
     }
 
-
     /**
      * Sets the enabled.
      *
@@ -154,6 +294,24 @@ public class Credential extends BaseDomain implements Serializable {
     public void setEnabled(final boolean enabled) {
         this.enabled = enabled;
     }
+
+    /**
+     * Checks if is allowed for multi login.
+     *
+     * @return true, if is allowed for multi login
+     */
+    public boolean isAllowedForMultiLogin() {
+		return allowedForMultiLogin;
+	}
+
+    /**
+     * Sets the allowed for multi login.
+     *
+     * @param allowed for multi login the new allowed for multi login
+     */
+	public void setAllowedForMultiLogin(boolean allowedForMultiLogin) {
+		this.allowedForMultiLogin = allowedForMultiLogin;
+	}
 
     /**
      * Gets the roles.
@@ -209,4 +367,43 @@ public class Credential extends BaseDomain implements Serializable {
         this.email = email;
     }
 
+	public String getOtpCode() {
+		return otpCode;
+	}
+
+	public void setOtpCode(String otpCode) {
+		this.otpCode = otpCode;
+	}
+
+	public Date getOtpExpiryTime() {
+		return otpExpiryTime;
+	}
+
+	public void setOtpExpiryTime(Date otpExpiryTime) {
+		this.otpExpiryTime = otpExpiryTime;
+	}
+
+	public Date getPasswordChangeDateTime() {
+		return passwordChangeDateTime;
+	}
+
+	public void setPasswordChangeDateTime(Date passwordChangeDateTime) {
+		this.passwordChangeDateTime = passwordChangeDateTime;
+	}
+
+   public int getPasswordChangeCount() {
+		return passwordChangeCount;
+	}
+
+	public void setPasswordChangeCount(int passwordChangeCount) {
+		this.passwordChangeCount = passwordChangeCount;
+	}
+
+	public String getHighSecurityPassword() {
+		return highSecurityPassword;
+	}
+
+	public void setHighSecurityPassword(String highSecurityPassword) {
+		this.highSecurityPassword = highSecurityPassword;
+	}
 }

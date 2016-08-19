@@ -95,10 +95,10 @@ public class CutMotionDate extends BaseDomain implements Serializable{
 	private Date taskReceivedOn;	
 	
 	/**** departmentDates ****/
-	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-	@JoinTable(name="cutmotions_departments_date_priority",
+	@ManyToMany(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name="cutmotiondate_departments_priority",
 	joinColumns={@JoinColumn(name="cutmotiondate_id",referencedColumnName="id")},
-	inverseJoinColumns={@JoinColumn(name="cutmotion_department_date_priority_id",referencedColumnName="id")})
+	inverseJoinColumns={@JoinColumn(name="cutmotiondate_department_priority_id",referencedColumnName="id")})
 	private List<CutMotionDepartmentDatePriority> departmentDates;
 	
 	/**** Created By ****/
@@ -174,8 +174,8 @@ public class CutMotionDate extends BaseDomain implements Serializable{
      * Adds the question draft.
      */
     private void addCutMotiondateDraft() {
-        if(! this.getStatus().getType().equals(ApplicationConstants.QUESTION_INCOMPLETE) &&
-        		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_COMPLETE)) {
+        if(! this.getStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_DATE_INCOMPLETE) &&
+        		! this.getStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_DATE_COMPLETE)) {
             CutMotionDateDraft draft = new CutMotionDateDraft();
             draft.setDeviceType(this.getDeviceType());
             draft.setRemarks(this.getRemarks());
@@ -215,15 +215,40 @@ public class CutMotionDate extends BaseDomain implements Serializable{
     @Override
 	@Transactional
 	public CutMotionDate persist() {
-    	addCutMotiondateDraft();
+    	this.setDepartmentDates(saveDepartmentDatePriority(this.getDepartmentDates()));
+    	addCutMotiondateDraft();    	
         return (CutMotionDate)super.persist();
 	}
+    
+    private List<CutMotionDepartmentDatePriority> saveDepartmentDatePriority(List<CutMotionDepartmentDatePriority> data){
+    	List<CutMotionDepartmentDatePriority> newData = new ArrayList<CutMotionDepartmentDatePriority>();
+    	
+    	for(CutMotionDepartmentDatePriority ct : data){
+    		CutMotionDepartmentDatePriority tempCT = (CutMotionDepartmentDatePriority)ct.persist();
+    		newData.add(tempCT);    		
+    	}
+    	
+    	return newData;
+    }
+    
+    private boolean assignedIds(List<CutMotionDepartmentDatePriority> data){
+    	boolean retVal = false;
+    	
+    	for(CutMotionDepartmentDatePriority ct : data){
+    		if(ct.getId() == null){
+    			retVal = true;
+    			break;
+    		}
+    	}
+    	
+    	return retVal;
+    }
     
     @Override
 	@Transactional
 	public CutMotionDate merge() {
-    	 addCutMotiondateDraft();
-    	 return (CutMotionDate) super.merge();
+    	addCutMotiondateDraft();
+    	return (CutMotionDate) super.merge();
 	}
     
 	/**** Method ****/

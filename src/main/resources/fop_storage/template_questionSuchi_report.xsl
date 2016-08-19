@@ -646,8 +646,17 @@
 								<xsl:when test="sessionNumber = 4">
 									चौथे
 								</xsl:when>
+								<xsl:when test="sessionNumber = 5">
+									पाचवे
+								</xsl:when>
+								<xsl:when test="sessionNumber = 6">
+									सहावे
+								</xsl:when>
+								<xsl:when test="sessionNumber = 7">
+									सातवे
+								</xsl:when>
 							</xsl:choose>
-							&#160;अधिवेशन, <xsl:value-of select="sessionYear"/>																								
+							अधिवेशन, <xsl:value-of select="sessionYear"/>																						
 						</fo:block>		
 						<fo:block text-align="center" font-weight="bold" font-size="12pt">
 							--------------------------
@@ -896,7 +905,7 @@
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;
-			                		प्रधान सचिव,
+			                		<xsl:value-of select="userRole"/>,
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		दिनांक: <xsl:value-of select="reportDate"/>
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
@@ -946,7 +955,7 @@
 				     							</fo:table-cell>
 				     							<fo:table-cell>
 				     								<fo:block text-align="center">
-				     									प्रधान सचिव,
+				     									<xsl:value-of select="userRole"/>,
 				     								</fo:block>				     								
 				     							</fo:table-cell>
 				                        	</fo:table-row>
@@ -978,7 +987,7 @@
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<xsl:value-of select="sessionPlace"/>.
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;			                		
-			                		प्रधान सचिव,
+			                		<xsl:value-of select="userRole"/>,
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<fo:block text-align="right">
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
@@ -986,7 +995,7 @@
 			                	</fo:block>
 			                	<fo:block>_______________________________________________________________________</fo:block>
 			                	<fo:block text-align="center">
-			                		मुद्रणपूर्व सर्व प्रकिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+			                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
 			                	</fo:block>
 			                	<fo:block></fo:block>
 				     			<fo:block text-align="center">

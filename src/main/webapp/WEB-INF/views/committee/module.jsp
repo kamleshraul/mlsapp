@@ -82,6 +82,30 @@
 		showTabByIdAndUrl(id, url);
 	}
 
+
+	function patrakbhag(rowId) {
+		$('#cancelFn').val('patrakbhag');
+		if(rowId == null || rowId == '') {
+			var msg = $('#selectRowFirstMessage').val();
+			$.prompt(msg);
+			return false;
+		}
+		var id = 'details_tab';
+		var url = 'committee/report' + '/' + rowId + '/' + 'viewPatrakBhag';
+		$('#patrakbhag').attr('href', url);
+	}
+	function knyapan(rowId) {
+		$('#cancelFn').val('knyapan');
+		if(rowId == null || rowId == '') {
+			var msg = $('#selectRowFirstMessage').val();
+			$.prompt(msg);
+			return false;
+		}
+		var id = 'details_tab';
+		var url = 'committee/report' + '/' + rowId + '/' + 'viewMemorandum';
+		$('#knyapan').attr('href', url);
+	}
+	
 	function invitedMemberAddition() {
 		var id = 'details_tab';
 		var url = 'workflow/committee/init/invitedMemberAddition';
@@ -105,8 +129,8 @@
 
 	/* =============== FILTERS =============== */
 	function onPageLoad() {
-		prependOptionToCommitteeTypeFilter();
-		prependOptionToCommitteeNameFilter();
+		/*prependOptionToCommitteeTypeFilter();
+		prependOptionToCommitteeNameFilter();*/
 	}
 
 	function onCommitteeTypeFilterChange() {

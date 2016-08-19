@@ -59,11 +59,31 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	private IProcessService processService;
 	
 	@Override
+	protected void populateModule(final ModelMap model,
+			final HttpServletRequest request, final String locale,
+			final AuthUser currentUser) {
+		try {
+			this.populateCommitteeTypesAndNames(model, locale);
+		} catch (ELSException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
 	protected void populateNew(final ModelMap model, 
 			final CommitteeTour domain,
 			final String locale, 
 			final HttpServletRequest request) {
 		domain.setLocale(locale);
+		
+		//String strCommitteeType = request.getParameter("committeeType");
+		//CommitteeType committeeType = CommitteeType.findById(CommitteeType.class, Long.parseLong(strCommitteeType));
+		String strCommitteeName = request.getParameter("committeeName");
+		CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, Long.parseLong(strCommitteeName));
+		if(committeeName != null){
+			model.addAttribute("committeeDisplayName", committeeName.getDisplayName());
+			model.addAttribute("committeName",committeeName.getId());
+		}
 		
 		this.populateCommitteeNames(model, locale);
 		
@@ -285,8 +305,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		// with formatType "SERVER_DATEFORMAT". Hence, the need
 		// to register the date custom editor with formatType
 		// "SERVER_DATETIMEFORMAT"
-		String format = this.getCustomParameterValue(
-				ApplicationConstants.SERVER_DATETIMEFORMAT, "");
+		String format = ApplicationConstants.SERVER_DATETIMEFORMAT;
 		SimpleDateFormat dateFormat = new SimpleDateFormat(format, 
 				this.getUserLocale());
         dateFormat.setLenient(true);
@@ -506,6 +525,8 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			final HouseType houseType,
 			final String locale) {
 		Status status = this.getStatus(request);
+		
+		Committee committee = tour.getCommittee();
 		Integer assigneeLevel = ApplicationConstants.WORKFLOW_START_LEVEL;
 		String urlPattern = 
 			ApplicationConstants.COMMITTEETOUR_REQUEST_FOR_TOUR_URL;
@@ -515,7 +536,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 				assigneeLevel, urlPattern, locale);
 		
 		Task task = this.startProcess(request, userGroup, houseType, 
-				assigneeLevel, locale);
+				assigneeLevel,committee, locale);
 		
 		this.createNextActorWorkflowDetails(tour, request, task, 
 				userGroup, houseType, status, assigneeLevel, 
@@ -556,7 +577,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		// STEP 3: Proceed the Workflow
 		String taskId = wfDetails.getTaskId();
 		Task newTask = 
-			this.proceedProcess(nextWFActor, houseType, taskId, locale);
+			this.proceedProcess(nextWFActor, houseType, taskId, committee, locale);
 		
 		// STEP 4: If there happens to be a nextActor, create WorkflowDetails
 		// for him by passing the above acquired task
@@ -642,7 +663,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			final String urlPattern,
 			final String locale) {
 		WorkflowDetails wfDetails = new WorkflowDetails();
-		
+		Committee committee = tour.getCommittee();
 		// Workflow parameters
 		String wfName = this.getWorkflowName(status);
 		String wfSubType =  this.getWorkflowSubType(status);
@@ -660,7 +681,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 				currentActorUserGroup, houseType, 
 				currentActorLevel, locale);
 		UserGroup nextUserGroup = 
-			this.getUserGroup(nextActor, houseType, locale);
+			this.getUserGroup(nextActor, houseType,committee, locale);
 		UserGroupType nextUGT = nextUserGroup.getUserGroupType();
 		wfDetails.setAssignee(task.getAssignee());
 		wfDetails.setAssigneeUserGroupType(nextUGT.getType());
@@ -676,7 +697,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		// Not applicable parameters: deviceType, deviceNumber
 		// deviceOwner, internalStatus, recommendationStatus, sessionType
 		// sessionYear, remarks, subject, text, groupNumber, file
-		Committee committee = tour.getCommittee();
+		
 		wfDetails.setDeviceId(String.valueOf(committee.getId()));
 		wfDetails.setDomainIds(String.valueOf(tour.getId()));
 		wfDetails.setHouseType(houseType.getName());
@@ -711,6 +732,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			final UserGroup userGroup,
 			final HouseType houseType,
 			final Integer assigneeLevel,
+			final Committee committee,
 			final String locale) {
 		String key = ApplicationConstants.APPROVAL_WORKFLOW; 
 		ProcessDefinition definition = 
@@ -720,7 +742,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		WorkflowActor wfActor = this.getNextActor(request, 
 				userGroup, houseType, assigneeLevel, locale);
 		if(wfActor != null) {
-			User user = this.getUser(wfActor, houseType, locale);
+			User user = this.getUser(wfActor, houseType, committee, locale);
 			properties.put("pv_user", user.getCredential().getUsername());
 			properties.put("pv_endflag", "continue");
 		}
@@ -745,13 +767,14 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	private Task proceedProcess(final WorkflowActor nextWorkflowActor,
 			final HouseType houseType,
 			final String currentTaskId,
+			final Committee committee,
 			final String locale) {
 		Task currentTask = processService.findTaskById(currentTaskId);
 		Map<String, String> properties = new HashMap<String, String>();
 		
 		if(nextWorkflowActor != null) {
 			User user = this.getUser(nextWorkflowActor, 
-					houseType, locale);
+					houseType,committee, locale);
 			properties.put("pv_user", user.getCredential().getUsername());
 			properties.put("pv_endflag", "continue");
 		}
@@ -775,6 +798,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 
 	//=============== "GET" METHODS ============
 	private String getFullWorkflowName(final Status status) {
+		
 		String wfName = getWorkflowName(status);
 		String fullWfName = wfName + "_workflow";
 		return fullWfName;
@@ -824,7 +848,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		
 		// ugtType could be comma separated userGroupTypes
 		// in cases where there could be more than one initiator
-		String ugtType = getCustomParameterValue(name, locale);
+		String ugtType = getCustomParameterValue(name, "");
 		String[] ugtTypes = tokenize(ugtType, ",");
 		
 		List<UserGroup> userGroups = authUser.getUserGroups();
@@ -885,10 +909,11 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	
 	private UserGroup getUserGroup(final WorkflowActor wfActor, 
 			final HouseType houseType,
+			final Committee committee,
 			final String locale) {
 		List<UserGroup> userGroups = getUserGroups(wfActor, locale);		
 		UserGroup userGroup = 
-			getEligibleUserGroup(userGroups, houseType, true, locale);
+			getEligibleUserGroup(userGroups, houseType, committee, true, locale);
 		if(userGroup != null) {
 			return userGroup;
 		}
@@ -908,6 +933,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	 */
 	private UserGroup getEligibleUserGroup(List<UserGroup> userGroups,
 			final HouseType houseType,
+			final Committee committee,
 			final Boolean isIncludeBothHouseType,
 			final String locale) {
 		for(UserGroup ug : userGroups) {
@@ -931,7 +957,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			}
 			
 			// ug must have commitees configured
-			boolean flag2 = this.isCommitteeNamesConfigured(ug, locale);
+			boolean flag2 = this.isCommitteeNamesConfigured(ug,committee, locale);
 			
 			// ug must be active
 			boolean flag3 = false;
@@ -1126,8 +1152,9 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	
 	private User getUser(final WorkflowActor wfActor, 
 			final HouseType houseType,
+			final Committee committee,
 			final String locale) {
-		UserGroup userGroup = getUserGroup(wfActor, houseType, locale);
+		UserGroup userGroup = getUserGroup(wfActor, houseType,committee, locale);
 		if(userGroup != null) {
 			User user = getUser(userGroup, locale);
 			return user;
@@ -1146,12 +1173,22 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	
 	private Boolean isCommitteeNamesConfigured(
 			final UserGroup userGroup,
+			final Committee committee,
 			final String locale) {
 		String strCommitteeNames = 
 			userGroup.getParameterValue("COMMITTEENAME_" + locale);
-		if(strCommitteeNames != null && ! strCommitteeNames.isEmpty()) {
-			return true;
+		CommitteeName committeeName = committee.getCommitteeName();
+		if(committeeName != null){
+			if(strCommitteeNames != null && ! strCommitteeNames.isEmpty()) {
+				String[] committeeNames = strCommitteeNames.split("#");
+				for(String cName: committeeNames){
+					if(cName.equals(committeeName.getName())){
+						return true;
+					}
+				}
+			}
 		}
+		
 		
 		return false;
 	}
@@ -1529,7 +1566,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			+ wfName + "_" + ugtType;
 		String options = getCustomParameterValue(name, locale); 
 		if(options == null) {
-			name = "COMMITTEETOUR_PUT_UP_OPTIONS_" + wfName + "_DEFAULT";
+			name = "COMMITTEETOUR_PUT_UP_OPTIONS_DEFAULT";
 			options = getCustomParameterValue(name, locale);
 		}
 		
@@ -1559,10 +1596,24 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			final Integer assigneeLevel, 
 			final String locale) {
 		List<Reference> actors = new ArrayList<Reference>();
+		String strHouseType = userGroup.getParameterValue(ApplicationConstants.HOUSETYPE_KEY+"_"+locale);
+		HouseType houseType1 = null;
+		if(strHouseType != null && !strHouseType.isEmpty()){
+			 houseType1 = HouseType.findByName(HouseType.class, strHouseType, locale);
+		}else{
+			houseType1 = this.getCurrentUsersHouseType(locale);
+		}
+		List<WorkflowActor> wfActors = new ArrayList<WorkflowActor>();
+		if(houseType1.getType().equals(ApplicationConstants.BOTH_HOUSE)){
+			wfActors = WorkflowConfig.findCommitteeTourActors(
+					houseType1, userGroup, status, workflowName, 
+					assigneeLevel, locale);
+		}else{
+			 wfActors = WorkflowConfig.findCommitteeTourActors(
+					houseType, userGroup, status, workflowName, 
+					assigneeLevel, locale);
+		}
 		
-		List<WorkflowActor> wfActors = WorkflowConfig.findCommitteeTourActors(
-				houseType, userGroup, status, workflowName, 
-				assigneeLevel, locale);
 		for(WorkflowActor wfa : wfActors) {
 			String id = String.valueOf(wfa.getId());
 			String name = wfa.getUserGroupType().getName();
@@ -1771,6 +1822,98 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		}
 
 		return tokens;
+	}
+	
+	//============= INTERNAL METHODS FOR POPULATING COMMITTEE NAMES AND TYPES
+	
+	private void populateCommitteeTypesAndNames(ModelMap model, String locale) throws ELSException {
+		UserGroup userGroup = null;
+		UserGroupType userGroupType = null;
+		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+		if(userGroups != null && ! userGroups.isEmpty()) {
+			CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "CIS_ALLOWED_USERGROUPTYPES", "");
+			if(cp != null) {
+				List<UserGroupType> configuredUserGroupTypes = 
+						CommitteeTourController.delimitedStringToUGTList(cp.getValue(), ",", locale);
+				
+				userGroup = CommitteeTourController.getUserGroup(userGroups, configuredUserGroupTypes, locale);
+				userGroupType = userGroup.getUserGroupType();
+				model.addAttribute("usergroup", userGroup.getId());
+				model.addAttribute("usergroupType", userGroupType.getType());
+			}
+			else {
+				throw new ELSException("CommitteeTourController.populateModule/4", 
+						"CIS_ALLOWED_USERGROUPTYPES key is not set as CustomParameter");
+			}
+		}
+		if(userGroup == null || userGroupType == null) {
+			model.addAttribute("errorcode","current_user_has_no_usergroups");
+		}
+		
+		// Populate CommitteeTypes and CommitteNames
+		Map<String, String> parameters = UserGroup.findParametersByUserGroup(userGroup);
+		String committeeNameParam = parameters.get(ApplicationConstants.COMMITTEENAME_KEY + "_" + locale);
+		if(committeeNameParam != null && ! committeeNameParam.equals("")) {
+			List<CommitteeName> committeeNames =
+					CommitteeTourController.getCommitteeNames(committeeNameParam, "##", locale);
+			List<CommitteeType> committeeTypes = new ArrayList<CommitteeType>();
+			for(CommitteeName cn : committeeNames){
+				if(!committeeTypes.contains(cn.getCommitteeType())){
+					committeeTypes.add(cn.getCommitteeType());
+				}
+				
+			}
+			model.addAttribute("committeeNames", committeeNames);
+			model.addAttribute("committeeTypes", committeeTypes);
+		}
+		else {
+			throw new ELSException("CommitteeTourController.populateModule/4", 
+					"CommitteeName parameter is not set for Username: " + this.getCurrentUser().getUsername());
+		}
+	}
+
+
+	private static List<CommitteeName> getCommitteeNames(
+			String committeeNameParam, String delimiter, String locale) {
+		List<CommitteeName> committeeNames = new ArrayList<CommitteeName>();
+		String cNames[] = committeeNameParam.split(delimiter);
+		for(String cName : cNames){
+			List<CommitteeName> comNames = 
+					CommitteeName.findAllByFieldName(CommitteeName.class, "name", cName, "name", "asc", locale);
+			if(comNames != null && !comNames.isEmpty()){
+				committeeNames.addAll(comNames);
+			}
+		}
+		return committeeNames;
+	}
+
+	private static UserGroup getUserGroup(List<UserGroup> userGroups,
+			List<UserGroupType> configuredUserGroupTypes, String locale) {
+		for(UserGroup ug : userGroups) {
+			Date todaysDate = new Date();
+			if(ug.getActiveFrom().before(todaysDate) && ug.getActiveTo().after(todaysDate)){
+				for(UserGroupType ugt : configuredUserGroupTypes) {
+					UserGroupType userGroupType = ug.getUserGroupType();
+					if(ugt.getId().equals(userGroupType.getId())) {
+						return ug;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private static List<UserGroupType> delimitedStringToUGTList(String delimitedUserGroups,
+			String delimiter, String locale) {
+		List<UserGroupType> userGroupTypes = new ArrayList<UserGroupType>();
+		
+		String[] strUserGroupTypes = delimitedUserGroups.split(delimiter);
+		for(String strUserGroupType : strUserGroupTypes) {
+			UserGroupType ugt = UserGroupType.findByType(strUserGroupType, locale);
+			userGroupTypes.add(ugt);
+		}
+		
+		return userGroupTypes;
 	}
 	
 }

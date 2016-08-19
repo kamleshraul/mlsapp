@@ -889,7 +889,7 @@ public class Committee extends BaseDomain implements Serializable {
 				partyVO.setPartyId(p.getId());
 				partyVO.setShortName(p.getShortName());
 				partyVO.setName(p.getName());
-				partyVO.setType(p.getType());
+				partyVO.setType(p.getPartyType().getType());
 				
 				// If this party is the last party in the list
 				// then assign all the remaining seats to this party
@@ -932,7 +932,7 @@ public class Committee extends BaseDomain implements Serializable {
 		for(Party p : parties) {
 			long partyStrength = 0;
 			
-			String type = p.getType();
+			String type = p.getPartyType().getType();
 			if(type != null && 
 					ApplicationConstants.INDEPENDENT_PARTY.equals(type)) {
 				partyStrength = House.findIndependentMembersCount(houseType, 
@@ -969,7 +969,7 @@ public class Committee extends BaseDomain implements Serializable {
 			partyVO.setPartyId(p.getId());
 			partyVO.setShortName(p.getShortName());
 			partyVO.setName(p.getName());
-			partyVO.setType(p.getType());
+			partyVO.setType(p.getPartyType().getType());
 			
 			rulingPartyVO.add(partyVO);
 		}
@@ -989,7 +989,7 @@ public class Committee extends BaseDomain implements Serializable {
 			partyVO.setPartyId(p.getId());
 			partyVO.setShortName(p.getShortName());
 			partyVO.setName(p.getName());
-			partyVO.setType(p.getType());
+			partyVO.setType(p.getPartyType().getType());
 			
 			oppositionPartyVO.add(partyVO);
 		}

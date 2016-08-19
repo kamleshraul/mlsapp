@@ -25,7 +25,8 @@
 	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+'&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
 			if(data.length>0){
@@ -237,6 +238,16 @@
 		$("#selectedSupportingMembers").bind('copy paste', function (e) {
 		       e.preventDefault();
 		 });
+		
+		$('#number').change(function(){
+			$.get('ref/deviceexistsinsession?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#deviceType').val()+'&domain=CutMotion',function(data){
+				if(data){
+					$('#numberError').css('display','inline');
+				}else{
+					$('#numberError').css('display','none');
+				}
+			});
+		});
 	});
 	</script>
 </head>
@@ -260,6 +271,9 @@
 						<label class="small"><spring:message code="cutmotion.number" text="Motion Number"/>*</label>
 						<form:input path="number" cssClass="sText integer"/>
 						<form:errors path="number" cssClass="validationError"/>
+						<span id='numberError' style="display: none; color: red;">
+							<spring:message code="generic.domain.NonUnique" text="Duplicate Number"></spring:message>
+						</span>
 						<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
 					</p>
 					
@@ -312,7 +326,7 @@
 					</p>
 				</security:authorize>
 				
-				<security:authorize access="hasAnyRole('CMOIS_CLERK')">		
+				<security:authorize access="hasAnyRole('CMOIS_TYPIST')">		
 				<p>
 					<label class="small"><spring:message code="generic.primaryMember" text="Primary Member"/>*</label>
 					<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
@@ -356,7 +370,7 @@
 				
 				<p>
 					<label class="wysiwyglabel"><spring:message code="cutmotion.noticeContent" text="Content"/>*</label>
-					<form:textarea path="noticeContent" cssClass="wysiwyg"></form:textarea>
+					<form:textarea path="noticeContent" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 					<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 				</p>
 				
@@ -442,7 +456,7 @@
 			 <div class="fields">
 				<h2></h2>
 				<p class="tright">
-					<security:authorize access="hasAnyRole('CMOIS_CLERK')">	
+					<security:authorize access="hasAnyRole('CMOIS_TYPIST')">	
 						<input id="submitCutMotion" type="button" value="<spring:message code='cutmotion.submitmotion' text='Submit Motion'/>" class="butDef">			
 					</security:authorize>
 					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		

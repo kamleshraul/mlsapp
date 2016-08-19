@@ -11,14 +11,33 @@
 			var outputFormat="";
 			
 				$('#viewReport').click(function(){
-					var params="houseType=" + $('#selectedHouseType').val()
-					+ '&sessionYear=' + $("#selectedSessionYear").val()
-					+ '&sessionType=' + $("#selectedSessionType").val()
-					+ '&language=' + $("#selectedLanguage").val()
-					+ '&day=' +$('#selectedDay').val()
-					+ '&outputFormat=' +outputFormat;
-					$(this).attr('href','proceeding/reporterwiseproceeding?'+params);
 					
+					if($('#selectedModule').val()=="COMMITTEE"){
+						var params="committeeMeeting=" + $("#selectedCommitteeMeeting").val()
+						+ '&language=' + $("#selectedLanguage").val()
+						+ '&day=' +$('#selectedDay').val()
+						+ '&outputFormat=' +outputFormat;
+						if($('#outputFormat').val()!=""){
+							$(this).attr('href','proceeding/reporterwiseproceeding?'+params);
+						}else{
+							alert("select the file format");
+							return false;
+						}
+					}else{
+						var params="houseType=" + $('#selectedHouseType').val()
+						+ '&sessionYear=' + $("#selectedSessionYear").val()
+						+ '&sessionType=' + $("#selectedSessionType").val()
+						+ '&language=' + $("#selectedLanguage").val()
+						+ '&day=' +$('#selectedDay').val()
+						+ '&outputFormat=' +outputFormat;
+						if($('#outputFormat').val()!=""){
+							$(this).attr('href','proceeding/reporterwiseproceeding?'+params);
+						}else{
+							alert("select the file format");
+							return false;
+						}
+					
+					}
 				});
 				
 				$('#outputFormat').change(function(){
@@ -187,7 +206,7 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${r[4]!=null or r[4]!=''}">
+									<c:when test="${r[4]!=null and r[4]!=''}">
 										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}):
 									</c:when>
 								</c:choose>
@@ -249,7 +268,7 @@
 								</c:when>
 								<c:otherwise>
 									<c:choose>
-										<c:when test="${r[4]!=null or r[4]!=''}">
+										<c:when test="${r[4]!=null and r[4]!=''}">
 											&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}):
 										</c:when>
 									</c:choose>
@@ -367,7 +386,7 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${r[4]!=null or r[4]!=''}">
+									<c:when test="${r[4]!=null and r[4]!=''}">
 										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>${r[4]}</b>(${r[5]}):
 									</c:when>
 								</c:choose>

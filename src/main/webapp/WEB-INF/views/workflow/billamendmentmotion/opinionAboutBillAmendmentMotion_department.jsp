@@ -76,13 +76,13 @@
 				viewAmendedBillDetail($('#amendedBill').val());
 			});
 			
-			if($('#remarks').val()!=undefined
+			/* if($('#remarks').val()!=undefined
 					&& $('#remarks').val()!="" 
 					&& $('#remarks').val()!="<p></p>") {
 				$('#remarks_div').show();
 			} else {
 				$('#remarks_div').hide();
-			}
+			} */
 			
 			/**** show section amendment for only default bill language ****/
 			$('.sectionAmendment').each(function() {
@@ -263,7 +263,7 @@
 				$.prompt($('#sendOpinionFromLawAndJDMessage').val(),{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-			        	$("#endflag").val("end");
+			        	$("#endFlagForAuxillaryWorkflow").val("end");
 						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });						
 			        	$.post($('form').attr('action')+'?operation=sendOpinionFromLawAndJD',  
 			    	            $("form").serialize(),  
@@ -278,17 +278,20 @@
 		        return false;
 			});			    
 		    
-			// set status for workflow if default action is there
-			var statusRecommended = $('#changeInternalStatus').val();
+		 	// set status for workflow if default action is there
+			/* var statusRecommended = $('#changeInternalStatus').val();
 			if(statusRecommended!=null && statusRecommended!=undefined 
 					&& statusRecommended!="" && statusRecommended!="-")  {
-				if($('#workflowtype').val()=='APPROVAL_WORKFLOW' || $('#workflowtype').val()=='NAMECLUBBING_WORKFLOW') {
+				if($('#workflowtype').val()=='TRANSLATION_WORKFLOW' || $('#workflowtype').val()=='OPINION_FROM_LAWANDJD_WORKFLOW') {
+					$('#customStatus').val(statusRecommended);
+				} else {								
 					$('#internalStatus').val(statusRecommended);
 					$('#recommendationStatus').val(statusRecommended);
-				} else {
-					$('#customStatus').val(statusRecommended);					
 				}
-			}		
+			} */		
+			
+			//load actors as per default action
+		    $("#changeInternalStatus").change();		
 		});		
 		</script>
 		
@@ -420,24 +423,24 @@
 					</p>
 					</c:if>
 					<c:choose>	
-						<c:when test="${empty parent}"><c:set var="displayParentBill" value="none"/></c:when>
-						<c:otherwise><c:set var="displayParentBill" value="inline"/></c:otherwise>		
+						<c:when test="${empty parent}"><c:set var="displayParentMotion" value="none"/></c:when>
+						<c:otherwise><c:set var="displayParentMotion" value="inline"/></c:otherwise>		
 					</c:choose>
-					<p style="display: ${displayParentBill};">
+					<p style="display: ${displayParentMotion};">
 						<label class="small"><spring:message code="billamendmentmotion.parentBillAmendmentMotion" text="Clubbed To"></spring:message></label>
-						<a href="#" id="p${parent}" onclick="viewBillDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>						
+						<a href="#" id="p${parent}" onclick="viewBillAmendmentMotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>						
 						<input type="hidden" id="parent" name="parent" value="${parent}">
 					</p>		
 					<c:choose>	
-						<c:when test="${empty clubbedBillsToShow}"><c:set var="displayClubbedBillsToShow" value="none"/></c:when>
-						<c:otherwise><c:set var="displayClubbedBillsToShow" value="inline"/></c:otherwise>		
+						<c:when test="${empty clubbedMotionsToShow}"><c:set var="displayClubbedMotionsToShow" value="none"/></c:when>
+						<c:otherwise><c:set var="displayClubbedMotionsToShow" value="inline"/></c:otherwise>		
 					</c:choose>
-					<p style="display: ${displayClubbedBillsToShow};">
-						<label class="small"><spring:message code="billamendmentmotion.clubbedbills" text="Clubbed Bills"></spring:message></label>
+					<p style="display: ${displayClubbedMotionsToShow};">
+						<label class="small"><spring:message code="billamendmentmotion.clubbedmotions" text="Clubbed Motions"></spring:message></label>
 						<c:choose>
-							<c:when test="${!(empty clubbedBillsToShow) }">
-								<c:forEach items="${clubbedBillsToShow}" var="i">
-									<a href="#" id="cq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+							<c:when test="${!(empty clubbedMotionsToShow) }">
+								<c:forEach items="${clubbedMotionsToShow}" var="i">
+									<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewBillAmendmentMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 								</c:forEach>
 							</c:when>
 							<c:otherwise>
@@ -445,7 +448,7 @@
 							</c:otherwise>
 						</c:choose>
 						<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
-							<c:forEach items="${clubbedBills }" var="i">
+							<c:forEach items="${clubbedMotionsToShow}" var="i">
 								<option value="${i.id}" selected="selected"></option>
 							</c:forEach>
 						</select>
@@ -594,14 +597,20 @@
 					
 					<form:hidden path="id"/>
 					<form:hidden path="locale"/>
-					<form:hidden path="version"/>					
+					<form:hidden path="version"/>	
+					<form:hidden path="workflowStarted"/>	
+					<form:hidden path="endFlag"/>
+					<form:hidden path="level"/>
+					<form:hidden path="localizedActorName"/>
+					<form:hidden path="workflowDetailsId"/>				
 					<form:hidden path="file"/>
 					<form:hidden path="fileIndex"/>	
 					<form:hidden path="fileSent"/>
 					<form:hidden path="remarksForTranslation"/>
-					<input id="level" name="level" value="${level}" type="hidden">
-					<input id="endflag" name="endflag" value="continue" type="hidden">
 					<input id="customStatus" name="customStatus" type="hidden">
+					<input id="levelForAuxillaryWorkflow" name="levelForAuxillaryWorkflow" type="hidden" value="${level}">
+					<input id="localizedActorNameForAuxillaryWorkflow" name="localizedActorNameForAuxillaryWorkflow" type="hidden">
+					<input id="endFlagForAuxillaryWorkflow" name="endFlagForAuxillaryWorkflow" value="end" type="hidden">
 					<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 					<input type="hidden" name="status" id="status" value="${status }">
 					<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">

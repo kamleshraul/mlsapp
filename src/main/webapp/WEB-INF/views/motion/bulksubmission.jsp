@@ -37,7 +37,7 @@
 			}
 		});
 		$("#chkall").change(function(){
-			console.log($(this).is(":checked"));			
+					
 			if($(this).is(":checked")){
 				$(".action").attr("checked","checked");	
 			}else{

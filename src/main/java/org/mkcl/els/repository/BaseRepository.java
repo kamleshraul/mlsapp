@@ -10,6 +10,7 @@
 package org.mkcl.els.repository;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -70,6 +71,16 @@ public class BaseRepository<T, ID extends Serializable> extends
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	public <U extends T> U findById(final Class persistenceClass, final ID id) {
         return (U) _find(persistenceClass, id);
+    }
+    
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public <U extends T> List<U> findAllHavingIdIn(final Class persistenceClass, final String[] domainIds) {
+        List<U> domainObjects = new ArrayList<U>();
+        for(String i: domainIds) {
+        	U domainObj = (U) _find(persistenceClass, Long.parseLong(i));
+        	domainObjects.add(domainObj);
+        }
+    	return domainObjects;
     }
 
     /**

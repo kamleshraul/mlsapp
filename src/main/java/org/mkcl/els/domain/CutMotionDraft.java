@@ -134,10 +134,10 @@ public class CutMotionDraft extends BaseDomain implements Serializable{
     
     //--------------------------Referenced Entities------------------------------------------
     @ManyToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="cutmotiondrafts_referencedentities", 
+    @JoinTable(name="cutmotiondrafts_referencedunits", 
     joinColumns={@JoinColumn(name="cutmotiondraft_id", referencedColumnName="id")}, 
-    inverseJoinColumns={@JoinColumn(name="referenced_entity_id", referencedColumnName="id")})
-    private List<ReferencedEntity> referencedEntities;
+    inverseJoinColumns={@JoinColumn(name="referenced_unit_id", referencedColumnName="id")})
+    private List<ReferenceUnit> referencedEntities;
         
     /**** For half hour discussion from question ****/
     /** The reason. */
@@ -313,11 +313,11 @@ public class CutMotionDraft extends BaseDomain implements Serializable{
 		this.clubbedEntities = clubbedEntities;
 	}
 	
-	public List<ReferencedEntity> getReferencedEntities() {
+	public List<ReferenceUnit> getReferencedEntities() {
 		return referencedEntities;
 	}
 
-	public void setReferencedEntities(List<ReferencedEntity> referencedEntities) {
+	public void setReferencedEntities(List<ReferenceUnit> referencedEntities) {
 		this.referencedEntities = referencedEntities;
 	}
 

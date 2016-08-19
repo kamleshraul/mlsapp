@@ -105,36 +105,31 @@
 			<div style="overflow: scroll;">
 			<table class="uiTable">
 				<tr>					
-					<th><spring:message code="resolution.submitall" text="Submit All"></spring:message>
+					<th style="min-width:75px;text-align:center;"><spring:message code="resolution.submitall" text="Submit All"></spring:message>
 					<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>					
-					<th><spring:message code="resolution.type" text="Device"></spring:message></th>					
-					<th><spring:message code="resolution.number" text="Number"></spring:message></th>
-					<th><spring:message code="resolution.member" text="Member"></spring:message></th>
-					<th><spring:message code="resolution.subject" text="Subject"></spring:message></th>
-					<th><spring:message code="resolution.lastremark" text="Last Remark"></spring:message></th>
-					<th><spring:message code="resolution.lastremarkby" text="Last Remark By"></spring:message></th>	
-					<th><spring:message code="resolution.lastdecision" text="Last Decision"></spring:message></th>
+					<th style="min-width:50px;"><spring:message code="resolution.number" text="Number"></spring:message></th>
+					<th style="min-width:130px;text-align:center;"><spring:message code="resolution.member" text="Member"></spring:message></th>
+					<th style="min-width:350px;text-align:center;"><spring:message code="resolution.subject" text="Subject"></spring:message></th>
+					<th style="min-width:70px;text-align:center;"><spring:message code="resolution.lastdecision" text="Last Decision"></spring:message></th>
+					<th style="min-width:120px;text-align:center;"><spring:message code="resolution.lastremark" text="Last Remark"></spring:message></th>
 				</tr>			
 				<c:forEach items="${bulkapprovals}" var="i">
 					<tr>
 							<c:choose>
 								<c:when test="${i.currentStatus=='PENDING'}">
-								<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
+								<td style="min-width:75px;"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
 								<a href="#" class="edit" id="edit${i.id}"><spring:message code="resolution.edit" text="Edit"></spring:message></a></td>
 								</c:when>							
 								<c:otherwise>
-								<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
+								<td style="min-width:75px;"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
 								<a href="#" class="readonly" id="edit${i.id}"><spring:message code="resolution.edit" text="Edit"></spring:message></a></td>
 								</c:otherwise>
 							</c:choose>
-								<td>${i.deviceType}</td>							
-								<td>${i.deviceNumber}</td>
-								<td>${i.member}</td>
-								<td>${i.subject}</td>
-								<td>${i.lastRemark}</td>
-								<td>${i.lastRemarkBy}</td>
-								<td>${i.lastDecision}</td>	
-														
+								<td style="min-width:50px;text-align:center;">${i.deviceNumber}</td>
+								<td style="min-width:130px;">${i.member}</td>
+								<td style="text-align:justify;min-width:350px;">${i.subject}</td>
+								<td style="min-width:70px;text-align:justify;">${i.lastDecision}</td>	
+								<td style="text-align:justify;min-width:120px;">${i.lastRemarkBy} : ${i.lastRemark}</td>
 					</tr>
 				</c:forEach>
 			</table>

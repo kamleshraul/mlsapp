@@ -59,11 +59,7 @@ public class ElectionResultRepository extends BaseRepository<ElectionResult,Long
 			elecResult = (ElectionResult)query.getSingleResult();
 			
 		}catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e.getMessage());
-			ELSException elsException = new ELSException();
-			elsException.setParameter("ElectionResultRepository_ElectionResult_findByMemberElectionConstituency", "Election result is unavailable.");
-			throw elsException;
+			return null;
 		}
 		
 		return elecResult;

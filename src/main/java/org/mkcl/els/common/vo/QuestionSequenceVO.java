@@ -36,6 +36,8 @@ public class QuestionSequenceVO {
 	private Integer sequenceNo;
 	
 	private Long memberId;
+	
+	private String questionreferenceText;
 
 
 	//=============== CONSTRUCTORS ==================
@@ -66,6 +68,18 @@ public class QuestionSequenceVO {
 		this.setNumber(number);
 		this.setFormattedNumber(formattedNumber);
 		this.setSequenceNo(sequenceNo);
+	}
+
+	public QuestionSequenceVO(Long questionId, Integer number,
+			String formattedNumber, Integer sequenceNo, Long memberId,
+			String questionreferenceText) {
+		super();
+		this.questionId = questionId;
+		this.number = number;
+		this.formattedNumber = formattedNumber;
+		this.sequenceNo = sequenceNo;
+		this.memberId = memberId;
+		this.questionreferenceText = questionreferenceText;
 	}
 
 	//=============== GETTERS/SETTERS ===============
@@ -137,6 +151,14 @@ public class QuestionSequenceVO {
 
 	public void setMemberId(Long memberId) {
 		this.memberId = memberId;
+	}
+
+	public String getQuestionreferenceText() {
+		return questionreferenceText;
+	}
+
+	public void setQuestionreferenceText(String questionreferenceText) {
+		this.questionreferenceText = questionreferenceText;
 	}
 
 	public static void sortBySequenceNumber(List<QuestionSequenceVO> questionSequenceVOs) {

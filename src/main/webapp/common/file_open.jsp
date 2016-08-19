@@ -11,15 +11,33 @@
 				$('#image_'+fileid).attr("src","file/photo/${param.filetag}");
 				$('#image_'+fileid).show();			
 				$('#file_'+fileid+'_removeUploadedFile').click(function(){
-					$.delete_('file/remove/'+filetag,function(data){
-						if(data){
-							$.get('./common/file_upload.jsp?fileid='+fileid,function(dataupload){
-								$('#file_'+fileid+'_downloadUploadedFile').replaceWith(dataupload);
-								$('#image_'+fileid).attr("src","");
-								$('#image_'+fileid).hide();
+					var deleteConfirmation = confirm("Do you really want to remove this file?");
+					if (deleteConfirmation == true) {
+						$.delete_('file/remove/'+filetag,function(data){
+							if(data){
+								$.get('./common/file_upload.jsp?fileid='+fileid,function(dataupload){
+									$('#file_'+fileid+'_downloadUploadedFile').replaceWith(dataupload);
+									$('#image_'+fileid).attr("src","");
+									$('#image_'+fileid).hide();
+								});
+							}
+						});
+					}
+					/* $.prompt("Do you really want to remove this file?", {
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+				        	$.delete_('file/remove/'+filetag,function(data){
+								if(data){
+									$.get('./common/file_upload.jsp?fileid='+fileid,function(dataupload){
+										$('#file_'+fileid+'_downloadUploadedFile').replaceWith(dataupload);
+										$('#image_'+fileid).attr("src","");
+										$('#image_'+fileid).hide();
+									});
+								}
 							});
-						}
-					});
+		    	        } 
+				        return false;
+					}}); */					
 					return false;
 				});		
 			} else {

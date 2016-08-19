@@ -77,6 +77,21 @@ function editQuestion(id,readonly){
 			<c:if test="${! (empty recommendClarificationFromGovt) }">
 			<p style="color:green;margin-bottom: 15px;">${recommendClarificationFromMember} sent for Clarification.</p>
 			</c:if>
+			<c:if test="${! (empty recommendClubbing) }">
+			<p style="color:green;margin-bottom: 15px;">${recommendClubbing} sent for Clubbing.</p>
+			</c:if>
+			<c:if test="${! (empty recommendNameClubbing) }">
+			<p style="color:green;margin-bottom: 15px;">${recommendNameClubbing} sent for Name Clubbing.</p>
+			</c:if>
+			<c:if test="${! (empty recommendClubbingPostAdmission) }">
+			<p style="color:green;margin-bottom: 15px;">${recommendClubbingPostAdmission} sent for Clubbing Post Admission.</p>
+			</c:if>
+			<c:if test="${! (empty recommendAdmitDueToReverseClubbing) }">
+			<p style="color:green;margin-bottom: 15px;">${recommendAdmitDueToReverseClubbing} sent for Admit Due TO Reverse Clubbing.</p>
+			</c:if>
+			<c:if test="${! (empty recommendUnClubbing) }">
+			<p style="color:green;margin-bottom: 15px;">${recommendUnClubbing} sent for Un-Clubbing.</p>
+			</c:if>
 			<table class="uiTable">
 					<tr>
 						<th><spring:message code="question.submitall" text="Submit All"></spring:message>
@@ -87,17 +102,9 @@ function editQuestion(id,readonly){
 						<th><spring:message code="question.currentstatus" text="To Be Put Up For?"></spring:message></th>
 					</tr>			
 					<c:forEach items="${questions}" var="i">
-						<tr class="${i.fileSent}">
-							<c:choose>
-							<c:when test="${!i.fileSent}">
+						<tr>
 							<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
 							<a href="#" class="edit" id="edit${i.id}"><spring:message code="question.edit" text="Edit"></spring:message></a></td>
-							</c:when>
-							<c:otherwise>
-							<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
-							<a href="#" class="readonly" id="edit${i.id}"><spring:message code="question.edit" text="Edit"></spring:message></a></td>
-							</c:otherwise>
-							</c:choose>
 							<td>${i.formatNumber()}</td>
 							<td>${i.primaryMember.getFullname()}</td>
 							<td>${i.subject}</td>

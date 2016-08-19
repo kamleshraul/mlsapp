@@ -169,7 +169,7 @@
 		    
 		    
 		    var params="cutmotion="+$("#id").val()+"&status="+value+
-			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 		    var resourceURL='ref/cutmotion/actors?'+params;
 		    
 		    if(value==departmentIntimated){
@@ -230,7 +230,8 @@
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -289,7 +290,7 @@
 		});
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
-			console.log($("#subDepartment").val());
+			//console.log($("#subDepartment").val());
 			if($(this).val()!=''){
 				loadSubDepartments($(this).val());
 			}else{
@@ -308,7 +309,7 @@
 		/**** Revise mainTitle and text****/
 		$("#reviseMainTitle").click(function(){
 			$(".revise1").toggle();
-			console.log("revise1: " + $("#revisedMainTitleDiv").css("display") + ": "+$("#mainTitle").val());
+			//console.log("revise1: " + $("#revisedMainTitleDiv").css("display") + ": "+$("#mainTitle").val());
 			if($("#revisedMainTitleDiv").css("display")=="none"){
 				$("#revisedMainTitle").val("");	
 			}else{
@@ -319,7 +320,7 @@
 		
 		$("#reviseSecondaryTitle").click(function(){
 			$(".revise2").toggle();
-			console.log("revise2: " + $("#revisedSecondaryTitleDiv").css("display") + ": "+$("#secondaryTitle").val());
+			//console.log("revise2: " + $("#revisedSecondaryTitleDiv").css("display") + ": "+$("#secondaryTitle").val());
 			if($("#revisedSecondaryTitleDiv").css("display")=="none"){
 				$("#revisedSecondaryTitle").val("");	
 			}else{
@@ -330,7 +331,7 @@
 		
 		$("#reviseSubTitle").click(function(){
 			$(".revise3").toggle();
-			console.log("revise3: " + $("#revisedSubTitleDiv").css("display")  + ": "+$("#subTitle").val());
+			//console.log("revise3: " + $("#revisedSubTitleDiv").css("display")  + ": "+$("#subTitle").val());
 			if($("#revisedSubTitleDiv").css("display")=="none"){
 				$("#revisedSubTitle").val("");	
 			}else{
@@ -341,7 +342,7 @@
 		
 		$("#reviseNoticeContent").click(function(){
 			$(".revise4").toggle();		
-			console.log("revise4: " + $("#revisedNoticeContentDiv").css("display") + ": "+$("#noticeContent").val());
+			//console.log("revise4: " + $("#revisedNoticeContentDiv").css("display") + ": "+$("#noticeContent").val());
 			if($("#revisedNoticeContentDiv").css("display")=="none"){
 				$("#revisedNoticeContent").wysiwyg("setContent","");
 			}else{
@@ -716,7 +717,7 @@
 			<c:choose>
 				<c:when test="${!(empty clubbedEntities) }">
 					<c:forEach items="${clubbedEntities }" var="i">
-						<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewCutMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
@@ -936,6 +937,8 @@
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
+<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
+<input type="hidden" id="originalLevel" value="${level}" />
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

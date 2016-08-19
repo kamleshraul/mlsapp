@@ -1,27 +1,36 @@
 package org.mkcl.els.controller.cis;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.Committee;
 import org.mkcl.els.domain.CommitteeMember;
+import org.mkcl.els.domain.CommitteeMemberAttendance;
 import org.mkcl.els.domain.CommitteeName;
 import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SubDepartment;
+import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/committee")
@@ -32,9 +41,15 @@ public class CommitteeController extends GenericController<Committee> {
 			final HttpServletRequest request,
 			final String locale,
 			final AuthUser currentUser) {
-		this.populateCommitteeTypes(model, locale);
+		//this.populateCommitteeTypes(model, locale);
+		try {
+			this.populateCommitteeTypesAndNames(model,locale);
+		} catch (ELSException e) {
+			e.printStackTrace();
+		}
 	}
 
+	
 	@Override
 	protected void populateNew(final ModelMap model, 
 			final Committee domain,
@@ -69,7 +84,7 @@ public class CommitteeController extends GenericController<Committee> {
 		String locale = domain.getLocale();
 		CommitteeName committeeName = domain.getCommitteeName();
 		CommitteeType committeeType = committeeName.getCommitteeType();
-
+		model.addAttribute("committeeName", committeeName);
 		this.populateCommitteeType(model, committeeType);
 		this.populateCommitteeTypes(model, locale);
 		this.populateCommitteeNames(model, committeeType, locale);
@@ -80,9 +95,35 @@ public class CommitteeController extends GenericController<Committee> {
 	}
 
 	@Override
-	protected void customValidateUpdate(final Committee domain, 
+	protected @ResponseBody void  customValidateUpdate(final Committee domain, 
 			final BindingResult result,
 			final HttpServletRequest request) {
+		Status status=null;
+		if(request.getParameter("status")!=null){
+			status=Status.findById(Status.class, Long.parseLong(request.getParameter("status")));
+		}
+		String selectedItems=request.getParameter("allItems");
+		String[] items=selectedItems.split(",");
+	
+		if(items.length!=0)
+		{
+			
+			int j=0;
+			
+			for(String i:items)
+			{
+				++j;
+				if(!"0".equals(i))
+				{
+					CommitteeMember committeeMember=CommitteeMember.findById(CommitteeMember.class,Long.parseLong(i));
+					
+					committeeMember.setPosition(j);
+					committeeMember.merge();						
+				}
+			}
+		}
+			
+		domain.setStatus(status);
 		this.valEmptyAndNull(domain, result);
 		this.valFormationDateBeforeDissolutionDate(domain, result);
 		this.valInstanceUpdationUniqueness(domain, result);
@@ -99,7 +140,7 @@ public class CommitteeController extends GenericController<Committee> {
 
 		model.addAttribute("id", committee.getId());
 		model.addAttribute("committeeType", committeeType.getName());
-		model.addAttribute("committeeName", committeeName.getDisplayName());
+		model.addAttribute("committeeName", committeeName);
 
 		this.populateFoundationDate(model, committeeName, locale.toString());
 
@@ -294,4 +335,97 @@ public class CommitteeController extends GenericController<Committee> {
 			result.rejectValue("VersionMismatch", "version");
 		}
 	}
+	
+	private void populateCommitteeTypesAndNames(ModelMap model, String locale) throws ELSException {
+		UserGroup userGroup = null;
+		UserGroupType userGroupType = null;
+		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+		if(userGroups != null && ! userGroups.isEmpty()) {
+			CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "CIS_ALLOWED_USERGROUPTYPES", "");
+			if(cp != null) {
+				List<UserGroupType> configuredUserGroupTypes = 
+						CommitteeController.delimitedStringToUGTList(cp.getValue(), ",", locale);
+				
+				userGroup = CommitteeController.getUserGroup(userGroups, configuredUserGroupTypes, locale);
+				userGroupType = userGroup.getUserGroupType();
+				model.addAttribute("usergroup", userGroup.getId());
+				model.addAttribute("usergroupType", userGroupType.getType());
+			}
+			else {
+				throw new ELSException("CommitteeController.populateModule/4", 
+						"CIS_ALLOWED_USERGROUPTYPES key is not set as CustomParameter");
+			}
+		}
+		if(userGroup == null || userGroupType == null) {
+			model.addAttribute("errorcode","current_user_has_no_usergroups");
+		}
+		
+		// Populate CommitteeTypes and CommitteNames
+		Map<String, String> parameters = UserGroup.findParametersByUserGroup(userGroup);
+		String committeeNameParam = parameters.get(ApplicationConstants.COMMITTEENAME_KEY + "_" + locale);
+		if(committeeNameParam != null && ! committeeNameParam.equals("")) {
+			List<CommitteeName> committeeNames =
+					CommitteeController.getCommitteeNames(committeeNameParam, "##", locale);
+			List<CommitteeType> committeeTypes = new ArrayList<CommitteeType>();
+			for(CommitteeName cn : committeeNames){
+				if(!committeeTypes.contains(cn.getCommitteeType())){
+						committeeTypes.add(cn.getCommitteeType());
+				}
+			}
+			
+			model.addAttribute("committeeNames", committeeNames);
+			model.addAttribute("committeeTypes", committeeTypes);
+		}
+		else {
+			throw new ELSException("CommitteeController.populateModule/4", 
+					"CommitteeName parameter is not set for Username: " + this.getCurrentUser().getUsername());
+		}
+	}
+
+
+
+	private static List<CommitteeName> getCommitteeNames(
+			String committeeNameParam, String delimiter, String locale) {
+		List<CommitteeName> committeeNames = new ArrayList<CommitteeName>();
+		String cNames[] = committeeNameParam.split(delimiter);
+		for(String cName : cNames){
+			List<CommitteeName> comNames = 
+					CommitteeName.findAllByFieldName(CommitteeName.class, "name", cName, "name", "asc", locale);
+			if(comNames != null && !comNames.isEmpty()){
+				committeeNames.addAll(comNames);
+			}
+			
+		}
+		return committeeNames;
+	}
+
+	private static UserGroup getUserGroup(List<UserGroup> userGroups,
+			List<UserGroupType> configuredUserGroupTypes, String locale) {
+		for(UserGroup ug : userGroups) {
+			Date todaysDate = new Date();
+			if(ug.getActiveFrom().before(todaysDate) && ug.getActiveTo().after(todaysDate)){
+				for(UserGroupType ugt : configuredUserGroupTypes) {
+					UserGroupType userGroupType = ug.getUserGroupType();
+					if(ugt.getId().equals(userGroupType.getId())) {
+						return ug;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private static List<UserGroupType> delimitedStringToUGTList(String delimitedUserGroups,
+			String delimiter, String locale) {
+		List<UserGroupType> userGroupTypes = new ArrayList<UserGroupType>();
+		
+		String[] strUserGroupTypes = delimitedUserGroups.split(delimiter);
+		for(String strUserGroupType : strUserGroupTypes) {
+			UserGroupType ugt = UserGroupType.findByType(strUserGroupType, locale);
+			userGroupTypes.add(ugt);
+		}
+		
+		return userGroupTypes;
+	}
+
 }

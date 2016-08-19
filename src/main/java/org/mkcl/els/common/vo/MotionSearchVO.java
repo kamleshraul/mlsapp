@@ -23,12 +23,24 @@ public class MotionSearchVO {
 
 	/** The number. */
 	private String number;
+	
+	/** The submission date. */
+	private String submissionDate;
 
-	/** The subject. */
+	/** The title. */
 	private String title;
+	
+	/** The subject. */
+	private String subject;
 
 	/** The question text. */
 	private String noticeContent;
+	
+	/** The content. **/
+	private String content;
+	
+	/** The revised content. **/
+	private String revisedContent;
 	
 	/** The status. */
 	private String status;
@@ -55,6 +67,8 @@ public class MotionSearchVO {
 	private String classification;
 	
 	private String statusType;
+	
+	private String device;
 	
 	//===========added for portlet proceedings 
 	private String primaryMember;
@@ -104,6 +118,20 @@ public class MotionSearchVO {
 	}
 
 	/**
+	 * @return the submissionDate
+	 */
+	public String getSubmissionDate() {
+		return submissionDate;
+	}
+
+	/**
+	 * @param submissionDate the submissionDate to set
+	 */
+	public void setSubmissionDate(String submissionDate) {
+		this.submissionDate = submissionDate;
+	}
+
+	/**
 	 * Gets the subject.
 	 *
 	 * @return the subject
@@ -119,6 +147,20 @@ public class MotionSearchVO {
 	 */
 	public void setTitle(final String title) {
 		this.title = title;
+	}
+
+	/**
+	 * @return the subject
+	 */
+	public String getSubject() {
+		return subject;
+	}
+
+	/**
+	 * @param subject the subject to set
+	 */
+	public void setSubject(String subject) {
+		this.subject = subject;
 	}
 
 	/**
@@ -139,6 +181,34 @@ public class MotionSearchVO {
 		this.noticeContent = noticeContent;
 	}
 	
+	/**
+	 * @return the content
+	 */
+	public String getContent() {
+		return content;
+	}
+
+	/**
+	 * @param content the content to set
+	 */
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	/**
+	 * @return the revisedContent
+	 */
+	public String getRevisedContent() {
+		return revisedContent;
+	}
+
+	/**
+	 * @param revisedContent the revisedContent to set
+	 */
+	public void setRevisedContent(String revisedContent) {
+		this.revisedContent = revisedContent;
+	}
+
 	/**
 	 * Gets the status.
 	 *
@@ -307,7 +377,11 @@ public class MotionSearchVO {
 		this.chartAnsweringDate = chartAnsweringDate;
 	}
 
-	
+	public String getDevice() {
+		return device;
+	}
 
-	
+	public void setDevice(String device) {
+		this.device = device;
+	}
 }

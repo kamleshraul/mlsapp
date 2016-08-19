@@ -328,7 +328,19 @@
 		<div>
 		<h2><spring:message code="billamendmentmotion.new.heading" text="Enter Bill Amendment Details"/>	
 		</h2>
-		<form:errors path="version" cssClass="validationError"/>	
+		<form:errors path="version" cssClass="validationError"/>
+		
+		<security:authorize access="hasAnyRole('BAMOIS_TYPIST')">	
+		<p>
+			<label class="small"><spring:message code="billamendmentmotion.number" text="Motion Number"/>*</label>
+			<input type="text" class="sInteger" id="number" name="number" value="${formattedNumber}">
+			<form:errors path="number" cssClass="validationError"/>
+			<span id='numberError' style="display: none; color: red;">
+				<spring:message code="Number.domain.NonUnique" text="Duplicate Number"></spring:message>
+			</span>
+			<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
+		</p>
+		</security:authorize>	
 		
 		<p style="display:none;">
 			<label class="small"><spring:message code="billamendmentmotion.houseType" text="House Type"/>*</label>
@@ -369,7 +381,7 @@
 			<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
 		</p>
 		</security:authorize>
-		<security:authorize access="hasAnyRole('BIS_CLERK')">		
+		<security:authorize access="hasAnyRole('BAMOIS_TYPIST')">		
 		<p>
 			<label class="small"><spring:message code="billamendmentmotion.primaryMember" text="Primary Member"/>*</label>
 			<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
@@ -437,13 +449,12 @@
 							<a href="#" id="scrollToReferredBillDraft_${i.language.type}"></a>
 							<p id="referredBillDraftPara_${i.language.type}" style="display: none;">
 								<label class="wysiwyglabel">${i.language.name} <spring:message code="billamendmentmotion.sectionAmendment.referredBillDraft" text="Referred Bill Draft"/></label>
-								<textarea class="wysiwyg" id="referredBillDraft_${i.language.type}"></textarea>
+								<textarea class="wysiwyg invalidFormattingAllowed" id="referredBillDraft_${i.language.type}"></textarea>
 							</p>
 							<a href="#" id="scrollToReferredSectionText_${i.language.type}"></a>
 							<p id="referredSectionTextPara_${i.language.type}" style="display: none;">
 								<label class="wysiwyglabel">${i.language.name} <spring:message code="billamendmentmotion.sectionAmendment.referredSectionText" text="Referred Section Text"/></label>
-								<textarea class="wysiwyg" id="referredSectionText_${i.language.type}">${requestScope[referredSectionText]}</textarea>
-								<textarea class="wysiwyg" id="referredSectionText_${i.language.type}"></textarea>
+								<textarea class="wysiwyg invalidFormattingAllowed" id="referredSectionText_${i.language.type}">${requestScope[referredSectionText]}</textarea>
 							</p>
 							<p>
 								<label class="wysiwyglabel">${i.language.name} <spring:message code="billamendmentmotion.sectionAmendment.amendingContent" text="Amendment Content"/></label>
@@ -461,15 +472,12 @@
 		<div class="fields">
 			<h2></h2>
 			<p class="tright">
-			<security:authorize access="hasAnyRole('BIS_CLERK')">	
-				<input id="submitmotion" type="button" value="<spring:message code='billamendmentmotion.submitMotion' text='Submit Motion'/>" class="butDef">			
-			</security:authorize>
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 				<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-				<input id="sendforapproval" type="button" value="<spring:message code='billamendmentmotion.sendforapproval' text='Send For Approval'/>" class="butDef">
+				<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
+					<input id="sendforapproval" type="button" value="<spring:message code='billamendmentmotion.sendforapproval' text='Send For Approval'/>" class="butDef">
+				</security:authorize>	
 				<input id="submitmotion" type="button" value="<spring:message code='billamendmentmotion.submitMotion' text='Submit Motion'/>" class="butDef">
-				<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
-			</security:authorize>				
+				<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">			
 			</p>
 		</div>	
 		<form:hidden path="version" />

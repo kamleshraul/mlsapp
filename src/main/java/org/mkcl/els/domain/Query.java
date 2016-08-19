@@ -73,17 +73,32 @@ public class Query extends BaseDomain{
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static List findResultListOfGivenClass(final String report, final Map<String, String[]> requestMap, final Class className) {
-		return getQueryRepository().findResultListOfGivenClass(report, requestMap, className);
-	}
-	
-	@SuppressWarnings("rawtypes")
 	public static List findReport(final String report,final Map<String, String[]> requestMap, final Boolean handleIN) {
 		return getQueryRepository().findReport(report, requestMap, handleIN);
 	}
 	
 	@SuppressWarnings("rawtypes")
+	public static List findResultListOfGivenClass(final String report, final Map<String, String[]> requestMap, final Class className) {
+		return getQueryRepository().findResultListOfGivenClass(report, requestMap, className);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static List findResultListOfGivenClass(final String report, final Map<String, String[]> requestMap, final Class className, final Boolean handleIN) {
+		return getQueryRepository().findResultListOfGivenClass(report, requestMap, className, handleIN);
+	}
+	
+	@SuppressWarnings("rawtypes")
 	public static List findMISPartyDistrictReport(final String report, final Map<String, String[]> requestMap) {
 		return getQueryRepository().findMISPartyDistrictReport(report, requestMap);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static List findReport(final String report,final Map<String, String[]> requestMap, Integer start, Integer end) {
+		return getQueryRepository().findReport(report, requestMap, start, end);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static List findReportWithIn(final String report,final Map<String, String[]> parameterMap) {
+		return getQueryRepository().findReportWithIn(report, parameterMap);
 	}
 }

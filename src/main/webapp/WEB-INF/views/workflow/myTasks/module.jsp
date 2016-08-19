@@ -4,12 +4,16 @@
 	<title><spring:message code="workflow.myTasks.list" text="List of My Tasks"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">		
+		var pendingTasksReference;
+		var nextTaskCurrentCounter = 0;
+		var totalTasksLoaded = 0;
+		var nextLotToLoadPendingTasks = 20;
 		
 		$(document).ready(function(){
 			onPageLoad();
 			
 			$("#next_task").click(function(){
-				nextTask();
+				nextTask(0);
 			});
 			
 			$('#list_tab').click(function(){
@@ -24,7 +28,32 @@
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
 				if(value!=""){	
-					reloadMyTaskGrid();
+					/** Update Device Type Display Names as per Selected House Type **/
+					var selectedDeviceType = $('#selectedDeviceType').val();
+					var houseType = $("#houseTypeMaster option[value='"+value+"']").text();					
+					$.get('ref/devicetypesforhousetype?'+
+							'houseType='+houseType, function(data) {
+						var deviceTypeSelectHtmlText = "";
+						for(var i=0 ;i<data.length; i++){
+							if(data[i].name==selectedDeviceType) {
+								deviceTypeSelectHtmlText += "<option value='" + data[i].name + "' selected='selected'>" + data[i].displayName;
+							} else {
+								deviceTypeSelectHtmlText += "<option value='" + data[i].name + "'>" + data[i].displayName;
+							}							
+						}
+						$("#selectedDeviceType").html(deviceTypeSelectHtmlText);
+					}).done(function() {
+						reloadMyTaskGrid();
+					}).fail(function() {
+						console.log("3.error");
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						//resetControls();
+						scrollTop();
+					});					
 				}	
 			});	
 			/**** session year changes then reload grid****/			
@@ -38,6 +67,7 @@
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
 				if(value!=""){	
+					loadAssignedGroupsInSession();
 					reloadMyTaskGrid();
 				}			
 			});
@@ -45,6 +75,7 @@
 			$("#selectedDeviceType").change(function(){
 				var value=$(this).val();
 				var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+				$("#deviceTypeType").val(device);
 				if(device=='questions_shortnotice'){
 					$("#shortNoticeAnswerDateDiv").show();
 				}else{
@@ -57,28 +88,28 @@
 						$("#selectedModule").val('');
 					}
 					loadSubWorkflowByDeviceType(value);
-					 $.get('ref/getTypeOfSelectedDeviceTypeFromName?deviceType='+ value,function(data){
-						$('#deviceTypeType').val(data);
-					}).fail(function(){
-						if($("#ErrorMsg").val()!=''){
-							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-						}else{
-							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-						}
-						scrollTop();
-					}); 
+					if(device == 'questions_starred'){
+						$('#fileDiv').css("display","none");
+					}else{
+						$('#fileDiv').css("display","inline");
+					} 
 				}
 				var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
-				if((device.indexOf('questions_halfhourdiscussion_standalone')==0 && houseType=='lowerhouse') 
-						|| device.indexOf('motions_')==0
+				if(device.indexOf('motions_')==0  
 						|| device.indexOf('resolutions_')==0
 						|| device.indexOf('bills_')==0){
-					$("#groupDiv").hide();
+						$("#groupDiv").hide();
 				}else{
 					// The Group Div is to be hidden for department user
 					if($('#currentusergroupType').val()!='department'){
 						$("#groupDiv").show();
 					}
+				}
+				//console.log($('#deviceTypeType').val());
+			
+				
+				if((device.indexOf('motions_standalonemotion_')==0 && houseType=='upperhouse')){
+					$("#groupDiv").show();
 				}
 				
 			});	
@@ -86,14 +117,15 @@
 			$("#selectedStatus").change(function(){
 				var value=$(this).val();
 				if(value!=""){	
-					reloadMyTaskGrid();
+					//reloadMyTaskGrid();
+					$('#selectedSubWorkflow').trigger('change');
 				}
 			});
 			/**** workflow changes then reload grid****/			
 			$("#selectedSubWorkflow").change(function(){
 				var value=$(this).val();
 				if(value!=null){				
-					 if(($('#currentusergroupType').val()=="assistant"||$('#currentusergroupType').val()=="section_officer")&& value.contains("final")&&$('#currenthousetype').val()=='lowerhouse'){
+					 if(($('#currentusergroupType').val()=="assistant") && value.indexOf("final")>-1&&$('#currenthousetype').val()=='lowerhouse'){
 						$('#bulkapproval_tab').hide();
 						$('#selectedItemsCount').hide();
 						$('#selectedFileCount').hide();
@@ -110,7 +142,7 @@
 					} */	
 					// Department users are allowed to search by number,subject and member ,
 					//so new mytask grid is defined in db for department users.
-					showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val());
+					showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val()+'&status='+$('#selectedStatus').val());
 				}
 			});
 
@@ -164,10 +196,10 @@
 			var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
 			// Department users are allowed to search by number,subject and member ,
 			//so new mytask grid is defined in db for department users.
-			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val());
+			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val()+'&status='+$('#selectedStatus').val());
 			pendingNewTasks();
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
-				setInterval(function(){pendingNewTasks();}, 900000);
+				pendingTasksReference = setInterval(function(){pendingNewTasks();}, 900000);
 			}
 			$("#notificationDiv").hide();
 			$("#newTasksDiv").hide();	
@@ -189,6 +221,7 @@
 			//Some filters are not required for department screen. this filters are hidden in departmentutility function
 			departmentUtility();
 						
+			$("#selectedDeviceType").change();
 		});
 				
 		//to get the new pending tasks
@@ -203,6 +236,8 @@
 						$("#notificationDiv").html(data.value);
 						$("#notificationDiv").show();
 					}
+				}).fail(function(){
+					clearInterval(pendingTasksReference);
 				});
 			}			  
 		}
@@ -242,7 +277,7 @@
 			var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
 			// Department users are allowed to search by number,subject and member ,
 			//so new mytask grid is defined in db for department users.
-			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val());
+			showTabByIdAndUrl('list_tab', 'workflow/myTasks/list?deviceTypeForGrid='+deviceTypeForGrid+'&currentusergroupType='+$('#currentusergroupType').val()+'&status='+$('#selectedStatus').val());
 		}
 		
 		function process(row) {
@@ -254,8 +289,19 @@
 			$("#cancelFn").val("process");
 			$("#selectionDiv").hide();
 			if($("#selectedModule").val()=='EDITING'){
-				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process'+'?action=edited');
+				var params = "?action=edited"
+						+"&houseType="+$("#selectedHouseType").val()
+						+"&sessionYear="+$("#selectedSessionYear").val()
+						+"&sessionType="+$("#selectedSessionType").val()
+						+"&deviceType="+$("#selectedDeviceType").val()
+						+"&userGroup="+$("#currentusergroup").val()
+						+"&userGroupType="+$("#currentusergroupType").val()
+						+"&selectedSubWorkflow="+ $("#selectedSubWorkflow").val();
+				
+				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process'+params);
 			}else{
+				/**** To maintain the grid ids to allow nextTask to be show next ***/
+				getNextLotOfPendingAssignedTasks(nextTaskCurrentCounter, nextLotToLoadPendingTasks);
 				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process');
 			}
 		}		
@@ -291,12 +337,7 @@
 			showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + $("#key").val() + '/process'+params);
 		}
 
-		function rowDblClickHandler(row, iRow, iCol, e) {
-			/**** To maintain the grid ids to allow nextTask to be show next ***/
-			$("#currentRowId").val(row);
-			$("#persistentGridRowId").val(row);
-			$("#allRowIds").val($('#grid').jqGrid('getDataIDs'));
-			$("#nextTaskDiv").show();
+		function rowDblClickHandler(row, iRow, iCol, e) {			
 			
 			var row = $('#key').val();
 			$("#cancelFn").val("rowDblClickHandler");
@@ -313,6 +354,8 @@
 				
 				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process'+params);
 			}else{
+				/**** To maintain the grid ids to allow nextTask to be show next ***/
+				getNextLotOfPendingAssignedTasks(nextTaskCurrentCounter, nextLotToLoadPendingTasks);
 				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + row + '/process');
 			}
 		}		
@@ -330,7 +373,7 @@
 						+"&status="+$("#selectedStatus").val()
 						+"&workflowSubType="+$("#selectedSubWorkflow").val()
 						+"&assignee="+$("#assignee").val()
-						+"&group="+$("#selectedGroup").val()
+						+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
 						+"&answeringDate="+$("#selectedAnsweringDate").val()
 						);
 				var oldURL=$("#grid").getGridParam("url");
@@ -374,15 +417,17 @@
 		function loadSubWorkflowByModule(module){
 			$.get('ref/workflowTypes?module='+ module,function(data){
 				$("#selectedSubWorkflow").empty();
-				var selectedSubWorkflowText="";
+				var selectedSubWorkflowText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 				if(data.length>0){
 					for(var i=0;i<data.length;i++){
 						selectedSubWorkflowText+="<option value='"+data[i].type+"'>"+data[i].name;
 					}
-				}else{
+				}/* else{
 					selectedSubWorkflowText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
-				}
+				} */
 				$("#selectedSubWorkflow").html(selectedSubWorkflowText);
+				$("#groupDiv").hide();
+				$("#fileDiv").hide();
 			}).done(function(){
 				$('#selectedSubWorkflow').trigger('change');
 			}).fail(function(){
@@ -399,17 +444,19 @@
 		/**** Bulk Approval ****/
 		function bulkApproval(){
 			var resourceURL="";
-			if($('#deviceTypeType').val().contains("resolutions_")){
+			if($('#deviceTypeType').val().indexOf("resolutions_")==0){
 				resourceURL="workflow/resolution/bulkapproval/init";					
-			}else if($('#deviceTypeType').val().contains("motions_")){
+			}else if($('#deviceTypeType').val().indexOf("motions_")==0){
 				if($('#deviceTypeType').val().indexOf("motions_cutmotion_")==0){
 					resourceURL="workflow/cutmotion/bulkapproval/init";	
 				}else if($('#deviceTypeType').val().indexOf("motions_eventmotion_")==0){
 					resourceURL="workflow/eventmotion/bulkapproval/init";					
+				}else if($('#deviceTypeType').val().indexOf("motions_standalonemotion_")==0){
+					resourceURL="workflow/standalonemotion/bulkapproval/init";					
 				}else{
-					resourceURL="workflow/cutmotion/bulkapproval/init";
+					resourceURL="workflow/motion/bulkapproval/init";
 				}				
-			}else if($('#deviceTypeType').val().contains("questions_")){
+			}else if($('#deviceTypeType').val().indexOf("questions_")==0){
 				resourceURL="workflow/question/bulkapproval/init";
 			}
 			$("#selectionDiv").hide();
@@ -439,34 +486,6 @@
 			});
 		}
 		
-		/**** To enable the next task link ****/
-		function nextTask(){
-			var currentrowid = $("#currentRowId").val(); 
-			var allIds = $("#allRowIds").val();
-			var allNextIds = allIds.substring(allIds.indexOf(currentrowid)+currentrowid.length+1);
-			if(allNextIds.length>0){
-				$(".tabContent").hide();
-				//filler to neutralize the previous content i.e. previous question id 
-				showTabByIdAndUrl('list_tab', 'ref/dummypage');
-				var nextRowId = allNextIds.split(',')[0];
-			
-				//console.log(allNextIds+"\n"+nextRowId+"\n"+isValidRow(allIds, nextRowId));
-					
-				$("#currentRowId").val(nextRowId);
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + nextRowId + '/process');
-				if(isValidRow(allIds, nextRowId)){
-					setTimeout(function(){
-						$.unblockUI();
-					}, 800);
-					$(".tabContent").show();
-				}else{
-					$(".tabContent").show();
-					$.unblockUI();
-				}
-			}
-		}
-		
 		function isValidRow(ids, row){
 			return (ids.contains(row));
 		}
@@ -493,20 +512,42 @@
 		}
 		
 		/**** To Generate Intimation Letter ****/
-		function generateIntimationLetter() {			
+		function generateIntimationLetter() {	
+			var currentDevice = $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text();
 			var workflowId = $("#grid").jqGrid ('getGridParam', 'selrow');
 			if(workflowId==undefined || workflowId=='') {
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
 			} else {			
-				$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+				if(currentDevice.indexOf('questions_')==0){
+					$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+				}else if(currentDevice.indexOf('motions_standalonemotion_')==0){
+					$('#generateIntimationLetter').attr('href', 'standalonemotion/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+				}else if(currentDevice.indexOf('resolutions_')==0){
+					$('#generateIntimationLetter').attr('href', 'resolution/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+				}
 			}
 		}
 		
 		function showCurrentStatusReport(val, wfdId){
 			$("#selectionDiv1").hide();
-			var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text().split("_")[0];
-			showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
+			var deviceType = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+			var device = deviceType.split("_")[0];
+			if(deviceType.indexOf("questions_")==0){
+				showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
+			}else if(deviceType.indexOf('motions_')==0){
+				if(deviceType.indexOf('motions_standalonemotion_')==0){
+					showTabByIdAndUrl('details_tab', "standalonemotion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
+				}else if(deviceType.indexOf('motions_cutmotion_')==0){
+					
+				}else if(deviceType.indexOf('motions_discussionmotion_')==0){
+					
+				}else{
+					showTabByIdAndUrl('details_tab', "motion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
+				}
+			}else if(deviceType.indexOf('resolutions_')==0){
+				showTabByIdAndUrl('details_tab', "resolution/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
+			}
 		}
 		
 		function loadChartAnsweringDateByGroup(value){
@@ -532,10 +573,193 @@
 		
 		function departmentUtility(){
 			if($('#currentusergroupType').val()=='department'){
-				$('#moduleFilter').css('display','none');
+				//$('#moduleFilter').css('display','none');
 				$('#groupDiv').css('display','none');
 			}
 		}
+		
+		function loadAssignedGroupsInSession(){
+			var params='?houseType='+$("#selectedHouseType").val()
+			+ '&sessionType='+$("#selectedSessionType").val()
+			+ '&sessionYear='+$("#selectedSessionYear").val()
+			+ '&userGroup='+$("#currentusergroup").val();
+			$.get("ref/assignedGroupsInSession"+params,function(data){
+				$('#selectedGroup').empty();
+				if(data.length>0){
+					var text= "<option value=''>"+$('#pleaseSelectOption').val()+"</option>";
+					for(var i = 0;i <data.length; i++){
+						text = text + "<option value='"+ data[i].name +"'>"+data[i].name+"</option>";
+					}
+					$('#selectedGroup').html(text);
+				}	
+			});
+		}
+		
+		function questionSummaryReport(){
+			
+			$.get('ref/sessionbyparametername?houseType='+$("#selectedHouseType").val() +
+					'&sessionType=' + $("#selectedSessionType").val() + 
+					'&year=' + $("#selectedSessionYear").val() +
+					'&piggyBackNumber=' + ($("#selectedGroup").val()==''?'0':$("#selectedGroup").val()),function(data){
+				
+				if(data){
+					
+					var url = "question/report/generalreport?sessionId=" + data.id
+					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+					+ "&workflowStatus=" + $("#selectedStatus").val()
+					+ "&assignee=" + $("#authusername").val()
+					+ "&locale=mr_IN" 
+					+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
+					+ "&groupNumber=" + data.number
+					+ "&reportout=starred_admit_unstarred_report"
+					+ "&report=QUESTION_SUMMARY_REPORT"
+					+ "&fromDate=" + ($("#sumRepFromDate").val()==''?'0':$("#sumRepFromDate").val())
+					+ "&toDate=" + ($("#sumRepToDate").val()==''?'0':$("#sumRepToDate").val())
+					+ "&answeringDate=" + ($("#selectedAnsweringDate").val()==''?'0':$("#selectedAnsweringDate").val());
+					
+					showTabByIdAndUrl('details_tab', url);
+				}
+			});
+		}
+		
+		function sentBackTasksReport(){
+			$("#selectionDiv").hide();
+			
+			var params="houseType="+$("#selectedHouseType").val()
+			+"&sessionYear="+$("#selectedSessionYear").val()
+			+"&sessionType="+$("#selectedSessionType").val()
+			+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+			+"&module="+$("#selectedModule").val()
+			+"&status="+$("#selectedStatus").val()
+			+"&workflowSubType="+$("#selectedSubWorkflow").val()
+			+"&assignee="+$("#assignee").val()
+			+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
+			+"&answeringDate="+$("#selectedAnsweringDate").val()
+			+"&locale=mr_IN"
+			+"&report=SENT_BACK_TASKS_REPORT&reportout=sent_back_tasks_report";
+			
+			showTabByIdAndUrl('process_tab', 'question/report/generalreport?'+params);
+		}
+		
+		/**** To enable the next task link ****/
+		function nextTask(count){
+			if(count==1){
+				$(".tabContent").hide();
+				
+				var allIds = $("#allRowIds").val();
+				var nextRowId = $("#currentRowId").val();
+				
+				/*filler to neutralize the previous content i.e. previous question id*/ 
+				showTabByIdAndUrl('process_tab', 'ref/dummypage');
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + $("#currentRowId").val() + '/process');
+				if(isValidRow(allIds, nextRowId)){
+					setTimeout(function(){
+						$.unblockUI();
+					}, 800);
+					$(".tabContent").show();
+				}else{
+					$(".tabContent").show();
+					$.unblockUI();
+				}
+			}else if(count==0){
+				var currentrowid = $("#currentRowId").val(); 
+				var allIds = $("#allRowIds").val();
+				var allNextIds = allIds.substring(allIds.indexOf(currentrowid)+currentrowid.length+1);
+				if(nextTaskCurrentCounter < nextLotToLoadPendingTasks){
+					if(allNextIds.length>0){
+						$(".tabContent").hide();
+						//filler to neutralize the previous content i.e. previous question id 
+						showTabByIdAndUrl('process_tab', 'ref/dummypage');
+						var nextRowId = allNextIds.split(',')[0];
+					
+						//console.log(allNextIds+"\n"+nextRowId+"\n"+isValidRow(allIds, nextRowId));
+							
+						$("#currentRowId").val(nextRowId);					
+						
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+						showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + nextRowId + '/process');
+						if(isValidRow(allIds, nextRowId)){
+							nextTaskCurrentCounter++;
+							setTimeout(function(){
+								$.unblockUI();
+							}, 800);
+							$(".tabContent").show();
+						}else{
+							$(".tabContent").show();
+							$.unblockUI();
+						}
+					}
+				}else{
+					totalTasksLoaded = totalTasksLoaded + nextTaskCurrentCounter;
+					getNextLotOfPendingAssignedTasks((totalTasksLoaded + 1), nextLotToLoadPendingTasks);
+				}
+			}
+		}
+		
+		function getNextLotOfPendingAssignedTasks(start, end){
+						
+			var urlParams = "houseType="+$("#selectedHouseType").val()
+			+"&sessionYear="+$("#selectedSessionYear").val()
+			+"&sessionType="+$("#selectedSessionType").val()
+			+"&deviceType="+(($("#selectedDeviceType").val()=='')?'0':$("#selectedDeviceType").val())
+			+"&module="+(($("#selectedModule").val()=='')?'0':$("#selectedModule").val())
+			+"&status="+$("#selectedStatus").val()
+			+"&workflowSubType="+(($("#selectedSubWorkflow").val()=='')?'0':$("#selectedSubWorkflow").val())
+			+"&assignee="+(($("#assignee").val()=='')?'0':$("#assignee").val())
+			+"&group="+(($("#selectedGroup").val()=='')?'0':$("#selectedGroup").val())
+			+"&answeringDate="+(($("#selectedAnsweringDate").val()=='')?'0':$("#selectedAnsweringDate").val())
+			+"&start=" + start + "&end=" + end;
+			
+			$.get('ref/getnextlotofassignedpendingtasks?' + urlParams, function(data){
+				if(data.length > 0){
+					var i;
+					for(i = 0; i < data.length; i++){
+						if(i == 0){
+							$("#allRowIds").val(data[i].id);
+							$("#currentRowId").val(data[i].id);
+							nextTaskCurrentCounter = 1;							
+						}else{
+							$("#allRowIds").val($("#allRowIds").val() + "," + data[i].id);
+						}
+					}
+					
+					$("#nextTaskDiv").show();
+					if(totalTasksLoaded >= nextLotToLoadPendingTasks){
+						nextTask(1);
+					}
+				}
+			});
+		}
+		
+		function generateResolutionWorkflowSummaryReport(){
+			$.get('ref/sessionbyparametername?houseType='+$("#selectedHouseType").val() +
+					'&sessionType=' + $("#selectedSessionType").val() + 
+					'&year=' + $("#selectedSessionYear").val(),function(data){
+				
+				if(data){
+					
+					var url = "resolution/report/generalreport?sessionId=" + data.id
+					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+					+ "&workflowStatus=" + $("#selectedStatus").val()
+					+ "&assignee=" + $("#authusername").val()
+					+ "&locale=mr_IN" 
+					+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
+					+ "&reportout=resolution_workflow_summary_report"
+					+ "&report=RESOLUTION_WORKFLOW_SUMMARY_REPORT"
+					+ "&fromDate=" + ($("#sumRepFromDate").val()==''?'0':$("#sumRepFromDate").val())
+					+ "&toDate=" + ($("#sumRepToDate").val()==''?'0':$("#sumRepToDate").val());
+					
+					showTabByIdAndUrl('details_tab', url);
+				}
+			});
+		}
+		
+		
+		
+		
+		
+		
 	</script>
 	
 	<style type="text/css">
@@ -692,8 +916,8 @@
 				<spring:message code="mytask.deviceType" text="Device Type"/>
 			</a>
 			<select name="selectedDeviceType" id="selectedDeviceType" style="width:100px;height: 25px;">			
-			<c:forEach items="${deviceTypes}" var="i">
-			<option value="${i.name}"><c:out value="${i.name}"></c:out></option>			
+			<c:forEach items="${deviceTypeVOs}" var="i">
+			<option value="${i.name}"><c:out value="${i.displayName}"></c:out></option>			
 			</c:forEach>
 			</select> |
 			<div id='moduleFilter' style='display:inline;'>
@@ -762,19 +986,25 @@
 					<option value="25">25</option>
 					<option value="10">10</option>
 					<option value="5">05</option>		
-				</select>|	
-				<a href="#" id="select_filecount" class="butSim">
-					<spring:message code="motion.filecount" text="Select File(Bulk Putup)"/>
-				</a>
-				<select name="selectedFileCount" id="selectedFileCount" style="width:100px;height: 25px;">			
-					<option value="-"><spring:message code='please.select' text='Please Select'/></option>			
-					<option value="1">1</option>
-					<option value="2">2</option>
-					<option value="3">3</option>
-					<option value="4">4</option>
-					<option value="5">5</option>
-					<option value="6">6</option>		
-				</select>|
+				</select> |
+				<div id='fileDiv' style='display:inline;' >	
+					<a href="#" id="select_filecount" class="butSim">
+						<spring:message code="motion.filecount" text="Select File(Bulk Putup)"/>
+					</a>
+					<select name="selectedFileCount" id="selectedFileCount" style="width:100px;height: 25px;">			
+						<option value="-"><spring:message code='please.select' text='Please Select'/></option>			
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>		
+					</select> |
+				</div>
 			</c:if>		
 		</div>
 		<div id="nextTaskDiv" style="display: none;">
@@ -806,8 +1036,14 @@
 		
 		<div style="display: none;">
 			<select id="deviceTypeMaster">			
-				<c:forEach items="${deviceTypes}" var="i">
+				<c:forEach items="${deviceTypeVOs}" var="i">
 					<option value="${i.name}"><c:out value="${i.type}"></c:out></option>			
+				</c:forEach>
+			</select>
+			
+			<select id="deviceTypeMasterIds">
+				<c:forEach items="${deviceTypeVOs}" var="i">
+					<option value="${i.name}"><c:out value="${i.id}"></c:out></option>			
 				</c:forEach>
 			</select>
 		</div>
@@ -836,6 +1072,7 @@
 		<input type="hidden" id="allRowIds" value="" />
 		<input type="hidden" id="persistentGridRowId" value="" />
 		<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
+		
 	</div> 
 </body>
 </html>

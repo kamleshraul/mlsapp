@@ -20,6 +20,8 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.BaseDomain;
+import org.mkcl.els.domain.CommitteeMeeting;
+import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
@@ -36,6 +38,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/roster")
@@ -45,6 +48,7 @@ public class RosterController extends GenericController<Roster>{
 	protected void populateModule(final ModelMap model,final HttpServletRequest request,
 			final String locale,final AuthUser currentUser) {	
 
+		
 		/**** House Types ****/
 		List<HouseType> houseTypes = new ArrayList<HouseType>();
 		String houseType=this.getCurrentUser().getHouseType();
@@ -103,6 +107,10 @@ public class RosterController extends GenericController<Roster>{
 			e.printStackTrace();
 		}
 		model.addAttribute("languages",languages);
+		
+		/*** CommitteeType ***/
+		List<CommitteeType> committeeTypes = CommitteeType.findAll(CommitteeType.class, "name", "ASC", locale);
+		model.addAttribute("committeeTypes", committeeTypes);
 	}
 
 	@Override
@@ -125,27 +133,8 @@ public class RosterController extends GenericController<Roster>{
 			logger.error("**** Check request parameter 'houseType' for null value ****");
 			model.addAttribute("errorcode","selectedHouseTypeIsNull");
 		}
-
-		/**** Session Year ****/
-		String selectedYear=request.getParameter("sessionYear");
-		Integer sessionYear=0;
-		if(selectedYear!=null&&!selectedYear.isEmpty()){			
-			sessionYear=Integer.parseInt(selectedYear);		
-		}else{
-			logger.error("**** Check request parameter 'sessionYear' for null value ****");
-			model.addAttribute("errorcode","selectedSessionYearIsNull");
-		}  
-
-		/**** Session Type ****/
-		String selectedSessionType=request.getParameter("sessionType");
-		SessionType sessionType=null;
-		if(selectedSessionType!=null&&!selectedSessionType.isEmpty()){
-			sessionType=SessionType.findById(SessionType.class,Long.parseLong(selectedSessionType));				
-		}else{
-			logger.error("**** Check request parameter 'sessionType' for null value ****");
-			model.addAttribute("errorcode","selectedSessionTypeIsNull");
-		}
-
+		
+		
 		/**** Language ****/
 		String selectedLanguage=request.getParameter("language");
 		Language language=null;
@@ -155,6 +144,130 @@ public class RosterController extends GenericController<Roster>{
 		}else{
 			logger.error("**** Check request parameter 'sessionType' for null value ****");
 			model.addAttribute("errorcode","selectedSessionTypeIsNull");
+		}
+		
+		/*** CommitteeMeeting ****/
+		String strCommitteeMeeting = request.getParameter("committeeMeeting");
+		if(strCommitteeMeeting != null && !strCommitteeMeeting.isEmpty() && !strCommitteeMeeting.equals("0")){
+			CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
+			if(committeeMeeting != null){
+				String meetingDate = FormaterUtil.formatDateToString(committeeMeeting.getMeetingDate(), ApplicationConstants.SERVER_DATEFORMAT);
+				String startTime = committeeMeeting.getStartTime();
+				String endTime = committeeMeeting.getEndTime();
+				model.addAttribute("startTime",meetingDate + " " +startTime);
+				model.addAttribute("endTime", meetingDate + " " +endTime);
+				model.addAttribute("committeeMeeting",committeeMeeting.getId());
+				domain.setDay(1);
+			}
+			
+		}else{
+			model.addAttribute("committeeMeeting","");
+			/**** Session Year ****/
+			String selectedYear=request.getParameter("sessionYear");
+			Integer sessionYear=0;
+			if(selectedYear!=null&&!selectedYear.isEmpty()){			
+				sessionYear=Integer.parseInt(selectedYear);		
+			}else{
+				logger.error("**** Check request parameter 'sessionYear' for null value ****");
+				model.addAttribute("errorcode","selectedSessionYearIsNull");
+			}  
+
+			/**** Session Type ****/
+			String selectedSessionType=request.getParameter("sessionType");
+			SessionType sessionType=null;
+			if(selectedSessionType!=null&&!selectedSessionType.isEmpty()){
+				sessionType=SessionType.findById(SessionType.class,Long.parseLong(selectedSessionType));				
+			}else{
+				logger.error("**** Check request parameter 'sessionType' for null value ****");
+				model.addAttribute("errorcode","selectedSessionTypeIsNull");
+			}
+			
+			/**** Session,Registry No,Start Time,End Time,Day****/
+			Session selectedSession=null;
+			if(houseType!=null&&selectedYear!=null&&sessionType!=null){
+				try {
+					selectedSession=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				} catch (ELSException e1) {
+					model.addAttribute("error", e1.getParameter());
+					e1.printStackTrace();
+				}
+				if(selectedSession!=null){
+					model.addAttribute("session",selectedSession.getId());
+					/**** Next Roster Entry In Current Session (Registry Number) ****/
+					Roster lastCreatedRoster=Roster.findLastCreated(selectedSession,language,locale);
+					if(lastCreatedRoster!=null){
+						domain.setDay(lastCreatedRoster.getDay()+1);
+						domain.setRegisterNo(lastCreatedRoster.getRegisterNo());
+						/**** get the date part ****/
+						SimpleDateFormat format=FormaterUtil.getDateFormatter("en_US");
+						String strStartTime=format.format(lastCreatedRoster.getStartTime());
+						Date startDate=null;
+						try {
+							startDate=format.parse(strStartTime);
+							Date nextDate=Holiday.getNextSessionDate(selectedSession,startDate, 1, locale);
+							if(nextDate!=null
+									&&selectedSession.getStartDate()!=null
+									&&selectedSession.getEndDate()!=null
+									&&(nextDate.after(selectedSession.getStartDate())
+											||nextDate.equals(selectedSession.getStartDate()))
+											&&(nextDate.before(selectedSession.getEndDate())
+													||nextDate.equals(selectedSession.getEndDate()))){
+								SimpleDateFormat localizedFormat=FormaterUtil.getDateFormatter(domain.getLocale());
+								String formattedNextDate=localizedFormat.format(nextDate);
+								CustomParameter localizedStartTime=CustomParameter.findByName(CustomParameter.class,"SESSION_START_TIME_"+houseType.getType().toUpperCase(), locale);
+								CustomParameter localizedEndTime=CustomParameter.findByName(CustomParameter.class,"SESSION_END_TIME_"+houseType.getType().toUpperCase(), locale);
+								if(localizedStartTime!=null){
+									model.addAttribute("startTime",formattedNextDate+" "+localizedStartTime.getValue());
+								}else{
+									model.addAttribute("startTime",formattedNextDate+" "+"11:00");
+								}
+								if(localizedEndTime!=null){
+									model.addAttribute("endTime",formattedNextDate+" "+localizedEndTime.getValue());
+								}else{
+									model.addAttribute("endTime",formattedNextDate+" "+"18:00");
+								}
+							}
+
+						} catch (ParseException e) {
+							logger.error("Unparsable Date:",e);
+						}
+
+					}else{
+						SimpleDateFormat localizedFormat=FormaterUtil.getDateFormatter(domain.getLocale());
+						String formattedNextDate=localizedFormat.format(selectedSession.getStartDate());
+						CustomParameter localizedStartTime=CustomParameter.findByName(CustomParameter.class,"SESSION_START_TIME_"+houseType.getType().toUpperCase(), locale);
+						CustomParameter localizedEndTime=CustomParameter.findByName(CustomParameter.class,"SESSION_END_TIME_"+houseType.getType().toUpperCase(), locale);
+						if(localizedStartTime!=null){
+							model.addAttribute("startTime",formattedNextDate+" "+localizedStartTime.getValue());
+						}else{
+							model.addAttribute("startTime",formattedNextDate+" "+"11:00");
+						}
+						if(localizedEndTime!=null){
+							model.addAttribute("endTime",formattedNextDate+" "+localizedEndTime.getValue());
+						}else{
+							model.addAttribute("endTime",formattedNextDate+" "+"18:00");
+						}
+						/**** First Roster Entry In Selected Session(Registry No.) ****/
+						Session previousSession = null;
+						try {
+							previousSession = Session.findPreviousSession(selectedSession);
+						} catch (ELSException e) {
+							e.printStackTrace();
+							model.addAttribute("error", e.getParameter());
+						}
+						if(previousSession!=null){
+							Roster lastCreatedRosterPreviouseSession=Roster.findLastCreated(previousSession,language,locale);
+							if(lastCreatedRosterPreviouseSession!=null){
+								domain.setRegisterNo(lastCreatedRosterPreviouseSession.getRegisterNo()+1);
+							}
+						}	
+						domain.setDay(1);
+					}					
+				}else{
+					logger.error("**** Session is null ****");
+					model.addAttribute("errorcode","selectedSessionIsNull");	
+				}
+			}
 		}
 
 		/**** Slot Duration ****/
@@ -175,92 +288,7 @@ public class RosterController extends GenericController<Roster>{
 			model.addAttribute("slotDuration",domain.getSlotDuration());
 		}
 
-		/**** Session,Registry No,Start Time,End Time,Day****/
-		Session selectedSession=null;
-		if(houseType!=null&&selectedYear!=null&&sessionType!=null){
-			try {
-				selectedSession=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-			} catch (ELSException e1) {
-				model.addAttribute("error", e1.getParameter());
-				e1.printStackTrace();
-			}
-			if(selectedSession!=null){
-				model.addAttribute("session",selectedSession.getId());
-				/**** Next Roster Entry In Current Session (Registry Number) ****/
-				Roster lastCreatedRoster=Roster.findLastCreated(selectedSession,language,locale);
-				if(lastCreatedRoster!=null){
-					domain.setDay(lastCreatedRoster.getDay()+1);
-					domain.setRegisterNo(lastCreatedRoster.getRegisterNo());
-					/**** get the date part ****/
-					SimpleDateFormat format=FormaterUtil.getDateFormatter("en_US");
-					String strStartTime=format.format(lastCreatedRoster.getStartTime());
-					Date startDate=null;
-					try {
-						startDate=format.parse(strStartTime);
-						Date nextDate=Holiday.getNextSessionDate(selectedSession,startDate, 1, locale);
-						if(nextDate!=null
-								&&selectedSession.getStartDate()!=null
-								&&selectedSession.getEndDate()!=null
-								&&(nextDate.after(selectedSession.getStartDate())
-										||nextDate.equals(selectedSession.getStartDate()))
-										&&(nextDate.before(selectedSession.getEndDate())
-												||nextDate.equals(selectedSession.getEndDate()))){
-							SimpleDateFormat localizedFormat=FormaterUtil.getDateFormatter(domain.getLocale());
-							String formattedNextDate=localizedFormat.format(nextDate);
-							CustomParameter localizedStartTime=CustomParameter.findByName(CustomParameter.class,"SESSION_START_TIME_"+houseType.getType().toUpperCase(), locale);
-							CustomParameter localizedEndTime=CustomParameter.findByName(CustomParameter.class,"SESSION_END_TIME_"+houseType.getType().toUpperCase(), locale);
-							if(localizedStartTime!=null){
-								model.addAttribute("startTime",formattedNextDate+" "+localizedStartTime.getValue());
-							}else{
-								model.addAttribute("startTime",formattedNextDate+" "+"11:00");
-							}
-							if(localizedEndTime!=null){
-								model.addAttribute("endTime",formattedNextDate+" "+localizedEndTime.getValue());
-							}else{
-								model.addAttribute("endTime",formattedNextDate+" "+"18:00");
-							}
-						}
 
-					} catch (ParseException e) {
-						logger.error("Unparsable Date:",e);
-					}
-
-				}else{
-					SimpleDateFormat localizedFormat=FormaterUtil.getDateFormatter(domain.getLocale());
-					String formattedNextDate=localizedFormat.format(selectedSession.getStartDate());
-					CustomParameter localizedStartTime=CustomParameter.findByName(CustomParameter.class,"SESSION_START_TIME_"+houseType.getType().toUpperCase(), locale);
-					CustomParameter localizedEndTime=CustomParameter.findByName(CustomParameter.class,"SESSION_END_TIME_"+houseType.getType().toUpperCase(), locale);
-					if(localizedStartTime!=null){
-						model.addAttribute("startTime",formattedNextDate+" "+localizedStartTime.getValue());
-					}else{
-						model.addAttribute("startTime",formattedNextDate+" "+"11:00");
-					}
-					if(localizedEndTime!=null){
-						model.addAttribute("endTime",formattedNextDate+" "+localizedEndTime.getValue());
-					}else{
-						model.addAttribute("endTime",formattedNextDate+" "+"18:00");
-					}
-					/**** First Roster Entry In Selected Session(Registry No.) ****/
-					Session previousSession = null;
-					try {
-						previousSession = Session.findPreviousSession(selectedSession);
-					} catch (ELSException e) {
-						e.printStackTrace();
-						model.addAttribute("error", e.getParameter());
-					}
-					if(previousSession!=null){
-						Roster lastCreatedRosterPreviouseSession=Roster.findLastCreated(previousSession,language,locale);
-						if(lastCreatedRosterPreviouseSession!=null){
-							domain.setRegisterNo(lastCreatedRosterPreviouseSession.getRegisterNo()+1);
-						}
-					}	
-					domain.setDay(1);
-				}					
-			}else{
-				logger.error("**** Session is null ****");
-				model.addAttribute("errorcode","selectedSessionIsNull");	
-			}
-		}
 
 		/**** Users ****/
 		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"RIS_ROLES_ALLOTED_TO_SLOT","");
@@ -321,9 +349,20 @@ public class RosterController extends GenericController<Roster>{
 	@Override
 	protected void populateEdit(ModelMap model, Roster domain,
 			HttpServletRequest request) {		
+		
+		CommitteeMeeting committeeMeeting = domain.getCommitteeMeeting();
+		if(committeeMeeting != null){
+			model.addAttribute("committeeMeeting", committeeMeeting.getId());
+		}else{
+			model.addAttribute("committeeMeeting","");
+		}
+		
 		/**** Session ****/
-		Session selectedSession=domain.getSession();
-		model.addAttribute("session",selectedSession.getId());	
+		Session selectedSession = domain.getSession();
+		if(selectedSession != null){
+			model.addAttribute("session",selectedSession.getId());	
+		}
+		
 
 		/**** Start Time and End Time ****/
 		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_DATETIMEFORMAT","");
@@ -352,18 +391,25 @@ public class RosterController extends GenericController<Roster>{
 			model.addAttribute("language",domain.getLanguage().getId());
 		}
 
+		String strHouseType = "";
+		if(domain.getCommitteeMeeting() != null){
+			strHouseType = this.getCurrentUser().getHouseType();
+		}else{
+			strHouseType = domain.getSession().getHouse().getType().getType();
+		}
 		/**** Users ****/
 		CustomParameter customParameter1=CustomParameter.findByName(CustomParameter.class,"RIS_ROLES_ALLOTED_TO_SLOT","");
 		if(customParameter1!=null){
-			HouseType houseType=selectedSession.getHouse().getType();
+			//HouseType houseType=selectedSession.getHouse().getType();
 			List<User> allRISUsers=new ArrayList<User>();
-			if(houseType!=null){
-				if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-					allRISUsers=User.findByRole(false,customParameter1.getValue(),domain.getLanguage().getName(),"houseType,joiningDate,lastName",ApplicationConstants.ASC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,domain.getLocale(),"");
-				}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-					allRISUsers=User.findByRole(false,customParameter1.getValue(),domain.getLanguage().getName(),"houseType,joiningDate,lastName",ApplicationConstants.DESC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,domain.getLocale(),"");
-				}
-			}
+			allRISUsers=User.findByRole(false,customParameter1.getValue(),domain.getLanguage().getName(),"houseType,joiningDate,lastName",ApplicationConstants.ASC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,domain.getLocale(),"");
+			//if(houseType!=null){
+//				if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+//					allRISUsers=User.findByRole(false,customParameter1.getValue(),domain.getLanguage().getName(),"houseType,joiningDate,lastName",ApplicationConstants.ASC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,domain.getLocale(),"");
+//				}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+//					allRISUsers=User.findByRole(false,customParameter1.getValue(),domain.getLanguage().getName(),"houseType,joiningDate,lastName",ApplicationConstants.DESC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,domain.getLocale(),"");
+//				}
+			//}
 			List<Reporter> reporters=domain.getReporters();
 			List<Integer> allRISUsersPositions=new ArrayList<Integer>();
 			model.addAttribute("eligibles", allRISUsers);
@@ -452,7 +498,8 @@ public class RosterController extends GenericController<Roster>{
 		}
 
 		/**** Slot Duration ****/
-		CustomParameter slotDurationParam=CustomParameter.findByName(CustomParameter.class,"SLOT_DURATION_"+domain.getSession().getHouse().getType().getType().toUpperCase(),"");
+		
+		CustomParameter slotDurationParam=CustomParameter.findByName(CustomParameter.class,"SLOT_DURATION_" + strHouseType.toUpperCase(), "");
 		if(slotDurationParam!=null){
 			String[] slotDurationArr=slotDurationParam.getValue().split(",");
 			if(slotDurationArr.length==3){
@@ -507,11 +554,11 @@ public class RosterController extends GenericController<Roster>{
 			result.rejectValue("version", "VersionMismatch");
 		}		
 		/**** Session ****/
-		if(domain.getSession()==null){
+		if(domain.getCommitteeMeeting()==null && domain.getSession()==null){
 			result.rejectValue("session","SessionEmpty");
 		}
 		/**** Registry No.****/
-		if(domain.getRegisterNo()==null){
+		if(domain.getCommitteeMeeting()==null && domain.getRegisterNo()==null){
 			result.rejectValue("registerNo","RegistryEmpty");
 		}		
 		/**** Start Time and End Time****/
@@ -552,16 +599,16 @@ public class RosterController extends GenericController<Roster>{
 			result.rejectValue("startTime","StartTimeEmpty");
 		}
 		/**** Start Time can be changed only if it is a future date ****/
-		if(domain.getStartTime()!=null&&domain.getStartTime().before(new Date())){
-			result.rejectValue("startTime","StartTimeIsPastTime");
-		}
+//		if(domain.getStartTime()!=null&&domain.getStartTime().before(new Date()) && domain.getCommitteeMeeting()==null){
+//			result.rejectValue("startTime","StartTimeIsPastTime");
+//		}
 		if(domain.getEndTime()==null){
 			result.rejectValue("endTime","EndTimeEmpty");
 		}		
 		/**** End Time can be changed only if it is a future date ****/
-		if(domain.getEndTime()!=null&&domain.getEndTime().before(new Date())){
-			result.rejectValue("endTime","EndTimeIsPastTime");
-		}
+//		if(domain.getEndTime()!=null&&domain.getEndTime().before(new Date()) && domain.getCommitteeMeeting()==null){
+//			result.rejectValue("endTime","EndTimeIsPastTime");
+//		}
 		/**** Start Time cannot be > end time ****/
 		if(domain.getStartTime()!=null&&domain.getEndTime()!=null
 				&&domain.getStartTime().after(domain.getEndTime())){
@@ -616,13 +663,13 @@ public class RosterController extends GenericController<Roster>{
 			result.rejectValue("version", "VersionMismatch");
 		}		
 		/**** Session ****/
-		if(domain.getSession()==null){
+		/*if(domain.getSession()==null){
 			result.rejectValue("session","SessionEmpty");
-		}
+		}*/
 		/**** Registry No.****/
-		if(domain.getRegisterNo()==null){
+		/*if(domain.getRegisterNo()==null){
 			result.rejectValue("registerNo","RegistryEmpty");
-		}		
+		}*/		
 		/**** Start Time and End Time****/
 		String strStartTime=request.getParameter("selectedStartTime");
 		String strEndTime=request.getParameter("selectedEndTime");
@@ -700,9 +747,9 @@ public class RosterController extends GenericController<Roster>{
 			result.rejectValue("endTime","EndTimeEmpty");
 		}		
 		/**** End Time can be changed only if it is a future date ****/
-		if(domain.getEndTime()!=null&&domain.getEndTime().before(new Date())){
-			result.rejectValue("endTime","EndTimeIsPastTime");
-		}
+//		if(domain.getEndTime()!=null&&domain.getEndTime().before(new Date()) && domain.getCommitteeMeeting()==null){
+//			result.rejectValue("endTime","EndTimeIsPastTime");
+//		}
 		/**** Start Time cannot be > end time ****/
 		if(domain.getStartTime()!=null&&domain.getEndTime()!=null
 				&&domain.getStartTime().after(domain.getEndTime())){
@@ -912,6 +959,22 @@ public class RosterController extends GenericController<Roster>{
 		rosterData.put(repName, rosterSlotsForReporter);
 		
 		return rosterData;
+	}
+	
+	@RequestMapping(value="/{id}/publish", method=RequestMethod.POST)
+	public @ResponseBody Boolean publishRoster(final @PathVariable("id") Long id, final HttpServletRequest request, final ModelMap model, final Locale locale){
+		Boolean returnValue = false;
+		try{
+			Roster roster = Roster.findById(Roster.class, id);
+			roster.setPublish(true);
+			roster.merge();
+			returnValue = true;
+					
+		}catch (Exception e) {
+			returnValue = false;
+			e.printStackTrace();
+		}
+		return returnValue;
 	}
 
 }

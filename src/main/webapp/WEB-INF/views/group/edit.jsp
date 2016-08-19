@@ -13,6 +13,37 @@
 			$('#key').val(recordId);
 			
 			$("#ministries").multiSelect();
+			$("#subdepartments").multiSelect();
+			
+			$("#ministries").change(function(){
+				var ministry = $(this).val();
+				if(ministry==null){
+					ministry="";
+				}
+				$.get("ref/getSubDeparmentsByMinistries?ministries=" + ministry
+						+ "&session=" + $('#session').val(),function(data){
+					
+					if(data.length>0){
+						var text = "";
+						for(var i=0;i<data.length;i++){
+							var flag = false;
+							$("#subdepartments option").each(function(){
+								if($(this).attr("selected")=="selected" && $(this).val()==data[i].id){
+									flag=true;
+								}
+							 });
+							if(flag){
+								text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+							}else{
+								text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+							}
+						}
+						$("#subdepartments").empty();
+						$("#subdepartments").html(text);
+						$("#subdepartments").multiSelect();
+					}
+				});
+			});
 			
 			$('#number').change(function(){				
 				if($('#number').val() != "") {
@@ -102,7 +133,12 @@
 		<form:select path="ministries" id="ministries" items="${ministries}" itemValue="id" itemLabel="name" multiple="multiple" size="10" disabled="false"/>
 		<form:errors path="ministries" cssClass="validationError" />	
 	</p>	
-					
+			
+	<p>
+		<label style="vertical-align: top; width: 142px"><spring:message code="group.subdepartment" text="SubDepartments" /></label>			
+		<form:select path="subdepartments" items="${subdepartments}" itemValue="id" itemLabel="name"  multiple="multiple" size="10"/>
+		<form:errors path="subdepartments" cssClass="validationError" />
+	</p>		
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">
@@ -111,6 +147,7 @@
 	</div>	
 	<input type="hidden" id="key" name="key">
 	<input type="hidden" id="noSessionTypeMessage" value='<spring:message code="group.noSessionType" text="Session Does Not exist "></spring:message>'>	
+	<form:hidden path="session" value='${session}'/>
 	<form:hidden path="version" />
 	<form:hidden  path="id"/>
 	<form:hidden path="locale"/>	

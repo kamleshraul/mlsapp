@@ -105,7 +105,7 @@
 							<fo:block font-weight="bold">प्रति : </fo:block>	
 							<fo:block margin-left="0.90cm">सचिव,</fo:block>
 							<xsl:choose>
-								<xsl:when test="department=subDepartment">
+								<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true'">
 									<fo:block margin-left="0.90cm"><xsl:value-of select="department"/>,</fo:block>
 								</xsl:when>
 								<xsl:otherwise>
@@ -158,7 +158,7 @@
 									</xsl:when>
 									<xsl:otherwise>
 										<xsl:choose>
-											<xsl:when test="department=subDepartment and $endPartOfSubDepartment='विभाग'">											
+											<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true' and $endPartOfSubDepartment='विभाग'">											
 												१. माननीय  <fo:inline font-weight="bold"><xsl:value-of select="substring(subDepartment,1,(string-length(subDepartment)-5))"/> मंत्री.</fo:inline>
 											</xsl:when>
 											<xsl:otherwise>

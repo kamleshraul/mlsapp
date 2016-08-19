@@ -50,8 +50,20 @@
 			$("#finalballot").click(function(){
 				$(".link").css("color","#8D8B8B");
 				$(this).css("color","blue");
-				finalballot();
-			});	
+				$.prompt($('#ballotConfirmationMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+						if(v){
+							finalballot();
+						}
+					}
+				});
+			});
+			
+			$("#viewfinalballot").click(function(){
+				$(this).css("color","blue");
+				viewfinalballot();
+			});
+			
 			$("#memberwise_report").click(function(){
 				$(".link").css("color","#8D8B8B");
 				$(this).css("color","blue");
@@ -325,7 +337,34 @@
 				$.prompt($("#selectGroupAnsweringDateMsg").val());		
 			}
 		}
-		function memberwiseReport(){			
+		
+		function viewfinalballot(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var group=$("#mbGroup").val();
+			var answeringDate=$("#mbAnsweringDate").val();
+			if(group!="-"&&answeringDate!="-"){
+			var parameters = "session="+$("#session").val()
+			 +"&questionType="+$("#questionType").val()
+			 +"&group="+group+"&answeringDate="+answeringDate;
+			var resourceURL = 'ballot/memberballot/viewfinalballot?'+ parameters;
+			$.get(resourceURL,function(data){
+				$("#resultDiv").html(data);
+				$.unblockUI();				
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.");
+				}
+				scrollTop();
+			});
+			}else{
+				$.unblockUI();
+				$.prompt($("#selectGroupAnsweringDateMsg").val());		
+			}
+		}
+		function memberwiseReport(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			var parameters = "session="+$("#session").val()
 							 +"&questionType="+$("#questionType").val();
@@ -341,7 +380,7 @@
 					$("#error_p").html("Error occured contact for support.");
 				}
 				scrollTop();
-			});			 
+			});						 
 		}	
 		function questionDistribution(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -430,32 +469,40 @@
 				<spring:message code="memberballot.updateclubbing" text="Update Clubbing"/>
 			</a> |
 			<!-- <div style="display:none;"> -->
-			<a href="#" id="finalballot" class="butSim link">
-				<spring:message code="memberballot.finalballot" text="Final Ballot"/>
-			</a> |	
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+				<a href="#" id="finalballot" class="butSim link">
+					<spring:message code="memberballot.finalballot" text="Final Ballot"/>
+				</a> |
+				<a href="#" id="viewfinalballot" class="butSim link">
+					<spring:message code="memberballot.viewfinalballot" text="View Final Ballot"/>
+				</a> |
+			</security:authorize>	
+			
 			<!-- </div> -->		
 			<a href="#" id="memberwise_report" class="butSim link">
 				<spring:message code="memberballot.memberwisereport" text="Member's Questions Report"/>
-			</a> |
+			</a> |			
 			<a href="#" id="question_distribution" class="butSim link">
 				<spring:message code="memberballot.questiondistribution" text="Total Questions Report"/>
 			</a> |
 			<hr>	
-			<a href="#" id="view_yaadi" class="butSim">
-				<spring:message code="ballotinitial.viewyaadi" text="View Yaadi"/>
-			</a> | 
-			<a href="#" id="view_suchi" class="butSim">
-				<spring:message code="ballotinitial.viewsuchi" text="View Suchi"/>
-			</a>
-			<c:if test="${not empty outputFormats}">				
-				<select id="outputFormat" name="outputFormat">
-					<option value="" selected="selected">Please Select Output Format</option>
-					<c:forEach items="${outputFormats}" var="i">
-						<option value="${i.value}">${i.name}</option>
-					</c:forEach>
-				</select>				
-			</c:if>
-			<hr>
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+				<a href="#" id="view_yaadi" class="butSim">
+					<spring:message code="ballotinitial.viewyaadi" text="View Yaadi"/>
+				</a> | 
+				<a href="#" id="view_suchi" class="butSim">
+					<spring:message code="ballotinitial.viewsuchi" text="View Suchi"/>
+				</a>
+				<c:if test="${not empty outputFormats}">				
+					<select id="outputFormat" name="outputFormat">
+						<option value="" selected="selected">Please Select Output Format</option>
+						<c:forEach items="${outputFormats}" var="i">
+							<option value="${i.value}">${i.name}</option>
+						</c:forEach>
+					</select>				
+				</c:if>
+				<hr>
+			</security:authorize>
 </div>
 <div id="resultDiv">
 </div>
@@ -465,5 +512,6 @@
 <input type="hidden" id="selectGroupAnsweringDateMsg" name="selectGroupAnsweringDateMsg" value="<spring:message code='memberballot.selectanseringdatemsg' text='Please Select Group And Ansering Date.'/>">
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 <input type="hidden" id="answeringDateNotSetPrompt" value="<spring:message code='memberballotinit.answeringDateNotSetPrompt' text='Please select answering date first.'/>"/>
+<input type="hidden" id="ballotConfirmationMsg" value="<spring:message code='ballot.confirmationFinalBallotMessage' text='Do you want to proceed with the final Ballot?'/>"/>
 </body>
 </html>

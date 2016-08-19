@@ -22,40 +22,25 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.mail.Part;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.ElectionResultVO;
 import org.mkcl.els.common.vo.MasterVO;
-import org.mkcl.els.common.vo.MemberAgeWiseReportVO;
-import org.mkcl.els.common.vo.MemberAgeWiseVO;
 import org.mkcl.els.common.vo.MemberBiographyVO;
-import org.mkcl.els.common.vo.MemberChildrenWiseReportVO;
-import org.mkcl.els.common.vo.MemberChildrenWiseVO;
 import org.mkcl.els.common.vo.MemberCompleteDetailVO;
 import org.mkcl.els.common.vo.MemberContactVO;
-import org.mkcl.els.common.vo.MemberGeneralVO;
 import org.mkcl.els.common.vo.MemberInfo;
-import org.mkcl.els.common.vo.MemberPartyDistrictWiseVO;
-import org.mkcl.els.common.vo.MemberPartyWiseReportVO;
-import org.mkcl.els.common.vo.MemberPartyWiseVO;
-import org.mkcl.els.common.vo.MemberProfessionWiseReportVO;
-import org.mkcl.els.common.vo.MemberProfessionWiseVO;
-import org.mkcl.els.common.vo.MemberQualificationWiseReportVO;
-import org.mkcl.els.common.vo.MemberQualificationWiseVO;
-import org.mkcl.els.common.vo.MemberSearchPage;
 import org.mkcl.els.common.vo.PositionHeldVO;
-import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RivalMemberVO;
 import org.mkcl.els.domain.Address;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Contact;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
-import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.ElectionResult;
 import org.mkcl.els.domain.FamilyMember;
 import org.mkcl.els.domain.House;
@@ -66,7 +51,6 @@ import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PositionHeld;
 import org.mkcl.els.domain.Profession;
 import org.mkcl.els.domain.Qualification;
-import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.RivalMember;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
@@ -183,7 +167,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		String query="";	
 		String partyQuery="";
 		String constituencyQuery="";
-		String currentDateDBFormat=FormaterUtil.getDateFormatter("yyyy-MM-dd", "en_US").format(new Date());
+		
 		if(housetype.equals(ApplicationConstants.UPPER_HOUSE)){
 			String criteria=councilCriteria[0];
 			String fromDate=councilCriteria[1];
@@ -224,14 +208,17 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 				constituencyQuery=" AND mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"'";
 			}
 		}else if(housetype.equals(ApplicationConstants.LOWER_HOUSE)){
-			partyQuery=" AND mp.from_date<='"+currentDateDBFormat+"' AND (mp.to_date>='"+currentDateDBFormat+"' or mp.to_date is null)";
-			constituencyQuery=" AND mhr.from_date<='"+currentDateDBFormat+"' AND (mhr.to_date>='"+currentDateDBFormat+"' or mhr.to_date is null)";
+			// String currentDateDBFormat=FormaterUtil.getDateFormatter("yyyy-MM-dd", "en_US").format(new Date());
+			// partyQuery=" AND mp.from_date<='"+currentDateDBFormat+"' AND (mp.to_date>='"+currentDateDBFormat+"' or mp.to_date is null)";
+			// constituencyQuery=" AND mhr.from_date<='"+currentDateDBFormat+"' AND (mhr.to_date>='"+currentDateDBFormat+"' or mhr.to_date is null)";
+			
+			// Instead of pointing to currentDateDBFormat, it should point to to_date in mhr
+			partyQuery = " AND mp.from_date<=mhr.to_date AND (mp.to_date>=mhr.to_date or mp.to_date is null)";
 		}
 		query=selectClause+fromClause+whereClause+queryCriteriaClause+partyQuery+constituencyQuery+queryOrderByClause+") as rs";
 		List records=this.em().createNativeQuery(query).getResultList();
 		Long currentId=new Long(0);
 		int size=0;
-		int count=1;
 		List<MemberInfo> memberInfos=new ArrayList<MemberInfo>();
 		for(Object i:records){
 			Object[] o=(Object[]) i;
@@ -324,7 +311,6 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 						memberInfo.setFirstChar(String.valueOf(memberInfo.getLastName().charAt(0)));
 					}
 				}
-				count++;
 				memberInfos.add(memberInfo);
 			}
 			size=memberInfos.size();
@@ -1575,7 +1561,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			}
 
 		}
-		CustomParameter tehsilLocalized=CustomParameter.findByName(CustomParameter.class,"TEHSIL", locale);
+		// CustomParameter tehsilLocalized=CustomParameter.findByName(CustomParameter.class,"TEHSIL", locale);
 		CustomParameter districtLocalized=CustomParameter.findByName(CustomParameter.class,"DISTRICT", locale);
 		CustomParameter stateLocalized=CustomParameter.findByName(CustomParameter.class,"STATE", locale);
 		//present address
@@ -2429,27 +2415,137 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 
 	public Member findMember(final String firstName, final String middleName,
 			final String lastName, final Date birthDate, final String locale) {
-		Search search=new Search();
-		if(!firstName.isEmpty()){
-			search.addFilterEqual("firstName",firstName);
+		
+		/**** Previous Code ****/
+//		Search search=new Search();
+//		if(!firstName.isEmpty()){
+//			search.addFilterEqual("firstName",firstName);
+//		}
+//		if(!middleName.isEmpty()){
+//			search.addFilterEqual("middleName",middleName);
+//		}
+//		if(!lastName.isEmpty()){
+//			search.addFilterEqual("lastName",lastName);
+//		}
+//		if(birthDate!=null){
+//			search.addFilterEqual("birthDate", birthDate);
+//		}
+//		search.addSort("lastName",false);
+//		List<Member> members=this.search(search);
+//		if(!members.isEmpty()){
+//			return members.get(0);
+//		}else{
+//			return new Member();
+//		}
+		
+		/**** Updated Code ****/
+		Member member = null;
+		List<Member> possibleMembers = null;
+		Map<String, String> memberNameParameters = new HashMap<String, String>();
+		
+		//Combo 1: firstName + middleName + lastName + birthDate
+		try {
+			memberNameParameters.put("firstName", firstName);
+			memberNameParameters.put("middleName", middleName);
+			memberNameParameters.put("lastName", lastName);
+//			System.out.println("combo 1:");
+//			for (Map.Entry<String, String> entry : memberNameParameters.entrySet()) {
+//			    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//			}
+			possibleMembers = Member.findAllByFieldNames(Member.class, memberNameParameters, "id", ApplicationConstants.ASC, locale);
+			if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+				for(Member m: possibleMembers) {
+					if(m.getBirthDate().equals(birthDate)) {
+						member = m;
+						possibleMembers = null;
+						memberNameParameters = null;
+						return member;
+					} else {
+						throw new ELSException("member_not_found", "member_not_found");
+					}
+				}
+			} else {
+				throw new ELSException("member_not_found", "member_not_found");
+			}
+		} catch(ELSException eCombo1) {
+			if(eCombo1.getParameter()!=null && eCombo1.getParameter().equals("member_not_found")) {
+				//Combo 2: firstName + lastName + birthDate
+				try {
+					memberNameParameters.remove("middleName");	
+//					System.out.println("combo 2:");
+//					for (Map.Entry<String, String> entry : memberNameParameters.entrySet()) {
+//					    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//					}
+					possibleMembers = Member.findAllByFieldNames(Member.class, memberNameParameters, "id", ApplicationConstants.ASC, locale);
+					if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+						for(Member m: possibleMembers) {
+							if(m.getBirthDate().equals(birthDate)) {
+								member = m;
+								possibleMembers = null;
+								memberNameParameters = null;
+								return member;
+							} else {
+								throw new ELSException("member_not_found", "member_not_found");
+							}
+						}
+					} else {
+						throw new ELSException("member_not_found", "member_not_found");
+					}
+				} catch(ELSException eCombo2) {
+					if(eCombo2.getParameter()!=null && eCombo2.getParameter().equals("member_not_found")) {
+						//Combo 3: middleName + lastName + birthDate
+						try {
+							memberNameParameters.remove("firstName");
+							memberNameParameters.put("middleName", middleName);			
+//							System.out.println("combo 3:");
+//							for (Map.Entry<String, String> entry : memberNameParameters.entrySet()) {
+//							    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//							}
+							possibleMembers = Member.findAllByFieldNames(Member.class, memberNameParameters, "id", ApplicationConstants.ASC, locale);
+							if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+								for(Member m: possibleMembers) {
+									if(m.getBirthDate().equals(birthDate)) {
+										member = m;
+										possibleMembers = null;
+										memberNameParameters = null;
+										return member;
+									} else {
+										throw new ELSException("member_not_found", "member_not_found");
+									}
+								}
+							} else {
+								throw new ELSException("member_not_found", "member_not_found");
+							}
+						} catch(ELSException eCombo3) {
+							if(eCombo3.getParameter()!=null && eCombo3.getParameter().equals("member_not_found")) {
+								//Combo 4: firstName + middleName + birthDate
+								memberNameParameters.remove("lastName");
+								memberNameParameters.put("firstName", firstName);
+//								System.out.println("combo 4:");
+//								for (Map.Entry<String, String> entry : memberNameParameters.entrySet()) {
+//								    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//								}
+								possibleMembers = Member.findAllByFieldNames(Member.class, memberNameParameters, "id", ApplicationConstants.ASC, locale);
+								if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+									for(Member m: possibleMembers) {
+										if(m.getBirthDate().equals(birthDate)) {
+											member = m;
+											possibleMembers = null;
+											memberNameParameters = null;
+											return member;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
-		if(!middleName.isEmpty()){
-			search.addFilterEqual("middleName",middleName);
-		}
-		if(!lastName.isEmpty()){
-			search.addFilterEqual("lastName",lastName);
-		}
-		if(birthDate!=null){
-			search.addFilterEqual("birthDate", birthDate);
-		}
-		search.addSort("lastName",false);
-		List<Member> members=this.search(search);
-		if(!members.isEmpty()){
-			return members.get(0);
-		}else{
-			return new Member();
-		}
-
+		//if member is not found, return blank instance
+		possibleMembers = null;
+		memberNameParameters = null;
+		return new Member();
 	}
 	
 	public Member findMember(final String firstName,
@@ -2477,6 +2573,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 
 	}
 
+	@SuppressWarnings("rawtypes")
 	public List<MemberContactVO> getContactDetails(final String[] members) {
 		/*
 		 * This method is used in assistant screen of qis to fetch the contact details of
@@ -2601,10 +2698,11 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	public List<Member> findActiveMembersByParty(Party party,House house,String locale) {
 		String strQuery="SELECT m FROM Member m JOIN m.memberPartyAssociations mpa" +
 				" JOIN mpa.party p WHERE mpa.fromDate<=:currentDate AND mpa.house.id=:houseId" +
-				" AND p.id=:partyId AND mpa.toDate IS NULL AND p.locale=:locale";
+				" AND p.id=:partyId AND (mpa.toDate>=:currentDate OR mpa.toDate IS NULL) AND p.locale=:locale";
 		javax.persistence.Query query=this.em().createQuery(strQuery);
 		query.setParameter("currentDate", new Date());
 		query.setParameter("houseId", house.getId());
@@ -2662,6 +2760,7 @@ public class MemberRepository extends BaseRepository<Member, Long>{
         return members;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public List<MasterVO> findAllMembersVOsWithGivenIdsAndWithNameContainingParam(final String memberIds, final String param) {
 		List<MasterVO> memberVOs = new ArrayList<MasterVO>();
 		String query = "SELECT m.id,t.name,m.firstName,m.middleName,m.lastName FROM Member m JOIN m.title t" +
@@ -2804,5 +2903,52 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			return null;
 		}
 		
-	}	
+	}
+
+	public Constituency findConstituency(Member member, Date onDate) {
+		try {
+			String strQuery="SELECT c FROM HouseMemberRoleAssociation mhr " +
+					"JOIN mhr.constituency c " +
+					"WHERE mhr.member.id=:memberId" +
+					" AND mhr.fromDate<=:onDate" +
+					" AND mhr.toDate>=:onDate " +
+					"ORDER BY mhr.fromDate "+ApplicationConstants.DESC;
+			javax.persistence.Query query = this.em().createQuery(strQuery);
+			query.setParameter("memberId", member.getId());
+			query.setParameter("onDate", onDate);
+			return (Constituency) query.getSingleResult();
+		} catch (Exception e) {
+			logger.error("Entity Not Found",e);
+			return null;
+		}
+	}
+	
+	public List<Member> findActiveMinisters(final Date activeOn, final String locale) {
+		String query = "Select m" +
+				" FROM Member m JOIN m.memberMinisters mm" +
+				" WHERE mm.ministryFromDate <=:activeOn" +
+				" AND (mm.ministryToDate >=:activeOn OR mm.ministryToDate IS NULL)" +
+				" AND mm.locale=:locale";
+		
+		TypedQuery<Member> tQuery = this.em().createQuery(query, Member.class);		
+		tQuery.setParameter("activeOn", activeOn);
+		tQuery.setParameter("locale", locale);
+		List<Member> members = tQuery.getResultList();
+		
+		return members;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public String findHouseTypeByDate(Long member,Date onDate) {
+		String strQuery="SELECT distinct ht.type FROM Member m JOIN m.houseMemberRoleAssociations mhr "+
+						"join mhr.house h join h.type ht " +
+				" where mhr.fromDate <=:onDate and mhr.toDate >=:onDate and m.id=:memberid";
+				javax.persistence.Query query=this.em().createQuery(strQuery);
+		
+		query.setParameter("onDate",onDate );
+		query.setParameter("memberid",member );
+		List result=query.getResultList();
+		
+		return result.toString();
+	}
 }

@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="committee_tours")
-@JsonIgnoreProperties({"committee", "town", "reporters", "itineraries",
+@JsonIgnoreProperties({"committee","districts","zillaparishads","town","reporters", "itineraries",
 	"status", "internalStatusLH", "recommendationStatusLH",
 	"internalStatusUH", "recommendationStatusUH", "drafts"})
 public class CommitteeTour extends BaseDomain implements Serializable {
@@ -44,6 +44,24 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="town_id")
 	private Town town;
+	
+	/** Zillaparishad */
+	@ManyToMany(fetch=FetchType.LAZY)
+	@JoinTable(name = "committee_tours_district",
+			joinColumns = { @JoinColumn(name = "committee_tour_id",
+					referencedColumnName = "id") },
+					inverseJoinColumns = { @JoinColumn(name = "district_id",
+							referencedColumnName = "id") })
+							private List<District> districts;
+	
+	/** Zillaparishad */
+	@ManyToMany(fetch=FetchType.LAZY)
+	@JoinTable(name = "committee_tours_zillaparishad",
+			joinColumns = { @JoinColumn(name = "committee_tour_id",
+					referencedColumnName = "id") },
+					inverseJoinColumns = { @JoinColumn(name = "zillaparishad_id",
+							referencedColumnName = "id") })
+							private List<Zillaparishad> zillaparishads;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date fromDate;
@@ -133,6 +151,8 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 		this.setReporters(new ArrayList<CommitteeReporter>());
 		this.setItineraries(new ArrayList<TourItinerary>());
 		this.setDrafts(new ArrayList<CommitteeTourDraft>());
+		this.setDistricts(new ArrayList<District>());
+		this.setZillaparishads(new ArrayList<Zillaparishad>());
 	}
 	
 	//=============== VIEW METHODS =============
@@ -184,7 +204,14 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 //		return CommitteeTour.getRepository().find(town, venueName, 
 //				fromDate, toDate, subject, locale);
 //	}
-	
+	final public static List<CommitteeTour> findCommitteeTours(
+			final Committee committee, 
+			final String locale) {
+		Status status = Status.findByType(
+				ApplicationConstants.COMMITTEETOUR_FINAL_ADMISSION, locale);
+		return CommitteeTour.getRepository().findCommitteeTours(status, 
+				committee, locale);
+	}
 	public static CommitteeTour find(final Committee committee, 
 			final Date fromDate,
 			final String locale) {
@@ -204,7 +231,10 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 				&& this.getToDate() != null
 				&& this.getSubject() != null
 				&& ! this.getReporters().isEmpty()
-				&& ! this.getItineraries().isEmpty()) {
+				&& ! this.getItineraries().isEmpty()
+				&& ! this.getDistricts().isEmpty()
+				&& ! this.getZillaparishads().isEmpty()
+				) {
 			Status CREATED = Status.findByType(
 					ApplicationConstants.COMMITTEETOUR_CREATED, 
 					this.getLocale());
@@ -393,6 +423,22 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 
 	public void setItineraries(final List<TourItinerary> itineraries) {
 		this.itineraries = itineraries;
+	}
+	
+	public List<District> getDistricts() {
+		return districts;
+	}
+
+	public void setDistricts(final List<District> districts) {
+		this.districts = districts;
+	}
+	
+	public List<Zillaparishad> getZillaparishads() {
+		return zillaparishads;
+	}
+
+	public void setZillaparishads(final List<Zillaparishad> zillaparishads) {
+		this.zillaparishads = zillaparishads;
 	}
 
 	public Status getStatus() {

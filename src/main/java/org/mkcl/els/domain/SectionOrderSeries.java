@@ -1,6 +1,8 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -9,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +72,22 @@ public class SectionOrderSeries extends BaseDomain implements Serializable {
 			return super.isDuplicate(fieldName, fieldValue);
 		}
     }
+	
+	public boolean checkDuplicate() {
+		boolean isDuplicate = false;
+		List<SectionOrderSeries> duplicateSeriesAll = SectionOrderSeries.findAllByFieldName(SectionOrderSeries.class, "name", this.getName(), "id", ApplicationConstants.ASC, this.getLocale());
+        if(duplicateSeriesAll!=null && !duplicateSeriesAll.isEmpty()) {
+        	for(SectionOrderSeries i: duplicateSeriesAll) {
+        		if(this.getId()==null || !i.getId().equals(this.getId())) {
+        			if(i.getName().equals(this.getName()) && i.getLanguage().equals(this.getLanguage())) {
+        				isDuplicate = true;
+        				break;
+        			}
+        		}
+        	}
+        }
+		return isDuplicate;
+	}
 
 	//=============== GETTERS/SETTERS ==========
 	public String getName() {

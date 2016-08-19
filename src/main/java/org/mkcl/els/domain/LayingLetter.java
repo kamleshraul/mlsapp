@@ -3,6 +3,7 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -139,6 +140,24 @@ public class LayingLetter extends BaseDomain implements Serializable {
 			}
 		}
 		return latestLayingLetter;
+	}
+	
+	public Boolean isApproved() {
+		Boolean isApproved = false;
+		CustomParameter finalAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "BILL_LAYLETTER_FINAL_AUTHORITY"+"_"+this.getHouseType().toUpperCase(), "");
+		if(finalAuthorityParameter!=null) {
+			Map<String, String> finalLayingLetterDraftIdentifiers =  new HashMap<String, String>();
+			finalLayingLetterDraftIdentifiers.put("layingLetterId", this.getId().toString());
+			for(String finalAuthority: finalAuthorityParameter.getValue().split(",")) {
+				finalLayingLetterDraftIdentifiers.put("editedAs", finalAuthority);
+				LayingLetterDraft finalLayingLetterDraft = LayingLetterDraft.findByFieldNames(LayingLetterDraft.class, finalLayingLetterDraftIdentifiers, this.getLocale());
+				if(finalLayingLetterDraft!=null) {
+					isApproved = true;
+					break;
+				}
+			}			
+		}
+		return isApproved;
 	}
 	
 

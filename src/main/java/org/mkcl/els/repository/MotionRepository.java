@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -14,14 +15,18 @@ import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
 import org.hibernate.mapping.Array;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.UserGroupType;
@@ -38,6 +43,7 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		return query.getResultList();
 	}
 
+	
 	public Integer assignMotionNo(final HouseType houseType,final Session session,
 			final DeviceType type,final String locale) {
 		String strMotionType = type.getType();
@@ -285,13 +291,13 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 					" AND m.type=:motionType" +
 					" AND m.locale=:locale" +
 					" AND m.status=:status" + 
-					" AND m.recommendationDtatus=:undiscussed" +
+					" AND m.recommendationStatus=:undiscussed" +
 					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
 			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
 			query.setParameter("session", session);
 			query.setParameter("motionType", motionType);
 			query.setParameter("locale", locale);
-			query.setParameter("undiscussed", undiscussed.getId());
+			query.setParameter("undiscussed", undiscussed);
 			query.setParameter("status", status);
 			motions = query.getResultList();
 		} catch (Exception e) {
@@ -333,7 +339,142 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		
 		return motions;
 	}
+	
+	public List<Motion> findAllAdmittedUndisccussed(final Session session,
+			final DeviceType motionType, 
+			final Status status,
+			final String locale) {
+		
+		List<Motion> motions = new ArrayList<Motion>();
+		
+		try {
+			Status recommendDiscussed = Status.findByType(ApplicationConstants.MOTION_PROCESSED_DISCUSSED, locale);
+			Status recommendUndiscussed = Status.findByType(ApplicationConstants.MOTION_PROCESSED_UNDISCUSSED, locale);
+			
+			String strQuery="SELECT m FROM Motion m" +
+					" WHERE m.session=:session" +
+					" AND m.type=:motionType" +
+					" AND m.locale=:locale" +
+					" AND m.internalStatus=:internalStatus" + 
+					/*" AND (m.recommendationStatus!=:recommendationStatusDiscussed AND m.recommendationStatus!=:recommendationStatusUndiscussed)" +*/
+					" ORDER BY m.number "+ ApplicationConstants.ASC;
+			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale", locale);
+			query.setParameter("internalStatus", status);
+			/*query.setParameter("recommendationStatusDiscussed", recommendDiscussed);
+			query.setParameter("recommendationStatusUndiscussed", recommendUndiscussed);*/
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
+	}
+	
+	public List<Motion> findAllByStatus(final Session session,
+			final DeviceType motionType, 
+			final Status status,
+			final String locale) {
+		
+		List<Motion> motions = new ArrayList<Motion>();
+		
+		try {
+			String strQuery="SELECT m FROM Motion m" +
+					" WHERE m.session=:session" +
+					" AND m.type=:motionType" +
+					" AND m.locale=:locale" +
+					" AND m.status=:status" + 
+					" ORDER BY m.number "+ ApplicationConstants.ASC + 
+					", m.postBallotNumber " + ApplicationConstants.ASC +
+					", m.submissionDate " + ApplicationConstants.ASC;
+			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale", locale);
+			query.setParameter("status", status);
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
+	}
+	
+	public List<Motion> findAllForDiscussion(final Session session,
+			final DeviceType motionType, 
+			final Status status,
+			final String locale) {
+		
+		List<Motion> motions = new ArrayList<Motion>();
+		
+		try {
+			CustomParameter csptSelectableFor = CustomParameter.findByName(CustomParameter.class, "SELECTABLE_MOTION_FOR_DISCUSSION", "");
+			List<String> statuses = new ArrayList<String>();
+			if(csptSelectableFor != null && csptSelectableFor.getValue() != null && !csptSelectableFor.getValue().isEmpty()){
+				for(String s : csptSelectableFor.getValue().split(",")){
+					statuses.add(s);
+				}
+			}
+			
+			if(statuses.isEmpty()){
+				statuses.add(ApplicationConstants.MOTION_PROCESSED_UNDISCUSSED);
+			}
+			String strQuery="SELECT m FROM Motion m" +
+					" WHERE m.session=:session" +
+					" AND m.type=:motionType" +
+					" AND m.locale=:locale" +
+					" AND m.status=:status" + 
+					" AND (m.discussionDate IS NULL OR (m.discussionDate IS NOT NULL AND m.recommendationStatus.type IN (:recommendationStatus)))"+					
+					" ORDER BY m.number "+ ApplicationConstants.ASC + 
+					", m.postBallotNumber " + ApplicationConstants.ASC +
+					", m.submissionDate " + ApplicationConstants.ASC;
+			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale", locale);
+			query.setParameter("status", status);
+			query.setParameter("recommendationStatus", statuses);
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
+	}
+	
+	public List<Motion> findAllByMember(final Session session,
+			final DeviceType motionType, 
+			final Status status,
+			final Member primaryMember,
+			final String locale) {
+		
+		List<Motion> motions = new ArrayList<Motion>();
+		
+		try {
+			String strQuery = "SELECT m FROM Motion m" +
+					" WHERE m.session=:session" +
+					" AND m.type=:motionType" +
+					" AND m.locale=:locale" +
+					" AND m.status=:status" + 
+					" AND m.primaryMember=:member" +
+					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
+			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale", locale);
+			query.setParameter("status", status);
+			query.setParameter("member", primaryMember);
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
+	}
 
+	
 	public List<Motion> findAllByStatus(final Session session,final DeviceType motionType,
 			final Status internalStatus,final Integer itemsCount,final String locale) {
 		String strQuery="SELECT m FROM Motion m WHERE m.session.id=:sessionId" +
@@ -461,5 +602,353 @@ public class MotionRepository extends BaseRepository<Motion, Serializable>{
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("motionId", motion.getId());
 		return query.getResultList();
+	}
+	
+	public Boolean isExist(Integer number, DeviceType deviceType, Session session, String locale) {
+		try{
+			StringBuffer strQuery=new StringBuffer();
+			strQuery.append("SELECT m FROM Motion m " +
+					" WHERE m.session.id=:sessionId" +
+					" AND m.number=:number" +
+					" AND m.locale=:locale");
+			
+			Query query=this.em().createQuery(strQuery.toString());
+			query=this.em().createQuery(strQuery.toString());
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("number", number);
+			query.setParameter("locale", locale);
+			
+			
+			return ((query.getSingleResult() != null)? new Boolean(true) : new Boolean(false)) ;
+			
+			
+		}catch(Exception e) {
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
+	
+	public List<ClubbedEntity> findClubbedEntitiesByAnsweringDateMotionNumber(final Motion motion, 
+			final String sortOrder, final String locale) {
+		String strQuery = "SELECT m  FROM Motion q JOIN q.clubbedEntities m" +
+				" WHERE q.id=:motionId ORDER BY m.motion.answeringDate,m.motion.number " + sortOrder;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("motionId", motion.getId());
+		return query.getResultList();
+	}
+
+
+	public List<Motion> findAllCompleteByCreator(Session session,
+			String username, DeviceType motionType, Integer itemsCount,
+			String strLocale) {
+		List<Motion> motions = new ArrayList<Motion>();
+		Status status = Status.findByType(ApplicationConstants.MOTION_COMPLETE, strLocale);
+		try {
+			String strQuery = "SELECT m FROM Motion m" +
+					" WHERE m.session=:session" +
+					" AND m.type=:motionType" +
+					" AND m.locale=:locale" +
+					" AND m.status=:status" + 
+					" AND m.createdBy=:createdBy" +
+					" ORDER BY m.submissionDate "+ ApplicationConstants.ASC;
+			TypedQuery<Motion> query = this.em().createQuery(strQuery, Motion.class);
+			query.setParameter("session", session);
+			query.setParameter("motionType", motionType);
+			query.setParameter("locale", strLocale);
+			query.setParameter("status", status);
+			query.setParameter("createdBy", username);
+			motions = query.getResultList();
+		} catch (Exception e) {
+			logger.error("error", e);
+		} 
+		
+		return motions;
+	}
+
+
+	/**
+	 * Motion Search Based on parameters passed
+	 * **/
+	public List<SearchVO> fullTextSearchForSearching(final String param,
+			final int start,final int noOfRecords, 
+			final String locale,final Map<String, String[]> requestMap) {
+		
+		String orderByQuery=" ORDER BY mo.number ASC, s.start_date DESC, dt.id ASC";
+
+		/**** Condition 1 :must not contain processed question ****/
+		/**** Condition 2 :parent must be null ****/
+		String selectQuery="SELECT mo.id as id,mo.number as number,"
+				+"  mo.subject as subject,"
+				+"  mo.revised_subject as revisedSubject,"
+				+"  mo.details as motionDetails,"
+				+"  mo.revised_details as revisedMotionDetails,"
+				+"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"
+				+"  sety.session_type as sessionType,"
+				+"  mi.name as ministry,"
+				+"  sd.name as subdepartment,st.type as statustype," 
+				+"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName,"
+				+"  mo.discussion_date as discussionDate,"
+				+"  mo.localized_actor_name as actor" 
+				+"  FROM motions as mo "
+				+"  LEFT JOIN housetypes as ht ON(mo.housetype_id=ht.id) "
+				+"  LEFT JOIN sessions as s ON(mo.session_id=s.id) "
+				+"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "
+				+"  LEFT JOIN status as st ON(mo.recommendationstatus_id=st.id) "
+				+"  LEFT JOIN devicetypes as dt ON(mo.devicetype_id=dt.id) "
+				+"  LEFT JOIN members as m ON(mo.member_id=m.id) "
+				+"  LEFT JOIN titles as t ON(m.title_id=t.id) "
+				+"  LEFT JOIN ministries as mi ON(mo.ministry_id=mi.id) "
+				+"  LEFT JOIN subdepartments as sd ON(mo.subdepartment_id=sd.id) "
+				+"  WHERE mo.locale='"+locale+"'"
+				+"  AND st.type NOT IN('motion_incomplete','motion_complete')";
+		
+		StringBuffer filter = new StringBuffer("");
+		filter.append(addMotionFilter(requestMap));
+		
+		String[] strSessionType = requestMap.get("sessionYear");
+		String[] strSessionYear = requestMap.get("sessionType");
+		
+		if(strSessionType == null || (strSessionType != null && strSessionType[0].equals("-")) 
+				|| strSessionYear == null || (strSessionYear != null && strSessionYear[0].equals("-"))
+				|| (strSessionType == null && strSessionYear == null)){
+			CustomParameter csptUseCurrentSession = CustomParameter.findByName(CustomParameter.class, "MOTION_SEARCH_USE_CURRENT_SESSION", "");
+			if(csptUseCurrentSession != null && csptUseCurrentSession.getValue() != null 
+					&& !csptUseCurrentSession.getValue().isEmpty() && csptUseCurrentSession.getValue().equalsIgnoreCase("yes")){
+				String[] strSession = requestMap.get("session");
+				if(strSession != null && strSession[0] != null && !strSession[0].isEmpty()){
+					filter.append(" AND s.id=" + strSession[0]);
+				}
+			}
+		}
+		/**** full text query ****/
+		String searchQuery=null;
+		String query = null;
+		if(requestMap.get("number") != null){
+			if(!filter.toString().isEmpty()){
+				query = selectQuery+filter+orderByQuery;
+			}
+		}else{
+			if(!param.contains("+")&&!param.contains("-")){
+				searchQuery=" AND (( match(mo.subject,mo.details,mo.revised_subject,mo.revised_details) "+
+						"against('"+param+"' in natural language mode)"+
+						")||mo.subject LIKE '%"+param+"%'||mo.details LIKE '%"+param+"%'||mo.revised_subject LIKE '%"+param+"%'||mo.revised_details LIKE '%"+param+"%')";
+			}else if(param.contains("+")&&!param.contains("-")){
+				String[] parameters = param.split("\\+");
+				StringBuffer buffer = new StringBuffer();
+				for(String i : parameters){
+					buffer.append("+"+i+" ");
+				}
+				
+				searchQuery =" AND match(mo.subject,mo.details,mo.revised_subject,mo.revised_details) "+
+						"against('"+buffer.toString()+"' in boolean  mode)";
+			}else if(!param.contains("+")&&param.contains("-")){
+				String[] parameters=param.split("-");
+				StringBuffer buffer=new StringBuffer();
+				for(String i:parameters){
+					buffer.append(i+" "+"-");
+				}
+				buffer.deleteCharAt(buffer.length()-1);
+				searchQuery=" AND match(mo.subject,mo.details,mo.revised_subject,mo.revised_details) "+
+						"against('"+buffer.toString()+"' in boolean  mode)";
+			}else if(param.contains("+")||param.contains("-")){
+				searchQuery=" AND match(mo.subject,mo.details,mo.revised_subject,mo.revised_details) "+
+						"against('"+param+"' in boolean  mode)";
+			}	
+			
+			query = selectQuery + filter + searchQuery + orderByQuery;
+		}
+		/**** Final Query ****/
+		String finalQuery = "SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.motionDetails, "+
+				" rs.revisedMotionDetails,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.ministry,rs.subdepartment,rs.statustype,rs.memberName,rs.discussionDate,rs.actor FROM (" + query + ") as rs LIMIT " + start + "," + noOfRecords;
+
+		List results=this.em().createNativeQuery(finalQuery).getResultList();
+		List<SearchVO> motionSearchVOs=new ArrayList<SearchVO>();
+		if(results!=null){
+			for(Object i:results){
+				Object[] o=(Object[]) i;
+				SearchVO motionSearchVO=new SearchVO();
+				if(o[0]!=null){
+					motionSearchVO.setId(Long.parseLong(o[0].toString()));
+				}
+				if(o[1]!=null){
+					motionSearchVO.setNumber(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[1].toString())));
+				}
+				if(o[3]!=null){
+					if(!o[3].toString().isEmpty()){
+						motionSearchVO.setSubject(higlightText(o[3].toString(),param));
+					}else{
+						if(o[2]!=null){
+							motionSearchVO.setSubject(higlightText(o[2].toString(),param));
+						}
+					}
+				}else{
+					if(o[2]!=null){
+						motionSearchVO.setSubject(higlightText(o[2].toString(),param));
+					}
+				}				
+				if(o[5]!=null){
+					if(!o[5].toString().isEmpty()){
+						motionSearchVO.setNoticeContent(higlightText(o[5].toString(),param));
+					}else{
+						if(o[4]!=null){
+							motionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+						}
+					}
+				}else{
+					if(o[4]!=null){
+						motionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+					}
+				}
+				if(o[6]!=null){
+					motionSearchVO.setStatus(o[6].toString());
+				}
+				if(o[7]!=null){
+					motionSearchVO.setDeviceType(o[7].toString());
+				}
+				if(o[8]!=null){
+					motionSearchVO.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[8].toString())));
+				}
+				if(o[9]!=null){
+					motionSearchVO.setSessionType(o[9].toString());
+				}
+				
+				if(o[10]!=null){
+					motionSearchVO.setMinistry(o[10].toString());
+				}
+				
+				if(o[11]!=null){
+					motionSearchVO.setSubDepartment(o[11].toString());
+				}
+				if(o[12]!=null){
+					motionSearchVO.setStatusType(o[12].toString());
+				}
+				if(o[13]!=null){
+					motionSearchVO.setFormattedPrimaryMember(o[13].toString());
+				}
+				if(o[14]!=null){
+					motionSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[14].toString(), ApplicationConstants.DB_DATEFORMAT), ApplicationConstants.SERVER_DATEFORMAT, locale));
+				}
+				if(o[15]!=null){
+					motionSearchVO.setActor(o[15].toString());
+				}
+				motionSearchVOs.add(motionSearchVO);
+			}
+		}
+		return motionSearchVOs;
+
+	}
+	
+	private String addMotionFilter(Map<String, String[]> requestMap) {
+		StringBuffer buffer=new StringBuffer();
+		
+		if(requestMap.get("number") != null){
+			String deviceNumber = requestMap.get("number")[0];
+			if((!deviceNumber.isEmpty()) && (!deviceNumber.equals("-"))){
+				buffer.append(" AND mo.number=" + deviceNumber);
+			}
+		}
+		if(requestMap.get("primaryMember") != null){
+			String member = requestMap.get("primaryMember")[0];
+			if((!member.isEmpty()) && (!member.equals("-"))){
+				buffer.append(" AND mo.member_id=" + member);
+			}
+		}
+		if(requestMap.get("deviceType")!=null){
+			String deviceType=requestMap.get("deviceType")[0];
+			if((!deviceType.isEmpty())&&(!deviceType.equals("-"))){
+				buffer.append(" AND dt.id="+deviceType);
+			}
+		}
+		if(requestMap.get("houseType")!=null){
+			String houseType=requestMap.get("houseType")[0];
+			if((!houseType.isEmpty())&&(!houseType.equals("-"))){
+				buffer.append(" AND ht.type='"+houseType+"'");
+			}
+		}
+		if(requestMap.get("sessionYear")!=null){
+			String sessionYear=requestMap.get("sessionYear")[0];
+			if((!sessionYear.isEmpty())&&(!sessionYear.equals("-"))){
+				buffer.append(" AND s.session_year="+sessionYear);
+			}
+		}
+		if(requestMap.get("sessionType")!=null){
+			String sessionType=requestMap.get("sessionType")[0];
+			if((!sessionType.isEmpty())&&(!sessionType.equals("-"))){
+				buffer.append(" AND sety.id="+sessionType);
+			}
+		}
+		if(requestMap.get("ministry")!=null){
+			String ministry=requestMap.get("ministry")[0];
+			if((!ministry.isEmpty())&&(!ministry.equals("-"))){
+				buffer.append(" AND mi.id="+ministry);
+			}
+		}
+		if(requestMap.get("subDepartment")!=null){
+			String subDepartment=requestMap.get("subDepartment")[0];
+			if((!subDepartment.isEmpty())&&(!subDepartment.equals("-"))){
+				buffer.append(" AND sd.id="+subDepartment);
+			}
+		}	
+		if(requestMap.get("status")!=null){
+			String status=requestMap.get("status")[0];
+			if((!status.isEmpty())&&(!status.equals("-"))){
+				if(status.equals(ApplicationConstants.UNPROCESSED_FILTER)){
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_SYSTEM_ASSISTANT_PROCESSED+"')");
+					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP+"')");
+				}else if(status.equals(ApplicationConstants.PENDING_FILTER)){
+					buffer.append(" AND st.priority>(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP+"')");
+					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_FINAL_ADMISSION+"')");
+				}else if(status.equals(ApplicationConstants.APPROVED_FILTER)){
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_FINAL_ADMISSION+"')");
+					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.MOTION_PROCESSED_DISCUSSED+"')");
+				} 
+			}
+		}			
+		return buffer.toString();
+	}
+	
+	
+	private String higlightText(final String textToHiglight,final String pattern) {
+
+		String highlightedText=textToHiglight;
+		String replaceMentText="<span class='highlightedSearchPattern'>";
+		String replaceMentTextEnd="</span>";
+		if((!pattern.contains("+"))&&(!pattern.contains("-"))){
+			String[] temp=pattern.trim().split(" ");
+			for(String j:temp){
+				if(!j.isEmpty()){
+					if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+						highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+					}
+				}
+			}			
+		}else if((pattern.contains("+"))&&(!pattern.contains("-"))){
+			String[] temp=pattern.trim().split("\\+");
+			for(String j:temp){
+				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+				}
+			}			
+		}else if((!pattern.contains("+"))&&(pattern.contains("-"))){
+			String[] temp=pattern.trim().split("\\-");
+			String[] temp1=temp[0].trim().split(" ");
+			for(String j:temp1){
+				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+				}
+			}		
+		}else if(pattern.contains("+")&& pattern.contains("-")){
+			String[] temp=pattern.trim().split("\\-");
+			String[] temp1=temp[0].trim().split("\\+");
+			for(String j:temp1){
+				String[] temp2=j.trim().split(" ");
+				for(String k:temp2){
+					if(!highlightedText.contains(replaceMentText+k.trim()+replaceMentTextEnd)){
+						highlightedText=highlightedText.replaceAll(k.trim(),replaceMentText+k.trim()+replaceMentTextEnd);
+					}
+				}
+			}		
+		}
+		return highlightedText;
 	}
 }

@@ -76,7 +76,7 @@
 	<div>
 	<div class="commandbar">
 		<div class="commandbarContent">	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BAMOIS_CLERK')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BAMOIS_TYPIST')">			
 			<a href="#" id="new_record" class="butSim">
 				<spring:message code="motion.new" text="New"/>
 			</a> |
@@ -84,13 +84,13 @@
 			<a href="#" id="edit_record" class="butSim">
 			<spring:message code="motion.edit" text="Edit"/>
 			</a> |
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BAMOIS_CLERK')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BAMOIS_TYPIST')">			
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="motion.delete" text="Delete"/>
 			</a> |			
-			<a href="#" id="submitMotion" class="butSim">
+			<%-- <a href="#" id="submitMotion" class="butSim">
 				<spring:message code="generic.submitmotion" text="submit"/>
-			</a> |
+			</a> | --%>
 			</security:authorize>			
 			<a href="#" id="search" class="butSim">
 				<spring:message code="motion.search" text="Search"/>

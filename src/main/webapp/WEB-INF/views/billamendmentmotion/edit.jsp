@@ -346,6 +346,15 @@
 	<c:if test="${(error!='') && (error!=null)}">
 		<h4 style="color: #FF0000;">${error}</h4>
 	</c:if>
+	<%-- <div class="commandbar">
+		<div class="commandbarContent">	
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BAMOIS_TYPIST')">			
+			<a href="#" id="new_record_ForNew" class="butSim">
+				<spring:message code="billamendmentmotion.new" text="New"/>
+			</a> |
+			</security:authorize>
+		</div>
+	</div> --%>
 	<div class="fields clearfix watermark">
 	<div id="billDiv">
 		<form:form action="billamendmentmotion" method="PUT" modelAttribute="domain">
@@ -354,7 +363,7 @@
 		<h2>${formattedDeviceType} ${formattedNumber}</h2>
 		<p>
 			<form:errors path="version" cssClass="validationError"/>
-		</p>			
+		</p>				
 		
 		<p style="display:none;">
 			<label class="small"><spring:message code="billamendmentmotion.houseType" text="House Type"/>*</label>
@@ -387,12 +396,33 @@
 		
 		<c:if test="${not empty domain.number or not empty domain.submissionDate}">
 		<p>
+			<security:authorize access="hasAnyRole('BAMOIS_TYPIST')">				
+			<label class="small"><spring:message code="billamendmentmotion.number" text="Motion Number"/>*</label>
+			<c:choose>			
+				<c:when test="${memberStatusType=='billamendmentmotion_complete' or memberStatusType=='billamendmentmotion_incomplete'}">				
+					<input type="text" class="sInteger" id="number" name="number" value="${formattedNumber}">
+				</c:when>		
+				<c:otherwise>
+					<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText"  readonly="readonly">
+					<input id="number" name="number" value="${domain.number}" type="hidden">
+				</c:otherwise>		
+			</c:choose>
+			<form:errors path="number" cssClass="validationError"/>
+			<span id='numberError' style="display: none; color: red;">
+				<spring:message code="Number.domain.NonUnique" text="Duplicate Number"></spring:message>
+			</span>
+			<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">			
+			</security:authorize>
+			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 			<c:if test="${not empty domain.number}">
 			<label class="small"><spring:message code="bill.number" text="bill Number"/>*</label>
 			<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 			<input id="number" name="number" value="${domain.number}" type="hidden">
 			<form:errors path="number" cssClass="validationError"/>
 			</c:if>
+			</security:authorize>
+						
 			<c:if test="${not empty domain.submissionDate}">				
 			<label class="small"><spring:message code="bill.submissionDate" text="Submitted On"/></label>
 			<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
@@ -401,6 +431,7 @@
 		</p>
 		</c:if>
 		
+		<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 		<p>
 			<label class="small"><spring:message code="billamendmentmotion.primaryMember" text="Primary Member"/>*</label>
 			<input id="formattedPrimaryMember" name="formattedPrimaryMember"  value="${formattedPrimaryMember}" type="text" class="sText"  readonly="readonly" class="sText">
@@ -408,7 +439,16 @@
 			<form:errors path="primaryMember" cssClass="validationError"/>	
 			<label class="small"><spring:message code="billamendmentmotion.primaryMemberConstituency" text="Constituency"/>*</label>
 			<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
-		</p>					
+		</p>
+		</security:authorize>
+		<security:authorize access="hasAnyRole('BAMOIS_TYPIST')">		
+		<p>
+			<label class="small"><spring:message code="billamendmentmotion.primaryMember" text="Primary Member"/>*</label>
+			<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
+			<input name="primaryMember" id="primaryMember" type="hidden" value="${primaryMember}">		
+			<form:errors path="primaryMember" cssClass="validationError"/>		
+		</p>	
+		</security:authorize>					
 		
 		<p>
 		<label class="centerlabel"><spring:message code="billamendmentmotion.supportingMembers" text="Supporting Members"/></label>
@@ -473,12 +513,12 @@
 							<a href="#" id="scrollToReferredBillDraft_${i.language.type}"></a>
 							<p id="referredBillDraftPara_${i.language.type}" style="display: none;">
 								<label class="wysiwyglabel">${i.language.name} <spring:message code="billamendmentmotion.sectionAmendment.referredBillDraft" text="Referred Bill Draft"/></label>
-								<textarea class="wysiwyg" id="referredBillDraft_${i.language.type}"></textarea>
+								<textarea class="wysiwyg invalidFormattingAllowed" id="referredBillDraft_${i.language.type}"></textarea>
 							</p>
 							<a href="#" id="scrollToReferredSectionText_${i.language.type}"></a>
 							<p id="referredSectionTextPara_${i.language.type}" style="display: none;">
 								<label class="wysiwyglabel">${i.language.name} <spring:message code="billamendmentmotion.sectionAmendment.referredSectionText" text="Referred Section Text"/></label>
-								<textarea class="wysiwyg" id="referredSectionText_${i.language.type}">${requestScope[referredSectionText]}</textarea>
+								<textarea class="wysiwyg invalidFormattingAllowed" id="referredSectionText_${i.language.type}">${requestScope[referredSectionText]}</textarea>
 							</p>
 							<p>
 								<label class="wysiwyglabel">${i.language.name} <spring:message code="billamendmentmotion.sectionAmendment.amendingContent" text="Amendment Content"/></label>
@@ -495,13 +535,13 @@
 		<c:if test="${not empty sectionofficer_remark and internalStatusType=='billamendmentmotion_final_rejection'}">
 			<p>
 				<label class="wysiwyglabel"><spring:message code="bill.remarks" text="Remarks"/></label>
-				<form:textarea path="remarks" cssClass="wysiwyg" readonly="true"></form:textarea>
+				<form:textarea path="remarks" cssClass="wysiwyg invalidFormattingAllowed" readonly="true"></form:textarea>
 			</p>
 		</c:if>	
-		<c:if test="${internalStatusType == 'billamendmentmotion_final_rejection'}">
+		<c:if test="${recommendationStatusType == 'billamendmentmotion_processed_rejectionWithReason'}">
 		<p>
 		<label class="wysiwyglabel"><spring:message code="bill.rejectionReason" text="Rejection reason"/></label>
-		<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
+		<form:textarea path="rejectionReason" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 		</p>
 		</c:if>	
 		</div>
@@ -510,15 +550,12 @@
 			<c:choose>
 			<c:when test="${memberStatusType=='billamendmentmotion_complete' or memberStatusType=='billamendmentmotion_incomplete'}">
 				<p class="tright">
-				<security:authorize access="hasAnyRole('BAMOIS_CLERK')">	
-					<input id="submitmotion" type="button" value="<spring:message code='billamendmentmotion.submitMotion' text='Submit Motion'/>" class="butDef">			
-				</security:authorize>
-				<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
 					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<input id="sendforapproval" type="button" value="<spring:message code='billamendmentmotion.sendforapproval' text='Send For Approval'/>" class="butDef">
+					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
+						<input id="sendforapproval" type="button" value="<spring:message code='billamendmentmotion.sendforapproval' text='Send For Approval'/>" class="butDef">
+					</security:authorize>	
 					<input id="submitmotion" type="button" value="<spring:message code='billamendmentmotion.submitMotion' text='Submit Motion'/>" class="butDef">
-					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
-				</security:authorize>				
+					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">			
 				</p>
 			</c:when>	
 			</c:choose>		

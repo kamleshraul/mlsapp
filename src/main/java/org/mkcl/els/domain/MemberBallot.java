@@ -61,6 +61,10 @@ public class MemberBallot extends BaseDomain implements Serializable {
 	/** The member. */
 	@ManyToOne
 	private Member member;
+	
+	/** The member. */
+	@ManyToOne
+	private Party party;
 
 	/** The ballot date. */
 	@Temporal(TemporalType.TIMESTAMP)
@@ -171,6 +175,16 @@ public class MemberBallot extends BaseDomain implements Serializable {
 		this.member = member;
 	}
 
+
+
+	public Party getParty() {
+		return party;
+	}
+
+
+	public void setParty(Party party) {
+		this.party = party;
+	}
 
 
 	/**

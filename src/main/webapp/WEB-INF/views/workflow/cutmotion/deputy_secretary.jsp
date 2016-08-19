@@ -163,7 +163,7 @@
 	function loadActors(value){
 		if(value!='-'){
 		var params="cutmotion="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 		var resourceURL='ref/cutmotion/actors?'+params;
 	    var sendback=$("#internalStatusMaster option[value='cutmotion_recommend_sendback']").text();			
 	    var discuss=$("#internalStatusMaster option[value='cutmotion_recommend_discuss']").text();		
@@ -217,7 +217,8 @@
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -276,7 +277,7 @@
 		});
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
-			console.log($("#subDepartment").val());
+			//console.log($("#subDepartment").val());
 			if($(this).val()!=''){
 				loadSubDepartments($(this).val());
 			}else{
@@ -295,7 +296,7 @@
 		/**** Revise mainTitle and text****/
 		$("#reviseMainTitle").click(function(){
 			$(".revise1").toggle();
-			console.log("revise1: " + $("#revisedMainTitleDiv").css("display") + ": "+$("#mainTitle").val());
+			//console.log("revise1: " + $("#revisedMainTitleDiv").css("display") + ": "+$("#mainTitle").val());
 			if($("#revisedMainTitleDiv").css("display")=="none"){
 				$("#revisedMainTitle").val("");	
 			}else{
@@ -306,7 +307,7 @@
 		
 		$("#reviseSecondaryTitle").click(function(){
 			$(".revise2").toggle();
-			console.log("revise2: " + $("#revisedSecondaryTitleDiv").css("display") + ": "+$("#secondaryTitle").val());
+			//console.log("revise2: " + $("#revisedSecondaryTitleDiv").css("display") + ": "+$("#secondaryTitle").val());
 			if($("#revisedSecondaryTitleDiv").css("display")=="none"){
 				$("#revisedSecondaryTitle").val("");	
 			}else{
@@ -317,7 +318,7 @@
 		
 		$("#reviseSubTitle").click(function(){
 			$(".revise3").toggle();
-			console.log("revise3: " + $("#revisedSubTitleDiv").css("display")  + ": "+$("#subTitle").val());
+			//console.log("revise3: " + $("#revisedSubTitleDiv").css("display")  + ": "+$("#subTitle").val());
 			if($("#revisedSubTitleDiv").css("display")=="none"){
 				$("#revisedSubTitle").val("");	
 			}else{
@@ -328,7 +329,7 @@
 		
 		$("#reviseNoticeContent").click(function(){
 			$(".revise4").toggle();		
-			console.log("revise4: " + $("#revisedNoticeContentDiv").css("display") + ": "+$("#noticeContent").val());
+			//console.log("revise4: " + $("#revisedNoticeContentDiv").css("display") + ": "+$("#noticeContent").val());
 			if($("#revisedNoticeContentDiv").css("display")=="none"){
 				$("#revisedNoticeContent").wysiwyg("setContent","");
 			}else{
@@ -511,6 +512,14 @@
 		$("#ministry option[selected!='selected']").hide();
 		$("#department option[selected!='selected']").hide();
 		$("#subDepartment option[selected!='selected']").hide();
+		
+		if($('#workflowstatus').val()!='COMPLETED'){
+			var statusType = $("#internalStatusType").val().split("_");
+			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			$("#changeInternalStatus").val(id);
+			$("#changeInternalStatus").change();
+			//loadActors($("#changeInternalStatus").val());
+		}
 	});
 	</script>
 	 <style type="text/css">
@@ -684,7 +693,7 @@
 	<c:if test="${!(empty parent)}">	
 		<p>
 			<label class="small"><spring:message code="cutmotion.parentmotion" text="Clubbed To"></spring:message></label>
-			<a href="#" id="p${parent}" onclick="viewmotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
+			<a href="#" id="p${parent}" onclick="viewCutMotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 			<input type="hidden" id="parent" name="parent" value="${parent}">
 		</p>
 	</c:if>	
@@ -913,6 +922,9 @@
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
+<input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
+<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
+<input type="hidden" id="originalLevel" value="${level}" />
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

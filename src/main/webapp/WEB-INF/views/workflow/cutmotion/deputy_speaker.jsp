@@ -163,7 +163,7 @@
 	function loadActors(value){
 		if(value!='-'){
 		var params="cutmotion="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 		var resourceURL='ref/cutmotion/actors?'+params;
 	    var sendback=$("#internalStatusMaster option[value='cutmotion_recommend_sendback']").text();			
 	    var discuss=$("#internalStatusMaster option[value='cutmotion_recommend_discuss']").text();		
@@ -217,7 +217,8 @@
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -511,7 +512,15 @@
 		$("#ministry option[selected!='selected']").hide();
 		$("#department option[selected!='selected']").hide();
 		$("#subDepartment option[selected!='selected']").hide();
-		$("#actorDiv").hide();
+
+		if($('#workflowstatus').val()!='COMPLETED'){
+			var statusType = $("#internalStatusType").val().split("_");
+			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			$("#changeInternalStatus").val(id);
+			$("#changeInternalStatus").change();
+			//loadActors($("#changeInternalStatus").val());
+		}
+		
 	});
 	</script>
 	 <style type="text/css">
@@ -696,7 +705,7 @@
 			<c:choose>
 				<c:when test="${!(empty clubbedEntities) }">
 					<c:forEach items="${clubbedEntities }" var="i">
-						<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewCutMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
@@ -914,6 +923,9 @@
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
+<input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
+<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
+<input type="hidden" id="originalLevel" value="${level}" />
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

@@ -79,6 +79,20 @@
 			$('#selectionDiv1').hide();
 			invitedMemberAddition();
 		});
+		
+		// Report for Patrak Bhag
+		$('#patrakbhag').click(function(){
+			$('#selectionDiv1').hide();
+			var rowId = $("#key").val();
+			patrakbhag(rowId);
+		});
+		
+		// Report for knyapan
+		$('#knyapan').click(function(){
+			$('#selectionDiv1').hide();
+			var rowId = $("#key").val();
+			knyapan(rowId);
+		});
 	});
 	</script>
 </head>
@@ -117,6 +131,14 @@
 				
 				<a href="#" id="request_to_leader_of_opposition" class="butSim">
 					<spring:message code="committee.requestToLeaderOfOpposition" text="Request to Leader of Opposition"/>
+				</a> |
+				
+				<a href="#" id="patrakbhag" class="butSim">
+					<spring:message code="committee.patrakbhag" text="Patrak Bhag"/>
+				</a> |
+				
+					<a href="#" id="knyapan" class="butSim">
+					<spring:message code="committee.knyapan" text="knyapan"/>
 				</a> |
 			</security:authorize>
 			

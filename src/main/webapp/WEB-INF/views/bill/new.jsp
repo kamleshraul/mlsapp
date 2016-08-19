@@ -30,6 +30,12 @@
 		.impIcons{
 			box-shadow: 2px 2px 2px black;
 		}	
+		
+		.textdraft_file {
+			float: right; 
+			margin: -210px 20px 0px 0px;
+			position: relative;
+		}
 	</style>
 	
 	<script type="text/javascript">	
@@ -45,7 +51,8 @@
 		
 		/**** Load Sub Departments ****/
 		function loadSubDepartments(ministry){
-			$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+			$.get('ref/ministry/subdepartments?ministry='+ministry+'&session='+$('#session').val(),
+					function(data){
 				$("#subDepartment").empty();
 				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 				if(data.length>0){
@@ -118,10 +125,11 @@
 			/**** Auto Suggest(member login)- Member ****/		
 			$( ".autosuggest").autocomplete({
 				minLength:3,			
-				source:'ref/member/supportingmembers?session='+$("#session").val(),
+				source:'ref/bill/member/getmembers?session='+$("#session").val()
+							+'&deviceTypeId='+$('#originalType').val(),
 				select:function(event,ui){			
-				$("#primaryMember").val(ui.item.id);
-			}	
+					$("#primaryMember").val(ui.item.id);
+				}	
 			});
 			$("select[name='"+controlName+"']").hide();			
 			$( ".autosuggestmultiple" ).change(function(){
@@ -276,18 +284,22 @@
 			$('.contentDraft').each(function() {
 				var currentLanguage = this.id.split("_")[2];				
 				if(currentLanguage==$('#defaultBillLanguage').val()) {		
-					$('#contentDraft_para_'+currentLanguage).show();					
+					$('#contentDraft_para_'+currentLanguage).show();
+					$('#contentDraft_FileDiv_'+currentLanguage).show();
 				} else {
-					$('#contentDraft_para_'+currentLanguage).hide();										
+					$('#contentDraft_para_'+currentLanguage).hide();
+					$('#contentDraft_FileDiv_'+currentLanguage).hide();
 				}
 			});
 			/**** toggle contentDraft for given language icon ****/
 			$('.toggleContentDraft').click(function() {
 				var currentLanguage = this.id.split("_")[1];				
 				if($('#contentDraft_para_'+currentLanguage).css('display')=='none') {
-					$('#contentDraft_para_'+currentLanguage).show();					
+					$('#contentDraft_para_'+currentLanguage).show();
+					$('#contentDraft_FileDiv_'+currentLanguage).show();
 				} else {
-					$('#contentDraft_para_'+currentLanguage).hide();					
+					$('#contentDraft_para_'+currentLanguage).hide();
+					$('#contentDraft_FileDiv_'+currentLanguage).hide();
 				}
 				return false;
 			});
@@ -669,6 +681,20 @@
 		</h2>
 		<form:errors path="version" cssClass="validationError"/>	
 		
+		<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
+		<security:authorize access="hasAnyRole('BIS_TYPIST')">	
+		<p>
+			<label class="small"><spring:message code="bill.number" text="Bill Number"/>*</label>
+			<form:input path="number" cssClass="sText"/>
+			<form:errors path="number" cssClass="validationError"/>
+			<span id='numberError' style="display: none; color: red;">
+				<spring:message code="BillNumber.domain.NonUnique" text="Duplicate Number"></spring:message>
+			</span>
+			<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
+		</p>
+		</security:authorize>
+		</c:if>
+		
 		<p style="display:none;">
 			<label class="small"><spring:message code="bill.houseType" text="House Type"/>*</label>
 			<input id="formattedHouseType" name="formattedHouseType" value="${formattedHouseType}" class="sText" readonly="readonly">
@@ -710,12 +736,16 @@
 			</c:if>
 		</p>
 		</security:authorize>
-		<security:authorize access="hasAnyRole('BIS_CLERK')">		
+		<security:authorize access="hasAnyRole('BIS_TYPIST')">		
 		<p>
 			<label class="small"><spring:message code="bill.primaryMember" text="Primary Member"/>*</label>
 			<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
 			<input name="primaryMember" id="primaryMember" type="hidden" value="${primaryMember}">		
-			<form:errors path="primaryMember" cssClass="validationError"/>		
+			<form:errors path="primaryMember" cssClass="validationError"/>	
+			<%-- <c:if test="${selectedDeviceTypeForBill != 'bills_government'}">
+			<label class="small"><spring:message code="bill.primaryMemberConstituency" text="Constituency"/>*</label>
+			<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">	
+			</c:if> --%>	
 		</p>	
 		</security:authorize>
 		
@@ -781,7 +811,7 @@
 		</p>
 		
 		<c:if test="${selectedDeviceTypeForBill == 'bills_government'}">
-		<p style="display: none;">
+		<p>
 			<label class="small"><spring:message code="bill.introducingHouseType" text="Introducing House Type"/></label>
 			<form:select id="introducingHouseType" class="sSelect" path="introducingHouseType">
 			<c:forEach var="i" items="${introducingHouseTypes}">	
@@ -896,11 +926,15 @@
 					<c:forEach var="i" items="${titles}">
 						<div id="title_para_${i.language.type}" style="display:none;">
 						<p>
+							<label class="single-row-textarea-label">${i.language.name} <spring:message code="bill.shortTitle" text="Short Title"/></label>
+							<textarea rows="1" cols="30" id="title_shortText_${i.language.type}" name="title_shortText_${i.language.type}">${i.shortText}</textarea>
+						</p>
+						<p>
 							<label class="centerlabel">${i.language.name} <spring:message code="bill.title" text="Title"/></label>
 							<textarea rows="2" cols="50" class="title" id="title_text_${i.language.type}" name="title_text_${i.language.type}">${i.text}</textarea>
 							<input type="hidden" name="title_id_${i.language.type}" value="${i.id}">
 							<input type="hidden" name="title_language_id_${i.language.type}" value="${i.language.id}">						
-						</p>							
+						</p>													
 						</div>								
 					</c:forEach>
 				</div>
@@ -933,10 +967,17 @@
 						<p>
 							<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.contentDraft" text="Draft"/></label>
 							<textarea class="wysiwyg contentDraft" id="contentDraft_text_${i.language.type}" name="contentDraft_text_${i.language.type}">${i.text}</textarea>
+							<div class="textdraft_file" id="contentDraft_FileDiv_${i.language.type}">
+								<jsp:include page="/common/file_load.jsp">
+									<jsp:param name="fileid" value="contentDraft-file-${i.language.type}" />
+									<jsp:param name="filetag" value="${i.file}" />
+									<jsp:param name="isRemovable" value="true" />
+								</jsp:include>							
+							</div>
 							<input type="hidden" name="contentDraft_id_${i.language.type}" value="${i.id}">
 							<input type="hidden" name="contentDraft_language_id_${i.language.type}" value="${i.language.id}">						
-						</p>						
-						</div>
+						</p>
+						</div>					
 					</c:forEach>
 				</div>
 			</fieldset>
@@ -1059,17 +1100,24 @@
 		<c:if test="${selectedDeviceTypeForBill=='bills_government'}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="bill.opinionSoughtFromLawAndJD" text="Opinion from Law & Judiciary Department"/></label>
-			<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg"></form:textarea>
+			<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
+			<div class="textdraft_file" id="opinionSoughtFromLawAndJD_FileDiv">
+				<jsp:include page="/common/file_load.jsp">
+					<jsp:param name="fileid" value="opinionSoughtFromLawAndJDFile" />
+					<jsp:param name="filetag" value="${domain.opinionSoughtFromLawAndJDFile}" />
+					<jsp:param name="isRemovable" value="true" />
+				</jsp:include>							
+			</div>
 			<form:errors path="opinionSoughtFromLawAndJD" />
 		</p>
 		<p>
 			<label class="wysiwyglabel"><spring:message code="bill.recommendationFromGovernor" text="Recommendation From Governor"/></label>
-			<form:textarea id="recommendationFromGovernor" path="recommendationFromGovernor" cssClass="wysiwyg"></form:textarea>
+			<form:textarea id="recommendationFromGovernor" path="recommendationFromGovernor" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 			<form:errors path="recommendationFromGovernor" />
 		</p>
 		<p>
 			<label class="wysiwyglabel"><spring:message code="bill.recommendationFromPresident" text="Recommendation From President"/></label>
-			<form:textarea id="recommendationFromPresident" path="recommendationFromPresident" cssClass="wysiwyg"></form:textarea>
+			<form:textarea id="recommendationFromPresident" path="recommendationFromPresident" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 			<form:errors path="recommendationFromPresident" />
 		</p>
 		</c:if>		
@@ -1077,17 +1125,14 @@
 		<div class="fields">
 			<h2></h2>
 			<p class="tright">
-			<security:authorize access="hasAnyRole('BIS_CLERK')">	
-				<input id="submitbill" type="button" value="<spring:message code='bill.submitBill' text='Submit Bill'/>" class="butDef">			
-			</security:authorize>
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
-				<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">						
 				<c:if test="${selectedDeviceTypeForBill!='bills_government'}">
 				<input id="sendforapproval" type="button" value="<spring:message code='bill.sendforapproval' text='Send For Approval'/>" class="butDef">
-				</c:if>
-				<input id="submitbill" type="button" value="<spring:message code='bill.submitBill' text='Submit Bill'/>" class="butDef">
-				<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
-			</security:authorize>				
+				</c:if>				
+			</security:authorize>	
+			<input id="submitbill" type="button" value="<spring:message code='bill.submitBill' text='Submit Bill'/>" class="butDef">
+			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">			
 			</p>
 		</div>	
 		<form:hidden path="version" />

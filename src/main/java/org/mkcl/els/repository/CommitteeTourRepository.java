@@ -1,9 +1,11 @@
 package org.mkcl.els.repository;
 
 import java.util.Date;
+import java.util.List;
 
 import org.mkcl.els.domain.Committee;
 import org.mkcl.els.domain.CommitteeTour;
+import org.mkcl.els.domain.Status;
 import org.springframework.stereotype.Repository;
 
 import com.trg.search.Search;
@@ -37,6 +39,16 @@ public class CommitteeTourRepository extends BaseRepository<CommitteeTour, Long>
 		search.addFilterEqual("locale", locale);
 		CommitteeTour tour = this.searchUnique(search);
 		return tour;
+	}
+	public List<CommitteeTour> findCommitteeTours(final Status status, 
+			final Committee committee, 
+			final String locale) {
+		Search search = new Search();
+		search.addFilterEqual("status", status);
+		search.addFilterEqual("locale", locale);
+		search.addFilterEqual("committee", committee);
+		List<CommitteeTour> committeetours = this.search(search);
+		return committeetours;
 	}
 	
 }

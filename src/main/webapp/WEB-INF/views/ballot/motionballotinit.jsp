@@ -91,14 +91,17 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <div class="commandbarContent">				
+			<div style="display: none;">
 			<a href="#" id="attendanceLabel" class="butSim">
 				<spring:message code="memberballot.attendance" text="Attendance"/>
 			</a>		
 			<select name="selectedAttendance" id="selectedAttendance" style="width:100px;">			
-			<option value="true"><spring:message code="memberballot.presentee" text="Present"></spring:message></option>			
+			<option value="true" selected="selected"><spring:message code="memberballot.presentee" text="Present"></spring:message></option>			
 			<option value="false"><spring:message code="memberballot.absentee" text="Absent"></spring:message></option>			
 			</select> |					
-			<hr>			
+			
+			<hr>
+			</div>			
 			<a href="#" id="attendance" class="butSim">
 				<spring:message code="memberballot.attendance" text="Attendance"/>
 			</a> |				

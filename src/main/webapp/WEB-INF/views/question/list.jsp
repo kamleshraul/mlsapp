@@ -6,21 +6,26 @@
 	<script type="text/javascript">	
 		$(document).ready(function(){
 			$(".toolTip").hide();
+			$(".datemask").mask("99-99-9999");
 			$("#selectionDiv1").show();							
 			/**** grid params which is sent to load grid data being sent ****/		
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 					+"&sessionYear="+$("#selectedSessionYear").val()
 					+"&sessionType="+$("#selectedSessionType").val()
 					+"&questionType="+$("#selectedQuestionType").val()
+					+"&originalDeviceType=" + $("#selectedOriginalDeviceType").val()
 					+"&ugparam="+$("#ugparam").val()
 					+"&status="+$("#selectedStatus").val()
+					+"&clubbingStatus="+$("#selectedClubbingStatus").val()
 					+"&role="+$("#srole").val()
 					+"&usergroup="+$("#currentusergroup").val()
 					+"&usergroupType="+$("#currentusergroupType").val()
 					+"&subDepartment="+$('#selectedSubDepartment').val()
+					+"&answeringDate="+$("#selectedModuleAsweringDate").val()
 					);
 			/**** show/hide unstarred yaadi link as per selected devicetype ****/
-			var currentDeviceType = $("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
+			var currentDeviceType = 
+				$("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
 			if(currentDeviceType == 'questions_unstarred') {
 				$('#unstarredYaadiSpan').show();
 			} else {
@@ -34,23 +39,34 @@
 				$("#selectionDiv1").hide();	
 				newQuestion();
 			});
+			
 			/**** edit question ****/
 			$('#edit_record').click(function(){
 				currentSelectedRow=$('#key').val();
 				$("#selectionDiv1").hide();	
 				editQuestion();
 			});
+			
 			/**** delete question ****/
 			$("#delete_record").click(function() {
 				deleteQuestion();
-			});		
+			});	
+			
 			/****Searching Question****/
 			$("#search").click(function() {
 				searchRecord();
 			});
 			
-			$("#showdemo").click(function(){
-				showDemo();
+			/****Member's Questions View ****/
+			$("#member_questions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberQuestionsView();
+			});
+			
+			/****Member's Questions Detail View ****/
+			$("#member_questions_detail_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberQuestionsDetailView();
 			});
 			
 			$("#statreport").click(function(){
@@ -62,21 +78,20 @@
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());		
 			
 			$("#selectedQuestionType").change(function(){
-				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
-						+"&sessionYear="+$("#selectedSessionYear").val()
-						+"&sessionType="+$("#selectedSessionType").val()
-						+"&questionType="+$(this).val()
-						+"&ugparam="+$("#ugparam").val()
-						+"&status="+$("#selectedStatus").val()
-						+"&role="+$("#srole").val()
-						+"&usergroup="+$("#currentusergroup").val()
-						+"&usergroupType="+$("#currentusergroupType").val()
+				$("#gridURLParams").val("houseType=" + $("#selectedHouseType").val()
+						+ "&sessionYear=" + $("#selectedSessionYear").val()
+						+ "&sessionType=" + $("#selectedSessionType").val()
+						+ "&questionType=" + $(this).val()
+						+ "&originalDeviceType=" + $("#selectedOriginalDeviceType").val()
+						+ "&ugparam=" + $("#ugparam").val()
+						+ "&status=" + $("#selectedStatus").val()
+						+ "&clubbingStatus=" + $("#selectedClubbingStatus").val()
+						+ "&role=" + $("#srole").val()
+						+ "&usergroup=" + $("#currentusergroup").val()
+						+ "&usergroupType=" + $("#currentusergroupType").val()
+						+"&answeringDate="+$("#selectedModuleAsweringDate").val()
 						);
 				$('#gridURLParams_ForNew').val($('#gridURLParams').val());				
-				var standAlone = $("#deviceTypeMaster option[value='"+$(this).val()+"']").text();
-				if(standAlone=='questions_halfhourdiscussion_standalone'){
-					$("#new_record").html("<spring:message code='question.newStandAlone' text='New'/>");
-				}
 			});
 						
 			/**** Generate Intimation Letter ****/			
@@ -91,17 +106,28 @@
 				generateClubbedIntimationLetter();				
 			});
 			
-			/**** Generate Clubbed Intimation Letter ****/			
+			/**** Generate Unstarred Yaadi Report ****/			
 			$("#unstarred_yaadi_report").click(function(){
 				$(this).attr('href','#');
 				generateUnstarredYaadiReport();
+			});
+			
+			/**** Generate Unstarred Suchi Report ****/			
+			$("#unstarred_suchi_report").click(function(){
+				$(this).attr('href','#');
+				generateUnstarredSuchiReport();
 			});
 			
 			/**** Generate Member's Questions Report ****/
 			$("#memberwise_questions_report").click(function(){
 				$("#selectionDiv1").hide();
 				memberwiseQuestionsReport();
-			});			
+			});	
+			
+			/**** Generate Questions Online Submission Count Report ****/
+			$("#questions_online_submission_count_report").click(function(){
+				questionsOnlineSubmissionCountReport();
+			});
 			
 			/**** Questions Bulletein Report ****/
 			$("#group_bulletein_report").click(function(){				
@@ -143,10 +169,6 @@
 				showAdmissionReport();
 			});
 			
-			$("#send_message").click(function(){
-				sendMessage();
-			});
-			
 			$("#hdDays").hide();
 			
 			$("#showHDDayWiseReport").click(function(){
@@ -183,12 +205,17 @@
 				showBallotChoiceOptionReport();
 			});
 			
-			var selectedDeviceType = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
+			var selectedDeviceType = $("#deviceTypeMaster option[value='" 
+			                                                     + $("#selectedQuestionType").val() + "']").text();
 			if(selectedDeviceType.indexOf("questions_halfhourdiscussion_")==-1){
 				$("#hdReportsDiv").hide();
 			}else{
 				$("#hdReportsDiv").show();
 			}
+			
+			$("#starredAdmitUnstarred").click(function(){
+				showStarredAdmitUnstarredReport();
+			});
 			//------stats reports as html-----------------------ends----------------
 		});
 		/**** double clicking record in grid handler ****/
@@ -234,27 +261,39 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="question.search" text="Search"/>
 			</a> |
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<a href="#" id="member_questions_view" class="butSim">
+					<spring:message code="question.member_questions_view" text="Member's Questions View"/>
+				</a> |
+				<a href="#" id="member_questions_detail_view" class="butSim">
+					<spring:message code="question.member_questions_detail_view" text="Member's Questions Detail View"/>
+				</a> |
+			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<a href="#" id="statreport" class="butSim">
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
 				</a> |
 			</security:authorize>
-			 <security:authorize access="!hasAnyRole('QIS_TYPIST', 'QIS_CLERK','HDS_TYPIST','HDS_CLERK','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+			 <security:authorize access="!hasAnyRole('QIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
+				<a href="#" id="starredAdmitUnstarred" class="butSim link">
+					<spring:message code="question.starredAdmitUnstarred" text="Question Summary Report"/>
+				</a> |
 			</security:authorize>	
-			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY')">	 
+			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_CLERK')">	 
 				<a href="#" id="generateAdmissionReport" class="butSim">
 					<spring:message code="question.generateAdmissionReport" text="Generate Admission Report"/>
 				</a> |
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_TYPIST', 'QIS_CLERK', 'QIS_ASSISTANT', 'HDS_TYPIST','HDS_CLERK', 'HDS_ASSISTANT')">
+			<security:authorize access="hasAnyRole('QIS_TYPIST', 'QIS_CLERK', 'QIS_ASSISTANT')">
 				<div id="hdReportsDiv" style="display: inline;">
+					<hr>
 					<a href="#" id="showHDDayWiseReport" class="butSim">
 						<spring:message code="question.hdDayWiseReport" text="HD Day wise Report"/>
 					</a> <div id="hdDays" style="display: inline; width: 200px;">
-						<input type="text" value="0" id="hdDaysForReport" style="width: 50px; border: 1px solid black; border-radius: 2px;"/>
+						<input type="text" value="0" id="hdDaysForReport" class="sText datemask" style="width: 60px; border: 1px solid black; border-radius: 2px;"/>
 						<a href="javascript:void(0);" id="showhddaywisereport" >Go</a>
 					</div>|
 					<a href="#" id="showHDStatAndAdmissionReport" class="butSim">
@@ -268,20 +307,17 @@
 					</a> |
 				</div>
 			</security:authorize>	
-			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','HDS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER','QIS_CLERK')">
 				<a href="#" id="showDeptSessionReport" class="butSim">
 						<spring:message code="question.deptSessionReport" text="Department-Session-wise Report"/>
 				</a> |
+			</security:authorize>
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<a href="#" id="showVivranReport" class="butSim">
-						<spring:message code="question.vivranReport" text="Vivran Report"/>
+					<spring:message code="question.vivranReport" text="Vivran Report"/>
 				</a> |
 			</security:authorize>	
-			<security:authorize access="!hasAnyRole('QIS_TYPIST','QIS_CLERK','HDS_TYPIST','HDS_CLERK')">	 
-				<a href="#" id="send_message" class="butSim">
-					<spring:message code="question.sendMessage" text="Send Message"/>
-				</a> |
-			</security:authorize>			
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_ASSISTANT','HDS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_CLERK','HDS_CLERK','HDS_ASSISTANT')">
 				<hr>
 				<a href="#" id="generateIntimationLetter" class="butSim">
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
@@ -292,6 +328,10 @@
 						<option value="department"><spring:message code='question.intimationletter.department' text='department' /></option>
 						<option value="prestatus"><spring:message code='question.intimationletter.prestatus' text='pre-status' /></option>
 						<option value="discussiondate"><spring:message code='question.intimationletter.discussiondate' text='discussion date' /></option>
+						<option value="groupchanged"><spring:message code='question.intimationletter.groupChanged' text='group changed' /></option>
+						<option value="groupChangedAfterBallot"><spring:message code='question.intimationletter.groupChangedAfterBallot' text='group changed after ballot' /></option>
+						<option value="answeringDateForwarded"><spring:message code='question.intimationletter.answeringDateForwarded' text='answering date forwarded' /></option>
+						<option value="reminderToDepartmentForAnswer"><spring:message code='question.intimationletter.reminderToDepartmentForAnswer' text='reminder for answer' /></option>
 				</select> | 
 				<a href="#" id="generateClubbedIntimationLetter" class="butSim">
 					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>
@@ -300,11 +340,25 @@
 				<a href="#" id="unstarred_yaadi_report" class="butSim link">
 					<spring:message code="question.unstarred_yaadi_report" text="Unstarred Yaadi Report"/>
 				</a> |
+				<a href="#" id="unstarred_suchi_report" class="butSim link">
+					<spring:message code="question.unstarred_suchi_report" text="Unstarred Suchi Report"/>
+				</a> |
 				</span>
 				<hr> 
+				<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<a href="#" id="memberwise_questions_report" class="butSim link">
 					<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
-				</a> |			
+				</a> |		
+				<a href="#" id="questions_online_submission_count_report" class="butSim link">
+					<spring:message code="question.onlinesubmissioncountreport" text="Questions Online Submission Count Report"/>
+				</a> |
+				<hr> 
+				</security:authorize>
+				<security:authorize access="hasAnyRole('QIS_CLERK')">
+				<a href="#" id="questions_online_submission_count_report" class="butSim link">
+					<spring:message code="question.onlinesubmissioncountreport" text="Questions Online Submission Count Report"/>
+				</a> |
+				</security:authorize>
 				<a href="#" id="group_bulletein_report" class="butSim link">
 					<spring:message code="question.group_bulletein_report" text="Group Bulletein Report"/>
 				</a> |
@@ -317,6 +371,11 @@
 				<a href="#" id="ahwal_report" class="butSim link">
 					<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
 				</a> |
+			</security:authorize>
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
+				<a href="#" id="memberwise_questions_report" class="butSim link">
+					<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
+				</a> |		
 			</security:authorize>
 			<p>&nbsp;</p>
 		</div>

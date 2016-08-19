@@ -57,7 +57,15 @@
 		<label>
 			<spring:message code="question.group" text="Group"/> <span style="font-weight: bold;">${groupNo}, </span>
 			<spring:message code="generic.date" text="Answering Date"/> <span style="text-decoration: underline; font-weight: bold;">${answeringDate}</span>
-			<spring:message code="question.preballot.starred.lowerhouse.headercontent" text="Pre-Ballot Of the Day"></spring:message>
+			<c:choose>
+				<c:when test="${houseType=='upperhouse'}">
+					<spring:message code="question.preballot.starred.upperhouse.headercontent" text="Pre-Ballot Of the Day"></spring:message>
+				</c:when>
+				<c:otherwise>
+					<spring:message code="question.preballot.starred.lowerhouse.headercontent" text="Pre-Ballot Of the Day"></spring:message>
+				</c:otherwise>
+			</c:choose>
+			
 		</label>
 	</p>
 	

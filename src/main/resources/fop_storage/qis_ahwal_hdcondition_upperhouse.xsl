@@ -78,7 +78,7 @@
 			       			<fo:block><xsl:value-of select="element_3[1]"/></fo:block>
 			       			<fo:block font-size="9px"><xsl:apply-templates select="element_3[2]"/></fo:block>
 			       		</fo:block>
-			       		<xsl:if test="element_4='questions_halfhourdiscussion_standalone'">
+			       		<xsl:if test="element_4='motions_standalonemotion_halfhourdiscussion'">
 				       		<fo:block font-size="3px">&#160;</fo:block>
 				       		<fo:block>
 					       		<fo:table table-layout="fixed" width="100%">
@@ -183,7 +183,7 @@
 						        				<xsl:when test="element_4='questions_halfhourdiscussion_from_question'">
 						        					<fo:block font-weight="bold"><xsl:value-of select="element_3[3]"/></fo:block>
 						        				</xsl:when>
-						        				<xsl:when test="element_4='questions_halfhourdiscussion_standalone'">
+						        				<xsl:when test="element_4='motions_standalonemotion_halfhourdiscussion'">
 						        					<fo:block font-weight="bold"><xsl:value-of select="element_3[8]"/></fo:block>
 						        				</xsl:when>
 						        				<xsl:otherwise>
@@ -196,7 +196,7 @@
 						        				<xsl:when test="element_4='questions_halfhourdiscussion_from_question'">
 						        					<fo:block font-weight="bold"><xsl:value-of select="element_3[4]"/></fo:block>
 						        				</xsl:when>
-						        				<xsl:when test="element_4='questions_halfhourdiscussion_standalone'">
+						        				<xsl:when test="element_4='motions_standalonemotion_halfhourdiscussion'">
 						        					<fo:block font-weight="bold"><xsl:value-of select="element_3[9]"/></fo:block>
 						        				</xsl:when>
 						        				<xsl:otherwise>
@@ -209,7 +209,7 @@
 						        				<xsl:when test="element_4='questions_halfhourdiscussion_from_question'">
 						        					<fo:block font-weight="bold"><xsl:apply-templates select="element_3[5]"/></fo:block>
 						        				</xsl:when>
-						        				<xsl:when test="element_4='questions_halfhourdiscussion_standalone'">
+						        				<xsl:when test="element_4='motions_standalonemotion_halfhourdiscussion'">
 						        					<fo:block font-weight="bold"><xsl:apply-templates select="element_3[10]"/></fo:block>
 						        				</xsl:when>
 						        				<xsl:otherwise>
@@ -222,7 +222,7 @@
 						        				<xsl:when test="element_4='questions_halfhourdiscussion_from_question'">
 						        					<fo:block font-weight="bold"><xsl:value-of select="element_3[6]"/></fo:block>
 						        				</xsl:when>
-						        				<xsl:when test="element_4='questions_halfhourdiscussion_standalone'">
+						        				<xsl:when test="element_4='motions_standalonemotion_halfhourdiscussion'">
 						        					<fo:block font-weight="bold"><xsl:value-of select="element_3[11]"/></fo:block>
 						        				</xsl:when>
 						        				<xsl:otherwise>
@@ -249,7 +249,7 @@
 										        				<xsl:when test="../element_4='questions_halfhourdiscussion_from_question'">
 										        					<xsl:value-of select="element_1_4"/>&#160;<xsl:value-of select="../element_3[7]"/>
 										        				</xsl:when>
-										        				<xsl:when test="../element_4='questions_halfhourdiscussion_standalone'">
+										        				<xsl:when test="../element_4='motions_standalonemotion_halfhourdiscussion'">
 										        					<xsl:value-of select="element_1_4"/>&#160;<xsl:value-of select="../element_3[12]"/>
 										        				</xsl:when>
 										        				<xsl:otherwise>

@@ -25,6 +25,9 @@
 		if($("#revisedSubjectEdit").val()!=''){
 			$("#revisedSubjectEditDiv").show();
 		}
+		if($("#revisedNoticeContentEdit").val()!=''){
+			$("#revisedNoticeContentEditDiv").show();
+		}
 		if($("#revisedresolutionTextEdit").val()!=''){
 			$("#revisedresolutionTextEditDiv").show();
 		}
@@ -46,11 +49,11 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <div class="fields clearfix watermark">
-<form:form action="resolution" method="PUT" modelAttribute="domain">
+<%-- <form:form action="resolution" method="PUT" modelAttribute="domain" id="resolutionReadOnly"> --%>
 
-	<%@ include file="/common/info.jsp" %>
+	<%-- <%@ include file="/common/info.jsp" %> --%>
 	<h2>${formattedDeviceType}: ${formattedNumber}</h2>
-	<form:errors path="version" cssClass="validationError"/>
+	<%-- <form:errors path="version" cssClass="validationError"/> --%>
 		
 	<p>
 	<label class="small"><spring:message code="resolution.number" text="Resolution Number"/>*</label>
@@ -65,16 +68,16 @@
 	<p>
 	<label class="small"><spring:message code="resolution.ministry" text="Ministry"/>*</label>
 	<select name="ministryEdit" id="ministryEdit" class="sSelect" disabled="disabled">
-	<c:forEach items="${ministries }" var="i">
-	<c:choose>
-	<c:when test="${i.id==ministrySelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
+		<c:forEach items="${ministries }" var="i">
+		<c:choose>
+		<c:when test="${i.id==ministrySelected }">
+		<option value="${i.id }" selected="selected">${i.name}</option>
+		</c:when>
+		<c:otherwise>
+		<option value="${i.id }" >${i.name}</option>
+		</c:otherwise>
+		</c:choose>
+		</c:forEach>
 	</select>	
 	</p>	
 	
@@ -108,7 +111,6 @@
 				</c:choose>
 			</c:forEach>
 		</select>		
-		<form:errors path="subDepartment" cssClass="validationError"/>	
 	</p>	
 		
 	<%-- <p>
@@ -151,12 +153,12 @@
 	
 	<p>	
 	<label class="centerlabel"><spring:message code="resolution.subject" text="Subject"/></label>
-	<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
+	<textarea id="subjectResolutionEdit" readonly="true" rows="2" cols="50">${domain.subject}</textarea>
 	</p>
 	
 	<p>
 	<label class="wysiwyglabel"><spring:message code="resolution.details" text="Details"/></label>
-	<form:textarea path="noticeContent" readonly="true" cssClass="wysiwyg"></form:textarea>
+	<textarea id="noticeContentEdit" readonly="true" class="wysiwyg">${domain.noticeContent}</textarea>
 	</p>
 	
 	<p style="display:none;" class="revise" id="revisedSubjectEditDiv">
@@ -182,7 +184,7 @@
 <input id="edit_ministrySelected" value="${ministrySelected }" type="hidden">
 <input id="edit_departmentSelected" value="${ departmentSelected}" type="hidden">
 <input id="edit_subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-</form:form>
+<%-- </form:form> --%>
 </div>
 </body>
 </html>

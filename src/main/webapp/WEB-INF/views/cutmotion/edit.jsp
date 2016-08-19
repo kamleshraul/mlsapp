@@ -33,7 +33,8 @@
 		var controlName=$(".autosuggestmultiple").attr("id");
 		/**** Load Sub Departments ****/
 		function loadSubDepartments(ministry){
-			$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+			$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+					function(data){
 				$("#subDepartment").empty();
 				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
 				if(data.length>0){
@@ -381,7 +382,7 @@
 				
 				<p>
 					<label class="wysiwyglabel"><spring:message code="cutmotion.noticeContent" text="Content"/>*</label>
-					<form:textarea path="noticeContent" cssClass="wysiwyg"></form:textarea>
+					<form:textarea path="noticeContent" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 					<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 				</p>
 				

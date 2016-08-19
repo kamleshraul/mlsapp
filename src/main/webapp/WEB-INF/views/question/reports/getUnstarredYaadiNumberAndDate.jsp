@@ -42,6 +42,28 @@
 							$('#existingYaadiLayingDate').val(yaadiLayingDateForYaadiNumber);
 							$('#changeYaadiNumber').css('display', 'inline');
 							$('#changeYaadiLayingDate').css('display', 'inline');
+							/** check whether yaadi is finalized **/
+							var parameters = "sessionId="+$('#sessionId').val()
+								+"&yaadiNumber="+$('#yaadiNumber').val();
+							$.ajax({url: 'ref/checkfinalizationofnumberedyaadi', data: parameters, 
+								type: 'GET',
+						        async: false,
+								success: function(data) {
+									if(data==true) {
+										$('#isYaadiFinalizedCheck').attr("checked", "checked");
+										$('#isYaadiFinalized').val(true);									
+										$('#isYaadiAlreadyFinalized').val(true);
+										$('#changeYaadiNumber').hide();
+										$('#changeYaadiLayingDate').hide();
+									} else {
+										$('#isYaadiFinalizedCheck').removeAttr("checked");
+										$('#isYaadiFinalized').val(false);
+										$('#isYaadiAlreadyFinalized').val("");
+										$('#changeYaadiNumber').show();
+										$('#changeYaadiLayingDate').show();
+									}
+								}
+							});
 						} else {	
 							$('#yaadiLayingDate').css('display', 'inline');
 							$("#yaadiLayingDate option[value='-']").show();
@@ -105,11 +127,31 @@
 					}
 				});
 				
+				$('#isYaadiFinalizedCheck').click(function() {
+					if($('#isYaadiAlreadyFinalized').val()=="yes") {
+						return false;
+					}
+					if($(this).attr('checked')=="checked") {
+						console.log("success!");
+						if(window.confirm("Are you sure to finalize this yaadi?")) {
+							$('#isYaadiFinalized').val(true);
+						} else {
+							$('#isYaadiFinalizedCheck').removeAttr("checked");
+							$('#isYaadiFinalized').val(false);
+						}										
+					} else {
+						$('#isYaadiFinalized').val(false);
+					}		
+					alert($('#isYaadiFinalized').attr("value"));
+				});
+				
 				$('#linkForReport').click(function() {
-					if($('#yaadiNumber').val()=="") {
+					console.log("isYaadiFinalizedCheck: " + $('#isYaadiFinalizedCheck').val());
+					if($('#yaadiNumber').val()==undefined || $('#yaadiNumber').val()=="") {
 						alert("Please select yaadi number");
 						return false;
-					} else if($('#yaadiLayingDate').val()=="") {
+					} else if($('#yaadiLayingDate').val()==undefined 
+							|| $('#yaadiLayingDate').val()=="" || $('#yaadiLayingDate').val()=="-") {
 						alert("Please select yaadi laying date");
 						return false;
 					}
@@ -118,6 +160,7 @@
 							+'&yaadiLayingDate='+$('#yaadiLayingDate').val()
 							+'&changedYaadiLayingDate='+$('#changedYaadiLayingDate').val()
 							+'&changedYaadiNumber='+$('#changedYaadiNumber').val()
+							+'&isYaadiFinalized='+$('#isYaadiFinalized').val()
 							+'&outputFormat=WORD');
 				});
 			});
@@ -183,6 +226,11 @@
 				</c:forEach>
 			</select>					
 		</p>
+		<p id="yaadiFinalizationPara" style="margin-top: 10px;">
+			<label class="small"><spring:message code='question.unstarred_yaadi_report.isYaadiFinalized' text='Is Yaadi Finalized?'/></label>
+			<input id="isYaadiFinalizedCheck" type="checkbox" class="sCheck" name="isYaadiFinalizedCheck"/>
+			<input type="hidden" id="isYaadiFinalized" name="isYaadiFinalized" value="${isYaadiAlreadyFinalized}"/>
+		</p>
 		<div class="fields">
 			<h2></h2>
 			<p class="tright">
@@ -194,6 +242,7 @@
 		<input type="hidden" id="sessionId" name="sessionId" value="${sessionId}"/>		
 		<input type="hidden" id="iconLabelOnClick" value="<spring:message code='question.unstarred_yaadi_report.undoChangeField' text='Undo'/>">
 		<input type="hidden" id="iconLabelOnUndo" value="<spring:message code='question.unstarred_yaadi_report.changeField' text='Change'/>">		
-		<input type="hidden" id=isYaadiLayingDateSet value="${isYaadiLayingDateSet}"/>	
+		<input type="hidden" id="isYaadiLayingDateSet" value="${isYaadiLayingDateSet}"/>	
+		<input type="hidden" id="isYaadiAlreadyFinalized" value="${isYaadiAlreadyFinalized}"/>
 	</body>
 </html>

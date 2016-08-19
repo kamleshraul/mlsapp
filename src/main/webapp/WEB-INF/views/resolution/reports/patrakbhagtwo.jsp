@@ -127,7 +127,7 @@
 													<spring:message code="resolution.patrakbhag2.upperhousemember" text="Number" />
 												</c:when>
 											</c:choose> ${r[2]} </span><br />
-											<span style="font-size: 14px; margin-top: 10px;">"${r[4]}"</span>
+											<span style="font-size: 14px; margin-top: 10px;text-align:justify;" >${r[4]}</span>
 										</td>
 									</tr>
 								</c:forEach>

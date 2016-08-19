@@ -5,6 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
+			$('#currentPage').val("list");
 			$("#editDeleteLinks").show();
 			$('#new_record').click(function(){
 				newRecord();
@@ -19,7 +20,13 @@
 			});			
 			$("#search").click(function() {
 				searchRecord();
-			});			
+			});	
+			$("#resetPassword").click(function() {
+				resetPassword();
+			});
+			$("#loginForSupport").click(function() {
+				loginForSupport();
+			});
 		});
 		function rowSelectHandler(rowid,status){
 			//on row select key will be set
@@ -56,6 +63,12 @@
 			</a> |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="question.search" text="Search"/>
+			</a> |
+			<a href="#" id="resetPassword" class="butSim">
+				<spring:message code="user.resetPassword" text="Reset Password"/>
+			</a> |
+			<a href="#" id="loginForSupport" class="butSim">
+				<spring:message code="user.loginForSupport" text="Login for Support"/>
 			</a> |
 			</span>  
 			<p>&nbsp;</p>

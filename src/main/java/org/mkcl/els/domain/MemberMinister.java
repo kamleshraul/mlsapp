@@ -115,20 +115,24 @@ public class MemberMinister extends BaseDomain implements Serializable {
     	return repository;
     }
 
-    public static List<Department> findAssignedDepartments(final Ministry ministry, final String locale){
-    	return getMemberMinisterRepository().findAssignedDepartments(ministry,  locale);
+    public static List<Department> findAssignedDepartments(final Ministry ministry, 
+    		final Date onDate,
+    		final String locale){
+    	return getMemberMinisterRepository().findAssignedDepartments(ministry,  onDate, locale);
     }
 
-    public static List<SubDepartment> findAssignedSubDepartments(final Ministry ministry, final Department department,
-    		 final String locale){
+    public static List<SubDepartment> findAssignedSubDepartments(final Ministry ministry, 
+    		final Department department,
+    		final Date onDate,
+    		final String locale){
     	return getMemberMinisterRepository().
-    		findAssignedSubDepartments(ministry, department, locale);
+    		findAssignedSubDepartments(ministry, department, onDate, locale);
     }
     
-    public static List<SubDepartment> findAssignedSubDepartments(
-			final Ministry ministry,final String locale) {
-		return getMemberMinisterRepository().findAssignedSubDepartments(
-				ministry,locale);
+    public static List<SubDepartment> findAssignedSubDepartments(final Ministry ministry,
+    		final Date onDate,
+    		final String locale) {
+		return getMemberMinisterRepository().findAssignedSubDepartments(ministry, onDate, locale);
 	}
 
     public static List<MasterVO> findAssignedDepartmentsVO(final Group group,final String locale){
@@ -189,6 +193,17 @@ public class MemberMinister extends BaseDomain implements Serializable {
 				departmentsNames,locale);
 	}
 	
+	public static List<SubDepartment> findAssignedSubDepartments(
+			final String[] ministries, final String locale) {
+		return getMemberMinisterRepository().findAssignedSubDepartments(ministries, locale);
+	}
+
+	public static List<SubDepartment> findAssignedSubDepartments(
+			final String[] ministriesList, final Date activeFrom, final Date activeTo,
+			final String locale) {
+		return getMemberMinisterRepository().findAssignedSubDepartments(ministriesList, activeFrom, activeTo, locale);
+	}
+	
 	public static List<MasterVO> findfindAssignedDepartmentsVO(
             final Integer[] groupNumbers, final HouseType houseType,
             final SessionType sessionType, final Integer year, final String locale) {
@@ -201,6 +216,10 @@ public class MemberMinister extends BaseDomain implements Serializable {
         return getMemberMinisterRepository().findAssignedSubDepartmentsVO(groupNumbers, houseType, sessionType, year, locale);
     }
     
+    public static MemberMinister findMemberMinisterHavingMinistryInSession(Session session, Ministry ministry) {
+		return getMemberMinisterRepository().findMemberMinisterByAssignedMinistryInSession(session, ministry);
+	}
+    
     public static Member findMemberHavingMinistryInSession(Session session, Ministry ministry) {
 		return getMemberMinisterRepository().findMemberByAssignedMinistryInSession(session, ministry);
 	}
@@ -208,12 +227,21 @@ public class MemberMinister extends BaseDomain implements Serializable {
     public static List<MasterVO> findMinistersInSecondHouse(House house,
 			String param, String locale) {
     	return getMemberMinisterRepository().findMinistersInSecondHouse(house,param,locale);
-	}   
+	} 
+    
+    public static List<MasterVO> findMinistersInGivenHouse(House house,
+			String param, String locale) {
+    	return getMemberMinisterRepository().findMinistersInGivenHouse(house,param,locale);
+	} 
     
     public static Member find(Ministry ministry, Locale locale) {
     	return getMemberMinisterRepository().find(ministry,locale);
 	}
 
+    public static List<Ministry> findAssignedMinistries(final Date activeFrom,
+			final Date activeTo, final String locale) {
+    	return getMemberMinisterRepository().findAssignedMinistries(activeFrom, activeTo, locale);
+	}
     /**** Getters & Setters ****/
     
     /**
@@ -389,8 +417,5 @@ public class MemberMinister extends BaseDomain implements Serializable {
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
-
-	
-
 	 
 }

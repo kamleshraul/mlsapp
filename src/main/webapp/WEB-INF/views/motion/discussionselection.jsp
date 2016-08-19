@@ -79,6 +79,40 @@
 							}else{
 								$("#deviceSelector option[value='" + id + "']").remove();
 							}
+						}else{
+							
+							if($(".actualDevices").length > 4){
+								if($(".actualDevices[id='acD" + id + "']").length==0){
+									$("#actualDiscussionDateDevices").append(node);
+									
+									if($("#actualDeviceData").val()!=''){
+										$("#actualDeviceData").val($("#actualDeviceData").val()+"~"+id);
+									}else if($("#actualDeviceData").val()==''){
+										$("#actualDeviceData").val(id);
+									}
+									$("#deviceSelector option[value='" + id + "']").remove();
+								}else{
+									$("#deviceSelector option[value='" + id + "']").remove();
+								}
+							}else{
+								$.prompt($('#addMoreMessage').val(),{
+									buttons: {Ok:true, Cancel:false}, callback: function(v){
+							        if(v){
+							        	if($(".actualDevices[id='acD" + id + "']").length==0){
+											$("#actualDiscussionDateDevices").append(node);
+											
+											if($("#actualDeviceData").val()!=''){
+												$("#actualDeviceData").val($("#actualDeviceData").val()+"~"+id);
+											}else if($("#actualDeviceData").val()==''){
+												$("#actualDeviceData").val(id);
+											}
+											$("#deviceSelector option[value='" + id + "']").remove();
+										}else{
+											$("#deviceSelector option[value='" + id + "']").remove();
+										}
+					    	        }
+								}});
+							}
 						}
 					}else{
 						
@@ -130,7 +164,7 @@
 							'&houseType=' + $("#ds_selectedHouseType").val() + 
 							'&sessionYear=' + $("#ds_selectedSessionYear").val() + 
 							'&sessionType=' + $("#ds_selectedSessionType").val() +
-							'&deviceType=' + $("#deviceType").val(), 
+							'&deviceType=' + $("#selectedMotionType").val(), 
 							function(data){
 								if(data.length > 0){
 									var text = "<option value='-'>-- " + $("#pleaseSelect").val() + " --</option>";
@@ -155,6 +189,7 @@
 			});
 			
 			$("#submitDiscussionDate").click(function(e){
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				//var formEle = $("form[action='motion/discussionselection']");
 				$("#discussDate").val($(".formDiv").attr('id').substring(6));
 				//alert($(".formDiv").attr('id').substring(6));
@@ -162,7 +197,9 @@
 						"&sessionYear="+$("#ds_selectedSessionYear").val()+
 						"&sessionType="+$("#ds_selectedSessionType").val()+
 						"&deviceType="+$("#deviceType").val(), $("form").serialize(), function(){
-					
+					$.unblockUI();
+				}).fail(function(){
+					$.unblockUI();
 				});
 			});
 		});
@@ -328,7 +365,7 @@
 									<input type="hidden" id="deviceType" name="deviceType" value="${deviceType}" /> 
 									<input type="hidden" id="session" name="session" value="${session}" />
 									<input type="hidden" id="discussDate" name="discussDate" value="" />
-									<c:if test="${deviceCount < 4}">
+									<c:if test="${deviceCount >= 0}">
 										<div id="submitDiv" style="display: block; float: right; right: 10px; width: 100px;">
 											<input type="button" id="submitDiscussionDate" value="<spring:message code='generic.submit' text='Submit' />" class="butDef" />
 										</div>
@@ -361,6 +398,7 @@
 		</div>
 	
 	</div>
+	<input type="hidden" id="addMoreMessage" value="<spring:message code='generic.addmore' text='Add more' />" />
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 	<input type="hidden" id="pleaseSelect" value="-- <spring:message code='please.select' text='Please Select'/> --" />
 </body>

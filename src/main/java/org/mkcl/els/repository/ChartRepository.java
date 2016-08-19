@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javassist.expr.Instanceof;
+
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -162,7 +164,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 			jpQuery.setParameter("deviceTypeId", chart.getDeviceType().getId());
 			jpQuery.setParameter("locale", chart.getLocale());
 			
-		}else if(strDeviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+		}else if(strDeviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 			String hdsQuery = this.findHDSQuestionsOnChartQuery(chart.getSession(),chart.getDeviceType(),chart.getLocale());
 			strQuery.append(hdsQuery);
 			
@@ -224,7 +226,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 			jpQuery.setParameter("deviceTypeId", chart.getDeviceType().getId());
 			jpQuery.setParameter("locale", chart.getLocale());
 			jpQuery.setParameter("memberId", member.getId());
-		}else if(strDeviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+		}else if(strDeviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 			String hdsQuery = this.findHDSMembersQuestionsQuery(member, chart.getSession(), 
 					chart.getDeviceType(), chart.getLocale());
 			strQuery.append(hdsQuery);
@@ -265,7 +267,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		StringBuffer strQuery = new StringBuffer();
 		TypedQuery<Question> jpQuery = null;
 		
-		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 			String hdsQuery = this.findHDSMembersQuestionsQuery(member, session, deviceType, locale);
 			strQuery.append(hdsQuery);
 			
@@ -320,7 +322,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		StringBuffer strQuery = new StringBuffer();
 		TypedQuery<Question> jpQuery = null;
 		if (deviceType.getType().equals(
-				ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+				ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
 			String hdsQuery = this.findHDSQuestionsOnChartQuery(session,
 					deviceType, locale);
 			strQuery.append(hdsQuery);
@@ -567,7 +569,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 			jpQuery.setParameter("locale", chart.getLocale());
 			jpQuery.setParameter("excludeInternalStatus", excludeInternalStatus);
 			
-		}else if(strDeviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+		}else if(strDeviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 			String hdsQuery = this.isProcessedHDSQuery(chart.getSession(), chart.getDeviceType(), excludeInternalStatus, chart.getLocale());
 			strQuery.append(hdsQuery);
 			
@@ -628,7 +630,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		org.mkcl.els.domain.Query query = null;
 		Query jpQuery = null;
 		
-		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 			query = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "CHART_UPDATE_CHART_QUESTIONS_HDS", "");
 			if(query != null){
 				jpQuery = this.em().createNativeQuery(query.getQuery());
@@ -656,7 +658,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		
 		/*query.append(
 			"UPDATE questions SET");
-		if(!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+		if(!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 			query.append(" chart_answering_date = " + chartAnsweringDate.getId() + ",");
 		}
 		query.append(" internalstatus_id = " + internalStatus.getId() + "," +
@@ -670,7 +672,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 					" AND cce.chart_entry_id = ceq.chart_entry_id" +
 					" AND ceq.device_id = q.id" +
 					" AND c.session_id = " + session.getId());
-		if(!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+		if(!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 			query.append(" AND c.group_id = " + group.getId() +
 					" AND c.answering_date = '" + date + "'");
 		}
@@ -757,6 +759,44 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 //					AND c.locale = :locale) ) AS rs
 	}
 	
+	public void updateChartStandalones(final Session session,
+			final Group group,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final Status internalStatus,
+			final Status recommendationStatus,
+			final String locale) throws ELSException {
+			
+			org.mkcl.els.domain.Query query = null;
+			Query jpQuery = null;
+			
+			if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
+				query = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "CHART_UPDATE_CHART_HDS", "");
+				if(query != null){
+					jpQuery = this.em().createNativeQuery(query.getQuery());
+					jpQuery.setParameter("internalStatusId", internalStatus.getId());
+					jpQuery.setParameter("recommendationStatusId", recommendationStatus.getId());
+					jpQuery.setParameter("sessionId", session.getId());
+					jpQuery.setParameter("locale", locale);
+				}
+			}
+			
+			
+			try{
+				jpQuery.executeUpdate();
+			}catch(EntityNotFoundException enfe){
+				logger.error(enfe.getMessage());
+			}catch (NoResultException nre) {
+				logger.error(nre.getMessage());
+			}catch(Exception e) {	
+				e.printStackTrace();
+				logger.error(e.getMessage());
+				ELSException elsException = new ELSException();
+				elsException.setParameter("ChartRepository_void_updateChartQuestions", "Cann't update chart questions.");
+				throw elsException;
+			}
+		}
+	
 	// NATIVE QUERY
 	public Integer findMaxChartedQuestions(final Session session,
 			final Group group,
@@ -769,13 +809,13 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
         org.mkcl.els.domain.Query query = null;
         Query jpQuery = null;
         
-        if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
-        	query = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "CHART_MAX_CHARTED_QUESTIONS_HDS", "");
+        if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
+        	query = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "CHART_MAX_CHARTED_HDS", "");
         	        	
         	if(query != null){
         		jpQuery = this.em().createNativeQuery(query.getQuery());
         		
-        		Status rejectedStatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_FINAL_REJECTION, locale);
+        		Status rejectedStatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.STANDALONE_FINAL_REJECTION, locale);
         		 
         		jpQuery.setParameter("sessionId", session.getId());
         		jpQuery.setParameter("deviceTypeId", deviceType.getId());
@@ -816,7 +856,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
         		" AND ceq.device_id = q.id" +
         		" AND c.session_id = " + session.getId()+
         		" AND c.device_type="+ deviceType.getId());
-        if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+        if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
         	Status rejectedStatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_FINAL_REJECTION, locale.toString());
         	strQuery.append(" AND q.internalstatus_id<>"+rejectedStatus.getId());
         }else{
@@ -947,6 +987,52 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 	    return (int) count;
 	}
 	
+	public Integer findStandalonesCount(final Member member,
+			final Session session, 
+			final DeviceType deviceType,
+			final Status[] includeStatuses,
+			final String locale) throws ELSException {
+		StringBuffer strQuery = new StringBuffer();
+		
+		String questionCountQuery = this.findMembersStandalonesCountQuery(member, session, 
+				deviceType, includeStatuses, locale);
+		strQuery.append(questionCountQuery);
+		
+		Query query = this.em().createNativeQuery(strQuery.toString());
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("deviceTypeId", deviceType.getId());
+		query.setParameter("locale", locale);
+		query.setParameter("memberId", member.getId());
+		
+		long count = 0;
+		try{
+			/*@SuppressWarnings("rawtypes")
+			List data = query.getResultList();
+			if(data != null){
+				count = data.size();				
+			}*/
+			
+			Object data = query.getSingleResult();
+			if(data != null){
+				if(data instanceof Long){
+					count = ((Long)data).longValue();
+				}else if(data instanceof BigInteger){
+					count = ((BigInteger)data).longValue();
+				}
+			}
+		}catch(EntityNotFoundException enfe){
+			logger.error(enfe.getMessage());
+		}catch (NoResultException nre) {
+			logger.error(nre.getMessage());
+		}catch(Exception e) {	
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("ChartRepository_Integer_findMaxChartedQuestions", "Cann't findMaxChartedResolutionss.");
+			throw elsException;
+		}
+	    return (int) count;
+	}
 	
 	//=============== INTERNAL METHODS ==============
 	private String findQuestionsOnChartQuery(final Session session, 
@@ -1280,12 +1366,12 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 
 		return sb.toString();
 	}
-
+	
 	public ChartEntry find(Chart chart, Member primaryMember) {
 		String strQuery="SELECT cce"+
-				"FROM Charts c JOIN c.chartEntries AS cce "+
-				"WHERE cce.member.id=:memberId" +
-				"AND c.id=:chartId";
+				" FROM Chart AS c JOIN c.chartEntries AS cce "+
+				" WHERE cce.member.id=:memberId" +
+				" AND c.id=:chartId";
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("memberId", primaryMember.getId());
 		query.setParameter("chartId", chart.getId());
@@ -1296,4 +1382,47 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 			return null;
 		}
 	}	
+	
+	private String findMembersStandalonesCountQuery(final Member member,
+			final Session session, 
+			final DeviceType deviceType, 
+			final Status[] includeStatuses,
+			final String locale) {
+		
+		StringBuffer strQuery = new StringBuffer();
+		strQuery.append(
+			"SELECT COUNT(DISTINCT q.id)" +
+			" FROM standalone_motions q" +
+			" WHERE q.id IN"+	
+           		" (SELECT ced.device_id" +
+           		" FROM charts c " +
+           		" INNER JOIN charts_chart_entries cce ON(cce.chart_id=c.id)" +
+           		" INNER JOIN chart_entries ce ON(ce.id=cce.chart_entry_id)" +
+           		" INNER JOIN chart_entries_devices ced ON(ced.chart_entry_id=ce.id)" +
+           		" WHERE c.session_id = :sessionId" +
+           		" AND c.device_type= :deviceTypeId" +
+           		" AND c.locale = :locale" +
+           		" AND ce.member_id = :memberId)");
+		strQuery.append(this.getNativeDeviceStatusFilter(includeStatuses));
+		
+		return strQuery.toString();
+	}
+	
+	private String getNativeDeviceStatusFilter(Status[] statuses){
+		StringBuffer sb = new StringBuffer();
+		
+		int n = statuses.length;
+		if(n > 0) {
+			sb.append(" AND (");
+			for(int i = 0; i < n; i++) {
+				sb.append(" q.internalstatus_id = " + statuses[i].getId());
+				if(i < n - 1) {
+					sb.append(" OR ");
+				}
+			}			
+			sb.append(")");
+		}
+
+		return sb.toString();
+	}
 }

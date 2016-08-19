@@ -129,7 +129,7 @@
 							</fo:table>          
 	            			</fo:block>
 							<fo:block>&#160;</fo:block>
-														
+													
 							<xsl:if test="count(./groupList)=1">
 								<xsl:if test="count(./groupList/group)>0">
 									<xsl:for-each select="./groupList/group">
@@ -211,32 +211,39 @@
 												<fo:table table-layout="fixed" width="100%">
 													<fo:table-column column-number="1" column-width="1.5cm" />
                    									<fo:table-column column-number="2" column-width="2.5cm" />
-                   									<fo:table-column column-number="3" column-width="12cm" />
+                   									<fo:table-column column-number="3" column-width="14cm" />
+                   									<!-- <fo:table-column column-number="4" column-width="5cm" /> -->
 													<fo:table-header>
 														<fo:table-row>
-															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">अ.क्र.</fo:block>
 															</fo:table-cell>
-															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid">
+															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">प्रश्न क्रमांक</fo:block>
 															</fo:table-cell>
-															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">विषय</fo:block>
 															</fo:table-cell>
+															<!-- <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
+																<fo:block font-weight="bold" font-size="13px">जोडणी विषयक माहिती</fo:block>
+															</fo:table-cell> -->
 														</fo:table-row>
 													</fo:table-header>
 													<fo:table-body>
 														<xsl:for-each select="./starredQuestionVOs">													
-														<fo:table-row>
-															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+														<fo:table-row keep-together.within-page="always">
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="sno"/></fo:block>
 															</fo:table-cell>
-															<fo:table-cell display-align="before" margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="before" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="questionNumber"/></fo:block>
 															</fo:table-cell>
-															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="questionSubject"/></fo:block>
 															</fo:table-cell>
+															<!-- <fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
+																<fo:block font-weight="normal"><xsl:value-of select="clubbingInformation"/></fo:block>
+															</fo:table-cell> -->
 														</fo:table-row>																																					
 														</xsl:for-each>
 													</fo:table-body>													
@@ -254,32 +261,39 @@
 												<fo:table table-layout="fixed" width="100%">
 													<fo:table-column column-number="1" column-width="1.5cm" />
                    									<fo:table-column column-number="2" column-width="2.5cm" />
-                   									<fo:table-column column-number="3" column-width="12cm" />
+                   									<fo:table-column column-number="3" column-width="14cm" />
+                   									<!-- <fo:table-column column-number="4" column-width="5cm" /> -->
 													<fo:table-header>
 														<fo:table-row>
-															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">अ.क्र.</fo:block>
 															</fo:table-cell>
-															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid">
+															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">प्रश्न क्रमांक</fo:block>
 															</fo:table-cell>
-															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">विषय</fo:block>
 															</fo:table-cell>
+															<!-- <fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
+																<fo:block font-weight="bold" font-size="13px">जोडणी विषयक माहिती</fo:block>
+															</fo:table-cell> -->
 														</fo:table-row>
 													</fo:table-header>
 													<fo:table-body>
 														<xsl:for-each select="./unstarredQuestionVOs">													
-														<fo:table-row>
-															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+														<fo:table-row keep-together.within-page="always">
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="sno"/></fo:block>
 															</fo:table-cell>
-															<fo:table-cell display-align="before" margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="before" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="questionNumber"/></fo:block>
 															</fo:table-cell>
-															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="questionSubject"/></fo:block>
 															</fo:table-cell>
+															<!-- <fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
+																<fo:block font-weight="normal"><xsl:value-of select="clubbingInformation"/></fo:block>
+															</fo:table-cell> -->
 														</fo:table-row>																																					
 														</xsl:for-each>
 													</fo:table-body>													
@@ -297,37 +311,37 @@
 												<fo:table table-layout="fixed" width="100%">
 													<fo:table-column column-number="1" column-width="1.5cm" />
                    									<fo:table-column column-number="2" column-width="2.5cm" />
-                   									<fo:table-column column-number="3" column-width="6cm" />
-                   									<fo:table-column column-number="4" column-width="6cm" />
+                   									<fo:table-column column-number="3" column-width="9cm" />
+                   									<fo:table-column column-number="4" column-width="5cm" />
 													<fo:table-header>
 														<fo:table-row>
-															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">अ.क्र.</fo:block>
 															</fo:table-cell>
-															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid">
+															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">प्रश्न क्रमांक</fo:block>
 															</fo:table-cell>
-															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">विषय</fo:block>
 															</fo:table-cell>
-															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">कारणे</fo:block>
 															</fo:table-cell>
 														</fo:table-row>
 													</fo:table-header>
 													<fo:table-body>
 														<xsl:for-each select="./rejectedQuestionVOs">													
-														<fo:table-row>
-															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+														<fo:table-row keep-together.within-page="always">
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="sno"/></fo:block>
 															</fo:table-cell>
-															<fo:table-cell display-align="before" margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="before" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="questionNumber"/></fo:block>
 															</fo:table-cell>
-															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="questionSubject"/></fo:block>
 															</fo:table-cell>
-															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="questionReason"/></fo:block>
 															</fo:table-cell>
 														</fo:table-row>																																					
@@ -347,31 +361,38 @@
 												<fo:table table-layout="fixed" width="100%">
 													<fo:table-column column-number="1" column-width="1.5cm" />
                    									<fo:table-column column-number="2" column-width="2.5cm" />
-                   									<fo:table-column column-number="3" column-width="12cm" />
+                   									<fo:table-column column-number="3" column-width="9cm" />
+                   									<fo:table-column column-number="4" column-width="5cm" />
 													<fo:table-header>
 														<fo:table-row>
-															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="center" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">अ.क्र.</fo:block>
 															</fo:table-cell>
-															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid">
+															<fo:table-cell text-align="center" display-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">प्रश्न क्रमांक</fo:block>
 															</fo:table-cell>
-															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
 																<fo:block font-weight="bold" font-size="13px">विषय</fo:block>
+															</fo:table-cell>
+															<fo:table-cell display-align="center" text-align="center" border-width="0.5pt" border-style="solid" padding="0.1cm">
+																<fo:block font-weight="bold" font-size="13px">सादर प्रकार</fo:block>
 															</fo:table-cell>
 														</fo:table-row>
 													</fo:table-header>
 													<fo:table-body>
 														<xsl:for-each select="./clarificationQuestionVOs">													
-														<fo:table-row>
-															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+														<fo:table-row keep-together.within-page="always">
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="sno"/></fo:block>
 															</fo:table-cell>
-															<fo:table-cell display-align="before" margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell display-align="before" margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="questionNumber"/></fo:block>
 															</fo:table-cell>
-															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid">
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
 																<fo:block font-weight="normal"><xsl:value-of select="questionSubject"/></fo:block>
+															</fo:table-cell>
+															<fo:table-cell margin-left="0.2cm" border-width="0.5pt" border-style="solid" padding="0.1cm" padding-right="0.2cm">
+																<fo:block font-weight="normal"><xsl:value-of select="statusType"/></fo:block>
 															</fo:table-cell>
 														</fo:table-row>																																					
 														</xsl:for-each>

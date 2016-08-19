@@ -52,6 +52,10 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
     /** The member. */
     @ManyToOne
     private Member member;
+    
+    /** The party. */
+    @ManyToOne
+    private Party party;
 
     /** The attendance. */
     private Boolean attendance=false;
@@ -121,6 +125,15 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
 		this.member = member;
 		this.attendance = attendance;
 	}
+    
+    public MemberBallotAttendance(final Session session,final DeviceType deviceType,
+			final Party party,final Boolean attendance,final String locale) {
+		super(locale);
+		this.session = session;
+		this.deviceType = deviceType;
+		this.party = party;
+		this.attendance = attendance;
+	}
 
     /**** Domain methods ****/
     
@@ -188,6 +201,15 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
             final DeviceType deviceType, final Boolean attendance,
             final String locale) throws ELSException {
         return getMemberBallotAttendanceRepository().findMembersByAttendance(session,
+                deviceType,attendance,locale);
+    }
+    
+    
+    
+    public static List<Party> findPartiesByAttendance(final Session session,
+            final DeviceType deviceType, final Boolean attendance,
+            final String locale) throws ELSException {
+        return getMemberBallotAttendanceRepository().findPartiesByAttendance(session,
                 deviceType,attendance,locale);
     }
 
@@ -352,8 +374,24 @@ public class MemberBallotAttendance extends BaseDomain implements Serializable{
         this.member = member;
     }
 
-
     /**
+     * Sets the party
+     * @return
+     */
+    public Party getParty() {
+		return party;
+	}
+
+	/**
+	 * returns the party
+	 *  
+	 * @param party
+	 */
+	public void setParty(Party party) {
+		this.party = party;
+	}
+
+	/**
      * Gets the attendance.
      *
      * @return the attendance

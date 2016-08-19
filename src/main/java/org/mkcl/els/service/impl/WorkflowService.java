@@ -5,11 +5,15 @@ import java.util.List;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.CutMotion;
+import org.mkcl.els.domain.DiscussionMotion;
+import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.service.IWorkflowService;
@@ -36,15 +40,22 @@ public class WorkflowService implements IWorkflowService{
         	if(strDeviceType.startsWith("motions_cutmotion")){
         		CutMotion motion = CutMotion.findById(CutMotion.class,Long.parseLong(strDeviceId));
  		        supportingMembers = motion.getSupportingMembers();
-        	}else if(strDeviceType.startsWith("motions_billamendment")){
+        	}else if(strDeviceType.startsWith(ApplicationConstants.BILLAMENDMENT_MOTION)){
                 BillAmendmentMotion billAmendmentMotion=BillAmendmentMotion.findById(BillAmendmentMotion.class,Long.parseLong(strDeviceId));
                 supportingMembers=billAmendmentMotion.getSupportingMembers();
-            }/*else if(strDeviceType.startsWith("motions_eventmotion")){
+            }else if(strDeviceType.startsWith("motions_eventmotion")){
         		EventMotion motion = EventMotion.findById(EventMotion.class,Long.parseLong(strDeviceId));
  		        supportingMembers = motion.getSupportingMembers();
-        	}*/else if(strDeviceType.startsWith("motions_discussionmotion")){
-        		
-        	}else{        	
+        	}else if(strDeviceType.startsWith("motions_discussionmotion")){
+        		DiscussionMotion discussionMotion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(strDeviceId));
+        		supportingMembers = discussionMotion.getSupportingMembers();
+        	}else if(strDeviceType.startsWith("motions_standalonemotion")){
+        		StandaloneMotion motion = StandaloneMotion.findById(StandaloneMotion.class,Long.parseLong(strDeviceId));
+ 		        supportingMembers = motion.getSupportingMembers();
+        	}else if(strDeviceType.startsWith(ApplicationConstants.ADJOURNMENT_MOTION)){
+        		AdjournmentMotion motion = AdjournmentMotion.findById(AdjournmentMotion.class,Long.parseLong(strDeviceId));
+ 		        supportingMembers = motion.getSupportingMembers();
+        	}else{
 		        Motion motion=Motion.findById(Motion.class,Long.parseLong(strDeviceId));
 		        supportingMembers=motion.getSupportingMembers();
         	}

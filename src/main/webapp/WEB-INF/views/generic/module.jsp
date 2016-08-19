@@ -87,7 +87,11 @@
 				}});
 			}
 		}
-			
+		
+		function testReport() {
+			console.log("test report started..");
+			form_submit('admin/test_report', {locale: 'mr_IN'}, 'post');
+		}
 	</script>
 </head>
 <body>

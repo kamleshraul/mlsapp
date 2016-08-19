@@ -451,8 +451,13 @@
 				
 				<p>
 					<label class="small"><spring:message code="party.type" text="Type" /></label>
-					<form:input path="type" cssClass="sText"/>
-					<form:errors path="type" cssClass="validationError" />
+					<form:select path="partyType"
+						items="${partyTypes}" itemValue="id" itemLabel="name" id="stateR"
+						cssClass="sSelect"></form:select>
+					<form:errors path="partyType" cssClass="validationError" />
+					
+				
+				
 				</p>
 			</div>						
 			<!-- <input type="hidden" id="fileid" value="fileid">

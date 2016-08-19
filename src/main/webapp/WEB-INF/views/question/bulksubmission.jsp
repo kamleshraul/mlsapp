@@ -22,6 +22,7 @@
 				$("#row"+(index-1)+" .subject").html(currSub);
 			}
 		});
+		
 		$(".down").click(function(){
 			var index=$(this).closest("tr").attr("id").split("row")[1];
 			if(index!=parseInt($("#size").val())){		
@@ -36,6 +37,7 @@
 				$("#row"+nextIndex+" .subject").html(currSub);
 			}
 		});
+		
 		$("#chkall").change(function(){
 			if($(this).is(":checked")){
 				$(".action").attr("checked","checked");	
@@ -43,6 +45,7 @@
 				$(".action").removeAttr("checked");
 			}
 		});
+		
 		$("#bulksubmit").click(function(){
 			$.prompt($('#submissionMsg').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
@@ -55,7 +58,8 @@
 						}
 					});
 		        	$.post('question/bulksubmission?items='+items
-		        			+"&usergroupType="+$("#usergroupType").val(),  		    	             
+		        			+"&usergroupType=" + $("#usergroupType").val()
+		        			+"&questionType=" + $('#questionType').val(),  		    	             
 		    	            function(data){
 		       					$('html').animate({scrollTop:0}, 'slow');
 		       				 	$('body').animate({scrollTop:0}, 'slow');	
@@ -106,13 +110,14 @@
 			</table>
 		</c:when>
 		<c:otherwise>
-			<spring:message code="question.nomotions" text="No Completed Questions Found"></spring:message>
+			<spring:message code="question.noquestions" text="No Completed Questions Found"></spring:message>
 		</c:otherwise>
 	</c:choose>
 	<input type="hidden" id="size" value="${size }">	
 </div>	
 	<input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the questions.'></spring:message>" type="hidden">
 	<input type="hidden" id="usergroupType" value="${usergroupType}" name="usergroupType"/>
+	<input type="hidden" id="questionType" value="${questionType}" name="usergroupType"/>
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 </html>

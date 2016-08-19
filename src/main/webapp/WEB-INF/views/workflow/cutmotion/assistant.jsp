@@ -174,7 +174,7 @@
 		    }
 		    
 		    var params="cutmotion="+$("#id").val()+"&status="+valueToSend+
-			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 			var resourceURL='ref/cutmotion/actors?'+params;
 			
 			$.get(resourceURL,function(data){
@@ -214,7 +214,7 @@
 					$("#actorDiv").hide();
 					/**** in case of sendback and discuss only recommendation status is changed ****/
 					if(value!=sendback&&value!=discuss){
-					$("#internalStatus").val(value);
+						$("#internalStatus").val(value);
 					}
 				    $("#recommendationStatus").val(value);
 				}
@@ -235,7 +235,8 @@
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -335,7 +336,7 @@
 		
 		$("#reviseSubTitle").click(function(){
 			$(".revise3").toggle();
-			console.log("revise3: " + $("#revisedSubTitleDiv").css("display")  + ": "+$("#subTitle").val());
+			//console.log("revise3: " + $("#revisedSubTitleDiv").css("display")  + ": "+$("#subTitle").val());
 			if($("#revisedSubTitleDiv").css("display")=="none"){
 				$("#revisedSubTitle").val("");	
 			}else{
@@ -346,7 +347,7 @@
 		
 		$("#reviseNoticeContent").click(function(){
 			$(".revise4").toggle();		
-			console.log("revise4: " + $("#revisedNoticeContentDiv").css("display") + ": "+$("#noticeContent").val());
+			//console.log("revise4: " + $("#revisedNoticeContentDiv").css("display") + ": "+$("#noticeContent").val());
 			if($("#revisedNoticeContentDiv").css("display")=="none"){
 				$("#revisedNoticeContent").wysiwyg("setContent","");
 			}else{
@@ -526,8 +527,13 @@
 	        return false;  
 	    }); 
 		
-		loadActors($("#changeInternalStatus").val());
-		$("#actorDiv").hide();
+		if($('#workflowstatus').val()!='COMPLETED'){
+			var statusType = $("#internalStatusType").val().split("_");
+			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			$("#changeInternalStatus").val(id);
+			$("#changeInternalStatus").change();
+			//loadActors($("#changeInternalStatus").val());
+		}
 		
 	});
 	</script>
@@ -714,7 +720,7 @@
 			<c:choose>
 				<c:when test="${!(empty clubbedEntities) }">
 					<c:forEach items="${clubbedEntities }" var="i">
-						<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewCutMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
@@ -932,6 +938,9 @@
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
+<input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
+<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
+<input type="hidden" id="originalLevel" value="${level}" />
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

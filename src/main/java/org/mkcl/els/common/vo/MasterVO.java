@@ -9,6 +9,13 @@
  */
 package org.mkcl.els.common.vo;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.mkcl.els.common.util.ApplicationConstants;
+
 /**
  * The Class MasterVO.
  * @author amitd
@@ -24,14 +31,22 @@ public class MasterVO {
     
     private String value;
     
-    private Integer number;
+    private Integer number;    
     
     private String formattedNumber;
     
+    private String type;
+    
+    private String displayName;
+    
     private Integer order;
     
+    private String formattedOrder;
+    
     private Boolean isSelected;
-
+    
+    
+    //=============== CONSTRUCTORS ==================
 	public MasterVO(Integer number,String name) {
 		super();
 		this.name = name;
@@ -47,7 +62,27 @@ public class MasterVO {
 	public MasterVO() {
         super();
     }
+	
+	
+	//=============== UTILITY METHODS ===============
+	public static List<MasterVO> sortByOrder(final List<MasterVO> masterVOs, final String sortOrder) {
+		List<MasterVO> newMasterVOs = new ArrayList<MasterVO>();
+		newMasterVOs.addAll(masterVOs);	
+		Collections.sort(newMasterVOs, new Comparator<MasterVO>() {
+	        @Override 
+	        public int compare(MasterVO vo1, MasterVO vo2) {
+	        	if(sortOrder!=null && sortOrder.equals(ApplicationConstants.DESC)) {
+	        		return vo2.getOrder().compareTo(vo1.getOrder());
+	        	} else {
+	        		return vo1.getOrder().compareTo(vo2.getOrder());
+	        	}	           
+	        }
+	    });
+		return newMasterVOs;
+	}
+	
 
+	//=============== GETTERS/SETTERS ===============
     /**
      * Gets the name.
      *
@@ -98,12 +133,36 @@ public class MasterVO {
 		this.value = value;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
 	public Integer getOrder() {
 		return order;
 	}
 
 	public void setOrder(Integer order) {
 		this.order = order;
+	}
+
+	public String getFormattedOrder() {
+		return formattedOrder;
+	}
+
+	public void setFormattedOrder(String formattedOrder) {
+		this.formattedOrder = formattedOrder;
 	}
 
 	public Boolean getIsSelected() {
@@ -113,4 +172,18 @@ public class MasterVO {
 	public void setIsSelected(final Boolean isSelected) {
 		this.isSelected = isSelected;
 	}
+
+	@Override
+	public boolean equals(Object mv) {
+		boolean retVal = false;
+		if(mv instanceof MasterVO){
+			MasterVO m = (MasterVO) mv;
+			return (this.getName().equals(m.getName()) && this.getValue().equals(m.getValue()));
+		}else{
+			retVal = super.equals(mv);
+		}
+		
+		return retVal;
+	}
+	
 }

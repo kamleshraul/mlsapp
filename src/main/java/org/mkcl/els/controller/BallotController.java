@@ -12,11 +12,15 @@ package org.mkcl.els.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,6 +29,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.mapping.Array;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -40,19 +45,20 @@ import org.mkcl.els.common.vo.MemberBallotMemberWiseQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.MemberBallotQuestionDistributionVO;
 import org.mkcl.els.common.vo.MemberBallotVO;
+import org.mkcl.els.common.vo.MemberwiseQuestionsVO;
 import org.mkcl.els.common.vo.QuestionSequenceVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.StarredBallotVO;
+import org.mkcl.els.common.xmlvo.CumulativeMemberwiseQuestionsXmlVO;
 import org.mkcl.els.common.xmlvo.MemberBallotTotalQuestionReportXmlVO;
 import org.mkcl.els.common.xmlvo.MemberwiseQuestionsXmlVO;
 import org.mkcl.els.domain.ActivityLog;
-import org.mkcl.els.domain.Ballot;
-import org.mkcl.els.domain.BallotEntry;
+import org.mkcl.els.domain.Question.PROCESSING_MODE;
+import org.mkcl.els.domain.ballot.Ballot;
+import org.mkcl.els.domain.ballot.BallotEntry;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.Device;
-import org.mkcl.els.domain.DeviceSequence;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
@@ -62,7 +68,8 @@ import org.mkcl.els.domain.MemberBallotAttendance;
 import org.mkcl.els.domain.MemberBallotChoice;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.PreBallot;
+import org.mkcl.els.domain.StandaloneMotion;
+import org.mkcl.els.domain.ballot.PreBallot;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
@@ -100,7 +107,17 @@ public class BallotController extends BaseController{
 			final ModelMap model,
 			final Locale locale){
 		String retVal = "ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		
 		try {
+			
 			String category = request.getParameter("category");
 
 			if(category != null){
@@ -116,7 +133,11 @@ public class BallotController extends BaseController{
 						/** Create Group*/
 						String strGroup = request.getParameter("group");
 						Group group = Group.findById(Group.class, Long.parseLong(strGroup));
+						String strHouseType = request.getParameter("houseType");
+						HouseType houseType =
+								HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 
+						model.addAttribute("balHouseType", houseType.getType());
 						/** Compute & Add answeringDates to model*/
 						List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 						List<QuestionDates> questionDates = group.getQuestionDates();
@@ -134,6 +155,8 @@ public class BallotController extends BaseController{
 						HouseType houseType =
 								HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 
+						model.addAttribute("balHouseType", houseType.getType());
+						
 						/** Create SessionType */
 						String strSessionTypeId = request.getParameter("sessionType");
 						SessionType sessionType =
@@ -145,7 +168,7 @@ public class BallotController extends BaseController{
 
 						/** Create Session */
 						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
-
+						
 						/** Compute & Add discussionDates to model*/
 						CustomParameter dbDateFormat = 
 								CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
@@ -153,46 +176,6 @@ public class BallotController extends BaseController{
 								CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
 						String strDiscussionDates = 
 								session.getParameter("questions_halfhourdiscussion_from_question_discussionDates");
-						String[] strDiscussionDatesArr = strDiscussionDates.split("#");
-						List<MasterVO> masterVOs = new ArrayList<MasterVO>();
-						for(String strDiscussionDate : strDiscussionDatesArr) {
-							Date discussionDate = 
-									FormaterUtil.formatStringToDate(strDiscussionDate, dbDateFormat.getValue());
-							String localizedDate = FormaterUtil.formatDateToString(discussionDate, 
-									serverDateFormat.getValue(), locale.toString());
-							MasterVO masterVO = new MasterVO();
-							masterVO.setName(localizedDate);
-							masterVO.setValue(strDiscussionDate);
-
-							masterVOs.add(masterVO);
-						}
-						model.addAttribute("answeringDates", masterVOs);
-					}else if(deviceType.getType().equals(
-							ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
-						/** Create HouseType */
-						String strHouseType = request.getParameter("houseType");
-						HouseType houseType =
-								HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
-						model.addAttribute("houseType",houseType.getType());
-
-						/** Create SessionType */
-						String strSessionTypeId = request.getParameter("sessionType");
-						SessionType sessionType =
-								SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
-
-						/** Create year */
-						String strYear = request.getParameter("sessionYear");
-						Integer year = Integer.valueOf(strYear);
-
-						/** Create Session */
-						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
-						/** Compute & Add discussionDates to model*/
-						CustomParameter dbDateFormat = 
-								CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-						CustomParameter serverDateFormat = 
-								CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
-						String strDiscussionDates = 
-								session.getParameter("questions_halfhourdiscussion_standalone_discussionDates");
 						String[] strDiscussionDatesArr = strDiscussionDates.split("#");
 						List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 						for(String strDiscussionDate : strDiscussionDatesArr) {
@@ -291,6 +274,53 @@ public class BallotController extends BaseController{
 						}
 						model.addAttribute("answeringDates", masterVOs);
 					}
+				}else if(category.equals("motion")){
+					String strDeviceType = request.getParameter("questionType");			
+					DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+					model.addAttribute("deviceTypeType", deviceType.getType());
+					model.addAttribute("category", "motion");
+					
+					if(deviceType.getType().equals(
+							ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
+						/** Create HouseType */
+						String strHouseType = request.getParameter("houseType");
+						HouseType houseType =
+								HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+						model.addAttribute("houseType",houseType.getType());
+
+						/** Create SessionType */
+						String strSessionTypeId = request.getParameter("sessionType");
+						SessionType sessionType =
+								SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+
+						/** Create year */
+						String strYear = request.getParameter("sessionYear");
+						Integer year = Integer.valueOf(strYear);
+
+						/** Create Session */
+						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+						/** Compute & Add discussionDates to model*/
+						CustomParameter dbDateFormat = 
+								CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+						CustomParameter serverDateFormat = 
+								CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+						String strDiscussionDates = 
+								session.getParameter("motions_standalonemotion_halfhourdiscussion_discussionDates");
+						String[] strDiscussionDatesArr = strDiscussionDates.split("#");
+						List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+						for(String strDiscussionDate : strDiscussionDatesArr) {
+							Date discussionDate = 
+									FormaterUtil.formatStringToDate(strDiscussionDate, dbDateFormat.getValue());
+							String localizedDate = FormaterUtil.formatDateToString(discussionDate, 
+									serverDateFormat.getValue(), locale.toString());
+							MasterVO masterVO = new MasterVO();
+							masterVO.setName(localizedDate);
+							masterVO.setValue(strDiscussionDate);
+
+							masterVOs.add(masterVO);
+						}
+						model.addAttribute("answeringDates", masterVOs);
+					}
 				}
 
 				List<MasterVO> outputFormats = new ArrayList<MasterVO>();
@@ -326,7 +356,16 @@ public class BallotController extends BaseController{
 	public @ResponseBody String createBallot(final HttpServletRequest request,
 			final Locale locale) {
 		String retVal = "ERROR";
-		try {
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		try {			
+			
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 			HouseType houseType =
@@ -369,7 +408,7 @@ public class BallotController extends BaseController{
 				answeringDate = questionDates.getAnsweringDate();
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
 				CustomParameter dbDateFormat = 
 						CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
@@ -413,7 +452,15 @@ public class BallotController extends BaseController{
 			final HttpServletRequest request,
 			final Locale locale) {
 		String retVal = "ballot/error";
-		try {		
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		try {
 			
 			/**** To save the log of activity, id of the class ****/
 			String classId = null;
@@ -429,9 +476,9 @@ public class BallotController extends BaseController{
 					break;
 				}
 			}
-			
 			model.addAttribute("currentDesignation", designation.toString());
 			model.addAttribute("currentUser", (this.getCurrentUser().getTitle()+" "+this.getCurrentUser().getFirstName()+" " + this.getCurrentUser().getMiddleName() + " " +this.getCurrentUser().getLastName()));
+			
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
@@ -457,13 +504,12 @@ public class BallotController extends BaseController{
 			if(strDeviceType == null){
 				strDeviceType = request.getParameter("deviceType");
 			}
-
 			deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 			model.addAttribute("deviceType", deviceType.getType());
 			model.addAttribute("deviceName", deviceType.getName());
 
 			Group group = null;
-			if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
+			if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)
 					&& houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) 
 					&& !deviceType.getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)
 					&& !deviceType.getType().startsWith(ApplicationConstants.DEVICE_BILLS)){
@@ -479,7 +525,7 @@ public class BallotController extends BaseController{
 				answeringDate = questionDates.getAnsweringDate();
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
 
 				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
@@ -495,50 +541,7 @@ public class BallotController extends BaseController{
 
 			/** DeviceType & HouseType specific Ballot views */
 			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-					/*List<StarredBallotVO> ballotVOs = Ballot.findStarredBallotVOs(session, answeringDate, locale.toString());
-					model.addAttribute("ballotVOs", ballotVOs);*/
-
-					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
-					parametersMap.put("locale", new String[]{locale.toString()});
-					parametersMap.put("sessionId", new String[]{session.getId().toString()});
-					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
-					parametersMap.put("groupId", new String[]{group.getId().toString()});
-					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
-					List ballotVOs = org.mkcl.els.domain.Query.findReport("STARRED_BALLOT_VIEW", parametersMap);
-					parametersMap = null;
-					
-					/**** Log the details of the viewer ****/					
-					if(ballotVOs != null && !ballotVOs.isEmpty()){
-						Object[] objs = (Object[])ballotVOs.get(0);
-						if(objs[4] != null){
-							classId = objs[4].toString();
-						}
-					}
-					/**** Log the details of the viewer ****/
-					
-					model.addAttribute("ballotVOs", ballotVOs);
-					/** Add number of rounds to model */
-					CustomParameter noOfRoundsParameter = CustomParameter.findByName(CustomParameter.class,"QUESTION_BALLOT_NO_OF_ROUNDS", "");
-					if(noOfRoundsParameter!=null && noOfRoundsParameter.getValue()!=null && !noOfRoundsParameter.getValue().isEmpty()) {
-						model.addAttribute("noOfRounds", noOfRoundsParameter.getValue());
-					} else {
-						model.addAttribute("noOfRounds", ApplicationConstants.OUESTION_BALLOT_NO_OF_ROUNDS);
-					}
-					CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
-					if(serverDateTimeFormat != null){
-						model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), serverDateTimeFormat.getValue(), locale.toString()));
-					}
-					if(ballotVOs != null && !ballotVOs.isEmpty()){
-						model.addAttribute("totalMembers", FormaterUtil.formatNumberNoGrouping(Integer.valueOf((((Object[])ballotVOs.get(0))[3]).toString()), locale.toString()));
-					}
-					
-					Group qnGroup = Group.find(session, answeringDate, locale.toString());
-					model.addAttribute("groupNo", 
-							FormaterUtil.formatNumberNoGrouping(qnGroup.getNumber(), locale.toString()));
-					
-					retVal = "ballot/ballot";
-				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 					/*List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);*/
 
@@ -560,7 +563,7 @@ public class BallotController extends BaseController{
 					}
 					model.addAttribute("ballotVOs", ballotVOs);
 					retVal = "ballot/halfhour_member_ballot";
-				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 
 					/*List<DeviceBallotVO> ballotVOs = Ballot.findHDSBallotVO(session, deviceType, answeringDate, locale.toString());
 					StringBuilder voIds = new StringBuilder();
@@ -578,7 +581,7 @@ public class BallotController extends BaseController{
 					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
 
-					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDS_BALLOT_VIEW", parametersMap);
+					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDS_ASSEMBLY_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
 					List<MasterVO> serialNumber = new ArrayList<MasterVO>(ballotVOs.size());
 					for(int i = 0; i < ballotVOs.size(); i++){
@@ -669,15 +672,15 @@ public class BallotController extends BaseController{
 
 					if(ballotVOs != null && !ballotVOs.isEmpty()){
 						Object[] objs = (Object[])ballotVOs.get(0);
-						if(objs[11] != null){
-							classId = objs[11].toString();
+						if(objs[8] != null){
+							classId = objs[8].toString();
 						}
 					}
 					
 					model.addAttribute("ballotVOs", ballotVOs);
 
 					retVal = "ballot/halfhour_ballot";
-				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 					/*List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);
 					retVal = "ballot/nonofficial_member_ballot";*/
@@ -686,15 +689,14 @@ public class BallotController extends BaseController{
 					parametersMap.put("locale", new String[]{locale.toString()});
 					parametersMap.put("sessionId", new String[]{session.getId().toString()});
 					parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
-					parametersMap.put("groupId", new String[]{group.getId().toString()});
 					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
 
-					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDQ_COUNCIL_BALLOT_VIEW", parametersMap);
+					List ballotVOs = org.mkcl.els.domain.Query.findReport("HDS_COUNCIL_BALLOT_VIEW", parametersMap);
 					parametersMap = null;
 					if(ballotVOs != null && !ballotVOs.isEmpty()){
 						Object[] objs = (Object[])ballotVOs.get(0);
-						if(objs[11] != null){
-							classId = objs[11].toString();
+						if(objs[8] != null){
+							classId = objs[8].toString();
 						}
 					}
 					model.addAttribute("ballotVOs", ballotVOs);
@@ -721,7 +723,84 @@ public class BallotController extends BaseController{
 				}
 			}
 			
-			locActivity(classId, request, locale.toString());
+			/** Processing mode specific Ballot views */
+			PROCESSING_MODE processingMode = Question.getProcessingMode(session);
+			// If retVal is not already set in the above conditional execution, only then use the following logic.
+			if(retVal.equals("ballot/error") && processingMode == PROCESSING_MODE.LOWERHOUSE) {
+				Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+				parametersMap.put("locale", new String[]{locale.toString()});
+				parametersMap.put("sessionId", new String[]{session.getId().toString()});
+				parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parametersMap.put("groupId", new String[]{group.getId().toString()});
+				parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
+				List ballotVOs = org.mkcl.els.domain.Query.findReport("STARRED_BALLOT_VIEW", parametersMap);
+				parametersMap = null;
+				
+				/**** Log the details of the viewer ****/					
+				if(ballotVOs != null && !ballotVOs.isEmpty()){
+					Object[] objs = (Object[])ballotVOs.get(0);
+					if(objs[4] != null){
+						classId = objs[4].toString();
+					}
+				}
+				/**** Log the details of the viewer ****/
+				
+				model.addAttribute("ballotVOs", ballotVOs);
+				
+				/** Add number of rounds to model */
+				String houseTypeType = houseType.getType();
+				String upperCaseHouseTypeType = houseTypeType.toUpperCase();
+				
+				StringBuffer sb = new StringBuffer();
+				sb.append("QUESTION_STARRED_BALLOT_NO_OF_ROUNDS_");
+				sb.append(upperCaseHouseTypeType);
+				
+				String parameterName = sb.toString();
+				CustomParameter noOfRoundsParameter = CustomParameter.findByName(CustomParameter.class, parameterName, "");
+				if(noOfRoundsParameter!=null && noOfRoundsParameter.getValue()!=null && !noOfRoundsParameter.getValue().isEmpty()) {
+					model.addAttribute("noOfRounds", noOfRoundsParameter.getValue());
+				} else {
+					model.addAttribute("noOfRounds", ApplicationConstants.OUESTION_BALLOT_NO_OF_ROUNDS);
+				}
+				
+				// Show the ballot date instead of the current date
+				String strBallotDate = null;
+				if(ballotVOs != null && ! ballotVOs.isEmpty()) {
+					Object[] objs = (Object[])ballotVOs.get(0);
+					if(objs[5] != null) {
+						strBallotDate = objs[5].toString();
+					}
+				}
+				CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+				if(serverDateTimeFormat != null){
+					Date ballotDate = new Date();
+					if(strBallotDate != null) {
+						CustomParameter datePattern = CustomParameter.findByName(CustomParameter.class, 
+								"DB_DATETIMEFORMAT", "");
+						ballotDate = FormaterUtil.formatStringToDate(strBallotDate, datePattern.getValue(), locale.toString());
+					}
+					
+					model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString(ballotDate, serverDateTimeFormat.getValue(), locale.toString()));
+				}
+				
+				// Set total members & total questions
+				if(ballotVOs != null && !ballotVOs.isEmpty()){
+					model.addAttribute("totalMembers", FormaterUtil.formatNumberNoGrouping(Integer.valueOf((((Object[])ballotVOs.get(0))[3]).toString()), locale.toString()));
+					
+					int size = ballotVOs.size();
+					model.addAttribute("totalNoOfQuestions", FormaterUtil.formatNumberNoGrouping(size, locale.toString()));
+				}
+				
+				Group qnGroup = Group.find(session, answeringDate, locale.toString());
+				model.addAttribute("groupNo", 
+						FormaterUtil.formatNumberNoGrouping(qnGroup.getNumber(), locale.toString()));
+				
+				retVal = "ballot/ballot";
+			}
+			
+			if(classId != null){
+				logActivity(classId, request, locale.toString());
+			}
 			
 		}
 		catch(Exception e) {
@@ -734,8 +813,17 @@ public class BallotController extends BaseController{
 	
 	@RequestMapping(value = "/viewlog", method = RequestMethod.GET)
 	public String viewBallotViewLig(Model model, HttpServletRequest request, Locale locale){
-		String retVal = "ballot/error";
+		
 		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		String retVal = "ballot/error";
+		
+		try{			
 			String strHouseType = request.getParameter("houseType");
 			String strSessionYear = request.getParameter("sessionYear");
 			String strSessionType = request.getParameter("sessionType");
@@ -757,7 +845,7 @@ public class BallotController extends BaseController{
 				QuestionDates qdAnsweringDate = QuestionDates.findById(QuestionDates.class, new Long(strAnsweringDate));
 				answeringDate = qdAnsweringDate.getAnsweringDate();
 			}else{
-				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, ApplicationConstants.SERVER_DATEFORMAT); 
+				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, ApplicationConstants.DB_DATEFORMAT); 
 			}
 			
 			Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale.toString());
@@ -792,7 +880,16 @@ public class BallotController extends BaseController{
 			final ModelMap model,
 			final Locale locale){		
 		String errorpage="ballot/error";
+		
 		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		try{
+			
 			String strHouseType=request.getParameter("houseType");
 			String strSessionType=request.getParameter("sessionType");
 			String strSessionYear=request.getParameter("sessionYear");
@@ -811,7 +908,7 @@ public class BallotController extends BaseController{
 					SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
 					Integer sessionYear=Integer.parseInt(strSessionYear);
 					Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
-					String noOfRounds=session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_UH);
+					String noOfRounds=session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT);
 					if(noOfRounds!=null){
 						if(!noOfRounds.isEmpty()){
 							DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
@@ -878,7 +975,16 @@ public class BallotController extends BaseController{
 	@RequestMapping(value="/memberballot/attendance",method=RequestMethod.GET)
 	public String markAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try {
+			
 			String strSession=request.getParameter("session");
 			String strQuestionType=request.getParameter("questionType");
 			String strRound=request.getParameter("round");
@@ -994,6 +1100,10 @@ public class BallotController extends BaseController{
 			logger.error("failed",e);
 			model.addAttribute("type","DB_EXCEPTION");
 			return errorpage;
+		}catch(Exception e){
+			logger.error("failed",e);
+			model.addAttribute("type","GEN_EXCEPTION");
+			return errorpage;
 		}
 		return "ballot/memberballotattendance";	
 	}
@@ -1001,6 +1111,14 @@ public class BallotController extends BaseController{
 	@Transactional
 	@RequestMapping(value="/memberballot/attendance",method=RequestMethod.PUT)
 	public @ResponseBody String updateAttendance(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try {
 			String strLocked=request.getParameter("locked");
 			if(strLocked!=null){
@@ -1119,6 +1237,14 @@ public class BallotController extends BaseController{
 	/****** Member Ballot(Council) Pre Ballot report Page ****/
 	@RequestMapping(value="/memberballot/preballot",method=RequestMethod.GET)
 	public String councilStarredPreBallot(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try {
 			String strAttendance=request.getParameter("attendance");
 			String strQuestionType=request.getParameter("questionType");
@@ -1200,6 +1326,14 @@ public class BallotController extends BaseController{
 	@RequestMapping(value="/memberballot/view",method=RequestMethod.GET)
 	public String createMemberBallot(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strAttendance=request.getParameter("attendance");
 			String strQuestionType=request.getParameter("questionType");
@@ -1314,6 +1448,14 @@ public class BallotController extends BaseController{
 	@RequestMapping(value="/memberballot/memberballotstatus",method=RequestMethod.GET)
 	public String viewMemberBallotStatus(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strQuestionType=request.getParameter("questionType");
 			String strSession=request.getParameter("session");
@@ -1365,6 +1507,14 @@ public class BallotController extends BaseController{
 	public @ResponseBody String viewMemberBallotStatusOfRound(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
 		String status="INCOMPLETE";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strQuestionType=request.getParameter("questionType");
 			String strSession=request.getParameter("session");
@@ -1419,6 +1569,14 @@ public class BallotController extends BaseController{
 	@RequestMapping(value="/memberballot/memberwise",method=RequestMethod.GET)
 	public String viewMemberWiseReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
+
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strQuestionType=request.getParameter("questionType");
 			String strSession=request.getParameter("session");
@@ -1427,8 +1585,18 @@ public class BallotController extends BaseController{
 					Session session=Session.findById(Session.class,Long.parseLong(strSession));
 					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
 					/**** List of Distinct Members who had submitted questions in First batch ****/
-					List<Member> eligibleMembers=MemberBallotAttendance.findEligibleMembers(session, questionType, locale.toString());
+					List<Member> eligibleMembers=Question.findMembersHavingQuestionSubmittedInFirstBatch(session, questionType, locale.toString());
 					model.addAttribute("eligibleMembers", eligibleMembers);
+					List<MasterVO> eligibleMemberCounts = new ArrayList<MasterVO>();
+					if(eligibleMembers!=null && !eligibleMembers.isEmpty()) {
+						for(int i=1; i<=eligibleMembers.size(); i++) {
+							MasterVO eligibleMemberCount = new MasterVO();
+							eligibleMemberCount.setNumber(i);
+							eligibleMemberCount.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));
+							eligibleMemberCounts.add(eligibleMemberCount);
+						}
+					}
+					model.addAttribute("eligibleMemberCounts", eligibleMemberCounts);
 					model.addAttribute("session",session.getId());
 					model.addAttribute("questionType",questionType.getId());
 				}else{
@@ -1452,6 +1620,14 @@ public class BallotController extends BaseController{
 	@RequestMapping(value="/memberballot/member/questions",method=RequestMethod.GET)
 	public String viewMemberQuestionsReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strQuestionType=request.getParameter("questionType");
 			String strSession=request.getParameter("session");
@@ -1462,11 +1638,84 @@ public class BallotController extends BaseController{
 					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
 					Member member=Member.findById(Member.class,Long.parseLong(strMember));
 					/**** First Batch Questions Final Status Distribution member wise ****/
-					MemberBallotMemberWiseReportVO reports=MemberBallot.findMemberWiseReportVO(session, questionType, member, locale.toString());
-					/**** Populating Group and corresponding Ministries in Model ****/
+					MemberBallotMemberWiseReportVO reports = MemberBallot.findMemberWiseReportVO(session, questionType, member, locale.toString());
+					List<MemberBallotMemberWiseQuestionVO> newMemberBallotMemberWiseQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+					List<MemberBallotMemberWiseQuestionVO> memberBallotMemberWiseQuestionVOs = reports.getMemberBallotMemberWiseQuestionVOs();
+					List<MemberBallotMemberWiseQuestionVO> starredQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+					List<MemberBallotMemberWiseQuestionVO> unstarredQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+					List<MemberBallotMemberWiseQuestionVO> clarificationQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+					List<MemberBallotMemberWiseQuestionVO> rejectedQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>(); 
+					MemberBallotMemberWiseReportVO memberBallotMemberWiseReportVO = new MemberBallotMemberWiseReportVO();
+					for(MemberBallotMemberWiseQuestionVO i : memberBallotMemberWiseQuestionVOs){
+						if(i.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION) 
+								&& (i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION) || i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))) {
+							starredQuestionVOs.add(i);											
+						} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+								|| i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+							unstarredQuestionVOs.add(i);											
+						} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_GOVT)
+								||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
+								||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+								||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
+							clarificationQuestionVOs.add(i);											
+						} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+								|| i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+							rejectedQuestionVOs.add(i);											
+						}
+					}
+					
 					List<Group> groups=Group.findByHouseTypeSessionTypeYear(session.getHouse().getType(),session.getType(),session.getYear());
+					
+					NumberFormat numberFormat = FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+					int count = 0;
+					for(Group g : groups){
+						String strGroupNumber = g.getNumber().toString();
+						for(MemberBallotMemberWiseQuestionVO questionVO : starredQuestionVOs) {
+							if(strGroupNumber.equals(questionVO.getGroupNumber())){
+								String serialNo = numberFormat.format(++count);
+								questionVO.setSno(serialNo);
+							}
+						}
+						
+						for(MemberBallotMemberWiseQuestionVO questionVO : unstarredQuestionVOs) {
+							if(strGroupNumber.equals(questionVO.getGroupNumber())){
+								String serialNo = numberFormat.format(++count);
+								questionVO.setSno(serialNo);
+							}
+						}
+						
+						for(MemberBallotMemberWiseQuestionVO questionVO : rejectedQuestionVOs) {
+							if(strGroupNumber.equals(questionVO.getGroupNumber())){
+								String serialNo = numberFormat.format(++count);
+								questionVO.setSno(serialNo);
+							}
+						}
+						
+						for(MemberBallotMemberWiseQuestionVO questionVO : clarificationQuestionVOs) {
+							if(strGroupNumber.equals(questionVO.getGroupNumber())){
+								String serialNo = numberFormat.format(++count);
+								questionVO.setSno(serialNo);
+							}
+						}
+					}
+					
+					
+					newMemberBallotMemberWiseQuestionVOs.addAll(starredQuestionVOs);
+					newMemberBallotMemberWiseQuestionVOs.addAll(unstarredQuestionVOs);
+					newMemberBallotMemberWiseQuestionVOs.addAll(rejectedQuestionVOs);
+					newMemberBallotMemberWiseQuestionVOs.addAll(clarificationQuestionVOs);
+					
+					memberBallotMemberWiseReportVO.setMemberBallotMemberWiseQuestionVOs(newMemberBallotMemberWiseQuestionVOs);
+					memberBallotMemberWiseReportVO.setMemberBallotMemberWiseCountVOs(reports.getMemberBallotMemberWiseCountVOs());
+					memberBallotMemberWiseReportVO.setMember(reports.getMember());
+					/**** Populating Group and corresponding Ministries in Model ****/
+					
 					model.addAttribute("groups",groups);
-					model.addAttribute("report",reports);
+					model.addAttribute("report",memberBallotMemberWiseReportVO);
 					model.addAttribute("session",session.getId());
 					model.addAttribute("questionType",questionType.getId());
 					model.addAttribute("locale",locale.toString());
@@ -1494,6 +1743,13 @@ public class BallotController extends BaseController{
 		Boolean isError = false;
 		MessageResource errorMessage = null;
 
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		String strSession = request.getParameter("session");
 		String strQuestionType = request.getParameter("questionType");
 		String strMember = request.getParameter("member");
@@ -1519,7 +1775,7 @@ public class BallotController extends BaseController{
 						memberwiseQuestionsXmlVO.setHouseType(houseType);
 						System.out.println(memberwiseQuestionsXmlVO.getHouseType());
 						/** question submission date formatting **/
-						String startDateParameter=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
+						String startDateParameter=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME);
 						if(startDateParameter!=null){
 							Date startDate = FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
 							SimpleDateFormat dbFormat = null;
@@ -1543,17 +1799,24 @@ public class BallotController extends BaseController{
 						Integer rejectedCount = 0;
 						if(memberBallotMemberWiseReportVO!=null) {
 							for(MemberBallotMemberWiseCountVO i: memberBallotMemberWiseReportVO.getMemberBallotMemberWiseCountVOs()) {
-								if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_GOVT)
 										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
 
 									clarificationCount += Integer.parseInt(i.getCount());
-								} else if(i.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION) && i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+								} else if(i.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION) 
+										&& (i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION) || i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))) {
 									admittedCount = Integer.parseInt(i.getCount());
-								} else if(i.getCurrentDeviceType().equals(ApplicationConstants.UNSTARRED_QUESTION) && i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+										|| i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
 									convertedToUnstarredAndAdmittedCount = Integer.parseInt(i.getCount());
-								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+										|| i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 									rejectedCount = Integer.parseInt(i.getCount());
 								}
 							}
@@ -1565,6 +1828,7 @@ public class BallotController extends BaseController{
 						/**** Populating Groups, Corresponding Ministries & Answering Dates ****/
 						List<Group> groups=Group.findByHouseTypeSessionTypeYear(session.getHouse().getType(),session.getType(),session.getYear());
 						List<GroupVO> groupVOs = new ArrayList<GroupVO>();						
+						int count = 0;
 						for(Group g: groups) {
 							GroupVO groupVO = new GroupVO();
 							List<MemberBallotMemberWiseQuestionVO> starredQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
@@ -1590,16 +1854,23 @@ public class BallotController extends BaseController{
 							if(memberBallotMemberWiseReportVO!=null) {
 								for(MemberBallotMemberWiseQuestionVO i: memberBallotMemberWiseReportVO.getMemberBallotMemberWiseQuestionVOs()) {
 									if(i.getGroupFormattedNumber().equals(currentGroupNumber)) {
-										if(i.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION) && i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+										if(i.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION) 
+												&& (i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION) || i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))) {
 											starredQuestionVOs.add(i);											
-										} else if(i.getCurrentDeviceType().equals(ApplicationConstants.UNSTARRED_QUESTION) && i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+												|| i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
 											unstarredQuestionVOs.add(i);											
-										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_GOVT)
 												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
 											clarificationQuestionVOs.add(i);											
-										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+												|| i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
 											rejectedQuestionVOs.add(i);											
 										}
 									}
@@ -1607,7 +1878,28 @@ public class BallotController extends BaseController{
 								if(!starredQuestionVOs.isEmpty() || !unstarredQuestionVOs.isEmpty()
 										|| !clarificationQuestionVOs.isEmpty() || !rejectedQuestionVOs.isEmpty()) {
 									hasQuestionsForGivenMember = true;
-								}								
+								}
+								NumberFormat numberFormat = FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+								for(MemberBallotMemberWiseQuestionVO questionVO : starredQuestionVOs) {
+									String serialNo = numberFormat.format(++count);
+									questionVO.setSno(serialNo);
+								}
+								
+								for(MemberBallotMemberWiseQuestionVO questionVO : unstarredQuestionVOs) {
+									String serialNo = numberFormat.format(++count);
+									questionVO.setSno(serialNo);
+								}
+								
+								for(MemberBallotMemberWiseQuestionVO questionVO : rejectedQuestionVOs) {
+									String serialNo = numberFormat.format(++count);
+									questionVO.setSno(serialNo);
+								}
+								
+								for(MemberBallotMemberWiseQuestionVO questionVO : clarificationQuestionVOs) {
+									String serialNo = numberFormat.format(++count);
+									questionVO.setSno(serialNo);
+								}
+								
 								groupVO.setHasQuestionsForGivenMember(hasQuestionsForGivenMember);
 								groupVO.setStarredQuestionVOs(starredQuestionVOs);
 								groupVO.setUnstarredQuestionVOs(unstarredQuestionVOs);
@@ -1657,10 +1949,248 @@ public class BallotController extends BaseController{
 			}
 		}
 	}
+	/****** Member Ballot(Council) Cumulative Member Wise Question Report Page ****/
+	@RequestMapping(value="/memberballot/member/cumulative/questionsreport",method=RequestMethod.GET)
+	public @ResponseBody void generateCumulativeMemberQuestionsReportUsingFOP(final HttpServletRequest request,final HttpServletResponse response, final ModelMap model,final Locale locale){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		String strSession = request.getParameter("session");
+		String strQuestionType = request.getParameter("questionType");
+		String strMembers = request.getParameter("allMembers");
+		String outputFormat = request.getParameter("outputFormat");
+
+		if(strSession!=null&&strQuestionType!=null&&strMembers!=null&&outputFormat!=null){
+			if((!strSession.isEmpty())&&(!strQuestionType.isEmpty())
+					&&(!strMembers.isEmpty())&&(!outputFormat.isEmpty())){
+				try {
+					Session session=Session.findById(Session.class,Long.parseLong(strSession));
+					DeviceType questionType=DeviceType.findById(DeviceType.class,Long.parseLong(strQuestionType));
+					if(session==null || questionType==null) {
+						throw new ELSException("BallotController_generateCumulativeMemberQuestionsReportUsingFOP_incorrectParameters", "Please check correctness of request paramters");
+					}
+					String houseType = session.findHouseType();
+					if(houseType==null) {
+						houseType = "";
+					}
+					/** question submission date formatting **/
+					String questionSubmissionStartDate = "";
+					String startDateParameter=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME);
+					if(startDateParameter!=null){
+						Date startDate = FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
+						SimpleDateFormat dbFormat = null;
+						CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+						if(dbDateFormat!=null){
+							dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+						}
+						String[] strQuestionSubmissionDate=dbFormat.format(startDate).split(",");
+						String[] strAnsweringMonth=strQuestionSubmissionDate[1].split(" ");
+						String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+						MessageResource mrDate = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+						String genericDateLabel  = (mrDate!=null)? mrDate.getValue():"";
+						model.addAttribute("questionSubmissionDate",genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2]);
+						questionSubmissionStartDate = genericDateLabel + " " +strAnsweringMonth[0]+" "+ answeringMonth +","+strQuestionSubmissionDate[2];
+					}
+					List<Member> allMembers = Member.findAllHavingIdIn(Member.class, strMembers.split(","));
+					CumulativeMemberwiseQuestionsXmlVO cumulativeMemberwiseQuestionsXmlVO = new CumulativeMemberwiseQuestionsXmlVO();
+					List<MemberwiseQuestionsVO> memberwiseQuestionsVOs = new ArrayList<MemberwiseQuestionsVO>();
+					for(Member member: allMembers) {
+						MemberwiseQuestionsVO memberwiseQuestionsVO = new MemberwiseQuestionsVO();
+						/**** First Batch Questions Final Status Distribution member wise ****/
+						MemberBallotMemberWiseReportVO memberBallotMemberWiseReportVO=MemberBallot.findMemberWiseReportVO(session, questionType, member, locale.toString());
+						//memberwiseQuestionsXmlVO.setMemberBallotMemberWiseReportVO(memberBallotMemberWiseReportVO);
+						memberwiseQuestionsVO.setMember(memberBallotMemberWiseReportVO.getMember());
+						
+						memberwiseQuestionsVO.setHouseType(houseType);
+						memberwiseQuestionsVO.setSubmissionDate(questionSubmissionStartDate);
+																		
+						memberwiseQuestionsVO.setMemberBallotMemberWiseCountVOs(memberBallotMemberWiseReportVO.getMemberBallotMemberWiseCountVOs());
+						memberwiseQuestionsVO.setMemberBallotMemberWiseQuestionVOs(memberBallotMemberWiseReportVO.getMemberBallotMemberWiseQuestionVOs());
+						Integer clarificationCount = 0;
+						Integer admittedCount = 0;
+						Integer convertedToUnstarredAndAdmittedCount = 0;
+						Integer rejectedCount = 0;
+						if(memberBallotMemberWiseReportVO!=null) {
+							for(MemberBallotMemberWiseCountVO i: memberBallotMemberWiseReportVO.getMemberBallotMemberWiseCountVOs()) {
+								if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_GOVT)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+										||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
+
+									clarificationCount += Integer.parseInt(i.getCount());
+								} else if(i.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION) 
+										&& (i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION) || i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))) {
+									admittedCount = Integer.parseInt(i.getCount());
+								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+										|| i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+									convertedToUnstarredAndAdmittedCount = Integer.parseInt(i.getCount());
+								} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+										|| i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+									rejectedCount = Integer.parseInt(i.getCount());
+								}
+							}
+						}
+						memberwiseQuestionsVO.setAdmittedQuestionCount(FormaterUtil.formatNumberNoGrouping(admittedCount, locale.toString()));
+						memberwiseQuestionsVO.setConvertedToUnstarredAndAdmittedQuestionCount(FormaterUtil.formatNumberNoGrouping(convertedToUnstarredAndAdmittedCount, locale.toString()));
+						memberwiseQuestionsVO.setRejectedQuestionCount(FormaterUtil.formatNumberNoGrouping(rejectedCount, locale.toString()));
+						memberwiseQuestionsVO.setClarificationQuestionCount(FormaterUtil.formatNumberNoGrouping(clarificationCount, locale.toString()));
+						/**** Populating Groups, Corresponding Ministries & Answering Dates ****/
+						List<Group> groups=Group.findByHouseTypeSessionTypeYear(session.getHouse().getType(),session.getType(),session.getYear());
+						List<GroupVO> groupVOs = new ArrayList<GroupVO>();	
+						int count = 0;
+						for(Group g: groups) {
+							GroupVO groupVO = new GroupVO();
+							List<MemberBallotMemberWiseQuestionVO> starredQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+							List<MemberBallotMemberWiseQuestionVO> unstarredQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+							List<MemberBallotMemberWiseQuestionVO> clarificationQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+							List<MemberBallotMemberWiseQuestionVO> rejectedQuestionVOs = new ArrayList<MemberBallotMemberWiseQuestionVO>();
+							groupVO.setNumber(g.getNumber());
+							groupVO.setFormattedNumber(g.formatNumber());
+							List<Ministry> ministries = g.findMinistriesByPriority();	
+							List<MasterVO> ministryMasterVOs = new ArrayList<MasterVO>();
+							int ministryCount = 1;
+							for(Ministry m: ministries) {
+								MasterVO ministryMasterVO = new MasterVO();
+								ministryMasterVO.setFormattedNumber("(" + FormaterUtil.formatNumberNoGrouping(ministryCount, locale.toString())+ ")");
+								ministryMasterVO.setName(m.getName());
+								ministryMasterVOs.add(ministryMasterVO);
+								ministryCount++;
+							}
+							groupVO.setMinistries(ministryMasterVOs);							
+							groupVO.setAnsweringDates(g.findQuestionDateReferenceVOByGroup());
+							boolean hasQuestionsForGivenMember = false;
+							String currentGroupNumber = groupVO.getFormattedNumber();
+							if(memberBallotMemberWiseReportVO!=null) {
+								for(MemberBallotMemberWiseQuestionVO i: memberBallotMemberWiseReportVO.getMemberBallotMemberWiseQuestionVOs()) {
+									if(i.getGroupFormattedNumber().equals(currentGroupNumber)) {
+										if(i.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION) 
+												&& (i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION) || i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION))) {
+											starredQuestionVOs.add(i);											
+										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+												|| i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+											unstarredQuestionVOs.add(i);											
+										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_GOVT)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_GOVT)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+												||i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
+											clarificationQuestionVOs.add(i);											
+										} else if(i.getStatusTypeType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+												|| i.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+											rejectedQuestionVOs.add(i);											
+										}
+									}
+								}								
+								if(!starredQuestionVOs.isEmpty() || !unstarredQuestionVOs.isEmpty()
+										|| !clarificationQuestionVOs.isEmpty() || !rejectedQuestionVOs.isEmpty()) {
+									hasQuestionsForGivenMember = true;
+								}								
+								groupVO.setHasQuestionsForGivenMember(hasQuestionsForGivenMember);
+								
+								/*
+								 * Reset the serial number as per requested on the UI. The order
+								 * is as follows: Starred Admit, Unstarred Admit, Rejected,
+								 * Clarification.
+								 */
+								NumberFormat numberFormat = FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+								
+								for(MemberBallotMemberWiseQuestionVO questionVO : starredQuestionVOs) {
+									String serialNo = numberFormat.format(++count);
+									questionVO.setSno(serialNo);
+								}
+								
+								for(MemberBallotMemberWiseQuestionVO questionVO : unstarredQuestionVOs) {
+									String serialNo = numberFormat.format(++count);
+									questionVO.setSno(serialNo);
+								}
+								
+								for(MemberBallotMemberWiseQuestionVO questionVO : rejectedQuestionVOs) {
+									String serialNo = numberFormat.format(++count);
+									questionVO.setSno(serialNo);
+								}
+								
+								for(MemberBallotMemberWiseQuestionVO questionVO : clarificationQuestionVOs) {
+									String serialNo = numberFormat.format(++count);
+									questionVO.setSno(serialNo);
+								}
+								
+								groupVO.setStarredQuestionVOs(starredQuestionVOs);
+								groupVO.setUnstarredQuestionVOs(unstarredQuestionVOs);
+								groupVO.setRejectedQuestionVOs(rejectedQuestionVOs);
+								groupVO.setClarificationQuestionVOs(clarificationQuestionVOs);
+							}
+							groupVOs.add(groupVO);
+						}
+						memberwiseQuestionsVO.setGroupVOs(groupVOs);
+						memberwiseQuestionsVOs.add(memberwiseQuestionsVO);
+					}			
+					cumulativeMemberwiseQuestionsXmlVO.setMemberwiseQuestionDataList(memberwiseQuestionsVOs);
+					/**** generate report ****/
+					reportFile = generateReportUsingFOP(cumulativeMemberwiseQuestionsXmlVO, "memberballot_cumulative_memberwise_questions", outputFormat, "memberballot_cumulative_memberwise_questions_report", locale.toString());
+					if(reportFile!=null) {
+						System.out.println("Memberballot Memberwise Questions Report generated successfully in " + outputFormat + " format!");
+						openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
+					}					
+				} catch(Exception e) {
+					isError = true;
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "REQUEST_PARAMETER_NULL", locale.toString());
+				}
+			}else{
+				logger.error("**** Check request parameter 'session,questionType,member' for empty values ****");
+				model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
+				//return errorpage;
+			}
+		}else{
+			logger.error("**** Check request parameter 'session,questionType,member' for null values ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "REQUEST_PARAMETER_NULL", locale.toString());
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Letter Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
+	}
 	/****** Member Ballot(Council) Question Distribution Report Page ****/
 	@RequestMapping(value="/memberballot/questiondistribution",method=RequestMethod.GET)
 	public String viewQuestionDistributionReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strQuestionType=request.getParameter("questionType");
 			String strSession=request.getParameter("session");
@@ -1731,6 +2261,13 @@ public class BallotController extends BaseController{
 	public String generateQuestionDistributionReportHeader(HttpServletRequest request, ModelMap model, Locale locale) {
 		String returnPath = "ballot/templates/error";
 
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		String houseType = request.getParameter("houseType");
 		String houseTypeName = request.getParameter("houseTypeName");
 		String sessionTypeName = request.getParameter("sessionTypeName");
@@ -1795,6 +2332,13 @@ public class BallotController extends BaseController{
 		Boolean isError = false;
 		MessageResource errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.errorMessage", locale.toString());
 
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
 		String outputFormat = request.getParameter("outputFormat");
@@ -1818,7 +2362,7 @@ public class BallotController extends BaseController{
 							for(MemberBallotMemberWiseCountVO j: i.getDistributions()) {
 								if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION) && j.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION)) {
 									totalAdmittedQuestions += Integer.parseInt(j.getCount());																		
-								} else if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION) && j.getCurrentDeviceType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+								} else if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION) && j.getCurrentDeviceType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
 									totalConvertToUnstarredAndAdmitQuestions += Integer.parseInt(j.getCount());
 								} else if(j.getStatusTypeType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION) && j.getCurrentDeviceType().equals(ApplicationConstants.STARRED_QUESTION)) {
 									totalRejectedQuestions += Integer.parseInt(j.getCount());
@@ -1923,6 +2467,14 @@ public class BallotController extends BaseController{
 	@RequestMapping(value="/memberballot/choices",method=RequestMethod.GET)
 	public String viewMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strQuestionType=request.getParameter("questionType");
 			String strSession=request.getParameter("session");
@@ -1954,6 +2506,14 @@ public class BallotController extends BaseController{
 	/****** Member Ballot(Council) Member Ballot List Choices Page ****/
 	@RequestMapping(value="/memberballot/listchoices",method=RequestMethod.GET)
 	public String listMemberBallotChoice(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strQuestionType=request.getParameter("questionType");
 			String strSession=request.getParameter("session");
@@ -2043,6 +2603,14 @@ public class BallotController extends BaseController{
 			final HttpServletResponse response,
 			final ModelMap model,final Locale locale){
 		boolean fillStatus=false;
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strNoOfAdmittedQuestions=request.getParameter("noOfAdmittedQuestions");
 			String strQuestionType=request.getParameter("questionType");
@@ -2469,14 +3037,22 @@ public class BallotController extends BaseController{
 	public String updateClubbingMemberBallot(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strSession=request.getParameter("session");
 			String strDeviceType=request.getParameter("questionType");
 			if(strSession!=null&&strDeviceType!=null){
 				Session session=Session.findById(Session.class,Long.parseLong(strSession));
 				DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
-				String startTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
-				String endTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+				String startTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME);
+				String endTime=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME);
 				
 				Map<String,String[]> requestMap=new HashMap<String, String[]>();
 				requestMap.put("locale",new String[]{locale.toString()});
@@ -2512,6 +3088,14 @@ public class BallotController extends BaseController{
 			final ModelMap model,
 			final Locale locale){
 		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strSession=request.getParameter("session");
 			String strDeviceType=request.getParameter("questionType");
@@ -2522,7 +3106,7 @@ public class BallotController extends BaseController{
 			if(strSession!=null&&strDeviceType!=null&&strGroup!=null&&strAnsweringDate!=null){
 				if((!strSession.isEmpty())&&(!strDeviceType.isEmpty())&&(!strGroup.isEmpty())&&(!strAnsweringDate.isEmpty())){
 					Session session=Session.findById(Session.class, Long.parseLong(strSession));
-					String firstBatchSubmissionDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+					String firstBatchSubmissionDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME);
 					if(firstBatchSubmissionDate!=null){
 						if(!firstBatchSubmissionDate.isEmpty()){
 							QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
@@ -2536,7 +3120,7 @@ public class BallotController extends BaseController{
 							}
 							DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
 							Group group=Group.findById(Group.class,Long.parseLong(strGroup));
-							String totalRounds=session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_BALLOT_UH);
+							String totalRounds=session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_FINAL);
 							if(totalRounds==null){
 								model.addAttribute("type","TOTAL_ROUNDS_IN_BALLOT_UH_NOTSET");
 								return errorpage;	
@@ -2551,6 +3135,88 @@ public class BallotController extends BaseController{
 								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
 							}else{
 								model.addAttribute("type","FINALBALLOT_FAILED");
+								return errorpage;	
+							}
+						}else{
+							model.addAttribute("type","FIRSTBATCH_SUBMISSIONDATE_NOTSET");
+							return errorpage;
+						}
+					}else{
+						model.addAttribute("type","FIRSTBATCH_SUBMISSIONDATE_NOTSET");
+						return errorpage;
+					}				
+				}else{
+					logger.error("**** Check request parameter 'session,deviceType,group,answering date' for null values ****");
+					model.addAttribute("type", "MEMBERBALLOTFINAL_REQUEST_PARAMETER_EMPTY");
+					return errorpage;
+				}	
+			}else{
+				logger.error("**** Check request parameter 'session,deviceType,group,answering date' for null values ****");
+				model.addAttribute("type", "MEMBERBALLOTFINAL_REQUEST_PARAMETER_NULL");
+				return errorpage;
+			}
+		}catch (ELSException e) {
+			logger.error("**** Check request parameter 'session,deviceType,group,answering date' for null values ****");
+			model.addAttribute("type", "MEMBERBALLOTFINAL_REQUEST_PARAMETER_NULL");
+			return errorpage;
+		}
+		return "ballot/memberballotfinal";		
+	}
+	
+	@Transactional
+	@RequestMapping(value="/memberballot/viewfinalballot",method=RequestMethod.GET)
+	public String viewFinalMemberBallot(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		try{
+			String strSession=request.getParameter("session");
+			String strDeviceType=request.getParameter("questionType");
+			String strGroup=request.getParameter("group");
+			String strAnsweringDate=request.getParameter("answeringDate");
+			Boolean status=false;
+			List<MemberBallotFinalBallotVO> ballots=new ArrayList<MemberBallotFinalBallotVO>();
+			if(strSession!=null&&strDeviceType!=null&&strGroup!=null&&strAnsweringDate!=null){
+				if((!strSession.isEmpty())&&(!strDeviceType.isEmpty())&&(!strGroup.isEmpty())&&(!strAnsweringDate.isEmpty())){
+					Session session=Session.findById(Session.class, Long.parseLong(strSession));
+					String firstBatchSubmissionDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME);
+					if(firstBatchSubmissionDate!=null){
+						if(!firstBatchSubmissionDate.isEmpty()){
+							QuestionDates questionDates=QuestionDates.findById(QuestionDates.class,Long.parseLong(strAnsweringDate));
+							String ansDate=null;
+							CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DB_DATEFORMAT", "");
+							if(customParameter!=null){
+								ansDate=FormaterUtil.getDateFormatter(customParameter.getValue(), "en_US").format(questionDates.getAnsweringDate());;
+							}else{
+								model.addAttribute("type","DB_DATEFORMAT_NOTSET");
+								return errorpage;	
+							}
+							DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
+							Group group=Group.findById(Group.class,Long.parseLong(strGroup));
+							String totalRounds=session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_FINAL);
+							if(totalRounds==null){
+								model.addAttribute("type","TOTAL_ROUNDS_IN_BALLOT_UH_NOTSET");
+								return errorpage;	
+							}else if(totalRounds.isEmpty()){
+								model.addAttribute("type","TOTAL_ROUNDS_IN_BALLOT_UH_NOTSET");
+								return errorpage;	
+							}
+							Ballot ballot = Ballot.find(session, deviceType, questionDates.getAnsweringDate(), locale.toString());
+							//status=MemberBallot.createFinalBallotUH(session, deviceType,group,ansDate,questionDates.getAnsweringDate(), locale.toString(),firstBatchSubmissionDate,Integer.parseInt(totalRounds));
+							if(ballot!=null){
+								ballots=MemberBallot.viewFinalBallot(session, deviceType,ansDate, locale.toString());
+								model.addAttribute("ballots",ballots);
+								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
+							}else{
+								model.addAttribute("type","FINAL_BALLOT_NOT_CREATED");
 								return errorpage;	
 							}
 						}else{
@@ -2789,6 +3455,13 @@ public class BallotController extends BaseController{
 	public void createMemberBallotReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale){		
 		File reportFile = null;
 
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		String strAttendance=request.getParameter("attendance");
 		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
@@ -2933,6 +3606,13 @@ public class BallotController extends BaseController{
 	public @ResponseBody void councilStarredPreBallotReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale){
 		File reportFile = null;		
 
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		String strAttendance=request.getParameter("attendance");
 		String strQuestionType=request.getParameter("questionType");
 		String strSession=request.getParameter("session");
@@ -3065,13 +3745,21 @@ public class BallotController extends BaseController{
 			final ModelMap model,
 			final Locale locale){
 		String retVal = "ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try {
 			model.addAttribute("formater", new FormaterUtil());
 			model.addAttribute("locale", locale.toString());
 			model.addAttribute("preballot", "yes");
+			
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
-
 			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 			model.addAttribute("houseType", houseType.getType());
 			
@@ -3086,6 +3774,7 @@ public class BallotController extends BaseController{
 			/** Create Session */
 			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
 			model.addAttribute("sessionId", session.getId());
+			
 			/** Create DeviceType */
 			DeviceType deviceType = null;
 			String strDeviceType = request.getParameter("questionType");
@@ -3097,29 +3786,30 @@ public class BallotController extends BaseController{
 			model.addAttribute("deviceName", deviceType.getName());
 			model.addAttribute("deviceId", deviceType.getId());
 			
+			/** Create Group */
 			String strGroup = request.getParameter("group");
 			Group  group=null;
 			if(strGroup!=null && !strGroup.isEmpty()){
 				group = Group.findById(Group.class, new Long(strGroup));
 			}
 			
-			
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
-
-
+			CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 				QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
-			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
-				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
-			}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
-				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
 				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 			}
+			else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
+				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
+			
 			model.addAttribute("strAnsweringDate", strAnsweringDate);
 			if(answeringDate!=null) {
 				model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
@@ -3134,67 +3824,82 @@ public class BallotController extends BaseController{
 				}
 			}
 
-			/** Route PreBallot creation to appropriate handler method */
+			/** Route PreBallot creation to appropriate handler method - based on house type*/
 			if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
-
 				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
-					retVal = this.halfHourPreBallot(model, session, deviceType, group, answeringDate, locale.toString());
-
-				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
-					retVal = this.halfHourPreBallot(model, session, deviceType, group, answeringDate, locale.toString());
-
-				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {
+					retVal = this.preBallotHDQCouncil(model, session, deviceType, group, answeringDate, locale.toString());
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
+					retVal = this.preBallotHDSCouncil(model, session, deviceType, group, answeringDate, locale.toString());
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {
 					retVal = this.resolutionNonOfficialMemberPreBallot(model, session, deviceType, answeringDate, locale.toString());
-
-				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 					retVal = this.billNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
-
 				}				
-			}else if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-
+			}
+			else if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
 				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ){
-					retVal = this.hdqPreBallotAssembly(model, session, deviceType, group, answeringDate, locale.toString());
-				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
-					retVal = this.hdsPreBallotAssembly(model, session, deviceType, answeringDate, locale.toString());
-				}else if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-					/** Add number of rounds to model */
-					CustomParameter noOfRoundsParameter = CustomParameter.findByName(CustomParameter.class,"QUESTION_BALLOT_NO_OF_ROUNDS", "");
-					if(noOfRoundsParameter!=null && noOfRoundsParameter.getValue()!=null && !noOfRoundsParameter.getValue().isEmpty()) {
-						model.addAttribute("noOfRounds", noOfRoundsParameter.getValue());
-					} else {
-						model.addAttribute("noOfRounds", ApplicationConstants.OUESTION_BALLOT_NO_OF_ROUNDS);
-					}					
-					/** Add localized answeringDate to model */
-					String localizedAnsweringDate = null;
-					CustomParameter answeringDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
-					if(answeringDateFormatParameter!=null && answeringDateFormatParameter.getValue()!=null && !answeringDateFormatParameter.getValue().isEmpty()) {
-						localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, answeringDateFormatParameter.getValue(), locale.toString());
-					} else {
-						localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", locale.toString());
-					}					
-					model.addAttribute("answeringDate", localizedAnsweringDate);
-					CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
-					if(serverDateTimeFormat != null){
-						model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), serverDateTimeFormat.getValue(), locale.toString()));
-					} else {
-						model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), "dd/MM/yyyy HH:mm:ss", locale.toString()));
-					}
-//					if(ballotVOs != null && !ballotVOs.isEmpty()){
-//						model.addAttribute("totalMembers", FormaterUtil.formatNumberNoGrouping(Integer.valueOf((((Object[])ballotVOs.get(0))[3]).toString()), locale.toString()));
-//					}
-					retVal = this.starredPreBallot(model, session, deviceType, answeringDate, locale.toString());
-				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {
-					CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+					retVal = this.preBallotHDQAssembly(model, session, deviceType, group, answeringDate, locale.toString());
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
+					retVal = this.preBallotHDSAssembly(model, session, deviceType, answeringDate, locale.toString());	
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {
 					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 					retVal = this.resolutionNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
-				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
-					CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 					retVal = this.billNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
 				}
 			}
-
-		}catch(Exception e) {
+			
+			/** Route PreBallot creation to appropriate handler method - based on processing mode*/
+			PROCESSING_MODE processingMode = Question.getProcessingMode(session);
+			// If retVal is not already set in the above conditional execution, only then use the following logic.
+			if(retVal.equals("ballot/error") && processingMode == PROCESSING_MODE.LOWERHOUSE) {
+				String houseTypeType = houseType.getType();
+				String upperCaseHouseTypeType = houseTypeType.toUpperCase();
+				
+				StringBuffer sb = new StringBuffer();
+				sb.append("QUESTION_STARRED_BALLOT_NO_OF_ROUNDS_");
+				sb.append(upperCaseHouseTypeType);
+				
+				String parameterName = sb.toString();
+				
+				/** Add number of rounds to model */
+				CustomParameter noOfRoundsParameter = CustomParameter.findByName(CustomParameter.class, parameterName, "");
+				if(noOfRoundsParameter!=null && noOfRoundsParameter.getValue()!=null && !noOfRoundsParameter.getValue().isEmpty()) {
+					model.addAttribute("noOfRounds", noOfRoundsParameter.getValue());
+				}
+				else {
+					model.addAttribute("noOfRounds", ApplicationConstants.OUESTION_BALLOT_NO_OF_ROUNDS);
+				}
+				
+				/** Add localized answeringDate to model */
+				String localizedAnsweringDate = null;
+				CustomParameter answeringDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
+				if(answeringDateFormatParameter!=null && answeringDateFormatParameter.getValue()!=null && !answeringDateFormatParameter.getValue().isEmpty()) {
+					localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, answeringDateFormatParameter.getValue(), locale.toString());
+				}
+				else {
+					localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", locale.toString());
+				}
+				model.addAttribute("answeringDate", localizedAnsweringDate);
+				
+				CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+				if(serverDateTimeFormat != null){
+					model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), serverDateTimeFormat.getValue(), locale.toString()));
+				}
+				else {
+					model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), "dd/MM/yyyy HH:mm:ss", locale.toString()));
+				}
+				retVal = this.starredPreBallot(model, session, deviceType, answeringDate, locale.toString());
+			}
+		}
+		catch(Exception e) {
 			logger.error("error", e);
 			model.addAttribute("type", "INSUFFICIENT_PARAMETERS_FOR_PRE_BALLOT_CREATION");
 			retVal = "ballot/error";
@@ -3248,7 +3953,7 @@ public class BallotController extends BaseController{
 		return isAllowedToCreateBallot;
 	}
 
-	private String halfHourPreBallot(final ModelMap model,
+	private String preBallotHDQCouncil(final ModelMap model,
 			final Session session,
 			final DeviceType deviceType,
 			final Group group,
@@ -3265,17 +3970,147 @@ public class BallotController extends BaseController{
 						preBallot.remove();
 						ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
 					}else{
-						ballotVOs = PreBallot.getBallotVOFromBallotEntries(preBallot.getBallotEntries(), locale);
+						if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+							
+							Map<String, String[]> parameters = new HashMap<String, String[]>();
+							parameters.put("preBallotId", new String[]{preBallot.getId().toString()});
+							parameters.put("locale", new String[]{locale.toString()});
+							
+							List data = Query.findReport("HDQ_COUNCIL_PREBALLOT_VIEW", parameters);
+							
+							if(data != null && !data.isEmpty()){
+								for(Object o : data){
+									Object[] objArr = (Object[]) o;
+									BallotVO vo = new BallotVO();
+									if(objArr[0] != null){
+										vo.setQuestionNumber(new Integer(objArr[0].toString()));
+									}
+									if(objArr[1] != null){
+										vo.setMemberName(objArr[1].toString());
+									}
+									if(objArr[2] != null){
+										vo.setQuestionSubject(objArr[2].toString());
+									}
+									ballotVOs.add(vo);
+								}
+							}
+						}
 					}
 				}else{
-					ballotVOs = PreBallot.getBallotVOFromBallotEntries(preBallot.getBallotEntries(), locale);
+					if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+						
+						Map<String, String[]> parameters = new HashMap<String, String[]>();
+						parameters.put("preBallotId", new String[]{session.getId().toString()});
+						parameters.put("locale", new String[]{locale.toString()});
+						
+						List data = Query.findReport("HDQ_COUNCIL_PREBALLOT_VIEW", parameters);
+						
+						if(data != null && !data.isEmpty()){
+							for(Object o : data){
+								Object[] objArr = (Object[]) o;
+								BallotVO vo = new BallotVO();
+								if(objArr[0] != null){
+									vo.setQuestionNumber(new Integer(objArr[0].toString()));
+								}
+								if(objArr[1] != null){
+									vo.setMemberName(objArr[1].toString());
+								}
+								if(objArr[2] != null){
+									vo.setQuestionSubject(objArr[2].toString());
+								}
+								ballotVOs.add(vo);
+							}
+						}
+					}
 				}
 			}else{
 				ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
 			}
 			
 			model.addAttribute("ballotVOs", ballotVOs);
-			return "ballot/halfhourq_preballot";
+			return "ballot/hdqPreBallotCouncil";//"ballot/halfhourq_preballot";
+
+		} catch (ELSException e) {			
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error"; 
+		}
+	}
+	
+	private String preBallotHDSCouncil(final ModelMap model,
+			final Session session,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotVO> ballotVOs = new ArrayList<BallotVO>();
+		try {
+			PreBallot preBallot = PreBallot.find(session, deviceType, answeringDate, locale);
+			if(preBallot != null){
+				CustomParameter csptPreBallotRecreate = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase() + "_" + session.getHouse().getType().getType().toUpperCase() +"_PREBALLOT_RECREATE_IF_EXISTS", "");
+				if(csptPreBallotRecreate == null || csptPreBallotRecreate.getValue().equals("YES")){
+					Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
+					if(ballot == null){
+						preBallot.remove();
+						ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
+					}else{
+						if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
+							Map<String, String[]> parameters = new HashMap<String, String[]>();
+							parameters.put("preBallotId", new String[]{preBallot.getId().toString()});
+							parameters.put("locale", new String[]{locale.toString()});
+							
+							List data = Query.findReport("HDS_COUNCIL_PREBALLOT_VIEW", parameters);
+							
+							if(data != null && !data.isEmpty()){
+								for(Object o : data){
+									Object[] objArr = (Object[]) o;
+									BallotVO vo = new BallotVO();
+									if(objArr[0] != null){
+										vo.setQuestionNumber(new Integer(objArr[0].toString()));
+									}
+									if(objArr[1] != null){
+										vo.setMemberName(objArr[1].toString());
+									}
+									if(objArr[2] != null){
+										vo.setQuestionSubject(objArr[2].toString());
+									}
+									ballotVOs.add(vo);
+								}
+							}
+						}
+					}
+				}else{
+					if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
+						Map<String, String[]> parameters = new HashMap<String, String[]>();
+						parameters.put("preBallotId", new String[]{session.getId().toString()});
+						parameters.put("locale", new String[]{locale.toString()});
+						
+						List data = Query.findReport("HDS_COUNCIL_PREBALLOT_VIEW", parameters);
+						
+						if(data != null && !data.isEmpty()){
+							for(Object o : data){
+								Object[] objArr = (Object[]) o;
+								BallotVO vo = new BallotVO();
+								if(objArr[0] != null){
+									vo.setQuestionNumber(new Integer(objArr[0].toString()));
+								}
+								if(objArr[1] != null){
+									vo.setMemberName(objArr[1].toString());
+								}
+								if(objArr[2] != null){
+									vo.setQuestionSubject(objArr[2].toString());
+								}
+								ballotVOs.add(vo);
+							}
+						}
+					}
+				}
+			}else{
+				ballotVOs = Ballot.findPreBallotVO(session, deviceType, answeringDate, locale);
+			}
+			
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/hdsPreBallotCouncil";//"ballot/halfhourq_preballot";
 
 		} catch (ELSException e) {			
 			e.printStackTrace();
@@ -3284,7 +4119,7 @@ public class BallotController extends BaseController{
 		}
 	}
 
-	private String hdsPreBallotAssembly(final ModelMap model,
+	private String preBallotHDSAssembly(final ModelMap model,
 			final Session session,
 			final DeviceType deviceType,
 			final Date answeringDate,
@@ -3301,7 +4136,7 @@ public class BallotController extends BaseController{
 		}
 	}
 	
-	private String hdqPreBallotAssembly(final ModelMap model,
+	private String preBallotHDQAssembly(final ModelMap model,
 			final Session session,
 			final DeviceType deviceType,
 			final Group group,
@@ -3309,7 +4144,7 @@ public class BallotController extends BaseController{
 			final String locale) {
 		List<BallotMemberVO> ballotVOs;
 		try {
-			ballotVOs = Ballot.findPreBallotMemberVO(session, deviceType, group, answeringDate, locale);
+			ballotVOs = Ballot.findPreBallotHDQAssembly(session, deviceType, group, answeringDate, locale);
 			model.addAttribute("ballotVOs", ballotVOs);
 			return "ballot/hdq_preballot_assembly";
 		} catch (ELSException e) {
@@ -3319,17 +4154,6 @@ public class BallotController extends BaseController{
 		}
 	}
 	
-
-	private String hdsPreBallotCouncil(final ModelMap model,
-			final Session session,
-			final DeviceType deviceType,
-			final Date answeringDate,
-			final String locale) {
-
-		List<BallotVO> ballotVOs = Ballot.findHDSCouncilPreBallotVO(session, deviceType, answeringDate, locale);
-		model.addAttribute("ballotVOs", ballotVOs);
-		return "ballot/nonofficial_member_preballot";
-	}
 
 	private String resolutionNonOfficialMemberPreBallot(final ModelMap model,
 			final Session session,
@@ -3355,7 +4179,10 @@ public class BallotController extends BaseController{
 			final DeviceType deviceType,
 			final Date answeringDate,
 			final String locale) throws ELSException {
-		List<StarredBallotVO> ballotVOs = Ballot.findStarredPreBallotVOs(session, deviceType, answeringDate, locale);		
+			
+		
+		List<StarredBallotVO> ballotVOs = Ballot.findStarredPreBallotVOs(session, deviceType, answeringDate, locale);
+		ballotVOs = sortStarredPreBallotVOs(ballotVOs);
 		Group group = Group.find(session, answeringDate, locale);
 		model.addAttribute("groupNo", 
 				FormaterUtil.formatNumberNoGrouping(group.getNumber(), locale));
@@ -3380,6 +4207,32 @@ public class BallotController extends BaseController{
 		
 		model.addAttribute("ballotVOs", ballotVOs);
 		return "ballot/starred_preballot";
+	}
+	
+	private static List<StarredBallotVO> sortStarredPreBallotVOs(final List<StarredBallotVO> ballotVOs) {
+		List<StarredBallotVO> newBallotVOs = new ArrayList<StarredBallotVO>();
+		newBallotVOs.addAll(ballotVOs);
+		
+		Comparator<StarredBallotVO> c = new Comparator<StarredBallotVO>() {
+
+			@Override
+			public int compare(StarredBallotVO vo1, StarredBallotVO vo2) {
+				List<QuestionSequenceVO> qsVOs1 = vo1.getQuestionSequenceVOs();
+				List<QuestionSequenceVO> qsVOs2 = vo2.getQuestionSequenceVOs();
+				
+				QuestionSequenceVO qsVO1 = qsVOs1.get(0);
+				QuestionSequenceVO qsVO2 = qsVOs2.get(0);
+				
+				Integer number1 = qsVO1.getNumber();
+				Integer number2 = qsVO2.getNumber();
+				
+				return number1.compareTo(number2);
+			}
+			
+		};
+		
+		Collections.sort(newBallotVOs, c);
+		return newBallotVOs;
 	}
 
 	private String resolutionNonOfficialPreBallot(final ModelMap model,
@@ -3475,7 +4328,9 @@ public class BallotController extends BaseController{
 
 				Status ADMITTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_FINAL_ADMISSION, locale.toString());
 				Status REJECTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_FINAL_REJECTION, locale.toString());
-				Status[] internalStatuses = {ADMITTED, REJECTED};
+				Status REPEATADMITTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_FINAL_REPEATADMISSION, locale.toString());
+				Status REPEATREJECTED = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_FINAL_REPEATREJECTION, locale.toString());
+				Status[] internalStatuses = {ADMITTED,REPEATADMITTED, REJECTED, REPEATREJECTED};
 
 				List<MasterVO> members = new ArrayList<MasterVO>();
 				if(ballot != null){
@@ -3506,7 +4361,7 @@ public class BallotController extends BaseController{
 
 						if(members != null && !members.isEmpty()){
 							internalStatuses = null;
-							Status[] tempInternalStatuses = {ADMITTED};
+							Status[] tempInternalStatuses = {ADMITTED,REPEATADMITTED};
 							for(MasterVO mv : members){
 								List<MasterVO> resos = new ArrayList<MasterVO>();
 								List<Resolution> resosList = Resolution.find(session, deviceType, mv.getId(), answeringDate, tempInternalStatuses, startTime, endTime,ApplicationConstants.ASC, locale.toString());
@@ -3556,6 +4411,14 @@ public class BallotController extends BaseController{
 			final ModelMap model,
 			final Locale locale){
 		String retVal = "ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try {			
 			fillResolutionChoices(model, request, locale);
 			retVal = "ballot/nonofficial_memberballot_choice";
@@ -3575,6 +4438,14 @@ public class BallotController extends BaseController{
 			final HttpServletResponse response, 
 			final Locale locale){
 		String retVal = "ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try {
 
 			String[] strResIds = request.getParameterValues("choice");
@@ -3590,14 +4461,12 @@ public class BallotController extends BaseController{
 						Resolution resolution = Resolution.findById(Resolution.class, new Long(resId));
 						Status statusBalloted = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_BALLOTED, locale.toString());
 						Status statusToBeDiscussed = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_TOBEDISCUSSED, locale.toString());
-						Status internalStatus=Status.findByType(ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION, locale.toString());
+						Status recommendationStatus=Status.findByType(ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION, locale.toString());
 						resolution.setBallotStatus(statusBalloted);
 						if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-							resolution.setRecommendationStatusLowerHouse(statusToBeDiscussed);
-							resolution.setInternalStatusLowerHouse(internalStatus);
+							resolution.setRecommendationStatusLowerHouse(recommendationStatus);
 						}else if(resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-							resolution.setRecommendationStatusUpperHouse(statusToBeDiscussed);
-							resolution.setInternalStatusUpperHouse(internalStatus);
+							resolution.setRecommendationStatusUpperHouse(recommendationStatus);
 						}
 						resolution.setDiscussionStatus(statusToBeDiscussed);
 						resolution.setDiscussionDate(answeringDate);
@@ -3625,6 +4494,14 @@ public class BallotController extends BaseController{
 		CustomParameter dayFormat;
 
 		String retVal = "ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try {
 
 			patrakBhagTwoDateFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "PATRAK_BHAG_TWO_DATE_FORMAT", "");
@@ -3762,6 +4639,14 @@ public class BallotController extends BaseController{
 			final ModelMap model,
 			final Locale locale){		
 		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}		
+		
 		try{
 			/**** Session paramters ****/
 			String strHouseType=request.getParameter("houseType");
@@ -3811,6 +4696,14 @@ public class BallotController extends BaseController{
 			final ModelMap model,
 			final Locale locale){
 		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try {
 			/**** Request parameters ****/
 			String strSession=request.getParameter("session");
@@ -3835,13 +4728,13 @@ public class BallotController extends BaseController{
 					List<MemberBallotAttendance> allItems=null;
 					List<MemberBallotAttendance> selectedItems=null;
 					if(attendance){
-						allItems=MemberBallotAttendance.findAll(session,deviceType,"false","member",locale.toString());
+						allItems=MemberBallotAttendance.findAll(session,deviceType,"false","id",locale.toString());
 						selectedItems=MemberBallotAttendance.findAll(session,deviceType,"true","position",locale.toString());
 					}else{
-						allItems=MemberBallotAttendance.findAll(session,deviceType,"true","member",locale.toString());
+						allItems=MemberBallotAttendance.findAll(session,deviceType,"true","id",locale.toString());
 						selectedItems=MemberBallotAttendance.findAll(session,deviceType,"false","position",locale.toString());
 					}
-					List<MemberBallotAttendance> eligibles=MemberBallotAttendance.findAll(session,deviceType,"","member",locale.toString());
+					List<MemberBallotAttendance> eligibles=MemberBallotAttendance.findAll(session,deviceType,"","id",locale.toString());
 					model.addAttribute("allItems",allItems);
 					model.addAttribute("allItemsCount",allItems.size());
 					model.addAttribute("selectedItems",selectedItems);
@@ -3875,6 +4768,14 @@ public class BallotController extends BaseController{
 	public @ResponseBody String updateAttendanceMotion(final HttpServletRequest request,
 			final ModelMap model,
 			final Locale locale){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try {			
 			String selectedItems=request.getParameter("items");
 			String[] items=selectedItems.split(",");
@@ -3930,6 +4831,14 @@ public class BallotController extends BaseController{
 			final ModelMap model,
 			final Locale locale){
 		String errorpage="ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			String strAttendance=request.getParameter("attendance");
 			String strDeviceType=request.getParameter("deviceType");
@@ -3972,6 +4881,14 @@ public class BallotController extends BaseController{
 	@RequestMapping(value="/yaadi/updatebyyaadi", method=RequestMethod.GET)
 	public @ResponseBody String updateByYaadi(HttpServletRequest request, ModelMap model, Locale locale){
 		String retVal = "FAILURE";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			/**** Session paramters ****/
 			String strHouseType = request.getParameter("houseType");
@@ -4006,7 +4923,7 @@ public class BallotController extends BaseController{
 						Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale.toString());
 						
 						if(ballot != null){
-							Status yaadiLaid = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_YAADILAID, locale.toString());
+							Status yaadiLaid = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_YAADILAID, locale.toString());
 							String editedBy = this.getCurrentUser().getActualUsername();
 							Date editedOn = new Date();
 							List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
@@ -4061,7 +4978,7 @@ public class BallotController extends BaseController{
 	
 	/**** Log the details of the viewer ****/
 	@Transactional
-	private void locActivity(final String id, final HttpServletRequest request, final String locale){
+	private void logActivity(final String id, final HttpServletRequest request, final String locale){
 		/**** Log the details of the viewer ****/
 		ActivityLog activityLogger = new ActivityLog();
 		activityLogger.setLocale(locale);
@@ -4073,5 +4990,819 @@ public class BallotController extends BaseController{
 		activityLogger.setLinkClicked(request.getServletPath());
 		activityLogger.persist();
 		/**** Log the details of the viewer ****/			
+	}
+	/***For Viewing of Preballot without recreating it**/
+	
+	@RequestMapping(value="/viewpreballot",method=RequestMethod.GET)
+	public String viewPreBallot(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		String retVal = "ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		try {
+			model.addAttribute("formater", new FormaterUtil());
+			model.addAttribute("locale", locale.toString());
+			model.addAttribute("preballot", "yes");
+			
+			/** Create HouseType */
+			String strHouseType = request.getParameter("houseType");
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+			model.addAttribute("houseType", houseType.getType());
+			
+			/** Create SessionType */
+			String strSessionTypeId = request.getParameter("sessionType");
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+
+			/** Create year */
+			String strYear = request.getParameter("sessionYear");
+			Integer year = Integer.valueOf(strYear);
+
+			/** Create Session */
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+			model.addAttribute("sessionId", session.getId());
+			
+			/** Create DeviceType */
+			DeviceType deviceType = null;
+			String strDeviceType = request.getParameter("questionType");
+			if(strDeviceType == null){
+				strDeviceType = request.getParameter("deviceType");				
+			}	
+			deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			model.addAttribute("deviceType", deviceType.getType());
+			model.addAttribute("deviceName", deviceType.getName());
+			model.addAttribute("deviceId", deviceType.getId());
+			
+			/** Create Group */
+			String strGroup = request.getParameter("group");
+			Group  group=null;
+			if(strGroup!=null && !strGroup.isEmpty()){
+				group = Group.findById(Group.class, new Long(strGroup));
+			}
+			
+			/** Create answeringDate */
+			String strAnsweringDate = request.getParameter("answeringDate");
+			Date answeringDate = null;
+			CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			
+			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+				QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				answeringDate = questionDates.getAnsweringDate();
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
+				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
+				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
+			
+			model.addAttribute("strAnsweringDate", strAnsweringDate);
+			if(answeringDate!=null) {
+				model.addAttribute("answeringDate", FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
+			}
+
+			/**** Validate whether pre-ballot can be created for bill ****/
+			if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+				boolean isBallotAllowedToCreate = validateBallotCreationForBill(session, deviceType, answeringDate, locale.toString());
+				if(isBallotAllowedToCreate==false) {
+					model.addAttribute("isBallotAllowedToCreate", isBallotAllowedToCreate);
+					return "ballot/nonofficial_bill_preballot";
+				}
+			}
+
+			/** Route PreBallot creation to appropriate handler method - based on house type*/
+			if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+					retVal = this.viewPreBallotHDQCouncil(model, session, deviceType, group, answeringDate, locale.toString());
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
+					retVal = this.viewPreBallotHDSCouncil(model, session, deviceType, group, answeringDate, locale.toString());
+				}
+				// TODO
+				else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {
+					retVal = this.resolutionNonOfficialMemberPreBallot(model, session, deviceType, answeringDate, locale.toString());
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+					retVal = this.billNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
+				}				
+			}
+			else if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ){
+					retVal = this.viewPreBallotHDQAssembly(model, session, deviceType, group, answeringDate, locale.toString());
+				}
+				
+				//TODO
+				else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
+					retVal = this.preBallotHDSAssembly(model, session, deviceType, answeringDate, locale.toString());	
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {
+					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+					retVal = this.resolutionNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
+				}
+				else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
+					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+					retVal = this.billNonOfficialPreBallot(model, session, deviceType, answeringDate, locale.toString());
+				}
+			}
+			
+			/** Route PreBallot creation to appropriate handler method - based on processing mode*/
+			PROCESSING_MODE processingMode = Question.getProcessingMode(session);
+			// If retVal is not already set in the above conditional execution, only then use the following logic.
+			if(retVal.equals("ballot/error") && processingMode == PROCESSING_MODE.LOWERHOUSE) {
+				String houseTypeType = houseType.getType();
+				String upperCaseHouseTypeType = houseTypeType.toUpperCase();
+				
+				StringBuffer sb = new StringBuffer();
+				sb.append("QUESTION_STARRED_BALLOT_NO_OF_ROUNDS_");
+				sb.append(upperCaseHouseTypeType);
+				
+				String parameterName = sb.toString();
+				
+				/** Add number of rounds to model */
+				CustomParameter noOfRoundsParameter = CustomParameter.findByName(CustomParameter.class, parameterName, "");
+				if(noOfRoundsParameter!=null && noOfRoundsParameter.getValue()!=null && !noOfRoundsParameter.getValue().isEmpty()) {
+					model.addAttribute("noOfRounds", noOfRoundsParameter.getValue());
+				}
+				else {
+					model.addAttribute("noOfRounds", ApplicationConstants.OUESTION_BALLOT_NO_OF_ROUNDS);
+				}
+				
+				/** Add localized answeringDate to model */
+				String localizedAnsweringDate = null;
+				CustomParameter answeringDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
+				if(answeringDateFormatParameter!=null && answeringDateFormatParameter.getValue()!=null && !answeringDateFormatParameter.getValue().isEmpty()) {
+					localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, answeringDateFormatParameter.getValue(), locale.toString());
+				}
+				else {
+					localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", locale.toString());
+				}
+				model.addAttribute("answeringDate", localizedAnsweringDate);
+				
+				CustomParameter serverDateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+				if(serverDateTimeFormat != null){
+					model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), serverDateTimeFormat.getValue(), locale.toString()));
+				}
+				else {
+					model.addAttribute("formattedCurrentDate", FormaterUtil.formatDateToString((new Date()), "dd/MM/yyyy HH:mm:ss", locale.toString()));
+				}
+				retVal = this.viewStarredPreBallot(model, session, deviceType, answeringDate, locale.toString());
+			}
+		}
+		catch(Exception e) {
+			logger.error("error", e);
+			model.addAttribute("type", "INSUFFICIENT_PARAMETERS_FOR_PRE_BALLOT_CREATION");
+			retVal = "ballot/error";
+		}
+		return retVal;
+	}
+
+	private String viewPreBallotHDQAssembly(final ModelMap model,
+			final Session session,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotMemberVO> ballotVOs;
+		try {
+			ballotVOs = Ballot.getPreBallotHDQAssembly(session, deviceType, group, answeringDate, locale);
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/hdq_preballot_assembly";
+		} catch (ELSException e) {
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error";
+		}
+	}
+
+	private String viewPreBallotHDSCouncil(final ModelMap model,
+			final Session session,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotVO> ballotVOs = new ArrayList<BallotVO>();
+		try {
+			PreBallot preBallot = PreBallot.find(session, deviceType, answeringDate, locale);
+			if(preBallot != null){
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("preBallotId", new String[]{preBallot.getId().toString()});
+				parameters.put("locale", new String[]{locale.toString()});
+				List data = Query.findReport("HDS_COUNCIL_PREBALLOT_VIEW", parameters);
+				if(data != null && !data.isEmpty()){
+					for(Object o : data){
+						Object[] objArr = (Object[]) o;
+						BallotVO vo = new BallotVO();
+						if(objArr[0] != null){
+							vo.setQuestionNumber(new Integer(objArr[0].toString()));
+						}
+						if(objArr[1] != null){
+							vo.setMemberName(objArr[1].toString());
+						}
+						if(objArr[2] != null){
+							vo.setQuestionSubject(objArr[2].toString());
+						}
+						ballotVOs.add(vo);
+					}
+				}
+			}
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/hdsPreBallotCouncil";//"ballot/halfhourq_preballot";
+		} catch (ELSException e) {			
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error"; 
+		}
+
+	}
+
+	private String viewPreBallotHDQCouncil(final ModelMap model,final Session session,
+			final DeviceType deviceType,
+			final Group group,
+			final Date answeringDate,
+			final String locale) {
+		List<BallotVO> ballotVOs = new ArrayList<BallotVO>();
+		try {
+			PreBallot preBallot = PreBallot.find(session, deviceType, answeringDate, locale);
+			if(preBallot != null){
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("preBallotId", new String[]{preBallot.getId().toString()});
+				parameters.put("locale", new String[]{locale.toString()});
+				List data = Query.findReport("HDQ_COUNCIL_PREBALLOT_VIEW", parameters);
+				if(data != null && !data.isEmpty()){
+					for(Object o : data){
+						Object[] objArr = (Object[]) o;
+						BallotVO vo = new BallotVO();
+						if(objArr[0] != null){
+							vo.setQuestionNumber(new Integer(objArr[0].toString()));
+						}
+						if(objArr[1] != null){
+							vo.setMemberName(objArr[1].toString());
+						}
+						if(objArr[2] != null){
+							vo.setQuestionSubject(objArr[2].toString());
+						}
+						ballotVOs.add(vo);
+					}
+				}
+			}
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/hdqPreBallotCouncil";//"ballot/halfhourq_preballot";
+		} catch (ELSException e) {			
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error"; 
+		}
+	}
+
+	private String viewStarredPreBallot(final ModelMap model, 
+			final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) throws ELSException {
+		List<StarredBallotVO> ballotVOs = Ballot.getPreBallotVOs(session, deviceType, answeringDate, locale);
+		ballotVOs = sortStarredPreBallotVOs(ballotVOs);
+		
+		Group group = Group.find(session, answeringDate, locale);
+		model.addAttribute("groupNo", 
+				FormaterUtil.formatNumberNoGrouping(group.getNumber(), locale));
+		PreBallot preBallot = PreBallot.find(session, deviceType, answeringDate, locale);
+		if(preBallot != null){
+			model.addAttribute("formattedCurrentDate", 
+					FormaterUtil.formatDateToString((preBallot.getPreBallotDate()), "dd/MM/yyyy HH:mm:ss", locale.toString()));
+		}
+		/**** total number of members ****/
+		if(ballotVOs!=null) {
+			model.addAttribute("totalMembers", FormaterUtil.formatNumberNoGrouping(ballotVOs.size(), locale));
+			
+			Integer serialNo = 0;
+			Integer noOfQuestions = 0;
+			for(StarredBallotVO ballotVO : ballotVOs) {
+				++serialNo;
+				ballotVO.setSerialNo(FormaterUtil.formatNumberNoGrouping(serialNo, locale));
+				
+				List<QuestionSequenceVO> sequenceVOs = ballotVO.getQuestionSequenceVOs();
+				int size = sequenceVOs.size();
+				noOfQuestions = noOfQuestions + size;
+			}			
+			model.addAttribute("totalNoOfQuestions", 
+					FormaterUtil.formatNumberNoGrouping(noOfQuestions, locale));
+		}
+		
+		model.addAttribute("ballotVOs", ballotVOs);
+		return "ballot/starred_preballot";
+
+	}
+	
+	@RequestMapping(value="/previewpreballot", method=RequestMethod.GET)
+	public String previewPreBallot(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		String retVal = "ballot/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		try {
+			model.addAttribute("formater", new FormaterUtil());
+			model.addAttribute("locale", locale.toString());
+				
+			/** Create HouseType */
+			String strHouseType = request.getParameter("houseType");
+			HouseType houseType = HouseType.
+					findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+			model.addAttribute("houseType", houseType.getType());
+			
+			/** Create SessionType */
+			String strSessionTypeId = request.getParameter("sessionType");
+			SessionType sessionType = SessionType.
+					findById(SessionType.class, Long.valueOf(strSessionTypeId));
+
+			/** Create year */
+			String strYear = request.getParameter("sessionYear");
+			Integer year = Integer.valueOf(strYear);
+
+			/** Create Session */
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+			model.addAttribute("sessionId", session.getId());
+			
+			/** Create DeviceType */
+			DeviceType deviceType = null;
+			String strDeviceType = request.getParameter("questionType");
+			if(strDeviceType == null){
+				strDeviceType = request.getParameter("deviceType");				
+			}	
+			deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			model.addAttribute("deviceType", deviceType.getType());
+			model.addAttribute("deviceName", deviceType.getName());
+			model.addAttribute("deviceId", deviceType.getId());
+			
+			/** Create Group */
+			String strGroup = request.getParameter("group");
+			Group  group=null;
+			if(strGroup!=null && !strGroup.isEmpty()){
+				group = Group.findById(Group.class, new Long(strGroup));
+			}
+			
+			/** Create answeringDate */
+			String strAnsweringDate = request.getParameter("answeringDate");
+			Date answeringDate = null;
+			CustomParameter dbDateFormat = CustomParameter.
+					findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			
+			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+				QuestionDates questionDates = QuestionDates.
+						findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				answeringDate = questionDates.getAnsweringDate();
+			}
+						
+			model.addAttribute("strAnsweringDate", strAnsweringDate);
+			if(answeringDate!=null) {
+				model.addAttribute("answeringDate", FormaterUtil.
+						formatDateToString(answeringDate, ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
+			}
+		
+			
+			/** Route PreBallot creation to appropriate handler method - based on processing mode*/
+			PROCESSING_MODE processingMode = Question.getProcessingMode(session);
+			// If retVal is not already set in the above conditional execution, only then use the following logic.
+			if(retVal.equals("ballot/error") && processingMode == PROCESSING_MODE.LOWERHOUSE && deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+				String houseTypeType = houseType.getType();
+				String upperCaseHouseTypeType = houseTypeType.toUpperCase();
+				StringBuffer sb = new StringBuffer();
+				sb.append("QUESTION_STARRED_BALLOT_NO_OF_ROUNDS_");
+				sb.append(upperCaseHouseTypeType);
+				
+				String parameterName = sb.toString();
+				
+				/** Add number of rounds to model */
+				CustomParameter noOfRoundsParameter = CustomParameter.
+						findByName(CustomParameter.class, parameterName, "");
+				if(noOfRoundsParameter!=null && noOfRoundsParameter.getValue()!=null 
+						&& !noOfRoundsParameter.getValue().isEmpty()) {
+					model.addAttribute("noOfRounds", noOfRoundsParameter.getValue());
+				}
+				else {
+					model.addAttribute("noOfRounds", ApplicationConstants.OUESTION_BALLOT_NO_OF_ROUNDS);
+				}
+				
+				/** Add localized answeringDate to model */
+				String localizedAnsweringDate = null;
+				CustomParameter answeringDateFormatParameter = CustomParameter.
+						findByName(CustomParameter.class, "SERVER_DATEFORMAT_HYPHEN", "");
+				if(answeringDateFormatParameter!=null && answeringDateFormatParameter.getValue()!=null 
+						&& !answeringDateFormatParameter.getValue().isEmpty()) {
+					localizedAnsweringDate = FormaterUtil.
+							formatDateToString(answeringDate, answeringDateFormatParameter.getValue(), locale.toString());
+				}
+				else {
+					localizedAnsweringDate = FormaterUtil.
+							formatDateToString(answeringDate, "dd-MM-yyyy", locale.toString());
+				}
+				model.addAttribute("answeringDate", localizedAnsweringDate);
+				
+				CustomParameter serverDateTimeFormat = CustomParameter.
+						findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+				if(serverDateTimeFormat != null){
+					model.addAttribute("formattedCurrentDate", FormaterUtil.
+							formatDateToString((new Date()), serverDateTimeFormat.getValue(), locale.toString()));
+				}
+				else {
+					model.addAttribute("formattedCurrentDate", FormaterUtil.
+							formatDateToString((new Date()), "dd/MM/yyyy HH:mm:ss", locale.toString()));
+				}
+				retVal = this.previewStarredPreBallot(model, session, deviceType, answeringDate, locale.toString());
+			}else{
+				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+					if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+						retVal = this.previewHDQPreBallotAssembly(model, session, deviceType, group, answeringDate, locale.toString());
+					}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+						retVal = this.previewHDQPreBallotCouncil(model, session, deviceType, answeringDate, locale.toString());
+					}
+				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
+					if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+						retVal = this.previewHDSPreBallotCouncil(model, session, deviceType, answeringDate, locale.toString());
+					}
+				}
+			}
+		}
+		catch(Exception e) {
+			logger.error("error", e);
+			model.addAttribute("type", "INSUFFICIENT_PARAMETERS_FOR_PRE_BALLOT_CREATION");
+			retVal = "ballot/error";
+		}
+		return retVal;
+		
+	}
+	
+	private String previewHDSPreBallotCouncil(ModelMap model, Session session,
+			DeviceType deviceType, Date answeringDate, String locale) {
+		List<BallotVO> ballotVOs = new ArrayList<BallotVO>();
+		try {
+			PreBallot preBallot = PreBallot.find(session, deviceType, answeringDate, locale);
+			if(preBallot != null){
+				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("preBallotId", new String[]{session.getId().toString()});
+					parameters.put("locale", new String[]{locale.toString()});
+					List data = Query.findReport("HDS_COUNCIL_PREBALLOT_VIEW", parameters);
+					if(data != null && !data.isEmpty()){
+						for(Object o : data){
+							Object[] objArr = (Object[]) o;
+							BallotVO vo = new BallotVO();
+							if(objArr[0] != null){
+								vo.setQuestionNumber(new Integer(objArr[0].toString()));
+							}
+							if(objArr[1] != null){
+								vo.setMemberName(objArr[1].toString());
+							}
+							if(objArr[2] != null){
+								vo.setQuestionSubject(objArr[2].toString());
+							}
+							ballotVOs.add(vo);
+						}
+					}
+				}
+			}else{
+				ballotVOs = Ballot.findPreviewPreBallotVOHDSCouncil(session, deviceType, answeringDate, locale);
+			}
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/hdsPreBallotCouncil";
+		} catch (ELSException e) {			
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error"; 
+		}
+	}
+
+	private String previewHDQPreBallotCouncil(ModelMap model, Session session,
+			DeviceType deviceType, Date answeringDate, String locale) {
+		List<BallotVO> ballotVOs = new ArrayList<BallotVO>();
+		try {
+			PreBallot preBallot = PreBallot.find(session, deviceType, answeringDate, locale);
+			if(preBallot != null){
+				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+					Map<String, String[]> parameters = new HashMap<String, String[]>();
+					parameters.put("preBallotId", new String[]{session.getId().toString()});
+					parameters.put("locale", new String[]{locale.toString()});
+					
+					List data = Query.findReport("HDQ_COUNCIL_PREBALLOT_VIEW", parameters);
+					
+					if(data != null && !data.isEmpty()){
+						for(Object o : data){
+							Object[] objArr = (Object[]) o;
+							BallotVO vo = new BallotVO();
+							if(objArr[0] != null){
+								vo.setQuestionNumber(new Integer(objArr[0].toString()));
+							}
+							if(objArr[1] != null){
+								vo.setMemberName(objArr[1].toString());
+							}
+							if(objArr[2] != null){
+								vo.setQuestionSubject(objArr[2].toString());
+							}
+							ballotVOs.add(vo);
+						}
+					}
+				}
+			}else{
+				ballotVOs = Ballot.previewPreBallotVOHDQCouncil(session, deviceType, answeringDate, locale);
+			}
+			
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/hdqPreBallotCouncil";//"ballot/halfhourq_preballot";
+
+		} catch (ELSException e) {			
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error"; 
+		}
+	}
+
+	private String previewHDQPreBallotAssembly(ModelMap model, Session session,
+			DeviceType deviceType, Group group, Date answeringDate, String locale) {
+		List<BallotMemberVO> ballotVOs;
+		try {
+			ballotVOs = Ballot.previewPreBallotHDQAssembly(session, deviceType, group, answeringDate, locale);
+			model.addAttribute("ballotVOs", ballotVOs);
+			return "ballot/hdq_preballot_assembly";
+		} catch (ELSException e) {
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+			return "ballot/error";
+		}
+	}
+
+	private String previewStarredPreBallot(final ModelMap model, 
+			final Session session,
+			final DeviceType deviceType,
+			final Date answeringDate,
+			final String locale) throws ELSException {
+		List<StarredBallotVO> ballotVOs = Ballot.
+				previewPreBallotVOs(session, deviceType, answeringDate, locale);
+		ballotVOs = sortStarredPreBallotVOs(ballotVOs);
+		
+		Group group = Group.find(session, answeringDate, locale);
+		model.addAttribute("groupNo", 
+				FormaterUtil.formatNumberNoGrouping(group.getNumber(), locale));
+		
+		/**** total number of members ****/
+		if(ballotVOs!=null) {
+			model.addAttribute("totalMembers", FormaterUtil.formatNumberNoGrouping(ballotVOs.size(), locale));
+			
+			Integer serialNo = 0;
+			Integer noOfQuestions = 0;
+			for(StarredBallotVO ballotVO : ballotVOs) {
+				++serialNo;
+				ballotVO.setSerialNo(FormaterUtil.formatNumberNoGrouping(serialNo, locale));
+				
+				List<QuestionSequenceVO> sequenceVOs = ballotVO.getQuestionSequenceVOs();
+				int size = sequenceVOs.size();
+				noOfQuestions = noOfQuestions + size;
+			}			
+			model.addAttribute("totalNoOfQuestions", 
+					FormaterUtil.formatNumberNoGrouping(noOfQuestions, locale));
+		}
+		
+		model.addAttribute("ballotVOs", ballotVOs);
+		return "ballot/preview_starred_preballot";
+
+	}
+	
+	@RequestMapping(value = "/updateHDQ", method = RequestMethod.GET)
+	public String getUpdateHDQ(Model model, HttpServletRequest request, Locale locale){
+		String retVal = "ballot/error";
+		try{
+			/** Create HouseType */
+			String strHouseType = request.getParameter("houseType");
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+
+			/** Create SessionType */
+			String strSessionTypeId = request.getParameter("sessionType");
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+
+			/** Create year */
+			String strYear = request.getParameter("sessionYear");
+			Integer year = Integer.valueOf(strYear);
+
+			/** Create Session */
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+
+			/** Create DeviceType */
+			DeviceType deviceType = null;
+			String strDeviceType = request.getParameter("questionType");
+			if(strDeviceType == null){
+				strDeviceType = request.getParameter("deviceType");
+			}
+			deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			
+			CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			String strAnsweringDate = request.getParameter("answeringDate");
+			Date answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			
+			/**Find ballot**/
+			Ballot balHDQ = Ballot.find(session, deviceType, answeringDate, locale.toString());
+			if(balHDQ == null){
+				/* Show error if ballot is not created since it is 
+				 * pointless to update balloted hdqs if ballot is not
+				 * done  
+				 */
+				model.addAttribute("type", "ballot_not_created");
+				return "ballot/error";
+			}
+			Map<String, List<MasterVO>> data = new LinkedHashMap<String, List<MasterVO>>();
+			
+			for(BallotEntry be : balHDQ.getBallotEntries()){
+				
+				Status internalStatus = Status.findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION, locale.toString());
+				List<Question> hdqs = Question.findAll(be.getMember(), session, deviceType, internalStatus);
+				List<MasterVO> questions = new LinkedList<MasterVO>();
+				
+				for(Question q : hdqs){
+					
+					MasterVO qvo = new MasterVO();
+					qvo.setValue(q.getPrimaryMember().getId().toString());
+					qvo.setName(be.getMember().getFullnameLastNameFirst());
+					
+					qvo.setId(q.getId());
+					qvo.setNumber(q.getNumber());
+					qvo.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(q.getNumber(), locale.toString()));
+					questions.add(qvo);					
+				}		
+				
+				data.put(be.getMember().getId().toString(), questions);
+			}
+			
+			model.addAttribute("data", data);
+			
+			model.addAttribute("hdqdeviceType", deviceType.getType());
+			model.addAttribute("hdqSession", session.getId());
+			model.addAttribute("hdqHouseType", houseType.getType());
+			
+			retVal = "ballot/updateBallotedHDQ";
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return retVal;
+	}
+	
+	@RequestMapping(value = "/updateHDS", method = RequestMethod.GET)
+	public String getUpdateHDS(Model model, HttpServletRequest request, Locale locale){
+		String retVal = "ballot/error";
+		try{
+			/** Create HouseType */
+			String strHouseType = request.getParameter("houseType");
+			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+
+			/** Create SessionType */
+			String strSessionTypeId = request.getParameter("sessionType");
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.valueOf(strSessionTypeId));
+
+			/** Create year */
+			String strYear = request.getParameter("sessionYear");
+			Integer year = Integer.valueOf(strYear);
+
+			/** Create Session */
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+
+			/** Create DeviceType */
+			DeviceType deviceType = null;
+			String strDeviceType = request.getParameter("questionType");
+			if(strDeviceType == null){
+				strDeviceType = request.getParameter("deviceType");
+			}
+			deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+			
+			CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+			String strAnsweringDate = request.getParameter("answeringDate");
+			Date answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			
+			/**Find ballot**/
+			Ballot balHDQ = Ballot.find(session, deviceType, answeringDate, locale.toString());
+			if(balHDQ == null){
+				/* Show error if ballot is not created since it is 
+				 * pointless to update balloted hdqs if ballot is not
+				 * done  
+				 */
+				model.addAttribute("type", "ballot_not_created");
+				return "ballot/error";
+			}
+			Map<String, List<MasterVO>> data = new LinkedHashMap<String, List<MasterVO>>();
+			
+			for(BallotEntry be : balHDQ.getBallotEntries()){
+				
+				Status internalStatus = Status.findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION, locale.toString());
+				List<Question> hdqs = Question.findAll(be.getMember(), session, deviceType, internalStatus);
+				List<MasterVO> questions = new LinkedList<MasterVO>();
+				
+				for(Question q : hdqs){
+					
+					MasterVO qvo = new MasterVO();
+					qvo.setValue(q.getPrimaryMember().getId().toString());
+					qvo.setName(be.getMember().getFullnameLastNameFirst());
+					
+					qvo.setId(q.getId());
+					qvo.setNumber(q.getNumber());
+					qvo.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(q.getNumber(), locale.toString()));
+					questions.add(qvo);					
+				}		
+				
+				data.put(be.getMember().getId().toString(), questions);
+			}
+			
+			model.addAttribute("data", data);
+			
+			model.addAttribute("hdqdeviceType", deviceType.getType());
+			model.addAttribute("hdqSession", session.getId());
+			model.addAttribute("hdqHouseType", houseType.getType());
+			
+			retVal = "ballot/updateBallotedHDS";
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return retVal;
+	}
+	
+	@Transactional
+	@RequestMapping(value = "/updateHDQ", method = RequestMethod.POST)
+	public String postUpdateHDQ(Model model, HttpServletRequest request, Locale locale){
+		String retVal = "ballot/error";
+		try{
+			String strAnsweringDate = request.getParameter("answeringDate");
+			String strIds = request.getParameter("ids");
+			if(strIds != null && !strIds.isEmpty() 
+					&& strAnsweringDate != null && !strAnsweringDate.isEmpty()){
+				
+				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+				Date answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+				String[] ids = strIds.split(":");
+				
+				
+				for(String id : ids){
+					Question q = Question.findById(Question.class, new Long(id));
+					Status balloted = Status.findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_BALLOTED, locale.toString());
+					//update members question so as to remove any previously balloted hdqs of the same date since it can be done
+					//many times
+					Question.updateUnBallot(q.getPrimaryMember(), q.getSession(), q.getType(), q.getInternalStatus(), answeringDate);
+					
+					q.setBallotStatus(balloted);
+					q.setDiscussionDate(answeringDate);
+					q.simpleMerge();
+				}
+				
+				model.addAttribute("type", "ballot_updated");
+				retVal = "ballot/info";
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return retVal;
+	}
+	
+	@Transactional
+	@RequestMapping(value = "/updateHDS", method = RequestMethod.POST)
+	public String postUpdateHDS(Model model, HttpServletRequest request, Locale locale){
+		String retVal = "ballot/error";
+		try{
+			String strAnsweringDate = request.getParameter("answeringDate");
+			String strIds = request.getParameter("ids");
+			if(strIds != null && !strIds.isEmpty() 
+					&& strAnsweringDate != null && !strAnsweringDate.isEmpty()){
+				
+				CustomParameter dbDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+				Date answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+				String[] ids = strIds.split(":");
+				
+				
+				for(String id : ids){
+					StandaloneMotion q = StandaloneMotion.findById(StandaloneMotion.class, new Long(id));
+					Status balloted = Status.findByType(ApplicationConstants.STANDALONE_PROCESSED_BALLOTED, locale.toString());
+					//update members motion so as to remove any previously balloted hdqs of the same date since it can be done
+					//many times
+					Question.updateUnBallot(q.getPrimaryMember(), q.getSession(), q.getType(), q.getInternalStatus(), answeringDate);
+					
+					q.setBallotStatus(balloted);
+					q.setDiscussionDate(answeringDate);
+					q.simpleMerge();
+				}
+				
+				model.addAttribute("type", "ballot_updated");
+				retVal = "ballot/info";
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return retVal;
 	}
 }

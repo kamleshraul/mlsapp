@@ -69,7 +69,14 @@
 					<label>
 						<spring:message code="question.group" text="Group"/> <span style="font-weight: bold;">${groupNo}, </span>
 						<spring:message code="generic.date" text="Answering Date"/> <span style="text-decoration: underline; font-weight: bold;">${answeringDate}</span>
-						<spring:message code="question.ballot.starred.lowerhouse.headercontent" text="Ballot Of the Day"></spring:message>
+							<c:choose>
+								<c:when test="${houseType=='upperhouse'}">
+									<spring:message code="question.ballot.starred.upperhouse.headercontent" text="Pre-Ballot Of the Day"></spring:message>
+								</c:when>
+								<c:otherwise>
+									<spring:message code="question.ballot.starred.lowerhouse.headercontent" text="Ballot Of the Day"></spring:message>
+								</c:otherwise>
+							</c:choose>
 					</label>
 				</p>
 				<table class="strippedTable" border="1" style="margin-left: 25px; font-size: 15px;">
@@ -139,7 +146,9 @@
 						<td colspan="7">
 							<p>
 								<span style="font-weight: bold;">
-									<spring:message code="generic.total" text="Total" />:&nbsp;&nbsp;&nbsp;&nbsp;${totalMembers}
+									<spring:message code="question.preballot.member.total" text="Total Members" />:&nbsp;&nbsp;&nbsp;&nbsp;${totalMembers}
+									<br /><br />
+									<spring:message code="question.preballot.question.total" text="Total Questions" />:&nbsp;&nbsp;&nbsp;&nbsp;${totalNoOfQuestions}
 								</span><br /><br />
 								<spring:message code="generic.date" text="Answering Date"/> ${answeringDate}<spring:message code="question.ballot.starred.lowerhouse.footer1" text="Footer"/>
 								${formattedCurrentDate}<spring:message code="question.ballot.starred.lowerhouse.footer2" text="Footer"/>

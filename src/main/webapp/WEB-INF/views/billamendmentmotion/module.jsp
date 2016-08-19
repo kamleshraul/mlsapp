@@ -406,6 +406,7 @@
 			</c:forEach>			
 			</select>|		
 			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BAMOIS_TYPIST')">
 			<a href="#" id="select_status" class="butSim">
 				<spring:message code="billamendmentmotion.status" text="Status"/>
 			</a>
@@ -421,6 +422,7 @@
 			</c:choose>	
 			</c:forEach>
 			</select> |	
+			</security:authorize>
 			
 			<hr>
 			

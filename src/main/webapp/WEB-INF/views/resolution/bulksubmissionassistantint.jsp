@@ -75,7 +75,9 @@
 					}
 					text+="<option value='-'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 					$("#assiactor").html(text);
-					$("#actorDiv").show();								
+					$("#actorDiv").show();	
+					$("#refTextDiv").show();
+					$("#remarkDiv").show();
 				}else{
 					$("#assiactor").empty();
 					$("#actorDiv").hide();	
@@ -130,7 +132,9 @@
 					 	,usergroup:$("#assiusergroup").val()
 					 	,usergroupType:$("#assiusergroupType").val()
 					 	,file:$("#assifile").val()
-					 	,itemscount:+$("#assiitemscount").val()
+					 	,itemscount:$("#assiitemscount").val()
+					 	,referencedText:$("#assiReferencedText").val()
+					 	,remarks:$("#assiRemark").val()
 					 	},
 	    	            function(data){
 	       					$('html').animate({scrollTop:0}, 'slow');
@@ -162,17 +166,28 @@
 		<h4 style="color: #FF0000;">${error}</h4>
 	</c:if>
 	<p>
-		<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>	
+		<label class="small" style="margin: 10px;"><spring:message code="resolution.putupfor" text="Put up for"/></label>	
 		<select id="assiInternalStatus" class="sSelect">
 		<option value="-"><spring:message code='please.select' text='Please Select'/></option>	
 		<c:forEach items="${internalStatuses}" var="i">
 					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
 		</c:forEach>
 		</select>
-		<span id="actorDiv" style="margin: 10px;display: none;">
-		<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
-		<select id="assiactor" class="sSelect"></select>
+		<span id="actorDiv" style="margin: 20px;display: none;">
+			<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
+			<select id="assiactor" class="sSelect"></select>
 		</span>	
+	</p>
+	<hr>
+	<p>
+		<span id="refTextDiv" style="margin: 10px;display: none;">
+			<label class="small"><spring:message code="resolution.referenceText" text="Referenced Text"/></label>
+			<textarea rows="2" cols="20" id="assiReferencedText"/>
+		</span>
+		<span id="remarkDiv" style="margin: 10px;display: none;">
+			<label class="small"><spring:message code="resolution.remarks" text="Remark"/></label>
+			<textarea rows="2" cols="20" id=assiRemark"/>
+		</span>
 		<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
 	</p>
 	<div id="bulkResultDiv">	

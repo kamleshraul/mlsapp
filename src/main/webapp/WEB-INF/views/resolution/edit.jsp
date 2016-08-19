@@ -26,7 +26,8 @@
 	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
 			if(data.length>0){
@@ -51,7 +52,10 @@
 
 	
 	$(document).ready(function(){	
-		/**** Auto Suggest(clerk login)-Primary Member ****/		
+		$("#numberP").css("display","none");
+		
+		
+		/**** Auto Suggest(typist login)-Primary Member ****/		
 		$( ".autosuggest").autocomplete({
 			minLength:3,			
 			source:'ref/member/supportingmembers?session='+$("#session").val(),
@@ -204,15 +208,14 @@
 			       					$('html').animate({scrollTop:0}, 'slow');
 			       				 	$('body').animate({scrollTop:0}, 'slow');	
 			    					$.unblockUI();	   				 	   				
-			    	            }).fail(function(){
-			    	    			$.unblockUI();
-			    	    			if($("#ErrorMsg").val()!=''){
-			    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			    	    			}else{
-			    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			    	    			}
-			    	    			scrollTop();
-			    	    		});
+			    	            }).fail(function (jqxhr, textStatus, err) {
+			    	            	$.unblockUI();
+			    	            	$("#error_p").html("Server returned an error\n" + err +
+		                                    "\n" + textStatus + "\n" +
+		                                    "Please try again later.\n"+jqxhr.status+"\n"+jqxhr.statusText).css({'color':'red', 'display':'block'});
+			    	            	
+			    	            	scrollTop();
+	                            });
 			        }
 				}});
 			}else{
@@ -289,9 +292,9 @@
 	<h2>${formattedDeviceType} ${formattedNumber}</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	<c:if test="${!(empty domain.number)}">
-	<p>
+	<p id="numberP">
 		<label class="small"><spring:message code="resolution.number" text="Resolution Number"/>*</label>
-		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
+		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly" type="hidden">		
 		<input id="number" name="number" value="${domain.number}" type="hidden">
 		<form:errors path="number" cssClass="validationError"/>
 	</p>
@@ -352,7 +355,7 @@
 	
 	<p id="NoticeContent">
 		<label class="wysiwyglabel"><spring:message code="resolution.noticeContent" text="Notice Content"/>*</label>
-		<form:textarea path="noticeContent" cssClass="wysiwyg"></form:textarea>		 
+		<form:textarea path="noticeContent" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>		 
 		<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
 	<c:if test="${internalStatusType != null }">
@@ -362,7 +365,7 @@
 					<c:if test="${internalStatusType=='resolution_final_rejection'}">
 						<p>
 							<label class="wysiwyglabel"><spring:message code="resolution.remarks" text="Remarks"/></label>
-							<form:textarea path="remarks" cssClass="wysiwyg" readonly="true"></form:textarea>
+							<form:textarea path="remarks" cssClass="wysiwyg invalidFormattingAllowed" readonly="true"></form:textarea>
 						</p>
 					</c:if>
 				</c:if>
@@ -373,7 +376,7 @@
 	<table style="width: 100%;">
 		<tr>
 			<td>
-				<p id="internalStatusDiv">
+				<p id="internalStatusDiv" style="display:none;">
 					<label class="small"><spring:message code="resolution.currentStatus" text="Current Status"/></label>
 					<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly" class="sText">
 				</p>
@@ -457,14 +460,14 @@
 		<c:if test="${selectedDeviceType == 'resolutions_government'}">
 			<p id="remarksParagraph">
 				<label class="wysiwyglabel"><spring:message code="resolution.remarks" text="Remarks"/></label>
-				<form:textarea id="remarks" path="remarks" cssClass="wysiwyg"></form:textarea>
+				<form:textarea id="remarks" path="remarks" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 			</p>
 		</c:if>		
 	</div>
 	<c:if test="${recommendationStatusType == 'resolution_processed_rejectionWithReason'}">
 	<p>
 	<label class="wysiwyglabel"><spring:message code="resolution.rejectionReason" text="Rejection reason"/></label>
-	<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
+	<form:textarea path="rejectionReason" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 	</p>
 	</c:if>
 	 <div class="fields">
@@ -472,7 +475,8 @@
 		<c:choose>
 		<c:when test="${memberStatusType=='resolution_complete' or memberStatusType=='resolution_incomplete'}">
 			<p class="tright">
-			<security:authorize access="hasAnyRole('ROIS_CLERK')">	
+			<security:authorize access="hasAnyRole('ROIS_TYPIST')">	
+				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 				<input id="submitresolution" type="button" value="<spring:message code='resolution.submitResolution' text='Submit resolution'/>" class="butDef">			
 			</security:authorize>
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
@@ -485,7 +489,8 @@
 		</c:when>	
 		<c:otherwise>
 			<p class="tright">
-				<security:authorize access="hasAnyRole('ROIS_CLERK')">	
+				<security:authorize access="hasAnyRole('ROIS_TYPISR')">	
+					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					<input id="submitresolution" type="button" value="<spring:message code='resolution.submitResolution' text='Submit resolution'/>" class="butDef" disabled="disabled">				
 				</security:authorize>			
 				<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
@@ -536,6 +541,7 @@
 			</c:if>
 		</c:otherwise>
 	</c:choose>
+	<form:hidden path="file"/>
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
 	<input id="role" name="role" value="${role}" type="hidden">

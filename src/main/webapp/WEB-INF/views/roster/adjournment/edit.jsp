@@ -11,6 +11,32 @@
 		//$("#adjournmentReason option[selected='selected']").show();
 		$("#action option").hide();
 		$("#action option[selected='selected']").show();
+		
+		$("#submit").click(function(){
+			$.prompt($('#submissionMsg').val(),{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+					if(v){
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			        	$.post($('form').attr('action'),  
+			    	            $("form").serialize(),  
+			    	            function(data){
+			       					$('.tabContent').html(data);
+			       					$('html').animate({scrollTop:0}, 'slow');
+			       				 	$('body').animate({scrollTop:0}, 'slow');	
+			    					$.unblockUI();	   				 	   				
+			    	            }).fail(function (jqxhr, textStatus, err) {
+			    	            	$.unblockUI();
+			    	            	$("#error_p").html("Server returned an error\n" + err +
+		                                    "\n" + textStatus + "\n" +
+		                                    "Please try again later.\n"+jqxhr.status+"\n"+jqxhr.statusText).css({'color':'red', 'display':'block'});
+			    	            	
+			    	            	scrollTop();
+	                            });
+			        }
+				}
+			});
+			return false;
+			});
 	});
 	</script>	
 </head>
@@ -98,6 +124,7 @@
 	<input type="hidden" id="roster" name="roster" value="${roster}"/>
 </form:form>
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
+<input id="submissionMsg" value="<spring:message code='adjournment.prompt.submit' text='Do you want to Adjourn the roster,kindly reconfirm the dates and actions '></spring:message>" type="hidden">
 </div>
 </body>
 </html>

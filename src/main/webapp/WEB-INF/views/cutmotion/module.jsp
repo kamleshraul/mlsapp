@@ -81,6 +81,7 @@
 		});
 		/**** Bulk Putup ****/
 		$("#bulkputupassistant_tab").click(function() {
+			$("#selectionDiv1").hide();
 			bulkPutupAssistant();
 		});
 	
@@ -211,6 +212,7 @@
 	}
 	/**** Bulk putup(Assistant)****/
 	function bulkPutupAssistant() {
+		
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
@@ -228,24 +230,30 @@
 	}
 	
 	function loadSubDepartments(init){
-		$.get('ref/getDepartment?userGroup='+$('#currentusergroup').val()
-				+'&deviceType='+$("#selectedCutMotionType").val()
-				+'&houseType='+$("#selectedHouseType").val(),function(data){
-			
-			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
-			$('#selectedSubDepartment').empty();
-			if(data.length>0){
-				for(var i=0;i<data.length;i++){
-					subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+		
+		var url = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
+				
+		$.get(url, function(data){
+			$.get('ref/getDepartment?session=' + data.id + '&group=0&userGroup='+$('#currentusergroup').val()
+					+'&deviceType='+$("#selectedCutMotionType").val()+'&houseType='+$("#selectedHouseType").val()
+					+'&usergroupType='+$("#currentusergroupType").val(),function(data){
+				
+				var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
+				$('#selectedSubDepartment').empty();
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+						
+					}
+					$("#selectedSubDepartment").html(subDepartmentText);
 				}
-				$("#selectedSubDepartment").html(subDepartmentText);
-			}
-		}).done(function(){
-			if(init=='no'){
-				reloadCutMotionGrid();
-			}else if(init=='yes'){
-				showCutMotionList();
-			}
+			}).done(function(){
+				if(init=='no'){
+					reloadMotionGrid();
+				}else if(init=='yes'){
+					showCutMotionList();
+				}
+			});
 		});
 	}
 	

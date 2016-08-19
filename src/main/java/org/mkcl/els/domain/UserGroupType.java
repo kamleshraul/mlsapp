@@ -60,6 +60,11 @@ public class UserGroupType extends BaseDomain implements Serializable{
         this.type = type;
     }
 
+    public static UserGroupType findByType(final String type,
+    		final String locale) {
+    	UserGroupType ugt = UserGroupType.findByFieldName(UserGroupType.class, "type", type, locale);
+    	return ugt;
+    }
 
     /**
      * Gets the name.

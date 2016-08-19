@@ -120,7 +120,6 @@ public class CommitteeRepository extends BaseRepository<Committee, Long> {
 				" FROM Committee c JOIN c.committeeName cn" +
 				" JOIN cn.committeeType ct JOIN ct.houseType ht" +
 				" WHERE c.status.id =" + status.getId() +
-				" AND c.formationDate <= '" + strCurrentDate + "'" +
 				" AND c.dissolutionDate >= '" + strCurrentDate + "'" +
 				" AND c.locale = '" + locale + "'");
 		
@@ -149,7 +148,7 @@ public class CommitteeRepository extends BaseRepository<Committee, Long> {
 		TypedQuery<Committee> tQuery = 
 			this.em().createQuery(query.toString(), Committee.class);
 		List<Committee> committees = tQuery.getResultList();
-		return committees;
+ 		return committees;
 	}
 	
 	public List<Committee> findCommitteesForInvitedMembersToBeAdded(

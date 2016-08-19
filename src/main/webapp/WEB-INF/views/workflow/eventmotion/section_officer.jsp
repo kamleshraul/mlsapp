@@ -110,12 +110,37 @@
 	}
 	/**** load actors ****/
 	function loadActors(value){
+		var oldValue = value;
 		if(value!='-'){
-		var params="eventmotion="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
-		var resourceURL='ref/eventmotion/actors?'+params;
-	    var sendback=$("#internalStatusMaster option[value='eventmotion_recommend_sendback']").text();			
-	    var discuss=$("#internalStatusMaster option[value='eventmotion_recommend_discuss']").text();		
+			
+		    var sendback=$("#internalStatusMaster option[value='eventmotion_recommend_sendback']").text();			
+		    var discuss=$("#internalStatusMaster option[value='eventmotion_recommend_discuss']").text();
+		    var departmentIntimated = $("#internalStatusMaster option[value='eventmotion_processed_departmentIntimated']").text();
+		    
+		    
+		    /*if(value==sendback){
+		    	value=sendback;
+		    }else if(value==discuss){
+		    	value=discuss;
+		    }else{
+		    	value=$("#oldInternalStatus").val().trim();
+		    }*/
+		    
+		    if(value==departmentIntimated){
+				$("#endFlag").val("end");
+				$("#recommendationStatus").val(oldValue);
+				$("#actor").empty();
+				$("#actorDiv").hide();
+				
+				if(value==departmentIntimated){
+					$("#level").val($("#originalLevel").val());
+				}
+				return false;
+			}
+		    
+			var params="eventmotion="+$("#id").val()+"&status="+value+
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
+			var resourceURL='ref/eventmotion/actors?'+params;
 		$.get(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
@@ -132,9 +157,9 @@
 				$("#actorDiv").show();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value!=sendback&&value!=discuss){
-				$("#internalStatus").val(value);
+					$("#internalStatus").val(value);
 				}
-				$("#recommendationStatus").val(value);	
+				$("#recommendationStatus").val(oldValue);	
 				/**** setting level,localizedActorName ****/
 				 var actor1=data[0].id;
 				 var temp=actor1.split("#");
@@ -166,7 +191,8 @@
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -530,6 +556,24 @@
 			<input name="eventDate" id="eventDate" type="hidden" value="${eventDate}">		
 			<form:errors path="eventDate" cssClass="validationError"/>
 		</p>
+		
+		<p style="display: inline-block;">
+			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+			<select name="discussionDate" id="discussionDate" class="sSelect">
+				<option value="">--<spring:message code="please.select" text="Select"/>--</option>
+				<c:forEach items="${discussionDates}" var="i">
+					<c:choose>
+						<c:when test="${i.value==discussionDateSelected }">
+							<option value="${i.value}" selected="selected">${i.name}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${i.value}" >${i.name}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</select>
+			<form:errors path="discussionDate" cssClass="validationError"/>
+		</p>
 	</div>
 		
 	<c:choose>
@@ -761,6 +805,8 @@
 		<form:textarea path="revisedDescription" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="revisedDescription" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>	
+	
+	<c:if test="${workflowstatus=='PENDING'}">
 	<div>		
 		<p style="display: inline-block;">	
 			<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
@@ -791,6 +837,7 @@
 			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
 		</p>
 	</div>
+	</c:if>
 	
 	<p>
 		<label class="wysiwyglabel"><spring:message code="generic.remarks" text="Remarks"/></label>
@@ -798,6 +845,7 @@
 		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
 	</p>	
 	
+	<c:if test="${workflowstatus=='PENDING'}">
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">		
@@ -809,6 +857,7 @@
 			</c:if>
 		</p>
 	</div>
+	</c:if>
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -846,6 +895,8 @@
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
+<input id="originalLevel" type="hidden" value="${level}" />
+<input id="originalLevel" type="hidden" value="${level}" />
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

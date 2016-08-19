@@ -6,6 +6,42 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
+	
+
+
+	
+	function listbox_move(listID, direction) {
+
+		var listbox = document.getElementById(listID);
+		var selIndex = listbox.selectedIndex;
+
+		if(-1 == selIndex) {
+			alert("Please select an option to move.");
+			return;
+		}
+
+		var increment = -1;
+		if(direction == 'up')
+			increment = -1;
+		else
+			increment = 1;
+
+		if((selIndex + increment) < 0 ||
+			(selIndex + increment) > (listbox.options.length-1)) {
+			return;
+		}
+
+		var selValue = listbox.options[selIndex].value;
+		var selText = listbox.options[selIndex].text;
+		listbox.options[selIndex].value = listbox.options[selIndex + increment].value
+		listbox.options[selIndex].text = listbox.options[selIndex + increment].text
+
+		listbox.options[selIndex + increment].value = selValue;
+		listbox.options[selIndex + increment].text = selText;
+
+		listbox.selectedIndex = selIndex + increment;
+	}
+
 	/* WHEN committeeType CHANGES, SHOW committeeNames SPECIFIC TO THE committeeType */
 	function onCommitteeTypeChange(committeeTypeId) {
 		// Make an ajax call to fetch committeeNames corresponding to committeeType
@@ -61,6 +97,19 @@
 			});
 		}
 	}
+
+	/**** submit function ****/
+	$("#submit").click(function(){
+		
+		var items=new Array();
+		$("#committeeMembers option").each(function(){
+			items.push($(this).val());
+		});
+		
+		$('#allItems').val(items);
+		
+	
+});
 	
 	$('document').ready(function(){	
 		$('#committeeType').change(function(){
@@ -85,7 +134,7 @@
 </head>
 <body>
 <div class="fields clearfix">
-<form:form action="committee" method="PUT" modelAttribute="domain">
+<form:form action="committee" method="put" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	
 	<h2><spring:message code="generic.edit.heading" text="Details"/>
@@ -136,26 +185,89 @@
 		<form:input path="dissolutionDate" cssClass="datemask sText" />
 		<form:errors path="dissolutionDate" cssClass="validationError"/>	
 	</p>
+	
 
-	<!-- Table displaying members -->
-	<c:if test="${not empty committeeMembers}">
-		<label class="small"><spring:message code="committee.members" text="Committee Members"/></label>
-		<table class="uiTable" border="1">
+	
+
+	
+			<table class="uiTable" border="1">
 			<tbody>
 				<tr>
-					<th><spring:message code="committee.member" text="Member"/></th>
-					<th><spring:message code="committee.memberDesignation" text="Designation"/></th>
+					<label class="small"><spring:message code="committee.members" text="Committee Members"/></label>
 				</tr>
-				<c:forEach items="${committeeMembers}" var="committeeMember">
-					<tr>
-						<td>${committeeMember.member.fullname}</td>
-						<td>${committeeMember.designation.name}</td>
-					</tr>
-				</c:forEach>
-			</tbody>
-		</table>
+				<tr>
+				<td>
+						<!-- List displaying members -->
+	<c:if test="${not empty committeeMembers}">
+			
+		<select id="committeeMembers" multiple="multiple" style="height:500px;max-width:275px;min-width:275px;font-size: 16px;">
+			
+			<c:forEach var="i" begin="1" end="${committeeName.noOfLowerHouseMembers+committeeName.noOfUpperHouseMembers}">
+			 <c:set var="counter" value="0" />   
+			<c:forEach items="${committeeMembers}" var="committeeMember" varStatus="loopCounter">
+			 <c:choose>
+			
+			 <c:when test="${i eq committeeMember.position}">
+			  <c:set var="counter" value="1" /> 
+				
+						<c:choose>
+							<c:when test="${committeeMember.member.getAlias() != ''}">
+							
+							 	<c:choose>
+								<c:when test="${committeeMember.member.findCurrentHouseType() == '[lowerhouse]'}">
+								<option value="${committeeMember.id}" ><c:out value=" ${committeeMember.member.title.name} ${committeeMember.member.getAlias()} ${committeeMember.designation.name}"></c:out></option>
+								</c:when>
+								<c:when test="${committeeMember.member.findCurrentHouseType() == '[upperhouse]'}">
+								<option value="${committeeMember.id}" ><c:out value=" ${committeeMember.member.title.name} ${committeeMember.member.getAlias()} ${committeeMember.designation.name}"></c:out></option>
+								</c:when>
+								<c:otherwise>
+								<option value="${committeeMember.id}" ><c:out value=" ${committeeMember.member.title.name} ${committeeMember.member.getAlias()} ${committeeMember.designation.name}"></c:out></option>
+								</c:otherwise>
+								</c:choose>
+							</c:when>
+							<c:otherwise>
+							
+							 	<c:choose>
+								<c:when test="${committeeMember.member.findCurrentHouseType() == '[lowerhouse]'}">
+								<option value="${committeeMember.id}" ><c:out value=" ${committeeMember.member.title.name} ${committeeMember.member.firstName} ${committeeMember.member.lastName},${committeeMember.designation.name}"></c:out></option>
+								</c:when>
+								<c:when test="${committeeMember.member.findCurrentHouseType() == '[upperhouse]'}">
+								<option value="${committeeMember.id}" ><c:out value=" ${committeeMember.member.title.name} ${committeeMember.member.firstName} ${committeeMember.member.lastName},${committeeMember.designation.name}"></c:out></option>
+								</c:when>
+								<c:otherwise>
+								<option value="${committeeMember.id}" ><c:out value=" ${committeeMember.member.title.name} ${committeeMember.member.firstName} ${committeeMember.member.lastName},${committeeMember.designation.name}"></c:out></option>
+								</c:otherwise>
+								</c:choose>
+									
+							</c:otherwise>
+						</c:choose>
+							
+					
+				
+					
+				 
+			
+			 </c:when>
+ 
+      </c:choose>
+			</c:forEach>
+			<c:if test="${counter eq 0}">
+				<option value="0" ><c:out value="${committeeMember.member.title.name}"><spring:message code="committeemember.vacant" text="Vacant"/></c:out></option>
+			</c:if>
+			</c:forEach>
+			</select>
+		
 	</c:if>
-	
+				</td>
+				<td>
+				<input type="button" id="up" value="UP" onclick="listbox_move('committeeMembers', 'up')" style="height:50px;max-width:50px;min-width:50px;font-size: 16px;"/>
+<input type="button" id="down" value="DOWN" onclick="listbox_move('committeeMembers', 'down')"  style="height:50px;max-width:60px;min-width:50px;font-size: 16px;"/>
+				</td>
+				</tr>
+				</tbody>
+				</table>
+
+
 	<!-- Table displaying invited members -->
 	<c:if test="${not empty invitedMembers}">
 		<label class="small"><spring:message code="committee.invitedMembers" text="Invited Members"/></label>
@@ -163,10 +275,43 @@
 			<tbody>
 				<tr>
 					<th><spring:message code="committee.invitedMember" text="Invited Member"/></th>
+					
 				</tr>
 				<c:forEach items="${invitedMembers}" var="invitedMember">
 					<tr>
-						<td>${invitedMember.member.fullname}</td>
+						<td>
+						<c:choose>
+							<c:when test="${invitedMember.member.getAlias() != ''}">
+							 ${invitedMember.member.title.name} ${invitedMember.member.getAlias()},
+							 <c:choose>
+								<c:when test="${invitedMember.member.findCurrentHouseType() == '[lowerhouse]'}">
+								<spring:message code="committeemember.type.lowerhouse" text="Member LowerHouse"/>
+								</c:when>
+								<c:when test="${invitedMember.member.findCurrentHouseType() == '[upperhouse]'}">
+								<spring:message code="committeemember.type.upperhouse" text="Member UpperHouse"/>
+								</c:when>
+									<c:otherwise>
+								<spring:message code="committeemember.type.bothhouse" text="Member BothHouse"/>
+								</c:otherwise>
+								</c:choose> 
+							</c:when>
+							<c:otherwise>
+							${invitedMember.member.title.name} ${invitedMember.member.firstName} ${invitedMember.member.lastName},
+							 <c:choose>
+								<c:when test="${invitedMember.member.findCurrentHouseType() == '[lowerhouse]'}">
+								<spring:message code="committeemember.type.lowerhouse" text="Member LowerHouse"/>
+								</c:when>
+								<c:when test="${invitedMember.member.findCurrentHouseType() == '[upperhouse]'}">
+								<spring:message code="committeemember.type.upperhouse" text="Member UpperHouse"/>
+								</c:when>
+									<c:otherwise>
+								<spring:message code="committeemember.type.bothhouse" text="Member BothHouse"/>
+								</c:otherwise>
+								</c:choose> 
+							</c:otherwise>
+						</c:choose>
+						
+						</td>
 					</tr>
 				</c:forEach>
 			</tbody>
@@ -176,14 +321,21 @@
 	<div class="fields expand">
 		<h2></h2>
 		<p class="tright">
+		<form:select style="display:none;" path="members"  items="${committeeMembers}" itemValue="id" itemLabel="member.firstName"/>
+		<form:select style="display:none;" path="invitedMembers"  items="${invitedMembers}" itemValue="id" itemLabel="member.firstName"/>
+			<input type="hidden" name="status" id="status" value="${domain.status.id}">
+			<input type="hidden" name="allItems" id="allItems" value="">
+			
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+			
 		</p>
 	</div>	
 
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
+
 </form:form>
 </div>
 </body>

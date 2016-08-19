@@ -23,6 +23,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartySymbol;
+import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.Tehsil;
 import org.springframework.stereotype.Controller;
@@ -72,6 +73,8 @@ public class PartyController extends GenericController<Party> {
 		states.remove(selectedState);
 		newStates.addAll(states);
 		model.addAttribute("states", newStates);
+		List<PartyType> partyTypes = PartyType.findAll(PartyType.class, "name", "asc",locale.toString());
+		model.addAttribute("partyTypes", partyTypes);
 		List<District> districts = new ArrayList<District>();
 		try{
 			districts = District.findDistrictsByStateId(selectedState.getId(), "name", "asc", locale.toString());
@@ -93,10 +96,10 @@ public class PartyController extends GenericController<Party> {
 		model.addAttribute("tehsils", tehsils);
 		model.addAttribute("symbolCount",0);
 		CustomParameter customParameter = CustomParameter.findByName(
-				CustomParameter.class, "PARTY_FLAG_EXTENSION", null);
+				CustomParameter.class, "PARTY_FLAG_EXTENSION","");
 		model.addAttribute("photoExt", customParameter.getValue());
 		CustomParameter customParameter1 = CustomParameter.findByName(
-				CustomParameter.class, "PARTY_FLAG_SIZE", null);
+				CustomParameter.class, "PARTY_FLAG_SIZE", "");
 		model.addAttribute("photoSize",
 				Long.parseLong(customParameter1.getValue()) * 1024 * 1024);
 	}
@@ -131,7 +134,8 @@ public class PartyController extends GenericController<Party> {
             State selectedState = State.findByName(State.class, rStateName,
                     party.getLocale());
             model.addAttribute("statesR", states);
-
+    		List<PartyType> partyTypes = PartyType.findAll(PartyType.class, "name", "asc",party.getLocale());
+    		model.addAttribute("partyTypes", partyTypes);
             List<District> districts = new ArrayList<District>();
             try{
             	districts = District.findDistrictsByStateId(selectedState.getId(), "name", "asc", party.getLocale());

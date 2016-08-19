@@ -152,8 +152,8 @@
 							<fo:inline font-weight="bold">"<xsl:value-of select="subject"/>"</fo:inline> या विषयावरील
 							<xsl:choose>
 								<xsl:when test="contains(referredQuestionDeviceType, 'अतारांकित')">
-									<xsl:value-of select="referredQuestionAnsweringDate"/> रोजी सभागृहाच्या पटलावर 
-									ठेवण्यात आलेल्या अतारांकित प्रश्नोत्तरांच्या यादी क्रमांक ____ मधील प्रश्न क्रमांक <xsl:value-of select="referredQuestionNumber"/> ला									
+									<xsl:value-of select="referredQuestionYaadiLayingDate"/> रोजी सभागृहाच्या पटलावर 
+									ठेवण्यात आलेल्या अतारांकित प्रश्नोत्तरांच्या यादी क्रमांक <xsl:value-of select="referredQuestionYaadiNumber"/> मधील प्रश्न क्रमांक <xsl:value-of select="referredQuestionNumber"/> ला									
 								</xsl:when>
 								<xsl:otherwise>
 									<xsl:value-of select="referredQuestionDeviceType"/> क्रमांक <fo:inline font-weight="bold"><xsl:value-of select="referredQuestionNumber"/></fo:inline> ला 

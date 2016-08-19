@@ -55,8 +55,24 @@
 	function loadActors(value){
 		var motion=$("#motionId").val();
 		if(motion!=undefined&&motion!=''){
-			var params="motion="+motion+"&status="+value+
-			"&usergroup="+$("#apprusergroup").val()+"&level=1";
+			
+			/* var params="motion="+question+"&status=";
+			if(($("#currentusergroupType").val()=='assistant' 
+					|| $("#currentusergroupType").val()=='section_officer') 
+					&& ($("#apprworkflowSubType").val().indexOf("final")>-1)){
+				if(deviceType=='questions_halfhourdiscussion_from_question'){
+					params += $("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text().trim()
+						+ "&level=" + $("#questionLevel").val();
+				}else{
+					params += $("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text() + "&level=8";
+				}
+			}else{
+				params += value+"&level=1";
+			} */
+/* 			var params="motion="+motion+"&status="+$("#subWFMaster option[value='"+ $("#selectedSubWorkflow").val() +"']").text().trim()+
+			"&usergroup="+$("#apprusergroup").val()+"&level="+$("#motionLevel").val(); */
+			var params="motion="+motion+"&status="+$("#apprInternalStatusWf").val()+
+			"&usergroup="+$("#apprusergroup").val()+"&level="+$("#motionLevel").val();
 			var resourceURL='ref/motion/actors?'+params;				
 			$.post(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
@@ -129,7 +145,8 @@
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				$.post('workflow/motion/bulkapproval/update?actor='+next+"&level="+level,
 			        	{items:items
-			        	 ,status:status
+			        	 ,aprstatus:status
+			        	 ,status:$("#apprInternalStatus").val()
 			        	 ,houseType:$("#apprhouseType").val()
 						 ,sessionYear:$("#apprsessionYear").val()
 						 ,sessionType:$("#apprsessionType").val()
@@ -140,6 +157,8 @@
 						 ,file:$("#apprfile").val()
 						 ,itemscount:$("#appritemscount").val()
 						 ,workflowSubType:$("#apprworkflowSubType").val()
+						 ,remarks:$("remarks").val()
+						 ,refertext:$("#refText").val()
 					 	},
 	    	            function(data){
 	       					$('html').animate({scrollTop:0}, 'slow');
@@ -188,8 +207,19 @@
 		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
 		<select id="appractor" class="sSelect"></select>
 	</span>	
-	<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
+	<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>
+	<div>
+		<p style="display: inline;">
+			<label class="centerlabel"><spring:message code="question.remarks" text="Remarks"/></label>
+			<textarea name="remarks" id="remarks" rows="5" cols="30"></textarea>
+		</p>
+		<p style="display:inline-block;">
+			<label class="centerlabel"><spring:message code="question.reftext" text="Reference Text"/></label>
+			<textarea name="refText" id="refText" rows="5" cols="30"></textarea>
+		</p>
+	</div>		
 	</c:otherwise>
+	
 	</c:choose>		
 </p>
 <div id="bulkResultDiv">	

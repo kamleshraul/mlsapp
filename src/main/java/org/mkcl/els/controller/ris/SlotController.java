@@ -47,13 +47,16 @@ public class SlotController extends GenericController<Slot>{
 		String locale=domain.getLocale();
 		CustomParameter customParameter1=CustomParameter.findByName(CustomParameter.class,"RIS_ROLES_ALLOTED_TO_SLOT","");
 		if(customParameter1!=null){
-			List<User> allRISUsers=new ArrayList<User>();
+			List<User> allRISUsers = new ArrayList<User>();
 			if(houseType!=null&&language!=null){
 				if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
 					allRISUsers=User.findByRole(false,customParameter1.getValue(),language.getName(),"houseType,joiningDate,lastName",ApplicationConstants.ASC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,locale,"");
 				}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
 					allRISUsers=User.findByRole(false,customParameter1.getValue(),language.getName(),"houseType,joiningDate,lastName",ApplicationConstants.DESC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,locale,"");
 				}
+			}
+			if(allRISUsers.isEmpty()){
+				allRISUsers = User.findByRole(false,customParameter1.getValue(),language.getName(),"houseType,joiningDate,lastName",ApplicationConstants.ASC+","+ApplicationConstants.ASC+","+ApplicationConstants.ASC,locale,"");
 			}
 			model.addAttribute("users",allRISUsers);
 		}
@@ -62,9 +65,11 @@ public class SlotController extends GenericController<Slot>{
 		}
 		if(domain.getReporter()!=null){
 			model.addAttribute("reporter",domain.getReporter().getId());
+			model.addAttribute("reporterPosition",domain.getReporter().getPosition());
 		}
 		/**** Roster ****/
 		model.addAttribute("roster", domain.getRoster().getId());
+		model.addAttribute("isCompleted",domain.getCompleted());
 	}
 
 	@Override
@@ -73,11 +78,13 @@ public class SlotController extends GenericController<Slot>{
 		String strUser=request.getParameter("user");
 		if(strUser!=null&&!strUser.isEmpty()){
 			User user=User.findById(User.class,Long.parseLong(strUser));
-			if(domain.getReporter()!=null){
-				int	position=domain.getReporter().getPosition();
+			if(user!=null){
+				String strPosition = request.getParameter("position");
 				Reporter reporter=new Reporter();
 				reporter.setLocale(domain.getLocale());
-				reporter.setPosition(position);
+				if(strPosition != null && !strPosition.isEmpty()){
+					reporter.setPosition(Integer.parseInt(strPosition));
+				}
 				reporter.setUser(user);
 				domain.setReporter(reporter);
 			}

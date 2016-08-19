@@ -29,10 +29,12 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.SubDepartment;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -43,7 +45,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class GroupInformationController.
  *
@@ -54,9 +55,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/group")
 public class GroupController extends GenericController<Group> {
-
-	/** The Constant ASC. */
-	private static final String ASC = "asc";
 	
 	@Override
 	protected void populateModule(final ModelMap model, 
@@ -66,23 +64,24 @@ public class GroupController extends GenericController<Group> {
 		
 		/**** House Types allowed for Current User ****/
 		List<HouseType> houseTypes = new ArrayList<HouseType>();
-		String houseType=this.getCurrentUser().getHouseType();
+		String houseType = this.getCurrentUser().getHouseType();
 		if(houseType != null) {
 			if(!houseType.isEmpty()) {
 				if(houseType.equals("bothhouse")){
-					houseTypes=HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);			
+					houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);			
 				}else {
-					houseTypes=HouseType.findAllByFieldName(HouseType.class, "type",houseType,"type",ApplicationConstants.ASC, locale);
+					houseTypes = HouseType.
+							findAllByFieldName(HouseType.class, "type",houseType,"type",ApplicationConstants.ASC, locale);
 				}
 				model.addAttribute("houseTypes", houseTypes);		
-				model.addAttribute("selectedHouseType",houseTypes.get(0).getType());
+				model.addAttribute("selectedHouseType", houseTypes.get(0).getType());
 			} else {
 				if(model.get("errorcode") == null)
-					model.addAttribute("errorcode","userhousetypenotset");				
+					model.addAttribute("errorcode", "userhousetypenotset");				
 			}			
 		} else {
 			if(model.get("errorcode") == null)
-				model.addAttribute("errorcode","userhousetypenotset");			
+				model.addAttribute("errorcode", "userhousetypenotset");			
 		}
 		
 		/**** To check whether sessions exist for selected house type  ****/					
@@ -93,30 +92,32 @@ public class GroupController extends GenericController<Group> {
 			if(lastSessionCreated.getId()!=null){
 				
 				/**** Session Types ****/
-				List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
-				model.addAttribute("sessionTypes",sessionTypes);
+				List<SessionType> sessionTypes = SessionType.
+						findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
+				model.addAttribute("sessionTypes", sessionTypes);
 				if(lastSessionCreated.getType() != null) {
-					model.addAttribute("selectedSessionType",lastSessionCreated.getType().getType());				
+					model.addAttribute("selectedSessionType", lastSessionCreated.getType().getType());				
 				}
 				
 				/**** Years ****/
 				List<MasterVO> years = new ArrayList<MasterVO>();
 				
 				//set upper limit for years available
-				Integer latestYear=lastSessionCreated.getYear();
+				Integer latestYear = lastSessionCreated.getYear();
 				if(latestYear == null) {
 					latestYear = new GregorianCalendar().get(Calendar.YEAR); //set as current year in case latest session has no year set.
 				}				
 				
 				//starting year must be set as custom parameter 'HOUSE_FORMATION_YEAR'
-				CustomParameter houseFormationYearParameter = CustomParameter.findByFieldName(CustomParameter.class, "name", "HOUSE_FORMATION_YEAR", "");
+				CustomParameter houseFormationYearParameter = CustomParameter.
+						findByFieldName(CustomParameter.class, "name", "HOUSE_FORMATION_YEAR", "");
 				
 				if(houseFormationYearParameter != null) {
 					if(!houseFormationYearParameter.getValue().isEmpty()) {
 						Integer houseFormationYear;
 						try {
 							houseFormationYear = Integer.parseInt(houseFormationYearParameter.getValue());
-							for(Integer i=latestYear; i>=houseFormationYear; i--) {
+							for(Integer i = latestYear; i >= houseFormationYear; i--) {
 								MasterVO year = new MasterVO();
 								year.setName(FormaterUtil.formatNumberNoGrouping(i, locale));
 								year.setValue(i.toString());							
@@ -130,22 +131,22 @@ public class GroupController extends GenericController<Group> {
 						}
 						catch(NumberFormatException ne) {
 							if(model.get("errorcode") == null)
-								model.addAttribute("errorcode","houseformationyearsetincorrect");						
+								model.addAttribute("errorcode", "houseformationyearsetincorrect");						
 						}				
 					}
 					else {
 						if(model.get("errorcode") == null)
-							model.addAttribute("errorcode","houseformationyearnotset");					
+							model.addAttribute("errorcode", "houseformationyearnotset");					
 					}
 				}	
 				else {
 					if(model.get("errorcode") == null)
-						model.addAttribute("errorcode","houseformationyearnotset");				
+						model.addAttribute("errorcode", "houseformationyearnotset");				
 				}		
 							
 			}else{
 				if(model.get("errorcode") == null)
-					model.addAttribute("errorcode","nosessionentriesfound");			
+					model.addAttribute("errorcode", "nosessionentriesfound");			
 			}
 			
 		} catch (ELSException e) {
@@ -371,41 +372,59 @@ javax.servlet.http.HttpServletRequest)
 		}		
 		
 		try{
-			/**** Ministries ****/		
-			List<Ministry> ministries = Ministry.findAll(Ministry.class, "name", ASC, domain.getLocale());
+			/**** Ministries ****/	
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+			List<Ministry> ministries = Ministry.findAssignedMinistriesInSession(session.getStartDate(), locale);
 			
-			//to exclude ministries of other existing groups. 	
-			List<Ministry> ministriesOfOtherGroupsInSameSession = new ArrayList<Ministry>();
-			if(domain.getMinistries() != null) {
-				if(domain.getNumber() != null) {
-					ministriesOfOtherGroupsInSameSession = Group.findMinistriesInGroupsForSessionExcludingGivenGroup(houseType, sessionType, year, domain.getNumber(), locale);
-				} else {
-					if(model.get("errorcode") == null)
-						model.addAttribute("errorcode","groupnumbernotset");				
-				}
-			} else {
-				ministriesOfOtherGroupsInSameSession = Group.findMinistriesInGroupsForSession(houseType, sessionType, year, locale);
-			}
-			if(!ministriesOfOtherGroupsInSameSession.isEmpty()) {
-				ministries.removeAll(ministriesOfOtherGroupsInSameSession);				
-			}
+//			//to exclude ministries of other existing groups. 	
+//			List<Ministry> ministriesOfOtherGroupsInSameSession = new ArrayList<Ministry>();
+//			if(domain.getMinistries() != null) {
+//				if(domain.getNumber() != null) {
+//					ministriesOfOtherGroupsInSameSession = Group.findMinistriesInGroupsForSessionExcludingGivenGroup(houseType, sessionType, year, domain.getNumber(), locale);
+//				} else {
+//					if(model.get("errorcode") == null)
+//						model.addAttribute("errorcode","groupnumbernotset");				
+//				}
+//			} else {
+//				ministriesOfOtherGroupsInSameSession = Group.findMinistriesInGroupsForSession(houseType, sessionType, year, locale);
+//			}
+//			if(!ministriesOfOtherGroupsInSameSession.isEmpty()) {
+//				ministries.removeAll(ministriesOfOtherGroupsInSameSession);				
+//			}
+//			
+//			List<Ministry> modelMinistries = new ArrayList<Ministry>();	
+//			
+//			if(domain.getMinistries() != null) {
+//				if(!domain.getMinistries().isEmpty()) {
+//					ministries.removeAll(domain.getMinistries());
+//					modelMinistries.addAll(domain.getMinistries());
+//				}
+//			}
 			
-			List<Ministry> modelMinistries = new ArrayList<Ministry>();	
-			
-			if(domain.getMinistries() != null) {
-				if(!domain.getMinistries().isEmpty()) {
-					ministries.removeAll(domain.getMinistries());
-					modelMinistries.addAll(domain.getMinistries());
-				}
-			}
-			
-			modelMinistries.addAll(ministries);
-			if(modelMinistries.isEmpty()) {
-				if(model.get("errorcode") == null)
-					model.addAttribute("errorcode","incorrectdefaultgroupnumberset");			
-			}
-			model.addAttribute("ministries", modelMinistries);
+//			modelMinistries.addAll(ministries);
+//			if(modelMinistries.isEmpty()) {
+//				if(model.get("errorcode") == null)
+//					model.addAttribute("errorcode","incorrectdefaultgroupnumberset");			
+//			}
+			model.addAttribute("ministries", ministries);
 			model.addAttribute("selectedMinistries", domain.getMinistries());
+			model.addAttribute("session",session.getId());
+			
+			
+			List<SubDepartment> subdepartments = new ArrayList<SubDepartment>();
+			if(domain.getMinistries()!=null && !domain.getMinistries().isEmpty()){
+				List<Ministry> ministryList = domain.getMinistries();
+				for(Ministry m : ministryList){
+					List<SubDepartment> selectedSubdepartments = MemberMinister.findAssignedSubDepartments(m, session.getEndDate(), locale);
+					subdepartments.addAll(selectedSubdepartments);
+				}
+			}
+			
+			model.addAttribute("subdepartments", subdepartments);
+			model.addAttribute("selectedSubdepartments", domain.getSubdepartments());
+				
+			
+			
 		}catch (ELSException e) {
 			logger.error(e.getMessage());
 			model.addAttribute("error", e.getParameter());
@@ -1009,7 +1028,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 							}
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					String sDate=request.getParameter("submissionDate"+i);
@@ -1020,7 +1038,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 							}
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					String strLastSendingDateToDepartment=request.getParameter("lastSendingDateToDepartment"+i);
@@ -1030,7 +1047,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 								lastSendingDateToDepartment=sf.parse(strLastSendingDateToDepartment);
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					String strLastReceivingDateFromDepartment=request.getParameter("lastReceivingDateFromDepartment"+i);
@@ -1040,7 +1056,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 								lastReceivingDateFromDepartment=sf.parse(strLastReceivingDateFromDepartment);
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					String strLastDateForChangingDepartment=request.getParameter("lastDateForChangingDepartment"+i);
@@ -1050,7 +1065,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 								lastDateForChangingDepartment=sf.parse(strLastDateForChangingDepartment);
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					String strYaadiPrintingDate=request.getParameter("yaadiPrintingDate"+i);
@@ -1060,7 +1074,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 								yaadiPrintingDate=sf.parse(strYaadiPrintingDate);
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					String strYaadiReceivingDate=request.getParameter("yaadiReceivingDate"+i);
@@ -1070,7 +1083,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 								yaadiReceivingDate=sf.parse(strYaadiReceivingDate);
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					String strSuchhiPrintingDate=request.getParameter("suchhiPrintingDate"+i);
@@ -1080,7 +1092,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 								suchhiPrintingDate=sf.parse(strSuchhiPrintingDate);
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					String strSuchhiReceivingDate=request.getParameter("suchhiReceivingDate"+i);
@@ -1090,7 +1101,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 								suchhiReceivingDate=sf.parse(strSuchhiReceivingDate);
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					String strSuchhiDistributionDate=request.getParameter("suchhiDistributionDate"+i);
@@ -1100,7 +1110,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 								suchhiDistributionDate=sf.parse(strSuchhiDistributionDate);
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					String strSpeakerSendingDate=request.getParameter("speakerSendingDate"+i);
@@ -1110,7 +1119,6 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 								speakerSendingDate=sf.parse(strSpeakerSendingDate);
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
@@ -1159,6 +1167,111 @@ org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequ
 		String returnUrl = "redirect:/" + servletPath + "/"
 		+ ((Group) domain).getId() + "/edit";
 		return returnUrl;
-	}   
+	} 
+    
+    @Override
+	protected void preValidateCreate(final Group domain, 
+			final BindingResult result,
+			final HttpServletRequest request) {
+		this.commonPreValidate(domain, result, request);
+	}
+	
+	@Override
+	protected void preValidateUpdate(final Group domain, 
+			final BindingResult result,
+			final HttpServletRequest request) {
+		this.commonPreValidate(domain, result, request);
+	}
+	
+	private void commonPreValidate(final Group domain, 
+			final BindingResult result,
+			final HttpServletRequest request) {
+		// House Type
+		HouseType houseType = null;
+		String strHouseTypeId = request.getParameter("houseType");
+		if(strHouseTypeId != null && ! strHouseTypeId.isEmpty()) {
+			Long houseTypeId = Long.parseLong(strHouseTypeId);
+			houseType = HouseType.findById(HouseType.class, houseTypeId);
+		}
+		
+		// Session Type
+		SessionType sessionType = null;
+		String strSessionTypeId = request.getParameter("sessionType");
+		if(strSessionTypeId != null && ! strSessionTypeId.isEmpty()) {
+			Long sessionTypeId = Long.parseLong(strSessionTypeId);
+			sessionType = 
+				SessionType.findById(SessionType.class, sessionTypeId);
+		}
+		
+		// Session year
+		Integer sessionYear = null;
+		String strSessionYear = request.getParameter("year");
+		if(strSessionYear != null && ! strSessionYear.isEmpty()) {
+			sessionYear = Integer.parseInt(strSessionYear);
+		}
+		
+		try {
+			Session session = 
+				Session.findSessionByHouseTypeSessionTypeYear(houseType, 
+						sessionType, sessionYear);
+			domain.setSession(session);
+		} 
+		catch (ELSException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*@Override
+	protected void populateAfterUpdate(final ModelMap model, 
+			final Group domain,
+			final HttpServletRequest request) {
+		try {
+			Long groupId = domain.getId();
+			Group group = Group.findById(Group.class, groupId);
+			
+			Anonymous anonymous = Anonymous.create(group);
+			Thread thread = new Thread(anonymous);
+			thread.run();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}*/
+	/*
+	@Override
+	 protected void populateUpdateIfNoErrors(final ModelMap model,
+	            final Group domain, 
+	            final HttpServletRequest request) {
+		 List<SubDepartment> subdepartments = domain.getSubdepartments();
+		 domain.setSubdepartments(null);
+		 domain.setSubdepartments(subdepartments);
+		 
+		 
+	 }*/
+}
 
+class Anonymous implements Runnable {
+	
+	private Group group;
+	
+	private Anonymous() {
+		
+	}
+	
+	public static Anonymous create(final Group group) {
+		Anonymous anonymous = new Anonymous();
+		anonymous.group = group;
+		return anonymous;
+	}
+
+	@Override
+	public void run() {
+		try {
+			Group.reshuffle(group);
+		}
+		catch (ELSException e) {
+			e.printStackTrace();
+		}
+	}
+	
 }

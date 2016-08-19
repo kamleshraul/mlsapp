@@ -19,13 +19,11 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
-import org.apache.poi.ss.formula.ptg.MemErrPtg;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BallotEntryVO;
 import org.mkcl.els.common.vo.FinalBallotVO;
-import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBallotFinalBallotQuestionVO;
 import org.mkcl.els.common.vo.MemberBallotFinalBallotVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseCountVO;
@@ -38,11 +36,11 @@ import org.mkcl.els.comparator.BallotEntryAttRoundPosComparator;
 import org.mkcl.els.comparator.BallotEntryNumberComparator;
 import org.mkcl.els.comparator.BallotEntryVOFirstBatchComparator;
 import org.mkcl.els.comparator.BallotEntryVOSecondBatchComparator;
-import org.mkcl.els.domain.Ballot;
-import org.mkcl.els.domain.BallotEntry;
+import org.mkcl.els.domain.ballot.Ballot;
+import org.mkcl.els.domain.ballot.BallotEntry;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.DeviceSequence;
+import org.mkcl.els.domain.ballot.DeviceSequence;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
@@ -52,14 +50,11 @@ import org.mkcl.els.domain.MemberBallotAttendance;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
-import org.mkcl.els.domain.Reference;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Repository;
-
-import com.ibm.icu.util.BytesTrie.Entry;
 
 @Repository
 public class MemberBallotRepository extends BaseRepository<MemberBallot, Serializable>{
@@ -410,7 +405,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"MEMBERBALLOT_ABSENTBALLOT_AFTER_ALL_PRESENTBALLOT", "");
 			if(customParameter!=null){
 				if(customParameter.getValue().toUpperCase().equals(ApplicationConstants.MEMBERBALLOT_ABSENTBALLOT_AFTER_ALL_PRESENTBALLOT)){
-					String strNoOfRounds=session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_UH);
+					String strNoOfRounds=session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT);
 					if(strNoOfRounds!=null){
 						if(!strNoOfRounds.isEmpty()){
 							int noOfRounds=Integer.parseInt(strNoOfRounds);
@@ -787,7 +782,23 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final String firstBatchSubmissionEndDate,
 			final int totalRounds) throws ELSException {
 		/**** Ballot for a particular answering date can be created only once ****/
-		Boolean status=ballotAlreadyCreated(session,deviceType,group,strAnsweringDate,locale);
+		//Boolean status=ballotAlreadyCreated(session,deviceType,group,strAnsweringDate,locale);
+		Boolean status = true;
+		Ballot prevBallot = Ballot.find(session, deviceType, answeringDate, locale);
+		if(prevBallot != null){
+			CustomParameter csptBallotRecreate = CustomParameter.
+					findByName(CustomParameter.class, deviceType.getType().toUpperCase() + "_" + session.getHouse().getType().getType().toUpperCase() +"_BALLOT_RECREATE_IF_EXISTS", "");
+			if(csptBallotRecreate != null){
+				String ballotRecreate = csptBallotRecreate.getValue();
+				if(ballotRecreate != null && !ballotRecreate.isEmpty() && ballotRecreate.equals("YES")){
+					prevBallot.removeBallotUH();
+					status = false;
+				}						
+			}
+		}else{
+			status = false;
+		}
+		
 		if(!status){
 			try {
 				Map<String,String[]> requestMap=new HashMap<String, String[]>();
@@ -812,7 +823,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				int position=1000;				
 
 				Date firstBatchSubmissionEndDateDate=FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, "en_US").parse(firstBatchSubmissionEndDate);
-				int totalRoundsInMemberBallot=Integer.parseInt(session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT_UH));
+				int totalRoundsInMemberBallot=Integer.parseInt(session.getParameter(ApplicationConstants.QUESTION_STARRED_NO_OF_ROUNDS_MEMBERBALLOT));
 				/**** These fields will be used to determine the position of an inactive member question when the
 				 * supporting member or clubbed entity primary member or clubbed entity supporting member of that question has
 				 * neither given question in first batch or second batch for given answering date(e.g Aashish Selar case) ****/
@@ -997,9 +1008,9 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 							deviceSequence.setLocale(locale);
 							deviceSequence.setSequenceNo(j.getValue().getSequence());
 							Question question=Question.findById(Question.class, j.getValue().getDeviceId());
-							//update question ballot status and create a draft
+							//update question ballot status 
 							question.setBallotStatus(ballotStatus);
-							question.merge();
+							question.simpleMerge();
 							deviceSequence.setDevice(question);
 							deviceSequence.persist();
 							deviceSequences.add(deviceSequence);
@@ -2363,8 +2374,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final Member member,
 			final String locale) throws ELSException {
 		try {
-			String startDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
-			String endDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+			String startDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME);
+			String endDate=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME);
 			MemberBallotMemberWiseReportVO memberBallotMemberWiseReportVO=new MemberBallotMemberWiseReportVO();
 			if(startDate!=null&&endDate!=null){
 				if((!startDate.isEmpty())&&(!endDate.isEmpty())){
@@ -2458,6 +2469,11 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 									if(o[7]!=null){
 										questionVO.setCurrentDeviceType(o[7].toString());
 									}
+									if(o[8]!=null){
+										questionVO.setClubbingInformation(o[8].toString());
+									} else {
+										questionVO.setClubbingInformation("");
+									}
 									questionVOs.add(questionVO);
 									position++;
 								}
@@ -2486,8 +2502,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 			final String locale) throws ELSException {
 		try {
 			List<MemberBallotQuestionDistributionVO> distributions=new ArrayList<MemberBallotQuestionDistributionVO>();
-			String startDateParameter=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME_UH);
-			String endDateParameter=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME_UH);
+			String startDateParameter=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_STARTTIME);
+			String endDateParameter=session.getParameter(ApplicationConstants.QUESTION_STARRED_FIRSTBATCH_SUBMISSION_ENDTIME);
 			if(startDateParameter!=null&&endDateParameter!=null){
 				if((!startDateParameter.isEmpty())&&(!endDateParameter.isEmpty())){					
 					Date startDate = FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
@@ -2699,14 +2715,21 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						oldPrimaryClubbedEntity.setPosition(newPrimaryClubbedEntity.getPosition());
 						oldPrimaryClubbedEntity.persist();					
 						List<ClubbedEntity> newPrimaryclubbedEntities=new ArrayList<ClubbedEntity>();					
-						//List<ClubbedEntity> oldPrimaryClubbedEntities=oldPrimaryQuestion.getClubbedEntities();
-						for(ClubbedEntity j:oldPrimaryQuestion.getClubbedEntities()){
+						List<ClubbedEntity> oldPrimaryClubbedEntities=oldPrimaryQuestion.getClubbedEntities();
+						List<Question> questions = new ArrayList<Question>();
+						for(ClubbedEntity j:oldPrimaryClubbedEntities){
 							if(!j.getId().equals(newPrimaryClubbedEntity.getId())){
-								Question question=j.getQuestion();
-								question.setParent(newPrimaryQuestion);
-								question.merge();
+								questions.add(j.getQuestion());
+//								Question question=Question.findById(Question.class, j.getQuestion().getId());
+//								question.setParent(newPrimaryQuestion);
+//								question.merge();
 								newPrimaryclubbedEntities.add(j);
 							}
+						}
+						
+						for(Question q: questions){
+							q.setParent(newPrimaryQuestion);
+							q.merge();
 						}
 						newPrimaryclubbedEntities.add(oldPrimaryClubbedEntity);
 
@@ -2715,6 +2738,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						oldPrimaryQuestion.merge();
 
 						newPrimaryQuestion.setParent(null);
+						newPrimaryQuestion.setRevisedQuestionText(oldPrimaryQuestion.getRevisedQuestionText());
+						newPrimaryQuestion.setRevisedSubject(oldPrimaryQuestion.getRevisedSubject());
 						newPrimaryQuestion.setClubbedEntities(newPrimaryclubbedEntities);
 						newPrimaryQuestion.merge();
 

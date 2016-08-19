@@ -57,6 +57,10 @@
 						);
 				$('#gridURLParams_ForNew').val($('#gridURLParams').val());
 			});
+			
+			$("#evGenReport").click(function(e){
+				showEventGenReport();
+			});
 						
 		});
 		/**** double clicking record in grid handler ****/
@@ -103,6 +107,9 @@
 			</security:authorize>
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
+			</a> |
+			<a href="javascript:void(0);" id="evGenReport" class="butSim">
+				<spring:message code="event.genreport" text="Event Report"/>
 			</a> |
 			<a href="#" id="refreshList" class="butSim">
 				<spring:message code="generic.refresh" text="Refresh"/>

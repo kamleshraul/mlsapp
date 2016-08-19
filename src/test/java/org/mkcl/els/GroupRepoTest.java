@@ -54,22 +54,22 @@ public class GroupRepoTest extends AbstractTest {
 	@Test
 	@Transactional
 	public void testFindAnsweringDates() {
-		List<String> ansDates = null;
-		try {
-			ansDates = Group.getGroupRepository().findAnsweringDates(new Long(168), "mr_IN");
-		} catch (ELSException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		assertNotNull(ansDates);
-		Assert.isTrue(ansDates.size() == 0);
-
-		if (ansDates != null) {
-			for (String d : ansDates) {
-				logger.info("testFindAnsweringDates: " + d);
-			}
-		}
+//		List<String> ansDates = null;
+//		try {
+//			ansDates = Group.getGroupRepository().findAnsweringDates(new Long(168), "mr_IN");
+//		} catch (ELSException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//		assertNotNull(ansDates);
+//		Assert.isTrue(ansDates.size() == 0);
+//
+//		if (ansDates != null) {
+//			for (String d : ansDates) {
+//				logger.info("testFindAnsweringDates: " + d);
+//			}
+//		}
 	}
 
 	@Test
@@ -101,7 +101,7 @@ public class GroupRepoTest extends AbstractTest {
 	@Transactional
 	public void testFindMinistryHouseTypeIntegerSessionTypeString() {
 		try {
-			Ministry ministry = Ministry.findByName(Ministry.class, "गृह मंत्री",
+			Ministry ministry = Ministry.findByName(Ministry.class, "à¤—à¥ƒà¤¹ à¤®à¤‚à¤¤à¥�à¤°à¥€",
 					"mr_IN");
 			HouseType houseType = HouseType.findById(HouseType.class, new Long(4));
 			SessionType sessionType = SessionType.findByFieldName(

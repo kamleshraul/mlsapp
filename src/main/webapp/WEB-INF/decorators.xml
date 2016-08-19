@@ -225,10 +225,21 @@
 		<pattern>/question/*/edit</pattern>
 		<pattern>/question/*/delete</pattern>
 		<pattern>/question</pattern>
+		<pattern>/question/report</pattern>
+		<pattern>/question/report/*</pattern>
 		<pattern>/question/bulksubmission/assistant/int</pattern>	
 		<pattern>/question/bulksubmission/assistant/view</pattern>		
 		<pattern>/question/bulksubmission/assistant/update</pattern>
 		<pattern>/workflow/question</pattern>	
+		
+		<pattern>/standalonemotion/new</pattern>
+		<pattern>/standalonemotion/*/edit</pattern>
+		<pattern>/standalonemotion/*/delete</pattern>
+		<pattern>/standalonemotion</pattern>
+		<pattern>/standalonemotion/bulksubmission/assistant/int</pattern>	
+		<pattern>/standalonemotion/bulksubmission/assistant/view</pattern>		
+		<pattern>/standalonemotion/bulksubmission/assistant/update</pattern>
+		<pattern>/workflow/standalonemotion</pattern>	
 				
 		<pattern>/pushmessage/new</pattern>
 		<pattern>/pushmessage/*/edit</pattern>
@@ -243,6 +254,7 @@
 		<pattern>/user/new</pattern>
 		<pattern>/user/*/edit</pattern>
 		<pattern>/user/*/delete</pattern>
+		<pattern>/user/resetPassword</pattern>
 		<pattern>/user</pattern>
 		
 		<pattern>/citation/new</pattern>
@@ -316,6 +328,15 @@
 		<pattern>/eventmotion/bulksubmission/assistant/update</pattern>
 		<pattern>/workflow/eventmotion</pattern>
 		
+		<pattern>/adjournmentmotion/new</pattern>
+		<pattern>/adjournmentmotion/*/edit</pattern>
+		<pattern>/adjournmentmotion/*/delete</pattern>
+		<pattern>/adjournmentmotion</pattern>
+		<pattern>/adjournmentmotion/bulksubmission/assistant/int</pattern>	
+		<pattern>/adjournmentmotion/bulksubmission/assistant/view</pattern>		
+		<pattern>/adjournmentmotion/bulksubmission/assistant/update</pattern>
+		<pattern>/workflow/adjournmentmotion</pattern>
+		
 		<pattern>/bill/new</pattern>
 		<pattern>/bill/*/edit</pattern>
 		<pattern>/bill/*/delete</pattern>
@@ -384,6 +405,7 @@
 		<pattern>/proceeding/part/new</pattern>
 		<pattern>/proceeding/part/*/edit</pattern>
 		<pattern>/proceeding/part/*/delete</pattern>
+		<!-- <pattern>/proceeding/*/uploadproceeding</pattern> -->
 		
 		<pattern>/rotationorder</pattern>
 		<pattern>/rotationorder/viewrotationorder</pattern>
@@ -415,10 +437,22 @@
 		<pattern>/committee/*/delete</pattern>
 		<pattern>/committee</pattern>
 		
+		
 		<pattern>/committeemeetingtype/new</pattern>
 		<pattern>/committeemeetingtype/*/edit</pattern>
 		<pattern>/committeemeetingtype/*/delete</pattern>
 		<pattern>/committeemeetingtype</pattern>
+		
+		
+		<pattern>/committeemeeting/new</pattern>
+		<pattern>/committeemeeting/*/edit</pattern>
+		<pattern>/committeemeeting/*/delete</pattern>
+		<pattern>/committeemeeting</pattern>
+		
+		<pattern>/committeemeeting/noncommitteemembers/new</pattern>
+		<pattern>/committeemeeting/noncommitteemembers/*/edit</pattern>
+		<pattern>/committeemeeting/noncommitteemembers/*/delete</pattern>
+		<pattern>/committeemeeting/noncommitteemembers</pattern>
 		
 		<pattern>/committeesubject/new</pattern>
 		<pattern>/committeesubject/*/edit</pattern>
@@ -434,6 +468,16 @@
 		<pattern>/partytype/*/edit</pattern>
 		<pattern>/partytype/*/delete</pattern>
 		<pattern>/partytype</pattern>
+		
+		
+		<pattern>/prashnavali/new</pattern>
+		<pattern>/prashnavali/*/edit</pattern>
+		<pattern>/prashnavali/*/delete</pattern>
+		<pattern>/prashnavali</pattern>
+		<pattern>/prashnavali/prashnavaliprocess/processed/*</pattern>
+		<pattern>/prashnavali/prashnavaliprocess/prashnavaliprocess</pattern>
+		
+		
 		
 		<pattern>/houseparty/new</pattern>
 		<pattern>/houseparty/*/edit</pattern>
@@ -541,6 +585,18 @@
 		<pattern>/sectionorderseries/*/edit</pattern>
 		<pattern>/sectionorderseries/*/delete</pattern>
 		<pattern>/sectionorderseries</pattern>	
+		
+		<pattern>/discussionmotion/new</pattern>
+		<pattern>/discussionmotion/*/edit</pattern>
+		<pattern>/discussionmotion/*/delete</pattern>
+		<pattern>/discussionmotion</pattern>	
+		<pattern>/discussionmotion/bulksubmission/assistant/int</pattern>	
+		<pattern>/discussionmotion/bulksubmission/assistant/view</pattern>		
+		<pattern>/discussionmotion/bulksubmission/assistant/update</pattern>
+		<pattern>/workflow/discussionmotion</pattern>
+		
+		<pattern>/myprofile</pattern>
+		<pattern>/myprofile/password</pattern>
 	</decorator>
 	<decorator name="mnu_form" page="mnu_form.jsp">
 		<pattern>/menu</pattern>
@@ -575,6 +631,17 @@
 		<pattern>/member/election/*/edit</pattern>
 		<pattern>/member/election/*/delete</pattern>
 		<pattern>/member/election</pattern>
+		
+		<pattern>/member/suspension/new</pattern>
+		<pattern>/member/suspension/*/edit</pattern>
+		<pattern>/member/suspension/*/delete</pattern>
+		<pattern>/member/suspension</pattern>
+		
+		<pattern>/zillaparishad</pattern>
+		<pattern>/zillaparishad/new</pattern>
+		<pattern>/zillaparishad/*/edit</pattern>
+		<pattern>/zillaparishad/*/delete</pattern>
+		
 	</decorator>
 
 </decorators>

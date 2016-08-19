@@ -175,7 +175,7 @@
 									<xsl:variable name="countForStatus">				
 									<xsl:for-each select="./distributions">										
 										<xsl:choose>
-											<xsl:when test="currentDeviceType='questions_unstarred' and statusTypeType='question_final_admission'"><fo:block/>
+											<xsl:when test="currentDeviceType='questions_unstarred' and statusTypeType='question_unstarred_final_admission'"><fo:block/>
 												<xsl:value-of select="count"/>																					
 											</xsl:when>																					
 										</xsl:choose>																		

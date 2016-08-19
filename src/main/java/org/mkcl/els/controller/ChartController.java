@@ -10,8 +10,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.collections.iterators.EntrySetMapIterator;
-import org.hibernate.mapping.Array;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.ChartVO;
@@ -23,12 +21,11 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
-import org.mkcl.els.domain.Query;
-import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,31 +48,40 @@ public class ChartController extends BaseController{
 			/**** Added By Sandeep Singh ****/
 			String strUserGroup = request.getParameter("usergroup");
 			String strUserGroupType = request.getParameter("usergroupType");
-			if(strGroup != null && strUserGroup != null && strUserGroupType != null && strDeviceTypeId != null) {
-				if((!strGroup.isEmpty()) && (!strUserGroup.isEmpty()) && (!strUserGroupType.isEmpty()) && (!strDeviceTypeId.isEmpty())) {
-					DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceTypeId));
-					Group group = null;
-					if(deviceType != null){
-						if(!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
-							group = Group.findById(Group.class, Long.parseLong(strGroup));
-							
-							List<MasterVO> masterVOs = new ArrayList<MasterVO>();
-							List<QuestionDates> questionDates = group.getQuestionDates();
-							for(QuestionDates i:questionDates) {
-								MasterVO masterVO = new MasterVO(i.getId(), 
-										FormaterUtil.getDateFormatter(
-												locale.toString()).format(i.getAnsweringDate()));
-								masterVOs.add(masterVO);
-							}
-							model.addAttribute("answeringDates", masterVOs);
-						}else{
-								model.addAttribute("answeringDates", null);
+			String strHouseType = request.getParameter("houseType");
+			
+			if(strGroup != null && (!strGroup.isEmpty()) 
+					&& strUserGroup != null && (!strUserGroup.isEmpty())
+					&& strUserGroupType != null && (!strUserGroupType.isEmpty()) 
+					&& strDeviceTypeId != null && (!strDeviceTypeId.isEmpty())
+					&& strHouseType != null && (!strHouseType.isEmpty())) {
+					
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceTypeId));
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+					
+				Group group = null;
+				if(deviceType != null){
+					if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)
+							&& houseType.getType().equals(ApplicationConstants.LOWER_HOUSE))){
+						
+						group = Group.findById(Group.class, Long.parseLong(strGroup));
+						
+						List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+						List<QuestionDates> questionDates = group.getQuestionDates();
+						for(QuestionDates i:questionDates) {
+							MasterVO masterVO = new MasterVO(i.getId(), 
+									FormaterUtil.getDateFormatter(
+											locale.toString()).format(i.getAnsweringDate()));
+							masterVOs.add(masterVO);
 						}
+						model.addAttribute("answeringDates", masterVOs);
+					}else{
+							model.addAttribute("answeringDates", null);
 					}
-					model.addAttribute("usergroup", strUserGroup);
-					model.addAttribute("usergroupType", strUserGroupType);
-					model.addAttribute("deviceType", (deviceType != null)?deviceType.getType():"");
-				}			
+				}
+				model.addAttribute("usergroup", strUserGroup);
+				model.addAttribute("usergroupType", strUserGroupType);
+				model.addAttribute("deviceType", (deviceType != null)?deviceType.getType():"");			
 			}
 		}catch (Exception e) {
 			String message = e.getMessage();
@@ -127,15 +133,12 @@ public class ChartController extends BaseController{
 			Date answeringDate=null;
 			if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)){				
 				/** Create answeringDate */
-				if(!deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
-					
-					String strGroup = request.getParameter("group");
-					group = Group.findById(Group.class, Long.parseLong(strGroup));
-					
-					String strAnsweringDate = request.getParameter("answeringDate");
-					questionDates=QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
-					answeringDate = questionDates.getAnsweringDate();					
-				}
+				String strGroup = request.getParameter("group");
+				group = Group.findById(Group.class, Long.parseLong(strGroup));
+				
+				String strAnsweringDate = request.getParameter("answeringDate");
+				questionDates=QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				answeringDate = questionDates.getAnsweringDate();
 			}			
 			
 			/** Create Chart */
@@ -143,7 +146,7 @@ public class ChartController extends BaseController{
 				Chart foundChart = Chart.find(new Chart(session, group, answeringDate, deviceType, locale.toString()));
 				if(foundChart == null) {
 					Chart chart = null;
-					if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+					if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 						chart = new Chart(session, deviceType, locale.toString());
 					}else{
 						chart = new Chart(session, group, answeringDate, deviceType, locale.toString());
@@ -174,11 +177,26 @@ public class ChartController extends BaseController{
 				else {
 					retVal = "ALREADY_EXISTS";
 				}
+			}else if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_STANDALONE)){
+				
+				Chart foundChart = Chart.find(new Chart(session, deviceType, locale.toString()));
+				
+				if(foundChart == null) {
+					
+					Chart chart = new Chart(session, deviceType, locale.toString());
+					Chart createdChart = chart.create();
+				
+					if(createdChart == null) {
+						retVal = "PREVIOUS_CHART_IS_NOT_PROCESSED";
+					}
+					else {
+						retVal = "CREATED";
+					}
+				}else {
+					retVal = "ALREADY_EXISTS";
+				}
 			}
-			
-			
-		}
-		catch(Exception e) {
+		}catch(Exception e) {
 			logger.error("error", e);
 			retVal = "ERROR";
 		}
@@ -217,25 +235,23 @@ public class ChartController extends BaseController{
 			Group group=null;
 			QuestionDates questionDates=null;
 			Date answeringDate=null;
-			if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)){				
-				if(!(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) && houseType.getType().equals(ApplicationConstants.LOWER_HOUSE))){
+			if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)){			
 					
-					String strGroup = request.getParameter("group");
-					group = Group.findById(Group.class, Long.parseLong(strGroup));
-					model.addAttribute("deviceType", deviceType.getType());
-										
-					/** Create answeringDate */
-					String strAnsweringDate = request.getParameter("answeringDate");
-					questionDates=QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
-					answeringDate = questionDates.getAnsweringDate();
-						
-					/** Add localized answeringDate to model */
-					CustomParameter parameter =
-						CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-					String localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, 
-							parameter.getValue(), locale.toString());
-					model.addAttribute("answeringDate", localizedAnsweringDate);
-				}
+				String strGroup = request.getParameter("group");
+				group = Group.findById(Group.class, Long.parseLong(strGroup));
+				model.addAttribute("deviceType", deviceType.getType());
+									
+				/** Create answeringDate */
+				String strAnsweringDate = request.getParameter("answeringDate");
+				questionDates=QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				answeringDate = questionDates.getAnsweringDate();
+					
+				/** Add localized answeringDate to model */
+				CustomParameter parameter =
+					CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+				String localizedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, 
+						parameter.getValue(), locale.toString());
+				model.addAttribute("answeringDate", localizedAnsweringDate);
 			}
 			
 			
@@ -309,9 +325,22 @@ public class ChartController extends BaseController{
 					parametersMap.put("groupId", new String[]{group.getId().toString()});
 					parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
 										
-					List questionParents = org.mkcl.els.domain.Query.findReport("CHART_QUESTION_ONLY_PARENTS", parametersMap);
+					// List questionParents = org.mkcl.els.domain.Query.findReport("CHART_QUESTION_ONLY_PARENTS", parametersMap);
 					
 					starredChartView = org.mkcl.els.domain.Query.findReport("STARRED_CHART_VIEW", parametersMap);					
+										
+					List starredChartViewCounts = org.mkcl.els.domain.Query.findReport("STARRED_CHART_VIEW_COUNTS", parametersMap);
+					if(starredChartViewCounts!=null && !starredChartViewCounts.isEmpty()) {
+						if(starredChartViewCounts.get(0)!=null) {
+							Object[] counts = (Object[]) starredChartViewCounts.get(0);
+							model.addAttribute("processedCount", counts[0]);
+							model.addAttribute("clubbedCount", counts[1]);
+							model.addAttribute("putupCount", counts[2]);
+							model.addAttribute("admitCount", counts[3]);
+							model.addAttribute("rejectCount", counts[4]);
+							model.addAttribute("unstarredCount", counts[5]);							
+						}						
+					}
 					
 					parametersMap.put("houseId", new String[]{session.getHouse().getId().toString()});
 					parametersMap.put("roleId", new String[]{memberRole.getId().toString()});					
@@ -319,18 +348,22 @@ public class ChartController extends BaseController{
 					extraMembers = org.mkcl.els.domain.Query.findReport("STARRED_CHART_VIEW_2", parametersMap);
 					
 					List simplifiedList = (starredChartView!=null)?getSimplifiedChart(starredChartView):null;
-					simplifiedList.addAll(extraMembers);
+					if(simplifiedList!=null) {
+						simplifiedList.addAll(extraMembers);
+					} else {
+						simplifiedList = new ArrayList<Object[]>();
+					}
 					model.addAttribute("report", simplifiedList);
 				}
 			
 				
-			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+			}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 				//chartVOs = Chart.getChartVOs(session, null, answeringDate, deviceType, locale.toString());
 				Chart chart = Chart.find(new Chart(session, deviceType, locale.toString()));
 				List hdsChartView = null;
 				if(chart != null){
-					Status rejectionStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_REJECTION, locale.toString());
-					Status repeatRejectionStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_REPEATREJECTION, locale.toString());
+					Status rejectionStatus = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REJECTION, locale.toString());
+					Status repeatRejectionStatus = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATREJECTION, locale.toString());
 					MemberRole memberRole=MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale.toString());
 					
 					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
@@ -348,14 +381,14 @@ public class ChartController extends BaseController{
 					for(int i = 0; i < hdsChartView.size(); i++ ){
 						Object[] obj = ((Object[])hdsChartView.get(i));
 						Member member = Member.findById(Member.class, Long.valueOf(obj[0].toString()));
-						List<Question> rejectedQuestions = Question.getRejectedQuestions(member, session, deviceType, locale.toString());
+						List<StandaloneMotion> rejectedMotions = StandaloneMotion.findRejectedStandaloneMotions(member, session, deviceType, locale.toString());
 								
-						((Object[])hdsChartView.get(i))[12] = Question.getRejectedQuestionsAsString(rejectedQuestions, locale.toString()); 
-						((Object[])hdsChartView.get(i))[13] = rejectedQuestions.size();
-						((Object[])hdsChartView.get(i))[14] = Question.getQuestionWithoutNumber(member, deviceType, session, locale.toString());
+						((Object[])hdsChartView.get(i))[12] = StandaloneMotion.findRejectedStandaloneMotionsAsString(rejectedMotions, locale.toString()); 
+						((Object[])hdsChartView.get(i))[13] = rejectedMotions.size();
+						((Object[])hdsChartView.get(i))[14] = StandaloneMotion.findStandaloneMotionWithoutNumber(member, deviceType, session, locale.toString());
 						
 						obj = null;
-						rejectedQuestions = null;
+						rejectedMotions = null;
 					}
 					List newList = getSimplifiedChart(hdsChartView);
 					List extraMembers = org.mkcl.els.domain.Query.findReport("HDS_CHART_VIEW_2", parametersMap);
@@ -368,11 +401,16 @@ public class ChartController extends BaseController{
 			
 			/** Set max Questions on Chart against any member*/
 			if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)){
-			Integer maxQuestionsOnChart = 
-				Chart.maxChartedQuestions(session, group, answeringDate, deviceType, locale.toString());
-			model.addAttribute("maxQns", maxQuestionsOnChart);
+				Chart chart = new Chart(session, group, answeringDate, deviceType, locale.toString());
+				Integer maxQuestionsOnChart = Chart.maxChartedDevices(chart);
+				model.addAttribute("maxQns", maxQuestionsOnChart);
 			}else if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
-				Integer maxResolutionsOnChart = Chart.maxChartedResolutions(session, locale.toString());
+				Chart chart = new Chart(session, deviceType, locale.toString());
+				Integer maxResolutionsOnChart = Chart.maxChartedDevices(chart);
+				model.addAttribute("maxQns", maxResolutionsOnChart);
+			}else if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_STANDALONE)){
+				Chart chart = new Chart(session, deviceType, locale.toString());
+				Integer maxResolutionsOnChart = Chart.maxChartedDevices(chart);
 				model.addAttribute("maxQns", maxResolutionsOnChart);
 			}
 			/*if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
@@ -397,6 +435,7 @@ public class ChartController extends BaseController{
 	 * @param chartList
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	private List getSimplifiedChart(List chartList){
 		
 		Map<String, List<Object[]>> chartMap = new HashMap<String, List<Object[]>>();

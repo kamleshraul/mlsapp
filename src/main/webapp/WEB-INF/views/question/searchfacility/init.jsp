@@ -154,7 +154,10 @@
 				if(value!='-'){
 					$(this).css("color","blue");				
 				}else{
-					$(this).css("color","");					
+					$(this).css("color","");	
+					if($('#whichDevice').val()=='questions_'){
+						loadAllMinistries();
+					}
 				}
 				var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";		
 				if(value=='-'){
@@ -163,7 +166,8 @@
 					$("#subDepartmentStarred").empty();
 					$("#subDepartmentStarred").html(text);
 				}else{
-					loadDep(value);
+					//loadDep(value);
+					loadSubdepartments(value);
 				}
 			});
 			/**** Department ****/	
@@ -253,6 +257,10 @@
 				}else if($("#chartResultDiv").length>0){
 					$("#chartResultDiv").show();
 					$("#selectionDiv2").show();					
+				}else{
+					if($('#whichDevice').val()=='questions_') {
+						showQuestionList();
+					}
 				}
 				/**** Hide update success/failure message on coming back to question ****/
 				if($("#.toolTipe").length>0){
@@ -276,6 +284,8 @@
 					if(value == 'searchByNumber'){						
 						$("#searchByMemberDiv").css({'display': 'none'});
 					}else if(value == 'searchByMember'){
+						$("#formattedPrimaryMember").val('');
+						$("#primaryMember").val('');
 						$("#searchByMemberDiv").css({'display': 'inline-block'});					
 					}
 				}else{
@@ -283,7 +293,73 @@
 				}
 			});
 			
-	});
+			if($('#whichDevice').val()=='questions_'){
+				loadAllMinistries();
+			}			
+		});
+		
+		function loadAllMinistries(){
+			$.get('ref/sessionbyhousetype/'+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val(),function(data){
+				if(data){
+					if($('#whichDevice').val()=='questions_') {						
+						var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
+						
+						$("#departmentStarred").empty();
+						$("#departmentStarred").html(text);
+						$("#subDepartmentStarred").empty();
+						$("#subDepartmentStarred").html(text);
+						
+						$.get('ref/allministries?session='+data.id,function(data1){
+								if(data1.length>0){
+									for(var i=0;i<data1.length;i++){
+										text+="<option value='"+data1[i].id+"'>"+data1[i].name+"</option>";
+									}
+									$("#ministryStarred").empty();
+									$("#ministryStarred").html(text);						
+								}else{
+									$("#ministryStarred").empty();
+									$("#ministryStarred").html(text);		
+								}
+							}).fail(function(){
+								if($("#ErrorMsg").val()!=''){
+									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+								}else{
+									$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+								}
+								scrollTop();
+							});	
+					}
+				}
+			});
+		}
+		
+		function loadSubdepartments(ministry){
+			if($('#whichDevice').val()=='questions_') {						
+				var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
+				$("#subDepartmentStarred").empty();
+				$("#subDepartmentStarred").html(text);
+				
+				$.get('ref/subdepartments/ministry?ministryId='+ministry,function(data1){
+						if(data1.length>0){
+							for(var i=0;i<data1.length;i++){
+								text+="<option value='"+data1[i].id+"'>"+data1[i].name+"</option>";
+							}
+							$("#subDepartmentStarred").empty();
+							$("#subDepartmentStarred").html(text);						
+						}else{
+							$("#subDepartmentStarred").empty();
+							$("#subDepartmentStarred").html(text);		
+						}
+					}).fail(function(){
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						scrollTop();
+					});	
+			}
+		}
 		
 		/**** Group ****/
 		function loadGrp(houseType,sessionYear,sessionType){
@@ -320,56 +396,56 @@
 		}
 		/**** Answering Date ****/
 		function loadAD(group){
-		var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
-		$.get('ref/group/'+group+'/answeringdates',function(data){
-			if(data.length>0){
-				for(var i=0;i<data.length;i++){
-				text+="<option value='"+data[i].id+"'>"+data[i].name;
+			var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
+			$.get('ref/group/'+group+'/answeringdates',function(data){
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+					text+="<option value='"+data[i].id+"'>"+data[i].name;
+					}
+					$("#answeringDateStarred").empty();
+					$("#answeringDateStarred").html(text);
+					loadMin(group);						
+				}else{
+					$("#answeringDateStarred").empty();
+					$("#answeringDateStarred").html(text);
+					$("#ministryStarred").empty();
+					$("#ministryStarred").html(text);		
 				}
-				$("#answeringDateStarred").empty();
-				$("#answeringDateStarred").html(text);
-				loadMin(group);						
-			}else{
-				$("#answeringDateStarred").empty();
-				$("#answeringDateStarred").html(text);
-				$("#ministryStarred").empty();
-				$("#ministryStarred").html(text);		
-			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});	
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
 		}
 		/**** Minister by group****/
 		function loadMin(group){
-		var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
-		$("#departmentStarred").empty();
-		$("#departmentStarred").html(text);
-		$("#subDepartmentStarred").empty();
-		$("#subDepartmentStarred").html(text);
-		$.get('ref/group/'+group+'/ministries',function(data){
-			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-				text+="<option value='"+data[i].id+"'>"+data[i].name;
-			}
-			$("#ministryStarred").empty();
-			$("#ministryStarred").html(text);						
-			}else{
-			$("#ministryStarred").empty();
-			$("#ministryStarred").html(text);		
-			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});	
+			var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
+			$("#departmentStarred").empty();
+			$("#departmentStarred").html(text);
+			$("#subDepartmentStarred").empty();
+			$("#subDepartmentStarred").html(text);
+			$.get('ref/group/'+group+'/ministries',function(data){
+				if(data.length>0){
+				for(var i=0;i<data.length;i++){
+					text+="<option value='"+data[i].id+"'>"+data[i].name;
+				}
+				$("#ministryStarred").empty();
+				$("#ministryStarred").html(text);						
+				}else{
+				$("#ministryStarred").empty();
+				$("#ministryStarred").html(text);		
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
 		}
 		
 		/**** Minister ****/
@@ -406,19 +482,22 @@
 		}
 		/**** Department ****/
 		function loadDep(ministry){
-		$.get('ref/departments/'+ministry,function(data){
+		var param = "houseType=" + $('#selectedHouseType').val() +
+		"&sessionType=" + $('#selectedSessionType').val() +
+		"&sessionYear=" +$('#selectedSessionYear').val();
+		$.get('ref/departments/'+ministry+'?'+param,function(data){
 			var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
 			$("#subDepartmentStarred").empty();
 			$("#subDepartmentStarred").html(text);
 			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-			text+="<option value='"+data[i].id+"'>"+data[i].name;
+				for(var i=0;i<data.length;i++){
+				text+="<option value='"+data[i].id+"'>"+data[i].name;
 			}
-			$("#departmentStarred").empty();
-			$("#departmentStarred").html(text);					
+				$("#departmentStarred").empty();
+				$("#departmentStarred").html(text);					
 			}else{
-			$("#departmentStarred").empty();
-			$("#departmentStarred").html(text);
+				$("#departmentStarred").empty();
+				$("#departmentStarred").html(text);
 			}
 		}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
@@ -431,7 +510,10 @@
 		}
 		/**** Sub Department ****/
 		function loadSubDep(ministry,department){
-		$.get('ref/subdepartments/'+ministry+'/'+department,function(data){
+		var param = "houseType=" + $('#selectedHouseType').val() +
+		"&sessionType=" + $('#selectedSessionType').val() +
+		"&sessionYear=" +$('#selectedSessionYear').val();
+		$.get('ref/subdepartments/'+ministry+'/'+department +'?'+ param,function(data){
 			var text="<option value='-'>----"+$("#pleaseSelect").val()+"----</option>";
 			if(data.length>0){
 			for(var i=0;i<data.length;i++){
@@ -468,13 +550,10 @@
 					if($('#whichDevice').val()=='questions_') {
 						postData={param:$("#searchvalue").val(),session:data.id,record:record,start:start};
 						
-						var deviceType = $("#deviceTypeStarred").val();
-						var commonDevice = $("#selectedQuestionType").val();
+						var deviceType = $("#deviceTypeStarred").val();						
 						if(deviceType!='' && deviceType!='-'){
 							postData['deviceType']=deviceType;
-						}else if(commonDevice!='' && commonDevice!='-'){
-							postData['deviceType']=commonDevice;
-						}
+						} 
 						
 						var searchByy = $("#searchBy").val();
 						if(searchByy=='searchByNumber'){
@@ -558,15 +637,37 @@
 											textTemp+=","+data[i].status+"<br>";
 										   
 									    }else{						     
-									    textTemp+=","+data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].status;
-										 
-									     
+									    	textTemp+=","+data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].status;
 									    }
-										if(data[i].chartAnsweringDate==null||data[i].chartAnsweringDate==''){
+										if(data[i].chartAnsweringDate!=null && data[i].chartAnsweringDate!=''){
+											textTemp+=" <br>"+$("#chartDateTitle").val() +" : "+ data[i].chartAnsweringDate;
+										} 
+										
+										if(data[i].discussionDate != null && data[i].discussionDate!='' && data[i].discussionDate!="null"){
+											textTemp+=" <br>"+$("#ballotDateTitle").val() +" : "+ data[i].discussionDate;
+										}
+										
+										if(data[i].formattedParentNumber != null && data[i].formattedParentNumber != ''){
+											textTemp+=" <br><a style='text-decoration:underline;' onclick=viewDetail('"+data[i].sessionId+"')>" +  data[i].formattedParentNumber +"</a>"+ $("#parentTitle").val();
+										}
+										
+										if(data[i].formattedClubbedNumbers != null && data[i].formattedClubbedNumbers != ''){
+											
+											textTemp+=" <br>"+ $("#clubbingTitle").val() + " : ";
+											var clubbedNumbers = data[i].formattedClubbedNumbers.split(",") ;
+											for(var j=0;j<clubbedNumbers.length;j++){
+												var cnos = clubbedNumbers[j].split("#");
+												textTemp += "<a style='text-decoration:underline;' onclick=viewDetail('"+cnos[1]+"')>" + cnos[0] +"</a>, ";
+											}
+										}
+										
+										if(data[i].actor==null||data[i].actor==''){
 											textTemp+="</td>";
 										}else{
-											textTemp+=" ,"+data[i].chartAnsweringDate+"</td>";
+											textTemp+=" ,<br>"+data[i].actor+"</td>";
 										} 
+										
+										
 									} 
 									
 									textTemp+="</tr>";								
@@ -834,7 +935,14 @@ td>table{
 	<select name="searchBy" id="searchBy" style="width:100px;height: 25px;">				
 		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>	
 		<c:forEach items="${searchBy}" var="sb">
-			<option value="${sb.value}">${sb.name}</option>
+			<c:choose>
+				<c:when test="${sb.value=='searchByNumber'}">
+					<option value="${sb.value}" selected="selected">${sb.name}</option>
+				</c:when>
+				<c:otherwise>
+					<option value="${sb.value}">${sb.name}</option>
+				</c:otherwise>
+			</c:choose>
 		</c:forEach>
 	</select> 	
 	<div id="searchByMemberDiv" style="display: none;">
@@ -909,20 +1017,20 @@ td>table{
 	<select name="ministryStarred" id="ministryStarred" style="width:100px;height: 25px;">				
 		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
 	</select> |			
-	<a href="#" class="butSim">
+	<%-- <a href="#" class="butSim">
 		<spring:message code="advancedsearch.department" text="Department"/>
 	</a>			
 	<select name="departmentStarred" id="departmentStarred" style="width:100px;height: 25px;">				
 		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-	</select> |
-	
-	<hr>			
+	</select> | --%>
 	<a href="#" class="butSim">
 		<spring:message code="advancedsearch.subdepartment" text="Sub Department"/>
 	</a>	
 	<select name="subDepartmentStarred" id="subDepartmentStarred" style="width:100px;height: 25px;">				
 		<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-	</select> |	
+	</select> |
+	
+	<hr>
 	<a href="#" class="butSim">
 		<spring:message code="question.status" text="Status"/>
 	</a>			
@@ -939,20 +1047,20 @@ td>table{
 
 
 <div id="searchBoxDiv">
-<table style="padding: 0px; margin: 0px;"> 
-	<tr> 
-		<td style="border-style:solid none solid solid;border-color:#4B7B9F;border-width:2px;">
-			<input type="text" name="zoom_query" id="searchvalue" style="width:660px; border:0px solid; height:17px; padding:0px 3px; position:relative;"> 
-		</td>
-		<td style="border-style:solid;border-color:#4B7B9F;border-width:1px;cursor: pointer;"> 
-			<input type="button" id="search" value="" style="border-style: none; background: url('/els/resources/images/searchbutton3.gif') no-repeat; width: 24px; height: 20px;">
-		</td>
-		<td>
-			<a href="#" id="reset" style="margin-left: 10px;margin-right: 10px;"><spring:message code="clubbing.reset" text="Reset Filters"></spring:message></a>
-			<a href="#" id="backToQuestion" style="margin-left: 10px;margin-right: 10px;"><spring:message code="clubbing.back" text="Back"></spring:message></a>
-		</td>
-	</tr>
-</table>
+	<table style="padding: 0px; margin: 0px;"> 
+		<tr> 
+			<td style="border-style:solid none solid solid;border-color:#4B7B9F;border-width:2px;">
+				<input type="text" name="zoom_query" id="searchvalue" style="width:660px; border:0px solid; height:17px; padding:0px 3px; position:relative;"> 
+			</td>
+			<td style="border-style:solid;border-color:#4B7B9F;border-width:1px;cursor: pointer;"> 
+				<input type="button" id="search" value="" style="border-style: none; background: url('/els/resources/images/searchbutton3.gif') no-repeat; width: 24px; height: 20px;">
+			</td>
+			<td>
+				<a href="#" id="reset" style="margin-left: 10px;margin-right: 10px;"><spring:message code="clubbing.reset" text="Reset Filters"></spring:message></a>
+				<a href="#" id="backToQuestion" style="margin-left: 10px;margin-right: 10px;"><spring:message code="clubbing.back" text="Back"></spring:message></a>
+			</td>
+		</tr>
+	</table>
 </div>
 
 <p id="clubbingP">
@@ -1035,5 +1143,9 @@ td>table{
 <input type="hidden" id="defaultTitleLanguage" value="${defaultTitleLanguage}" />
 <input type="hidden" id="subdepartmentValue" value="<spring:message code='question.department' text='subDepartment'/>" />
 <input type="hidden" id="billWithoutNumber" value="<spring:message code='bill.referredBillWithoutNumber' text='Click To See'/>">
+<input id="ballotDateTitle" value="<spring:message code='question.ballotDateTitle' text='Ballot Date'/>" type="hidden">
+<input id="chartDateTitle" value="<spring:message code='question.chartDateTitle' text='Chart Date'/>" type="hidden">
+<input id="parentTitle" value="<spring:message code='question.parentTitle' text='Parent'/>" type="hidden">
+<input id="clubbingTitle" value="<spring:message code='question.clubbingTitle' text='Clubbed Entities'/>" type="hidden">
 </body>
 </html>

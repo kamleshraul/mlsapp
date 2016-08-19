@@ -240,12 +240,20 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 		try {
 			String strQuery="SELECT hmra FROM HouseMemberRoleAssociation hmra " +
 					"WHERE hmra.fromDate<=:fromDate AND hmra.toDate>=:toDate" +
-					" AND hmra.role=:role AND hmra.house=:house AND hmra.locale=:locale";
+					" AND hmra.role=:role AND hmra.locale=:locale";
+			if(role.getType().equals("MEMBER") 
+				|| role.getType().equals("LEADER_OF_OPPOSITION")){
+				strQuery = strQuery + " AND hmra.house=:house";
+			}
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("fromDate", date);
 			query.setParameter("toDate", date);
 			query.setParameter("role", role);
-			query.setParameter("house", house);
+			if(role.getType().equals("MEMBER") 
+					|| role.getType().equals("LEADER_OF_OPPOSITION")){
+				query.setParameter("house", house);
+			}	
+			
 			query.setParameter("locale", locale);
 			List<HouseMemberRoleAssociation> associations = query.getResultList();
 			return associations;

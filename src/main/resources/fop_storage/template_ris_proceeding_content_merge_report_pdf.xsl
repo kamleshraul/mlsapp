@@ -161,7 +161,7 @@
 			      												<fo:block>&#160;</fo:block>
 	  															<fo:block>&#160;</fo:block>
 	      														<fo:block>
-																	<xsl:if test="position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole">
+																	<xsl:if test="(position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole) and string-length(./memberrole)>0">
 																		<fo:block text-align="center" font-weight="bold">
 																			(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
 																		</fo:block>
@@ -193,7 +193,7 @@
 																 	<fo:block>&#160;</fo:block>
 																 	<fo:inline>
 																		<xsl:choose>
-																			<xsl:when test="position() = 1 or (preceding-sibling::childVOs[1]/primaryMember!=./primaryMember)">
+																			<xsl:when test="(position() = 1 or preceding-sibling::childVOs[1]/primaryMember!=./primaryMember) and string-length(./primaryMember)>0">
 																				<xsl:choose>
 																					<xsl:when test="(primaryMemberMinistry!='' and primaryMemberMinistry!=null) or primaryMember='अध्यक्ष' ">
 																						<fo:inline font-weight="bold" >
@@ -263,14 +263,14 @@
 			      											<xsl:otherwise>
 			      												<fo:block>
 		   															<fo:inline font-weight="bold">
-		   																<xsl:if test="position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole">
+		   																<xsl:if test="(position()=1 or preceding-sibling::childVOs[1]/memberrole!=./memberrole) and string-length(./memberrole)>0">
 																		<fo:block text-align="center" font-weight="bold">
 																			(अध्यक्षस्थानी  माननीय <xsl:apply-templates select="memberrole"></xsl:apply-templates> &#160; <xsl:apply-templates select="chairperson"></xsl:apply-templates>)
 																		</fo:block>
 																		<fo:block>&#160;</fo:block>
 																	</xsl:if>
 																		<xsl:choose>
-																			<xsl:when test="position() = 1 or (preceding-sibling::childVOs[1]/primaryMember!=./primaryMember)">
+																			<xsl:when test="(position() = 1 or preceding-sibling::childVOs[1]/primaryMember!=./primaryMember) and string-length(./primaryMember)>0">
 																				<xsl:choose>
 																					<xsl:when test="primaryMemberMinistry!='' or primaryMember='अध्यक्ष'">
 																						<fo:inline font-weight="bold" >
@@ -320,7 +320,7 @@
 																				</xsl:if>
 																				:																														
 																			</xsl:when>
-																			<xsl:when test="publicRepresentative!=''">
+																			<xsl:when test="string-length(publicRepresentative)>0 and publicRepresentative!=''">
 																				<xsl:value-of select="publicRepresentative"></xsl:value-of>	
 																				<xsl:if test="publicRepresentativeDetails!=''">
 																					(<xsl:value-of select="publicRepresentativeDetails"></xsl:value-of>)

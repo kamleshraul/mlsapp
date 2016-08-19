@@ -38,6 +38,7 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
@@ -49,6 +50,7 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
@@ -498,7 +500,8 @@ public class CutMotionController extends GenericController<CutMotion>{
 								if (ministry != null) {
 									model.addAttribute("ministrySelected", ministry.getId());
 									/**** Sub Departments ****/
-									List<SubDepartment> subDepartments = MemberMinister.findAssignedSubDepartments(ministry, locale);
+									List<SubDepartment> subDepartments = MemberMinister.
+											findAssignedSubDepartments(ministry, selectedSession.getEndDate(), locale);
 									model.addAttribute("subDepartments", subDepartments);
 									SubDepartment subDepartment = domain.getSubDepartment();
 									if (subDepartment != null) {
@@ -724,7 +727,8 @@ public class CutMotionController extends GenericController<CutMotion>{
 					if(ministry != null){
 						model.addAttribute("ministrySelected",ministry.getId());						
 						/**** Sub Departments ****/
-						List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,locale);
+						List<SubDepartment> subDepartments=MemberMinister.
+								findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 						model.addAttribute("subDepartments",subDepartments);
 						SubDepartment subDepartment = domain.getSubDepartment();
 						if(subDepartment != null){
@@ -812,33 +816,33 @@ public class CutMotionController extends GenericController<CutMotion>{
 		}	
 		
 		/**** Referenced Entities are collected in refentities****/		
-		List<ReferencedEntity> referencedEntities=domain.getReferencedEntities();
+		List<ReferenceUnit> referencedEntities=domain.getReferencedEntities();
 		if(referencedEntities != null && !referencedEntities.isEmpty()){
 			List<Reference> refentities = new ArrayList<Reference>();
 			List<Reference> refmotionentities = new ArrayList<Reference>();
 			List<Reference> refquestionentities = new ArrayList<Reference>();
 			List<Reference> refresolutionentities = new ArrayList<Reference>();
-			for(ReferencedEntity re:referencedEntities){
+			for(ReferenceUnit re:referencedEntities){
 				if(re.getDeviceType() != null){
-					if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_MOTIONS)){
+					if(re.getDeviceType().startsWith(ApplicationConstants.DEVICE_MOTIONS)){
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Motion)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Motion)re.getDevice()).getId()));
+						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(re.getNumber()));
+						reference.setNumber(String.valueOf(re.getId()));
 						refentities.add(reference);	
 						refmotionentities.add(reference);
-					}else if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
+					}else if(re.getDeviceType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Resolution)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Resolution)re.getDevice()).getId()));
+						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(re.getNumber()));
+						reference.setNumber(String.valueOf(re.getDevice()));
 						refentities.add(reference);	
 						refresolutionentities.add(reference);
-					}else if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)){
+					}else if(re.getDeviceType().startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)){
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((CutMotion)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((CutMotion)re.getDevice()).getId()));
+						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(re.getNumber()));
+						reference.setNumber(String.valueOf(re.getDevice()));
 						refentities.add(reference);	
 						refquestionentities.add(reference);
 					}
@@ -858,14 +862,14 @@ public class CutMotionController extends GenericController<CutMotion>{
 			for (ClubbedEntity ce : clubbedEntities) {
 				Reference reference = new Reference();
 				reference.setId(String.valueOf(ce.getId()));
-				reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getMotion().getNumber()));
-				reference.setNumber(String.valueOf(ce.getMotion().getId()));
+				reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getCutMotion().getNumber()));
+				reference.setNumber(String.valueOf(ce.getCutMotion().getId()));
 				references.add(reference);
-				String tempPrimary = ce.getMotion().getPrimaryMember().getFullname();
+				String tempPrimary = ce.getCutMotion().getPrimaryMember().getFullname();
 				if (!buffer1.toString().contains(tempPrimary)) {
-					buffer1.append(ce.getMotion().getPrimaryMember().getFullname()+ ",");
+					buffer1.append(ce.getCutMotion().getPrimaryMember().getFullname()+ ",");
 				}
-				List<SupportingMember> clubbedSupportingMember = ce.getMotion().getSupportingMembers();
+				List<SupportingMember> clubbedSupportingMember = ce.getCutMotion().getSupportingMembers();
 				if (clubbedSupportingMember != null) {
 					if (!clubbedSupportingMember.isEmpty()) {
 						for (SupportingMember l : clubbedSupportingMember) {
@@ -1631,30 +1635,30 @@ public class CutMotionController extends GenericController<CutMotion>{
 				}	
 				/**** File parameters are set when internal status is something other than 
 				 * submit,complete and incomplete and file is null .Then only the motion gets attached to a file.*/
-				String currentStatus=domain.getInternalStatus().getType();
-				if(operation==null){
-					if(!(currentStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT)
-							||currentStatus.equals(ApplicationConstants.CUTMOTION_COMPLETE)
-							||currentStatus.equals(ApplicationConstants.CUTMOTION_INCOMPLETE))							
-							&&domain.getFile()==null){
-						/**** Add motion to file ****/
-						Reference reference=CutMotion.findCurrentFile(domain);
-						domain.setFile(Integer.parseInt(reference.getId()));
-						domain.setFileIndex(Integer.parseInt(reference.getName()));
-						domain.setFileSent(false);
-					}
-				}else if(operation.isEmpty()){
-					if(!(currentStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT)
-							||currentStatus.equals(ApplicationConstants.CUTMOTION_COMPLETE)
-							||currentStatus.equals(ApplicationConstants.CUTMOTION_INCOMPLETE))
-							&&domain.getFile()==null){
-						/**** Add motion to file ****/
-						Reference reference=CutMotion.findCurrentFile(domain);
-						domain.setFile(Integer.parseInt(reference.getId()));
-						domain.setFileIndex(Integer.parseInt(reference.getName()));
-						domain.setFileSent(false);
-					}
-				}
+//				String currentStatus=domain.getInternalStatus().getType();
+//				if(operation==null){
+//					if(!(currentStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT)
+//							||currentStatus.equals(ApplicationConstants.CUTMOTION_COMPLETE)
+//							||currentStatus.equals(ApplicationConstants.CUTMOTION_INCOMPLETE))							
+//							&&domain.getFile()==null){
+//						/**** Add motion to file ****/
+//						Reference reference=CutMotion.findCurrentFile(domain);
+//						domain.setFile(Integer.parseInt(reference.getId()));
+//						domain.setFileIndex(Integer.parseInt(reference.getName()));
+//						domain.setFileSent(false);
+//					}
+//				}else if(operation.isEmpty()){
+//					if(!(currentStatus.equals(ApplicationConstants.CUTMOTION_SUBMIT)
+//							||currentStatus.equals(ApplicationConstants.CUTMOTION_COMPLETE)
+//							||currentStatus.equals(ApplicationConstants.CUTMOTION_INCOMPLETE))
+//							&&domain.getFile()==null){
+//						/**** Add motion to file ****/
+//						Reference reference=CutMotion.findCurrentFile(domain);
+//						domain.setFile(Integer.parseInt(reference.getId()));
+//						domain.setFileIndex(Integer.parseInt(reference.getName()));
+//						domain.setFileSent(false);
+//					}
+//				}
 			}
 		}		
 	}
@@ -1777,10 +1781,12 @@ public class CutMotionController extends GenericController<CutMotion>{
 						/**** Next user and usergroup ****/
 						String nextuser = domain.getActor();
 						String level = "";
+						UserGroupType usergroupType = null;
 						if(nextuser != null){
 							if(!nextuser.isEmpty()){
 								String[] temp = nextuser.split("#");
 								properties.put("pv_user",temp[0]);
+								usergroupType = UserGroupType.findByType(temp[1], domain.getLocale());
 								level = temp[2];
 							}
 						}
@@ -1798,8 +1804,53 @@ public class CutMotionController extends GenericController<CutMotion>{
 							if(!endflag.isEmpty()){
 								if(endflag.equals("continue")){
 									/**** Workflow Detail entry made only if its not the end of workflow ****/
-									WorkflowDetails workflowDetails = WorkflowDetails.create(domain, task, ApplicationConstants.APPROVAL_WORKFLOW, level);
+									//WorkflowDetails workflowDetails = WorkflowDetails.create(domain, task, ApplicationConstants.APPROVAL_WORKFLOW, level);
+									
+									Workflow workflow = null;
+									
+									/*
+									 * START...
+									 */
+									/*if(domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_CLUBBING_POST_ADMISSION)
+										|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+											workflow = Workflow.findByStatus(domain.getRecommendationStatus(), domain.getLocale());
+										} else {
+											workflow = Workflow.findByStatus(domain.getInternalStatus(), domain.getLocale());
+									}*/
+									Status internalStatus = motion.getInternalStatus();
+									String internalStatusType = internalStatus.getType();
+									Status recommendationStatus = motion.getRecommendationStatus();
+									String recommendationStatusType = recommendationStatus.getType();
+
+									if(recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.STANDALONE_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+										workflow = Workflow.findByStatus(recommendationStatus, domain.getLocale());
+									} 
+									else if(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_NAME_CLUBBING)
+											|| (internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+										workflow = Workflow.findByStatus(internalStatus, domain.getLocale());
+									} 
+									else {
+										workflow = Workflow.findByStatus(internalStatus, domain.getLocale());
+									}
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * ... END
+									 */
+									
+									WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,usergroupType,workflow.getType(),level);
 									motion.setWorkflowDetailsId(workflowDetails.getId());
+									//*****
 								}
 							}
 						}
@@ -2106,18 +2157,72 @@ public class CutMotionController extends GenericController<CutMotion>{
 							Map<String, String> properties = new HashMap<String, String>();
 							String actor = motion.getActor();
 							String[] temp = actor.split("#");
+							UserGroupType usergroupType = null;
+							WorkflowDetails workflowDetails = null;
 							properties.put("pv_user", temp[0]);
 							properties.put("pv_endflag", motion.getEndFlag());
 							properties.put("pv_deviceId", String.valueOf(motion.getId()));
-							properties.put("pv_deviceTypeId",
-									String.valueOf(motion.getDeviceType().getId()));
+							properties.put("pv_deviceTypeId", String.valueOf(motion.getDeviceType().getId()));
+							
 							ProcessInstance processInstance = processService.createProcessInstance(processDefinition, properties);
 							/**** Create Workdetails Entry ****/
 							Task task = processService.getCurrentTask(processInstance);
 							if (motion.getEndFlag() != null
 									&& !motion.getEndFlag().isEmpty()
 									&& motion.getEndFlag().equals("continue")) {
-								WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, ApplicationConstants.APPROVAL_WORKFLOW, motion.getLevel());
+								usergroupType = UserGroupType.findByType(temp[1], locale.toString());								
+								
+
+								/*
+								 * Added by Amit Desai 2 Dec 2014
+								 * START...
+								 */
+								// workflowDetails = WorkflowDetails.
+								//		create(question,task,usergroupType, ApplicationConstants.APPROVAL_WORKFLOW, 
+								//				question.getLevel());
+								Workflow workflow = null;
+
+								Status internalStatus = motion.getInternalStatus();
+								String internalStatusType = internalStatus.getType();
+								Status recommendationStatus = motion.getRecommendationStatus();
+								String recommendationStatusType = recommendationStatus.getType();
+
+								if(recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+										|| recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+										|| recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_UNCLUBBING)
+										|| recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+									workflow = Workflow.findByStatus(recommendationStatus, locale.toString());
+								} 
+								else if(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING)
+										|| internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_NAME_CLUBBING)
+										|| (internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+											&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+										||(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+											&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED))
+										||(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+											&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+										||(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+											&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+									workflow = Workflow.findByStatus(internalStatus, locale.toString());
+								}
+								else {
+									workflow = Workflow.findByStatus(internalStatus, locale.toString());
+								}
+
+								String workflowType = workflow.getType();
+								String assigneeLevel = motion.getLevel();
+								workflowDetails = WorkflowDetails.create(motion, task, usergroupType, workflowType, assigneeLevel);
+								/*
+								 * Added by Amit Desai 2 Dec 2014
+								 * ... END
+								 */
+								/**** Workflow Started ****/
+								motion.setWorkflowDetailsId(workflowDetails.getId());
+								motion.setWorkflowStarted("YES");
+								motion.setWorkflowStartedOn(new Date());
+								motion.setTaskReceivedOn(new Date());
+								motion.setFileSent(true);
+								motion.simpleMerge();
 								motion.setWorkflowDetailsId(workflowDetails.getId());
 								/**** Workflow Started ****/
 								motion.setWorkflowStarted("YES");
@@ -2181,7 +2286,51 @@ public class CutMotionController extends GenericController<CutMotion>{
 								if (motion.getEndFlag() != null
 										&& !motion.getEndFlag().isEmpty()
 										&& motion.getEndFlag().equals("continue")) {
-									WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, ApplicationConstants.APPROVAL_WORKFLOW, motion.getLevel());
+									UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * START...
+									 */
+									 // WorkflowDetails workflowDetails = WorkflowDetails.create(question, 
+									//		task, ApplicationConstants.APPROVAL_WORKFLOW, question.getLevel());
+									Workflow workflow = null;
+
+									Status internalStatus = motion.getInternalStatus();
+									String internalStatusType = internalStatus.getType();
+									Status recommendationStatus = motion.getRecommendationStatus();
+									String recommendationStatusType = recommendationStatus.getType();
+
+									if(recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+										workflow = Workflow.findByStatus(recommendationStatus, locale.toString());
+									} 
+									else if(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_NAME_CLUBBING)
+											|| (internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+										workflow = Workflow.findByStatus(internalStatus, locale.toString());
+									} 
+									else {
+										workflow = Workflow.findByStatus(internalStatus, locale.toString());
+									}
+
+									String workflowType = workflow.getType();
+									String assigneeLevel = motion.getLevel();
+									WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, usergroupType, workflowType, assigneeLevel); 
+									//workflowDetails = WorkflowDetails.create(motion, task, workflowType, assigneeLevel);
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * ... END
+									 */
+									
 									motion.setWorkflowDetailsId(workflowDetails.getId());
 									/**** Workflow Started ****/
 									motion.setWorkflowStarted("YES");

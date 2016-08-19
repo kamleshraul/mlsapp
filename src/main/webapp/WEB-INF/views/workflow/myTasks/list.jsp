@@ -5,6 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){ 
+			$('.datetimemask').mask("99-99-9999,99:99:99");
 			/**** Initially we want to get only those tasks which belongs to current user and of selected status ****/
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 						+"&sessionYear="+$("#selectedSessionYear").val()
@@ -14,10 +15,10 @@
 						+"&status="+$("#selectedStatus").val()
 						+"&workflowSubType="+$("#selectedSubWorkflow").val()
 						+"&assignee="+$("#assignee").val()
-						+"&group="+$("#selectedGroup").val()
+						+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
 						+"&answeringDate="+$("#selectedAnsweringDate").val()
 						);
-			$('#process').click(function(){
+			$('#process_record').click(function(){
 				process($('#key').val());
 			});			
 			$("#search").click(function() {
@@ -32,6 +33,7 @@
 				$(this).attr('href','#');
 				generateIntimationLetter();				
 			});
+			
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedWorkflowDetailsId = $('#grid').jqGrid('getGridParam', 'selrow'); 
 					//$("#grid").jqGrid ('getGridParam', 'selarrrow');
@@ -65,8 +67,54 @@
 					$.prompt(data);
 				});
 			});
+			
+			$("#questionSummaryReport").click(function(e){
+				if($("#sumRepDiv").css('display')=='none'){
+					$("#sumRepDiv").show();
+					$("#sumRepFromDate").val('');
+					$("#sumRepToDate").val('');
+				}else if($("#sumRepDiv").css('display')=='inline'){
+					$("#sumRepDiv").hide();
+				}
+			});
+			
+			$("#goSumRep").click(function(e){
+				$("#sumRepDiv").hide();
+				questionSummaryReport();
+			});
+			
+			$("#resolutionWorkflowSummaryReport").click(function(e){
+				if($("#resolutionSumRepDiv").css('display')=='none'){
+					$("#resolutionSumRepDiv").show();
+					$("#sumRepFromDate").val('');
+					$("#sumRepToDate").val('');
+				}else if($("#resolutionSumRepDiv").css('display')=='inline'){
+					$("#resolutionSumRepDiv").hide();
+				}
+			});
+			
+			$("#goResolutionRep").click(function(e){
+				$("#resolutionSumRepDiv").hide();
+				generateResolutionWorkflowSummaryReport();
+			});
+			
+			$("#resolutionSumRepDiv").hide();
+			$("#sumRepDiv").hide();
+			
+			$(".sentBackTasksReport").click(function(e){
+				sentBackTasksReport();
+			});
 		});
 	</script>
+	<style type="text/css">
+		#goSumRep:hover{
+			cursor: pointer;
+		}
+		
+		#goSumRep{
+			cursor: default;
+		}
+	</style>
 </head>
 <body>
 	<p id="error_p" style="display: none;">&nbsp;</p>
@@ -76,21 +124,8 @@
 	<div>
 	<div class="commandbar">
 		<div class="commandbarContent">
-			<a href="#" id="process_record" class="butSim">
-				<spring:message code="generic.details" text="Process"/>
-			</a>  |
-			<a href="#" id="search" class="butSim">
-				<spring:message code="generic.search" text="Search"/>
-			</a>  |
-		<%-- 	<a href="#" id="groupChangeLink" class="butSim">
-						<spring:message code="question.groupChange" text="Group Change"/>
-			</a> | --%>
-			<security:authorize access="hasAnyRole('BILL_DEPARTMENT_USER')">			
-			| <a href="#" id="provide_date" class="butSim">
-				<spring:message code="generic.giveintroductiondate" text="Provide Introduction Date"/>
-			</a> |
-			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER','QIS_DEPARTMENT_USER')">
+			<hr>
+			<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER','HDS_SECTION_OFFICER','QIS_DEPARTMENT_USER','ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_DEPARTMENT_USER')">
 				<a href="#" id="generateIntimationLetter" class="butSim">
 					<spring:message code="question.generateIntimationLetter" text="Generate Intimation Letter"/>
 				</a> 				
@@ -100,9 +135,11 @@
 						<option value="department"><spring:message code='question.intimationletter.department' text='department' /></option>
 						<option value="prestatus"><spring:message code='question.intimationletter.prestatus' text='pre-status' /></option>
 						<option value="discussiondate"><spring:message code='question.intimationletter.discussiondate' text='discussion date' /></option>
+						<option value="groupChangedAfterBallot"><spring:message code='question.intimationletter.groupChangedAfterBallot' text='group changed after ballot' /></option>
+						<option value="answeringDateForwarded"><spring:message code='question.intimationletter.answeringDateForwarded' text='answering date forwarded' /></option>
 				</select>				
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE')">
+			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY','QIS_DEPUTY_SECRETARY','QIS_CHAIRMAN','QIS_SPEAKER')">
 				|
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
@@ -113,6 +150,42 @@
 					</a> |
 				</div>
 			 </security:authorize>
+			 <security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY','QIS_DEPUTY_SECRETARY','QIS_CHAIRMAN','QIS_SPEAKER','QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_JOINT_SECRETARY')">
+				 <a href="javascript:void(0);" id="questionSummaryReport" class="butSim">
+					<spring:message code="question.summaryReport" text="Question Summary Report"/>
+				 </a>
+				 <div id="sumRepDiv" style="display: inline;">
+					<input type="text" class="sText datetimemask" id="sumRepFromDate" style="display: inline;">
+					&nbsp; &nbsp;<input type="text" class="sText datetimemask" id="sumRepToDate" style="display: inline;">
+					<div id="goSumRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
+				 </div> |
+				 <a href="javascript:void(0);" class="sentBackTasksReport" class="butSim">
+					<spring:message code="generic.report.sentBackTasksReport" text="Sent Back Tasks Report"/>
+				 </a>
+			 </security:authorize>
+			 <security:authorize access="hasAnyRole('ROIS_PRINCIPAL_SECRETARY','ROIS_UNDER_SECRETARY','ROIS_UNDER_SECRETARY_COMMITTEE','ROIS_SECRETARY','ROIS_DEPUTY_SECRETARY','ROIS_CHAIRMAN','ROIS_SPEAKER','ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_JOINT_SECRETARY')">
+				 <a href="javascript:void(0);" id="resolutionWorkflowSummaryReport" class="butSim">
+					<spring:message code="resolution.summaryReport" text="Resolution Summary Report"/>
+				 </a>
+				 <div id="resolutionSumRepDiv" style="display: inline;">
+					<input type="text" class="sText datetimemask" id="sumRepFromDate" style="display: inline;width:115px">
+					&nbsp; &nbsp;<input type="text" class="sText datetimemask" id="sumRepToDate" style="display: inline;width:115px">
+					<div id="goResolutionRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
+				 </div>
+			 </security:authorize>
+			 <br>
+			 <hr>
+			 <a href="#" id="process_record" class="butSim">
+				<spring:message code="generic.details" text="Process"/>
+			</a>  |
+			<a href="#" id="search" class="butSim">
+				<spring:message code="generic.search" text="Search"/>
+			</a>  |
+			<security:authorize access="hasAnyRole('BILL_DEPARTMENT_USER')">			
+			 <a href="#" id="provide_date" class="butSim">
+				<spring:message code="generic.giveintroductiondate" text="Provide Introduction Date"/>
+			</a> |
+			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
 	</div>

@@ -12,6 +12,8 @@ import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.SessionVO;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Session;
@@ -53,12 +55,12 @@ public class SessionRepository extends BaseRepository<Session, Long>{
     	
     }
 
-    public List<Session> findSessionsByHouseAndYear(final House house,final Integer year) throws ELSException{
-    	String strQuery="SELECT s FROM Session s WHERE s.house=:house AND s.year=:year"+
+    public List<Session> findSessionsByHouseTypeAndYear(final House house,final Integer year) throws ELSException{
+    	String strQuery="SELECT s FROM Session s WHERE s.house.type=:houseType AND s.year=:year"+
      		   " ORDER BY s.startDate DESC";
     	try{
     		TypedQuery<Session> query=this.em().createQuery(strQuery, Session.class);
-        	query.setParameter("house", house);
+        	query.setParameter("houseType", house.getType());
         	query.setParameter("year", year);
             List<Session> sessions=query.getResultList();
             return sessions;
@@ -243,4 +245,36 @@ public class SessionRepository extends BaseRepository<Session, Long>{
 		}
   		
   	}
+  	//-------------------------------------------------------------------
+  	
+  	public List<SessionVO> findAllSessionDetailsForGivenHouseType(final HouseType houseType, final Date fromDate, final String locale) {
+		List<SessionVO> sessionVOs = new ArrayList<SessionVO>();
+		if(houseType!=null) {
+			org.mkcl.els.domain.Query query = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "SESSION_DETAILS_FOR_GIVEN_HOUSETYPE", locale);
+			if(query!=null) {
+				Query persistenceQuery=this.em().createNativeQuery(query.getQuery());
+				persistenceQuery.setParameter("houseTypeId",houseType.getId());
+				if(fromDate==null) {
+					persistenceQuery.setParameter("fromDate","");
+				} else {
+					String fromDateValue = FormaterUtil.formatDateToString(fromDate, ApplicationConstants.DB_DATEFORMAT, "en_US");
+					persistenceQuery.setParameter("fromDate",fromDateValue);
+				}
+				@SuppressWarnings("unchecked")
+				List<Object[]> resultList = persistenceQuery.getResultList();
+				if(resultList!=null && !resultList.isEmpty()) {
+					long order=1;
+					for(Object[] i: resultList) {
+						SessionVO sessionVO = new SessionVO();
+						sessionVO.setId(Long.parseLong(i[0].toString()));
+						sessionVO.setDescription(i[1].toString());
+						sessionVO.setOrder(order);						
+						sessionVOs.add(sessionVO);
+						order++;
+					}
+				}				
+			}
+		}
+		return sessionVOs;
+	}
 }

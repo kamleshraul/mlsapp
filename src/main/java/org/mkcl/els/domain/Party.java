@@ -27,6 +27,9 @@ import javax.persistence.TemporalType;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
+import org.mkcl.els.repository.DeviceTypeRepository;
+import org.mkcl.els.repository.PartyRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -38,7 +41,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "parties")
-@JsonIgnoreProperties({"registeredOfficeAddress","stateOfficeAddress","contact","partySymbols","memberPartyAssociations"})
+@JsonIgnoreProperties({"registeredOfficeAddress","stateOfficeAddress","contact","partySymbols","memberPartyAssociations","partyType"})
 public class Party extends BaseDomain implements Serializable {
 
     // ---------------------------------Attributes-------------------------------------------------
@@ -82,12 +85,19 @@ public class Party extends BaseDomain implements Serializable {
     @JoinColumn(name = "party_id", referencedColumnName = "id")
     private List<PartySymbol> partySymbols;
     
-    @Column(length = 150)
-    private String type;
+    //@Column(length = 150)
+    /** The PartyType. */
+    @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+    @JoinColumn(name = "party_type_id", referencedColumnName = "id")
+    private PartyType partyType;
 
     /** The member party associations. */
-    @OneToMany(mappedBy = "party",fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "party",fetch=FetchType.LAZY, cascade=CascadeType.ALL)
     private List<MemberPartyAssociation> memberPartyAssociations;
+    
+    @Autowired
+    private transient PartyRepository partyRepository;
+    
 
     // ---------------------------------Constructors----------------------------------------------
 
@@ -113,18 +123,32 @@ public class Party extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods----------------------------------------------
+    
+    public static PartyRepository getPartyRepository() {
+    	PartyRepository partyRepository = new Party().partyRepository;
+        if (partyRepository == null) {
+            throw new IllegalStateException(
+                    "PartyRepository has not been injected in Party Domain");
+        }
+        return partyRepository;
+    }
+    
     public static List<Party> findActiveParties(final String locale) {
     	return Party.findAllByFieldName(Party.class, "isDissolved", false, 
     			"name", ApplicationConstants.ASC, locale);
     }
     
+    public static List<Party> findActiveParties(final House house, final String locale){
+    	return getPartyRepository().findActiveParties(house, locale);
+    }
+    
     public static Party findByType(final String type,
     		final String locale) {
-    	return Party.findByFieldName(Party.class, "type", type, locale);
+    	return Party.findByFieldName(Party.class, "partyType.type", type, locale);
     }
     
     public Boolean isIndependent() {
-    	String partyType = this.getType();
+    	String partyType = this.partyType.getType();
     	String INDEPENDENT = ApplicationConstants.INDEPENDENT_PARTY;
     	
     	if(INDEPENDENT.equals(partyType)) {
@@ -298,11 +322,19 @@ public class Party extends BaseDomain implements Serializable {
         this.memberPartyAssociations = memberPartyAssociations;
     }
 
-	public String getType() {
-		return type;
+	public PartyType getPartyType() {
+		return partyType;
 	}
 
-	public void setType(final String type) {
-		this.type = type;
+	public void setPartyType(PartyType partyType) {
+		this.partyType = partyType;
 	}
+
+//	public String getType() {
+//		return type;
+//	}
+//
+//	public void setType(final String type) {
+//		this.type = type;
+//	}
 }

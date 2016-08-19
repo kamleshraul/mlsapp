@@ -1,14 +1,22 @@
 package org.mkcl.els.controller.cis;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.CommitteeName;
 import org.mkcl.els.domain.CommitteeType;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -17,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/committeename")
 public class CommitteeNameController extends GenericController<CommitteeName> {
-
+	
 	@Override
 	protected void populateNew(final ModelMap model, 
 			final CommitteeName domain,
@@ -264,4 +272,7 @@ public class CommitteeNameController extends GenericController<CommitteeName> {
             result.rejectValue("VersionMismatch", "version");
         }
 	}
+	
+	
+	
 }

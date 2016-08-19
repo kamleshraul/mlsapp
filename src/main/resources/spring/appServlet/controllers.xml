@@ -27,18 +27,36 @@
 		
 		<bean class="org.mkcl.els.common.interceptor.ErrorsRedirectInterceptor" />
 		
+		<mvc:interceptor>	
+			<mvc:mapping path="/**"/>
+			<bean class="org.mkcl.els.common.interceptor.RequestProcessingTimeInterceptor" />	
+		</mvc:interceptor>
+		
 		<bean class="org.mkcl.els.common.interceptor.SessionCheckInterceptor">
 			<property name="redirect" value="login.htm"></property>
 		</bean>
+				
 		<mvc:interceptor>
 			<mvc:mapping path="/**/*.htm" />
 			<bean id="webContentInterceptor"
 				class="org.springframework.web.servlet.mvc.WebContentInterceptor">
-				<property name="cacheSeconds" value="31556926" />
+				<property name="cacheSeconds" value="0" />
 				<property name="useExpiresHeader" value="true" />
 				<property name="useCacheControlHeader" value="true" />
 				<property name="useCacheControlNoStore" value="true" />
 			</bean>
+		</mvc:interceptor>
+						
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<bean id="submissionInterceptor" class="org.mkcl.els.common.interceptor.SubmissionRestrictionInterceptor">
+			</bean>
+		</mvc:interceptor>
+		
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+    		<bean id="resetPasswordInterceptor" class="org.mkcl.els.common.interceptor.ResetPasswordInterceptor">
+    		</bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
 	
@@ -102,6 +120,7 @@
 		<property name="exceptionMappings">
 			<props>
 				<prop key="org.mkcl.els.common.exception.SessionExpiredException">redirect:login</prop>
+				<prop key="org.springframework.security.authentication.BadCredentialsException.BadCredentialsException">redirect:login</prop>
 			</props>
 		</property>
 		<property name="defaultErrorView" value="errors/general-error" />

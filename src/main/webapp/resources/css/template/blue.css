@@ -1134,6 +1134,12 @@
 		width: 150px;
 		}
 		
+		.single-row-textarea-label{
+		position:relative;
+		top: -20px;
+		width: 150px;
+		}
+		
 		.wysiwyglabel{
 		position:relative;
 		top: 60px;
@@ -3230,6 +3236,16 @@ ul.holder li.bit-input input.smallinput { width: 20px !important; }
 	This is for the validation messages on the form
 	*/
 	.fields p .validationError{
+		display:inline-block;
+		color:#d54e4e;
+		padding:0px 3px 5px 5px;
+		margin-left:10px;
+		font-size:13px;
+	}
+	/*
+	This is for the validation messages on the form (which is not necessarily under paragraph)
+	*/
+	.fields .validationError{
 		display:inline-block;
 		color:#d54e4e;
 		padding:0px 3px 5px 5px;

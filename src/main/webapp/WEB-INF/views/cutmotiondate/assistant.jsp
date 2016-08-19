@@ -98,7 +98,7 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
-			var params="cutmotiondate="+$("#id").val()+"&status="+value+
+			var params="cutMotionDate="+$("#id").val()+"&status="+value+
 			"&userGroup="+$("#usergroup").val()+"&level="+$("#level").val()+
 			"&usergroupType="+$("#usergroupType").val()+"&deviceType="+$("#deviceType").val()+
 			"&houseType="+$("#selectedHouseType").val()+"&isWF=NO";
@@ -419,15 +419,14 @@
 					</div>	
 				</c:forEach>
 			</c:if>
-		</div>	
-		<h1>
-			${internalStatusType}
-		</h1>
+		</div>
+
 		<div class="fields">
 			<h2></h2>
 			<p class="tright">
 	
 				<c:if test="${internalstatusType=='cutmotiondate_datesubmit'
+							|| internalstatusType=='cutmotiondate_datecomplete'
 							||internalstatusType=='cutmotiondate_system_assistant_dateprocessed'
 							}">
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">

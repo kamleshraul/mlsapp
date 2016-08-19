@@ -1,0 +1,652 @@
+<%@page import="org.mkcl.els.common.util.FormaterUtil"%>
+<%@page import="java.text.NumberFormat"%>
+<%@ include file="/common/taglibs.jsp" %>
+<html>
+<head>
+	<title><spring:message code="adjournmentmotion_${houseType}.list" text="List Of Adjournment Motions"/></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script type="text/javascript">
+		$(document).ready(function(){	
+			/**** On Page Load ****/
+			var currentDeviceType = $("#currentDeviceType").val();
+			var currentHouseType = $("#currentHouseType").val();
+			$("#bulkputup_tab").hide();
+			/*Tooltip*/
+			$(".toolTip").hide();					
+			/**** here we are trying to add date mask in grid search when field names ends with date ****/
+			$(".sf .field").change(function(){
+				var field=$(this).val();
+				if(field.indexOf("Date")!=-1){
+					$(".sf .data").mask("99/99/9999");
+				}
+			});
+			/**** displaying grid ****/		
+			$('#list_tab').click(function(){
+				$("#selectionDiv1").show();								
+				showAdjournmentMotionList();				
+			});			
+			/**** house type changes then reload grid****/			
+			$("#selectedHouseType").change(function(){
+				var value=$(this).val();
+				if(value!=""){	
+					$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val(), function(data) {
+						if(data.length>1) {
+							var defaultAdjourningDate = data[data.length-1][0];
+							$('#selectedAdjourningDate').empty();
+							var htmlText = "";
+							for(var i=0; i<data.length-1; i++) {
+								htmlText += "<option value='"+data[i][0]+"'";
+								if(data[i][0]==defaultAdjourningDate) {
+									htmlText += "selected='selected'";
+								}
+								htmlText += ">"+data[i][1]+"</option>";									
+							}	
+							$('#selectedAdjourningDate').html(htmlText);
+						} else {
+							$.prompt("some error..please contact administrator");
+						}
+					}).done(function() {
+						$('#isAdjourningDateSelected').attr('checked', 'checked');
+						$('#selectedAdjourningDate').removeAttr('disabled');
+						/** Update Motion Types as per Selected House Type **/
+						$.get('ref/devicetypesforhousetype?houseType='+$('#selectedHouseType').val()
+								+'&deviceType='+$('#currentDeviceType').val(), function(data) {
+							var deviceTypeSelectHtmlText = "";
+							for(var i=0 ;i<data.length; i++){
+								deviceTypeSelectHtmlText += "<option value='" + data[i].id + "'>" + data[i].displayName;
+							}
+							$("#selectedMotionType").html(deviceTypeSelectHtmlText);
+						}).done(function() {
+							reloadAdjournmentMotionGrid();
+						}).fail(function() {
+							console.log("3.error");
+							if($("#ErrorMsg").val()!=''){
+								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+							}else{
+								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+							}
+							//resetControls();
+							scrollTop();
+						});						
+					}).fail(function() {
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						//resetControls();
+						scrollTop();
+					});								
+				}	
+			});	
+			/**** session year changes then reload grid****/			
+			$("#selectedSessionYear").change(function(){
+				var value=$(this).val();
+				if(value!=""){	
+					$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val(), function(data) {
+						if(data.length>1) {
+							var defaultAdjourningDate = data[data.length-1][0];
+							$('#selectedAdjourningDate').empty();
+							var htmlText = "";
+							for(var i=0; i<data.length-1; i++) {
+								htmlText += "<option value='"+data[i][0]+"'";
+								if(data[i][0]==defaultAdjourningDate) {
+									htmlText += "selected='selected'";
+								}
+								htmlText += ">"+data[i][1]+"</option>";									
+							}	
+							$('#selectedAdjourningDate').html(htmlText);
+						} else {
+							$.prompt("some error..please contact administrator");
+						}
+					}).done(function() {
+						$('#isAdjourningDateSelected').attr('checked', 'checked');
+						$('#selectedAdjourningDate').removeAttr('disabled');
+						reloadAdjournmentMotionGrid();
+					}).fail(function() {
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						//resetControls();
+						scrollTop();
+					});						
+				}			
+			});
+			/**** session type changes then reload grid****/
+			$("#selectedSessionType").change(function(){
+				var value=$(this).val();
+				if(value!=""){			
+					$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val(), function(data) {
+						if(data.length>1) {
+							var defaultAdjourningDate = data[data.length-1][0];
+							$('#selectedAdjourningDate').empty();
+							var htmlText = "";
+							for(var i=0; i<data.length-1; i++) {
+								htmlText += "<option value='"+data[i][0]+"'";
+								if(data[i][0]==defaultAdjourningDate) {
+									htmlText += "selected='selected'";
+								}
+								htmlText += ">"+data[i][1]+"</option>";									
+							}	
+							$('#selectedAdjourningDate').html(htmlText);
+						} else {
+							$.prompt("some error..please contact administrator");
+						}
+					}).done(function() {
+						$('#isAdjourningDateSelected').attr('checked', 'checked');
+						$('#selectedAdjourningDate').removeAttr('disabled');
+						reloadAdjournmentMotionGrid();
+					}).fail(function() {
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						//resetControls();
+						scrollTop();
+					});										
+				}			
+			});
+			/**** adjournmentmotion type changes ****/		
+			$("#selectedMotionType").change(function(){
+				var value=$(this).val();
+				if(value!=""){			
+					reloadAdjournmentMotionGrid();							
+				}				
+			});	
+			/**** status changes then reload grid ****/			
+			$("#selectedStatus").change(function(){
+				var value=$(this).val();
+				if(value!=""){				
+					reloadAdjournmentMotionGrid();
+					$("#selectedFileCount").val("-");
+				}
+			});
+			/**** sub-department changes then reload grid ****/
+			$("#selectedSubDepartment").change(function() {
+				var value = $(this).val();
+				if (value != "") {
+					reloadAdjournmentMotionGrid();
+					$("#selectedFileCount").val("-");
+				}
+			});
+			/**** adjourning date changes then reload grid ****/
+			$("#selectedAdjourningDate").change(function(){
+				var value=$(this).val();
+				if(value!=""){				
+					reloadAdjournmentMotionGrid();
+					$("#selectedFileCount").val("-");
+				}
+			});
+			$('#isAdjourningDateSelected').change(function(){	
+				if($("#isAdjourningDateSelected").is(":checked")) {
+					$('#selectedAdjourningDate').removeAttr('disabled');
+					reloadAdjournmentMotionGrid();
+					$("#selectedFileCount").val("-");
+				} else {
+					$('#selectedAdjourningDate').attr('disabled', 'disabled');
+					reloadAdjournmentMotionGrid();
+					$("#selectedFileCount").val("-");
+				}				
+			});
+			/**** Submission Time Window ****/
+			$("#submission_time_window").click(function(event, isHighSecurityValidationRequired){			
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
+				$(this).attr('href','#');
+				setSubmissionTimeWindow();
+			});
+			/**** Bulk Putup ****/
+			$("#bulkputup_tab").click(function(){
+				$("#selectionDiv1").hide();
+				bulkPutup();
+			});	
+			/**** Bulk Putup Assistant ****/
+			$("#bulkputupassistant_tab").click(function(){
+				$("#selectionDiv1").hide();
+				bulkPutupAssistant();
+			});		
+			/**** show adjournmentmotion list method is called by default.****/
+			showAdjournmentMotionList();			
+		});
+		/**** displaying grid ****/					
+		function showAdjournmentMotionList() {
+			var selectedAdjourningDate = "";
+			if($("#isAdjourningDateSelected").is(":checked")) {
+				selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
+			}
+			showTabByIdAndUrl('list_tab','adjournmentmotion/list?houseType='+$('#selectedHouseType').val()
+					+'&motionType='+$("#selectedMotionType").val()+'&sessionYear='
+					+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+
+					"&ugparam="+$("#ugparam").val()
+					+"&status="+$("#selectedStatus").val()
+					+"&role="+$("#srole").val()
+					+"&usergroup="+$("#currentusergroup").val()
+					+"&usergroupType="+$("#currentusergroupType").val()				
+					+"&adjourningDate="+selectedAdjourningDate
+					+"&subDepartment="+$("#selectedSubDepartment").val()
+			);
+		}		
+		/**** new adjournmentmotion ****/
+		function newAdjournmentMotion() {		
+			$("#cancelFn").val("newAdjournmentMotion");
+			//since id of adjournmentmotion has not been created so key is set to empty value
+			$("#key").val("");	
+			showTabByIdAndUrl('details_tab','adjournmentmotion/new?'+$("#gridURLParams").val());
+			$("#selectionDiv1").hide();	
+		}
+		/**** edit adjournmentmotion ****/		
+		function editAdjournmentMotion(row) {
+			$("#cancelFn").val("editAdjournmentMotion");			
+			row=$('#key').val();			
+			if(row==null||row==''){
+				$.prompt($('#selectRowFirstMessage').val());				
+				return false;
+			}else{
+				showTabByIdAndUrl('details_tab','adjournmentmotion/'+row+'/edit?'+$("#gridURLParams").val());
+				$("#selectionDiv1").hide();	
+			}			
+		}	
+		/**** double clicking record in grid handler ****/		
+		function rowDblClickHandler(rowid, iRow, iCol, e) {
+			$("#cancelFn").val("rowDblClickHandler");			
+			$('#key').val(rowid);			
+			showTabByIdAndUrl('details_tab', 'adjournmentmotion/'+rowid+'/edit?'+$("#gridURLParams").val());
+		}	
+		/**** delete adjournmentmotion ****/	
+		function deleteAdjournmentMotion() {
+			var row=$("#key").val();
+			if(row == null || row == ''){
+				$.prompt($('#selectRowFirstMessage').val());		
+				return;
+			}
+			else{
+				$.prompt($('#confirmDeleteMessage').val()+ row,{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+				        $.delete_('adjournmentmotion/'+row+'/delete', null, function(data, textStatus, XMLHttpRequest) {
+				        	showAdjournmentMotionList();
+				        }).fail(function(){
+							if($("#ErrorMsg").val()!=''){
+								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+							}else{
+								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+							}
+							scrollTop();
+						});
+			        }
+				}});
+			}
+		}
+		function convertToDbFormat(date){
+			if(date!="") {
+				var splitResult=date.split("/");
+				if(splitResult.length==3){
+					return splitResult[2]+"-"+splitResult[1]+"-"+splitResult[0];
+				}else{
+					return "Invalid Date";
+				}
+			} else {
+				return "";
+			}		
+		}
+		/**** reload grid ****/
+		function reloadAdjournmentMotionGrid(){
+			var gridWidth = $('#grid').jqGrid('getGridParam', 'width');
+			var selectedAdjourningDate = "";
+			if($("#isAdjourningDateSelected").is(":checked")) {
+				selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
+			}
+			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
+					+"&sessionYear="+$("#selectedSessionYear").val()+
+					"&sessionType="+$("#selectedSessionType").val()+
+					"&motionType="+$("#selectedMotionType").val()
+					+"&ugparam="+$("#ugparam").val()
+					+"&status="+$("#selectedStatus").val()
+					+"&role="+$("#srole").val()
+					+"&usergroup="+$("#currentusergroup").val()
+					+"&usergroupType="+$("#currentusergroupType").val()		
+					+"&adjourningDate="+selectedAdjourningDate
+					+"&subDepartment="+$("#selectedSubDepartment").val()
+			);
+			console.log($("#gridURLParams").val());
+			var oldURL=$("#grid").getGridParam("url");
+			var baseURL=oldURL.split("?")[0];
+			newURL=baseURL+"?"+$("#gridURLParams").val();
+			$("#grid").setGridParam({"url":newURL});
+			$("#grid").trigger("reloadGrid");	
+			/**** show/hide adjourning date column as per user selection ****/
+			if($("#isAdjourningDateSelected").is(":checked")) {
+				$("#grid").jqGrid('hideCol', 'formattedAdjourningDate');					
+			} else {
+				$("#grid").jqGrid('showCol', 'formattedAdjourningDate');					
+			}			
+			$("#grid").jqGrid('setGridWidth', gridWidth, true);
+		}
+		/**** Bulk putup(Member)****/
+		function bulkPutup(){
+			var parameters = $("#gridURLParams").val();
+			if(parameters==undefined){
+				parameters = "houseType="+$("#selectedHouseType").val()
+				 +"&sessionYear="+$("#selectedSessionYear").val()
+				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&motionType="+$("#selectedMotionType").val()
+				 +"&ugparam="+$("#ugparam").val()
+				 +"&status="+$("#selectedStatus").val()
+				 +"&role="+$("#srole").val()
+				 +"&usergroup="+$("#currentusergroup").val()
+				 +"&usergroupType="+$("#currentusergroupType").val();
+			}			
+			var resourceURL = 'adjournmentmotion/bulksubmission?' + parameters +"&itemscount="+$("#selectedItemsCount").val();
+			showTabByIdAndUrl('bulkputup_tab', resourceURL);
+		}	
+		/**** Bulk putup(Assistant)****/
+		function bulkPutupAssistant(){
+				var parameters = "houseType="+$("#selectedHouseType").val()
+				 +"&sessionYear="+$("#selectedSessionYear").val()
+				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&motionType="+$("#selectedMotionType").val()
+				 +"&ugparam="+$("#ugparam").val()
+				 +"&status="+$("#selectedStatus").val()
+				 +"&role="+$("#srole").val()
+				 +"&usergroup="+$("#currentusergroup").val()
+				 +"&usergroupType="+$("#currentusergroupType").val()
+				 +"&file="+$("#selectedFileCount").val()
+				 +"&itemscount="+$("#selectedItemsCount").val();	
+				 var resource='adjournmentmotion/bulksubmission/assistant/int';
+				 var resourceURL=resource+"?"+parameters;	
+				showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);				
+		}	
+		/**** Set Submission Time Window ****/
+		function setSubmissionTimeWindow() {
+			var selectedAdjourningDate = $('#selectedAdjourningDate').val();
+			if(selectedAdjourningDate==undefined || selectedAdjourningDate=="") {
+				$.prompt("Please select adjourning date for setting submission window!");
+				return false;
+			} else {
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+				var parameters="houseType="+$("#selectedHouseType").val()
+				+"&sessionYear="+$("#selectedSessionYear").val()
+				+"&sessionType="+$("#selectedSessionType").val()
+				+"&motionType="+$("#selectedMotionType").val()
+				+"&adjourningDate="+$("#selectedAdjourningDate").val()
+				+"&formattedAdjourningDate="+$("#selectedAdjourningDate").text()
+				+"&ugparam="+$("#ugparam").val()
+				+"&status="+$("#selectedStatus").val()
+				+"&role="+$("#srole").val()
+				+"&usergroup="+$("#currentusergroup").val()
+				+"&usergroupType="+$("#currentusergroupType").val();
+				var resourceURL='adjournmentmotion/submissionwindow?'+parameters;
+				$.get(resourceURL,function(data){
+					$.unblockUI();
+					$.fancybox.open(data,{autoSize:false,width:360,height:270});
+				},'html').fail(function(){
+					$.unblockUI();
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+			}			
+		}
+		/**** Current Status Report Generation ****/
+		function generateCurrentStatusReport() {
+			alert("current status report in progress...");
+		}
+		/**** Bhag 1 Report Generation ****/
+		function generateBhag1Report() {
+			var selectedAdjourningDate = $('#selectedAdjourningDate').val();
+			if(selectedAdjourningDate==undefined || selectedAdjourningDate=="") {
+				$.prompt("Please select adjourning date of bhag 1 motions");
+				return false;
+			} else {
+				$("#amois_bhag_1_report").attr('href',
+						'adjournmentmotion/report/bhag1?'
+						+'adjourningDate=' + selectedAdjourningDate
+						+'&reportQueryName=AMOIS_BHAG1_REPORT');
+			}			
+		}
+		/**** Bhag 2 Report Generation ****/
+		function generateBhag2Report() {
+			var selectedAdjourningDate = $('#selectedAdjourningDate').val();
+			if(selectedAdjourningDate==undefined || selectedAdjourningDate=="") {
+				$.prompt("Please select adjourning date of bhag 2 motions");
+				return false;
+			} else {
+				$("#amois_bhag_2_report").attr('href',
+						'adjournmentmotion/report/bhag2?'
+						+'adjourningDate=' + selectedAdjourningDate
+						+'&reportQueryName=AMOIS_BHAG2_REPORT');
+			}
+		}
+	</script>
+</head>
+<body>
+	<p id="error_p" style="display: none;">&nbsp;</p>
+	<c:if test="${(error!='') && (error!=null)}">
+		<h4 style="color: #FF0000;">${error}</h4>
+	</c:if>
+	<div class="clearfix tabbar">
+		<ul class="tabs">
+			<li>
+				<a id="list_tab" class="selected tab" href="#">
+					<spring:message code="generic.list" text="List"></spring:message>
+				</a>
+			</li>	
+			<li>
+				<a id="details_tab" href="#" class="tab">
+				   <spring:message code="generic.details" text="Details">
+				   </spring:message>
+				</a>
+			</li>
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">			
+			<li>
+				<a id="bulkputup_tab" href="#" class="tab">
+				   <spring:message code="generic.bulkputup" text="Bulk Putup">
+				   </spring:message>
+				</a>
+			</li>
+			</security:authorize>
+			<security:authorize access="hasAnyRole('AMOIS_ASSISTANT')">			
+			<li>
+				<a id="bulkputupassistant_tab" href="#" class="tab">
+				   <spring:message code="generic.bulkputup" text="Bulk Putup">
+				   </spring:message>
+				</a>
+			</li>
+			</security:authorize>			
+		</ul>
+		
+		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
+		
+			<a href="#" id="select_houseType" class="butSim">
+				<spring:message code="adjournmentmotion.houseType" text="House Type"/>
+			</a>
+			<select name="selectedHouseType" id="selectedHouseType" style="width:99px;height: 25px;">			
+			<c:forEach items="${houseTypes}" var="i">
+			<c:choose>
+			<c:when test="${houseType==i.type}">
+			<option value="${i.type}" selected="selected"><c:out value="${i.name}"></c:out></option>			
+			</c:when>
+			<c:otherwise>
+			<option value="${i.type}"><c:out value="${i.name}"></c:out></option>			
+			</c:otherwise>
+			</c:choose>
+			</c:forEach>
+			</select> |	
+							
+			<a href="#" id="select_session_year" class="butSim">
+				<spring:message code="adjournmentmotion.sessionyear" text="Year"/>
+			</a>
+			<select name="selectedSessionYear" id="selectedSessionYear" style="width:99px;height: 25px;">				
+			<c:forEach var="i" items="${years}">
+			<c:choose>
+			<c:when test="${i==sessionYear }">
+			<option value="${i}" selected="selected"><c:out value="${i}"></c:out></option>				
+			</c:when>
+			<c:otherwise>
+			<option value="${i}" ><c:out value="${i}"></c:out></option>			
+			</c:otherwise>
+			</c:choose>
+			</c:forEach> 
+			</select> |	
+								
+			<a href="#" id="select_sessionType" class="butSim">
+				<spring:message code="adjournmentmotion.sessionType" text="Session Type"/>
+			</a>
+			<select name="selectedSessionType" id="selectedSessionType" style="width:99px;height: 25px;">				
+			<c:forEach items="${sessionTypes}" var="i">
+			<c:choose>
+			<c:when test="${sessionType==i.id}">
+			<option value="${i.id}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>				
+			</c:when>
+			<c:otherwise>
+			<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>			
+			</c:otherwise>
+			</c:choose>			
+			</c:forEach> 
+			</select> |	
+						
+			<a href="#" id="select_motionType" class="butSim">
+				<spring:message code="adjournmentmotion.motionType" text="Motion Type"/>
+			</a>
+			<select name="selectedMotionType" id="selectedMotionType" style="width:99px;height: 25px;">	
+			<c:forEach items="${motionTypeVOs}" var="i">
+			<c:choose>
+			<c:when test="${motionType==i.id}">			
+			<option value="${i.id}" selected="selected"><c:out value="${i.displayName}"></c:out></option>
+			</c:when>
+			<c:otherwise>
+			<option value="${i.id}"><c:out value="${i.displayName}"></c:out></option>	
+			</c:otherwise>
+			</c:choose>
+			</c:forEach>
+			</select> 
+			<select id="deviceTypeMaster" style="display:none;">
+			<c:forEach items="${motionTypes }" var="i">
+			<option value="${i.id }">${i.type }</option>
+			</c:forEach>			
+			</select>|		
+			
+			<security:authorize
+				access="hasAnyRole('AMOIS_ADMIN','AMOIS_ASSISTANT','AMOIS_UNDER_SECRETARY',
+			'AMOIS_DEPUTY_SECRETARY','AMOIS_PRINCIPAL_SECRETARY','AMOIS_SPEAKER','AMOIS_JOINT_SECRETARY',
+			'AMOIS_SECRETARY','AMOIS_OFFICER_ON_SPECIAL_DUTY','AMOIS_DEPUTY_SPEAKER','AMOIS_CHAIRMAN','AMOIS_DEPUTY_CHAIRMAN',
+			'AMOIS_SECTION_OFFICER','AMOIS_UNDER_SECRETARY_COMMITTEE','AMOIS_ADDITIONAL_SECRETARY','AMOIS_CLERK')">
+			
+			<hr>
+			<a href="#" id="select_status" class="butSim">
+				<spring:message code="adjournmentmotion.status" text="Status"/>
+			</a>
+			<select name="selectedStatus" id="selectedStatus" style="width:250px;height: 25px;">			
+			<c:forEach items="${status}" var="i">
+			<c:choose>
+			<c:when test="${selectedStatusId==i.id}">
+			<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>			
+			</c:when>
+			<c:otherwise>
+			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
+			</c:otherwise>
+			</c:choose>	
+			</c:forEach>
+			</select> |
+			
+			<div id='adjournmentmotionDepartment' style="display:inline;">
+			<a href="#" id="select_department" class="butSim"> <spring:message
+					code="adjournmentmotion.department" text="Department" />
+			</a>
+			<select name="selectedSubDepartment" id="selectedSubDepartment"
+				style="width: 250px; height: 25px;">
+				<option value="0" selected="selected"><spring:message code="please.select"></spring:message></option>
+				<c:forEach items="${subDepartments}" var="i">
+					<option value="${i.id}">
+						<c:out value="${i.name}"></c:out>
+					</option>
+				</c:forEach>
+			</select>|
+			</div>
+			</security:authorize>
+			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','AMOIS_TYPIST')">
+			<a href="#" id="select_status" class="butSim">
+				<spring:message code="adjournmentmotion.status" text="Status"/>
+			</a>
+			<select name="selectedStatus" id="selectedStatus" style="width:99px;height: 25px;">			
+			<c:forEach items="${status}" var="i">
+			<c:choose>
+			<c:when test="${selectedStatusId==i.id}">
+			<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>			
+			</c:when>
+			<c:otherwise>
+			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
+			</c:otherwise>
+			</c:choose>	
+			</c:forEach>
+			</select> |
+			</security:authorize>
+			
+			<hr>
+			
+			<a href="#" id="select_adjourningdate" class="butSim"><spring:message code="adjournmentmotion.selectadjourningdate" text="Select Adjourning Date"/></a>
+			<input class="sCheck" type="checkbox" id="isAdjourningDateSelected" name="isAdjourningDateSelected" checked="checked"/>
+			<select name="selectedAdjourningDate" id="selectedAdjourningDate" style="width:130px;height: 25px;">	
+			<c:forEach items="${sessionDates}" var="i">
+				<option value="${i[0]}" ${i[0]==defaultAdjourningDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
+			</c:forEach>
+			</select>	
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','AMOIS_SECTION_OFFICER')">
+			<a href="#" id="submission_time_window" class="butSim">
+				<spring:message code="amois.submission_time_window" text="Submission Time Window"/>
+			</a> |
+			</security:authorize>		
+				
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','AMOIS_ASSISTANT')">	
+			<a href="#" id="select_itemcount" class="butSim">
+				<spring:message code="adjournmentmotion.itemcount" text="No. of Motions(Bulk Putup)"/>
+			</a>
+			<select name="selectedItemsCount" id="selectedItemsCount" style="width:99px;height: 25px;">			
+			<option value="30">30</option>
+			<option value="25">25</option>
+			<option value="20">20</option>
+			<option value="15">15</option>
+			<option value="10">10</option>
+			<option value="5">05</option>		
+			</select>|	
+			</security:authorize>				
+			
+			<hr>										
+		</div>				
+		
+		<div class="tabContent">
+		</div>
+		
+		<input type="hidden" id="key" name="key">				
+		<input type="hidden" name="ugparam" id="ugparam" value="${ugparam }">
+		<input type="hidden" name="srole" id="srole" value="${role }">		
+		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">		
+		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">
+		<input type="hidden" name="currentDeviceType" id="currentDeviceType" value="${motionTypeType}">		
+		<input type="hidden" name="currentHouseType" id="currentHouseType" value="${houseType}">		
+		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
+		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
+		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
+		<input type="hidden" id="allowedGroups" name="allowedGroups" value="${allowedGroups }">
+		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" /> 
+		</div> 
+		<input type="hidden" id="allSelectedMsg" value="<spring:message code='generic.allOption' text='---- All ----'/>"/>
+		<input type="hidden" id="isAdjourningDateTodayPrompt" value="<spring:message code='adjournmentmotion.isAdjourningDateTodayPrompt' text='is adjourning date today?'/>"/>
+		<input type="hidden" id="yes" value="<spring:message code='generic.yes' text='Yes'/>"/>
+		<input type="hidden" id="no" value="<spring:message code='generic.no' text='No'/>"/>
+		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
+		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+</body>
+</html>

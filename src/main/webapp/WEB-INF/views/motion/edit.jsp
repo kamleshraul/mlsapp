@@ -33,7 +33,8 @@
 	var controlName=$(".autosuggestmultiple").attr("id");
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
 			if(data.length>0){
@@ -48,7 +49,9 @@
 			}
 		});
 	}		
-	$(document).ready(function(){					
+	$(document).ready(function(){
+		
+		/* $("#numberP").css("display","none"); */
 		/**** Ministry Changes ****/	
 		$("#ministry").change(function(){
 			if($(this).val()!=''){
@@ -221,15 +224,14 @@
 		       					$('html').animate({scrollTop:0}, 'slow');
 		       				 	$('body').animate({scrollTop:0}, 'slow');	
 		    					$.unblockUI();	   				 	   				
-		    	            }).fail(function(){
-		    					$.unblockUI();
-		    					if($("#ErrorMsg").val()!=''){
-		    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-		    					}else{
-		    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-		    					}
-		    					scrollTop();
-		    				});
+		    	            }).fail(function (jqxhr, textStatus, err) {
+		    	            	$.unblockUI();
+		    	            	$("#error_p").html("Server returned an error\n" + err +
+	                                    "\n" + textStatus + "\n" +
+	                                    "Please try again later.\n"+jqxhr.status+"\n"+jqxhr.statusText).css({'color':'red', 'display':'block'});
+		    	            	
+		    	            	scrollTop();
+                            });
 		        }
 			}});			
 	        return false;  
@@ -261,6 +263,11 @@
 		$("#selectedSupportingMembers").bind('copy paste', function (e) {
 		       e.preventDefault();
 		 });
+		
+		$("#new_record2").click(function(){
+			$("#selectionDiv1").hide();	
+			newMotion();
+		});
 	});	
 	</script>
 </head>
@@ -271,13 +278,18 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <div class="fields clearfix watermark">
+	<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','MOIS_TYPIST')">			
+		<a href="#" id="new_record2" class="butSim">
+			<spring:message code="motion.new" text="New"/>
+		</a> |
+	</security:authorize>	
 <form:form action="motion" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<div id="reportDiv">
-	<h2>${formattedMotionType} ${formattedNumber}</h2>
+	<h2>${formattedMotionType} </h2><%--${formattedNumber} --%>
 	<form:errors path="version" cssClass="validationError"/>
 	<c:if test="${!(empty domain.number)}">
-	<p>
+	<p id="numberP">
 		<label class="small"><spring:message code="question.number" text="Motion Number"/>*</label>
 		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
 		<input id="number" name="number" value="${domain.number}" type="hidden">
@@ -332,16 +344,16 @@
 		<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
 		<input type="text" readonly="readonly" value="${constituency}" class="sText" id="constituency" name="constituency">
 	</p>	
-	
+		
 	<p>
 		<label class="centerlabel"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
 		<c:if test="${!(empty supportingMembers)}">
-		<select  name="selectedSupportingMembers" multiple="multiple">
-		<c:forEach items="${supportingMembers}" var="i">
-		<option value="${i.id}" class="${i.getFullname()}" selected="selected"></option>
-		</c:forEach>		
-		</select>
+			<select  name="selectedSupportingMembers" multiple="multiple">
+				<c:forEach items="${supportingMembers}" var="i">
+					<option value="${i.id}" class="${i.getFullname()}" selected="selected"></option>
+				</c:forEach>		
+			</select>
 		</c:if>
 		<a href="#" id="viewStatus"><spring:message code="question.viewstatus" text="View Status"></spring:message></a>
 		<form:errors path="supportingMembers" cssClass="validationError"/>	
@@ -355,14 +367,23 @@
 		
 	<p>
 		<label class="wysiwyglabel"><spring:message code="motion.details" text="Details"/>*</label>
-		<form:textarea path="details" cssClass="wysiwyg"></form:textarea>		 
+		<form:textarea path="details" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>		 
 		<form:errors path="details" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>	
 	
-	<p id="internalStatusDiv">
-	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
-	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly" class="sText">
-	</p>
+	<security:authorize access="!hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+		<p id="internalStatusDiv">
+			<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
+			<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly" class="sText">
+		</p>
+	</security:authorize>
+	
+	<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+		<p id="internalStatusDiv" style="display:none;">
+			<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
+			<input id="formattedInternalStatus" name="formattedInternalStatus" value="${domain.status.name }" type="text" readonly="readonly" class="sText">
+		</p>
+	</security:authorize>
 	
 	<table>
 		<c:choose>
@@ -418,32 +439,34 @@
 	 <div class="fields">
 		<h2></h2>
 		<c:choose>
-		<c:when test="${memberStatusType=='motion_complete' or memberStatusType=='motion_incomplete'}">
-			<p class="tright">
-			<security:authorize access="hasAnyRole('MOIS_CLERK')">	
-			<input id="submitMotion" type="button" value="<spring:message code='motion.submitmotion' text='Submit Motion'/>" class="butDef">			
-			</security:authorize>
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-			<input id="sendforapproval" type="button" value="<spring:message code='question.sendforapproval' text='Send For Approval'/>" class="butDef">
-			<input id="submitMotion" type="button" value="<spring:message code='motion.submitmotion' text='Submit Motion'/>" class="butDef">
-			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
-			</security:authorize>			
-		</p>
-		</c:when>	
-		<c:otherwise>
-			<p class="tright">
-				<security:authorize access="hasAnyRole('MOIS_CLERK')">	
-				<input id="submitmotion" type="button" value="<spring:message code='motion.submitmotion' text='Submit Motion'/>" class="butDef" disabled="disabled">				
-				</security:authorize>			
-				<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
-				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
-				<input id="sendforapproval" type="button" value="<spring:message code='question.sendforapproval' text='Send For Approval'/>" class="butDef" disabled="disabled">
-				<input id="submitmotion" type="button" value="<spring:message code='motion.submitmotion' text='Submit Motion'/>" class="butDef" disabled="disabled">
-				<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef" disabled="disabled">
-				</security:authorize>
-			</p>
-		</c:otherwise>
+			<c:when test="${memberStatusType=='motion_complete' or memberStatusType=='motion_incomplete'}">
+				<p class="tright">
+					<security:authorize access="hasAnyRole('MOIS_TYPIST')">	
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						<input id="submitMotion" type="button" value="<spring:message code='motion.submitmotion' text='Submit Motion'/>" class="butDef">			
+					</security:authorize>
+					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						<input id="sendforapproval" type="button" value="<spring:message code='question.sendforapproval' text='Send For Approval'/>" class="butDef">
+						<input id="submitMotion" type="button" value="<spring:message code='motion.submitmotion' text='Submit Motion'/>" class="butDef"> 
+						<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
+					</security:authorize>			
+				</p>
+			</c:when>	
+			<c:otherwise>
+				<p class="tright">
+					<security:authorize access="hasAnyRole('MOIS_TYPIST')">	
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						<input id="submitmotion" type="button" value="<spring:message code='motion.submitmotion' text='Submit Motion'/>" class="butDef" disabled="disabled">				
+					</security:authorize>			
+					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">		
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef" disabled="disabled">
+						<input id="sendforapproval" type="button" value="<spring:message code='question.sendforapproval' text='Send For Approval'/>" class="butDef" disabled="disabled">
+						<input id="submitmotion" type="button" value="<spring:message code='motion.submitmotion' text='Submit Motion'/>" class="butDef" disabled="disabled">
+						<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef" disabled="disabled">
+					</security:authorize>
+				</p>
+			</c:otherwise>
 		</c:choose>		
 	</div>
 	<form:hidden path="version" />
@@ -470,7 +493,7 @@
 <input id="supportingMembersEmptyMsg" value="<spring:message code='client.error.supportingmemberempty' text='Supporting Member is required to send for approval.'/>" type="hidden">
 <input id="sendForApprovalMsg" value="<spring:message code='client.prompt.approve' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
-<input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the motion.'></spring:message>" type="hidden">
+<input id="submissionMsg" value="<spring:message code='client.motion.prompt.submit' text='Do you want to submit the motion.'></spring:message>" type="hidden">
 
 </div>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>

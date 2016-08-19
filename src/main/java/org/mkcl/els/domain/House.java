@@ -222,8 +222,14 @@ public class House extends BaseDomain implements Serializable {
     	MemberRole role = MemberRole.find(houseType, "MEMBER", locale);
     	Party independentParty = 
     		Party.findByType(ApplicationConstants.INDEPENDENT_PARTY, locale);
+    	if (independentParty==null)
+    	{
+    	return 0L;	
+    	}
+    	{
     	return House.getHouseRepository().findIndependentMembersCount(house, 
     			partyType, independentParty, role, date, locale);
+    	}
     }
     
     /**

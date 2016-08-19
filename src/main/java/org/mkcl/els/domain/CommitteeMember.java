@@ -37,6 +37,9 @@ public class CommitteeMember extends BaseDomain implements Serializable {
 	
 	@Temporal(TemporalType.DATE)
 	private Date resignationDate;
+	
+    /** The position. */
+    private Integer position;
 
 	//=============== CONSTRUCTORS =============
 	public CommitteeMember() {
@@ -111,4 +114,11 @@ public class CommitteeMember extends BaseDomain implements Serializable {
 		this.resignationDate = resignationDate;
 	}
 	
+	 public void setPosition(Integer position){
+	    	this.position = position;
+	    }
+	    
+	    public Integer getPosition(){
+	    	return this.position;
+	    }
 }

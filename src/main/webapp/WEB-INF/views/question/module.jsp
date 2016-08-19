@@ -7,25 +7,38 @@
 		text="List Of Questions" /></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
+	var processMode = $('#processMode').val();
 	$(document).ready(function() {
+		if($("#selectedGroup").val()!='' && $("#selectedGroup").val()!=null){
+			loadChartAnsweringDateByGroup($("#selectedGroup").val());
+		}
+		
 		/**** On Page Load ****/
 		var currentDeviceType = $("#currentDeviceType").val();
 		var currentHouseType = $("#currentHouseType").val();
+		
+		if(currentDeviceType == 'questions_unstarred') {
+			$('#originalDeviceTypeSpan').show();
+		} else {
+			$('#originalDeviceTypeSpan').hide();
+		}
+	
 		/**** Fro chart_tab to show or hide ****/
-		if (currentDeviceType == 'questions_starred' || (currentDeviceType=='questions_halfhourdiscussion_standalone' && currentHouseType=='lowerhouse')) {
+		if (currentDeviceType == 'questions_starred') {
 			$("#chart_tab").show();
 		} else {
 			$("#chart_tab").hide();
 		}
+		
+		//$('#bulkputup_tab').hide();
 
 		/**** For ballot or member ballot tab to be visible ****/
 		if (currentDeviceType == 'questions_starred'
-				&& currentHouseType == 'upperhouse') {
+				&& $('#processMode').val()  == 'upperhouse') {
 			$("#memberballot_tab").show();
 			$("#ballot_tab").hide();
-		} else if ((currentDeviceType == 'questions_starred' && currentHouseType == 'lowerhouse')
-				|| currentDeviceType == 'questions_halfhourdiscussion_from_question'
-				|| currentDeviceType == 'questions_halfhourdiscussion_standalone') {
+		} else if ((currentDeviceType == 'questions_starred' && $('#processMode').val()  == 'lowerhouse')
+				|| currentDeviceType == 'questions_halfhourdiscussion_from_question') {
 			$("#memberballot_tab").hide();
 			$("#ballot_tab").show();
 		} else {
@@ -50,13 +63,15 @@
 		$("#selectedHouseType").change(function() {
 			var value = $(this).val();
 			if (value != "") {
-				loadGroupsFromSessions();
-				if (value == 'upperhouse') {
-					$('#memberballot_tab').show();					
-				} else {
-					$('#memberballot_tab').hide();					
+				if($("#currentusergroupType").val()!='member' && $("#currentusergroupType").val()!='typist'){
+					loadGroupsFromSessions();
+				}
+				loadProcessingMode();
+				if($("#selectedGroup").val()!=''){
+					loadChartAnsweringDateByGroup($("#selectedGroup").val());
 				}
 			}
+			reloadQuestionGrid();
 		});
 		/**** session year changes then reload grid****/
 		$("#selectedSessionYear").change(function() {
@@ -64,8 +79,11 @@
 			/* $('#questionDepartment').hide();
 			$('#subDepartment').val(""); */
 			if (value != "") {
-				loadGroupsFromSessions();
+				if($("#currentusergroupType").val()!='member' && $("#currentusergroupType").val()!='typist'){
+					loadGroupsFromSessions();
+				}
 			}
+			reloadQuestionGrid();
 		});
 		/**** session type changes then reload grid****/
 		$("#selectedSessionType").change(function() {
@@ -73,47 +91,69 @@
 			/* $('#questionDepartment').hide();
 			$('#subDepartment').val(""); */
 			if (value != "") {
-				loadGroupsFromSessions();
+				if($("#currentusergroupType").val()!='member' && $("#currentusergroupType").val()!='typist'){
+					loadGroupsFromSessions();
+				}
 			}
+			
+			if($("#selectedGroup").val()!='' && $("#selectedGroup").val()!=null){
+				loadChartAnsweringDateByGroup($("#selectedGroup").val());
+			}
+			reloadQuestionGrid();
 		});
 		/**** question type changes then reload grid****/
 		$("#selectedQuestionType").change(function() {
-							var value = $(this).val();
-							var text = $("#deviceTypeMaster option[value='"+ value + "']").text();
-							
-							if(text.indexOf("questions_halfhourdiscussion_")==-1){
-								$("#hdReportsDiv").hide();
-							}else{
-								$("#hdReportsDiv").show();
-							}
-							
-							if (text == 'questions_starred') {
-								$("#chart_tab").show();
-							} else {
-								$("#chart_tab").hide();
-							}
-							if (text == 'questions_starred' && currentHouseType == 'upperhouse') {
-								$("#memberballot_tab").show();
-								$("#ballot_tab").hide();
-							} else if ((text == 'questions_starred' && currentHouseType == 'lowerhouse')
-									|| text == 'questions_halfhourdiscussion_from_question'
-									|| text == 'questions_halfhourdiscussion_standalone') {
-								$("#memberballot_tab").hide();
-								$("#ballot_tab").show();
-							} else {
-								$("#memberballot_tab").hide();
-								$("#ballot_tab").hide();
-							}
-							if(text == 'questions_unstarred') {
-								$("#unstarredYaadiSpan").show();
-							} else {
-								$("#unstarredYaadiSpan").hide();
-							}
-							if (value != "") {
-								reloadQuestionGrid();
-							}
-
-						});
+			var value = $(this).val();
+			var text = $("#deviceTypeMaster option[value='"+ value + "']").text();
+			loadStatusByDeviceType();
+			if(text == 'questions_unstarred') {
+				$('#originalDeviceTypeSpan').show();
+				loadOriginalDeviceTypesForGivenDeviceType(value);
+			} else {
+				$('#originalDeviceTypeSpan').hide();
+				$("#selectedOriginalDeviceType").empty();
+				var originalDeviceTypeText = "<option value='0' selected='selected'>---"+$("#pleaseSelect").val()+"---</option>";
+				$("#selectedOriginalDeviceType").html(originalDeviceTypeText);
+			}
+			if(text.indexOf("questions_halfhourdiscussion_")==-1){
+				$("#hdReportsDiv").hide();
+			}else{
+				$("#hdReportsDiv").show();
+			}
+			
+			if (text == 'questions_starred') {
+				$("#chart_tab").show();
+			} else {
+				$("#chart_tab").hide();
+			}
+			
+			if (text == 'questions_starred' && $('#processMode').val() == 'upperhouse') {
+				$("#memberballot_tab").show();
+				$("#ballot_tab").hide();
+			} else if ((text == 'questions_starred' && $('#processMode').val()  == 'lowerhouse')
+					|| text == 'questions_halfhourdiscussion_from_question'
+					|| text == 'questions_halfhourdiscussion_standalone') {
+				$("#memberballot_tab").hide();
+				$("#ballot_tab").show();
+			} else {
+				$("#memberballot_tab").hide();
+				$("#ballot_tab").hide();
+			}
+			
+			if(text == 'questions_unstarred') {
+				$("#unstarredYaadiSpan").show();
+			} else {
+				$("#unstarredYaadiSpan").hide();
+			}
+			
+			if (value != "") {
+				reloadQuestionGrid();
+			}
+		});
+		/**** original question type changes then reload grid****/
+		$("#selectedOriginalDeviceType").change(function() {
+			reloadQuestionGrid();
+		});
 		/**** status changes then reload grid****/
 		$("#selectedStatus").change(function() {
 			var value = $(this).val();
@@ -123,39 +163,62 @@
 			$("#generateIntimationLetter").attr("href","");
 			
 		});
+		
+		
+		$('#selectedModuleAsweringDate').change(function(){
+			reloadQuestionGrid();
+			
+		});
+		
 		/**** group changes then reload grid ****/
 		$("#selectedGroup").change(function() {
 			var value = $(this).val();
 			if (value != "") {
 				$("#ugparam").val(value);
-				loadSubDepartmentsFromGroup(value, 'no');								
+				loadSubDepartmentsFromGroup(value, 'no');	
+				loadChartAnsweringDateByGroup(value);
+				//loadChartAnsweringDateByGroup($("#selectedGroup").val());
 			}
+		});		
+		
+		/**** clubbing status changes then reload grid ****/
+		$("#selectedClubbingStatus").change(function() {
+			var value = $(this).val();
+			if (value != "") {
+				reloadQuestionGrid();
+			}			
 		});
+		
 		/**** Chart Tab ****/
 		$('#chart_tab').click(function() {
 			$("#selectionDiv1").hide();
 			viewChart();
 		});
+		
 		/**** Ballot Tab ****/
 		$('#ballot_tab').click(function() {
 			$("#selectionDiv1").hide();
 			viewBallot();
 		});
+		
 		/**** Rotation Order Tab ****/
 		$('#rotationorder_tab').click(function() {
 			$("#selectionDiv1").hide();
 			viewRotationOrder();
 		});
+		
 		/**** Member Ballot Tab ****/
 		$('#memberballot_tab').click(function() {
 			$("#selectionDiv1").hide();
 			viewMemberBallot();
 		});
+		
 		/**** Bulk Putup ****/
 		$("#bulkputup_tab").click(function() {
 			$("#selectionDiv1").hide();
 			bulkPutup();
 		});
+		
 		/**** Bulk Putup ****/
 		$("#bulkputupassistant_tab").click(function() {
 			$("#selectionDiv1").hide();
@@ -185,21 +248,57 @@
 		/**** show question list method is called by default.****/
 		showQuestionList();
 		
-		loadSubDepartmentsFromGroup($("#selectedGroup").val(),'yes');
+		if($("#allowedGroups").val()!=''){
+			loadSubDepartmentsFromGroup($("#selectedGroup").val(),'yes');
+			loadChartAnsweringDateByGroup($("#selectedGroup").val());
+		}
 	});
 	
 	function showCurrentStatusReport(val, qId){
 		$("#selectionDiv1").hide();
-		var device = $("#deviceTypeMaster option[value='"+$("#selectedQuestionType").val()+"']").text().split("_")[0];
-		showTabByIdAndUrl('details_tab', "question/report/currentstatusreport?device="+ device +"&reportType="+val+"&qId="+qId);
+		var device = $("#deviceTypeMaster option[value='"
+		                                         +$("#selectedQuestionType").val()+"']").text().split("_")[0];
+		showTabByIdAndUrl('details_tab', 
+				"question/report/currentstatusreport?device="+ device +"&reportType="+val+"&qId="+qId);
 	}
+	
+	function loadProcessingMode(){
+		params = "houseType=" + $('#selectedHouseType').val()
+		+ '&sessionYear=' + $("#selectedSessionYear").val()
+		+ '&sessionType=' + $("#selectedSessionType").val();
+		$.get("ref/processingMode?"+params,function(data){
+			if(data!=''){
+				$('#processMode').val(data);
+			}
+		}).success(function(){
+			if ($('#processMode').val()  == 'upperhouse') {
+				$('#memberballot_tab').show();					
+			} else {
+				$('#memberballot_tab').hide();					
+			}
+		});
+	}
+	
+	/*function getProcessMode() {
+		processMode = $('#processMode').val();
+		console.log(pMode);
+		return pMode;
+	}
+	
+	function setProcessMode(pMode) {
+		$('#processMode').val(pMode);
+	}*/
+	
 	function showAdmissionReport(){
 		params = "houseType=" + $('#selectedHouseType').val()
 		+ '&sessionYear=' + $("#selectedSessionYear").val()
 		+ '&sessionType=' + $("#selectedSessionType").val()
 		+ '&deviceType=' + $("#selectedQuestionType").val()
 		+ '&groupId=' + $("#selectedGroup").val()
-		+ '&subDepartment=' + $("#selectedSubDepartment").val();
+		+ '&subDepartment=' + $("#selectedSubDepartment").val()
+		+ '&answeringDate=' + $("#selectedModuleAsweringDate").val()
+		+ '&clubbingStatus=' +$("#selectedClubbingStatus").val();
+		
 		
 		showTabByIdAndUrl('details_tab', "question/report/admissionreport?"+ params);
 	}
@@ -248,16 +347,41 @@
 
 	/**** displaying grid ****/
 	function showQuestionList() {
-		showTabByIdAndUrl('list_tab', 'question/list?houseType='
-				+ $('#selectedHouseType').val() + '&questionType='
-				+ $("#selectedQuestionType").val() + '&sessionYear='
-				+ $("#selectedSessionYear").val() + '&sessionType='
-				+ $("#selectedSessionType").val() + "&ugparam="
-				+ $("#ugparam").val() + "&status=" + $("#selectedStatus").val()
+		showTabByIdAndUrl('list_tab', 'question/list?houseType='+ $('#selectedHouseType').val()
+				+ '&questionType='+ $("#selectedQuestionType").val()
+				+ "&originalDeviceType=" + $("#selectedOriginalDeviceType").val()
+				+ '&sessionYear='+ $("#selectedSessionYear").val()
+				+ '&sessionType='+ $("#selectedSessionType").val()
+				+ "&ugparam="+ $("#ugparam").val()
+				+ "&status=" + $("#selectedStatus").val()
+				+ "&clubbingStatus=" + $("#selectedClubbingStatus").val()
 				+ "&role=" + $("#srole").val() + "&usergroup="
 				+ $("#currentusergroup").val() + "&usergroupType="
-				+ $("#currentusergroupType").val()+"&subdepartment="
-				+ $("#selectedSubDepartment").val());
+				+ $("#currentusergroupType").val()+"&subdepartment="+(($("#selectedSubDepartment").val()==undefined)?'0':$("#selectedSubDepartment").val()));
+	}
+	
+	function memberQuestionsView() {
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&questionType=" + $("#selectedQuestionType").val()
+		+ "&createdBy=" + $("#ugparam").val()
+		+"&locale="+$("#moduleLocale").val()
+		+ "&report=MEMBER_QUESTIONS_VIEW"
+		+ "&reportout=member_questions_view";
+		showTabByIdAndUrl('details_tab','question/report/generalreport?'+parameters);
+	}
+	
+	function memberQuestionsDetailView() {
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&questionType=" + $("#selectedQuestionType").val()
+		+ "&createdBy=" + $("#ugparam").val()
+		+"&locale="+$("#moduleLocale").val()
+		+ "&report=MEMBER_QUESTIONS_DETAIL_VIEW"
+		+ "&reportout=member_questions_detail_view";
+		showTabByIdAndUrl('details_tab','question/report/generalreport?'+parameters);
 	}
 
 	/**** new question ****/
@@ -288,8 +412,9 @@
 			+ "&sessionYear=" + $("#selectedSessionYear").val()
 			+ "&sessionType=" + $("#selectedSessionType").val()
 			+ "&questionType=" + $("#selectedQuestionType").val()
-			+ "&ugparam=" + $("#ugparam").val() + "&status="
-			+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+			+ "&ugparam=" + $("#ugparam").val() 
+			+ "&status=" + $("#selectedStatus").val()
+			+ "&role=" + $("#srole").val()
 			+ "&usergroup=" + $("#currentusergroup").val()
 			+ "&usergroupType=" + $("#currentusergroupType").val();
 			var resourceUrl="question/" + row + "/edit?"+parameters;
@@ -307,8 +432,9 @@
 		+ "&sessionYear=" + $("#selectedSessionYear").val()
 		+ "&sessionType=" + $("#selectedSessionType").val()
 		+ "&questionType=" + $("#selectedQuestionType").val()
-		+ "&ugparam=" + $("#ugparam").val() + "&status="
-		+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+		+ "&ugparam=" + $("#ugparam").val() 
+		+ "&status=" + $("#selectedStatus").val() 
+		+ "&role=" + $("#srole").val()
 		+ "&usergroup=" + $("#currentusergroup").val()
 		+ "&usergroupType=" + $("#currentusergroupType").val();
 		var resourceUrl="question/" + row + "/edit?"+parameters;
@@ -325,13 +451,16 @@
 					{buttons : {Ok : true,Cancel : false},
 					callback : function(v) {
 						if (v) {
-							$.delete_('question/' + row+ '/delete',null,function(data,textStatus,XMLHttpRequest) {
+							$.delete_('question/' + row+ '/delete',null,
+									function(data,textStatus,XMLHttpRequest) {
 								showQuestionList();
 							}).fail(function() {
 								if ($("#ErrorMsg").val() != '') {
-									$("#error_p").html($("#ErrorMsg").val()).css({'color' : 'red','display' : 'block'});
+									$("#error_p").html($("#ErrorMsg").val()).
+									css({'color' : 'red','display' : 'block'});
 								} else {
-									$("#error_p").html("Error occured contact for support.").css({'color' : 'red','display' : 'block'});
+									$("#error_p").html("Error occured contact for support.").
+									css({'color' : 'red','display' : 'block'});
 								}
 								scrollTop();
 							});
@@ -343,16 +472,20 @@
 	/**** reload grid ****/
 	function reloadQuestionGrid() {
 		$("#gridURLParams").val(
-				"houseType=" + $("#selectedHouseType").val() + "&sessionYear="
-						+ $("#selectedSessionYear").val() + "&sessionType="
-						+ $("#selectedSessionType").val() + "&questionType="
-						+ $("#selectedQuestionType").val() + "&ugparam="
-						+ $("#ugparam").val() + "&status="
-						+ $("#selectedStatus").val() + "&role="
-						+ $("#srole").val() + "&usergroup="
-						+ $("#currentusergroup").val() + "&usergroupType="
-						+ $("#currentusergroupType").val()+"&subDepartment="
-						+ $("#selectedSubDepartment").val());
+				"houseType=" + $("#selectedHouseType").val() 
+				+ "&sessionYear=" + $("#selectedSessionYear").val() 
+				+ "&sessionType=" + $("#selectedSessionType").val() 
+				+ "&questionType=" + $("#selectedQuestionType").val()
+				+ "&originalDeviceType=" + $("#selectedOriginalDeviceType").val()
+				+ "&ugparam=" + $("#ugparam").val() 
+				+ "&status=" + $("#selectedStatus").val() 
+				+ "&clubbingStatus=" + $("#selectedClubbingStatus").val()
+				+ "&role=" + $("#srole").val() 
+				+ "&usergroup=" + $("#currentusergroup").val() 
+				+ "&usergroupType=" + $("#currentusergroupType").val()
+				+"&subDepartment=" + (($("#selectedSubDepartment").val()==undefined)?'0':$("#selectedSubDepartment").val())
+				+"&answeringDate="+$("#selectedModuleAsweringDate").val()
+				);
 		var oldURL = $("#grid").getGridParam("url");
 		var baseURL = "";
 		
@@ -373,10 +506,12 @@
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&questionType=" + $("#selectedQuestionType").val()
-					+ "&ugparam=" + $("#ugparam").val() + "&status="
-					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
 					+ "&usergroup=" + $("#currentusergroup").val()
-					+ "&usergroupType=" + $("#currentusergroupType").val();
+					+ "&usergroupType=" + $("#currentusergroupType").val()
+					+ "&answeringDate=" + $("#selectedModuleAsweringDate").val();
 		}
 		parameters = parameters + "&group=" + $("#selectedGroup").val();
 		var resourceURL = 'chart/init?' + parameters;
@@ -390,8 +525,9 @@
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&questionType=" + $("#selectedQuestionType").val()
-					+ "&ugparam=" + $("#ugparam").val() + "&status="
-					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
 					+ "&usergroup=" + $("#currentusergroup").val()
 					+ "&usergroupType=" + $("#currentusergroupType").val();
 		}
@@ -408,8 +544,9 @@
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&questionType=" + $("#selectedQuestionType").val()
-					+ "&ugparam=" + $("#ugparam").val() + "&status="
-					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
 					+ "&usergroup=" + $("#currentusergroup").val()
 					+ "&usergroupType=" + $("#currentusergroupType").val();
 		}
@@ -425,8 +562,9 @@
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&questionType=" + $("#selectedQuestionType").val()
-					+ "&ugparam=" + $("#ugparam").val() + "&status="
-					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
 					+ "&usergroup=" + $("#currentusergroup").val()
 					+ "&usergroupType=" + $("#currentusergroupType").val();
 		}
@@ -442,8 +580,9 @@
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&questionType=" + $("#selectedQuestionType").val()
-					+ "&ugparam=" + $("#ugparam").val() + "&status="
-					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
 					+ "&usergroup=" + $("#currentusergroup").val()
 					+ "&usergroupType=" + $("#currentusergroupType").val();
 
@@ -454,32 +593,16 @@
 	}
 	/**** Bulk putup(Assistant)****/
 	function bulkPutupAssistant() {
-		var parameters = null;
-		if ($('#currentDeviceType').val() == "questions_halfhourdiscussion_standalone"
-				&& $("#selectedHouseType").val() == "lowerhouse") {
-			parameters = "houseType=" + $("#selectedHouseType").val()
+		var parameters = "houseType=" + $("#selectedHouseType").val()
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&questionType=" + $("#selectedQuestionType").val()
-					+ "&ugparam=" + $("#ugparam").val() + "&status="
-					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
 					+ "&usergroup=" + $("#currentusergroup").val()
 					+ "&usergroupType=" + $("#currentusergroupType").val()
-					+ "&file=" + $("#selectedFileCount").val();
-			;
-		} else {
-			parameters = "houseType=" + $("#selectedHouseType").val()
-					+ "&sessionYear=" + $("#selectedSessionYear").val()
-					+ "&sessionType=" + $("#selectedSessionType").val()
-					+ "&questionType=" + $("#selectedQuestionType").val()
-					+ "&ugparam=" + $("#ugparam").val() + "&status="
-					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
-					+ "&usergroup=" + $("#currentusergroup").val()
-					+ "&usergroupType=" + $("#currentusergroupType").val()
-					+ "&file=" + $("#selectedFileCount").val() + "&group="
-					+ $("#ugparam").val();
-		}
-
+					+ "&group=" + $("#ugparam").val();
 		var resourceURL = 'question/bulksubmission/assistant/int?' + parameters
 				+ "&itemscount=" + $("#selectedItemsCount").val();
 		showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);
@@ -488,46 +611,52 @@
 	
 	/**** Bulk yaadiupdate(Assistant)****/
 	function yaadiUpdate() {
-		var parameters = null;
-		if ($('#currentDeviceType').val() == "questions_halfhourdiscussion_standalone"
-				&& $("#selectedHouseType").val() == "lowerhouse") {
-			parameters = "houseType=" + $("#selectedHouseType").val()
+		var parameters =  "houseType=" + $("#selectedHouseType").val()
 					+ "&sessionYear=" + $("#selectedSessionYear").val()
 					+ "&sessionType=" + $("#selectedSessionType").val()
 					+ "&questionType=" + $("#selectedQuestionType").val()
-					+ "&ugparam=" + $("#ugparam").val() + "&status="
-					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
-					+ "&usergroup=" + $("#currentusergroup").val()
-					+ "&usergroupType=" + $("#currentusergroupType").val()
-					+ "&file=" + $("#selectedFileCount").val();
-			;
-		} else {
-			parameters = "houseType=" + $("#selectedHouseType").val()
-					+ "&sessionYear=" + $("#selectedSessionYear").val()
-					+ "&sessionType=" + $("#selectedSessionType").val()
-					+ "&questionType=" + $("#selectedQuestionType").val()
-					+ "&ugparam=" + $("#ugparam").val() + "&status="
-					+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
 					+ "&usergroup=" + $("#currentusergroup").val()
 					+ "&usergroupType=" + $("#currentusergroupType").val()
 					+ "&group=" + $("#ugparam").val();
-		}
+		
 
 		var resourceURL = 'question/yaaditodiscussupdate/assistant/init?' + parameters;
 		showTabByIdAndUrl('yaadiupdate_tab', resourceURL);
 	}
 	/**** To Generate Intimation Letter ****/
-	function generateIntimationLetter() {			
-		var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
-		if(selectedQuestionId.length<1) {
+	function generateIntimationLetter() {		 
+		if($("#intimationLetterFilter").val()=='reminderToDepartmentForAnswer') { //for reminder letter
+			generateReminderLetter();
+		} else {
+			var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+			if(selectedQuestionId.length<1) {
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			} else if(selectedQuestionId.length>1) {
+				$.prompt("Please select only one question!");
+				return false;
+			} else {			
+				$('#generateIntimationLetter').attr('href', 
+						'question/report/generateIntimationLetter?'
+								+'questionId=' + selectedQuestionId
+								+ '&intimationLetterFilter=' + $("#intimationLetterFilter").val());
+			}
+		}		 		
+	}
+	/**** To Generate Reminder Letter ****/
+	function generateReminderLetter() {
+		var selectedQuestionIds = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+		if(selectedQuestionIds.length<1) {
 			$.prompt($('#selectRowFirstMessage').val());
 			return false;
-		} else if(selectedQuestionId.length>1) {
-			$.prompt("Please select only one question!");
-			return false;
-		} else {			
-			$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?questionId='+selectedQuestionId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
-		}		
+		} else {
+			//$('#generateIntimationLetter').attr('href', 'question/report/generateReminderLetter?'+'questionIds='+selectedQuestionIds);
+			console.log("selectedQuestionIds: " + selectedQuestionIds);
+			form_submit('question/report/generateReminderLetter', {questionIds: selectedQuestionIds, locale: 'mr_IN', reportQuery: 'QIS_REMINDER_LETTER', outputFormat: 'WORD'}, 'GET');
+		}
 	}
 	/**** To Generate Clubbed Intimation Letter ****/
 	function generateClubbedIntimationLetter() {			
@@ -539,20 +668,22 @@
 			$.prompt("Please select only one question!");
 			return false;
 		} else {	
-			$.get('question/report/generateClubbedIntimationLetter/getClubbedQuestions?questionId='+selectedQuestionId,function(data) {
+			$.get('question/report/generateClubbedIntimationLetter/getClubbedQuestions?'
+					+ 'questionId='+selectedQuestionId,function(data) {
 				$.fancybox.open(data,{autoSize:false,width:400,height:300});
 			},'html').fail(function(){				
 				if($("#ErrorMsg").val()!=''){
 					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 				}else{
-					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					$("#error_p").html("Error occured contact for support.").
+					css({'color':'red', 'display':'block'});
 				}
 				scrollTop();
 			});			
 		}		
 	}
 	/**** To Generate Unstarred Yaadi Report ****/
-	function generateUnstarredYaadiReport() {			
+	/* function generateUnstarredYaadiReport() {			
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 					   + "&sessionYear=" + $("#selectedSessionYear").val()
 					   + "&sessionType=" + $("#selectedSessionType").val()
@@ -560,7 +691,153 @@
 					   + "&role=" + $("#srole").val()
 				 	   + "&usergroup=" + $("#currentusergroup").val()
 					   + "&usergroupType=" + $("#currentusergroupType").val();
-		$.get('question/report/generateUnstarredYaadiReport/getUnstarredYaadiNumberAndDate?'+parameters, function(data) {
+		$.get('question/report/generateUnstarredYaadiReport/getUnstarredYaadiNumberAndDate?'
+				+ parameters, function(data) {
+			$.fancybox.open(data,{autoSize:false,width:400,height:270});
+		},'html').fail(function(){				
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});		
+	} */
+	function generateUnstarredYaadiReport() {	
+		$("#selectionDiv1").hide();
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+					   + "&sessionYear=" + $("#selectedSessionYear").val()
+					   + "&sessionType=" + $("#selectedSessionType").val()
+					   + '&deviceType=' + $("#selectedQuestionType").val()
+					   + "&ugparam=" + $("#ugparam").val()
+					   + "&role=" + $("#srole").val()
+				 	   + "&usergroup=" + $("#currentusergroup").val()
+					   + "&usergroupType=" + $("#currentusergroupType").val();
+		showTabByIdAndUrl('details_tab', 'question/report/generateUnstarredYaadiReport/init?'+parameters);				
+	}
+	/**** To Generate Unstarred Suchi Report ****/
+	function generateUnstarredSuchiReport() {
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		   + "&sessionYear=" + $("#selectedSessionYear").val()
+		   + "&sessionType=" + $("#selectedSessionType").val()
+		   + "&ugparam=" + $("#ugparam").val()
+		   + "&role=" + $("#srole").val()
+	 	   + "&usergroup=" + $("#currentusergroup").val()
+		   + "&usergroupType=" + $("#currentusergroupType").val();
+		$.get('question/report/generateUnstarredSuchiReport/getUnstarredYaadiNumberAndDateForSuchi?'
+				+ parameters, function(data) {
+			$.fancybox.open(data,{autoSize:false,width:400,height:270});
+		},'html').fail(function(){				
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
+	}
+	function memberwiseQuestionsReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&questionType=" + $("#selectedQuestionType").val()
+		 + "&group=" + $("#selectedGroup").val()
+		 + "&status=" + $("#selectedStatus").val()
+		 + "&role=" + $("#srole").val() 
+		 + "&answeringDate=" + $("#selectedModuleAsweringDate").val()
+		 + "&category=question";	
+		var resourceURL = 'question/report/memberwisequestions?'+ parameters;	
+	 	showTabByIdAndUrl('details_tab', resourceURL);
+	}
+	
+	function questionsOnlineSubmissionCountReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&questionType=" + $("#selectedQuestionType").val()		 
+		 + "&role=" + $("#srole").val();		 	
+		var resourceURL = 'question/report/questionsonlinesubmissioncountreport/init?'+ parameters;
+		$.get(resourceURL,function(data) {
+			$.fancybox.open(data,{autoSize:false,width:400,height:200});
+		},'html').fail(function(){				
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").
+				css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
+	}
+	
+	function groupBulleteinReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&group=" + $("#selectedGroup").val();		 
+		$('#group_bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
+	}
+	
+	function bulleteinReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val();	
+		$('#bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
+	}
+	
+	function ahwalBulleteinReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&isAhwalBulletein=yes";	
+		$('#bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
+	}
+	
+	function ahwalStarredUnstarredReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val();
+		$('#ahwal_starredUnstarred_report').attr('href',
+				'question/report/ahwalStarredUnstarredReport?'+ parameters);
+	}
+	
+	function ahwalShortNoticeStatsReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val();
+		$('#ahwal_shortnotice_stats_report').attr('href', 
+				'question/report/ahwalShortNoticeStatsReport?'+ parameters);
+	}
+	
+	function starredDepartmentwiseStatsReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&questionType=starred";
+		$('#starred_departmentwise_stats_report').attr('href',
+				'question/report/departmentwiseStatsReport?'+ parameters);
+	}
+	
+	function unstarredDepartmentwiseStatsReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&questionType=unstarred";		 
+		$('#unstarred_departmentwise_stats_report').attr('href',
+				'question/report/departmentwiseStatsReport?'+ parameters);
+	}
+	
+	/**** To Generate Unstarred Across Session Departmentwise Questions Report ****/
+	function unstarredAcrossSessionDepartmentwiseQuestionsReport() {			
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+					   + "&sessionYear=" + $("#selectedSessionYear").val()
+					   + "&sessionType=" + $("#selectedSessionType").val()
+					   + "&ugparam=" + $("#ugparam").val()
+					   + "&role=" + $("#srole").val()
+				 	   + "&usergroup=" + $("#currentusergroup").val()
+					   + "&usergroupType=" + $("#currentusergroupType").val();
+		$.get('question/report/unstarredacrosssessiondepartmentwise/sessionsinvolved?'
+				+ parameters, function(data) {
 			$.fancybox.open(data,{autoSize:false,width:400,height:270});
 		},'html').fail(function(){				
 			if($("#ErrorMsg").val()!=''){
@@ -571,145 +848,94 @@
 			scrollTop();
 		});		
 	}
-	function memberwiseQuestionsReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val()
-		 +"&questionType="+$("#selectedQuestionType").val()
-		 +"&group="+$("#selectedGroup").val()
-		 +"&status="+$("#selectedStatus").val()
-		 +"&role="+$("#srole").val() 
-		 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=question";	
-		var resourceURL = 'question/report/memberwisequestions?'+ parameters;	
-		//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		showTabByIdAndUrl('details_tab', resourceURL);
-		/* $.get(resourceURL,function(data){
-			$("#ballotResultDiv").html(data);
-			$.unblockUI();				
-		},'html').fail(function(){
-			$.unblockUI();
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.");
-			}
-			scrollTop();
-		}); */
-	}
-	function groupBulleteinReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val()
-		 +"&group="+$("#selectedGroup").val();		 
-		$('#group_bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
-	}
-	function bulleteinReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val();	
-		$('#bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
-	}
-	function ahwalBulleteinReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val()
-		 +"&isAhwalBulletein=yes";	
-		$('#bulletein_report').attr('href', 'question/report/bulleteinreport?'+ parameters);
-	}
-	function ahwalStarredUnstarredReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val();
-		$('#ahwal_starredUnstarred_report').attr('href', 'question/report/ahwalStarredUnstarredReport?'+ parameters);
-	}
-	function ahwalShortNoticeStatsReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val();
-		$('#ahwal_shortnotice_stats_report').attr('href', 'question/report/ahwalShortNoticeStatsReport?'+ parameters);
-	}
-	function starredDepartmentwiseStatsReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val()
-		 +"&questionType=starred";
-		$('#starred_departmentwise_stats_report').attr('href', 'question/report/departmentwiseStatsReport?'+ parameters);
-	}
-	function unstarredDepartmentwiseStatsReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val()
-		 +"&questionType=unstarred";		 
-		$('#unstarred_departmentwise_stats_report').attr('href', 'question/report/departmentwiseStatsReport?'+ parameters);
-	}
+	
 	function departmentwiseQuestionsReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val()
-		 +"&deviceType="+$("#selectedQuestionType").val()
-		 +"&subDepartment="+$("#selectedSubDepartment").val()
-		 +"&answeringDate=" //answering date can be selected later from dropdown for filtering result
-		 +"&group="+$("#selectedGroup").val()
-		 +"&status="+$("#selectedStatus").val()
-		 +"&locale="+$("#moduleLocale").val()
-		 +"&role="+$("#srole").val()
-		 +"&report="+"QIS_DEPARTMENTWISE_QUESTIONS_"+$("#selectedHouseType").val().toUpperCase()
-		 +"&reportout="+"departmentwisequestions";	
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&deviceType=" + $("#selectedQuestionType").val()
+		 + "&subDepartment=" + $("#selectedSubDepartment").val()
+		 + "&answeringDate=" //answering date can be selected later from dropdown for filtering result
+		 + "&group=" + $("#selectedGroup").val()
+		 + "&status=" + $("#selectedStatus").val()
+		 + "&locale=" + $("#moduleLocale").val()
+		 + "&role=" + $("#srole").val()
+		 + "&report=" + "QIS_DEPARTMENTWISE_QUESTIONS_" + $("#selectedHouseType").val().toUpperCase()
+		 + "&reportout=" + "departmentwisequestions";	
 		var resourceURL = 'question/report/departmentwisequestions?'+ parameters;			
 		showTabByIdAndUrl('details_tab', resourceURL);
 	}
+	
 	function ahwalHDQConditionReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val()	
-		 +"&questionType=questions_halfhourdiscussion_from_question";
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()	
+		 + "&questionType=questions_halfhourdiscussion_from_question";
 		$('#ahwal_hdq_condition_report').attr('href', 'question/report/ahwalHDConditionReport?'+ parameters);
 	}
+	
 	function ahwalHDSConditionReport(){
-		var parameters = "houseType="+$("#selectedHouseType").val()
-		 +"&sessionYear="+$("#selectedSessionYear").val()
-		 +"&sessionType="+$("#selectedSessionType").val()
-		 +"&questionType=questions_halfhourdiscussion_standalone";
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&questionType=questions_halfhourdiscussion_standalone";
 		$('#ahwal_hds_condition_report').attr('href', 'question/report/ahwalHDConditionReport?'+ parameters);
 	}
+	
 	function sankshiptAhwalReport() {
-		showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal?selectedHouseType='+$('#selectedHouseType').val());
+		showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal?selectedHouseType='
+				+$('#selectedHouseType').val());
 	}
+	
 	function loadSubDepartmentsFromGroup(group, init){
-		$.get('ref/getDepartment?group='+group+'&userGroup='+$('#currentusergroup').val()
-				+'&deviceType='+$("#selectedQuestionType").val()+'&houseType='+$("#selectedHouseType").val(),function(data){
-			
-			var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
-			$('#selectedSubDepartment').empty();
-			if(data.length>0){
-				for(var i=0;i<data.length;i++){
-					subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
-					
+		if($("#currentusergroupType").val()!='typist'){
+			$.get('ref/getDepartment?group='+ group 
+					+'&userGroup=' + $('#currentusergroup').val()
+					+'&deviceType=' + $("#selectedQuestionType").val()
+					+'&houseType=' + $("#selectedHouseType").val()
+					+'&usergroupType='+ $('#currentusergroupType').val(),function(data){
+				
+				var subDepartmentText="<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
+				$('#selectedSubDepartment').empty();
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+						
+					}
+					$("#selectedSubDepartment").html(subDepartmentText);
+				}else{
+					$("#selectedSubDepartment").html(subDepartmentText);
 				}
-				$("#selectedSubDepartment").html(subDepartmentText);
-			}
-		}).done(function(){
+			}).done(function(){
+				if(init=='no'){
+					reloadQuestionGrid();
+				}else if(init=='yes'){
+					showQuestionList();
+				}
+			});
+		}else{
 			if(init=='no'){
 				reloadQuestionGrid();
 			}else if(init=='yes'){
 				showQuestionList();
-			}
-		});
-	}	
+			} 
+		}
+	}
+	
 	function statReport(){
-		var url = "question/report/statreport?sessionYear="+$("#selectedSessionYear").val()
-				+ "&sessionType="+$("#selectedSessionType").val()
-				+ "&houseType="+$("#selectedHouseType").val()
-				+ "&deviceType="+$("#selectedQuestionType").val();
+		var url = "question/report/statreport?sessionYear=" + $("#selectedSessionYear").val()
+				+ "&sessionType=" + $("#selectedSessionType").val()
+				+ "&houseType=" + $("#selectedHouseType").val()
+				+ "&deviceType=" + $("#selectedQuestionType").val();
 		
-			if($("#selectedHouseType").val()=='lowerhouse'){
+			if($("#selectedHouseType").val() == 'lowerhouse'){
 				var items = new Array();
 				items.push('under_secretary');
 				items.push('under_secretary_committee');
 				items.push('principal_secretary');
 				items.push('speaker');
-				url += "&userGroups="+items;
-			}else if($("#selectedHouseType").val()=='upperhouse'){
+				url += "&userGroups=" + items;
+			}else if($("#selectedHouseType").val() == 'upperhouse'){
 				var items = new Array();
 				items.push('under_secretary');
 				items.push('under_secretary_committee');
@@ -725,8 +951,9 @@
 		+ "&sessionYear=" + $("#selectedSessionYear").val()
 		+ "&sessionType=" + $("#selectedSessionType").val()
 		+ "&deviceType=" + $("#selectedQuestionType").val()
-		+ "&ugparam=" + $("#ugparam").val() + "&status="
-		+ $("#selectedStatus").val() + "&role=" + $("#srole").val()
+		+ "&ugparam=" + $("#ugparam").val() 
+		+ "&status=" + $("#selectedStatus").val() 
+		+ "&role=" + $("#srole").val()
 		+ "&usergroup=" + $("#currentusergroup").val()
 		+ "&device=Question"
 		+ "&usergroupType=" + $("#currentusergroupType").val();
@@ -739,85 +966,107 @@
 		+ "&sessionType="+$("#selectedSessionType").val()
 		+ "&houseType="+$("#selectedHouseType").val()
 		+ "&deviceType="+$("#selectedQuestionType").val()
-		+ "&days="+$("#hdDaysForReport").val()
+		+ "&subdate="+$("#hdDaysForReport").val()
 		+ "&groupId=0&subDepartment=0";
-		showTabByIdAndUrl('details_tab', 'question/report/halfhourdaysubmitreport?'+ param);
+		showTabByIdAndUrl('details_tab', 'question/report/halfhourdaysubmitreportdatefilter?'+ param);
 	}
 	
 	function showHDStatAndAdmissionreport(){
-		var param = "sessionYear="+$("#selectedSessionYear").val()
-		+ "&sessionType="+$("#selectedSessionType").val()
-		+ "&houseType="+$("#selectedHouseType").val()
-		+ "&deviceType="+$("#selectedQuestionType").val()
-		+ "&days="+$("#hdDaysForReport").val()
+		var param = "sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&houseType=" + $("#selectedHouseType").val()
+		+ "&deviceType=" + $("#selectedQuestionType").val()
+		+ "&days=" + $("#hdDaysForReport").val()
 		+ "&groupId=0&subDepartment=0";
 		showTabByIdAndUrl('details_tab', 'question/report/hdstatandadmissionreport?'+ param);
 	}
 	
 	function showHDGeneralreport(){
-		var url = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
-		
+		var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+		+ "/" + $("#selectedSessionYear").val()
+		+ "/" + $("#selectedSessionType").val();
 		$.get(url,function(data){
 			if(data){
-				showTabByIdAndUrl('details_tab','question/report/generalreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+"&report=HD_CONDITION_REPORT&reportout=hdconditionreport");
+				showTabByIdAndUrl('details_tab','question/report/generalreport?'
+						+'sessionId='+data.id
+						+"&deviceTypeId="+$("#selectedQuestionType").val()
+						+"&locale="+$("#moduleLocale").val()
+						+"&report=HD_CONDITION_REPORT&reportout=hdconditionreport");
 			}
 		});
 	}
 	
 	function showBallotChoiceOptionReport(){
 		var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
-		if(devicetype=='questions_halfhourdiscussion_from_question' || devicetype=='questions_halfhourdiscussion_standalone'){
-			var url = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
-			
+		if(devicetype == 'questions_halfhourdiscussion_from_question'){
+			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val() + "/" + $("#selectedSessionType").val();
 			$.get(url,function(data){
 				if(data){
-					showTabByIdAndUrl('details_tab','question/report/generalreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+"&report=HDQ_UNIQUE_SUBJECT_MEMBER_REPORT&reportout=hdqballotchoiceoptionreport");
+					showTabByIdAndUrl('details_tab',
+							'question/report/generalreport?'
+							+ "sessionId=" + data.id
+							+ "&deviceTypeId=" + $("#selectedQuestionType").val()
+							+ "&locale=" + $("#moduleLocale").val()
+							+ "&report=HDQ_UNIQUE_SUBJECT_MEMBER_REPORT&reportout=hdqballotchoiceoptionreport");
 				}
 			});
 		}
 	}
 	
 	function deptSessionreport(){
-		var url = "question/report/generalreport?houseType="+$("#selectedHouseType").val()+
-				"&sessionYear="+$("#selectedSessionYear").val()+"&sessionType="+$("#selectedSessionType").val()+
-				"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+
-				"&reportout=deptsessionwisereport";
-		var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
-		if(devicetype=='questions_starred'){
-			url += "&report=QIS_STARRED_DEPARTMENT_SESSION_REPORT";
-		}else if(devicetype=='questions_unstarred'){
-			url += "&report=QIS_UNSTARRED_DEPARTMENT_SESSION_REPORT";
-		}else if(devicetype=='questions_shortnotice'){
-			url += "&report=QIS_SN_DEPARTMENT_SESSION_REPORT";
-		}else if(devicetype=='questions_halfhourdiscussion_from_question' || devicetype=='questions_halfhourdiscussion_standalone'){
-			url += "&report=QIS_HD_DEPARTMENT_SESSION_REPORT";
-		}
+		var prevSession = "";
+		var currentSession = "";
 		
-		
-		showTabByIdAndUrl('details_tab', url);
+		$.get("ref/currentandprevioussession?houseType=" + $("#selectedHouseType").val()
+				+ "&sessionYear=" + $("#selectedSessionYear").val()
+				+ "&sessionType=" + $("#selectedSessionType").val()
+				+ "&locale=" + $("#moduleLocale").val(), function(data){
+			
+			if(data){
+				currentSession = data[0].id;
+				prevSession = data[1].id;
+				
+				var url = "question/report/generalreport?houseType="+$("#selectedHouseType").val()
+				+ "&sessionYear=" + $("#selectedSessionYear").val()
+				+ "&sessionType=" + $("#selectedSessionType").val()
+				+ "&deviceTypeId=" + $("#selectedQuestionType").val()
+				+ "&locale=" + $("#moduleLocale").val()
+				+ "&reportout=deptsessionwisereport"
+				+ "&currentSession=" + currentSession
+				+ "&prevSession=" + prevSession;
+				
+				var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
+				if(devicetype=='questions_starred'){
+					url += "&report=QIS_STARRED_DEPARTMENT_SESSION_REPORT";
+				}else if(devicetype=='questions_unstarred'){
+					url += "&report=QIS_UNSTARRED_DEPARTMENT_SESSION_REPORT";
+				}else if(devicetype=='questions_shortnotice'){
+					url += "&report=QIS_SN_DEPARTMENT_SESSION_REPORT";
+				}else if(devicetype=='questions_halfhourdiscussion_from_question'){
+					url += "&report=QIS_HD_DEPARTMENT_SESSION_REPORT";
+				}
+			
+				showTabByIdAndUrl('details_tab', url);
+			}
+		});
 	}
 	
 	function showVivranReport(){
-		var url = "question/report/generalreport?houseType="+$("#selectedHouseType").val()+
-				"&groupYear="+$("#selectedSessionYear").val()+"&sessionTypeId="+$("#selectedSessionType").val()+
-				"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+
-				"&reportout=vivranreport&report=QIS_STARRED_VIVRAN_REPORT"+
-				"&userName="+$("#authusername").val();
-		var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
-		/* if(devicetype=='questions_starred'){
-			url += "&report=QIS_STARRED_DEPARTMENT_SESSION_REPORT";
-		}else if(devicetype=='questions_unstarred'){
-			url += "&report=QIS_UNSTARRED_DEPARTMENT_SESSION_REPORT";
-		}else if(devicetype=='questions_shortnotice'){
-			url += "&report=QIS_SN_DEPARTMENT_SESSION_REPORT";
-		}else if(devicetype=='questions_halfhourdiscussion_from_question' || devicetype=='questions_halfhourdiscussion_standalone'){
-			url += "&report=QIS_HD_DEPARTMENT_SESSION_REPORT";
-		} */
-		
-		var urlSession = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
+		var url = "question/report/generalreport?houseType="+$("#selectedHouseType").val()
+				+ "&groupYear=" + $("#selectedSessionYear").val()
+				+ "&sessionTypeId=" + $("#selectedSessionType").val()
+				+ "&deviceTypeId=" + $("#selectedQuestionType").val()
+				+ "&locale=" + $("#moduleLocale").val()
+				+ "&reportout=vivranreport&report=QIS_STARRED_VIVRAN_REPORT"
+				+ "&userName="+$("#authusername").val();
+		var urlSession = "ref/sessionbyhousetype/"
+		+ $("#selectedHouseType").val() + "/" 
+		+ $("#selectedSessionYear").val() + "/"
+		+ $("#selectedSessionType").val();
 		$.get(urlSession,function(data){
 			if(data){
-				url += '&sessionId='+data.id+'&locale='+$("#moduleLocale").val();
+				url += '&sessionId=' + data.id + '&locale=' + $("#moduleLocale").val();
 				showTabByIdAndUrl('details_tab', url);
 			}
 		});
@@ -839,7 +1088,8 @@
 				if($("#ErrorMsg").val()!=''){
 					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 				}else{
-					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					$("#error_p").html("Error occured contact for support.")
+					.css({'color':'red', 'display':'block'});
 				}
 				scrollTop();
 			});
@@ -856,27 +1106,98 @@
 			        +"&usergroupType="+$("#currentusergroupType").val()+
 			        "&houseType="+$("#selectedHouseType").val()+
 			        "&sessionType="+$("#selectedSessionType").val()+
-			        "&sessionYear="+$("#selectedSessionYear").val();		
-		/* $.get('clubentity/init?'+params,function(data){
-			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
-			if(data){
-				$.unblockUI();
+			        "&sessionYear="+$("#selectedSessionYear").val()+
+			        "&questionType="+$("#selectedQuestionType").val();		
+		showTabByIdAndUrl('search_tab','clubentity/init?'+params);
+	}
+	
+	function loadStatusByDeviceType(){
+		$.get('ref/loadStatusByDeviceType?deviceType=' + $('#selectedQuestionType').val()
+				+ "&currentusergroupType=" + $('#currentusergroupType').val(),function(data){
+			if(data.length>0){
+				$("#selectedStatus").empty();
+				var statusText = "<option value='0'>---"+$("#pleaseSelect").val()+"---</option>";
+				for(var i=0;i<data.length;i++){
+					statusText = statusText + "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+				}
+				$("#selectedStatus").html(statusText);
 			}
-			$("#clubbingResultDiv").html(data);
-			$("#clubbingResultDiv").show();
-			$("#referencingResultDiv").hide();
-			$("#assistantDiv").hide();
-			$("#backToQuestionDiv").show();			
-		},'html').fail(function(){
+		}).fail(function(){
 			$.unblockUI();
 			if($("#ErrorMsg").val()!=''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				$("#error_p").html("Error occured contact for support.")
+				.css({'color':'red', 'display':'block'});
 			}
 			scrollTop();
-		}); */
-		showTabByIdAndUrl('search_tab','clubentity/init?'+params);
+		});
+	}
+	
+	function loadOriginalDeviceTypesForGivenDeviceType(deviceType) {
+		var parameters = "deviceType="+deviceType;
+		$.ajax({
+			url: 'ref/loadOriginalDeviceTypesForGivenDeviceType',
+			data: parameters, 
+			type: 'GET',
+	        async: false,
+			success: function(data) {
+				if(data.length>0){
+					$("#selectedOriginalDeviceType").empty();
+					var originalDeviceTypeText = "<option value='0' selected='selected'>---"+$("#pleaseSelect").val()+"---</option>";
+					for(var i=0;i<data.length;i++){
+						originalDeviceTypeText = originalDeviceTypeText + "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+					}
+					$("#selectedOriginalDeviceType").html(originalDeviceTypeText);
+				} else {
+					$("#selectedOriginalDeviceType").empty();
+					var originalDeviceTypeText = "<option value='0' selected='selected'>---"+$("#pleaseSelect").val()+"---</option>";
+					$("#selectedOriginalDeviceType").html(originalDeviceTypeText);
+				}
+			}
+		}).fail(function(){
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}					
+		});
+	}
+	
+	function showStarredAdmitUnstarredReport(){
+		$.get('ref/sessionbyhousetype/'+$("#selectedHouseType").val() +
+				'/' + $("#selectedSessionYear").val() + 
+				'/' + $("#selectedSessionType").val(),function(data){
+			
+			if(data){
+				
+				var url = "question/report/generalreport?sessionId=" + data.id
+				+ "&deviceTypeId=" + $("#selectedQuestionType").val()
+				+ "&locale=" + $("#moduleLocale").val()
+				+ "&statusId=" + $("#selectedStatus").val() 
+				+ "&groupId=" + $("#selectedGroup").val()
+				+ "&reportout=starred_admit_unstarred_report_mod"
+				+ "&departmentId=" +$("#selectedSubDepartment").val()
+				+ "&answeringDate="+$("#selectedModuleAsweringDate").val()
+				+ "&clubbingStatus="+$("#selectedClubbingStatus").val()
+				+ "&report=STARRED_ADMIT_CONVERT_TO_UNSTARRED_REPORT";
+				
+				showTabByIdAndUrl('details_tab', url);
+			}
+		});
+	}
+	
+	function loadChartAnsweringDateByGroup(value){
+		$.get('ref/groupchartansweringdate?group='+value,function(data){
+			var text="<option value='0'>"+$('#pleaseSelect').val()+"</option>";
+			if(data.length>0){
+				$('#selectedModuleAsweringDate').empty();
+				for(var i=0;i<data.length;i++){
+					text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";	
+				}
+				$('#selectedModuleAsweringDate').html(text);
+			}
+		});
 	}
 </script>
 </head>
@@ -898,14 +1219,14 @@
 				</a></li>
 			</security:authorize>
 			<security:authorize
-				access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
+				access="hasAnyRole('QIS_ASSISTANT')">
 				<li><a id="bulkputupassistant_tab" href="#" class="tab"> <spring:message
 							code="generic.bulkputup" text="Bulk Putup">
 						</spring:message>
 				</a></li>
 			</security:authorize>
 			<security:authorize
-				access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
+				access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<li><a id="yaadiupdate_tab" href="#" class="tab"> <spring:message
 							code="generic.yaadiupdate" text="Yaadi Questions Update">
 						</spring:message>
@@ -917,7 +1238,7 @@
 						'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
 						'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
 						'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
-						'SUPER_ADMIN','HDS_ASSISTANT','QIS_ADMIN','QIS_ADDITIONAL_SECRETARY')">
+						'SUPER_ADMIN','QIS_ADMIN','QIS_ADDITIONAL_SECRETARY')">
 					<li><a id="rotationorder_tab" href="#" class="tab"> <spring:message
 								code="question.rotationorder" text="Rotation Order"></spring:message>
 					</a></li>
@@ -928,7 +1249,7 @@
 				access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
 				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_JOINT_SECRETARY',
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_SECTION_OFFICER', 
-				'QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN','HDS_ASSISTANT','QIS_ADDITIONAL_SECRETARY')">
+				'QIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')">
 				<li><a id="chart_tab" href="#" class="tab"> <spring:message
 							code="question.chart" text="Chart"></spring:message>
 				</a></li>
@@ -953,20 +1274,36 @@
 				</security:authorize>
 			</security:authorize>
 			<security:authorize
-				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
+				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY','QIS_CLERK',
 				'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
 				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
-				'SUPER_ADMIN','HDS_ASSISTANT','QIS_ADDITIONAL_SECRETARY')">
+				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')">
 				<li><a id="ballot_tab" href="#" class="tab"> <spring:message
 							code="question.ballot" text="Ballot"></spring:message>
 				</a></li>
 
 			</security:authorize>
+			<security:authorize
+				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
+				'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
+				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
+				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
+				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY','QIS_CLERK','QIS_TYPIST')">
 				<li>
 					<a id="search_tab" href="#" class="tab"><spring:message code="question.searchT" text="Search"></spring:message></a>
 				</li>
+
+			</security:authorize>
+				
 		</ul>
+		
+		<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE', 'MEMBER_UPPERHOUSE')">
+		<div id="noticeMessageDiv">
+			<label style="color: green;font-size: 14px;font-weight: bold;text-decoration: blink;"><spring:message code="generic.noticemsg" text="FOR PROVIDING EFFICIENCY OF BULK SUBMISSION OF QUESTIONS, WE HAVE TEMPORARILY DISABLED BULK PUTUP.<br/>PLEASE SUBMIT QUESTIONS ONE BY ONE."/></label>
+		</div>
+		</security:authorize> --%>
+		
 		<div class="commandbarContent" style="margin-top: 10px;"
 			id="selectionDiv1">
 
@@ -1026,19 +1363,10 @@
 				</c:forEach>
 			</select> |
 
-			<c:choose>
-				<c:when
-					test="${questionTypeType=='questions_halfhourdiscussion_standalone'}">
-					<a href="#" id="devicetypeLabel" class="butSim"> <spring:message
-							code="mytask.deviceType" text="Device Type" />
-					</a>
-				</c:when>
-				<c:otherwise>
-					<a href="#" id="select_questionType" class="butSim"> <spring:message
-							code="question.questionType" text="Question Type" />
-					</a>
-				</c:otherwise>
-			</c:choose>
+			<a href="#" id="select_questionType" class="butSim"> <spring:message
+					code="question.questionType" text="Question Type" />
+			</a>
+				
 			<select name="selectedQuestionType" id="selectedQuestionType"
 				style="width: 100px; height: 25px;">
 				<c:forEach items="${questionTypes}" var="i">
@@ -1060,59 +1388,69 @@
 					<option value="${i.id}">${i.type}</option>
 				</c:forEach>
 			</select>|
-
+			
+			<span id="originalDeviceTypeSpan" style="display: none;">
+			<a href="#" id="select_originalDeviceType" class="butSim"> <spring:message
+					code="question.originalDeviceType" text="Original Question Type" />
+			</a>				
+			<select name="selectedOriginalDeviceType" id="selectedOriginalDeviceType" style="width: 100px; height: 25px;">
+				<option value="0" selected="selected"><spring:message code="please.select" text="Please Select"/></option>
+				<c:forEach items="${originalDeviceTypes}" var="i">
+					<option value="${i.id}">
+						<c:out value="${i.name}"></c:out>
+					</option>
+				</c:forEach>
+			</select> 
+			<select id="originalDeviceTypeMaster" style="display: none;">
+				<c:forEach items="${originalDeviceTypes }" var="i">
+					<option value="${i.id}">${i.type}</option>
+				</c:forEach>
+			</select>|
+			</span>
+			
 			<security:authorize
 				access="hasAnyRole('QIS_ADMIN','QIS_ASSISTANT','QIS_UNDER_SECRETARY',
 			'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER','QIS_JOINT_SECRETARY',
 			'QIS_SECRETARY','QIS_OFFICER_ON_SPECIAL_DUTY','QIS_DEPUTY_SPEAKER','QIS_CHAIRMAN','QIS_DEPUTY_CHAIRMAN',
-			'QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY_COMMITTEE','RIS_ASSISTANT','HDS_ASSISTANT','HDS_UNDER_SECRETARY',
-			'HDS_DEPUTY_SECRETARY','HDS_PRINCIPAL_SECRETARY','HDS_SPEAKER','HDS_JOINT_SECRETARY',
-			'HDS_SECRETARY','HDS_OFFICER_ON_SPECIAL_DUTY','HDS_DEPUTY_SPEAKER','HDS_CHAIRMAN','HDS_DEPUTY_CHAIRMAN',
-			'HDS_SECTION_OFFICER','HDS_UNDER_SECRETARY_COMMITTEE','QIS_ADDITIONAL_SECRETARY','QIS_CLERK','HDS_CLERK')">
+			'QIS_SECTION_OFFICER','QIS_UNDER_SECRETARY_COMMITTEE','QIS_ADDITIONAL_SECRETARY','QIS_CLERK')">
 				<hr>
-				<c:choose>
-					<c:when test="${not(questionTypeType=='questions_halfhourdiscussion_standalone' and houseType=='lowerhouse')}">
-						<div style="display: inline; ">
-							<a href="#" id="select_group" class="butSim"> <spring:message
-									code="question.group" text="Group" />
-							</a>
-							<select name="selectedGroup" id="selectedGroup"
-								style="width: 100px; height: 25px;">
-								<c:forEach items="${groups}" var="i">
-									<option value="${i.id}">
-										<c:out value="${i.formatNumber()}"></c:out>
-									</option>
-								</c:forEach>
-							</select>
-						</div>
-					</c:when>
-					<c:otherwise>
-						<div style="display: none; ">
-							<a href="#" id="select_group" class="butSim"> <spring:message
-									code="question.group" text="Group" />
-							</a>
-							<select name="selectedGroup" id="selectedGroup"
-								style="width: 100px; height: 25px;">
-								<c:forEach items="${groups}" var="i">
-									<option value="${i.id}">
-										<c:out value="${i.formatNumber()}"></c:out>
-									</option>
-								</c:forEach>
-							</select>
-						</div>
-					</c:otherwise>
-				</c:choose>|
+				<div style="display: inline; ">
+					<a href="#" id="select_group" class="butSim"> <spring:message
+							code="question.group" text="Group" />
+					</a>
+					<select name="selectedGroup" id="selectedGroup"
+						style="width: 100px; height: 25px;">
+						<c:forEach items="${groups}" var="i">
+							<option value="${i.id}">
+								<c:out value="${i.formatNumber()}"></c:out>
+							</option>
+						</c:forEach>
+					</select>
+				</div> |
+				<div id='answeringDateDiv' style='display: inline-block;' >
+					<a href="#" id="workflowLabel" class="butSim" >
+						<spring:message code="mytask.chartAnsweringDate" text="Answering Date"/>
+					</a>
+					<select id="selectedModuleAsweringDate" name="selectedModuleAsweringDate" class="sSelect">
+						<option value="0"><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>
+					</select>|
+				</div>	
+						
 				<a href="#" id="select_status" class="butSim"> <spring:message
 						code="question.status" text="Status" />
 				</a>
 				<select name="selectedStatus" id="selectedStatus"
 					style="width: 250px; height: 25px;">
+					<option value="0">
+							<spring:message code='please.select' text='Please Select'/>
+					</option>
 					<c:forEach items="${status}" var="i">
 						<option value="${i.id}">
 							<c:out value="${i.name}"></c:out>
 						</option>
 					</c:forEach>
 				</select> |	
+				<hr>
 				<div id='questionDepartment' style="display:inline;">
 					<a href="#" id="select_department" class="butSim"> <spring:message
 							code="question.department" text="Group" />
@@ -1142,22 +1480,18 @@
 						</option>
 					</c:forEach>
 				</select>
-				<c:if
-					test="${not (questionTypeType!='questions_halfhourdiscussion_standalone' and houseType=='lowerhouse') }">|
-					<select name="selectedGroup" id="selectedGroup"
-						style="width: 100px; height: 25px; display: none;">
-					</select>
-				</c:if>
-				<security:authorize
-					access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
-					<hr>
+				
+				<select name="selectedGroup" id="selectedGroup" style="width: 100px; height: 25px; display: none;">
+				</select>
+	
+				<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 					<a href="#" id="select_itemcount" class="butSim"> <spring:message
 							code="motion.itemcount" text="No. of Questions(Bulk Putup)" />
 					</a>
 					<select name="selectedItemsCount" id="selectedItemsCount"
 						style="width: 100px; height: 25px;">
-						<option value="30">30</option>
-						<option value="25">25</option>
+						<!-- <option value="30">30</option>
+						<option value="25">25</option> -->
 						<option value="20">20</option>
 						<option value="15">15</option>
 						<option value="10">10</option>
@@ -1165,9 +1499,27 @@
 					</select>|	
 					</security:authorize>
 			</security:authorize>
-			<security:authorize
-				access="hasAnyRole('QIS_ASSISTANT','HDS_ASSISTANT')">
-				<hr>
+			
+			<security:authorize	access="hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT', 'QIS_PRINCIPAL_SECRETARY')">
+				<a href="#" id="select_clubbingStatus" class="butSim"> 
+					<spring:message	code="generic.clubbingStatus" text="Clubbing Status"/>
+				</a>
+				<select name="selectedClubbingStatus" id="selectedClubbingStatus" style="height: 25px;">
+					<option value="all" selected="selected"><spring:message code="generic.clubbingStatus.all" text="Please Select"/></option>
+					<option value="parent"><spring:message code="generic.clubbingStatus.parent" text="Parent"/></option>
+					<option value="child"><spring:message code="generic.clubbingStatus.child" text="Child"/></option>
+				</select>
+			</security:authorize>
+			
+			<security:authorize	access="!hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT')">
+				<select hidden="true" name="selectedClubbingStatus" id="selectedClubbingStatus" style="height: 25px;">
+					<option value="all" selected="selected"><spring:message code="generic.clubbingStatus.all" text="Please Select"/></option>
+					<option value="parent"><spring:message code="generic.clubbingStatus.parent" text="Parent"/></option>
+					<option value="child"><spring:message code="generic.clubbingStatus.child" text="Child"/></option>
+				</select>
+			</security:authorize>			
+			
+			<security:authorize	access="hasAnyRole('QIS_ASSISTANT')">		
 				<a href="#" id="select_itemcount" class="butSim"> <spring:message
 						code="question.itemcount" text="No. of Questions(Bulk Putup)" />
 				</a>
@@ -1179,29 +1531,16 @@
 					<option value="25">25</option>
 					<option value="10">10</option>
 					<option value="5">05</option>
-				</select>|	
-				<a href="#" id="select_filecount" class="butSim"> <spring:message
-						code="question.filecount" text="Select File(Bulk Putup)" />
-				</a>
-				<select name="selectedFileCount" id="selectedFileCount"
-					style="width: 100px; height: 25px;">
-					<option value="-">
-						<spring:message code='please.select' text='Please Select' />
-					</option>
-					<c:if test="${highestFileNo>0 }">
-						<c:forEach var="i" begin="1" step="1" end="${highestFileNo}">
-							<option value="${i}">${i}</option>
-						</c:forEach>
-					</c:if>
-				</select>|	
+				</select>
 			</security:authorize>
 			<hr>
 		</div>
 
 		<div class="tabContent"></div>
 
-		<input type="hidden" id="key" name="key"> <input type="hidden" name="ugparam" id="ugparam" value="${ugparam }">
-		<input type="hidden" name="srole" id="srole" value="${role }">
+		<input type="hidden" id="key" name="key"> 
+		<input type="hidden" name="ugparam" id="ugparam" value="${ugparam }">
+		<input type="hidden" name="srole" id="srole" value="${role}">
 		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">
 		<input type="hidden" name="currentusergroupType" id="currentusergroupType" value="${usergroupType}">
 		<input type="hidden" name="currentDeviceType" id="currentDeviceType" value="${questionTypeType}">
@@ -1218,6 +1557,7 @@
 		<input type="hidden" id="chartAnsweringDate" name="chartAnsweringDate" value="-">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>" />
 		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
+		<input type="hidden" id="processMode" value="${processMode}" />
 	</div>
 </body>
 </html>

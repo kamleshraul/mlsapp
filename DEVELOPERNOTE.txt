@@ -6,3 +6,13 @@ e.g. tulu (mother tongue)
 Those paranthesis didnot allow to use language type in dynamic naming of fields based on languages in html.
 So instead of paranthesis in language type, now using hyphen so that dynamic naming with language type is possible.
 Thus in above example, tulu (mother tongue) becomes tulu-mother tongue.
+
+Date:	   09-01-2015
+Developer: dhananjayb
+Subject: Reason for Optimistic Lock Exception
+Details:
+The reason for unexpected optimistic lock exceptions is found to be 
+domain object becoming 'Detached Entity' after spring form submission 
+& being updated in @Transactional updation methods more than once.
+As the detached entity version is not updated automatically by persistence provider(hibernate) 
+before the transaction ends, 2nd merge throws Optimistic lock exception on flush.

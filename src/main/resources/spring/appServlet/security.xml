@@ -67,13 +67,59 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 		<intercept-url pattern="/login" access="isAnonymous()" />		
 		<form-login login-page="/login.htm" default-target-url="/home.htm"
 			authentication-failure-url="/login?error=true" />
-		<logout logout-success-url="/login.htm" invalidate-session="true"/>
-		<session-management invalid-session-url="/login.htm" />
-	</http>
+		<!-- <logout logout-success-url="/login.htm" invalidate-session="true"  delete-cookies="JSESSIONID" /> -->
+		<logout logout-success-url="/login.htm" invalidate-session="true" />
+		
+		<custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />	
+		
+		<session-management session-authentication-strategy-ref="sessionAuthenticationStrategy"/>
+		
+		<!-- <custom-filter ref="captureFilter" before="FORM_LOGIN_FILTER" />
+		<custom-filter ref="verifierFilter" after="FORM_LOGIN_FILTER" /> -->
+		<access-denied-handler error-page="/403"/>
+	</http>	
 
-	<authentication-manager alias="authenticationManager">
+	<!-- <beans:bean id="captureFilter" class="org.mkcl.els.common.filter.CaptchaCaptureFilter">	
+	</beans:bean>
+	
+	<beans:bean id="verifierFilter" class="org.mkcl.els.common.filter.CaptchaVerifierFilter">
+		<beans:property name="useProxy" value="false"></beans:property>
+		<beans:property name="proxyPort" value=""></beans:property>
+		<beans:property name="proxyHost" value=""></beans:property>
+		<beans:property name="failureUrl" value="/login?error=true"></beans:property>
+		<beans:property name="captchaCaptureFilter" ref="captureFilter"></beans:property>
+		<beans:property name="privateKey" value="6LecywwTAAAAAD4VuXBf7CfCf1_w8BliZnbfKXmm"></beans:property>		
+	</beans:bean> -->
+	
+	<!-- remove below code for password encryption & instead use its below commented code -->
+<!-- 	<authentication-manager alias="authenticationManager">
 		<authentication-provider user-service-ref="securityService">
 		</authentication-provider>
+	</authentication-manager> -->
+	
+	<!-- add below commented code for password encryption -->
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider user-service-ref="securityService">
+			<password-encoder ref="encoder" />
+		</authentication-provider>
 	</authentication-manager>
+
+	<beans:bean id="encoder" class="org.mkcl.els.common.util.CustomPasswordEncoder">
+	</beans:bean>
+		
+	<!-- <beans:bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">  
+	 	<beans:constructor-arg name="strength" value="10" />
+	</beans:bean> -->
+	
+	<beans:bean id="sessionAuthenticationStrategy" class="org.mkcl.els.common.util.ConcurrentSessionControlStrategyForELS">
+		<beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />						
+	</beans:bean>
+		 
+	<beans:bean id="concurrencyFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
+		<beans:property name="sessionRegistry" ref="sessionRegistry" />
+	 	<beans:property name="expiredUrl" value="/login.html" />	 	
+	</beans:bean>
+	
+	<beans:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
 
 </beans:beans>

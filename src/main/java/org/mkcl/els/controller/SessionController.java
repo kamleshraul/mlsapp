@@ -34,6 +34,7 @@ import org.mkcl.els.domain.BallotType;
 import org.mkcl.els.domain.BillKind;
 import org.mkcl.els.domain.BillType;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.House;
@@ -279,8 +280,20 @@ public class SessionController extends GenericController<Session> {
         
              
     }
+    
+    /* (non-Javadoc)
+	 * @see org.mkcl.els.controller.GenericController#populateAfterCreate(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+	 */
+	@Override
+	protected void populateAfterCreate(ModelMap model, Session domain,
+			HttpServletRequest request) throws Exception {
+		
+		/**** update static current numbers for all devices on successful session creation ****/
+		Device.isCurrentNumberForDevicesUpdateRequired(true);
+        Device.updateCurrentNumberForDevices();
+        
+	}
 
-   
     /**
      * @param id
      * @param model

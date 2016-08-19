@@ -17,6 +17,7 @@ import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.impl.ActivitiServiceImpl;
@@ -212,12 +213,93 @@ public class HandleWorkflowOnTimeoutOfUserTask extends ActivitiServiceImpl {
 		//create workflow detail for next level		
 		if(deviceType.getType().startsWith("resolutions")) {			
 			WorkflowDetails.create((Resolution) domain,newtask,ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW,level,houseTypeForWorkflow);			
-		} else if(deviceType.getType().startsWith("questions")) {
-			WorkflowDetails.create((Question) domain,newtask,ApplicationConstants.APPROVAL_WORKFLOW,level);			
-		}	
-		currentWorkflowDetails.setStatus("COMPLETED");
-		currentWorkflowDetails.setCompletionTime(new Date());
-		currentWorkflowDetails.merge();
+		} else if(deviceType.getType().startsWith("questions")) {			
+
+			/*
+			 * Added by Amit Desai 2 Dec 2014
+			 * START...
+			 */
+			// WorkflowDetails.create((Question) domain,newtask,ApplicationConstants.APPROVAL_WORKFLOW,level);
+			Question question = (Question) domain;
+			Workflow workflow = null;
+
+			String internalStatusType = internalStatus.getType();
+			Status recommendationStatus = question.getRecommendationStatus();
+			String recommendationStatusType = recommendationStatus.getType();
+
+			if(recommendationStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING_POST_ADMISSION)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLUBBING_POST_ADMISSION)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLUBBING_POST_ADMISSION)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLUBBING_POST_ADMISSION)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING_POST_ADMISSION)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLUBBING_POST_ADMISSION)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLUBBING_POST_ADMISSION)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLUBBING_POST_ADMISSION)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_FINAL_UNCLUBBING)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_UNCLUBBING)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_UNCLUBBING)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_UNCLUBBING)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)
+					|| recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+				workflow = Workflow.findByStatus(recommendationStatus, question.getLocale());
+			} 
+			else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING)
+					|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLUBBING)
+					|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLUBBING)
+					|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLUBBING)
+					|| internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_NAMECLUBBING)
+					|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_NAMECLUBBING)
+					|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_NAMECLUBBING)
+					|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_NAMECLUBBING)
+					|| (internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATIONRECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATIONRECEIVED))
+					|| (internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATIONRECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATIONRECEIVED)
+					|| (internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATIONRECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATIONRECEIVED))
+					|| (internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATIONRECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+					||(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						&& recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATIONRECEIVED)))) {
+				workflow = Workflow.findByStatus(internalStatus, question.getLocale());
+			}
+			else {
+				workflow = Workflow.findByStatus(internalStatus, question.getLocale());
+			}
+
+			String workflowType = workflow.getType();
+			WorkflowDetails.create(question, task, workflowType, level);
+			/*
+			 * Added by Amit Desai 2 Dec 2014
+			 * ... END
+			 */			
+		}
+		
+		WorkflowDetails.endProcess(currentWorkflowDetails);
 		
 		//update domain status, internal status & recommendation status if needed
 		if((userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT)) && (internalStatus.getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT))) {

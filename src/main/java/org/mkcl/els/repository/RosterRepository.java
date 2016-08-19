@@ -7,10 +7,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
 import javax.persistence.Query;
+
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.Adjournment;
+import org.mkcl.els.domain.CommitteeMeeting;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Proceeding;
@@ -144,7 +147,7 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 			}
 			/**** End Time is postponded ****/
 			else if(roster.getEndTime().after(savedRoster.getEndTime())){
-				if(roster.getAction().equals("recreate_slots")){
+				if(roster.getAction().equals("create_new_slots")){
 					return generateNewSlots(roster,savedRoster.getEndTime(),roster.getEndTime(),"LAST_ASSIGNED_USER");
 				}
 			}
@@ -557,12 +560,18 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 							newSlot.setName(firstAdjournedSlot.getName());
 							newSlot.setReporter(firstAdjournedSlot.getReporter());
 							newSlot.setRoster(roster);
-							Date slotStartTime=lastAdjournedSlot.getEndTime();
+							Date slotStartTime = null;
+							if(roster.getCommitteeMeeting() != null){
+								slotStartTime = startTime;
+							}else{
+								slotStartTime = lastAdjournedSlot.getEndTime();;
+							}
+							// slotStartTime=startTime;//lastAdjournedSlot.getEndTime();
 							Calendar calendar=Calendar.getInstance();
 							calendar.setTime(slotStartTime);
 							calendar.add(Calendar.MINUTE,roster.getSlotDuration());
 							Date slotEndTime=calendar.getTime();
-							newSlot.setStartTime(lastAdjournedSlot.getEndTime());
+							newSlot.setStartTime(slotStartTime);//lastAdjournedSlot.getEndTime());
 							newSlot.setEndTime(slotEndTime);
 							newSlot.setTurnedoff(false);
 							newSlot.persist();
@@ -797,11 +806,13 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 //			String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.startTime<:endTime" +
 //					" AND s.endTime>:startTime AND s.isDeleted=false ";
 			String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
-					" AND s.endTime<=:endTime AND s.blnDeleted=true AND s.turnedoff<>true ";
+					" AND s.endTime<=:endTime AND s.blnDeleted=:blnDeleted AND s.turnedoff<>:turnedOff ";
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("roster",rosterId);
 			query.setParameter("startTime", startTime);
 			query.setParameter("endTime", endTime);
+			query.setParameter("blnDeleted", false);
+			query.setParameter("turnedOff", true);
 			List<Slot> slots=query.getResultList();
 			for(Slot i:slots){
 				i.setTurnedoff(toggle);
@@ -892,7 +903,12 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("roster",roster.getId());
 			query.setParameter("user",user.getId());
-			return (Reporter) query.getSingleResult();
+			List<Reporter> reporters = query.getResultList();
+			if(reporters != null && !reporters.isEmpty()){
+				return reporters.get(0);
+			}else{
+				return null;
+			}
 		} catch (Exception e) {
 			logger.error("REPORTER NOT FOUND",e);
 			return null;
@@ -954,16 +970,103 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 		return (Roster) query.getSingleResult();
 	}
 
-	public Roster findRosterByDate(Date sDate,Language language, String locale) {
+	public Roster findRosterByDate(Date sDate,Language language, Session session, String locale) {
 		String strQuery="SELECT rs FROM Roster rs" +
 				" WHERE (DATE(rs.startTime)=:sDate" +
 				" OR DATE(rs.endTime)=:sDate)" +
 				" AND rs.locale=:locale" +
-				" AND rs.language.id=:languageId";
+				" AND rs.language.id=:languageId"+
+				" AND rs.session.id=:sessionId";
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("sDate", sDate);
 		query.setParameter("locale", locale);
 		query.setParameter("languageId",language.getId());
+		query.setParameter("sessionId",session.getId());
 		return (Roster) query.getSingleResult();
 	}
+
+	public List<Roster> findAllRosterByCommitteeMeeting(
+			CommitteeMeeting committeeMeeting, Language language, String locale) {
+		String strQuery="SELECT rs FROM Roster rs "
+				+ " WHERE rs.committeeMeeting=:committeeMeeting "
+				+ " AND rs.language=:language "
+				+ " AND rs.locale=:locale"; 
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("committeeMeeting", committeeMeeting);
+		query.setParameter("language", language);
+		query.setParameter("locale", locale);
+		return query.getResultList();
+	}
+	
+	public Roster findRosterByCommitteeMeetingLanguageAndDay(CommitteeMeeting committeeMeeting, int day,
+			Language language, String locale) {
+		String strQuery="SELECT rs FROM Roster rs" +
+				" WHERE rs.committeeMeeting=:committeeMeeting " +
+				" AND rs.language=:language " +
+				" AND rs.locale=:locale" +
+				" AND rs.day=:day"; 
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("committeeMeeting", committeeMeeting);
+		query.setParameter("language", language);
+		query.setParameter("locale", locale);
+		query.setParameter("day", day);
+		return (Roster) query.getSingleResult();
+	}
+
+	public List<CommitteeMeeting> findCommitteeMeetingByUserId(Long userId,
+			String locale) {
+		List<CommitteeMeeting> committeeMeetings = new ArrayList<CommitteeMeeting>();
+//		String strquery = "SELECT cm.*"
+//				+" FROM committee_meetings cm"
+//				+" INNER JOIN rosters r ON (cm.id=r.`committee_meeting`)"
+//				+" INNER JOIN rosters_reporters rr ON (rr.roster_id=r.`id`)"
+//				+" INNER JOIN reporters ro ON (ro.id=rr.reporter_id)"
+//				+" INNER JOIN users u ON (u.id=ro.user)"
+//				+" WHERE u.id=:userId";
+		String strquery = "SELECT cm"
+				+" FROM Roster r"
+				+" JOIN r.reporters ro"
+				+" JOIN r.committeeMeeting cm"
+				+" WHERE ro.user.id=:userId";
+		Query query = this.em().createQuery(strquery);
+		query.setParameter("userId", userId);
+		committeeMeetings = query.getResultList();
+		return committeeMeetings;
+	}
+
+	public Slot findPreviousSlot(Slot slot) {
+		Slot previousSlot = null;
+		String strQuery = "SELECT s FROM"
+				+ " Slot s WHERE s.startTime <:startTime"
+				+ " AND s.roster.id=:rosterId"
+				+ " AND s.blnDeleted=false"
+				+ " ORDER BY s.startTime DESC";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("startTime",slot.getStartTime());
+		query.setParameter("rosterId",slot.getRoster().getId());
+		List<Slot> slots = query.getResultList();
+		if(slots != null && !slots.isEmpty()){
+			previousSlot = slots.get(0);
+		}
+		return previousSlot;
+	}
+
+	public Slot findNextSlot(Slot slot) {
+		Slot nextSlot = null;
+		String strQuery = "SELECT s FROM"
+				+ " Slot s WHERE s.startTime >:startTime"
+				+ " AND s.roster.id=:rosterId"
+				+ " AND s.blnDeleted=false"
+				+ " ORDER BY s.startTime ASC";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("startTime",slot.getStartTime());
+		query.setParameter("rosterId",slot.getRoster().getId());
+		List<Slot> slots = query.getResultList();
+		if(slots != null && !slots.isEmpty()){
+			nextSlot = slots.get(0);
+		}
+		return nextSlot;
+	}
+	
+	
 }

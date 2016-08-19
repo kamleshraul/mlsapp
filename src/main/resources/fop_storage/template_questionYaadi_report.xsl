@@ -560,7 +560,7 @@
 			
 	        <fo:page-sequence master-reference="{$pageSequenceVariable}" id="DocumentBody">
 		        <fo:static-content flow-name="page-number">	        	
-		        	<fo:block font-family="Mangal" font-size="9pt" text-align="center">
+		        	<fo:block font-family="Mangal" font-size="10pt" text-align="center">
 		        		<fo:page-number/>		        				        		
 		        	</fo:block>
 		        </fo:static-content>       	        
@@ -628,7 +628,7 @@
 		    </fo:static-content> -->
 	
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="Mangal" font-size="9pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+	            	<fo:block font-family="Mangal" font-size="10.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 					    <fo:block font-size="16" font-weight="bold" text-align="center">
 							महाराष्ट्र <xsl:value-of select="houseType"/>												
 						</fo:block>
@@ -664,11 +664,11 @@
 	                	<fo:block text-align="center" font-size="11pt" font-weight="bold">
 	                		तारांकित प्रश्नोत्तरांची यादी
 	                	</fo:block>
-	                	<fo:block font-size="9pt">&#160;</fo:block>	                	           	
+	                	<fo:block font-size="10pt">&#160;</fo:block>	                	           	
 	                	<fo:block text-align="center" font-weight="bold">
 	                		<xsl:value-of select="answeringDate"/> / <xsl:value-of select="answeringDateInIndianCalendar"/> ( शके )
 	                	</fo:block>
-	                	<fo:block font-size="9pt">&#160;</fo:block>
+	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<fo:block text-align="center" font-weight="bold">
 	                		<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                			<fo:table-column column-number="1" column-width="1.5cm" />
@@ -739,15 +739,15 @@
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<fo:block text-align="center" font-size="7pt" font-weight="bold">
-	                		-------------------------------
+	                		-------------------------------------
 	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
-	                		<fo:block font-size="9pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
+	                		<fo:block font-size="10.5pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
 	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
-	                		-------------------------------
+	                		-------------------------------------
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<xsl:for-each select="./deviceVOs/deviceVO" >
-	                		<fo:block text-align="center" font-size="9pt" font-weight="bold">
+	                		<fo:block text-align="center" font-size="10.5pt" font-weight="bold">
 	                			<xsl:value-of select="subject"/>
 	                		</fo:block>
 	                		<fo:block font-size="5pt">&#160;</fo:block>
@@ -778,10 +778,10 @@
 	                		<fo:block font-weight="normal">
 	                			<xsl:apply-templates select="content"></xsl:apply-templates>
 	                		</fo:block>
-	                		<fo:block font-size="9pt">&#160;</fo:block>
+	                		<fo:block font-size="10pt">&#160;</fo:block>
 	                		<fo:block>
 	                			<xsl:choose>
-	                				<xsl:when test="not(answer)">
+	                				<xsl:when test="not(answer) or answer=''">
 	                					<fo:block font-weight="bold" text-align="center">
 	                						(उत्तर आले नाही.)
 	                					</fo:block>
@@ -796,11 +796,11 @@
 	                				</xsl:otherwise>
 	                			</xsl:choose>	                			
 	                		</fo:block>
-	                		<!-- <fo:block font-size="9pt">&#160;</fo:block> -->
+	                		<!-- <fo:block font-size="10pt">&#160;</fo:block> -->
 	                		<fo:block text-align="center">
 	                			-----------------
 	                		</fo:block>
-	                		<fo:block font-size="9pt">&#160;</fo:block>
+	                		<fo:block font-size="10pt">&#160;</fo:block>
 	                	</xsl:for-each>
 	                	<fo:block font-size="12pt">&#160;</fo:block>
 	                	<xsl:choose>
@@ -840,8 +840,8 @@
 				     								</fo:block>
 				     							</fo:table-cell>
 				     							<fo:table-cell>
-				     								<fo:block text-align="center">
-				     									प्रधान सचिव,
+				     								<fo:block text-align="center">				     									
+				     									<xsl:value-of select="userRole"/>,
 				     								</fo:block>
 				     								<fo:block></fo:block>
 				     								<fo:block text-align="center">
@@ -860,7 +860,7 @@
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<xsl:value-of select="sessionPlace"/>.
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;			                		
-			                		प्रधान सचिव,
+			                		<xsl:value-of select="userRole"/>,
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<fo:block text-align="right">
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
@@ -868,7 +868,7 @@
 			                	</fo:block>
 			                	<fo:block>_______________________________________________________________________</fo:block>
 			                	<fo:block text-align="center">
-			                		मुद्रणपूर्व सर्व प्रकिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+			                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
 			                	</fo:block>
 			                	<fo:block></fo:block>
 				     			<fo:block text-align="center">
@@ -912,7 +912,7 @@
 				     							</fo:table-cell>
 				     							<fo:table-cell>
 				     								<fo:block text-align="center">
-				     									प्रधान सचिव,
+				     									<xsl:value-of select="userRole"/>,
 				     								</fo:block>
 				     								<fo:block></fo:block>
 				     								<fo:block text-align="center">
@@ -931,7 +931,7 @@
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<xsl:value-of select="sessionPlace"/>.
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;			                		
-			                		प्रधान सचिव,
+			                		<xsl:value-of select="userRole"/>,
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<fo:block text-align="right">
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
@@ -939,7 +939,7 @@
 			                	</fo:block>
 			                	<fo:block>_______________________________________________________________________</fo:block>
 			                	<fo:block text-align="center">
-			                		मुद्रणपूर्व सर्व प्रकिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+			                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
 			                	</fo:block>
 			                	<fo:block></fo:block>
 				     			<fo:block text-align="center">

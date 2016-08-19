@@ -13,20 +13,17 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import org.apache.velocity.app.event.ReferenceInsertionEventHandler.referenceInsertExecutor;
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -38,8 +35,7 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
-import org.mkcl.els.controller.QuestionReportController;
-import org.mkcl.els.domain.chart.Chart;
+import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.ClarificationNeededFrom;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
@@ -55,6 +51,7 @@ import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
+import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
@@ -65,11 +62,12 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.domain.YaadiDetails;
+import org.mkcl.els.domain.ballot.Ballot;
 import org.mkcl.els.service.IProcessService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
@@ -80,12 +78,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class QuestionWorkflowController.
  *
@@ -101,20 +97,20 @@ public class QuestionWorkflowController  extends BaseController{
 	@Autowired
 	private IProcessService processService;
 
-	@RequestMapping(value="supportingmember",method=RequestMethod.GET)
+	@RequestMapping(value="supportingmember", method = RequestMethod.GET)
 	public String initSupportingMember(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		/**** Workflowdetails ****/
-		Long longWorkflowdetails=(Long) request.getAttribute("workflowdetails");
-		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,longWorkflowdetails);
+		Long longWorkflowdetails = (Long) request.getAttribute("workflowdetails");
+		WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class,longWorkflowdetails);
 		/**** Question ****/
-		String questionId=workflowDetails.getDeviceId();
-		model.addAttribute("question",questionId);
-		Question question=Question.findById(Question.class,Long.parseLong(questionId));
+		String questionId = workflowDetails.getDeviceId();
+		model.addAttribute("question", questionId);
+		Question question = Question.findById(Question.class,Long.parseLong(questionId));
 		/**** Current Supporting Member ****/
-		List<SupportingMember> supportingMembers=question.getSupportingMembers();
-		Member member=Member.findMember(this.getCurrentUser().getFirstName(),
+		List<SupportingMember> supportingMembers = question.getSupportingMembers();
+		Member member = Member.findMember(this.getCurrentUser().getFirstName(),
 				this.getCurrentUser().getMiddleName(), this.getCurrentUser().getLastName(),
 				this.getCurrentUser().getBirthDate(), locale.toString());
 		if (member != null) {
@@ -126,90 +122,93 @@ public class QuestionWorkflowController  extends BaseController{
 							.getId());
 					model.addAttribute("domain", i);
 					if (i.getDecisionStatus() != null) {
-						model.addAttribute("decisionStatus", i
-								.getDecisionStatus().getId());
-						model.addAttribute("formattedDecisionStatus", i
-								.getDecisionStatus().getName());
+						model.addAttribute("decisionStatus", i.getDecisionStatus().getId());
+						model.addAttribute("formattedDecisionStatus", i.getDecisionStatus().getName());
 					}
 					CustomParameter customParameter = CustomParameter
-							.findByName(CustomParameter.class,
-									"SERVER_DATETIMEFORMAT", "");
+							.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
 					if (customParameter != null) {
 						SimpleDateFormat format = new SimpleDateFormat(
 								customParameter.getValue());
-						model.addAttribute("requestReceivedOnDate",
-								format.format(i.getRequestReceivedOn()));
+						model.addAttribute("requestReceivedOnDate", format.format(i.getRequestReceivedOn()));
 					}
 					break;
 				}
 			}
 		}
 		/**** Populate Model ****/
-		populateSupportingMember(model, question,supportingMembers,locale.toString());
+		populateSupportingMember(model, question, supportingMembers, locale.toString());
 		/**** Add task and workflowdetails to model ****/
-		model.addAttribute("task",workflowDetails.getTaskId());
-		model.addAttribute("workflowDetailsId",workflowDetails.getId());
-		model.addAttribute("status",workflowDetails.getStatus());
+		model.addAttribute("task", workflowDetails.getTaskId());
+		model.addAttribute("workflowDetailsId", workflowDetails.getId());
+		model.addAttribute("status", workflowDetails.getStatus());
 
 		return workflowDetails.getForm();
 	}
 
 
-	private void populateSupportingMember(final ModelMap model,final Question question, final List<SupportingMember> supportingMembers,final String locale){
+	private void populateSupportingMember(final ModelMap model,
+			final Question question, 
+			final List<SupportingMember> supportingMembers,
+			final String locale){
 		/**** Question Type ****/
-		DeviceType questionType=question.getType();
-		if(questionType!=null){
+		DeviceType questionType = question.getType();
+		if(questionType != null){
 			model.addAttribute("questionType", questionType.getName());
 		}
 		/**** Session Year and Session Type ****/
-		Session session=question.getSession();
-		if(session!=null){
+		Session session = question.getSession();
+		if(session != null){
 			model.addAttribute("year", session.getYear());
 			model.addAttribute("sessionType", session.getType().getSessionType());
 		}
 		/**** House Type ****/
-		model.addAttribute("houseTypeName",question.getHouseType().getName());
-		model.addAttribute("houseType",question.getHouseType().getType());
+		model.addAttribute("houseTypeName", question.getHouseType().getName());
+		model.addAttribute("houseType", question.getHouseType().getType());
 		/**** Supporting Members ****/
-		List<Member> members=new ArrayList<Member>();
-		if(supportingMembers!=null){
-			for(SupportingMember i:supportingMembers){
-				Member selectedMember=i.getMember();
+		List<Member> members = new ArrayList<Member>();
+		if(supportingMembers != null){
+			for(SupportingMember i : supportingMembers){
+				Member selectedMember = i.getMember();
 				members.add(selectedMember);
 			}
 			if(!members.isEmpty()){
-				StringBuffer buffer=new StringBuffer();
-				for(Member i:members){
-					buffer.append(i.getFullnameLastNameFirst()+",");
+				StringBuffer buffer = new StringBuffer();
+				for(Member i : members){
+					buffer.append(i.getFullnameLastNameFirst() + ",");
 				}
 				buffer.deleteCharAt(buffer.length()-1);
 				model.addAttribute("supportingMembersName", buffer.toString());
 			}
 		}
 		/**** Decision Status ****/
-		Status approveStatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_APPROVED, locale);
-		Status rejectStatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_REJECTED, locale);
-		List<Status> decisionStatus=new ArrayList<Status>();
+		Status approveStatus =Status
+				.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_APPROVED, locale);
+		Status rejectStatus = Status
+				.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_REJECTED, locale);
+		List<Status> decisionStatus = new ArrayList<Status>();
 		decisionStatus.add(approveStatus);
 		decisionStatus.add(rejectStatus);
-		model.addAttribute("decisionStatus",decisionStatus);
+		model.addAttribute("decisionStatus", decisionStatus);
 		/**** Primary Member ****/
-		model.addAttribute("primaryMemberName",question.getPrimaryMember().getFullnameLastNameFirst());
+		model.addAttribute("primaryMemberName", question.getPrimaryMember().getFullnameLastNameFirst());
 		/**** Priority ****/
-		model.addAttribute("priority",question.getPriority());
+		model.addAttribute("priority", question.getPriority());
 	}
 
 	@RequestMapping(value="supportingmember",method=RequestMethod.PUT)
 	public String updateSupportingMember(final ModelMap model,
 			final HttpServletRequest request,
-			final Locale locale,@Valid @ModelAttribute("domain") final SupportingMember domain) {
+			final Locale locale,
+			@Valid @ModelAttribute("domain") final SupportingMember domain) {
 		/**** update supporting member */
-		String strMember=request.getParameter("currentSupportingMember");
-		String requestReceivedOn=request.getParameter("requestReceivedOnDate");
-		if(requestReceivedOn!=null&& !(requestReceivedOn.isEmpty())){
-			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT","");
-			if(customParameter!=null){
-				SimpleDateFormat format=new SimpleDateFormat(customParameter.getValue());
+		String strMember = request.getParameter("currentSupportingMember");
+		String requestReceivedOn = request.getParameter("requestReceivedOnDate");
+		if(requestReceivedOn != null && !(requestReceivedOn.isEmpty())){
+			CustomParameter customParameter = 
+					CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+			if(customParameter != null){
+				SimpleDateFormat format = new SimpleDateFormat(customParameter.getValue());
 				try {
 					domain.setRequestReceivedOn(format.parse(requestReceivedOn));
 				} catch (ParseException e) {
@@ -217,25 +216,26 @@ public class QuestionWorkflowController  extends BaseController{
 				}
 			}
 		}
-		Member member=Member.findById(Member.class, Long.parseLong(strMember));
+		Member member = Member.findById(Member.class, Long.parseLong(strMember));
 		domain.setMember(member);
 		domain.setApprovalDate(new Date());
 		domain.merge();
 		/**** update workflow details ****/
-		String strWorkflowdetails=domain.getWorkflowDetailsId();
-		if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
-			WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+		String strWorkflowdetails = domain.getWorkflowDetailsId();
+		if(strWorkflowdetails != null && !strWorkflowdetails.isEmpty()){
+			WorkflowDetails workflowDetails = 
+					WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
 			workflowDetails.setStatus("COMPLETED");
 			workflowDetails.setCompletionTime(new Date());
 			workflowDetails.merge();
 			/**** complete the task ****/		 
-			String strTaskId=workflowDetails.getTaskId();
-			Task task=processService.findTaskById(strTaskId);
+			String strTaskId = workflowDetails.getTaskId();
+			Task task = processService.findTaskById(strTaskId);
 			processService.completeTask(task);
-			model.addAttribute("task",strTaskId);		
+			model.addAttribute("task", strTaskId);		
 		}
 		/**** display message ****/
-		model.addAttribute("type","taskcompleted");
+		model.addAttribute("type", "taskcompleted");
 		return "workflow/info";
 	}
 
@@ -293,60 +293,6 @@ public class QuestionWorkflowController  extends BaseController{
 		/**** Sub Department ****/
 		binder.registerCustomEditor(SubDepartment.class, new BaseEditor(
 				new SubDepartment()));
-		/**** Supporting Member ****/
-		//		binder.registerCustomEditor(List.class, "SupportingMember",
-		//				new CustomCollectionEditor(List.class) {
-		//			@Override
-		//			protected Object convertElement(
-		//					final Object element) {
-		//				String id = null;
-		//
-		//				if (element instanceof String) {
-		//					id = (String) element;
-		//				}
-		//				return id != null ? SupportingMember
-		//						.findById(SupportingMember.class,
-		//								Long.valueOf(id))
-		//								: null;
-		//			}
-		//		});
-
-		/**** Clubbed Entity ****/
-		//		binder.registerCustomEditor(List.class, "ClubbedEntity",
-		//				new CustomCollectionEditor(List.class) {
-		//			@Override
-		//			protected Object convertElement(
-		//					final Object element) {
-		//				String id = null;
-		//
-		//				if (element instanceof String) {
-		//					id = (String) element;
-		//				}
-		//				return id != null ? ClubbedEntity
-		//						.findById(ClubbedEntity.class,
-		//								Long.valueOf(id))
-		//								: null;
-		//			}
-		//		});
-
-		/**** Referenced Entity ****/
-		//		binder.registerCustomEditor(List.class, "ReferencedEntity",
-		//				new CustomCollectionEditor(List.class) {
-		//			@Override
-		//			protected Object convertElement(
-		//					final Object element) {
-		//				String id = null;
-		//
-		//				if (element instanceof String) {
-		//					id = (String) element;
-		//				}
-		//				return id != null ? ReferencedEntity
-		//						.findById(ReferencedEntity.class,
-		//								Long.valueOf(id))
-		//								: null;
-		//			}
-		//		});
-		//----------21012013--------------------------
 		/**** Referenced Question for half hour discussion from question ****/
 		binder.registerCustomEditor(Question.class, new BaseEditor(new Question()));
 
@@ -359,16 +305,25 @@ public class QuestionWorkflowController  extends BaseController{
 		WorkflowDetails workflowDetails = null;
 		try{
 			/**** Workflowdetails ****/
-			Long longWorkflowdetails=(Long) request.getAttribute("workflowdetails");
-			if(longWorkflowdetails==null){
-				longWorkflowdetails=Long.parseLong(request.getParameter("workflowdetails"));
+			Long longWorkflowdetails = (Long) request.getAttribute("workflowdetails");
+			if(longWorkflowdetails == null){
+				longWorkflowdetails = Long.parseLong(request.getParameter("workflowdetails"));
 			}
-			workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,longWorkflowdetails);
+			workflowDetails = WorkflowDetails.findById(WorkflowDetails.class,longWorkflowdetails);
 			/**** Adding workflowdetails and task to model ****/
-			model.addAttribute("workflowdetails",workflowDetails.getId());
-			model.addAttribute("workflowstatus",workflowDetails.getStatus());
-			Question domain=Question.findById(Question.class,Long.parseLong(workflowDetails.getDeviceId()));
+			model.addAttribute("workflowdetails", workflowDetails.getId());
+			model.addAttribute("workflowstatus", workflowDetails.getStatus());
+			Question domain = Question.findById(Question.class, Long.parseLong(workflowDetails.getDeviceId()));
 
+			Set<Role> roles = this.getCurrentUser().getRoles();
+			for(Role r : roles){
+				if(r != null && (r.getType().startsWith("QIS_") || r.getType().startsWith("MEMBER_"))){
+					
+					model.addAttribute("role", r.getType());
+					break;
+					
+				}
+			}
 			/**** Populate Model ****/		
 			populateModel(domain,model,request,workflowDetails);
 			/**** Find Latest Remarks ****/
@@ -387,14 +342,17 @@ public class QuestionWorkflowController  extends BaseController{
 		return workflowDetails.getForm();
 	}
 
-	private void populateModel(final Question domain, final ModelMap model,
-			final HttpServletRequest request,final WorkflowDetails workflowDetails) throws ELSException {
+	private void populateModel(final Question domain,
+			final ModelMap model,
+			final HttpServletRequest request,
+			final WorkflowDetails workflowDetails) throws ELSException {
 
 		/**** Add the re-answer ****/
 		model.addAttribute("isReanswered", workflowDetails.getDepartmentAnswer());
 
 		/**** Add reanswer if existing ****/
-		model.addAttribute("reanswerText", (workflowDetails.getDepartmentAnswer()!=null)? workflowDetails.getDepartmentAnswer():"");
+		model.addAttribute("reanswerText",
+				(workflowDetails.getDepartmentAnswer()!=null)? workflowDetails.getDepartmentAnswer():"");
 
 		/**** If reanswer ****/
 		boolean boolReanswer = false;
@@ -413,190 +371,196 @@ public class QuestionWorkflowController  extends BaseController{
 			boolReanswer = false;
 		}
 		/**** In case of bulk edit we can update only few parameters ****/
-		model.addAttribute("bulkedit",request.getParameter("bulkedit"));
+		model.addAttribute("bulkedit", request.getParameter("bulkedit"));
 		/**** clear remarks ****/
 		domain.setRemarks("");	
 
 		/**** Locale ****/
-		String locale=domain.getLocale();					
+		String locale = domain.getLocale();					
 
 		/**** House Type ****/
-		HouseType houseType=domain.getHouseType();
-		model.addAttribute("formattedHouseType",houseType.getName());
-		model.addAttribute("houseTypeType",houseType.getType());
-		model.addAttribute("houseType",houseType.getId());
+		HouseType houseType = domain.getHouseType();
+		model.addAttribute("formattedHouseType", houseType.getName());
+		model.addAttribute("houseTypeType", houseType.getType());
+		model.addAttribute("houseType", houseType.getId());
 
 		/**** Session ****/
-		Session selectedSession=domain.getSession();
-		model.addAttribute("session",selectedSession.getId());
+		Session selectedSession = domain.getSession();
+		model.addAttribute("session", selectedSession.getId());
 
 		/**** Session Year ****/
-		Integer sessionYear=0;
-		sessionYear=selectedSession.getYear();
-		model.addAttribute("formattedSessionYear",FormaterUtil.getNumberFormatterNoGrouping(locale).format(sessionYear));
-		model.addAttribute("sessionYear",sessionYear);
+		Integer sessionYear = 0;
+		sessionYear = selectedSession.getYear();
+		model.addAttribute("formattedSessionYear",
+				FormaterUtil.getNumberFormatterNoGrouping(locale).format(sessionYear));
+		model.addAttribute("sessionYear", sessionYear);
 
 		/**** Session Type ****/
-		SessionType  sessionType=selectedSession.getType();
-		model.addAttribute("formattedSessionType",sessionType.getSessionType());
-		model.addAttribute("sessionType",sessionType.getId());        
+		SessionType  sessionType = selectedSession.getType();
+		model.addAttribute("formattedSessionType", sessionType.getSessionType());
+		model.addAttribute("sessionType", sessionType.getId());        
 
 		/**** Question Type ****/
-		DeviceType questionType=domain.getType();
-		model.addAttribute("formattedQuestionType",questionType.getName());
-		model.addAttribute("questionType",questionType.getId());
-		model.addAttribute("selectedQuestionType",questionType.getType());
+		DeviceType questionType = domain.getType();
+		model.addAttribute("formattedQuestionType", questionType.getName());
+		model.addAttribute("questionType", questionType.getId());
+		model.addAttribute("selectedQuestionType", questionType.getType());
 
 		/**** Original Question Type ****/		
-		if(domain.getOriginalType()!=null) {
-			model.addAttribute("originalType",domain.getOriginalType().getId());
+		if(domain.getOriginalType() != null) {
+			model.addAttribute("originalType", domain.getOriginalType().getId());
 		}
 
 		/**** Primary Member ****/
-		String memberNames=null;
-		String primaryMemberName=null;
-		Member member=domain.getPrimaryMember();
-		if(member!=null){
-			model.addAttribute("primaryMember",member.getId());
-			primaryMemberName=member.getFullname();
-			memberNames=primaryMemberName;
-			model.addAttribute("formattedPrimaryMember",primaryMemberName);
+		String memberNames = null;
+		String primaryMemberName = null;
+		Member member = domain.getPrimaryMember();
+		if(member != null){
+			model.addAttribute("primaryMember", member.getId());
+			primaryMemberName = member.getFullname();
+			memberNames = primaryMemberName;
+			model.addAttribute("formattedPrimaryMember", primaryMemberName);
 		}
 		/**** Constituency ****/
-		Long houseId=selectedSession.getHouse().getId();
-		MasterVO constituency=null;
+		Long houseId = selectedSession.getHouse().getId();
+		MasterVO constituency = null;
 		if(houseType.getType().equals("lowerhouse")){
-			constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
-			model.addAttribute("constituency",constituency.getName());
+			constituency = Member.findConstituencyByAssemblyId(member.getId(), houseId);
+			model.addAttribute("constituency", constituency.getName());
 		}else if(houseType.getType().equals("upperhouse")){
-			Date currentDate=new Date();
-			String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
-			constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
-			model.addAttribute("constituency",constituency.getName());
+			Date currentDate = new Date();
+			String date = FormaterUtil.getDateFormatter("en_US").format(currentDate);
+			constituency = Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
+			model.addAttribute("constituency", constituency.getName());
 		}
 		/**** Supporting Members ****/
-		List<SupportingMember> selectedSupportingMembers=domain.getSupportingMembers();
-		List<Member> supportingMembers=new ArrayList<Member>();
-		if(selectedSupportingMembers!=null){
+		List<SupportingMember> selectedSupportingMembers = domain.getSupportingMembers();
+		List<Member> supportingMembers = new ArrayList<Member>();
+		if(selectedSupportingMembers != null){
 			if(!selectedSupportingMembers.isEmpty()){
-				StringBuffer bufferFirstNamesFirst=new StringBuffer();
-				for(SupportingMember i:selectedSupportingMembers){
-					Member m=i.getMember();
-					bufferFirstNamesFirst.append(m.getFullname()+",");
+				StringBuffer bufferFirstNamesFirst = new StringBuffer();
+				for(SupportingMember i : selectedSupportingMembers){
+					Member m = i.getMember();
+					bufferFirstNamesFirst.append(m.getFullname() + ",");
 					supportingMembers.add(m);
 				}
 				bufferFirstNamesFirst.deleteCharAt(bufferFirstNamesFirst.length()-1);
 				model.addAttribute("supportingMembersName", bufferFirstNamesFirst.toString());
-				model.addAttribute("supportingMembers",supportingMembers);
-				model.addAttribute("selectedSupportingMembersIds",selectedSupportingMembers);
-				memberNames=primaryMemberName+","+bufferFirstNamesFirst.toString();
-				model.addAttribute("memberNames",memberNames);
+				model.addAttribute("supportingMembers", supportingMembers);
+				model.addAttribute("selectedSupportingMembersIds", selectedSupportingMembers);
+				memberNames = primaryMemberName + "," + bufferFirstNamesFirst.toString();
+				model.addAttribute("memberNames", memberNames);
 			}else{
-				model.addAttribute("memberNames",memberNames);
+				model.addAttribute("memberNames", memberNames);
 			}
 		}else{
-			model.addAttribute("memberNames",memberNames);
+			model.addAttribute("memberNames", memberNames);
 		}
 
 		/**** Priorities ****/
-		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "HIGHEST_QUESTION_PRIORITY", "");
-		if(customParameter!=null){
-			List<MasterVO> priorities=new ArrayList<MasterVO>();
-			for(int i=1;i<=Integer.parseInt(customParameter.getValue());i++){
-				priorities.add(new MasterVO(i,FormaterUtil.getNumberFormatterNoGrouping(locale).format(i)));
+		CustomParameter customParameter = 
+				CustomParameter.findByName(CustomParameter.class, "HIGHEST_QUESTION_PRIORITY", "");
+		if(customParameter != null){
+			List<MasterVO> priorities = new ArrayList<MasterVO>();
+			for(int i=1 ; i<=Integer.parseInt(customParameter.getValue()); i++){
+				priorities.add(new MasterVO(i, FormaterUtil.getNumberFormatterNoGrouping(locale).format(i)));
 			}
 			model.addAttribute("priorities",priorities);
 		}else{
 			logger.error("**** Custom Parameter 'HIGHEST_QUESTION_PRIORITY' not set ****");
 			model.addAttribute("errorcode","highestquestionprioritynotset");
 		}
-		if(domain.getPriority()!=null){
-			model.addAttribute("priority",domain.getPriority());
-			model.addAttribute("formattedPriority",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getPriority()));
+		if(domain.getPriority() != null){
+			model.addAttribute("priority", domain.getPriority());
+			model.addAttribute("formattedPriority",
+					FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getPriority()));
 		}
 
 		/**** Ministries ****/
-		List<Ministry> ministries = Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
-		model.addAttribute("ministries",ministries);
-		Ministry ministry=domain.getMinistry();
-		if(ministry!=null){
-			model.addAttribute("ministrySelected",ministry.getId());
+		List<Ministry> ministries = 
+				Ministry.findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
+		model.addAttribute("ministries", ministries);
+		Ministry ministry = domain.getMinistry();
+		if(ministry != null){
+			model.addAttribute("ministrySelected", ministry.getId());
 			/**** Group ****/
-			Group group=domain.getGroup();
+			Group group = domain.getGroup();
+			model.addAttribute("formattedGroup",
+					FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getGroup().getNumber()));
+			model.addAttribute("group", domain.getGroup().getId());
 
-			if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-					&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				model.addAttribute("formattedGroup",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getGroup().getNumber()));
-				model.addAttribute("group",domain.getGroup().getId());
-			}
-
-			/**** Departments ****/
-			List<Department> departments=MemberMinister.findAssignedDepartments(ministry, locale);
-			model.addAttribute("departments",departments);
-			if(domain.getDepartment()!=null){  
-				model.addAttribute("departmentSelected",domain.getDepartment().getId());
-			}
 			/**** Sub Departments ****/
-			List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, locale);
-			model.addAttribute("subDepartments",subDepartments); 
-			SubDepartment subDepartment=domain.getSubDepartment();
-			if(subDepartment!=null){
+			List<SubDepartment> subDepartments = 
+					MemberMinister.findAssignedSubDepartments(ministry, selectedSession.getEndDate(), locale);
+			model.addAttribute("subDepartments", subDepartments); 
+			SubDepartment subDepartment = domain.getSubDepartment();
+			if(subDepartment != null){
 
-				model.addAttribute("subDepartmentSelected",subDepartment.getId());				
+				model.addAttribute("subDepartmentSelected", subDepartment.getId());				
 			}
 
-			if(!(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-					&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-				/**** Answering Dates ****/
-				if(group!=null){
-					List<QuestionDates> answeringDates=group.getQuestionDates();
-					List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-					for(QuestionDates i:answeringDates){
-						MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
-						masterVOs.add(masterVO);
-					}
-					model.addAttribute("answeringDates",masterVOs);
-					if(domain.getAnsweringDate()!=null){
-						model.addAttribute("answeringDate",domain.getAnsweringDate().getId());
-						model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getAnsweringDate()));
-						model.addAttribute("answeringDateSelected",domain.getAnsweringDate().getId());
-						model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
-					}
+
+			/**** Answering Dates ****/
+			if(group != null){
+				List<QuestionDates> answeringDates = group.getQuestionDates();
+				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+				for(QuestionDates i : answeringDates){
+					MasterVO masterVO = new MasterVO(i.getId(),
+							FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
+					masterVOs.add(masterVO);
+				}
+				model.addAttribute("answeringDates", masterVOs);
+				if(domain.getAnsweringDate() != null){
+					model.addAttribute("answeringDate", domain.getAnsweringDate().getId());
+					model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).
+							format(domain.getAnsweringDate().getAnsweringDate()));
+					model.addAttribute("answeringDateSelected", domain.getAnsweringDate().getId());
+					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
+							format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
 				}
 			}
+			
 			/**** Set Chart answering date ****/
 			if(domain.getChartAnsweringDate() != null) {
 				model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
-				model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).format(domain.getChartAnsweringDate().getAnsweringDate()));
+				model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).
+						format(domain.getChartAnsweringDate().getAnsweringDate()));
 			}
 		}	
 		/**** Submission Date and Creation date****/
-		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
-		if(dateTimeFormat!=null){            
-			if(domain.getSubmissionDate()!=null){
-				model.addAttribute("submissionDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getSubmissionDate()));
-				model.addAttribute("formattedSubmissionDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getSubmissionDate()));
+		CustomParameter dateTimeFormat = 
+				CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+		if(dateTimeFormat != null){            
+			if(domain.getSubmissionDate() != null){
+				model.addAttribute("submissionDate",FormaterUtil.
+						getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getSubmissionDate()));
+				model.addAttribute("formattedSubmissionDate",FormaterUtil.
+						getDateFormatter(dateTimeFormat.getValue(),locale).format(domain.getSubmissionDate()));
 			}
-			if(domain.getCreationDate()!=null){
-				model.addAttribute("creationDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getCreationDate()));
+			if(domain.getCreationDate() != null){
+				model.addAttribute("creationDate",FormaterUtil.
+						getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getCreationDate()));
 			}
-			if(domain.getWorkflowStartedOn()!=null){
-				model.addAttribute("workflowStartedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowStartedOn()));
+			if(domain.getWorkflowStartedOn() != null){
+				model.addAttribute("workflowStartedOnDate",FormaterUtil.
+						getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getWorkflowStartedOn()));
 			}
-			if(domain.getTaskReceivedOn()!=null){
-				model.addAttribute("taskReceivedOnDate",FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOn()));
+			if(domain.getTaskReceivedOn() != null){
+				model.addAttribute("taskReceivedOnDate",FormaterUtil.
+						getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getTaskReceivedOn()));
 			}
 		}
 		/**** Number ****/
-		if(domain.getNumber()!=null){
-			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
+		if(domain.getNumber() != null){
+			model.addAttribute("formattedNumber", FormaterUtil.getNumberFormatterNoGrouping(locale).
+					format(domain.getNumber()));
 		}
 		/**** Created By ****/
-		model.addAttribute("createdBy",domain.getCreatedBy());	
+		model.addAttribute("createdBy", domain.getCreatedBy());	
 
 		/**** UserGroup and UserGroup Type ****/
-		model.addAttribute("usergroup",workflowDetails.getAssigneeUserGroupId());
-		model.addAttribute("usergroupType",workflowDetails.getAssigneeUserGroupType());
+		model.addAttribute("usergroup", workflowDetails.getAssigneeUserGroupId());
+		model.addAttribute("usergroupType", workflowDetails.getAssigneeUserGroupType());
 		model.addAttribute("userGroupName", workflowDetails.getAssigneeUserGroupName());
 		
 		/**** To have the task creation date and lastReceivingDate if userGroup is department in case of starred questions ***/
@@ -604,22 +568,28 @@ public class QuestionWorkflowController  extends BaseController{
 			boolean canAdd = false;
 
 			try{	
-				if(domain.getAnsweringDate()!=null){
-					if(domain.getAnsweringDate().getLastReceivingDateFromDepartment()!=null){
-						model.addAttribute("lastReceivingDateFromDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
+				if(domain.getAnsweringDate() != null){
+					if(domain.getAnsweringDate().getLastReceivingDateFromDepartment() != null){
+						String formattedLastRecievingDateFromDepartment = FormaterUtil.getDateFormatter(locale).
+								format(domain.getAnsweringDate().getLastReceivingDateFromDepartment());
+						model.addAttribute("lastReceivingDateFromDepartment", formattedLastRecievingDateFromDepartment);
 					}
 				}
 
-				CustomParameter serverTimeStamp=CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
-				if(serverTimeStamp!=null){
-					if(workflowDetails.getAssignmentTime() != null){							
-						model.addAttribute("taskCreationDate", FormaterUtil.getDateFormatter(serverTimeStamp.getValue(),locale).format(workflowDetails.getAssignmentTime()));
+				CustomParameter serverTimeStamp = 
+						CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
+				if(serverTimeStamp != null){
+					if(workflowDetails.getAssignmentTime() != null){	
+						String formattedTaskCreationDate = FormaterUtil.
+								getDateFormatter(serverTimeStamp.getValue(),locale).
+								format(workflowDetails.getAssignmentTime());
+						model.addAttribute("taskCreationDate", formattedTaskCreationDate);
 					}
 				}
-
 				canAdd = true;
 			}catch(Exception e){
-				logger.error("Last Receiving date from department or task creation date is missing.: "+e.getMessage());
+				logger.error("Last Receiving date from department or task creation date is missing.: "
+						+ e.getMessage());
 			}
 			if(!canAdd){
 				model.addAttribute("lastReceivingDateFromDepartment", "");
@@ -628,17 +598,17 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 
 		/**** Status,Internal Status and recommendation Status ****/
-		Status status=domain.getStatus();
-		Status internalStatus=domain.getInternalStatus();
-		Status recommendationStatus=domain.getRecommendationStatus();
-		if(status!=null){
+		Status status = domain.getStatus();
+		Status internalStatus = domain.getInternalStatus();
+		Status recommendationStatus = domain.getRecommendationStatus();
+		if(status != null){
 			model.addAttribute("status",status.getId());
 		}
-		if(internalStatus!=null){
-			model.addAttribute("internalStatus",internalStatus.getId());
+		if(internalStatus != null){
+			model.addAttribute("internalStatus", internalStatus.getId());
 			model.addAttribute("internalStatusType", internalStatus.getType());
-			String nextInternalStatus[]=internalStatus.getType().split("_");
-			model.addAttribute("nextInternalStatus",nextInternalStatus[2]);
+			String nextInternalStatus[] = internalStatus.getType().split("_");
+			model.addAttribute("nextInternalStatus", nextInternalStatus[nextInternalStatus.length-1]);
 			model.addAttribute("formattedInternalStatus", internalStatus.getName());
 			/**** list of put up options available ****/
 			/**** added by sandeep singh(jan 29 2013) ****/
@@ -646,9 +616,17 @@ public class QuestionWorkflowController  extends BaseController{
 			if(boolReanswer){
 				Status reanswerStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_REANSWER, locale);
 				domain.setRecommendationStatus(reanswerStatus);
-				populateInternalStatus(model, domain.getRecommendationStatus().getType(), workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
+				populateInternalStatus(model, domain.getRecommendationStatus().getType(),
+						workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
 			}else{
-				populateInternalStatus(model,domain,locale);
+				if(workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
+						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION_WORKFLOW)
+						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
+						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
+					populateInternalStatus(model,domain,domain.getRecommendationStatus(),domain.getLocale());
+				} else {
+					populateInternalStatus(model,domain,domain.getInternalStatus(),domain.getLocale());
+				}				
 			}
 		}
 		if(recommendationStatus!=null){
@@ -656,207 +634,200 @@ public class QuestionWorkflowController  extends BaseController{
 			model.addAttribute("recommendationStatusType",recommendationStatus.getType());
 			model.addAttribute("oldRecommendationStatus",recommendationStatus.getId());
 		}	
-		/**** Referenced Questions are collected in refentities****/
-		List<Reference> refentities=new ArrayList<Reference>();
-		List<String> refentitiesSessionDevice = new ArrayList<String>();
-		if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-				&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			if(domain.getReferencedHDS() != null){
-
-				ReferencedEntity refEntity = domain.getReferencedHDS();
-
-				Reference reference=new Reference();
-				reference.setId(String.valueOf(refEntity.getId()));
-				Question refQuestion = (Question)refEntity.getDevice();
-				reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(refQuestion.getNumber()));
-				reference.setNumber(String.valueOf(refQuestion.getId()));
-				refentities.add(reference);
-
-				Session referencedQuestionSession = refQuestion.getSession();
-				refentitiesSessionDevice.add("[" + referencedQuestionSession.getType().getSessionType()+", "+
-						FormaterUtil.formatNumberNoGrouping(referencedQuestionSession.getYear(), locale) + "], " + 
-						refQuestion.getType().getName());
-
-				model.addAttribute("referencedQuestions",refentities);
-				model.addAttribute("referencedHDS", refEntity.getId());
-				model.addAttribute("referencedQuestionsSessionAndDevice", refentitiesSessionDevice);
-			}
-		}else{
-			List<ReferencedEntity> referencedEntities=domain.getReferencedEntities();
-			for(ReferencedEntity re:referencedEntities){
-				if(re.getDeviceType() != null){
-					if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)){
-						Reference reference=new Reference();
-						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Question)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Question)re.getDevice()).getId()));
-						refentities.add(reference);
-
-						model.addAttribute("referencedQuestions",refentities);
-					}
-				}
-			}
+		
+		
+		/****Populating Ballot Status****/
+		if(domain.getBallotStatus() != null) {
+			model.addAttribute("ballotStatusId", domain.getBallotStatus().getId());
 		}
+		
+		
+		/**** Referenced Questions are collected in refentities****/
+		List<Reference> refentities = QuestionController.getReferencedEntityReferences(domain, locale);
+		model.addAttribute("referencedQuestions",refentities);
 
 		/**** Clubbed Questions are collected in references ****/
-		List<Reference> references=new ArrayList<Reference>();
-		List<ClubbedEntity> clubbedEntities=Question.findClubbedEntitiesByPosition(domain);
-		StringBuffer buffer1=new StringBuffer();
+		List<Reference> references = new ArrayList<Reference>();
+		List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(domain);
+		StringBuffer buffer1 = new StringBuffer();
 		buffer1.append(memberNames+",");			
-		for(ClubbedEntity ce:clubbedEntities){
-			Reference reference=new Reference();
+		for(ClubbedEntity ce : clubbedEntities){
+			Reference reference = new Reference();
 			reference.setId(String.valueOf(ce.getId()));
-			reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getQuestion().getNumber()));
+			reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).
+					format(ce.getQuestion().getNumber()));
 			reference.setNumber(String.valueOf(ce.getQuestion().getId()));
 			references.add(reference);
-			String tempPrimary=ce.getQuestion().getPrimaryMember().getFullname();
+			String tempPrimary = ce.getQuestion().getPrimaryMember().getFullname();
 			if(!buffer1.toString().contains(tempPrimary)){
-				buffer1.append(ce.getQuestion().getPrimaryMember().getFullname()+",");
+				buffer1.append(ce.getQuestion().getPrimaryMember().getFullname() + ",");
 			}
-			List<SupportingMember> clubbedSupportingMember=ce.getQuestion().getSupportingMembers();
-			if(clubbedSupportingMember!=null){
-				if(!clubbedSupportingMember.isEmpty()){
-					for(SupportingMember l:clubbedSupportingMember){
-						String tempSupporting=l.getMember().getFullname();
-						if(!buffer1.toString().contains(tempSupporting)){
-							buffer1.append(tempSupporting+",");
-						}
+			List<SupportingMember> clubbedSupportingMember = ce.getQuestion().getSupportingMembers();
+			if(clubbedSupportingMember != null && !clubbedSupportingMember.isEmpty()){
+				for(SupportingMember l:clubbedSupportingMember){
+					String tempSupporting=l.getMember().getFullname();
+					if(!buffer1.toString().contains(tempSupporting)){
+						buffer1.append(tempSupporting+",");
 					}
 				}
 			}
 		}
+		
 		if(!buffer1.toString().isEmpty()){
 			buffer1.deleteCharAt(buffer1.length()-1);
 		}
-		String allMembersNames=buffer1.toString();
-		model.addAttribute("memberNames",allMembersNames);
+		String allMembersNames = buffer1.toString();
+		model.addAttribute("memberNames", allMembersNames);
 		if(!references.isEmpty()){
-			model.addAttribute("clubbedQuestions",references);
+			model.addAttribute("clubbedQuestions", references);
 		}else{
-			if(domain.getParent()!=null){
-				model.addAttribute("formattedParentNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getParent().getNumber()));
-				model.addAttribute("parent",domain.getParent().getId());
+			if(domain.getParent() != null){
+				model.addAttribute("formattedParentNumber", FormaterUtil.
+						getNumberFormatterNoGrouping(locale).format(domain.getParent().getNumber()));
+				model.addAttribute("parent", domain.getParent().getId());
 			}
 		}
 		/**** level ****/
-		model.addAttribute("level",workflowDetails.getAssigneeLevel());
+		model.addAttribute("level", workflowDetails.getAssigneeLevel());
 
 		/**** setting the date of factual position receiving. ****/
-		String userGroupType=workflowDetails.getAssigneeUserGroupType();
-		String userGroupId=workflowDetails.getAssigneeUserGroupId();
-		if((domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-				&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))
-				||
-				(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION))){
-			if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) 
-					&& (internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) 
-							|| internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
-
+		String userGroupType = workflowDetails.getAssigneeUserGroupType();
+		String userGroupId = workflowDetails.getAssigneeUserGroupId();
+		// String deviceTypeType = domain.getType().getType();
+		String internalStatusType = internalStatus.getType();
+		if(userGroupType.equals(ApplicationConstants.SECTION_OFFICER)){
+			if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
 				/**** setting the questions to be asked in factual position. ****/
 				List<MasterVO> questionsToBeAskedInFactualPosition = new ArrayList<MasterVO>();
 				String sessionParameter = null;
-				if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
-					sessionParameter = selectedSession.getParameter("questions_halfhourdiscussion_standalone_questionsAskedForFactualPosition");
-				} else if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
-						&& internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-					sessionParameter = selectedSession.getParameter("questions_starred_clarificationFromMemberQuestions");
-				} else if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
-						&& internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
-					sessionParameter = selectedSession.getParameter("questions_starred_clarificationFromDepartmentQuestions");
+				if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
+					sessionParameter = selectedSession.
+							getParameter("questions_starred_clarificationFromDepartmentQuestions");
+				}else if (internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+					sessionParameter = selectedSession.
+							getParameter("questions_unstarred_clarificationFromDepartmentQuestions");
+				}else if (internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+					sessionParameter = selectedSession.
+							getParameter("questions_shortnotice_clarificationFromDepartmentQuestions");
+				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
+					sessionParameter = selectedSession.
+							getParameter("questions_halfHourFromQuestion_clarificationFromDepartmentQuestions");
 				}
-				if(sessionParameter != null) {
-					if(!sessionParameter.isEmpty()) {
-						for(String i : sessionParameter.split("##")) {	
-							MasterVO questionToBeAskedInFactualPosition = new MasterVO();
-							questionToBeAskedInFactualPosition.setName(i);
-							questionToBeAskedInFactualPosition.setValue(i);
-							if(domain.getQuestionsAskedInFactualPosition()!=null && !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
-								for(String j : domain.getQuestionsAskedInFactualPosition().split("##")) {
-									if(i.replaceAll("<[^>]+>", "").trim().substring(0, 3).contains(j.replaceAll("<[^>]+>", "").trim().substring(0, 3))) {
-										questionToBeAskedInFactualPosition.setIsSelected(true);
-										break;
-									} else {
-										questionToBeAskedInFactualPosition.setIsSelected(false);
-									}
+			
+				if(sessionParameter != null && !sessionParameter.isEmpty()) {
+					for(String i : sessionParameter.split("##")) {	
+						MasterVO questionToBeAskedInFactualPosition = new MasterVO();
+						questionToBeAskedInFactualPosition.setName(i);
+						questionToBeAskedInFactualPosition.setValue(i);
+						if(domain.getQuestionsAskedInFactualPosition()!=null 
+								&& !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
+							for(String j : domain.getQuestionsAskedInFactualPosition().split("##")) {
+								if(i.replaceAll("<[^>]+>", "").trim().substring(0, 3).
+										contains(j.replaceAll("<[^>]+>", "").trim().substring(0, 3))) {
+									questionToBeAskedInFactualPosition.setIsSelected(true);
+									break;
+								} else {
+									questionToBeAskedInFactualPosition.setIsSelected(false);
 								}
-							} else {
-								questionToBeAskedInFactualPosition.setIsSelected(false);
 							}
-							questionsToBeAskedInFactualPosition.add(questionToBeAskedInFactualPosition);
+						} else {
+							questionToBeAskedInFactualPosition.setIsSelected(false);
 						}
+						questionsToBeAskedInFactualPosition.add(questionToBeAskedInFactualPosition);
 					}
 				}				
 				model.addAttribute("questionsToBeAskedInFactualPosition", questionsToBeAskedInFactualPosition);
-
-				if(domain.getLastDateOfFactualPositionReceiving() == null
-						&& !domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-					List<MasterVO> numberOfDaysForFactualPositionReceiving = new ArrayList<MasterVO>();
-					sessionParameter = selectedSession.getParameter(domain.getType().getType()+"_numberOfDaysForFactualPositionReceiving");
-					if(sessionParameter != null) {
-						if(!sessionParameter.isEmpty()) {
-							for(String i : sessionParameter.split("#")) {
-								MasterVO data = new MasterVO();
-								data.setName(FormaterUtil.formatNumberNoGrouping(Integer.parseInt(i), domain.getLocale()));
-								data.setNumber(Integer.parseInt(i));
-								numberOfDaysForFactualPositionReceiving.add(data);
+			}else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+				/**** setting the questions to be asked in factual position. ****/
+				List<MasterVO> questionsToBeAskedInFactualPosition = new ArrayList<MasterVO>();
+				String sessionParameter = null;
+				if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+					sessionParameter = selectedSession.
+							getParameter("questions_starred_clarificationFromMemberQuestions");
+				}else if (internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+					sessionParameter = selectedSession.
+							getParameter("questions_unstarred_clarificationFromMemberQuestions");
+				}else if (internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+					sessionParameter = selectedSession.
+							getParameter("questions_shortnotice_clarificationFromMemberQuestions");
+				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+					sessionParameter = selectedSession.
+							getParameter("questions_halfHourFromQuestion_clarificationFromMemberQuestions");
+				}
+			
+				if(sessionParameter != null && !sessionParameter.isEmpty()) {
+					for(String i : sessionParameter.split("##")) {	
+						MasterVO questionToBeAskedInFactualPosition = new MasterVO();
+						questionToBeAskedInFactualPosition.setName(i);
+						questionToBeAskedInFactualPosition.setValue(i);
+						if(domain.getQuestionsAskedInFactualPosition()!=null 
+								&& !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
+							for(String j : domain.getQuestionsAskedInFactualPosition().split("##")) {
+								if(i.replaceAll("<[^>]+>", "").trim().substring(0, 3).
+										contains(j.replaceAll("<[^>]+>", "").trim().substring(0, 3))) {
+									questionToBeAskedInFactualPosition.setIsSelected(true);
+									break;
+								} else {
+									questionToBeAskedInFactualPosition.setIsSelected(false);
+								}
 							}
+						} else {
+							questionToBeAskedInFactualPosition.setIsSelected(false);
 						}
-					}	
-
-					model.addAttribute("numberOfDaysForFactualPositionReceiving", numberOfDaysForFactualPositionReceiving);
-				}						
-			}
-
-			/**** populating the questions asked in factual position to show to department. ****/
-			if((userGroupType.equals(ApplicationConstants.DEPARTMENT) || userGroupType.equals(ApplicationConstants.MEMBER)) 
-					&& (internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) 
-							|| internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
+						questionsToBeAskedInFactualPosition.add(questionToBeAskedInFactualPosition);
+					}
+				}				
+				model.addAttribute("questionsToBeAskedInFactualPosition", questionsToBeAskedInFactualPosition);
+			}	
+		}
+		if(userGroupType.equals(ApplicationConstants.DEPARTMENT)){
+			if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+					||internalStatusType.
+						equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+					||internalStatusType.
+						equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+					||internalStatusType.
+						equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
 				String questionsAskedInFactualPosition = "";
-				if(domain.getQuestionsAskedInFactualPosition() !=null && !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
-					//					int count = 1;
-					//					for(String i: domain.getQuestionsAskedInFactualPosition().split("##")) {
-					//						questionsAskedInFactualPosition += FormaterUtil.formatNumberNoGrouping(count, domain.getLocale()) + ". " + i;
-					//						count++;
-					//					}
-					questionsAskedInFactualPosition = domain.getQuestionsAskedInFactualPosition().replaceAll("##", "<br/>");
+				if(domain.getQuestionsAskedInFactualPosition() !=null 
+						&& !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
+					questionsAskedInFactualPosition = 
+							domain.getQuestionsAskedInFactualPosition().replaceAll("##", "<br/>");
+				}
+				model.addAttribute("formattedQuestionsAskedInFactualPosition", questionsAskedInFactualPosition);
+				
+			}
+			
+		}else if(userGroupType.equals(ApplicationConstants.MEMBER)){
+			if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+					||internalStatusType.
+						equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+					||internalStatusType.
+						equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+					||internalStatusType.
+						equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+				String questionsAskedInFactualPosition = "";
+				if(domain.getQuestionsAskedInFactualPosition() !=null 
+						&& !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
+					questionsAskedInFactualPosition = 
+							domain.getQuestionsAskedInFactualPosition().replaceAll("##", "<br/>");
 				}
 				model.addAttribute("formattedQuestionsAskedInFactualPosition", questionsAskedInFactualPosition);
 			}
 		}
-		if(domain.getType() != null){
-			if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-					&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-
-				/**** process variables ****/
-				//default values for process variables. can set conditionally for given actor here.
-				model.addAttribute("pv_mailflag", "off");
-
-				if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) ||
-						internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) && recommendationStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)) {
-					model.addAttribute("pv_timerflag", "set");
-					model.addAttribute("pv_reminderflag", "set");
-					Credential sender = Credential.findByFieldName(Credential.class, "username", workflowDetails.getAssignee(), "");
-					model.addAttribute("pv_reminderfrom", sender.getEmail());
-					String reminderContent = selectedSession.getParameter(domain.getType().getType()+"_questionsAskedForFactualPosition");
-					reminderContent += "\n" + domain.getRevisedQuestionText();
-					model.addAttribute("pv_remindercontent", reminderContent);
-					String reminderSubject = "reminder about question number " + domain.getNumber();
-					model.addAttribute("pv_remindersubject", reminderSubject);
-					String lastTimerDuration = selectedSession.getParameter(domain.getType().getType()+"_reminderDayNumberForFactualPosition");
-					model.addAttribute("pv_lasttimerduration", lastTimerDuration);
-				} else {
-					model.addAttribute("pv_timerflag", "off");
-					model.addAttribute("pv_reminderflag", "off");
-				}
-
-				/**** add domain to model ****/
-				model.addAttribute("domain",domain);
-			}
-		}
+			
 
 		//---------------------------To find the reansweringAttempt---------------------------------
 		if(userGroupType.equals(ApplicationConstants.DEPARTMENT)){
-			CustomParameter answeringAttempts = CustomParameter.findByFieldName(CustomParameter.class, "name", ApplicationConstants.MAX_ASWERING_ATTEMPTS_STARRED, "");
+			CustomParameter answeringAttempts = CustomParameter.
+					findByFieldName(CustomParameter.class, "name", 
+							ApplicationConstants.MAX_ASWERING_ATTEMPTS_STARRED, "");
 			if(answeringAttempts != null){
 				model.addAttribute("maxAnsweringAttempts", Integer.valueOf(answeringAttempts.getValue()));
 				model.addAttribute("answeringAttempts", ((domain.getAnsweringAttemptsByDepartment() == null)? 0:domain.getAnsweringAttemptsByDepartment()));
@@ -864,111 +835,195 @@ public class QuestionWorkflowController  extends BaseController{
 		}		
 
 		//---------------------------Added by vikas & dhananjay-------------------------------------
-		if(questionType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) || questionType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
+		if(questionType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ){
 			populateForHalfHourDiscussionEdit(model, domain, request);
 		}
 		//---------------------------Added by vikas & dhananjay-------------------------------------		
 		/**** Populating Put up otions and Actors ****/
-		if(userGroupId!=null&&!userGroupId.isEmpty()){
-			UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(userGroupId));
-			List<Reference> actors=new ArrayList<Reference>();
+		if(userGroupId != null && !userGroupId.isEmpty()){
+			UserGroup userGroup = UserGroup.findById(UserGroup.class,Long.parseLong(userGroupId));
+			List<Reference> actors = new ArrayList<Reference>();
 			//TODO: Have to change the condition so as to consider the reanswering coz in normal scenario 
 			//department always does is sends back the device			
 			if(boolReanswer){
-				Status reanswerStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_REANSWER, locale);
-				actors=WorkflowConfig.findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale);
+				Status reanswerStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_REANSWER, locale);
+				actors = WorkflowConfig.findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale);
 			}else{
-				if(userGroup.getUserGroupType().getType().equals("department")&&internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
-					Status sendback=Status.findByType(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK, locale);
-					actors=WorkflowConfig.findQuestionActorsVO(domain,sendback , userGroup, Integer.parseInt(domain.getLevel()), locale);
+				if(userGroup.getUserGroupType().getType().equals("department")
+						&& (internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+							|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+							|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION))){
+					Status sendback = null;
+					if(questionType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+						sendback = Status.findByType(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK, locale);
+					}else if(questionType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+						sendback = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_SENDBACK, locale);
+					}else if(questionType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+						sendback = Status.findByType(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_SENDBACK, locale);
+					}
+				 	actors = WorkflowConfig.
+							findQuestionActorsVO(domain, sendback ,userGroup, Integer.parseInt(domain.getLevel()), locale);
+				}else if(userGroup.getUserGroupType().getType().equals(ApplicationConstants.MEMBER)
+						&& internalStatusType.
+								equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+					
+				}else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
+						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
+						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)
+						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION_WORKFLOW)) {
+					actors = WorkflowConfig.
+							findQuestionActorsVO(domain, recommendationStatus, userGroup, Integer.parseInt(domain.getLevel()), locale);
 				}else{
-					actors=WorkflowConfig.findQuestionActorsVO(domain, internalStatus, userGroup, Integer.parseInt(domain.getLevel()), locale);
+					actors = WorkflowConfig.
+							findQuestionActorsVO(domain, internalStatus, userGroup, Integer.parseInt(domain.getLevel()), locale);
 				}
 			}
-			model.addAttribute("internalStatusSelected",internalStatus.getId());
+			model.addAttribute("internalStatusSelected", internalStatus.getId());
 			model.addAttribute("actors",actors);
-			if(actors!=null&&!actors.isEmpty()){
-				String nextActor=actors.get(0).getId();
-				String[] actorArr=nextActor.split("#");
-				domain.setLevel(actorArr[2]);
-				domain.setLocalizedActorName(actorArr[3]+"("+actorArr[4]+")");
-			}
+//			if(actors != null && !actors.isEmpty()){
+//				String nextActor = actors.get(0).getId();
+//				String[] actorArr = nextActor.split("#");
+//				domain.setLevel(actorArr[2]);
+//				domain.setLocalizedActorName(actorArr[3] + "(" + actorArr[4] + ")");
+//			}
 		}
 		/**** add domain to model ****/
-		model.addAttribute("domain",domain);
+		model.addAttribute("domain", domain);
 
 		if(workflowDetails.getSendBackBefore() != null){
 			model.addAttribute("sendbacktimelimit", workflowDetails.getSendBackBefore().getTime());
 		}
 		
 		/****Level for RevisedDraft workflow****/
-		model.addAttribute("revisedDraftInitialLevel",1);
+		model.addAttribute("revisedDraftInitialLevel", 1);
 		
 		/**** Answer related Dates ****/
 		String allowedDeviceTypesForAnswerRelatedDates = "";
-		CustomParameter deviceTypesForAnswerRelatedDates = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_FOR_ANSWER_RELATED_DATES", locale.toString());
-		if(deviceTypesForAnswerRelatedDates!=null) {
+		CustomParameter deviceTypesForAnswerRelatedDates = 
+				CustomParameter.findByName(CustomParameter.class, 
+						"DEVICETYPES_FOR_ANSWER_RELATED_DATES", locale.toString());
+		if(deviceTypesForAnswerRelatedDates != null) {
 			allowedDeviceTypesForAnswerRelatedDates = deviceTypesForAnswerRelatedDates.getValue();
 		} else {
-			allowedDeviceTypesForAnswerRelatedDates = ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION;
+			allowedDeviceTypesForAnswerRelatedDates = 
+					ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION;
 		}
 		model.addAttribute("allowedDeviceTypesForAnswerRelatedDates", allowedDeviceTypesForAnswerRelatedDates);
-		if(domain.getAnswerRequestedDate()!=null) {
-			model.addAttribute("formattedAnswerRequestedDate", FormaterUtil.formatDateToString(domain.getAnswerRequestedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+		if(domain.getAnswerRequestedDate() != null) {
+			model.addAttribute("formattedAnswerRequestedDate",
+					FormaterUtil.formatDateToString(domain.getAnswerRequestedDate(), 
+							ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 		}
 		if(domain.getAnswerReceivedDate()!=null) {
-			model.addAttribute("formattedAnswerReceivedDate", FormaterUtil.formatDateToString(domain.getAnswerReceivedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+			model.addAttribute("formattedAnswerReceivedDate", 
+					FormaterUtil.formatDateToString(domain.getAnswerReceivedDate(),
+							ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 		}
-		if(domain.getAnsweringDate()!=null){
-			if(domain.getAnsweringDate().getLastDateForChangingDepartment()!=null){
-				model.addAttribute("formattedLastDateForChangingDepartment", FormaterUtil.getDateFormatter(locale).format(domain.getAnsweringDate().getLastDateForChangingDepartment()));
+		if(domain.getChartAnsweringDate()!=null){
+			if(domain.getChartAnsweringDate().getLastDateForChangingDepartment()!=null){
+				model.addAttribute("formattedLastDateForChangingDepartment", 
+						FormaterUtil.getDateFormatter(locale).format(domain.getChartAnsweringDate().
+								getLastDateForChangingDepartment()));
+			}
+		}
+		
+		/**** Yaadi related things ****/
+		if(domain.getYaadiLayingDate()!=null) {
+			model.addAttribute("yaadiLayingDate", 
+					FormaterUtil.formatDateToString(domain.getYaadiLayingDate(),
+							ApplicationConstants.SERVER_DATEFORMAT, locale));
+		}
+		/** check whether question was removed from unstarred yaadi purposely  **/
+		if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+				&& domain.getParent()==null
+				&& domain.getStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+				&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() 
+				&& !domain.getAnswer().equals("<p></p>") && !domain.getAnswer().equals("<br><p></p>")) {
+			Boolean isRemovedFromYaadiDetails = domain.checkWhetherIsRemovedFromYaadiDetails();
+			if(isRemovedFromYaadiDetails!=null && isRemovedFromYaadiDetails.equals(true)) {
+				model.addAttribute("isRemovedFromYaadiDetails", true);
 			}
 		}
 	}
 
-	private void populateInternalStatus(final ModelMap model,final Question domain,final String locale) {
+	private void populateInternalStatus(final ModelMap model,
+			final Question domain, final Status putupOptionsStatus,
+			final String locale) {
 		try{
-			List<Status> internalStatuses=new ArrayList<Status>();
-			DeviceType deviceType=domain.getType();
-			Status internaStatus=domain.getInternalStatus();
-			HouseType houseType=domain.getHouseType();
-			String actor=domain.getActor();
+			List<Status> internalStatuses = new ArrayList<Status>();
+			DeviceType deviceType = domain.getType();
+			HouseType houseType = domain.getHouseType();
+			Group group = domain.getGroup();
+			String actor = domain.getActor();
 			if(actor==null){
-				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_DEFAULT", "");
-				internalStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+				CustomParameter defaultStatus = CustomParameter.
+						findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_DEFAULT", "");
+				internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(), locale);
 			}else if(actor.isEmpty()){
-				CustomParameter defaultStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_DEFAULT", "");
-				internalStatuses=Status.findStatusContainedIn(defaultStatus.getValue(), locale);
+				CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_DEFAULT", "");
+				internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(), locale);
 			}else{
-				String usergroupType=actor.split("#")[1];
+				String usergroupType = actor.split("#")[1];
 				/**** Final Approving Authority(Final Status) ****/
-				CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
-				CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+internaStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
-				if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(usergroupType)){
-					CustomParameter finalApprovingAuthorityStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_" + deviceType.getType().toUpperCase() + "_" + usergroupType.toUpperCase(), "");
+				CustomParameter finalApprovingAuthority = null;
+				Workflow workflow = Workflow.findByStatus(putupOptionsStatus, locale);
+				if(workflow!=null) {
+					if(group!=null) {
+						finalApprovingAuthority = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_GROUP"+group.getNumber()+"_"+workflow.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+						if(finalApprovingAuthority==null) {
+							finalApprovingAuthority = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+workflow.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+							if(finalApprovingAuthority==null) {
+								finalApprovingAuthority = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_"+workflow.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+							}
+						}
+					} else {
+						finalApprovingAuthority = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+workflow.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+						if(finalApprovingAuthority==null) {
+							finalApprovingAuthority = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_"+workflow.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+						}
+					}					
+				}				
+				if(finalApprovingAuthority==null) {
+					finalApprovingAuthority = CustomParameter.findByName(CustomParameter.class,deviceType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+				}				
+				CustomParameter deviceTypeInternalStatusUsergroup = CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+putupOptionsStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+				CustomParameter deviceTypeHouseTypeUsergroup = CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+putupOptionsStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+				CustomParameter deviceTypeUsergroup = CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+putupOptionsStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(), "");
+				if(finalApprovingAuthority != null && finalApprovingAuthority.getValue().contains(usergroupType)) {
+					CustomParameter finalApprovingAuthorityStatus = null;
+					if(workflow!=null) {
+						finalApprovingAuthorityStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_" + deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+workflow.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+						if(finalApprovingAuthorityStatus==null) {
+							finalApprovingAuthorityStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_" + deviceType.getType().toUpperCase()+"_"+workflow.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+						}						
+					}
+					if(finalApprovingAuthorityStatus == null) {
+						finalApprovingAuthorityStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_" + deviceType.getType().toUpperCase() + "_" + usergroupType.toUpperCase(), "");
+					}
 					if(finalApprovingAuthorityStatus == null) {
 						finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+usergroupType.toUpperCase(),"");
-					}					
-
-					if(finalApprovingAuthorityStatus!=null){
-						internalStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
+					}
+					if(finalApprovingAuthorityStatus != null){
+						internalStatuses=Status.
+								findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), locale);
 					}
 				}/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
-				else if(deviceTypeInternalStatusUsergroup!=null){
-					internalStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
+				else if(deviceTypeInternalStatusUsergroup != null){
+					internalStatuses=Status.
+							findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale);
 				}/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
-				else if(deviceTypeHouseTypeUsergroup!=null){
-					internalStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
+				else if(deviceTypeHouseTypeUsergroup != null){
+					internalStatuses=Status.
+							findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), locale);
 				}	
 				/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
-				else if(deviceTypeUsergroup!=null){
-					internalStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
+				else if(deviceTypeUsergroup != null){
+					internalStatuses=Status.
+							findStatusContainedIn(deviceTypeUsergroup.getValue(), locale);
 				}		
 			}		
 			/**** Internal Status****/
-			model.addAttribute("internalStatuses",internalStatuses);
+			model.addAttribute("internalStatuses", internalStatuses);
 		}catch (ELSException e) {
 			model.addAttribute("error", e.getParameter());
 		}catch (Exception e) {
@@ -976,53 +1031,62 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 	}
 
-	private void populateInternalStatus(final ModelMap model, final String type,final String userGroupType,final String locale, final String questionType) {
-		List<Status> internalStatuses=new ArrayList<Status>();
+	private void populateInternalStatus(final ModelMap model, 
+			final String type,
+			final String userGroupType,
+			final String locale, 
+			final String questionType) {
+		List<Status> internalStatuses = new ArrayList<Status>();
 		try{
 			/**** First we will check if custom parameter for device type,internal status and usergroupType has been set ****/
-			CustomParameter specificDeviceStatusUserGroupStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+questionType.toUpperCase()+"_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
-			CustomParameter specificDeviceUserGroupStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+questionType.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
-			CustomParameter specificStatuses=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
-			if(specificDeviceStatusUserGroupStatuses!=null){
-				internalStatuses=Status.findStatusContainedIn(specificDeviceStatusUserGroupStatuses.getValue(), locale);
-			}else if(specificDeviceUserGroupStatuses!=null){
-				internalStatuses=Status.findStatusContainedIn(specificDeviceUserGroupStatuses.getValue(), locale);
-			}else if(specificStatuses!=null){
-				internalStatuses=Status.findStatusContainedIn(specificStatuses.getValue(), locale);
+			CustomParameter specificDeviceStatusUserGroupStatuses = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+questionType.toUpperCase()+"_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+			CustomParameter specificDeviceUserGroupStatuses = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+questionType.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+			CustomParameter specificStatuses = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
+			if(specificDeviceStatusUserGroupStatuses != null){
+				internalStatuses = Status.
+						findStatusContainedIn(specificDeviceStatusUserGroupStatuses.getValue(), locale);
+			}else if(specificDeviceUserGroupStatuses != null){
+				internalStatuses=Status.
+						findStatusContainedIn(specificDeviceUserGroupStatuses.getValue(), locale);
+			}else if(specificStatuses != null){
+				internalStatuses=Status.
+						findStatusContainedIn(specificStatuses.getValue(), locale);
 			}else if(userGroupType.equals(ApplicationConstants.CHAIRMAN)
-					||userGroupType.equals(ApplicationConstants.SPEAKER)){
-				CustomParameter finalStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_FINAL","");
-				if(finalStatus!=null){
-					internalStatuses=Status.findStatusContainedIn(finalStatus.getValue(), locale);
+					||userGroupType.equals(ApplicationConstants.SPEAKER)) {
+				CustomParameter finalStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_FINAL","");
+				if(finalStatus != null){
+					internalStatuses = Status.findStatusContainedIn(finalStatus.getValue(), locale);
 				}else{
-					CustomParameter recommendStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
-					if(recommendStatus!=null){
-						internalStatuses=Status.findStatusContainedIn(recommendStatus.getValue(), locale);
+					CustomParameter recommendStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
+					if(recommendStatus != null){
+						internalStatuses = Status.findStatusContainedIn(recommendStatus.getValue(), locale);
 					}else{
-						CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_BY_DEFAULT","");
-						if(defaultCustomParameter!=null){
-							internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+						CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+						if(defaultCustomParameter != null){
+							internalStatuses = Status.
+									findStatusContainedIn(defaultCustomParameter.getValue(), locale);
 						}else{
 							model.addAttribute("errorcode","question_putup_options_final_notset");
 						}		
 					}
 				}
 			}else if((!userGroupType.equals(ApplicationConstants.CHAIRMAN))
-					&&(!userGroupType.equals(ApplicationConstants.SPEAKER))){
-				CustomParameter recommendStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
-				if(recommendStatus!=null){
-					internalStatuses=Status.findStatusContainedIn(recommendStatus.getValue(), locale);
+					&&(!userGroupType.equals(ApplicationConstants.SPEAKER))) {
+				CustomParameter recommendStatus = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_RECOMMEND","");
+				if(recommendStatus != null){
+					internalStatuses = Status.findStatusContainedIn(recommendStatus.getValue(), locale);
 				}else{
-					CustomParameter defaultCustomParameter=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_BY_DEFAULT","");
-					if(defaultCustomParameter!=null){
-						internalStatuses=Status.findStatusContainedIn(defaultCustomParameter.getValue(), locale);
+					CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_BY_DEFAULT","");
+					if(defaultCustomParameter != null){
+						internalStatuses = Status.
+								findStatusContainedIn(defaultCustomParameter.getValue(), locale);
 					}else{
-						model.addAttribute("errorcode","question_putup_options_final_notset");
+						model.addAttribute("errorcode", "question_putup_options_final_notset");
 					}		
 				}
 			}	
 			/**** Internal Status****/
-			model.addAttribute("internalStatuses",internalStatuses);
+			model.addAttribute("internalStatuses", internalStatuses);
 		}catch (ELSException e) {
 			model.addAttribute("error", e.getParameter());
 		}catch (Exception e) {
@@ -1031,7 +1095,9 @@ public class QuestionWorkflowController  extends BaseController{
 	}
 
 
-	private void populateForHalfHourDiscussionEdit(final ModelMap model, final Question domain, final HttpServletRequest request) {
+	private void populateForHalfHourDiscussionEdit(final ModelMap model, 
+			final Question domain, 
+			final HttpServletRequest request) {
 		Session selectedSession = domain.getSession();
 		DeviceType questionType = domain.getType();
 
@@ -1059,8 +1125,10 @@ public class QuestionWorkflowController  extends BaseController{
 			 * adding session.parameters.numberOfSupprtingMembers and
 			 * session.parametrs.numberOfSupprtingMembersComparator
 			 */
-			String numberOfSupportingMembers = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembers");
-			String numberOfSupportingMembersComparator = selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembersComparator");
+			String numberOfSupportingMembers = 
+					selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembers");
+			String numberOfSupportingMembersComparator = 
+					selectedSession.getParameter(questionType.getType()+ "_numberOfSupportingMembersComparator");
 
 			if ((numberOfSupportingMembers != null) && (numberOfSupportingMembersComparator != null)) {
 				model.addAttribute("numberOfSupportingMembers", numberOfSupportingMembers);
@@ -1087,7 +1155,7 @@ public class QuestionWorkflowController  extends BaseController{
 					numberOfSupportingMembersComparator = "&ge;";
 				}
 
-				model.addAttribute("numberOfSupportingMembersComparatorHTML",numberOfSupportingMembersComparator);
+				model.addAttribute("numberOfSupportingMembersComparatorHTML", numberOfSupportingMembersComparator);
 			}
 
 			List<String> discussionDates = new ArrayList<String>();
@@ -1096,7 +1164,8 @@ public class QuestionWorkflowController  extends BaseController{
 			if (selectedSession != null) {
 
 				//------changed 21012013-----------------
-				String strDates = selectedSession.getParameter(domain.getType().getType()+"_discussionDates");
+				String strDates = selectedSession.
+						getParameter(domain.getType().getType() + "_discussionDates");
 				//-----------21012013
 				if(strDates != null && !strDates.isEmpty()){
 
@@ -1105,7 +1174,8 @@ public class QuestionWorkflowController  extends BaseController{
 					try {
 						sdf = FormaterUtil.getDBDateParser(selectedSession.getLocale());
 						for (int i = 0; i < dates.length; i++) {
-							discussionDates.add(FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(sdf.parse(dates[i])));
+							discussionDates.add(FormaterUtil.getDateFormatter("dd/MM/yyyy", 
+									selectedSession.getLocale()).format(sdf.parse(dates[i])));
 						}
 						model.addAttribute("discussionDates", discussionDates);
 					} catch (ParseException e) {
@@ -1119,22 +1189,27 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("discussionDateSelected", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getDiscussionDate()));
 				model.addAttribute("formattedDiscussionDateSelected", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getDiscussionDate()));
 			}else{
-				model.addAttribute("discussionDateSelected",null);
+				model.addAttribute("discussionDateSelected", null);
 				model.addAttribute("formattedDiscussionDateSelected", null);
 			}
 			if (domain.getHalfHourDiscusionFromQuestionReference() != null) {
-				model.addAttribute("referredQuestionNumber", FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
-				model.addAttribute("refQuestionId", domain.getHalfHourDiscusionFromQuestionReference().getId());
+				model.addAttribute("referredQuestionNumber", 
+						FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getHalfHourDiscusionFromQuestionReference().getNumber()));
+				model.addAttribute("refQuestionId", 
+						domain.getHalfHourDiscusionFromQuestionReference().getId());
 			}else{
 				if(domain.getHalfHourDiscusionFromQuestionReferenceNumber() != null
 						&& !domain.getHalfHourDiscusionFromQuestionReferenceNumber().isEmpty()){
-					model.addAttribute("referredQuestionNumber", FormaterUtil.formatNumberNoGrouping(new Integer(domain.getHalfHourDiscusionFromQuestionReferenceNumber()), domain.getLocale()));
+					model.addAttribute("referredQuestionNumber",
+							FormaterUtil.formatNumberNoGrouping(new Integer(domain.getHalfHourDiscusionFromQuestionReferenceNumber()), domain.getLocale()));
 				}
 			}
 			
 			if (domain.getReferenceDeviceAnswerDate() != null) {
-				model.addAttribute("refDeviceAnswerDate", FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getReferenceDeviceAnswerDate()));
-				model.addAttribute("formattedRefDeviceAnswerDate", FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getReferenceDeviceAnswerDate()));
+				model.addAttribute("refDeviceAnswerDate", 
+						FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").format(domain.getReferenceDeviceAnswerDate()));
+				model.addAttribute("formattedRefDeviceAnswerDate",
+						FormaterUtil.getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).format(domain.getReferenceDeviceAnswerDate()));
 			}
 		}
 	}	
@@ -1152,144 +1227,136 @@ public class QuestionWorkflowController  extends BaseController{
 	@RequestMapping(method=RequestMethod.PUT)
 	public String updateMyTask(final ModelMap model,
 			final HttpServletRequest request,
-			final Locale locale,@Valid @ModelAttribute("domain") final Question domain,final BindingResult result) {
-		String userGroupType = null;
+			final Locale locale,
+			@Valid @ModelAttribute("domain") final Question domain,
+			final BindingResult result) {
+		
+		/**** Workflowdetails ****/
+		String strWorkflowdetails = (String) request.getParameter("workflowdetails");
+		WorkflowDetails workflowDetails = 
+				WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+		String userGroupType = workflowDetails.getAssigneeUserGroupType();
 		try{
-			/**** Is reanswering ****/
-			boolean boolReanswering = false;
-			String isReanswering = request.getParameter("reanswerstatus");
-			if (isReanswering != null) {
-				if(!isReanswering.isEmpty()){
-					if(isReanswering.equals("reanswer")){
-						boolReanswering = true;
-						Status reanswerStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_REANSWER, locale.toString());
+			if(userGroupType.equals(ApplicationConstants.MEMBER)
+				&&	domain.getInternalStatus().getType().
+				equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+				Question question = Question.findById(Question.class, domain.getId());
+				if(domain.getFactualPositionFromMember() != null && !domain.getFactualPositionFromMember().isEmpty()){
+					question.setFactualPositionFromMember(domain.getFactualPositionFromMember());
+				}
+				question.setEditedOn(new Date());
+				question.setEditedBy(this.getCurrentUser().getActualUsername());
+				question.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+				question.merge();
+				
+				Map<String,String> properties=new HashMap<String, String>();
+				properties.put("pv_deviceId", String.valueOf(question.getId()));
+				properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
+				User user = User.find(domain.getPrimaryMember());
+				Credential credential = user.getCredential();
+				properties.put("pv_user", credential.getUsername());
+				properties.put("pv_endflag", "end");
+				Task prevTask = processService.findTaskById(workflowDetails.getTaskId());
+				processService.completeTask(prevTask, properties);
+				workflowDetails.setStatus("COMPLETED");
+				workflowDetails.setCompletionTime(new Date());
+				workflowDetails.merge();
+				
+				/**** display message ****/
+				model.addAttribute("type","taskcompleted");
+				return "workflow/info";
+						
+				
+			}else{
+				/**** Is reanswering ****/
+				boolean boolReanswering = false;
+				String isReanswering = request.getParameter("reanswerstatus");
+				if (isReanswering != null) {
+					if(!isReanswering.isEmpty()){
+						if(isReanswering.equals("reanswer")){
+							boolReanswering = true;
+							Status reanswerStatus = Status.
+									findByType(ApplicationConstants.QUESTION_FINAL_REANSWER, locale.toString());
 
-						String strWorkflowdetails=(String) request.getParameter("workflowdetails");
-						WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
-						List<Reference> actors=new ArrayList<Reference>();
-						UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.valueOf(workflowDetails.getAssigneeUserGroupId()));
-						actors=WorkflowConfig.findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale.toString());
-						if(!actors.isEmpty()){
-							domain.setActor(actors.get(0).getId());
-							domain.setRecommendationStatus(reanswerStatus);
+							
+							List<Reference> actors = new ArrayList<Reference>();
+							UserGroup userGroup = UserGroup.
+								findById(UserGroup.class, Long.valueOf(workflowDetails.getAssigneeUserGroupId()));
+							actors = WorkflowConfig.
+									findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale.toString());
+							if(!actors.isEmpty()){
+								domain.setActor(actors.get(0).getId());
+								domain.setRecommendationStatus(reanswerStatus);
+							}
 						}
 					}
 				}
-			}
 
-			/**** Set the department if department is null ****/
-			if(domain.getDepartment() == null){
-				if(domain.getSubDepartment() != null){
-					domain.setDepartment(domain.getSubDepartment().getDepartment());
-				}
-			}
-
-			/**** Binding Supporting Members ****/
-			String[] strSupportingMembers=request.getParameterValues("supportingMembers");
-			if(strSupportingMembers!=null){
-				if(strSupportingMembers.length>0){
-					List<SupportingMember> supportingMembers=new ArrayList<SupportingMember>();
-					for(String i:strSupportingMembers){
-						SupportingMember supportingMember=SupportingMember.findById(SupportingMember.class, Long.parseLong(i));
-						supportingMembers.add(supportingMember);
-					}
-					domain.setSupportingMembers(supportingMembers);
-				}
-			}
-			String[] strClubbedEntities= request.getParameterValues("clubbedEntities");
-			if(strClubbedEntities!=null){
-				if(strClubbedEntities.length>0){
-					List<ClubbedEntity> clubbedEntities=new ArrayList<ClubbedEntity>();
-					for(String i:strClubbedEntities){
-						ClubbedEntity clubbedEntity=ClubbedEntity.findById(ClubbedEntity.class, Long.parseLong(i));
-						clubbedEntities.add(clubbedEntity);
-					}
-					domain.setClubbedEntities(clubbedEntities);
-				}
-			}
-			String[] strReferencedEntities= request.getParameterValues("referencedEntities");
-			if(strReferencedEntities!=null){
-				if(strReferencedEntities.length>0){
-					List<ReferencedEntity> referencedEntities=new ArrayList<ReferencedEntity>();
-					for(String i:strReferencedEntities){
-						ReferencedEntity referencedEntity=ReferencedEntity.findById(ReferencedEntity.class, Long.parseLong(i));
-						referencedEntities.add(referencedEntity);
-					}
-					domain.setReferencedEntities(referencedEntities);
-				}
-			}
-
-			/***** To retain the referencedHDS when moving through workflow ****/
-			if(domain.getType() != null){
-				if((domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-						&& domain.getSession().getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE))){
-					String refHDS = request.getParameter("referencedHDS");
-					if(refHDS != null && !refHDS.isEmpty()){
-						ReferencedEntity refHDSEntity = ReferencedEntity.findById(ReferencedEntity.class, Long.parseLong(refHDS));
-						domain.setReferencedHDS(refHDSEntity);
-					}
-				}			
-			}
-
-			if(domain.getType() != null){
-				if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-						&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-
-					if(domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) 
-							|| domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-
-						String strQuestionInFactualPosition = request.getParameter("questionsAskedInThisFactualPosition");
-						String strDaysToReceiveFactualPosition = request.getParameter("numberOfDaysForFactualPositionReceiving");
-
-						if(strQuestionInFactualPosition != null && !strQuestionInFactualPosition.isEmpty()) {
-							domain.setQuestionsAskedInFactualPosition(strQuestionInFactualPosition);
-						}						
-						if(strDaysToReceiveFactualPosition != null && !strDaysToReceiveFactualPosition.isEmpty()){
-							Integer daysToReceiveFactualPosition = new Integer(strDaysToReceiveFactualPosition);
-							domain.setNumberOfDaysForFactualPositionReceiving(daysToReceiveFactualPosition);
+				/**** Binding Supporting Members ****/
+				String[] strSupportingMembers = request.getParameterValues("supportingMembers");
+				if(strSupportingMembers != null){
+					if(strSupportingMembers.length > 0){
+						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+						for(String i : strSupportingMembers){
+							SupportingMember supportingMember = 
+									SupportingMember.findById(SupportingMember.class, Long.parseLong(i));
+							supportingMembers.add(supportingMember);
 						}
-					}				
-				}
-			}
-
-			/**** set statuses in draft in case when clarification is not received for factual position in hds ****/
-			if(domain.getType().getType().trim().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-					&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-				if(domain.getStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {					
-					QuestionDraft latestDraft = null;
-					try {
-						latestDraft = Question.getLatestQuestionDraftOfUser(domain.getId(), this.getCurrentUser().getActualUsername());
-					} catch (ELSException e) {
-						e.printStackTrace();
-						model.addAttribute("error", e.getParameter());
-					}		
-					if(latestDraft != null){
-						latestDraft.setInternalStatus(domain.getStatus());
-						latestDraft.setRecommendationStatus(domain.getStatus());
-						latestDraft.merge();
+						domain.setSupportingMembers(supportingMembers);
 					}
 				}
-			}
+				
+				String[] strClubbedEntities = request.getParameterValues("clubbedEntities");
+				if(strClubbedEntities != null){
+					if(strClubbedEntities.length > 0){
+						List<ClubbedEntity> clubbedEntities = new ArrayList<ClubbedEntity>();
+						for(String i : strClubbedEntities){
+							ClubbedEntity clubbedEntity = 
+									ClubbedEntity.findById(ClubbedEntity.class, Long.parseLong(i));
+							clubbedEntities.add(clubbedEntity);
+						}
+						domain.setClubbedEntities(clubbedEntities);
+					}
+				}
+				
+				String[] strReferencedEntities = request.getParameterValues("referencedEntities");
+				if(strReferencedEntities != null){
+					if(strReferencedEntities.length > 0){
+						List<ReferenceUnit> referencedEntities = new ArrayList<ReferenceUnit>();
+						for(String i : strReferencedEntities){
+							ReferenceUnit referencedEntity = ReferenceUnit.
+									findById(ReferenceUnit.class, Long.parseLong(i));
+							referencedEntities.add(referencedEntity);
+						}
+						domain.setReferencedEntities(referencedEntities);
+					}
+				}
 
-			/**** Workflowdetails ****/
-			String strWorkflowdetails=(String) request.getParameter("workflowdetails");
-			WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
 
-			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+			
 
-				String operation = request.getParameter("operation");
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
 
-				if(operation != null){
-					if(!operation.isEmpty()){
+					String operation = request.getParameter("operation");
+
+					if(operation != null && !operation.isEmpty()){
+
 						if(operation.equals("workflowsubmit")){
-							if(domain.getAnswer() == null && domain.getFactualPosition()==null && domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
-								result.rejectValue("answer", "AnswerEmpty");
+							if(domain.getAnswer() == null 
+									&& domain.getFactualPosition()==null 
+									&& domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+								result.rejectValue("factualPosition", "FactualPositionEmpty");
 
 								if(domain.getAnswer().isEmpty() && domain.getFactualPosition().isEmpty()){
 									result.rejectValue("answer", "AnswerEmpty");
 								}
 							} 
-							if(domain.getInternalStatus().getType()==ApplicationConstants.QUESTION_FINAL_REJECTION){
+							String internalStatusType = domain.getInternalStatus().getType();
+							if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)||
+									internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)||
+									internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)||
+									internalStatusType.
+									equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)){
 								if(domain.getRejectionReason()==null){
 									result.rejectValue("rejectionReason", "RejectionReasonEmpty");
 								}else if(domain.getRejectionReason().isEmpty()){
@@ -1316,506 +1383,576 @@ public class QuestionWorkflowController  extends BaseController{
 						}
 					}
 				}
-			}
 
-			/**** Updating domain ****/
-			domain.setEditedOn(new Date());
-			domain.setEditedBy(this.getCurrentUser().getActualUsername());
-			domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
-			String strDateOfAnsweringByMinister=request.getParameter("dateOfAnsweringByMinister");
-			Date dateOfAnsweringByMinister=null;
+				/**** Updating domain ****/
+				domain.setEditedOn(new Date());
+				domain.setEditedBy(this.getCurrentUser().getActualUsername());
+				domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+				String strDateOfAnsweringByMinister = request.getParameter("dateOfAnsweringByMinister");
+				Date dateOfAnsweringByMinister = null;
 
-			/**** Setting the answering attempts in case of department****/
-			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+				/**** Setting the answering attempts in case of department****/
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
 
-				String operation = request.getParameter("operation");
+					String operation = request.getParameter("operation");
 
-				boolean goAhead = false;
+					boolean goAhead = false;
 
-				if(operation != null){
-					if(!operation.isEmpty()){
+					if(operation != null && !operation.isEmpty()){
 						if(operation.equals("workflowsubmit")){
 							goAhead = true;
 						}
 					}
-				}
 
-				if(boolReanswering){
-					goAhead = true;
-				}	
+					if(boolReanswering){
+						goAhead = true;
+					}	
 
-				if(domain.getAnswer() != null){
-					goAhead = true;
-				}
+					if(domain.getAnswer() != null){
+						goAhead = true;
+					}
 
-				if(goAhead){
-					Integer attempts = domain.getAnsweringAttemptsByDepartment();
-					if(attempts == null){
-						domain.setAnsweringAttemptsByDepartment(1);
-					}else{
-						domain.setAnsweringAttemptsByDepartment(attempts + 1);
+					if(goAhead){
+						Integer attempts = domain.getAnsweringAttemptsByDepartment();
+						if(attempts == null){
+							domain.setAnsweringAttemptsByDepartment(1);
+						}else{
+							domain.setAnsweringAttemptsByDepartment(attempts + 1);
+						}
 					}
 				}
-			}
 
-			String strDiscussionDate = request.getParameter("discussionDate");
-			String strHalfHourDiscussionFromQuestionReference = request.getParameter("halfHourDiscusionFromQuestionReference");
-			Date dateDiscussionDate=null;
-			Long refQuestionId=null;
-			try {
-				if(strDateOfAnsweringByMinister!=null){
-					if(!strDateOfAnsweringByMinister.isEmpty()){
+				String strDiscussionDate = request.getParameter("discussionDate");
+				String strHalfHourDiscussionFromQuestionReference = 
+						request.getParameter("halfHourDiscusionFromQuestionReference");
+				Date dateDiscussionDate = null;
+				Long refQuestionId = null;
+				try { 
+					if(strDateOfAnsweringByMinister != null && !strDateOfAnsweringByMinister.isEmpty()){
 						dateOfAnsweringByMinister=FormaterUtil.getDateFormatter("en_US").parse(strDateOfAnsweringByMinister);
 					}
-				}
 
-				if(strDiscussionDate != null){
-					if(!strDiscussionDate.isEmpty()){
-						dateDiscussionDate = FormaterUtil.getDateFormatter("en_US").parse(strDiscussionDate);
-						String strTempDiscussionDate = FormaterUtil.getDateFormatter("yyyy-MM-dd","en_US").format(dateDiscussionDate);
-						dateDiscussionDate = FormaterUtil.getDateFormatter("yyyy-MM-dd","en_US").parse(strTempDiscussionDate);
+					if(strDiscussionDate != null){
+						if(!strDiscussionDate.isEmpty()){
+							dateDiscussionDate = FormaterUtil.getDateFormatter("en_US").parse(strDiscussionDate);
+							String strTempDiscussionDate = 
+									FormaterUtil.getDateFormatter("yyyy-MM-dd","en_US").format(dateDiscussionDate);
+							dateDiscussionDate =
+									FormaterUtil.getDateFormatter("yyyy-MM-dd","en_US").parse(strTempDiscussionDate);
 
-						//set the discussion date
-						domain.setDiscussionDate(dateDiscussionDate);
-					}			
-				}
-				if(strHalfHourDiscussionFromQuestionReference != null){
-					if(!strHalfHourDiscussionFromQuestionReference.isEmpty()){
-						refQuestionId = new Long(strHalfHourDiscussionFromQuestionReference);
-						Question refQ = Question.findById(Question.class, refQuestionId);
-						domain.setHalfHourDiscusionFromQuestionReference(refQ);
-					}				
-				}
-			} catch (ParseException e1) {
-				try {
-					if(strDateOfAnsweringByMinister != null && !strDateOfAnsweringByMinister.isEmpty()){
-						dateOfAnsweringByMinister=FormaterUtil.getDateFormatter(locale.toString()).parse(strDateOfAnsweringByMinister);
+							//set the discussion date
+							domain.setDiscussionDate(dateDiscussionDate);
+						}			
 					}
-				} catch (ParseException e) {
-					logger.error(e.getMessage());
-				}
-			}
-			domain.setDateOfAnsweringByMinister(dateOfAnsweringByMinister);
-			/**** updating submission date and creation date ****/
-			String strCreationDate=request.getParameter("setCreationDate");
-			String strSubmissionDate=request.getParameter("setSubmissionDate");
-			String strWorkflowStartedOnDate=request.getParameter("workflowStartedOnDate");
-			String strTaskReceivedOnDate=request.getParameter("taskReceivedOnDate");
-			CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
-			if(dateTimeFormat!=null){
-				SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
-				try {
-					if(strSubmissionDate!=null){
-						domain.setSubmissionDate(format.parse(strSubmissionDate));
+					if(strHalfHourDiscussionFromQuestionReference != null){
+						if(!strHalfHourDiscussionFromQuestionReference.isEmpty()){
+							refQuestionId = new Long(strHalfHourDiscussionFromQuestionReference);
+							Question refQ = Question.findById(Question.class, refQuestionId);
+							domain.setHalfHourDiscusionFromQuestionReference(refQ);
+						}				
 					}
-					if(strCreationDate!=null){
-						domain.setCreationDate(format.parse(strCreationDate));
-					}
-					if(strWorkflowStartedOnDate!=null&&!strWorkflowStartedOnDate.isEmpty()){
-						domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
-					}
-					if(strTaskReceivedOnDate!=null&&!strTaskReceivedOnDate.isEmpty()){
-						domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
-					}
-				}
-				catch (ParseException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			/**** answer related dates ****/
-			String allowedDeviceTypes = "";
-			CustomParameter deviceTypesForAnswerRelatedDates = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_FOR_ANSWER_RELATED_DATES", locale.toString());
-			if(deviceTypesForAnswerRelatedDates!=null) {
-				allowedDeviceTypes = deviceTypesForAnswerRelatedDates.getValue();
-			} else {
-				allowedDeviceTypes = ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION;
-			}
-			if(allowedDeviceTypes.contains(domain.getType().getType())) {
-				SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
-				String strAnswerRequestedDate = request.getParameter("setAnswerRequestedDate");
-				if(strAnswerRequestedDate!=null && !strAnswerRequestedDate.isEmpty()) {
-					if(dateTimeFormat!=null) {						
-						domain.setAnswerRequestedDate(format.parse(strAnswerRequestedDate));
-					}					
-				}
-				String strAnswerReceivedDate = request.getParameter("setAnswerReceivedDate");
-				if(strAnswerReceivedDate!=null && !strAnswerReceivedDate.isEmpty()) {
-					if(dateTimeFormat!=null) {
-						domain.setAnswerReceivedDate(format.parse(strAnswerReceivedDate));
-					}					
-				}
-				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
-						&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-						&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
-						&& domain.getAnswer()==null) {
-					domain.setAnswerRequestedDate(new Date());
-				}
-				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
-						&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-						&& domain.getAnswer()!=null && domain.getAnswerReceivedDate()==null) {					
-					domain.setAnswerReceivedDate(new Date());
-				}
-			}						
-
-			/**** setting the date of factual position receiving. ****/
-			userGroupType=workflowDetails.getAssigneeUserGroupType();
-			if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-					&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-				if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) 
-						&& (domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) 
-								|| domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
-					if(domain.getLastDateOfFactualPositionReceiving() == null) {
-						Calendar calendar = Calendar.getInstance();
-						calendar.setTime(new Date());
-						calendar.add(Calendar.DATE, domain.getNumberOfDaysForFactualPositionReceiving());
-						domain.setLastDateOfFactualPositionReceiving(calendar.getTime());
-					}
-				}
-			}			
-
-			/**** If reanswer workflow is invoked then its straight forward ****/
-			/****  to set the domain's answer as reanswer by department ****/
-			if(domain.getType() != null && domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
-				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
-					if(workflowDetails.getDepartmentAnswer() != null){
-						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
-							if(workflowDetails.getDepartmentAnswer() != null){
-								domain.setAnswer(workflowDetails.getDepartmentAnswer());
-							}
+				} catch (ParseException e1) {
+					try {
+						if(strDateOfAnsweringByMinister != null && !strDateOfAnsweringByMinister.isEmpty()){
+							dateOfAnsweringByMinister = 
+									FormaterUtil.getDateFormatter(locale.toString()).
+									parse(strDateOfAnsweringByMinister);
 						}
-					}else{
-						/**** if workflow is not of reanswer then in that case find the ****/
-						/**** reanswer workflow and set the reanswer to domain ****/
+					} catch (ParseException e) {
+						logger.error(e.getMessage());
+					}
+				}
+				domain.setDateOfAnsweringByMinister(dateOfAnsweringByMinister);
+				/**** updating submission date and creation date ****/
+				String strCreationDate = request.getParameter("setCreationDate");
+				String strSubmissionDate = request.getParameter("setSubmissionDate");
+				String strWorkflowStartedOnDate = request.getParameter("workflowStartedOnDate");
+				String strTaskReceivedOnDate = request.getParameter("taskReceivedOnDate");
+				CustomParameter dateTimeFormat = 
+						CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+				if(dateTimeFormat != null){
+					SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
+					try {
+						if(strSubmissionDate!=null){
+							domain.setSubmissionDate(format.parse(strSubmissionDate));
+						}
+						if(strCreationDate!=null){
+							domain.setCreationDate(format.parse(strCreationDate));
+						}
+						if(strWorkflowStartedOnDate!=null && !strWorkflowStartedOnDate.isEmpty()){
+							domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
+						}
+						if(strTaskReceivedOnDate!=null && !strTaskReceivedOnDate.isEmpty()){
+							domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
+						}
+					}
+					catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				/**** answer related dates ****/
+				String allowedDeviceTypes = "";
+				CustomParameter deviceTypesForAnswerRelatedDates = 
+						CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_FOR_ANSWER_RELATED_DATES", locale.toString());
+				if(deviceTypesForAnswerRelatedDates!=null) {
+					allowedDeviceTypes = deviceTypesForAnswerRelatedDates.getValue();
+				} else {
+					allowedDeviceTypes = 
+							ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION;
+				}
+				if(allowedDeviceTypes.contains(domain.getType().getType())) {
+					SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
+					String strAnswerRequestedDate = request.getParameter("setAnswerRequestedDate");
+					if(strAnswerRequestedDate != null && !strAnswerRequestedDate.isEmpty()) {
+						if(dateTimeFormat != null) {						
+							domain.setAnswerRequestedDate(format.parse(strAnswerRequestedDate));
+						}					
+					}
+					String strAnswerReceivedDate = request.getParameter("setAnswerReceivedDate");
+					if(strAnswerReceivedDate !=null && !strAnswerReceivedDate.isEmpty()) {
+						if(dateTimeFormat != null) {
+							domain.setAnswerReceivedDate(format.parse(strAnswerReceivedDate));
+						}					
+					}
+					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+							&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+									|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
+							&& (domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
+									|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTODEPARTMENT))
+							&& domain.getAnswer()==null) {
+						domain.setAnswerRequestedDate(new Date());
+					}
+					
+					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+							&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+									|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
+							&& domain.getAnswer()!=null && domain.getAnswerReceivedDate()==null) {					
+						domain.setAnswerReceivedDate(new Date());
+					}
+				}						
 
-						Map<String, String> parameters = new HashMap<String, String>();
-						parameters.put("locale", locale.toString());
-						parameters.put("assignee", workflowDetails.getAssignee());
-						parameters.put("status", "PENDING");
-						parameters.put("deviceId", workflowDetails.getDeviceId());
+				/**** setting the date of factual position receiving. ****/
+				userGroupType=workflowDetails.getAssigneeUserGroupType();
+				
+				/** allow question to be eligible for unstarred yaadi if it was removed before & now allowed **/
+				String isAllowedInYaadiStr = request.getParameter("isAllowedInYaadi");
+				if(isAllowedInYaadiStr!=null && !isAllowedInYaadiStr.isEmpty()) {
+					Boolean isAllowedInYaadi = Boolean.parseBoolean(isAllowedInYaadiStr);
+					if(isAllowedInYaadi!=null && isAllowedInYaadi.equals(true)) {
+						YaadiDetails.allowDeviceInYaadiDetails(domain);
+					}
+				}					
 
-
-						List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
-						WorkflowDetails reanswerWorkflowIfAny = null;
-
-						if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
-							for(WorkflowDetails wf : reanswerWorkflowsIfAny){
-								if(!wf.getProcessId().equals(workflowDetails.getProcessId()) && wf.getDepartmentAnswer() != null){
-									reanswerWorkflowIfAny = wf;
-									break;
+				/**** If reanswer workflow is invoked then its straight forward ****/
+				/****  to set the domain's answer as reanswer by department ****/
+				if(domain.getType() != null && 
+						domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+						if(workflowDetails.getDepartmentAnswer() != null){
+							if(workflowDetails.getAssigneeUserGroupType().
+									equals(ApplicationConstants.SECTION_OFFICER)){
+								if(workflowDetails.getDepartmentAnswer() != null){
+									domain.setAnswer(workflowDetails.getDepartmentAnswer());
 								}
-							}					
-							if(reanswerWorkflowIfAny != null){
-								domain.setAnswer(reanswerWorkflowIfAny.getDepartmentAnswer());
-							}				
-						}
-					}
-				}
-			}
-
-			/****Following code sets the internalstatus and recommendstatus as group change and end flag as end****/
-			QuestionDraft draft = domain.findPreviousDraft();				        
-			if(domain.getGroup() != null && draft != null) {
-				Group prevGroup = draft.getGroup();
-				if(prevGroup != null && ! prevGroup.getNumber().equals(domain.getGroup().getNumber())) {
-					Status GROUP_CHANGED = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED, domain.getLocale());
-					domain.setInternalStatus(GROUP_CHANGED);
-					domain.setRecommendationStatus(GROUP_CHANGED);
-					domain.setEndFlag("end");
-				}
-			}
-			performAction(domain);
-			
-			domain.merge();
-			String bulkEdit=request.getParameter("bulkedit");
-			if(bulkEdit==null||!bulkEdit.equals("yes")){
-
-				/**** Complete Task ****/
-				String endflag = null;
-				if(boolReanswering && workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
-					endflag = "continue";
-				}else{
-					endflag = domain.getEndFlag();
-				}
-
-				Map<String,String> properties=new HashMap<String, String>();
-				String level="";
-				String currentDeviceTypeWorkflowType = null;
-				if(domain.getType() != null){
-					if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE) 
-							&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-
-						currentDeviceTypeWorkflowType = ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW;
-						String nextuser=domain.getActor();
-						level=domain.getLevel();
-						properties.put("pv_deviceId",String.valueOf(domain.getId()));
-						properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
-						String username = "";
-						if(nextuser!=null){
-							if(!nextuser.isEmpty()){
-								String[] temp=nextuser.split("#");
-								username = temp[0];
-								properties.put("pv_user",username);				
 							}
-						}	
-						properties.put("pv_endflag", endflag);
+						}else{
+							/**** if workflow is not of reanswer then in that case find the ****/
+							/**** reanswer workflow and set the reanswer to domain ****/
 
-						CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "SERVERCONFIGURED", "");
-						String isServerConfigured=customParameter.getValue();
-						if(isServerConfigured!=null && !isServerConfigured.equals("")){
-							if(isServerConfigured.equals("yes")){
-								String mailflag=request.getParameter("mailflag");				
-								properties.put("pv_mailflag", mailflag);
+							Map<String, String> parameters = new HashMap<String, String>();
+							parameters.put("locale", locale.toString());
+							parameters.put("assignee", workflowDetails.getAssignee());
+							parameters.put("status", "PENDING");
+							parameters.put("deviceId", workflowDetails.getDeviceId());
 
-								if(mailflag!=null) {
-									if(mailflag.equals("set")) {
-										String mailfrom=request.getParameter("mailfrom");
-										properties.put("pv_mailfrom", mailfrom);
 
-										String mailto=request.getParameter("mailto");
-										properties.put("pv_mailto", mailto);
+							List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.
+									findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+							WorkflowDetails reanswerWorkflowIfAny = null;
 
-										String mailsubject=request.getParameter("mailsubject");
-										properties.put("pv_mailsubject", mailsubject);
-
-										String mailcontent=request.getParameter("mailcontent");
-										properties.put("pv_mailcontent", mailcontent);
+							if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
+								for(WorkflowDetails wf : reanswerWorkflowsIfAny){
+									if(!wf.getProcessId().equals(workflowDetails.getProcessId()) 
+											&& wf.getDepartmentAnswer() != null){
+										reanswerWorkflowIfAny = wf;
+										break;
 									}
-								}
+								}					
+								if(reanswerWorkflowIfAny != null){
+									domain.setAnswer(reanswerWorkflowIfAny.getDepartmentAnswer());
+								}				
+							}
+						}
+					}
+				}
 
-								String timerflag=request.getParameter("timerflag");
-								properties.put("pv_timerflag", timerflag);
-
-								if(timerflag!=null) {
-									if(timerflag.equals("set")) {
-										String timerduration=request.getParameter("timerduration");
-										properties.put("pv_timerduration", timerduration);
-
-										String lasttimerduration=request.getParameter("lasttimerduration");
-										properties.put("pv_lasttimerduration", lasttimerduration);
-
-										String reminderflag=request.getParameter("reminderflag");
-										properties.put("pv_reminderflag", reminderflag);
-
-										if(reminderflag!=null) {
-											if(reminderflag.equals("set")) {
-												String reminderfrom=request.getParameter("reminderfrom");
-												properties.put("pv_reminderfrom", reminderfrom);
-
-												String reminderto = "";
-												if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) ||
-														domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
-													Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
-													reminderto = recepient.getEmail();								
-												} else {
-													reminderto=request.getParameter("reminderto");								
-												}						
-												properties.put("pv_reminderto", reminderto);
-
-												String remindersubject=request.getParameter("remindersubject");						
-												properties.put("pv_remindersubject", remindersubject);
-
-												String remindercontent = "";
-												if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT) ||
-														domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))) {
-													remindercontent += domain.getRevisedQuestionText() + "\n\n";
-													if(domain.getQuestionsAskedInFactualPosition() !=null && !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
-														int count = 1;
-														for(String i: domain.getQuestionsAskedInFactualPosition().split("##")) {
-															remindercontent += FormaterUtil.formatNumberNoGrouping(count, domain.getLocale()) + ". " + i + "\n\n";
-															count++;
-														}
-													}								
-												} else {
-													remindercontent=request.getParameter("remindercontent");								
-												}					
-												properties.put("pv_remindercontent", remindercontent);						
+				String currentDeviceTypeWorkflowType = null;
+				Workflow workflowFromUpdatedStatus = domain.findWorkflowFromStatus();
+				
+				//String sendbackactor=request.getParameter("sendbackactor");
+				if(workflowFromUpdatedStatus!=null) {
+					currentDeviceTypeWorkflowType = workflowFromUpdatedStatus.getType();
+				}			
+				
+				/**** added by dhananjayb.. required in case when domain is updated with start of new workflow before completion of current workflow ****/
+				String endFlagForCurrentWorkflow = domain.getEndFlag();				
+				String actorForCurrentWorkflow = domain.getActor();
+//				String localizedActorName = domain.getLocalizedActorName();
+//				Long workflowDetailsIdForCurrentWorkflow = domain.getWorkflowDetailsId();
+//				String levelForCurrentWorkflow = domain.getLevel();
+//				String workflowStarted = domain.getWorkflowStarted();					
+				
+				
+				{
+					/* Find if next actors are not active then create a draft for them if draft is 
+					 * not existing for that actors.
+					 */
+					try{
+						String strNextuser = request.getParameter("actor");
+						String[] nextuser = null;
+						int nextUserLevel = 0;
+						if(strNextuser != null && !strNextuser.isEmpty()){
+								nextuser = strNextuser.split("#");
+								nextUserLevel = Integer.parseInt(nextuser[2]);
+						} 
+												
+						Question q = null;
+						
+						if(domain.getId() != null){
+							q = Question.findById(Question.class, domain.getId());
+						}else{
+							q = domain.copyQuestion();
+						}
+						
+						
+						Map<String, String[]> params = new HashMap<String, String[]>();
+						params.put("locale", new String[]{locale.toString()});
+						params.put("sessionId", new String[]{domain.getSession().getId().toString()});
+						params.put("ugType", new String[]{ApplicationConstants.ASSISTANT});
+						params.put("qId", new String[]{domain.getId().toString()});
+						List data = Query.findReport("ACTIVE_USER", params);
+						String strUsername = null;
+						if(data != null && !data.isEmpty()){
+							Object[] obj = (Object[])data.get(0);
+							strUsername = obj[1].toString();
+						}
+					
+						Credential cr = null;
+						if(strUsername != null){
+							cr = Credential.findByFieldName(Credential.class, "username", strUsername, null);
+						}
+						
+						if(cr != null){
+							UserGroup assistant = UserGroup.findActive(cr, UserGroupType.findByType(ApplicationConstants.ASSISTANT, domain.getLocale()),new Date(), domain.getLocale());
+							List<Reference> refs = WorkflowConfig.
+									findQuestionActorsVO(q,domain.getInternalStatus(),
+											assistant,1,q.getLocale());
+							
+							Set<QuestionDraft> ogDrafts = q.getDrafts();
+							Set<QuestionDraft> drafts = new HashSet<QuestionDraft>();
+								
+							for(Reference ref : refs){
+								
+								String[] user = ref.getId().split("#");
+								
+								if(!user[1].equals(ApplicationConstants.MEMBER) && !user[1].equals(ApplicationConstants.DEPARTMENT) && !user[1].equals(ApplicationConstants.DEPARTMENT_DESKOFFICER) && !ref.getState().equals(ApplicationConstants.ACTOR_ACTIVE)){
+									
+									int refLevel = Integer.parseInt(user[2]);
+									
+									if(refLevel < nextUserLevel){
+										boolean foundUsersDraft = false;
+										if(ogDrafts != null && !ogDrafts.isEmpty()){
+											for(QuestionDraft qd : ogDrafts){
+												if(qd.getEditedAs().equals(user[3]) 
+														&& qd.getEditedBy().equals(user[0])){
+													foundUsersDraft = true;
+													break;
+												}
+											}
+											
+											if(!foundUsersDraft){
+												QuestionDraft qdn = Question.addDraft(q, user[0], user[3], ref.getRemark());
+												drafts.add(qdn);
 											}
 										}
 									}
 								}
-							}else{
-								properties.put("pv_mailflag", "off");
-								properties.put("pv_timerflag", "off");
+							}
+							if(drafts != null && !drafts.isEmpty()){
+								domain.setDrafts(drafts);
 							}
 						}
+					} catch (ELSException e) {
+						e.printStackTrace();
+						return "redirect:workflow/myTasks/"+workflowDetails.getId()+"/process";
+					}
+				}
+				
+				/*if(domain.getDrafts()==null) {
+					Question question = Question.findById(Question.class, domain.getId());
+					domain.setDrafts(question.getDrafts());
+				}*/
+				
+				performAction(domain);
+				
+				domain.merge();				
+				
+				Question question = Question.findById(Question.class, domain.getId());
+				// On Group Change
+				boolean isGroupChanged = false;
+				Ballot ballot =null;
+				Group fromGroup = Question.isGroupChanged(question);
+				if(question.getBallotStatus() != null){
+					ballot = Ballot.find(question);
+				}
+				
+				QuestionDraft groupChangeDraft = Question.findLatestGroupChangedDraft(question);
+				QuestionDraft questionDraft = Question.findGroupChangedDraft(question);
+				if(fromGroup != null || (ballot != null 
+						&& groupChangeDraft!=null 
+						&& ballot.getBallotDate().before(questionDraft.getEditedOn()))) {
+					isGroupChanged = true;
+					Question.onGroupChange(question, fromGroup);
+				}
+				
+				if(isGroupChanged) {
+					/**** display message ****/
+					model.addAttribute("type","taskcompleted");
+					return "workflow/info";
+				}
+				else {
+					String bulkEdit=request.getParameter("bulkedit");
+					if(bulkEdit==null||!bulkEdit.equals("yes")){
 
-					}else{
-						//String sendbackactor=request.getParameter("sendbackactor");
-						currentDeviceTypeWorkflowType = ApplicationConstants.APPROVAL_WORKFLOW;
+						/**** Complete Task ****/
+						String endflag = null;
+						if(boolReanswering && 
+								workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+							endflag = "continue";
+						}else{
+							if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
+								endflag = endFlagForCurrentWorkflow;
+							} else {
+								endflag = question.getEndFlag();
+							}							
+						}
+
+						Map<String,String> properties=new HashMap<String, String>();
+						String level="";						
 						String nextuser = null;
 						if(boolReanswering){
-							nextuser = domain.getActor();
+							if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
+								nextuser = actorForCurrentWorkflow;
+							} else {
+								nextuser = question.getActor();
+							}							
 						}else{
 							nextuser = request.getParameter("actor");
 						}
 
-						properties.put("pv_deviceId",String.valueOf(domain.getId()));
-						properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
-
-						if(nextuser!=null){
+						properties.put("pv_deviceId", String.valueOf(question.getId()));
+						properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
+						UserGroupType usergroupType = null; 
+						if(nextuser != null){
 							if(!nextuser.isEmpty()){
-								String[] temp=nextuser.split("#");
-								properties.put("pv_user",temp[0]);
-								level=temp[2];
+								String[] temp = nextuser.split("#");
+								properties.put("pv_user", temp[0]);
+								level = temp[2];
+								usergroupType = UserGroupType.findByType(temp[1], locale.toString());
 							}
 						}
 						properties.put("pv_endflag", endflag);
-					}
-				}
+						
+						String strReanswer = request.getParameter("reanswer");
+						workflowDetails.setDepartmentAnswer(strReanswer);
 
-				String strReanswer = request.getParameter("reanswer");
-				workflowDetails.setDepartmentAnswer(strReanswer);
+						String strTaskId = workflowDetails.getTaskId();
+						Task task = null;
+						if (!boolReanswering){
+							task = processService.findTaskById(strTaskId);
+							processService.completeTask(task,properties);
 
-				String strTaskId=workflowDetails.getTaskId();
-				Task task = null;
-				if (!boolReanswering){
-					task=processService.findTaskById(strTaskId);
-					processService.completeTask(task,properties);
-
-					if(domain.getType() != null && domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
-						/**** If user is section officer and if he/she amrks the end of workflow ****/
-						/**** Terminate the flows of both normal and reanswer flow if any ****/
-						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
-							if(workflowDetails.getDepartmentAnswer() != null){
-
-
-								if(workflowDetails.getPreviousWorkflowDetail() != null){
-									WorkflowDetails prevWorkflowDetails = WorkflowDetails.findById(WorkflowDetails.class, workflowDetails.getPreviousWorkflowDetail());
-
-									Map<String, String> parameters = new HashMap<String, String>();
-									parameters.put("locale", locale.toString());
-									parameters.put("assignee", workflowDetails.getAssignee());
-									parameters.put("status", "PENDING");
-									parameters.put("processId", prevWorkflowDetails.getProcessId());
-
-									List<WorkflowDetails> pendingWorkflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
-									WorkflowDetails pendingWorkflow;
-
-									if(pendingWorkflows != null && !pendingWorkflows.isEmpty()){
-										pendingWorkflow = pendingWorkflows.get(0);
-
-										Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
-										processService.completeTask(prevTask, properties);
-
-										pendingWorkflow.setStatus("COMPLETED");
-										pendingWorkflow.setCompletionTime(new Date());
-										pendingWorkflow.merge();
-									}								
-								}
-							}else{
-
-								Map<String, String> parameters = new HashMap<String, String>();
-								parameters.put("locale", locale.toString());
-								parameters.put("assignee", workflowDetails.getAssignee());
-								parameters.put("status", "PENDING");
-								parameters.put("deviceId", workflowDetails.getDeviceId());
+							if(domain.getType() != null 
+									&& domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+								/**** If user is section officer and if he/she amrks the end of workflow ****/
+								/**** Terminate the flows of both normal and reanswer flow if any ****/
+								if(workflowDetails.getAssigneeUserGroupType().
+										equals(ApplicationConstants.SECTION_OFFICER)){
+									if(workflowDetails.getDepartmentAnswer() != null){
 
 
-								List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
-								WorkflowDetails reanswerWorkflowIfAny = null;
+										if(workflowDetails.getPreviousWorkflowDetail() != null){
+											WorkflowDetails prevWorkflowDetails = 
+													WorkflowDetails.findById(WorkflowDetails.class, workflowDetails.getPreviousWorkflowDetail());
 
-								if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
-									for(WorkflowDetails wf : reanswerWorkflowsIfAny){
-										if(!wf.getProcessId().equals(workflowDetails.getProcessId()) && wf.getDepartmentAnswer() != null){
-											reanswerWorkflowIfAny = wf;
-											break;
+											Map<String, String> parameters = new HashMap<String, String>();
+											
+											parameters.put("locale", locale.toString());
+											parameters.put("assignee", workflowDetails.getAssignee());
+											parameters.put("status", "PENDING");
+											parameters.put("processId", prevWorkflowDetails.getProcessId());
+
+											List<WorkflowDetails> pendingWorkflows = 
+													WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+											WorkflowDetails pendingWorkflow;
+
+											if(pendingWorkflows != null && !pendingWorkflows.isEmpty()){
+												pendingWorkflow = pendingWorkflows.get(0);
+
+												Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
+												processService.completeTask(prevTask, properties);
+
+												pendingWorkflow.setStatus("COMPLETED");
+												pendingWorkflow.setCompletionTime(new Date());
+												pendingWorkflow.merge();
+											}								
 										}
-									}
+									}else{
 
-									if(reanswerWorkflowIfAny != null){
-										Task prevTask = processService.findTaskById(reanswerWorkflowIfAny.getTaskId());
-										processService.completeTask(prevTask, properties);
-
-										reanswerWorkflowIfAny.setStatus("COMPLETED");
-										reanswerWorkflowIfAny.setCompletionTime(new Date());
-										reanswerWorkflowIfAny.merge();
-									}
-								}	
-							}
-						}
-					}
-				}
-
-				if(endflag!=null){
-					if(!endflag.isEmpty()){
-						if(endflag.equals("continue")){
-
-							if (boolReanswering){
-
-								ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
-								ProcessInstance processInstance=processService.createProcessInstance(processDefinition, properties);
-								/**** Stale State Exception ****/
-								Question question=Question.findById(Question.class,domain.getId());
-								/**** Process Started and task created ****/
-								Task reanswertask=processService.getCurrentTask(processInstance);
-
-								WorkflowDetails reanswerWorkflowDetails;
-								try {
-									reanswerWorkflowDetails = WorkflowDetails.create(domain,reanswertask,ApplicationConstants.APPROVAL_WORKFLOW,level);
-									question.setWorkflowDetailsId(reanswerWorkflowDetails.getId());
-									reanswerWorkflowDetails.setDepartmentAnswer(strReanswer);
-									reanswerWorkflowDetails.setPreviousWorkflowDetail(workflowDetails.getId());
-
-									reanswerWorkflowDetails.merge();
-
-								} catch (ELSException e) {
-									model.addAttribute("error", e.getParameter());
-									e.printStackTrace();
-								}				
-							}
+										Map<String, String> parameters = new HashMap<String, String>();
+										parameters.put("locale", locale.toString());
+										parameters.put("assignee", workflowDetails.getAssignee());
+										parameters.put("status", "PENDING");
+										parameters.put("deviceId", workflowDetails.getDeviceId());
 
 
-							if(!boolReanswering){
-								ProcessInstance processInstance = processService.findProcessInstanceById(
-										task.getProcessInstanceId());
-								Task newtask = processService.getCurrentTask(processInstance);
-								/**** Workflow Detail entry made only if its not the end of workflow ****/
-								WorkflowDetails newWFDetails = WorkflowDetails.create(domain, newtask,currentDeviceTypeWorkflowType,level);
-								/**** Define the timer ****/
-								if (domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+										List<WorkflowDetails> reanswerWorkflowsIfAny = 
+												WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+										WorkflowDetails reanswerWorkflowIfAny = null;
 
-									if (userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) {
-										if(workflowDetails.getSendBackBefore() != null){
-											newWFDetails.setSendBackBefore(workflowDetails.getSendBackBefore());
-										}else{
-											CustomParameter cstpSendBackTimeLimitMinutes = CustomParameter.findByName(CustomParameter.class,
-													ApplicationConstants.DEPARTMENT_SENDBACK_TIME_LIMIT,"");
-
-											if (cstpSendBackTimeLimitMinutes != null
-													&& !cstpSendBackTimeLimitMinutes.getValue().isEmpty()) {
-
-												int timeLimitMinutes = ((int)Double.parseDouble(cstpSendBackTimeLimitMinutes.getValue())) * 60;
-												newWFDetails.setSendBackBefore(new Date(newWFDetails.getAssignmentTime().getTime()+ (timeLimitMinutes * 60 * 1000)));
+										if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
+											for(WorkflowDetails wf : reanswerWorkflowsIfAny){
+												if(!wf.getProcessId().equals(workflowDetails.getProcessId()) 
+														&& wf.getDepartmentAnswer() != null){
+													reanswerWorkflowIfAny = wf;
+													break;
+												}
 											}
-										}
-									} else if (userGroupType.equals(ApplicationConstants.DEPARTMENT)) {
 
-										/**** save the reanswer by department ****/
-										newWFDetails.setDepartmentAnswer(strReanswer);
-										newWFDetails.setSendBackBefore(workflowDetails.getSendBackBefore());
+											if(reanswerWorkflowIfAny != null){
+												Task prevTask = processService.findTaskById(reanswerWorkflowIfAny.getTaskId());
+												processService.completeTask(prevTask, properties);
+
+												reanswerWorkflowIfAny.setStatus("COMPLETED");
+												reanswerWorkflowIfAny.setCompletionTime(new Date());
+												reanswerWorkflowIfAny.merge();
+											}
+										}	
 									}
 								}
-								newWFDetails.merge();
 							}
 						}
-					}			
+
+						if(endflag != null && !endflag.isEmpty()){
+						
+							if(endflag.equals("continue")){
+								
+								if (boolReanswering){
+
+									ProcessDefinition processDefinition =processService.
+											findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+									ProcessInstance processInstance = processService.
+											createProcessInstance(processDefinition, properties);
+									/**** Process Started and task created ****/
+									Task reanswertask = processService.getCurrentTask(processInstance);
+
+									WorkflowDetails reanswerWorkflowDetails;
+									try {
+										reanswerWorkflowDetails = WorkflowDetails.
+												create(domain,reanswertask,usergroupType,currentDeviceTypeWorkflowType,level);
+										question.setWorkflowDetailsId(reanswerWorkflowDetails.getId());
+										reanswerWorkflowDetails.setDepartmentAnswer(strReanswer);
+										reanswerWorkflowDetails.setPreviousWorkflowDetail(workflowDetails.getId());
+
+										reanswerWorkflowDetails.merge();
+
+									} catch (ELSException e) {
+										model.addAttribute("error", e.getParameter());
+										e.printStackTrace();
+									}				
+								}
+
+
+								if(!boolReanswering){
+									ProcessInstance processInstance = processService.findProcessInstanceById(
+											task.getProcessInstanceId());
+									Task newtask = processService.getCurrentTask(processInstance);
+									
+		
+									/**** Workflow Detail entry made only if its not the end of workflow ****/
+									WorkflowDetails newWFDetails = 
+											WorkflowDetails.create(question, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
+									
+									/**** FOr CLarificationFromMember and Department ****/
+									if(domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+											&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)){
+											
+											Map<String, String> parameters = new HashMap<String, String>();
+											User user = User.find(domain.getPrimaryMember());
+											Credential credential = user.getCredential();
+											parameters.put("pv_endflag", endflag);	
+											parameters.put("pv_user",credential.getUsername());
+											parameters.put("pv_deviceId", String.valueOf(question.getId()));
+											parameters.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
+
+											ProcessDefinition processDefinition1 =processService.
+													findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+											ProcessInstance processInstance1 = processService.
+													createProcessInstance(processDefinition1, parameters);
+											Task newMembertask = processService.getCurrentTask(processInstance1);
+											WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);
+															
+										}
+									
+									/**** Define the timer ****/
+									if (question.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+
+										if (userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) {
+											if(workflowDetails.getSendBackBefore() != null){
+												newWFDetails.setSendBackBefore(workflowDetails.getSendBackBefore());
+											}else{
+												CustomParameter cstpSendBackTimeLimitMinutes = 
+														CustomParameter.findByName(CustomParameter.class,
+														ApplicationConstants.DEPARTMENT_SENDBACK_TIME_LIMIT,"");
+
+												if (cstpSendBackTimeLimitMinutes != null
+														&& !cstpSendBackTimeLimitMinutes.getValue().isEmpty()) {
+
+													int timeLimitMinutes = 
+															((int)Double.parseDouble(cstpSendBackTimeLimitMinutes.getValue())) * 60;
+													newWFDetails.setSendBackBefore(new Date(newWFDetails.getAssignmentTime().getTime()+ (timeLimitMinutes * 60 * 1000)));
+												}
+											}
+										} else if (userGroupType.equals(ApplicationConstants.DEPARTMENT)) {
+
+											/**** save the reanswer by department ****/
+											newWFDetails.setDepartmentAnswer(strReanswer);
+											newWFDetails.setSendBackBefore(workflowDetails.getSendBackBefore());
+										}
+									}
+									newWFDetails.merge();
+								}
+							}
+										
+						}
+						if(domain.getChartAnsweringDate() != null) {
+							workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+						}
+						workflowDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
+						workflowDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
+						workflowDetails.setStatus("COMPLETED");
+						workflowDetails.setCompletionTime(new Date());
+						
+						workflowDetails.merge();		
+						/**** display message ****/
+						model.addAttribute("type","taskcompleted");
+						return "workflow/info";
+					}
 				}
-				if(domain.getChartAnsweringDate()!=null) {
-					workflowDetails.setAnsweringDate(domain.getChartAnsweringDate().getAnsweringDate());
-				}
-				workflowDetails.setDecisionInternalStatus(domain.getInternalStatus().getName());
-				workflowDetails.setDecisionRecommendStatus(domain.getRecommendationStatus().getName());
-				workflowDetails.setStatus("COMPLETED");
-				workflowDetails.setCompletionTime(new Date());
-				
-				workflowDetails.merge();		
-				/**** display message ****/
-				model.addAttribute("type","taskcompleted");
-				return "workflow/info";
+				model.addAttribute("type","success");
+				populateModel(domain, model, request, workflowDetails);
 			}
-			model.addAttribute("type","success");
-			populateModel(domain, model, request, workflowDetails);
 		}catch (ELSException e) {
 			model.addAttribute("error", e.getParameter());
 		}catch (Exception e) {
@@ -1837,60 +1974,51 @@ public class QuestionWorkflowController  extends BaseController{
 
 		try{
 			/**** Request Params ****/
-			String strHouseType=request.getParameter("houseType");
-			String strSessionType=request.getParameter("sessionType");
-			String strSessionYear=request.getParameter("sessionYear");
-			String strQuestionType=request.getParameter("deviceType");
-			String strStatus=request.getParameter("status");
-			String strWorkflowSubType=request.getParameter("workflowSubType");
-			String strItemsCount=request.getParameter("itemsCount");
-			String strFile=request.getParameter("file");
-			String strLocale=locale.toString();
-			String strAnsweringDate=request.getParameter("answeringDate");
-			String strGroup=request.getParameter("group");
+			String strHouseType = request.getParameter("houseType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strQuestionType = request.getParameter("deviceType");
+			String strStatus = request.getParameter("status");
+			String strWorkflowSubType = request.getParameter("workflowSubType");
+			String strItemsCount = request.getParameter("itemsCount");
+			String strLocale = locale.toString();
+			String strAnsweringDate = request.getParameter("answeringDate");
+			String strGroup = request.getParameter("group");
 			/**** usergroup,usergroupType,role *****/
-			List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
-			String strUserGroupType=null;
-			String strUsergroup=null;
-			if(userGroups!=null){
-				if(!userGroups.isEmpty()){
-					CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"QIS_ALLOWED_USERGROUPTYPES", "");
-					if(customParameter!=null){
-						String allowedUserGroups=customParameter.getValue(); 
-						for(UserGroup i:userGroups){
+			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+			Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), null);
+			String strUserGroupType = null;
+			String strUsergroup = null;
+			if(userGroups != null && !userGroups.isEmpty()){
+
+				CustomParameter customParameter = CustomParameter.
+						findByName(CustomParameter.class,"QIS_ALLOWED_USERGROUPTYPES", "");
+				if(customParameter != null){
+					String allowedUserGroups = customParameter.getValue(); 
+					for(UserGroup i : userGroups){
+						UserGroup ug = UserGroup.findActive(credential, i.getUserGroupType(), new Date(), locale.toString());
+						if(ug != null){
 							if(allowedUserGroups.contains(i.getUserGroupType().getType())){
-								strUsergroup=String.valueOf(i.getId());
-								strUserGroupType=i.getUserGroupType().getType();
+								strUsergroup = String.valueOf(i.getId());
+								strUserGroupType = i.getUserGroupType().getType();
 								break;
 							}
 						}
-					}								
+					}
 				}
 			}		
-			Set<Role> roles=this.getCurrentUser().getRoles();
-			String strRole=null;
+			Set<Role> roles = this.getCurrentUser().getRoles();
+			String strRole = null;
 			for(Role i:roles){
 				if(i.getType().startsWith("MEMBER_")){
-					strRole=i.getType();
+					strRole = i.getType();
 					break;
 				}else if(i.getType().contains("QIS_CLERK")){
-					strRole=i.getType();
+					strRole = i.getType();
 					break;
 				}else if(i.getType().startsWith("QIS_")){
-					strRole=i.getType();
+					strRole = i.getType();
 					break;
-				}else if(i.getType().startsWith("HDS_")){
-					if(strQuestionType != null){
-						if(!strQuestionType.isEmpty()){
-							DeviceType deviceType=DeviceType.findByFieldName(DeviceType.class,"name",strQuestionType,strLocale);
-							if(deviceType != null){
-								if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
-									strRole=i.getType();
-									break;
-								}
-							}
-						}
-					}
 				}
 
 			}		
@@ -1903,42 +2031,62 @@ public class QuestionWorkflowController  extends BaseController{
 					&&strUsergroup!=null&&!(strUsergroup.isEmpty())
 					&&strUserGroupType!=null&&!(strUserGroupType.isEmpty())
 					&&strItemsCount!=null&&!(strItemsCount.isEmpty())
-					&&strFile!=null&&!(strFile.isEmpty())
 					&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){	
 				/**** List of Statuses ****/
 				if(strWorkflowSubType.equals("request_to_supporting_member")){
-					Status approveStatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_APPROVED, locale.toString());
-					Status rejectStatus=Status.findByFieldName(Status.class,"type",ApplicationConstants.SUPPORTING_MEMBER_REJECTED, locale.toString());
-					List<Status> decisionStatus=new ArrayList<Status>();
+					Status approveStatus = Status.
+							findByType(ApplicationConstants.SUPPORTING_MEMBER_APPROVED, locale.toString());
+					Status rejectStatus = Status.
+							findByType(ApplicationConstants.SUPPORTING_MEMBER_REJECTED, locale.toString());
+					List<Status> decisionStatus = new ArrayList<Status>();
 					decisionStatus.add(approveStatus);
 					decisionStatus.add(rejectStatus);
-					model.addAttribute("internalStatuses",decisionStatus);
+					model.addAttribute("internalStatuses", decisionStatus);
 				}else{
-					List<Status> internalStatuses=new ArrayList<Status>();
-					HouseType houseType=HouseType.findByFieldName(HouseType.class,"name",strHouseType, strLocale);
-					DeviceType questionType=DeviceType.findByFieldName(DeviceType.class,"name",strQuestionType,strLocale);
-					Status internalStatus=Status.findByType(strWorkflowSubType, strLocale);
-					CustomParameter finalApprovingAuthority=CustomParameter.findByName(CustomParameter.class,questionType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
-					CustomParameter deviceTypeInternalStatusUsergroup=CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+internalStatus.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
-					CustomParameter deviceTypeHouseTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
-					CustomParameter deviceTypeUsergroup=CustomParameter.findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
-					if(finalApprovingAuthority!=null&&finalApprovingAuthority.getValue().contains(strUserGroupType)){
-						CustomParameter finalApprovingAuthorityStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+strUserGroupType.toUpperCase(),"");
-						if(finalApprovingAuthorityStatus!=null){
-							internalStatuses=Status.findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), strLocale);
+					List<Status> internalStatuses = new ArrayList<Status>();
+					HouseType houseType = HouseType.
+							findByFieldName(HouseType.class,"name",strHouseType, strLocale);
+					DeviceType questionType = DeviceType.
+							findByFieldName(DeviceType.class,"name",strQuestionType,strLocale);
+					Status internalStatus = Status.findByType(strWorkflowSubType, strLocale);
+					CustomParameter finalApprovingAuthority = CustomParameter.
+							findByName(CustomParameter.class,questionType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+					CustomParameter deviceTypeInternalStatusUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+internalStatus.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					CustomParameter deviceTypeHouseTypeInternalStatusUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+internalStatus.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					CustomParameter deviceTypeHouseTypeUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					CustomParameter deviceTypeUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					if(finalApprovingAuthority!=null 
+							&&finalApprovingAuthority.getValue().contains(strUserGroupType)){
+						CustomParameter finalApprovingAuthorityStatus = CustomParameter.
+								findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+strUserGroupType.toUpperCase(),"");
+						if(finalApprovingAuthorityStatus != null){
+							internalStatuses = Status.
+									findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), strLocale);
 						}
 					}/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
-					else if(deviceTypeInternalStatusUsergroup!=null){
-						internalStatuses=Status.findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), strLocale);
-					}/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
-					else if(deviceTypeHouseTypeUsergroup!=null){
-						internalStatuses=Status.findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), strLocale);
+					else if(deviceTypeInternalStatusUsergroup != null){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), strLocale);
+					}/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE + HOUSETYPE + INTERNALSTATUS_TYPE+USERGROUP(PRE Final Status)****/
+					else if(deviceTypeHouseTypeInternalStatusUsergroup !=null ){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeHouseTypeInternalStatusUsergroup.getValue(), strLocale);
+					}
+					/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
+					else if(deviceTypeHouseTypeUsergroup != null){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), strLocale);
 					}	
 					/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
-					else if(deviceTypeUsergroup!=null){
-						internalStatuses=Status.findStatusContainedIn(deviceTypeUsergroup.getValue(), strLocale);
+					else if(deviceTypeUsergroup != null){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeUsergroup.getValue(), strLocale);
 					}	
-					model.addAttribute("internalStatuses",internalStatuses);
+					model.addAttribute("internalStatuses", internalStatuses);
 				}
 				/**** Request Params To Model Attribute ****/
 				model.addAttribute("houseType", strHouseType);
@@ -1950,7 +2098,6 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("usergroup", strUsergroup);
 				model.addAttribute("usergroupType", strUserGroupType);
 				model.addAttribute("itemscount", strItemsCount);
-				model.addAttribute("file", strFile);
 				model.addAttribute("workflowSubType",strWorkflowSubType);
 				model.addAttribute("answeringDate",strAnsweringDate);
 				model.addAttribute("group", strGroup);
@@ -1980,26 +2127,27 @@ public class QuestionWorkflowController  extends BaseController{
 	public String bulkApproval(final HttpServletRequest request,final Locale locale,
 			final Model model){			
 		String[] selectedItems = request.getParameterValues("items[]");
-		String strInternalStatus=request.getParameter("internalstatus");
-		String strWorkflowSubType=request.getParameter("workflowSubType");
-		StringBuffer recommendAdmissionMsg=new StringBuffer();
-		StringBuffer recommendRejectionMsg=new StringBuffer();
-		StringBuffer admittedMsg=new StringBuffer();
-		StringBuffer rejectedMsg=new StringBuffer();
+		String strInternalStatus = request.getParameter("internalstatus");
+		String strWorkflowSubType = request.getParameter("workflowSubType");
+		StringBuffer recommendAdmissionMsg = new StringBuffer();
+		StringBuffer recommendRejectionMsg = new StringBuffer();
+		StringBuffer admittedMsg = new StringBuffer();
+		StringBuffer rejectedMsg = new StringBuffer();
 		if(selectedItems != null && (selectedItems.length >0)
 				&&strInternalStatus!=null&&!strInternalStatus.isEmpty()
 				&&strWorkflowSubType!=null&&!strWorkflowSubType.isEmpty()) {
-			Status status=null;
+			Status status = null;
 			if(!strInternalStatus.equals("-")){
 				status=Status.findById(Status.class,Long.parseLong(strInternalStatus));
 			}
 			for(String i : selectedItems) {
 				if(strWorkflowSubType.equals("request_to_supporting_member")){
-					String[] temp=i.split("#");
+					String[] temp = i.split("#");
 					Long id = Long.parseLong(temp[0]);
-					WorkflowDetails wfDetails=WorkflowDetails.findById(WorkflowDetails.class,id);
+					WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class,id);
 					/**** Updating Supporting Member ****/
-					SupportingMember supportingMember=SupportingMember.findById(SupportingMember.class,Long.parseLong(temp[1]));
+					SupportingMember supportingMember = 
+							SupportingMember.findById(SupportingMember.class,Long.parseLong(temp[1]));
 					supportingMember.setApprovalDate(new Date());
 					supportingMember.setApprovedSubject(wfDetails.getSubject());
 					supportingMember.setApprovedText(wfDetails.getText());	
@@ -2007,8 +2155,8 @@ public class QuestionWorkflowController  extends BaseController{
 					/**** Remarks Need To Be Added ****/
 					supportingMember.merge();
 					/**** complete the task ****/		 
-					String strTaskId=wfDetails.getTaskId();
-					Task task=processService.findTaskById(strTaskId);
+					String strTaskId = wfDetails.getTaskId();
+					Task task = processService.findTaskById(strTaskId);
 					processService.completeTask(task);
 					/**** Update Workflow Details ****/
 					wfDetails.setStatus("COMPLETED");
@@ -2019,21 +2167,22 @@ public class QuestionWorkflowController  extends BaseController{
 					wfDetails.merge();					
 				}else{
 					Long id = Long.parseLong(i);
-					WorkflowDetails wfDetails=WorkflowDetails.findById(WorkflowDetails.class,id);
-					Question question = Question.findById(Question.class,Long.parseLong(wfDetails.getDeviceId()));
-					String actor=request.getParameter("actor");
-					if(actor==null||actor.isEmpty()){
-						actor=question.getActor();
-						String[] temp=actor.split("#");
-						actor=temp[1];
+					WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class,id);
+					Question question = 
+							Question.findById(Question.class,Long.parseLong(wfDetails.getDeviceId()));
+					String actor = request.getParameter("actor");
+					if(actor == null || actor.isEmpty()){
+						actor = question.getActor();
+						String[] temp = actor.split("#");
+						actor = temp[1];
 					}
-					String level=request.getParameter("level");
-					if(level==null||level.isEmpty()){
-						level=question.getLevel();
+					String level = request.getParameter("level");
+					if(level == null || level.isEmpty()){
+						level = question.getLevel();
 					}
 
-					if(actor!=null&&!actor.isEmpty()
-							&&level!=null&&!level.isEmpty()){
+					if(actor != null && !actor.isEmpty()
+							&& level!=null && !level.isEmpty()){
 						Reference reference = null;
 						try {
 							reference = UserGroup.findQuestionActor(question,actor,level,locale.toString());
@@ -2041,132 +2190,217 @@ public class QuestionWorkflowController  extends BaseController{
 							e.printStackTrace();
 							model.addAttribute("error", e.getParameter());
 						}
-						if(reference!=null
-								&&reference.getId()!=null&&!reference.getId().isEmpty()
-								&&reference.getName()!=null&&!reference.getName().isEmpty()){
+						if(reference != null
+								&& reference.getId() != null && !reference.getId().isEmpty()
+								&& reference.getName() != null && !reference.getName().isEmpty()){
 							/**** Update Actor ****/
-							String[] temp=reference.getId().split("#");
+							String[] temp = reference.getId().split("#");
 							question.setActor(reference.getId());
-							question.setLocalizedActorName(temp[3]+"("+temp[4]+")");
+							question.setLocalizedActorName(temp[3] + "(" + temp[4] + ")");
 							question.setLevel(temp[2]);
 							/**** Update Internal Status and Recommendation Status ****/
-							if(status!=null){
+							if(status != null){
 								if(!status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
-										&& !status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-										&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
-										&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)){
+								&& !status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_DISCUSS) 
+								&& !status.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_SENDBACK)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTODEPARTMENT)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
+								&& !status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
+								&& !status.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_RECIEVED)){
 									question.setInternalStatus(status);
+									question.setRecommendationStatus(status);
+									question.setEndFlag("continue");
+								}else if(status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)
+										||status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_RECIEVED)){
+									Status toBePutUp = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale.toString());
+									question.setInternalStatus(toBePutUp);
+									question.setRecommendationStatus(toBePutUp);
+									question.setEndFlag(null);
+									question.setActor(null);
+									question.setLevel(null);
+									question.setLocalizedActorName(null);
+								}else{
+									question.setRecommendationStatus(status);
+									question.setEndFlag("continue");
 								}
-								question.setRecommendationStatus(status);	
-								question.setEndFlag("continue");
+							}
+
+							/**** Complete Task ****/
+							Map<String,String> properties = new HashMap<String, String>();
+							properties.put("pv_deviceId", String.valueOf(question.getId()));
+							properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
+							properties.put("pv_user", temp[0]);
+							properties.put("pv_endflag", question.getEndFlag());
+							UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+							String strTaskId = wfDetails.getTaskId();
+							Task task = processService.findTaskById(strTaskId);
+							processService.completeTask(task, properties);	
+							if(question.getEndFlag() != null && !question.getEndFlag().isEmpty()
+									&& question.getEndFlag().equals("continue")){
+								/**** Create New Workflow Details ****/
+								ProcessInstance processInstance = 
+										processService.findProcessInstanceById(task.getProcessInstanceId());
+								Workflow workflowFromUpdatedStatus = null;
+								try {
+									
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * START...
+									 */
+									/*if(question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLUBBING_POST_ADMISSION)
+												|| question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_UNCLUBBING)
+												|| question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+											workflowFromUpdatedStatus = Workflow.findByStatus(question.getRecommendationStatus(), question.getLocale());
+										} else {
+											workflowFromUpdatedStatus = Workflow.findByStatus(question.getInternalStatus(), question.getLocale());
+									}*/
+									Status internalStatus = question.getInternalStatus();
+									String internalStatusType = internalStatus.getType();
+									Status recommendationStatus = question.getRecommendationStatus();
+									String recommendationStatusType = recommendationStatus.getType();
+
+									if(recommendationStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+										workflowFromUpdatedStatus = Workflow.findByStatus(recommendationStatus, locale.toString());
+									} 
+									else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_NAMECLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_NAMECLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_NAMECLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_NAMECLUBBING)
+											|| (internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATIONRECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATIONRECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATIONRECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATIONRECEIVED)
+											|| (internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATIONRECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATIONRECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATIONRECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATIONRECEIVED)))) {
+										workflowFromUpdatedStatus = Workflow.findByStatus(internalStatus, locale.toString());
+									}
+									else {
+										workflowFromUpdatedStatus = Workflow.findByStatus(internalStatus, locale.toString());
+									}
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * ... END
+									 */
+									
+								} catch(ELSException e) {
+									e.printStackTrace();
+									model.addAttribute("error", "Bulk approval is unavailable please try after some time.");
+									model.addAttribute("type", "error");
+									return "workflow/info";
+								}
+								Task newtask = processService.getCurrentTask(processInstance);
+								WorkflowDetails workflowDetails2 = null;
+								try {
+									workflowDetails2 = WorkflowDetails.create(question,newtask,usergroupType,workflowFromUpdatedStatus.getType(),level);
+								} catch (ELSException e) {
+									e.printStackTrace();
+									model.addAttribute("error", e.getParameter());
+								}
+								question.setWorkflowDetailsId(workflowDetails2.getId());
+								question.setTaskReceivedOn(new Date());								
+							}
+							/**** Update Old Workflow Details ****/
+							wfDetails.setStatus("COMPLETED");
+							wfDetails.setInternalStatus(question.getInternalStatus().getName());
+							wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
+							wfDetails.setCompletionTime(new Date());
+							if(!question.getType().getType().startsWith("questions_halfhourdiscussion_") 
+							&& !question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+							&& !question.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+								wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+							}
+							wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
+							wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
+							wfDetails.merge();
+							/**** Update Motion ****/
+							question.setEditedOn(new Date());
+							question.setEditedBy(this.getCurrentUser().getActualUsername());
+							question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
+							try {
+								performAction(question);
+							} catch (ELSException e) {
+								e.printStackTrace();
+								logger.error(e.toString());
+								model.addAttribute("error", e.getParameter());
 							}
 							
-							if(question.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-									&& question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-								
-								
-								/**** Complete Task ****/
-								Map<String,String> properties = new HashMap<String, String>();
-								properties.put("pv_deviceId",String.valueOf(question.getId()));
-								properties.put("pv_deviceTypeId",String.valueOf(question.getType().getId()));
-								properties.put("pv_user",temp[0]);
-								properties.put("pv_endflag",question.getEndFlag());							
-								String strTaskId = wfDetails.getTaskId();
-								Task task = processService.findTaskById(strTaskId);
-								processService.completeTask(task,properties);	
-								if(question.getEndFlag() != null && !question.getEndFlag().isEmpty()
-										&& question.getEndFlag().equals("continue")){
-									/**** Create New Workflow Details ****/
-									ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-									Task newtask = processService.getCurrentTask(processInstance);
-									WorkflowDetails workflowDetails2 = null;
-									try {
-										workflowDetails2 = WorkflowDetails.create(question,newtask,ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW,level);
-									} catch (ELSException e) {
-										e.printStackTrace();
-										model.addAttribute("error", e.getParameter());
-									}
-									question.setWorkflowDetailsId(workflowDetails2.getId());
-									question.setTaskReceivedOn(new Date());								
-								}
-								/**** Update Old Workflow Details ****/
-								wfDetails.setStatus("COMPLETED");
-								wfDetails.setInternalStatus(question.getInternalStatus().getName());
-								wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
-								wfDetails.setCompletionTime(new Date());
-								wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
-								wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
-								wfDetails.merge();
-								/**** Update Question ****/
-								question.setEditedOn(new Date());
-								question.setEditedBy(this.getCurrentUser().getActualUsername());
-								question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
-								try {
-									performAction(question);
-								} catch (ELSException e) {
-									e.printStackTrace();
-									logger.error(e.toString());
-									model.addAttribute("error", e.getParameter());
-								}
-								
-							}else{
-								/**** Complete Task ****/
-								Map<String,String> properties=new HashMap<String, String>();
-								properties.put("pv_deviceId",String.valueOf(question.getId()));
-								properties.put("pv_deviceTypeId",String.valueOf(question.getType().getId()));
-								properties.put("pv_user",temp[0]);
-								properties.put("pv_endflag",question.getEndFlag());							
-								String strTaskId=wfDetails.getTaskId();
-								Task task=processService.findTaskById(strTaskId);
-								processService.completeTask(task,properties);	
-								if(question.getEndFlag()!=null&&!question.getEndFlag().isEmpty()
-										&&question.getEndFlag().equals("continue")){
-									/**** Create New Workflow Details ****/
-									ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-									Task newtask=processService.getCurrentTask(processInstance);
-									WorkflowDetails workflowDetails2 = null;
-									try {
-										workflowDetails2 = WorkflowDetails.create(question,newtask,ApplicationConstants.APPROVAL_WORKFLOW,level);
-									} catch (ELSException e) {
-										e.printStackTrace();
-										model.addAttribute("error", e.getParameter());
-									}
-									question.setWorkflowDetailsId(workflowDetails2.getId());
-									question.setTaskReceivedOn(new Date());								
-								}
-								/**** Update Old Workflow Details ****/
-								wfDetails.setStatus("COMPLETED");
-								wfDetails.setInternalStatus(question.getInternalStatus().getName());
-								wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
-								wfDetails.setCompletionTime(new Date());
-								if(!question.getType().getType().startsWith("questions_halfhourdiscussion_") 
-								&& !question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
-								&& !question.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
-									wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
-								}
-								wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
-								wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
-								wfDetails.merge();
-								/**** Update Motion ****/
-								question.setEditedOn(new Date());
-								question.setEditedBy(this.getCurrentUser().getActualUsername());
-								question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
-								try {
-									performAction(question);
-								} catch (ELSException e) {
-									e.printStackTrace();
-									logger.error(e.toString());
-									model.addAttribute("error", e.getParameter());
-								}
-							}
 							question.merge();
-							if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION)){
+							String internalStatusType = question.getInternalStatus().getType();
+							if(internalStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_ADMISSION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_ADMISSION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_ADMISSION)){
 								recommendAdmissionMsg.append(question.formatNumber()+",");
-							}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)){
+							}else if(internalStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+									|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_REJECTION)
+									|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_REJECTION)
+									|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_REJECTION)){
 								recommendRejectionMsg.append(question.formatNumber()+",");
-							}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
+							}else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+									|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+									|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+									|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)){
 								admittedMsg.append(question.formatNumber()+",");
-							}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_REJECTION)){
+							}else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+									|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+									|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+									|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)){
 								rejectedMsg.append(question.formatNumber()+",");
 							}
 						}
@@ -2185,55 +2419,50 @@ public class QuestionWorkflowController  extends BaseController{
 	private void populateBulkApprovalView(final Model model,
 			final HttpServletRequest request,final String locale){
 		/**** Request Params ****/
-		String strHouseType=request.getParameter("houseType");
-		String strSessionType=request.getParameter("sessionType");
-		String strSessionYear=request.getParameter("sessionYear");
-		String strQuestionType=request.getParameter("deviceType");			
-		String strStatus=request.getParameter("status");
-		String strRole=request.getParameter("role");
-		String strUsergroup=request.getParameter("usergroup");
-		String strUsergroupType=request.getParameter("usergroupType");
-		String strItemsCount=request.getParameter("itemscount");
-		String strFile=request.getParameter("file");
-		String strWorkflowSubType=request.getParameter("workflowSubType");
-		String strLocale=locale.toString();	
-		String assignee=this.getCurrentUser().getActualUsername();
-		String strAnsweringDate=request.getParameter("answeringDate");
-		String strGroup=request.getParameter("group");
-		if(strHouseType!=null&&!(strHouseType.isEmpty())
-				&&strSessionType!=null&&!(strSessionType.isEmpty())
-				&&strSessionYear!=null&&!(strSessionYear.isEmpty())
-				&&strQuestionType!=null&&!(strQuestionType.isEmpty())
-				&&strStatus!=null&&!(strStatus.isEmpty())
-				&&strRole!=null&&!(strRole.isEmpty())
-				&&strUsergroup!=null&&!(strUsergroup.isEmpty())
-				&&strUsergroupType!=null&&!(strUsergroupType.isEmpty())
-				&&strItemsCount!=null&&!(strItemsCount.isEmpty())
-				&&strFile!=null&&!(strFile.isEmpty())
-				&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){	
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strQuestionType = request.getParameter("deviceType");			
+		String strStatus = request.getParameter("status");
+		String strRole = request.getParameter("role");
+		String strUsergroup = request.getParameter("usergroup");
+		String strUsergroupType = request.getParameter("usergroupType");
+		String strItemsCount = request.getParameter("itemscount");
+		String strWorkflowSubType = request.getParameter("workflowSubType");
+		String strLocale = locale.toString();	
+		String assignee = this.getCurrentUser().getActualUsername();
+		String strAnsweringDate = request.getParameter("answeringDate");
+		String strGroup = request.getParameter("group");
+		if(strHouseType != null && !(strHouseType.isEmpty())
+				&& strSessionType != null && !(strSessionType.isEmpty())
+				&& strSessionYear !=null && !(strSessionYear.isEmpty())
+				&& strQuestionType!=null && !(strQuestionType.isEmpty())
+				&& strStatus != null && !(strStatus.isEmpty())
+				&& strRole != null && !(strRole.isEmpty())
+				&& strUsergroup != null && !(strUsergroup.isEmpty())
+				&& strUsergroupType != null && !(strUsergroupType.isEmpty())
+				&& strItemsCount!=null && !(strItemsCount.isEmpty())
+				&& strWorkflowSubType != null && !(strWorkflowSubType.isEmpty())){	
 			model.addAttribute("workflowSubType", strWorkflowSubType);
-			Date answeringDate=null;
-			if(strAnsweringDate!=null && !strAnsweringDate.isEmpty()){
-				 answeringDate=FormaterUtil.formatStringToDate(strAnsweringDate, ApplicationConstants.DB_DATEFORMAT);
+			Date answeringDate = null;
+			if(strAnsweringDate != null && !strAnsweringDate.isEmpty()){
+				 answeringDate=FormaterUtil.
+						 formatStringToDate(strAnsweringDate, ApplicationConstants.DB_DATEFORMAT);
 			}
 			/**** Workflow Details ****/
 			List<WorkflowDetails> workflowDetails = null;
 			try {
-				/*workflowDetails = WorkflowDetails.
-						findAll(strHouseType,strSessionType,strSessionYear,
-								strQuestionType,strStatus,strWorkflowSubType,
-								assignee,strItemsCount,strLocale,strFile);*/
 				workflowDetails = WorkflowDetails.
-						findAll(strHouseType,strSessionType,strSessionYear,
-								strQuestionType,strStatus,strWorkflowSubType,
-								assignee,strItemsCount,strLocale,strFile,strGroup,answeringDate);
+						findAll(strHouseType, strSessionType, strSessionYear,
+								strQuestionType, strStatus, strWorkflowSubType,
+								assignee, strItemsCount, strLocale, null, strGroup, answeringDate);
 			} catch (ELSException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			/**** Populating Bulk Approval VOs ****/
-			List<BulkApprovalVO> bulkapprovals=new ArrayList<BulkApprovalVO>();
-			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+			List<BulkApprovalVO> bulkapprovals = new ArrayList<BulkApprovalVO>();
+			NumberFormat format = FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
 			int counter = 0;
 			for(WorkflowDetails i:workflowDetails){
 				BulkApprovalVO bulkApprovalVO=new BulkApprovalVO();				
@@ -2270,53 +2499,35 @@ public class QuestionWorkflowController  extends BaseController{
 					bulkapprovals.add(bulkApprovalVO);
 				}else/**** Bulk Submission For Workflows ****/
 				{
-					/**** File Bulk Submission ****/
-					if(strFile!=null&&!strFile.isEmpty()&&!strFile.equals("-")
-							&&question.getFile()!=null
-							&&question.getFile()==Integer.parseInt(strFile)){
-						bulkApprovalVO.setId(String.valueOf(i.getId()));
-						bulkApprovalVO.setDeviceId(String.valueOf(question.getId()));				
-						if(question.getNumber()!=null){
-							bulkApprovalVO.setDeviceNumber(format.format(question.getNumber()));
-						}else{
-							bulkApprovalVO.setDeviceNumber("-");
-						}
-						bulkApprovalVO.setDeviceType(question.getType().getName());
-						bulkApprovalVO.setMember(question.getPrimaryMember().getFullname());
-						bulkApprovalVO.setSubject(question.getSubject());
-						if(question.getRemarks()!=null&&!question.getRemarks().isEmpty()){
-							bulkApprovalVO.setLastRemark(question.getRemarks());
-						}else{
-							bulkApprovalVO.setLastRemark("-");
-						}
-						bulkApprovalVO.setLastDecision(question.getInternalStatus().getName());
-						bulkApprovalVO.setLastRemarkBy(question.getEditedAs());
-						bulkApprovalVO.setCurrentStatus(i.getStatus());
-						bulkapprovals.add(bulkApprovalVO);
-					}/**** Status Wise Bulk Submission ****/
-					else if(strFile!=null&&!strFile.isEmpty()&&
-							strFile.equals("-")
-							){
-						bulkApprovalVO.setId(String.valueOf(i.getId()));
-						bulkApprovalVO.setDeviceId(String.valueOf(question.getId()));				
-						if(question.getNumber()!=null){
-							bulkApprovalVO.setDeviceNumber(format.format(question.getNumber()));
-						}else{
-							bulkApprovalVO.setDeviceNumber("-");
-						}
-						bulkApprovalVO.setDeviceType(question.getType().getName());
-						bulkApprovalVO.setMember(question.getPrimaryMember().getFullname());
-						bulkApprovalVO.setSubject(question.getSubject());
-						if(question.getRemarks()!=null&&!question.getRemarks().isEmpty()){
-							bulkApprovalVO.setLastRemark(question.getRemarks());
-						}else{
-							bulkApprovalVO.setLastRemark("-");
-						}
-						bulkApprovalVO.setLastDecision(question.getInternalStatus().getName());
-						bulkApprovalVO.setLastRemarkBy(question.getEditedAs());	
-						bulkApprovalVO.setCurrentStatus(i.getStatus());
-						bulkapprovals.add(bulkApprovalVO);
+					bulkApprovalVO.setId(String.valueOf(i.getId()));
+					bulkApprovalVO.setDeviceId(String.valueOf(question.getId()));				
+					if(question.getNumber()!=null){
+						bulkApprovalVO.setDeviceNumber(format.format(question.getNumber()));
+					}else{
+						bulkApprovalVO.setDeviceNumber("-");
 					}
+					bulkApprovalVO.setDeviceType(question.getType().getName());
+					bulkApprovalVO.setMember(question.getPrimaryMember().getFullname());
+					if(question.getRevisedSubject() != null && !question.getRevisedSubject().equals("")){
+						bulkApprovalVO.setSubject(question.getRevisedSubject());
+					}else{
+						bulkApprovalVO.setSubject(question.getSubject());
+					}
+					if(question.getRevisedQuestionText() != null && !question.getRevisedQuestionText().isEmpty()){
+						bulkApprovalVO.setBriefExpanation(question.getRevisedQuestionText());
+					}else{
+						bulkApprovalVO.setBriefExpanation(question.getQuestionText());
+					}
+					
+					if(question.getRemarks()!=null&&!question.getRemarks().isEmpty()){
+						bulkApprovalVO.setLastRemark(question.getRemarks());
+					}else{
+						bulkApprovalVO.setLastRemark("-");
+					}
+					bulkApprovalVO.setLastDecision(question.getInternalStatus().getName());
+					bulkApprovalVO.setLastRemarkBy(question.getEditedAs());	
+					bulkApprovalVO.setCurrentStatus(i.getStatus());
+					bulkapprovals.add(bulkApprovalVO);
 				}	
 				
 				if(counter == 0){
@@ -2331,212 +2542,1885 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 	}
 
+	
 	private void performAction(Question domain) throws ELSException {
-		String internalStatus=domain.getInternalStatus().getType();
-		String recommendationStatus=domain.getRecommendationStatus().getType();
+		String deviceTypeType = domain.getType().getType();
+		if(deviceTypeType.equals(ApplicationConstants.STARRED_QUESTION)) {
+			performActionOnStarredQuestion(domain);
+		}else if(deviceTypeType.equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+			performActionOnUnstarredQuestion(domain);			
+		}else if(deviceTypeType.equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+			performActionOnShortNoticeQuestion(domain);
+		}else if(deviceTypeType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+			performActionOnHDQQuestion(domain);
+		}
+	}
+	
+	private void performActionOnStarredQuestion(final Question domain) throws ELSException {
+		String internalStatus = domain.getInternalStatus().getType();
+		String recommendationStatus = domain.getRecommendationStatus().getType();
 		/**** Admission ****/
 		if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-				&&recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
-			performActionOnAdmission(domain);
-		}
-		/**** Name clubbing is approved ****/
-		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_NAMECLUBBING)&&
-				recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_NAMECLUBBING)){
-			performActionOnNameClubbing(domain);
-		}
-		/**** Name clubbing is rejected ****/		
-		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_NAMECLUBBING)&&
-				recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_NAMECLUBBING)){
-			performActionOnNameClubbingRejection(domain);
-		}	
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
+			performActionOnStarredAdmission(domain);
+		}		
 		/**** Rejection ****/
 		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
 				&&recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)){
-			performActionOnRejection(domain);
-		}	
-		/**** Convert to unstarred ****/
-		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED)
-				&&recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED)){
-			performActionOnConvertToUnstarred(domain);
+			performActionOnStarredRejection(domain);
 		}
 		/**** Convert to unstarred and admit ****/
 		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
 				&&recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)){
-			performActionOnConvertToUnstarredAndAdmit(domain);
+			performActionOnStarredConvertToUnstarredAndAdmit(domain);
 		}
 		/**** Convert to unstarred and admit(previous sessions) ****/
 		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED)
 				&&recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED)){
-			performActionOnConvertToUnstarredAndAdmitClubbed(domain);
-		}	
-		/**** Clarification not received ****/
-		else if(internalStatus.startsWith("QUESTION_RECOMMEND_CLARIFICATION_NOT_RECEIVED")
-				&&recommendationStatus.startsWith("QUESTION_RECOMMEND_CLARIFICATION_NOT_RECEIVED")){
-			performActionOnClarificationNotReceived(domain);
-		}	
-		/**** Group Changed ****/
-		else if(internalStatus.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)&&
-				recommendationStatus.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)){
-			performActionOnGroupChange(domain);
+			// TODO
+			performActionOnStarredConvertToUnstarredAndAdmitClubbed(domain);
 		}
-		/**** To be discussed with Vikas****/
-		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_REPEATADMISSION)
-				&&recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REPEATADMISSION)){
-			performActionOnAdmission(domain);
+		/*** Clarification Asked  From Department***/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
+			performActionOnStarredClarificationNeededFromDepartment(domain);
 		}
-		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_REPEATREJECTION)
-				&&recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REPEATREJECTION)){
-			performActionOnRejection(domain);
-		}else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-				&& recommendationStatus.equals("question_processed_clarificationReceived")){
-			performActionOnClarificationNeededFromMember(domain);
+		/*** Clarification Asked From Member***/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+			performActionOnStarredClarificationNeededFromMember(domain);
+		}
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+			performActionOnStarredClarificationNeededFromMemberAndDepartment(domain);
+		}
+		
+		/**** Clarification not received From Department ****/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+			performActionOnStarredClarificationNotReceived(domain);
+		}
+		/**** Clarification not received From Member ****/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+			performActionOnStarredClarificationNotReceived(domain);
+		}
+		/**** Clarification received FROM Member ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnStarredClarificationReceived(domain);
+		}
+		/**** Clarification received From Department ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnStarredClarificationReceived(domain);
+		}
+		/**** Clarification received FROM Member & Department ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnStarredClarificationReceived(domain);
+		}
+		/**** Clubbing is approved ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING)){
+			performActionOnStarredClubbing(domain);
+		}
+		/**** Clubbing is rejected ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_CLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_CLUBBING)){
+			performActionOnStarredClubbingRejection(domain);
+		}
+		/**** Name clubbing is approved ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_NAMECLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_NAMECLUBBING)){
+			performActionOnStarredNameClubbing(domain);
+		}		
+		/**** Name clubbing is rejected ****/		
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_NAMECLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_NAMECLUBBING)){
+			performActionOnStarredNameClubbingRejection(domain);
+		}	
+		/**** Clubbing Post Admission is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING_POST_ADMISSION)){
+			performActionOnStarredClubbingPostAdmission(domain);
+		}
+		/**** Clubbing Post Admission is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_CLUBBING_POST_ADMISSION)){
+			performActionOnStarredClubbingRejectionPostAdmission(domain);
+		}
+		/**** Clubbing With Previous Session Unstarred is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION)){
+			performActionOnStarredClubbingWithUnstarredFromPreviousSession(domain);
+		}
+		/**** Clubbing With Previous Session Unstarred is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION)){
+			performActionOnStarredClubbingWithUnstarredFromPreviousSessionRejection(domain);
+		}
+		/**** Unclubbing is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_UNCLUBBING)){
+			performActionOnStarredUnclubbing(domain);
+		}
+		/**** Unclubbing is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_REJECT_UNCLUBBING)){
+			performActionOnStarredUnclubbingRejection(domain);
+		}
+		/**** Admission Due To Reverse Clubbing is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)){
+			performActionOnStarredAdmissionDueToReverseClubbing(domain);
 		}
 	}
 
-	private void performActionOnAdmission(Question domain) {
+	private void performActionOnStarredAdmission(final Question domain) throws ELSException {
 		domain.setStatus(domain.getInternalStatus());
-		if(domain.getRevisedSubject()==null){			
-			domain.setRevisedSubject(domain.getSubject());			
-		}else if(domain.getRevisedSubject().isEmpty()){
-			domain.setRevisedSubject(domain.getSubject());
+		if(domain.getRevisedSubject() == null 
+				||domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject( domain.getSubject() );			
 		}
-		if(domain.getRevisedQuestionText()==null){			
+		
+		if(domain.getRevisedQuestionText() == null 
+				|| domain.getRevisedQuestionText().isEmpty()){			
 			domain.setRevisedQuestionText(domain.getQuestionText());			
-		}else if(domain.getRevisedQuestionText().isEmpty()){
-			domain.setRevisedQuestionText(domain.getQuestionText());
 		}
-		if(domain.getRevisedReason()==null){
-			domain.setRevisedReason(domain.getReason());
-		}else if(domain.getRevisedReason().isEmpty()){
-			domain.setRevisedReason(domain.getReason());
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//			Status nameClubbing = Status.
+//					findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
+//			for(ClubbedEntity i:clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+//					question.setRevisedSubject(subject);
+//					question.setRevisedQuestionText(questionText);
+//					question.setStatus(domain.getInternalStatus());
+//					question.setInternalStatus(domain.getInternalStatus());
+//					question.setRecommendationStatus(domain.getInternalStatus());
+//					question.simpleMerge();
+//				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(nameClubbing);
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
+	}
+
+	private void performActionOnStarredConvertToUnstarredAndAdmit(
+			Question domain) throws ELSException {
+		DeviceType newDeviceType = DeviceType.
+				findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
+		DeviceType originalDeviceType=DeviceType.
+				findByType(ApplicationConstants.STARRED_QUESTION,domain.getLocale());
+		domain.setType(newDeviceType);
+		domain.setOriginalType(originalDeviceType);
+		Status finalStatus = Status.
+				findByType(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION, domain.getLocale());
+		domain.setStatus(finalStatus);
+		domain.setInternalStatus(finalStatus);
+		if(domain.getRevisedSubject() == null 
+			|| domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
 		}
-		if(domain.getRevisedBriefExplanation()==null){
-			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
-		}else if(domain.getRevisedBriefExplanation().isEmpty()){
-			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
+		
+		if(domain.getRevisedQuestionText() == null
+			|| domain.getRevisedQuestionText().isEmpty()) {			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
 		}
-		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
-		if(clubbedEntities!=null){
-			String subject=null;
-			String questionText=null;
-			String reasonText=null;
-			String briefExplainationText=null;
-			if(domain.getRevisedSubject()!=null && !domain.getRevisedSubject().isEmpty()){
-				subject=domain.getRevisedSubject();				
+		
+//		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//			
+//			Status nameClubbing = Status.
+//					findByType(ApplicationConstants.QUESTION_UNSTARRED_PUTUP_NAMECLUBBING, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+//					question.setRevisedSubject(subject);
+//					question.setRevisedQuestionText(questionText);
+//					question.setType(newDeviceType);
+//					question.setOriginalType(originalDeviceType);
+//					question.setStatus(domain.getStatus());
+//					question.setInternalStatus(domain.getInternalStatus());
+//					question.setInternalStatus(domain.getRecommendationStatus());
+//				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(nameClubbing);
+//				}			
+//				question.simpleMerge();
+//			}
+//		}
+//		
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		// Added so as to avoid OptimisticLockException
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
+	}
+	
+	private void performActionOnStarredConvertToUnstarredAndAdmitClubbed(
+			Question domain) {
+		DeviceType newDeviceType = DeviceType.
+				findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
+		DeviceType originalDeviceType = DeviceType.
+				findByType(ApplicationConstants.STARRED_QUESTION,domain.getLocale());
+		domain.setType(newDeviceType);
+		domain.setOriginalType(originalDeviceType);
+		Status finalStatus = Status.
+				findByType(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION, domain.getLocale());
+		domain.setStatus(finalStatus);
+		domain.setInternalStatus(finalStatus);
+		
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+		if(clubbedEntities != null){
+			String subject = null;
+			String questionText = null;
+					
+			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+				subject = domain.getRevisedSubject();				
 			}else{
-				subject=domain.getSubject();
+				subject = domain.getSubject();
 			}
-			if(domain.getRevisedQuestionText()!=null && !domain.getRevisedQuestionText().isEmpty()){
-				questionText=domain.getRevisedQuestionText();
+			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+				questionText = domain.getRevisedQuestionText();
 			}else{
-				questionText=domain.getQuestionText();
+				questionText = domain.getQuestionText();
 			}
-			if(domain.getRevisedReason()!=null && !domain.getRevisedReason().isEmpty()){
-				reasonText=domain.getRevisedQuestionText();
-			}else{
-				reasonText=domain.getReason();
-			}
-			if(domain.getRevisedBriefExplanation()!=null && !domain.getRevisedBriefExplanation().isEmpty()){
-				briefExplainationText=domain.getRevisedQuestionText();
-			}else{
-				briefExplainationText=domain.getBriefExplanation();
-			}
-			
-			Status nameClubbing=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
-			if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
-				for(ClubbedEntity i:clubbedEntities){
-					Question question=i.getQuestion();
+		
+			Status nameClubbing = Status.
+					findByType(ApplicationConstants.QUESTION_UNSTARRED_PUTUP_NAMECLUBBING, domain.getLocale());
+			for(ClubbedEntity i : clubbedEntities){
+				Question question = i.getQuestion();
+				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
 					question.setRevisedSubject(subject);
 					question.setRevisedQuestionText(questionText);
-					question.setRevisedReason(reasonText);
-					question.setRevisedBriefExplanation(briefExplainationText);
-					question.setStatus(domain.getInternalStatus());
+					question.setType(newDeviceType);
+					question.setOriginalType(originalDeviceType);
+					question.setStatus(domain.getStatus());
 					question.setInternalStatus(domain.getInternalStatus());
-					question.setRecommendationStatus(domain.getInternalStatus());
-					question.simpleMerge();
-				}
-			}else if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
-				
-					for(ClubbedEntity i:clubbedEntities){
-						Question question=i.getQuestion();
-						question.setRevisedSubject(subject);
-						question.setRevisedQuestionText(questionText);
-						question.setRevisedReason(reasonText);
-						question.setRevisedBriefExplanation(briefExplainationText);
-						question.setStatus(domain.getInternalStatus());
-						question.setInternalStatus(domain.getInternalStatus());
-						question.setRecommendationStatus(domain.getInternalStatus());
-						question.simpleMerge();	
-					}
-			}else{
-				for(ClubbedEntity i:clubbedEntities){
-					Question question=i.getQuestion();
-					if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
-						question.setRevisedSubject(subject);
-						question.setRevisedQuestionText(questionText);
-						question.setRevisedReason(reasonText);
-						question.setRevisedBriefExplanation(briefExplainationText);
-						question.setStatus(domain.getInternalStatus());
-						question.setInternalStatus(domain.getInternalStatus());
-						question.setRecommendationStatus(domain.getInternalStatus());
-						question.simpleMerge();
-					}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
-						question.setInternalStatus(nameClubbing);
-						question.simpleMerge();
-					}
-				}
+					question.setInternalStatus(domain.getRecommendationStatus());
+				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+					question.setInternalStatus(nameClubbing);
+				}			
+				question.simpleMerge();
 			}
 		}
 		
-		if(domain.getParent() != null) {
-			ClubbedEntity.updateClubbing(domain);
+	}
+	
+	private void performActionOnStarredRejection(Question domain) throws ELSException {
+		domain.setStatus(domain.getInternalStatus());
+		if(domain.getRevisedSubject() == null 
+			|| domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null 
+			|| domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//						
+//			Status putUpForRejection = Status.
+//					findByType(ApplicationConstants.QUESTION_PUTUP_REJECTION, domain.getLocale());
+//			for(ClubbedEntity i:clubbedEntities){
+//					Question question=i.getQuestion();
+//					String internalStatusType = question.getInternalStatus().getType();
+//					if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+//						question.setRevisedSubject(subject);
+//						question.setRevisedQuestionText(questionText);
+//						question.setStatus(domain.getInternalStatus());
+//						question.setInternalStatus(domain.getInternalStatus());
+//						question.setRecommendationStatus(domain.getInternalStatus());
+//						question.simpleMerge();
+//					}else if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//						question.setInternalStatus(putUpForRejection);
+//						question.simpleMerge();
+//					}
+//				}
+//			
+//		}
+//		
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		
+		
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		// Added so as to avoid OptimisticLockException
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
+		
+	}
 
-			// Hack (07May2014): Commenting the following line results in 
-			// OptimisticLockException.
-			domain.setVersion(domain.getVersion() + 1);
+	private void performActionOnStarredClarificationReceived(Question domain) {
+		Status newStatus = Status.
+				findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+		domain.setInternalStatus(newStatus);
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			Status status = Status.
+//					findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				if(question.getInternalStatus().getType().
+//						equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(status);
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}else{
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+		
+	}
+
+	private void performActionOnStarredClarificationNotReceived(Question domain) {
+		Status newStatus = Status.
+				findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+		domain.setInternalStatus(newStatus);
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			Status status = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(status);
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}else{
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+		
+	}
+
+	private void performActionOnStarredClarificationNeededFromDepartment(Question domain) {
+		
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
 		}
 	}
 
-	private void performActionOnNameClubbing(Question domain) {
-		/**** status of question is changed to final admission
-		 * its revised subject,question text,revised reason and revised brief explaination are updated (assumption that admitted
-		 * question has right revised texts)
-		 * its clubbing is updated ****/
-		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
-		domain.setStatus(finalStatus);
-		domain.setInternalStatus(finalStatus);
-		domain.setRecommendationStatus(finalStatus);	
-
-		if(domain.getParent().getRevisedSubject()!=null && !domain.getParent().getRevisedSubject().isEmpty()){			
-			domain.setRevisedSubject(domain.getParent().getRevisedSubject());			
+	private void performActionOnStarredClarificationNeededFromMember(Question domain) {
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
 		}
-
-		if(domain.getParent().getRevisedQuestionText()!=null && !domain.getParent().getRevisedQuestionText().isEmpty()){			
-			domain.setRevisedQuestionText(domain.getParent().getRevisedQuestionText());			
+		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}		
+	}
+	
+	private void performActionOnStarredClarificationNeededFromMemberAndDepartment(Question domain) {
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
 		}
-
-		if(domain.getParent().getRevisedReason()!=null && !domain.getParent().getRevisedReason().isEmpty()){			
-			domain.setRevisedReason(domain.getParent().getRevisedReason());			
+		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
 		}
+		
+	}
 
-		if(domain.getParent().getRevisedBriefExplanation()!=null && !domain.getParent().getRevisedBriefExplanation().isEmpty()){			
-			domain.setRevisedBriefExplanation(domain.getParent().getRevisedBriefExplanation());			
-		}
+	private void performActionOnStarredClubbing(Question domain) throws ELSException {
+		
+		Question.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnStarredClubbingRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
 
-		ClubbedEntity.updateClubbing(domain);
+	private void performActionOnStarredNameClubbing(Question domain) throws ELSException {
+//		/**** status of question is changed to final admission
+//		 * its revised subject,question text are updated (assumption that admitted
+//		 * question has right revised texts)
+//		 * its clubbing is updated ****/
+//		Status finalStatus = Status.
+//				findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
+//		domain.setStatus(finalStatus);
+//		domain.setInternalStatus(finalStatus);
+//		domain.setRecommendationStatus(finalStatus);	
+//
+//		if(domain.getParent().getRevisedSubject()!=null 
+//				&& !domain.getParent().getRevisedSubject().isEmpty()){			
+//			domain.setRevisedSubject(domain.getParent().getRevisedSubject());			
+//		}
+//
+//		if(domain.getParent().getRevisedQuestionText()!=null 
+//				&& !domain.getParent().getRevisedQuestionText().isEmpty()){			
+//			domain.setRevisedQuestionText(domain.getParent().getRevisedQuestionText());			
+//		}
+//
+//		ClubbedEntity.updateClubbing(domain);
+		
+		Question.updateClubbing(domain);
 
 		// Hack (07May2014): Commenting the following line results in 
 		// OptimisticLockException.
 		domain.setVersion(domain.getVersion() + 1);
 		
-		domain.setEndFlag("end");
+		if(!domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+			domain.setActor(null);
+			domain.setLocalizedActorName("");
+			domain.setWorkflowDetailsId(null);
+			domain.setLevel("1");
+			domain.setWorkflowStarted("NO");
+			domain.setEndFlag(null);		
+		}		
+	}
+	
+	private void performActionOnStarredNameClubbingRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+//		domain = ClubbedEntity.unclub(domain);
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
 		domain.setActor(null);
 		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);	
 	}
 
-	private void performActionOnNameClubbingRejection(Question domain) {
+	private void performActionOnStarredClubbingPostAdmission(Question domain) throws ELSException {
+		
+		Question.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnStarredClubbingRejectionPostAdmission(Question domain) throws ELSException {
 		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
-		domain = ClubbedEntity.unclub(domain);
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnStarredClubbingWithUnstarredFromPreviousSession(Question domain) throws ELSException {
+		
+		Question.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnStarredClubbingWithUnstarredFromPreviousSessionRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnStarredUnclubbing(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnStarredUnclubbingRejection(Question domain) throws ELSException {
+		/** Back to clubbed state as it was before sending for unclubbing **/
+		domain.setInternalStatus(domain.getParent().getInternalStatus());
+		domain.setRecommendationStatus(domain.getParent().getInternalStatus());
+		domain.simpleMerge();
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnStarredAdmissionDueToReverseClubbing(Question domain) throws ELSException {
+		Status admitStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
+		Workflow processWorkflow = Workflow.findByStatus(admitStatus, domain.getLocale());
+		UserGroupType assistantUGT = UserGroupType.findByType(ApplicationConstants.ASSISTANT, domain.getLocale());
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		WorkflowDetails.startProcessAtGivenLevel(domain, ApplicationConstants.APPROVAL_WORKFLOW, processWorkflow, assistantUGT, 6, domain.getLocale());
+	}
+	
+	private void performActionOnUnstarredQuestion(final Question domain) throws ELSException {
+		String internalStatus = domain.getInternalStatus().getType();
+		String recommendationStatus = domain.getRecommendationStatus().getType();
+		/**** Admission ****/
+		if(internalStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)){
+			performActionOnUnstarredAdmission(domain);
+		}		
+		/**** Rejection ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+				&&recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)){
+			performActionOnUnstarredRejection(domain);
+		}
+		/*** Clarification Asked  From Department***/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
+			performActionOnUnstarredClarificationNeededFromDepartment(domain);
+		}
+		/*** Clarification Asked From Member***/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+			performActionOnUnstarredClarificationNeededFromMember(domain);
+		}
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+			performActionOnUnstarredClarificationNeededFromMemberAndDepartment(domain);
+		}
+		
+		/**** Clarification not received From Department ****/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+			performActionOnUnstarredClarificationNotReceived(domain);
+		}
+		/**** Clarification not received From Member ****/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+			performActionOnUnstarredClarificationNotReceived(domain);
+		}
+		/**** Clarification received FROM Member ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnUnstarredClarificationReceived(domain);
+		}
+		/**** Clarification received From Department ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnUnstarredClarificationReceived(domain);
+		}
+		/**** Clarification received FROM Member & Department ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnUnstarredClarificationReceived(domain);
+		}
+		/**** Clubbing is approved ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLUBBING)){
+			performActionOnUnstarredClubbing(domain);
+		}
+		/**** Clubbing is rejected ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECT_CLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECT_CLUBBING)){
+			performActionOnUnstarredClubbingRejection(domain);
+		}
+		/**** Name clubbing is approved ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_NAMECLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_NAMECLUBBING)){
+			performActionOnUnstarredNameClubbing(domain);
+		}		
+		/**** Name clubbing is rejected ****/		
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECT_NAMECLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECT_NAMECLUBBING)){
+			performActionOnUnstarredNameClubbingRejection(domain);
+		}	
+		/**** Clubbing Post Admission is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLUBBING_POST_ADMISSION)){
+			performActionOnUnstarredClubbingPostAdmission(domain);
+		}
+		/**** Clubbing Post Admission is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECT_CLUBBING_POST_ADMISSION)){
+			performActionOnUnstarredClubbingRejectionPostAdmission(domain);
+		}
+		/**** Clubbing With Previous Session Unstarred is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION)){
+			performActionOnUnstarredClubbingWithUnstarredFromPreviousSession(domain);
+		}
+		/**** Clubbing With Previous Session Unstarred is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECT_CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION)){
+			performActionOnUnstarredClubbingWithUnstarredFromPreviousSessionRejection(domain);
+		}
+		/**** Unclubbing is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_UNCLUBBING)){
+			performActionOnUnstarredUnclubbing(domain);
+		}
+		/**** Unclubbing is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECT_UNCLUBBING)){
+			performActionOnUnstarredUnclubbingRejection(domain);
+		}
+		/**** Admission Due To Reverse Clubbing is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)){
+			performActionOnUnstarredAdmissionDueToReverseClubbing(domain);
+		}
+	}
+
+	private void performActionOnUnstarredAdmission(final Question domain) throws ELSException {
+		domain.setStatus(domain.getInternalStatus());
+		if(domain.getRevisedSubject() == null 
+				||domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject( domain.getSubject() );			
+		}
+		
+		if(domain.getRevisedQuestionText() == null 
+				|| domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//			Status nameClubbing = Status.
+//					findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
+//			for(ClubbedEntity i:clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+//					question.setRevisedSubject(subject);
+//					question.setRevisedQuestionText(questionText);
+//					question.setStatus(domain.getInternalStatus());
+//					question.setInternalStatus(domain.getInternalStatus());
+//					question.setRecommendationStatus(domain.getInternalStatus());
+//					question.simpleMerge();
+//				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(nameClubbing);
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
+	}
+
+	private void performActionOnUnstarredConvertToUnstarredAndAdmit(
+			Question domain) throws ELSException {
+		DeviceType newDeviceType = DeviceType.
+				findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
+		DeviceType originalDeviceType=DeviceType.
+				findByType(ApplicationConstants.STARRED_QUESTION,domain.getLocale());
+		domain.setType(newDeviceType);
+		domain.setOriginalType(originalDeviceType);
+		Status finalStatus = Status.
+				findByType(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION, domain.getLocale());
+		domain.setStatus(finalStatus);
+		domain.setInternalStatus(finalStatus);
+		if(domain.getRevisedSubject() == null 
+			|| domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null
+			|| domain.getRevisedQuestionText().isEmpty()) {			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+//		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//			
+//			Status nameClubbing = Status.
+//					findByType(ApplicationConstants.QUESTION_UNSTARRED_PUTUP_NAMECLUBBING, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+//					question.setRevisedSubject(subject);
+//					question.setRevisedQuestionText(questionText);
+//					question.setType(newDeviceType);
+//					question.setOriginalType(originalDeviceType);
+//					question.setStatus(domain.getStatus());
+//					question.setInternalStatus(domain.getInternalStatus());
+//					question.setInternalStatus(domain.getRecommendationStatus());
+//				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(nameClubbing);
+//				}			
+//				question.simpleMerge();
+//			}
+//		}
+//		
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		
+		// Added so as to avoid OptimisticLockException
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
+	}
+	
+	private void performActionOnUnstarredConvertToUnstarredAndAdmitClubbed(
+			Question domain) {
+		DeviceType newDeviceType = DeviceType.
+				findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
+		DeviceType originalDeviceType = DeviceType.
+				findByType(ApplicationConstants.STARRED_QUESTION,domain.getLocale());
+		domain.setType(newDeviceType);
+		domain.setOriginalType(originalDeviceType);
+		Status finalStatus = Status.
+				findByType(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION, domain.getLocale());
+		domain.setStatus(finalStatus);
+		domain.setInternalStatus(finalStatus);
+		
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+		if(clubbedEntities != null){
+			String subject = null;
+			String questionText = null;
+					
+			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+				subject = domain.getRevisedSubject();				
+			}else{
+				subject = domain.getSubject();
+			}
+			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+				questionText = domain.getRevisedQuestionText();
+			}else{
+				questionText = domain.getQuestionText();
+			}
+		
+			Status nameClubbing = Status.
+					findByType(ApplicationConstants.QUESTION_UNSTARRED_PUTUP_NAMECLUBBING, domain.getLocale());
+			for(ClubbedEntity i : clubbedEntities){
+				Question question = i.getQuestion();
+				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+					question.setRevisedSubject(subject);
+					question.setRevisedQuestionText(questionText);
+					question.setType(newDeviceType);
+					question.setOriginalType(originalDeviceType);
+					question.setStatus(domain.getStatus());
+					question.setInternalStatus(domain.getInternalStatus());
+					question.setInternalStatus(domain.getRecommendationStatus());
+				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+					question.setInternalStatus(nameClubbing);
+				}			
+				question.simpleMerge();
+			}
+		}
+		
+	}
+	
+	private void performActionOnUnstarredRejection(Question domain) throws ELSException {
+		domain.setStatus(domain.getInternalStatus());
+		if(domain.getRevisedSubject() == null 
+			|| domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null 
+			|| domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//						
+//			Status putUpForRejection = Status.
+//					findByType(ApplicationConstants.QUESTION_PUTUP_REJECTION, domain.getLocale());
+//			for(ClubbedEntity i:clubbedEntities){
+//					Question question=i.getQuestion();
+//					String internalStatusType = question.getInternalStatus().getType();
+//					if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
+//						question.setRevisedSubject(subject);
+//						question.setRevisedQuestionText(questionText);
+//						question.setStatus(domain.getInternalStatus());
+//						question.setInternalStatus(domain.getInternalStatus());
+//						question.setRecommendationStatus(domain.getInternalStatus());
+//						question.simpleMerge();
+//					}else if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//						question.setInternalStatus(putUpForRejection);
+//						question.simpleMerge();
+//					}
+//				}
+//			
+//		}
+//		
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		
+		
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		
+		// Added so as to avoid OptimisticLockException
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
+		
+	}
+
+	private void performActionOnUnstarredClarificationReceived(Question domain) {
+		Status newStatus = Status.
+				findByType(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+		domain.setInternalStatus(newStatus);
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			Status status = Status.
+//					findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				if(question.getInternalStatus().getType().
+//						equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(status);
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}else{
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+		
+	}
+
+	private void performActionOnUnstarredClarificationNotReceived(Question domain) {
+		Status newStatus = Status.
+				findByType(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+		domain.setInternalStatus(newStatus);
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			Status status = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(status);
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}else{
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+		
+	}
+
+	private void performActionOnUnstarredClarificationNeededFromDepartment(Question domain) {
+		
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+	}
+
+	private void performActionOnUnstarredClarificationNeededFromMember(Question domain) {
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}		
+	}
+	
+	private void performActionOnUnstarredClarificationNeededFromMemberAndDepartment(Question domain) {
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+	}
+
+	private void performActionOnUnstarredClubbing(Question domain) throws ELSException {
+		
+		Question.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnstarredClubbingRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+
+	private void performActionOnUnstarredNameClubbing(Question domain) throws ELSException {
+//		/**** status of question is changed to final admission
+//		 * its revised subject,question text are updated (assumption that admitted
+//		 * question has right revised texts)
+//		 * its clubbing is updated ****/
+//		Status finalStatus = Status.
+//				findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
+//		domain.setStatus(finalStatus);
+//		domain.setInternalStatus(finalStatus);
+//		domain.setRecommendationStatus(finalStatus);	
+//
+//		if(domain.getParent().getRevisedSubject()!=null 
+//				&& !domain.getParent().getRevisedSubject().isEmpty()){			
+//			domain.setRevisedSubject(domain.getParent().getRevisedSubject());			
+//		}
+//
+//		if(domain.getParent().getRevisedQuestionText()!=null 
+//				&& !domain.getParent().getRevisedQuestionText().isEmpty()){			
+//			domain.setRevisedQuestionText(domain.getParent().getRevisedQuestionText());			
+//		}
+//
+//		ClubbedEntity.updateClubbing(domain);
+		
+		Question.updateClubbing(domain);
+
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		if(!domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+			domain.setActor(null);
+			domain.setLocalizedActorName("");
+			domain.setWorkflowDetailsId(null);
+			domain.setLevel("1");
+			domain.setWorkflowStarted("NO");
+			domain.setEndFlag(null);		
+		}
+	}
+	
+	private void performActionOnUnstarredNameClubbingRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+//		domain = ClubbedEntity.unclub(domain);
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);	
+	}
+
+	private void performActionOnUnstarredClubbingPostAdmission(Question domain) throws ELSException {
+		
+		Question.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnstarredClubbingRejectionPostAdmission(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnstarredClubbingWithUnstarredFromPreviousSession(Question domain) throws ELSException {
+		
+		Question.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnstarredClubbingWithUnstarredFromPreviousSessionRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnstarredUnclubbing(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnstarredUnclubbingRejection(Question domain) throws ELSException {
+		/** Back to clubbed state as it was before sending for unclubbing **/
+		domain.setInternalStatus(domain.getParent().getInternalStatus());
+		domain.setRecommendationStatus(domain.getParent().getInternalStatus());
+		domain.simpleMerge();
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnstarredAdmissionDueToReverseClubbing(Question domain) throws ELSException {
+		Status admitStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
+		Workflow processWorkflow = Workflow.findByStatus(admitStatus, domain.getLocale());
+		UserGroupType assistantUGT = UserGroupType.findByType(ApplicationConstants.ASSISTANT, domain.getLocale());
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		WorkflowDetails.startProcessAtGivenLevel(domain, ApplicationConstants.APPROVAL_WORKFLOW, processWorkflow, assistantUGT, 6, domain.getLocale());
+	}
+	
+	private void performActionOnShortNoticeQuestion(final Question domain) throws ELSException {
+		String internalStatus = domain.getInternalStatus().getType();
+		String recommendationStatus = domain.getRecommendationStatus().getType();
+		/**** Admission ****/
+		if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)){
+			performActionOnShortNoticeAdmission(domain);
+		}		
+		/**** Rejection ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+				&&recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)){
+			performActionOnShortNoticeRejection(domain);
+		}
+		/**** Convert to unstarred and admit ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+				&&recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)){
+			performActionOnShortNoticeConvertToUnstarredAndAdmit(domain);
+		}
+		/**** Convert to unstarred and admit(previous sessions) ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED)
+				&&recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED)){
+			// TODO
+			performActionOnShortNoticeConvertToUnstarredAndAdmitClubbed(domain);
+		}
+		/*** Clarification Asked  From Department***/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
+			performActionOnShortNoticeClarificationNeededFromDepartment(domain);
+		}
+		/*** Clarification Asked From Member***/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+			performActionOnShortNoticeClarificationNeededFromMember(domain);
+		}
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+			performActionOnShortNoticeClarificationNeededFromMemberAndDepartment(domain);
+		}
+		
+		/**** Clarification not received From Department ****/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+			performActionOnShortNoticeClarificationNotReceived(domain);
+		}
+		/**** Clarification not received From Member ****/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+			performActionOnShortNoticeClarificationNotReceived(domain);
+		}
+		/**** Clarification received FROM Member ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnShortNoticeClarificationReceived(domain);
+		}
+		/**** Clarification received From Department ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnShortNoticeClarificationReceived(domain);
+		}
+		/**** Clarification received FROM Member & Department ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnShortNoticeClarificationReceived(domain);
+		}
+		/**** Clubbing is approved ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLUBBING)){
+			performActionOnShortNoticeClubbing(domain);
+		}
+		/**** Clubbing is rejected ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECT_CLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECT_CLUBBING)){
+			performActionOnShortNoticeClubbingRejection(domain);
+		}
+		/**** Name clubbing is approved ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_NAMECLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_NAMECLUBBING)){
+			performActionOnShortNoticeNameClubbing(domain);
+		}		
+		/**** Name clubbing is rejected ****/		
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECT_NAMECLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECT_NAMECLUBBING)){
+			performActionOnShortNoticeNameClubbingRejection(domain);
+		}	
+		/**** Clubbing Post Admission is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLUBBING_POST_ADMISSION)){
+			performActionOnShortNoticeClubbingPostAdmission(domain);
+		}
+		/**** Clubbing Post Admission is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECT_CLUBBING_POST_ADMISSION)){
+			performActionOnShortNoticeClubbingRejectionPostAdmission(domain);
+		}
+		/**** Clubbing With Previous Session Unstarred is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION)){
+			performActionOnShortNoticeClubbingWithUnstarredFromPreviousSession(domain);
+		}
+		/**** Clubbing With Previous Session Unstarred is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECT_CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION)){
+			performActionOnShortNoticeClubbingWithUnstarredFromPreviousSessionRejection(domain);
+		}
+		/**** Unclubbing is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_UNCLUBBING)){
+			performActionOnShortNoticeUnclubbing(domain);
+		}
+		/**** Unclubbing is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECT_UNCLUBBING)){
+			performActionOnShortNoticeUnclubbingRejection(domain);
+		}
+		/**** Admission Due To Reverse Clubbing is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)){
+			performActionOnShortNoticeAdmissionDueToReverseClubbing(domain);
+		}
+	}
+
+	private void performActionOnShortNoticeAdmission(final Question domain) throws ELSException {
+		domain.setStatus(domain.getInternalStatus());
+		if(domain.getRevisedSubject() == null 
+				||domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject( domain.getSubject() );			
+		}
+		
+		if(domain.getRevisedQuestionText() == null 
+				|| domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//			Status nameClubbing = Status.
+//					findByType(ApplicationConstants.QUESTION_SHORTNOTICE_PUTUP_NAMECLUBBING, domain.getLocale());
+//			for(ClubbedEntity i:clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)){
+//					question.setRevisedSubject(subject);
+//					question.setRevisedQuestionText(questionText);
+//					question.setStatus(domain.getInternalStatus());
+//					question.setInternalStatus(domain.getInternalStatus());
+//					question.setRecommendationStatus(domain.getInternalStatus());
+//					question.simpleMerge();
+//				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(nameClubbing);
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		
+		
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
+	}
+
+	private void performActionOnShortNoticeConvertToUnstarredAndAdmit(
+			Question domain) throws ELSException {
+		DeviceType newDeviceType = DeviceType.
+				findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
+		DeviceType originalDeviceType=DeviceType.
+				findByType(ApplicationConstants.SHORT_NOTICE_QUESTION,domain.getLocale());
+		domain.setType(newDeviceType);
+		domain.setOriginalType(originalDeviceType);
+		Status finalStatus = Status.
+				findByType(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION, domain.getLocale());
+		domain.setStatus(finalStatus);
+		domain.setInternalStatus(finalStatus);
+		if(domain.getRevisedSubject() == null 
+			|| domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null
+			|| domain.getRevisedQuestionText().isEmpty()) {			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+//		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//			
+//			Status nameClubbing = Status.
+//					findByType(ApplicationConstants.QUESTION_SHORTNOTICE_UNSTARRED_PUTUP_NAMECLUBBING, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)){
+//					question.setRevisedSubject(subject);
+//					question.setRevisedQuestionText(questionText);
+//					question.setType(newDeviceType);
+//					question.setOriginalType(originalDeviceType);
+//					question.setStatus(domain.getStatus());
+//					question.setInternalStatus(domain.getInternalStatus());
+//					question.setInternalStatus(domain.getRecommendationStatus());
+//				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(nameClubbing);
+//				}			
+//				question.simpleMerge();
+//			}
+//		}
+//		
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		
+		// Added so as to avoid OptimisticLockException
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
+	}
+	
+	private void performActionOnShortNoticeConvertToUnstarredAndAdmitClubbed(
+			Question domain) {
+		DeviceType newDeviceType = DeviceType.
+				findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
+		DeviceType originalDeviceType = DeviceType.
+				findByType(ApplicationConstants.SHORT_NOTICE_QUESTION,domain.getLocale());
+		domain.setType(newDeviceType);
+		domain.setOriginalType(originalDeviceType);
+		Status finalStatus = Status.
+				findByType(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION, domain.getLocale());
+		domain.setStatus(finalStatus);
+		domain.setInternalStatus(finalStatus);
+		
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+		if(clubbedEntities != null){
+			String subject = null;
+			String questionText = null;
+					
+			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+				subject = domain.getRevisedSubject();				
+			}else{
+				subject = domain.getSubject();
+			}
+			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+				questionText = domain.getRevisedQuestionText();
+			}else{
+				questionText = domain.getQuestionText();
+			}
+		
+			Status nameClubbing = Status.
+					findByType(ApplicationConstants.QUESTION_UNSTARRED_PUTUP_NAMECLUBBING, domain.getLocale());
+			for(ClubbedEntity i : clubbedEntities){
+				Question question = i.getQuestion();
+				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)){
+					question.setRevisedSubject(subject);
+					question.setRevisedQuestionText(questionText);
+					question.setType(newDeviceType);
+					question.setOriginalType(originalDeviceType);
+					question.setStatus(domain.getStatus());
+					question.setInternalStatus(domain.getInternalStatus());
+					question.setInternalStatus(domain.getRecommendationStatus());
+				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED_WITH_PENDING)){
+					question.setInternalStatus(nameClubbing);
+				}			
+				question.simpleMerge();
+			}
+		}
+		
+	}
+	
+	private void performActionOnShortNoticeRejection(Question domain) throws ELSException {
+		domain.setStatus(domain.getInternalStatus());
+		if(domain.getRevisedSubject() == null 
+			|| domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null 
+			|| domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//						
+//			Status putUpForRejection = Status.
+//					findByType(ApplicationConstants.QUESTION_SHORTNOTICE_PUTUP_REJECTION, domain.getLocale());
+//			for(ClubbedEntity i:clubbedEntities){
+//					Question question=i.getQuestion();
+//					String internalStatusType = question.getInternalStatus().getType();
+//					if(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)){
+//						question.setRevisedSubject(subject);
+//						question.setRevisedQuestionText(questionText);
+//						question.setStatus(domain.getInternalStatus());
+//						question.setInternalStatus(domain.getInternalStatus());
+//						question.setRecommendationStatus(domain.getInternalStatus());
+//						question.simpleMerge();
+//					}else if(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED_WITH_PENDING)){
+//						question.setInternalStatus(putUpForRejection);
+//						question.simpleMerge();
+//					}
+//				}
+//			
+//		}
+//		
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		
+		
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		
+		// Added so as to avoid OptimisticLockException
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
+		
+	}
+
+	private void performActionOnShortNoticeClarificationReceived(Question domain) {
+		Status newStatus = Status.
+				findByType(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+		domain.setInternalStatus(newStatus);
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			Status status = Status.
+//					findByType(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				if(question.getInternalStatus().getType().
+//						equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(status);
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}else{
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+		
+	}
+
+	private void performActionOnShortNoticeClarificationNotReceived(Question domain) {
+		Status newStatus = Status.
+				findByType(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+		domain.setInternalStatus(newStatus);
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			Status status = Status.findByType(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(status);
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}else{
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+		
+	}
+
+	private void performActionOnShortNoticeClarificationNeededFromDepartment(Question domain) {
+		
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+	}
+
+	private void performActionOnShortNoticeClarificationNeededFromMember(Question domain) {
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}		
+	}
+	
+	private void performActionOnShortNoticeClarificationNeededFromMemberAndDepartment(Question domain) {
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+	}
+
+	private void performActionOnShortNoticeClubbing(Question domain) throws ELSException {
+		
+		Question.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnShortNoticeClubbingRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+
+	private void performActionOnShortNoticeNameClubbing(Question domain) throws ELSException {
+//		/**** status of question is changed to final admission
+//		 * its revised subject,question text are updated (assumption that admitted
+//		 * question has right revised texts)
+//		 * its clubbing is updated ****/
+//		Status finalStatus = Status.
+//				findByType(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION, domain.getLocale());
+//		domain.setStatus(finalStatus);
+//		domain.setInternalStatus(finalStatus);
+//		domain.setRecommendationStatus(finalStatus);	
+//
+//		if(domain.getParent().getRevisedSubject()!=null 
+//				&& !domain.getParent().getRevisedSubject().isEmpty()){			
+//			domain.setRevisedSubject(domain.getParent().getRevisedSubject());			
+//		}
+//
+//		if(domain.getParent().getRevisedQuestionText()!=null 
+//				&& !domain.getParent().getRevisedQuestionText().isEmpty()){			
+//			domain.setRevisedQuestionText(domain.getParent().getRevisedQuestionText());			
+//		}
+//
+//		ClubbedEntity.updateClubbing(domain);
+		
+		Question.updateClubbing(domain);
+
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+//		domain.setEndFlag("end");
+//		domain.setActor(null);
+//		domain.setLocalizedActorName("");		
+		
+		if(!domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+			domain.setActor(null);
+			domain.setLocalizedActorName("");
+			domain.setWorkflowDetailsId(null);
+			domain.setLevel("1");
+			domain.setWorkflowStarted("NO");
+			domain.setEndFlag(null);		
+		}
+	}
+	
+	private void performActionOnShortNoticeNameClubbingRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+//		domain = ClubbedEntity.unclub(domain);
+		Question.unclub(domain, domain.getLocale());
 		
 		// Hack (07May2014): Commenting the following line results in 
 		// OptimisticLockException.
@@ -2545,620 +4429,642 @@ public class QuestionWorkflowController  extends BaseController{
 		// Since Name Clubbing has been rejected, domain's status is
 		// TO_BE_PUT_UP. In order to allow the Assistant to put up the
 		// question, workflow attributes need to be reset.
-		domain.setEndFlag(null);
-		domain.setLevel("0");
-		domain.setTaskReceivedOn(null);
+//		domain.setEndFlag(null);
+//		domain.setLevel("0");
+//		domain.setTaskReceivedOn(null);
+//		domain.setWorkflowDetailsId(null);
+//		domain.setWorkflowStarted("NO");
+//		domain.setWorkflowStartedOn(null);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
 		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
 		domain.setWorkflowStarted("NO");
-		domain.setWorkflowStartedOn(null);
+		domain.setEndFlag(null);
 	}
 
-
-	private void performActionOnRejection(Question domain) throws ELSException {
-		domain.setStatus(domain.getInternalStatus());
-		if(domain.getRevisedSubject()==null){			
-			domain.setRevisedSubject(domain.getSubject());			
-		}else if(domain.getRevisedSubject().isEmpty()){
-			domain.setRevisedSubject(domain.getSubject());
-		}
-		if(domain.getRevisedQuestionText()==null){			
-			domain.setRevisedQuestionText(domain.getQuestionText());			
-		}else if(domain.getRevisedQuestionText().isEmpty()){
-			domain.setRevisedQuestionText(domain.getQuestionText());
-		}
-		if(domain.getRevisedReason()==null){
-			domain.setRevisedReason(domain.getReason());
-		}else if(domain.getRevisedReason().isEmpty()){
-			domain.setRevisedReason(domain.getReason());
-		}
-		if(domain.getRevisedBriefExplanation()==null){
-			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
-		}else if(domain.getRevisedBriefExplanation().isEmpty()){
-			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
-		}
-		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
-		if(clubbedEntities!=null){
-			String subject=null;
-			String questionText=null;
-			String reasonText=null;
-			String briefExplainationText=null;
-			if(domain.getRevisedSubject()!=null && !domain.getRevisedSubject().isEmpty()){
-				subject=domain.getRevisedSubject();				
-			}else{
-				subject=domain.getSubject();
-			}
-			if(domain.getRevisedQuestionText()!=null && !domain.getRevisedQuestionText().isEmpty()){
-				questionText=domain.getRevisedQuestionText();
-			}else{
-				questionText=domain.getQuestionText();
-			}
-			if(domain.getRevisedReason()!=null && !domain.getRevisedReason().isEmpty()){
-				reasonText=domain.getRevisedQuestionText();
-			}else{
-				reasonText=domain.getReason();
-			}
-			if(domain.getRevisedBriefExplanation()!=null && !domain.getRevisedBriefExplanation().isEmpty()){
-				briefExplainationText=domain.getRevisedQuestionText();
-			}else{
-				briefExplainationText=domain.getBriefExplanation();
-			}
-			
-			Status putUpForRejection=Status.findByType(ApplicationConstants.QUESTION_PUTUP_REJECTION, domain.getLocale());
-			
-			if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
-				for(ClubbedEntity i:clubbedEntities){
-					Question question=i.getQuestion();
-					question.setRevisedSubject(subject);
-					question.setRevisedQuestionText(questionText);
-					question.setRevisedReason(reasonText);
-					question.setRevisedBriefExplanation(briefExplainationText);
-					question.setStatus(domain.getInternalStatus());
-					question.setInternalStatus(domain.getInternalStatus());
-					question.setRecommendationStatus(domain.getInternalStatus());
-					question.simpleMerge();
-				}
-			}else if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)){
-				
-					for(ClubbedEntity i:clubbedEntities){
-						Question question=i.getQuestion();
-						question.setRevisedSubject(subject);
-						question.setRevisedQuestionText(questionText);
-						question.setRevisedReason(reasonText);
-						question.setRevisedBriefExplanation(briefExplainationText);
-						question.setStatus(domain.getInternalStatus());
-						question.setInternalStatus(domain.getInternalStatus());
-						question.setRecommendationStatus(domain.getInternalStatus());
-						question.simpleMerge();	
-					}
-			}else{			
-				for(ClubbedEntity i:clubbedEntities){
-					Question question=i.getQuestion();
-					if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
-						question.setRevisedSubject(subject);
-						question.setRevisedQuestionText(questionText);
-						question.setRevisedReason(reasonText);
-						question.setRevisedBriefExplanation(briefExplainationText);
-						question.setStatus(domain.getInternalStatus());
-						question.setInternalStatus(domain.getInternalStatus());
-						question.setRecommendationStatus(domain.getInternalStatus());
-						question.simpleMerge();
-					}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
-						question.setInternalStatus(putUpForRejection);
-						question.simpleMerge();
-					}
-				}
-			}
-		}
+	private void performActionOnShortNoticeClubbingPostAdmission(Question domain) throws ELSException {
 		
-		if(domain.getParent() != null) {
-			ClubbedEntity.updateClubbing(domain);
-
-			// Hack (07May2014): Commenting the following line results in 
-			// OptimisticLockException.
-			domain.setVersion(domain.getVersion() + 1);
-		}
+		Question.updateClubbing(domain);
 		
-		if(domain.getType() != null){
-			if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-					&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-				/******Adding a next HDS of the member to chart on rejection of one of the HDS of that member********/
-				Question question = Question.find(domain.getPrimaryMember(), domain.getSession(), domain.getType(), domain.getLocale());
-				if(question!=null){
-					Chart chart = null;
-					chart = Chart.find(new Chart(question.getSession(),question.getType(), question.getLocale()));
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnShortNoticeClubbingRejectionPostAdmission(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnShortNoticeClubbingWithUnstarredFromPreviousSession(Question domain) throws ELSException {
+		
+		Question.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnShortNoticeClubbingWithUnstarredFromPreviousSessionRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnShortNoticeUnclubbing(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnShortNoticeUnclubbingRejection(Question domain) throws ELSException {
+		/** Back to clubbed state as it was before sending for unclubbing **/
+		domain.setInternalStatus(domain.getParent().getInternalStatus());
+		domain.setRecommendationStatus(domain.getParent().getInternalStatus());
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		domain.simpleMerge();		
+	}
+	
+	private void performActionOnShortNoticeAdmissionDueToReverseClubbing(Question domain) throws ELSException {
+		Status admitStatus = Status.findByType(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION, domain.getLocale());
+		Workflow processWorkflow = Workflow.findByStatus(admitStatus, domain.getLocale());
+		UserGroupType assistantUGT = UserGroupType.findByType(ApplicationConstants.ASSISTANT, domain.getLocale());
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		WorkflowDetails.startProcessAtGivenLevel(domain, ApplicationConstants.APPROVAL_WORKFLOW, processWorkflow, assistantUGT, 6, domain.getLocale());
+	}
 
-					if(question.getNumber()== null){
-						Integer number = null;
-						try {
-							number = Question.assignQuestionNo(question.getHouseType(), question.getSession(), question.getType(), question.getLocale());
-						} catch (ELSException e) {
-							e.printStackTrace();
-						}
-						question.setNumber(number+1);
-					}
-					if(chart!=null){
-						Chart.addToChart(question);
-					}
-				}
-			}
+	private void performActionOnHDQQuestion(final Question domain) throws ELSException {
+		String internalStatus = domain.getInternalStatus().getType();
+		String recommendationStatus = domain.getRecommendationStatus().getType();
+		/**** Admission ****/
+		if(internalStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)){
+			performActionOnHDQAdmission(domain);
 		}		
-	}	
-
-	private void performActionOnConvertToUnstarred(Question domain) {
-		DeviceType newDeviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
-		DeviceType originalDeviceType=DeviceType.findByType(ApplicationConstants.STARRED_QUESTION,domain.getLocale());
-		Status newStatusStatus=Status.findByType(ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
-		Status newInternalStatus=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
-		domain.setType(newDeviceType);
-		domain.setOriginalType(originalDeviceType);
-		if(domain.getRevisedSubject()==null){			
-			domain.setRevisedSubject(domain.getSubject());			
-		}else if(domain.getRevisedSubject().isEmpty()){
-			domain.setRevisedSubject(domain.getSubject());
+		/**** Rejection ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)
+				&&recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)){
+			performActionOnHDQRejection(domain);
 		}
-		if(domain.getRevisedQuestionText()==null){			
-			domain.setRevisedQuestionText(domain.getQuestionText());			
-		}else if(domain.getRevisedQuestionText().isEmpty()){
-			domain.setRevisedQuestionText(domain.getQuestionText());
+		/*** Clarification Asked  From Department***/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
+			performActionOnHDQClarificationNeededFromDepartment(domain);
 		}
-		if(domain.getRevisedReason()==null){
-			domain.setRevisedReason(domain.getReason());
-		}else if(domain.getRevisedReason().isEmpty()){
-			domain.setRevisedReason(domain.getReason());
+		/*** Clarification Asked From Member***/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+			performActionOnHDQClarificationNeededFromMember(domain);
 		}
-		if(domain.getRevisedBriefExplanation()==null){
-			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
-		}else if(domain.getRevisedBriefExplanation().isEmpty()){
-			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
-		}
-		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
-		if(clubbedEntities!=null){
-			String subject=null;
-			String questionText=null;
-			String reasonText=null;
-			String briefExplainationText=null;
-			if(domain.getRevisedSubject()!=null && !domain.getRevisedSubject().isEmpty()){
-				subject=domain.getRevisedSubject();				
-			}else{
-				subject=domain.getSubject();
-			}
-			if(domain.getRevisedQuestionText()!=null && !domain.getRevisedQuestionText().isEmpty()){
-				questionText=domain.getRevisedQuestionText();
-			}else{
-				questionText=domain.getQuestionText();
-			}
-			if(domain.getRevisedReason()!=null && !domain.getRevisedReason().isEmpty()){
-				reasonText=domain.getRevisedQuestionText();
-			}else{
-				reasonText=domain.getReason();
-			}
-			if(domain.getRevisedBriefExplanation()!=null && !domain.getRevisedBriefExplanation().isEmpty()){
-				briefExplainationText=domain.getRevisedQuestionText();
-			}else{
-				briefExplainationText=domain.getBriefExplanation();
-			}
-			Status nameClubbing=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
-			for(ClubbedEntity i:clubbedEntities){
-				Question question=i.getQuestion();
-				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
-					question.setRevisedSubject(subject);
-					question.setRevisedQuestionText(questionText);
-					question.setRevisedReason(reasonText);
-					question.setRevisedBriefExplanation(briefExplainationText);					
-					question.setType(newDeviceType);
-					question.setOriginalType(originalDeviceType);
-					question.setStatus(newStatusStatus);
-					question.setInternalStatus(newInternalStatus);
-					question.setInternalStatus(domain.getRecommendationStatus());
-				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
-					question.setInternalStatus(nameClubbing);
-				}
-				question.simpleMerge();
-			}
-		}
-	}
-	
-	private void performActionOnConvertToUnstarredAndAdmit(Question domain) {		
-		DeviceType newDeviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
-		DeviceType originalDeviceType=DeviceType.findByType(ApplicationConstants.STARRED_QUESTION,domain.getLocale());
-		domain.setType(newDeviceType);
-		domain.setOriginalType(originalDeviceType);
-		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
-		domain.setStatus(finalStatus);
-		domain.setInternalStatus(finalStatus);
-		if(domain.getRevisedSubject()==null){			
-			domain.setRevisedSubject(domain.getSubject());			
-		}else if(domain.getRevisedSubject().isEmpty()){
-			domain.setRevisedSubject(domain.getSubject());
-		}
-		if(domain.getRevisedQuestionText()==null){			
-			domain.setRevisedQuestionText(domain.getQuestionText());			
-		}else if(domain.getRevisedQuestionText().isEmpty()){
-			domain.setRevisedQuestionText(domain.getQuestionText());
-		}
-		if(domain.getRevisedReason()==null){
-			domain.setRevisedReason(domain.getReason());
-		}else if(domain.getRevisedReason().isEmpty()){
-			domain.setRevisedReason(domain.getReason());
-		}
-		if(domain.getRevisedBriefExplanation()==null){
-			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
-		}else if(domain.getRevisedBriefExplanation().isEmpty()){
-			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
-		}
-
-		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
-		if(clubbedEntities!=null){
-			String subject=null;
-			String questionText=null;
-			String reasonText=null;
-			String briefExplainationText=null;
-			if(domain.getRevisedSubject()!=null && !domain.getRevisedSubject().isEmpty()){
-				subject=domain.getRevisedSubject();				
-			}else{
-				subject=domain.getSubject();
-			}
-			if(domain.getRevisedQuestionText()!=null && !domain.getRevisedQuestionText().isEmpty()){
-				questionText=domain.getRevisedQuestionText();
-			}else{
-				questionText=domain.getQuestionText();
-			}
-			if(domain.getRevisedReason()!=null && !domain.getRevisedReason().isEmpty()){
-				reasonText=domain.getRevisedQuestionText();
-			}else{
-				reasonText=domain.getReason();
-			}
-			if(domain.getRevisedBriefExplanation()!=null && !domain.getRevisedBriefExplanation().isEmpty()){
-				briefExplainationText=domain.getRevisedQuestionText();
-			}else{
-				briefExplainationText=domain.getBriefExplanation();
-			}
-			Status nameClubbing=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
-			for(ClubbedEntity i:clubbedEntities){
-				Question question=i.getQuestion();
-				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
-					question.setRevisedSubject(subject);
-					question.setRevisedQuestionText(questionText);
-					question.setRevisedReason(reasonText);
-					question.setRevisedBriefExplanation(briefExplainationText);					
-					question.setType(newDeviceType);
-					question.setOriginalType(originalDeviceType);
-					question.setStatus(domain.getStatus());
-					question.setInternalStatus(domain.getInternalStatus());
-					question.setInternalStatus(domain.getRecommendationStatus());
-				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
-					question.setInternalStatus(nameClubbing);
-				}			
-				question.simpleMerge();
-			}
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+			performActionOnHDQClarificationNeededFromMemberAndDepartment(domain);
 		}
 		
-		if(domain.getParent() != null) {
-			ClubbedEntity.updateClubbing(domain);
-
-			// Hack (07May2014): Commenting the following line results in 
-			// OptimisticLockException.
-			domain.setVersion(domain.getVersion() + 1);
+		/**** Clarification not received From Department ****/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+			performActionOnHDQClarificationNotReceived(domain);
+		}
+		/**** Clarification not received From Member ****/
+		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+			performActionOnHDQClarificationNotReceived(domain);
+		}
+		/**** Clarification received FROM Member ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnHDQClarificationReceived(domain);
+		}
+		/**** Clarification received From Department ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnHDQClarificationReceived(domain);
+		}
+		/**** Clarification received FROM Member & Department ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_CLARIFICATIONRECEIVED)){
+			performActionOnHDQClarificationReceived(domain);
+		}
+		/**** Clubbing is approved ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLUBBING)){
+			performActionOnHDQClubbing(domain);
+		}
+		/**** Clubbing is rejected ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECT_CLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECT_CLUBBING)){
+			performActionOnHDQClubbingRejection(domain);
+		}
+		/**** Name clubbing is approved ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_NAMECLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_NAMECLUBBING)){
+			performActionOnHDQNameClubbing(domain);
+		}		
+		/**** Name clubbing is rejected ****/		
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECT_NAMECLUBBING)&&
+				recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECT_NAMECLUBBING)){
+			performActionOnHDQNameClubbingRejection(domain);
+		}	
+		/**** Clubbing Post Admission is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLUBBING_POST_ADMISSION)){
+			performActionOnHDQClubbingPostAdmission(domain);
+		}
+		/**** Clubbing Post Admission is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECT_CLUBBING_POST_ADMISSION)){
+			performActionOnHDQClubbingRejectionPostAdmission(domain);
+		}
+		/**** Unclubbing is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_UNCLUBBING)){
+			performActionOnHDQUnclubbing(domain);
+		}
+		/**** Unclubbing is rejected ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECT_UNCLUBBING)){
+			performActionOnHDQUnclubbingRejection(domain);
+		}
+		/**** Admission Due To Reverse Clubbing is approved ****/
+		else if(recommendationStatus.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)){
+			performActionOnHDQAdmissionDueToReverseClubbing(domain);
 		}
 	}
-	
-	private void performActionOnConvertToUnstarredAndAdmitClubbed(Question domain) {
-		DeviceType newDeviceType=DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION,domain.getLocale());
-		DeviceType originalDeviceType=DeviceType.findByType(ApplicationConstants.STARRED_QUESTION,domain.getLocale());
-		domain.setType(newDeviceType);
-		domain.setOriginalType(originalDeviceType);
-		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, domain.getLocale());
-		domain.setStatus(finalStatus);
-		domain.setInternalStatus(finalStatus);
-		if(domain.getRevisedSubject()==null){			
-			domain.setRevisedSubject(domain.getSubject());			
-		}else if(domain.getRevisedSubject().isEmpty()){
-			domain.setRevisedSubject(domain.getSubject());
+
+	private void performActionOnHDQAdmission(final Question domain) throws ELSException {
+		domain.setStatus(domain.getInternalStatus());
+		if(domain.getRevisedSubject() == null 
+				||domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject( domain.getSubject() );			
 		}
-		if(domain.getRevisedQuestionText()==null){			
+		
+		if(domain.getRevisedQuestionText() == null 
+				|| domain.getRevisedQuestionText().isEmpty()){			
 			domain.setRevisedQuestionText(domain.getQuestionText());			
-		}else if(domain.getRevisedQuestionText().isEmpty()){
-			domain.setRevisedQuestionText(domain.getQuestionText());
 		}
-		if(domain.getRevisedReason()==null){
-			domain.setRevisedReason(domain.getReason());
-		}else if(domain.getRevisedReason().isEmpty()){
-			domain.setRevisedReason(domain.getReason());
+		
+		if(domain.getRevisedReason() == null 
+				|| domain.getRevisedReason().isEmpty()){			
+			domain.setRevisedReason(domain.getReason());			
 		}
-		if(domain.getRevisedBriefExplanation()==null){
-			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
-		}else if(domain.getRevisedBriefExplanation().isEmpty()){
-			domain.setRevisedBriefExplanation(domain.getBriefExplanation());
+		
+		if(domain.getRevisedBriefExplanation() == null 
+				|| domain.getRevisedBriefExplanation().isEmpty()){			
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());			
 		}
-
-		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
-		if(clubbedEntities!=null){
-			String subject=null;
-			String questionText=null;
-			String reasonText=null;
-			String briefExplainationText=null;
-			if(domain.getRevisedSubject()!=null && !domain.getRevisedSubject().isEmpty()){
-				subject=domain.getRevisedSubject();				
-			}else{
-				subject=domain.getSubject();
-			}
-			if(domain.getRevisedQuestionText()!=null && !domain.getRevisedQuestionText().isEmpty()){
-				questionText=domain.getRevisedQuestionText();
-			}else{
-				questionText=domain.getQuestionText();
-			}
-			if(domain.getRevisedReason()!=null && !domain.getRevisedReason().isEmpty()){
-				reasonText=domain.getRevisedQuestionText();
-			}else{
-				reasonText=domain.getReason();
-			}
-			if(domain.getRevisedBriefExplanation()!=null && !domain.getRevisedBriefExplanation().isEmpty()){
-				briefExplainationText=domain.getRevisedQuestionText();
-			}else{
-				briefExplainationText=domain.getBriefExplanation();
-			}
-			Status nameClubbing=Status.findByType(ApplicationConstants.QUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
-			for(ClubbedEntity i:clubbedEntities){
-				Question question=i.getQuestion();
-				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)){
-					question.setRevisedSubject(subject);
-					question.setRevisedQuestionText(questionText);
-					question.setRevisedReason(reasonText);
-					question.setRevisedBriefExplanation(briefExplainationText);					
-					question.setType(newDeviceType);
-					question.setOriginalType(originalDeviceType);
-					question.setStatus(domain.getStatus());
-					question.setInternalStatus(domain.getInternalStatus());
-					question.setInternalStatus(domain.getRecommendationStatus());
-				}else if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
-					question.setInternalStatus(nameClubbing);
-				}			
-				question.simpleMerge();
-			}
-		}
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//			Status nameClubbing = Status.
+//					findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_NAMECLUBBING, domain.getLocale());
+//			for(ClubbedEntity i:clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED)){
+//					question.setRevisedSubject(subject);
+//					question.setRevisedQuestionText(questionText);
+//					question.setStatus(domain.getInternalStatus());
+//					question.setInternalStatus(domain.getInternalStatus());
+//					question.setRecommendationStatus(domain.getInternalStatus());
+//					question.simpleMerge();
+//				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(nameClubbing);
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		
+		
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
 	}
-	
-	private void performActionOnClarificationNotReceived(Question domain) {
-		Status newStatus=null;
-		if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
-			newStatus=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
-		}else{
-			newStatus=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+
+	private void performActionOnHDQRejection(Question domain) throws ELSException {
+		domain.setStatus(domain.getInternalStatus());
+		if(domain.getRevisedSubject() == null 
+			|| domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
 		}
+		
+		if(domain.getRevisedQuestionText() == null 
+			|| domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		
+		if(domain.getRevisedReason() == null 
+				|| domain.getRevisedReason().isEmpty()){			
+			domain.setRevisedReason(domain.getReason());			
+		}
+		
+		if(domain.getRevisedBriefExplanation() == null 
+				|| domain.getRevisedBriefExplanation().isEmpty()){			
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());			
+		}
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			String subject = null;
+//			String questionText = null;
+//			if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+//				subject = domain.getRevisedSubject();				
+//			}else{
+//				subject = domain.getSubject();
+//			}
+//			if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+//				questionText = domain.getRevisedQuestionText();
+//			}else{
+//				questionText = domain.getQuestionText();
+//			}
+//						
+//			Status putUpForRejection = Status.
+//					findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_REJECTION, domain.getLocale());
+//			for(ClubbedEntity i:clubbedEntities){
+//					Question question=i.getQuestion();
+//					String internalStatusType = question.getInternalStatus().getType();
+//					if(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED)){
+//						question.setRevisedSubject(subject);
+//						question.setRevisedQuestionText(questionText);
+//						question.setStatus(domain.getInternalStatus());
+//						question.setInternalStatus(domain.getInternalStatus());
+//						question.setRecommendationStatus(domain.getInternalStatus());
+//						question.simpleMerge();
+//					}else if(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//						question.setInternalStatus(putUpForRejection);
+//						question.simpleMerge();
+//					}
+//				}
+//			
+//		}
+//		
+//		if(domain.getParent() != null) {
+//			ClubbedEntity.updateClubbing(domain);
+//
+//			// Hack (07May2014): Commenting the following line results in 
+//			// OptimisticLockException.
+//			domain.setVersion(domain.getVersion() + 1);
+//		}
+		
+		
+		Question question = Question.findById(Question.class, domain.getId());
+		domain.setDrafts(question.getDrafts());
+		domain.simpleMerge(); 
+		
+		// Added so as to avoid OptimisticLockException
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		Question.updateClubbing(domain);
+		
+	}
+
+	private void performActionOnHDQClarificationReceived(Question domain) {
+		Status newStatus = Status.
+				findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
 		domain.setInternalStatus(newStatus);
 		domain.setActor(null);
 		domain.setLocalizedActorName("");
-		domain.setEndFlag("end");
-		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
-		if(clubbedEntities!=null){
-			Status status=Status.findByType(ApplicationConstants.QUESTION_SYSTEM_CLUBBED, domain.getLocale());
-			for(ClubbedEntity i:clubbedEntities){
-				Question question=i.getQuestion();
-				if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
-					question.setInternalStatus(status);
-					question.setRecommendationStatus(domain.getRecommendationStatus());
-					question.simpleMerge();
-				}else{
-					question.setRecommendationStatus(domain.getRecommendationStatus());
-					question.simpleMerge();
-				}
-			}
-		}
-	}
-
-	/** Remove the Group changed question from chart
-	 ** add a new candidate question on respective chart***/
-	private void performActionOnGroupChange(Question domain) {
-		Question question = Question.findById(Question.class, domain.getId());
-		QuestionDraft draft = question.findPreviousDraft();
-		Group affectedGroup = draft.getGroup();
-		try{
-			Chart.groupChange(question, affectedGroup);
-		}catch (ELSException e) {
-		}
-	}
-
-	
-
-	//	/**** Bulk Approval ****/
-	//	@RequestMapping(value="/bulkapproval",method=RequestMethod.GET)
-	//	public String getBulkApprovalView(final HttpServletRequest request,final Locale locale,
-	//			final ModelMap model){	
-	//		String strHouseType=request.getParameter("houseType");
-	//		String strSessionType=request.getParameter("sessionType");
-	//		String strSessionYear=request.getParameter("sessionYear");
-	//		String strMotionType=request.getParameter("deviceType");
-	//		String strStatus=request.getParameter("status");
-	//		String strWorkflowSubType=request.getParameter("workflowSubType");
-	//		String strLocale=locale.toString();
-	//		String strItemsCount=request.getParameter("itemsCount");
-	//		String assignee=this.getCurrentUser().getActualUsername();
-	//		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-	//		String houseType=strHouseType;
-	//		String year=strSessionYear;
-	//		String sessionType=strSessionType;
-	//		String deviceType=strMotionType;
-	//		if(strHouseType!=null&&!(strHouseType.isEmpty())
-	//				&&strSessionType!=null&&!(strSessionType.isEmpty())
-	//				&&strSessionYear!=null&&!(strSessionYear.isEmpty())
-	//				&&strMotionType!=null&&!(strMotionType.isEmpty())
-	//				&&strItemsCount!=null&&!(strItemsCount.isEmpty())
-	//				&&strStatus!=null&&!(strStatus.isEmpty())
-	//				&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){
-	//			if(customParameter.getValue().equals("TOMCAT")){
-	//				try {
-	//					houseType=new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
-	//					sessionType=new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
-	//					year=new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
-	//					deviceType=new String(strMotionType.getBytes("ISO-8859-1"),"UTF-8");
-	//				}
-	//				catch (UnsupportedEncodingException e) {
-	//					e.printStackTrace();
-	//				}
-	//			}			
-	//			List<WorkflowDetails> workflowDetails=WorkflowDetails.
-	//			findAll(houseType,sessionType,year,
-	//					deviceType,strStatus,strWorkflowSubType,
-	//					assignee,strItemsCount,strLocale,"");
-	//			List<BulkApprovalVO> bulkapprovals=new ArrayList<BulkApprovalVO>();
-	//			NumberFormat format=FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
-	//			int count=0;
-	//			for(WorkflowDetails i:workflowDetails){
-	//				Question question=Question.findById(Question.class,Long.parseLong(i.getDeviceId()));
-	//				if(count==0){
-	//					populateInternalStatus(model,question,locale.toString());
-	//					count++;
-	//				}
-	//				BulkApprovalVO bulkApprovalVO=new BulkApprovalVO();
-	//				bulkApprovalVO.setId(String.valueOf(i.getId()));
-	//				bulkApprovalVO.setDeviceId(String.valueOf(question.getId()));
-	//				bulkApprovalVO.setDeviceNumber(format.format(question.getNumber()));
-	//				bulkApprovalVO.setMember(question.getPrimaryMember().getFullname());
-	//				bulkApprovalVO.setSubject(question.getSubject());
-	//				if(question.getRemarks()!=null&&!question.getRemarks().isEmpty()){
-	//					bulkApprovalVO.setLastRemark(question.getRemarks());
-	//				}else{
-	//					bulkApprovalVO.setLastRemark("-");
-	//				}
-	//				bulkApprovalVO.setLastDecision(question.getInternalStatus().getName());
-	//				bulkApprovalVO.setLastRemarkBy(question.getEditedAs());	
-	//				bulkapprovals.add(bulkApprovalVO);
-	//			}
-	//			model.addAttribute("bulkapprovals",bulkapprovals);
-	//		}
-	//		return "question/bulkapproval";		
-	//	}	
-	//	@Transactional
-	//	@RequestMapping(value="/bulkapproval",method=RequestMethod.POST)
-	//	public String bulkApproval(final HttpServletRequest request,final Locale locale,
-	//			final ModelMap model){	
-	//		String selectedItems = request.getParameter("items");
-	//		String strStatus=request.getParameter("status");
-	//		if(selectedItems != null && ! selectedItems.isEmpty()
-	//				&&strStatus!=null&&!strStatus.isEmpty()) {
-	//			String[] items = selectedItems.split(",");
-	//			List<Question> questions=new ArrayList<Question>();
-	//			Status status=Status.findById(Status.class,Long.parseLong(strStatus));
-	//			for(String i : items) {
-	//				Long id = Long.parseLong(i);
-	//				WorkflowDetails wfDetails=WorkflowDetails.findById(WorkflowDetails.class,id);
-	//				Question question = Question.findById(Question.class,Long.parseLong(wfDetails.getDeviceId()));
-	//				if(!question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
-	//					question.setInternalStatus(status);
-	//				}
-	//				question.setRecommendationStatus(status);
-	//				/**** Populate Next Actor ****/
-	//				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(wfDetails.getAssigneeUserGroupId()));
-	//				List<Reference> actors=WorkflowConfig.findQuestionActorsVO(question, question.getInternalStatus(), userGroup, Integer.parseInt(question.getLevel()), locale.toString());
-	//				if(actors!=null&&!actors.isEmpty()){
-	//					String nextActor=actors.get(0).getId();
-	//					String[] actorArr=nextActor.split("#");
-	//					question.setLevel(actorArr[2]);
-	//					question.setLocalizedActorName(actorArr[3]+"("+actorArr[4]+")");
-	//					question.setActor(nextActor);
-	//				}
-	//				/**** Complete Task ****/		
-	//				String nextuser=question.getActor();
-	//				String level=question.getLevel();
-	//				Map<String,String> properties=new HashMap<String, String>();
-	//				properties.put("pv_deviceId",String.valueOf(question.getId()));
-	//				properties.put("pv_deviceTypeId",String.valueOf(question.getType().getId()));
-	//				if(nextuser!=null){
-	//					if(!nextuser.isEmpty()){
-	//						String[] temp=nextuser.split("#");
-	//						properties.put("pv_user",temp[0]);
-	//					}
-	//				}	
-	//				String endflag=question.getEndFlag();
-	//				properties.put("pv_endflag",request.getParameter("endflag"));
-	//				String strTaskId=wfDetails.getTaskId();
-	//				Task task=processService.findTaskById(strTaskId);
-	//				processService.completeTask(task,properties);		
-	//				if(endflag!=null){
-	//					if(!endflag.isEmpty()){
-	//						if(endflag.equals("continue")){
-	//							ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-	//							Task newtask=processService.getCurrentTask(processInstance);
-	//							WorkflowDetails workflowDetails2=WorkflowDetails.create(question,newtask,ApplicationConstants.APPROVAL_WORKFLOW,level);
-	//							question.setWorkflowDetailsId(workflowDetails2.getId());
-	//							question.setTaskReceivedOn(new Date());
-	//						}
-	//					}
-	//				}
-	//				/**** Update Workflow Details ****/
-	//				wfDetails.setStatus("COMPLETED");
-	//				wfDetails.setCompletionTime(new Date());
-	//				wfDetails.merge();
-	//				/**** Update Domain *****/
-	//				question.setEditedOn(new Date());
-	//				question.setEditedBy(this.getCurrentUser().getActualUsername());
-	//				question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
-	//				performAction(question);
-	//				question.merge();
-	//				questions.add(question);
-	//			}
-	//			model.addAttribute("questions",questions);
-	//		}
-	//		return "motion/bulkapprovalack";
-	//	}
-
-
-	//----added for HDS 
-
-	private void performActionOnClarificationNeededFromDepartment(Question domain) {
-		Status finalStatus=Status.findByType(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT, domain.getLocale());
-		domain.setStatus(finalStatus);
-
-		if(domain.getRevisedSubject()==null){			
-			domain.setRevisedSubject(domain.getSubject());			
-		}else if(domain.getRevisedSubject().isEmpty()){
-			domain.setRevisedSubject(domain.getSubject());
-		}
-		if(domain.getRevisedQuestionText()==null){			
-			domain.setRevisedQuestionText(domain.getQuestionText());			
-		}else if(domain.getRevisedQuestionText().isEmpty()){
-			domain.setRevisedQuestionText(domain.getQuestionText());
-		}
-	}
-
-	private void performActionOnClarificationNeededFromMember(Question domain) {
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
 		
-		Status submitted = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
-		Status tobePutUp = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			Status status = Status.
+//					findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				if(question.getInternalStatus().getType().
+//						equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(status);
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}else{
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}
+//			}
+//		}
 		
-		domain.setStatus(submitted);
-		domain.setInternalStatus(tobePutUp);
-
-		if(domain.getRevisedSubject()==null){			
-			domain.setRevisedSubject(domain.getSubject());			
-		}else if(domain.getRevisedSubject().isEmpty()){
-			domain.setRevisedSubject(domain.getSubject());
-		}
-		if(domain.getRevisedQuestionText()==null){			
-			domain.setRevisedQuestionText(domain.getQuestionText());			
-		}else if(domain.getRevisedQuestionText().isEmpty()){
-			domain.setRevisedQuestionText(domain.getQuestionText());
-		}
 	}
 
-	private void performActionOnClarificationNotRecieved(Question domain) {
-		/**** Status will be same as internal/recommendation status****/
-		domain.setStatus(domain.getInternalStatus());
-		if(domain.getRevisedSubject()==null){			
-			domain.setRevisedSubject(domain.getSubject());			
-		}else if(domain.getRevisedSubject().isEmpty()){
-			domain.setRevisedSubject(domain.getSubject());
-		}
-		if(domain.getRevisedQuestionText()==null){			
-			domain.setRevisedQuestionText(domain.getQuestionText());			
-		}else if(domain.getRevisedQuestionText().isEmpty()){
-			domain.setRevisedQuestionText(domain.getQuestionText());
-		}
-		domain.setEndFlag("end");
+	private void performActionOnHDQClarificationNotReceived(Question domain) {
+		Status newStatus = Status.
+				findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_ASSISTANT_PROCESSED, domain.getLocale());
+		domain.setInternalStatus(newStatus);
 		domain.setActor(null);
 		domain.setLocalizedActorName("");
-	}	
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		
+//		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
+//		if(clubbedEntities != null){
+//			Status status = Status.findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED, domain.getLocale());
+//			for(ClubbedEntity i : clubbedEntities){
+//				Question question = i.getQuestion();
+//				String internalStatusType = question.getInternalStatus().getType();
+//				if(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED_WITH_PENDING)){
+//					question.setInternalStatus(status);
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}else{
+//					question.setRecommendationStatus(domain.getRecommendationStatus());
+//					question.simpleMerge();
+//				}
+//			}
+//		}
+		
+	}
+
+	private void performActionOnHDQClarificationNeededFromDepartment(Question domain) {
+		
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		if(domain.getRevisedReason() == null || domain.getRevisedReason().isEmpty()){			
+			domain.setRevisedReason(domain.getReason());			
+		}		
+		if(domain.getRevisedBriefExplanation() == null || domain.getRevisedBriefExplanation().isEmpty()){			
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());			
+		}
+	}
+
+	private void performActionOnHDQClarificationNeededFromMember(Question domain) {
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}	
+		if(domain.getRevisedReason() == null || domain.getRevisedReason().isEmpty()){			
+			domain.setRevisedReason(domain.getReason());			
+		}		
+		if(domain.getRevisedBriefExplanation() == null || domain.getRevisedBriefExplanation().isEmpty()){			
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());			
+		}
+	}
 	
+	private void performActionOnHDQClarificationNeededFromMemberAndDepartment(Question domain) {
+		if(domain.getRevisedSubject() == null || domain.getRevisedSubject().isEmpty()){			
+			domain.setRevisedSubject(domain.getSubject());			
+		}		
+		if(domain.getRevisedQuestionText() == null || domain.getRevisedQuestionText().isEmpty()){			
+			domain.setRevisedQuestionText(domain.getQuestionText());			
+		}
+		if(domain.getRevisedReason() == null || domain.getRevisedReason().isEmpty()){			
+			domain.setRevisedReason(domain.getReason());			
+		}		
+		if(domain.getRevisedBriefExplanation() == null || domain.getRevisedBriefExplanation().isEmpty()){			
+			domain.setRevisedBriefExplanation(domain.getBriefExplanation());			
+		}
+	}
+
+	private void performActionOnHDQClubbing(Question domain) throws ELSException {
+		
+		Question.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnHDQClubbingRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+
+	private void performActionOnHDQNameClubbing(Question domain) throws ELSException {
+//		/**** status of question is changed to final admission
+//		 * its revised subject,question text are updated (assumption that admitted
+//		 * question has right revised texts)
+//		 * its clubbing is updated ****/
+//		Status finalStatus = Status.
+//				findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION, domain.getLocale());
+//		domain.setStatus(finalStatus);
+//		domain.setInternalStatus(finalStatus);
+//		domain.setRecommendationStatus(finalStatus);	
+//
+//		if(domain.getParent().getRevisedSubject()!=null 
+//				&& !domain.getParent().getRevisedSubject().isEmpty()){			
+//			domain.setRevisedSubject(domain.getParent().getRevisedSubject());			
+//		}
+//
+//		if(domain.getParent().getRevisedQuestionText()!=null 
+//				&& !domain.getParent().getRevisedQuestionText().isEmpty()){			
+//			domain.setRevisedQuestionText(domain.getParent().getRevisedQuestionText());			
+//		}
+//
+//		ClubbedEntity.updateClubbing(domain);
+		
+		Question.updateClubbing(domain);
+
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		if(!domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+			domain.setActor(null);
+			domain.setLocalizedActorName("");
+			domain.setWorkflowDetailsId(null);
+			domain.setLevel("1");
+			domain.setWorkflowStarted("NO");
+			domain.setEndFlag(null);		
+		}
+	}
+	
+	private void performActionOnHDQNameClubbingRejection(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+//		domain = ClubbedEntity.unclub(domain);
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);	
+	}
+
+	private void performActionOnHDQClubbingPostAdmission(Question domain) throws ELSException {
+		
+		Question.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnHDQClubbingRejectionPostAdmission(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnHDQUnclubbing(Question domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		Question.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnHDQUnclubbingRejection(Question domain) throws ELSException {
+		/** Back to clubbed state as it was before sending for unclubbing **/
+		domain.setInternalStatus(domain.getParent().getInternalStatus());
+		domain.setRecommendationStatus(domain.getParent().getInternalStatus());
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		domain.simpleMerge();
+	}
+	
+	private void performActionOnHDQAdmissionDueToReverseClubbing(Question domain) throws ELSException {
+		Status admitStatus = Status.findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION, domain.getLocale());
+		Workflow processWorkflow = Workflow.findByStatus(admitStatus, domain.getLocale());
+		UserGroupType assistantUGT = UserGroupType.findByType(ApplicationConstants.ASSISTANT, domain.getLocale());
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		WorkflowDetails.startProcessAtGivenLevel(domain, ApplicationConstants.APPROVAL_WORKFLOW, processWorkflow, assistantUGT, 6, domain.getLocale());
+	}
+
 	@SuppressWarnings("rawtypes")
 	private void findLatestRemarksByUserGroup(final Question domain, final ModelMap model,
 			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {

@@ -25,13 +25,25 @@
 			$(".toolTip").hide();
 			//loadRosterDayFromSessions();
 			/**** grid params which is sent to load grid data being sent ****/		
-			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
-					+"&sessionYear="+$("#selectedSessionYear").val()
-					+"&sessionType="+$("#selectedSessionType").val()
-					+'&language='+$("#selectedLanguage").val()	
-					+'&day='+$("#selectedDay").val()	
-					+'&ugparam='+$("#ugparam").val()	
-					);
+			if($('#selectedModule').val()=="COMMITTEE"){
+				$("#sessionLinks").css("display","none");
+				$("#gridURLParams").val("houseType=" + $("#selectedHouseType").val()
+								+ "&sessionYear=0"
+								+ "&sessionType=0"
+								+ '&language=' + $("#selectedLanguage").val()
+								+ '&day=' + $("#selectedDay").val() 
+								+ "&committeeMeeting="+ $("#selectedCommitteeMeeting").val()
+								+ '&ugparam='+ $("#ugparam").val());
+			}else{
+				$("#sessionLinks").css("display","inline");
+				$("#gridURLParams").val("houseType=" + $("#selectedHouseType").val()
+								+ "&sessionYear=" + $("#selectedSessionYear").val()
+								+ "&sessionType=" + $("#selectedSessionType").val()
+								+ '&language=' + $("#selectedLanguage").val()
+								+ '&day=' + $("#selectedDay").val()
+								+ '&ugparam=' + $("#ugparam").val()
+								+ "&committeeMeeting=0");
+			}
 			/**** edit Proceeding ****/
 			$('#edit_record').click(function(){
 				currentSelectedRow=$('#key').val();
@@ -51,6 +63,12 @@
 			$("#search").click(function() {
 				searchRecord();
 			});	
+			
+			/****Publish the roster proceeding for Committees & Editing****/
+			$("#complete").click(function(){
+				currentSelectedRow=$('#key').val();
+				completeProceeding(currentSelectedRow);
+			});
 			
 			$("#rosterwise").click(function() {
 				rosterWiseReport();
@@ -155,7 +173,9 @@
 			$("#selectionDiv1").hide();			
 			$("#cancelFn").val("rowDblClickHandler");			
 			$('#key').val(rowid);
-			showTabByIdAndUrl('details_tab', 'proceeding/'+rowid+'/edit?'+$("#gridURLParams").val());
+			//showTabByIdAndUrl('details_tab', 'proceeding/'+rowid+'/uploadproceeding?'+$("#gridURLParams").val());
+			showTabByIdAndUrl('details_tab', 'proceeding/' + rowid + '/edit?'
+					+ $("#gridURLParams").val());
 		}			
 	</script>
 </head>
@@ -168,10 +188,14 @@
 			</a> |
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
-			</a> |			
+			</a> |	
+			<a href="#" id="complete" class="butSim">
+				<spring:message code="roster.complete" text="Complete"/>
+			</a> |		
 			<%-- <a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
 			</a> | --%>	
+			<hr>
 			<a href="#" id="rosterwise" class="butSim">
 				<spring:message code="proceeding.rosterwisereport" text="Rosterwise Report"/>
 			</a>|	
@@ -181,19 +205,21 @@
 			<a href="#" id="proceedingwise" class="butSim">
 				<spring:message code="proceeding.proceedingwiseReport" text="proceeding wise report"/>
 			</a>|
-			<a href="#" id="memberwise" class="butSim">
-				<spring:message code="proceeding.memberwise" text="Memberwise Report"/>
-			</a>|	
-			<a href="#" id="members" class="butSim">
-				<spring:message code="proceeding.members" text="Member Report"/>
-			</a>|	
-			<a href="#" id="membersVal" class="butSim">
-				<spring:message code="proceeding.members" text="Member Report"/>
-			</a>
-			<div style="display: none;" id="memberText">
-				<input type="text" class="autosuggest sText" id="memberOption" style="width: 100px;" />
-				 	<a href="#" id="createMemberwiseReport" style="text-decoration: none;"><span id="goBtn"><spring:message code="part.memberwiseReport" text="Go" ></spring:message></span></a>
-			</div> |
+			<div id="sessionLinks" style="display:inline;">
+				<a href="#" id="memberwise" class="butSim">
+					<spring:message code="proceeding.memberwise" text="Memberwise Report"/>
+				</a>|	
+				<a href="#" id="members" class="butSim">
+					<spring:message code="proceeding.members" text="Member Report"/>
+				</a>|	
+				<a href="#" id="membersVal" class="butSim">
+					<spring:message code="proceeding.members" text="Member Report"/>
+				</a>
+				<div style="display: none;" id="memberText">
+					<input type="text" class="autosuggest sText" id="memberOption" style="width: 100px;" />
+					 	<a href="#" id="createMemberwiseReport" style="text-decoration: none;"><span id="goBtn"><spring:message code="part.memberwiseReport" text="Go" ></spring:message></span></a>
+				</div> |
+			</div>
 			<p>&nbsp;</p>
 		</div>
 		

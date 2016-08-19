@@ -62,7 +62,7 @@
 				var i;
 				if(data.length>0){
 				for(i=0;i<data.length;i++){
-					slotText+="<option value='"+data[i].id+'##'+data[i].name+"'>"+data[i].name+"</option>";
+					slotText+="<option value='"+data[i].id+'##'+data[i].name+"'>"+data[i].name+"("+data[i].value+"-"+data[i].type+")"+"["+ data[i].displayName+"]"+"</option>";
 				}
 				$("#slots").html(slotText);			
 				}else{
@@ -82,7 +82,7 @@
 		});	
 		
 		
-		
+		$('#language').change();
 		
 	});	
 	
@@ -133,26 +133,70 @@
 					console.log(divId);
 					$('#previousContent').val($(this).html());
 					if ($(this).children('textarea').length == 0) { 
-						var inputbox = "<textarea id='prContent' class='inputbox wysiwyg sTextarea'>"+$(this).text()+"</textarea>"; 
+						var inputbox = "<textarea id='prContent' class='inputbox wysiwyg sTextarea'>"+$(this).html()+"</textarea>"; 
 						$(this).html(inputbox); 
 						$('#prContent').wysiwyg({
-							 resizeOptions: {maxWidth: 600},
+							 resizeOptions: {minWidth: 700},
+							 controls:{
+								 fullscreen: {
+										visible: true,
+										hotkey:{
+											"ctrl":1|0,
+											"key":122
+										},
+										exec: function () {
+											if ($.wysiwyg.fullscreen) {
+												$.wysiwyg.fullscreen.init(this);
+											}
+										},
+										tooltip: "Fullscreen"
+									},
+							 },
 							 events: {
-								blur: function() {
-									console.log('blur');
-									var value = $('#prContent').wysiwyg('getContent'); 
-									console.log(value);
-									$("#"+divId).empty(); 
-									$("#"+divId).html(value);
-									$('#replacedContent').val($("#"+divId).html());
-									var param="?language="+$('#language').val()+
-									  "&currentSlot="+$('#currentSlot').val()+
-									  "&slavePart="+$('#currentPart').val()+
-									  "&masterPart="+spanId[1]+
-									  "&isPart="+isPart;
-									 $.post($("form[action='proceeding/part/bookmark']").attr('action')+param,
-												$("form[action='proceeding/part/bookmark']").serialize(),function(data){
-												}); 	
+								keypress: function(event) {
+									if (event.ctrlKey || event.metaKey) {
+								        switch (String.fromCharCode(event.which).toLowerCase()) {
+								        case 's':
+								            event.preventDefault();
+								            var value = $('#prContent').wysiwyg('getContent'); 
+											console.log(value);
+											/* $("#"+divId).empty(); 
+											$("#"+divId).html(value); */
+											$('#replacedContent').val($("#"+divId).html());
+											var param="?language="+$('#language').val()+
+											  "&currentSlot="+$('#currentSlot').val()+
+											  "&slavePart="+$('#currentPart').val()+
+											  "&masterPart="+spanId[1]+
+											  "&isPart="+isPart;
+											 $.post($("form[action='proceeding/part/bookmark']").attr('action')+param,
+														$("form[action='proceeding/part/bookmark']").serialize(),function(data){
+														});
+								        	break;
+								        case 'w':
+								        	event.preventDefault();
+								        	var value = $('#prContent').wysiwyg('getContent'); 
+											console.log(value);
+											$("#"+divId).empty(); 
+											$("#"+divId).html(value);
+											$('#replacedContent').val($("#"+divId).html());
+											var param="?language="+$('#language').val()+
+											  "&currentSlot="+$('#currentSlot').val()+
+											  "&slavePart="+$('#currentPart').val()+
+											  "&masterPart="+spanId[1]+
+											  "&isPart="+isPart;
+											 $.post($("form[action='proceeding/part/bookmark']").attr('action')+param,
+														$("form[action='proceeding/part/bookmark']").serialize(),function(data){
+														});
+								        	break;
+								        }
+								    }
+									
+									var keyCode = event.keyCode || event.which; 
+										if (keyCode == 9) { 
+										event.preventDefault(); 
+									    insertAtCursor("prContent-wysiwyg-iframe",'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', 0);
+									} 
+																
 								}
 							 }
 						});
@@ -160,7 +204,7 @@
 					
 					} 	
 					
-					$("div.wysiwyg").css('width','750px');
+					$("div.wysiwyg").css('min-width','700px');
 					//$.fancybox.close();
 				}) ;
 				

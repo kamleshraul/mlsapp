@@ -46,6 +46,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/workflow/committee")
@@ -70,7 +71,8 @@ public class CommitteeWorkflowController extends BaseController {
 			final Locale localeObj) {
 		String locale = localeObj.toString();
 		String wfName = 
-			ApplicationConstants.COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER;		
+			ApplicationConstants.COMMITTEE_REQUEST_TO_PARLIAMENTARY_MINISTER;	
+		
 		return this.commonInitRequestToPAMAndLOP(model, wfName, locale);
 	}
 	
@@ -159,6 +161,12 @@ public class CommitteeWorkflowController extends BaseController {
 		CommitteeWFUtility.populateUserGroup(model, userGroup);
 		
 		// STEP 6: Return View
+		 if(request.getSession().getAttribute("type")==null){
+	            model.addAttribute("type","");
+        }else{
+        	model.addAttribute("type",request.getSession().getAttribute("type"));
+            request.getSession().removeAttribute("type");
+        }
 		String urlPattern = wfDetails.getUrlPattern();
 		String ugtType = userGroup.getUserGroupType().getType();
 		return urlPattern + "/" + ugtType;
@@ -182,14 +190,16 @@ public class CommitteeWorkflowController extends BaseController {
 	@RequestMapping(value="memberAddition", method=RequestMethod.PUT)
 	public String processMemberAdditionRequest(
 			final HttpServletRequest request,
+			final RedirectAttributes redirectAttributes,
 			final Locale localeObj) {
 		String locale = localeObj.toString();
 		
 		// Determine the houseType
 		List<Committee> committees = CommitteeWFUtility.getCommittees(request);
 		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+		
 		UserGroup userGroup = 
-			CommitteeWFUtility.getUserGroup(request, userGroups, locale);
+			CommitteeWFUtility.getUserGroup(request, userGroups, CommitteeWFUtility.getCredential(this.getCurrentUser(), locale), locale);
 		HouseType houseType = 
 			CommitteeWFUtility.getHouseType(committees, userGroup, locale);
 		
@@ -213,6 +223,11 @@ public class CommitteeWorkflowController extends BaseController {
 					userGroup, houseType, wfName, locale);
 		}
 		
+		 redirectAttributes.addFlashAttribute("type", "success");
+	        //this is done so as to remove the bug due to which update message appears even though there
+	        //is a fresh new/edit request i.e after creating/updating records if we click on
+	        //new /edit then success message appears
+	        request.getSession().setAttribute("type","success");
 		String returnURL = "redirect:memberAddition/processed/" 
 			+ wfDetails.getId();
 		return returnURL;
@@ -453,7 +468,8 @@ public class CommitteeWorkflowController extends BaseController {
 		List<Committee> committees = CommitteeWFUtility.getCommittees(request);
 		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
 		UserGroup userGroup =
-			CommitteeWFUtility.getUserGroup(request, userGroups, locale);
+			CommitteeWFUtility.getUserGroup(request, userGroups, 
+					CommitteeWFUtility.getCredential(this.getCurrentUser(), locale), locale);
 		HouseType houseType =
 			CommitteeWFUtility.getHouseType(committees, userGroup, locale);
 		
@@ -463,7 +479,7 @@ public class CommitteeWorkflowController extends BaseController {
 		// STEP 1
 		this.invitedMemberAdditionRequestSaveInformation(request, 
 				houseType, locale);
-		
+		/*
 		WorkflowDetails wfDetails = null;
 		String wfInit = CommitteeWFUtility.getWorkflowInit(request);
 		if(wfInit != null && wfInit.equals("true")) {
@@ -481,6 +497,9 @@ public class CommitteeWorkflowController extends BaseController {
 		String returnURL = "redirect:invitedMemberAddition/processed/" 
 			+ wfDetails.getId();
 		return returnURL;
+		*/
+		String ugtType = userGroup.getUserGroupType().getType();
+		return "workflow/committee/invitedMemberAddition/" + ugtType;
 	}
 	
 	/**
@@ -1344,19 +1363,21 @@ class CommitteeWFUtility {
 		// in cases where there could be more than one initiator
 		String ugtType = getCustomParameterValue(name, locale);
 		String[] ugtTypes = tokenize(ugtType, ",");
-		
+	
+			
 		List<UserGroup> userGroups = authUser.getUserGroups();
-		UserGroup userGroup = getUserGroup(userGroups, ugtTypes);
+		UserGroup userGroup = getUserGroup(userGroups, ugtTypes, getCredential(authUser, locale));
 		return userGroup;
 	}
 
 	public static UserGroup getUserGroup(final HttpServletRequest request,
 			final List<UserGroup> userGroups,
+			Credential credential,
 			final String locale) {
 		Status status = getStatus(request);
 		String wfName = getWorkflowName(status);
 		String[] ugtTypes = getUserGroupTypeTypes(wfName, locale);
-		return getUserGroup(userGroups, ugtTypes);
+		return getUserGroup(userGroups, ugtTypes, credential);
 	}
 	
 	public static UserGroup getUserGroup(final WorkflowActor wfActor, 
@@ -1790,9 +1811,9 @@ class CommitteeWFUtility {
 	}
 	
 	private static UserGroup getUserGroup(final List<UserGroup> userGroups,
-			final String[] userGroupTypeTypes) {
+			final String[] userGroupTypeTypes,Credential credential) {
 		for(String ugtt : userGroupTypeTypes) {
-			UserGroup userGroup = getUserGroup(userGroups, ugtt);
+			UserGroup userGroup = getUserGroup(userGroups, ugtt, credential);
 			if(userGroup != null) {
 				return userGroup;
 			}
@@ -1802,7 +1823,7 @@ class CommitteeWFUtility {
 	}
 	
 	private static UserGroup getUserGroup(final List<UserGroup> userGroups, 
-			final String userGroupTypeType) {
+			final String userGroupTypeType, Credential credential) {
 		for(UserGroup ug : userGroups) {
 			String ugtType = ug.getUserGroupType().getType();
 			if(ugtType.equals(userGroupTypeType)) {
@@ -1817,7 +1838,7 @@ class CommitteeWFUtility {
 				
 				// As a way around following piece of code is added
 				UserGroup userGroup = 
-					UserGroup.findById(UserGroup.class, ug.getId());
+					UserGroup.findActive(credential, ug.getUserGroupType(), new Date(), ApplicationConstants.DEFAULT_LOCALE);
 				return userGroup;
 			}
 		}
@@ -1990,6 +2011,19 @@ class CommitteeWFUtility {
 		}
 
 		return tokens;
+	}
+	
+	public static Credential getCredential(AuthUser authUser, String locale){
+		Credential cr = null;
+		
+		try{
+			User usr = User.findById(User.class, authUser.getUserId());
+			cr = usr.getCredential();
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return cr;
 	}
 
 }

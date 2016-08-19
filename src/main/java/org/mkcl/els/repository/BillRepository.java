@@ -3,6 +3,7 @@ package org.mkcl.els.repository;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -459,6 +460,8 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				" WHEN dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + "' THEN year(bill.admission_date)="+year +
 				" WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL + "' THEN year(bill.submission_date)="+year +
 				" END " +
+				" AND " +
+				" bill.locale='"+locale+"'" +
 				" ORDER BY bill.number DESC";		
 		@SuppressWarnings("rawtypes")
 		List results = this.em().createNativeQuery(queryString).setFirstResult(0).setMaxResults(1).getResultList();
@@ -475,6 +478,46 @@ public class BillRepository extends BaseRepository<Bill, Serializable>{
 				return (Integer) results.get(0);
 			}
 		}		
+	}
+	
+	public Boolean isExist(final Bill bill) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		Integer billYear =  calendar.get(Calendar.YEAR);
+		String queryString="SELECT * from bills bill LEFT JOIN devicetypes dt ON(bill.devicetype_id=dt.id)" +					
+				" WHERE " +
+				" CASE " +
+				" WHEN :billId IS NOT NULL THEN bill.id<>:billId" +
+				" END " +
+				" AND " +
+				" bill.number=:billNumber" +
+				" AND " +
+				" CASE " +
+				" WHEN dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + "' THEN bill.housetype_id=:billHouseType" +
+				" WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL + "' THEN bill.introducing_housetype_id=:billIntroHouseType" +
+				" END " +
+				" AND " +
+				" CASE " +
+				" WHEN dt.type='"+ApplicationConstants.NONOFFICIAL_BILL + "' THEN year(bill.admission_date)=:billYear" +
+				" WHEN dt.type='"+ApplicationConstants.GOVERNMENT_BILL + "' THEN year(bill.submission_date)=:billYear" +
+				" END " +
+				" AND " +
+				" bill.locale=:billLocale" +
+				" ORDER BY bill.number DESC";	
+		Query query = this.em().createNativeQuery(queryString);
+		query.setParameter("billId", bill.getId());
+		query.setParameter("billNumber", bill.getNumber());
+		query.setParameter("billHouseType", bill.getHouseType().getId());
+		query.setParameter("billIntroHouseType", bill.getIntroducingHouseType().getId());
+		query.setParameter("billYear", billYear);
+		query.setParameter("billLocale", bill.getLocale());
+		@SuppressWarnings("rawtypes")
+		List results = query.getResultList();
+		if(results!=null && results.size()>0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	/**

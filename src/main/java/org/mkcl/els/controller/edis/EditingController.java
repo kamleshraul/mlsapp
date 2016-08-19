@@ -1651,7 +1651,7 @@ public class EditingController extends GenericController<Roster>{
 						for (Member m : members) {
 							User user = User.findbyNameBirthDate(m.getFirstName(), m.getMiddleName(),m.getLastName(), m.getBirthDate());
 							Credential credential = user.getCredential();
-							UserGroup innerUserGroup = UserGroup.findByFieldName(UserGroup.class, "credential", credential, locale.toString());
+							UserGroup innerUserGroup = UserGroup.findActive(credential, new Date(), locale.toString());
 							
 							//It is done since in some parts speaker appears as primaryMember
 							//so it needs to be excluded from entering the member's workflow
@@ -1825,7 +1825,7 @@ class EditingControllerUtility{
 			if(username!=null){
 				if(!username.isEmpty()){
 					Credential credential=Credential.findByFieldName(Credential.class,"username",username,"");
-					UserGroup userGroup=UserGroup.findByFieldName(UserGroup.class,"credential",credential, locale);
+					UserGroup userGroup=UserGroup.findActive(credential, new Date(), locale);
 					userGroupId=String.valueOf(userGroup.getId());
 					userGroupType=userGroup.getUserGroupType().getType();
 					userGroupName=userGroup.getUserGroupType().getName();
@@ -1913,7 +1913,7 @@ class EditingControllerUtility{
 					if(username != null){
 						if(!username.isEmpty()){
 							Credential credential = Credential.findByFieldName(Credential.class,"username",username,"");
-							UserGroup userGroup=UserGroup.findByFieldName(UserGroup.class,"credential",credential, locale);
+							UserGroup userGroup=UserGroup.findActive(credential, new Date(), locale);
 							userGroupId=String.valueOf(userGroup.getId());
 							userGroupType=userGroup.getUserGroupType().getType();
 							userGroupName=userGroup.getUserGroupType().getName();

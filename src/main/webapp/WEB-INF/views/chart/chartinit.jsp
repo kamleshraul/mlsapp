@@ -48,7 +48,6 @@
 						scrollTop();
 					});
 				}else if($('#currentDeviceType').val()=="questions_starred"){
-					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					var parameters = "houseType="+$("#selectedHouseType").val()
 									 +"&sessionYear="+$("#selectedSessionYear").val()
 									 +"&sessionType="+$("#selectedSessionType").val()
@@ -57,45 +56,89 @@
 									 +"&status="+$("#selectedStatus").val()
 									 +"&role="+$("#srole").val() 
 									 + "&answeringDate=" + $("#selectedAnsweringDate").val();
-					var resourceURL = 'chart/create?' + parameters;
-					$.get(resourceURL, function(data) {
-						var displayMessage = data;
-						if(data == "CREATED" || data == "ALREADY_EXISTS") {
-							var newResourceURL = 'chart/view?' + parameters;
-							$.get(newResourceURL,function(data){
-								$("#chartResultDiv").empty();
-								$("#chartResultDiv").html(data);
-								$.unblockUI();					
-							},'html').fail(function(){
+					if($("#selectedHouseType").val()=='lowerhouse' && $("#chartCreatePermissionLowerhouse").val()=='yes'){
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+						var resourceURL = 'chart/create?' + parameters;
+						$.get(resourceURL, function(data) {
+							var displayMessage = data;
+							if(data == "CREATED" || data == "ALREADY_EXISTS") {
+								var newResourceURL = 'chart/view?' + parameters;
+								$.get(newResourceURL,function(data){
+									$("#chartResultDiv").empty();
+									$("#chartResultDiv").html(data);
+									$.unblockUI();					
+								},'html').fail(function(){
+									$.unblockUI();
+									if($("#ErrorMsg").val()!=''){
+										$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+									}else{
+										$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+									}
+									scrollTop();
+								});
+							}
+							else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
+								displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
 								$.unblockUI();
-								if($("#ErrorMsg").val()!=''){
-									$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-								}else{
-									$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-								}
-								scrollTop();
-							});
-						}
-						else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
-							displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
+								$.fancybox.open(displayMessage);
+							}
+							else {
+								displayMessage = "Error Occurred while creating Chart";
+								$.unblockUI();
+								$.fancybox.open(displayMessage);
+							}
+						}).fail(function(){
 							$.unblockUI();
-							$.fancybox.open(displayMessage);
-						}
-						else {
-							displayMessage = "Error Occurred while creating Chart";
+							if($("#ErrorMsg").val()!=''){
+								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+							}else{
+								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+							}
+							scrollTop();
+						});
+					}else if($("#selectedHouseType").val()=='upperhouse' && $("#chartCreatePermissionUpperhouse").val()=='yes'){
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+						var resourceURL = 'chart/create?' + parameters;
+						$.get(resourceURL, function(data) {
+							var displayMessage = data;
+							if(data == "CREATED" || data == "ALREADY_EXISTS") {
+								var newResourceURL = 'chart/view?' + parameters;
+								$.get(newResourceURL,function(data){
+									$("#chartResultDiv").empty();
+									$("#chartResultDiv").html(data);
+									$.unblockUI();					
+								},'html').fail(function(){
+									$.unblockUI();
+									if($("#ErrorMsg").val()!=''){
+										$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+									}else{
+										$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+									}
+									scrollTop();
+								});
+							}
+							else if(data == "PREVIOUS_CHART_IS_NOT_PROCESSED") {
+								displayMessage = "Previos Chart is not Processed. Kindly process it before creating a new Chart.";
+								$.unblockUI();
+								$.fancybox.open(displayMessage);
+							}
+							else {
+								displayMessage = "Error Occurred while creating Chart";
+								$.unblockUI();
+								$.fancybox.open(displayMessage);
+							}
+						}).fail(function(){
 							$.unblockUI();
-							$.fancybox.open(displayMessage);
-						}
-					}).fail(function(){
-						$.unblockUI();
-						if($("#ErrorMsg").val()!=''){
-							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-						}else{
-							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-						}
-						scrollTop();
-					});
-				}else if($('#currentDeviceType').val()=="questions_halfhourdiscussion_standalone"){
+							if($("#ErrorMsg").val()!=''){
+								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+							}else{
+								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+							}
+							scrollTop();
+						});
+					}
+
+				}else if($('#currentDeviceType').val()=="motions_standalonemotion_halfhourdiscussion"){
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					var parameters = "houseType="+$("#selectedHouseType").val()
 									 +"&sessionYear="+$("#selectedSessionYear").val()
@@ -191,7 +234,7 @@
 						}
 						scrollTop();
 					});
-				}else if($('#currentDeviceType').val()=="questions_halfhourdiscussion_standalone"){
+				}else if($('#currentDeviceType').val()=="motions_standalonemotion_halfhourdiscussion"){
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					var parameters = "houseType="+$("#selectedHouseType").val()
 					 	+"&sessionYear="+$("#selectedSessionYear").val()
@@ -243,7 +286,7 @@
 						 +"&usergroupType="+$("#currentusergroupType").val();
 					}
 					 parameters = parameters + "&group=" + $("#selectedGroup").val();
-				}else if($('#currentDeviceType').val()=="questions_halfhourdiscussion_standalone"){
+				}else if($('#currentDeviceType').val()=="motions_standalonemotion_halfhourdiscussion"){
 					if(parameters==undefined){
 						parameters = "houseType="+$("#selectedHouseType").val()
 					 	+"&sessionYear="+$("#selectedSessionYear").val()
@@ -315,7 +358,7 @@
 					}
 					scrollTop();
 				});
-			}else if($('#currentDeviceType').val()=="questions_halfhourdiscussion_standalone"){
+			}else if($('#currentDeviceType').val()=="motions_standalonemotion_halfhourdiscussion"){
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				var parameters = "houseType="+$("#selectedHouseType").val()
 				 	+"&sessionYear="+$("#selectedSessionYear").val()
@@ -436,7 +479,7 @@
 			</select> |
 		</c:if>
 	</c:if>
-	<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'SUPER_ADMIN','ROIS_ASSISTANT','HDS_ASSISTANT','QIS_CLERK','HDS_CLERK')">
+	<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'QIS_CLERK', 'SUPER_ADMIN','ROIS_CLERK','ROIS_ASSISTANT', 'SMOIS_ASSISTANT', 'SMOIS_CLERK')">
 	<a href="#" id="create_chart" class="butSim">
 		<spring:message code="chartinitial.createchart" text="Create Chart"/>
 	</a> |
@@ -457,10 +500,10 @@
 <input id="usergroup" name="usergroup" type="hidden" value="${usergroup}">
 <input id="usergroupType" name="usergroupType" type="hidden" value="${usergroupType}">
 <ul id="contextMenuItems" >
-<c:if test="${deviceType=='questions_starred'}" >
-<li><a href="#clubbing" class="edit"><spring:message code="generic.clubbing" text="Clubbing"></spring:message></a></li>
-</c:if>
-<li><a href="#referencing" class="edit"><spring:message code="generic.referencing" text="Referencing"></spring:message></a></li>
+	<c:if test="${deviceType=='questions_starred'}" >
+		<li><a href="#clubbing" class="edit"><spring:message code="generic.clubbing" text="Clubbing"></spring:message></a></li>
+	</c:if>
+	<li><a href="#referencing" class="edit"><spring:message code="generic.referencing" text="Referencing"></spring:message></a></li>
 </ul>
 
 <div id="clubbingResultDiv" style="display:none;">
@@ -470,5 +513,7 @@
 </div>
 <input type="hidden" id="deviceType_Chart" value="${deviceType}" />
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+<input type="hidden" id="chartCreatePermissionLowerhouse" value="<spring:message code='chart.createpermission.lowerhouse'/>"/>
+<input type="hidden" id="chartCreatePermissionUpperhouse" value="<spring:message code='chart.createpermission.upperhouse'/>"/>
 </body>
 </html>

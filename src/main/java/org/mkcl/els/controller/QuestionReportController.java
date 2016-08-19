@@ -1,18 +1,23 @@
 package org.mkcl.els.controller;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,14 +30,18 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MinistryVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RoundVO;
+import org.mkcl.els.common.vo.SessionVO;
 import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
-import org.mkcl.els.domain.Ballot;
+import org.mkcl.els.domain.ballot.Ballot;
+import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
+import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
+import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
@@ -42,6 +51,7 @@ import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
+import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -53,9 +63,11 @@ import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.domain.YaadiDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -205,6 +217,8 @@ public class QuestionReportController extends BaseController{
 			Question question = Question.findById(Question.class, Long.parseLong(strQuestionId));
 			if(question!=null) {
 				QuestionIntimationLetterXmlVO letterVO = new QuestionIntimationLetterXmlVO();
+				Status status = question.getInternalStatus();	
+				String statusType=status.getType();
 				DeviceType deviceType = question.getType();
 				letterVO.setDeviceType(deviceType.getName());
 				if(question.getNumber()!=null) {
@@ -299,19 +313,102 @@ public class QuestionReportController extends BaseController{
 				}
 				SubDepartment subDepartment = question.getSubDepartment();
 				if(subDepartment!=null) {
-					letterVO.setSubDepartment(subDepartment.getName());
+					letterVO.setSubDepartment(subDepartment.getName().trim());
 				}
 				Department department = subDepartment.getDepartment();
 				if(department!=null) {
-					letterVO.setDepartment(department.getName());
+					letterVO.setDepartment(department.getName().trim());
+				}
+				letterVO.setIsSubDepartmentNameSameAsDepartmentName(false);
+				if(letterVO.getDepartment()!=null && letterVO.getSubDepartment()!=null) {
+					MessageResource departmentLabel = MessageResource.findByFieldName(MessageResource.class, "code", "generic.department", locale.toString());
+					if(departmentLabel!=null) {
+						String dept = letterVO.getDepartment();
+						if(letterVO.getDepartment().endsWith(departmentLabel.getValue())) {
+							dept = letterVO.getDepartment().split(departmentLabel.getValue())[0].trim();
+						}	
+						String subDept = letterVO.getSubDepartment();
+						if(letterVO.getSubDepartment().endsWith(departmentLabel.getValue())) {
+							subDept = letterVO.getSubDepartment().split(departmentLabel.getValue())[0].trim();
+						}
+						if(dept.equals(subDept)) {
+							letterVO.setIsSubDepartmentNameSameAsDepartmentName(true);
+						}
+					}					
+				}
+				/** previous related details of question **/
+				QuestionDraft questionDraftBeforeChange = null;
+				if(question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)
+						|| 
+					(intimationLetterFilter!=null 
+						&& (intimationLetterFilter.equals("groupchanged")
+							|| intimationLetterFilter.equals("groupChangedAfterBallot"))
+					)
+						) {
+					questionDraftBeforeChange = question.findLatestPreviousGroupDraft();				
+				} else {
+					questionDraftBeforeChange = question.findSecondPreviousDraft();
+				}
+				if(questionDraftBeforeChange!=null) {
+					Ministry previousMinistry = questionDraftBeforeChange.getMinistry();
+					if(previousMinistry!=null) {
+						try {
+							MemberMinister memberMinister = Question.findMemberMinisterIfExists(question, previousMinistry);
+							if(memberMinister!=null) {
+								letterVO.setPreviousMinistryDesignation(memberMinister.getDesignation().getName());
+							} else {
+								letterVO.setPreviousMinistryDesignation("");
+							}
+						} catch(ELSException ex) {
+							letterVO.setPreviousMinistryDesignation("");
+						}						
+					}
+					SubDepartment previousSubDepartment = questionDraftBeforeChange.getSubDepartment();
+					if(previousSubDepartment!=null) {
+						letterVO.setPreviousSubDepartment(previousSubDepartment.getName());
+						Department previousDepartment = previousSubDepartment.getDepartment();
+						if(previousDepartment!=null) {
+							letterVO.setPreviousDepartment(previousDepartment.getName());
+						}
+					}																
+				} else {
+					isError = true;
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.intimationLetter.noQuestionFound", locale.toString());
 				}
 				/** answering date for starred question **/
-				if(question.getType().getType().trim().equals(ApplicationConstants.STARRED_QUESTION)) {
+				if(deviceType.getType().trim().equals(ApplicationConstants.STARRED_QUESTION)) {
 					QuestionDates questionDates = Question.findQuestionDatesForStarredQuestion(question);
 					if(questionDates!=null) {
 						Date answeringDate = questionDates.getAnsweringDate();
 						if(answeringDate!=null) {
-							letterVO.setAnsweringDate(FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", question.getLocale()));
+							if(statusType.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED) 
+									|| (intimationLetterFilter!=null && intimationLetterFilter.equals("groupChangedAfterBallot"))) {
+								
+								String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, "dd MMM,yyyy", question.getLocale());
+								formattedAnsweringDate = FormaterUtil.formatMonthInMarathiDate(formattedAnsweringDate, locale.toString());
+								letterVO.setAnsweringDate(formattedAnsweringDate);
+								
+							} else if(intimationLetterFilter!=null && intimationLetterFilter.equals("answeringDateForwarded")) {
+								SimpleDateFormat dbFormat = null;
+								CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+								if(dbDateFormat!=null){
+									dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+								}
+								//Added the following code to solve the marathi month and day issue
+								String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
+								String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+								String dateLabel = "";
+								MessageResource dateLabelMessageResource = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+								if(dateLabelMessageResource!=null && dateLabelMessageResource.getValue()!=null) {
+									dateLabel = dateLabelMessageResource.getValue();
+								}
+								String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
+								String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+								String formattedAnsweringDate = answeringDay+", "+dateLabel+" "+strAnsweringMonth[0] + " " + answeringMonth + ", " + strAnsweringDates[2];
+								letterVO.setAnsweringDate(formattedAnsweringDate);
+							} else {
+								letterVO.setAnsweringDate(FormaterUtil.formatDateToString(answeringDate, "dd-MM-yyyy", question.getLocale()));
+							}							
 						}
 						Date lastSendingDateToDepartment = questionDates.getLastReceivingDateFromDepartment();
 						if(lastSendingDateToDepartment!=null) {
@@ -336,18 +433,76 @@ public class QuestionReportController extends BaseController{
 				}else{
 					//answeringDate = question.getDiscussionDate();
 				}
-
+				/** next answering date for starred question **/
+				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+					QuestionDates questionDates = question.findNextAnsweringDate();
+					if(questionDates!=null) {
+						Date nextAnsweringDate = questionDates.getAnsweringDate();
+						if(nextAnsweringDate!=null) {
+							if(intimationLetterFilter!=null && intimationLetterFilter.equals("answeringDateForwarded")) {
+								
+								SimpleDateFormat dbFormat = null;
+								CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+								if(dbDateFormat!=null){
+									dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+								}
+								//Added the following code to solve the marathi month and day issue
+								String[] strNextAnsweringDates=dbFormat.format(nextAnsweringDate).split(",");
+								String answeringDay=FormaterUtil.getDayInMarathi(strNextAnsweringDates[0],locale.toString());
+								String dateLabel = "";
+								MessageResource dateLabelMessageResource = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale.toString());
+								if(dateLabelMessageResource!=null && dateLabelMessageResource.getValue()!=null) {
+									dateLabel = dateLabelMessageResource.getValue();
+								}
+								String[] strAnsweringMonth=strNextAnsweringDates[1].split(" ");
+								String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+								String formattedNextAnsweringDate = answeringDay+", "+dateLabel+" "+strAnsweringMonth[0] + " " + answeringMonth + ", " + strNextAnsweringDates[2];
+								letterVO.setNextAnsweringDate(formattedNextAnsweringDate);
+								
+							} else {
+								letterVO.setNextAnsweringDate(FormaterUtil.formatDateToString(nextAnsweringDate, "dd-MM-yyyy", question.getLocale()));
+							}							
+						} else {
+							letterVO.setNextAnsweringDate("_________");
+						}
+					} else {
+						letterVO.setNextAnsweringDate("_________");
+					}
+				}
+				/** ballot date for starred question **/
+				if(deviceType.getType().trim().equals(ApplicationConstants.STARRED_QUESTION)
+						&& intimationLetterFilter!=null && intimationLetterFilter.equals("groupChangedAfterBallot")) {
+					try {
+						Ballot ballotForQuestion = Ballot.find(question);
+						if(ballotForQuestion!=null) {
+							String formattedBallotDate = FormaterUtil.formatDateToString(ballotForQuestion.getBallotDate(), "dd MMM,yyyy", question.getLocale());
+							formattedBallotDate = FormaterUtil.formatMonthInMarathiDate(formattedBallotDate, locale.toString());
+							letterVO.setBallotDate(formattedBallotDate);							
+						}
+					} catch (Exception e) {
+						isError = true;
+						e.printStackTrace();
+					}
+				}
 				/** referenced question details (later should come through referenced entities) **/
-				if(question.getQuestionreferenceText()!=null) {
-					formattedText = question.getQuestionreferenceText();//FormaterUtil.formatNumbersInGivenText(question.getQuestionreferenceText(), question.getLocale());
+				String questionReferenceText = question.findReferencingDetailsText();
+				if(questionReferenceText!=null && !questionReferenceText.isEmpty()) {
+					formattedText = questionReferenceText;//FormaterUtil.formatNumbersInGivenText(questionReferenceText, question.getLocale());
 					letterVO.setQuestionReferenceText(formattedText);
 				} else {
-					letterVO.setQuestionReferenceText("");
+					if(question.getQuestionreferenceText()!=null) {
+						formattedText = question.getQuestionreferenceText();//FormaterUtil.formatNumbersInGivenText(question.getQuestionreferenceText(), question.getLocale());
+						letterVO.setQuestionReferenceText(formattedText);
+					} else {
+						letterVO.setQuestionReferenceText("");
+					}
 				}
-
-				Status status = question.getInternalStatus();	
-				String statusType=status.getType();
-				if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION) || statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)) {
+				
+				
+				if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION) || statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_REJECTION) || statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_REJECTION) || statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_REJECTION) || statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)) {
 					if(question.getRejectionReason()!=null && !question.getRejectionReason().isEmpty()) {
 						formattedText = question.getRejectionReason();//FormaterUtil.formatNumbersInGivenText(question.getRejectionReason(), question.getLocale());
 						if(formattedText.endsWith("<br><p></p>")) {
@@ -359,6 +514,9 @@ public class QuestionReportController extends BaseController{
 					} else {
 						letterVO.setRejectionReason("");
 					}
+					
+					letterVO.setSubject(question.getSubject());
+					letterVO.setQuestionText(question.getQuestionText());
 				}
 				
 				/** factual position (clarification) received from department **/
@@ -394,6 +552,13 @@ public class QuestionReportController extends BaseController{
 							if(answeringQuestionDate!=null && answeringQuestionDate.getAnsweringDate()!=null) {
 								letterVO.setReferredQuestionAnsweringDate(FormaterUtil.formatDateToString(answeringQuestionDate.getAnsweringDate(), ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString()));
 							}
+						} else if(referredQuestionDeviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+							if(referredQuestion.getYaadiNumber()!=null) {
+								letterVO.setReferredQuestionYaadiNumber(FormaterUtil.formatNumberNoGrouping(referredQuestion.getYaadiNumber(), locale.toString()));
+							}
+							if(referredQuestion.getYaadiLayingDate()!=null) {
+								letterVO.setReferredQuestionYaadiLayingDate(FormaterUtil.formatDateToString(referredQuestion.getYaadiLayingDate(), ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString()));
+							}						
 						}
 					} else {
 						String referredQuestionNumber = question.getHalfHourDiscusionFromQuestionReferenceNumber();
@@ -447,7 +612,9 @@ public class QuestionReportController extends BaseController{
 				if(question.getDiscussionDate()!=null) {
 					letterVO.setDiscussionDate(FormaterUtil.formatDateToString(question.getDiscussionDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString()));
 				}
-
+				
+				//==================status as per filter for clarification cases==============//
+				//for starred
 				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)
 						|| statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)){
 					statusType=ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
@@ -455,39 +622,101 @@ public class QuestionReportController extends BaseController{
 						|| statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)){
 					statusType=ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT;
 				}
+				//for unstarred
+				if(statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)){
+					statusType=ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
+				}else if(statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)){
+					statusType=ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT;
+				}
+				//for short notice
+				if(statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)){
+					statusType=ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
+				}else if(statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)){
+					statusType=ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT;
+				}
+				//for half hour discussion from question
+				if(statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.MEMBER)){
+					statusType=ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER;
+				}else if(statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT) && intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)){
+					statusType=ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT;
+				}
+				//==================end of status as per filter for clarification cases==============//
+				
 				if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 						|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 						|| statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
-						|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+					
 					String questionsAsked = question.getQuestionsAskedInFactualPosition();
-					if(questionsAsked==null) {
+					if(questionsAsked==null || questionsAsked.isEmpty()) {
 						if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+							
 							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+						
 						} else if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
-								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+							
 							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
 						}
-					} else if(questionsAsked.isEmpty()) {
-						if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
-							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
-						} else if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
-								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-							questionsAsked = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
-						}
-					}
+					} 
+					
 					if(questionsAsked!=null && !questionsAsked.isEmpty()) {
 						List<MasterVO> questionsAskedForClarification = new ArrayList<MasterVO>();
 						StringBuffer questionIndexesForClarification=new StringBuffer();	
 						String allQuestions = "";
 						if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+							
 							allQuestions = session.getParameter(deviceType.getType().trim()+"_clarificationFromDepartmentQuestions");
+						
 						} else if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
-								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+								|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+							
 							allQuestions = session.getParameter(deviceType.getType().trim()+"_clarificationFromMemberQuestions");
-						}								
+						}														
 						for(String questionAsked : questionsAsked.split("##")) {
 							MasterVO questionAskedForClarification = new MasterVO();
 							questionAskedForClarification.setValue(questionAsked);
@@ -534,24 +763,88 @@ public class QuestionReportController extends BaseController{
 
 				/**** generate report ****/				
 				try {
+					String reportFileName = "intimationletter";
+					if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+						reportFileName += "_unstarred";
+					} else if(question.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+						reportFileName += "_starred";
+					} else if(question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+						reportFileName += "_unstarred";
+					} else if(question.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)) {
+						reportFileName += "_shortnotice";
+					} else if(question.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+						reportFileName += "_halfhour";
+					} 
+					if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+						reportFileName += "_laq";
+					} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+						reportFileName += "_lcq";
+					}
+					reportFileName += "(" + question.getNumber() + ")";
+					if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+						
+						reportFileName += "_clarification(department)";
+						
+					} else if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						
+						if(intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)) {
+							reportFileName += "_clarification(department)";
+						} else {
+							reportFileName += "_clarification(member)";
+						}						
+						
+					} else {
+						reportFileName += "_" + statusTypeSplit;
+					}	
+					String outputFormat = "WORD";
+					Set<Role> roles = this.getCurrentUser().getRoles();
+					Role departmentRole = Role.findByType("QIS_DEPARTMENT_USER", locale.toString());
+					for(Role r :roles){
+						if(r.getId().equals(departmentRole.getId())){
+							outputFormat = "PDF";
+							break;
+						}
+					}
+					
 					if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
-						&& question.getDateOfAnsweringByMinister()!=null 
-						&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_FINAL_ADMITTED)
+						&& question.getDateOfAnsweringByMinister()!=null
+						&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_FINAL_DATEADMITTED)
 						&& intimationLetterFilter.equals(ApplicationConstants.MEMBER)){
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_member", "WORD", "intimation_letter", locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_member", outputFormat, reportFileName, locale.toString());
 					}else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
 							&& question.getDateOfAnsweringByMinister()!=null 
-							&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_FINAL_ADMITTED)
+							&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_FINAL_DATEADMITTED)
 							&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)){
-							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_department", "WORD", "intimation_letter", locale.toString()); 
+							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_department", outputFormat, reportFileName, locale.toString()); 
 					}else if(intimationLetterFilter!=null && !intimationLetterFilter.isEmpty() && !intimationLetterFilter.equals("-")) {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit, "WORD", "_intimation_letter", locale.toString());
+						try {
+							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit, outputFormat, reportFileName, locale.toString());
+						} catch(FileNotFoundException e) {
+							if(e.getMessage().equals(ApplicationConstants.XSLT_FILE_NOT_FOUND)) {
+								reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter, outputFormat, reportFileName, locale.toString());
+							}
+						}
+						
 					}else {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, "WORD", "intimation_letter", locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, outputFormat, reportFileName, locale.toString());
 					}					
-					System.out.println("Intimation Letter generated successfully in WORD format!");
-
-					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+					System.out.println("Intimation Letter generated successfully in "+ outputFormat +" format!");
+					
+					openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
 				} catch (Exception e) {
 					e.printStackTrace();
 					isError = true;
@@ -582,6 +875,45 @@ public class QuestionReportController extends BaseController{
 		}	
 	}	
 	
+	@RequestMapping(value="/generateReminderLetter", method=RequestMethod.GET)
+	public @ResponseBody void generateReminderLetter(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		File reportFile = null;
+		
+		@SuppressWarnings("unchecked")
+		Map<String, String[]> requestMap = request.getParameterMap();
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = Query.findReport(request.getParameter("reportQuery"), requestMap, true);
+		
+    	if(resultList!=null && !resultList.isEmpty()) {
+    		List<String> serialNumbers = populateSerialNumbers(resultList, locale);
+    		List<String> expectedAnswerReceivingDates = new ArrayList<String>();
+    		for(int i=0; i<resultList.size(); i++) {
+    			Object[] resultUnit = resultList.get(i);
+    			if(resultUnit[5]!=null && !resultUnit[5].toString().isEmpty()) {
+    				if(resultUnit[1].toString().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+    					Date answerRequestedDate = FormaterUtil.formatStringToDate(resultUnit[5].toString(), ApplicationConstants.DB_DATETIME_FORMAT);
+    					Integer expectedAnswerReceivingDateDuration = 30;
+    					CustomParameter expectedAnswerReceivingDateDurationCP = CustomParameter.findByName(CustomParameter.class, "UNSTARRED_QUESTION_EXPECTED_ANSWER_RECEIVING_DATE_DURATION", "");
+    					if(expectedAnswerReceivingDateDurationCP!=null && expectedAnswerReceivingDateDurationCP.getValue()!=null) {
+    						expectedAnswerReceivingDateDuration = Integer.parseInt(expectedAnswerReceivingDateDurationCP.getValue());
+    					}
+    					Date expectedAnswerReceivingDate = Holiday.getNextWorkingDateFrom(answerRequestedDate, expectedAnswerReceivingDateDuration, locale.toString());
+    					expectedAnswerReceivingDates.add(FormaterUtil.formatDateToString(expectedAnswerReceivingDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_3, locale.toString()));
+    				} else {
+    					expectedAnswerReceivingDates.add(resultUnit[7].toString());
+    				}
+    			} else {
+    				expectedAnswerReceivingDates.add("");
+    			}
+    		}
+    		reportFile = generateReportUsingFOP(new Object[] {resultList, expectedAnswerReceivingDates, serialNumbers}, "qis_reminder_letter_template", request.getParameter("outputFormat"), "qis_reminder_letter", locale.toString());
+    		if(reportFile!=null) {
+    			System.out.println("Report generated successfully in " + request.getParameter("outputFormat") + " format!");
+    			openOrSaveReportFileFromBrowser(response, reportFile, request.getParameter("outputFormat"));
+    		}
+    	}		
+	}
+	
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/admissionreport", method=RequestMethod.GET)
 	public String admittedAndToBeAdmittedReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
@@ -593,6 +925,8 @@ public class QuestionReportController extends BaseController{
 			String strDeviceType = request.getParameter("deviceType");
 			String strGroupId = request.getParameter("groupId");
 			String strSubDepartment = request.getParameter("subDepartment");
+			String strAnsweringDate = request.getParameter("answeringDate");
+			String strClubbingStatus = request.getParameter("clubbingStatus");
 			
 			if(strGroupId == null ){
 				
@@ -614,6 +948,8 @@ public class QuestionReportController extends BaseController{
 				parameters.put("groupId", new String[]{strGroupId});
 				parameters.put("subDepartment", new String[]{strSubDepartment});
 				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("answeringDate", new String[]{strAnsweringDate.toString()});
+				parameters.put("clubbingStatus", new String[]{strClubbingStatus.toString()});
 				
 				List report = Query.findReport("ADMISSION_REPORT", parameters);
 				
@@ -673,6 +1009,63 @@ public class QuestionReportController extends BaseController{
 				model.addAttribute("locale", locale.toString());
 				
 				page = "question/reports/halfhourdaywisesubmitreport";
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return page;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/halfhourdaysubmitreportdatefilter", method=RequestMethod.GET)
+	public String halfhourDayWiseSubmissionReportDateFilter(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		String page = "standalonemotion/error";
+		try{
+			String strGroupId = request.getParameter("groupId");
+			String strSubDepartment = request.getParameter("subDepartment");
+			String strDay = request.getParameter("subdate");
+			
+			if(strGroupId != null && !strGroupId.isEmpty()
+					&& strSubDepartment != null && !strSubDepartment.isEmpty()
+					&& strDay != null && !strDay.isEmpty()){
+								
+				List<Object> objects = StandaloneMotionReportHelper.getSesionAndDeviceType(request, locale.toString());
+				
+				Session session = null; 
+				DeviceType deviceType = null;
+				if(!objects.isEmpty()){
+					session = (Session) objects.get(0);
+					deviceType = (DeviceType)objects.get(1);
+				}
+				
+				Date subDate = null;
+				try{
+					subDate = FormaterUtil.stringToDate(strDay, "dd-MM-yyyy");
+				}catch(ParseException pe){
+					
+					String[] vals = ReferenceController.decodedValues(new String[]{strDay});
+					strDay = vals[0];
+
+					subDate = FormaterUtil.formatStringToDate(strDay, "dd-MM-yyyy", locale.toString());
+				}
+				
+				Map<String, String[]> parameters = new HashMap<String, String[]>();
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("groupId", new String[]{strGroupId});
+				parameters.put("subDate", new String[]{FormaterUtil.formatDateToString(subDate, ApplicationConstants.DB_DATEFORMAT)});
+				parameters.put("subDepartment", new String[]{strSubDepartment});
+				parameters.put("locale", new String[]{locale.toString()});
+				
+				List report = Query.findReport("HALFHOUR_DAYWISE_SUBMISSION_REPORT_DATE_FILTER", parameters);
+				
+				model.addAttribute("report", report);
+				model.addAttribute("formater", new FormaterUtil());
+				model.addAttribute("locale", locale.toString());
+				
+				page = "standalonemotion/reports/halfhourdaywisesubmitreport";
 			}
 			
 		}catch(Exception e){
@@ -754,6 +1147,8 @@ public class QuestionReportController extends BaseController{
 				
 				model.addAttribute("topHeader", obj[0].toString().split(";"));
 			}
+			List<String> serialNumbers = populateSerialNumbers(report, locale);
+			model.addAttribute("serialNumbers", serialNumbers);
 		}
 		model.addAttribute("formater", new FormaterUtil());
 		model.addAttribute("locale", locale.toString());
@@ -763,7 +1158,15 @@ public class QuestionReportController extends BaseController{
 	}
 	//----------------------------------------------------------------------
 	@RequestMapping(value="/viewYaadi" ,method=RequestMethod.GET)
-	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model) throws ELSException{
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		File reportFile = null; 
 
 		String strHouseType=request.getParameter("houseType");
@@ -795,7 +1198,7 @@ public class QuestionReportController extends BaseController{
 					answeringDate = questionDates.getAnsweringDate();
 				}
 				else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-						deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+						deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
 					CustomParameter dbDateFormat = 
 							CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
@@ -804,7 +1207,8 @@ public class QuestionReportController extends BaseController{
 					answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 				}
 				Group group = null;
-				if(deviceType.getDevice().equals("Question")) {
+				CustomParameter deviceTypesHavingGroupCP = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_HAVING_GROUPS", "");
+				if(deviceTypesHavingGroupCP!=null && deviceTypesHavingGroupCP.getValue().contains(deviceType.getType())) {
 					try {
 						group = Group.find(session, answeringDate, locale.toString());
 					} catch (ELSException e) {					
@@ -817,7 +1221,7 @@ public class QuestionReportController extends BaseController{
 				} catch (ELSException e1) {
 					e1.printStackTrace();
 				}
-				if(ballotedDeviceVOs == null) {
+				if(ballotedDeviceVOs==null || ballotedDeviceVOs.isEmpty()) {
 					try {
 						//response.sendError(404, "Report cannot be generated at this stage.");
 						MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "question.yadiReport.noDataFound", locale.toString());
@@ -836,34 +1240,25 @@ public class QuestionReportController extends BaseController{
 						e.printStackTrace();
 					}
 				}
-				if(ballotedDeviceVOs.isEmpty()) {
-					try {
-						//response.sendError(404, "Report cannot be generated at this stage.");
-						MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "resolution.karyavaliReport.noDataFound", locale.toString());
-						if(message != null) {
-							if(!message.getValue().isEmpty()) {	            				
-								response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
-							} else {
-								response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
-							}
-						} else {
-							response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
-						}
-
-						return;
-					} catch (IOException e) {						
-						e.printStackTrace();
-					}
-				}
 				QuestionYaadiSuchiXmlVO data = new QuestionYaadiSuchiXmlVO();
 				data.setHouseType(houseType.getName());
 				data.setSessionNumber(session.getNumber().toString());
 				data.setSessionType(sessionType.getSessionType());
 				data.setSessionYear(FormaterUtil.formatNumberNoGrouping(sessionYear, locale.toString()));
 				data.setSessionPlace(session.getPlace().getPlace());
-				Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
+				CustomParameter roleCustomParameter = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_YAADI_FOOTER_ROLE", "");
+				if(roleCustomParameter==null) {
+					logger.error("/**** role parameter for yaadi footer not set. ****/");
+					throw new ELSException("QuestionReportController/generateYaadiReport", "role parameter for yaadi footer not set.");
+				}
+				Role role = Role.findByFieldName(Role.class, "type", roleCustomParameter.getValue(), locale.toString());
+				if(role==null) {
+					logger.error("/**** role '"+roleCustomParameter.getValue()+"' is not found. ****/");
+					throw new ELSException("QuestionReportController/generateYaadiReport", "role '"+roleCustomParameter.getValue()+"' is not found.");
+				}
+				data.setUserRole(role.getLocalizedName());
 				List<User> users = User.findByRole(false, role.getName(), locale.toString());
-				//as principal secretary for starred question is only one, so user is obviously first element of the list.
+				//as principal secretary & secretary for starred question is only one, so user is obviously first element of the list.
 				data.setUserName(users.get(0).findFirstLastName());
 
 				List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
@@ -929,6 +1324,15 @@ public class QuestionReportController extends BaseController{
 	
 	@RequestMapping(value="/generateUnstarredYaadiReport/getUnstarredYaadiNumberAndDate", method=RequestMethod.GET)
 	public String getUnstarredYaadiNumberAndDate(HttpServletRequest request, ModelMap model, Locale locale) {
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		
 		String retVal = "question/reports/error";
 		String strHouseType = request.getParameter("houseType");
 		String strSessionType = request.getParameter("sessionType");
@@ -955,7 +1359,10 @@ public class QuestionReportController extends BaseController{
 							model.addAttribute("sessionId", session.getId());
 							Integer highestYaadiNumber = Question.findHighestYaadiNumber(null, session, locale.toString());
 							if(highestYaadiNumber!=null) {
-								if(Question.isNumberedYaadiFilled(null, session, highestYaadiNumber, locale.toString())) {
+								if(highestYaadiNumber.equals(0)) {
+									model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber+1, locale.toString()));
+									model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+								} else if(Question.isNumberedYaadiFilled(null, session, highestYaadiNumber, locale.toString())) {
 									model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber+1, locale.toString()));
 									model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 								} else {
@@ -966,182 +1373,291 @@ public class QuestionReportController extends BaseController{
 										model.addAttribute("isYaadiLayingDateSet", "yes");
 									}
 								}								
+							} else {
+								logger.error("**** Error in Query of finding Yaadi Number ****");
+								model.addAttribute("errorcode", "QUERY_ERROR");
 							}
-							List<String> yaadiLayingDates = new ArrayList<String>();
-							Calendar start = Calendar.getInstance();
-							start.setTime(session.getStartDate());
-							Calendar end = Calendar.getInstance();
-							end.setTime(session.getEndDate());
-							for (Calendar current=start; !current.after(end); current.add(Calendar.DATE, 1)) {
-								Date eligibleDate = current.getTime();								
-								yaadiLayingDates.add(FormaterUtil.formatDateToString(eligibleDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-							}
-							model.addAttribute("yaadiLayingDates", yaadiLayingDates);														
+							List<Date> availableYaadiLayingDates = Question.findAvailableYaadiLayingDatesForSession(null, session, locale.toString());
+							if(availableYaadiLayingDates!=null && !availableYaadiLayingDates.isEmpty()) {
+								List<String> yaadiLayingDates = new ArrayList<String>();
+								for(Date eligibleDate: availableYaadiLayingDates) {
+									yaadiLayingDates.add(FormaterUtil.formatDateToString(eligibleDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+								}
+								model.addAttribute("yaadiLayingDates", yaadiLayingDates);
+							}																					
 							retVal = "question/reports/getUnstarredYaadiNumberAndDate";
 						}
 					}
 				} catch(ELSException e) {
-					model.addAttribute("error", e.getParameter("error"));		
+					if(e.getParameter("error")!=null && e.getParameter("error").equalsIgnoreCase("question.yaadiNumberingParameterNotSet")) {
+						model.addAttribute("errorcode", "UNSTARRED_YAADI_NUMBERING_SESSION_PARAMETER_MISSING");						
+					} else {
+						model.addAttribute("error", e.getParameter("error"));	
+					}						
 				} catch(Exception e) {
 					e.printStackTrace();
-					model.addAttribute("errorcode", "SOME_EXCEPTION_OCCURED");
+					model.addAttribute("error", "SOME_EXCEPTION_OCCURED");
 				}
 			}
 		}		
 		return retVal;
 	}
 	
+	@Transactional
 	@RequestMapping(value="/generateUnstarredYaadiReport" ,method=RequestMethod.GET)
 	public @ResponseBody void generateUnstarredYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
 
+		String houseTypeId = request.getParameter("houseType");
+		String deviceTypeId = request.getParameter("deviceType");
 		String sessionId = request.getParameter("sessionId");
+		String yaadiDetailsId = request.getParameter("yaadiDetailsId");		
 		String strYaadiNumber = request.getParameter("yaadiNumber");
 		String strYaadiLayingDate = request.getParameter("yaadiLayingDate");
 		String strChangedYaadiNumber = request.getParameter("changedYaadiNumber");
-		String strChangedYaadiLayingDate = request.getParameter("changedYaadiLayingDate");		
+		String strChangedYaadiLayingDate = request.getParameter("changedYaadiLayingDate");
+		String selectedDeviceIds = request.getParameter("selectedDeviceIds");
+		String deSelectedDeviceIds = request.getParameter("deSelectedDeviceIds");
+		String yaadiLayingStatusId = request.getParameter("yaadiLayingStatus");
 		
-		if(sessionId!=null && strYaadiNumber!=null && strYaadiLayingDate!=null){
-			if(!sessionId.isEmpty() && !strYaadiNumber.isEmpty() && !strYaadiLayingDate.isEmpty() && !strYaadiLayingDate.equals("-")){
+		if(houseTypeId!=null && deviceTypeId!=null && sessionId!=null 
+				&& strYaadiNumber!=null	&& strYaadiLayingDate!=null) {
+			if(!houseTypeId.isEmpty() && !deviceTypeId.isEmpty() && !sessionId.isEmpty()
+					&& !strYaadiNumber.isEmpty() && !strYaadiLayingDate.isEmpty() && !strYaadiLayingDate.equals("-")) {
+				
 				try {
-					CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
-						if(csptServer.getValue().equals("TOMCAT")){
-							strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
-							strYaadiLayingDate = new String(strYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");							
-							strChangedYaadiNumber = new String(strChangedYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
-							strChangedYaadiLayingDate = new String(strChangedYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");
-						}
-					}
-					Session session = Session.findById(Session.class, Long.parseLong(sessionId));
-					if(session==null) {
-						logger.error("**** Session not found with request parameter sessionId ****");
-						throw new ELSException();
-					}		
-					Integer yaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strYaadiNumber).intValue();
-					Date yaadiLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
-					List<Question> totalQuestionsInYaadi = new ArrayList<Question>();
-					List<Question> existingQuestionsInYaadi = Question.findQuestionsInNumberedYaadi(null, session, yaadiNumber, yaadiLayingDate, locale.toString());
-					if(existingQuestionsInYaadi!=null&&!existingQuestionsInYaadi.isEmpty()) {
-						//Case 1: niether yaadi number nor yaadi laying date changed
-						if((strChangedYaadiNumber==null || strChangedYaadiNumber.isEmpty()) && (strChangedYaadiLayingDate==null || strChangedYaadiLayingDate.isEmpty() || strChangedYaadiLayingDate.equals("-"))) {
-							totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
-							if(yaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
-								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
-								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
-									for(Question question: newlyAddedQuestions) {		
-										question.setYaadiNumber(yaadiNumber);
-										question.setYaadiLayingDate(yaadiLayingDate);
-										question.simpleMerge();
-									}
-									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
-								}
-							}
-						} 
-						//Case 2: yaadi number changed but yaadi laying date did not change
-						else if((strChangedYaadiNumber!=null && !strChangedYaadiNumber.isEmpty()) && (strChangedYaadiLayingDate==null || strChangedYaadiLayingDate.isEmpty() || strChangedYaadiLayingDate.equals("-"))) {
-							Integer changedYaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strChangedYaadiNumber).intValue();
-							if(!Question.isYaadiOfGivenNumberExistingInSession(null, session, changedYaadiNumber, locale.toString())) {
-								for(Question question: existingQuestionsInYaadi) {
-									question.setYaadiNumber(changedYaadiNumber);
-									question.simpleMerge();
-								}
-								totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
-							} else {
-								logger.error("**** There is existing yaadi with number = " + changedYaadiNumber + " ****");
-								throw new ELSException();
-							}
-							if(changedYaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
-								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
-								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
-									for(Question question: newlyAddedQuestions) {		
-										question.setYaadiNumber(changedYaadiNumber);
-										question.setYaadiLayingDate(yaadiLayingDate);
-										question.simpleMerge();
-									}
-									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
-								}
-							}
-						}
-						//Case 3: yaadi number did not change but yaadi laying date changed
-						else if((strChangedYaadiNumber==null || strChangedYaadiNumber.isEmpty()) && (strChangedYaadiLayingDate!=null && !strChangedYaadiLayingDate.isEmpty() && !strChangedYaadiLayingDate.equals("-"))) {
-							Date changedYaadiLayingDate = FormaterUtil.formatStringToDate(strChangedYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
-							for(Question question: existingQuestionsInYaadi) {
-								question.setYaadiLayingDate(changedYaadiLayingDate);
-								question.simpleMerge();
-							}		
-							totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
-							if(yaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
-								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
-								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
-									for(Question question: newlyAddedQuestions) {	
-										question.setYaadiNumber(yaadiNumber);
-										question.setYaadiLayingDate(changedYaadiLayingDate);
-										question.simpleMerge();
-									}
-									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
-								}
-							}
-						} 
-						//Case 4: both yaadi number & yaadi laying date changed
-						else {
-							Integer changedYaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strChangedYaadiNumber).intValue();
-							Date changedYaadiLayingDate = FormaterUtil.formatStringToDate(strChangedYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
-							if(!Question.isYaadiOfGivenNumberExistingInSession(null, session, changedYaadiNumber, locale.toString())) {
-								for(Question question: existingQuestionsInYaadi) {
-									question.setYaadiNumber(changedYaadiNumber);
-									question.setYaadiLayingDate(changedYaadiLayingDate);
-									question.simpleMerge();
-								}
-								totalQuestionsInYaadi.addAll(existingQuestionsInYaadi);
-							} else {
-								logger.error("**** There is existing yaadi with number = " + changedYaadiNumber + " ****");
-								throw new ELSException();
-							}
-							if(changedYaadiNumber==Question.findHighestYaadiNumber(null, session, locale.toString())) {
-								List<Question> newlyAddedQuestions = Question.findQuestionsEligibleForNumberedYaadi(null, session, existingQuestionsInYaadi.size(), locale.toString());
-								if(newlyAddedQuestions!=null && !newlyAddedQuestions.isEmpty()) {
-									for(Question question: newlyAddedQuestions) {		
-										question.setYaadiNumber(changedYaadiNumber);
-										question.setYaadiLayingDate(changedYaadiLayingDate);
-										question.simpleMerge();
-									}
-									totalQuestionsInYaadi.addAll(newlyAddedQuestions);
-								}
-							}
+					HouseType houseType = null;
+					DeviceType deviceType = null;
+					String device = null;
+					Session session = null;				
+					YaadiDetails yaadiDetails = null;
+					Status existingLayingStatus = null;
+					
+					CustomParameter manuallyEnteringAllowedCP = CustomParameter.findByName(CustomParameter.class, "QIS_UNSTARRED_YAADI_MANUALLY_ENTERING_ALLOWED", "");
+					
+					if(yaadiDetailsId!=null && !yaadiDetailsId.isEmpty()) {
+						yaadiDetails = YaadiDetails.findById(YaadiDetails.class, Long.parseLong(yaadiDetailsId));
+						if(yaadiDetails==null) {
+							isError = true;
+							logger.error("**** Check request parameters yaadiDetailsId for invalid value ****");
+							errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.yaadiDetailsId.invalid", locale.toString());
+						} else {
+							houseType = yaadiDetails.getHouseType();
+							deviceType = yaadiDetails.getDeviceType();
+							device = yaadiDetails.getDevice();
+							session = yaadiDetails.getSession();
+							existingLayingStatus = yaadiDetails.getLayingStatus();
 						}					
 					} else {
-						totalQuestionsInYaadi = Question.findQuestionsEligibleForNumberedYaadi(null, session, 0, locale.toString());
-						for(Question question: totalQuestionsInYaadi) {		
-							question.setYaadiNumber(yaadiNumber);
-							question.setYaadiLayingDate(yaadiLayingDate);
-							question.simpleMerge();
+						yaadiDetails = new YaadiDetails();
+						yaadiDetails.setLocale(locale.toString());
+						houseType = HouseType.findById(HouseType.class, Long.parseLong(houseTypeId));
+						yaadiDetails.setHouseType(houseType);
+						deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceTypeId));
+						yaadiDetails.setDeviceType(deviceType);
+						if(deviceType!=null) {
+							device = deviceType.getDevice();
+						} else {
+							device = "question_unstarred";						
 						}
+						yaadiDetails.setDevice(device);
+						session = Session.findById(Session.class, Long.parseLong(sessionId));
+						yaadiDetails.setSession(session);
 					}
-					Object[] reportData = QuestionReportHelper.prepareUnstarredYaadiData(session, totalQuestionsInYaadi, locale.toString());
-					/**** generate report ****/
 					if(!isError) {
-						reportFile = generateReportUsingFOP(reportData, "template_unstarredYaadi_report", "WORD", "unstarred_question_yaadi", locale.toString());
-						if(reportFile!=null) {
-							System.out.println("Report generated successfully in word format!");
-							openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+						if(existingLayingStatus==null || !existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
+							Status layingStatus = null;
+							if(yaadiLayingStatusId!=null && !yaadiLayingStatusId.isEmpty()) {
+								layingStatus = Status.findById(Status.class, Long.parseLong(yaadiLayingStatusId));
+								if(layingStatus==null) {
+									isError = true;
+									logger.error("**** Check request parameters yaadiLayingStatusId for invalid value ****");
+									errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.yaadiLayingStatusId.invalid", locale.toString());
+								} else {
+									yaadiDetails.setLayingStatus(layingStatus);
+								}
+							} else {
+								layingStatus = Status.findByType(ApplicationConstants.YAADISTATUS_DRAFTED, locale.toString());
+								if(layingStatus==null) {
+									isError = true;
+									logger.error("**** Status with type '" + ApplicationConstants.YAADISTATUS_DRAFTED + "' in locale " + locale.toString() + " not found****");
+									errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.statusnotfound", locale.toString());
+								} else {
+									yaadiDetails.setLayingStatus(layingStatus);
+								}
+							}
+						}						
+						if(!isError) {							
+							CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+							if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+								if(csptServer.getValue().equals("TOMCAT")){
+									strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
+									strYaadiLayingDate = new String(strYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");							
+									if(strChangedYaadiNumber!=null && !strChangedYaadiNumber.isEmpty()) {
+										strChangedYaadiNumber = new String(strChangedYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
+									}
+									if(strChangedYaadiLayingDate!=null && !strChangedYaadiLayingDate.isEmpty()) {
+										strChangedYaadiLayingDate = new String(strChangedYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");
+									}							
+								}
+							}
+							/** yaadi number **/
+							Integer yaadiNumber = null;
+							if(existingLayingStatus!=null 
+									&& 
+									( 
+									  existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_READY)
+											||
+									  existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_LAID)
+									)
+							) {
+								yaadiNumber = Integer.parseInt(strYaadiNumber);
+							} else {
+								if(strChangedYaadiNumber!=null && !strChangedYaadiNumber.isEmpty()) {
+									yaadiNumber = Integer.parseInt(strChangedYaadiNumber);
+								} else {
+									yaadiNumber = Integer.parseInt(strYaadiNumber);
+								}
+							}							
+							yaadiDetails.setNumber(yaadiNumber);
+							/** yaadi laying date **/
+							Date yaadiLayingDate = null;
+							if(existingLayingStatus!=null && existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
+								yaadiLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+							} else {
+								if(strChangedYaadiLayingDate!=null && !strChangedYaadiLayingDate.isEmpty()
+										&& !strChangedYaadiLayingDate.equals("-")) {
+									yaadiLayingDate = FormaterUtil.formatStringToDate(strChangedYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+								} else {
+									yaadiLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+								}
+							}							
+							yaadiDetails.setLayingDate(yaadiLayingDate);
+							/** yaadi devices **/
+							List<Device> totalDevicesInYaadi = new ArrayList<Device>();
+							if(existingLayingStatus==null || !existingLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
+								if(yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_DRAFTED)) {
+									/** yaadi removed devices **/
+									List<Device> totalRemovedDevicesInYaadi = new ArrayList<Device>();	
+									List<Device> existingRemovedDevicesInYaadi = yaadiDetails.getRemovedDevices();
+									if(existingRemovedDevicesInYaadi!=null && !existingRemovedDevicesInYaadi.isEmpty()) {
+										totalRemovedDevicesInYaadi.addAll(existingRemovedDevicesInYaadi);
+									}		
+									/** remove deselected devices only when 'manually entering questions' is not allowed **/
+									if(manuallyEnteringAllowedCP==null || manuallyEnteringAllowedCP.getValue()==null || !manuallyEnteringAllowedCP.getValue().equalsIgnoreCase("true")) {
+										if(deSelectedDeviceIds!=null && !deSelectedDeviceIds.isEmpty()) {
+											List<Device> deSelectedDevicesInYaadi = new ArrayList<Device>();
+											deSelectedDeviceIds = deSelectedDeviceIds.substring(0, deSelectedDeviceIds.length()-1);
+											for(String deSelectedDeviceId: deSelectedDeviceIds.split(",")) {
+												if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
+													Question q = Question.findById(Question.class, Long.parseLong(deSelectedDeviceId));
+													if(q!=null) {
+														q.setYaadiNumber(null);
+														q.setYaadiLayingDate(null);		
+														q.simpleMerge();
+														deSelectedDevicesInYaadi.add(q);
+													}
+												}							
+											}
+											totalRemovedDevicesInYaadi.addAll(deSelectedDevicesInYaadi);			
+										}
+									}									
+									yaadiDetails.setRemovedDevices(totalRemovedDevicesInYaadi);
+									/** yaadi selected devices **/					
+									if(selectedDeviceIds!=null && !selectedDeviceIds.isEmpty()) {
+										List<Device> selectedDevicesInYaadi = new ArrayList<Device>();
+										selectedDeviceIds = selectedDeviceIds.substring(0, selectedDeviceIds.length()-1);
+										for(String selectedDeviceId: selectedDeviceIds.split(",")) {
+											if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
+												Question q = Question.findById(Question.class, Long.parseLong(selectedDeviceId));
+												if(q!=null) {
+													q.setYaadiNumber(yaadiDetails.getNumber());
+													q.setYaadiLayingDate(yaadiDetails.getLayingDate());
+													q.simpleMerge();
+													selectedDevicesInYaadi.add(q);
+												}
+											}							
+										}
+										totalDevicesInYaadi.addAll(selectedDevicesInYaadi);				
+									}
+									yaadiDetails.setDevices(totalDevicesInYaadi);									
+								} else {
+									List<Device> existingDevicesInYaadi = yaadiDetails.getDevices();
+									for(Device d: existingDevicesInYaadi) {
+										if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
+											Question q = (Question) d;
+											q.setYaadiNumber(yaadiDetails.getNumber());
+											q.setYaadiLayingDate(yaadiDetails.getLayingDate());
+											if(yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
+												Status yaadiLaidStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_YAADILAID, locale.toString());
+												Status yaadiLaidStatusForGivenDeviceType = Question.findCorrespondingStatusForGivenQuestionType(yaadiLaidStatus, yaadiDetails.getDeviceType());
+												q.setRecommendationStatus(yaadiLaidStatusForGivenDeviceType);
+											}											
+											q.simpleMerge();
+										}
+									}
+								}
+								/** save/update yaadi details **/
+								if(yaadiDetails.getId()!=null) {
+									yaadiDetails.merge();
+								} else {
+									yaadiDetails.persist();
+								}
+							}							
+							if(yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_DRAFTED)) {
+								/** regeneration only when 'manually entering questions' is not allowed **/
+								if(manuallyEnteringAllowedCP==null || manuallyEnteringAllowedCP.getValue()==null || !manuallyEnteringAllowedCP.getValue().equalsIgnoreCase("true")) {
+									Boolean isYaadiFilledWithSelectedDevices = yaadiDetails.isNumberedYaadiFilled();
+									if(isYaadiFilledWithSelectedDevices!=null && isYaadiFilledWithSelectedDevices.equals(false)) {
+										yaadiDetails = yaadiDetails.regenerate(totalDevicesInYaadi.size());
+									}
+								}								
+							}
+							/** gather report data**/
+							if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
+								List<Question> totalQuestionsInYaadi = new ArrayList<Question>();
+								for(Device d: yaadiDetails.getDevices()) {
+									Question q = (Question) d;
+									totalQuestionsInYaadi.add(q);								
+								}
+								totalQuestionsInYaadi = Question.sort(totalQuestionsInYaadi, "number", ApplicationConstants.ASC);
+								Object[] reportData = QuestionReportHelper.prepareUnstarredYaadiData(session, totalQuestionsInYaadi, locale.toString());
+								/**** generate report ****/
+								if(!isError) {
+									reportFile = generateReportUsingFOP(reportData, "template_unstarredYaadi_report", "WORD", "unstarred_question_yaadi", locale.toString());
+									if(reportFile!=null) {
+										System.out.println("Report generated successfully in word format!");
+										openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+										//response.
+									}
+								}
+							}
 						}
-					}
+					}									
+				} catch(ELSException e) {
+					if(e.getParameter("error")!=null && e.getParameter("error").equalsIgnoreCase("question.numberOfQuestionsInYaadiParameterNotSet")) {
+						isError = true;					
+						errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.numberOfQuestionsInYaadiParameterNotSet", locale.toString());				
+					} else {
+						e.printStackTrace();
+						isError = true;					
+						errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+					}						
 				} catch(Exception e) {
 					e.printStackTrace();
 					isError = true;					
 					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
-				}
-			}else{
+				}				
+			} else {
 				isError = true;
-				logger.error("**** Check request parameters sessionId, yaadiNumber, yaadiLayingDate for empty values ****");
-				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.empty", locale.toString());				
+				logger.error("**** Check request parameters houseTypeId, deviceTypeId, sessionId, yaadiNumber, yaadiLayingDate for empty values ****");
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.empty", locale.toString());
 			}
-		} else {			
+		} else {
 			isError = true;
-			logger.error("**** Check request parameters sessionId, yaadiNumber, yaadiLayingDate for null values ****");
+			logger.error("**** Check request parameters houseTypeId, deviceTypeId, sessionId, yaadiNumber, yaadiLayingDate for null values ****");
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.null", locale.toString());
 		}
 		if(isError) {
@@ -1158,7 +1674,7 @@ public class QuestionReportController extends BaseController{
 				}
 
 				return;
-			} catch (IOException e) {						
+			} catch (IOException e) {					
 				e.printStackTrace();
 			}
 		}
@@ -1166,6 +1682,14 @@ public class QuestionReportController extends BaseController{
 
 	@RequestMapping(value="/viewSuchi" ,method=RequestMethod.GET)
 	public @ResponseBody void generateSuchiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		try{
 			File reportFile = null; 
 
@@ -1191,6 +1715,7 @@ public class QuestionReportController extends BaseController{
 						e3.printStackTrace();
 					}
 					DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+					String processingMode = session.getParameter(deviceType.getType()+"_"+ApplicationConstants.PROCESSINGMODE);
 					Date answeringDate = null;
 					if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 						QuestionDates questionDates = 
@@ -1198,7 +1723,7 @@ public class QuestionReportController extends BaseController{
 						answeringDate = questionDates.getAnsweringDate();
 					}
 					else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
-							deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)) {
+							deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
 						CustomParameter dbDateFormat = 
 								CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
 						answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
@@ -1207,7 +1732,8 @@ public class QuestionReportController extends BaseController{
 						answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
 					}	
 					Group group = null;
-					if(deviceType.getDevice().equals("Question")) {
+					CustomParameter deviceTypesHavingGroupCP = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_HAVING_GROUPS", "");
+					if(deviceTypesHavingGroupCP!=null && deviceTypesHavingGroupCP.getValue().contains(deviceType.getType())) {
 						try {
 							group = Group.find(session, answeringDate, locale.toString());
 						} catch (ELSException e1) {
@@ -1216,11 +1742,11 @@ public class QuestionReportController extends BaseController{
 					}					
 					List<RoundVO> roundVOs = null;
 					try {
-						roundVOs = Ballot.findBallotedRoundVOsForSuchi(session, deviceType, group, answeringDate, locale.toString());
+						roundVOs = Ballot.findBallotedRoundVOsForSuchi(session, deviceType,processingMode,  group, answeringDate, locale.toString());
 					} catch (ELSException e2) {
 						e2.printStackTrace();
 					}				
-					if(roundVOs == null) {
+					if(roundVOs==null || roundVOs.isEmpty()) {
 						try {
 							//response.sendError(404, "Report cannot be generated at this stage.");
 							MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "resolution.karyavaliReport.noDataFound", locale.toString());
@@ -1239,32 +1765,23 @@ public class QuestionReportController extends BaseController{
 							e.printStackTrace();
 						}
 					}
-					if(roundVOs.isEmpty()) {
-						try {
-							//response.sendError(404, "Report cannot be generated at this stage.");
-							MessageResource message = MessageResource.findByFieldName(MessageResource.class, "code", "resolution.karyavaliReport.noDataFound", locale.toString());
-							if(message != null) {
-								if(!message.getValue().isEmpty()) {	            				
-									response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + message.getValue() + "</h3></body></html>");
-								} else {
-									response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
-								}
-							} else {
-								response.getWriter().println("<h3>No Question is balloted yet.<br/>So Karyavali Report cannot be generated.</h3>");
-							}
-
-							return;
-						} catch (IOException e) {						
-							e.printStackTrace();
-						}
-					}
 					QuestionYaadiSuchiXmlVO data = new QuestionYaadiSuchiXmlVO();
 					data.setHouseType(houseType.getName());
 					data.setSessionNumber(session.getNumber().toString());
 					data.setSessionType(sessionType.getSessionType());
 					data.setSessionYear(FormaterUtil.formatNumberNoGrouping(sessionYear, locale.toString()));
 					data.setSessionPlace(session.getPlace().getPlace());
-					Role role = Role.findByFieldName(Role.class, "type", "QIS_PRINCIPAL_SECRETARY", locale.toString());
+					CustomParameter roleCustomParameter = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_SUCHI_FOOTER_ROLE", "");
+					if(roleCustomParameter==null) {
+						logger.error("/**** role parameter for yaadi footer not set. ****/");
+						throw new ELSException("QuestionReportController/generateYaadiReport", "role parameter for yaadi footer not set.");
+					}
+					Role role = Role.findByFieldName(Role.class, "type", roleCustomParameter.getValue(), locale.toString());
+					if(role==null) {
+						logger.error("/**** role '"+roleCustomParameter.getValue()+"' is not found. ****/");
+						throw new ELSException("QuestionReportController/generateYaadiReport", "role '"+roleCustomParameter.getValue()+"' is not found.");
+					}
+					data.setUserRole(role.getLocalizedName());
 					List<User> users = User.findByRole(false, role.getName(), locale.toString());
 					//as principal secretary for starred question is only one, so user is obviously first element of the list.
 					data.setUserName(users.get(0).findFirstLastName());
@@ -1356,8 +1873,171 @@ public class QuestionReportController extends BaseController{
 		}
 	}
 	
+	@RequestMapping(value="/generateUnstarredSuchiReport/getUnstarredYaadiNumberAndDateForSuchi", method=RequestMethod.GET)
+	public String getUnstarredYaadiNumberAndDateForSuchi(HttpServletRequest request, ModelMap model, Locale locale) {
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		
+		String retVal = "question/reports/error";
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+
+		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null){
+			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()){
+				try {
+					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+					if(houseType==null) {
+						houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+					}					
+					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+					Integer sessionYear = Integer.parseInt(strSessionYear);
+					if(houseType==null || sessionType==null) {
+						logger.error("**** HouseType or SessionType Not Found ****");
+						model.addAttribute("errorcode", "HOUSETYPE_NOTFOUND_OR_SESSIONTYPE_NOTFOUND");											
+					} else {
+						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+						if(session==null) {								
+							logger.error("**** Session Not Found ****");
+							model.addAttribute("errorcode", "SESSION_NOTFOUND");
+							return retVal;
+						} else {
+							model.addAttribute("sessionId", session.getId());
+							Integer highestYaadiNumber = Question.findHighestYaadiNumber(null, session, locale.toString());
+							if(highestYaadiNumber!=null) {
+								if(highestYaadiNumber==0) {
+									model.addAttribute("errorcode", "UNSTARRED_YAADI_NOT_GENERATED_YET");
+									return retVal;
+								}
+								model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber, locale.toString()));
+								Date yaadiLayingDate = Question.findYaadiLayingDateForYaadi(null, session, highestYaadiNumber, locale.toString());
+								if(yaadiLayingDate!=null) {
+									model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(yaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+								}
+							}
+							retVal = "question/reports/getUnstarredYaadiNumberAndDateForSuchi";
+						}
+					}
+				} catch(ELSException e) {
+					if(e.getParameter("error")!=null && e.getParameter("error").equalsIgnoreCase("question.yaadiNumberingParameterNotSet")) {
+						model.addAttribute("errorcode", "UNSTARRED_YAADI_NUMBERING_SESSION_PARAMETER_MISSING");						
+					} else {
+						model.addAttribute("error", e.getParameter("error"));	
+					}						
+				} catch(Exception e) {
+					e.printStackTrace();
+					model.addAttribute("error", "SOME_EXCEPTION_OCCURED");
+				}
+			}
+		}		
+		return retVal;
+	}
+	
+	@RequestMapping(value="/generateUnstarredSuchiReport" ,method=RequestMethod.GET)
+	public @ResponseBody void generateUnstarredSuchiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+
+		String sessionId = request.getParameter("sessionId");
+		String strYaadiNumber = request.getParameter("yaadiNumber");
+		String strYaadiLayingDate = request.getParameter("yaadiLayingDate");
+		
+		if(sessionId!=null && strYaadiNumber!=null && strYaadiLayingDate!=null){
+			if(!sessionId.isEmpty() && !strYaadiNumber.isEmpty() && !strYaadiLayingDate.isEmpty() && !strYaadiLayingDate.equals("-")){
+				try {
+					CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+					if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+						if(csptServer.getValue().equals("TOMCAT")){
+							strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
+							strYaadiLayingDate = new String(strYaadiLayingDate.getBytes("ISO-8859-1"), "UTF-8");						
+						}
+					}
+					Session session = Session.findById(Session.class, Long.parseLong(sessionId));
+					if(session==null) {
+						logger.error("**** Session not found with request parameter sessionId ****");
+						throw new ELSException();
+					}		
+					Integer yaadiNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strYaadiNumber).intValue();
+					Date yaadiLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+					List<Question> totalQuestionsInYaadi = Question.findQuestionsInNumberedYaadi(null, session, yaadiNumber, yaadiLayingDate, locale.toString());
+					Object[] reportData = QuestionReportHelper.prepareUnstarredYaadiData(session, totalQuestionsInYaadi, locale.toString());
+					/**** generate report ****/
+					if(!isError) {
+						reportFile = generateReportUsingFOP(reportData, "template_unstarredSuchi_report", "WORD", "unstarred_question_suchi", locale.toString());
+						if(reportFile!=null) {
+							System.out.println("Unstarred Suchi Report generated successfully in word format!");
+							openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+						}
+					}
+				} catch(ELSException e) {
+					if(e.getParameter("error")!=null && e.getParameter("error").equalsIgnoreCase("question.numberOfQuestionsInYaadiParameterNotSet")) {
+						isError = true;					
+						errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.numberOfQuestionsInYaadiParameterNotSet", locale.toString());				
+					} else {
+						e.printStackTrace();
+						isError = true;					
+						errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+					}						
+				} catch(Exception e) {
+					e.printStackTrace();
+					isError = true;					
+					errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+				}
+			}else{
+				isError = true;
+				logger.error("**** Check request parameters sessionId, yaadiNumber, yaadiLayingDate for empty values ****");
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.empty", locale.toString());				
+			}
+		} else {			
+			isError = true;
+			logger.error("**** Check request parameters sessionId, yaadiNumber, yaadiLayingDate for null values ****");
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredYaadiReport.reqparam.null", locale.toString());
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	@RequestMapping(value="/generateClubbedIntimationLetter/getClubbedQuestions", method=RequestMethod.GET)
-	public String getClubbedQuestionsForIntimationReport(HttpServletRequest request, ModelMap model) {
+	public String getClubbedQuestionsForIntimationReport(HttpServletRequest request, ModelMap model, Locale locale) {
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		String retVal = "question/reports/error";
 		String questionId = request.getParameter("questionId");
 		if(questionId!=null && !questionId.isEmpty()) {
@@ -1366,18 +2046,18 @@ public class QuestionReportController extends BaseController{
 				model.addAttribute("questionId", questionId);
 				List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(question, ApplicationConstants.DESC);
 				if(clubbedEntities!=null && !clubbedEntities.isEmpty()) {
-					List<Reference> nameClubbedQuestionVOs = new ArrayList<Reference>();
+					List<Reference> clubbedQuestionVOs = new ArrayList<Reference>();
 					for(ClubbedEntity ce: clubbedEntities) {
 						Question clubbedQuestion = ce.getQuestion();
-						if(Question.isAdmittedThroughNameClubbing(clubbedQuestion)) {							
-							Reference nameClubbedQuestionVO = new Reference();
-							nameClubbedQuestionVO.setId(clubbedQuestion.getId().toString());
-							nameClubbedQuestionVO.setNumber(FormaterUtil.formatNumberNoGrouping(clubbedQuestion.getNumber(), clubbedQuestion.getLocale()));
-							nameClubbedQuestionVOs.add(nameClubbedQuestionVO);
+						if(Question.isAdmittedThroughClubbing(clubbedQuestion)) {							
+							Reference clubbedQuestionVO = new Reference();
+							clubbedQuestionVO.setId(clubbedQuestion.getId().toString());
+							clubbedQuestionVO.setNumber(FormaterUtil.formatNumberNoGrouping(clubbedQuestion.getNumber(), clubbedQuestion.getLocale()));
+							clubbedQuestionVOs.add(clubbedQuestionVO);
 						}
 					}
-					if(!nameClubbedQuestionVOs.isEmpty()) {
-						model.addAttribute("nameClubbedQuestionVOs", nameClubbedQuestionVOs);
+					if(!clubbedQuestionVOs.isEmpty()) {
+						model.addAttribute("nameClubbedQuestionVOs", clubbedQuestionVOs);
 						retVal = "question/reports/getClubbedQuestions";
 					} else {
 						model.addAttribute("errorcode", "noNameClubbedEntitiesFound");
@@ -1394,6 +2074,14 @@ public class QuestionReportController extends BaseController{
 	
 	@RequestMapping(value="/generateClubbedIntimationLetter", method=RequestMethod.GET)
 	public @ResponseBody void generateClubbedIntimationLetter(HttpServletRequest request, final HttpServletResponse response, final ModelMap model, final Locale locale) {
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		File reportFile = null;		
 		boolean isError = false;
 		MessageResource errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.errorMessage", locale.toString());
@@ -1541,6 +2229,15 @@ public class QuestionReportController extends BaseController{
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/memberwisequestions",method=RequestMethod.GET)
 	public String viewMemberWiseReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		
 		String errorpage="ballot/error";
 		try{
 			List<Reference> eligibleMembers = new ArrayList<Reference>();
@@ -1586,7 +2283,15 @@ public class QuestionReportController extends BaseController{
 					/**** find all members from given house which can submit questions ****/
 					Map<String, String[]> queryParameters = new HashMap<String, String[]>();
 					queryParameters.put("houseId", new String[]{session.getHouse().getId().toString()});
-					queryParameters.put("currentDate", new String[]{FormaterUtil.formatDateToString(new Date(), ApplicationConstants.DB_DATEFORMAT)});
+					Date limitingDateForSession = null;
+					if(session.getEndDate().compareTo(new Date())<=0) {
+						limitingDateForSession = session.getEndDate();
+					} else if(session.getStartDate().compareTo(new Date())>=0) {
+						limitingDateForSession = session.getStartDate();
+					} else {
+						limitingDateForSession = new Date();
+					}
+					queryParameters.put("limitingDateForSession", new String[]{FormaterUtil.formatDateToString(limitingDateForSession, ApplicationConstants.DB_DATEFORMAT)});
 					queryParameters.put("locale", new String[]{locale.toString()});
 					List resultList = Query.findReport("MEMBERS_ELIGIBLE_FOR_QUESTION_SUBMISSION_IN_GIVEN_HOUSE", queryParameters);
 					if(resultList!=null && !resultList.isEmpty()) {
@@ -1626,6 +2331,13 @@ public class QuestionReportController extends BaseController{
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/memberwisequestions/questions",method=RequestMethod.GET)
 	public String viewMemberWiseQuestionsReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		String errorpage="ballot/error";
 		try{
 			String strMember = request.getParameter("member");
@@ -1694,6 +2406,243 @@ public class QuestionReportController extends BaseController{
 			return errorpage;
 		}
 		return "question/reports/memberwise_questions_data";
+	}
+	
+	@RequestMapping(value="/questionsonlinesubmissioncountreport/init",method=RequestMethod.GET)
+	public String initQuestionsOnlineSubmissionCountReport(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		String responsePage="question/reports/error";
+		
+		String strQuestionType = request.getParameter("questionType");
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		
+		if(strQuestionType!=null && strHouseType!=null && strSessionType!=null && strSessionYear!=null
+				&& !strQuestionType.isEmpty() && !strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()) {
+			
+			/**** populate selected questiontype ****/
+			DeviceType questionType=DeviceType.findByName(DeviceType.class, strQuestionType, locale.toString());
+			if(questionType==null) {
+				questionType=DeviceType.findByType(strQuestionType, locale.toString());
+			}
+			if(questionType==null) {
+				questionType=DeviceType.findById(DeviceType.class, Long.parseLong(strQuestionType));
+			}
+			if(questionType==null) {
+				logger.error("**** parameter questionType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("questionType",questionType.getId());
+			/**** populate selected housetype ****/
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			if(houseType==null) {
+				houseType = HouseType.findByName(strHouseType, locale.toString());
+			}
+			if(houseType==null) {
+				houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+			}
+			if(houseType==null) {
+				logger.error("**** parameter houseType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("houseType", houseType.getId());	
+			/**** populate selected sessiontype ****/
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			if(sessionType==null) {
+				logger.error("**** parameter sessionType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("sessionType", sessionType.getId());
+			/**** populate selected sessionyear ****/
+			Integer sessionYear = Integer.parseInt(strSessionYear);
+			model.addAttribute("sessionYear", sessionYear);		
+			/**** populate selected session ****/
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+			if(session==null) {								
+				logger.error("**** Session Not Found ****");
+				model.addAttribute("errorcode", "SESSIONS_NOTFOUND");
+				return responsePage;
+			}
+			model.addAttribute("session",session.getId());
+			/**** submission start date of the session as default fromDate ****/
+			String submissionStartDateSessionParameter = session.getParameter(questionType.getType().trim()+"_"+ApplicationConstants.SUBMISSION_START_DATE_SESSION_PARAMETER_KEY);
+			if(submissionStartDateSessionParameter==null || submissionStartDateSessionParameter.isEmpty()) {
+				logger.error("**** Submission start date parameter is not set for the session ****");
+				model.addAttribute("errorcode", "submission_start_date_parameter_undefined_for_session");
+				return responsePage;
+			}
+			Date submissionStartDateForSession = FormaterUtil.formatStringToDate(submissionStartDateSessionParameter, ApplicationConstants.DB_DATEFORMAT);
+			if(submissionStartDateForSession==null)  {
+				logger.error("**** Submission start date parameter is set to invalid value for the session ****");
+				model.addAttribute("errorcode", "submission_start_date_parameter_invalid_for_session");
+				return responsePage;
+			}
+			model.addAttribute("defaultFromDate", FormaterUtil.formatDateToString(submissionStartDateForSession, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+			/**** submission end date of the session as default toDate ****/
+			String submissionEndDateSessionParameter = session.getParameter(questionType.getType().trim()+"_"+ApplicationConstants.SUBMISSION_END_DATE_SESSION_PARAMETER_KEY);
+			if(submissionEndDateSessionParameter==null || submissionEndDateSessionParameter.isEmpty()) {
+				logger.error("**** Submission end date parameter is not set for the session ****");
+				model.addAttribute("errorcode", "submission_end_date_parameter_undefined_for_session");
+				return responsePage;
+			}
+			Date submissionEndDateForSession = FormaterUtil.formatStringToDate(submissionEndDateSessionParameter, ApplicationConstants.DB_DATEFORMAT);
+			if(submissionEndDateForSession==null)  {
+				logger.error("**** Submission end date parameter is set to invalid value for the session ****");
+				model.addAttribute("errorcode", "submission_end_date_parameter_invalid_for_session");
+				return responsePage;
+			}
+			model.addAttribute("defaultToDate", FormaterUtil.formatDateToString(submissionEndDateForSession, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+			/**** Check whether current date is allowed for submission ****/
+			Calendar currentDateCalendar = Calendar.getInstance();
+			currentDateCalendar.setTime(new Date());	
+//			currentDateCalendar.set(2015, 6, 12);
+			currentDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
+			currentDateCalendar.set(Calendar.MINUTE, 0);
+			currentDateCalendar.set(Calendar.SECOND, 0);
+			currentDateCalendar.set(Calendar.MILLISECOND, 0);
+			if(	
+				(submissionStartDateForSession.before(currentDateCalendar.getTime()) || submissionStartDateForSession.equals(currentDateCalendar.getTime()))
+						&&
+				(submissionEndDateForSession.after(currentDateCalendar.getTime()) || submissionEndDateForSession.equals(currentDateCalendar.getTime()))
+			) {
+				model.addAttribute("isCurrentDateValidForSubmission", true);
+			} else {
+				model.addAttribute("isCurrentDateValidForSubmission", false);
+			}
+			responsePage = "question/reports/questions_online_submission_count_init";
+		} else {
+			logger.error("**** Check request parameters 'questionType,houseType,sessionType,sessionYear' for null/empty values ****");
+			model.addAttribute("errorcode", "insufficient_parameters");
+		}
+				
+		return responsePage;
+	}
+	
+	@RequestMapping(value="/questionsonlinesubmissioncountreport",method=RequestMethod.GET)
+	public @ResponseBody void generateQuestionsOnlineSubmissionCountReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale) throws ELSException{
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		
+		String session = request.getParameter("session");
+		String questionType = request.getParameter("questionType");
+		String houseType = request.getParameter("houseType");
+		String criteria = request.getParameter("criteria");
+		String forTodayStr = request.getParameter("forToday");
+		String fromDateStr = request.getParameter("fromDate");
+		String toDateStr = request.getParameter("toDate");
+		
+		try {
+			if(session!=null && !session.isEmpty() 
+					&& questionType!=null && !questionType.isEmpty()
+					&& houseType!=null && !houseType.isEmpty()
+					&& criteria!=null && !criteria.isEmpty()) {
+				/**** set fromDate & toDate to currentDate if forToday parameter is true ****/
+				Boolean forToday = Boolean.parseBoolean(forTodayStr);
+				if(forToday!=null && forToday.booleanValue()==true) {
+					Date currentDate = new Date();
+					//format fromDate & toDate for query
+					fromDateStr = FormaterUtil.formatDateToString(currentDate, ApplicationConstants.DB_DATEFORMAT);
+					toDateStr = FormaterUtil.formatDateToString(currentDate, ApplicationConstants.DB_DATEFORMAT);
+				}
+				
+				if(fromDateStr!=null && !fromDateStr.isEmpty() && toDateStr!=null && !toDateStr.isEmpty()) {
+					if(forToday==null || forToday.booleanValue()==false) {
+						//handle server encoding for fromDate & toDate parameters
+						CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+						if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+							if(csptServer.getValue().equals("TOMCAT")){							
+								fromDateStr = new String(fromDateStr.getBytes("ISO-8859-1"), "UTF-8");
+								toDateStr = new String(toDateStr.getBytes("ISO-8859-1"), "UTF-8");						
+							}
+						}
+						//format fromDate for query
+						Date fromDate = FormaterUtil.formatStringToDate(fromDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+						fromDateStr = FormaterUtil.formatDateToString(fromDate, ApplicationConstants.DB_DATEFORMAT);
+						//format toDate for query
+						Date toDate = FormaterUtil.formatStringToDate(toDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+						toDateStr = FormaterUtil.formatDateToString(toDate, ApplicationConstants.DB_DATEFORMAT);
+					}
+					
+					//submission status as per devicetype
+					Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, locale.toString());
+					DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(questionType));
+					submitStatus = Question.findCorrespondingStatusForGivenQuestionType(submitStatus, deviceType);	
+					if(submitStatus!=null) {
+						Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+						queryParameters.put("locale", new String[] {locale.toString()});
+						queryParameters.put("sessionId", new String[] {session});
+						queryParameters.put("questionTypeId", new String[] {questionType});
+						queryParameters.put("houseTypeId", new String[] {houseType});												
+						queryParameters.put("fromDate", new String[] {fromDateStr});
+						queryParameters.put("toDate", new String[] {toDateStr});
+						queryParameters.put("submitStatusId", new String[] {submitStatus.getId().toString()});
+						
+						String queryName = "QIS_MEMBERWISE_QUESTIONS_ONLINE_OFFLINE_SUBMISSION_COUNTS";
+						if(criteria.equals("datewise")) {
+							queryName = "QIS_DATEWISE_QUESTIONS_ONLINE_OFFLINE_SUBMISSION_COUNTS";
+						}
+						List reportData = Query.findReport(queryName, queryParameters);
+						if(reportData!=null && !reportData.isEmpty()) {
+							/**** generate report ****/
+							if(!isError) {								
+								List<String> serialNumbers = populateSerialNumbers(reportData, locale);
+								reportFile = generateReportUsingFOP(new Object[]{reportData, criteria, serialNumbers}, "questions_online_submission_counts_template", "WORD", deviceType.getType()+"_"+criteria+"_online_submission_counts_report", locale.toString());				
+								if(reportFile!=null) {
+									System.out.println("Report generated successfully in WORD format!");
+									openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+								}
+							}
+						} else {
+							//error
+							isError = true;	
+						}
+					} else {
+						//error code
+						isError = true;	
+					}					
+				} else {
+					//error code
+					isError = true;	
+				}
+			} else {
+				//error code
+				isError = true;	
+			}
+		} catch(Exception e) {
+			//error code
+			e.printStackTrace();
+			isError = true;					
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+		}		
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@RequestMapping(value="/bulleteinreport" ,method=RequestMethod.GET)
@@ -1820,6 +2769,14 @@ public class QuestionReportController extends BaseController{
 	
 	@RequestMapping(value="/departmentwiseStatsReport" ,method=RequestMethod.GET)
 	public @ResponseBody void generateDepartmentwiseStatsReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
@@ -1920,8 +2877,114 @@ public class QuestionReportController extends BaseController{
 		}
 	}
 	
+	@RequestMapping(value="/unstarredacrosssessiondepartmentwise/sessionsinvolved", method=RequestMethod.GET)
+	public String getSessionsInvolvedForUnstarredAcrossSessionDepartmentwiseQuestionsReport(HttpServletRequest request, ModelMap model, Locale locale) {
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		String retVal = "question/reports/error";
+		String strHouseType = request.getParameter("houseType");
+		
+		if(strHouseType!=null && !strHouseType.isEmpty()){
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			if(houseType==null) {
+				houseType = HouseType.findByName(strHouseType, locale.toString());
+			}
+			if(houseType==null) {
+				houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+			}
+			List<SessionVO> sessionVOs = Session.findAllSessionDetailsForGivenHouseType(houseType, null, locale.toString());
+			if(sessionVOs==null || sessionVOs.isEmpty()) {
+				model.addAttribute("errorcode", "SESSIONS_NOTFOUND");
+				return retVal;
+			}
+			model.addAttribute("sessionVOs", sessionVOs);
+			retVal = "question/reports/unstarredacrosssessiondepartmentwise";
+		} else {
+			model.addAttribute("errorcode", "HOUSETYPE_NOTFOUND");
+		}
+		return retVal;
+	}
+	
+	@RequestMapping(value="/unstarredacrosssessiondepartmentwise/export" ,method=RequestMethod.GET)
+	public @ResponseBody void generateUnstarredAcrossSessionDepartmentwiseQuestionsReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;		
+		List<Object[]> unstarredAcrossSessionDepartmentwiseQuestions = null;
+
+		String sessionIds = request.getParameter("sessionIds");		
+		if(sessionIds!=null && !sessionIds.isEmpty()) {
+			unstarredAcrossSessionDepartmentwiseQuestions = Question.findUnstarredAcrossSessionDepartmentwiseQuestions(sessionIds, locale.toString());
+			if(unstarredAcrossSessionDepartmentwiseQuestions==null
+					|| unstarredAcrossSessionDepartmentwiseQuestions.isEmpty()) {
+				isError = true;		
+				logger.error("**** no questions found for given session ****");
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredacrosssessiondepartmentwise.nodata", locale.toString());
+			} else {
+				/**** generate report ****/
+				if(!isError) {
+					try {
+						reportFile = generateReportUsingFOP(new Object[]{unstarredAcrossSessionDepartmentwiseQuestions}, "template_unstarredacrosssessiondepartmentwise_report", "WORD", "unstarredacrosssessiondepartmentwise_report", locale.toString());
+						if(reportFile!=null) {
+							System.out.println("Report generated successfully in word format!");
+							openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						isError = true;					
+						errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+					}
+				}
+			}
+		} else {
+			isError = true;			
+			logger.error("**** request parameter 'sessions' is not set because no session is selected by user ****");
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.unstarredacrosssessiondepartmentwise.sessions.notset", locale.toString());
+		}		
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	@RequestMapping(value="/ahwalStarredUnstarredReport" ,method=RequestMethod.GET)
 	public @ResponseBody void generateAhwalStarredUnstarredReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
@@ -2045,6 +3108,14 @@ public class QuestionReportController extends BaseController{
 	
 	@RequestMapping(value="/ahwalShortNoticeStatsReport" ,method=RequestMethod.GET)
 	public @ResponseBody void generateAhwalShortNoticeStatsReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
@@ -2147,6 +3218,14 @@ public class QuestionReportController extends BaseController{
 	
 	@RequestMapping(value="/ahwalHDConditionReport" ,method=RequestMethod.GET)
 	public @ResponseBody void generateAhwalHDConditionReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
@@ -2180,7 +3259,7 @@ public class QuestionReportController extends BaseController{
 							queryParameters.put("sessionId", new String[]{session.getId().toString()});
 							queryParameters.put("questionType", new String[]{questionType});
 							queryParameters.put("locale", new String[]{locale.toString()});
-							String queryName= "QIS_AHWAL_HD_CONDITION_REPORT";													
+							String queryName= "QIS_AHWAL_HDQ_CONDITION_REPORT";													
 							List reportData = Query.findReport(queryName, queryParameters);
 							if(reportData!=null && !reportData.isEmpty()) {
 								List<String> serialNumbers = new ArrayList<String>();
@@ -2250,6 +3329,18 @@ public class QuestionReportController extends BaseController{
 	@RequestMapping(value="/departmentwisequestions", method=RequestMethod.GET)
 	public String getDepartmentwiseQuestionReport(HttpServletRequest request, Model model, Locale locale){
 		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		String selectedHouseType = request.getParameter("houseType");
+		if(selectedHouseType==null || selectedHouseType.isEmpty()) {
+			selectedHouseType = ApplicationConstants.LOWER_HOUSE;
+		}
+		
 		Map<String, String[]> requestMap = request.getParameterMap();
 		List answeringDates = Query.findReport("QIS_DEPARTMENTWISE_QUESTIONS_ANSWERING_DATES", requestMap);
 		model.addAttribute("answeringDates", answeringDates);
@@ -2272,7 +3363,8 @@ public class QuestionReportController extends BaseController{
 				Object[] obj = (Object[])o;
 				if(obj!=null) {
 					if(count==0) {
-						model.addAttribute("localisedContent", obj[0].toString().split("~#"));
+						String localisedContent = obj[0].toString().replaceAll("&#10;", "<br/>");
+						model.addAttribute("localisedContent", localisedContent.split("~#"));
 					}
 					if(obj[8]!=null) {
 						String[] clubbedQuestionNumbers = obj[8].toString().split(",");
@@ -2308,7 +3400,7 @@ public class QuestionReportController extends BaseController{
 		model.addAttribute("selectedDeviceType", request.getParameter("deviceType"));
 		model.addAttribute("selectedStatus", request.getParameter("status"));
 		
-		return "question/reports/"+request.getParameter("reportout");		
+		return "question/reports/"+request.getParameter("reportout")+"_"+selectedHouseType;
 	}//showTabByIdAndUrl('details_tab', 'question/report/sankshiptAhwal');
 	
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -2325,7 +3417,15 @@ public class QuestionReportController extends BaseController{
 	
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@RequestMapping(value="/departmentwisequestions/export", method=RequestMethod.GET)
-	public void exportDepartmentwiseAdmittedQuestionReport(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale){
+	public void exportDepartmentwiseAdmittedQuestionReport(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale) throws UnsupportedEncodingException{
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
@@ -2372,10 +3472,43 @@ public class QuestionReportController extends BaseController{
 				selectedAnsweringDate = "";
 			}
 			
+			String selectedHouseType = request.getParameter("houseType");
+			if(selectedHouseType==null || selectedHouseType.isEmpty()) {
+				selectedHouseType = ApplicationConstants.LOWER_HOUSE;
+			}
+			
+			String totalCount = request.getParameter("totalCount");
+			if(totalCount==null) {
+				totalCount = "";
+			}
+			
+			String answeredCount = request.getParameter("answeredCount");
+			if(answeredCount==null) {
+				answeredCount = "";
+			}
+			
+			String answerPendingCount = request.getParameter("answerPendingCount");
+			if(answerPendingCount==null) {
+				answerPendingCount = "";
+			}
+			
+			List<String> serialNumbers = new ArrayList<String>();
+			for(int i=1; i<=report.size(); i++) {
+				String sNo = FormaterUtil.formatNumberNoGrouping(i, locale.toString());
+				serialNumbers.add(sNo);
+			}
+			
+			CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(deploymentServerCP.getValue().equals("TOMCAT")){
+				totalCount = new String(totalCount.getBytes("ISO-8859-1"),"UTF-8");
+				answeredCount = new String(answeredCount.getBytes("ISO-8859-1"),"UTF-8");
+				answerPendingCount = new String(answerPendingCount.getBytes("ISO-8859-1"),"UTF-8");
+			}
+			
 			/**** generate report ****/
 			if(!isError) {
 				try {
-					reportFile = generateReportUsingFOP(new Object[]{report,localisedContent, clubbedNumbersList, selectedAnsweringDate}, "qis_departmentwise_questions", request.getParameter("outputFormat"), "qis_departmentwisequestions", locale.toString());
+					reportFile = generateReportUsingFOP(new Object[]{report,localisedContent, clubbedNumbersList, selectedAnsweringDate, totalCount, answeredCount, answerPendingCount, serialNumbers}, "qis_departmentwise_questions_"+selectedHouseType, request.getParameter("outputFormat"), "qis_departmentwisequestions", locale.toString());
 				} catch (Exception e) {					
 					e.printStackTrace();
 				}							
@@ -2385,6 +3518,153 @@ public class QuestionReportController extends BaseController{
 				}
 			}
 		}			
+	}
+	
+	@RequestMapping(value="/generateUnstarredYaadiReport/init", method=RequestMethod.GET)
+	public String initUnstarredQuestionsYaadi(HttpServletRequest request, ModelMap model, Locale locale) {
+		String retVal = "question/reports/error";
+		
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strDeviceType = request.getParameter("deviceType");
+		
+		if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && strDeviceType!=null){
+			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty() && !strDeviceType.isEmpty()){
+				try {
+					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+					if(houseType==null) {
+						houseType = HouseType.findByName(strHouseType, locale.toString());
+					}
+					if(houseType==null) {
+						houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+					}										
+					SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+					Integer sessionYear = Integer.parseInt(strSessionYear);
+					if(houseType==null || sessionType==null) {
+						logger.error("**** HouseType or SessionType Not Found ****");
+						model.addAttribute("errorcode", "HOUSETYPE_NOTFOUND_OR_SESSIONTYPE_NOTFOUND");											
+					} else {
+						model.addAttribute("houseTypeId", houseType.getId());
+						Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+						if(session==null) {								
+							logger.error("**** Session Not Found ****");
+							model.addAttribute("errorcode", "SESSION_NOTFOUND");
+						} else {
+							model.addAttribute("sessionId", session.getId());
+							DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+							if(deviceType==null) {								
+								logger.error("**** Device Type Not Found ****");
+								model.addAttribute("errorcode", "DEVICETYPE_NOTFOUND");
+							} else {
+								model.addAttribute("deviceTypeId", deviceType.getId());										
+								Integer highestYaadiNumber = YaadiDetails.findHighestYaadiNumber(deviceType, session, locale.toString());					
+								if(highestYaadiNumber!=null) {
+									YaadiDetails yaadiDetails = null;
+									List<Device> totalDevicesInYaadi = new ArrayList<Device>();
+									if(highestYaadiNumber.intValue()>0) {
+										yaadiDetails = YaadiDetails.find(deviceType, session, highestYaadiNumber, locale.toString());
+									}	
+									if(yaadiDetails==null || yaadiDetails.isNumberedYaadiFilled()) {
+										/** populate Data for New Yaadi which is either first or latest **/
+										yaadiDetails=null;
+										model.addAttribute("yaadiDetailsId", "");
+										model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(highestYaadiNumber+1, locale.toString()));
+										model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+										totalDevicesInYaadi = YaadiDetails.findDevicesEligibleForNumberedYaadi(deviceType, session, 0, locale.toString());
+									} else {
+										/** populate Data for Highest Yaadi which is not yet filled **/
+										model.addAttribute("yaadiDetailsId", yaadiDetails.getId());
+										model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(yaadiDetails.getNumber(), locale.toString()));
+										Date yaadiLayingDate = yaadiDetails.getLayingDate();
+										if(yaadiLayingDate!=null) {
+											model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(yaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+											model.addAttribute("isYaadiLayingDateSet", "yes");
+										}
+										if(yaadiDetails.getLayingStatus()!=null 
+												&& (yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_READY)
+													|| yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_LAID))
+										) {
+											totalDevicesInYaadi = yaadiDetails.getDevices();
+										} else {
+											List<Device> existingDevicesInYaadi = yaadiDetails.getDevices();
+											totalDevicesInYaadi.addAll(existingDevicesInYaadi);
+											List<Device> newlyAddedDevices = YaadiDetails.findDevicesEligibleForNumberedYaadi(deviceType, session, existingDevicesInYaadi.size(), locale.toString());
+											if(newlyAddedDevices!=null && !newlyAddedDevices.isEmpty()) {
+												totalDevicesInYaadi.addAll(newlyAddedDevices);
+											}
+										}																				
+									}
+									/** populate device vo **/									
+									if(totalDevicesInYaadi!=null && !totalDevicesInYaadi.isEmpty()) {
+										String yaadiDevicesCount = FormaterUtil.formatNumberNoGrouping(totalDevicesInYaadi.size(), locale.toString());
+										model.addAttribute("yaadiDevicesCount", yaadiDevicesCount);
+										List<DeviceVO> totalDevicesInYaadiVOs = populateDevicesForNumberedYaadi(totalDevicesInYaadi, locale.toString());
+										totalDevicesInYaadiVOs = DeviceVO.sort(totalDevicesInYaadiVOs, "number", ApplicationConstants.ASC);
+										model.addAttribute("totalDevicesInYaadiVOs", totalDevicesInYaadiVOs);
+									}
+									List<Date> availableYaadiLayingDates = Question.findAvailableYaadiLayingDatesForSession(null, session, locale.toString());
+									if(availableYaadiLayingDates!=null && !availableYaadiLayingDates.isEmpty()) {
+										List<String> yaadiLayingDates = new ArrayList<String>();
+										for(Date eligibleDate: availableYaadiLayingDates) {
+											yaadiLayingDates.add(FormaterUtil.formatDateToString(eligibleDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+										}
+										model.addAttribute("yaadiLayingDates", yaadiLayingDates);
+									}
+									/** populate group numbers **/
+									CustomParameter deviceTypesHavingGroupCP = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_HAVING_GROUPS", "");
+									if(deviceTypesHavingGroupCP!=null && deviceTypesHavingGroupCP.getValue()!=null && !deviceTypesHavingGroupCP.getValue().isEmpty()) {
+										if(deviceTypesHavingGroupCP.getValue().contains(deviceType.getType())) {
+											CustomParameter groupNumberLimitCP = CustomParameter.findByName(CustomParameter.class, "NO_OF_GROUPS", "");
+											if(groupNumberLimitCP!=null && groupNumberLimitCP.getValue()!=null && !groupNumberLimitCP.getValue().isEmpty()) {
+												Integer groupNumberLimit = Integer.parseInt(groupNumberLimitCP.getValue()); 
+												List<Reference> groupNumbers = new ArrayList<Reference>();
+												for(Integer i=1; i<=groupNumberLimit; i++) {
+													Reference groupNumber = new Reference();
+													groupNumber.setNumber(i.toString());
+													groupNumber.setName(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));
+													groupNumbers.add(groupNumber);
+												}
+												model.addAttribute("groupNumbers", groupNumbers);
+											}
+										}
+									}
+									/** populate yaadi statuses **/
+									CustomParameter yaadiLayingStatusesCP = CustomParameter.findByName(CustomParameter.class, "YAADI_LAYING_STATUSES", "");		
+									if(yaadiLayingStatusesCP!=null && yaadiLayingStatusesCP.getValue()!=null && !yaadiLayingStatusesCP.getValue().isEmpty()) {
+										List<Status> yaadiLayingStatuses = Status.findStatusContainedIn(yaadiLayingStatusesCP.getValue(), locale.toString());
+										model.addAttribute("yaadiLayingStatuses", yaadiLayingStatuses);
+										if(yaadiDetails!=null && yaadiDetails.getLayingStatus()!=null && yaadiDetails.getLayingStatus().getId()!=null) {
+											model.addAttribute("yaadiLayingStatus", yaadiDetails.getLayingStatus());
+										}
+									}
+									/** populate whether to allow manually entering questions **/
+									CustomParameter manuallyEnteringAllowedCP = CustomParameter.findByName(CustomParameter.class, "QIS_UNSTARRED_YAADI_MANUALLY_ENTERING_ALLOWED", "");
+									if(manuallyEnteringAllowedCP!=null) {
+										model.addAttribute("manuallyEnteringAllowed", manuallyEnteringAllowedCP.getValue());
+									}
+									retVal = "question/reports/unstarredyaadi";
+								} else {
+									logger.error("**** Error in Query of finding Yaadi Number ****");
+									model.addAttribute("errorcode", "QUERY_ERROR");
+								}								
+							}										
+						}
+					}
+				} catch(ELSException e) {
+					if(e.getParameter("error")!=null && e.getParameter("error").equalsIgnoreCase("device.yaadiNumberingParameterNotSet")) {
+						model.addAttribute("errorcode", "UNSTARRED_YAADI_NUMBERING_SESSION_PARAMETER_MISSING");						
+					} else {
+						model.addAttribute("error", e.getParameter("error"));	
+					}						
+				} catch(Exception e) {
+					e.printStackTrace();
+					model.addAttribute("error", "SOME_EXCEPTION_OCCURED");
+				}
+			}
+		}
+		
+		return retVal;
 	}
 }
 
@@ -2401,8 +3681,7 @@ class QuestionReportHelper{
 			if(strDevice != null && !strDevice.isEmpty()){
 				Question qt = Question.findById(Question.class, id);
 				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());				
-				Map<String, Object[]> dataMap = new HashMap<String, Object[]>();
-				
+				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();	
 				if(report != null && !report.isEmpty()){
 										
 					List<User> users = User.findByRole(false, "QIS_PRINCIPAL_SECRETARY", locale.toString());
@@ -2432,7 +3711,7 @@ class QuestionReportHelper{
 														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
 													}
 												}
-											}else{
+											}else {
 												dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
 											}
 										}else{
@@ -2456,44 +3735,94 @@ class QuestionReportHelper{
 								}
 							}
 							
-							
-							
-							if(dataMap.get(ApplicationConstants.PRINCIPAL_SECRETARY) == null){
-								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
-								
-								Object[] dataCollection = new Object[30];
-								dataCollection[0] = new String(userGroupType.getName());
-								dataCollection[1] = new String("");
-								dataCollection[3] = new String("");
-								dataCollection[6] = new String("");
-								dataCollection[28] = new String("");
-								
-								dataMap.put(ApplicationConstants.PRINCIPAL_SECRETARY, dataCollection);
-							}
-							
-							if(dataMap.isEmpty()){
-								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
-								
-									Reference ref = UserGroup.findQuestionActor(qt, val, String.valueOf(0), locale.toString());
-									Object[] actor = new Object[30];
-									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-										actor[0] = new String(ref.getId().split("#")[3]);
-										actor[1] = new String(ref.getId().split("#")[4]);
-									}else{
-										actor[0] = new String(ref.getId().split("#")[3]);
-										actor[1] = new String("");
+							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "QIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
+							if(onPaperSigningAuthorityParameter != null){
+								String signingAuthority = onPaperSigningAuthorityParameter.getValue();
+								String[] signingAuthorities = signingAuthority.split(",");
+								for(String str : signingAuthorities){
+									if(str.equals(ApplicationConstants.UNDER_SECRETARY) || str.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+										str = ApplicationConstants.UNDER_SECRETARY;
 									}
-									actor[3] = new String("");
-									actor[6] = new String("");
-									actor[28] = new String("");
-									
-									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-										dataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
-									}else{
-										dataMap.put(val, actor);
+									if(dataMap.get(str) == null){
+										UserGroupType userGroupType = UserGroupType.
+												findByFieldName(UserGroupType.class, "type", str, locale.toString());
+										Reference ref = UserGroup.findQuestionActor(qt, str, String.valueOf(0), locale.toString());
+										if(ref.getId() != null){
+											Object[] actor = new Object[32];
+											if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) 
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY)){
+												actor[0] = new String(ref.getId().split("#")[3]);
+												actor[1] = new String(ref.getId().split("#")[4]);
+											}else{
+												actor[0] = new String(ref.getId().split("#")[3]);
+												actor[1] = new String("");
+											}
+											actor[3] = new String("");
+											actor[6] = new String("");
+											actor[27] = userGroupType.getType();
+											actor[28] = new String("");
+											actor[31] = null;
+											dataMap.put(str, actor);
+										}
 									}
 								}
 							}
+//							if(dataMap.get(ApplicationConstants.SECRETARY) == null 
+//									&& qt.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+//								UserGroupType userGroupType = UserGroupType.
+//										findByFieldName(UserGroupType.class, "type", ApplicationConstants.SECRETARY, locale.toString());
+//								
+//								Object[] dataCollection = new Object[32];
+//								dataCollection[0] = new String(userGroupType.getName());
+//								dataCollection[1] = new String("");
+//								dataCollection[3] = new String("");
+//								dataCollection[6] = new String("");
+//								dataCollection[27] = userGroupType.getType();
+//								dataCollection[28] = new String("");
+//								dataCollection[31] = null;
+//								
+//								dataMap.put(ApplicationConstants.SECRETARY, dataCollection);
+//							}
+//							
+//							if(dataMap.get(ApplicationConstants.PRINCIPAL_SECRETARY) == null){
+//								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
+//								
+//								Object[] dataCollection = new Object[32];
+//								dataCollection[0] = new String(userGroupType.getName());
+//								dataCollection[1] = new String("");
+//								dataCollection[3] = new String("");
+//								dataCollection[6] = new String("");
+//								dataCollection[27] = userGroupType.getType();
+//								dataCollection[28] = new String("");
+//								dataCollection[31] = null;
+//								
+//								dataMap.put(ApplicationConstants.PRINCIPAL_SECRETARY, dataCollection);
+//							}
+							
+//							if(dataMap.isEmpty()){
+//								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
+//								
+//									Reference ref = UserGroup.findQuestionActor(qt, val, String.valueOf(0), locale.toString());
+//									Object[] actor = new Object[30];
+//									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+//										actor[0] = new String(ref.getId().split("#")[3]);
+//										actor[1] = new String(ref.getId().split("#")[4]);
+//									}else{
+//										actor[0] = new String(ref.getId().split("#")[3]);
+//										actor[1] = new String("");
+//									}
+//									actor[3] = new String("");
+//									actor[6] = new String("");
+//									actor[28] = new String("");
+//									
+//									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+//										dataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+//									}else{
+//										dataMap.put(val, actor);
+//									}
+//								}
+//							}
 	
 							model.addAttribute("data", dataMap);
 							model.addAttribute("formatData", report.get(report.size()-1));
@@ -2692,6 +4021,7 @@ class QuestionReportHelper{
 		String sessionPlace = session.getPlace().getPlace();
 		/**** Questions Data ****/
 		String yaadiNumber = null;
+		String yaadiLayingDate = null;
 		List<Object[]> yaadiQuestions = new ArrayList<Object[]>();
 		int count=0;
 		for(Question q: totalQuestionsInYaadi) {
@@ -2716,17 +4046,17 @@ class QuestionReportHelper{
 			} else {
 				allMemberNames = q.findAllMemberNames(memberNameFormat);
 			}
-			/**** add below commented code in case space between title & member name should be removed ****/
-//			if(allMemberNames!=null && !allMemberNames.isEmpty()) {
-//				List<Title> titles = Title.findAll(Title.class, "name", ApplicationConstants.ASC, locale);
-//				if(titles!=null && !titles.isEmpty()) {
-//					for(Title t: titles) {
-//						if(t.getName().trim().endsWith(".")) {
-//							allMemberNames = allMemberNames.replace(t.getName().trim()+" ", t.getName().trim());
-//						}
-//					}
-//				}
-//			}				
+			/**** add below code in case space between title & member name should be removed ****/
+			if(allMemberNames!=null && !allMemberNames.isEmpty()) {
+				List<Title> titles = Title.findAll(Title.class, "name", ApplicationConstants.ASC, locale);
+				if(titles!=null && !titles.isEmpty()) {
+					for(Title t: titles) {
+						if(t.getName().trim().endsWith(".")) {
+							allMemberNames = allMemberNames.replace(t.getName().trim()+" ", t.getName().trim());
+						}
+					}
+				}
+			}	
 			yaadiQuestion[4] = allMemberNames;
 			if(q.getRevisedSubject()!=null && !q.getRevisedSubject().isEmpty()) {
 				yaadiQuestion[5] = q.getRevisedSubject();//FormaterUtil.formatNumbersInGivenText(q.getRevisedSubject(), locale);
@@ -2763,23 +4093,27 @@ class QuestionReportHelper{
 				//answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 			}				
 			yaadiQuestion[7] = answer;
-			Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
+			Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(q.getSession(), q.getMinistry());
 			if(answeringMember != null){
 				yaadiQuestion[8] = answeringMember.findNameInGivenFormat(memberNameFormat);
 			}
-			yaadiQuestion[9] = q.getSubDepartment().getName();
-			try {
-				MemberMinister memberMinister = Question.findMemberMinisterIfExists(q);
-				if(memberMinister!=null) {
-					yaadiQuestion[10] = memberMinister.getDesignation().getName();
-				} else {
-					yaadiQuestion[10] = "";
-				}
-			} catch(ELSException ex) {
+			if(q.getSubDepartment()!=null) {
+				yaadiQuestion[9] = q.getSubDepartment().getName();
+			} else {
+				logger.error("/**** subdepartment has become null for question with id: " + q.getId() + " ****/");
+				yaadiQuestion[9] = "";
+			}			
+			MemberMinister memberMinister = MemberMinister.findMemberMinisterHavingMinistryInSession(q.getSession(), q.getMinistry());
+			if(memberMinister!=null) {
+				yaadiQuestion[10] = memberMinister.getDesignation().getName();
+			} else {
 				yaadiQuestion[10] = "";
 			}
 			/** referenced question details (later should come through referenced entities) **/
-			String questionReferenceText = q.getQuestionreferenceText();
+			String questionReferenceText = q.findReferencingDetailsText();
+			if(questionReferenceText==null || questionReferenceText.isEmpty()) {
+				questionReferenceText = q.getQuestionreferenceText();
+			}			
 			if(questionReferenceText!=null) {
 				//questionReferenceText = FormaterUtil.formatNumbersInGivenText(questionReferenceText, locale);
 				yaadiQuestion[11] = questionReferenceText;
@@ -2804,11 +4138,23 @@ class QuestionReportHelper{
 			} else {
 				yaadiQuestion[13] = "";
 			}
+			if(q.getMinistry()!=null) {
+				yaadiQuestion[14] = q.getMinistry().getName();
+			} else {
+				yaadiQuestion[14] = "";
+			}
 			if(yaadiNumber==null) {
 				if(q.getYaadiNumber()!=null) {
 					yaadiNumber = FormaterUtil.formatNumberNoGrouping(q.getYaadiNumber(), locale);
 				} else {
 					yaadiNumber = "";
+				}
+			}
+			if(yaadiLayingDate==null) {
+				if(q.getYaadiLayingDate()!=null) {
+					yaadiLayingDate = FormaterUtil.formatDateToString(q.getYaadiLayingDate(), ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_1, locale);
+				} else {
+					yaadiLayingDate = "";
 				}
 			}
 			//-----------------------------------------------
@@ -2820,7 +4166,7 @@ class QuestionReportHelper{
 		//as principal secretary for unstarred question is only one, so user is obviously first element of the list.
 		String userName = users.get(0).findFirstLastName();
 		
-		unstarredYaadiData = new Object[]{yaadiQuestions, totalNumberOfYaadiQuestions, houseTypeName, sessionNumber, sessionTypeName, sessionYear, sessionPlace, userName, yaadiNumber};
+		unstarredYaadiData = new Object[]{yaadiQuestions, totalNumberOfYaadiQuestions, houseTypeName, sessionNumber, sessionTypeName, sessionYear, sessionPlace, userName, yaadiNumber, yaadiLayingDate};
 		return unstarredYaadiData;
 	}
 }

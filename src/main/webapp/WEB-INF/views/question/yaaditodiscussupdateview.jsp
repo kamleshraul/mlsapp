@@ -1,7 +1,7 @@
 <%@ include file="/common/taglibs.jsp"%>
 <script type="text/javascript">
 $(document).ready(function(){
-	var continueLoop=true;
+	/* var continueLoop=true;
 	$(".action").each(function(){
 		if(continueLoop){
 			if(this.disabled){
@@ -9,7 +9,7 @@ $(document).ready(function(){
 				flag=true;
 			}
 		}
-	});
+	}); */
 	/**** Edit Questions ****/
 	$(".edit").click(function(){
 		editQuestion($(this).attr("id"),"no");
@@ -67,17 +67,10 @@ function editQuestion(id,readonly){
 						<th><spring:message code="question.currentstatus" text="To Be Put Up For?"></spring:message></th>
 					</tr>			
 					<c:forEach items="${questions}" var="i">
-						<tr class="${i.fileSent}">
-							<c:choose>
-							<c:when test="${!i.fileSent}">
+						<tr>
+							
 							<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
 							<a href="#" class="edit" id="edit${i.id}"><spring:message code="question.edit" text="Edit"></spring:message></a></td>
-							</c:when>
-							<c:otherwise>
-							<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
-							<a href="#" class="readonly" id="edit${i.id}"><spring:message code="question.edit" text="Edit"></spring:message></a></td>
-							</c:otherwise>
-							</c:choose>
 							<td>${i.formatNumber()}</td>
 							<td>${i.primaryMember.getFullname()}</td>
 							<td>${i.subject}</td>

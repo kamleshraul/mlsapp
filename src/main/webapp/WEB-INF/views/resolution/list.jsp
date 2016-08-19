@@ -20,6 +20,7 @@
 								+"&role="+$('#srole').val()
 								+"&usergroup="+$('#currentusergroup').val()
 								+"&usergroupType="+$('#currentusergroupType').val()
+								+'&subDepartment='+$("#selectedSubdepartment").val()
 								);
 					//console.log("govt params: " + $("#gridURLParams").val());	
 					$('#karyavali_report').hide();
@@ -34,6 +35,7 @@
 							+"&role="+$("#srole").val()
 							+"&usergroup="+$("#currentusergroup").val()
 							+"&usergroupType="+$("#currentusergroupType").val()
+							+'&subDepartment='+$("#selectedSubdepartment").val()
 							);
 					//console.log("nonofficial params in else: " + $("#gridURLParams").val());
 					if(deviceType == 'resolutions_nonofficial') {
@@ -57,24 +59,34 @@
 			/*******For Enabling the new Resolution link in the edit page********/
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());	
 			
-			/**** new question ****/
+			/**** new resolution ****/
 			$('#new_record').click(function(){
 				$("#selectionDiv1").hide();	
 				newResolution();
 			});
-			/**** edit question ****/
+			/**** edit resolution ****/
 			$('#edit_record').click(function(){
 				currentSelectedRow=$('#key').val();
 				$("#selectionDiv1").hide();	
 				editResolution();
 			});
-			/**** delete question ****/
+			/**** delete resolution ****/
 			$("#delete_record").click(function() {
 				deleteResolution();
 			});		
-			/****Searching Question****/
+			/****Searching Resolution****/
 			$("#search").click(function() {
 				searchRecord();
+			});
+			/****Member's Resolutions View ****/
+			$("#member_resolutions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberResolutionsView();
+			});
+			
+			/**** Generate Resolutions Online Submission Count Report ****/
+			$("#resolutions_online_submission_count_report").click(function(){
+				resolutionsOnlineSubmissionCountReport();
 			});
 			
 			$("#karyavali_report").click(function(){
@@ -93,6 +105,55 @@
 					return false;
 				}				
 			});	
+			
+			
+			
+			
+			/***Current Status Report***/
+			$("#generateCurrentStatusReport").click(function(){
+				var selectedResolutionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				
+				if(selectedResolutionId.length>=1){
+					showCurrentStatusReport('multiple',selectedResolutionId);
+				}else{
+					showCurrentStatusReport('all','');
+				}
+			});
+			
+			/**** Generate Intimation Letter ****/			
+			$("#generateIntimationLetter").click(function(){
+				$(this).attr('href','#');
+				generateIntimationLetter();				
+			});
+			
+			$("#temporaryKaryavaliReport").click(function(){
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+				var parameters_report = "houseType="+$("#selectedHouseType").val()
+				 +"&sessionYear="+$("#selectedSessionYear").val()
+				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&deviceType="+$("#selectedDeviceType").val()
+				var resourceURL='resolution/report/temporaryKaryavali?'+parameters_report;
+				$.get(resourceURL,function(data){
+					$.unblockUI();
+					$.fancybox.open(data,{autoSize:false,width:500,height:300});
+				},'html').fail(function(){
+					$.unblockUI();
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});	
+			});
+			
+			$("#generateResolutionSummaryReport").click(function(){
+				generateResolutionSummaryReport();
+			});
+			
+			$("#registerReport").click(function(){
+				generateResolutionRegister();
+			});
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -119,26 +180,35 @@
 	<div>
 	<div class="commandbar">
 		<div class="commandbarContent">	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','ROIS_CLERK')">			
-			<a href="#" id="new_record" class="butSim">
-				<spring:message code="generic.new" text="New"/>
-			</a> |
-			</security:authorize>			
-			<a href="#" id="edit_record" class="butSim">
-			<spring:message code="generic.edit" text="Edit"/>
-			</a> |
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','ROIS_CLERK')">			
-			<a href="#" id="delete_record" class="butSim">
-				<spring:message code="generic.delete" text="Delete"/>
-			</a> |			
-			<a href="#" id="submitQuestion" class="butSim">
-				<spring:message code="generic.submitquestion" text="submit"/>
-			</a> |
-			</security:authorize>			
-			<a href="#" id="search" class="butSim">
-				<spring:message code="generic.search" text="Search"/>
-			</a> |	
-			<security:authorize access="hasAnyRole('ROIS_ASSISTANT')">
+			<security:authorize access="hasAnyRole('ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_CLERK')">
+				<hr>
+				<a href="#" id="generateIntimationLetter" class="butSim">
+					<spring:message code="resolution.generateIntimationLetter" text="Generate Intimation Letter"/>
+				</a> 				
+				<select id="intimationLetterFilter" size="1" style="height: 20px; font-size: 12px; min-width: 50px; vertical-align: middle;">
+						<option value="-">-</option>
+					 	<option value="member"><spring:message code='resolution.intimationletter.member' text='member' /></option>
+						<option value="department"><spring:message code='resolution.intimationletter.department' text='department' /></option>
+				</select> | 
+			</security:authorize>
+			
+			<security:authorize access="!hasAnyRole('ROIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<a href="#" id="generateCurrentStatusReport" class="butSim">
+					<spring:message code="resolution.generateCurrentStatusReport" text="Generate Current Status Report"/>
+				</a> |
+				<a href="#" id="generateResolutionSummaryReport" class="butSim link">
+					<spring:message code="resolution.summaryReport" text="Resolution Summary Report"/>
+				</a> |
+			</security:authorize>
+			
+			<security:authorize access="hasAnyRole('ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_CLERK')">
+				| <a href="#" id="resolutions_online_submission_count_report" class="butSim">
+					<spring:message code="resolution.onlinesubmissioncountreport" text="Resolutions Online Submission Count Report"/>
+				</a>
+			</security:authorize>
+			
+			<security:authorize access="hasAnyRole('ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_CLERK')">
+			<hr>
 			<a href="#" id="karyavali_report" class="butSim" target="_blank">
 				<spring:message code="resolution.karyavali_report" text="Karyavali Report"/>
 			</a>
@@ -149,8 +219,52 @@
 						<option value="${i.value}">${i.name}</option>
 					</c:forEach>
 				</select>				
-			</c:if>			
-			</security:authorize>		
+			</c:if>		 | 	
+			</security:authorize>	
+			
+			<security:authorize access="hasAnyRole('ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_CLERK')">
+				<a href="#" id="temporaryKaryavaliReport" class="butSim">
+					<spring:message code="resolution.temporayKaryavaliReport" text="Temporary Karyavali Report"/>
+				</a>
+				<c:if test="${not empty outputFormats}">				
+					<select id="outputFormat" name="outputFormat">
+						<option value="" selected="selected">Please Select Output Format</option>
+						<c:forEach items="${outputFormats}" var="i">
+							<option value="${i.value}">${i.name}</option>
+						</c:forEach>
+					</select>				
+				</c:if>	|
+				
+				<a href="#" id="registerReport" class="butSim">
+					<spring:message code="resolution.register" text="Register"/>
+				</a>		
+			</security:authorize>	
+							
+			<hr>
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','ROIS_TYPIST')">			
+			<a href="#" id="new_record" class="butSim">
+				<spring:message code="generic.new" text="New"/>
+			</a> |
+			</security:authorize>			
+			<a href="#" id="edit_record" class="butSim">
+			<spring:message code="generic.edit" text="Edit"/>
+			</a> |
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','ROIS_TYPIST')">			
+			<a href="#" id="delete_record" class="butSim">
+				<spring:message code="generic.delete" text="Delete"/>
+			</a> |			
+			<a href="#" id="submitResolution" class="butSim">
+				<spring:message code="generic.submitresolution" text="submit"/>
+			</a> |
+			</security:authorize>			
+			<a href="#" id="search" class="butSim">
+				<spring:message code="generic.search" text="Search"/>
+			</a> |	
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<a href="#" id="member_resolutions_view" class="butSim">
+					<spring:message code="resolution.member_resolutions_view" text="Member's Resolutions View"/>
+				</a> |
+			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
 	</div>

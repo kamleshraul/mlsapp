@@ -37,7 +37,7 @@
 	/**** Clubbing ****/
 	function clubbingInt(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		var params="id="+id
+		var params="eventMotionId="+id
 					+"&usergroup="+$("#currentusergroup").val()
 			        +"&usergroupType="+$("#currentusergroupType").val();		
 		$.get('clubentity/init?'+params,function(data){
@@ -129,7 +129,8 @@
 					}
 				}
 				$("#actor").html(text);
-				$("#actorDiv").show();				
+				//$("#actorDiv").show();
+				$("#actorDiv").css({'display':'inline-block'});
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value!=sendback&&value!=discuss){
 				$("#internalStatus").val(value);
@@ -166,7 +167,8 @@
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -354,7 +356,7 @@
 				if(id.indexOf("cq")!=-1){
 				var motionId=$("#id").val();
 				var clubId=id.split("cq")[1];				
-				$.post('clubentity/eventmotion/unclubbing?pId='+motionId+"&cId="+clubId,function(data){
+				$.post('clubentity/unclubbing?pId='+motionId+"&cId="+clubId+"&whichDevice=motions_eventmotion_",function(data){
 					if(data=='SUCCESS'){
 					$.prompt("Unclubbing Successful");				
 					}else{
@@ -527,9 +529,27 @@
 		
 		<p style="display: inline-block;">
 			<label class="small"><spring:message code="eventmotion.eventDate" text="Event Date"/>*</label>
-			<input name="formattedEventDate" id="formattedEventDate" type="text" value="${formattedEventDate}" class="sText datemask">
+			<input name="formattedEventDate" id="formattedEventDate" type="text" value="${formattedEventDate}" class="sText datemask" readonly="readonly">
 			<input name="eventDate" id="eventDate" type="hidden" value="${eventDate}">		
 			<form:errors path="eventDate" cssClass="validationError"/>
+		</p>
+		
+		<p style="display: inline-block;">
+			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+			<select name="discussionDate" id="discussionDate" class="sSelect">
+				<option value="">--<spring:message code="please.select" text="Select"/>--</option>
+				<c:forEach items="${discussionDates}" var="i">
+					<c:choose>
+						<c:when test="${i.value==discussionDateSelected }">
+							<option value="${i.value}" selected="selected">${i.name}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${i.value}" >${i.name}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</select>
+			<form:errors path="discussionDate" cssClass="validationError"/>
 		</p>
 	</div>
 		
@@ -594,18 +614,19 @@
 			</c:if>	
 		</p>	
 	</c:if>
-		
-	<c:if test="${!(empty parent)}">	
-		<p>
+
+	<p>
+		<label class="small"><spring:message code="cutmotion.parentmotion" text="Clubbed To"></spring:message></label>		
+		<c:if test="${!(empty parent)}">	
 			<label class="small"><spring:message code="cutmotion.parentmotion" text="Clubbed To"></spring:message></label>
 			<a href="#" id="p${parent}" onclick="viewmotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 			<input type="hidden" id="parent" name="parent" value="${parent}">
-		</p>
-	</c:if>	
+		</c:if>	
+	</p>
 	
-	<c:if test="${!(empty clubbedEntities) }">
-		<p>
-			<label class="small"><spring:message code="generic.clubbed" text="Clubbed Motions"></spring:message></label>
+	<p>
+		<label class="small"><spring:message code="generic.clubbed" text="Clubbed Motions"></spring:message></label>
+		<c:if test="${!(empty clubbedEntities) }">
 			<c:choose>
 				<c:when test="${!(empty clubbedEntities) }">
 					<c:forEach items="${clubbedEntities }" var="i">
@@ -621,8 +642,8 @@
 					<option value="${i.id}" selected="selected"></option>
 				</c:forEach>
 			</select>
-		</p>
-	</c:if>
+		</c:if>
+	</p>
 		
 	<c:if test="${!(empty referencedMotions) }">		
 		<p>
@@ -721,22 +742,23 @@
 					<img alt="" src="" id="image_photo" width="70" height="70">
 				</span>
 				<c:choose>		
-				<c:when test="${empty domain.collectorReport}">
-				<jsp:include page="/common/file_upload.jsp">
-					<jsp:param name="fileid" value="collectorReport" />
-				</jsp:include>
-				</c:when>
-				<c:otherwise>		
-				<jsp:include page="/common/file_download.jsp">
-					<jsp:param name="fileid" value="collectorReport" />
-					<jsp:param name="filetag" value="${domain.collectorReport}" />
-				</jsp:include>
-				</c:otherwise>
+					<c:when test="${empty domain.collectorReport}">
+						<jsp:include page="/common/file_upload.jsp">
+							<jsp:param name="fileid" value="collectorReport" />
+						</jsp:include>
+					</c:when>
+					<c:otherwise>		
+						<jsp:include page="/common/file_download.jsp">
+							<jsp:param name="fileid" value="collectorReport" />
+							<jsp:param name="filetag" value="${domain.collectorReport}" />
+						</jsp:include>
+					</c:otherwise>
 				</c:choose>		
 				<form:errors path="collectorReport" cssClass="validationError" />
 			</p>			
 		</c:if>	
 	</div>	
+	
 		
 	<div>
 		<p id="internalStatusDiv" style="margin-top: 20px; display: inline-block;">
@@ -765,36 +787,38 @@
 	
 	<c:choose>	
 		<c:when test="${domain.workflowStarted=='NO'}">
-			<div>		
-				<p style="display: inline-block;">	
-					<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
-					<select id="changeInternalStatus" class="sSelect">
-						<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-						<c:forEach items="${internalStatuses}" var="i">
-							<c:choose>
-								<c:when test="${i.id==internalStatusSelected }">
-									<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-								</c:when>
-								<c:otherwise>
-									<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-								</c:otherwise>
-							</c:choose>
-						</c:forEach>
-					</select>
+			<c:if test="${internalStatusType=='eventmotion_system_assistantprocessed'}">
+				<div>		
+					<p style="display: inline-block;">	
+						<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
+						<select id="changeInternalStatus" class="sSelect">
+							<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+							<c:forEach items="${internalStatuses}" var="i">
+								<c:choose>
+									<c:when test="${i.id==internalStatusSelected }">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:otherwise>
+										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</select>
+						
+						<select id="internalStatusMaster" style="display:none;">
+							<c:forEach items="${internalStatuses}" var="i">
+								<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+							</c:forEach>
+						</select>	
+						<form:errors path="internalStatus" cssClass="validationError"/>	
+					</p>
 					
-					<select id="internalStatusMaster" style="display:none;">
-						<c:forEach items="${internalStatuses}" var="i">
-							<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-						</c:forEach>
-					</select>	
-					<form:errors path="internalStatus" cssClass="validationError"/>	
-				</p>
-				
-				<p id="actorDiv" style="display: inline-block;">
-					<label class="small"><spring:message code="generic.nextactor" text="Next Users"/></label>
-					<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-				</p>
-			</div>
+					<p id="actorDiv" style="display: none;">
+						<label class="small"><spring:message code="generic.nextactor" text="Next Users"/></label>
+						<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+					</p>
+				</div>
+			</c:if>
 		</c:when>
 		<c:when test="${domain.workflowStarted=='YES'}">
 			<div style="display: none;">		

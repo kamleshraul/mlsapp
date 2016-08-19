@@ -16,9 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.domain.Language;
+import org.mkcl.els.domain.SectionOrder;
 import org.mkcl.els.domain.SectionOrderSeries;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -43,18 +45,71 @@ public class SectionOrderSeriesController extends GenericController<SectionOrder
 		}
 		model.addAttribute("languages", languages);
 		model.addAttribute("selectedLanguage", languages.get(0).getType());
+    }	
+	
+	@Override
+	protected void preValidateCreate(final SectionOrderSeries domain,
+            final BindingResult result, 
+            final HttpServletRequest request) {
+        preValidate(domain, result, request);
     }
 	
 	@Override
-	protected void populateIfNoErrors(final ModelMap model, 
-    		final SectionOrderSeries domain,
+	protected void preValidateUpdate(final SectionOrderSeries domain,
+            final BindingResult result, 
+            final HttpServletRequest request) {
+        preValidate(domain, result, request);
+    }
+	
+	private void preValidate(final SectionOrderSeries domain, 
+    		final BindingResult result,
             final HttpServletRequest request) {
 		/** set language **/
 		String selectedLanguageType = request.getParameter("setLanguage");
 		if(domain.getLanguage()==null || !domain.getLanguage().getType().equals(selectedLanguageType)) {
 			Language selectedLanguage = Language.findByFieldName(Language.class, "type", selectedLanguageType, domain.getLocale());
 			domain.setLanguage(selectedLanguage);
-		}		
+		}
+	}
+	
+	@Override
+	protected void customValidateCreate(final SectionOrderSeries domain,
+            final BindingResult result, 
+            final HttpServletRequest request) {
+        customValidate(domain, result, request);
+    }
+	
+	@Override
+	protected void customValidateUpdate(final SectionOrderSeries domain,
+            final BindingResult result, 
+            final HttpServletRequest request) {
+        customValidate(domain, result, request);
+    }
+	
+	private void customValidate(final SectionOrderSeries domain, 
+    		final BindingResult result,
+            final HttpServletRequest request) {
+		// Check for version mismatch
+        if (domain.isVersionMismatch()) {
+            result.rejectValue("VersionMismatch", "version");
+            return;
+        }        
+        //name compulsory
+        if(domain.getName()==null || domain.getName().isEmpty()) {
+        	result.rejectValue("name", "NotEmpty");
+        	return;
+        }
+        // Check for duplicate instance
+        if(domain.checkDuplicate()) {
+        	result.rejectValue("name", "NonUnique");
+			return;
+        }
+	}
+	
+	@Override
+	protected void populateIfNoErrors(final ModelMap model, 
+    		final SectionOrderSeries domain,
+            final HttpServletRequest request) {				
 		/** set is autonomous **/
 		if(domain.getIsAutonomous()==null) {
 			domain.setIsAutonomous(false);

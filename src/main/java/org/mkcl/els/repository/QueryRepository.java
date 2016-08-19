@@ -51,37 +51,6 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public List findResultListOfGivenClass(final String report,final Map<String, String[]> requestMap, Class className) {
-		if(requestMap!=null&&!requestMap.isEmpty()){
-			String locale=requestMap.get("locale")[0];
-			Query query = Query.findByFieldName(Query.class, "keyField", report, locale);
-			javax.persistence.Query persistenceQuery=this.em().createNativeQuery(query.getQuery(), className);
-			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
-			Set<Parameter<?>> selectQueryParameters = persistenceQuery.getParameters();
-			for (Parameter i : selectQueryParameters) {
-				String param=requestMap.get(i.getName())[0];
-				String decodedParam=param;
-				if(customParameter!=null&&customParameter.getValue().equals("TOMCAT")){							
-					try {
-						decodedParam = new String(param.getBytes("ISO-8859-1"), "UTF-8");
-					}
-					catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
-					}
-				}            	
-				if(decodedParam.equals("true") || decodedParam.equals("false")){
-					persistenceQuery.setParameter(i.getName(),((decodedParam.equals("true"))? true: false));
-				}else{
-					persistenceQuery.setParameter(i.getName(),decodedParam);
-				}
-			}
-			List results=persistenceQuery.getResultList();
-			return results;
-		}		
-		return null;
-	}
-	
-	@SuppressWarnings("rawtypes")
 	public List findReport(final String report,final Map<String, String[]> requestMap, final Boolean handleIN) {
 		if(handleIN){
 			if(requestMap!=null&&!requestMap.isEmpty()){
@@ -115,7 +84,7 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 							List<String> values = new ArrayList<String>();
 							
 							for(String val : decodedParam.split(",")){
-								values.add(val);
+								values.add(val.trim());
 							}
 							persistenceQuery.setParameter(i.getName(),values);
 						}else{
@@ -132,6 +101,84 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
+	public List findResultListOfGivenClass(final String report,final Map<String, String[]> requestMap, Class className) {
+		if(requestMap!=null&&!requestMap.isEmpty()){
+			String locale=requestMap.get("locale")[0];
+			Query query = Query.findByFieldName(Query.class, "keyField", report, locale);
+			javax.persistence.Query persistenceQuery=this.em().createNativeQuery(query.getQuery(), className);
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+			Set<Parameter<?>> selectQueryParameters = persistenceQuery.getParameters();
+			for (Parameter i : selectQueryParameters) {
+				String param=requestMap.get(i.getName())[0];
+				String decodedParam=param;
+				if(customParameter!=null&&customParameter.getValue().equals("TOMCAT")){							
+					try {
+						decodedParam = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+					}
+					catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				}            	
+				if(decodedParam.equals("true") || decodedParam.equals("false")){
+					persistenceQuery.setParameter(i.getName(),((decodedParam.equals("true"))? true: false));
+				}else{
+					persistenceQuery.setParameter(i.getName(),decodedParam);
+				}
+			}
+			List results=persistenceQuery.getResultList();
+			return results;
+		}		
+		return null;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public List findResultListOfGivenClass(final String report,final Map<String, String[]> requestMap, Class className, final Boolean handleIN) {
+		if(requestMap!=null&&!requestMap.isEmpty()){
+			String locale=requestMap.get("locale")[0];
+			Query query = Query.findByFieldName(Query.class, "keyField", report, locale);
+			
+			//To handle the parameter setting in IN clause value
+			int indexOfIN = query.getQuery().indexOf(" IN "); 
+			int index = ((indexOfIN==-1)? ((query.getQuery().indexOf("in")==-1)? -1:query.getQuery().indexOf("in")): indexOfIN);
+			String inParameter = query.getQuery().substring(index+"IN".length()).trim();
+			inParameter = inParameter.substring(inParameter.indexOf(":")+1,inParameter.indexOf(")"));
+			
+			javax.persistence.Query persistenceQuery=this.em().createNativeQuery(query.getQuery(), className);
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+			Set<Parameter<?>> selectQueryParameters = persistenceQuery.getParameters();
+			for (Parameter i : selectQueryParameters) {
+				String param=requestMap.get(i.getName())[0];
+				String decodedParam=param;
+				if(customParameter!=null&&customParameter.getValue().equals("TOMCAT")){							
+					try {
+						decodedParam = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+					}
+					catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				}            	
+				if(decodedParam.equals("true") || decodedParam.equals("false")){
+					persistenceQuery.setParameter(i.getName(),((decodedParam.equals("true"))? true: false));
+				}else{
+					if(i.getName().equals(inParameter)){
+						List<String> values = new ArrayList<String>();
+						
+						for(String val : decodedParam.split(",")){
+							values.add(val.trim());
+						}
+						persistenceQuery.setParameter(i.getName(),values);
+					}else{
+						persistenceQuery.setParameter(i.getName(),decodedParam);
+					}
+				}
+			}
+			List results=persistenceQuery.getResultList();
+			return results;
+		}		
+		return null;
+	}	
+	
 	@SuppressWarnings("rawtypes")
 	public List findMISPartyDistrictReport(final String report,final Map<String, String[]> requestMap){
 		if(requestMap!=null&&!requestMap.isEmpty()){
@@ -217,6 +264,61 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 			persistenceQuery.setParameter("locale",locale);
 			List results=persistenceQuery.getResultList();
 			return results;
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public List findReport(final String report,final Map<String, String[]> requestMap, Integer start, Integer end) {
+		if(requestMap!=null&&!requestMap.isEmpty()){
+			String locale=requestMap.get("locale")[0];
+			Query query = Query.findByFieldName(Query.class, "keyField", report, locale);
+			javax.persistence.Query persistenceQuery=this.em().createNativeQuery(query.getQuery());
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+			Set<Parameter<?>> selectQueryParameters = persistenceQuery.getParameters();
+			for (Parameter i : selectQueryParameters) {
+				String param=requestMap.get(i.getName())[0];
+				String decodedParam=param;
+				if(customParameter!=null&&customParameter.getValue().equals("TOMCAT")){							
+					try {
+						decodedParam = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+					}
+					catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				}            	
+				if(decodedParam.equals("true") || decodedParam.equals("false")){
+					persistenceQuery.setParameter(i.getName(),((decodedParam.equals("true"))? true: false));
+				}else{
+					persistenceQuery.setParameter(i.getName(),decodedParam);
+				}
+			}
+			persistenceQuery.setFirstResult(start.intValue()).setMaxResults(end.intValue());
+			List results=persistenceQuery.getResultList();
+			return results;
+		}		
+		return null;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public List findReportWithIn(final String report,final Map<String, String[]> parameterMap) {
+		try{
+			if(parameterMap!=null&&!parameterMap.isEmpty()){
+				
+				Query query = Query.findByFieldName(Query.class, "keyField", report, "");
+				String actualQuery = query.getQuery();
+				for(Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+					if(actualQuery.contains(":" + entry.getKey())){
+						actualQuery = actualQuery.replaceAll(":"+entry.getKey(), entry.getValue()[0]);
+					}
+				}
+				javax.persistence.Query pQuery = em().createNativeQuery(actualQuery);
+				List results = pQuery.getResultList();
+				
+				return results;
+			}		
+		}catch(Exception e){
+			
 		}
 		return null;
 	}

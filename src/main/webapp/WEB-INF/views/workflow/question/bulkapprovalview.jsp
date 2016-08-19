@@ -95,7 +95,7 @@
 			<div style="overflow: scroll;">
 			<table class="uiTable">
 				<tr>					
-					<th><spring:message code="question.submitall" text="Submit All"></spring:message>
+					<th style="min-width:75px;text-align:center;"><spring:message code="question.submitall" text="Submit All"></spring:message>
 					<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>					
 					<c:if test="${workflowSubType=='request_to_supporting_member'}">
 					<th><spring:message code="question.type" text="Device"></spring:message></th>
@@ -105,13 +105,13 @@
 					<th></th>
 					</c:if>
 					<c:if test="${workflowSubType!='request_to_supporting_member'}">
-					<th><spring:message code="question.type" text="Device"></spring:message></th>					
-					<th><spring:message code="question.number" text="Number"></spring:message></th>
-					<th><spring:message code="question.member" text="Member"></spring:message></th>
-					<th><spring:message code="question.subject" text="Subject"></spring:message></th>
-					<th><spring:message code="question.lastremark" text="Last Remark"></spring:message></th>
-					<th><spring:message code="question.lastremarkby" text="Last Remark By"></spring:message></th>	
-					<th><spring:message code="question.lastdecision" text="Last Decision"></spring:message></th>
+					<th style="min-width:140px;text-align:justify;"><spring:message code="question.number" text="Number"></spring:message></th>
+					<%-- <th style="text-align:justify;min-width:150px;"><spring:message code="question.member" text="Member"></spring:message></th> --%>
+					<th style="text-align:justify;min-width:200px;"><spring:message code="question.subject" text="Subject"></spring:message></th>
+					<th style="text-align:justify;min-width:200px;"><spring:message code="question.questiontext" text="Question Text"></spring:message></th>
+					<th style="min-width:70px;text-align:justify;"><spring:message code="question.lastdecision" text="Last Decision"></spring:message></th>
+					<th style="text-align:justify;min-width:120px;"><spring:message code="question.lastremarkby" text="Last Remark By"></spring:message></th>	
+					
 					</c:if>									
 				</tr>			
 				<c:forEach items="${bulkapprovals}" var="i">
@@ -137,21 +137,22 @@
 						<c:otherwise>
 							<c:choose>
 								<c:when test="${i.currentStatus=='PENDING'}">
-								<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
+								<td style="min-width:75px;text-align:center;"> <input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
 								<a href="#" class="edit" id="edit${i.id}"><spring:message code="motion.edit" text="Edit"></spring:message></a></td>
 								</c:when>							
 								<c:otherwise>
-								<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
+								<td style="min-width:75px;text-align:center;"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
 								<a href="#" class="readonly" id="edit${i.id}"><spring:message code="motion.edit" text="Edit"></spring:message></a></td>
 								</c:otherwise>
 							</c:choose>
-								<td>${i.deviceType}</td>							
-								<td>${i.deviceNumber}</td>
-								<td>${i.member}</td>
-								<td>${i.subject}</td>
-								<td>${i.lastRemark}</td>
-								<td>${i.lastRemarkBy}</td>
-								<td>${i.lastDecision}</td>	
+								<%-- <td>${i.deviceType}</td> --%>							
+								<td style="min-width:140px;text-align:justify;">${i.deviceNumber} <br> ${i.member}</td>
+								<%-- <td style="text-align:justify;min-width:150px;">${i.member}</td> --%>
+								<td style="text-align:justify;min-width:200px;">${i.subject}</td>
+								<td style="text-align:justify;min-width:200px;">${i.briefExpanation}</td>
+								<td style="min-width:70px;text-align:justify;">${i.lastDecision}</td>
+								<td style="text-align:justify;min-width:120px;">${i.lastRemarkBy} : ${i.lastRemark}</td>
+									
 						</c:otherwise>
 						</c:choose>									
 					</tr>

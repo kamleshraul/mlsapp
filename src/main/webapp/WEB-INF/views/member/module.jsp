@@ -36,7 +36,10 @@
 			});	
 			$('#election_tab').click(function(){
 				listMemberElectionDetails($('#key').val());
-			});				
+			});	
+			$('#suspension_tab').click(function(){
+				listMemberSuspensionDetails($('#key').val());
+			});	
 			$(document).keydown(function (e){
 				if(e.which==78 && e.ctrlKey){
 					newRecord();
@@ -187,7 +190,16 @@
 				showTabByIdAndUrl('election_tab','member/election/list?house='+$('#house').val()+'&houseType='+$("#houseType").val());
 				}
 		}	
-			
+		function listMemberSuspensionDetails(row) {
+			if(row == null || row == ''){
+				$.prompt($('#selectRowFirstMessage').val());		
+				return;
+			}
+			else{
+				var housetype=$('#houseType').val();				
+				showTabByIdAndUrl('suspension_tab','member/suspension/list?house='+$('#house').val()+'&houseType='+$("#houseType").val());
+				}
+		}	
 	</script>
 </head>
 <body>
@@ -251,7 +263,13 @@
 				   <spring:message code="member.module.memberElectionDetails" text="Election Details">
 				   </spring:message>
 				</a>
-			</li>			
+			</li>		
+			<li>
+				<a id="suspension_tab" href="#" class="tab">
+				   <spring:message code="member.module.memberSuspensionDetails" text="Suspension Details">
+				   </spring:message>
+				</a>
+			</li>		
 		</ul>
 		<div class="tabContent clearfix">
 		</div>		

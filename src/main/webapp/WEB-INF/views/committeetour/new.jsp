@@ -238,7 +238,7 @@
 		 it is not an attribute of the CommitteeTour instance. -->
 	<p>
 	<label class="small"><spring:message code="committeetour.committeename" text="Committee Name" />*</label>
-	<select class="sSelect" id="committeeName" name="committeeName">
+<%-- 	<select class="sSelect" id="committeeName" name="committeeName">
 		<c:forEach items="${committeeNames}" var="i">
 			<c:choose>
 				<c:when test="${committeeName.id == i.id}">
@@ -249,7 +249,9 @@
 				</c:otherwise>
 			</c:choose>
 		</c:forEach>
-	</select>
+	</select> --%>
+	<input type="text" id="committeeDisplayName" name="committeeDisplayName" value="${committeeDisplayName}" readonly="readonly" class="sText"/>
+	<input type="hidden" id="committeeName" name="committeeName" value="${committeName}"/>
 	<form:errors path="committee" cssClass="validationError"/>
 	</p>
 	
@@ -273,20 +275,12 @@
 	
 	<!-- district is a simple input field and not a form input field because
 		 it is not an attribute of the CommitteeTour instance. -->
+
+	
 	<p>
-	<label class="small"><spring:message code="committeetour.district" text="District" />*</label>
-	<select class="sSelect" id="district" name="district">
-		<c:forEach items="${districts}" var="i">
-			<c:choose>
-				<c:when test="${district.id == i.id}">
-					<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-				</c:when>
-				<c:otherwise>
-					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-				</c:otherwise>
-			</c:choose>
-		</c:forEach>
-	</select>
+		<label class="small"><spring:message code="committeetour.district" text="District"/></label>
+		<form:select path="districts" items="${districts}" id="district" name="district" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
+		<form:errors path="districts" cssClass="validationError"/>
 	</p>
 	
 	<p>

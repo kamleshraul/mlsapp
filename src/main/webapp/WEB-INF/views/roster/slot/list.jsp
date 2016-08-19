@@ -73,17 +73,17 @@
 				$('#internalKey').val(rowid);
 			}
 		}
-		function deleteSlot(row) {
+		function deleteSlot() {
 			var slot=$('#internalKey').val();
-			if(row ==""){
+			if(slot ==""){
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
 			}
 			else{
-				$.prompt($('#confirmDeleteMessage').val()+ row,{
+				$.prompt($('#confirmDeleteMessage').val()+ slot,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-				        $.delete_('roster/slot/'+row+'/delete?'+$("#gridURLParams").val(), null, function(data, textStatus, XMLHttpRequest) {
+				        $.delete_('roster/slot/'+slot+'/delete?'+$("#gridURLParams").val(), null, function(data, textStatus, XMLHttpRequest) {
 				        	listSlot();
 				        }).fail(function(){
 							if($("#ErrorMsg").val()!=''){

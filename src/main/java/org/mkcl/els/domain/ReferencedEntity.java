@@ -90,18 +90,39 @@ public class ReferencedEntity extends BaseDomain implements Serializable{
 		return getReferencedEntityRepository().referencing(device, primaryId,referencingId,
 				locale);
 	}
+	public static Boolean referencingMotion(final DeviceType targetDeviceType, final String device,final Long primaryId,final Long referencingId,final String locale) {
+		return getReferencedEntityRepository().referencingMotion(targetDeviceType, device, primaryId,referencingId,
+				locale);
+	}
+	
 	public static Boolean deReferencing(final Long primaryId,final Long referencedId,final String locale) {
 		return getReferencedEntityRepository().deReferencing(primaryId,referencedId,locale);
-	}
+	}	
 	
 	public static Boolean deReferencing(final String device, final Long primaryId,final Long referencedId,final String locale) {
 		return getReferencedEntityRepository().deReferencing(device, primaryId,referencedId,locale);
 	}
 	
+	public static Boolean deReferencingMotion(final DeviceType targetDeviceType, final String device, final Long primaryId,final Long referencedId,final String locale) {
+		return getReferencedEntityRepository().deReferencingMotion(targetDeviceType, device, primaryId,referencedId,locale);
+	}
+	
 	public static List<QuestionSearchVO> fullTextSearchReferencing(
 			final String param,
-			final Question question,final int start,final int noOfRecords,final String locale) {
-		return getReferencedEntityRepository().fullTextSearchReferencing(param, question, start, noOfRecords, locale);
+			final Question question,
+			final Integer sessionCount,
+			final int start,final int noOfRecords,final String locale) {
+		return getReferencedEntityRepository().fullTextSearchReferencing(param, question, sessionCount, start, noOfRecords, locale);
+	}
+	
+	public static List<QuestionSearchVO> fullTextSearchReferencing(
+			final String param,
+			final Question question,
+			final Integer sessionCount,
+			final Integer sessionYear, 
+			final Long sessionType,
+			final int start,final int noOfRecords,final String locale) {
+		return getReferencedEntityRepository().fullTextSearchReferencing(param, question, sessionCount, sessionYear, sessionType, start, noOfRecords, locale);
 	}
 	
 	public static List<MotionSearchVO> fullTextSearchReferencing(
@@ -128,15 +149,21 @@ public class ReferencedEntity extends BaseDomain implements Serializable{
 		
 	}
 	
-	public static List<QuestionSearchVO> fullTextSearchReferencingQuestionHDS(String param,
-			Question question, Session session, int start, int noOfRecords, String locale) {
-		return getReferencedEntityRepository().fullTextSearchReferencingQuestionHDS(param, question, session, start, noOfRecords, locale);
+	public static List<QuestionSearchVO> fullTextSearchReferencingHDS(String param,
+			StandaloneMotion question, Session session, int start, int noOfRecords, String locale) {
+		return getReferencedEntityRepository().fullTextSearchReferencingHDS(param, question, session, start, noOfRecords, locale);
 	}
 	
-	public static List<QuestionSearchVO> fullTextSearchReferencingQuestionHDS(
+	public static List<QuestionSearchVO> fullTextSearchReferencingHDS(
 			final String param,
-			final Question question, final boolean isAutomatic, final int start,final int noOfRecords,final String locale) throws ELSException {
-		return getReferencedEntityRepository().fullTextSearchReferencingQuestionHDS(param, question, isAutomatic, start, noOfRecords, locale);
+			final StandaloneMotion question, final boolean isAutomatic, final int start,final int noOfRecords,final String locale) throws ELSException {
+		return getReferencedEntityRepository().fullTextSearchReferencingHDS(param, question, isAutomatic, start, noOfRecords, locale);
+	}
+	
+	public static List<QuestionSearchVO> fullTextSearchReferencingHDS(
+			final String param,
+			final StandaloneMotion question,final int start,final int noOfRecords,final String locale) {
+		return getReferencedEntityRepository().fullTextSearchReferencingHDS(param, question, start, noOfRecords, locale);
 	}
 	
 	public static List<BillSearchVO> fullTextSearchReferencingBill(final String param, final Bill bill, 

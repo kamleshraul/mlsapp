@@ -35,7 +35,19 @@ public class SectionAmendment extends BaseDomain implements Serializable {
 	
 	/** The content. */
     @Column(length=30000)
-	private String amendingContent;    
+	private String amendingContent; 
+    
+    //=============== Domain methods ====================
+    public static SectionAmendment createCopyOfSectionAmendment(SectionAmendment sa) {
+    	SectionAmendment saCopy = new SectionAmendment();
+		saCopy.setLanguage(sa.getLanguage());
+		saCopy.setLocale(sa.getLocale());
+		saCopy.setSectionNumber(sa.getSectionNumber());
+		saCopy.setAmendedSection(sa.getAmendedSection());
+		saCopy.setAmendingContent(sa.getAmendingContent());
+		return saCopy;
+    }
+    
 
     //=============== Getters & Setters ====================
     public String getSectionNumber() {

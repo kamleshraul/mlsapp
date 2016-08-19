@@ -521,7 +521,7 @@ public class MemberPersonalController extends GenericController<Member> {
 					domain.getLocale());
 		}
 
-		if (member != null) {
+		if (member != null && member.getId() != null) {
 			result.rejectValue("version", "Member Already Exists.");
 		}
 	}

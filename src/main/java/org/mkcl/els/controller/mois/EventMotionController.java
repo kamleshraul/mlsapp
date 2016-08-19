@@ -35,6 +35,7 @@ import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
@@ -45,6 +46,7 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
@@ -284,6 +286,51 @@ public class EventMotionController extends GenericController<EventMotion>{
 		/**** New Operations Allowed For Starts ****/ 		
 	}
 
+	public void addDiscussionDates(EventMotion domain, DeviceType deviceType, ModelMap model, Session selectedSession){
+		try{
+			// populate Discussion Dates
+			List<MasterVO> discussionDates = new ArrayList<MasterVO>();
+			SimpleDateFormat sdf = null;
+			SimpleDateFormat enSDF = null; 
+			String strDates = selectedSession.
+					getParameter(deviceType.getType() + "_discussionDates");
+			if(strDates != null && !strDates.isEmpty()){
+				String[] dates = strDates.split("#");
+				try {
+					sdf = FormaterUtil.getDBDateParser(selectedSession.getLocale());
+					enSDF = FormaterUtil.getDBDateParser("en_US");
+					for (int i = 0; i < dates.length; i++) {
+						
+						MasterVO vo = new MasterVO();
+						vo.setValue(FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").
+								format(sdf.parse(dates[i])));
+						vo.setName(FormaterUtil.getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, selectedSession.getLocale()).
+								format(sdf.parse(dates[i])));
+						discussionDates.add(vo);
+					}
+					model.addAttribute("discussionDates", discussionDates);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			// Populate Discussion Date
+			if (domain.getDiscussionDate() != null) {
+				model.addAttribute("discussionDateSelected", FormaterUtil.
+						getDateFormatter(ApplicationConstants.SERVER_DATEFORMAT, "en_US").
+						format(domain.getDiscussionDate()));
+				model.addAttribute("formattedDiscussionDateSelected", FormaterUtil.
+						getDateFormatter("dd/MM/yyyy", selectedSession.getLocale()).
+						format(domain.getDiscussionDate()));
+			}else{
+				model.addAttribute("discussionDateSelected",null);
+				model.addAttribute("formattedDiscussionDateSelected", null);
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+	}
+	
 	@Override
 	protected void populateNew(final ModelMap model, EventMotion domain, final String locale,
 			final HttpServletRequest request) {
@@ -482,6 +529,8 @@ public class EventMotionController extends GenericController<EventMotion>{
 					logger.error("**** Session doesnot exists ****");
 					model.addAttribute("errorcode","session_isnull");	
 				}
+				
+				addDiscussionDates(domain, motionType, model, selectedSession);
 			} catch (ELSException e) {
 				model.addAttribute("error", e.getParameter());
 			}catch (Exception e) {
@@ -743,40 +792,40 @@ public class EventMotionController extends GenericController<EventMotion>{
 		}	
 		
 		/**** Referenced Entities are collected in refentities****/		
-		List<ReferencedEntity> referencedEntities = domain.getReferencedEntities();
+		List<ReferenceUnit> referencedEntities = domain.getReferencedEntities();
 		if(referencedEntities != null && !referencedEntities.isEmpty()){
 			List<Reference> refentities = new ArrayList<Reference>();
 			List<Reference> refmotionentities = new ArrayList<Reference>();
 			List<Reference> refquestionentities = new ArrayList<Reference>();
 			List<Reference> refresolutionentities = new ArrayList<Reference>();
-			for(ReferencedEntity re:referencedEntities){
+			for(ReferenceUnit re:referencedEntities){
 				if(re.getDeviceType() != null){
-					if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_MOTIONS)){
+					if(re.getDeviceType().startsWith(ApplicationConstants.DEVICE_MOTIONS)){
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Motion)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Motion)re.getDevice()).getId()));
+						reference.setName(FormaterUtil.formatNumberNoGrouping(re.getNumber(), locale));
+						reference.setNumber(String.valueOf(re.getDevice()));
 						refentities.add(reference);	
 						refmotionentities.add(reference);
-					}else if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
+					}else if(re.getDeviceType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Resolution)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Resolution)re.getDevice()).getId()));
+						reference.setName(FormaterUtil.formatNumberNoGrouping(re.getNumber(), locale));
+						reference.setNumber(String.valueOf(re.getDevice()));
 						refentities.add(reference);	
 						refresolutionentities.add(reference);
-					}else if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)){
+					}else if(re.getDeviceType().startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)){
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((CutMotion)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((CutMotion)re.getDevice()).getId()));
+						reference.setName(FormaterUtil.formatNumberNoGrouping(re.getNumber(), locale));
+						reference.setNumber(String.valueOf(re.getDevice()));
 						refentities.add(reference);	
 						refquestionentities.add(reference);
-					}else if(re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_EVENTMOTIONS)){
+					}else if(re.getDeviceType().startsWith(ApplicationConstants.DEVICE_EVENTMOTIONS)){
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((EventMotion)re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((EventMotion)re.getDevice()).getId()));
+						reference.setName(FormaterUtil.formatNumberNoGrouping(re.getNumber(), locale));
+						reference.setNumber(String.valueOf(re.getDevice()));
 						refentities.add(reference);	
 						refquestionentities.add(reference);
 					}
@@ -796,14 +845,14 @@ public class EventMotionController extends GenericController<EventMotion>{
 			for (ClubbedEntity ce : clubbedEntities) {
 				Reference reference = new Reference();
 				reference.setId(String.valueOf(ce.getId()));
-				reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getMotion().getNumber()));
-				reference.setNumber(String.valueOf(ce.getMotion().getId()));
+				reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getEventMotion().getNumber()));
+				reference.setNumber(String.valueOf(ce.getEventMotion().getId()));
 				references.add(reference);
-				String tempPrimary = ce.getMotion().getPrimaryMember().getFullname();
+				String tempPrimary = ce.getEventMotion().getMember().getFullname();
 				if (!buffer1.toString().contains(tempPrimary)) {
-					buffer1.append(ce.getMotion().getPrimaryMember().getFullname()+ ",");
+					buffer1.append(ce.getEventMotion().getMember().getFullname()+ ",");
 				}
-				List<SupportingMember> clubbedSupportingMember = ce.getMotion().getSupportingMembers();
+				List<SupportingMember> clubbedSupportingMember = ce.getEventMotion().getSupportingMembers();
 				if (clubbedSupportingMember != null) {
 					if (!clubbedSupportingMember.isEmpty()) {
 						for (SupportingMember l : clubbedSupportingMember) {
@@ -854,6 +903,8 @@ public class EventMotionController extends GenericController<EventMotion>{
 				}
 			}	
 		}
+		
+		addDiscussionDates(domain, motionType, model, selectedSession);
 	}
 
 	private void populateInternalStatus(final ModelMap model,final EventMotion domain,final String usergroupType,final String locale) {
@@ -1595,30 +1646,30 @@ public class EventMotionController extends GenericController<EventMotion>{
 				}	
 				/**** File parameters are set when internal status is something other than 
 				 * submit,complete and incomplete and file is null .Then only the motion gets attached to a file.*/
-				String currentStatus=domain.getInternalStatus().getType();
-				if(operation==null){
-					if(!(currentStatus.equals(ApplicationConstants.EVENTMOTION_SUBMIT)
-							||currentStatus.equals(ApplicationConstants.EVENTMOTION_COMPLETE)
-							||currentStatus.equals(ApplicationConstants.EVENTMOTION_INCOMPLETE))							
-							&&domain.getFile()==null){
-						/**** Add motion to file ****/
-						Reference reference = EventMotion.findCurrentFile(domain);
-						domain.setFile(Integer.parseInt(reference.getId()));
-						domain.setFileIndex(Integer.parseInt(reference.getName()));
-						domain.setFileSent(false);
-					}
-				}else if(operation.isEmpty()){
-					if(!(currentStatus.equals(ApplicationConstants.EVENTMOTION_SUBMIT)
-							||currentStatus.equals(ApplicationConstants.EVENTMOTION_COMPLETE)
-							||currentStatus.equals(ApplicationConstants.EVENTMOTION_INCOMPLETE))
-							&&domain.getFile() == null){
-						/**** Add motion to file ****/
-						Reference reference = EventMotion.findCurrentFile(domain);
-						domain.setFile(Integer.parseInt(reference.getId()));
-						domain.setFileIndex(Integer.parseInt(reference.getName()));
-						domain.setFileSent(false);
-					}
-				}
+//				String currentStatus=domain.getInternalStatus().getType();
+//				if(operation==null){
+//					if(!(currentStatus.equals(ApplicationConstants.EVENTMOTION_SUBMIT)
+//							||currentStatus.equals(ApplicationConstants.EVENTMOTION_COMPLETE)
+//							||currentStatus.equals(ApplicationConstants.EVENTMOTION_INCOMPLETE))							
+//							&&domain.getFile()==null){
+//						/**** Add motion to file ****/
+//						Reference reference = EventMotion.findCurrentFile(domain);
+//						domain.setFile(Integer.parseInt(reference.getId()));
+//						domain.setFileIndex(Integer.parseInt(reference.getName()));
+//						domain.setFileSent(false);
+//					}
+//				}else if(operation.isEmpty()){
+//					if(!(currentStatus.equals(ApplicationConstants.EVENTMOTION_SUBMIT)
+//							||currentStatus.equals(ApplicationConstants.EVENTMOTION_COMPLETE)
+//							||currentStatus.equals(ApplicationConstants.EVENTMOTION_INCOMPLETE))
+//							&&domain.getFile() == null){
+//						/**** Add motion to file ****/
+//						Reference reference = EventMotion.findCurrentFile(domain);
+//						domain.setFile(Integer.parseInt(reference.getId()));
+//						domain.setFileIndex(Integer.parseInt(reference.getName()));
+//						domain.setFileSent(false);
+//					}
+//				}
 			}
 		}		
 	}
@@ -1736,6 +1787,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 					}
 				}else if(operation.equals("startworkflow")){
 					try {
+						UserGroupType usergroupType = null;
 						ProcessDefinition processDefinition = processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 						Map<String,String> properties = new HashMap<String, String>();					
 						/**** Next user and usergroup ****/
@@ -1745,6 +1797,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 							if(!nextuser.isEmpty()){
 								String[] temp = nextuser.split("#");
 								properties.put("pv_user",temp[0]);
+								usergroupType = UserGroupType.findByType(temp[1], domain.getLocale());
 								level = temp[2];
 							}
 						}
@@ -1762,8 +1815,52 @@ public class EventMotionController extends GenericController<EventMotion>{
 							if(!endflag.isEmpty()){
 								if(endflag.equals("continue")){
 									/**** Workflow Detail entry made only if its not the end of workflow ****/
-									WorkflowDetails workflowDetails = WorkflowDetails.create(domain, task, ApplicationConstants.APPROVAL_WORKFLOW, level);
+									//WorkflowDetails workflowDetails = WorkflowDetails.create(domain, task, ApplicationConstants.APPROVAL_WORKFLOW, level);
+									Workflow workflow = null;
+									
+									/*
+									 * START...
+									 */
+									/*if(domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_CLUBBING_POST_ADMISSION)
+										|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PUTUP_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+											workflow = Workflow.findByStatus(domain.getRecommendationStatus(), domain.getLocale());
+										} else {
+											workflow = Workflow.findByStatus(domain.getInternalStatus(), domain.getLocale());
+									}*/
+									Status internalStatus = motion.getInternalStatus();
+									String internalStatusType = internalStatus.getType();
+									Status recommendationStatus = motion.getRecommendationStatus();
+									String recommendationStatusType = recommendationStatus.getType();
+
+									if(recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+										workflow = Workflow.findByStatus(recommendationStatus, domain.getLocale());
+									} 
+									else if(internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_NAME_CLUBBING)
+											|| (internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+										workflow = Workflow.findByStatus(internalStatus, domain.getLocale());
+									} 
+									else {
+										workflow = Workflow.findByStatus(internalStatus, domain.getLocale());
+									}
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * ... END
+									 */
+									
+									WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,usergroupType,workflow.getType(),level);
 									motion.setWorkflowDetailsId(workflowDetails.getId());
+									//*****
 								}
 							}
 						}
@@ -2007,7 +2104,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 		String strUsergroup = request.getParameter("usergroup");
 		String strUsergroupType = request.getParameter("usergroupType");
 		String strItemsCount = request.getParameter("itemscount");
-		String strFile = request.getParameter("file");
+		//String strFile = request.getParameter("file");
 		/**** Locale ****/
 		String strLocale = locale.toString();
 		
@@ -2021,7 +2118,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 				&& strUsergroup != null && !(strUsergroup.isEmpty())
 				&& strUsergroupType != null && !(strUsergroupType.isEmpty())
 				&& strItemsCount != null && !(strItemsCount.isEmpty())
-				&& strFile != null && !(strFile.isEmpty())) {
+				/*&& strFile != null && !(strFile.isEmpty())*/) {
 			
 			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, strLocale);
 			DeviceType motionType = DeviceType.findById(DeviceType.class, Long.parseLong(strMotionType));
@@ -2051,7 +2148,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 			model.addAttribute("usergroup", strUsergroup);
 			model.addAttribute("usergroupType", strUsergroupType);
 			model.addAttribute("itemscount", strItemsCount);
-			model.addAttribute("file", strFile);
+			//model.addAttribute("file", strFile);
 		}
 		return "eventmotion/bulksubmissionassistantint";
 	}
@@ -2089,21 +2186,65 @@ public class EventMotionController extends GenericController<EventMotion>{
 							properties.put("pv_user", temp[0]);
 							properties.put("pv_endflag", motion.getEndFlag());
 							properties.put("pv_deviceId", String.valueOf(motion.getId()));
-							properties.put("pv_deviceTypeId",
-									String.valueOf(motion.getDeviceType().getId()));
+							properties.put("pv_deviceTypeId", String.valueOf(motion.getDeviceType().getId()));
 							ProcessInstance processInstance = processService.createProcessInstance(processDefinition, properties);
+							
 							/**** Create Workdetails Entry ****/
 							Task task = processService.getCurrentTask(processInstance);
 							if (motion.getEndFlag() != null
 									&& !motion.getEndFlag().isEmpty()
 									&& motion.getEndFlag().equals("continue")) {
-								WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, ApplicationConstants.APPROVAL_WORKFLOW, motion.getLevel());
-								motion.setWorkflowDetailsId(workflowDetails.getId());
+								
+								UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+								/*
+								 * Added by Amit Desai 2 Dec 2014
+								 * START...
+								 */
+								// workflowDetails = WorkflowDetails.
+								//		create(question,task,usergroupType, ApplicationConstants.APPROVAL_WORKFLOW, 
+								//				question.getLevel());
+								Workflow workflow = null;
+
+								Status internalStatus = motion.getInternalStatus();
+								String internalStatusType = internalStatus.getType();
+								Status recommendationStatus = motion.getRecommendationStatus();
+								String recommendationStatusType = recommendationStatus.getType();
+
+								if(recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+										|| recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+										|| recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_UNCLUBBING)
+										|| recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+									workflow = Workflow.findByStatus(recommendationStatus, locale.toString());
+								} 
+								else if(internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLUBBING)
+										|| internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_NAME_CLUBBING)
+										|| (internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+											&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+										||(internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+											&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_RECEIVED))
+										||(internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+											&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+										||(internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+											&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+									workflow = Workflow.findByStatus(internalStatus, locale.toString());
+								}
+								else {
+									workflow = Workflow.findByStatus(internalStatus, locale.toString());
+								}
+
+								String workflowType = workflow.getType();
+								String assigneeLevel = motion.getLevel();
+								WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, usergroupType, workflowType, assigneeLevel);
+								/*
+								 * Added by Amit Desai 2 Dec 2014
+								 * ... END
+								 */
 								/**** Workflow Started ****/
+								motion.setWorkflowDetailsId(workflowDetails.getId());
 								motion.setWorkflowStarted("YES");
 								motion.setWorkflowStartedOn(new Date());
 								motion.setTaskReceivedOn(new Date());
-								motion.setFileSent(true);
+								//motion.setFileSent(true);
 								motion.simpleMerge();
 							}
 							if (motion.getInternalStatus().getType().equals(ApplicationConstants.EVENTMOTION_RECOMMEND_ADMISSION)) {
@@ -2161,13 +2302,57 @@ public class EventMotionController extends GenericController<EventMotion>{
 								if (motion.getEndFlag() != null
 										&& !motion.getEndFlag().isEmpty()
 										&& motion.getEndFlag().equals("continue")) {
-									WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, ApplicationConstants.APPROVAL_WORKFLOW, motion.getLevel());
+									UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * START...
+									 */
+									 // WorkflowDetails workflowDetails = WorkflowDetails.create(question, 
+									//		task, ApplicationConstants.APPROVAL_WORKFLOW, question.getLevel());
+									Workflow workflow = null;
+
+									Status internalStatus = motion.getInternalStatus();
+									String internalStatusType = internalStatus.getType();
+									Status recommendationStatus = motion.getRecommendationStatus();
+									String recommendationStatusType = recommendationStatus.getType();
+
+									if(recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+										workflow = Workflow.findByStatus(recommendationStatus, locale.toString());
+									} 
+									else if(internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_NAME_CLUBBING)
+											|| (internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_RECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											|| (internalStatusType.equals(ApplicationConstants.EVENTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.EVENTMOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+										workflow = Workflow.findByStatus(internalStatus, locale.toString());
+									} 
+									else {
+										workflow = Workflow.findByStatus(internalStatus, locale.toString());
+									}
+
+									String workflowType = workflow.getType();
+									String assigneeLevel = motion.getLevel();
+									WorkflowDetails workflowDetails = WorkflowDetails.create(motion, task, usergroupType, workflowType, assigneeLevel); 
+									//workflowDetails = WorkflowDetails.create(motion, task, workflowType, assigneeLevel);
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * ... END
+									 */
+									
 									motion.setWorkflowDetailsId(workflowDetails.getId());
 									/**** Workflow Started ****/
 									motion.setWorkflowStarted("YES");
 									motion.setWorkflowStartedOn(new Date());
 									motion.setTaskReceivedOn(new Date());
-									motion.setFileSent(true);
+									//motion.setFileSent(true);
 									motion.simpleMerge();
 								}
 								if (motion.getInternalStatus().getType().equals(ApplicationConstants.EVENTMOTION_RECOMMEND_ADMISSION)) {
@@ -2201,7 +2386,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 		String strUsergroup = request.getParameter("usergroup");
 		String strUsergroupType = request.getParameter("usergroupType");
 		String strItemsCount = request.getParameter("itemscount");
-		String strFile = request.getParameter("file");
+		//String strFile = request.getParameter("file");
 		/**** Locale ****/
 		String strLocale = locale;
 		/**** Null and Empty Check ****/
@@ -2214,7 +2399,7 @@ public class EventMotionController extends GenericController<EventMotion>{
 				&& strUsergroup != null && !(strUsergroup.isEmpty())
 				&& strUsergroupType != null && !(strUsergroupType.isEmpty())
 				&& strItemsCount != null && !(strItemsCount.isEmpty())
-				&& strFile != null && !(strFile.isEmpty())){
+				/*&& strFile != null && !(strFile.isEmpty())*/){
 			
 			List<EventMotion> motions = new ArrayList<EventMotion>();
 			HouseType houseType = HouseType.findByFieldName(HouseType.class,"type",strHouseType, strLocale);
@@ -2225,10 +2410,10 @@ public class EventMotionController extends GenericController<EventMotion>{
 				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 				
 				DeviceType motionType = DeviceType.findById(DeviceType.class,Long.parseLong(strMotionType));
-				if(strFile != null && !strFile.isEmpty() && !strFile.equals("-")){
+				/*if(strFile != null && !strFile.isEmpty() && !strFile.equals("-")){
 					Integer file = Integer.parseInt(strFile);
 					motions = EventMotion.findAllByFile(session,motionType,file,strLocale);
-				}else if(strItemsCount != null && !strItemsCount.isEmpty()){
+				}else */if(strItemsCount != null && !strItemsCount.isEmpty()){
 					Integer itemsCount = Integer.parseInt(strItemsCount);
 					Status internalStatus = Status.findById(Status.class,Long.parseLong(strStatus));
 					motions = EventMotion.findAllByStatus(session,motionType,internalStatus,itemsCount,strLocale);

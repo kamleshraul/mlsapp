@@ -266,7 +266,7 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 			
 			try{
 				CutMotionDate cutMotionDate = CutMotionDate.findCutMotionDateSessionDeviceType(session, deviceType, locale);
-				if(cutMotionDate != null){
+				if(cutMotionDate != null/* && cutMotionDate.getStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_FINAL_DATE_ADMISSION)*/){
 					model.addAttribute("errorcode", "date_exists_for_cutmotion");
 					return;
 				}
@@ -407,8 +407,14 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 	        if(domain.getInternalStatus() != null && (domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_SYSTEM_ASSISTANT_DATE_PROCESSED)
 	        		|| domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_ADMISSION)
 	        		|| domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_REJECTION))){
-	        	List<MasterVO> statuses = CutMotionDateControllerUtility.getStatusesForActor(request, domain.getInternalStatus(), new Locale(locale));
-	        	model.addAttribute("internalStatuses", statuses);
+	        	String strReqDeviceType = request.getParameter("deviceType");
+	        	if(strReqDeviceType != null && !strReqDeviceType.isEmpty()){
+		        	List<MasterVO> statuses = CutMotionDateControllerUtility.getStatusesForActor(request, domain.getInternalStatus(), new Locale(locale));
+		        	model.addAttribute("internalStatuses", statuses);
+	        	}else{
+	        		List<MasterVO> statuses = CutMotionDateControllerUtility.getStatusesForActor(request, domain, new Locale(locale));
+		        	model.addAttribute("internalStatuses", statuses);
+	        	}
 	        	if(usergroupType.equals(ApplicationConstants.ASSISTANT)){
 	        		/*
 	        		 * TODO have to check if current workflow level is assistant 

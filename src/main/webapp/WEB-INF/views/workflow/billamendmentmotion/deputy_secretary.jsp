@@ -50,16 +50,37 @@
 				var sendToSectionOfficer = $("#internalStatusMaster option[value='billamendmentmotion_processed_sendToSectionOfficer']").text();
 				var amendmentReadyForDiscussion = $("#internalStatusMaster option[value='billamendmentmotion_processed_readyForDiscussion']").text();
 				var rejected = $("#internalStatusMaster option[value='billamendmentmotion_processed_rejectionWithReason']").text();
-				var recommend_nameclubbing=$("#internalStatusMaster option[value='billamendmentmotion_recommend_nameclubbing']").text();
-				var recommend_reject_nameclubbing=$("#internalStatusMaster option[value='billamendmentmotion_recommend_reject_nameclubbing']").text();
-				var nameclubbing_approved=$("#internalStatusMaster option[value='billamendmentmotion_final_nameclubbing']").text();
-				var nameclubbing_rejected=$("#internalStatusMaster option[value='billamendmentmotion_final_reject_nameclubbing']").text();
+				var clubbingApproved = $("#internalStatusMaster option[value='billamendmentmotion_final_clubbing']").text();
+			    var clubbingRejected = $("#internalStatusMaster option[value='billamendmentmotion_final_reject_clubbing']").text();	
+			    var nameclubbingApproved = $("#internalStatusMaster option[value='billamendmentmotion_final_nameclubbing']").text();
+			    var nameclubbingRejected = $("#internalStatusMaster option[value='billamendmentmotion_final_reject_nameclubbing']").text();	    
+			    var clubbingPostAdmissionRecommendApprove = $("#internalStatusMaster option[value='billamendmentmotion_recommend_clubbingPostAdmission']").text();
+			    var clubbingPostAdmissionRecommendReject = $("#internalStatusMaster option[value='billamendmentmotion_recommend_reject_clubbingPostAdmission']").text();
+			    var clubbingPostAdmissionApproved = $("#internalStatusMaster option[value='billamendmentmotion_final_clubbingPostAdmission']").text();
+			    var clubbingPostAdmissionRejected = $("#internalStatusMaster option[value='billamendmentmotion_final_reject_clubbingPostAdmission']").text();
+			    var unclubbingRecommendApprove = $("#internalStatusMaster option[value='billamendmentmotion_recommend_unclubbing']").text();
+			    var unclubbingRecommendReject = $("#internalStatusMaster option[value='billamendmentmotion_recommend_reject_unclubbing']").text();
+			    var unclubbingApproved = $("#internalStatusMaster option[value='billamendmentmotion_final_unclubbing']").text();
+			    var unclubbingRejected = $("#internalStatusMaster option[value='billamendmentmotion_final_reject_unclubbing']").text();
+			    var admitDueToReverseClubbingRecommendApprove = $("#internalStatusMaster option[value='billamendmentmotion_recommend_admitDueToReverseClubbing']").text();
+			    var admitDueToReverseClubbing = $("#internalStatusMaster option[value='billamendmentmotion_final_admitDueToReverseClubbing']").text();
 			    var valueToSend = "";
-			    if(value==amendmentReadyForDiscussion|| value==rejected) {
+			    if(value==amendmentReadyForDiscussion || value==rejected
+			    		|| value==clubbingApproved || value==clubbingRejected					
+						|| value==nameclubbingApproved || value == nameclubbingRejected
+						|| value==clubbingPostAdmissionApproved || value==clubbingPostAdmissionRejected
+						|| value==unclubbingApproved || value == unclubbingRejected
+						|| value==admitDueToReverseClubbing){
+			    	$("#endFlag").val("end");
+					if(value!=amendmentReadyForDiscussion && value!=rejected
+							&&value!=clubbingPostAdmissionApproved && value!=clubbingPostAdmissionRejected
+							&& value!=unclubbingApproved && value!=unclubbingRejected
+							&& value!=admitDueToReverseClubbing) {
+						$("#internalStatus").val(value);
+					}	
 			    	$("#recommendationStatus").val(value);
 			    	$("#actor").empty();
-					$("#actorDiv").hide();
-					$("#endflag").val("end");
+					$("#actorDiv").hide();					
 					return false;
 			    } else if(value==sendToSectionOfficer) {
 			    	valueToSend = $("#internalStatus").val();
@@ -67,12 +88,20 @@
 					valueToSend = value;
 				}
 			    if(value==reject_translate) {
-			    	$("#endflag").val("end");		    	
+			    	$("#endFlagForAuxillaryWorkflow").val("end");
 			    } else {
-					$("#endflag").val("continue");
+			    	if($('#workflowtype').val()=='TRANSLATION_WORKFLOW' || $('#workflowtype').val()=='OPINION_FROM_LAWANDJD_WORKFLOW') {
+			    		$("#endFlagForAuxillaryWorkflow").val("continue");
+				    } else {
+				    	$("#endFlag").val("continue");
+				    }									
 				}
+			    var level=$("#oldLevel").val();
+			    if($('#workflowtype').val()=='TRANSLATION_WORKFLOW' || $('#workflowtype').val()=='OPINION_FROM_LAWANDJD_WORKFLOW') {
+			    	level=$("#oldLevelForAuxillaryWorkflow").val();
+			    }
 			    var params="billamendmentmotion="+$("#id").val()+"&status="+valueToSend+
-				"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+				"&usergroup="+$("#usergroup").val()+"&level="+level;
 				var resourceURL='ref/billamendmentmotion/actors?'+params;
 				$.post(resourceURL,function(data){		
 					$("#actor").empty();
@@ -86,33 +115,41 @@
 						/**** setting level,localizedActorName For Workflow ****/
 						 var actor1=data[0].id;
 						 var temp=actor1.split("#");
-						 $("#level").val(temp[2]);		    
-						 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+						 if($('#workflowtype').val()=='TRANSLATION_WORKFLOW' || $('#workflowtype').val()=='OPINION_FROM_LAWANDJD_WORKFLOW') {
+							 $("#levelForAuxillaryWorkflow").val(temp[2]);		    
+							 $("#localizedActorNameForAuxillaryWorkflow").val(temp[3]+"("+temp[4]+")");
+						 } else {
+							 $("#level").val(temp[2]);		    
+							 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+						 }						 
 					}else{					
-						$("#actorDiv").hide();
-						if(value==nameclubbing_approved || value==nameclubbing_rejected) {
-							$("#endflag").val("end");
-						}
+						$("#actorDiv").hide();						
 					}
-					if(value!=sendback&&value!=discuss&&value!=sendToSectionOfficer&&value!=recommend_reject_nameclubbing
-							&&value!=translate&&value!=reject_translate&&value!=opinion_from_lawandjd){
-							$("#internalStatus").val(value);		
-							$("#recommendationStatus").val(value);
-						} else if(value==sendback || value==discuss || value==sendToSectionOfficer) {
-							$("#recommendationStatus").val(value);
-						} else if(value==recommend_reject_nameclubbing) {
-							$("#internalStatus").val(recommend_nameclubbing);
-							$("#recommendationStatus").val(value);
-						} else {
-							$("#customStatus").val(value);
-						}
+					if(value != sendback &&value != discuss && value != sendToSectionOfficer
+							&& value != translate && value != reject_translate && value != opinion_from_lawandjd
+							&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
+							&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
+							&& value != admitDueToReverseClubbingRecommendApprove) {
+						
+						$("#internalStatus").val(value);							
+					} 
+				    if(value==translate || value==reject_translate || value==opinion_from_lawandjd) {
+						$("#customStatus").val(value);
+					} else {							
+						$("#recommendationStatus").val(value);
+					}
 				});
 			}else{
 				$("#actor").empty();
 				$("#actorDiv").hide();
 				$("#internalStatus").val($("#oldInternalStatus").val());
 			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
-			    $("#customStatus").val("");				    
+			    $("#customStatus").val("");	
+			    if($('#workflowtype').val()=='TRANSLATION_WORKFLOW' || $('#workflowtype').val()=='OPINION_FROM_LAWANDJD_WORKFLOW') {
+			    	$("#levelForAuxillaryWorkflow").val($("#oldLevelForAuxillaryWorkflow").val());
+			    } else {
+			    	$("#level").val($("#oldLevel").val());
+			    }	    
 			}
 		}
 		function clearUnrevisedSectionAmendments() {
@@ -151,13 +188,13 @@
 				viewAmendedBillDetail($('#amendedBill').val());
 			});
 			
-			if($('#remarks').val()!=undefined
+			/* if($('#remarks').val()!=undefined
 					&& $('#remarks').val()!="" 
 					&& $('#remarks').val()!="<p></p>") {
 				$('#remarks_div').show();
 			} else {
 				$('#remarks_div').hide();
-			}
+			} */
 			
 			if($('#changeInternalStatus').val()==undefined
 					|| $('#changeInternalStatus').val()==""
@@ -174,8 +211,13 @@
 			$("#actor").change(function(){
 			    var actor=$(this).val();
 			    var temp=actor.split("#");
-			    $("#level").val(temp[2]);		    
-			    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+			    if($('#workflowtype').val()=='TRANSLATION_WORKFLOW' || $('#workflowtype').val()=='OPINION_FROM_LAWANDJD_WORKFLOW') {
+			    	$("#levelForAuxillaryWorkflow").val(temp[2]);		    
+				    $("#localizedActorNameForAuxillaryWorkflow").val(temp[3]+"("+temp[4]+")");
+			    } else {
+			    	$("#level").val(temp[2]);		    
+				    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+			    }			    
 		    });
 			
 			/**** show section amendment for only default bill language ****/
@@ -436,16 +478,20 @@
 			});			    
 		    
 			// set status for workflow if default action is there
-			var statusRecommended = $('#changeInternalStatus').val();
+			/* var statusRecommended = $('#changeInternalStatus').val();
 			if(statusRecommended!=null && statusRecommended!=undefined 
 					&& statusRecommended!="" && statusRecommended!="-")  {
-				if($('#workflowtype').val()=='APPROVAL_WORKFLOW' || $('#workflowtype').val()=='NAMECLUBBING_WORKFLOW') {
+				if($('#workflowtype').val()=='TRANSLATION_WORKFLOW' || $('#workflowtype').val()=='OPINION_FROM_LAWANDJD_WORKFLOW') {
+					$('#customStatus').val(statusRecommended);
+				} else {								
 					$('#internalStatus').val(statusRecommended);
 					$('#recommendationStatus').val(statusRecommended);
-				} else {
-					$('#customStatus').val(statusRecommended);					
 				}
-			}		
+			} */		
+			
+			//load actors as per default action
+		    $("#changeInternalStatus").change();
+			
 		});		
 		</script>
 		
@@ -577,24 +623,24 @@
 					</p>
 					</c:if>
 					<c:choose>	
-						<c:when test="${empty parent}"><c:set var="displayParentBill" value="none"/></c:when>
-						<c:otherwise><c:set var="displayParentBill" value="inline"/></c:otherwise>		
+						<c:when test="${empty parent}"><c:set var="displayParentMotion" value="none"/></c:when>
+						<c:otherwise><c:set var="displayParentMotion" value="inline"/></c:otherwise>		
 					</c:choose>
-					<p style="display: ${displayParentBill};">
+					<p style="display: ${displayParentMotion};">
 						<label class="small"><spring:message code="billamendmentmotion.parentBillAmendmentMotion" text="Clubbed To"></spring:message></label>
-						<a href="#" id="p${parent}" onclick="viewBillDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>						
+						<a href="#" id="p${parent}" onclick="viewBillAmendmentMotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>						
 						<input type="hidden" id="parent" name="parent" value="${parent}">
 					</p>		
 					<c:choose>	
-						<c:when test="${empty clubbedBillsToShow}"><c:set var="displayClubbedBillsToShow" value="none"/></c:when>
-						<c:otherwise><c:set var="displayClubbedBillsToShow" value="inline"/></c:otherwise>		
+						<c:when test="${empty clubbedMotionsToShow}"><c:set var="displayClubbedMotionsToShow" value="none"/></c:when>
+						<c:otherwise><c:set var="displayClubbedMotionsToShow" value="inline"/></c:otherwise>		
 					</c:choose>
-					<p style="display: ${displayClubbedBillsToShow};">
-						<label class="small"><spring:message code="billamendmentmotion.clubbedbills" text="Clubbed Bills"></spring:message></label>
+					<p style="display: ${displayClubbedMotionsToShow};">
+						<label class="small"><spring:message code="billamendmentmotion.clubbedmotions" text="Clubbed Motions"></spring:message></label>
 						<c:choose>
-							<c:when test="${!(empty clubbedBillsToShow) }">
-								<c:forEach items="${clubbedBillsToShow}" var="i">
-									<a href="#" id="cq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+							<c:when test="${!(empty clubbedMotionsToShow) }">
+								<c:forEach items="${clubbedMotionsToShow}" var="i">
+									<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewBillAmendmentMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 								</c:forEach>
 							</c:when>
 							<c:otherwise>
@@ -602,7 +648,7 @@
 							</c:otherwise>
 						</c:choose>
 						<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
-							<c:forEach items="${clubbedBills }" var="i">
+							<c:forEach items="${clubbedMotionsToShow}" var="i">
 								<option value="${i.id}" selected="selected"></option>
 							</c:forEach>
 						</select>
@@ -763,7 +809,6 @@
 							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
 						</c:forEach>					
 					</select>	
-					<input type="hidden" id="localizedActorName"  name="localizedActorName">
 					</p>					
 					</c:if>	
 						
@@ -824,13 +869,21 @@
 					</div>
 					<form:hidden path="id"/>
 					<form:hidden path="locale"/>
-					<form:hidden path="version"/>					
+					<form:hidden path="version"/>
+					<form:hidden path="workflowStarted"/>	
+					<form:hidden path="endFlag"/>
+					<form:hidden path="level"/>
+					<form:hidden path="localizedActorName"/>
+					<form:hidden path="workflowDetailsId"/>					
 					<form:hidden path="file"/>
 					<form:hidden path="fileIndex"/>	
 					<form:hidden path="fileSent"/>
-					<input id="level" name="level" value="${level}" type="hidden">
-					<input id="endflag" name="endflag" value="continue" type="hidden">
 					<input id="customStatus" name="customStatus" type="hidden">
+					<input id="oldLevel" name="oldLevel" value="${domain.level}" type="hidden">
+					<input id="levelForAuxillaryWorkflow" name="levelForAuxillaryWorkflow" value="${level}" type="hidden">
+					<input id="oldLevelForAuxillaryWorkflow" name="oldLevelForAuxillaryWorkflow" value="${level}" type="hidden">
+					<input id="localizedActorNameForAuxillaryWorkflow" name="localizedActorNameForAuxillaryWorkflow" type="hidden">
+					<input id="endFlagForAuxillaryWorkflow" name="endFlagForAuxillaryWorkflow" value="continue" type="hidden">
 					<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 					<input type="hidden" name="status" id="status" value="${status }">
 					<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">

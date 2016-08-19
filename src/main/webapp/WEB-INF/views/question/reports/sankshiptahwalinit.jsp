@@ -25,6 +25,10 @@
 					$(this).attr('href','#');
 					unstarredDepartmentwiseStatsReport();
 				});
+				$("#unstarred_across_session_departmentwise_questions_report").click(function() {
+					$(this).attr('href','#');
+					unstarredAcrossSessionDepartmentwiseQuestionsReport();
+				});
 				/**** Starred & Unstarred Questions Report ****/
 				$("#ahwal_shortnotice_stats_report").click(function(){				
 					$(this).attr('href','#');
@@ -34,12 +38,7 @@
 				$("#ahwal_hdq_condition_report").click(function(){				
 					$(this).attr('href','#');
 					ahwalHDQConditionReport();
-				});
-				/**** Half Hour Discussion Standalone Condition Report ****/
-				$("#ahwal_hds_condition_report").click(function(){				
-					$(this).attr('href','#');
-					ahwalHDSConditionReport();
-				});
+				});				
 			});
 		</script>		 
 	</head>	
@@ -75,16 +74,22 @@
 						</a>
 					</td>
 				</tr>
-				<c:if test="${selectedHouseType=='lowerhouse'}">
-					<tr><td>&nbsp;</td></tr>
-					<tr>
-						<td>						
-							<a href="#" id="unstarred_departmentwise_stats_report" class="butSim link">
-								<spring:message code="question.unstarred_departmentwise_stats_report" text="Unstarred Questions Departmentwise Statistical Report"/>
-							</a>
-						</td>
-					</tr>
-				</c:if>		
+				<tr><td>&nbsp;</td></tr>
+				<tr>
+					<td>						
+						<a href="#" id="unstarred_departmentwise_stats_report" class="butSim link">
+							<spring:message code="question.unstarred_departmentwise_stats_report" text="Unstarred Questions Departmentwise Statistical Report"/>
+						</a>
+					</td>
+				</tr>		
+				<tr><td>&nbsp;</td></tr>
+				<tr>
+					<td>						
+						<a href="#" id="unstarred_across_session_departmentwise_questions_report" class="butSim link">
+							<spring:message code="question.unstarred_across_session_departmentwise_questions_report" text="Unstarred Questions Across Session Departmentwise Report"/>
+						</a>
+					</td>
+				</tr>		
 				<tr><td>&nbsp;</td></tr>
 				<tr>
 					<td>
@@ -100,17 +105,7 @@
 							<spring:message code="question.ahwal_hdq_condition_report" text="Half Hour Discussion From Question Report"/>
 						</a>
 					</td>
-				</tr>
-				<c:if test="${selectedHouseType=='upperhouse'}">
-					<tr><td>&nbsp;</td></tr>
-					<tr>
-						<td>
-							<a href="#" id="ahwal_hds_condition_report" class="butSim link">
-								<spring:message code="question.ahwal_hds_condition_report" text="Half Hour Discussion Standalone Report"/>
-							</a>
-						</td>
-					</tr>
-				</c:if>	
+				</tr>					
 			</tbody>
 		</table>			
 	</body>

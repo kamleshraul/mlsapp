@@ -60,7 +60,7 @@ public class CutMotionDateControllerUtility{
 			if(username != null){
 				if(!username.isEmpty()){
 					Credential credential = Credential.findByFieldName(Credential.class,"username",username,"");
-					UserGroup userGroup = UserGroup.findByFieldName(UserGroup.class,"credential",credential, locale);
+					UserGroup userGroup = UserGroup.findActive(credential, domain.getSession().getEndDate(), locale);
 					userGroupId = String.valueOf(userGroup.getId());
 					userGroupType = userGroup.getUserGroupType().getType();
 					userGroupName = userGroup.getUserGroupType().getName();
@@ -150,7 +150,7 @@ public class CutMotionDateControllerUtility{
 					if(username != null){
 						if(!username.isEmpty()){
 							Credential credential = Credential.findByFieldName(Credential.class,"username",username,"");
-							UserGroup userGroup = UserGroup.findByFieldName(UserGroup.class,"credential",credential, locale);
+							UserGroup userGroup = UserGroup.findActive(credential, session.getEndDate(), locale);
 							userGroupId = String.valueOf(userGroup.getId());
 							userGroupType = userGroup.getUserGroupType().getType();
 							userGroupName = userGroup.getUserGroupType().getName();
@@ -659,6 +659,46 @@ public class CutMotionDateControllerUtility{
 			String strUserGroup = request.getParameter("usergroup");
 			String strUserGroupType = request.getParameter("usergroupType");
 			DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+			
+			CustomParameter actorsAllowedStatusesUserGroup = CustomParameter.findByName(CustomParameter.class, "CUTMOTIONDATE_PUTUP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+status.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+			CustomParameter actorsAllowedStatusesDefualt = null;
+			CustomParameter actorsStatuses = null;
+			
+			if(actorsAllowedStatusesUserGroup != null){
+				actorsStatuses = actorsAllowedStatusesUserGroup;
+			}else{
+				actorsAllowedStatusesDefualt = CustomParameter.findByName(CustomParameter.class, "CUTMOTIONDATE_PUTUP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+status.getType().toUpperCase()+"_BY_DEFAULT", "");
+				actorsStatuses = actorsAllowedStatusesDefualt;
+			}
+			
+			if(actorsStatuses != null){
+				if(actorsStatuses.getValue() != null && !actorsStatuses.getValue().isEmpty()){
+					for(Status s : getStatuses(actorsStatuses.getValue(), locale.toString())){
+						MasterVO vo = new MasterVO();
+						vo.setId(s.getId());
+						vo.setValue(s.getType());
+						vo.setName(s.getName());
+						statuses.add(vo);
+						vo = null;
+					}
+				}
+			}
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return statuses;
+	}
+	
+	public static List<MasterVO> getStatusesForActor(HttpServletRequest request, CutMotionDate domain, Locale locale){
+		List<MasterVO> statuses = new ArrayList<MasterVO>();
+		
+		try{
+			String strUserGroup = request.getParameter("usergroup");
+			String strUserGroupType = request.getParameter("usergroupType");
+			DeviceType deviceType = domain.getDeviceType();
+			
+			Status status = domain.getInternalStatus();
 			
 			CustomParameter actorsAllowedStatusesUserGroup = CustomParameter.findByName(CustomParameter.class, "CUTMOTIONDATE_PUTUP_OPTIONS_"+deviceType.getType().toUpperCase()+"_"+status.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
 			CustomParameter actorsAllowedStatusesDefualt = null;

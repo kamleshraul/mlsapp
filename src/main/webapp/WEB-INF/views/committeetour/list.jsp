@@ -16,7 +16,14 @@
 		viewCommitteeTour(rowId);
 	}
 	
+	function setGridURLParams() {
+		var committeeTypeId = "committeeType=" + $('#committeeTypeFilter').val();
+		var committeeNameId = "committeeName=" + $('#committeeNameFilter').val();
+		var gridURLParamsVal = committeeTypeId + '&' + committeeNameId;
+		$('#gridURLParams').val(gridURLParamsVal);
+	}	
 	$('document').ready(function(){
+		setGridURLParams();
 		// New Record link is clicked
 		$('#new_record').click(function(){
 			newCommitteeTour();
@@ -79,6 +86,8 @@
 	
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
+	<input type="hidden" id="gridURLParams" name="gridURLParams">
+	<input type="hidden" id="allOption" name="allOption" value="<spring:message code='generic.allOption' text='---- All ----'></spring:message>">
 </div>
 </body>
 </html>

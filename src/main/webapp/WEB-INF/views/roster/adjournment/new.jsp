@@ -5,6 +5,44 @@
 	<spring:message code="roster.adjournment" text="Adjournment"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("#adjournmentStartTime").change(function(){
+				$("#selectedStartTime").val($("#selectedRosterDate").val()+" "+$("#adjournmentStartTime").val());
+			});
+			
+			$("#adjournmentEndTime").change(function(){
+				$("#selectedEndTime").val($("#selectedRosterDate").val()+" "+$("#adjournmentEndTime").val());
+			});
+			
+			$("#submit").click(function(){
+				$.prompt($('#submissionMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+						if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				        	$.post($('form').attr('action'),  
+				    	            $("form").serialize(),  
+				    	            function(data){
+				       					$('.tabContent').html(data);
+				       					$('html').animate({scrollTop:0}, 'slow');
+				       				 	$('body').animate({scrollTop:0}, 'slow');	
+				    					$.unblockUI();	   				 	   				
+				    	            }).fail(function (jqxhr, textStatus, err) {
+				    	            	$.unblockUI();
+				    	            	$("#error_p").html("Server returned an error\n" + err +
+			                                    "\n" + textStatus + "\n" +
+			                                    "Please try again later.\n"+jqxhr.status+"\n"+jqxhr.statusText).css({'color':'red', 'display':'block'});
+				    	            	
+				    	            	scrollTop();
+		                            });
+				        }
+					}
+				});
+				return false;
+				});
+			
+		});
+	</script>
 </head>
 
 <body>
@@ -19,13 +57,17 @@
 	
 	<p>
 		<label class="small"><spring:message code="roster.adjournment.starttime" text="Start Time"/>*</label>
-		<input type="text" class="sText datetimenosecondmask" name="selectedStartTime" id="selectedStartTime" value="${startTime }">
+		<input type="text" class="sText datemask" name="selectedRosterDate" id="selectedRosterDate" disabled="disabled"  value="${rosterStartDate }">
+		<input type="text" class="sText timenosecondmask" name="adjournmentStartTime" id="adjournmentStartTime" value="${selectedStartTime}">
+		<input type="hidden" id="selectedStartTime" name="selectedStartTime" value="${startTime}"/>
 		<form:errors path="startTime" cssClass="validationError"/>	
 	</p>
 	
 	<p>
 		<label class="small"><spring:message code="roster.adjournment.endtime" text="End Time"/>*</label>
-		<input type="text" class="sText datetimenosecondmask" name="selectedEndTime" id="selectedEndTime" value="${endTime }">
+		<input type="text" class="sText datemask" name="selectedRosterDate" id="selectedRosterDate" disabled="disabled" value="${rosterStartDate }">
+		<input type="text" class="sText timenosecondmask" name="adjournmentEndTime" id="adjournmentEndTime" value="${selectedEndTime}">
+		<input type="hidden" id="selectedEndTime" name="selectedEndTime" value="${endTime}"/>
 		<form:errors path="endTime" cssClass="validationError"/>	
 	</p>
 	
@@ -89,6 +131,7 @@
 	<input type="hidden" id="roster" name="roster" value="${roster}"/>
 </form:form>
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
+<input id="submissionMsg" value="<spring:message code='adjournment.prompt.submit' text='Do you want to Adjourn the roster,kindly reconfirm the dates and actions '></spring:message>" type="hidden">
 </div>
 </body>
 </html>

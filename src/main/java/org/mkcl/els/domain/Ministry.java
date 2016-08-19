@@ -10,8 +10,8 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -98,6 +98,10 @@ public class Ministry extends BaseDomain implements Serializable{
     public static List<Ministry> findAssignedMinistries(final String locale) {
         return getMinistryRepository().findAssignedMinistries(locale);
     }
+    
+	public static List<Ministry> findAssignedMinistriesInSession(final Date startDate, final String locale) {
+		return getMinistryRepository().findAssignedMinistriesInSession(startDate, locale);
+	}
 
     public static List<Ministry> findMinistriesAssignedToGroups(final HouseType houseType,final Integer sessionYear,final SessionType sessionType,final String locale) throws ELSException{
         return getMinistryRepository().findMinistriesAssignedToGroups(houseType,sessionYear,sessionType,locale);
@@ -108,8 +112,16 @@ public class Ministry extends BaseDomain implements Serializable{
     	 return getMinistryRepository().findMinistriesAssignedToGroupsByTerm(houseType,sessionYear,sessionType,param,locale);
 	}
 
-    public static Ministry find(SubDepartment subDepartment,Locale locale) {
-    	 return getMinistryRepository().find(subDepartment,locale);
+    public static Ministry find(final SubDepartment subDepartment,
+    		final Date onDate,
+    		final String locale) {
+    	 return getMinistryRepository().find(subDepartment, onDate, locale);
+	}
+    
+    public static Ministry findActiveNewMinistry(final SubDepartment subDepartment,
+    		final Date onDate,
+    		final String locale) {
+    	 return getMinistryRepository().findActiveNewMinistry(subDepartment, onDate, locale);
 	}
     
     /**** Getters and Setters ****/
@@ -167,9 +179,4 @@ public class Ministry extends BaseDomain implements Serializable{
 	public void setRemarks(final String remarks) {
 		this.remarks = remarks;
 	}
-
-	
-
-	
-
 }

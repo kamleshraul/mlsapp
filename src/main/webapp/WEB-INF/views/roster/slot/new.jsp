@@ -5,6 +5,36 @@
 	<spring:message code="roster.slot" text="Slot"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("#submit").click(function(){
+				$.prompt($('#submissionMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+						if(v){
+							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				        	$.post($('form').attr('action'),  
+				    	            $("form").serialize(),  
+				    	            function(data){
+				       					$('.tabContent').html(data);
+				       					$('html').animate({scrollTop:0}, 'slow');
+				       				 	$('body').animate({scrollTop:0}, 'slow');	
+				    					$.unblockUI();	   				 	   				
+				    	            }).fail(function (jqxhr, textStatus, err) {
+				    	            	$.unblockUI();
+				    	            	$("#error_p").html("Server returned an error\n" + err +
+			                                    "\n" + textStatus + "\n" +
+			                                    "Please try again later.\n"+jqxhr.status+"\n"+jqxhr.statusText).css({'color':'red', 'display':'block'});
+				    	            	
+				    	            	scrollTop();
+		                            });
+				        }
+					}
+				});
+				return false;
+				});
+			
+		});
+	</script>
 </head>
 
 <body>
@@ -69,8 +99,11 @@
 	</div>		
 	<form:hidden path="version" />
 	<form:hidden path="locale"/>
+	<form:hidden path="name"/>
 	<input type="hidden" id="roster" name="roster" value="${roster}"/>
+	<form:hidden path="completed"/>
 </form:form>
+<input id="submissionMsg" value="<spring:message code='slot.prompt.submit' text='Do you want to update? '></spring:message>" type="hidden">
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
 </div>
 </body>

@@ -23,11 +23,16 @@
 
 	function hideUnhideRulingPartyMemberField() {
 		var partyType = getPartyType();
-		if(partyType == "independent") {
-			$('.rulingPartyMemberField').show();
+		if(partyType == "opposition_party") {
+			$('.rulingPartyMemberField').hide();
 		}
 		else {
-			$('.rulingPartyMemberField').hide();
+			$('.rulingPartyMemberField').show();
+			if(partyType == "ruling party")
+				{
+				alert(partyType);
+				$('.rulingPartyMemberField').prop('checked', true);
+				}
 		}
 	}
 	
@@ -137,7 +142,7 @@
 	<p style="display:none;">
 		<select id="partyTypes" class="sSelect">
 			<c:forEach items="${parties}" var="i">
-				<option value="${i.id}"><c:out value="${i.type}"></c:out></option>
+				<option value="${i.id}"><c:out value="${i.partyType.type}"></c:out></option>
 			</c:forEach>
 		</select>
 	</p>

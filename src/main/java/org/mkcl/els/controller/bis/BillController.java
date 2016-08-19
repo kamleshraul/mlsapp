@@ -43,12 +43,10 @@ import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Document;
-import org.mkcl.els.domain.File;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.LapsedEntity;
 import org.mkcl.els.domain.LayingLetter;
-import org.mkcl.els.domain.LayingLetterDraft;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
@@ -134,7 +132,6 @@ public class BillController extends GenericController<Bill> {
 					}
 				}
 			} catch (ELSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			model.addAttribute("deviceTypes", allowedDeviceTypes);			
@@ -171,7 +168,6 @@ public class BillController extends GenericController<Bill> {
 			try {
 				lastSessionCreated = Session.findLatestSession(authUserHouseType);
 			} catch (ELSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			if(lastSessionCreated.getId()!=null){
@@ -214,7 +210,6 @@ public class BillController extends GenericController<Bill> {
 										try {
 											status=Status.findStatusContainedIn(allowedStatus.getValue(),locale);
 										} catch (ELSException e) {
-											// TODO Auto-generated catch block
 											model.addAttribute("error",e.getParameter());
 											e.printStackTrace();
 										}
@@ -224,7 +219,6 @@ public class BillController extends GenericController<Bill> {
 											try {
 												status=Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
 											} catch (ELSException e) {
-												// TODO Auto-generated catch block
 												model.addAttribute("error",e.getParameter());
 												e.printStackTrace();
 											}
@@ -241,7 +235,6 @@ public class BillController extends GenericController<Bill> {
 //											try {
 //												translationStatuses = Status.findStatusContainedIn(translationStatusesParameter.getValue(),locale);
 //											} catch (ELSException e) {
-//												// TODO Auto-generated catch block
 //												logger.debug("populateNew", e);
 //												model.addAttribute("error",e.getParameter());
 //												e.printStackTrace();
@@ -275,10 +268,10 @@ public class BillController extends GenericController<Bill> {
 	
 	@Override
 	protected String modifyURLPattern(final String urlPattern,final HttpServletRequest request,final ModelMap model,final String locale) {
-		/**** For Clerk and other ROIS roles assistant grid is visible ****/
+		/**** For Typist and other BIS roles assistant grid is visible ****/
 		String role=request.getParameter("role");
 		String newUrlPattern=urlPattern;
-		if(role.contains("BIS_")&& (!role.contains("CLERK"))){	
+		if(role.contains("BIS_")&& (!role.contains("TYPIST"))){	
 			newUrlPattern=newUrlPattern+"?usergroup=assistant";
 //			Status underConsiderationStatus = Status.findByType(ApplicationConstants.BILL_PROCESSED_UNDERCONSIDERATION, locale);
 //			String currentSelectedStatus = request.getParameter("status");
@@ -287,8 +280,8 @@ public class BillController extends GenericController<Bill> {
 //					newUrlPattern=newUrlPattern+"&internalStatus="+underConsiderationStatus.getType();
 //				}
 //			}			
-		}else if(role.contains("BIS_")&& (role.contains("CLERK"))){
-			newUrlPattern=newUrlPattern+"?usergroup=clerk";
+		}else if(role.contains("BIS_")&& (role.contains("TYPIST"))){
+			newUrlPattern=newUrlPattern+"?usergroup=typist";
 		}
 		return newUrlPattern;
 	}
@@ -300,7 +293,7 @@ public class BillController extends GenericController<Bill> {
 		String role=request.getParameter("role");		
 		if(role!=null){
 			if(!role.isEmpty()){
-				if(role.startsWith("MEMBER_")||role.contains("BIS_CLERK")){
+				if(role.startsWith("MEMBER_")||role.contains("BIS_TYPIST")){
 					return servletPath;
 				}
 			}
@@ -334,7 +327,7 @@ public class BillController extends GenericController<Bill> {
 		/**** for other ris usergroupTypes editreadonly page ****/
 		Set<Role> roles=this.getCurrentUser().getRoles();
 		for(Role i:roles){
-			if(i.getType().startsWith("MEMBER_")||i.getType().contains("CLERK")){
+			if(i.getType().startsWith("MEMBER_")||i.getType().contains("TYPIST")){
 				return newUrlPattern;
 			}else if(i.getType().contains("ASSISTANT")||i.getType().contains("SECTION_OFFICER")){
 				return newUrlPattern.replace("edit","assistant");
@@ -444,7 +437,6 @@ public class BillController extends GenericController<Bill> {
 			try {
 				selectedSession=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 			} catch (ELSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			if(selectedSession!=null){
@@ -605,7 +597,8 @@ public class BillController extends GenericController<Bill> {
 		if(ministry!=null){
 			model.addAttribute("ministrySelected",ministry.getId());
 			model.addAttribute("formattedMinistry",ministry.getName());
-			List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
+			List<SubDepartment> assignedSubDepartments = MemberMinister.
+					findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 			model.addAttribute("subDepartments", assignedSubDepartments);
 			SubDepartment subDepartment=domain.getSubDepartment();
 			if(subDepartment!=null){
@@ -614,42 +607,45 @@ public class BillController extends GenericController<Bill> {
 		} else {
 			Session ministrySession = selectedSession;
 			if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-				List<MemberMinister> memberMinisters = MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
-				if(memberMinisters==null || memberMinisters.isEmpty()) {
-					if(selectedSession.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
-						try {
-							ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.UPPER_HOUSE);
-							if(ministrySession!=null) {
-								memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+				if(usergroupType!=null && !usergroupType.isEmpty()
+						&& usergroupType.equals(ApplicationConstants.MEMBER)){
+					List<MemberMinister> memberMinisters = MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
+					if(memberMinisters==null || memberMinisters.isEmpty()) {
+						if(selectedSession.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
+							try {
+								ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.UPPER_HOUSE);
+								if(ministrySession!=null) {
+									memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+								}
+							} catch (ELSException e) {
+								e.printStackTrace();
 							}
-						} catch (ELSException e) {
-							e.printStackTrace();
-						}
-					} else if(selectedSession.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
-						try {
-							ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.LOWER_HOUSE);
-							if(ministrySession!=null) {
-								memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+						} else if(selectedSession.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
+							try {
+								ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.LOWER_HOUSE);
+								if(ministrySession!=null) {
+									memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+								}
+							} catch (ELSException e) {
+								e.printStackTrace();
 							}
-						} catch (ELSException e) {
-							e.printStackTrace();
 						}
 					}
-				}
-				if(memberMinisters!=null && !memberMinisters.isEmpty()) {
-					ministry = memberMinisters.get(0).getMinistry();
-					model.addAttribute("ministrySelected",ministry.getId());
-					model.addAttribute("formattedMinistry",ministry.getName());
-					List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
-					model.addAttribute("subDepartments", assignedSubDepartments);
-					if(!assignedSubDepartments.isEmpty()) {
-						SubDepartment subDepartment=assignedSubDepartments.get(0);
-						domain.setSubDepartment(subDepartment);			
-						if(subDepartment!=null){
-							model.addAttribute("subDepartmentSelected",subDepartment.getId());
+					if(memberMinisters!=null && !memberMinisters.isEmpty()) {
+						ministry = memberMinisters.get(0).getMinistry();
+						model.addAttribute("ministrySelected",ministry.getId());
+						model.addAttribute("formattedMinistry",ministry.getName());
+						List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,selectedSession.getStartDate(), locale);
+						model.addAttribute("subDepartments", assignedSubDepartments);
+						if(!assignedSubDepartments.isEmpty()) {
+							SubDepartment subDepartment=assignedSubDepartments.get(0);
+							domain.setSubDepartment(subDepartment);			
+							if(subDepartment!=null){
+								model.addAttribute("subDepartmentSelected",subDepartment.getId());
+							}
 						}
 					}
-				}
+				}				
 			}
 			Date rotationOrderPubDate=null;
 			CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
@@ -930,7 +926,8 @@ public class BillController extends GenericController<Bill> {
 		if(ministry!=null){
 			model.addAttribute("ministrySelected",ministry.getId());
 			model.addAttribute("formattedMinistry",ministry.getName());
-			List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
+			List<SubDepartment> assignedSubDepartments = MemberMinister.
+					findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 			model.addAttribute("subDepartments", assignedSubDepartments);
 			SubDepartment subDepartment=domain.getSubDepartment();
 			if(subDepartment!=null){
@@ -939,42 +936,45 @@ public class BillController extends GenericController<Bill> {
 		} else {
 			Session ministrySession = selectedSession;
 			if(deviceType.getType().trim().equals(ApplicationConstants.GOVERNMENT_BILL)) {
-				List<MemberMinister> memberMinisters = MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
-				if(memberMinisters==null || memberMinisters.isEmpty()) {
-					if(selectedSession.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
-						try {
-							ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.UPPER_HOUSE);
-							if(ministrySession!=null) {
-								memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+				if(usergroupType!=null && !usergroupType.isEmpty()
+						&& usergroupType.equals(ApplicationConstants.MEMBER)){
+					List<MemberMinister> memberMinisters = MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, selectedSession, locale);
+					if(memberMinisters==null || memberMinisters.isEmpty()) {
+						if(selectedSession.findHouseType().equals(ApplicationConstants.LOWER_HOUSE)) {
+							try {
+								ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.UPPER_HOUSE);
+								if(ministrySession!=null) {
+									memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+								}
+							} catch (ELSException e) {
+								e.printStackTrace();
 							}
-						} catch (ELSException e) {
-							e.printStackTrace();
-						}
-					} else if(selectedSession.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
-						try {
-							ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.LOWER_HOUSE);
-							if(ministrySession!=null) {
-								memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+						} else if(selectedSession.findHouseType().equals(ApplicationConstants.UPPER_HOUSE)) {
+							try {
+								ministrySession = Session.find(selectedSession.getYear(), selectedSession.getType().getType(), ApplicationConstants.LOWER_HOUSE);
+								if(ministrySession!=null) {
+									memberMinisters=MemberMinister.findAssignedMemberMinisterOfMemberInSession(member, ministrySession, locale);
+								}
+							} catch (ELSException e) {
+								e.printStackTrace();
 							}
-						} catch (ELSException e) {
-							e.printStackTrace();
 						}
 					}
-				}
-				if(memberMinisters!=null && !memberMinisters.isEmpty()) {
-					ministry = memberMinisters.get(0).getMinistry();
-					model.addAttribute("ministrySelected",ministry.getId());
-					model.addAttribute("formattedMinistry",ministry.getName());
-					List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
-					model.addAttribute("subDepartments", assignedSubDepartments);
-					if(!assignedSubDepartments.isEmpty()) {
-						SubDepartment subDepartment=assignedSubDepartments.get(0);
-						domain.setSubDepartment(subDepartment);			
-						if(subDepartment!=null){
-							model.addAttribute("subDepartmentSelected",subDepartment.getId());
+					if(memberMinisters!=null && !memberMinisters.isEmpty()) {
+						ministry = memberMinisters.get(0).getMinistry();
+						model.addAttribute("ministrySelected",ministry.getId());
+						model.addAttribute("formattedMinistry",ministry.getName());
+						List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,selectedSession.getStartDate(), locale);
+						model.addAttribute("subDepartments", assignedSubDepartments);
+						if(!assignedSubDepartments.isEmpty()) {
+							SubDepartment subDepartment=assignedSubDepartments.get(0);
+							domain.setSubDepartment(subDepartment);			
+							if(subDepartment!=null){
+								model.addAttribute("subDepartmentSelected",subDepartment.getId());
+							}
 						}
 					}
-				}
+				}				
 			}
 			Date rotationOrderPubDate=null;
 			CustomParameter serverDateFormat = CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
@@ -1595,8 +1595,9 @@ public class BillController extends GenericController<Bill> {
 	@Override
 	protected void customValidateCreate(final Bill domain, final BindingResult result,
 			final HttpServletRequest request) {
+		String role = request.getParameter("role");
 		/**** Supporting Members and various Validations ****/
-		populateSupportingMembers(domain,request);
+		populateSupportingMembers(domain,role,request);
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch", "concurrent updation is not allowed.");
@@ -1613,6 +1614,17 @@ public class BillController extends GenericController<Bill> {
 		}
 		if(domain.getPrimaryMember()==null){
 			result.rejectValue("primaryMember","PrimaryMemberEmpty", "primary member is not set.");
+		}		
+		if(role.equals("BIS_TYPIST") && domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)){
+			//Empty check for number
+			if(domain.getNumber()==null){
+				result.rejectValue("number","NumberEmpty");
+			}
+			// Check duplicate entry for bill Number
+			Boolean flag = Bill.isExist(domain);
+			if(flag){
+				result.rejectValue("number", "NonUnique","Duplicate Number");
+			}
 		}
 		String languagesAllowedInSession = domain.getSession().getParameter(domain.getType().getType() + "_languagesAllowed");
 		/**** title validation ****/
@@ -1631,7 +1643,9 @@ public class BillController extends GenericController<Bill> {
 		boolean isContentDraftInAtleastOneLanguage = false;			
 		for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
 			String contentDraftTextInThisLanguage = request.getParameter("contentDraft_text_"+languageAllowedInSession);
-			if(contentDraftTextInThisLanguage!=null && !contentDraftTextInThisLanguage.isEmpty()) {
+			String contentDraftFileInThisLanguage = request.getParameter("contentDraft-file-"+languageAllowedInSession);
+			if((contentDraftTextInThisLanguage!=null && !contentDraftTextInThisLanguage.isEmpty())
+					|| (contentDraftFileInThisLanguage!=null && !contentDraftFileInThisLanguage.isEmpty())) {
 				isContentDraftInAtleastOneLanguage = true;
 				break;
 			}
@@ -1681,15 +1695,16 @@ public class BillController extends GenericController<Bill> {
 					}
 				}else if(operation.equals("submit")){
 					/**** Submission ****/						
-					if(domain.getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+					if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
 						if(domain.getIntroducingHouseType()==null) {
 							result.rejectValue("introducingHouseType", "IntroducingHouseTypeEmpty", "Please select the preferred housetype for passing the bill.");
 						}
-						if(domain.getOpinionSoughtFromLawAndJD()==null) {
+						if(domain.getOpinionSoughtFromLawAndJD()==null || domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
 							result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from law and judiciary department is not mentioned");
-						} else if(domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
-							result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from law and judiciary department is not mentioned");
-						}						
+						}
+						if(domain.getOpinionSoughtFromLawAndJDFile()==null || domain.getOpinionSoughtFromLawAndJDFile().isEmpty()) {
+							result.rejectValue("version", "opinionFromLawAndJDFileNotAttached", "File for Opinion from law and judiciary department is not attached");
+						}												
 					}	
 					if(domain.getBillType()!=null) {
 						if(domain.getBillType().getType()!=null) {
@@ -1733,23 +1748,23 @@ public class BillController extends GenericController<Bill> {
 		model.addAttribute("selectedSupportingMembersIfErrors", selectedSupportingMembersIfErrors);
 		
 		/**** add/update titles in domain ****/
-		List<TextDraft> titles = this.updateDraftsOfGivenType(domain, "title", request);
+		List<TextDraft> titles = BillController.updateDraftsOfGivenType(domain, "title", request);
 		domain.setTitles(titles);
 		
 		/**** add/update content drafts in domain ****/
-		List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(domain, "contentDraft", request);
+		List<TextDraft> contentDrafts = BillController.updateDraftsOfGivenType(domain, "contentDraft", request);
 		domain.setContentDrafts(contentDrafts);	
 		
 		/**** add/update 'statement of object and reason drafts' in domain ****/
-		List<TextDraft> statementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(domain, "statementOfObjectAndReasonDraft", request);		
+		List<TextDraft> statementOfObjectAndReasonDrafts = BillController.updateDraftsOfGivenType(domain, "statementOfObjectAndReasonDraft", request);		
 		domain.setStatementOfObjectAndReasonDrafts(statementOfObjectAndReasonDrafts);
 		
 		/**** add/update financial memorandum drafts in domain ****/
-		List<TextDraft> financialMemorandumDrafts = this.updateDraftsOfGivenType(domain, "financialMemorandumDraft", request);		
+		List<TextDraft> financialMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "financialMemorandumDraft", request);		
 		domain.setFinancialMemorandumDrafts(financialMemorandumDrafts);
 		
 		/**** add/update statutory memorandum drafts in domain ****/
-		List<TextDraft> statutoryMemorandumDrafts = this.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
+		List<TextDraft> statutoryMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
 		domain.setStatutoryMemorandumDrafts(statutoryMemorandumDrafts);
 		
 		/**** Referred Act for Amendment Bill ****/
@@ -1786,7 +1801,7 @@ public class BillController extends GenericController<Bill> {
 			final HttpServletRequest request) {
 		
 		/**** add/update titles in domain ****/
-		List<TextDraft> titles = this.updateDraftsOfGivenType(domain, "title", request);
+		List<TextDraft> titles = BillController.updateDraftsOfGivenType(domain, "title", request);
 		domain.setTitles(titles);
 		
 		/**** Status ,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
@@ -1799,7 +1814,7 @@ public class BillController extends GenericController<Bill> {
 			if(operation!=null){
 				if(!operation.isEmpty()){
 					if(operation.trim().equals("submit")){
-						if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("clerk"))){
+						if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("typist"))){
 							/****  submission date is set ****/
 							if(domain.getSubmissionDate()==null){
 								domain.setSubmissionDate(new Date());
@@ -1809,8 +1824,13 @@ public class BillController extends GenericController<Bill> {
 							if(domain.getSupportingMembers()!=null){
 								if(!domain.getSupportingMembers().isEmpty()){
 									for(SupportingMember i:domain.getSupportingMembers()){
-										if(i.getDecisionStatus().getType().trim().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+										if(strUserGroupType.equals("typist")){
 											supportingMembers.add(i);
+										}else{
+											String decisionStatusType =i.getDecisionStatus().getType().trim();
+											if(decisionStatusType.equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+												supportingMembers.add(i);
+											}
 										}
 									}
 									domain.setSupportingMembers(supportingMembers);
@@ -1848,7 +1868,8 @@ public class BillController extends GenericController<Bill> {
 		}
 		/**** add creation date and created by ****/
 		domain.setCreationDate(new Date());
-		if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("clerk")){
+		if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())
+				&& (strUserGroupType.equals("member") || strUserGroupType.equals("typist"))){
 			Member member=domain.getPrimaryMember();
 			User user = null;
 			try {
@@ -1873,19 +1894,19 @@ public class BillController extends GenericController<Bill> {
 		}
 		
 		/**** add/update content drafts in domain ****/
-		List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(domain, "contentDraft", request);
+		List<TextDraft> contentDrafts = BillController.updateDraftsOfGivenType(domain, "contentDraft", request);
 		domain.setContentDrafts(contentDrafts);	
 		
 		/**** add/update 'statement of object and reason drafts' in domain ****/
-		List<TextDraft> statementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(domain, "statementOfObjectAndReasonDraft", request);		
+		List<TextDraft> statementOfObjectAndReasonDrafts = BillController.updateDraftsOfGivenType(domain, "statementOfObjectAndReasonDraft", request);		
 		domain.setStatementOfObjectAndReasonDrafts(statementOfObjectAndReasonDrafts);
 		
 		/**** add/update financial memorandum drafts in domain ****/
-		List<TextDraft> financialMemorandumDrafts = this.updateDraftsOfGivenType(domain, "financialMemorandumDraft", request);		
+		List<TextDraft> financialMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "financialMemorandumDraft", request);		
 		domain.setFinancialMemorandumDrafts(financialMemorandumDrafts);
 		
 		/**** add/update statutory memorandum drafts in domain ****/
-		List<TextDraft> statutoryMemorandumDrafts = this.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
+		List<TextDraft> statutoryMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
 		domain.setStatutoryMemorandumDrafts(statutoryMemorandumDrafts);
 	}
 	
@@ -1947,9 +1968,10 @@ public class BillController extends GenericController<Bill> {
 	
 	@Override
 	protected void customValidateUpdate(final Bill domain, final BindingResult result,
-			final HttpServletRequest request) {
+			final HttpServletRequest request) {		
+		String role = request.getParameter("role");
 		/**** Supporting Members and various Validations ****/
-		populateSupportingMembers(domain,request);
+		populateSupportingMembers(domain,role,request);
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch", "concurrent updation is not allowed.");
@@ -1981,7 +2003,17 @@ public class BillController extends GenericController<Bill> {
 				}
 			}
 		}
-		
+		if(role.equals("BIS_TYPIST") && domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)){
+			//Empty check for number
+			if(domain.getNumber()==null){
+				result.rejectValue("number","NumberEmpty");
+			}
+			// Check duplicate entry for bill Number
+			Boolean flag = Bill.isExist(domain);
+			if(flag){
+				result.rejectValue("number", "NonUnique","Duplicate Number");
+			}
+		}
 		String languagesAllowedInSession = domain.getSession().getParameter(domain.getType().getType() + "_languagesAllowed");
 		/**** title validation ****/
 		boolean isTitleInAtleastOneLanguage = false;			
@@ -1999,7 +2031,9 @@ public class BillController extends GenericController<Bill> {
 		boolean isContentDraftInAtleastOneLanguage = false;			
 		for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
 			String contentDraftTextInThisLanguage = request.getParameter("contentDraft_text_"+languageAllowedInSession);
-			if(contentDraftTextInThisLanguage!=null && !contentDraftTextInThisLanguage.isEmpty()) {
+			String contentDraftFileInThisLanguage = request.getParameter("contentDraft-file-"+languageAllowedInSession);
+			if((contentDraftTextInThisLanguage!=null && !contentDraftTextInThisLanguage.isEmpty())
+					|| (contentDraftFileInThisLanguage!=null && !contentDraftFileInThisLanguage.isEmpty())) {
 				isContentDraftInAtleastOneLanguage = true;
 				break;
 			}
@@ -2048,15 +2082,16 @@ public class BillController extends GenericController<Bill> {
 						}
 					}
 				}else if(operation.equals("submit")){
-					/**** Submission ****/									
+					/**** Submission ****/		
 					if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
 						if(domain.getIntroducingHouseType()==null) {
 							result.rejectValue("introducingHouseType", "IntroducingHouseTypeEmpty", "Please select the preferred housetype for passing the bill.");
 						}
-						if(domain.getOpinionSoughtFromLawAndJD()==null) {
+						if(domain.getOpinionSoughtFromLawAndJD()==null || domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
 							result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from law and judiciary department is not mentioned");
-						} else if(domain.getOpinionSoughtFromLawAndJD().isEmpty()) {
-							result.rejectValue("opinionSoughtFromLawAndJD", "opinionFromLawAndJDNotReceived", "Opinion from law and judiciary department is not mentioned");
+						}
+						if(domain.getOpinionSoughtFromLawAndJDFile()==null || domain.getOpinionSoughtFromLawAndJDFile().isEmpty()) {
+							result.rejectValue("version", "opinionFromLawAndJDFileNotAttached", "File for Opinion from law and judiciary department is not attached");
 						}						
 					}
 					if(domain.getBillType()!=null) {
@@ -2118,24 +2153,16 @@ public class BillController extends GenericController<Bill> {
 					boolean isContentDraftInAllCompulsoryLanguages = true;			
 					for(String languageCompulsoryInSession: languagesCompulsoryInSession.split("#")) {
 						String contentDraftTextInThisLanguage = request.getParameter("contentDraft_text_"+languageCompulsoryInSession);
-						if(contentDraftTextInThisLanguage==null) {
+						String contentDraftFileInThisLanguage = request.getParameter("contentDraft-file-"+languageCompulsoryInSession);
+						if((contentDraftTextInThisLanguage==null || contentDraftTextInThisLanguage.isEmpty())
+								&& (contentDraftFileInThisLanguage==null || contentDraftFileInThisLanguage.isEmpty())) {
 							String revisedContentDraftTextInThisLanguage = request.getParameter("revised_contentDraft_text_"+languageCompulsoryInSession);
-							if(revisedContentDraftTextInThisLanguage==null) {
-								isContentDraftInAllCompulsoryLanguages = false;
-								break;
-							} else if(revisedContentDraftTextInThisLanguage.isEmpty()) {
+							String revisedContentDraftFileInThisLanguage = request.getParameter("revised-contentDraft-file-"+languageCompulsoryInSession);
+							if((revisedContentDraftTextInThisLanguage==null || revisedContentDraftTextInThisLanguage.isEmpty())
+									&& (revisedContentDraftFileInThisLanguage==null || revisedContentDraftFileInThisLanguage.isEmpty())) {
 								isContentDraftInAllCompulsoryLanguages = false;
 								break;
 							}							
-						} else if(contentDraftTextInThisLanguage.isEmpty()) {
-							String revisedContentDraftTextInThisLanguage = request.getParameter("revised_contentDraft_text_"+languageCompulsoryInSession);
-							if(revisedContentDraftTextInThisLanguage==null) {
-								isContentDraftInAllCompulsoryLanguages = false;
-								break;
-							} else if(revisedContentDraftTextInThisLanguage.isEmpty()) {
-								isContentDraftInAllCompulsoryLanguages = false;
-								break;
-							}
 						}
 					}
 					if(isContentDraftInAllCompulsoryLanguages==false) {
@@ -2262,13 +2289,17 @@ public class BillController extends GenericController<Bill> {
 						boolean isAnnexureForAmendingBillInAtleastOneLanguage = false;			
 						for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
 							String annexureForAmendingBillTextInThisLanguage = request.getParameter("annexureForAmendingBill_text_"+languageAllowedInSession);
-							if(annexureForAmendingBillTextInThisLanguage!=null && !annexureForAmendingBillTextInThisLanguage.isEmpty()) {
+							String annexureForAmendingBillFileInThisLanguage = request.getParameter("annexureForAmendingBill-file-"+languageAllowedInSession);
+							if((annexureForAmendingBillTextInThisLanguage!=null && !annexureForAmendingBillTextInThisLanguage.isEmpty())
+									|| (annexureForAmendingBillFileInThisLanguage!=null && !annexureForAmendingBillFileInThisLanguage.isEmpty())) {
 								isAnnexureForAmendingBillInAtleastOneLanguage = true;
 								break;
 							} 
 							else {
 								String revisedAnnexureForAmendingBillTextInThisLanguage = request.getParameter("revised_annexureForAmendingBill_text_"+languageAllowedInSession);
-								if(revisedAnnexureForAmendingBillTextInThisLanguage!=null && !revisedAnnexureForAmendingBillTextInThisLanguage.isEmpty()) {
+								String revisedAnnexureForAmendingBillFileInThisLanguage = request.getParameter("revised_annexureForAmendingBill-file-"+languageAllowedInSession);
+								if((revisedAnnexureForAmendingBillTextInThisLanguage!=null && !revisedAnnexureForAmendingBillTextInThisLanguage.isEmpty())
+										|| (revisedAnnexureForAmendingBillFileInThisLanguage!=null && !revisedAnnexureForAmendingBillFileInThisLanguage.isEmpty())) {
 									isAnnexureForAmendingBillInAtleastOneLanguage = true;
 									break;
 								}
@@ -2277,50 +2308,24 @@ public class BillController extends GenericController<Bill> {
 						if(isAnnexureForAmendingBillInAtleastOneLanguage==true) {
 							boolean isAnnexureForAmendingBillInAllContentDraftLanguages = true;						
 							for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
-								if(request.getParameter("contentDraft_text_"+languageAllowedInSession)!=null
-										&& !request.getParameter("contentDraft_text_"+languageAllowedInSession).isEmpty()) {
+								String contentDraftInThisLanguage = request.getParameter("contentDraft_text_"+languageAllowedInSession);
+								String revisedContentDraftInThisLanguage = request.getParameter("revised_contentDraft_text_"+languageAllowedInSession);
+								if(contentDraftInThisLanguage!=null	&& !contentDraftInThisLanguage.isEmpty()
+										|| (revisedContentDraftInThisLanguage!=null	&& !revisedContentDraftInThisLanguage.isEmpty())) {
 									String annexureForAmendingBillTextInThisLanguage = request.getParameter("annexureForAmendingBill_text_"+languageAllowedInSession);
-									if(annexureForAmendingBillTextInThisLanguage==null) {
+									String annexureForAmendingBillFileInThisLanguage = request.getParameter("annexureForAmendingBill-file-"+languageAllowedInSession);
+									
+									if((annexureForAmendingBillTextInThisLanguage==null || annexureForAmendingBillTextInThisLanguage.isEmpty())
+											&& (annexureForAmendingBillFileInThisLanguage==null || annexureForAmendingBillFileInThisLanguage.isEmpty())) {
+										
 										String revisedAnnexureForAmendingBillTextInThisLanguage = request.getParameter("revised_annexureForAmendingBill_text_"+languageAllowedInSession);
-										if(revisedAnnexureForAmendingBillTextInThisLanguage==null) {
-											isAnnexureForAmendingBillInAllContentDraftLanguages = false;
-											break;
-										} else if(revisedAnnexureForAmendingBillTextInThisLanguage.isEmpty()) {
+										String revisedAnnexureForAmendingBillFileInThisLanguage = request.getParameter("revised_annexureForAmendingBill-file-"+languageAllowedInSession);
+										if((revisedAnnexureForAmendingBillTextInThisLanguage==null || revisedAnnexureForAmendingBillTextInThisLanguage.isEmpty())
+												&& (revisedAnnexureForAmendingBillFileInThisLanguage==null || revisedAnnexureForAmendingBillFileInThisLanguage.isEmpty())) {
 											isAnnexureForAmendingBillInAllContentDraftLanguages = false;
 											break;
 										}
-									} else if(annexureForAmendingBillTextInThisLanguage.isEmpty()) {
-										String revisedAnnexureForAmendingBillTextInThisLanguage = request.getParameter("revised_annexureForAmendingBill_text_"+languageAllowedInSession);
-										if(revisedAnnexureForAmendingBillTextInThisLanguage==null) {
-											isAnnexureForAmendingBillInAllContentDraftLanguages = false;
-											break;
-										} else if(revisedAnnexureForAmendingBillTextInThisLanguage.isEmpty()) {
-											isAnnexureForAmendingBillInAllContentDraftLanguages = false;
-											break;
-										}
-									}
-								} else if(request.getParameter("revised_contentDraft_text_"+languageAllowedInSession)!=null
-										&& !request.getParameter("revised_contentDraft_text_"+languageAllowedInSession).isEmpty()) {
-									String annexureForAmendingBillTextInThisLanguage = request.getParameter("annexureForAmendingBill_text_"+languageAllowedInSession);
-									if(annexureForAmendingBillTextInThisLanguage==null) {
-										String revisedAnnexureForAmendingBillTextInThisLanguage = request.getParameter("revised_annexureForAmendingBill_text_"+languageAllowedInSession);
-										if(revisedAnnexureForAmendingBillTextInThisLanguage==null) {
-											isAnnexureForAmendingBillInAllContentDraftLanguages = false;
-											break;
-										} else if(revisedAnnexureForAmendingBillTextInThisLanguage.isEmpty()) {
-											isAnnexureForAmendingBillInAllContentDraftLanguages = false;
-											break;
-										}
-									} else if(annexureForAmendingBillTextInThisLanguage.isEmpty()) {
-										String revisedAnnexureForAmendingBillTextInThisLanguage = request.getParameter("revised_annexureForAmendingBill_text_"+languageAllowedInSession);
-										if(revisedAnnexureForAmendingBillTextInThisLanguage==null) {
-											isAnnexureForAmendingBillInAllContentDraftLanguages = false;
-											break;
-										} else if(revisedAnnexureForAmendingBillTextInThisLanguage.isEmpty()) {
-											isAnnexureForAmendingBillInAllContentDraftLanguages = false;
-											break;
-										}
-									}
+									}						
 								}
 							}
 							if(isAnnexureForAmendingBillInAllContentDraftLanguages==false) {
@@ -2438,17 +2443,21 @@ public class BillController extends GenericController<Bill> {
 						if(layingLetter==null) {
 							result.rejectValue("version", "layingLetterNotSent", "Letter of bill received in second house is not laid yet.");
 							domain.setRecommendationStatus(oldRecommendationStatus);
-						} else {
-							CustomParameter finalAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "BILL_LAYLETTER_FINAL_AUTHORITY", "");
-							if(finalAuthorityParameter!=null) {
-								Map<String, String> finalLayingLetterDraftIdentifiers =  new HashMap<String, String>();
-								finalLayingLetterDraftIdentifiers.put("layingLetterId", layingLetter.getId().toString());
-								finalLayingLetterDraftIdentifiers.put("editedAs", finalAuthorityParameter.getValue());
-								LayingLetterDraft finalLayingLetterDraft = LayingLetterDraft.findByFieldNames(LayingLetterDraft.class, finalLayingLetterDraftIdentifiers, layingLetter.getLocale());
-								if(finalLayingLetterDraft==null) {
-									result.rejectValue("version", "layingLetterApprovalPending", "Letter of bill received in second house is not approved yet.");
-									domain.setRecommendationStatus(oldRecommendationStatus);
-								}
+						} else {							
+//							CustomParameter finalAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "BILL_LAYLETTER_FINAL_AUTHORITY"+"_"+secondHouseForBill.toUpperCase(), "");
+//							if(finalAuthorityParameter!=null) {
+//								Map<String, String> finalLayingLetterDraftIdentifiers =  new HashMap<String, String>();
+//								finalLayingLetterDraftIdentifiers.put("layingLetterId", layingLetter.getId().toString());
+//								finalLayingLetterDraftIdentifiers.put("editedAs", finalAuthorityParameter.getValue());
+//								LayingLetterDraft finalLayingLetterDraft = LayingLetterDraft.findByFieldNames(LayingLetterDraft.class, finalLayingLetterDraftIdentifiers, layingLetter.getLocale());
+//								if(finalLayingLetterDraft==null) {
+//									result.rejectValue("version", "layingLetterApprovalPending", "Letter of bill received in second house is not approved yet.");
+//									domain.setRecommendationStatus(oldRecommendationStatus);
+//								}
+//							}
+							if(!layingLetter.isApproved()) {
+								result.rejectValue("version", "layingLetterApprovalPending", "Letter of bill received in second house is not approved yet.");
+								domain.setRecommendationStatus(oldRecommendationStatus);
 							}
 						}
 					}
@@ -2457,7 +2466,7 @@ public class BillController extends GenericController<Bill> {
 		}				
 	}	
 	
-	private void populateSupportingMembers(final Bill domain,final HttpServletRequest request){
+	private void populateSupportingMembers(final Bill domain,final String role,final HttpServletRequest request){
 		/**** Supporting Members selected by Member in new/edit ****/
 		String[] selectedSupportingMembers=request.getParameterValues("selectedSupportingMembers");
 		try{
@@ -2501,6 +2510,23 @@ public class BillController extends GenericController<Bill> {
 						supportingMember.setMember(member);
 						supportingMember.setLocale(domain.getLocale());
 						supportingMember.setDecisionStatus(notsendStatus);
+						/** Auto approval for submission by typist etc. roles **/
+						CustomParameter supportingMemberAutoApprovalAllowedTo = 
+								CustomParameter.findByName(CustomParameter.class, 
+										"BIS_SUPPORTINGMEMBER_AUTO_APPROVAL_ALLOWED_TO", "");
+						if(supportingMemberAutoApprovalAllowedTo != null) {
+							if(supportingMemberAutoApprovalAllowedTo.getValue().contains(role)) {
+								Status APPROVED = Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_APPROVED, domain.getLocale());
+								supportingMember.setDecisionStatus(APPROVED);								
+								supportingMember.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_AUTOAPPROVED);
+								supportingMember.setApprovalDate(new Date());
+								supportingMember.setApprovedTitles(domain.getTitles());
+								supportingMember.setApprovedContentDrafts(domain.getContentDrafts());
+								supportingMember.setApprovedStatementOfObjectAndReasonDrafts(domain.getStatementOfObjectAndReasonDrafts());
+								supportingMember.setApprovedFinancialMemorandumDrafts(domain.getFinancialMemorandumDrafts());
+								supportingMember.setApprovedStatutoryMemorandumDrafts(domain.getStatutoryMemorandumDrafts());								
+							}
+						}
 					}
 					/*** List is updated ****/
 					supportingMembers.add(supportingMember);
@@ -2544,45 +2570,45 @@ public class BillController extends GenericController<Bill> {
 		}
 		
 		/**** add/update titles in domain ****/
-		List<TextDraft> titles = this.updateDraftsOfGivenType(domain, "title", request);
+		List<TextDraft> titles = BillController.updateDraftsOfGivenType(domain, "title", request);
 		domain.setTitles(titles);	
 		/**** add/update revised titles in domain ****/
-		List<TextDraft> revisedTitles = this.updateDraftsOfGivenType(domain, "revised_title", request);
+		List<TextDraft> revisedTitles = BillController.updateDraftsOfGivenType(domain, "revised_title", request);
 		domain.setRevisedTitles(revisedTitles);
 		
 		/**** add/update content drafts in domain ****/
-		List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(domain, "contentDraft", request);
+		List<TextDraft> contentDrafts = BillController.updateDraftsOfGivenType(domain, "contentDraft", request);
 		domain.setContentDrafts(contentDrafts);	
 		/**** add/update revised content drafts in domain ****/
-		List<TextDraft> revisedContentDrafts = this.updateDraftsOfGivenType(domain, "revised_contentDraft", request);
+		List<TextDraft> revisedContentDrafts = BillController.updateDraftsOfGivenType(domain, "revised_contentDraft", request);
 		domain.setRevisedContentDrafts(revisedContentDrafts);	
 		
 		/**** add/update 'statement of object and reason drafts' in domain ****/
-		List<TextDraft> statementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(domain, "statementOfObjectAndReasonDraft", request);		
+		List<TextDraft> statementOfObjectAndReasonDrafts = BillController.updateDraftsOfGivenType(domain, "statementOfObjectAndReasonDraft", request);		
 		domain.setStatementOfObjectAndReasonDrafts(statementOfObjectAndReasonDrafts);
 		/**** add/update revised 'statement of object and reason drafts' in domain ****/
-		List<TextDraft> revisedStatementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(domain, "revised_statementOfObjectAndReasonDraft", request);		
+		List<TextDraft> revisedStatementOfObjectAndReasonDrafts = BillController.updateDraftsOfGivenType(domain, "revised_statementOfObjectAndReasonDraft", request);		
 		domain.setRevisedStatementOfObjectAndReasonDrafts(revisedStatementOfObjectAndReasonDrafts);
 		
 		/**** add/update financial memorandum drafts in domain ****/
-		List<TextDraft> financialMemorandumDrafts = this.updateDraftsOfGivenType(domain, "financialMemorandumDraft", request);		
+		List<TextDraft> financialMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "financialMemorandumDraft", request);		
 		domain.setFinancialMemorandumDrafts(financialMemorandumDrafts);
 		/**** add/update revised financial memorandum drafts in domain ****/
-		List<TextDraft> revisedFinancialMemorandumDrafts = this.updateDraftsOfGivenType(domain, "revised_financialMemorandumDraft", request);		
+		List<TextDraft> revisedFinancialMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "revised_financialMemorandumDraft", request);		
 		domain.setRevisedFinancialMemorandumDrafts(revisedFinancialMemorandumDrafts);
 		
 		/**** add/update statutory memorandum drafts in domain ****/
-		List<TextDraft> statutoryMemorandumDrafts = this.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
+		List<TextDraft> statutoryMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
 		domain.setStatutoryMemorandumDrafts(statutoryMemorandumDrafts);
 		/**** add/update revised statutory memorandum drafts in domain ****/
-		List<TextDraft> revisedStatutoryMemorandumDrafts = this.updateDraftsOfGivenType(domain, "revised_statutoryMemorandumDraft", request);
+		List<TextDraft> revisedStatutoryMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "revised_statutoryMemorandumDraft", request);
 		domain.setRevisedStatutoryMemorandumDrafts(revisedStatutoryMemorandumDrafts);
 		
 		/**** add/update annexures for amending bill in domain ****/
-		List<TextDraft> annexuresForAmendingBill = this.updateDraftsOfGivenType(domain, "annexureForAmendingBill", request);
+		List<TextDraft> annexuresForAmendingBill = BillController.updateDraftsOfGivenType(domain, "annexureForAmendingBill", request);
 		domain.setAnnexuresForAmendingBill(annexuresForAmendingBill);	
 		/**** add/update revised annexures for amending bill in domain ****/
-		List<TextDraft> revisedAnnexuresForAmendingBill = this.updateDraftsOfGivenType(domain, "revised_annexureForAmendingBill", request);
+		List<TextDraft> revisedAnnexuresForAmendingBill = BillController.updateDraftsOfGivenType(domain, "revised_annexureForAmendingBill", request);
 		domain.setRevisedAnnexuresForAmendingBill(revisedAnnexuresForAmendingBill);
 		
 		/**** added by dhananjayb ****/
@@ -2643,10 +2669,10 @@ public class BillController extends GenericController<Bill> {
 		Bill bill = null;
 		
 		/**** add/update titles in domain ****/
-		List<TextDraft> titles = this.updateDraftsOfGivenType(domain, "title", request);
+		List<TextDraft> titles = BillController.updateDraftsOfGivenType(domain, "title", request);
 		domain.setTitles(titles);	
 		/**** add/update revised titles in domain ****/
-		List<TextDraft> revisedTitles = this.updateDraftsOfGivenType(domain, "revised_title", request);
+		List<TextDraft> revisedTitles = BillController.updateDraftsOfGivenType(domain, "revised_title", request);
 		domain.setRevisedTitles(revisedTitles);
 		
 		/**** Status ,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
@@ -2656,7 +2682,7 @@ public class BillController extends GenericController<Bill> {
 		if(domain.getHouseType()!=null && domain.getSession()!=null
 				&&  domain.getType()!=null && domain.getPrimaryMember()!=null && (domain.getTitles()!=null && !domain.getTitles().isEmpty())
 				){
-			if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("clerk"))){
+			if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("typist"))){
 				if(operation!=null && !operation.isEmpty() && operation.trim().equals("submit")){
 					/****  submission date is set ****/
 					if(domain.getSubmissionDate()==null){
@@ -2667,8 +2693,13 @@ public class BillController extends GenericController<Bill> {
 					if(domain.getSupportingMembers()!=null){
 						if(!domain.getSupportingMembers().isEmpty()){
 							for(SupportingMember i:domain.getSupportingMembers()){
-								if(i.getDecisionStatus().getType().trim().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+								if(strUserGroupType.equals("typist")){
 									supportingMembers.add(i);
+								}else{
+									String decisionStatusType =i.getDecisionStatus().getType().trim();
+									if(decisionStatusType.equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+										supportingMembers.add(i);
+									}
 								}
 							}
 							domain.setSupportingMembers(supportingMembers);
@@ -2745,38 +2776,38 @@ public class BillController extends GenericController<Bill> {
 		}
 		
 		/**** add/update content drafts in domain ****/
-		List<TextDraft> contentDrafts = this.updateDraftsOfGivenType(domain, "contentDraft", request);
+		List<TextDraft> contentDrafts = BillController.updateDraftsOfGivenType(domain, "contentDraft", request);
 		domain.setContentDrafts(contentDrafts);	
 		/**** add/update revised content drafts in domain ****/
-		List<TextDraft> revisedContentDrafts = this.updateDraftsOfGivenType(domain, "revised_contentDraft", request);
+		List<TextDraft> revisedContentDrafts = BillController.updateDraftsOfGivenType(domain, "revised_contentDraft", request);
 		domain.setRevisedContentDrafts(revisedContentDrafts);	
 		
 		/**** add/update 'statement of object and reason drafts' in domain ****/
-		List<TextDraft> statementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(domain, "statementOfObjectAndReasonDraft", request);		
+		List<TextDraft> statementOfObjectAndReasonDrafts = BillController.updateDraftsOfGivenType(domain, "statementOfObjectAndReasonDraft", request);		
 		domain.setStatementOfObjectAndReasonDrafts(statementOfObjectAndReasonDrafts);
 		/**** add/update revised 'statement of object and reason drafts' in domain ****/
-		List<TextDraft> revisedStatementOfObjectAndReasonDrafts = this.updateDraftsOfGivenType(domain, "revised_statementOfObjectAndReasonDraft", request);		
+		List<TextDraft> revisedStatementOfObjectAndReasonDrafts = BillController.updateDraftsOfGivenType(domain, "revised_statementOfObjectAndReasonDraft", request);		
 		domain.setRevisedStatementOfObjectAndReasonDrafts(revisedStatementOfObjectAndReasonDrafts);
 		
 		/**** add/update financial memorandum drafts in domain ****/
-		List<TextDraft> financialMemorandumDrafts = this.updateDraftsOfGivenType(domain, "financialMemorandumDraft", request);		
+		List<TextDraft> financialMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "financialMemorandumDraft", request);		
 		domain.setFinancialMemorandumDrafts(financialMemorandumDrafts);
 		/**** add/update revised financial memorandum drafts in domain ****/
-		List<TextDraft> revisedFinancialMemorandumDrafts = this.updateDraftsOfGivenType(domain, "revised_financialMemorandumDraft", request);		
+		List<TextDraft> revisedFinancialMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "revised_financialMemorandumDraft", request);		
 		domain.setRevisedFinancialMemorandumDrafts(revisedFinancialMemorandumDrafts);
 		
 		/**** add/update statutory memorandum drafts in domain ****/
-		List<TextDraft> statutoryMemorandumDrafts = this.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
+		List<TextDraft> statutoryMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "statutoryMemorandumDraft", request);
 		domain.setStatutoryMemorandumDrafts(statutoryMemorandumDrafts);
 		/**** add/update revised statutory memorandum drafts in domain ****/
-		List<TextDraft> revisedStatutoryMemorandumDrafts = this.updateDraftsOfGivenType(domain, "revised_statutoryMemorandumDraft", request);
+		List<TextDraft> revisedStatutoryMemorandumDrafts = BillController.updateDraftsOfGivenType(domain, "revised_statutoryMemorandumDraft", request);
 		domain.setRevisedStatutoryMemorandumDrafts(revisedStatutoryMemorandumDrafts);	
 		
 		/**** add/update annexures for amending bill in domain ****/
-		List<TextDraft> annexuresForAmendingBill = this.updateDraftsOfGivenType(domain, "annexureForAmendingBill", request);
+		List<TextDraft> annexuresForAmendingBill = BillController.updateDraftsOfGivenType(domain, "annexureForAmendingBill", request);
 		domain.setAnnexuresForAmendingBill(annexuresForAmendingBill);	
 		/**** add/update revised annexures for amending bill in domain ****/
-		List<TextDraft> revisedAnnexuresForAmendingBill = this.updateDraftsOfGivenType(domain, "revised_annexureForAmendingBill", request);
+		List<TextDraft> revisedAnnexuresForAmendingBill = BillController.updateDraftsOfGivenType(domain, "revised_annexureForAmendingBill", request);
 		domain.setRevisedAnnexuresForAmendingBill(revisedAnnexuresForAmendingBill);
 		
 		/**** Check For Bill Completeness ****/       
@@ -3104,6 +3135,7 @@ public class BillController extends GenericController<Bill> {
 					}
 					/**** Workflow Started ****/
 					if(domain.findChecklistValue(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_CHECKLIST_PARAMETER).equals("yes") 
+							&& domain.getOriginalType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)
 							&& request.getParameter("recommendationFromGovernorStatus").equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_GOVERNOR_NOTSEND)) {						
 						processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 						properties=new HashMap<String, String>();					
@@ -3148,6 +3180,7 @@ public class BillController extends GenericController<Bill> {
 					}
 					
 					if(domain.findChecklistValue(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_CHECKLIST_PARAMETER).equals("yes") 
+							&& domain.getOriginalType().getType().equals(ApplicationConstants.NONOFFICIAL_BILL)
 							&& request.getParameter("recommendationFromPresidentStatus").equals(ApplicationConstants.BILL_RECOMMENDATION_FROM_PRESIDENT_NOTSEND)) {						
 						processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 						properties=new HashMap<String, String>();					
@@ -3381,6 +3414,7 @@ public class BillController extends GenericController<Bill> {
 					TextDraft title = new TextDraft();
 					title.setLanguage(languageAllowedForTitle);
 					title.setText("");
+					title.setShortText("");
 					titles.add(title);
 				}
 			}
@@ -3388,6 +3422,7 @@ public class BillController extends GenericController<Bill> {
 			if(domain.getRevisedTitles()!=null && !domain.getRevisedTitles().isEmpty()) {
 				for(TextDraft revisedTitle: domain.getRevisedTitles()) {
 					model.addAttribute("revisedTitle_"+revisedTitle.getLanguage().getType(), revisedTitle.getText());
+					model.addAttribute("revisedTitle_shortText_"+revisedTitle.getLanguage().getType(), revisedTitle.getShortText());
 					model.addAttribute("revisedTitle_id_"+revisedTitle.getLanguage().getType(), revisedTitle.getId());
 				}
 			}
@@ -3403,6 +3438,7 @@ public class BillController extends GenericController<Bill> {
 					TextDraft contentDraft = new TextDraft();
 					contentDraft.setLanguage(languageAllowedForContentDraft);
 					contentDraft.setText("");
+					contentDraft.setFile("");
 					contentDrafts.add(contentDraft);
 				}
 			}
@@ -3410,10 +3446,11 @@ public class BillController extends GenericController<Bill> {
 			if(domain.getRevisedContentDrafts()!=null && !domain.getRevisedContentDrafts().isEmpty()) {
 				for(TextDraft revisedContentDraft: domain.getRevisedContentDrafts()) {
 					model.addAttribute("revisedContentDraft_"+revisedContentDraft.getLanguage().getType(), revisedContentDraft.getText());
+					model.addAttribute("revisedContentDraft-file-"+revisedContentDraft.getLanguage().getType(), revisedContentDraft.getFile());
 					model.addAttribute("revisedContentDraft_id_"+revisedContentDraft.getLanguage().getType(), revisedContentDraft.getId());
 				}
 			}
-			List<TextDraft> statementOfObjectAndReasonDrafts = new ArrayList<TextDraft>();	
+			List<TextDraft> statementOfObjectAndReasonDrafts = new ArrayList<TextDraft>();
 			if(domain.getStatementOfObjectAndReasonDrafts()!=null && !domain.getStatementOfObjectAndReasonDrafts().isEmpty()) {
 				statementOfObjectAndReasonDrafts.addAll(domain.getStatementOfObjectAndReasonDrafts());
 				for(TextDraft statementOfObjectAndReasonDraft: domain.getStatementOfObjectAndReasonDrafts()) {
@@ -3491,6 +3528,7 @@ public class BillController extends GenericController<Bill> {
 					TextDraft annexureForAmendingBill = new TextDraft();
 					annexureForAmendingBill.setLanguage(languageAllowedForAnnexureForAmendingBill);
 					annexureForAmendingBill.setText("");
+					annexureForAmendingBill.setFile("");
 					annexuresForAmendingBill.add(annexureForAmendingBill);
 				}
 			}
@@ -3498,6 +3536,7 @@ public class BillController extends GenericController<Bill> {
 			if(domain.getRevisedAnnexuresForAmendingBill()!=null && !domain.getRevisedAnnexuresForAmendingBill().isEmpty()) {
 				for(TextDraft revisedAnnexureForAmendingBill: domain.getRevisedAnnexuresForAmendingBill()) {
 					model.addAttribute("revisedAnnexureForAmendingBill_"+revisedAnnexureForAmendingBill.getLanguage().getType(), revisedAnnexureForAmendingBill.getText());
+					model.addAttribute("revisedAnnexureForAmendingBill-file-"+revisedAnnexureForAmendingBill.getLanguage().getType(), revisedAnnexureForAmendingBill.getFile());
 					model.addAttribute("revisedAnnexureForAmendingBill_id_"+revisedAnnexureForAmendingBill.getLanguage().getType(), revisedAnnexureForAmendingBill.getId());
 				}
 			}
@@ -3509,12 +3548,16 @@ public class BillController extends GenericController<Bill> {
 		}
 	}
 	
-	private List<TextDraft> updateDraftsOfGivenType(Bill domain, String typeOfDraft, HttpServletRequest request) {
+	public static List<TextDraft> updateDraftsOfGivenType(Bill domain, String typeOfDraft, HttpServletRequest request) {
 		List<TextDraft> draftsOfGivenType = new ArrayList<TextDraft>();
 		String languagesAllowedInSession = domain.getSession().getParameter(domain.getType().getType() + "_languagesAllowed");
 		for(String languageAllowedInSession: languagesAllowedInSession.split("#")) {
 			String draftTextInThisLanguage = request.getParameter(typeOfDraft+"_text_"+languageAllowedInSession);
-			if(draftTextInThisLanguage!=null && !draftTextInThisLanguage.isEmpty()) {
+			String draftShortTextInThisLanguage = request.getParameter(typeOfDraft+"_shortText_"+languageAllowedInSession);
+			String typeOfDraftForFileField = typeOfDraft.replaceAll("_", "-");
+			String draftFileInThisLanguage = request.getParameter(typeOfDraftForFileField+"-file-"+languageAllowedInSession);
+			if((draftTextInThisLanguage!=null && !draftTextInThisLanguage.isEmpty())
+					|| (draftFileInThisLanguage!=null && !draftFileInThisLanguage.isEmpty())) {
 				TextDraft draftOfGivenType = null;				
 				String draftIdInThisLanguage = request.getParameter(typeOfDraft+"_id_"+languageAllowedInSession);
 				if(draftIdInThisLanguage!=null && !draftIdInThisLanguage.isEmpty()) {
@@ -3523,6 +3566,8 @@ public class BillController extends GenericController<Bill> {
 					draftOfGivenType = new TextDraft();
 				}
 				draftOfGivenType.setText(draftTextInThisLanguage);
+				draftOfGivenType.setShortText(draftShortTextInThisLanguage);
+				draftOfGivenType.setFile(draftFileInThisLanguage);
 				if(draftOfGivenType.getLanguage()==null) {
 					Language thisLanguage;
 					String draftLanguageId = request.getParameter(typeOfDraft+"_language_id_"+languageAllowedInSession);
@@ -4184,13 +4229,12 @@ public class BillController extends GenericController<Bill> {
 			if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()){
 				
 				HouseType houseType = null;
-				String decodedHouseType = null;
 				CustomParameter cstpDeploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 				if(cstpDeploymentServer != null){
 					if(cstpDeploymentServer.getValue() != null && !cstpDeploymentServer.getValue().isEmpty()){
 						try {
 							if(cstpDeploymentServer.getValue().equals("TOMCAT")){
-								decodedHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
+								strHouseType = new String(strHouseType.getBytes("ISO-8859-1"), "UTF-8");
 								strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"), "UTF-8");
 								strSessionType = new String(strSessionType.getBytes("ISO-8859-1"), "UTF-8");
 							}							
@@ -4203,7 +4247,7 @@ public class BillController extends GenericController<Bill> {
 				
 				houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 				if(houseType == null){
-					houseType = HouseType.findByName(HouseType.class, decodedHouseType, locale.toString());
+					houseType = HouseType.findByName(HouseType.class, strHouseType, locale.toString());
 				}
 				
 				model.addAttribute("houseType", houseType.getType());
@@ -4655,18 +4699,12 @@ public class BillController extends GenericController<Bill> {
 				model.addAttribute("house", houseType.getName());
 				model.addAttribute("sessionPlace", session.getPlace().getPlace());
 				
-				List<User> users = User.findByRole(true, "BIS_PRINCIPALSECRETARY", locale.toString());
-				User principalSecretary = null;
-				for(User u : users){
-					principalSecretary = u;
-					break;
+				Role role = Role.findByFieldName(Role.class, "type", "BIS_PRINCIPALSECRETARY", locale.toString());
+				if(role!=null) {
+					model.addAttribute("whopost", role.getLocalizedName());
 				}
-				
-				model.addAttribute("who", principalSecretary.findFirstLastName());
-				for(Role r : principalSecretary.getCredential().getRoles()){
-					model.addAttribute("whopost", r.getLocalizedName());
-					break;
-				}
+				List<User> users = User.findByRole(true, role.getName(), locale.toString());
+				model.addAttribute("who", users.get(0).findFirstLastName());				
 						
 				Map<String, String[]> parameters = new HashMap<String, String[]>();
 				parameters.put("locale", new String[]{locale.toString()});
@@ -4691,7 +4729,7 @@ public class BillController extends GenericController<Bill> {
 				if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
 					model.addAttribute("houseShort", "वि. स. वि.");
 					footer = CustomParameter.findByName(CustomParameter.class, "BILL_PATRAKBHAG2_FOOTR_LOWERHOUSE", "");
-				}else if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+				}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
 					model.addAttribute("houseShort", "वि. प. वि.");
 					footer = CustomParameter.findByName(CustomParameter.class, "BILL_PATRAKBHAG2_FOOTR_UPPERHOUSE", "");
 				}
@@ -4700,8 +4738,8 @@ public class BillController extends GenericController<Bill> {
 				
 				if(strDistributionDate != null && !strDistributionDate.isEmpty()){
 					
-					patrakBhagTwoDateFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "PATRAK_BHAG_TWO_DATE_FORMAT", null);
-					dayFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "DAY_OF_WEEK_FORMAT", null);
+					patrakBhagTwoDateFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "PATRAK_BHAG_TWO_DATE_FORMAT", "");
+					dayFormat = CustomParameter.findByFieldName(CustomParameter.class, "name", "DAY_OF_WEEK_FORMAT", "");
 					/*** To form the patrakbhag don formatted date ***/
 					com.ibm.icu.util.Calendar calendar = com.ibm.icu.util.Calendar.getInstance();
 					calendar.setTime(date);

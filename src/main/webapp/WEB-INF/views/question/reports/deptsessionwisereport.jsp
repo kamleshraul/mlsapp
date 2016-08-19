@@ -93,12 +93,12 @@
 							<td>${r[2]}</td>
 							<c:choose>
 								<c:when test="${(r[5]!=1) and (r[5] > 0)}">
-									<c:if test="${r[5]>1}">
+									<%-- <c:if test="${r[5]>1}">
 										<c:forEach begin="1" end="${r[5]-1}" var="v">
 											<td>-</td>
 											<c:set var="reachedTotalSessions" value="${reachedTotalSessions + 1}" />
 										</c:forEach>
-									</c:if>
+									</c:if> --%>
 									<td>${r[6]}</td>
 									<c:set var="reachedTotalSessions" value="${reachedTotalSessions + 1}" />
 								</c:when>

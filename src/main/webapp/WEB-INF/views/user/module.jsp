@@ -14,8 +14,10 @@
 				if(row==null||row==""){
 					$.prompt($('#selectRowFirstMessage').val());		
 					return false;
-				}else{					
-					editRecord();
+				}else{	
+					if($('#currentPage').val()=="list") {
+						editRecord();
+					}					
 				}
 			});
 			$('#groups_tab').click(function(){
@@ -109,7 +111,56 @@
 			        }
 				}});
 			}
-		}				
+		}	
+		function resetPassword() {
+			var row = $("#key").val();
+			if(row==null||row==""){				
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;							
+			}else{
+				var username = $('#grid').jqGrid('getCell', row, 'credential.username');
+				showTabByIdAndUrl('details_tab','user/resetPassword?username='+username);
+			}
+		}
+		function loginForSupport() {
+			var row = $("#key").val();
+			if(row==null||row==""){				
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;							
+			}else{
+				var credentialId = $('#grid').jqGrid('getCell', row, 'credential.id');
+				var parameters = "credentialId="+credentialId;
+				$.ajax({url: 'ref/user/checkIfAllowedForMultiLogin', data: parameters,
+					type: 'GET',
+			        async: false,
+					success: function(data) {
+						var promptMsg = "";
+						var successMsg = "";
+						if(data==false) {
+							promptMsg = "Do you want to enable the support now?";
+							successMsg = "Login for support enabled now!"
+						} else if(data==true) {
+							promptMsg = "Login for support already enabled! Do you want to disable the support now?";
+							successMsg = "Login for support disabled now!"
+						} else {
+							return false;
+						} 						
+						$.prompt(promptMsg,{
+							buttons: {Ok:true, Cancel:false}, callback: function(v){
+					        if(v){
+					        	$.post('user/credential/updateAllowedForMultiLogin?'+parameters, function(data) {
+									if(data==1) {
+										$.prompt(successMsg);
+									} else {
+										alert("Some error occured.. contact support");
+									}
+								});
+					        }
+						}});
+					}
+				});
+			}
+		}
 	</script>
 </head>
 <body>
@@ -142,6 +193,7 @@
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+		<input type="hidden" id="currentPage" value="list">
 	</div> 
 </body>
 </html>

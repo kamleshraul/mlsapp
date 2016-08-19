@@ -464,10 +464,12 @@
 				            	var wholeData = $("#ttA").val();
                                var data = getIframeSelectionText($("iframe")[0]);
                                var pattern = data.trim();
-                               var re = new RegExp(pattern,"g");
-                               var finalContent = wholeData.replace(re, "[***] " + $("#replaceByOrder").val());
-                               $("#ttA").wysiwyg("setContent","");               
-                               $("#ttA").wysiwyg("setContent",finalContent);
+                               if(data.length > 0){
+	                               var re = new RegExp(pattern,"g");
+	                               var finalContent = wholeData.replace(re, "[***] " + $("#replaceByOrder").val());
+	                               $("#ttA").wysiwyg("setContent","");               
+	                               $("#ttA").wysiwyg("setContent",finalContent);
+                               }
 				             },
 				             hotkey:{"ctrl":1,"alt":1,"key":79}			             
 				        },
@@ -478,10 +480,12 @@
 				            	var wholeData = $("#ttA").val();
                                var data = getIframeSelectionText($("iframe")[0]);
                                var pattern = data.trim();
-                               var re = new RegExp(pattern,"g");
-                               var finalContent = wholeData.replace(re, "[#] " + $("#replaceByWithdrawal").val());
-                               $("#ttA").wysiwyg("setContent","");               
-                               $("#ttA").wysiwyg("setContent",finalContent);
+                               if(data.length > 0){
+	                               var re = new RegExp(pattern,"g");
+	                               var finalContent = wholeData.replace(re, "[#] " + $("#replaceByWithdrawal").val());
+	                               $("#ttA").wysiwyg("setContent","");               
+	                               $("#ttA").wysiwyg("setContent",finalContent);
+                               }
 				             },
 				             hotkey:{"ctrl":1,"alt":1,"key":87}			             
 				        }
@@ -761,45 +765,62 @@
 			}); */
 			
 			$("#partDraftContainer").click(function(e) {
-			     var element = e.target;/* .children().each(function(){
-			    	 console.log('\nid: '+$(this));
-			     }); */
+				
+			    var element = e.target;
+			    var parentTarget = e.target;
+			    var cClass="";
+			    $(element).parents().each(function(){
+			    	cClass = $(this).attr('class');
+			    	parentTarget = $(this);
+			    	if(cClass.indexOf('replaceByMe')>-1){
+			    		return false;
+			    	}			    				    	
+			    });
+			   /* console.log("\nClass : " + cClass + "\nParent : " + $(parentTarget) + "\nParent Class : " + $(parentTarget).attr('class') 
+			    		+ "\n " + $(parentTarget).html());*/
+			    /* $(element).children().each(function(){*/
+			    	// console.log('\nid: '+$(element).html()+":"+$("#action").val()+"\n"+$(element).prop('tagName'));
+			    // }); 
 			     //console.log($(element).attr('class').contains('replaceByMe'));
-			  
+			 // console.log(element+"\n"+$(element).attr('class')+"\n"+$(element).parent().);
 			     $.prompt($('#mergeMsg').val(),{
 						buttons: {Ok:true, Cancel:false}, callback: function(v){
+							
 				        if(v){
 							if($("#action").val()=='edit'){
-									var clasess=$(element).attr('class').split(' ');
-									var sourcePartDraftId=clasess[1].substring(3);
-									var targetPartId=clasess[2].substring(3);
-														
-									var targetContent=$("#pp"+targetPartId).html().trim();
-									var sourceContent=$(element).html().trim();
-									if(sourceContent!=targetContent){
-										$("#pp"+targetPartId).empty();
-										$("#pp"+targetPartId).html(sourceContent);
+									if(cClass.indexOf('replaceByMe')>-1){
+										var clasess=$(parentTarget).attr('class').split(' ');
+										var sourcePartDraftId=clasess[1].substring(3);
+										var targetPartId=clasess[2].substring(3);
+															
+										var targetContent=$("#pp"+targetPartId).html().trim();
+										var sourceContent=$(parentTarget).html().trim();
 										
-										$(element).empty();
-										$(element).html(targetContent);	
-										$("#partUndo"+targetPartId).addClass(targetPartId);
-										
-										$("#data").val(sourceContent);
-										
-										$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-										$.post('workflow/editing/mergedraftcontent?partId='+targetPartId+'&draftId='+sourcePartDraftId+'&action='+$('#action').val(), 
-												$("form[action='workflow/editing/savepart']").serialize(),function(data){
-											if(data=='SUCCESS'){
-												//$("#partDraftContainer").hide();
+										if(sourceContent!=targetContent){
+											$("#pp"+targetPartId).empty();
+											$("#pp"+targetPartId).html(sourceContent);
+											
+											$(parentTarget).empty();
+											$(parentTarget).html(targetContent);	
+											$("#partUndo"+targetPartId).addClass(targetPartId);
+											
+											$("#data").val(sourceContent);
+											
+											$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+											$.post('workflow/editing/mergedraftcontent?partId='+targetPartId+'&draftId='+sourcePartDraftId+'&action='+$('#action').val(), 
+													$("form[action='workflow/editing/savepart']").serialize(),function(data){
+												if(data=='SUCCESS'){
+													//$("#partDraftContainer").hide();
+													$.unblockUI();
+													$("#wf_edit_copy").hide();
+													$('html, body').animate({
+												        scrollTop: $("#pp"+targetPartId).offset().top
+												    }, 100);												
+												}
+											}).fail(function(){
 												$.unblockUI();
-												$("#wf_edit_copy").hide();
-												$('html, body').animate({
-											        scrollTop: $("#pp"+targetPartId).offset().top
-											    }, 100);												
-											}
-										}).fail(function(){
-											$.unblockUI();
-										});
+											});
+										}
 									}
 								}
 				        }
@@ -1036,6 +1057,8 @@
 	<input id="action" type="hidden" value="${action}" />
 	<input type="hidden" name="pleaseSelectMsg" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'></spring:message>">
 	<input type="hidden" name="mergeMsg" id="mergeMsg" value="<spring:message code='editing.merge' text='Are you sure to merge it?'></spring:message>">
+	<input type="hidden" id="replaceByOrder" value="<spring:message code='editing.replaceByOrder' text='Raplace By Order'/>" />
+	<input type="hidden" id="replaceByWithdrawal" value="<spring:message code='replaceByWithdrawal' text='Replace By Withdrawn' />" />
 </div>
 </body>
 </html>

@@ -6,9 +6,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -18,6 +20,8 @@ import name.fraser.neil.plaintext.diff_match_patch.Diff;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.ChartVO;
+import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.ResolutionRevisionVO;
@@ -27,8 +31,10 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.ResolutionDraft;
 import org.mkcl.els.domain.Session;
@@ -513,6 +519,48 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 	    }
 	}
 
+	public List<Member> findActiveMembersWithResolutions(final Session session,
+			final MemberRole role,final Date activeOn,final DeviceType deviceType,final Status[] internalStatuses,
+			final Date startTime,final Date endTime,final String sortBy, final String sortOrder,final String locale) throws ELSException {
+		StringBuffer query = new StringBuffer();
+		query.append(
+				"SELECT DISTINCT(m) FROM Resolution r" +
+				" JOIN r.member m" +
+				" JOIN m.houseMemberRoleAssociations hmra"+
+				" WHERE hmra.fromDate<=:strActiveOn" +
+				" AND hmra.toDate>=:strActiveOn"+
+				" AND hmra.role=:role" +
+				" AND hmra.house=:house" +
+				" AND hmra.locale=:locale"+
+				" AND r.session.id=:sessionId" +
+				" AND r.type.id=:deviceTypeId"+
+				" AND r.submissionDate>=:strStartTime" +
+				" AND r.submissionDate<=:strEndTime"+ 
+				" AND r.locale=:locale");
+		try{
+		query.append(this.getStatusFilters(internalStatuses,session.getHouse().getType()));
+		query.append(" ORDER BY "+sortBy+" " + sortOrder + ", m.firstName " + sortOrder);
+
+		TypedQuery<Member> tQuery = this.em().createQuery(query.toString(), Member.class);
+		tQuery.setParameter("strActiveOn", activeOn);
+		tQuery.setParameter("role", role);
+		tQuery.setParameter("house", session.getHouse());
+		tQuery.setParameter("locale", locale);
+		tQuery.setParameter("sessionId", session.getId());
+		tQuery.setParameter("deviceTypeId", deviceType.getId());
+		tQuery.setParameter("strStartTime", startTime);
+		tQuery.setParameter("strEndTime", endTime);
+		List<Member> members = tQuery.getResultList();
+		return members;
+		}catch(Exception e){
+	    	e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("ResolutionRepository_List<Member>_findActiveMembersWithResolutions", "Cannot get Members");
+			throw elsException;
+	    }
+	}
+	
 	public List<Member> findActiveMembersWithoutResolutions(final Session session,
 			final MemberRole role,final Date activeOn,final DeviceType deviceType,final Status[] internalStatuses,
 			final Date startTime,final Date endTime,final String sortOrder,final String locale) throws ELSException {
@@ -798,17 +846,20 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		try{
 			//String discussionDate = FormaterUtil.formatDateToString(answeringDate, "yyyy-MM-dd");
 			Status internalStatus = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_ADMISSION, locale);
+			Status repeatAdmittedInternalStatus = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REPEATADMISSION, locale);
 			Status ballotStatus = Status.findByType(ApplicationConstants.RESOLUTION_PROCESSED_BALLOTED, locale);
 	
 			StringBuffer strQuery = new StringBuffer("SELECT r" +
 					" FROM Resolution r JOIN r.session s JOIN r.houseType ht" +
 					" WHERE r.session.id=:sessionId AND r.discussionDate IS NULL"+
 					" AND r.member.id=:memberId AND r.number IS NOT NULL");
-	
+			if(!subjects.isEmpty()){
+				strQuery.append(" AND r.subject NOT IN :subjectList");
+			}
 			if(session.getHouse().getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-				strQuery.append(" AND r.internalStatusLowerHouse.id=:internalStatusId");
+				strQuery.append(" AND (r.internalStatusLowerHouse.id=:internalStatusId OR r.internalStatusLowerHouse.id=:repeatAdmitted)");
 			}else if(session.getHouse().getType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-				strQuery.append(" AND r.internalStatusUpperHouse.id=:internalStatusId");
+				strQuery.append(" AND (r.internalStatusUpperHouse.id=:internalStatusId OR r.internalStatusUpperHouse.id=:repeatAdmitted)");
 			}
 	
 			strQuery.append(" AND (r.ballotStatus.id!=:ballotStatusId OR r.ballotStatus.id IS NULL) ORDER BY r.discussionDate ASC");
@@ -817,7 +868,11 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 			query.setParameter("sessionId", session.getId());
 			query.setParameter("memberId", memberID);
 			query.setParameter("internalStatusId", internalStatus.getId());
+			query.setParameter("repeatAdmitted", repeatAdmittedInternalStatus.getId());
 			query.setParameter("ballotStatusId", ballotStatus.getId());
+			if(!subjects.isEmpty()){
+				query.setParameter("subjectList", subjects);
+			}
 			List<Resolution> resolutions = query.getResultList();
 			resolution = randomResolution(resolutions);
 			return resolution;
@@ -1403,13 +1458,13 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		buffer.append("SELECT r FROM Resolution r Where r.session.id=:sessionId"+
 				" AND r.type.id=:deviceTypeId AND r.locale=:locale");
 		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			buffer.append(" AND r.fileLowerHouse=:file");
+			buffer.append(" AND (r.fileLowerHouse=:file OR r.file=:file)");
 			buffer.append(" ORDER BY r.fileIndexLowerHouse");
 		}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-			buffer.append(" AND r.fileUpperHouse=:file");
+			buffer.append(" AND (r.fileUpperHouse=:file OR r.file=:file)");
 			buffer.append(" ORDER BY r.fileIndexUpperHouse");
 		}
-			Query query=this.em().createQuery(buffer.toString());
+			TypedQuery<Resolution> query=this.em().createQuery(buffer.toString(), Resolution.class);
 			query.setParameter("sessionId", session.getId());
 			query.setParameter("deviceTypeId", deviceType.getId());
 			query.setParameter("locale", locale);
@@ -1493,4 +1548,383 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		Resolution resolution=(Resolution) query.getSingleResult();
 		return resolution;
 	}
+
+	public Boolean isExist(Integer number, DeviceType type, Session session,
+			String locale) {
+		try{
+			StringBuffer strQuery=new StringBuffer();
+			strQuery.append("SELECT r FROM Resolution  r " +
+					" WHERE r.session.id=:sessionId" +
+					" AND r.number=:number" +
+					" AND r.locale=:locale"+
+					" AND r.type.id=:deviceTypeId");
+			Query query=this.em().createQuery(strQuery.toString());
+			query.setParameter("deviceTypeId", type.getId());
+			query.setParameter("sessionId", session.getId());
+			query.setParameter("number", number);
+			query.setParameter("locale", locale);
+			Resolution resolution=(Resolution) query.getSingleResult();
+			if(resolution != null){
+				return true;
+			}else{
+				return false;
+			}
+		}catch(Exception e) {
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
+
+	public MemberMinister findMemberMinisterIfExists(Resolution resolution) throws ELSException {
+		MemberMinister  memberMinister = null;
+		Session session = resolution.getSession();
+		if(session==null) {
+			logger.error("This resolution has no session.");
+			throw new ELSException("resolution_session_null", "This resolution has no session.");
+		}
+		try{			
+			String queryString = "SELECT mm FROM MemberMinister mm JOIN mm.ministry mi JOIN mm.member m " +
+					"WHERE mi.id IN " +
+					"(SELECT gm.id FROM Group g join g.ministries gm " +
+					"WHERE g.houseType.id=:houseTypeId AND g.sessionType.id=:sessionTypeId"+
+					" AND g.year=:sessionYear AND g.locale=:locale) " +
+					" AND mi.id=:ministryId AND " +
+					"(mm.ministryFromDate <=:resolutionSubmissionDate AND (mm.ministryToDate >:resolutionSubmissionDate  OR mm.ministryToDate IS NULL)) AND " +
+					"mm.locale=:locale";
+			
+			TypedQuery<MemberMinister> query = this.em().createQuery(queryString, MemberMinister.class);
+			query.setParameter("houseTypeId", session.getHouse().getType().getId());
+			query.setParameter("sessionTypeId", session.getType().getId());
+			query.setParameter("sessionYear", session.getYear());
+			query.setParameter("locale", resolution.getLocale());
+			//query.setParameter("houseId", session.getHouse().getId());
+			query.setParameter("ministryId", resolution.getMinistry().getId());
+			query.setParameter("resolutionSubmissionDate", resolution.getSubmissionDate());
+			memberMinister = query.getSingleResult();
+		}catch (NoResultException  e) {
+			return null;
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return null;
+		}
+		return memberMinister;
+	}
+
+	public List<ChartVO> getAdmittedResolutions(Session session,
+			DeviceType deviceType, String locale) throws ELSException {
+		List<ChartVO> admittedResolutionVO = new ArrayList<ChartVO>();
+		String houseType = session.getHouse().getType().getType();
+		Status ADMITTED = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_ADMISSION, locale);
+		Status REPEATADMITTED = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REPEATADMISSION, locale);
+		Date startTime = FormaterUtil.formatStringToDate(session.getParameter("resolutions_nonofficial_submissionStartDate"),ApplicationConstants.DB_DATEFORMAT);
+		Date endTime = FormaterUtil.formatStringToDate(session.getParameter("resolutions_nonofficial_submissionEndDate"),ApplicationConstants.DB_DATEFORMAT);
+		Status[] statuses = {ADMITTED,REPEATADMITTED};
+		List<Member> members = Resolution.
+				findActiveMembersWithResolutions(session, new Date(), deviceType, statuses, startTime, endTime, "number", "ASC", locale);
+		for(Member m : members){
+			ChartVO chart = new ChartVO();
+			chart.setMemberId(m.getId());
+			chart.setMemberName(m.findFirstLastName());
+			List<Resolution> resolutions = Resolution.findAdmittedResolutionByMember(m,deviceType,session, locale);
+			List<DeviceVO> deviceVos = new ArrayList<DeviceVO>();
+			for(Resolution r:resolutions){
+				Integer number = r.getNumber();
+				String formatNumber = r.formatNumber();
+				String revisedNoticeContent = null;
+				if(r.getRevisedNoticeContent() != null && !r.getRevisedNoticeContent().isEmpty()){
+					revisedNoticeContent = r.getRevisedNoticeContent();
+				}else if(r.getNoticeContent() != null && !r.getNoticeContent().isEmpty()){
+					revisedNoticeContent = r.getNoticeContent();
+				}
+				DeviceVO deviceVO = new DeviceVO(formatNumber, revisedNoticeContent);
+				deviceVO.setNumber(number);
+				deviceVos.add(deviceVO);
+			}
+			chart.setDeviceVOs(deviceVos);
+			admittedResolutionVO.add(chart);
+		}
+		return admittedResolutionVO;
+	}
+
+	
+	@SuppressWarnings("unchecked")
+	public List<Resolution> getAdmittedResolutionsByMember(Member member,
+			Session session, DeviceType deviceType, String locale) {
+		List<Resolution> resolutions = new ArrayList<Resolution>();
+		String houseType = session.getHouse().getType().getType();
+		StringBuffer buffer = new StringBuffer("SELECT r "
+		+ " FROM Resolution r "
+		+ " WHERE r.type.id=:deviceTypeId"
+		+ " AND r.locale=:locale"
+		+ " AND r.member.id=:memberId"
+		+ " AND r.session.id=:sessionId");
+		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+			buffer.append(" AND (r.internalStatusLowerHouse.type='resolution_final_admission'"
+					+ "		OR r.internalStatusLowerHouse.type='resolution_final_repeatadmission')");
+		
+		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+			buffer.append(" AND (r.internalStatusUpperHouse.type='resolution_final_admission'"
+					+ "		OR r.internalStatusUpperHouse.type='resolution_final_repeatadmission')");
+		}
+		buffer.append("ORDER BY number");
+		Query query = this.em().createQuery(buffer.toString());
+		query.setParameter("deviceTypeId", deviceType.getId());
+		query.setParameter("locale", locale);
+		query.setParameter("memberId", member.getId());
+		query.setParameter("sessionId", session.getId());
+		resolutions = query.getResultList();
+		return resolutions;
+	}
+
+	public Integer findHighestKaryavaliNumber(final DeviceType deviceType,
+			final Session session, final String locale) {
+		Integer highestKaryavaliNumber = null;
+		if(session!=null) {			
+			String resolutionSubmissionStartDate = session.getParameter("resolutions_nonofficial_submissionStartDate");
+			String queryString = "SELECT MAX(r.karyavaliNumber) FROM Resolution r"
+						+ " WHERE r.type.type=:strDeviceType"
+						+ " AND r.karyavaliNumber IS NOT NULL"
+						+ " AND r.session.house.id=:houseId"
+						+ " AND r.KaryavaliGenerationDate>=:resolutionSubmissionStartDate"
+					    + " AND r.KaryavaliGenerationDate<=:sessionEndDate"
+						+ " AND r.locale=:locale";
+			try {
+				TypedQuery<Integer> query = this.em().createQuery(queryString, Integer.class);
+				query.setParameter("houseId", session.getHouse().getId());
+				query.setParameter("strDeviceType", deviceType.getType());
+				query.setParameter("resolutionSubmissionStartDate",FormaterUtil.formatStringToDate(resolutionSubmissionStartDate,ApplicationConstants.DB_DATEFORMAT));
+				query.setParameter("sessionEndDate", session.getEndDate());
+				query.setParameter("locale", locale);
+				highestKaryavaliNumber = query.getSingleResult();
+			} catch(Exception e) {
+				highestKaryavaliNumber = 0;
+			}	
+			if(highestKaryavaliNumber==null) {
+				highestKaryavaliNumber = 0;
+			}
+		}
+		return highestKaryavaliNumber;
+	}
+
+	public boolean isNumberedKaryavaliFilled(DeviceType deviceType,
+			Session session, Integer highestKaryavaliNumber, String locale) {
+		boolean isNumberedKaryavliFilled = false;		
+		if(session!=null) {
+			Long resolutionsFilledWithKaryavaliCount = null;
+			String resolutionSubmissionStartDate = session.getParameter("resolutions_nonofficial_submissionStartDate");
+			String queryString = "SELECT COUNT(r.id) FROM Resolution r"
+					+ " WHERE r.type.type=:strDeviceType"
+					+ " AND r.session.house.id=:houseId"
+					+ " AND r.karyavaliNumber=:karyavaliNumber"
+					+ " AND r.KaryavaliGenerationDate>=:resolutionSubmissionStartDate"
+					+ " AND r.KaryavaliGenerationDate<=:sessionEndDate"
+					+ " AND r.locale=:locale "
+					+ " ORDER BY r.number";
+			
+			try {
+				TypedQuery<Long> query = this.em().createQuery(queryString, Long.class);
+				query.setParameter("houseId", session.getHouse().getId());
+				query.setParameter("strDeviceType", deviceType.getType());		
+				Date submissionDate = FormaterUtil.formatStringToDate(resolutionSubmissionStartDate,ApplicationConstants.DB_DATETIME_FORMAT);
+				query.setParameter("resolutionSubmissionStartDate", submissionDate);
+				query.setParameter("sessionEndDate", session.getEndDate());
+				query.setParameter("karyavaliNumber", highestKaryavaliNumber);
+				query.setParameter("locale", locale);
+				if(query.getSingleResult()>0){
+					isNumberedKaryavliFilled = true;
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+				isNumberedKaryavliFilled = false;
+			}
+		}		
+		return isNumberedKaryavliFilled;
+	}
+
+	public Date findResolutionKaryavaliDate(DeviceType deviceType,
+			Integer highestKaryavaliNumber, Session session, String locale) {
+		Date karyavaliDate = null;
+		if(session!=null) {
+			String resolutionSubmissionStartDate = session.getParameter("resolutions_nonofficial_submissionStartDate");
+			String queryString = "SELECT r.KaryavaliGenerationDate FROM Resolution r"
+					+ " WHERE r.type.type=:deviceType"
+					+ " AND r.session.house.id=:houseId"
+					+ " AND r.karyavaliNumber=:karyavaliNumber"
+					+ " AND r.KaryavaliGenerationDate>=:resolutionSubmissionStartDate"
+					+ " AND r.KaryavaliGenerationDate<=:sessionEndDate"
+					+ " AND r.locale=:locale"
+					+ " ORDER BY r.number";
+			try {
+				TypedQuery<Date> query = this.em().createQuery(queryString, Date.class);
+				query.setParameter("houseId", session.getHouse().getId());
+				query.setParameter("deviceType", deviceType.getType());				
+				query.setParameter("resolutionSubmissionStartDate",FormaterUtil.formatStringToDate(resolutionSubmissionStartDate,ApplicationConstants.DB_DATEFORMAT));
+				query.setParameter("sessionEndDate", session.getEndDate());
+				query.setParameter("karyavaliNumber", highestKaryavaliNumber);
+				query.setParameter("locale", locale);
+				karyavaliDate = query.getSingleResult();
+			} catch(Exception e) {
+				karyavaliDate = null;
+			}
+		}
+		return karyavaliDate;
+	}
+
+	public List<ChartVO> findEligibleAdmittedNonOfficialResolution(
+			Session session, Integer karyavaliNumber, Date karyavaliDate, Locale locale) throws ELSException {
+		List<ChartVO> admittedResolutionVO = new ArrayList<ChartVO>();
+		String houseType = session.getHouse().getType().getType();
+		Status ADMITTED = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_ADMISSION, locale.toString());
+		Status REPEATADMITTED = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REPEATADMISSION, locale.toString());
+		Date startTime = FormaterUtil.formatStringToDate(session.getParameter("resolutions_nonofficial_submissionStartDate"),ApplicationConstants.DB_DATEFORMAT);
+		Date endTime = FormaterUtil.formatStringToDate(session.getParameter("resolutions_nonofficial_submissionEndDate"),ApplicationConstants.DB_DATEFORMAT);
+		Status[] statuses = {ADMITTED,REPEATADMITTED};
+		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.NONOFFICIAL_RESOLUTION, locale.toString());
+		List<Member> members = Resolution.
+				findActiveMembersWithResolutions(session, new Date(), deviceType, statuses, startTime, endTime, "number", "ASC", locale.toString());
+		for(Member m : members){
+			List<Resolution> resolutions = Resolution.findEligibleAdmittedResolutionByMember(m,deviceType,session, locale.toString());
+			if(!resolutions.isEmpty()){
+				ChartVO chart = new ChartVO();
+				chart.setMemberId(m.getId());
+				chart.setMemberName(m.getFullname());
+				
+				List<DeviceVO> deviceVos = new ArrayList<DeviceVO>();
+				for(Resolution r:resolutions){
+					Integer number = r.getNumber();
+					String formatNumber = r.formatNumber();
+					String revisedNoticeContent = null;
+					if(r.getNoticeContent() != null){
+						revisedNoticeContent = r.getNoticeContent();
+					}else if(r.getRevisedNoticeContent() != null){
+						revisedNoticeContent = r.getRevisedNoticeContent();
+					}
+					r.setKaryavaliGenerationDate(karyavaliDate);
+					r.setKaryavaliNumber(karyavaliNumber);
+					r.simpleMerge();
+					DeviceVO deviceVO = new DeviceVO(formatNumber, revisedNoticeContent);
+					deviceVO.setNumber(number);
+					deviceVos.add(deviceVO);
+				}
+				chart.setDeviceVOs(deviceVos);
+				admittedResolutionVO.add(chart);
+			}
+		}
+		return admittedResolutionVO;
+	}
+
+	public List<Resolution> getEligibleAdmittedResolutionsByMember(Member member,
+			Session session, DeviceType deviceType, String locale) {
+		List<Resolution> resolutions = new ArrayList<Resolution>();
+		String houseType = session.getHouse().getType().getType();
+		StringBuffer buffer = new StringBuffer("SELECT r "
+		+ " FROM Resolution r "
+		+ " WHERE r.type.id=:deviceTypeId"
+		+ " AND r.locale=:locale"
+		+ " AND r.member.id=:memberId");
+		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+			buffer.append(" AND (r.internalStatusLowerHouse.type='resolution_final_admission'"
+					+ "		OR r.internalStatusLowerHouse.type='resolution_final_repeatadmission')");
+		
+		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+			buffer.append(" AND (r.internalStatusUpperHouse.type='resolution_final_admission'"
+					+ "		OR r.internalStatusUpperHouse.type='resolution_final_repeatadmission')");
+		}
+		buffer.append(" AND r.karyavaliNumber IS NULL"
+					+" AND r.KaryavaliGenerationDate IS NULL");
+		buffer.append(" ORDER BY number");
+		Query query = this.em().createQuery(buffer.toString());
+		query.setParameter("deviceTypeId", deviceType.getId());
+		query.setParameter("locale", locale);
+		query.setParameter("memberId", member.getId());
+		resolutions = query.getResultList();
+		return resolutions;
+	}
+
+	public List<ChartVO> findNonOfficialResolutionsByKaryavaliNumber(
+			Session session, Integer karyavaliNumber, String locale) throws ELSException {
+		List<ChartVO> admittedResolutionVO = new ArrayList<ChartVO>();
+		String houseType = session.getHouse().getType().getType();
+		Status ADMITTED = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_ADMISSION, locale);
+		Status REPEATADMITTED = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REPEATADMISSION, locale);
+		Date startTime = FormaterUtil.formatStringToDate(session.getParameter("resolutions_nonofficial_submissionStartDate"),ApplicationConstants.DB_DATEFORMAT);
+		Date endTime = FormaterUtil.formatStringToDate(session.getParameter("resolutions_nonofficial_submissionEndDate"),ApplicationConstants.DB_DATEFORMAT);
+		Status[] statuses = {ADMITTED,REPEATADMITTED};
+		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.NONOFFICIAL_RESOLUTION, locale.toString());
+		List<Member> members = Resolution.
+				findActiveMembersWithResolutions(session, new Date(), deviceType, statuses, startTime, endTime, "number", "ASC", locale);
+		for(Member m : members){
+			List<Resolution> resolutions = Resolution.findAdmittedNonOfficialResolutionByMemberAndKaryavaliNumber(m,deviceType,session,karyavaliNumber, locale);
+			if(!resolutions.isEmpty()){
+				ChartVO chart = new ChartVO();
+				chart.setMemberId(m.getId());
+				chart.setMemberName(m.getFullname());
+				
+				List<DeviceVO> deviceVos = new ArrayList<DeviceVO>();
+				for(Resolution r:resolutions){
+					Integer number = r.getNumber();
+					String formatNumber = r.formatNumber();
+					String revisedNoticeContent = null;
+					if(r.getNoticeContent() != null){
+						revisedNoticeContent = r.getNoticeContent();
+					}else if(r.getRevisedNoticeContent() != null){
+						revisedNoticeContent = r.getRevisedNoticeContent();
+					}
+					DeviceVO deviceVO = new DeviceVO(formatNumber, revisedNoticeContent);
+					deviceVO.setNumber(number);
+					deviceVos.add(deviceVO);
+				}
+				chart.setDeviceVOs(deviceVos);
+				admittedResolutionVO.add(chart);
+			}
+		}
+		return admittedResolutionVO;
+	}
+
+	public List<Resolution> findAdmittedNonOfficialResolutionByMemberAndKaryavaliNumber(
+			Member member, DeviceType deviceType, Session session,
+			Integer karyavaliNumber, String locale) {
+		List<Resolution> resolutions = new ArrayList<Resolution>();
+		String houseType = session.getHouse().getType().getType();
+		StringBuffer buffer = new StringBuffer("SELECT r "
+		+ " FROM Resolution r "
+		+ " WHERE r.type.id=:deviceTypeId"
+		+ " AND r.locale=:locale"
+		+ " AND r.member.id=:memberId");
+		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+			buffer.append(" AND (r.internalStatusLowerHouse.type='resolution_final_admission'"
+					+ "		OR r.internalStatusLowerHouse.type='resolution_final_repeatadmission')");
+		
+		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+			buffer.append(" AND (r.internalStatusUpperHouse.type='resolution_final_admission'"
+					+ "		OR r.internalStatusUpperHouse.type='resolution_final_repeatadmission')");
+		}
+		buffer.append(" AND r.karyavaliNumber=:karyavaliNumber");
+		buffer.append(" ORDER BY number");
+		Query query = this.em().createQuery(buffer.toString());
+		query.setParameter("deviceTypeId", deviceType.getId());
+		query.setParameter("locale", locale);
+		query.setParameter("memberId", member.getId());
+		query.setParameter("karyavaliNumber", karyavaliNumber);
+		resolutions = query.getResultList();
+		return resolutions;
+	}
+
+	public List<Resolution> findDiscussedResolution(final Session session,
+			final DeviceType deviceType, final String locale) {
+		String strQuery = "SELECT r "
+				+ " FROM Resolution r"
+				+ " WHERE r.discussionStatus IS NOT NULL"
+				+ " AND r.session.id=:sessionId"
+				+ " AND r.type.id=:deviceTypeId"
+				+ " AND r.locale=:locale";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("deviceTypeId", deviceType.getId());
+		query.setParameter("locale",locale);
+		return query.getResultList();
+	}
+
+	
 }

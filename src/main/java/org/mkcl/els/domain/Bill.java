@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -137,6 +138,10 @@ public class Bill extends Device implements Serializable {
     /** The opinion sought from law and judiciary department. */
     @Column(length=30000)
     private String opinionSoughtFromLawAndJD;
+    
+    /** The file having the text. */
+	@Column(length = 100)
+	private String opinionSoughtFromLawAndJDFile;
     
     /** The date of recommendation received from governor. */
     @Temporal(TemporalType.TIMESTAMP)
@@ -663,6 +668,10 @@ public class Bill extends Device implements Serializable {
         }
     }
     
+    public static Boolean isExist(final Bill bill) {
+    	return getBillRepository().isExist(bill);
+    }
+    
     private static Integer assignBillNo(final String year, final HouseType houseType, final String locale) {		
 		return getBillRepository().assignBillNo(year, houseType, locale);
 	}
@@ -674,6 +683,7 @@ public class Bill extends Device implements Serializable {
         		TextDraft draftOfGivenTypeForBillDraft = new TextDraft();
         		draftOfGivenTypeForBillDraft.setLanguage(draftOfGivenType.getLanguage());
         		draftOfGivenTypeForBillDraft.setText(draftOfGivenType.getText());
+        		draftOfGivenTypeForBillDraft.setFile(draftOfGivenType.getFile());
         		draftOfGivenTypeForBillDraft.setLocale(draftOfGivenType.getLocale());
         		draftsOfGivenTypeForBillDraft.add(draftOfGivenTypeForBillDraft);
         	}
@@ -735,6 +745,7 @@ public class Bill extends Device implements Serializable {
     			TextDraft draftOfGivenTypeForBillDraft = new TextDraft();
         		draftOfGivenTypeForBillDraft.setLanguage(existingDraftOfGivenType.getLanguage());
         		draftOfGivenTypeForBillDraft.setText(existingDraftOfGivenType.getText());
+        		draftOfGivenTypeForBillDraft.setFile(existingDraftOfGivenType.getFile());
         		draftOfGivenTypeForBillDraft.setLocale(existingDraftOfGivenType.getLocale());
         		draftsOfGivenTypeForBillDraft.add(draftOfGivenTypeForBillDraft);
     		}
@@ -1360,7 +1371,7 @@ public class Bill extends Device implements Serializable {
 			}
 		}
 		return billYear;
-	}	
+	}
 	
 	public static Bill findByNumberYearAndHouseType(final int billNumber, final int billYear, final Long houseTypeId, final String locale) {
 		return getBillRepository().findByNumberYearAndHouseType(billNumber, billYear, houseTypeId, locale);
@@ -1573,6 +1584,15 @@ public class Bill extends Device implements Serializable {
 
 	public void setOpinionSoughtFromLawAndJD(String opinionSoughtFromLawAndJD) {
 		this.opinionSoughtFromLawAndJD = opinionSoughtFromLawAndJD;
+	}
+
+	public String getOpinionSoughtFromLawAndJDFile() {
+		return opinionSoughtFromLawAndJDFile;
+	}
+
+	public void setOpinionSoughtFromLawAndJDFile(
+			String opinionSoughtFromLawAndJDFile) {
+		this.opinionSoughtFromLawAndJDFile = opinionSoughtFromLawAndJDFile;
 	}
 
 	public Date getDateOfRecommendationFromGovernor() {

@@ -16,6 +16,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -37,7 +38,10 @@ import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.SessionVO;
 import org.mkcl.els.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -200,8 +204,8 @@ public class Session extends BaseDomain implements Serializable {
      * @throws ELSException 
      * @since v1.0.0
      */
-    public static List<Session> findSessionsByHouseAndYear(final House house,final Integer year) throws ELSException{
-        return getSessionRepository().findSessionsByHouseAndYear(house, year);
+    public static List<Session> findSessionsByHouseTypeAndYear(final House house,final Integer year) throws ELSException{
+        return getSessionRepository().findSessionsByHouseTypeAndYear(house, year);
     }
     
     public static List<Session> findSessionsByHouseAndDateLimits(final House house,final Date lowerLimit,final Date upperLimit){
@@ -817,11 +821,11 @@ public class Session extends BaseDomain implements Serializable {
 		
 		List<Session> totalSessions = new ArrayList<Session>();
 		
-		List<Session> sessionListCurrent = Session.findSessionsByHouseAndYear(session.getHouse(), session.getYear());		
+		List<Session> sessionListCurrent = Session.findSessionsByHouseTypeAndYear(session.getHouse().getType(), session.getYear());		
 		sessionListCurrent.remove(session);
 		totalSessions.addAll(sessionListCurrent);
 		
-		List<Session> sessionListLast = Session.findSessionsByHouseAndYear(session.getHouse(), session.getYear()-1);
+		List<Session> sessionListLast = Session.findSessionsByHouseTypeAndYear(session.getHouse().getType(), session.getYear()-1);
 				
 		if(sessionListLast.size() > 0){
 			Session lastSessionPrevYear = sessionListLast.get(0);
@@ -845,11 +849,11 @@ public class Session extends BaseDomain implements Serializable {
 		
 		if(sessionList.size() > 0){
 			
-			minDiff=session.getStartDate().getTime() - ((Session)sessions[0]).getEndDate().getTime();
+			minDiff = session.getStartDate().getTime() - ((Session)sessions[0]).getStartDate().getTime();
 		
 			for(int i = 0; i < sessions.length; i++){
 				
-				long tempTimeDifference = (session.getStartDate().getTime() - ((Session)sessions[i]).getEndDate().getTime()); 
+				long tempTimeDifference = (session.getStartDate().getTime() - ((Session)sessions[i]).getStartDate().getTime()); 
 				
 				if(tempTimeDifference <= minDiff){
 					minDiff = tempTimeDifference;
@@ -873,5 +877,68 @@ public class Session extends BaseDomain implements Serializable {
 			}
 		}
 		return sessionHouseType;
+	}
+	
+	public List<Date> findAllSessionDates() {
+		
+		List<Date> sessionDates = new ArrayList<Date>();
+		
+		/** set calendar from session start date for processing all session dates **/
+		Calendar sessionCalender = Calendar.getInstance();
+		sessionCalender.setTime(this.getStartDate());
+		
+		/** loop through all session dates & collect them in the output list **/
+		for(sessionCalender.getTime(); sessionCalender.getTime().compareTo(this.getEndDate())<=0; sessionCalender.add(Calendar.DATE, 1)) {
+			
+			Date sessionDate = sessionCalender.getTime();	
+			
+			sessionDates.add(sessionDate);
+		}
+		
+		return sessionDates;
+	}
+	
+	public List<Date> findAllSessionDatesHavingNoHoliday() {
+		
+		List<Date> sessionDates = new ArrayList<Date>();
+		
+		/** set calendar from session start date for processing all session dates **/
+		Calendar sessionCalender = Calendar.getInstance();
+		sessionCalender.setTime(this.getStartDate());
+		
+		/** loop through all session dates & collect non-holiday dates in the output list **/
+		for(sessionCalender.getTime(); sessionCalender.getTime().compareTo(this.getEndDate())<=0; sessionCalender.add(Calendar.DATE, 1)) {
+			
+			Date sessionDate = sessionCalender.getTime();	
+			
+			//skip the date if it's holiday
+			if(Holiday.isHolidayOnDate(sessionDate, this.getLocale())) {
+				continue;
+			}
+			
+			sessionDates.add(sessionDate);
+		}
+		
+		return sessionDates;
+	}
+	
+	/** check if current date is in given session 
+	 * @throws ELSException **/
+	public static Boolean isCurrentDateInSession(final Session session) throws ELSException {	
+		if(session==null || session.getId()==null) {
+			throw new ELSException();
+		}
+		Boolean isCurrentDateInSession = null;
+		Date currentDate = new Date();
+		if(currentDate.compareTo(session.getStartDate())>=0 && currentDate.compareTo(session.getEndDate())<=0) {
+			isCurrentDateInSession = true;
+		} else {
+			isCurrentDateInSession = false;
+		}
+		return isCurrentDateInSession;
+	}
+	
+	public static List<SessionVO> findAllSessionDetailsForGivenHouseType(final HouseType houseType, final Date fromDate, final String locale) {
+		return getSessionRepository().findAllSessionDetailsForGivenHouseType(houseType, fromDate, locale);
 	}
  }

@@ -28,7 +28,20 @@
 		
 		.impIcons{
 			box-shadow: 2px 2px 2px black;
-		}	
+		}
+		
+		#clubbedBillAmendmentMotionTextsDiv{
+        	background: none repeat-x scroll 0 0 #FFF;
+		    box-shadow: 0 2px 5px #888888;
+		    max-height: 260px;
+		    right: 0;
+		    position: fixed;
+		    top: 10px;
+		    width: 300px;
+		    z-index: 10000;
+		    overflow: auto;
+		    border-radius: 10px;
+	    }	
 	</style>
 	
 	<script type="text/javascript">
@@ -44,7 +57,15 @@
 			$.get(resourceURL,function(data){
 				$.unblockUI();
 				$.fancybox.open(data,{autoSize:false,width:1000,height:750});
-			},'html');	
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
 		}
 		/**** detail of clubbed, referenced and lapsed 'bill amendment motions' ****/		
 		function viewBillAmendmentMotionDetail(id){
@@ -63,7 +84,15 @@
 			$.get(resourceURL,function(data){
 				$.unblockUI();
 				$.fancybox.open(data,{autoSize:false,width:1000,height:750});
-			},'html');	
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
 		}
 		/**** Clubbing ****/
 		function clubbingInt(id){
@@ -78,8 +107,16 @@
 				$("#clubbingResultDiv").show();
 				$("#referencingResultDiv").hide();
 				$("#assistantDiv").hide();
-				$("#backToBillAmendmentMotionDiv").show();			
-			},'html');
+				$("#backToMotionDiv").show();			
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
 		}
 		/**** refresh clubbing and referencing ****/
 		function refreshEdit(id){
@@ -103,18 +140,26 @@
 				scrollTop();
 				$.unblockUI();
 			});
+			$("#referencingResultDiv").hide();
 			$("#clubbingResultDiv").hide();
-			$("#assistantDiv").show();			
+			$("#assistantDiv").show();		
 		}
 		/**** load actors ****/
 		function loadActors(value){		
+			var translate=$("#internalStatusMaster option[value='billamendmentmotion_recommend_translation']").text();
+		    var opinion_from_lawandjd=$("#internalStatusMaster option[value='billamendmentmotion_recommend_opinionFromLawAndJD']").text();
 			if(value!='-'){			
 		    var sendback=$("#internalStatusMaster option[value='billamendmentmotion_recommend_sendback']").text();			
 		    var discuss=$("#internalStatusMaster option[value='billamendmentmotion_recommend_discuss']").text();
-		    var translate=$("#internalStatusMaster option[value='billamendmentmotion_recommend_translation']").text();
-		    var opinion_from_lawandjd=$("#internalStatusMaster option[value='billamendmentmotion_recommend_opinionFromLawAndJD']").text();
+		    var clubbingPostAdmission = $("#internalStatusMaster option[value='billamendmentmotion_recommend_clubbingPostAdmission']").text();
+			var unclubbing = $("#internalStatusMaster option[value='billamendmentmotion_recommend_unclubbing']").text();
+			var admitDueToReverseClubbing = $("#internalStatusMaster option[value='billamendmentmotion_recommend_admitDueToReverseClubbing']").text();			
+		    var level=$("#oldLevel").val();
+		    if(value==translate || value==opinion_from_lawandjd) {
+		    	level=$("#oldLevelForAuxillaryWorkflow").val();
+		    }
 		    var params="billamendmentmotion="+$("#id").val()+"&status="+value+
-			"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
+			"&usergroup="+$("#usergroup").val()+"&level="+level;
 			var resourceURL='ref/billamendmentmotion/actors?'+params;
 			$.post(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''&&data.length!=0){
@@ -129,7 +174,7 @@
 						$("#customStatus").val(value);
 						$("#internalStatus").val($("#oldInternalStatus").val());
 			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());			    		
-					} else if(value==sendback || value==discuss) {
+					} else if(value==sendback || value==discuss || value==clubbingPostAdmission || value==unclubbing || value==admitDueToReverseClubbing) {
 						$("#internalStatus").val($("#oldInternalStatus").val());
 						$("#recommendationStatus").val(value);							
 					} else {
@@ -139,8 +184,13 @@
 					/**** setting level,localizedActorName ****/
 					var actor1=data[0].id;
 					var temp=actor1.split("#");
-					$("#level").val(temp[2]);		    
-					$("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+					if(value==translate || value==opinion_from_lawandjd) {
+						 $("#levelForAuxillaryWorkflow").val(temp[2]);		    
+						 $("#localizedActorNameForAuxillaryWorkflow").val(temp[3]+"("+temp[4]+")");
+					 } else {
+						 $("#level").val(temp[2]);		    
+						 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+					 }					
 				}else{
 					$("#actor").empty();
 					$("#actorDiv").hide();
@@ -148,7 +198,7 @@
 						$("#customStatus").val(value);
 						$("#internalStatus").val($("#oldInternalStatus").val());
 			    		$("#recommendationStatus").val($("#oldRecommendationStatus").val());			    		
-					} else if(value==sendback || value==discuss) {
+					} else if(value==sendback || value==discuss || value==clubbingPostAdmission || value==unclubbing || value==admitDueToReverseClubbing) {
 						$("#internalStatus").val($("#oldInternalStatus").val());
 						$("#recommendationStatus").val(value);							
 					} else {
@@ -163,6 +213,11 @@
 					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 				}
 				//resetControls();
+				if(value==translate || value==opinion_from_lawandjd) {
+			    	$("#levelForAuxillaryWorkflow").val($("#oldLevelForAuxillaryWorkflow").val());
+			    } else {
+			    	$("#level").val($("#oldLevel").val());
+			    }
 				scrollTop();
 			});
 			}else{
@@ -170,7 +225,12 @@
 				$("#actorDiv").hide();				
 				$("#internalStatus").val($("#oldInternalStatus").val());
 			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
-			    $("#customStatus").val("");
+			    $("#customStatus").val("");		
+			    if(value==translate || value==opinion_from_lawandjd) {
+			    	$("#levelForAuxillaryWorkflow").val($("#oldLevelForAuxillaryWorkflow").val());
+			    } else {
+			    	$("#level").val($("#oldLevel").val());
+			    }
 			}
 		}
 		//----------------------revise section amendment script----------------------//
@@ -184,7 +244,7 @@
 			});
 			$('.revisedSectionAmendment_sectionNumber').each(function() {
 				var currentLanguage = this.id.split("_")[3];
-				if($('#revisedSectionAmendment_sectionNumber_Para_'+currentLanguage).css('display')=='none') {	
+				if($('#revisedSectionAmendment_sectionNumber_Para_'+currentLanguage).css('display')=='none') {						
 					$(this).val("");
 				}				
 			});
@@ -222,13 +282,19 @@
 			$("#actor").change(function(){
 			    var actor=$(this).val();
 			    var temp=actor.split("#");
-			    $("#level").val(temp[2]);		    
-			    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+			    if(value==translate || value==opinion_from_lawandjd) {
+			    	$("#levelForAuxillaryWorkflow").val(temp[2]);		    
+				    $("#localizedActorNameForAuxillaryWorkflow").val(temp[3]+"("+temp[4]+")");
+			    } else {
+			    	$("#level").val(temp[2]);		    
+				    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+			    }			    
 		    });		
 			
 			/**** Back To Bill Amendment Motion ****/
 			$("#backToBillAmendmentMotion").click(function(){
-				$("#clubbingResultDiv").hide();				
+				$("#clubbingResultDiv").hide();	
+				$("#referencingResultDiv").hide();
 				$("#assistantDiv").show();
 				//Hide update success/failure message on coming back to bill amendment motion
 				$(".toolTip").hide();
@@ -464,11 +530,10 @@
 				clearUnrevisedSectionAmendments();
 				var admit=$("#internalStatusMaster option[value='billamendmentmotion_recommend_admission']").text();			
 				var reject=$("#internalStatusMaster option[value='billamendmentmotion_recommend_rejection']").text();
-				var nameclub=$("#internalStatusMaster option[value='billamendmentmotion_recommend_nameclubbing']").text();
 				var translate=$("#internalStatusMaster option[value='billamendmentmotion_recommend_translation']").text();
 				var opinion_from_lawandjd=$("#internalStatusMaster option[value='billamendmentmotion_recommend_opinionFromLawAndJD']").text();
 				var actionForUpdation = $('#changeInternalStatus').val();				
-				if(actionForUpdation!=undefined && actionForUpdation!='-') {
+				if(actionForUpdation != undefined && actionForUpdation != "" && actionForUpdation != '-') {
 					var promptMessage="";
 					var operation="";
 					if(actionForUpdation==translate) {
@@ -477,9 +542,6 @@
 					} else if(actionForUpdation==opinion_from_lawandjd) {
 						promptMessage = $('#sendForOpinionFromLawAndJDMessage').val();
 						operation = "sendForOpinionFromLawAndJD";
-					} else if(actionForUpdation==nameclub) {
-						promptMessage = $('#sendForNameclubbingPrompt').val();
-						operation = "sendForNameclubbing";
 					} else if(actionForUpdation==admit || actionForUpdation==reject) {
 						if($('#opinionSoughtFromLawAndJD').val()=='') {
 							$.prompt("Opinion is not received yet from Law & Judiciary Department. So Motion cannot be put up.");
@@ -503,6 +565,9 @@
 							promptMessage = $('#startWorkflowMessage').val();
 							operation = "startworkflow";
 						}						
+					} else {
+						promptMessage = $('#startWorkflowMessage').val();
+						operation = "startworkflow";
 					}
 					$.prompt(promptMessage,{
 						buttons: {Ok:true, Cancel:false}, callback: function(v){
@@ -528,7 +593,93 @@
 						$.unblockUI();
 					});
 				}			
-			});			
+			});		
+		    
+			/**** To show/hide viewClubbedBillAmendmentMotionTextsDiv to view clubbed bill amendment motion's text starts****/
+			$("#clubbedBillAmendmentMotionTextsDiv").hide();
+			$("#hideClubMTDiv").hide();
+			$("#viewClubbedBillAmendmentMotionTextsDiv").click(function(){
+				var parent = $("#key").val();
+				if(parent==undefined || parent==''){
+					parent = ($("#id").val()!=undefined && $("#id").val()!='')? $("#id").val():"";
+				}
+				if(parent!=undefined && parent!=''){			
+					
+					if($("#clubbedBillAmendmentMotionTextsDiv").css('display')=='none'){
+						$("#clubbedBillAmendmentMotionTextsDiv").empty();
+						$.get('ref/billamendmentmotion/'+parent+'/clubbedmotiontext',function(data){
+							
+							var text="";
+							
+							for(var i = 0; i < data.length; i++){
+								text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
+							}						
+							$("#clubbedBillAmendmentMotionTextsDiv").html(text);
+							
+						});	
+						$("#hideClubMTDiv").show();
+						$("#clubbedBillAmendmentMotionTextsDiv").show();
+					}else{
+						$("#clubbedBillAmendmentMotionTextsDiv").hide();
+						$("#hideClubMTDiv").hide();
+					}
+				}
+			});
+			$("#hideClubMTDiv").click(function(){
+				$(this).hide();
+				$('#clubbedBillAmendmentMotionTextsDiv').hide();
+			});
+			/**** To show/hide viewClubbedBillAmendmentMotionTextsDiv to view clubbed bill amendment motion's text end****/
+			
+			/**** Right Click Menu ****/
+			$(".clubbedRefMotions").contextMenu({
+		        menu: 'contextMenuItems'
+		    },
+		        function(action, el, pos) {
+				var id=$(el).attr("id");
+				if(action=='unclubbing'){
+					if(id.indexOf("cq")!=-1){
+					var motionId=$("#id").val();
+					var clubId=id.split("cq")[1];				
+					$.post('clubentity/unclubbing?pId='+motionId+"&cId="+clubId+"&whichDevice=motions_billamendment_"+"&usergroupType="+$("#currentusergroupType").val(),function(data){
+						$.prompt(data,{callback: function(v){ 
+										refreshEdit(motionId);
+										}
+						});					
+					},'html').fail(function(){
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						scrollTop();
+					});	
+					}else{
+						$.prompt("Unclubbing not allowed");
+					}			
+				}else if(action=='dereferencing'){
+					if(id.indexOf("rq")!=-1){					
+					var motionId=$("#id").val();
+					var refId=id.split("rq")[1];				
+					$.post('refentity/billamendmentmotion/dereferencing?pId='+motionId+"&rId="+refId,function(data){
+						if(data=='SUCCESS'){
+							$.prompt("Dereferencing Successful");				
+							}else{
+								$.prompt("Dereferencing Failed");
+							}							
+					},'html').fail(function(){
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						scrollTop();
+					});	
+					}else{
+						$.prompt("De-Referencing not allowed");					
+					}			
+				}
+		    });
 		});		
 	</script>
 </head>
@@ -624,24 +775,24 @@
 		</p>
 		</c:if>
 		<c:choose>	
-			<c:when test="${empty parent}"><c:set var="displayParentBill" value="none"/></c:when>
-			<c:otherwise><c:set var="displayParentBill" value="inline"/></c:otherwise>		
+			<c:when test="${empty parent}"><c:set var="displayParentMotion" value="none"/></c:when>
+			<c:otherwise><c:set var="displayParentMotion" value="inline"/></c:otherwise>		
 		</c:choose>
-		<p style="display: ${displayParentBill};">
+		<p style="display: ${displayParentMotion};">
 			<label class="small"><spring:message code="billamendmentmotion.parentBillAmendmentMotion" text="Clubbed To"></spring:message></label>
-			<a href="#" id="p${parent}" onclick="viewBillDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>						
+			<a href="#" id="p${parent}" onclick="viewBillAmendmentMotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>						
 			<input type="hidden" id="parent" name="parent" value="${parent}">
 		</p>		
 		<c:choose>	
-			<c:when test="${empty clubbedBillsToShow}"><c:set var="displayClubbedBillsToShow" value="none"/></c:when>
-			<c:otherwise><c:set var="displayClubbedBillsToShow" value="inline"/></c:otherwise>		
+			<c:when test="${empty clubbedMotionsToShow}"><c:set var="displayClubbedMotionsToShow" value="none"/></c:when>
+			<c:otherwise><c:set var="displayClubbedMotionsToShow" value="inline"/></c:otherwise>		
 		</c:choose>
-		<p style="display: ${displayClubbedBillsToShow};">
-			<label class="small"><spring:message code="billamendmentmotion.clubbedbills" text="Clubbed Bills"></spring:message></label>
+		<p style="display: ${displayClubbedMotionsToShow};">
+			<label class="small"><spring:message code="billamendmentmotion.clubbedmotions" text="Clubbed Motions"></spring:message></label>
 			<c:choose>
-				<c:when test="${!(empty clubbedBillsToShow) }">
-					<c:forEach items="${clubbedBillsToShow}" var="i">
-						<a href="#" id="cq${i.number}" class="clubbedRefBills" onclick="viewBillDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+				<c:when test="${!(empty clubbedMotionsToShow) }">
+					<c:forEach items="${clubbedMotionsToShow}" var="i">
+						<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewBillAmendmentMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
@@ -649,7 +800,7 @@
 				</c:otherwise>
 			</c:choose>
 			<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
-				<c:forEach items="${clubbedBills }" var="i">
+				<c:forEach items="${clubbedMotionsToShow}" var="i">
 					<option value="${i.id}" selected="selected"></option>
 				</c:forEach>
 			</select>
@@ -778,6 +929,7 @@
 			<label class="small"><spring:message code="bill.currentStatus" text="Current Status"/></label>
 			<input id="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 		</p>
+		<security:authorize access="hasAnyRole('BAMOIS_ASSISTANT')">
 		<p id="changeInternalStatusPara">
 			<label class="small"><spring:message code="bill.putupfor" text="Put up for"/></label>
 			<select id="changeInternalStatus" class="sSelect">
@@ -802,6 +954,7 @@
 			</select>	
 			<form:errors path="internalStatus" cssClass="validationError"/>	
 		</p>
+		</security:authorize>
 		<p id="actorDiv">
 		<label class="small"><spring:message code="bill.nextactor" text="Next Users"/></label>
 		<select id="actor" name="actor" class="sSelect">
@@ -809,7 +962,6 @@
 				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
 			</c:forEach>					
 		</select>	
-		<input type="hidden" id="localizedActorName" name="localizedActorName">
 		</p>
 		<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 		<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
@@ -835,11 +987,19 @@
 		<form:hidden path="id"/>
 		<form:hidden path="locale"/>
 		<form:hidden path="remarksForTranslation"/>
+		<form:hidden path="workflowStarted"/>	
+		<form:hidden path="endFlag" value="${not empty domain.endFlag? domain.endFlag : 'continue'}"/>
+		<form:hidden path="level"/>
+		<form:hidden path="localizedActorName"/>
+		<form:hidden path="workflowDetailsId"/>
 		<form:hidden path="file"/>
 		<form:hidden path="fileIndex"/>	
 		<form:hidden path="fileSent"/>
-		<input id="level" name="level" value="${level}" type="hidden">
-		<input id="endflag" name="endflag" value="continue" type="hidden">
+		<input id="oldLevel" name="oldLevel" value="${not empty level? level : 1}" type="hidden">
+		<input id="levelForAuxillaryWorkflow" name="levelForAuxillaryWorkflow" value="1" type="hidden">
+		<input id="oldLevelForAuxillaryWorkflow" name="oldLevelForAuxillaryWorkflow" value="1" type="hidden">
+		<input id="localizedActorNameForAuxillaryWorkflow" name="localizedActorNameForAuxillaryWorkflow" type="hidden">
+		<input id="endFlagForAuxillaryWorkflow" name="endFlagForAuxillaryWorkflow" value="continue" type="hidden">		
 		<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 		<input type="hidden" name="status" id="status" value="${status }">
 		<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
@@ -867,7 +1027,7 @@
 		<input id="sendForTranslationMessage" name="sendForTranslationMessage" value="<spring:message code='bill.sendForTranslationMessage' text='Do You Want To Send for Translation of Selected Fields in remarks?'></spring:message>" type="hidden">
 		<input id="sendForOpinionFromLawAndJDMessage" name="sendForOpinionFromLawAndJDMessage" value="<spring:message code='bill.sendForOpinionFromLawAndJDMessage' text='Do You Want To Send for Opinion Seeking From Law And Judiciary Department?'></spring:message>" type="hidden">
 		<input id="sendForNameclubbingPrompt" value="<spring:message code='bill.sendForNameclubbingPrompt' text='Do You Want To Send for Name Clubbing?'></spring:message>" type="hidden">
-		<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='bill.startworkflowmessage' text='Do You Want To Put Up Bill?'></spring:message>" type="hidden">
+		<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='bill.startworkflowmessage' text='Do You Want To Put Up Motion?'></spring:message>" type="hidden">
 		<input id="translationPendingMessage" value="<spring:message code='bill.translationPendingMessage' text='Translation is neither received or timed out.. So Bill cannot be put up.'></spring:message>" type="hidden">
 		<input id="startWorkflowDespiteTranslationPendingMessage" name="startWorkflowDespiteTranslationPendingMessage" value="<spring:message code='bill.startWorkflowDespiteTranslationPendingMessage' text='Translation is Pending..Still Do You Want To Put Up Bill?'></spring:message>" type="hidden">
 		<input id="remarksCompulsoryWhenPutupForRejectionMessage" value="<spring:message code='bill.remarksCompulsoryWhenPutupForRejectionMessage' text='Remarks are compulsory when putup for rejection.. So Bill cannot be put up.'></spring:message>" type="hidden">		
@@ -882,10 +1042,21 @@
 		
 		<ul id="contextMenuItems">
 			<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
+			<li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
 		</ul>
 		</div>
 	</div>	
 	<div id="clubbingResultDiv" style="display:none;">
+	</div>
+	<!--To show the motion texts of the clubbed motions -->
+	<div id="clubbedBillAmendmentMotionTextsDiv">
+		<h1>		
+			<spring:message code="billamendmentmotion.clubbedMotionTexts" text="Motion texts of clubbed motions:"></spring:message>
+		</h1>
+	</div>
+	<div id="hideClubMTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
+	
+	<div id="referencingResultDiv" style="display:none;">
 	</div>
 </body>
 </html>

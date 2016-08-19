@@ -25,7 +25,8 @@
 	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
 			if(data.length>0){
@@ -73,8 +74,8 @@
 			minLength:3,			
 			source:'ref/member/supportingmembers?session='+$("#session").val(),
 			select:function(event,ui){			
-			$("#primaryMember").val(ui.item.id);
-		}	
+				$("#primaryMember").val(ui.item.id);
+			}	
 		});			
 		$("select[name='"+controlName+"']").hide();			
 		$( ".autosuggestmultiple" ).change(function(){
@@ -244,9 +245,11 @@
 			var checkVal = $(this).attr('checked');
 			if(checkVal=='checked'){
 				$("#currentMemberDiv").css({'display':'none'});
+				$("#constituencyOfPersonDiv").css({'display':'inline'});
 				$("#exMemberDiv").css({'display':'inline-block'});
 			}else{
 				$("#currentMemberDiv").css({'display':'inline-block'});
+				$("#constituencyOfPersonDiv").css({'display':'none'});
 				$("#exMemberDiv").css({'display':'none'});
 			}
 		});
@@ -385,19 +388,24 @@
 						<form:errors path="supportingMembers" cssClass="validationError"/>	
 					</p>			
 				</c:if>
-				<div>
+								
+				<div>	
+									
 					<p style="display: inline-block;">
 						<label class="small"><spring:message code="eventmotion.designationOfPerson" text="Designation"/>*</label>
 						<input name="designationOfPerson" id="designationOfPerson" type="text" value="${domain.designationOfPerson}" class="sText">		
 						<form:errors path="designationOfPerson" cssClass="validationError"/>
 					</p>
 					
-					<p style="display: inline-block;">
-						<label class="small"><spring:message code="eventmotion.constituencyOfPerson" text="Contituency"/>*</label>
-						<input name="constituencyOfPerson" id="constituencyOfPerson" type="text" value="${domain.constituencyOfPerson}" class="sText">		
-						<form:errors path="constituencyOfPerson" cssClass="validationError"/>		
-					</p>
+					<div id="constituencyOfPersonDiv" style="display: none;">
+						<p style="display: inline-block;">
+							<label class="small"><spring:message code="eventmotion.constituencyOfPerson" text="Contituency"/>*</label>
+							<input name="constituencyOfPerson" id="constituencyOfPerson" type="text" value="${domain.constituencyOfPerson}" class="sText" readonly="readonly">		
+							<form:errors path="constituencyOfPerson" cssClass="validationError"/>		
+						</p>
+					</div>
 				</div>
+				
 				<div>
 					<p style="display: inline-block;">
 						<label class="small"><spring:message code="eventmotion.tenureOfPerson" text="Tenure"/>*</label>
@@ -429,7 +437,7 @@
 				
 				<p>
 					<label class="wysiwyglabel"><spring:message code="eventmotion.description" text="Descrtiption"/>*</label>
-					<form:textarea path="description" cssClass="wysiwyg"></form:textarea>
+					<form:textarea path="description" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 					<form:errors path="description" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 				</p>	
 										
@@ -447,7 +455,7 @@
 				</p>
 				
 				<c:if test="${selectedMotionType=='motions_eventmotion_condolence'}">
-					<p>
+					<p style="display: inline-block;">
 						<label class="small"><spring:message code="eventmotion.collectorReport" text="Collector Report"/></label>
 						<span id="image_gallery" style="display: inline;margin: 0px;padding: 0px;">
 							<img alt="" src="" id="image_photo" width="70" height="70">
@@ -468,7 +476,26 @@
 						<form:errors path="collectorReport" cssClass="validationError" />
 					</p>			
 				</c:if>	
+				
+				<p style="display: inline-block;">
+					<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+					<form:select path="discussionDate" cssClass="datemask sSelect" >
+						<option value="">---<spring:message code='please.select' text='Please Select'/>---</option>
+						<c:forEach items="${discussionDates}" var="i">
+							<c:choose>
+								<c:when  test="${i.value==discussionDateSelected}">
+									<option value="${i.value}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.value}">${i.name}</option>
+								</c:otherwise>					
+							</c:choose>
+						</c:forEach>					
+					</form:select>
+					<form:errors path="discussionDate" cssClass="validationError"/>
+				</p>
 			</div>	
+			
 			 <div class="fields">
 				<h2></h2>
 				<p class="tright">

@@ -111,44 +111,57 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
-		var params="eventmotion="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#level").val();
-		var resourceURL='ref/eventmotion/actors?'+params;
-	    var sendback=$("#internalStatusMaster option[value='eventmotion_recommend_sendback']").text();			
-	    var discuss=$("#internalStatusMaster option[value='eventmotion_recommend_discuss']").text();		
-		$.get(resourceURL,function(data){
-			if(data!=undefined||data!=null||data!=''){
-				var length=data.length;
-				$("#actor").empty();
-				var text="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
-				for(var i=0;i<data.length;i++){
-					if(i!=0){
-						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
-					}else{
-						text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+			
+			var oldValue = value;
+			var sendback=$("#internalStatusMaster option[value='eventmotion_recommend_sendback']").text();			
+		    var discuss=$("#internalStatusMaster option[value='eventmotion_recommend_discuss']").text();
+		    var sendToSectionOfficer=$("#internalStatusMaster option[value='eventmotion_processed_sendToSectionOfficer']").text().trim();
+			    
+		    if(value==sendback){
+		    	value=sendback;
+		    }else if(value==discuss){
+		    	value=discuss;
+		    }else{
+		    	value=$("#oldInternalStatus").val().trim();
+		    }
+		    
+			var params="eventmotion="+$("#id").val()+"&status="+value+
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
+			var resourceURL='ref/eventmotion/actors?'+params;
+				
+			$.get(resourceURL,function(data){
+				if(data!=undefined||data!=null||data!=''){
+					var length=data.length;
+					$("#actor").empty();
+					var text="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
+					for(var i=0;i<data.length;i++){
+						if(i!=0){
+							text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						}else{
+							text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+						}
 					}
+					$("#actor").html(text);
+					$("#actorDiv").show();				
+					/**** in case of sendback and discuss only recommendation status is changed ****/
+					if(value!=sendback&&value!=discuss){
+						$("#internalStatus").val(value);
+					}
+					$("#recommendationStatus").val(oldValue);	
+					/**** setting level,localizedActorName ****/
+					 var actor1=data[0].id;
+					 var temp=actor1.split("#");
+					 $("#level").val(temp[2]);		    
+					 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");					
+				}else{
+					$("#actor").empty();
+					$("#actorDiv").hide();
+					/**** in case of sendback and discuss only recommendation status is changed ****/
+					if(value!=sendback&&value!=discuss){
+						$("#internalStatus").val(value);
+					}
+				    $("#recommendationStatus").val(oldValue);
 				}
-				$("#actor").html(text);
-				$("#actorDiv").show();				
-				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
-				$("#internalStatus").val(value);
-				}
-				$("#recommendationStatus").val(value);	
-				/**** setting level,localizedActorName ****/
-				 var actor1=data[0].id;
-				 var temp=actor1.split("#");
-				 $("#level").val(temp[2]);		    
-				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");					
-			}else{
-				$("#actor").empty();
-				$("#actorDiv").hide();
-				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
-				$("#internalStatus").val(value);
-				}
-			    $("#recommendationStatus").val(value);
-			}
 		}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -166,7 +179,8 @@
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -453,7 +467,7 @@
 <div class="fields clearfix watermark">
 
 <div id="assistantDiv">
-<form:form action="eventmotion" method="PUT" modelAttribute="domain">
+<form:form action="workflow/eventmotion" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
 	<h2>${formattedMotionType}: ${formattedNumber}</h2>
 	<form:errors path="version" cssClass="validationError"/>
@@ -531,6 +545,24 @@
 			<input name="eventDate" id="eventDate" type="hidden" value="${eventDate}">		
 			<form:errors path="eventDate" cssClass="validationError"/>
 		</p>
+		
+		<p style="display: inline-block;">
+			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+			<select name="discussionDate" id="discussionDate" class="sSelect">
+				<option value="">--<spring:message code="please.select" text="Select"/>--</option>
+				<c:forEach items="${discussionDates}" var="i">
+					<c:choose>
+						<c:when test="${i.value==discussionDateSelected }">
+							<option value="${i.value}" selected="selected">${i.name}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${i.value}" >${i.name}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</select>
+			<form:errors path="discussionDate" cssClass="validationError"/>
+		</p>
 	</div>
 		
 	<c:choose>
@@ -587,21 +619,22 @@
 		</p>	
 	</c:if>
 		
-	<c:if test="${!(empty parent)}">	
-		<p>
-			<label class="small"><spring:message code="cutmotion.parentmotion" text="Clubbed To"></spring:message></label>
-			<a href="#" id="p${parent}" onclick="viewmotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
+	<p>
+		<label class="small"><spring:message code="eventmotion.parentmotion" text="Clubbed To"></spring:message></label>
+		<c:if test="${!(empty parent)}">
+			<a href="#" id="p${parent}" onclick="viewEventMotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 			<input type="hidden" id="parent" name="parent" value="${parent}">
-		</p>
-	</c:if>	
+		</c:if>
+	</p>	
 	
-	<c:if test="${!(empty clubbedEntities) }">
-		<p>
-			<label class="small"><spring:message code="generic.clubbed" text="Clubbed Motions"></spring:message></label>
+	<p>
+		<label class="small"><spring:message code="generic.clubbed" text="Clubbed Motions"></spring:message></label>
+		<c:if test="${!(empty clubbedEntities) }">
+			
 			<c:choose>
 				<c:when test="${!(empty clubbedEntities) }">
 					<c:forEach items="${clubbedEntities }" var="i">
-						<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						<a href="#" id="cq${i.number}" class="clubbedRefMotions" onclick="viewEventMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
@@ -613,16 +646,16 @@
 					<option value="${i.id}" selected="selected"></option>
 				</c:forEach>
 			</select>
-		</p>
-	</c:if>
-		
+		</c:if>
+	</p>	
+	
 	<c:if test="${!(empty referencedMotions) }">		
 		<p>
 			<label class="small"><spring:message code="cutmotion.referencedmotions" text="Referenced Motions"></spring:message></label>
 			<c:choose>
 				<c:when test="${!(empty referencedMotions) }">
 					<c:forEach items="${referencedMotions }" var="i">
-						<a href="#" id="rq${i.number}" class="clubbedRefMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+						<a href="#" id="rq${i.number}" class="clubbedRefMotions" onclick="viewEventMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
@@ -753,9 +786,11 @@
 		<label class="wysiwyglabel"><spring:message code="eventmotion.revisedDescription" text="Revised Description"/></label>
 		<form:textarea path="revisedDescription" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="revisedDescription" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>	
+	</p>
+	
+	<c:if test="${workflowstatus=='PENDING'}">	
 	<div>		
-		<p style="display: inline-block;">	
+		<p style="display: inline-block;">
 			<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
 			<select id="changeInternalStatus" class="sSelect">
 				<option value="-"><spring:message code='please.select' text='Please Select'/></option>
@@ -784,6 +819,7 @@
 			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
 		</p>
 	</div>
+	</c:if>
 	
 	<p>
 		<label class="wysiwyglabel"><spring:message code="generic.remarks" text="Remarks"/></label>
@@ -791,20 +827,20 @@
 		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
 	</p>	
 	
+	<c:if test="${workflowstatus=='PENDING'}">
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">		
 			<c:if test="${bulkedit!='yes'}">
-				<c:if test="${internalStatusType=='eventmotion_submit'}">
-					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<input id="startworkflow" type="button" value="<spring:message code='eventmotion.putupmotion' text='Put Up Motion'/>" class="butDef">
-				</c:if>
+				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 			</c:if>
 			<c:if test="${bulkedit=='yes'}">
 				<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
 			</c:if>
 		</p>
 	</div>
+	</c:if>
+	
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -841,6 +877,7 @@
 <input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
+<input id="originalLevel" type="hidden" value="${level}" />
 
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

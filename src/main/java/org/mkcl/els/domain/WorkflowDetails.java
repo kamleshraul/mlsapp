@@ -1,6 +1,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -10,20 +11,19 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.repository.WorkflowDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name="workflow_details")
 public class WorkflowDetails extends BaseDomain implements Serializable{
-
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 	
 	private String processId;
@@ -32,6 +32,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	private String assigner;
 	
+	@Column(length=100)
 	private String assignee;
 	
 	private String assignerUserGroupType;
@@ -63,7 +64,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	private String status;
 	
 	/**** For question's approval workflow and supporting member workflow ****/
-	@Column(length=100)
+	@Column(length=60)
 	private String deviceId;
 	
 	@Column(length=100)
@@ -72,7 +73,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	@Column(length=100)
 	private String assigneeDraftId;
 	
-	@Column(length=200)
+	@Column(length=150)
 	private String deviceType;
 	
 	@Column(length=100)
@@ -90,11 +91,14 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	@Column(length=1000)
 	private String customStatus;
 	
+	@Column(length=150)
 	private String houseType;
 	
+	@Column(length=150)
 	private String sessionType;
 	
-	private String sessionYear;	
+	@Column(length=30)
+	private String sessionYear;
 	
 	@Column(length=10000)
 	private String remarks;
@@ -141,10 +145,15 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	@Column(length=1000)
 	private String defaultAmendedSectionNumberInfo;
-	//================================================
 	
-	/**** Attributes for Non Device Types viz, Committee ****/
-	// Comma separated Ids
+	/**** Attributes for adjournment motion ****/
+	@Temporal(TemporalType.DATE)
+	private Date adjourningDate;
+	
+	@Transient
+	private String formattedAdjourningDate;
+	
+	/**** Attributes for Non Device Types viz, Committee. Comma separated Ids ****/
 	@Column(length=1000)
 	private String domainIds;
 		
@@ -161,10 +170,13 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	
 	private String decisionRecommendStatus;
 	
+	@Transient
+	private String decisionStatusForMyTaskGrid;
+	
 	@Autowired
     private transient WorkflowDetailsRepository workflowDetailsRepository;
 	
-	public static WorkflowDetailsRepository getWorkflowDetailsRepository() {
+	private static WorkflowDetailsRepository getRepository() {
 		WorkflowDetailsRepository workflowDetailsRepository = new WorkflowDetails().workflowDetailsRepository;
         if (workflowDetailsRepository == null) {
             throw new IllegalStateException(
@@ -173,221 +185,674 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
         return workflowDetailsRepository;
     }
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Device device, DeviceType deviceType, String workflowType) throws ELSException {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(device, deviceType, workflowType);
-	}
-
-	public static WorkflowDetails create(final Question question,final Task task,final String workflowType,
+	// Creation methods
+	public static WorkflowDetails create(final Question question, 
+			final Task task,
+			final String workflowType,
 			final String assigneeLevel) throws ELSException {
-		return getWorkflowDetailsRepository().create(question,task,workflowType,assigneeLevel);
+		return getRepository().create(question, task, workflowType, assigneeLevel);
 	}
 	
-	public static WorkflowDetails create(final Resolution resolution,final Task task,final String workflowType,
-			final String assigneeLevel, final HouseType houseTypeForWorkflow) throws ELSException {
-		return getWorkflowDetailsRepository().create(resolution,task,workflowType,
-				assigneeLevel, houseTypeForWorkflow);
+	public static WorkflowDetails create(final Question question, 
+			final Task newtask,
+			final UserGroupType usergroupType, 
+			final String currentDeviceTypeWorkflowType,
+			final String level) throws ELSException {
+		return getRepository().create(question, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
 	}
 	
-	public static WorkflowDetails find(final Map<String, Object[]> fieldValuePair, final String locale){
-		return getWorkflowDetailsRepository().find(fieldValuePair, locale);
+	public static List<WorkflowDetails> create(final Question question,
+			final List<Task> tasks,
+			final String workflowType,
+			final String assigneeLevel) throws ELSException {
+		return getRepository().create(question, tasks, workflowType, assigneeLevel);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static WorkflowDetails create(final Resolution resolution,
+			final Task task,
+			final String workflowType,
+			final String assigneeLevel, 
+			final HouseType houseTypeForWorkflow) throws ELSException {
+		return getRepository().create(resolution, task, workflowType, assigneeLevel, houseTypeForWorkflow);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.BILL_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	/**** Bill Related @param customStatus TODO****/
+	public static WorkflowDetails create(final Bill bill,
+			final Task task,
+			final String workflowType,
+			final String customStatus, 
+			final String userGroupType, 
+			final String assigneeLevel) {
+		return getRepository().create(bill, task, workflowType, customStatus, userGroupType, assigneeLevel);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.BILL_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static WorkflowDetails create(final Bill bill,
+			final HouseType houseType,
+			final Boolean isActorAcrossHouse,
+			final PrintRequisition printRequisition,
+			final Task task,
+			final String workflowType,
+			final String userGroupType, 
+			final String assigneeLevel) {
+		return getRepository().create(bill, houseType, isActorAcrossHouse, printRequisition, task, workflowType, userGroupType, assigneeLevel);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.BILL_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static List<WorkflowDetails> create(final Bill bill,
+			final List<Task> tasks,
+			final String workflowType,
+			final String customStatus, 
+			final String assigneeLevel) {
+		return getRepository().create(bill, tasks, workflowType, customStatus, assigneeLevel);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.BILL_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static WorkflowDetails create(final BillAmendmentMotion bill,
+			final Task task,
+			final String workflowType,
+			final String customStatus, 
+			final String userGroupType, 
+			final String assigneeLevel) {
+		return getRepository().create(bill, task, workflowType, customStatus, userGroupType, assigneeLevel);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.BILL_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static List<WorkflowDetails> create(final BillAmendmentMotion billAmendmentMotion,
+			final List<Task> tasks,
+			final String workflowType,
+			final String customStatus, 
+			final String assigneeLevel) {
+		return getRepository().create(billAmendmentMotion, tasks, workflowType, customStatus, assigneeLevel);
+	}
+	
+	public static WorkflowDetails create(final BillAmendmentMotion billAmendmentMotion, 
+			 final Task newtask,
+			 final UserGroupType usergroupType, 
+			 final String currentDeviceTypeWorkflowType,
+			 final String level) 
+			 throws ELSException {
+		return getRepository().create(billAmendmentMotion, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
+	}
+	
+	public static WorkflowDetails create(final AdjournmentMotion adjournmentMotion, 
+										 final Task newtask,
+										 final UserGroupType usergroupType, 
+										 final String currentDeviceTypeWorkflowType,
+										 final String level) 
+										 throws ELSException {
+		return getRepository().create(adjournmentMotion, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
+	}
+	
+	public static List<WorkflowDetails> create(final AdjournmentMotion motion,
+											   final List<Task> tasks,
+											   final String workflowType,
+											   final String assigneeLevel) 
+											   throws ELSException, ParseException {
+		return getRepository().create(motion, tasks, workflowType, assigneeLevel);
+	}
+	
+	// Start Process
+	public static WorkflowDetails startProcess(final Question question, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final String locale) throws ELSException {
+		return getRepository().startProcess(question, processDefinitionKey, processWorkflow, locale);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final Question question, 
+			final String processDefinitionKey, 
+			final Status status, 
+			final String usergroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(question, processDefinitionKey, status, usergroupType, level, locale);
 	}
 
-	public static List<WorkflowDetails> create(final Question question,final List<Task> tasks,
-			final String workflowType,final String assigneeLevel) throws ELSException {
-		return getWorkflowDetailsRepository().create(question,tasks, workflowType,assigneeLevel);
+	public static WorkflowDetails startProcessAtGivenLevel(final Question question, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(question, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+			
+	//Complete task 
+	public static WorkflowDetails completeTask(final Question question) throws ELSException {
+		return getRepository().completeTask(question);
+	}
+		
+	// End Process
+//	public void endProcess() {
+//		getRepository().endProcess(this);
+//	}
+	
+	public static void endProcess(final WorkflowDetails wf) {
+		if(wf!=null && wf.getId()!=null) {
+			try {
+				getRepository().endProcess(wf);
+			} catch(Exception e) {
+				// Update WorkflowDetails
+				wf.setStatus("COMPLETED");
+				wf.setCompletionTime(new Date());
+				wf.merge();
+			}			
+		}		
 	}
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Motion motion) throws ELSException {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(motion);
+	// Retrieval methods
+	@SuppressWarnings("rawtypes")
+	public static List findCompleteness(final Session session,
+			final HouseType houseType,
+			final String deviceId,
+			final String locale){
+		return getRepository().findCompleteness(session, houseType, deviceId, locale);
 	}
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Question question) throws ELSException {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(question);
-	}
-	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution) throws ELSException {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(resolution);
-	}
-	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution, final String workflowHouseType) throws ELSException {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(resolution, workflowHouseType);
-	}
-
-	/**** Motion Related 
-	 * @throws ELSException ****/
-	public static List<WorkflowDetails> create(final Motion domain,final List<Task> tasks,
-			final String supportingMemberWorkflow, final String assigneeLevel) throws ELSException {		
-		return getWorkflowDetailsRepository().create(domain,tasks, supportingMemberWorkflow,assigneeLevel);
-	}
-
-	public static WorkflowDetails create(final Motion domain,final Task task,
-			final String workflowType,final String level) throws ELSException {
-		return getWorkflowDetailsRepository().create(domain,task,
-				workflowType,level);
-	}
-	
-	
-	/**** CutMotion Related 
-	 * @throws ELSException ****/
-	public static List<WorkflowDetails> create(final CutMotion domain,final List<Task> tasks,
-			final String supportingMemberWorkflow, final String assigneeLevel) throws ELSException {		
-		return getWorkflowDetailsRepository().create(domain, tasks, supportingMemberWorkflow,assigneeLevel);
-	}
-
-	public static WorkflowDetails create(final CutMotion domain,final Task task,
-			final String workflowType,final String level) throws ELSException {
-		return getWorkflowDetailsRepository().create(domain, task, workflowType,level);
-	}
-	
-	/***CutMotion related ****/
-	/* @throws ELSException ****/
-	/*public static List<WorkflowDetails> create(final CutMotion domain,final List<Task> tasks,
-			final String supportingMemberWorkflow, final String assigneeLevel) throws ELSException {		
-		return getWorkflowDetailsRepository().create(domain,tasks, supportingMemberWorkflow,assigneeLevel);
-	}*/
-
-	/*public static WorkflowDetails create(final CutMotion domain,final Task task,
-			final String workflowType,final String level) throws ELSException {
-		return getWorkflowDetailsRepository().create(domain,task, workflowType,level);
-	}*/
-	
-	/**** EventMotion Related 
-	 * @throws ELSException ****/
-	public static List<WorkflowDetails> create(final EventMotion domain,final List<Task> tasks,
-			final String supportingMemberWorkflow, final String assigneeLevel) throws ELSException {		
-		return getWorkflowDetailsRepository().create(domain, tasks, supportingMemberWorkflow,assigneeLevel);
-	}
-
-	public static WorkflowDetails create(final EventMotion domain,final Task task,
-			final String workflowType,final String level) throws ELSException {
-		return getWorkflowDetailsRepository().create(domain, task, workflowType,level);
+	public static Integer findIfWorkflowExists(final Session session,
+			final HouseType houseType,
+			final String deviceId,
+			final String workflowSubTypeInitial,
+			final String locale){
+		return getRepository().findIfWorkflowExists(session, houseType, deviceId, workflowSubTypeInitial, locale);				
 	}
 	
 	public static List<WorkflowDetails> findAll(final String strHouseType,
-			final String strSessionType,final String strSessionYear,final String strMotionType,
-			final String strStatus,final String strWorkflowSubType,final String assignee,
-			final String strItemsCount,final String strLocale,final String file) throws ELSException {
-		return getWorkflowDetailsRepository().findAll(strHouseType,
-				strSessionType,strSessionYear,strMotionType,
-				strStatus,strWorkflowSubType,assignee,
-				strItemsCount,strLocale,file);
+			final String strSessionType,
+			final String strSessionYear,
+			final String strMotionType,
+			final String strStatus,
+			final String strWorkflowSubType,
+			final String assignee,
+			final String strItemsCount,
+			final String strLocale) throws ELSException {
+		return getRepository().findAll(strHouseType, strSessionType, strSessionYear, strMotionType,
+				strStatus, strWorkflowSubType, assignee, strItemsCount, strLocale);
 	}
 	
 	public static List<WorkflowDetails> findAll(final String strHouseType,
-			final String strSessionType,final String strSessionYear,final String strMotionType,
-			final String strStatus,final String strWorkflowSubType,final String assignee,
-			final String strItemsCount,final String strLocale,final String file,final String group,final Date answeringDate) throws ELSException {
-		return getWorkflowDetailsRepository().findAll(strHouseType,
-				strSessionType,strSessionYear,strMotionType,
-				strStatus,strWorkflowSubType,assignee,
-				strItemsCount,strLocale,file,group,answeringDate);
+			final String strSessionType,
+			final String strSessionYear,
+			final String strMotionType,
+			final String strStatus,
+			final String strWorkflowSubType,
+			final String assignee,
+			final String strItemsCount,
+			final String strLocale,
+			final String file) throws ELSException {
+		return getRepository().findAll(strHouseType, strSessionType, strSessionYear, strMotionType,
+				strStatus, strWorkflowSubType, assignee, strItemsCount, strLocale, file);
+	}
+	
+	public static List<WorkflowDetails> findAll(final String strHouseType,
+			final String strSessionType,
+			final String strSessionYear,
+			final String strMotionType,
+			final String strStatus,
+			final String strWorkflowSubType,
+			final String assignee,
+			final String strItemsCount,
+			final String strLocale,
+			final String file,
+			final String group,
+			final Date answeringDate) throws ELSException {
+		return getRepository().findAll(strHouseType, strSessionType, strSessionYear, strMotionType,
+				strStatus, strWorkflowSubType, assignee, strItemsCount, strLocale, file, group, answeringDate);
 	}
 	
 	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUser(final Map<String, String> parameters, 
 			final String orderBy,
-			final String sortOrder){
-		return getWorkflowDetailsRepository().findPendingWorkflowOfCurrentUser(parameters, orderBy, sortOrder);
+			final String sortOrder) {
+		return getRepository().findPendingWorkflowOfCurrentUser(parameters, orderBy, sortOrder);
 	}
 	
 	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUserByAssignmentTimeRange(final Map<String, String> parameters,
 			final Date toDate,
 			final Date fromDate,
 			final String orderBy, 
-			final String sortOrder){
-		return getWorkflowDetailsRepository().findPendingWorkflowOfCurrentUserByAssignmentTimeRange(parameters, toDate, fromDate, orderBy, sortOrder);
+			final String sortOrder) {
+		return getRepository().findPendingWorkflowOfCurrentUserByAssignmentTimeRange(parameters, toDate, fromDate, orderBy, sortOrder);
 	}
 	
-	//kept to hide errors only method needs to be replaced with actual code
-	public static WorkflowDetails findCurrentWorkflowDetail(Device device, String houseTypeName){
+	public static WorkflowDetails find(final Map<String, Object[]> fieldValuePair, 
+			final String locale) {
+		return getRepository().find(fieldValuePair, locale);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final UserGroup userGroup, 
+			final String domainIds,
+			final String workflowType,
+			final String status,
+			final String locale) {
+		return getRepository().findCurrentWorkflowDetail(userGroup, domainIds, workflowType, status, locale);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final UserGroup userGroup, 
+			final String deviceId,
+			final String domainIds,
+			final String workflowType,
+			final String status,
+			final String locale) {
+		return getRepository().findCurrentWorkflowDetail(userGroup, deviceId, domainIds, workflowType, status, locale);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final Device device, 
+			final DeviceType deviceType, 
+			final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(device, deviceType, workflowType);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final Question question) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(question);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final Question question, 
+			final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(question, workflowType);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(resolution);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final Resolution resolution, 
+			final String workflowHouseType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(resolution, workflowHouseType);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final Bill bill, 
+			final String workflowType) {
+		return getRepository().findCurrentWorkflowDetail(bill, workflowType);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final BillAmendmentMotion billAmendmentMotion, 
+			final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(billAmendmentMotion, workflowType);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final Resolution resolution, 
+			final String workflowHouseType, 
+			final String processDefinitionKey, 
+			final Status status, 
+			final String usergroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(resolution, workflowHouseType, processDefinitionKey, status, usergroupType, level, locale);
+	}
+
+	/********************Motion*********************/
+	public static WorkflowDetails findCurrentWorkflowDetail(final Motion motion) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final Motion motion, final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion, workflowType);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final Motion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(motion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	public static WorkflowDetails startProcess(final Motion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final String locale) throws ELSException {
+		return getRepository().startProcess(motion, processDefinitionKey, processWorkflow, locale);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.MOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static List<WorkflowDetails> create(final Motion domain, 
+			final List<Task> tasks,
+			final String supportingMemberWorkflow, 
+			final String assigneeLevel) throws ELSException {		
+		return getRepository().create(domain, tasks, supportingMemberWorkflow, assigneeLevel);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.MOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static WorkflowDetails create(final Motion domain,
+			final Task task,
+			final String workflowType,
+			final String level) throws ELSException {
+		return getRepository().create(domain, task, workflowType, level);
+	}
+	
+	public static WorkflowDetails create(final Motion motion, 
+			final Task newtask,
+			final UserGroupType usergroupType, 
+			final String currentDeviceTypeWorkflowType,
+			final String level) throws ELSException {
+		return getRepository().create(motion, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
+	}
+	/********************Motion*********************/	
+	
+	/********************StandaloneMotion*********************/
+	public static WorkflowDetails findCurrentWorkflowDetail(final StandaloneMotion motion) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final StandaloneMotion motion, 
+			final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion, workflowType);
+	}
+	
+	public static WorkflowDetails startProcess(final StandaloneMotion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final String locale) throws ELSException {
+		return getRepository().startProcess(motion, processDefinitionKey, processWorkflow, locale);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final StandaloneMotion motion, 
+			final String processDefinitionKey, 
+			final Status status, 
+			final String usergroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(motion, processDefinitionKey, status, usergroupType, level, locale);
+	}
+
+	public static WorkflowDetails startProcessAtGivenLevel(final StandaloneMotion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(motion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.STANDALONEMOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static WorkflowDetails create(final StandaloneMotion motion,
+			final Task task,
+			final String workflowType,
+			final String assigneeLevel) throws ELSException {
+		return getRepository().create(motion, task, workflowType, assigneeLevel);
+	}
+		
+	public static List<WorkflowDetails> create(final StandaloneMotion motion,
+			final List<Task> tasks,
+			final String workflowType,
+			final String assigneeLevel) throws ELSException {
+		return getRepository().create(motion, tasks, workflowType, assigneeLevel);
+	}
+	public static WorkflowDetails create(final StandaloneMotion motion, 
+			final Task newtask,
+			final UserGroupType usergroupType, 
+			final String currentDeviceTypeWorkflowType,
+			final String level) throws ELSException {
+		return getRepository().create(motion, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
+	}
+	/**********************************StandaloneMotion*****************/
+	
+	/**********************************CutMotion***********************/
+	public static WorkflowDetails findCurrentWorkflowDetail(final CutMotion motion) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final CutMotion motion, final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion, workflowType);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final CutMotion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(motion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final DiscussionMotion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(motion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	public static WorkflowDetails startProcess(final CutMotion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final String locale) throws ELSException {
+		return getRepository().startProcess(motion, processDefinitionKey, processWorkflow, locale);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.CUTMOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static List<WorkflowDetails> create(final CutMotion domain,
+			final List<Task> tasks,
+			final String supportingMemberWorkflow, 
+			final String assigneeLevel) throws ELSException {		
+		return getRepository().create(domain, tasks, supportingMemberWorkflow, assigneeLevel);
+	}
+
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.CUTMOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static WorkflowDetails create(final CutMotion motion,
+			final Task task,
+			final UserGroupType usergroupType,
+			final String workflowType,
+			final String level) throws ELSException {
+		return getRepository().create(motion, task, usergroupType, workflowType, level);
+	}
+	
+	
+	public static WorkflowDetails create(final CutMotion motion,
+			final Task task,
+			final String workflowType,
+			final String level) throws ELSException {
+		return getRepository().create(motion, task, workflowType, level);
+	}
+	/******************************CutMotion**************************/
+	
+	/******************************EventMotion***********************/
+	public static WorkflowDetails findCurrentWorkflowDetail(final EventMotion motion) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final EventMotion motion, final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion, workflowType);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final EventMotion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(motion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	public static WorkflowDetails startProcess(final EventMotion motion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final String locale) throws ELSException {
+		return getRepository().startProcess(motion, processDefinitionKey, processWorkflow, locale);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.CUTMOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static List<WorkflowDetails> create(final EventMotion domain,
+			final List<Task> tasks,
+			final String supportingMemberWorkflow, 
+			final String assigneeLevel) throws ELSException {		
+		return getRepository().create(domain, tasks, supportingMemberWorkflow, assigneeLevel);
+	}
+
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.CUTMOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static WorkflowDetails create(final EventMotion motion,
+			final Task task,
+			final UserGroupType usergroupType,
+			final String workflowType,
+			final String level) throws ELSException {
+		return getRepository().create(motion, task, usergroupType, workflowType, level);
+	}
+	
+	
+	public static WorkflowDetails create(final EventMotion motion,
+			final Task task,
+			final String workflowType,
+			final String level) throws ELSException {
+		return getRepository().create(motion, task, workflowType, level);
+	}
+	/******************************EventMotion***********************/
+	
+	/******************************DiscussionMotion***********************/
+	public static WorkflowDetails findCurrentWorkflowDetail(final DiscussionMotion motion) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final DiscussionMotion motion, final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(motion, workflowType);
+	}
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.DISCUSSIONMOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static WorkflowDetails create(final DiscussionMotion domain, 
+			final Task newtask,
+			final String approvalWorkflow, 
+			final String level) throws ELSException {
+		return getRepository().create(domain, newtask, approvalWorkflow, level);
+	}
+	
+	/*
+	 * TODO: Open Call hierarchy on this method and wherever workflowType is passed as 
+	 * ApplicationConstants.DISCUSSIONMOTION_APPROVAL_WORKFLOW, change it to use Workflow.getType().
+	 * You can use Workflow.findByStatus(Status status, String locale) to get the workflow.
+	 */
+	public static List<WorkflowDetails> create(final DiscussionMotion domain,
+			final List<Task> tasks, 
+			final String supportingMemberWorkflow,
+			final String assigneeLevel2) throws ELSException {
+		return getRepository().create(domain, tasks, supportingMemberWorkflow,assigneeLevel2);
+	}
+	
+	public static WorkflowDetails create(final DiscussionMotion motion,
+			final Task task,
+			final UserGroupType usergroupType,
+			final String workflowType,
+			final String level) throws ELSException {
+		return getRepository().create(motion, task, usergroupType, workflowType, level);
+	}
+	/******************************DiscussionMotion***********************/
+	
+	/********************Adjournment Motion*********************/
+	public static WorkflowDetails findCurrentWorkflowDetail(final AdjournmentMotion adjournmentMotion) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(adjournmentMotion);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final AdjournmentMotion adjournmentMotion, 
+			final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(adjournmentMotion, workflowType);
+	}
+	
+	public static WorkflowDetails startProcess(final AdjournmentMotion adjournmentMotion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final String locale) throws ELSException {
+		return getRepository().startProcess(adjournmentMotion, processDefinitionKey, processWorkflow, locale);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final AdjournmentMotion adjournmentMotion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(adjournmentMotion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	/****************************** BillAmendment Motion ****************************/
+	public static WorkflowDetails findCurrentWorkflowDetail(final BillAmendmentMotion billAmendmentMotion) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(billAmendmentMotion);
+	}
+	
+	public static WorkflowDetails startProcess(final BillAmendmentMotion billAmendmentMotion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final String locale) throws ELSException {
+		return getRepository().startProcess(billAmendmentMotion, processDefinitionKey, processWorkflow, locale);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final BillAmendmentMotion billAmendmentMotion, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(billAmendmentMotion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	// TODO: Incomplete
+	// kept to hide errors only method needs to be replaced with actual code
+	public static WorkflowDetails findCurrentWorkflowDetail(final Device device, final String houseTypeName){
 		return null;
 	}
 	
-	public static WorkflowDetails findCurrentWorkflowDetail(
-			final UserGroup userGroup, 
-			final String domainIds,
-			final String workflowType,
-			final String status,
-			final String locale) {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
-				userGroup, domainIds, workflowType, status, locale);
-	}
-	
-	public static WorkflowDetails findCurrentWorkflowDetail(
-			final UserGroup userGroup, 
-			final String deviceId,
-			final String domainIds,
-			final String workflowType,
-			final String status,
-			final String locale) {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(
-				userGroup, deviceId, domainIds, workflowType, status, locale);
-	}
-	
-	/**** Bill Related 
-	 * @param customStatus TODO****/
-	public static WorkflowDetails create(final Bill bill,final Task task,final String workflowType,
-			String customStatus, final String userGroupType, final String assigneeLevel) {
-		return getWorkflowDetailsRepository().create(bill,task,workflowType,
-				customStatus,userGroupType, assigneeLevel);
-	}
-	
-	public static WorkflowDetails create(final Bill bill,final HouseType houseType,final Boolean isActorAcrossHouse,final PrintRequisition printRequisition,final Task task,final String workflowType,
-			final String userGroupType, final String assigneeLevel) {
-		return getWorkflowDetailsRepository().create(bill,houseType,isActorAcrossHouse,printRequisition,task,workflowType,
-				userGroupType,assigneeLevel);
-	}
-	
-	public static List<WorkflowDetails> create(final Bill bill,final List<Task> tasks,
-			final String workflowType,String customStatus, final String assigneeLevel) {
-		return getWorkflowDetailsRepository().create(bill,tasks,
-				workflowType,customStatus, assigneeLevel);
-	}
-	
-	public static WorkflowDetails findCurrentWorkflowDetail(final Bill bill, final String workflowType) {
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(bill, workflowType);
-	}
-
-	/**** BillAmendmentMotion Related 
-	 * @throws ELSException ****/
-	public static WorkflowDetails create(final BillAmendmentMotion bill,final Task task,final String workflowType,
-			String customStatus, final String userGroupType, final String assigneeLevel) {
-		return getWorkflowDetailsRepository().create(bill,task,workflowType,
-				customStatus,userGroupType, assigneeLevel);
-	}
-	
-	public static List<WorkflowDetails> create(final BillAmendmentMotion billAmendmentMotion,final List<Task> tasks,
-			final String workflowType,String customStatus, final String assigneeLevel) {
-		return getWorkflowDetailsRepository().create(billAmendmentMotion,tasks,
-				workflowType,customStatus, assigneeLevel);
-	}
-	
-	public static WorkflowDetails findCurrentWorkflowDetail(final BillAmendmentMotion billAmendmentMotion, final String workflowType){
-		return getWorkflowDetailsRepository().findCurrentWorkflowDetail(billAmendmentMotion, workflowType);
-	}
-	
-	public static Integer findIfWorkflowExists(final Session session,
-							final HouseType houseType,
-							final String deviceId,
-							final String workflowSubTypeInitial,
-							final String locale){
-		return getWorkflowDetailsRepository().findIfWorkflowExists(session, houseType, deviceId, workflowSubTypeInitial, locale);				
-	}
-	
-	@SuppressWarnings("rawtypes")
-	public static List findCompleteness(final Session session,
-			final HouseType houseType,
-			final String deviceId,
-			final String locale){
-		return getWorkflowDetailsRepository().findCompleteness(session, houseType, deviceId, locale);
-	}
-	
-	/**** Getter Setter ****/
-	
+	// Getters and Setters
 	public String getProcessId() {
 		return processId;
 	}
 
-	public void setProcessId(String processId) {
+	public void setProcessId(final String processId) {
 		this.processId = processId;
 	}
 
@@ -395,7 +860,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return taskId;
 	}
 
-	public void setTaskId(String taskId) {
+	public void setTaskId(final String taskId) {
 		this.taskId = taskId;
 	}
 
@@ -403,11 +868,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return assignee;
 	}
 
-	public void setAssignee(String assignee) {
+	public void setAssignee(final String assignee) {
 		this.assignee = assignee;
 	}	
 	
-	public void setStatus(String status) {
+	public void setStatus(final String status) {
 		this.status = status;
 	}
 
@@ -415,7 +880,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return status;
 	}
 
-	public void setCompletionTime(Date completionTime) {
+	public void setCompletionTime(final Date completionTime) {
 		this.completionTime = completionTime;
 	}
 
@@ -423,7 +888,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return completionTime;
 	}
 
-	public void setWorkflowType(String workflowType) {
+	public void setWorkflowType(final String workflowType) {
 		this.workflowType = workflowType;
 	}
 
@@ -431,7 +896,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return workflowType;
 	}
 
-	public void setDeviceId(String deviceId) {
+	public void setDeviceId(final String deviceId) {
 		this.deviceId = deviceId;
 	}
 
@@ -439,7 +904,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return deviceId;
 	}
 
-	public void setDeviceType(String deviceType) {
+	public void setDeviceType(final String deviceType) {
 		this.deviceType = deviceType;
 	}
 
@@ -447,7 +912,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return deviceType;
 	}
 
-	public void setDeviceNumber(String deviceNumber) {
+	public void setDeviceNumber(final String deviceNumber) {
 		this.deviceNumber = deviceNumber;
 	}
 
@@ -459,11 +924,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return numericalDevice;
 	}
 
-	public void setNumericalDevice(String numericalDevice) {
+	public void setNumericalDevice(final String numericalDevice) {
 		this.numericalDevice = numericalDevice;
 	}
 
-	public void setDeviceOwner(String deviceOwner) {
+	public void setDeviceOwner(final String deviceOwner) {
 		this.deviceOwner = deviceOwner;
 	}
 
@@ -471,7 +936,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return deviceOwner;
 	}
 
-	public void setInternalStatus(String internalStatus) {
+	public void setInternalStatus(final String internalStatus) {
 		this.internalStatus = internalStatus;
 	}
 
@@ -479,7 +944,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return internalStatus;
 	}
 
-	public void setRecommendationStatus(String recommendationStatus) {
+	public void setRecommendationStatus(final String recommendationStatus) {
 		this.recommendationStatus = recommendationStatus;
 	}
 
@@ -487,7 +952,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return recommendationStatus;
 	}
 
-	public void setHouseType(String houseType) {
+	public void setHouseType(final String houseType) {
 		this.houseType = houseType;
 	}
 
@@ -495,7 +960,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return houseType;
 	}
 
-	public void setSessionType(String sessionType) {
+	public void setSessionType(final String sessionType) {
 		this.sessionType = sessionType;
 	}
 
@@ -503,7 +968,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return sessionType;
 	}
 
-	public void setSessionYear(String sessionYear) {
+	public void setSessionYear(final String sessionYear) {
 		this.sessionYear = sessionYear;
 	}
 
@@ -511,7 +976,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return sessionYear;
 	}
 
-	public void setRemarks(String remarks) {
+	public void setRemarks(final String remarks) {
 		this.remarks = remarks;
 	}
 
@@ -519,7 +984,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return remarks;
 	}
 
-	public void setUrlPattern(String urlPattern) {
+	public void setUrlPattern(final String urlPattern) {
 		this.urlPattern = urlPattern;
 	}
 
@@ -527,15 +992,15 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return urlPattern;
 	}
 
-	public void setForm(String form) {
+	public void setForm(final String form) {
 		this.form = form;
 	}
 
 	public String getForm() {
 		return form;
 	}
-	
-	public void setAssigneeUserGroupName(String assigneeUserGroupName) {
+
+	public void setAssigneeUserGroupName(final String assigneeUserGroupName) {
 		this.assigneeUserGroupName = assigneeUserGroupName;
 	}
 
@@ -543,7 +1008,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return assigneeUserGroupName;
 	}
 
-	public void setAssigneeLevel(String assigneeLevel) {
+	public void setAssigneeLevel(final String assigneeLevel) {
 		this.assigneeLevel = assigneeLevel;
 	}
 
@@ -551,7 +1016,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return assigneeLevel;
 	}
 
-	public void setAssignmentTime(Date assignmentTime) {
+	public void setAssignmentTime(final Date assignmentTime) {
 		this.assignmentTime = assignmentTime;
 	}
 
@@ -559,15 +1024,15 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return assignmentTime;
 	}
 
-	public void setSubject(String subject) {
+	public void setSubject(final String subject) {
 		this.subject = subject;
 	}
 
 	public String getSubject() {
 		return subject;
-	}	
-	
-	public void setWorkflowSubType(String workflowSubType) {
+	}
+
+	public void setWorkflowSubType(final String workflowSubType) {
 		this.workflowSubType = workflowSubType;
 	}
 
@@ -575,7 +1040,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return workflowSubType;
 	}
 
-	public void setAssigneeUserGroupId(String assigneeUserGroupId) {
+	public void setAssigneeUserGroupId(final String assigneeUserGroupId) {
 		this.assigneeUserGroupId = assigneeUserGroupId;
 	}
 
@@ -583,7 +1048,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return assigneeUserGroupId;
 	}
 
-	public void setAssigneeUserGroupType(String assigneeUserGroupType) {
+	public void setAssigneeUserGroupType(final String assigneeUserGroupType) {
 		this.assigneeUserGroupType = assigneeUserGroupType;
 	}
 
@@ -595,11 +1060,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return groupNumber;
 	}
 
-	public void setGroupNumber(String groupNumber) {
+	public void setGroupNumber(final String groupNumber) {
 		this.groupNumber = groupNumber;
 	}
-	
-	public void setText(String text) {
+
+	public void setText(final String text) {
 		this.text = text;
 	}
 
@@ -607,7 +1072,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return text;
 	}
 
-	public void setFile(String file) {
+	public void setFile(final String file) {
 		this.file = file;
 	}
 
@@ -615,45 +1080,27 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return file;
 	}
 
-	/**
-	 * @return the departmentAnswer
-	 */
 	public String getDepartmentAnswer() {
 		return departmentAnswer;
 	}
 
-	/**
-	 * @param departmentAnswer the departmentAnswer to set
-	 */
-	public void setDepartmentAnswer(String departmentAnswer) {
+	public void setDepartmentAnswer(final String departmentAnswer) {
 		this.departmentAnswer = departmentAnswer;
 	}
 
-	/**
-	 * @return the sendBackBefore
-	 */
 	public Date getSendBackBefore() {
 		return sendBackBefore;
 	}
 
-	/**
-	 * @param sendBackBefore the sendBackBefore to set
-	 */
-	public void setSendBackBefore(Date sendBackBefore) {
+	public void setSendBackBefore(final Date sendBackBefore) {
 		this.sendBackBefore = sendBackBefore;
 	}
 
-	/**
-	 * @return the previousWorkflowDetail
-	 */
 	public Long getPreviousWorkflowDetail() {
 		return previousWorkflowDetail;
 	}
 
-	/**
-	 * @param previousWorkflowDetail the previousWorkflowDetail to set
-	 */
-	public void setPreviousWorkflowDetail(Long previousWorkflowDetail) {
+	public void setPreviousWorkflowDetail(final Long previousWorkflowDetail) {
 		this.previousWorkflowDetail = previousWorkflowDetail;
 	}
 
@@ -669,12 +1116,10 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return nextWorkflowActorId;
 	}
 
-	public void setNextWorkflowActorId(String nextWorkflowActorId) {
+	public void setNextWorkflowActorId(final String nextWorkflowActorId) {
 		this.nextWorkflowActorId = nextWorkflowActorId;
 	}
 	
-	
-		
 	public String getModule() {
 		return module;
 	}
@@ -687,7 +1132,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return assigner;
 	}
 
-	public void setAssigner(String assigner) {
+	public void setAssigner(final String assigner) {
 		this.assigner = assigner;
 	}
 
@@ -695,7 +1140,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return assignerUserGroupType;
 	}
 
-	public void setAssignerUserGroupType(String assignerUserGroupType) {
+	public void setAssignerUserGroupType(final String assignerUserGroupType) {
 		this.assignerUserGroupType = assignerUserGroupType;
 	}
 
@@ -703,7 +1148,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return assignerUserGroupId;
 	}
 
-	public void setAssignerUserGroupId(String assignerUserGroupId) {
+	public void setAssignerUserGroupId(final String assignerUserGroupId) {
 		this.assignerUserGroupId = assignerUserGroupId;
 	}
 
@@ -711,7 +1156,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return assignerDraftId;
 	}
 
-	public void setAssignerDraftId(String assignerDraftId) {
+	public void setAssignerDraftId(final String assignerDraftId) {
 		this.assignerDraftId = assignerDraftId;
 	}
 
@@ -719,7 +1164,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return assigneeDraftId;
 	}
 
-	public void setAssigneeDraftId(String assigneeDraftId) {
+	public void setAssigneeDraftId(final String assigneeDraftId) {
 		this.assigneeDraftId = assigneeDraftId;
 	}
 
@@ -727,7 +1172,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return customStatus;
 	}
 
-	public void setCustomStatus(String customStatus) {
+	public void setCustomStatus(final String customStatus) {
 		this.customStatus = customStatus;
 	}
 
@@ -735,7 +1180,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return printRequisitionId;
 	}
 
-	public void setPrintRequisitionId(String printRequisitionId) {
+	public void setPrintRequisitionId(final String printRequisitionId) {
 		this.printRequisitionId = printRequisitionId;
 	}
 
@@ -743,7 +1188,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return houseRound;
 	}
 
-	public void setHouseRound(String houseRound) {
+	public void setHouseRound(final String houseRound) {
 		this.houseRound = houseRound;
 	}
 
@@ -751,7 +1196,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return isHardCopyReceived;
 	}
 
-	public void setIsHardCopyReceived(String isHardCopyReceived) {
+	public void setIsHardCopyReceived(final String isHardCopyReceived) {
 		this.isHardCopyReceived = isHardCopyReceived;
 	}
 
@@ -759,7 +1204,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return dateOfHardCopyReceived;
 	}
 
-	public void setDateOfHardCopyReceived(String dateOfHardCopyReceived) {
+	public void setDateOfHardCopyReceived(final String dateOfHardCopyReceived) {
 		this.dateOfHardCopyReceived = dateOfHardCopyReceived;
 	}
 
@@ -767,7 +1212,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return acknowledgementDecision;
 	}
 
-	public void setAcknowledgementDecision(String acknowledgementDecision) {
+	public void setAcknowledgementDecision(final String acknowledgementDecision) {
 		this.acknowledgementDecision = acknowledgementDecision;
 	}
 
@@ -775,7 +1220,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return amendedBillInfo;
 	}
 
-	public void setAmendedBillInfo(String amendedBillInfo) {
+	public void setAmendedBillInfo(final String amendedBillInfo) {
 		this.amendedBillInfo = amendedBillInfo;
 	}
 
@@ -784,15 +1229,45 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	}
 
 	public void setDefaultAmendedSectionNumberInfo(
-			String defaultAmendedSectionNumberInfo) {
+			final String defaultAmendedSectionNumberInfo) {
 		this.defaultAmendedSectionNumberInfo = defaultAmendedSectionNumberInfo;
+	}
+
+	/**
+	 * @return the adjourningDate
+	 */
+	public Date getAdjourningDate() {
+		return adjourningDate;
+	}
+
+	/**
+	 * @param adjourningDate the adjourningDate to set
+	 */
+	public void setAdjourningDate(Date adjourningDate) {
+		this.adjourningDate = adjourningDate;
+	}
+
+	/**
+	 * @return the formattedAdjourningDate
+	 */
+	public String getFormattedAdjourningDate() {
+		if(this.adjourningDate!=null) {
+			try {
+				formattedAdjourningDate = FormaterUtil.formatDateToStringUsingCustomParameterFormat(this.adjourningDate, "ADJOURNMENTMOTION_ADJOURNINGDATEFORMAT", this.getLocale());
+			} catch (ELSException e) {
+				formattedAdjourningDate = "";
+			}
+		} else {
+			formattedAdjourningDate = "";
+		}
+		return formattedAdjourningDate;
 	}
 
 	public Date getAnsweringDate() {
 		return answeringDate;
 	}
 
-	public void setAnsweringDate(Date chartAnsweringDate) {
+	public void setAnsweringDate(final Date chartAnsweringDate) {
 		this.answeringDate = chartAnsweringDate;
 	}
 
@@ -800,7 +1275,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return decisionInternalStatus;
 	}
 
-	public void setDecisionInternalStatus(String decisionInternalStatus) {
+	public void setDecisionInternalStatus(final String decisionInternalStatus) {
 		this.decisionInternalStatus = decisionInternalStatus;
 	}
 
@@ -808,8 +1283,17 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return decisionRecommendStatus;
 	}
 
-	public void setDecisionRecommendStatus(String decisionRecommendStatus) {
+	public void setDecisionRecommendStatus(final String decisionRecommendStatus) {
 		this.decisionRecommendStatus = decisionRecommendStatus;
 	}
-	
+
+	public String getDecisionStatusForMyTaskGrid() {
+		if(this.getStatus()!=null && this.getStatus().equals(ApplicationConstants.MYTASK_PENDING)) {
+			decisionStatusForMyTaskGrid = recommendationStatus;
+		} else {
+			decisionStatusForMyTaskGrid = decisionRecommendStatus;
+		}
+		return decisionStatusForMyTaskGrid;
+	}
+
 }

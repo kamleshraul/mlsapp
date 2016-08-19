@@ -12,7 +12,23 @@
     
     <xsl:variable name="language" select="$rootNode/locale"/>
     
-    <xsl:variable name="formatOut" select="$rootNode/outputFormat"/>    
+    <xsl:variable name="formatOut" select="$rootNode/outputFormat"/>
+    
+    <xsl:variable name="moduleName" select="$rootNode/moduleName"/>
+    
+    <xsl:variable name="paragraphSpaceBefore">
+   		<xsl:choose>
+		    <xsl:when test="$moduleName='reporting'">0.75em</xsl:when>
+		    <xsl:otherwise>1em</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	
+	<xsl:variable name="paragraphSpaceAfter">
+   		<xsl:choose>
+		    <xsl:when test="$moduleName='reporting'">0.75em</xsl:when>
+		    <xsl:otherwise>1em</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
     
     <xsl:variable name="font">
 	   <xsl:choose>
@@ -103,8 +119,8 @@
 	  </xsl:attribute-set>
     
     <xsl:attribute-set name="p">
-		    <xsl:attribute name="space-before">1em</xsl:attribute>
-		    <xsl:attribute name="space-after">1em</xsl:attribute>
+    		<xsl:attribute name="space-before"><xsl:value-of select="$paragraphSpaceBefore"/></xsl:attribute>	    
+		    <xsl:attribute name="space-after"><xsl:value-of select="$paragraphSpaceAfter"/></xsl:attribute>	
 		    <!-- e.g.,
 		    <xsl:attribute name="text-indent">1em</xsl:attribute>
 		    -->

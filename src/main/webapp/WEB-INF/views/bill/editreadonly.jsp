@@ -498,7 +498,13 @@
 				margin-top: 10px;
 			}
 			
-			#readonly_opinionSoughtFromLawAndJD-wysiwyg-iframe {height: 400px;}				
+			#readonly_opinionSoughtFromLawAndJD-wysiwyg-iframe {height: 400px;}		
+			
+			.textdraft_file {
+				float: right; 
+				margin: -210px 20px;
+				position: relative;
+			}		
 		</style>
 	</head> 
 
@@ -866,6 +872,14 @@
 									<p>
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.contentDraft" text="Draft"/></label>
 										<textarea class="wysiwyg readonly_contentDraft" id="readonly_contentDraft_text_${i.language.type}" name="contentDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
+										<div class="textdraft_file">
+											<jsp:include page="/common/file_load.jsp">
+												<jsp:param name="fileid" value="readonly-contentDraft-file-${i.language.type}" />
+												<jsp:param name="filetag" value="${i.file}" />
+												<jsp:param name="isUploadAllowed" value="false" />
+												<jsp:param name="isRemovable" value="false" />
+											</jsp:include>			
+										</div>
 										<input type="hidden" name="contentDraft_id_${i.language.type}" value="${i.id}">
 										<input type="hidden" name="contentDraft_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
@@ -881,23 +895,18 @@
 									</p>
 									<p id="readonly_revisedContentDraftPara_${i.language.type}" style="display:none;">
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.revisedContentDraft" text=" Revised Draft"/></label>						
-										<c:set var="revisedContentDraftText" value=""></c:set>
-										<c:set var="revisedContentDraftId" value=""></c:set>
-										<c:choose>
-											<c:when test="${i.language.type=='marathi'}">
-												<c:set var="revisedContentDraftText" value="${revisedContentDraft_marathi}"></c:set>
-												<c:set var="revisedContentDraftId" value="${revisedContentDraft_id_marathi}"></c:set>
-											</c:when>
-											<c:when test="${i.language.type=='hindi'}">
-												<c:set var="revisedContentDraftText" value="${revisedContentDraft_hindi}"></c:set>
-												<c:set var="revisedContentDraftId" value="${revisedContentDraft_id_hindi}"></c:set>
-											</c:when>
-											<c:when test="${i.language.type=='english'}">
-												<c:set var="revisedContentDraftText" value="${revisedContentDraft_english}"></c:set>
-												<c:set var="revisedContentDraftId" value="${revisedContentDraft_id_english}"></c:set>
-											</c:when>							
-										</c:choose>
-										<textarea class="wysiwyg readonly_revisedContentDraft" id="readonly_revised_contentDraft_text_${i.language.type}" name="revised_contentDraft_text_${i.language.type}">${revisedContentDraftText}</textarea>
+										<c:set var="revisedContentDraftText" value="revisedContentDraft_${i.language.type}"></c:set>
+										<c:set var="revisedContentDraftId" value="revisedContentDraft_id_${i.language.type}"></c:set>
+										<c:set var="revisedContentDraftFile" value="revisedContentDraft-file-${i.language.type}"></c:set>										
+										<textarea class="wysiwyg revisedContentDraft" id="readonly_revised_contentDraft_text_${i.language.type}" name="revised_contentDraft_text_${i.language.type}">${requestScope[revisedContentDraftText]}</textarea>
+										<div class="textdraft_file">
+											<jsp:include page="/common/file_load.jsp">
+												<jsp:param name="fileid" value="readonly-revised-contentDraft-file-${i.language.type}" />
+												<jsp:param name="filetag" value="${requestScope[revisedContentDraftFile]}" />
+												<jsp:param name="isUploadAllowed" value="false" />
+												<jsp:param name="isRemovable" value="false" />
+											</jsp:include>			
+										</div>
 										<input type="hidden" name="revised_contentDraft_id_${i.language.type}" value="${revisedContentDraftId}">												
 									</p>
 									</div>

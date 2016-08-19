@@ -83,7 +83,7 @@
 									<th class="patrakheader" colspan="3"><spring:message code="bill.patrakbhag2.name" text="Patrak Bhag Don"></spring:message></th>
 								</tr>
 								<tr>
-									<th class="patrakheader" colspan="3">${formattedCurrentDay}, <spring:message code="bill.patrakbhag2.date" text="Date" /> ${formattedCurrentDate}/${indianDateFormatCurrentDate} </th>
+									<th class="patrakheader" colspan="3">${formattedCurrentDay}, <spring:message code="generic.date" text="Date" /> ${formattedCurrentDate}/${indianDateFormatCurrentDate} </th>
 								</tr>
 							</thead>
 							<tbody>
@@ -103,7 +103,7 @@
 								<tr><td colspan="3">&nbsp;</td></tr>
 								<tr>
 									<td colspan="3">
-										&nbsp;&nbsp;&nbsp;&nbsp;<spring:message code="bill.patrakbhag2.lowercontent1" /> ${formattedDistributionDay}, ${formattedDistributionDate} <spring:message code="bill.patrakbhag2.lowercontent2" /> 
+										&nbsp;&nbsp;&nbsp;&nbsp;<spring:message code="bill.patrakbhag2.lowercontent1" /> ${formattedDistributionDay}, <spring:message code="generic.date" text="Date" /> ${formattedDistributionDate} <spring:message code="bill.patrakbhag2.lowercontent2" />. 
 									</td>
 								</tr>
 								<tr><td colspan="3">&nbsp;</td></tr>
@@ -115,7 +115,7 @@
 									<td>${sessionPlace},</td><td>&nbsp;</td><td class="center">${whopost},</td>
 								</tr>
 								<tr>
-									<td><spring:message code="bill.patrakbhag2.date" text="Date" />: ${formattedCurrentDate},</td><td>&nbsp;</td><td class="center"><spring:message code="bill.patrakbhag2.state" text="State" />&nbsp;${house}</td>
+									<td><spring:message code="generic.date" text="Date" />: ${formattedCurrentDate},</td><td>&nbsp;</td><td class="center"><spring:message code="bill.patrakbhag2.state" text="State" />&nbsp;${house}</td>
 								</tr>
 								<tr><td colspan="3">&nbsp;</td></tr>
 								<tr><td colspan="3">&nbsp;</td></tr>

@@ -17,7 +17,10 @@
 					+"&role="+$("#srole").val()
 					+"&usergroup="+$("#currentusergroup").val()
 					+"&usergroupType="+$("#currentusergroupType").val()
+					+"&subDepartment="+$("#selectedSubDepartment").val()
+					+"&clubbingStatus=" + $("#selectedClubbingStatus").val()
 					);
+			$("#gridURLParams_ForNew").val($("#gridURLParams").val());
 			/**** new motion ****/
 			$('#new_record').click(function(){
 				$("#selectionDiv1").hide();	
@@ -43,11 +46,11 @@
 			$("#discussionSelection").click(function(){
 				showDiscussionSelection();
 			});
-			
-			$("#jodPatra").click(function(){
-				showJodPatra();
+			/****Member's Motions View ****/
+			$("#member_motions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberMotionsView();
 			});
-			
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -73,7 +76,7 @@
 	<div>
 	<div class="commandbar">
 		<div class="commandbarContent">	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','MOIS_CLERK')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','MOIS_TYPIST')">			
 			<a href="#" id="new_record" class="butSim">
 				<spring:message code="motion.new" text="New"/>
 			</a> |
@@ -84,27 +87,31 @@
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','MOIS_CLERK')">			
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="motion.delete" text="Delete"/>
-			</a> |			
-			<a href="#" id="submitMotion" class="butSim">
-				<spring:message code="generic.submitmotion" text="submit"/>
 			</a> |
+			</security:authorize>
+				
+			<security:authorize access="hasAnyRole('ABC')">		
+				<a href="#" id="submitMotion" class="butSim">
+					<spring:message code="generic.submitmotion" text="submit"/>
+				</a> |
 			</security:authorize>			
 			<a href="#" id="search" class="butSim">
 				<spring:message code="motion.search" text="Search"/>
 			</a> |
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<a href="#" id="member_motions_view" class="butSim">
+					<spring:message code="motion.member_motions_view" text="Member's Motions View"/>
+				</a> |
+			</security:authorize>
 			<security:authorize access="hasAnyRole('MOIS_ASSISTANT')">
 				<a href="#" id="discussionSelection" class="butSim">
 					<spring:message code="motion.discussionSelection" text="Discussion Selection"/>
 				</a> |			
 			</security:authorize>
-			<security:authorize access="hasAnyRole('MOIS_SECTION_OFFICER')">
-				<a href="#" id="jodPatra" class="butSim">
-					<spring:message code="motion.jodpatra" text="Remained Motions"/>
-				</a> |			
-			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
 	</div>
+	
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">		

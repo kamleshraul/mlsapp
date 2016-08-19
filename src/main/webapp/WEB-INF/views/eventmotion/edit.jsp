@@ -33,7 +33,8 @@
 		var controlName=$(".autosuggestmultiple").attr("id");
 		/**** Load Sub Departments ****/
 		function loadSubDepartments(ministry){
-			$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+			$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+					function(data){
 				$("#subDepartment").empty();
 				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
 				if(data.length>0){
@@ -464,15 +465,17 @@
 					<form:errors path="eventTitle" cssClass="validationError" />	
 				</p>	
 				
-				<p>
-					<label class="centerlabel"><spring:message code="eventmotion.eventReason" text="Event Reason"/>*</label>
-					<form:textarea path="eventReason" rows="2" cols="72"></form:textarea>
-					<form:errors path="eventReason" cssClass="validationError" />
-				</p>	
+				<c:if test="${selectedMotionType=='motions_eventmotion_condolence'}">
+					<p>
+						<label class="centerlabel"><spring:message code="eventmotion.eventReason" text="Event Reason"/>*</label>
+						<form:textarea path="eventReason" rows="2" cols="72"></form:textarea>
+						<form:errors path="eventReason" cssClass="validationError" />
+					</p>	
+				</c:if>
 				
 				<p>
 					<label class="wysiwyglabel"><spring:message code="eventmotion.description" text="Descrtiption"/>*</label>
-					<form:textarea path="description" cssClass="wysiwyg"></form:textarea>
+					<form:textarea path="description" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 					<form:errors path="description" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 				</p>	
 										
@@ -511,7 +514,27 @@
 					</p>
 				</c:if>
 			 </div>
-
+			
+			<div>
+				<p>
+					<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
+					<form:select path="discussionDate" cssClass="datemask sSelect" >
+						<option value="">---<spring:message code='please.select' text='Please Select'/>---</option>
+						<c:forEach items="${discussionDates}" var="i">
+							<c:choose>
+								<c:when  test="${i.value==discussionDateSelected}">
+									<option value="${i.value}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.value}">${i.name}</option>
+								</c:otherwise>					
+							</c:choose>
+						</c:forEach>					
+					</form:select>
+					<form:errors path="discussionDate" cssClass="validationError"/>
+				</p>
+			</div>
+			
 			 <div class="fields">
 				<h2></h2>
 				<c:choose>

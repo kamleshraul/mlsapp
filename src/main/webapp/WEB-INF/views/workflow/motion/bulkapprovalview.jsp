@@ -91,23 +91,25 @@
 			<div style="overflow: scroll;">
 			<table class="uiTable">
 				<tr>					
-					<th><spring:message code="motion.submitall" text="Submit All"></spring:message>
+					<th style="min-width:75px;"><spring:message code="motion.submitall" text="Submit All"></spring:message>
+					<br/>
 					<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>					
 					<c:if test="${workflowSubType=='request_to_supporting_member'}">
 					<th><spring:message code="motion.type" text="Device"></spring:message></th>
 					<th><spring:message code="motion.member" text="Member"></spring:message></th>
 					<th><spring:message code="motion.subject" text="Subject"></spring:message></th>
+					<th><spring:message code="motion.remarks" text="Remarks"></spring:message></th>
 					<th><spring:message code="motion.lastdecision" text="Last Decision"></spring:message></th>
 					<th></th>
 					</c:if>
 					<c:if test="${workflowSubType!='request_to_supporting_member'}">
-					<th><spring:message code="motion.type" text="Device"></spring:message></th>					
-					<th><spring:message code="motion.number" text="Number"></spring:message></th>
-					<th><spring:message code="motion.member" text="Member"></spring:message></th>
-					<th><spring:message code="motion.subject" text="Subject"></spring:message></th>
-					<th><spring:message code="motion.lastremark" text="Last Remark"></spring:message></th>
-					<th><spring:message code="motion.lastremarkby" text="Last Remark By"></spring:message></th>	
-					<th><spring:message code="motion.lastdecision" text="Last Decision"></spring:message></th>
+					<%-- <th><spring:message code="motion.type" text="Device"></spring:message></th>	 --%>				
+					<th style="min-width:50px;"><spring:message code="motion.number" text="Number"></spring:message></th>
+					<th style="min-width:150px;"><spring:message code="motion.member" text="Member"></spring:message></th>
+					<th style="min-width:350px;"><spring:message code="motion.subject" text="Subject"></spring:message></th>
+					<th style="min-width:140px;"><spring:message code="motion.lastremark" text="Last Remark"></spring:message></th>
+					<%-- <th><spring:message code="motion.lastremarkby" text="Last Remark By"></spring:message></th>	
+					<th><spring:message code="motion.lastdecision" text="Last Decision"></spring:message></th> --%>
 					</c:if>									
 				</tr>			
 				<c:forEach items="${bulkapprovals}" var="i">
@@ -122,9 +124,10 @@
 								<td style="text-align: center;"><span style="font-weight: bolder;color: green;font-size: 18px;">&#x2713;</span></td>
 								</c:otherwise>
 							</c:choose>
-								<td>${i.deviceType}</td>
+								<td >${i.deviceType}</td>
 								<td>${i.member}</td>
 								<td>${i.subject}</td>
+								<td>${i.remarks}</td>
 								<td>${i.lastDecision}</td>	
 								<td>
 								<a href="#" class="details" id="device${i.deviceId}"><spring:message code="motion.details" text="Details"></spring:message></a>
@@ -133,21 +136,21 @@
 						<c:otherwise>
 							<c:choose>
 								<c:when test="${i.currentStatus=='PENDING'}">
-								<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
+								<td style="min-width:75px;"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
 								<a href="#" class="edit" id="edit${i.id}"><spring:message code="motion.edit" text="Edit"></spring:message></a></td>
 								</c:when>							
 								<c:otherwise>
-								<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
+								<td style="min-width:75px;"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
 								<a href="#" class="readonly" id="edit${i.id}"><spring:message code="motion.edit" text="Edit"></spring:message></a></td>
 								</c:otherwise>
 							</c:choose>
-								<td>${i.deviceType}</td>							
-								<td>${i.deviceNumber}</td>
-								<td>${i.member}</td>
-								<td>${i.subject}</td>
-								<td>${i.lastRemark}</td>
-								<td>${i.lastRemarkBy}</td>
-								<td>${i.lastDecision}</td>	
+								<%-- <td>${i.deviceType}</td>	 --%>						
+								<td style="min-width:50px;text-align:center;">${i.deviceNumber}</td>
+								<td style="min-width:150px;">${i.member}</td>
+								<td style="min-width:350px;text-align:justify;">${i.subject}</td>
+								<td style="min-width:140px;text-align:justify;">${i.lastRemark}</td>
+								<%-- <td>${i.lastRemarkBy}</td>
+								<td>${i.lastDecision}</td>	 --%>
 						</c:otherwise>
 						</c:choose>									
 					</tr>
@@ -167,4 +170,5 @@
 		</c:otherwise>
 	</c:choose>
 	<input type="hidden" id="motionId" value="${motionId}">
+	<input type="hidden" id="motionLevel" value="${apprLevel}" />
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>

@@ -82,6 +82,13 @@ public class BillSectionController extends GenericController<Section> {
 	@Override
 	protected void populateEdit(final ModelMap model, final Section domain,
             final HttpServletRequest request) {
+		String billId = request.getParameter("billId");
+		if(billId==null || billId.isEmpty()) {
+			if(request.getSession().getAttribute("billId")!=null) {
+				billId = (String) request.getSession().getAttribute("billId");
+				request.getSession().removeAttribute("billId");
+			}			
+		}
 		populateSectionOrderSeries(model, domain, request);
 		model.addAttribute("currentNumber", domain.getNumber());
 		String currentOrder = domain.findOrder();
@@ -93,8 +100,7 @@ public class BillSectionController extends GenericController<Section> {
 		model.addAttribute("currentOrder", currentOrder);
 		model.addAttribute("currentLanguage", domain.getLanguage());
 		//find whether this is only section at its hierarchy level & check whether level has custom order
-		try {
-			String billId = request.getParameter("billId");
+		try {			
 			List<Section> sections = Bill.findAllSiblingSectionsForGivenSection(Long.parseLong(billId), domain.getLanguage(), domain.getNumber());
 			if(sections==null || sections.isEmpty()) {
 				model.addAttribute("isFirstForHierarchyLevel", "yes");											
@@ -135,6 +141,27 @@ public class BillSectionController extends GenericController<Section> {
         if(domain.getOrderingSeries()!=null) {
         	model.addAttribute("selectedOrderingSeries", domain.getOrderingSeries().getId());
         }
+	}
+	
+	@Override
+	protected void preValidateCreate(final Section domain,
+            final BindingResult result, 
+            final HttpServletRequest request) {
+        preValidate(domain, result, request);
+    }
+	
+	@Override
+	protected void preValidateUpdate(final Section domain,
+            final BindingResult result, 
+            final HttpServletRequest request) {
+        preValidate(domain, result, request);
+    }
+	
+	private void preValidate(final Section domain, 
+    		final BindingResult result,
+            final HttpServletRequest request) {
+		/** set bill id as session attribute to be read even after redirection **/
+		request.getSession().setAttribute("billId", request.getParameter("billId"));
 	}
 	
 	@Override

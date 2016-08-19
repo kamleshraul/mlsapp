@@ -66,13 +66,13 @@
 				 
 				<p> 
 					<label class="small"><spring:message code="rule.number" text="Number"/></label>
-					<form:input cssClass="sInteger" path="number"/>
+					<form:input cssClass="sText" path="number"/>
 					<form:errors path="number" cssClass="validationError"/>	
 				</p>
 				
 				<div>
 					<fieldset>
-						<legend style="text-align: left; width: 150px;"><label><spring:message code="rule.titles" text="Titles of rule" /></label></legend>
+						<legend style="text-align: left; width: 150px;"><label><spring:message code="rule.titles" text="Titles of Rule" /></label></legend>
 						<div id="titles_div">
 							<c:forEach var="i" items="${titles}">
 								<p>
@@ -80,6 +80,22 @@
 									<textarea rows="2" cols="50" id="title_text_${i.language.type}" name="title_text_${i.language.type}">${i.text}</textarea>
 									<input type="hidden" name="title_id_${i.language.type}" value="${i.id}">
 									<input type="hidden" name="title_language_id_${i.language.type}" value="${i.language.id}">						
+								</p>
+							</c:forEach>
+						</div>
+					</fieldset>
+				</div>
+				
+				<div>
+					<fieldset>
+						<legend style="text-align: left; width: 150px;"><label><spring:message code="rule.contentDrafts" text="Content Drafts of Rule" /></label></legend>
+						<div id="contentDrafts_div">
+							<c:forEach var="i" items="${contentDrafts}">
+								<p>
+									<label class="wysiwyglabel">${i.language.name} <spring:message code="rule.contentDraft" text="Content Draft"/></label>
+									<textarea class="wysiwyg" id="contentDraft_text_${i.language.type}" name="contentDraft_text_${i.language.type}">${i.text}</textarea>
+									<input type="hidden" name="contentDraft_id_${i.language.type}" value="${i.id}">
+									<input type="hidden" name="contentDraft_language_id_${i.language.type}" value="${i.language.id}">						
 								</p>
 							</c:forEach>
 						</div>

@@ -154,7 +154,7 @@
 	<div>	
 	<div class="commandbar">
 		<div class="commandbarContent">	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BIS_CLERK')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BIS_TYPIST')">			
 			<a href="#" id="new_record" class="butSim">
 				<spring:message code="generic.new" text="New"/>
 			</a> |
@@ -162,7 +162,7 @@
 			<a href="#" id="edit_record" class="butSim">
 			<spring:message code="generic.edit" text="Edit"/>
 			</a> |
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BIS_CLERK')">			
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','BIS_TYPIST')">			
 			<a href="#" id="delete_record" class="butSim">
 				<spring:message code="generic.delete" text="Delete"/>
 			</a> |			

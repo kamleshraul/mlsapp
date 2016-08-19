@@ -310,4 +310,13 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${type=='ballot_not_created'}">
+	<div class="toolTip tpRed clearfix">
+		<p style="font-size: 14px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="ballot.error.ballotNotCreated" text="Create the Ballot first"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 </c:choose>

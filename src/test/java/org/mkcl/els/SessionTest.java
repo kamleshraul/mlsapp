@@ -239,7 +239,7 @@ public class SessionTest extends AbstractTest{
 			session.setType(type);
 			session.setYear(1988);
 			session.persist();
-			List<Session> sessions= Session.findSessionsByHouseAndYear(house, session.getYear());
+			List<Session> sessions= Session.findSessionsByHouseTypeAndYear(house.getType(), session.getYear());
 			Assert.assertEquals(true,	sessions.size()>0);
 		} catch (ELSException e) {
 			// TODO Auto-generated catch block

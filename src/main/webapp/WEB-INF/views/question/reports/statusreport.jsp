@@ -42,16 +42,27 @@
 					addRemarkReport();
 				}
 			});
-		});
+		});		
 		
 		function showRemarkReport(){
-			var paramVar = '?deviceType='+$("#selectedDeviceType").val()+
+			var strLocation = (($("#selectedDeviceType").val()==undefined)?"device":"workflow"); 
+			var device = "";
+			if(strLocation=='workflow'){
+				device = $("#selectedDeviceType").val();
+			}else if(strLocation=='device'){
+				device = $("#selectedQuestionType").val();
+			}
+				
+			var paramVar = '?deviceType='+device+
 			'&sessionYear='+$("#selectedSessionYear").val()+
 			'&sessionType='+$("#selectedSessionType").val()+
 			'&houseType='+$("#selectedHouseType").val()+
 			'&status='+$("#selectedStatus").val()+
 			'&wfSubType='+$("#selectedSubWorkflow").val()+
-			'&grid=workflow';
+			'&subdepartment='+$("#selectedSubDepartment").val()+ 
+			'&grid='+ strLocation + 
+			'&group='+(($("#selectedGroup").val()=='')?'0':$("#selectedGroup").val())+
+			'&answeringDate='+(($("#selectedAnsweringDate").val()=='')?'0':$("#selectedAnsweringDate").val());
 
 			$.get('ref/pendingtasksdevices'+paramVar,function(data){
 			
@@ -103,14 +114,32 @@
 	        	border: 1px solid;
 	        	width: 800px;
 	        	padding: 10px;
-	        }	        
+	        	font-family:Mangal !important;
+	        	font-size: 16px !important;
+	        }	 
+	        
+	        td,th{
+				font-family:Mangal !important;
+	        	font-size: 16px !important;
+			}       
         }
         @media print{
+        	#reportWindow{
+        		font-family:Mangal !important;
+	        	font-size: 16px !important;
+        	}
 	        #reportDiv{
 	        	width: 750px;
 	        	padding: 5px;
 	        	margin-top: 0px !important;
+	        	font-family:Mangal !important;
+	        	font-size: 16px !important;
 	        }
+	        
+	        td,th{
+				font-family:Mangal !important;
+	        	font-size: 16px !important;
+			} 
 	        
 	        .page-break-before-forced{
 	        	page-break-before: always;
@@ -173,5 +202,6 @@
 <input type="hidden" id="device" value="${device}" /> 
 <input type="hidden" id="reportType" value="${reportType}" />
 <input type="hidden" id="qIDs" value="${qId}" />
+<%-- <input type="hidden" id="locationOfPrint" value="${location}" /> --%>
 </body>
 </html>

@@ -95,7 +95,7 @@
 						<table class="doBreak">
 							<thead>
 								<tr>
-									<th class="left" width="200px">${r[14]}</th>
+									<th class="left" width="200px">${r[25]}/${r[14]}</th>
 									<th class="center" width="400px">${generalNotice}</th>
 									<th class="right" width="200px">${r[13]} - ${count}</th>
 								</tr>
@@ -106,7 +106,7 @@
 								</tr>
 							</thead>
 							<tr><td colspan="3" height="30px"></td></tr>
-							<c:if test="${r[18]!=null and r[18]!= chairPerson}">
+							<c:if test="${r[18]!=null and r[18]!= chairPerson and r[18]!=''}">
 								<tr>
 									<td colspan="3" class="content" style="text-align: center;">
 										<b>(<spring:message code="part.chairPersonMessage"/>  ${r[18]}  ${r[19]}) </b>
@@ -180,7 +180,7 @@
 					<tr><td colspan="3" height="30px"></td></tr>
 					</c:when>
 					<c:otherwise>
-						<c:if test="${r[18]!=null and r[18]!= chairPerson}">
+						<c:if test="${r[18]!=null and r[18]!= chairPerson and r[18]!=''}">
 								<tr>
 									<td colspan="3" class="content" style="text-align: center;">
 										<b>(<spring:message code="part.chairPersonMessage"/>  ${r[18]}  ${r[19]}) </b>

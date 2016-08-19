@@ -20,11 +20,13 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BulkApprovalVO;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.domain.ClubbedEntity;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Department;
@@ -35,6 +37,7 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
@@ -45,6 +48,8 @@ import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
@@ -354,7 +359,8 @@ public class CutMotionWorkflowController extends BaseController {
 		if (ministry != null) {
 			model.addAttribute("ministrySelected", ministry.getId());
 			/**** Sub Departments ****/
-			List<SubDepartment> subDepartments = MemberMinister.findAssignedSubDepartments(ministry, locale);
+			List<SubDepartment> subDepartments = 
+					MemberMinister.findAssignedSubDepartments(ministry, selectedSession.getEndDate(), locale);
 			model.addAttribute("subDepartments", subDepartments);
 			SubDepartment subDepartment = domain.getSubDepartment();
 			if (subDepartment != null) {
@@ -391,6 +397,8 @@ public class CutMotionWorkflowController extends BaseController {
 			model.addAttribute("formattedInternalNumber", FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getInternalNumber()));
 		}
 		
+		model.addAttribute("level", domain.getLevel());
+		
 		/**** Created By ****/
 		model.addAttribute("createdBy", domain.getCreatedBy());
 		model.addAttribute("dataEnteredBy", domain.getDataEnteredBy());
@@ -421,33 +429,33 @@ public class CutMotionWorkflowController extends BaseController {
 			model.addAttribute("recommendationStatusType", recommendationStatus.getType());
 		}
 		/**** Referenced Entities are collected in refentities ****/
-		List<ReferencedEntity> referencedEntities = domain.getReferencedEntities();
+		List<ReferenceUnit> referencedEntities = domain.getReferencedEntities();
 		if (referencedEntities != null) {
 			List<Reference> refentities = new ArrayList<Reference>();
 			List<Reference> refmotionentities = new ArrayList<Reference>();
 			List<Reference> refquestionentities = new ArrayList<Reference>();
 			List<Reference> refresolutionentities = new ArrayList<Reference>();
-			for (ReferencedEntity re : referencedEntities) {
+			for (ReferenceUnit re : referencedEntities) {
 				if (re.getDeviceType() != null) {
-					if (re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_MOTIONS)) {
+					if (re.getDeviceType().startsWith(ApplicationConstants.DEVICE_MOTIONS)) {
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Motion) re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Motion) re.getDevice()).getId()));
+						reference.setName(FormaterUtil.formatNumberNoGrouping(re.getNumber(), locale));
+						reference.setNumber(String.valueOf(re.getDevice()));
 						refentities.add(reference);
 						refmotionentities.add(reference);
-					} else if (re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)) {
+					} else if (re.getDeviceType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)) {
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Resolution) re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Motion) re.getDevice()).getId()));
+						reference.setName(FormaterUtil.formatNumberNoGrouping(re.getNumber(), locale));
+						reference.setNumber(String.valueOf(re.getDevice()));
 						refentities.add(reference);
 						refresolutionentities.add(reference);
-					} else if (re.getDeviceType().getType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)) {
+					} else if (re.getDeviceType().startsWith(ApplicationConstants.DEVICE_CUTMOTIONS)) {
 						Reference reference = new Reference();
 						reference.setId(String.valueOf(re.getId()));
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(((Question) re.getDevice()).getNumber()));
-						reference.setNumber(String.valueOf(((Motion) re.getDevice()).getId()));
+						reference.setName(FormaterUtil.formatNumberNoGrouping(re.getNumber(), locale));
+						reference.setNumber(String.valueOf(re.getDevice()));
 						refentities.add(reference);
 						refquestionentities.add(reference);
 					}
@@ -467,14 +475,14 @@ public class CutMotionWorkflowController extends BaseController {
 			for (ClubbedEntity ce : clubbedEntities) {
 				Reference reference = new Reference();
 				reference.setId(String.valueOf(ce.getId()));
-				reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getMotion().getNumber()));
-				reference.setNumber(String.valueOf(ce.getMotion().getId()));
+				reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(ce.getCutMotion().getNumber()));
+				reference.setNumber(String.valueOf(ce.getCutMotion().getId()));
 				references.add(reference);
-				String tempPrimary = ce.getMotion().getPrimaryMember().getFullname();
+				String tempPrimary = ce.getCutMotion().getPrimaryMember().getFullname();
 				if (!buffer1.toString().contains(tempPrimary)) {
-					buffer1.append(ce.getMotion().getPrimaryMember().getFullname() + ",");
+					buffer1.append(ce.getCutMotion().getPrimaryMember().getFullname() + ",");
 				}
-				List<SupportingMember> clubbedSupportingMember = ce.getMotion().getSupportingMembers();
+				List<SupportingMember> clubbedSupportingMember = ce.getCutMotion().getSupportingMembers();
 				if (clubbedSupportingMember != null) {
 					if (!clubbedSupportingMember.isEmpty()) {
 						for (SupportingMember l : clubbedSupportingMember) {
@@ -577,242 +585,608 @@ public class CutMotionWorkflowController extends BaseController {
 			final HttpServletRequest request, final Locale locale,
 			@Valid @ModelAttribute("domain") final CutMotion domain,
 			final BindingResult result) {
-		/**** Binding Supporting Members ****/
-		String[] strSupportingMembers = request.getParameterValues("supportingMembers");
-		if (strSupportingMembers != null) {
-			if (strSupportingMembers.length > 0) {
-				List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-				for (String i : strSupportingMembers) {
-					SupportingMember supportingMember = SupportingMember.findById(SupportingMember.class, Long.parseLong(i));
-					supportingMembers.add(supportingMember);
-				}
-				domain.setSupportingMembers(supportingMembers);
-			}
-		}
-		/**** Binding Clubbed Entities ****/
-		String[] strClubbedEntities = request.getParameterValues("clubbedEntities");
-		if (strClubbedEntities != null) {
-			if (strClubbedEntities.length > 0) {
-				List<ClubbedEntity> clubbedEntities = new ArrayList<ClubbedEntity>();
-				for (String i : strClubbedEntities) {
-					ClubbedEntity clubbedEntity = ClubbedEntity.findById(ClubbedEntity.class, Long.parseLong(i));
-					clubbedEntities.add(clubbedEntity);
-				}
-				domain.setClubbedEntities(clubbedEntities);
-			}
-		}
-		/**** Binding Referenced Entities ****/
-		String[] strReferencedEntities = request.getParameterValues("referencedEntities");
-		if (strReferencedEntities != null) {
-			if (strReferencedEntities.length > 0) {
-				List<ReferencedEntity> referencedEntities = new ArrayList<ReferencedEntity>();
-				for (String i : strReferencedEntities) {
-					ReferencedEntity referencedEntity = ReferencedEntity.findById(ReferencedEntity.class, Long.parseLong(i));
-					referencedEntities.add(referencedEntity);
-				}
-				domain.setReferencedEntities(referencedEntities);
-			}
-		}
-		/**** Workflowdetails ****/
-		WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, domain.getWorkflowDetailsId());
-		String userGroupType = workflowDetails.getAssigneeUserGroupType();
-		/**** Updating domain ****/
-		domain.setEditedOn(new Date());
-		domain.setEditedBy(this.getCurrentUser().getActualUsername());
-		domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
-		String strCreationDate = request.getParameter("setCreationDate");
-		String strSubmissionDate = request.getParameter("setSubmissionDate");
-		String strWorkflowStartedOnDate = request.getParameter("workflowStartedOnDate");
-		String strTaskReceivedOnDate = request.getParameter("taskReceivedOnDate");
-		CustomParameter dateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
-		if (dateTimeFormat != null) {
-			SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(), "en_US");
-			try {
-				if (strSubmissionDate != null && !strSubmissionDate.isEmpty()) {
-					domain.setSubmissionDate(format.parse(strSubmissionDate));
-				}
-				if (strCreationDate != null && !strCreationDate.isEmpty()) {
-					domain.setCreationDate(format.parse(strCreationDate));
-				}
-				if (strWorkflowStartedOnDate != null
-						&& !strWorkflowStartedOnDate.isEmpty()) {
-					domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
-				}
-				if (strTaskReceivedOnDate != null
-						&& !strTaskReceivedOnDate.isEmpty()) {
-					domain.setTaskReceivedOn(format
-							.parse(strTaskReceivedOnDate));
-				}
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		performAction(domain);
-		
-		String bulkEdit = request.getParameter("bulkedit");
-		if (bulkEdit == null || !bulkEdit.equals("yes")) {
-			/**** Complete Task ****/
-			String nextuser = domain.getActor();
-			String level = domain.getLevel();
-			Map<String, String> properties = new HashMap<String, String>();
-			properties.put("pv_deviceId", String.valueOf(domain.getId()));
-			properties.put("pv_deviceTypeId", String.valueOf(domain.getDeviceType().getId()));
-			if (nextuser != null) {
-				if (!nextuser.isEmpty()) {
-					String[] temp = nextuser.split("#");
-					properties.put("pv_user", temp[0]);
+		String userGroupType = "";
+		try{
+			/**** Binding Supporting Members ****/
+			String[] strSupportingMembers = request.getParameterValues("supportingMembers");
+			if (strSupportingMembers != null) {
+				if (strSupportingMembers.length > 0) {
+					List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+					for (String i : strSupportingMembers) {
+						SupportingMember supportingMember = SupportingMember.findById(SupportingMember.class, Long.parseLong(i));
+						supportingMembers.add(supportingMember);
+					}
+					domain.setSupportingMembers(supportingMembers);
 				}
 			}
-			String endflag = domain.getEndFlag();
-			properties.put("pv_endflag", request.getParameter("endflag"));
-			String strTaskId = workflowDetails.getTaskId();
-			Task task = processService.findTaskById(strTaskId);
-			processService.completeTask(task, properties);
-			if (endflag != null) {
-				if (!endflag.isEmpty()) {
-					if (endflag.equals("continue")) {
-						ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-						Task newtask = processService.getCurrentTask(processInstance);
-						WorkflowDetails workflowDetails2 = null;
-						try {
-							workflowDetails2 = WorkflowDetails.create(domain, newtask, ApplicationConstants.APPROVAL_WORKFLOW, level);
-						} catch (ELSException e) {
-							e.printStackTrace();
-							model.addAttribute("error", e.getParameter());
-						}
-						domain.setWorkflowDetailsId(workflowDetails2.getId());
-						domain.setTaskReceivedOn(new Date());
+			/**** Binding Clubbed Entities ****/
+			String[] strClubbedEntities = request.getParameterValues("clubbedEntities");
+			if (strClubbedEntities != null) {
+				if (strClubbedEntities.length > 0) {
+					List<ClubbedEntity> clubbedEntities = new ArrayList<ClubbedEntity>();
+					for (String i : strClubbedEntities) {
+						ClubbedEntity clubbedEntity = ClubbedEntity.findById(ClubbedEntity.class, Long.parseLong(i));
+						clubbedEntities.add(clubbedEntity);
+					}
+					domain.setClubbedEntities(clubbedEntities);
+				}
+			}
+			/**** Binding Referenced Entities ****/
+			String[] strReferencedEntities = request.getParameterValues("referencedEntities");
+			if (strReferencedEntities != null) {
+				if (strReferencedEntities.length > 0) {
+					List<ReferenceUnit> referencedEntities = new ArrayList<ReferenceUnit>();
+					for (String i : strReferencedEntities) {
+						ReferenceUnit referencedEntity = ReferenceUnit.findById(ReferenceUnit.class, Long.parseLong(i));
+						referencedEntities.add(referencedEntity);
+					}
+					domain.setReferencedEntities(referencedEntities);
+				}
+			}
+			/**** Workflowdetails ****/
+			WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, domain.getWorkflowDetailsId());
+			userGroupType = workflowDetails.getAssigneeUserGroupType();
+			/**** Updating domain ****/
+			domain.setEditedOn(new Date());
+			domain.setEditedBy(this.getCurrentUser().getActualUsername());
+			domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+			String strCreationDate = request.getParameter("setCreationDate");
+			String strSubmissionDate = request.getParameter("setSubmissionDate");
+			String strWorkflowStartedOnDate = request.getParameter("workflowStartedOnDate");
+			String strTaskReceivedOnDate = request.getParameter("taskReceivedOnDate");
+			CustomParameter dateTimeFormat = CustomParameter.findByName(CustomParameter.class, "SERVER_DATETIMEFORMAT", "");
+			if (dateTimeFormat != null) {
+				SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(), "en_US");
+				try {
+					if (strSubmissionDate != null && !strSubmissionDate.isEmpty()) {
+						domain.setSubmissionDate(format.parse(strSubmissionDate));
+					}
+					if (strCreationDate != null && !strCreationDate.isEmpty()) {
+						domain.setCreationDate(format.parse(strCreationDate));
+					}
+					if (strWorkflowStartedOnDate != null
+							&& !strWorkflowStartedOnDate.isEmpty()) {
+						domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
+					}
+					if (strTaskReceivedOnDate != null
+							&& !strTaskReceivedOnDate.isEmpty()) {
+						domain.setTaskReceivedOn(format
+								.parse(strTaskReceivedOnDate));
+					}
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			//---new code
+			String currentDeviceTypeWorkflowType = null;
+			Workflow workflowFromUpdatedStatus = null;
+			if(domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+					|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_UNCLUBBING)
+					|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)){
+				
+				workflowFromUpdatedStatus = Workflow.findByStatus(domain.getRecommendationStatus(), domain.getLocale());
+			
+			} else if(domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING)
+					|| domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_NAME_CLUBBING)
+					|| (domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+					||(domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED))
+					||(domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+					||(domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+				
+				workflowFromUpdatedStatus = Workflow.findByStatus(domain.getInternalStatus(), domain.getLocale());
+			} else {
+				workflowFromUpdatedStatus = null;
+			}
+			
+			//String sendbackactor=request.getParameter("sendbackactor");
+			if(workflowFromUpdatedStatus!=null) {
+				currentDeviceTypeWorkflowType = workflowFromUpdatedStatus.getType();
+			}
+			
+			performAction(domain);
+			
+			if(currentDeviceTypeWorkflowType==null) {
+				workflowFromUpdatedStatus = Workflow.findByStatus(domain.getInternalStatus(), domain.getLocale());
+				currentDeviceTypeWorkflowType = workflowFromUpdatedStatus.getType();
+			}
+			
+			CutMotion motion = CutMotion.findById(CutMotion.class, domain.getId());
+			String bulkEdit = request.getParameter("bulkedit");
+			if (bulkEdit == null || !bulkEdit.equals("yes")) {
+				/**** Complete Task ****/
+				String nextuser = domain.getActor();
+				String level = domain.getLevel();
+				UserGroupType usergroupType = null;
+				Map<String, String> properties = new HashMap<String, String>();
+				
+				properties.put("pv_deviceId", String.valueOf(domain.getId()));
+				properties.put("pv_deviceTypeId", String.valueOf(domain.getDeviceType().getId()));
+				if (nextuser != null) {
+					if (!nextuser.isEmpty()) {
+						String[] temp = nextuser.split("#");
+						properties.put("pv_user", temp[0]);
+						usergroupType = UserGroupType.findByType(temp[1], locale.toString());
 					}
 				}
+				String endflag = domain.getEndFlag();
+				properties.put("pv_endflag", request.getParameter("endflag"));
+				String strTaskId = workflowDetails.getTaskId();
+				Task task = processService.findTaskById(strTaskId);
+				processService.completeTask(task, properties);
+				if (endflag != null) {
+					if (!endflag.isEmpty()) {
+						if (endflag.equals("continue")) {
+							ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+							Task newtask = processService.getCurrentTask(processInstance);
+	
+							WorkflowDetails workflowDetails2 = WorkflowDetails.create(motion, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
+							
+							/**** FOr CLarificationFromMember and Department ****/
+							if(domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+									&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SEND_TO_DEPARTMENT)){
+									
+								Map<String, String> parameters = new HashMap<String, String>();
+								User user = User.find(domain.getPrimaryMember());
+								Credential credential = user.getCredential();
+								parameters.put("pv_endflag", endflag);	
+								parameters.put("pv_user",credential.getUsername());
+								parameters.put("pv_deviceId", String.valueOf(motion.getId()));
+								parameters.put("pv_deviceTypeId", String.valueOf(motion.getDeviceType().getId()));
+	
+								ProcessDefinition processDefinition1 =processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+								ProcessInstance processInstance1 = processService.createProcessInstance(processDefinition1, parameters);
+								Task newMembertask = processService.getCurrentTask(processInstance1);
+								WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);
+												
+							}
+							domain.setWorkflowDetailsId(workflowDetails2.getId());
+							domain.setTaskReceivedOn(new Date());
+						}
+					}
+				}
+				workflowDetails.setStatus("COMPLETED");
+				workflowDetails.setCompletionTime(new Date());
+				workflowDetails.setInternalStatus(domain.getInternalStatus().getName());
+				workflowDetails.setRecommendationStatus(domain.getRecommendationStatus().getName());
+				workflowDetails.merge();
+				domain.merge();
+				/**** display message ****/
+				model.addAttribute("type", "taskcompleted");
+				return "workflow/info";
 			}
-			workflowDetails.setStatus("COMPLETED");
-			workflowDetails.setCompletionTime(new Date());
-			workflowDetails.setInternalStatus(domain.getInternalStatus().getName());
-			workflowDetails.setRecommendationStatus(domain.getRecommendationStatus().getName());
-			workflowDetails.merge();
 			domain.merge();
-			/**** display message ****/
-			model.addAttribute("type", "taskcompleted");
-			return "workflow/info";
+			model.addAttribute("type", "success");
+			populateModel(domain, model, request, workflowDetails);
+		}catch(ELSException ex){
+			model.addAttribute("error", ex.getParameter());
 		}
-		domain.merge();
-		model.addAttribute("type", "success");
-		populateModel(domain, model, request, workflowDetails);
 		return "workflow/cutmotion/" + userGroupType;
 	}
 
 	private void performAction(final CutMotion domain) {
-		String internalStatus = domain.getInternalStatus().getType();
-		String recommendationStatus = domain.getRecommendationStatus()
-				.getType();
-		if (internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
-				&& recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)) {
-			performActionOnAdmission(domain);
+		try{
+			String internalStatus=domain.getInternalStatus().getType();
+			String recommendationStatus=domain.getRecommendationStatus().getType();
+			if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+					&&recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)){
+				performActionOnAdmission(domain);
+			}
+			else if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_REJECTION)
+					&&recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_REJECTION)){
+				performActionOnRejection(domain);
+			}
+			/*** Clarification Asked  From Department***/
+			else if(internalStatus.startsWith(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+					&&recommendationStatus.startsWith(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
+				performActionOnClarificationNeededFromDepartment(domain);
+			}
+			/*** Clarification Asked From Member***/
+			else if(internalStatus.startsWith(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+					&&recommendationStatus.startsWith(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+				performActionOnClarificationNeededFromMember(domain);
+			}
+			else if(internalStatus.startsWith(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+					&&recommendationStatus.startsWith(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+				performActionOnClarificationNeededFromMemberAndDepartment(domain);
+			}
+			
+			/**** Clarification not received From Department ****/
+			else if(internalStatus.startsWith(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+					&&recommendationStatus.startsWith(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+				performActionOnClarificationNotReceived(domain);
+			}
+			/**** Clarification not received From Member ****/
+			else if(internalStatus.startsWith(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+					&&recommendationStatus.startsWith(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+				performActionOnClarificationNotReceived(domain);
+			}
+			/**** Clarification received FROM Member ****/
+			else if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+					&& recommendationStatus.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED)){
+				performActionOnClarificationReceived(domain);
+			}
+			/**** Clarification received From Department ****/
+			else if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+					&& recommendationStatus.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED)){
+				performActionOnClarificationReceived(domain);
+			}
+			/**** Clarification received FROM Member & Department ****/
+			else if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+					&& recommendationStatus.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED)){
+				performActionOnClarificationReceived(domain);
+			}
+			/**** Clubbing is approved ****/
+			else if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING)&&
+					recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING)){
+				performActionOnClubbing(domain);
+			}
+			/**** Clubbing is rejected ****/
+			else if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_REJECT_CLUBBING)&&
+					recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_REJECT_CLUBBING)){
+				performActionOnClubbingRejection(domain);
+			}
+			/**** Name clubbing is approved ****/
+			else if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_NAME_CLUBBING)&&
+					recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_NAME_CLUBBING)){
+				performActionOnNameClubbing(domain);
+			}		
+			/**** Name clubbing is rejected ****/		
+			else if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_REJECT_NAME_CLUBBING)&&
+					recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_REJECT_NAME_CLUBBING)){
+				performActionOnNameClubbingRejection(domain);
+			}	
+			/**** Clubbing Post Admission is approved ****/
+			else if(recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)){
+				performActionOnClubbingPostAdmission(domain);
+			}
+			/**** Clubbing Post Admission is rejected ****/
+			else if(recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_REJECT_CLUBBING_POST_ADMISSION)){
+				performActionOnClubbingRejectionPostAdmission(domain);
+			}
+			/**** Unclubbing is approved ****/
+			else if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_UNCLUBBING)&&
+					recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_UNCLUBBING)){
+				performActionOnUnclubbing(domain);
+			}
+			/**** Unclubbing is rejected ****/
+			else if(internalStatus.equals(ApplicationConstants.CUTMOTION_FINAL_REJECT_UNCLUBBING)&&
+					recommendationStatus.equals(ApplicationConstants.CUTMOTION_FINAL_REJECT_UNCLUBBING)){
+				performActionOnUnclubbingRejection(domain);
+			}
+		}catch(Exception e){
+			logger.error("error", e);
 		}
 	}
 
 	private void performActionOnAdmission(final CutMotion domain) {
-		Status finalStatus = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION, domain.getLocale());
+		Status finalStatus=Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION, domain.getLocale());
 		domain.setStatus(finalStatus);
-		/****
-		 * Setting revised subject,question text,revised reason,revised brief
-		 * explaination if not already set
-		 ****/
-		if (domain.getRevisedMainTitle() == null) {
-			domain.setRevisedMainTitle(domain.getMainTitle());
-		} else if (domain.getRevisedMainTitle().isEmpty()) {
+		/**** Setting revised subject,question text,revised reason,revised brief explaination if not already set ****/
+		if(domain.getRevisedMainTitle()==null){			
+			domain.setRevisedMainTitle(domain.getMainTitle());			
+		}else if(domain.getRevisedMainTitle().isEmpty()){
 			domain.setRevisedMainTitle(domain.getMainTitle());
 		}
-		if (domain.getRevisedSecondaryTitle() == null) {
-			domain.setRevisedSecondaryTitle(domain.getSecondaryTitle());
-		} else if (domain.getRevisedSecondaryTitle().isEmpty()) {
-			domain.setRevisedSecondaryTitle(domain.getSecondaryTitle());
-		}
-		if (domain.getRevisedSubTitle() == null) {
-			domain.setRevisedSubTitle(domain.getSubTitle());
-		} else if (domain.getRevisedSubTitle().isEmpty()) {
+		if(domain.getRevisedSubTitle()==null){			
+			domain.setRevisedSubTitle(domain.getSubTitle());			
+		}else if(domain.getRevisedSubTitle().isEmpty()){
 			domain.setRevisedSubTitle(domain.getSubTitle());
 		}
-		if (domain.getRevisedMainTitle() == null) {
-			domain.setRevisedMainTitle(domain.getMainTitle());
-		} else if (domain.getRevisedMainTitle().isEmpty()) {
-			domain.setRevisedMainTitle(domain.getMainTitle());
+		if(domain.getRevisedSecondaryTitle()==null){			
+			domain.setRevisedSecondaryTitle(domain.getSecondaryTitle());			
+		}else if(domain.getRevisedSecondaryTitle().isEmpty()){
+			domain.setRevisedSecondaryTitle(domain.getSecondaryTitle());
 		}
-		if (domain.getRevisedNoticeContent() == null) {
-			domain.setRevisedNoticeContent(domain.getRevisedNoticeContent());
-		} else if (domain.getRevisedNoticeContent().isEmpty()) {
+		if(domain.getRevisedNoticeContent()==null){			
+			domain.setRevisedNoticeContent(domain.getNoticeContent());			
+		}else if(domain.getRevisedNoticeContent().isEmpty()){
 			domain.setRevisedNoticeContent(domain.getNoticeContent());
-		}
-		if (domain.getRevisedNoticeContent() == null) {
-			domain.setRevisedNoticeContent(domain.getRevisedNoticeContent());
-		} else if (domain.getRevisedNoticeContent().isEmpty()) {
-			domain.setRevisedNoticeContent(domain.getNoticeContent());
-		}
-		List<ClubbedEntity> clubbedEntities = domain.getClubbedEntities();
-		if (clubbedEntities != null) {
-			String mainTitle = null;
-			String secondaryTitle = null;
-			String subTitle = null;
-			String noticeContent = null;
-			if (domain.getRevisedMainTitle() != null) {
-				if (!domain.getRevisedMainTitle().isEmpty()) {
-					mainTitle = domain.getRevisedMainTitle();
-				} else {
-					mainTitle = domain.getMainTitle();
+		}		
+		List<ClubbedEntity> clubbedEntities=domain.getClubbedEntities();
+		if(clubbedEntities!=null){
+			String subject=null;
+			String details=null;
+			
+			if(domain.getRevisedMainTitle()!=null){
+				if(!domain.getRevisedMainTitle().isEmpty()){
+					subject=domain.getRevisedMainTitle();
+				}else{
+					subject=domain.getMainTitle();
 				}
-			} else {
-				mainTitle = domain.getMainTitle();
+			}else{
+				subject=domain.getMainTitle();
 			}
 			
-			if (domain.getRevisedSecondaryTitle() != null) {
-				if (!domain.getRevisedSecondaryTitle().isEmpty()) {
-					secondaryTitle = domain.getRevisedSecondaryTitle();
-				} else {
-					secondaryTitle = domain.getSecondaryTitle();
+			if(domain.getRevisedSubTitle()!=null){
+				if(!domain.getRevisedSubTitle().isEmpty()){
+					subject=domain.getRevisedSubTitle();
+				}else{
+					subject=domain.getSubTitle();
 				}
-			} else {
-				secondaryTitle = domain.getMainTitle();
+			}else{
+				subject=domain.getSubTitle();
 			}
 			
-			if (domain.getRevisedSubTitle() != null) {
-				if (!domain.getRevisedSubTitle().isEmpty()) {
-					subTitle = domain.getRevisedSubTitle();
-				} else {
-					subTitle = domain.getSubTitle();
+			if(domain.getRevisedSecondaryTitle()!=null){
+				if(!domain.getRevisedSecondaryTitle().isEmpty()){
+					subject=domain.getRevisedSecondaryTitle();
+				}else{
+					subject=domain.getSecondaryTitle();
 				}
-			} else {
-				subTitle = domain.getSubTitle();
+			}else{
+				subject=domain.getSecondaryTitle();
 			}
-			if (domain.getRevisedNoticeContent() != null) {
-				if (!domain.getRevisedNoticeContent().isEmpty()) {
-					noticeContent = domain.getRevisedNoticeContent();
-				} else {
-					noticeContent = domain.getNoticeContent();
+			
+			if(domain.getRevisedNoticeContent()!=null){
+				if(!domain.getRevisedNoticeContent().isEmpty()){
+					details=domain.getRevisedNoticeContent();
+				}else{
+					details=domain.getNoticeContent();
 				}
-			} else {
-				noticeContent = domain.getNoticeContent();
+			}else{
+				details=domain.getNoticeContent();
 			}
-			Status status = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_NAMECLUBBING, domain.getLocale());
-			for (ClubbedEntity i : clubbedEntities) {
-				CutMotion motion = i.getCutMotion();
-				if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED)) {
-					motion.setRevisedMainTitle(mainTitle);
-					motion.setRevisedSecondaryTitle(secondaryTitle);
-					motion.setRevisedSubTitle(subTitle);
-					motion.setRevisedNoticeContent(noticeContent);
+			
+			Status status=Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_NAME_CLUBBING, domain.getLocale());
+			for(ClubbedEntity i:clubbedEntities){
+				CutMotion motion=i.getCutMotion();
+				if(motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED)){
+					motion.setRevisedMainTitle(subject);
+					motion.setRevisedNoticeContent(details);
 					motion.setStatus(finalStatus);
 					motion.setInternalStatus(finalStatus);
 					motion.setRecommendationStatus(finalStatus);
-				} else {
+				}else{					
 					motion.setInternalStatus(status);
 					motion.setRecommendationStatus(status);
-				}
+				}			
 				motion.simpleMerge();
 			}
 		}
+	}	
+	
+	private void performActionOnRejection(CutMotion domain) throws ELSException {
+		domain.setStatus(domain.getInternalStatus());
+		/**** Setting revised subject,question text,revised reason,revised brief explaination if not already set ****/
+		if(domain.getRevisedMainTitle()==null){			
+			domain.setRevisedMainTitle(domain.getMainTitle());			
+		}else if(domain.getRevisedMainTitle().isEmpty()){
+			domain.setRevisedMainTitle(domain.getMainTitle());
+		}
+		if(domain.getRevisedSubTitle()==null){			
+			domain.setRevisedSubTitle(domain.getSubTitle());			
+		}else if(domain.getRevisedSubTitle().isEmpty()){
+			domain.setRevisedSubTitle(domain.getSubTitle());
+		}
+		if(domain.getRevisedSecondaryTitle()==null){			
+			domain.setRevisedSecondaryTitle(domain.getSecondaryTitle());			
+		}else if(domain.getRevisedSecondaryTitle().isEmpty()){
+			domain.setRevisedSecondaryTitle(domain.getSecondaryTitle());
+		}
+		if(domain.getRevisedNoticeContent()==null){			
+			domain.setRevisedNoticeContent(domain.getNoticeContent());			
+		}else if(domain.getRevisedNoticeContent().isEmpty()){
+			domain.setRevisedNoticeContent(domain.getNoticeContent());
+		}		
+		
+		
+		domain.merge(); // Added so as to avoid OptimisticLockException
+		// Hack (11Nov2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		CutMotion.updateClubbing(domain);
+		
+	}
+	
+	private void performActionOnClarificationNeededFromDepartment(CutMotion domain) {
+		
+		if(domain.getRevisedMainTitle() == null || domain.getRevisedMainTitle().isEmpty()){			
+			domain.setRevisedMainTitle(domain.getMainTitle());			
+		}
+		
+		if(domain.getRevisedSubTitle() == null || domain.getRevisedSubTitle().isEmpty()){			
+			domain.setRevisedSubTitle(domain.getSubTitle());			
+		}
+		
+		if(domain.getRevisedSecondaryTitle() == null || domain.getRevisedSecondaryTitle().isEmpty()){			
+			domain.setRevisedSecondaryTitle(domain.getSecondaryTitle());			
+		}
+		
+		if(domain.getRevisedNoticeContent() == null || domain.getRevisedNoticeContent().isEmpty()){			
+			domain.setRevisedNoticeContent(domain.getNoticeContent());			
+		}
 	}
 
+	private void performActionOnClarificationNeededFromMember(CutMotion domain) {
+		if(domain.getRevisedMainTitle() == null || domain.getRevisedMainTitle().isEmpty()){			
+			domain.setRevisedMainTitle(domain.getMainTitle());			
+		}
+		
+		if(domain.getRevisedSubTitle() == null || domain.getRevisedSubTitle().isEmpty()){			
+			domain.setRevisedSubTitle(domain.getSubTitle());			
+		}
+		
+		if(domain.getRevisedSecondaryTitle() == null || domain.getRevisedSecondaryTitle().isEmpty()){			
+			domain.setRevisedSecondaryTitle(domain.getSecondaryTitle());			
+		}
+		
+		if(domain.getRevisedNoticeContent() == null || domain.getRevisedNoticeContent().isEmpty()){			
+			domain.setRevisedNoticeContent(domain.getNoticeContent());			
+		}	
+	}
+	
+	private void performActionOnClarificationNeededFromMemberAndDepartment(CutMotion domain) {
+		if(domain.getRevisedMainTitle() == null || domain.getRevisedMainTitle().isEmpty()){			
+			domain.setRevisedMainTitle(domain.getMainTitle());			
+		}
+		
+		if(domain.getRevisedSubTitle() == null || domain.getRevisedSubTitle().isEmpty()){			
+			domain.setRevisedSubTitle(domain.getSubTitle());			
+		}
+		
+		if(domain.getRevisedSecondaryTitle() == null || domain.getRevisedSecondaryTitle().isEmpty()){			
+			domain.setRevisedSecondaryTitle(domain.getSecondaryTitle());			
+		}
+		
+		if(domain.getRevisedNoticeContent() == null || domain.getRevisedNoticeContent().isEmpty()){			
+			domain.setRevisedNoticeContent(domain.getNoticeContent());			
+		}
+		
+	}
+	
+	private void performActionOnClarificationReceived(CutMotion domain) {
+		Status newStatus = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP, domain.getLocale());
+		domain.setInternalStatus(newStatus);
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");		
+	}
+	
+	private void performActionOnClubbing(CutMotion domain) throws ELSException {
+		
+		CutMotion.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnClubbingRejection(CutMotion domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		CutMotion.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+
+	private void performActionOnNameClubbing(CutMotion domain) throws ELSException {
+		
+		CutMotion.updateClubbing(domain);
+
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnNameClubbingRejection(CutMotion domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		CutMotion.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);	
+	}
+
+	private void performActionOnClubbingPostAdmission(CutMotion domain) throws ELSException {
+		
+		CutMotion.updateClubbing(domain);
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnClubbingRejectionPostAdmission(CutMotion domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		CutMotion.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);	
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnclubbing(CutMotion domain) throws ELSException {
+		/**** remove clubbing (status is changed accordingly in unclub method itself) ****/
+		CutMotion.unclub(domain, domain.getLocale());
+		
+		// Hack (07May2014): Commenting the following line results in 
+		// OptimisticLockException.
+		domain.setVersion(domain.getVersion() + 1);
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+	
+	private void performActionOnUnclubbingRejection(CutMotion domain) throws ELSException {
+		/** Back to clubbed state as it was before sending for unclubbing **/
+		domain.setInternalStatus(domain.getParent().getInternalStatus());
+		domain.setRecommendationStatus(domain.getParent().getInternalStatus());
+		domain.simpleMerge();
+		
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+	}
+
+	private void performActionOnClarificationNotReceived(CutMotion domain) {
+		Status newStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_PUTUP, domain.getLocale());
+		domain.setInternalStatus(newStatus);
+		domain.setActor(null);
+		domain.setLocalizedActorName("");
+		domain.setWorkflowDetailsId(null);
+		domain.setLevel("1");
+		domain.setWorkflowStarted("NO");
+		domain.setEndFlag(null);
+		
+	}
+	
 	/**** Bulk Approval(By Any Authority) ****/
 	@RequestMapping(value = "/bulkapproval/init", method = RequestMethod.POST)
 	public String getBulkApprovalInit(final HttpServletRequest request,
@@ -1031,17 +1405,23 @@ public class CutMotionWorkflowController extends BaseController {
 							motion.setLocalizedActorName(temp[3] + "(" + temp[4] + ")");
 							motion.setLevel(temp[2]);
 							/**** Update Internal Status and Recommendation Status ****/
-							if (status != null) {
-								motion.setInternalStatus(status);
-								motion.setRecommendationStatus(status);
+							if(status != null){
+								if(!status.getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_DISCUSS) 
+								&& !status.getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_SENDBACK)
+								&& !status.getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SEND_TO_DEPARTMENT)
+								&& !status.getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SEND_TO_SECTIONOFFICER)){
+									motion.setInternalStatus(status);
+								}
+								motion.setRecommendationStatus(status);	
+								motion.setEndFlag("continue");
 							}
-							motion.setEndFlag("continue");
 							/**** Complete Task ****/
 							Map<String, String> properties = new HashMap<String, String>();
 							properties.put("pv_deviceId", String.valueOf(motion.getId()));
 							properties.put("pv_deviceTypeId", String.valueOf(motion.getDeviceType().getId()));
 							properties.put("pv_user", temp[0]);
 							properties.put("pv_endflag", motion.getEndFlag());
+							UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
 							String strTaskId = wfDetails.getTaskId();
 							Task task = processService.findTaskById(strTaskId);
 							processService.completeTask(task, properties);
@@ -1050,10 +1430,62 @@ public class CutMotionWorkflowController extends BaseController {
 									&& motion.getEndFlag().equals("continue")) {
 								/**** Create New Workflow Details ****/
 								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+								
+								Workflow workflowFromUpdatedStatus = null;
+								try {
+									
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * START...
+									 */
+									/*if(question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLUBBING_POST_ADMISSION)
+												|| question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_UNCLUBBING)
+												|| question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+											workflowFromUpdatedStatus = Workflow.findByStatus(question.getRecommendationStatus(), question.getLocale());
+										} else {
+											workflowFromUpdatedStatus = Workflow.findByStatus(question.getInternalStatus(), question.getLocale());
+									}*/
+									Status internalStatus = motion.getInternalStatus();
+									String internalStatusType = internalStatus.getType();
+									Status recommendationStatus = motion.getRecommendationStatus();
+									String recommendationStatusType = recommendationStatus.getType();
+
+									if(recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)
+											|| recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_UNCLUBBING)
+											|| recommendationStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
+										workflowFromUpdatedStatus = Workflow.findByStatus(recommendationStatus, locale.toString());
+									} 
+									else if(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING)
+											|| internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_NAME_CLUBBING)
+											|| (internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+											||(internalStatusType.equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+												&& recommendationStatusType.equals(ApplicationConstants.CUTMOTION_PROCESSED_CLARIFICATION_RECEIVED))) {
+										workflowFromUpdatedStatus = Workflow.findByStatus(internalStatus, locale.toString());
+									}
+									else {
+										workflowFromUpdatedStatus = Workflow.findByStatus(internalStatus, locale.toString());
+									}
+									/*
+									 * Added by Amit Desai 2 Dec 2014
+									 * ... END
+									 */
+									
+								} catch(ELSException e) {
+									e.printStackTrace();
+									model.addAttribute("error", "Bulk approval is unavailable please try after some time.");
+									model.addAttribute("type", "error");
+									return "workflow/info";
+								}
+								
 								Task newtask = processService.getCurrentTask(processInstance);
 								WorkflowDetails workflowDetails2 = null;
 								try {
-									workflowDetails2 = WorkflowDetails.create(motion, newtask, ApplicationConstants.APPROVAL_WORKFLOW, level);
+									workflowDetails2 = WorkflowDetails.create(motion,newtask,usergroupType,workflowFromUpdatedStatus.getType(),level);
 								} catch (ELSException e) {
 									e.printStackTrace();
 									model.addAttribute("error", e.getParameter());

@@ -10,8 +10,10 @@
 package org.mkcl.els.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.Credential;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.MenuItem;
@@ -31,6 +34,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 // TODO: Auto-generated Javadoc
 
@@ -45,6 +51,10 @@ public class UserController extends GenericController<User>{
 	
 	@Autowired
 	private IProcessService processService;
+	
+	/** add below field for password encryption **/
+//	@Autowired 
+//	private ISecurityService securityService;
 
 	@Override
 	protected void populateNew(final ModelMap model, final User domain, final String locale,
@@ -160,7 +170,25 @@ javax.servlet.http.HttpServletRequest)
 				credential.setUsername(username);
 				credential.setEnabled(Boolean.parseBoolean(request.getParameter("isEnabled")));
 				credential.setLocale(null);
-				credential.setPassword("123");
+				
+				String defaultPassword = ApplicationConstants.DEFAULT_PASSWORD;
+				
+				CustomParameter csptUserDefaultPassword = CustomParameter.findByFieldName(CustomParameter.class, "name", ApplicationConstants.USE_DEFAULT_PASSWORD, "");
+				if(csptUserDefaultPassword != null){
+					if(csptUserDefaultPassword.getValue() != null && !csptUserDefaultPassword.getValue().isEmpty()){
+						if(csptUserDefaultPassword.getValue().equals("no")){
+							defaultPassword = Credential.generatePassword(Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+						}
+					}
+				}
+					
+				//remove below line for encryted password
+				credential.setPassword(defaultPassword);
+				credential.setPasswordChangeCount(1);
+				credential.setPasswordChangeDateTime(new Date());
+				//add below commented code for encryted password				
+//				String encodedPassword = securityService.getEncodedPassword(defaultPassword);
+//				credential.setPassword(encodedPassword);
 				String[] selectedRoles=request.getParameterValues("roles");
 				Set<Role> roles=new HashSet<Role>();
 				if(selectedRoles!=null){
@@ -219,9 +247,22 @@ javax.servlet.http.HttpServletRequest)
 				Credential credential=new Credential();
 				credential.setEmail(email); 	 	    	  
 				credential.setUsername(username);
+				String defaultPassword = ApplicationConstants.DEFAULT_PASSWORD;
+				CustomParameter csptUserDefaultPassword = CustomParameter.findByFieldName(CustomParameter.class, "name", ApplicationConstants.USE_DEFAULT_PASSWORD, "");
+				if(csptUserDefaultPassword != null){
+					if(csptUserDefaultPassword.getValue() != null && !csptUserDefaultPassword.getValue().isEmpty()){
+						if(csptUserDefaultPassword.getValue().equals("no")){
+							defaultPassword = Credential.generatePassword(Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+						}
+					}
+				}
+				//remove below line for encryted password
+				credential.setPassword(defaultPassword);
+				//add below 2 lines for encryted password				
+//				String encodedPassword = securityService.getEncodedPassword(defaultPassword);
+//				credential.setPassword(encodedPassword);
 				credential.setEnabled(isEnabled); 	 	 	      
-				credential.setLocale(null);
-				credential.setPassword("123");
+				credential.setLocale(null);				
 				String[] selectedRoles=request.getParameterValues("roles");
 				Set<Role> roles=new HashSet<Role>();
 				for(String i:selectedRoles){
@@ -238,7 +279,7 @@ javax.servlet.http.HttpServletRequest)
 				processService.deleteUser(user);
 			}
 			oldcredential.setEmail(email); 	 	    	  
-			oldcredential.setUsername(username);
+			oldcredential.setUsername(username);			
 			oldcredential.setEnabled(isEnabled);
 			String[] selectedRoles=request.getParameterValues("roles");
 			Set<Role> roles=new HashSet<Role>();
@@ -264,4 +305,129 @@ javax.servlet.http.HttpServletRequest)
 			domain.setLanguage(buffer.toString());
 		}			
 	}	
+	
+	@RequestMapping(value = "/resetPassword", method = RequestMethod.GET)
+    public String resetPasswordInit(final ModelMap model, 
+    		final HttpServletRequest request,
+            final Locale locale) {
+        final String servletPath = request.getServletPath().replaceFirst("\\/","");
+        /** username **/
+        String username = request.getParameter("username");
+        if(username==null || username.isEmpty()) {
+        	username = (String) request.getSession().getAttribute("selectedUsername"); 
+        	if(username!=null) {
+        		request.getSession().removeAttribute("selectedUsername");
+        	}
+        }
+        if(username!=null && !username.isEmpty()) {
+        	model.addAttribute("username", username);
+            /** new password **/
+            if(request.getSession().getAttribute("newPassword")==null){
+                model.addAttribute("newPassword",ApplicationConstants.DEFAULT_PASSWORD);
+            }else{
+            	model.addAttribute("newPassword",request.getSession().getAttribute("newPassword"));
+                request.getSession().removeAttribute("newPassword");
+            }
+            /** confirmed password **/
+            if(request.getSession().getAttribute("confirmedPassword")==null){
+                model.addAttribute("confirmedPassword",ApplicationConstants.DEFAULT_PASSWORD);
+            }else{
+            	model.addAttribute("confirmedPassword",request.getSession().getAttribute("confirmedPassword"));
+                request.getSession().removeAttribute("confirmedPassword");
+            }
+            //this is done so as to remove the bug due to which update message appears even though there
+            //is a fresh request
+            if(request.getSession().getAttribute("type")==null){
+                model.addAttribute("type","");
+            }else{
+            	model.addAttribute("type",request.getSession().getAttribute("type"));
+                request.getSession().removeAttribute("type");
+            }
+        } else {
+        	model.addAttribute("errorcode", "USERNAME_NOTGIVEN");
+        }        
+        //here making provisions for displaying error pages
+        if(model.containsAttribute("errorcode")){
+            return servletPath.replace("password","error");
+        }else{
+            return servletPath;
+        }
+    }
+	
+	@RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
+    public String resetPasswordUpdate(final ModelMap model, 
+    		final HttpServletRequest request,
+    		final RedirectAttributes redirectAttributes,
+            final Locale locale) {
+		String username = request.getParameter("username");
+		String newPassword = request.getParameter("newPassword");
+		String confirmedPassword = request.getParameter("confirmedPassword");
+		if(username!=null && !username.isEmpty() && newPassword!=null && !newPassword.isEmpty() 
+				&& confirmedPassword!=null && !confirmedPassword.isEmpty() 
+				&& newPassword.equals(confirmedPassword)) {
+			User user = null;
+			try {
+				user = User.findByUserName(username, locale.toString());
+			} catch (ELSException e) {
+				e.printStackTrace();
+				//error
+				redirectAttributes.addFlashAttribute("type", "error");
+				request.getSession().setAttribute("type","error");
+		        redirectAttributes.addFlashAttribute("msg", "update_error");	
+			}
+			if(user!=null && user.getId()!=null) {
+				Credential credential = user.getCredential();
+				if(credential!=null) {
+					//remove following line for encrypted password
+					credential.setPassword(newPassword);
+					//add below code for encrypted password
+//					credential.setPassword(securityService.getEncodedPassword(newPassword));
+					
+					//after resetting password, user must change the password on first login
+					credential.setPasswordChangeCount(1);
+					
+					credential.merge();						
+					redirectAttributes.addFlashAttribute("type", "success");
+			        //this is done so as to remove the bug due to which update message appears even though there
+			        //is a fresh request
+			        request.getSession().setAttribute("type","success");
+			        redirectAttributes.addFlashAttribute("msg", "update_success");
+				}
+			}
+		} else {
+			//error
+			redirectAttributes.addFlashAttribute("type", "error");
+			request.getSession().setAttribute("type","error");
+	        redirectAttributes.addFlashAttribute("msg", "update_error");
+		} 
+		request.getSession().setAttribute("selectedUsername", username);
+		request.getSession().setAttribute("newPassword", newPassword);	
+		request.getSession().setAttribute("confirmedPassword", confirmedPassword);
+        String returnUrl = "redirect:/" + request.getServletPath().replaceFirst("\\/","");
+        return returnUrl;
+    }
+	
+	@RequestMapping(value = "/credential/updateAllowedForMultiLogin", method = RequestMethod.POST)
+    public @ResponseBody int updateCredentialAllowedForMultiLogin(final HttpServletRequest request,final Locale locale) {
+		int updateStatus = 0;
+		String credentialId = request.getParameter("credentialId");
+		if(credentialId!=null && !credentialId.isEmpty() && !credentialId.equals("false")) {
+			try {
+				Credential credential = Credential.findById(Credential.class, Long.parseLong(credentialId));
+				if(credential!=null) {
+					if(credential.isAllowedForMultiLogin()) {
+						credential.setAllowedForMultiLogin(false);
+					} else {
+						credential.setAllowedForMultiLogin(true);
+					}
+					credential.merge();
+					updateStatus = 1;
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+				updateStatus = 0;
+			}			
+		}
+		return updateStatus;
+	}
 }

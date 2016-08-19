@@ -73,15 +73,15 @@
 		}
 		function deleteAdjournment(row) {
 			var slot=$('#internalKey').val();
-			if(row ==""){
+			if(slot ==""){
 				$.prompt($('#selectRowFirstMessage').val());		
 				return;
 			}
 			else{
-				$.prompt($('#confirmDeleteMessage').val()+ row,{
+				$.prompt($('#confirmDeleteMessage').val()+ slot,{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
-				        $.delete_('roster/adjournment/'+row+'/delete?'+$("#gridURLParams").val(), null, function(data, textStatus, XMLHttpRequest) {
+				        $.delete_('roster/adjournment/'+slot+'/delete?'+$("#gridURLParams").val(), null, function(data, textStatus, XMLHttpRequest) {
 				        	listAdjournment();
 				        }).fail(function(){
 							if($("#ErrorMsg").val()!=''){

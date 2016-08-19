@@ -21,6 +21,7 @@
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
 				if(value!=""){	
+					loadStatus();
 					reloadResolutionGrid();									
 				}	
 			});	
@@ -28,13 +29,15 @@
 			$("#selectedSessionYear").change(function(){
 				var value=$(this).val();
 				if(value!=""){		
+					loadStatus();
 					reloadResolutionGrid();							
 				}			
 			});
 			/**** session type changes then reload grid****/
 			$("#selectedSessionType").change(function(){
 				var value=$(this).val();
-				if(value!=""){			
+				if(value!=""){		
+					loadStatus();
 					reloadResolutionGrid();						
 				}			
 			});
@@ -42,17 +45,18 @@
 			$("#selectedDeviceType").change(function(){
 				var value = $(this).val();
 				if(value != ""){
-					//loadStatus($(this).val());
+					loadStatus();
 					showResolutionList();
 				}
-				
 			});
+			
 			$("#selectedStatus").change(function(){
 				var value=$(this).val();				
 				if(value!=""){				
 				reloadResolutionGrid();
 				}
 			});
+			
 			/**** Bulk Putup ****/
 			$("#bulkputup_tab").click(function(){
 				$("#selectionDiv1").hide();
@@ -64,27 +68,42 @@
 				$("#selectionDiv1").hide();
 				bulkPutupAssistant();
 			});
+			
 			/**** Ballot Tab ****/
 			$('#ballot_tab').click(function(){
 				$("#selectionDiv1").hide();
 				viewBallot();
 			});	
+			
 			/**** Member Ballot Tab ****/
 			$('#memberballot_tab').click(function(){
 				$("#selectionDiv1").hide();
 				viewMemberBallot();
 			});
 			
-			
 			/**** Patrak Bhag Two ****/
 			$("#patrakbhag2_tab").click(function(){
 				$("#selectionDiv1").hide();
 				viewPatrakBhag2();
 			});
+			
+			$("#selectedSubdepartment").change(function(){
+				var value = $(this).val();
+				if(value != ""){
+					//loadStatus($(this).val());
+					showResolutionList();
+				}
+			});
 		});
 		
-		/* function loadStatus(deviceType){
-			$.get('ref/status/'+ deviceType,function(data){
+		 function loadStatus(){
+			var params = "deviceType=" + $("#selectedDeviceType").val() +
+						"&houseType=" + $("#selectedHouseType").val() +
+						"&sessionType=" + $("#selectedSessionType").val() +
+						"&sessionYear=" + $("#selectedSessionYear").val() +
+						"&usergroupType="+$("#currentusergroupType").val();
+						
+			$.get('ref/requiredStatus?'+ params,function(data){
 				$("#selectedStatus").empty();
 				if(data.length>0){
 				for(var i=0;i<data.length;i++){
@@ -93,11 +112,11 @@
 				$("#selectedStatus").html(selectedStatusText);			
 				}else{
 					$("#selectedStatus").empty();
-					var selectedStatusText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
+					var selectedStatusText="<option value='' selected='selected'>----"+$("#pleaseSelect").val()+"----</option>";				
 					$("#selectedStatus").html(selectedStatusText);				
 				}
 			});
-		} */
+		} 
 
 		/**** displaying grid ****/					
 		function showResolutionList() {
@@ -110,7 +129,20 @@
 					+'&role='+$("#srole").val()
 					+'&usergroup='+$("#currentusergroup").val()
 					+'&usergroupType='+$("#currentusergroupType").val()
+					+'&subDepartment='+$("#selectedSubdepartment").val()
 				);	
+		}
+		
+		function memberResolutionsView() {
+			var parameters = "houseType=" + $("#selectedHouseType").val()
+			+ "&sessionYear=" + $("#selectedSessionYear").val()
+			+ "&sessionType=" + $("#selectedSessionType").val()
+			+ "&resolutionType=" + $("#selectedDeviceType").val()
+			+ "&createdBy=" + $("#ugparam").val()
+			+"&locale="+$("#moduleLocale").val()
+			+ "&report=MEMBER_RESOLUTIONS_VIEW"
+			+ "&reportout=member_resolutions_view";
+			showTabByIdAndUrl('details_tab','resolution/report/generalreport?'+parameters);
 		}
 		
 		function newResolution() {
@@ -175,6 +207,7 @@
 								+"&role="+$("#srole").val()
 								+"&usergroup="+$("#currentusergroup").val()
 								+"&usergroupType="+$("#currentusergroupType").val()
+								+'&subDepartment='+$("#selectedSubdepartment").val()
 								);
 					console.log("reloaded govt params: " + $("#gridURLParams").val());
 				} else {
@@ -188,6 +221,7 @@
 								+"&role="+$("#srole").val()
 								+"&usergroup="+$("#currentusergroup").val()
 								+"&usergroupType="+$("#currentusergroupType").val()
+								+'&subDepartment='+$("#selectedSubdepartment").val()
 								);
 					console.log("reloaded nonofficial params: " + $("#gridURLParams").val());
 				}				
@@ -274,46 +308,91 @@
 				 var resourceURL=resource+"?"+parameters;	
 				showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);				
 		}
-		/**** Rotation Order Tab ****/
-		/* function viewRotationOrder() {
-			var parameters = $("#gridURLParams").val();
-			if(parameters==undefined){
-				parameters = "houseType="+$("#selectedHouseType").val()
-				 +"&sessionYear="+$("#selectedSessionYear").val()
-				 +"&sessionType="+$("#selectedSessionType").val()
-				 +"&questionType="+$("#selectedQuestionType").val()
-				 +"&ugparam="+$("#ugparam").val()
-				 +"&status="+$("#selectedStatus").val()
-				 +"&role="+$("#srole").val()
-				 +"&usergroup="+$("#currentusergroup").val()
-				 +"&usergroupType="+$("#currentusergroupType").val();
-			}
-			var parameters = parameters + "&group=" + $("#selectedGroup").val();
-			var resourceURL = 'rotationorder/init?' + parameters;
-			showTabByIdAndUrl('rotationorder_tab', resourceURL);
-		}	 */
-		/**** Member Ballot Tab ****/
-		/* function viewMemberBallot() {
-			var parameters = $("#gridURLParams").val();
-			if(parameters==undefined){
-				var device=$("#currentDeviceType").val();
-				if(device=='resolutions_nonofficial'){
-					parameters = "houseType="+$("#selectedHouseType").val()
-					 +"&sessionYear="+$("#selectedSessionYear").val()
-					 +"&sessionType="+$("#selectedSessionType").val()
-					 +"&deviceType="+$("#selectedDeviceType").val()
-					 +"&ugparam="+$("#ugparam").val()
-					 +"&status="+$("#selectedStatus").val()
-					 +"&role="+$("#srole").val()
-					 +"&usergroup="+$("#currentusergroup").val()
-					 +"&usergroupType="+$("#currentusergroupType").val();				
-				}
-			}
-			parameters+= "&round=1";
-			var resourceURL = 'ballot/memberballot/init?' + parameters;
-			showTabByIdAndUrl('memberballot_tab', resourceURL);
-		} */
 		
+		/**** To Generate Resolutions Online Submission Count Report ****/
+		function resolutionsOnlineSubmissionCountReport(){
+			var parameters = "houseType=" + $("#selectedHouseType").val()
+			 + "&sessionYear=" + $("#selectedSessionYear").val()
+			 + "&sessionType=" + $("#selectedSessionType").val()
+			 + "&deviceType=" + $("#selectedDeviceType").val()
+			 + "&role=" + $("#srole").val();		 	
+			var resourceURL = 'resolution/report/resolutionsonlinesubmissioncountreport/init?'+ parameters;
+			$.get(resourceURL,function(data) {
+				$.fancybox.open(data,{autoSize:false,width:400,height:200});
+			},'html').fail(function(){				
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").
+					css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+		}
+		
+		/**** To Generate Intimation Letter ****/
+		function generateIntimationLetter() {			
+			var selectedResolutionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+			if(selectedResolutionId.length<1) {
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			} else if(selectedResolutionId.length>1) {
+				$.prompt("Please select only one question!");
+				return false;
+			} else {			
+				$('#generateIntimationLetter').attr('href', 
+						'resolution/report/generateIntimationLetter?'
+								+'resolutionId=' + selectedResolutionId
+								+ '&intimationLetterFilter=' + $("#intimationLetterFilter").val());
+			}		
+		}
+		
+		function showCurrentStatusReport(val,rId){
+			$("#selectionDiv1").hide();
+			var device = $("#deviceTypeMaster option[value='"
+			                                         +$("#selectedDeviceType").val()+"']").text().split("_")[0];
+			showTabByIdAndUrl('details_tab', 
+					"resolution/report/currentstatusreport?device="+ device +"&reportType="+val+"&rId="+rId);
+		}
+		
+		function generateResolutionSummaryReport(){
+			$.get('ref/sessionbyhousetype/'+$("#selectedHouseType").val() +
+					'/' + $("#selectedSessionYear").val() + 
+					'/' + $("#selectedSessionType").val(),function(data){
+				
+				if(data){
+					
+					var url = "resolution/report/generalreport?sessionId=" + data.id
+					+ "&deviceTypeId=" + $("#selectedDeviceType").val()
+					+ "&locale=" + $("#moduleLocale").val()
+					+ "&statusId=" + $("#selectedStatus").val() 
+					+ "&subdepartmentId=" + $("#selectedSubdepartment").val()
+					+ "&reportout=resolution_summaryreport"
+					+ "&report=RESOLUTION_SUMMARY_REPORT";
+					
+					showTabByIdAndUrl('details_tab', url);
+				}
+			});
+		}
+		
+		function generateResolutionRegister(){
+			$.get('ref/sessionbyhousetype/'+$("#selectedHouseType").val() +
+					'/' + $("#selectedSessionYear").val() + 
+					'/' + $("#selectedSessionType").val(),function(data){
+				
+				if(data){
+					
+					var url = "resolution/report/generalreport?sessionId=" + data.id
+					+ "&deviceTypeId=" + $("#selectedDeviceType").val()
+					+ "&locale=" + $("#moduleLocale").val()
+					+ "&reportout=resolution_registerreport"
+					+ "&report=RESOLUTION_REGISTER_REPORT";
+					
+					showTabByIdAndUrl('details_tab', url);
+				}
+			});
+		}
+
 	</script>
 </head>
 <body>
@@ -334,7 +413,7 @@
 			<security:authorize access="hasAnyRole('ROIS_ASSISTANT', 'ROIS_UNDERSECRETARY',
 				'ROIS_DEPUTY_SECRETARY', 'ROIS_PRINCIPALSECRETARY', 'ROIS_JOINT_SECRETARY',
 				'ROIS_SECRETARY', 'ROIS_OFFICER_ON_SPECIAL_DUTY','ROIS_SPEAKER','ROIS_CHAIRMAN', 'ROIS_SECTION_OFFICER', 
-				'ROIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN')">
+				'ROIS_UNDER_SECRETARY_COMMITTEE','SUPER_ADMIN','ROIS_CLERK')">
 			<li>
 				<a id="chart_tab" href="#" class="tab">
 				   <spring:message code="resolution.chart" text="Chart"></spring:message>
@@ -358,33 +437,14 @@
 				</a>
 			</li>
 			</security:authorize>
-			<%-- <c:if test="${questionTypeType == 'questions_starred'}">
-			<security:authorize access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
-				'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY', 'QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
-				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
-				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
-				'SUPER_ADMIN')">
-			<li>
-				<a id="rotationorder_tab" href="#" class="tab">
-				   <spring:message code="question.rotationorder" text="Rotation Order"></spring:message>
-				</a>
-			</li>
-			</security:authorize> --%>
+			
 			
 			
 			<security:authorize access="hasAnyRole('ROIS_ASSISTANT', 'ROIS_UNDERSECRETARY',
-				'ROIS_DEPUTY_SECRETARY', 'ROIS_PRINCIPALSECRETARY', 'ROIS_SPEAKER', 'ROIS_JOINT_SECRETARY',
+				'ROIS_DEPUTYSECRETARY', 'ROIS_PRINCIPALSECRETARY', 'ROIS_SPEAKER', 'ROIS_JOINT_SECRETARY',
 				'ROIS_SECRETARY', 'ROIS_OFFICER_ON_SPECIAL_DUTY', 'ROIS_DEPUTY_SPEAKER', 'ROIS_CHAIRMAN',
 				'ROIS_DEPUTY_CHAIRMAN', 'ROIS_SECTION_OFFICER', 'ROIS_UNDER_SECRETARY_COMMITTEE',
 				'SUPER_ADMIN')">
-					<%-- <c:if test="${houseType=='upperhouse'}">
-					<li>
-					<a id="memberballot_tab" href="#" class="tab">
-				   		<spring:message code="question.memberballot" text="Ballot"></spring:message>
-					</a>
-					</li>			
-					</c:if> --%>
-				
 					<li>
 					<a id="ballot_tab" href="#" class="tab">
 				   		<spring:message code="resolution.ballot" text="Ballot"></spring:message>
@@ -397,125 +457,143 @@
 				<spring:message code="resolution.houseType" text="House Type"/>
 			</a>
 			<select name="selectedHouseType" id="selectedHouseType" style="width:100px;height: 25px;">			
-			<c:forEach items="${houseTypes}" var="i">
-			<c:choose>
-			<c:when test="${houseType==i.type}">
-			<option value="${i.type}" selected="selected"><c:out value="${i.name}"></c:out></option>					
-			</c:when>
-			<c:otherwise>
-			<option value="${i.type}"><c:out value="${i.name}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>
-			</c:forEach>
+				<c:forEach items="${houseTypes}" var="i">
+					<c:choose>
+						<c:when test="${houseType==i.type}">
+							<option value="${i.type}" selected="selected"><c:out value="${i.name}"></c:out></option>					
+						</c:when>
+						<c:otherwise>
+							<option value="${i.type}"><c:out value="${i.name}"></c:out></option>			
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
 			</select> |					
 			<a href="#" id="select_session_year" class="butSim">
 				<spring:message code="resolution.sessionyear" text="Year"/>
 			</a>
 			<select name="selectedSessionYear" id="selectedSessionYear" style="width:100px;height: 25px;">				
-			<c:forEach var="i" items="${years}">
-			<c:choose>
-			<c:when test="${i==sessionYear }">
-			<option value="${i}" selected="selected"><c:out value="${i}"></c:out></option>				
-			</c:when>
-			<c:otherwise>
-			<option value="${i}" ><c:out value="${i}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>
-			</c:forEach> 
+				<c:forEach var="i" items="${years}">
+					<c:choose>
+						<c:when test="${i==sessionYear }">
+							<option value="${i}" selected="selected"><c:out value="${i}"></c:out></option>				
+						</c:when>
+						<c:otherwise>
+							<option value="${i}" ><c:out value="${i}"></c:out></option>			
+						</c:otherwise>
+					</c:choose>
+				</c:forEach> 
 			</select> |						
 			<a href="#" id="select_sessionType" class="butSim">
 				<spring:message code="resolution.sessionType" text="Session Type"/>
 			</a>
 			<select name="selectedSessionType" id="selectedSessionType" style="width:100px;height: 25px;">				
-			<c:forEach items="${sessionTypes}" var="i">
-			<c:choose>
-			<c:when test="${sessionType==i.id}">
-			<option value="${i.id}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>				
-			</c:when>
-			<c:otherwise>
-			<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>			
-			</c:forEach> 
+				<c:forEach items="${sessionTypes}" var="i">
+					<c:choose>
+						<c:when test="${sessionType==i.id}">
+							<option value="${i.id}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>				
+						</c:when>
+						<c:otherwise>
+							<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>			
+						</c:otherwise>
+					</c:choose>			
+				</c:forEach> 
 			</select> |				
 			<a href="#" id="select_deviceType" class="butSim">
 				<spring:message code="resolution.deviceType" text="Resolution Type"/>
 			</a>
 			<select name="selectedDeviceType" id="selectedDeviceType" style="width:100px;height: 25px;">			
-			<c:forEach items="${deviceTypes}" var="i">
-			<c:choose>
-			<c:when test="${deviceType==i.id}">
-			<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>			
-			</c:when>
-			<c:otherwise>
-			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>
-			</c:forEach>
+				<c:forEach items="${deviceTypes}" var="i">
+					<c:choose>
+						<c:when test="${deviceType==i.id}">
+							<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>			
+						</c:when>
+						<c:otherwise>
+							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
 			</select> 
 			<select id="deviceTypeMaster" style="display:none;">
 			<c:forEach items="${deviceTypes}" var="i">
 			<option value="${i.id }">${i.type }</option>
 			</c:forEach>
 			</select>|			
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','ROIS_CLERK','ROIS_ASSISTANT','RIS_UNDER_SECRETARY',
-			'ROIS_DEPUTY_SECRETARY','ROIS_PRINCIPAL_SECRETARY','ROIS_SPEAKER','ROIS_JOINT_SECRETARY',
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','ROIS_CLERK','ROIS_ASSISTANT','ROIS_UNDERSECRETARY',
+			'ROIS_DEPUTY_SECRETARY','ROIS_PRINCIPALSECRETARY','ROIS_SPEAKER','ROIS_JOINT_SECRETARY',
 			'ROIS_SECRETARY','ROIS_OFFICER_ON_SPECIAL_DUTY','ROIS_DEPUTY_SPEAKER','ROIS_CHAIRMAN','ROIS_DEPUTY_CHAIRMAN',
-			'ROIS_SECTION_OFFICER','ROIS_UNDER_SECRETARY_COMMITTEE')">
+			'ROIS_SECTION_OFFICER','ROIS_UNDERSECRETARY_COMMITTEE','ROIS_TYPIST')">
 			<hr>
 			<a href="#" id="select_status" class="butSim">
 				<spring:message code="resolution.status" text="Status"/>
 			</a>
 			<select name="selectedStatus" id="selectedStatus" style="width:250px;height: 25px;">			
-			<c:forEach items="${status}" var="i">
-			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-			</c:forEach>
+				<option value="0">--<spring:message code="please.select" text="Please Select" />--</option>
+				<c:forEach items="${status}" var="i">
+					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+				</c:forEach>
 			</select> |			 
 			</security:authorize>
-			<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','RIS_CLERK')">
-			<a href="#" id="select_status" class="butSim">
-				<spring:message code="resolution.status" text="Status"/>
+			
+			<security:authorize access="hasAnyRole('ROIS_CLERK','ROIS_ASSISTANT','ROIS_UNDERSECRETARY',
+			'ROIS_DEPUTY_SECRETARY','ROIS_PRINCIPALSECRETARY','ROIS_SPEAKER','ROIS_JOINT_SECRETARY',
+			'ROIS_SECRETARY','ROIS_OFFICER_ON_SPECIAL_DUTY','ROIS_DEPUTY_SPEAKER','ROIS_CHAIRMAN','ROIS_DEPUTY_CHAIRMAN',
+			'ROIS_SECTION_OFFICER','ROIS_UNDERSECRETARY_COMMITTEE')">
+			<a href="#" id="select_subdepartment" class="butSim">
+				<spring:message code="resolution.subdepartment" text="Department"/>
 			</a>
-			<select name="selectedStatus" id="selectedStatus" style="width:100px;height: 25px;">			
-			<c:forEach items="${status}" var="i">
-			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-			</c:forEach>
-			</select> 		 
-			</security:authorize> --%>	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','ROIS_ASSISTANT')">			
+			<select name="selectedSubdepartment" id="selectedSubdepartment" style="width:250px;height: 25px;">			
+				<option value="0">--<spring:message code="please.select" text="Please Select" />--</option>
+				<c:forEach items="${subdepartments}" var="i">
+					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+				</c:forEach>
+			</select> |			 
+			</security:authorize>
+				
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">			
 			<a href="#" id="select_itemcount" class="butSim">
 				<spring:message code="resolution.itemcount" text="No. of Resolution(Bulk Putup)"/>
 			</a>
 			<select name="selectedItemsCount" id="selectedItemsCount" style="width:100px;height: 25px;">			
-			<option value="30">30</option>
-			<option value="25">25</option>
-			<option value="20">20</option>
-			<option value="15">15</option>
-			<option value="10">10</option>
-			<option value="5">05</option>		
+				<option value="30">30</option>
+				<option value="25">25</option>
+				<option value="20">20</option>
+				<option value="15">15</option>
+				<option value="10">10</option>
+				<option value="5">05</option>		
 			</select>|	
 			</security:authorize>
 			<security:authorize access="hasAnyRole('ROIS_ASSISTANT')">
+			<hr>
+			<a href="#" id="select_itemcount" class="butSim">
+				<spring:message code="resolution.itemcount" text="No. of Resolution(Bulk Putup)"/>
+			</a>
+			<select name="selectedItemsCount" id="selectedItemsCount" style="width:100px;height: 25px;">			
+				<option value="30">30</option>
+				<option value="25">25</option>
+				<option value="20">20</option>
+				<option value="15">15</option>
+				<option value="10">10</option>
+				<option value="5">05</option>		
+			</select>|	
 			<a href="#" id="select_filecount" class="butSim">
 				<spring:message code="resolution.filecount" text="Select File(Bulk Putup)"/>
 			</a>
 			<select name="selectedFileCount" id="selectedFileCount" style="width:100px;height: 25px;">			
-			<option value="-"><spring:message code='please.select' text='Please Select'/></option>	
-			<c:if test="${highestFileNo>0 }">
-			<c:forEach var="i" begin="1" step="1" end="${highestFileNo}">
-			<option value="${i}">${i}</option>
-			</c:forEach>
-			</c:if>						
-			</select>
+				<option value="-"><spring:message code='please.select' text='Please Select'/></option>	
+				<c:if test="${highestFileNo>0 }">
+					<c:forEach var="i" begin="1" step="1" end="${highestFileNo}">
+						<option value="${i}">${i}</option>
+					</c:forEach>
+				</c:if>						
+				</select>
 			</security:authorize>
-								
 		</div>		
 				
 		<div class="tabContent">
 		</div>
 		
 		<input type="hidden" id="key" name="key">		
-		
+		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
 		<input type="hidden" name="ugparam" id="ugparam" value="${ugparam}">
 		<input type="hidden" name="srole" id="srole" value="${role}">		
 		<input type="hidden" name="currentusergroup" id="currentusergroup" value="${usergroup}">		

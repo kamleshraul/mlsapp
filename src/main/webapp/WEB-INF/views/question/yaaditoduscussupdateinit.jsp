@@ -15,7 +15,24 @@
 		});		
 		/**** Load Actors On Changing Status ****/
 		$("#updateStatus").change(function(){
-			
+			if($(this).val()!='-'){
+				$.get('ref/selectedStatusType?statusId='+ $(this).val(),function(data){
+					var statusType = data;
+					if(statusType != '' && statusType=='question_processed_discussed'){
+						$.get('question/yaadidiscussiondate',function(data){
+						    $.fancybox.open(data, {autoSize: false, width: 500, height:200});
+					    },'html').fail(function(){
+							if($("#ErrorMsg").val()!=''){
+								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+							}else{
+								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+							}
+							scrollTop();
+						});
+					}
+					 return false;
+				});
+			}
 		});
 		/**** Page Load ****/
 		viewContent();
@@ -77,7 +94,9 @@
 					 	,role:$("#ydrole").val()
 					 	,usergroup:$("#ydusergroup").val()
 					 	,usergroupType:$("#ydusergroupType").val()
-					 	,group:+$("#ydgroup").val()
+					 	,group:$("#ydgroup").val()
+					 	,discussionDate:$("#ydDiscussionDate").val()
+					 	,remark:$("#ydRemark").val()					 	
 					 	},
 	    	            function(data){
 	       					$('html').animate({scrollTop:0}, 'slow');
@@ -129,6 +148,8 @@
 	<input type="hidden" id="ydusergroup" value="${usergroup}">
 	<input type="hidden" id="ydusergroupType" value="${usergroupType}">
 	<input type="hidden" id="ydgroup" value="${group}">
+	<input type="hidden" id="ydDiscussionDate">
+	<input type="hidden" id="ydRemark">
 	<input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the motions.'></spring:message>" type="hidden">
 	<input id="selectActorMsg" value="<spring:message code='client.prompt.selectactor' text='Please select the actor.'></spring:message>" type="hidden">
 	<input id="pleaseSelectMessage" value="<spring:message code='client.prompt.pleaseselect' text='Please Select.'></spring:message>" type="hidden">		

@@ -1,6 +1,7 @@
 package org.mkcl.els.repository;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -133,11 +134,23 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 	}
 
 	public List<User> findDifferentLanguageUsersBySlot(Slot s) {
-		String strQuery="SELECT u FROM Slot s JOIN s.reporter r JOIN r.user u" +
-				" WHERE s.startTime<:endTime AND s.endTime>:startTime AND s.blnDeleted=false";
+		String strQuery="SELECT u FROM Slot s "
+				+ " JOIN s.reporter r "
+				+ " JOIN r.user u"
+				+ " JOIN s.roster ro" 
+				+ " WHERE s.startTime<:endTime AND s.endTime>:startTime AND s.blnDeleted=false"
+				+ " AND (ro.session.id=:id OR ro.committeeMeeting.id=:id)"
+				+ " ORDER BY ro.language";
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("endTime", s.getEndTime());
 		query.setParameter("startTime", s.getStartTime());
+		Roster r = s.getRoster();
+		if(r.getSession()!= null){
+			query.setParameter("id", r.getSession().getId());
+		}else if(r.getCommitteeMeeting() != null){
+			query.setParameter("id", r.getCommitteeMeeting().getId());
+		}
+		
 		List<User> result=query.getResultList();
 		return result;
 	}
@@ -225,6 +238,19 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 			return slots.get(0);
 		}
 		return null;
+	}
+
+	public List<Slot> findActiveSlots(Roster roster2) {
+		List<Slot> slots = new ArrayList<Slot>();
+		String strQuery = " SELECT s FROM Slot s"
+				+ " WHERE s.roster.id=:rosterId" 
+				+ " AND s.blnDeleted=false" 
+				+ " ORDER BY s.startTime ";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("rosterId", roster2.getId());
+		slots=query.getResultList();
+		return slots;
+		
 	}
 
 }

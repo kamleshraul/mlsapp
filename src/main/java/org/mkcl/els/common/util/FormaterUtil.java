@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.MessageResource;
@@ -512,7 +513,9 @@ public class FormaterUtil {
 		SimpleDateFormat df = null;
 		String strFormatDate = null;
 		if(formatType!=null && (formatType.equals(ApplicationConstants.ROTATIONORDER_DATEFORMAT)
-				|| formatType.equals(ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT))) {
+				|| formatType.equals(ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT))
+				|| formatType.equals(ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2)) {
+			
 			CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
 			if(dbDateFormat!=null && dbDateFormat.getValue()!=null && !dbDateFormat.getValue().isEmpty()){
 				df=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
@@ -527,9 +530,21 @@ public class FormaterUtil {
 						strFormatDate = day + ", " + dateResource.getValue() + " " + strMonth[0] + " " + month + ", " + strDates[2];
 					} else if(formatType.equals(ApplicationConstants.ROTATIONORDER_DATEFORMAT)) {
 						strFormatDate = dateResource.getValue() + " " + strMonth[0] + " " + month + ", " + strDates[2];
-					}			
+					} else if(formatType.equals(ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2)) {
+						strFormatDate = strMonth[0] + " " + month + ", " + strDates[2];
+					}				
 				}
 			}						
+		} else if(formatType.equals(ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_1)) {
+			df=FormaterUtil.getDateFormatter(formatType, locale.toString());
+			String[] strDate=df.format(date).split(" ");
+			String zeroInLocale = FormaterUtil.formatNumberNoGrouping(0, locale);
+			if(strDate[0].startsWith(zeroInLocale)) {
+				strDate[0] = strDate[0].substring(1);
+			}
+			String[] strMonth=strDate[1].split(",");
+			String month=FormaterUtil.getMonthInMarathi(strMonth[0], locale.toString());
+			strFormatDate = strDate[0] + " " + month + ", " + strDate[2];			
 		} else {
 			df = getDateFormatter(formatType, locale);	    
 		    try {
@@ -539,6 +554,66 @@ public class FormaterUtil {
 		    }
 		}	    
 	    return strFormatDate;
+	}
+	
+	public static String formatDateToStringUsingCustomParameterFormat(final Date date, final String customParameterName, final String locale) throws ELSException {
+		String strFormatDate = null;
+		
+		try {
+			SimpleDateFormat df = null;
+			
+			CustomParameter dateFormatCustomParameter = CustomParameter.findByName(CustomParameter.class, customParameterName, "");
+			if(dateFormatCustomParameter==null || dateFormatCustomParameter.getValue()==null || dateFormatCustomParameter.getValue().isEmpty()) {
+				throw new ELSException();
+			}
+			
+			String dateFormat = dateFormatCustomParameter.getValue();
+			df=FormaterUtil.getDateFormatter(dateFormat, locale.toString());	
+			
+			if(dateFormat.equals(ApplicationConstants.ROTATIONORDER_DATEFORMAT)
+					|| dateFormat.equals(ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT)) {
+				
+				CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+				if(dbDateFormat!=null && dbDateFormat.getValue()!=null && !dbDateFormat.getValue().isEmpty()){
+					df=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+					//Added the following code to solve the marathi month and day issue
+					String[] strDates=df.format(date).split(",");
+					String day=FormaterUtil.getDayInMarathi(strDates[0],locale.toString());
+					MessageResource dateResource = MessageResource.findByFieldName(MessageResource.class, "code", "generic.date", locale);
+					if(dateResource!=null && dateResource.getValue()!=null && !dateResource.getValue().isEmpty()) {
+						String[] strMonth=strDates[1].split(" ");
+						String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+						if(dateFormat.equals(ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT)) {
+							strFormatDate = day + ", " + dateResource.getValue() + " " + strMonth[0] + " " + month + ", " + strDates[2];
+						} else if(dateFormat.equals(ApplicationConstants.ROTATIONORDER_DATEFORMAT)) {
+							strFormatDate = dateResource.getValue() + " " + strMonth[0] + " " + month + ", " + strDates[2];
+						}			
+					}
+				}
+				
+			} else if(dateFormat.equals(ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_1)) {
+				
+				String[] strDate=df.format(date).split(" ");
+				String zeroInLocale = FormaterUtil.formatNumberNoGrouping(0, locale);
+				if(strDate[0].startsWith(zeroInLocale)) {
+					strDate[0] = strDate[0].substring(1);
+				}
+				String[] strMonth=strDate[1].split(",");
+				String month=FormaterUtil.getMonthInMarathi(strMonth[0], locale.toString());
+				strFormatDate = strDate[0] + " " + month + ", " + strDate[2];
+				
+			} else {
+				try {
+			        strFormatDate = df.format(date);
+			    } catch (Exception e) {
+			       throw new ELSException();
+			    }
+			}			
+		} catch(Exception e) {
+			throw new ELSException();
+		}	
+		
+		return strFormatDate;
 	}
 	
 	/**
@@ -552,7 +627,7 @@ public class FormaterUtil {
 		
 		String[] strDatesArr = strDates.split(delimiter);
 		for(String s : strDatesArr) {
-			Date date = FormaterUtil.formatStringToDate(s, formatType);
+			Date date = FormaterUtil.formatStringToDate(s, formatType);			
 			dates.add(date);
 		}
 		
@@ -694,5 +769,11 @@ public class FormaterUtil {
 		
 		return formattedText;
 	}
+	
+	public static Date stringToDate(final String strDate, final String formatType) throws ParseException {
+        DateFormat df = new SimpleDateFormat(formatType);
+        Date formatDate = df.parse(strDate);
+        return formatDate;
+    }
 
 }

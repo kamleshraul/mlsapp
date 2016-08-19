@@ -122,7 +122,8 @@
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				$.post('motion/bulksubmission/assistant/update?actor='+next+"&level="+level,
 			        	{items:items
-			        	,status:status
+			        	,aprstatus:status
+			        	,status:$("#assistatus").val()
 			        	,houseType:$("#assihouseType").val()
 			   		 	,sessionYear:$("#assisessionYear").val()
 					 	,sessionType:$("#assisessionType").val()
@@ -132,6 +133,8 @@
 					 	,usergroupType:$("#assiusergroupType").val()
 					 	,file:$("#assifile").val()
 					 	,itemscount:+$("#assiitemscount").val()
+					 	,reftext:$("#refText").val()
+					 	,remarks:$("#remarks").val()
 					 	},
 	    	            function(data){
 	       					$('html').animate({scrollTop:0}, 'slow');
@@ -176,6 +179,17 @@
 		</span>	
 		<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
 	</p>
+	
+	<div>
+		<p style="display: inline;">
+			<label class="centerlabel"><spring:message code="question.remarks" text="Remarks"/></label>
+			<textarea name="remarks" id="remarks" rows="5" cols="30"></textarea>
+		</p>
+		<p style="display:inline-block;">
+			<label class="centerlabel"><spring:message code="question.reftext" text="Reference Text"/></label>
+			<textarea name="refText" id="refText" rows="5" cols="30"></textarea>
+		</p>
+	</div>
 	<div id="bulkResultDiv">	
 	</div>	
 	<input type="hidden" id="assihouseType" value="${houseType }">

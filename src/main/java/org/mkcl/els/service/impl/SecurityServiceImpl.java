@@ -21,6 +21,7 @@ import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.service.ISecurityService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
@@ -37,7 +38,10 @@ import org.springframework.transaction.annotation.Transactional;
  * @since v1.0.0
  */
 @Service("securityService")
-public class SecurityServiceImpl implements UserDetailsService {
+public class SecurityServiceImpl implements UserDetailsService, ISecurityService {
+	
+//	@Autowired
+//	private PasswordEncoder encoder;
 
     /*
      * (non-Javadoc)
@@ -83,11 +87,25 @@ public class SecurityServiceImpl implements UserDetailsService {
 	                credential.merge();
 	                List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"credential",credential,"locale",ApplicationConstants.DESC,"");
 	                return new AuthUser(credential.getUsername(), credential.getPassword(),credential.getUsername(),credential.getEmail(),
-	                        credential.isEnabled(), true, true, true, roles,credential.getRoles(),userGroups);
+	                        credential.isEnabled(), credential.isAllowedForMultiLogin(), true, true, true, roles,credential.getRoles(),userGroups);
 	            }
 	        }
 	    }else{
 	        throw new UsernameNotFoundException("User Not Found");
 	    }
     }
+    
+    @Override
+	public String getEncodedPassword(final String password) {
+//		String encodedPassword = encoder.encode(password);		
+//		return encodedPassword;
+    	return null;
+	}
+
+	@Override
+	public boolean isAuthenticated(final String enteredPassword, final String storedPassword) {
+		boolean isAuthenticated = false;
+		//isAuthenticated = encoder.matches(enteredPassword, storedPassword);
+		return isAuthenticated;
+	}
 }

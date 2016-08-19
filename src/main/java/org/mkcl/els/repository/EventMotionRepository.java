@@ -32,7 +32,11 @@ import org.springframework.stereotype.Repository;
 public class EventMotionRepository extends BaseRepository<EventMotion, Serializable>{
 
 	public List<ClubbedEntity> findClubbedEntitiesByPosition(final EventMotion motion) {
-		return null;
+		String strQuery = "SELECT ce FROM EventMotion m JOIN m.clubbedEntities ce" +
+				" WHERE m.id =:motionId ORDER BY ce.position " + ApplicationConstants.ASC;
+		TypedQuery<ClubbedEntity> query = this.em().createQuery(strQuery, ClubbedEntity.class);
+		query.setParameter("motionId", motion.getId());
+		return query.getResultList();
 	}
 
 	public Integer assignEventMotionNo(final HouseType houseType,final Session session,
@@ -499,4 +503,13 @@ public class EventMotionRepository extends BaseRepository<EventMotion, Serializa
 			return false;
 		}
 	}	
+	
+	public List<ClubbedEntity> findClubbedEntitiesByDiscussionDateMotionNumber(final EventMotion motion, 
+			final String sortOrder, final String locale) {
+		String strQuery = "SELECT m  FROM EventMotion q JOIN q.clubbedEntities m" +
+				" WHERE q.id=:motionId ORDER BY m.eventMotion.discussionDate,m.eventMotion.number " + sortOrder;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("motionId", motion.getId());
+		return query.getResultList();
+	}
 }

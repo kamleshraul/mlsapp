@@ -30,16 +30,17 @@ import org.mkcl.els.common.vo.MemberContactVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
-import org.mkcl.els.common.vo.ResolutionRevisionVO;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.common.xmlvo.ResolutionXmlVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.Citation;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
@@ -47,6 +48,7 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.ResolutionDraft;
@@ -73,6 +75,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 @Controller
 @RequestMapping("resolution")
 public class ResolutionController extends GenericController<Resolution> {
@@ -83,6 +86,7 @@ public class ResolutionController extends GenericController<Resolution> {
 	@Override
 	protected void populateModule(final ModelMap model, final HttpServletRequest request,
 			final String locale, final AuthUser currentUser) {
+		model.addAttribute("moduleLocale", locale);
 		DeviceType deviceType=DeviceType.findByFieldName(DeviceType.class, "type",request.getParameter("type"), locale);
 		if(deviceType!=null){
 			
@@ -152,6 +156,8 @@ public class ResolutionController extends GenericController<Resolution> {
 			
 			/**** Custom Parameter To Determine The Usergroup and usergrouptype of rois users ****/			
 			List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
+			User user = User.findById(User.class,this.getCurrentUser().getUserId());
+			Credential credential =user.getCredential();
 			String userGroupType=null;
 			if(userGroups!=null){
 				if(!userGroups.isEmpty()){
@@ -159,7 +165,8 @@ public class ResolutionController extends GenericController<Resolution> {
 					if(customParameter!=null){
 						String allowedUserGroups=customParameter.getValue(); 
 						for(UserGroup i:userGroups){
-							if(allowedUserGroups.contains(i.getUserGroupType().getType())){
+							UserGroup userGroup = UserGroup.findActive(credential, i.getUserGroupType(), new Date(), locale.toString());
+							if(userGroup != null && i.getId().equals(userGroup.getId()) && allowedUserGroups.contains(i.getUserGroupType().getType())){
 								/**** Authenticated User's usergroup and usergroupType ****/
 								model.addAttribute("usergroup",i.getId());
 								userGroupType=i.getUserGroupType().getType();
@@ -207,6 +214,9 @@ public class ResolutionController extends GenericController<Resolution> {
 					model.addAttribute("role",i.getType());
 					break;
 				}else if(i.getType().contains("ROIS_CLERK")){
+					model.addAttribute("role",i.getType());
+					break;
+				}else if(i.getType().contains("ROIS_TYPIST")){
 					model.addAttribute("role",i.getType());
 					break;
 				}else if(i.getType().startsWith("ROIS_")){
@@ -258,6 +268,14 @@ public class ResolutionController extends GenericController<Resolution> {
 					}
 				}
 				
+				/***SubDepartment***/
+				List<Group> groups = Group.findAllByFieldName(Group.class, "session", lastSessionCreated, "number", ApplicationConstants.ASC, locale);
+				List<SubDepartment> subdepartments = new ArrayList<SubDepartment>();
+				for(Group g : groups){
+					subdepartments.addAll(g.getSubdepartments());
+				}
+				model.addAttribute("subdepartments", subdepartments);
+				
 			}else{
 			model.addAttribute("errorcode","workunderprogress");
 		}		
@@ -290,7 +308,7 @@ public class ResolutionController extends GenericController<Resolution> {
 					}
 					
 				}
-				if(role.contains("ROIS_")&& (!role.contains("CLERK"))){					
+				if(role.contains("ROIS_")&& (!role.contains("TYPIST"))){					
 					newUrlPattern=newUrlPattern+"?usergroup=assistant";
 				}				
 			} else if(deviceType.equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {
@@ -302,10 +320,10 @@ public class ResolutionController extends GenericController<Resolution> {
 					}
 					
 				}
-				if(role.contains("ROIS_")&& (!role.contains("CLERK"))){					
+				if(role.contains("ROIS_")&& (!role.contains("TYPIST"))){					
 					newUrlPattern=newUrlPattern+"?usergroup=assistant";
-				}else if(role.contains("ROIS_")&& (role.contains("CLERK"))){
-					newUrlPattern=newUrlPattern+"?usergroup=clerk";
+				}else if(role.contains("ROIS_")&& (role.contains("TYPIST"))){
+					newUrlPattern=newUrlPattern+"?usergroup=typist";
 				}
 			}
 		}
@@ -363,7 +381,7 @@ public class ResolutionController extends GenericController<Resolution> {
 		String role=request.getParameter("role");		
 		if(role!=null){
 			if(!role.isEmpty()){
-				if(role.startsWith("MEMBER_")||role.contains("ROIS_CLERK")){
+				if(role.startsWith("MEMBER_")||role.contains("ROIS_TYPIST")){
 					return servletPath;
 				}
 			}
@@ -545,6 +563,12 @@ public class ResolutionController extends GenericController<Resolution> {
 					logger.error("**** Authenticated user is not a member ****");
 					model.addAttribute("errorcode","member_isnull");
 				}
+			}else {
+				if(domain.getMember() != null){
+					model.addAttribute("member",domain.getMember().getId());
+					memberName = domain.getMember().getFullname();
+					model.addAttribute("formattedMember",memberName);
+				}
 			}
 					
 			/**** Ministries ****/
@@ -564,7 +588,8 @@ public class ResolutionController extends GenericController<Resolution> {
 								if(ministry!=null){
 									model.addAttribute("ministrySelected",ministry.getId());						
 									/**** Sub Departments ****/
-									List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,locale);
+									List<SubDepartment> subDepartments=
+											MemberMinister.findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 									model.addAttribute("subDepartments",subDepartments);
 									SubDepartment subDepartment=domain.getSubDepartment();
 									if(subDepartment!=null){
@@ -634,7 +659,8 @@ public class ResolutionController extends GenericController<Resolution> {
 								Ministry ministry=domain.getMinistry();
 								if(ministry!=null){
 									model.addAttribute("ministrySelected",ministry.getId());
-									List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
+									List<SubDepartment> assignedSubDepartments = 
+											MemberMinister.findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 									model.addAttribute("subDepartments", assignedSubDepartments);
 									if(!assignedSubDepartments.isEmpty()) {
 										SubDepartment subDepartment=assignedSubDepartments.get(0);
@@ -662,11 +688,11 @@ public class ResolutionController extends GenericController<Resolution> {
 			if(resolutionType.getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
 				/**** expected working discussion date in GR ****/
 				Date currentDate = new Date();
-				if(DateUtil.compareDatePartOnly(currentDate, selectedSession.getEndDate())>0) {
-					logger.error("session has been expired.");
-					model.addAttribute("errorcode", "session_expired");
-					return;
-				}
+//				if(DateUtil.compareDatePartOnly(currentDate, selectedSession.getEndDate())>0) {
+//					logger.error("session has been expired.");
+//					model.addAttribute("errorcode", "session_expired");
+//					return;
+//				}
 				String daysForDiscussionDateStr = selectedSession.getParameter("resolutions_government_daysForDiscussionDateToBeDecided");
 				if(daysForDiscussionDateStr!=null){
 					Date expectedDiscussionDate = Holiday.getNextWorkingDateFrom(currentDate, Integer.parseInt(daysForDiscussionDateStr), locale);
@@ -688,7 +714,7 @@ public class ResolutionController extends GenericController<Resolution> {
 					for(Rule i : rulesForDiscussionDate) {
 						MasterVO ruleForDiscussionDateVO = new MasterVO();
 						ruleForDiscussionDateVO.setId(i.getId());					
-						ruleForDiscussionDateVO.setValue(FormaterUtil.getNumberFormatterNoGrouping(locale).format(i.getNumber()));
+						ruleForDiscussionDateVO.setValue(i.getNumber());
 						rulesForDiscussionDateVO.add(ruleForDiscussionDateVO);
 					}
 				}			
@@ -744,9 +770,9 @@ public class ResolutionController extends GenericController<Resolution> {
 		/**** for other ris usergroupTypes editreadonly page ****/
 		Set<Role> roles=this.getCurrentUser().getRoles();
 		for(Role i:roles){
-			if(i.getType().startsWith("MEMBER_")||i.getType().contains("CLERK")){
+			if(i.getType().startsWith("MEMBER_")||i.getType().contains("TYPIST")){
 				return newUrlPattern;
-			}else if(i.getType().contains("ASSISTANT")||i.getType().contains("SECTION_OFFICER")){
+			}else if(i.getType().contains("ASSISTANT")||i.getType().contains("SECTION_OFFICER")||i.getType().contains("CLERK")){
 				return newUrlPattern.replace("edit","assistant");
 			}else if(i.getType().startsWith("ROIS_")){
 				return newUrlPattern.replace("edit","editreadonly");
@@ -839,7 +865,8 @@ public class ResolutionController extends GenericController<Resolution> {
 							if(ministry!=null){
 								model.addAttribute("ministrySelected",ministry.getId());						
 								/**** Sub Departments ****/
-								List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,locale);
+								List<SubDepartment> subDepartments=MemberMinister.
+										findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 								model.addAttribute("subDepartments",subDepartments);
 								SubDepartment subDepartment=domain.getSubDepartment();
 								if(subDepartment!=null){
@@ -896,7 +923,8 @@ public class ResolutionController extends GenericController<Resolution> {
 							Ministry ministry=domain.getMinistry();
 							if(ministry!=null){
 								model.addAttribute("ministrySelected",ministry.getId());							
-								List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
+								List<SubDepartment> assignedSubDepartments = MemberMinister.
+										findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 								model.addAttribute("subDepartments", assignedSubDepartments);
 								SubDepartment subDepartment=domain.getSubDepartment();
 								if(subDepartment!=null){
@@ -1111,7 +1139,9 @@ public class ResolutionController extends GenericController<Resolution> {
 				model.addAttribute("internalStatusType", internalStatus.getType());
 				model.addAttribute("formattedInternalStatus", internalStatus.getName());
 				/***********EndFlag,Level and Workflowstarted**********************/
-				if(usergroupType!=null&&!(usergroupType.isEmpty())&&(usergroupType.equals("assistant")||usergroupType.equals("section_officer"))&& !(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION))){
+				if(usergroupType!=null&&!(usergroupType.isEmpty())
+						&&(usergroupType.equals("assistant")||usergroupType.equals("section_officer"))
+						&& !(recommendationStatus.getType().equals(ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION))){
 					populateInternalStatus(model,internalStatus.getType(),usergroupType,locale,resolutionType.getType());
 					if(houseTypeForStatus.equals(ApplicationConstants.LOWER_HOUSE)){
 						if(domain.getWorkflowStartedLowerHouse()==null){
@@ -1146,9 +1176,20 @@ public class ResolutionController extends GenericController<Resolution> {
 							domain.setLevelUpperHouse("1");
 						}
 					}
-					
-					
-					
+				}else if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("clerk")){
+					if(houseTypeForStatus.equals(ApplicationConstants.LOWER_HOUSE)){
+						if(domain.getWorkflowStartedLowerHouse()==null){
+							domain.setWorkflowStartedLowerHouse("NO");
+						}else if(domain.getWorkflowStartedLowerHouse().isEmpty()){
+							domain.setWorkflowStartedLowerHouse("NO");
+						}
+					}else if(houseTypeForStatus.equals(ApplicationConstants.UPPER_HOUSE)){
+						if(domain.getWorkflowStartedUpperHouse()==null){
+							domain.setWorkflowStartedUpperHouse("NO");
+						}else if(domain.getWorkflowStartedUpperHouse().isEmpty()){
+							domain.setWorkflowStartedUpperHouse("NO");
+						}
+					}
 				}
 			}
 			if(domain.getVotingDetail()!=null){
@@ -1161,7 +1202,7 @@ public class ResolutionController extends GenericController<Resolution> {
 				model.addAttribute("votingFor", ApplicationConstants.VOTING_FOR_PASSING_OF_RESOLUTION);
 				if(usergroupType!=null&&!(usergroupType.isEmpty())
 						&&(usergroupType.equals("assistant")||usergroupType.equals("section_officer"))
-						&&(recommendationStatus.getType().equals(ApplicationConstants.RESOLUTION_PROCESSED_TOBEDISCUSSED) ||
+						&&(recommendationStatus.getType().equals(ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION) ||
 						   recommendationStatus.getType().equals(ApplicationConstants.RESOLUTION_PROCESSED_SELECTEDANDNOTDISCUSSED))){
 					/**** voting for ****/
 					
@@ -1246,10 +1287,10 @@ public class ResolutionController extends GenericController<Resolution> {
 					
 					/**** expected working discussion date in GR ****/
 					Date currentDate = new Date();
-					if(DateUtil.compareDatePartOnly(currentDate, selectedSession.getEndDate())>0) {
-						logger.error("session has been expired.");
-						model.addAttribute("errorcode", "session_expired");
-					}
+//					if(DateUtil.compareDatePartOnly(currentDate, selectedSession.getEndDate())>0) {
+//						logger.error("session has been expired.");
+//						model.addAttribute("errorcode", "session_expired");
+//					}
 					String daysForDiscussionDateStr = selectedSession.getParameter("resolutions_government_daysForDiscussionDateToBeDecided");
 					if(daysForDiscussionDateStr != null) {
 						Date expectedDiscussionDate = Holiday.getNextWorkingDateFrom(currentDate, Integer.parseInt(daysForDiscussionDateStr), locale);
@@ -1271,7 +1312,7 @@ public class ResolutionController extends GenericController<Resolution> {
 						for(Rule i : rulesForDiscussionDate) {
 							MasterVO ruleForDiscussionDateVO = new MasterVO();
 							ruleForDiscussionDateVO.setId(i.getId());					
-							ruleForDiscussionDateVO.setValue(FormaterUtil.getNumberFormatterNoGrouping(locale).format(i.getNumber()));
+							ruleForDiscussionDateVO.setValue(i.getNumber());
 							rulesForDiscussionDateVO.add(ruleForDiscussionDateVO);
 						}
 					}			
@@ -1548,8 +1589,27 @@ public class ResolutionController extends GenericController<Resolution> {
 						if(domain.getNoticeContent().isEmpty()){
 							result.rejectValue("noticeContent","NoticeContentEmpty");
 						}
+						
+						if(domain.getSession()!=null && domain.getType()!=null) {
+							CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+							if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+								String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+								if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+									String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+									
+									for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+										if(dt.trim().equals(domain.getType().getType().trim())) {
+											if(!Resolution.isAllowedForSubmission(domain, new Date())) {
+												String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_submissionStartDate");
+												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Resolution cannot be submitted before " + submissionStartLimitDateStr);
+											}
+										}
+									}
+								}
+							}
+						}
 					}
-			}
+				}
 		}/**** Drafts ****/
 		else{
 			if(domain.getHouseType()==null){
@@ -1587,6 +1647,26 @@ public class ResolutionController extends GenericController<Resolution> {
 			} else if(DateUtil.compareDatePartOnly(requestedDiscussionDate, expectedDiscussionDate)>0) {
 				result.rejectValue("discussionDate","DiscussionDateInvalid");
 			}
+		}
+		
+		if(domain.getType().getType().trim().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {	
+			if(domain.getNumber() != null){
+				try {
+					Integer count= Resolution.getMemberResolutionCountByNumber(domain.getMember().getId(),domain.getSession().getId(),domain.getLocale());
+					if(count>=5){
+						result.rejectValue("number","NumberExceeded","Extra Question Should Not Have Number");
+					}
+					
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		Boolean flag=Resolution.isExist(domain.getNumber(),domain.getType(),domain.getSession(),domain.getLocale());
+		if(flag){
+			result.rejectValue("number", "NonUnique","Duplicate Parameter");
 		}
 	}
 
@@ -1655,7 +1735,7 @@ public class ResolutionController extends GenericController<Resolution> {
 			if(operation!=null){
 				if(!operation.isEmpty()){
 					if(operation.trim().equals("submit")){
-						if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("clerk"))){
+						if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("typist"))){
 							/****  submission date is set ****/
 							if(domain.getSubmissionDate()==null){
 								domain.setSubmissionDate(new Date());
@@ -1691,7 +1771,7 @@ public class ResolutionController extends GenericController<Resolution> {
 						}
 					}else{
 						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_COMPLETE, domain.getLocale());
-						if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("member")){
+						if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&(strUserGroupType.equals("member")||strUserGroupType.equals("typist"))){
 							if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
 								domain.setStatusLowerHouse(status);
 								domain.setInternalStatusLowerHouse(status);
@@ -1714,7 +1794,7 @@ public class ResolutionController extends GenericController<Resolution> {
 					}
 				}else{
 					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_COMPLETE, domain.getLocale());
-					if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("member")){
+					if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("member")||strUserGroupType.equals("typist")){
 						if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
 							domain.setStatusLowerHouse(status);
 							domain.setInternalStatusLowerHouse(status);
@@ -1737,7 +1817,7 @@ public class ResolutionController extends GenericController<Resolution> {
 				}
 			}else{
 				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_COMPLETE, domain.getLocale());
-				if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("member")){
+				if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("member")||strUserGroupType.equals("typist")){
 					if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
 						domain.setStatusLowerHouse(status);
 						domain.setInternalStatusLowerHouse(status);
@@ -1761,7 +1841,7 @@ public class ResolutionController extends GenericController<Resolution> {
 		}
 		else{
 			Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_INCOMPLETE, domain.getLocale());
-			if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("member")){
+			if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("member")||strUserGroupType.equals("typist")){
 				if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
 					domain.setStatusLowerHouse(status);
 					domain.setInternalStatusLowerHouse(status);
@@ -1785,7 +1865,7 @@ public class ResolutionController extends GenericController<Resolution> {
 			
 		/**** add creation date and created by ****/
 		domain.setCreationDate(new Date());
-		if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("clerk")){
+		if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("member")){
 			Member member=domain.getMember();
 			User user;
 			try {
@@ -1876,6 +1956,26 @@ public class ResolutionController extends GenericController<Resolution> {
 						if(domain.getNoticeContent().isEmpty()){
 							result.rejectValue("noticeContent","NoticeContentEmpty");
 						}
+						
+						
+						if(domain.getSession()!=null && domain.getType()!=null) {
+							CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+							if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+								String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+								if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+									String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+									
+									for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+										if(dt.trim().equals(domain.getType().getType().trim())) {
+											if(!Resolution.isAllowedForSubmission(domain, new Date())) {
+												String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_submissionStartDate");
+												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Resolution cannot be submitted before " + submissionStartLimitDateStr);
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 			}
 		}/**** Drafts ****/
@@ -1919,6 +2019,22 @@ public class ResolutionController extends GenericController<Resolution> {
 				}			
 			}
 		}
+		
+		//Validation for the Extra Resolutions: No Number should be assigned to the Extra Resolutions
+//		if(domain.getType().getType().trim().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)) {	
+//			if(domain.getNumber() != null){
+//				try {
+//					Integer count= Resolution.getMemberResolutionCountByNumber(domain.getMember().getId(),domain.getSession().getId(),domain.getLocale());
+//					if(count>=5){
+//						result.rejectValue("number","NumberExceeded");
+//					}
+//					
+//				} catch (ELSException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		}
 	}
 
 	@Override
@@ -1938,7 +2054,7 @@ public class ResolutionController extends GenericController<Resolution> {
 					
 					/**** Submission request ****/
 					if(operation.trim().equals("submit")){
-						if(usergroupType!=null&&!(usergroupType.isEmpty())&&(usergroupType.equals("member")||usergroupType.equals("clerk"))){
+						if(usergroupType!=null&&!(usergroupType.isEmpty())&&(usergroupType.equals("member")||usergroupType.equals("typist"))){
 							/**** Submission date is set ****/
 							if(domain.getSubmissionDate()==null){
 								domain.setSubmissionDate(new Date());
@@ -1974,7 +2090,7 @@ public class ResolutionController extends GenericController<Resolution> {
 						}
 					}else{
 						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_COMPLETE, domain.getLocale());
-						if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
+						if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")||usergroupType.equals("typist")){
 							if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
 								/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
 								if(!domain.getStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_SUBMIT)){
@@ -2013,7 +2129,7 @@ public class ResolutionController extends GenericController<Resolution> {
 					}
 				}else{
 					Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_COMPLETE, domain.getLocale());
-					if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
+					if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")||usergroupType.equals("typist")){
 						if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
 							/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
 							if(!domain.getStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_SUBMIT)){
@@ -2050,7 +2166,7 @@ public class ResolutionController extends GenericController<Resolution> {
 				}
 			}else{
 				Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_COMPLETE, domain.getLocale());
-				if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
+				if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")||usergroupType.equals("typist")){
 					if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
 						/**** if status is not submit then status,internal status and recommendation status is set to complete ****/
 						if(!domain.getStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_SUBMIT)){
@@ -2089,7 +2205,7 @@ public class ResolutionController extends GenericController<Resolution> {
 		/**** If all mandatory fields have not been set then status,internal status and recommendation status is set to incomplete ****/
 		else{
 			Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_INCOMPLETE, domain.getLocale());
-			if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")){
+			if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")||usergroupType.equals("typist")){
 				if(domain.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
 					domain.setStatusLowerHouse(status);
 					domain.setInternalStatusLowerHouse(status);
@@ -2122,7 +2238,7 @@ public class ResolutionController extends GenericController<Resolution> {
 		/**** In case of assistant if internal status=submit,ministry,department,group is set 
 		 * then change its internal and recommendstion status to assistant processed ****/
 		if(strUserGroupType!=null){
-			if(strUserGroupType.equals("assistant")){
+			if(strUserGroupType.equals("assistant") ||strUserGroupType.equals("clerk")){
 				Long id = domain.getId();
 				Resolution resolution = Resolution.findById(Resolution.class, id);
 				String internalStatus=null;
@@ -2694,15 +2810,15 @@ public class ResolutionController extends GenericController<Resolution> {
 						if(idAndSelctedForDiscussion[1].equals("unchecked")){
 							Resolution res = Resolution.findById(Resolution.class, Long.parseLong(idAndSelctedForDiscussion[0]));
 							Status status = Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_PROCESSED_TOBEDISCUSSED, locale.toString());
-							Status internalStatus=Status.findByType(ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION, locale.toString());
+							Status recommendationStatus=Status.findByType(ApplicationConstants.RESOLUTION_PROCESSED_UNDERCONSIDERATION, locale.toString());
 							res.setDiscussionStatus(status);
 							if(res.getHouseType()!=null){
 								if(res.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-									res.setInternalStatusLowerHouse(internalStatus);
-									res.setRecommendationStatusLowerHouse(status);
+									//res.setInternalStatusLowerHouse(internalStatus);
+									res.setRecommendationStatusLowerHouse(recommendationStatus);
 								}else if(res.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-									res.setInternalStatusUpperHouse(internalStatus);
-									res.setRecommendationStatusUpperHouse(status);
+									//res.setInternalStatusUpperHouse(internalStatus);
+									res.setRecommendationStatusUpperHouse(recommendationStatus);
 								}
 							}
 							Thread.sleep(100);
@@ -2947,6 +3063,9 @@ public class ResolutionController extends GenericController<Resolution> {
 			final Model model){	
 		String[] selectedItems = request.getParameterValues("items[]");
 		String strStatus=request.getParameter("status");
+		String refText = request.getParameter("referencedText");
+		String remark = request.getParameter("remarks");
+		String strFile = request.getParameter("file");
 		StringBuffer assistantProcessed=new StringBuffer();
 		StringBuffer recommendAdmission=new StringBuffer();
 		StringBuffer recommendRejection=new StringBuffer();
@@ -2969,6 +3088,20 @@ public class ResolutionController extends GenericController<Resolution> {
 					}
 					/**** Add resolution to file ****/
 					/*****************Added By Anand********/
+					if(remark != null && !remark.isEmpty()){
+						resolution.setRemarks(remark);
+					}
+					
+					if(refText != null && !refText.isEmpty()){
+						resolution.setReferencedResolutionText(refText);
+					}
+					
+					if(strFile != null && !strFile.isEmpty()){
+						if(resolution.getFile() == null){
+							resolution.setFile(new Integer(strFile));
+						}
+					}
+					
 					if(resolution.getType().getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
 						if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
 							/* The resolutions are assigned the default file number incase of absence of file no.*/
@@ -3037,7 +3170,6 @@ public class ResolutionController extends GenericController<Resolution> {
 						}
 					}
 					
-					
 					if(!internalStatus.getType().equals(ApplicationConstants.RESOLUTION_SYSTEM_ASSISTANT_PROCESSED)){
 						/**** Create Process ****/
 						ProcessDefinition processDefinition=processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
@@ -3054,7 +3186,7 @@ public class ResolutionController extends GenericController<Resolution> {
 							}
 						}else if(resolution.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)){
 							String strHouseType=this.getCurrentUser().getHouseType();
-							HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+							// HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 							if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
 								 actor=resolution.getActorLowerHouse();
 								 endFlag=resolution.getEndFlagLowerHouse();
@@ -3107,7 +3239,7 @@ public class ResolutionController extends GenericController<Resolution> {
 								}
 							}else if(resolution.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)){
 								String strHouseType=this.getCurrentUser().getHouseType();
-								HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+								// HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 								if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
 									WorkflowDetails workflowDetails;
 									try {
@@ -3142,7 +3274,23 @@ public class ResolutionController extends GenericController<Resolution> {
 									
 								}
 							}
-							resolution.simpleMerge();
+							
+							/***Setting the edited On , Edited By and Edited As***/
+							List<UserGroup> usergroups = this.getCurrentUser().getUserGroups();
+							Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getUsername(), locale.toString());
+							resolution.setEditedBy(credential.getUsername());
+							for(UserGroup u : usergroups){
+								UserGroup userGroup = UserGroup.findActive(credential, u.getUserGroupType(), new Date(), locale.toString());
+								if(userGroup != null){
+									UserGroupType userGroupType = userGroup.getUserGroupType();
+									if(userGroupType != null){
+										resolution.setEditedAs(userGroupType.getName());
+									}
+								}
+							}
+							resolution.setEditedOn(new Date());
+							
+							resolution.merge();
 						}	
 						if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_ADMISSION)){
 							recommendAdmission.append(resolution.formatNumber()+",");
@@ -3169,6 +3317,21 @@ public class ResolutionController extends GenericController<Resolution> {
 					Long id = Long.parseLong(i);
 					Resolution resolution = Resolution.findById(Resolution.class, id);
 					/*****************Added By Anand********/
+					
+					if(remark != null && !remark.isEmpty()){
+						resolution.setRemarks(remark);
+					}
+					
+					if(refText != null && !refText.isEmpty()){
+						resolution.setReferencedResolutionText(refText);
+					}
+					
+					if(strFile != null && !strFile.isEmpty()){
+						if(resolution.getFile() == null){
+							resolution.setFile(new Integer(strFile));
+						}
+					}
+					
 					/* The resolutions are assigned the default file number incase of absence of file no.*/
 					if(resolution.getType().getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
 						if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
@@ -3288,7 +3451,7 @@ public class ResolutionController extends GenericController<Resolution> {
 								}
 							}else if(resolution.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)){
 								String strHouseType=this.getCurrentUser().getHouseType();
-								HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+								// HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 								if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
 									resolution.setActorLowerHouse(reference.getId());
 									resolution.setLocalizedActorNameLowerHouse(temp[3]+"("+temp[4]+")");
@@ -3321,7 +3484,7 @@ public class ResolutionController extends GenericController<Resolution> {
 								}
 							}else if(resolution.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)){
 								String strHouseType=this.getCurrentUser().getHouseType();
-								HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
+								// HouseType houseType=HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
 								if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
 									 endFlag=resolution.getEndFlagLowerHouse();
 								}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
@@ -3458,7 +3621,29 @@ public class ResolutionController extends GenericController<Resolution> {
 										
 									}
 								}
-								resolution.simpleMerge();
+								
+								if(refText != null && !refText.isEmpty()){
+									resolution.setReferencedResolutionText(refText);
+								}
+								if(remark != null && !remark.isEmpty()){
+									resolution.setRemarks(remark);
+								}
+								
+								/***Setting the edited On , Edited By and Edited As***/
+								List<UserGroup> usergroups = this.getCurrentUser().getUserGroups();
+								Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getUsername(), null);
+								resolution.setEditedBy(credential.getUsername());
+								for(UserGroup u : usergroups){
+									UserGroup userGroup = UserGroup.findActive(credential, u.getUserGroupType(), new Date(), locale.toString());
+									if(userGroup != null){
+										UserGroupType userGroupType = userGroup.getUserGroupType();
+										if(userGroupType != null){
+											resolution.setEditedAs(userGroupType.getName());
+										}
+									}
+								}
+								resolution.setEditedOn(new Date());
+								resolution.merge();
 							}	
 							if(internalStatus.getType().equals(ApplicationConstants.RESOLUTION_RECOMMEND_ADMISSION)){
 								recommendAdmission.append(resolution.formatNumber()+",");
@@ -3629,7 +3814,8 @@ public class ResolutionController extends GenericController<Resolution> {
 	            
 	            List<ChartVO> chartVOs= new ArrayList<ChartVO>();
 	            try{
-	            	chartVOs = Chart.getAdmittedChartVOs(session, deviceType, locale.toString());	            
+	            	/*Chart chart = new Chart(session, deviceType, locale.toString());	*/
+	            	chartVOs = Resolution.getAdmittedResolutions(session,deviceType,locale.toString());
 	            }catch (ELSException e) {
 					model.addAttribute(this.getClass().getName(), e.getParameter());
 				}
@@ -3680,12 +3866,13 @@ public class ResolutionController extends GenericController<Resolution> {
 	            	}
 	            }
 	            
-	            ResolutionXmlVO data = new ResolutionXmlVO();	            
+	            ResolutionXmlVO data = new ResolutionXmlVO();	  
+	            data.setHouseType(houseType.getType());
 	            data.setResolutionList(chartVOs);
 	            
 	            //generate report
         		try {
-					reportFile = generateReportUsingFOP(data, "template_karyavali_report", reportFormat, "resolution_karyavali", locale.toString());
+					reportFile = generateReportUsingFOP(data, "template_karyavalireport", reportFormat, "resolution_karyavali", locale.toString());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -3709,4 +3896,26 @@ public class ResolutionController extends GenericController<Resolution> {
 			}				
 		}	    
 	}	
+	
+	@RequestMapping(value = "filing/{id}/{file}/enter", method = RequestMethod.GET)
+	public @ResponseBody String filing(@PathVariable("id") Long id, @PathVariable("file") Integer file, HttpServletRequest request, Locale locale){
+		
+		String retVal = "FAILURE";
+		
+		try{
+			Resolution sm = Resolution.findById(Resolution.class, id);
+			
+			if(sm != null){
+				
+				sm.setFile(file);
+				sm.simpleMerge();
+				retVal = "SUCCESS";
+			}			
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return retVal;
+	}
 }

@@ -30,8 +30,32 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>{
 
+	@SuppressWarnings("unchecked")
 	public List<ClubbedEntity> findClubbedEntitiesByPosition(final CutMotion motion) {
-		return null;
+		String strQuery = "SELECT ce FROM CutMotion m JOIN m.clubbedEntities ce" +
+				" WHERE m.id =:motionId ORDER BY ce.position " + ApplicationConstants.ASC;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("motionId", motion.getId());
+		return query.getResultList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByPosition(final CutMotion motion, final String sortOrder) {
+		String strQuery = "SELECT ce FROM CutMotion m JOIN m.clubbedEntities ce" +
+				" WHERE m.id =:motionId ORDER BY ce.position " + sortOrder;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("motionId", motion.getId());
+		return query.getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final CutMotion motion, 
+			final String sortOrder, final String locale) {
+		String strQuery = "SELECT m  FROM CutMotion q JOIN q.clubbedEntities m" +
+				" WHERE q.id=:motionId ORDER BY m.question.number " + sortOrder;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("motionId", motion.getId());
+		return query.getResultList();
 	}
 
 	public Integer assignCutMotionNo(final HouseType houseType,final Session session,
@@ -466,4 +490,13 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 			return false;
 		}
 	}	
+	
+	public List<ClubbedEntity> findClubbedEntitiesByDiscussionDateMotionNumber(final CutMotion motion, 
+			final String sortOrder, final String locale) {
+		String strQuery = "SELECT m  FROM CutMotion q JOIN q.clubbedEntities m" +
+				" WHERE q.id=:motionId ORDER BY m.cutMotion.discussionDate,m.cutMotion.number " + sortOrder;
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("motionId", motion.getId());
+		return query.getResultList();
+	}
 }

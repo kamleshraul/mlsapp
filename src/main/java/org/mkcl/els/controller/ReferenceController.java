@@ -12,6 +12,7 @@ package org.mkcl.els.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -31,36 +32,47 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.common.util.ManualCouncilUtil;
 import org.mkcl.els.common.util.RomanNumeral;
+import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.AutoCompleteVO;
 import org.mkcl.els.common.vo.ConstituencyCompleteVO;
+import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.DynamicSelectVO;
 import org.mkcl.els.common.vo.GroupVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.OrdinanceSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.SectionVO;
+import org.mkcl.els.controller.cis.CommitteeMeetingController;
 import org.mkcl.els.controller.mois.CutMotionDateControllerUtility;
 import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.Abbreviation;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.Airport;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.BillKind;
 import org.mkcl.els.domain.BillType;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Committee;
+import org.mkcl.els.domain.CommitteeMeeting;
+import org.mkcl.els.domain.CommitteeMember;
+import org.mkcl.els.domain.CommitteeMemberAttendance;
 import org.mkcl.els.domain.CommitteeName;
+import org.mkcl.els.domain.CommitteeTour;
 import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.Constituency;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.Creek;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.CutMotionDate;
 import org.mkcl.els.domain.Dam;
 import org.mkcl.els.domain.Department;
+import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Division;
 import org.mkcl.els.domain.Document;
@@ -95,41 +107,51 @@ import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
+import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.RailwayStation;
 import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.River;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Sanctuary;
 import org.mkcl.els.domain.Section;
 import org.mkcl.els.domain.SectionOrderSeries;
-import org.mkcl.els.domain.Slot;
-import org.mkcl.els.domain.SupportingMember;
-import org.mkcl.els.domain.TextDraft;
-import org.mkcl.els.domain.Town;
-import org.mkcl.els.domain.University;
-import org.mkcl.els.domain.User;
-import org.mkcl.els.domain.WorkflowActor;
-import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.Slot;
+import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
+import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.Tehsil;
+import org.mkcl.els.domain.TextDraft;
+import org.mkcl.els.domain.TourItinerary;
+import org.mkcl.els.domain.Town;
+import org.mkcl.els.domain.University;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
+import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.domain.YaadiDetails;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ReferenceController.
  *
@@ -140,6 +162,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/ref")
 public class ReferenceController extends BaseController {
 
+	@Autowired
+	SessionRegistry sessionRegistry;
 	/**
 	 * Gets the districts by state id.
 	 *
@@ -683,7 +707,8 @@ public class ReferenceController extends BaseController {
 		}
 		groupVO.setMinistries(ministriesVOs);
 		//populating departments
-		List<Department> departments=MemberMinister.findAssignedDepartments(ministries.get(0),locale.toString());
+		List<Department> departments=MemberMinister.findAssignedDepartments(ministries.get(0),
+				selectedGroup.getSession().getEndDate(), locale.toString());
 		List<MasterVO> departmentVOs=new ArrayList<MasterVO>();
 		for(Department i:departments){
 			MasterVO masterVO=new MasterVO();
@@ -694,7 +719,9 @@ public class ReferenceController extends BaseController {
 		groupVO.setDepartments(departmentVOs);
 		//populating subdepartments
 		if(departments.size()>0){
-			List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministries.get(0), departments.get(0), locale.toString());
+			List<SubDepartment> subDepartments=
+					MemberMinister.findAssignedSubDepartments(ministries.get(0), departments.get(0), 
+							selectedGroup.getSession().getEndDate(), locale.toString());
 			List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
 			for(SubDepartment i:subDepartments){
 				MasterVO masterVO=new MasterVO();
@@ -727,16 +754,35 @@ public class ReferenceController extends BaseController {
 	 * @return the departments
 	 */
 	@RequestMapping(value="/departments/{ministry}", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getDepartments(@PathVariable("ministry") final Long ministry, final Locale locale){
+	public @ResponseBody List<MasterVO> getDepartments(@PathVariable("ministry") final Long ministry,
+			final HttpServletRequest request,
+			final Locale locale){
 		Ministry selectedMinistry=Ministry.findById(Ministry.class, ministry);
-		//populating departments
-		List<Department> departments=MemberMinister.findAssignedDepartments(selectedMinistry, locale.toString());
 		List<MasterVO> departmentVOs=new ArrayList<MasterVO>();
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		if(strHouseType!= null && !strHouseType.isEmpty()
+			&& strSessionType != null && !strSessionType.isEmpty()
+			&& strSessionYear != null && !strSessionYear.isEmpty()){
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			Session session = null;
+			try {
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			} catch (ELSException e) {
+				e.printStackTrace();
+			}
+		//populating departments
+		List<Department> departments=MemberMinister.findAssignedDepartments(selectedMinistry,session.getEndDate(), locale.toString());
 		for(Department i:departments){
 			MasterVO masterVO=new MasterVO();
 			masterVO.setId(i.getId());
 			masterVO.setName(i.getName());
 			departmentVOs.add(masterVO);
+		}
 		}
 		return departmentVOs;
 	}
@@ -773,17 +819,38 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the sub departments
 	 */
-	@RequestMapping(value="/subdepartments/byministriesdepartmentsname", method=RequestMethod.POST)
+//	@RequestMapping(value="/subdepartments/byministriesdepartmentsname", method=RequestMethod.POST)
+//	public @ResponseBody List<MasterVO> getSubDepartments(
+//			final HttpServletRequest request,
+//			final Locale locale){
+//		String[] ministries=request.getParameterValues("ministries[]");
+//		String[] departments=request.getParameterValues("departments[]");
+//		//populating sub departments
+//		List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
+//		if(ministries != null && departments != null){
+//			
+//			List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministries,departments, locale.toString());
+//			
+//			for(SubDepartment i:subDepartments){
+//				MasterVO masterVO=new MasterVO();
+//				masterVO.setId(i.getId());
+//				masterVO.setName(i.getName());
+//				subDepartmentVOs.add(masterVO);
+//			}
+//		}
+//		return subDepartmentVOs;
+//	}
+	
+	@RequestMapping(value="/subdepartments/byministriesname", method=RequestMethod.POST)
 	public @ResponseBody List<MasterVO> getSubDepartments(
 			final HttpServletRequest request,
 			final Locale locale){
 		String[] ministries=request.getParameterValues("ministries[]");
-		String[] departments=request.getParameterValues("departments[]");
 		//populating sub departments
 		List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
-		if(ministries != null && departments != null){
+		if(ministries != null){
 			
-			List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministries,departments, locale.toString());
+			List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministries, locale.toString());
 			
 			for(SubDepartment i:subDepartments){
 				MasterVO masterVO=new MasterVO();
@@ -804,18 +871,41 @@ public class ReferenceController extends BaseController {
 	 * @return the sub departments by ministry department names
 	 */
 	@RequestMapping(value="/subdepartments/{ministry}/{department}", method=RequestMethod.GET)
-	public @ResponseBody List<MasterVO> getSubDepartmentsByMinistryDepartmentNames(@PathVariable("ministry") final Long ministry, @PathVariable("department") final Long department, final Locale locale){
+	public @ResponseBody List<MasterVO> getSubDepartmentsByMinistryDepartmentNames(
+			@PathVariable("ministry") final Long ministry, @PathVariable("department") final Long department, 
+			final HttpServletRequest request,
+			final Locale locale){
 		Ministry selectedMinistry=Ministry.findById(Ministry.class, ministry);
-		Department selectedDepartment=Department.findById(Department.class,department);
-		//populating sub departments
-		List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(selectedMinistry,selectedDepartment, locale.toString());
 		List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
-		for(SubDepartment i:subDepartments){
-			MasterVO masterVO=new MasterVO();
-			masterVO.setId(i.getId());
-			masterVO.setName(i.getName());
-			subDepartmentVOs.add(masterVO);
+		Department selectedDepartment=Department.findById(Department.class,department);
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		if(strHouseType!= null && !strHouseType.isEmpty()
+			&& strSessionType != null && !strSessionType.isEmpty()
+			&& strSessionYear != null && !strSessionYear.isEmpty()){
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			Session session = null;
+			try {
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			} catch (ELSException e) {
+				e.printStackTrace();
+			}
+			//populating sub departments
+			List<SubDepartment> subDepartments=MemberMinister.
+					findAssignedSubDepartments(selectedMinistry,selectedDepartment, session.getEndDate(), locale.toString());
+			
+			for(SubDepartment i:subDepartments){
+				MasterVO masterVO=new MasterVO();
+				masterVO.setId(i.getId());
+				masterVO.setName(i.getName());
+				subDepartmentVOs.add(masterVO);
+			}
 		}
+	
 		return subDepartmentVOs;
 	}
 
@@ -869,6 +959,96 @@ public class ReferenceController extends BaseController {
 			e.printStackTrace();
 		}
 		return new MasterVO();
+	}
+	
+	@RequestMapping(value="/sessionbyparametername", method=RequestMethod.GET)
+	public @ResponseBody MasterVO getSessionByHouseType(HttpServletRequest request, final Locale locale) {
+		
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strYear = request.getParameter("year");
+		String piggyBackNumber = request.getParameter("piggyBackNumber");
+		
+		MasterVO retVal = getSession(strHouseType, strSessionType, strYear, locale.toString());
+
+		if(piggyBackNumber != null && !piggyBackNumber.isEmpty()){
+			piggyBackNumber = getDecodedString(new String[]{piggyBackNumber})[0];
+			
+			retVal.setNumber(new Long(piggyBackNumber).intValue());
+		}
+		
+		return retVal;
+	}
+	
+	private MasterVO getSession(String houseTypeName, String sessionTypeName, String sessionYear, String locale){
+		MasterVO retVal = new MasterVO();
+		
+		String[] decodedString = getDecodedString(new String[]{houseTypeName, sessionTypeName, sessionYear});
+		houseTypeName = decodedString[0];
+		sessionTypeName = decodedString[1];
+		sessionYear = decodedString[2];
+		
+		HouseType selectedHouseType = null;
+		SessionType selectedSessionType = null;
+		Integer year = null;
+		
+		try{
+			selectedHouseType = HouseType.findById(HouseType.class, new Long(houseTypeName));
+		}catch(Exception e){
+			
+		}
+		
+		if(selectedHouseType == null){
+			try{
+				selectedHouseType = HouseType.findByName(houseTypeName, locale);
+			}catch(Exception e){
+				
+			}
+		}
+		
+		if(selectedHouseType == null){
+			try{
+				selectedHouseType = HouseType.findByType(houseTypeName, locale);
+			}catch(Exception e){
+				
+			}
+		}
+
+		try{
+			selectedSessionType = SessionType.findById(SessionType.class, new Long(sessionTypeName));
+		}catch(Exception e){
+			
+		}
+		
+		if(selectedSessionType == null){
+			try{
+				selectedSessionType = SessionType.findByFieldName(SessionType.class, "sessionType", sessionTypeName, locale);
+			}catch(Exception e){
+				
+			}
+		}
+		
+		if(selectedSessionType == null){
+			try{
+				selectedSessionType = SessionType.findByType(sessionTypeName, locale);
+			}catch(Exception e){
+				
+			}
+		}
+		
+		year = new Integer(sessionYear);
+		try{
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
+			
+			if(session != null){
+				retVal.setId(session.getId());
+			}
+			
+		}catch(Exception e){
+			
+		}
+		
+		return retVal;
 	}
 	/**
 	 * Gets the members.
@@ -1090,43 +1270,140 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the list
 	 */
+//	@RequestMapping(value="/allowedgroups")
+//	public @ResponseBody List<MasterVO> loadAllowedGroups(final HttpServletRequest request,
+//			final Locale locale){
+//		//CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+//		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
+//		List<Group> groups=new ArrayList<Group>();
+//		String strhouseType=request.getParameter("houseType");
+//		String stryear=request.getParameter("sessionYear");
+//		String strsessionType=request.getParameter("sessionType");
+//		//String strAllowedGroups=request.getParameter("allowedgroups");
+//		
+//		String strAllowedGroups = this.getCurrentUser().getGroupsAllowed();
+//		
+//		if(strhouseType!=null&&stryear!=null&&strsessionType!=null&&strAllowedGroups!=null){
+//			HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",strhouseType,locale.toString());
+//			SessionType selectedSessionType=SessionType.findById(SessionType.class, Long.parseLong(strsessionType));
+//			Integer year=Integer.parseInt(stryear);
+//			try {
+//				groups=Group.findByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
+//			
+//				for(Group i:groups){
+//					if(strAllowedGroups.contains(String.valueOf(i.getNumber()))){
+//						MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i.getNumber()));
+//						masterVOs.add(masterVO);
+//					}
+//				}
+//			} catch (ELSException e) {
+//				e.printStackTrace();
+//				return masterVOs;
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return masterVOs;
+//	}
+
+
+//	@RequestMapping(value="/allowedgroups")
+//	public @ResponseBody List<MasterVO> loadAllowedGroups(final HttpServletRequest request,
+//			final Locale locale){
+//		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+//		String strHouseType = request.getParameter("houseType");
+//		String strYear = request.getParameter("sessionYear");
+//		String strSessionType = request.getParameter("sessionType");
+//		String strlocale = locale.toString();
+//		if(strHouseType != null && !strHouseType.isEmpty()
+//			&& strSessionType != null && !strSessionType.isEmpty()
+//			&& strYear != null && !strYear.isEmpty()){
+//			HouseType houseType = HouseType.findByType(strHouseType, strlocale);
+//			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+//			String groupsAllowed = null;
+//			try {
+//				Session session = Session.
+//						findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strYear));
+//				if(session != null){
+//					List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+//					for(UserGroup ug : userGroups){
+//						if(UserGroup.isActiveInSession(session, ug, strlocale)){
+//							Map<String,String> userGroupParameters = UserGroup.findParametersByUserGroup(ug);
+//							groupsAllowed = userGroupParameters.get(ApplicationConstants.GROUPSALLOWED_KEY+"_"+strlocale);
+//						}
+//					}
+//					List<Group> groups = Group.
+//							findAllByFieldName(Group.class, "session", session, "number", ApplicationConstants.ASC, strlocale);
+//					for(Group i:groups){
+//						if(groupsAllowed.contains(String.valueOf(i.getNumber()))){
+//							MasterVO masterVO=new MasterVO();
+//							masterVO.setId(i.getId());
+//							masterVO.setName(FormaterUtil.getNumberFormatterNoGrouping(strlocale).format(i.getNumber()));
+//							masterVOs.add(masterVO);
+//						}
+//					}
+//				}
+//			} catch (NumberFormatException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (ELSException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//		return masterVOs;
+//	}
+	
 	@RequestMapping(value="/allowedgroups")
 	public @ResponseBody List<MasterVO> loadAllowedGroups(final HttpServletRequest request,
 			final Locale locale){
-		//CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
-		List<Group> groups=new ArrayList<Group>();
-		String strhouseType=request.getParameter("houseType");
-		String stryear=request.getParameter("sessionYear");
-		String strsessionType=request.getParameter("sessionType");
-		//String strAllowedGroups=request.getParameter("allowedgroups");
-		
-		String strAllowedGroups = this.getCurrentUser().getGroupsAllowed();
-		
-		if(strhouseType!=null&&stryear!=null&&strsessionType!=null&&strAllowedGroups!=null){
-			HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",strhouseType,locale.toString());
-			SessionType selectedSessionType=SessionType.findById(SessionType.class, Long.parseLong(strsessionType));
-			Integer year=Integer.parseInt(stryear);
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		String strHouseType = request.getParameter("houseType");
+		String strYear = request.getParameter("sessionYear");
+		String strSessionType = request.getParameter("sessionType");
+		String strlocale = locale.toString();
+		if(strHouseType != null && !strHouseType.isEmpty()
+			&& strSessionType != null && !strSessionType.isEmpty()
+			&& strYear != null && !strYear.isEmpty()){
+			HouseType houseType = HouseType.findByType(strHouseType, strlocale);
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			String groupsAllowed = null;
 			try {
-				groups=Group.findByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
-			
-				for(Group i:groups){
-					if(strAllowedGroups.contains(String.valueOf(i.getNumber()))){
-						MasterVO masterVO=new MasterVO(i.getId(),FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(i.getNumber()));
-						masterVOs.add(masterVO);
+				Session session = Session.
+						findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strYear));
+				Session latestSession = Session.findLatestSession(houseType);
+				if(session != null && latestSession != null){
+					List<Group> groups = Group.
+							findAllByFieldName(Group.class, "session", session, "number", ApplicationConstants.ASC, strlocale);
+					if(latestSession.getId().equals(session.getId())){
+						groupsAllowed = this.getCurrentUser().getGroupsAllowed();
+						for(Group i:groups){
+							if(groupsAllowed.contains(String.valueOf(i.getNumber()))){
+								MasterVO masterVO=new MasterVO();
+								masterVO.setId(i.getId());
+								masterVO.setName(FormaterUtil.getNumberFormatterNoGrouping(strlocale).format(i.getNumber()));
+								masterVOs.add(masterVO);
+							}
+						}
+					}else{
+						for(Group i:groups){
+							MasterVO masterVO=new MasterVO();
+							masterVO.setId(i.getId());
+							masterVO.setName(FormaterUtil.getNumberFormatterNoGrouping(strlocale).format(i.getNumber()));
+							masterVOs.add(masterVO);
+						}
 					}
 				}
-			} catch (ELSException e) {
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return masterVOs;
-			} catch (Exception e) {
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		return masterVOs;
 	}
-
-
 	/**
 	 * Load departments.
 	 *
@@ -1301,6 +1578,36 @@ public class ReferenceController extends BaseController {
 		}
 		return masterVO;
 	}
+	
+	/**
+	 * Gets the group.
+	 *
+	 * @param request the request
+	 * @param ministryId the ministry id
+	 * @param locale the locale
+	 * @return the group
+	 */
+	@RequestMapping(value="/subdepartment/{subdepartmentId}/group")
+	public @ResponseBody MasterVO getGroupBySubDepartment(final HttpServletRequest request,
+			@PathVariable("subdepartmentId") final Long subdepartmentId,
+			final Locale locale){
+		SubDepartment subdepartment=SubDepartment.findById(SubDepartment.class, subdepartmentId);
+		Session session = Session.findById(Session.class, Long.parseLong(request.getParameter("session")));
+		Group group;
+		MasterVO masterVO=new MasterVO();
+		try {
+			group = Group.find(subdepartment, session, locale);
+		} catch (ELSException e) {
+			e.printStackTrace();
+			return masterVO;
+					
+		}
+		if(group!=null){
+			masterVO.setId(group.getId());
+			masterVO.setName(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).format(group.getNumber()));
+		}
+		return masterVO;
+	}
 
 	/**
 	 * Gets the answering dates.
@@ -1393,7 +1700,13 @@ public class ReferenceController extends BaseController {
 				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
 				Question question=Question.findById(Question.class,Long.parseLong(strQuestion));
 				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
-				actors=WorkflowConfig.findQuestionActorsVO(question,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+				try {
+					actors=WorkflowConfig.findQuestionActorsVO(question,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return actors;
@@ -1616,71 +1929,61 @@ public class ReferenceController extends BaseController {
 	 * @return the question id
 	 */
 	@RequestMapping(value="/questionid",method=RequestMethod.GET)
-	public @ResponseBody MasterVO getQuestionId(final ModelMap model, final HttpServletRequest request){
+	public @ResponseBody MasterVO getQuestionId(final ModelMap model, final HttpServletRequest request, final Locale locale){
 
 		MasterVO masterVO = new MasterVO();
-
-		String strNumber=request.getParameter("strQuestionNumber");
+		String strNumber = request.getParameter("strQuestionNumber");
 		String strSessionId = request.getParameter("strSessionId");
-		String strDeviceTypeId= request.getParameter("deviceTypeId");
-		String locale = request.getParameter("locale");
-
-		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-
-		Integer qNumber=null;
-		Long deviceTypeId=null;
-
-		if(strNumber!=null && strSessionId!=null && locale!=null && strDeviceTypeId!=null){
-			if(strNumber.trim().length() > 0 && locale.trim().length() > 0 && strSessionId.trim().length() > 0 && strDeviceTypeId.length()>0){
-				if(customParameter!=null){
-					String server=customParameter.getValue();
-					if(server.equals("TOMCAT")){
-						try {
-							strNumber=new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");						
-						}
-						catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-						}
-					}
+		String strDeviceTypeId = request.getParameter("deviceTypeId");
+		String strLocale = request.getParameter("locale");
+		CustomParameter customParameter = CustomParameter.
+				findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		Integer qNumber = null;
+		if(strNumber != null && !strNumber.isEmpty() 
+			&& strSessionId != null && !strSessionId.isEmpty()
+			&& strLocale != null && !strLocale.isEmpty()
+			&& strDeviceTypeId != null && !strDeviceTypeId.isEmpty()){
+			
+			if(customParameter != null){
+				String server = customParameter.getValue();
+				if(server.equals("TOMCAT")){
 					try {
-						qNumber=new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale).parse(strNumber).intValue());
-						deviceTypeId = new Long(strDeviceTypeId);
-					} catch (ParseException e) {
-						logger.error("Number parse exception.");
-						masterVO.setId(new Long(-1));
-						masterVO.setName("undefined");
-
-						return masterVO;
+						strNumber = new String(strNumber.getBytes("ISO-8859-1"), "UTF-8");						
 					}
+					catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				}
+				try {
+					qNumber = new Integer(FormaterUtil.
+							getNumberFormatterNoGrouping(locale.toString()).parse(strNumber).intValue());
+				} catch (ParseException e) {
+					logger.error("Number parse exception.");
+					masterVO.setId(new Long(-1));
+					masterVO.setName("undefined");
 				}	
 
 				Session currentSession = Session.findById(Session.class, new Long(strSessionId));
-				DeviceType excludeDeviceType = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE, locale);
-				Long exclusiveDeviceTypeId = null;
-				Session prevSession = null;
 				Question question = null;
-
-				if(excludeDeviceType != null){
-					if(excludeDeviceType.getId()!= null){
-						exclusiveDeviceTypeId = excludeDeviceType.getId();
-					}
-				}
-
-				if(currentSession != null){						
-					try {
-						prevSession = Session.findPreviousSession(currentSession);
-					} catch (ELSException e) {
-						model.addAttribute("error", e.getParameter());
-					}
-					question = Question.findQuestionExcludingGivenDeviceTypes(currentSession, qNumber, locale, deviceTypeId, exclusiveDeviceTypeId);
-				}
-
-				if(question == null){
-					if(prevSession != null){
-						question = Question.findQuestionExcludingGivenDeviceTypes(prevSession, qNumber, locale, deviceTypeId, exclusiveDeviceTypeId);
-					}
-				}
+			
+				Map<String, String[]> params = new HashMap<String, String[]>();
+				params.put("locale", new String[]{locale.toString()});
+				params.put("sessionId", new String[]{currentSession.getId().toString()});
+				params.put("qNumber", new String[]{qNumber.toString()});
+				List data = Query.findReport("HDQ_REFER_QUESTION", params);
 				
+				if(data != null && !data.isEmpty()){
+					String strId = null;
+					try{
+						strId = ((Object[])data.get(0))[0].toString();
+						
+						if(strId != null){
+							question = Question.findById(Question.class, new Long(strId));
+						}
+					}catch(Exception e){
+						logger.error("error", e);
+					}
+				}
 				
 				if(question != null){
 					masterVO.setId(question.getId());
@@ -1689,10 +1992,8 @@ public class ReferenceController extends BaseController {
 					masterVO.setId(new Long(0));
 					masterVO.setName("undefined");				
 				}
-				
 			}
-		}
-
+		}	
 		return masterVO;
 	}
 
@@ -2067,6 +2368,7 @@ public class ReferenceController extends BaseController {
 	@RequestMapping(value="/status",method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> loadSubWorkflowByDeviceType(final HttpServletRequest request, final ModelMap model, final Locale locale){
 		List<MasterVO> workflowTypes = new ArrayList<MasterVO>();
+		
 		try{
 			DeviceType deviceType = null;
 			String server = null;
@@ -2086,8 +2388,11 @@ public class ReferenceController extends BaseController {
 						deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
 					}
 				}
+				
+				
 				if(deviceType != null){
 					List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+					StringBuffer statuses = new StringBuffer();
 					if(userGroups != null){
 						for(UserGroup i : userGroups){
 							UserGroup userGroup = UserGroup.findById(UserGroup.class,i.getId());
@@ -2098,25 +2403,50 @@ public class ReferenceController extends BaseController {
 								/**** Status Allowed ****/
 								CustomParameter allowedWorkflowTypes = CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+deviceType.getType().toUpperCase()+"_"+userGroupType.toUpperCase(), "");
 								if(allowedWorkflowTypes != null){
-									List<Status> workflowTypesForUsergroup = Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale.toString());
+									List<Status> workflowTypesForUsergroup = new ArrayList<Status>();
+									workflowTypesForUsergroup = Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale.toString());
+									
 									for(Status status : workflowTypesForUsergroup){
+										
 										MasterVO statusVO = new MasterVO();
 										statusVO.setName(status.getName());
 										statusVO.setValue(status.getType());
-										workflowTypes.add(statusVO);
+										if(!workflowTypes.contains(statusVO)){
+											workflowTypes.add(statusVO);
+										}
 									}
-								}							
+								}else{
+									allowedWorkflowTypes = CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+deviceType.getType().toUpperCase(), ""); 
+									if(allowedWorkflowTypes != null){
+										List<Status> workflowTypesForUsergroup = new ArrayList<Status>();
+										workflowTypesForUsergroup = Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale.toString());
+										for(Status status : workflowTypesForUsergroup){
+											
+											MasterVO statusVO = new MasterVO();
+											statusVO.setName(status.getName());
+											statusVO.setValue(status.getType());
+											if(!workflowTypes.contains(statusVO)){
+												workflowTypes.add(statusVO);
+											}
+										}
+									}
+								}
 							}						
 						}
+						
 						if(workflowTypes.isEmpty()) {
 							CustomParameter defaultAllowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT", "");
 							if(defaultAllowedWorkflowTypes != null){
-								List<Status> workflowTypeList = Status.findStatusContainedIn(defaultAllowedWorkflowTypes.getValue(), locale.toString());
+								List<Status> workflowTypeList = new ArrayList<Status>();
+								workflowTypeList = Status.findStatusContainedIn(defaultAllowedWorkflowTypes.getValue(), locale.toString());
 								for(Status status : workflowTypeList){
+									
 									MasterVO statusVO = new MasterVO();
 									statusVO.setName(status.getName());
 									statusVO.setValue(status.getType());
-									workflowTypes.add(statusVO);
+									if(!workflowTypes.contains(statusVO)){
+										workflowTypes.add(statusVO);
+									}
 								}
 							}else{
 								logger.error("Custom Parameter 'MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_BY_DEFAULT' not set");
@@ -2239,6 +2569,7 @@ public class ReferenceController extends BaseController {
 			final Locale locale){
 		String server=null;
 		String strDeviceType=request.getParameter("deviceType");
+		String strHouseType=request.getParameter("houseType");
 		DeviceType deviceType=null;
 		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 		if(customParameter!=null){
@@ -2247,7 +2578,32 @@ public class ReferenceController extends BaseController {
 			if(server.equals("TOMCAT")){
 				try {
 					String param = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
-					deviceType=DeviceType.findByName(DeviceType.class, param, locale.toString());
+					String htName = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+					if(htName!=null && !htName.isEmpty()) {
+						HouseType houseType = HouseType.findByName(htName, locale.toString());
+						if(houseType==null) {
+							houseType = HouseType.findByType(htName, locale.toString());
+						}
+						if(houseType!=null) {
+							if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+								deviceType=DeviceType.findByFieldName(DeviceType.class, "name_"+ApplicationConstants.LOWER_HOUSE, param, locale.toString());
+								if(deviceType==null) {
+									deviceType=DeviceType.findByName(DeviceType.class, param, locale.toString());
+								}
+							} else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+								deviceType=DeviceType.findByFieldName(DeviceType.class, "name_"+ApplicationConstants.UPPER_HOUSE, param, locale.toString());
+								if(deviceType==null) {
+									deviceType=DeviceType.findByName(DeviceType.class, param, locale.toString());
+								}
+							} else {
+								deviceType=DeviceType.findByName(DeviceType.class, param, locale.toString());
+							}
+						} else {
+							deviceType=DeviceType.findByName(DeviceType.class, param, locale.toString());
+						}
+					} else {
+						deviceType=DeviceType.findByName(DeviceType.class, param, locale.toString());
+					}					
 				}catch (UnsupportedEncodingException e) {
 					logger.error("Cannot Encode the Parameter.");
 				}
@@ -2266,14 +2622,21 @@ public class ReferenceController extends BaseController {
 	 * @param locale the locale
 	 * @return the sub departments from ministry
 	 */
+
 	@RequestMapping(value="/ministry/subdepartments",method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getSubDepartmentsFromMinistry(final HttpServletRequest request, 
-			final Locale locale
-	){
+			final Locale locale){
 		String strMinistry=request.getParameter("ministry");
 		Long ministryId=Long.parseLong(strMinistry);
 		Ministry ministry=Ministry.findById(Ministry.class,ministryId);
-		List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,locale.toString());
+		
+		String strSessionId=request.getParameter("session");
+		Long sessionId = Long.parseLong(strSessionId);
+		Session session = Session.findById(Session.class, sessionId);
+		
+		List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,
+				session.getEndDate(),
+				locale.toString());
 		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
 		for(SubDepartment i:subDepartments){
 			MasterVO masterVO=new MasterVO(i.getId(),i.getName());
@@ -2477,14 +2840,55 @@ public class ReferenceController extends BaseController {
 		List<Reference> references = new ArrayList<Reference>();
 		 
 		CommitteeType committeeType = CommitteeType.findById(CommitteeType.class, committeTypeId);
-		List<CommitteeName> committeeNames = CommitteeName.find(committeeType, locale.toString());
+		List<CommitteeName> committeeNames = new ArrayList<CommitteeName>();
+		List<UserGroup> usergroups = this.getCurrentUser().getUserGroups();
+		for(UserGroup ug : usergroups){
+			if(ug.getActiveFrom().before(new Date()) && ug.getActiveTo().after(new Date())){
+				Map<String, String> parameters = UserGroup.findParametersByUserGroup(ug);
+				String committeeNameParam = parameters.get(ApplicationConstants.COMMITTEENAME_KEY + "_" + locale);
+				if(committeeNameParam != null && ! committeeNameParam.equals("")) {
+					String cNames[] = committeeNameParam.split("##");
+					for(String cName : cNames){
+						List<CommitteeName> comNames = 
+								CommitteeName.findAllByFieldName(CommitteeName.class, "name", cName, "name", "asc", locale.toString());
+						if(comNames != null && !comNames.isEmpty()){
+							committeeNames.addAll(comNames);
+						}
+					}
+				}
+			}
+		}
 		for(CommitteeName cn : committeeNames) {
-			String id = String.valueOf(cn.getId());
-			Reference reference = new Reference(id, cn.getDisplayName());
-			references.add(reference);
+			if(cn.getCommitteeType().equals(committeeType)){
+				String id = String.valueOf(cn.getId());
+				Reference reference = new Reference(id, cn.getDisplayName());
+				references.add(reference);
+			}
 		}
 		
 		return references;
+	}
+	
+	@RequestMapping(value="CommitteeMemberAttendance/{touritinerary}", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> findCommitteeMemberAttendance(
+			@PathVariable("touritinerary") final Long touritineraryId,
+			final HttpServletRequest request,
+			final Locale locale) throws ELSException {
+
+		TourItinerary tourItinerary=TourItinerary.findById(TourItinerary.class, touritineraryId);
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		List<CommitteeMemberAttendance> committeeMemberAttendance=new ArrayList<CommitteeMemberAttendance>();
+		
+			committeeMemberAttendance = CommitteeMemberAttendance.findAll(tourItinerary,locale.toString());
+			for(CommitteeMemberAttendance r: committeeMemberAttendance){
+				MasterVO masterVO = new MasterVO();
+				masterVO.setId(r.getId());
+				masterVO.setName(r.getCommitteeMember().getMember().findFirstLastName());
+				masterVO.setIsSelected(r.getAttendance());
+				masterVOs.add(masterVO);
+			}
+			return masterVOs;
+	
 	}
 	
 	@RequestMapping(value="committeeName/{committeeName}/foundationDate", method=RequestMethod.GET)
@@ -2503,6 +2907,37 @@ public class ReferenceController extends BaseController {
 		reference.setName(strFoundationDate);
 		
 		return reference;
+	}
+	
+	@RequestMapping(value="committeeName/{committeeName}/committeeType", method=RequestMethod.GET)
+	public @ResponseBody Reference findcommitteeType(@PathVariable("committeeName") final Long committeeNameId, final Locale locale) {
+		CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, committeeNameId);
+				
+		CommitteeType committeeType = CommitteeType.findById(CommitteeType.class, committeeName.getCommitteeType().getId());
+		
+		
+		Reference reference = new Reference();
+		reference.setId(String.valueOf(committeeName.getId()));
+		reference.setName(committeeType.getName());
+		
+		return reference;
+	}
+	@RequestMapping(value="committeeName/{committeeName}/committeeTours", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> findcommitteeTours(@PathVariable("committeeName") final Long committeeNameId, final Locale locale) {
+		
+		List<Reference> references = new ArrayList<Reference>();
+		CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, committeeNameId);
+		Committee committee = Committee.findByFieldName(Committee.class,"committeeName",committeeName,locale.toString());
+			List<CommitteeTour> committeetours = 
+				CommitteeTour.findCommitteeTours(committee, locale.toString());
+		
+			for(CommitteeTour cn : committeetours) {
+			String id = String.valueOf(cn.getId());
+			Reference reference = new Reference(id, cn.getSubject());
+			references.add(reference);
+		}
+		
+		return references;
 	}
 	
 	@RequestMapping(value="committee/dissolutionDate", method=RequestMethod.GET)
@@ -2917,7 +3352,7 @@ public class ReferenceController extends BaseController {
 				event="SLOTDURATION_CHANGED";
 			}else if(storedStartTime!=null && startTime.equals(storedStartTime)
 					&&storedEndTime!=null && endTime.equals(storedEndTime)
-					&&storedReporterSize!=null && storedReporterSize!=Integer.parseInt(strReporterSize)){
+					&&storedReporterSize!=null /*&& storedReporterSize!=Integer.parseInt(strReporterSize)*/){
 				actionParameter=CustomParameter.findByName(CustomParameter.class,"ROSTER_REPORTER_CHANGED","");
 				event="REPORTER_CHANGED";
 			}
@@ -2951,7 +3386,6 @@ public class ReferenceController extends BaseController {
 				try {
 					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 				} catch (ELSException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	            DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
@@ -2966,7 +3400,6 @@ public class ReferenceController extends BaseController {
 								try {
 									previousSession = Session.findPreviousSession(session);
 								} catch (ELSException e) {
-									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 	            				if(previousSession != null) {
@@ -3016,7 +3449,6 @@ public class ReferenceController extends BaseController {
 			try {
 				session = Session.findSessionByHouseTypeSessionTypeYear(selectedHouseType, selectedSessionType, year);
 			} catch (ELSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			List<Roster> rosters=Roster.findAllRosterBySessionAndLanguage(session,language, locale.toString());
@@ -3236,6 +3668,12 @@ public class ReferenceController extends BaseController {
 			MasterVO masterVo=new MasterVO();
 			masterVo.setId(s.getId());
 			masterVo.setName(s.getName());
+			masterVo.setValue(FormaterUtil.formatDateToString(s.getStartTime(), "HH:mm", locale.toString()));
+			masterVo.setType(FormaterUtil.formatDateToString(s.getEndTime(), "HH:mm", locale.toString()));
+			Reporter r = s.getReporter();
+			User u = r.getUser();
+			Credential credential = u.getCredential();
+			masterVo.setDisplayName(credential.getUsername());
 			masterVos.add(masterVo);
 		}
 		return masterVos;
@@ -3252,7 +3690,7 @@ public class ReferenceController extends BaseController {
 				Slot slot=Slot.findById(Slot.class, Long.parseLong(slots[i]));
 					if(slot!=null){
 					Proceeding proceeding=Proceeding.findByFieldName(Proceeding.class, "slot", slot, locale.toString());
-					List<Part> parts=proceeding.getParts();
+					List<Part> parts = Part.findAllByFieldName(Part.class, "proceeding", proceeding, "orderNo", "asc", locale.toString());
 					if(!parts.isEmpty()){
 						for(Part p:parts){
 							MasterVO masterVo=new MasterVO();
@@ -3262,6 +3700,8 @@ public class ReferenceController extends BaseController {
 							masterVo.setId(p.getId());
 							//masterVo.setValue(proceeding.getSlot().getName());
 							masterVo.setName(p.getRevisedContent());
+							masterVo.setType(p.getPageHeading());
+							masterVo.setDisplayName(p.getMainHeading());
 							masterVOs.add(masterVo);
 						}
 						
@@ -3291,10 +3731,8 @@ public class ReferenceController extends BaseController {
 			try {
 				selectedSession=Session.findSessionByHouseTypeSessionTypeYear(houseType, selectedSessionType,Integer.parseInt(strSessionYear) );
 			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ELSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -3359,7 +3797,7 @@ public class ReferenceController extends BaseController {
 							
 								String answeringDate=FormaterUtil.formatDateToString(referencedQuestion.getAnsweringDate().getAnsweringDate(), "dd MMM yyyy", locale.toString());
 								model.addAttribute("answeringDate",FormaterUtil.formatMonthsMarathi(answeringDate,locale.toString()));
-								model.addAttribute("member",question.getPrimaryMember().getFullname());
+								model.addAttribute("member",question.getPrimaryMember().findFirstLastName());
 								model.addAttribute("questionId", question.getId());
 								return "proceeding/contentimports/questions_halfanhourfromquestion_content";
 							}
@@ -3369,17 +3807,18 @@ public class ReferenceController extends BaseController {
 							model.addAttribute("questionNumber",question.getNumber());
 							model.addAttribute("questionText",question.getRevisedQuestionText());
 							model.addAttribute("answer",question.getAnswer());
-							model.addAttribute("questionPrimaryMember",question.getPrimaryMember().getFullname());
-							if(!question.getSupportingMembers().isEmpty()){
+							model.addAttribute("questionPrimaryMember",question.getPrimaryMember().findFirstLastName());
+							String supportingMembers = question.findAllMemberNamesWithConstituencies(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
+							/*if(!question.getSupportingMembers().isEmpty()){
 								for(SupportingMember m:question.getSupportingMembers()){
-									content=content+","+m.getMember().getFullname();
+									content=content+","+m.getMember().findFirstLastName();
 								}
-							}
-							model.addAttribute("supportingMember",content);
+							}*/
+							model.addAttribute("supportingMember",supportingMembers);
 							if(question.getMinistry()!=null){
 								Ministry ministry=question.getMinistry();
 								Member member=MemberMinister.findMemberHavingMinistryInSession(question.getSession(), ministry);
-								model.addAttribute("minister",member.getFullname());
+								model.addAttribute("minister",member.findFirstLastName());
 							}
 						}
 					}
@@ -3406,14 +3845,14 @@ public class ReferenceController extends BaseController {
 						model.addAttribute("motionPrimaryMember",motion.getPrimaryMember().getFullname());
 						if(!motion.getSupportingMembers().isEmpty()){
 							for(SupportingMember m:motion.getSupportingMembers()){
-								content=content+","+m.getMember().getFullname();
+								content=content+","+m.getMember().findFirstLastName();
 							}
 						}
 						model.addAttribute("supportingMember",content);
 						if(motion.getMinistry()!=null){
 							Ministry ministry=motion.getMinistry();
 							Member member=MemberMinister.findMemberHavingMinistryInSession(motion.getSession(), ministry);
-							model.addAttribute("minister",member.getFullname());
+							model.addAttribute("minister",member.findFirstLastName());
 						}
 						model.addAttribute("houseType", motion.getHouseType().getType());
 					}
@@ -3463,25 +3902,18 @@ public class ReferenceController extends BaseController {
 //					
 //					System.out.println(returval);
 //				} catch (ClassNotFoundException e) {
-//					// TODO Auto-generated catch block
 //					e.printStackTrace();
 //				} catch (SecurityException e) {
-//					// TODO Auto-generated catch block
 //					e.printStackTrace();
 //				} catch (NoSuchMethodException e) {
-//					// TODO Auto-generated catch block
 //					e.printStackTrace();
 //				} catch (NumberFormatException e) {
-//					// TODO Auto-generated catch block
 //					e.printStackTrace();
 //				} catch (IllegalArgumentException e) {
-//					// TODO Auto-generated catch block
 //					e.printStackTrace();
 //				} catch (IllegalAccessException e) {
-//					// TODO Auto-generated catch block
 //					e.printStackTrace();
 //				} catch (InvocationTargetException e) {
-//					// TODO Auto-generated catch block
 //					e.printStackTrace();
 //				}
 				
@@ -3625,6 +4057,89 @@ public class ReferenceController extends BaseController {
 		return autoCompleteVOs;
 	}
 	
+	@RequestMapping(value="/bill/member/getmembers",method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getActiveMembersAndMinistersForBill(final HttpServletRequest request, final Locale locale, @RequestParam("session")final Long session, final ModelMap model){
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+		List<MasterVO> memberVOs=new ArrayList<MasterVO>();
+		List<MasterVO> ministerVOs=new ArrayList<MasterVO>();
+		List<MasterVO> mainVO=new ArrayList<MasterVO>();
+		List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
+		Session selectedSession=Session.findById(Session.class,session);
+		DeviceType deviceType=DeviceType.findById(DeviceType.class,Long.parseLong(request.getParameter("deviceTypeId")));
+		House house=selectedSession.getHouse();
+		Long primaryMemberId=null;
+		if(request.getParameter("primaryMemberId")!=null){
+			if(!request.getParameter("primaryMemberId").isEmpty()){
+				primaryMemberId = Long.parseLong(request.getParameter("primaryMemberId"));
+			}
+		}		
+		/**** Removed this portion so as to use same code for getting primary members in case of
+		 * clerk login
+		 */
+		//		if(primaryMemberId==null){
+		//			return autoCompleteVOs;
+		//		}
+		String param=request.getParameter("term");
+		if(customParameter!=null){
+			String server=customParameter.getValue();
+			if(server.equals("TOMCAT")){				
+				try {
+					param=new String(param.getBytes("ISO-8859-1"),"UTF-8");										
+				}
+				catch (UnsupportedEncodingException e){
+					e.printStackTrace();
+				}
+			}
+			House secondHouse=null;
+			if(house.getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+				HouseType houseType=HouseType.findByType(ApplicationConstants.UPPER_HOUSE, locale.toString());
+				secondHouse=House.find(houseType, new Date(), locale.toString());
+			}else if(house.getType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+				HouseType houseType=HouseType.findByType(ApplicationConstants.LOWER_HOUSE, locale.toString());
+				secondHouse=House.find(houseType, new Date(), locale.toString());
+			}
+			if(deviceType.getType().equals(ApplicationConstants.GOVERNMENT_BILL)) {
+				//add first house ministers
+				ministerVOs=MemberMinister.findMinistersInGivenHouse(house,param,locale.toString());
+				if(!ministerVOs.isEmpty()){
+					mainVO.addAll(ministerVOs);
+				}
+				//add second house ministers
+				ministerVOs.clear();
+				ministerVOs=MemberMinister.findMinistersInGivenHouse(secondHouse,param,locale.toString());
+				if(!ministerVOs.isEmpty()){
+					mainVO.addAll(ministerVOs);
+				}
+			} else {
+				//add all given house members
+				memberVOs=HouseMemberRoleAssociation.findAllActiveSupportingMemberVOSInSession(house, selectedSession, locale.toString(), param,primaryMemberId);
+				mainVO.addAll(memberVOs);
+				ministerVOs=MemberMinister.findMinistersInGivenHouse(selectedSession.getHouse(),param,locale.toString());
+				if(!ministerVOs.isEmpty()){
+					//remove if member is minister
+					List<MasterVO> removableVOs = new ArrayList<MasterVO>();
+					for(MasterVO mvo: mainVO) {
+						for(MasterVO mivo: ministerVOs) {
+							if(mvo.getId().equals(mivo.getId())) {
+								removableVOs.add(mvo);								
+								break;
+							}
+						}
+					}
+					mainVO.removeAll(removableVOs);
+				}
+			}
+		}
+		for(MasterVO i:mainVO){
+			AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
+			autoCompleteVO.setId(i.getId());
+			autoCompleteVO.setValue(i.getName());
+			autoCompleteVOs.add(autoCompleteVO);
+		}
+
+		return autoCompleteVOs;
+	}
+	
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/partmembers", method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getPartMembers(HttpServletRequest request, HttpServletResponse response, Locale locale){
@@ -3648,10 +4163,8 @@ public class ReferenceController extends BaseController {
 			try {
 				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
 			} catch (NumberFormatException e) {
-				//TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ELSException e) {
-				//TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
@@ -3783,10 +4296,8 @@ public class ReferenceController extends BaseController {
 				try {
 					session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
 				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ELSException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				Roster roster=Roster.findRosterBySessionLanguageAndDay(session,Integer.parseInt(strDay),language,locale.toString());
@@ -3823,14 +4334,17 @@ public class ReferenceController extends BaseController {
 			String strDate=request.getParameter("selectedDate");
 			String strSearchBy=request.getParameter("searchBy");
 			String strLanguage=request.getParameter("language");
+			String strSession = request.getParameter("session");
 			List<MasterVO> masterVOs=new ArrayList<MasterVO>();
 			if(strDate!=null &&	!strDate.isEmpty() 
 					&& strSearchBy!=null &&!strSearchBy.isEmpty()
-					&& strLanguage!=null && !strLanguage.isEmpty()){
+					&& strLanguage!=null && !strLanguage.isEmpty()
+					&& strSession!=null && !strSession.isEmpty()){
 				//Slot slot=Slot.findById(Slot.class, Long.parseLong(strSlot));
+				Session session =Session.findById(Session.class, Long.parseLong(strSession));
 				Language language=Language.findById(Language.class, Long.parseLong(strLanguage));
-				Date sDate=FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT);
-				Roster roster=Roster.findRosterByDate(sDate,language,locale.toString());
+				Date sDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT);
+				Roster roster=Roster.findRosterByDate(sDate, language, session, locale.toString());
 				if(roster!=null){
 								
 					List<Part> parts=Part.findInterruptedProceedingInRoster(roster,locale);
@@ -5026,124 +5540,236 @@ public class ReferenceController extends BaseController {
 			List<MasterVO> masterVos=new ArrayList<MasterVO>();
 			
 			try{
-				String strGroup=request.getParameter("group");
-				String strUserGroup=request.getParameter("userGroup");
+				String strGroup = request.getParameter("group");
+				String strUserGroup = request.getParameter("userGroup");
 				String strDeviceType = request.getParameter("deviceType");
 				String strHouseType = request.getParameter("houseType");
-				
+				String strUserGroupType = request.getParameter("usergroupType");
 				if(strDeviceType != null && !strDeviceType.isEmpty()
 					&& strHouseType != null && !strHouseType.isEmpty()){
 					Group group = null;
 					List<Ministry> ministries = null;
-					if(!(strDeviceType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_STANDALONE)
-							&& strHouseType.equals(ApplicationConstants.LOWER_HOUSE))
-							&& strGroup!=null && !strGroup.isEmpty()){
-						group = Group.findById(Group.class, Long.parseLong(strGroup));
-						ministries = group.getMinistries();
-					}else{
-						ministries = Ministry.findAll(Ministry.class, "name", ApplicationConstants.ASC, locale.toString());
+					DeviceType device = null;
+					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+					try{
+						device = DeviceType.findByType(strDeviceType, locale.toString());
+					}catch(Exception e){
+						device = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
 					}
-					 
-					UserGroup userGroup=UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
-					Map<String,String> parameters=UserGroup.findParametersByUserGroup(userGroup);
-					if(parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString())!=null && !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale.toString()).equals(" ")){
-						String strministries=parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString());
-						for(Ministry m:ministries){
-							if(strministries.contains(m.getName())){
-								List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(m, locale.toString());
-								for(SubDepartment s:subDepartments){
-									MasterVO masterVo=new MasterVO();
+					
+					if(device == null){
+						device = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+					}
+					
+					if(strGroup != null && !strGroup.isEmpty()){
+						group = Group.findById(Group.class, new Long(strGroup));
+					}
+					
+					
+					if(group == null){
+						
+						Session session = null; 
+						String strSessionId = request.getParameter("session");
+						
+						if(strSessionId != null && !strSessionId.isEmpty()){
+							session = Session.findById(Session.class, new Long(strSessionId));
+						}
+					
+						if(session != null){
+							
+							User user = User.findByUserName(this.getCurrentUser().getUsername(), locale.toString());
+							UserGroupType userGroupType = UserGroupType.findByType(strUserGroupType, locale.toString());
+							UserGroup userGroup = UserGroup.findActive(user.getCredential(), userGroupType,session.getEndDate(), locale.toString());
+			
+							Map<String,String> parameters = UserGroup.findParametersByUserGroup(userGroup);
+							
+							if(parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString()) != null 
+									&& !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale.toString()).equals(" ")){
+								
+								String strministries=parameters.get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString());
+								
+								ministries = Ministry.findAssignedMinistriesInSession(session.getEndDate(), locale.toString());
+									
+								for(Ministry m : ministries){
+									if(strministries.contains(m.getName())){
+										List<SubDepartment> subDepartments = 
+												MemberMinister.findAssignedSubDepartments(m, session.getEndDate(), locale.toString());
+										for(SubDepartment s : subDepartments){
+											MasterVO masterVo = new MasterVO();
+											masterVo.setId(s.getId());
+											masterVo.setName(s.getName());
+											masterVos.add(masterVo);
+										}
+									}
+								}
+							}
+						}
+					}else if(group != null){
+						Session session = group.getSession();
+						Session currentSession = Session.findLatestSession(houseType);
+						Boolean isCurrentSession = false;
+						if(currentSession != null && session != null){
+							if(currentSession.equals(session)){
+								isCurrentSession = true;
+							}
+						}
+						ministries = group.getMinistries();
+						if(isCurrentSession){
+							User user = User.findByUserName(this.getCurrentUser().getUsername(), locale.toString());
+							UserGroupType userGroupType = UserGroupType.findByType(strUserGroupType, locale.toString());
+							UserGroup userGroup = UserGroup.
+									findActive(user.getCredential(), userGroupType, group.getSession().getEndDate(), locale.toString());
+							Map<String,String> parameters=UserGroup.findParametersByUserGroup(userGroup);
+							if(parameters.
+									get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString())!=null 
+									&& !parameters.
+									get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale.toString()).equals(" ")){
+								String strministries = parameters.
+										get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString());
+								for(Ministry m:ministries){
+									if(strministries.contains(m.getName())){
+										List<SubDepartment> subDepartments = MemberMinister.
+												findAssignedSubDepartments(m, group.getSession().getStartDate(), locale.toString());
+										String subDepartmentParameters = parameters.
+												get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale.toString());
+										List<SubDepartment> subDepartmentList = 
+												delimitedStringToSubDepartmentList(subDepartmentParameters,"##",locale.toString());
+										for(SubDepartment s:subDepartments){
+											if(isSubDepartmentExists(subDepartmentList,s)){
+												MasterVO masterVo=new MasterVO();
+												masterVo.setId(s.getId());
+												masterVo.setName(s.getName());
+												masterVos.add(masterVo);
+											}
+										}
+									}
+								}
+								
+							}
+						}else{
+							for(Ministry m : ministries){
+								List<SubDepartment> subDepartments = 
+										MemberMinister.findAssignedSubDepartments(m, session.getEndDate(), locale.toString());
+								for(SubDepartment s : subDepartments){
+									MasterVO masterVo = new MasterVO();
 									masterVo.setId(s.getId());
 									masterVo.setName(s.getName());
 									masterVos.add(masterVo);
 								}
 							}
 						}
-						
-					}
+					}				
 				}
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
 			return masterVos;
+	}		
+		
+	public  List<SubDepartment> delimitedStringToSubDepartmentList(final String delimitedSubDepartments,
+			final String delimiter,
+			final String locale) {
+		List<SubDepartment> subDepartments = new ArrayList<SubDepartment>();
+		
+		String[] strSubDepartments = delimitedSubDepartments.split(delimiter);
+		for(String strSubDepartment : strSubDepartments) {
+			SubDepartment subDepartment = SubDepartment.
+					findByName(SubDepartment.class, strSubDepartment, locale);
+			subDepartments.add(subDepartment);
+		}
+		
+		return subDepartments;
 	}
-		
-
-		@RequestMapping(value="/getministries",method=RequestMethod.GET)
-		public @ResponseBody List<AutoCompleteVO> getMinistries(final HttpServletRequest request,
-				final Locale locale,
-				final ModelMap model){
-			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
-			List<MasterVO> ministerVOs=new ArrayList<MasterVO>();
-			List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
-			String strSession=request.getParameter("session");
-			Session session=null;
-			if(strSession!=null && !strSession.isEmpty()){
-				session=Session.findById(Session.class, Long.parseLong(strSession));
-				
-			}
-			if(customParameter!=null){
-				String server=customParameter.getValue();
-				if(server.equals("TOMCAT")){
-					String strParam=request.getParameter("term");
-					try {
-						String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
-						ministerVOs = Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
-					}
-					catch (UnsupportedEncodingException e){
-						e.printStackTrace();
-					}
-				}else{
-					String param=request.getParameter("term");
-					ministerVOs=Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
+	
+	private boolean isSubDepartmentExists(final List<SubDepartment> subDepartments,
+			final SubDepartment subDepartment) {
+		for(SubDepartment sd : subDepartments) {
+			if(sd != null && subDepartment != null){
+				if(subDepartment.getId().equals(sd.getId())) {
+					return true;
 				}
 			}
-			for(MasterVO i:ministerVOs){
-				AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
-				autoCompleteVO.setId(i.getId());
-				autoCompleteVO.setValue(i.getName());
-				autoCompleteVOs.add(autoCompleteVO);
-			}
-
-			return autoCompleteVOs;
+			
 		}
 		
-		/**** To get the clubbed questions text ****/
-		@RequestMapping(value="/{id}/clubbedquestiontext", method=RequestMethod.GET)
-		public @ResponseBody List<MasterVO> getClubbedQuestionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		return false;
+	}
+	
+	@RequestMapping(value="/getministries",method=RequestMethod.GET)
+	public @ResponseBody List<AutoCompleteVO> getMinistries(final HttpServletRequest request,
+			final Locale locale,
+			final ModelMap model){
+		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+		List<MasterVO> ministerVOs=new ArrayList<MasterVO>();
+		List<AutoCompleteVO> autoCompleteVOs=new ArrayList<AutoCompleteVO>();
+		String strSession=request.getParameter("session");
+		Session session=null;
+		if(strSession!=null && !strSession.isEmpty()){
+			session=Session.findById(Session.class, Long.parseLong(strSession));
 			
-			List<MasterVO> clubbedQuestionsVO = new ArrayList<MasterVO>();
+		}
+		if(customParameter!=null){
+			String server=customParameter.getValue();
+			if(server.equals("TOMCAT")){
+				String strParam=request.getParameter("term");
+				try {
+					String param=new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+					ministerVOs = Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
+				}
+				catch (UnsupportedEncodingException e){
+					e.printStackTrace();
+				}
+			}else{
+				String param=request.getParameter("term");
+				ministerVOs=Ministry.findMinistriesAssignedToGroupsByTerm(session.getHouse().getType(), session.getYear(), session.getType(),param, locale.toString());
+			}
+		}
+		for(MasterVO i:ministerVOs){
+			AutoCompleteVO autoCompleteVO=new AutoCompleteVO();
+			autoCompleteVO.setId(i.getId());
+			autoCompleteVO.setValue(i.getName());
+			autoCompleteVOs.add(autoCompleteVO);
+		}
+
+		return autoCompleteVOs;
+	}
+	
+	/**** To get the clubbed questions text ****/
+	@RequestMapping(value="/{id}/clubbedquestiontext", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getClubbedQuestionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> clubbedQuestionsVO = new ArrayList<MasterVO>();
+		
+		try{
 			
-			try{
+			Question parent = Question.findById(Question.class, id);
+			
+			if(parent != null){
+				List<ClubbedEntity> clubbedQuestions = parent.getClubbedEntities();
 				
-				Question parent = Question.findById(Question.class, id);
-				
-				if(parent != null){
-					List<ClubbedEntity> clubbedQuestions = parent.getClubbedEntities();
-					
-					for(ClubbedEntity ce : clubbedQuestions){
-						Question cQuestion = ce.getQuestion();
-						if(cQuestion != null){
-							MasterVO mVO = new MasterVO();
-							mVO.setId(cQuestion.getId());
-							mVO.setName(FormaterUtil.formatNumberNoGrouping(cQuestion.getNumber(), locale.toString()));
-							if(cQuestion.getRevisedQuestionText() != null && !cQuestion.getRevisedQuestionText().isEmpty()){
-								mVO.setValue(cQuestion.getRevisedQuestionText());
-							}else{
-								mVO.setValue(cQuestion.getQuestionText());
-							}
-							
-							clubbedQuestionsVO.add(mVO);
+				for(ClubbedEntity ce : clubbedQuestions){
+					Question cQuestion = ce.getQuestion();
+					if(cQuestion != null){
+						MasterVO mVO = new MasterVO();
+						mVO.setId(cQuestion.getId());
+						mVO.setName(FormaterUtil.formatNumberNoGrouping(cQuestion.getNumber(), locale.toString()));
+						if(cQuestion.getQuestionText()!= null && !cQuestion.getQuestionText().isEmpty()){
+							mVO.setValue(cQuestion.getQuestionText());
+						}else{
+							mVO.setValue(cQuestion.getRevisedQuestionText());
 						}
+						
+						clubbedQuestionsVO.add(mVO);
 					}
 				}
-			}catch(Exception e){
-				logger.error(e.toString());
 			}
-			
-			
-			return clubbedQuestionsVO;
+		}catch(Exception e){
+			logger.error(e.toString());
 		}
+		
+		
+		return clubbedQuestionsVO;
+	}
 		
 		
 	@RequestMapping(value="/newpendingtasks", method=RequestMethod.GET)
@@ -5212,7 +5838,6 @@ public class ReferenceController extends BaseController {
 					}
 					
 				} catch (ELSException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
@@ -5241,22 +5866,40 @@ public class ReferenceController extends BaseController {
 						questionNumber=  FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 								
 					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}else{
 					try {
 						questionNumber=FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
 			}
 			flag=Question.isExist(questionNumber,deviceType, session, locale.toString());
+		}
+		return flag;
+	}
+	
+	@RequestMapping(value="/adjournmentmotion/duplicatenumber", method=RequestMethod.GET)
+	public @ResponseBody Boolean isDuplicateNumberedAdjournmentMotion(HttpServletRequest request, Locale locale) throws ParseException, UnsupportedEncodingException{
+		Boolean flag=false;
+		String strAdjourningDate=request.getParameter("adjourningDate");
+		String strNumber=request.getParameter("number");		
+		if(strNumber!=null && !strNumber.isEmpty() 
+			&& strAdjourningDate!=null && !strAdjourningDate.isEmpty()){
+			CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(csptDeployment!=null){
+				String server=csptDeployment.getValue();
+				if(server.equals("TOMCAT")){
+					strNumber = new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");
+				}
+			}
+			Date adjourningDate = FormaterUtil.formatStringToDate(strAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT);
+			Integer adjournmentMotionNumber=FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+			flag=AdjournmentMotion.isDuplicateNumberExist(adjourningDate, adjournmentMotionNumber,locale.toString());
 		}
 		return flag;
 	}
@@ -5281,17 +5924,14 @@ public class ReferenceController extends BaseController {
 						motionNumber = FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 								
 					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}else{
 					try {
 						motionNumber = FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -5313,6 +5953,7 @@ public class ReferenceController extends BaseController {
 		String strGrid = request.getParameter("grid");
 		String strGroup = request.getParameter("group");
 		String strSubdepartment = request.getParameter("subdepartment");
+		String strAnsweringDate = request.getParameter("answeringDate");
 		
 		CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 		List<MasterVO> vos = new ArrayList<MasterVO>();
@@ -5337,6 +5978,9 @@ public class ReferenceController extends BaseController {
 						strDeviceType = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
 						strStatus = new String(strStatus.getBytes("ISO-8859-1"),"UTF-8");
 						strWfSubType = new String(strWfSubType.getBytes("ISO-8859-1"),"UTF-8");
+						if(strGroup != null && !strGroup.isEmpty()){
+							strGroup = new String(strGroup.getBytes("ISO-8859-1"), "UTF-8");
+						}
 					}
 				}
 				
@@ -5346,14 +5990,23 @@ public class ReferenceController extends BaseController {
 				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
 				deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
 				
+				
 				parameters.put("sessionId", new String[]{session.getId().toString()});
 				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 				parameters.put("status", new String[]{strStatus});
 				parameters.put("workflowSubType", new String[]{strWfSubType});
 				parameters.put("assignee", new String[]{this.getCurrentUser().getActualUsername()});
 				parameters.put("locale", new String[]{locale.toString()});
-				data = Query.findReport("QIS_STATUS_REPORT_DEVICES_WF", parameters);
-				
+				if(deviceType.getType().contains(ApplicationConstants.DEVICE_RESOLUTIONS)){
+					data = Query.findReport("ROIS_STATUS_REPORT_DEVICES_WF", parameters);
+				}else if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_MOTIONS_CALLING)){
+					data = Query.findReport("MOIS_STATUS_REPORT_DEVICES_WF", parameters);
+				}else if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)){
+					Integer iGroupNumber = new Integer(strGroup);
+					parameters.put("group", new String[]{iGroupNumber.toString()});
+					parameters.put("answeringDate", new String[]{strAnsweringDate});
+					data = Query.findReport("QIS_STATUS_REPORT_DEVICES_WF", parameters);
+				}
 			}else if(strGrid.equals("device")){
 				sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
 				houseType = HouseType.findByType(strHouseType, locale.toString());
@@ -5364,10 +6017,17 @@ public class ReferenceController extends BaseController {
 				parameters.put("sessionId", new String[]{session.getId().toString()});
 				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
 				parameters.put("status", new String[]{strStatus});
-				parameters.put("group", new String[]{strGroup});
-				parameters.put("subdepartment", new String[]{strSubdepartment});
 				parameters.put("locale", new String[]{locale.toString()});
-				data = Query.findReport("QIS_STATUS_REPORT_DEVICES_DV", parameters);
+				parameters.put("subdepartment", new String[]{strSubdepartment});
+				if(deviceType.getType().contains(ApplicationConstants.DEVICE_RESOLUTIONS)){
+					data = Query.findReport("ROIS_STATUS_REPORT_DEVICES_DV", parameters);
+				}else if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_QUESTIONS)){
+					parameters.put("group", new String[]{strGroup});
+					data = Query.findReport("QIS_STATUS_REPORT_DEVICES_DV", parameters);
+				}else if(deviceType.getType().startsWith(ApplicationConstants.DEVICE_MOTIONS_CALLING)){
+					data = Query.findReport("MOIS_STATUS_REPORT_DEVICES_DV", parameters);
+				}
+				
 			}
 			
 			if(data != null){
@@ -5393,6 +6053,103 @@ public class ReferenceController extends BaseController {
 		return vos;
 	}
 	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/pendingtasksdevicessmois", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getPendingTasksDevicesSMOIS(HttpServletRequest request, Locale locale){
+		String strSessionYear = request.getParameter("sessionYear");
+		String strSessionType = request.getParameter("sessionType");
+		String strHouseType = request.getParameter("houseType");
+		String strDeviceType = request.getParameter("deviceType");
+		String strStatus = request.getParameter("status");
+		String strWfSubType = request.getParameter("wfSubType");
+		String strGrid = request.getParameter("grid");
+		String strGroup = request.getParameter("group");
+		String strSubdepartment = request.getParameter("subdepartment");
+		String strAnsweringDate = request.getParameter("answeringDate");
+		
+		CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		List<MasterVO> vos = new ArrayList<MasterVO>();
+				
+		try {
+			String server=csptDeployment.getValue();
+			SessionType sessionType = null;
+			HouseType houseType = null;
+			Integer year = null;
+			Session session = null;					
+			DeviceType deviceType = null;
+			
+			Map<String, String[]> parameters = new HashMap<String, String[]>();
+			List data = null;
+			
+			if(strGrid.equals("workflow")){
+				if(csptDeployment!=null){
+					if(server.equals("TOMCAT")){
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+						strDeviceType = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
+						strStatus = new String(strStatus.getBytes("ISO-8859-1"),"UTF-8");
+						strWfSubType = new String(strWfSubType.getBytes("ISO-8859-1"),"UTF-8");
+						strGroup = new String(strGroup.getBytes("ISO-8859-1"), "UTF-8");
+					}
+				}
+				
+				sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+				houseType = HouseType.findByName(strHouseType, locale.toString());
+				year = new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strSessionYear).intValue());
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+				deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
+				Integer iGroupNumber = new Integer(strGroup);
+				
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("status", new String[]{strStatus});
+				parameters.put("workflowSubType", new String[]{strWfSubType});
+				parameters.put("assignee", new String[]{this.getCurrentUser().getActualUsername()});
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("group", new String[]{iGroupNumber.toString()});
+				parameters.put("answeringDate", new String[]{strAnsweringDate});
+				
+				data = Query.findReport("SMOIS_STATUS_REPORT_DEVICES_WF", parameters);
+				
+			}else if(strGrid.equals("device")){
+				sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+				houseType = HouseType.findByType(strHouseType, locale.toString());
+				year = new Integer(Integer.parseInt(strSessionYear));
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+				
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("status", new String[]{strStatus});
+				parameters.put("group", new String[]{strGroup});
+				parameters.put("subdepartment", new String[]{strSubdepartment});
+				parameters.put("locale", new String[]{locale.toString()});
+				data = Query.findReport("SMOIS_STATUS_REPORT_DEVICES_DV", parameters);
+			}
+			
+			if(data != null){
+				for(Object o : data){
+					Object[] objx = (Object[]) o;
+					MasterVO vo = new MasterVO();
+					if(objx[0] != null){
+						vo.setValue(objx[0].toString());
+						vos.add(vo);
+					}
+				}
+			}
+			
+		} catch (ELSException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return vos;
+	}
 	@RequestMapping(value="dummypage", method=RequestMethod.GET)
 	public String getDummyPage(ModelMap model, Locale locale){
 		model.addAttribute("data","data");
@@ -5438,18 +6195,16 @@ public class ReferenceController extends BaseController {
 						
 				
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ELSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		return masterVOs;
 			
+		
 	}
 	@RequestMapping(value="/device/actors",method=RequestMethod.GET)
 	public @ResponseBody List<Reference> findActorsByQuestionNumber(final HttpServletRequest request,
@@ -5550,36 +6305,36 @@ public class ReferenceController extends BaseController {
 		return pendingMessage;
 	}
 	
-	@RequestMapping(value="/test/session/{sessionId}", method=RequestMethod.GET)
-	public @ResponseBody String test(@PathVariable("sessionId") final Long sessionId) {
-//		long[] questionNumbers = new long[] {
-//				48996, 49093, 49334, 49343, 49359, 49632, 49633,
-//				49638, 49687, 49689, 49693, 49694, 49695, 49617,
-//				49719, 49720, 49721, 49785, 49788, 49787, 49867,
-//				49877, 50295, 50304, 50341, 50360, 50491, 50519,
-//				50521, 50524, 51040, 51103, 51104, 51130, 51192,
-//				51193, 51277, 51391, 51393, 51422, 51638, 51797
-//		};
-		String locale = ApplicationConstants.DEFAULT_LOCALE;
-		
-		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale);
-		long deviceTypeId = deviceType.getId();
-		try{
-		CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "SQ_CONVERT_TO_UNSTARRED_AND_ADMIT", "");
-		if(cp != null) {
-			String qnNumbers = cp.getValue();
-			String[] qnNumbersArr = qnNumbers.split(",");
-			for(String qnNumber : qnNumbersArr) {
-				Integer questionNumber = Integer.parseInt(qnNumber.trim());
-				Question q = Question.getQuestion(sessionId, deviceTypeId, questionNumber, locale);
-				ManualCouncilUtil.performActionOnConvertToUnstarredAndAdmit(q);
-			}
-		}
-			return "SUCCESS";
-		}catch(Exception e){
-			return "FAIL";
-		}
-	}
+//	@RequestMapping(value="/test/session/{sessionId}", method=RequestMethod.GET)
+//	public @ResponseBody String test(@PathVariable("sessionId") final Long sessionId) {
+////		long[] questionNumbers = new long[] {
+////				48996, 49093, 49334, 49343, 49359, 49632, 49633,
+////				49638, 49687, 49689, 49693, 49694, 49695, 49617,
+////				49719, 49720, 49721, 49785, 49788, 49787, 49867,
+////				49877, 50295, 50304, 50341, 50360, 50491, 50519,
+////				50521, 50524, 51040, 51103, 51104, 51130, 51192,
+////				51193, 51277, 51391, 51393, 51422, 51638, 51797
+////		};
+//		String locale = ApplicationConstants.DEFAULT_LOCALE;
+//		
+//		DeviceType deviceType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, locale);
+//		long deviceTypeId = deviceType.getId();
+//		try{
+//		CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "SQ_CONVERT_TO_UNSTARRED_AND_ADMIT", "");
+//		if(cp != null) {
+//			String qnNumbers = cp.getValue();
+//			String[] qnNumbersArr = qnNumbers.split(",");
+//			for(String qnNumber : qnNumbersArr) {
+//				Integer questionNumber = Integer.parseInt(qnNumber.trim());
+//				Question q = Question.getQuestion(sessionId, deviceTypeId, questionNumber, locale);
+//				ManualCouncilUtil.performActionOnConvertToUnstarredAndAdmit(q);
+//			}
+//		}
+//			return "SUCCESS";
+//		}catch(Exception e){
+//			return "FAIL";
+//		}
+//	}
 	
 	
 	@RequestMapping(value="/findYaadiLayingDateForYaadi" ,method=RequestMethod.GET)
@@ -5610,6 +6365,34 @@ public class ReferenceController extends BaseController {
 			}
 		}		
 		return new Reference(formattedYaadiLayingDate, formattedYaadiLayingDate);
+	}
+	
+	@RequestMapping(value="/checkfinalizationofnumberedyaadi" ,method=RequestMethod.GET)
+	public @ResponseBody Boolean checkFinalizationOfNumberedYaadi(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model) throws Exception {
+		Boolean isNumberedYaadiFinalized = false;
+		String sessionId = request.getParameter("sessionId");
+		String strYaadiNumber = request.getParameter("yaadiNumber");
+		if(sessionId!=null && strYaadiNumber!=null){
+			if(!sessionId.isEmpty() && !strYaadiNumber.isEmpty()){
+				CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+					if(csptServer.getValue().equals("TOMCAT")){
+						strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
+					}
+				}
+				Session session = Session.findById(Session.class, Long.parseLong(sessionId));
+				if(session==null) {
+					logger.error("**** Session not found with request parameter sessionId ****");
+					throw new ELSException();
+				}	
+				Integer yaadiNumber = (Integer) (FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strYaadiNumber).intValue());
+				Date yaadiLayingDate = Question.findYaadiLayingDateForYaadi(null, session, yaadiNumber, locale.toString());
+				if(yaadiLayingDate!=null) {
+					isNumberedYaadiFinalized = Question.isNumberedYaadiFinalized(null, session, yaadiNumber, yaadiLayingDate, locale.toString());
+				}				
+			}
+		}		
+		return isNumberedYaadiFinalized;
 	}
 
 	
@@ -5872,6 +6655,78 @@ public class ReferenceController extends BaseController {
 		return ministries;
 	}
 	
+	
+	@RequestMapping(value="/getSubDeparmentsByMinistries", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getSubDepartmentsByMinistries(
+			final HttpServletRequest request,
+			final Locale locale){
+		List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
+		String strMinistries = request.getParameter("ministries");
+		String strSession = request.getParameter("session");
+		if(strMinistries != null && !strMinistries.isEmpty()
+			&& strSession != null && !strSession.isEmpty()){
+			String[] ministries = strMinistries.split(",");
+			Session session = Session.findById(Session.class, Long.parseLong(strSession));
+			for(int i = 0;i < ministries.length;i++){
+				Ministry ministry = Ministry.findById(Ministry.class, Long.parseLong(ministries[i]));
+				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, session.getEndDate(), locale.toString());
+				for(SubDepartment sd:subDepartments){
+					MasterVO masterVO=new MasterVO();
+					masterVO.setId(sd.getId());
+					masterVO.setName(sd.getName());
+					subDepartmentVOs.add(masterVO);
+				}
+			}
+		}
+		return subDepartmentVOs;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/getGroupChangedQuestion",method=RequestMethod.GET)
+	public @ResponseBody List getGroupChangedQuestion(final HttpServletRequest request,Locale locale){
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strAnsweringDate = request.getParameter("answeringDate");
+		String strDeviceType = request.getParameter("deviceType");
+		Session session =findSession(strHouseType, strSessionType, strSessionYear, locale);
+		if(session!=null &&
+			strAnsweringDate!=null && !strAnsweringDate.isEmpty() &&
+			strDeviceType!=null && !strDeviceType.isEmpty()){
+			Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+			parametersMap.put("locale", new String[]{locale.toString()});
+			parametersMap.put("sessionId", new String[]{session.getId().toString()});
+			parametersMap.put("deviceTypeId", new String[]{strDeviceType});
+			parametersMap.put("answeringDate",new String[]{strAnsweringDate});
+			List result=Query.findReport("STARRED_CHART_GROUP_CHANGED_DETAILS", parametersMap);
+			return result;
+		}
+		
+		return new ArrayList();
+		
+	}
+	
+	private Session findSession(String strHouseType,String strSessionType,String strSessionYear,Locale locale){
+		if(strHouseType!=null && !strHouseType.isEmpty()
+			&& strSessionType!=null && !strSessionType.isEmpty()
+			&& strSessionYear!=null && !strSessionYear.isEmpty()){
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			if(houseType!=null && sessionType!=null){
+				try {
+					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+					return session;
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (ELSException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return null;
+	}
+
+	
 	@RequestMapping(value="/findBillsForGivenCombinationOfYearAndHouseType", method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> findBillsForGivenCombinationOfYearAndHouseType(final HttpServletRequest request, final Locale locale) {
 		List<MasterVO> billMasterVOs = new ArrayList<MasterVO>();
@@ -6001,7 +6856,7 @@ public class ReferenceController extends BaseController {
 		}
 		return parsedNumbers.toString().isEmpty()?"0":parsedNumbers.toString();
 	}
-	
+
 	/**
 	 * @param request
 	 * @param locale
@@ -6076,7 +6931,7 @@ public class ReferenceController extends BaseController {
 			}
 			Status admitted = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale.toString());
 			if(member != null && deviceType != null && admitted != null){
-				List<Motion> mots = Motion.findAllUndiscussedByMember(session, deviceType, admitted, member, locale.toString());
+				List<Motion> mots = Motion.findAllByMember(session, deviceType, admitted, member, locale.toString());
 				
 				for(Motion m : mots){
 					Reference ref = new Reference();
@@ -6129,7 +6984,7 @@ public class ReferenceController extends BaseController {
 						
 			Status admitted = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale.toString());
 			if(deviceType != null && admitted != null){
-				List<Motion> mots = Motion.findAllUndiscussed(session, deviceType, admitted, locale.toString());
+				List<Motion> mots = Motion.findAllByStatus(session, deviceType, admitted, locale.toString());
 				
 				for(Motion m : mots){
 					Reference ref = new Reference();
@@ -6169,6 +7024,76 @@ public class ReferenceController extends BaseController {
 		
 		return ref;
 	}
+
+	@RequestMapping(value="/discussionmotion/actors", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> findDiscussionMotionActors(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		
+		List<Reference> actors = new ArrayList<Reference>();
+		String strDiscussionmotion = request.getParameter("discussionmotion");
+		String strInternalStatus = request.getParameter("status");
+		String strUserGroup = request.getParameter("usergroup");
+		String strLevel = request.getParameter("level");
+		if (strDiscussionmotion != null && !strDiscussionmotion.isEmpty()
+			&& strInternalStatus != null && !strInternalStatus.isEmpty()
+			&& strUserGroup != null && (!strUserGroup.isEmpty())
+			&& strLevel != null && !strLevel.isEmpty()) {
+			Status internalStatus = Status.findById(Status.class, Long.parseLong(strInternalStatus));
+			DiscussionMotion motion = DiscussionMotion.findById(DiscussionMotion.class, Long.parseLong(strDiscussionmotion));
+			UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
+			actors = WorkflowConfig.findDiscussionMotionActorsVO(motion, internalStatus, userGroup, Integer.parseInt(strLevel), locale.toString());
+		}
+		return actors;
+	}
+	
+	@RequestMapping(value="/loadStatusByDeviceType", method= RequestMethod.GET)
+	public @ResponseBody List<MasterVO> loadStatusesByDeviceType(final HttpServletRequest request, final Locale locale) throws ELSException{
+		String strDeviceType = request.getParameter("deviceType");
+		String strUserGroupType = request.getParameter("currentusergroupType");
+		List<MasterVO> statusVOs = new ArrayList<MasterVO>();
+		if(strDeviceType!=null && !strDeviceType.isEmpty()
+			&& strUserGroupType!=null && !strUserGroupType.isEmpty()){
+			DeviceType deviceType = DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
+			CustomParameter allowedStatus = null;
+			if(deviceType != null){
+				allowedStatus = CustomParameter.
+					findByName(CustomParameter.class,"QUESTION_GRID_STATUS_ALLOWED_" + deviceType.getType().toUpperCase()+"_"
+								+ strUserGroupType.toUpperCase(), "");
+			}
+			List<Status> statuses=new ArrayList<Status>();
+			if(allowedStatus!=null){
+					statuses=Status.findStatusContainedIn(allowedStatus.getValue(),locale.toString());
+				}else{
+					CustomParameter defaultAllowedStatus=CustomParameter.findByName(CustomParameter.class,"QUESTION_GRID_STATUS_ALLOWED_BY_DEFAULT", "");
+					if(defaultAllowedStatus!=null){
+						statuses=Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale.toString());
+					}
+				}
+			for(Status s:statuses){
+				MasterVO masterVo = new MasterVO();
+				masterVo.setId(s.getId());
+				masterVo.setName(s.getName());
+				statusVOs.add(masterVo);
+			}
+		}
+		return statusVOs;
+	}
+
+	@RequestMapping(value="/loadOriginalDeviceTypesForGivenDeviceType", method= RequestMethod.GET)
+	public @ResponseBody List<DeviceType> loadOriginalDeviceTypesForGivenDeviceType(final HttpServletRequest request, final Locale locale) throws ELSException{
+		
+		String strDeviceType = request.getParameter("deviceType");		
+		List<DeviceType> originalDeviceTypes = new ArrayList<DeviceType>();
+		
+		if(strDeviceType!=null && !strDeviceType.isEmpty()){
+			
+			DeviceType deviceType = DeviceType.findById(DeviceType.class,Long.parseLong(strDeviceType));
+			originalDeviceTypes.addAll(DeviceType.findOriginalDeviceTypesForGivenDeviceType(deviceType));			
+		}
+		
+		return originalDeviceTypes;
+	}
 	
 	@RequestMapping(value="/billamendmentmotion/actors",method=RequestMethod.POST)
 	public @ResponseBody List<Reference> findActorsForBillAmendmentMotion(final HttpServletRequest request,final ModelMap model,
@@ -6193,5 +7118,1717 @@ public class ReferenceController extends BaseController {
 			throw new ELSException();
 		}
 		return actors;
+	}
+	
+	@RequestMapping(value="/standalonemotion/actors",method=RequestMethod.POST)
+	public @ResponseBody List<Reference> findStandaloneMotionActors(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		List<Reference> actors=new ArrayList<Reference>();
+		String strQuestion=request.getParameter("question");
+		String strInternalStatus=request.getParameter("status");
+		String strUserGroup=request.getParameter("usergroup");
+		String strLevel=request.getParameter("level");
+		if(strQuestion!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
+			if((!strQuestion.isEmpty())&&(!strInternalStatus.isEmpty())&&
+					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
+				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
+				StandaloneMotion question=StandaloneMotion.findById(StandaloneMotion.class,Long.parseLong(strQuestion));
+				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+				actors=WorkflowConfig.findStandaloneMotionActorsVO(question,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+			}
+		}
+		return actors;
+	}
+	
+	@RequestMapping(value = "/sessiondates/{id}", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getSessionDates(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> dates = new ArrayList<MasterVO>();
+		
+		try{
+			Session s = Session.findById(Session.class, id);
+			
+			Calendar startDate = Calendar.getInstance(); 
+			startDate.setTime(s.getStartDate());
+			
+			Calendar endDate = Calendar.getInstance();
+			endDate.setTime(s.getEndDate());			
+			
+			for(; startDate.before(endDate); startDate.add(Calendar.DATE, 1)){
+				if(!org.mkcl.els.domain.Holiday.isHolidayOnDate(startDate.getTime(), locale.toString())){
+					MasterVO vo = new MasterVO();
+					vo.setValue(FormaterUtil.formatDateToString(startDate.getTime(), ApplicationConstants.DB_DATEFORMAT));
+					vo.setName(FormaterUtil.formatDateToString(startDate.getTime(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+					dates.add(vo);
+				}
+			}
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return dates;
+	}
+	
+	@RequestMapping(value = "/user/isAuthenticatedWithEnteredPassword", method = RequestMethod.GET)
+	public @ResponseBody boolean isUserAuthenticatedWithEnteredPassword(final HttpServletRequest request, final Locale locale) throws ELSException {
+		boolean isAuthenticatedWithEnteredPassword  = false;
+		String username = request.getParameter("username");
+		String enteredPassword = request.getParameter("enteredPassword");
+		if(username!=null && !username.isEmpty() && enteredPassword!=null && !enteredPassword.isEmpty()) {
+			User user = User.findByUserName(username, locale.toString());
+			if(user!=null && user.getId()!=null) {
+				if(user.getCredential()!=null) {
+					//remove below if-else for encrypted password
+					if(user.getCredential().getPassword().equals(enteredPassword)) {
+						isAuthenticatedWithEnteredPassword = true;
+					} else {
+						isAuthenticatedWithEnteredPassword = false;
+					}	
+					//add below code for encrypted password
+					//isAuthenticatedWithEnteredPassword = securityService.isAuthenticated(enteredPassword, user.getCredential().getPassword());
+				}
+			}
+		} else {
+			throw new ELSException();
+		}
+		return isAuthenticatedWithEnteredPassword;
+	}
+	
+	@RequestMapping(value="/motionnumberinsession", method=RequestMethod.GET)
+	public @ResponseBody Boolean getMotionByNumberAndSession(HttpServletRequest request, Locale locale){
+		Boolean flag = false;
+		String strNumber = request.getParameter("number");
+		String strSession = request.getParameter("session");
+		String strDeviceType = request.getParameter("deviceType");
+		
+		if (strNumber != null && !strNumber.isEmpty() 
+				&& strSession != null && !strSession.isEmpty()) {
+			
+			Session session = Session.findById(Session.class,
+					Long.parseLong(strSession));
+			
+			DeviceType deviceType = DeviceType.findById(DeviceType.class,
+					Long.parseLong(strDeviceType));
+			
+			CustomParameter csptDeployment = CustomParameter.findByName(
+					CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			
+			Integer motionNumber = null;
+			
+			if(csptDeployment != null){
+				String server = csptDeployment.getValue();
+				if(server.equals("TOMCAT")){
+					try {
+						strNumber = new String(strNumber.getBytes("ISO-8859-1"),"UTF-8");
+						motionNumber =  FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+								
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}else{
+					try {
+						motionNumber = FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			flag = Motion.isExist(motionNumber, deviceType, session, locale.toString());
+		}
+		return flag;
+	}
+	
+	@RequestMapping(value="/assignedGroupsInSession", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> assignedGroupsInSession(final HttpServletRequest request, final Locale locale){
+		List<MasterVO> vos = new ArrayList<MasterVO>();
+		try{
+			String strHouseType = request.getParameter("houseType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strUserGroup = request.getParameter("userGroup");
+			
+			if(strHouseType != null && !strHouseType.isEmpty()
+				&& strSessionType != null && !strSessionType.isEmpty()
+				&& strSessionYear != null && !strSessionYear.isEmpty()
+				&& strUserGroup != null && !strUserGroup.isEmpty()){
+				
+				String[] values = getDecodedString(new String[]{strHouseType,strSessionType, strSessionYear});
+				
+				HouseType houseType = HouseType.findByName(values[0], locale.toString());
+				
+				SessionType sessionType = SessionType.
+						findByFieldName(SessionType.class, "sessionType", values[1], locale.toString());
+				
+				Integer year = new Integer(FormaterUtil.
+						getNumberFormatterNoGrouping(locale.toString()).parse(values[2]).intValue());
+				
+				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
+				
+				if(session != null){
+					
+					List<UserGroup> uGroups = this.getCurrentUser().getUserGroups();
+					for(UserGroup userGroup : uGroups){
+					
+						if(UserGroup.isActiveInSession(session, userGroup, locale.toString())){
+
+							Credential credential = userGroup.getCredential();
+							User user = User.findByUserName(credential.getUsername(), locale.toString());
+							Map<String,String> userGroupParam = UserGroup.findParametersByUserGroup(userGroup);
+							
+							String groupsAllowed = userGroupParam.get(ApplicationConstants.GROUPSALLOWED_KEY + "_" + locale.toString());
+							
+							for(String s: groupsAllowed.split(",")){
+								MasterVO masterVo = new MasterVO();
+								masterVo.setName(FormaterUtil.formatNumberNoGrouping(new Integer(s), locale.toString()));
+								vos.add(masterVo);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return vos;
+	}
+	
+	private String[] getDecodedString(String[] values){
+		CustomParameter deploymentServer = CustomParameter.
+				findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(deploymentServer != null && deploymentServer.getValue() != null && !deploymentServer.getValue().isEmpty()){
+			if(deploymentServer.getValue().equals("TOMCAT")){
+
+				for(int i = 0; i < values.length; i++){
+					try {
+						if(values[i] != null){
+							values[i] = new String(values[i].getBytes("ISO-8859-1"), "UTF-8");
+						}
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		return values;
+	}
+	
+	public String[] decodeString(String[] values){
+		return getDecodedString(values);
+	}
+	
+	public static String[] decodedValues(String[] values){
+		return (new ReferenceController()).decodeString(values);
+	}
+	
+	@RequestMapping(value = "/currentandprevioussession", method = RequestMethod.GET)	
+	public @ResponseBody List<Reference> getCurrentAndPreviousSession(HttpServletRequest request, Locale locale){
+		List<Reference> masters = new ArrayList<Reference>();
+		try{
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");
+			String strHouseType = request.getParameter("houseType");
+			
+			if(strSessionYear != null && !strSessionYear.isEmpty()
+					&& strSessionType != null && !strSessionType.isEmpty()
+					&& strHouseType != null && !strHouseType.isEmpty()){
+				
+				String[] decodedValues = getDecodedString(new String[]{strSessionYear, strSessionType, strHouseType});
+				strSessionYear = decodedValues[0];
+				strSessionType = decodedValues[1];
+				strHouseType = decodedValues[2];
+				
+				HouseType hsT = HouseType.findByType(strHouseType, locale.toString());
+				SessionType sT = SessionType.findById(SessionType.class, new Long(strSessionType));
+				Integer year = new Integer(strSessionYear);
+				
+				Session currentSession = Session.findSessionByHouseTypeSessionTypeYear(hsT, sT, year);
+				Session previousSession = Session.findPreviousSession(currentSession);
+				
+				if(currentSession != null){
+					masters.add(new Reference(currentSession.getId().toString(), currentSession.getType().getSessionType()));
+				}
+				
+				if(previousSession != null){
+					masters.add(new Reference(previousSession.getId().toString(), previousSession.getType().getSessionType()));
+				}
+			}
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return masters;
+	}
+	
+	@RequestMapping(value = "/adjournmentmotion/adjourningdatesforsession", method = RequestMethod.GET)	
+	public @ResponseBody List<Object[]> findAdjourningDatesForSession(HttpServletRequest request, Locale locale) throws Exception{
+		String houseTypeStr = request.getParameter("houseType");
+		String sessionTypeId= request.getParameter("sessionType");
+		String sessionYearStr= request.getParameter("sessionYear");
+		if(houseTypeStr==null||houseTypeStr.isEmpty()||sessionTypeId==null||sessionTypeId.isEmpty()||sessionYearStr==null||sessionYearStr.isEmpty()) {
+			throw new ELSException();
+		}
+		SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeId));
+		Integer sessionYear = Integer.parseInt(sessionYearStr);
+		Session session = Session.find(sessionYear, sessionType.getType(), houseTypeStr);
+		if(session==null || session.getId()==null) {
+			throw new ELSException();
+		}
+		/** populate session dates as possible adjourning dates **/
+		List<Date> sessionDates = session.findAllSessionDates();
+		List<Object[]> adjourningDates = this.populateDateListUsingCustomParameterFormat(sessionDates, "ADJOURNMENTMOTION_ADJOURNINGDATEFORMAT", locale.toString());
+		
+		/** populate default adjourning session date for the session **/
+		Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(session);
+		adjourningDates.add(new Object[]{FormaterUtil.formatDateToString(defaultAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT)});
+		
+		return adjourningDates;
+	}
+
+	@RequestMapping(value = "/selectedStatusType", method = RequestMethod.GET)
+	public @ResponseBody String findStatusTypeById(HttpServletRequest request, Locale locale) {
+		String statusType = "";
+		String strStatusId = request.getParameter("statusId");
+		if(strStatusId != null && !strStatusId.isEmpty()){
+			Status status = Status.findById(Status.class, Long.parseLong(strStatusId));
+			if(status != null){
+				statusType = status.getType();
+			}
+		}
+		return statusType;
+		
+	}
+	
+	@RequestMapping(value="/deviceexistsinsession", method=RequestMethod.GET)
+	public @ResponseBody Boolean getDeviceInSession(HttpServletRequest request, Locale locale){
+		
+		Boolean flag = false;
+		
+		try{
+			String strNumber = request.getParameter("number");
+			String strSession = request.getParameter("session");
+			String strDeviceType = request.getParameter("deviceType");
+			
+			if(strNumber != null && !strNumber.isEmpty() 
+				&& strSession != null && !strSession.isEmpty()){
+				
+				Session session = Session.findById(Session.class, Long.parseLong(strSession));
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+				Integer deviceNumber = null;
+				
+				String[] decodedStrings = getDecodedString(new String[]{strNumber});
+				if(decodedStrings != null && decodedStrings.length > 0){
+					strNumber = decodedStrings[0];
+					
+					deviceNumber = FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
+				}
+								
+				if(deviceType != null && session != null){
+					
+					String device = deviceType.getType();
+					
+					if(device.indexOf(ApplicationConstants.DEVICE_CUTMOTIONS) == 0){
+						
+						flag = CutMotion.isExist(deviceNumber, deviceType, session, locale.toString());
+						
+					}else if(device.indexOf(ApplicationConstants.DEVICE_DISCUSSIONMOTIONS) == 0){
+						
+						flag = DiscussionMotion.isExist(deviceNumber, deviceType, session, locale.toString());						
+						
+					}else if(device.indexOf(ApplicationConstants.DEVICE_STANDALONE) == 0){
+						
+						flag = StandaloneMotion.isExist(deviceNumber, deviceType, session, locale.toString());
+						
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return flag;
+	}
+	
+	/**
+	 * Find actors.
+	 *
+	 * @param request the request
+	 * @param model the model
+	 * @param locale the locale
+	 * @return the list< reference>
+	 * @since v1.0.0
+	 */
+	@RequestMapping(value="/adjournmentmotion/actors",method=RequestMethod.POST)
+	public @ResponseBody List<Reference> findAdjournmentMotionActors(final HttpServletRequest request,
+			final ModelMap model, final Locale locale){
+		List<Reference> actors=new ArrayList<Reference>();
+		String strMotion=request.getParameter("motion");
+		String strInternalStatus=request.getParameter("status");
+		String strUserGroup=request.getParameter("usergroup");
+		String strLevel=request.getParameter("level");
+		if(strMotion!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
+			if((!strMotion.isEmpty())&&(!strInternalStatus.isEmpty())&&
+					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
+				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
+				AdjournmentMotion adjournmentMotion=AdjournmentMotion.findById(AdjournmentMotion.class,Long.parseLong(strMotion));
+				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+				try {
+					actors=WorkflowConfig.findAdjournmentMotionActorsVO(adjournmentMotion,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return actors;
+	}
+	
+	/**** To get the clubbed adjournment motion's text ****/
+	@RequestMapping(value="/adjournmentmotion/{id}/clubbedmotiontext", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getClubbedAdjournmentMotionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> clubbedAdjournmentMotionsVO = new ArrayList<MasterVO>();
+		
+		try{
+			
+			AdjournmentMotion parent = AdjournmentMotion.findById(AdjournmentMotion.class, id);
+			
+			if(parent != null){
+				List<ClubbedEntity> clubbedAdjournmentMotions = parent.getClubbedEntities();
+				
+				for(ClubbedEntity ce : clubbedAdjournmentMotions){
+					AdjournmentMotion cAdjournmentMotion = ce.getAdjournmentMotion();
+					if(cAdjournmentMotion != null){
+						MasterVO mVO = new MasterVO();
+						mVO.setId(cAdjournmentMotion.getId());
+						mVO.setName(FormaterUtil.formatNumberNoGrouping(cAdjournmentMotion.getNumber(), locale.toString()));
+						if(cAdjournmentMotion.getRevisedNoticeContent() != null && !cAdjournmentMotion.getRevisedNoticeContent().isEmpty()){
+							mVO.setValue(cAdjournmentMotion.getRevisedNoticeContent());
+						}else{
+							mVO.setValue(cAdjournmentMotion.getNoticeContent());
+						}
+						
+						clubbedAdjournmentMotionsVO.add(mVO);
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error(e.toString());
+		}
+		
+		
+		return clubbedAdjournmentMotionsVO;
+	}
+	
+	@RequestMapping(value="/cumulativememberwisequestionsreport/memberorder", method=RequestMethod.POST)
+	public @ResponseBody List<MasterVO> orderMembersForCumulativeMemberwiseQuestionsReport(final HttpServletRequest request, Locale locale) throws ELSException, UnsupportedEncodingException {
+		List<MasterVO> memberOrderVOs = new ArrayList<MasterVO>();
+		String items = request.getParameter("items");
+		if(items!=null && !items.isEmpty()) {			
+			String[] unOrderedMembers = items.split(",");
+			for(int index=0; index < unOrderedMembers.length; index++) {
+				MasterVO memberOrderVO = new MasterVO();
+				String[] unOrderedMemberData = unOrderedMembers[index].split("_");
+				String strMemberId = unOrderedMemberData[0];
+				memberOrderVO.setId(Long.parseLong(strMemberId));
+				String memberName = unOrderedMemberData[1];
+				memberOrderVO.setName(memberName);
+				if(unOrderedMemberData.length>2) {
+					Integer memberOrder = Integer.parseInt(unOrderedMemberData[2]);
+					memberOrderVO.setOrder(memberOrder);
+					memberOrderVO.setFormattedOrder(FormaterUtil.formatNumberNoGrouping(memberOrder, locale.toString()));
+				} else {
+					Integer unspecfiedMemberOrder = unOrderedMembers.length+1;
+					memberOrderVO.setOrder(unspecfiedMemberOrder);
+					memberOrderVO.setFormattedOrder(FormaterUtil.formatNumberNoGrouping(unspecfiedMemberOrder, locale.toString()));
+				}				
+				memberOrderVOs.add(memberOrderVO);
+			}
+			if(!memberOrderVOs.isEmpty()) {
+				memberOrderVOs = MasterVO.sortByOrder(memberOrderVOs, ApplicationConstants.ASC);
+				for(MasterVO m: memberOrderVOs) {
+					if(m.getOrder().equals(memberOrderVOs.size()+1)) {
+						m.setFormattedOrder("-");
+					}						
+				}
+			}
+		}
+		return memberOrderVOs;
+	}
+
+	@RequestMapping(value="/processingMode",method=RequestMethod.GET)
+	public @ResponseBody String getProcessingMode(HttpServletRequest request, Locale locale){
+		String strHouseType = request.getParameter("houseType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strSessionType = request.getParameter("sessionType");
+		String processingMode = "";
+		if(strHouseType != null && !strHouseType.isEmpty()
+			&& strSessionYear != null && !strSessionYear.isEmpty()
+			&& strSessionType != null && !strSessionType.isEmpty()){
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			try {
+				Session session = Session.
+						findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+				processingMode = session.getParameter(ApplicationConstants.QUESTION_STARRED_PROCESSINGMODE);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
+		return processingMode;
+	}
+	
+	@RequestMapping(value = "/checkforduplicacy", method = RequestMethod.GET)
+	public @ResponseBody Boolean doClassTesting(HttpServletRequest request, Locale locale){
+		Object retVal = new Boolean(false);
+		
+		String strClassName = request.getParameter("device");
+		String strDeviceType = request.getParameter("deviceType");
+		String strSession = request.getParameter("session");
+		String strNumber = request.getParameter("number");
+
+		try{
+			
+			String[] decodedData = getDecodedString(new String[]{strNumber});
+			Integer deviceNumber = null;
+			if(decodedData != null && decodedData.length > 0){
+				deviceNumber = new Integer(decodedData[0]);
+			}
+			
+			
+			Class<?> cls = Class.forName("org.mkcl.els.domain." + strClassName);
+			Object obj = cls.newInstance();
+			Method method = null;
+			
+			Object[] parameters = new Object[4];
+			
+			parameters[0] = deviceNumber;
+			parameters[1] = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+			parameters[2] = Session.findById(Session.class, new Long(strSession));
+			parameters[3] = locale.toString();
+			
+			
+			for(Method m : cls.getDeclaredMethods()){
+				if(m.getName().equals("isExist")){
+					method = m;
+					break;
+				}
+			}
+
+			
+			retVal = method.invoke(obj, parameters);
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return (Boolean)retVal;
+	}
+	
+	
+	@RequestMapping(value = "/committeename", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getCommitteeName(HttpServletRequest request, Locale locale){
+		List<MasterVO> committeeNameVOs = new ArrayList<MasterVO>();
+		String strCommitteeTypeId = request.getParameter("committeeTypeId");
+		if(strCommitteeTypeId != null && !strCommitteeTypeId.isEmpty()){
+			CommitteeType committeeType = CommitteeType.findById(CommitteeType.class, Long.parseLong(strCommitteeTypeId));
+			if(committeeType != null){
+				List<CommitteeName> committeeNames = CommitteeName.find(committeeType, locale.toString());
+				for(CommitteeName c: committeeNames){
+					MasterVO masterVO = new MasterVO();
+					masterVO.setId(c.getId());
+					masterVO.setName(c.getDisplayName());
+					committeeNameVOs.add(masterVO);
+				}
+			}
+			
+		}
+		return committeeNameVOs;
+		
+	}
+	
+	@RequestMapping(value = "/committeemeeting", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getCommitteeMeeting(HttpServletRequest request, Locale locale){
+		List<MasterVO> committeeMeetingVOs = new ArrayList<MasterVO>();
+		String strCommitteeNameId = request.getParameter("committeeNameId");
+		if(strCommitteeNameId != null && !strCommitteeNameId.isEmpty()){
+			CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, Long.parseLong(strCommitteeNameId));
+			if(committeeName != null){
+				List<CommitteeMeeting> committeeMeetings = CommitteeMeeting.find(committeeName, locale.toString());
+				for(CommitteeMeeting c: committeeMeetings){
+					MasterVO masterVO = new MasterVO();
+					masterVO.setId(c.getId());
+					masterVO.setName(FormaterUtil.formatDateToString(c.getMeetingDate(), ApplicationConstants.SERVER_DATEFORMAT));
+					committeeMeetingVOs.add(masterVO);
+				}
+			}
+			
+		}
+		return committeeMeetingVOs;
+		
+	}
+	
+	@RequestMapping(value="/rosterdaysfromcommitteemeeting",method=RequestMethod.GET)
+	public @ResponseBody List<Integer> getRosterDaysFromCommitteeMeeting(final HttpServletRequest request, final Locale locale){
+		String strCommitteeMeeting = request.getParameter("committeeMeeting");
+		String strlanguage=request.getParameter("language");
+		List<Integer> rosterDays=new ArrayList<Integer>();
+		if(strlanguage!=null && !strlanguage.isEmpty()
+			&& strCommitteeMeeting!=null && !strCommitteeMeeting.isEmpty()){
+			CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
+			Language language = Language.findById(Language.class, Long.parseLong(strlanguage));
+			List<Roster> rosters = Roster.findAllRosterByCommitteeMeeting(committeeMeeting,language, locale.toString());
+			for(Roster r:rosters){
+				rosterDays.add(r.getDay());
+			}
+		}
+		return rosterDays;
+	}
+	
+	@RequestMapping(value="prashnavali/actors/workflow/{workflowName}", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> getPrashnavaliActors(
+			@PathVariable("workflowName") final String workflowName,
+			@RequestParam("status") final Long statusId,
+			@RequestParam("houseType") final Long houseTypeId,
+			@RequestParam("userGroup") final Long userGroupId,
+			@RequestParam("assigneeLevel") final int assigneeLevel,
+			final Locale localeObj) {
+		List<Reference> actors = new ArrayList<Reference>();
+		
+		try {
+			HouseType houseType = 
+				HouseType.findById(HouseType.class, houseTypeId);
+			UserGroup userGroup = 
+				UserGroup.findById(UserGroup.class, userGroupId);
+			Status status = Status.findById(Status.class, statusId);
+			String locale = localeObj.toString();
+			/*** As the committees flow may contain cross housetype users like undersecretary of assembly
+			 *  can be under secretary of council committee ***/
+			List<WorkflowActor> wfActors = new ArrayList<WorkflowActor>();
+			String strHouseType = userGroup.getParameterValue(ApplicationConstants.HOUSETYPE_KEY+"_"+locale);
+			HouseType userHouseType = HouseType.findByName(strHouseType, locale);
+			if(userHouseType != null && userHouseType.getType().equals(ApplicationConstants.BOTH_HOUSE)){
+				 wfActors = WorkflowConfig.findPrashnavaliActors(
+						userHouseType, userGroup, status, workflowName, 
+						assigneeLevel, locale);
+			}else{
+				 wfActors = WorkflowConfig.findPrashnavaliActors(
+						houseType, userGroup, status, workflowName, 
+						assigneeLevel, locale);
+			}
+			for(WorkflowActor wfa : wfActors) {
+				String id = String.valueOf(wfa.getId());
+				String name = wfa.getUserGroupType().getName();
+				Reference actor = new Reference(id, name);
+				actors.add(actor);
+			}
+		}
+		catch (Exception e) {
+
+		}
+		
+		return actors;
+	}
+	
+	@RequestMapping(value = "getnextlotofassignedpendingtasks", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getNextLotOfPendingTasks(HttpServletRequest request, Locale locale){
+		List<Reference> retVal = new ArrayList<Reference>();	
+		
+		try{
+			String strHouseType = request.getParameter("houseType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSessioneType = request.getParameter("sessionType");
+			String strDeviceType = request.getParameter("deviceType");
+			String strModule = request.getParameter("module");
+			String strStatus = request.getParameter("status");
+			String strWFSubType = request.getParameter("workflowSubType");
+			String strAssignee = request.getParameter("assignee");
+			String strGroup = request.getParameter("group");
+			String strAnsDate = request.getParameter("answeringDate");
+			String strStart = request.getParameter("start");
+			String strEnd = request.getParameter("end");
+			
+			/*String[] decodedString = getDecodedString(new String[]{strHouseType, strSessionYear, strSessioneType, 
+					strDeviceType, strModule, strStatus, strWFSubType, strAssignee, strGroup, strAnsDate});*/
+			
+			Map<String, String[]> params = new HashMap<String, String[]>();
+			params.put("locale", new String[]{locale.toString()});
+			params.put("houseType", new String[]{strHouseType});
+			params.put("sessionYear", new String[]{strSessionYear});
+			params.put("sessionType",new String[]{ strSessioneType});
+			params.put("deviceType",new String[]{ strDeviceType});
+			params.put("module",new String[]{ strModule});
+			params.put("status", new String[]{strStatus});
+			params.put("workflowSubType", new String[]{strWFSubType});
+			params.put("assignee", new String[]{strAssignee});
+			params.put("group", new String[]{strGroup});
+			params.put("answeringDate", new String[]{strAnsDate});
+			
+			@SuppressWarnings("rawtypes")
+			List data = Query.findReport("NEXT_LOT_OF_PENDING_TASKS", params, new Integer(strStart), new Integer(strEnd));
+			if(data != null && !data.isEmpty()){
+				for(Object d : data){
+					Object[] o = (Object[]) d;
+					if(o[1] != null){
+						Reference ref = new Reference();
+						ref.setId(o[1].toString());
+						retVal.add(ref);
+					}
+				}
+			}
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return retVal;
+	}
+	
+	@RequestMapping(value="/groupchartansweringdate", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getChartAnsweringByGroup(HttpServletRequest request, ModelMap model, Locale locale){
+		
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		
+		try{
+			String strGroup = request.getParameter("group");
+
+			if (strGroup != null && !strGroup.isEmpty()) {
+
+				CustomParameter csptDeployment = CustomParameter.findByName(
+						CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if (csptDeployment != null) {
+					String server = csptDeployment.getValue();
+					if (server.equals("TOMCAT")) {
+						strGroup = getDecodedString(new String[] { strGroup })[0];
+					}
+				}
+
+				Group group = Group.findById(Group.class, new Long(strGroup));
+
+				if (group != null) {
+					List<QuestionDates> questionDates = group
+							.getQuestionDates();
+					for (QuestionDates qd : questionDates) {
+						MasterVO masterVO = new MasterVO();
+						masterVO.setId(qd.getId());
+						masterVO.setValue(qd.getAnsweringDate().toString());
+						masterVO.setName(FormaterUtil.formatDateToString(qd.getAnsweringDate(),
+								ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+						masterVOs.add(masterVO);
+					}
+				}
+
+			}
+		} catch (Exception e){
+			logger.error("error", e);
+		}
+		return masterVOs;			
+	}
+	
+	@RequestMapping(value="/billamendmentmotion/subjectline", method=RequestMethod.GET)
+	public String getSubjectLineForBillAmendmentMotion(HttpServletRequest request, ModelMap model, Locale locale) throws ELSException, UnsupportedEncodingException {
+		String returnPath = "error";
+		String amendedBillInfo = request.getParameter("amendedBillInfo");
+		if(amendedBillInfo!=null && !amendedBillInfo.isEmpty()) {			
+			CustomParameter deploymentServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(deploymentServer == null || deploymentServer.getValue() == null || deploymentServer.getValue().isEmpty()){
+				throw new ELSException();	
+			}
+			if(deploymentServer.getValue().equals("TOMCAT")){		
+				amendedBillInfo = new String(amendedBillInfo.getBytes("ISO-8859-1"), "UTF-8");
+			}
+			String[] amendedBillInfoParts = amendedBillInfo.split("~");
+			model.addAttribute("amendedBillInfoParts", amendedBillInfoParts);
+			returnPath = "billamendmentmotion/templates/subjectline";
+		}		
+		return returnPath;
+	}
+	
+	/**** To get the clubbed billamendment motion's text ****/
+	@RequestMapping(value="/billamendmentmotion/{id}/clubbedmotiontext", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getClubbedBillAmendmentMotionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> clubbedBillAmendmentMotionsVO = new ArrayList<MasterVO>();
+		
+		try{
+			
+			BillAmendmentMotion parent = BillAmendmentMotion.findById(BillAmendmentMotion.class, id);
+			
+			if(parent != null){
+				List<ClubbedEntity> clubbedBillAmendmentMotions = parent.getClubbedEntities();
+				
+				for(ClubbedEntity ce : clubbedBillAmendmentMotions){
+					BillAmendmentMotion cBillAmendmentMotion = ce.getBillAmendmentMotion();
+					if(cBillAmendmentMotion != null){
+						MasterVO mVO = new MasterVO();
+						mVO.setId(cBillAmendmentMotion.getId());
+						mVO.setName(FormaterUtil.formatNumberNoGrouping(cBillAmendmentMotion.getNumber(), locale.toString()));
+						mVO.setValue(cBillAmendmentMotion.findDefaultSectionAmendmentContent());						
+						
+						clubbedBillAmendmentMotionsVO.add(mVO);
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error(e.toString());
+		}
+		
+		
+		return clubbedBillAmendmentMotionsVO;
+	}
+
+	@RequestMapping(value="/chart/chart_entries")
+	public @ResponseBody List<MasterVO> findChartEntriesForGivenChart(HttpServletRequest request, Locale locale) {
+		List<MasterVO> chartEntryMasterVOs = new ArrayList<MasterVO>();
+		String chartId = request.getParameter("chartId");
+		if(chartId!=null && !chartId.isEmpty()) {
+			Map<String, String[]> parameters = new HashMap<String, String[]>();
+			parameters.put("chartId", new String[]{chartId});
+			parameters.put("locale", new String[]{locale.toString()});
+			@SuppressWarnings("unchecked")
+			List<Object[]> result = Query.findReport("CHART_ENTRIES_FOR_GIVEN_CHART", parameters);
+			if(result!=null && !result.isEmpty()) {
+				for(Object[] o: result) {
+					MasterVO chartEntryMasterVO = new MasterVO();
+					chartEntryMasterVO.setId(Long.parseLong(o[0].toString()));
+					chartEntryMasterVO.setName(o[1].toString());
+					chartEntryMasterVO.setValue(o[2].toString());
+					chartEntryMasterVOs.add(chartEntryMasterVO);
+				}
+			}
+		}
+		return chartEntryMasterVOs;
+	}
+
+	@RequestMapping(value = "/allministries", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getAllMinistries(HttpServletRequest request, Locale locale){
+		
+		
+		List<MasterVO> retVal = new ArrayList<MasterVO>();
+		try{
+			String strSessionId = request.getParameter("session");
+			Long sessionId = null;
+			if(strSessionId != null && !strSessionId.isEmpty()){
+				sessionId = new Long(strSessionId);
+			}
+			CustomParameter csptUseMinistryFromCurrentSession = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.QUESTION_REFERENCING_USE_MINISTRIES_FROM_CURRENT_SESSION, "");
+			List<Ministry> ministries = null;
+			
+			if(csptUseMinistryFromCurrentSession != null && csptUseMinistryFromCurrentSession.getValue() != null
+					&& !csptUseMinistryFromCurrentSession.getValue().isEmpty() 
+					&& csptUseMinistryFromCurrentSession.getValue().equalsIgnoreCase("yes")){
+				Session session = null;
+				if(sessionId != null){
+					session = Session.findById(Session.class, sessionId);
+				}
+				if(session != null){
+					ministries = Ministry.findAssignedMinistriesInSession(session.getStartDate(), locale.toString());
+				}else{
+					ministries = Ministry.findAssignedMinistriesInSession(new Date(), locale.toString());
+				}
+				
+			}else{
+				ministries = Ministry.findAll(Ministry.class, "name", ApplicationConstants.ASC, locale.toString());
+			}
+			
+			if(ministries != null && !ministries.isEmpty()){
+				retVal = createMatsreVOs(ministries);
+			}
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}		
+		return retVal;
+	}
+	
+	private List<MasterVO> createMatsreVOs(List<? extends BaseDomain> data){
+		List<MasterVO> retVal = new ArrayList<MasterVO>();
+		try{			
+			for(BaseDomain b : data){
+				
+				Long id = null;
+				String name = null;
+				if(b instanceof Ministry){		
+					id = ((Ministry)b).getId();
+					name = ((Ministry)b).getName();
+				}else if(b instanceof SubDepartment){					
+					id = ((SubDepartment)b).getId();
+					name = ((SubDepartment)b).getName();
+				}
+				retVal.add(new MasterVO(id, name));
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return retVal;
+		
+	}
+	
+	@RequestMapping(value = "/subdepartments/ministry", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getAllSubDepartmentsByMinistry(HttpServletRequest request, Locale locale){
+	
+		List<MasterVO> retVal = new ArrayList<MasterVO>();
+		try{
+			
+			String strMinistryId = request.getParameter("ministryId");
+			Long ministryId = null;
+			if(strMinistryId != null && !strMinistryId.isEmpty()){
+				ministryId = new Long(strMinistryId);
+			}
+			 
+			List<SubDepartment> subds = new ArrayList<SubDepartment>();
+			if(ministryId != null){
+				Ministry mins = Ministry.findById(Ministry.class, ministryId);
+				subds = MemberMinister.findAssignedSubDepartments(new String[]{mins.getName()}, locale.toString());
+			}
+			
+			if(subds != null && !subds.isEmpty()){
+				retVal = createMatsreVOs(subds);
+			}
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}		
+		return retVal;
+	}
+	
+	@RequestMapping(value = "/alleligiblemembers", method = RequestMethod.GET)
+	public @ResponseBody List<Reference> getAllEligibleMembers(HttpServletRequest request, @RequestParam("session") long sessionId, Locale locale){
+		List<Reference> retVal = new ArrayList<Reference>();
+		
+		try{
+			
+			Session session = Session.findById(Session.class, sessionId);
+			Map<String, String[]> params = new HashMap<String, String[]>();
+			params.put("houseId", new String[]{session.getHouse().getId().toString()});
+			Date limitingDateForSession = null;
+			
+			if(session.getEndDate().compareTo(new Date())<=0) {
+				limitingDateForSession = session.getEndDate();
+			} else if(session.getStartDate().compareTo(new Date())>=0) {
+				limitingDateForSession = session.getStartDate();
+			} else {
+				limitingDateForSession = new Date();
+			}
+			
+			params.put("limitingDateForSession", new String[]{FormaterUtil.formatDateToString(limitingDateForSession, ApplicationConstants.DB_DATEFORMAT)});
+			params.put("locale", new String[]{locale.toString()});
+			
+			List resultList = Query.findReport("MEMBERS_ELIGIBLE_FOR_QUESTION_SUBMISSION_IN_GIVEN_HOUSE", params);
+			if(resultList!=null && !resultList.isEmpty()) {
+				for(Object o: resultList) {			
+					
+					Object[] result = (Object[])o;
+					Reference member = new Reference();
+					
+					if(result[0]!=null) {
+						member.setId(result[0].toString());
+					}
+					if(result[1]!=null) {
+						member.setName(result[1].toString());
+					}
+					
+					retVal.add(member);
+				}
+			}
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return retVal;
+	}
+	@RequestMapping(value = "/question/flowStatusType", method = RequestMethod.GET)
+	public @ResponseBody String getFlowStatusTypeForQuestion(final HttpServletRequest request, final Locale locale) {
+		String flowStatusType = "";
+		String questionId = request.getParameter("questionId");
+		if(questionId!=null && !questionId.isEmpty()) {
+			Question question = Question.findById(Question.class, Long.parseLong(questionId));
+			if(question!=null) {
+				QuestionDraft secondPreviousDraft = question.findSecondPreviousDraft();
+				if(secondPreviousDraft!=null && secondPreviousDraft.getInternalStatus()!=null) {					
+					String internalStatusType = secondPreviousDraft.getInternalStatus().getType();
+					String recommendationStatusType = secondPreviousDraft.getRecommendationStatus().getType();
+					if(recommendationStatusType.endsWith(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW.split("_workflow")[0])
+							|| recommendationStatusType.endsWith(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW.split("_workflow")[0])
+							|| recommendationStatusType.endsWith(ApplicationConstants.UNCLUBBING_WORKFLOW.split("_workflow")[0])
+							|| recommendationStatusType.endsWith(ApplicationConstants.CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION_WORKFLOW.split("_workflow")[0])) {
+						flowStatusType = recommendationStatusType;
+					} else {
+						flowStatusType = internalStatusType;
+					}
+				}
+			}
+		}
+		return flowStatusType;
+	}
+	@RequestMapping(value= "/allparties/{session}", method = RequestMethod.GET)
+	public @ResponseBody List<Reference>  getAllPartiesByHouse(@PathVariable("session") Long sessionId, HttpServletRequest request, Locale locale){
+		
+		List<Reference> retVal = new ArrayList<Reference>();
+		try{
+			Session session = Session.findById(Session.class, sessionId);
+			if(session != null){
+				List<Party> parties = Party.findActiveParties(session.getHouse(), locale.toString());
+				for(Party p : parties){
+					Reference ref = new Reference(p.getId().toString(), p.getName());
+					retVal.add(ref);
+				}
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return retVal;
+	}	
+	
+	@RequestMapping(value= "/yaadidetails", method = RequestMethod.GET)
+	public String loadYaadiDetails(HttpServletRequest request, ModelMap model, Locale locale) {
+		String retVal = "question/reports/error";
+		
+		String strHouseType = request.getParameter("houseType");
+		String strSession = request.getParameter("sessionId");
+		String strDeviceType = request.getParameter("deviceType");
+		String strYaadiNumber = request.getParameter("yaadiNumber");
+		
+		if(strHouseType!=null && strSession!=null && strDeviceType!=null && strYaadiNumber!=null){
+			if(!strHouseType.isEmpty() && !strSession.isEmpty() && !strDeviceType.isEmpty() && !strYaadiNumber.isEmpty()){
+				try {
+					HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+					if(houseType==null) {
+						houseType = HouseType.findByName(strHouseType, locale.toString());
+					}
+					if(houseType==null) {
+						houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+					}										
+					if(houseType==null) {
+						logger.error("**** HouseType Not Found ****");
+						model.addAttribute("errorcode", "HOUSETYPE_NOTFOUND");											
+					} else {
+						model.addAttribute("houseTypeId", houseType.getId());
+						Session session = Session.findById(Session.class, Long.parseLong(strSession));
+						if(session==null) {								
+							logger.error("**** Session Not Found ****");
+							model.addAttribute("errorcode", "SESSION_NOTFOUND");
+						} else {
+							model.addAttribute("sessionId", session.getId());
+							DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+							if(deviceType==null) {								
+								logger.error("**** Device Type Not Found ****");
+								model.addAttribute("errorcode", "DEVICETYPE_NOTFOUND");
+							} else {
+								model.addAttribute("deviceTypeId", deviceType.getId());		
+								CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+								if(csptServer != null && csptServer.getValue() != null && csptServer.getValue().equals("TOMCAT")){
+									strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
+								}
+								Integer yaadiNumber = Integer.parseInt(strYaadiNumber);
+								if(yaadiNumber!=null) {
+									YaadiDetails yaadiDetails = null;
+									List<Device> totalDevicesInYaadi = new ArrayList<Device>();
+									if(yaadiNumber.intValue()>0) {
+										yaadiDetails = YaadiDetails.find(deviceType, session, yaadiNumber, locale.toString());
+									}		
+									if(yaadiDetails==null) {
+										/** populate Data for New Yaadi which is either first or latest **/
+										model.addAttribute("yaadiDetailsId", "");
+										model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(yaadiNumber, locale.toString()));
+										model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(new Date(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+										totalDevicesInYaadi = YaadiDetails.findDevicesEligibleForNumberedYaadi(deviceType, session, 0, locale.toString());
+									} else {
+										/** populate Data for Given Yaadi which is not yet filled **/
+										model.addAttribute("yaadiDetailsId", yaadiDetails.getId());
+										model.addAttribute("yaadiNumber", FormaterUtil.formatNumberNoGrouping(yaadiDetails.getNumber(), locale.toString()));
+										Date yaadiLayingDate = yaadiDetails.getLayingDate();
+										if(yaadiLayingDate!=null) {
+											model.addAttribute("yaadiLayingDate", FormaterUtil.formatDateToString(yaadiLayingDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+											model.addAttribute("isYaadiLayingDateSet", "yes");
+										}
+										if(yaadiDetails.getLayingStatus()!=null 
+												&& (yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_READY)
+													|| yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_LAID))
+										) {
+											totalDevicesInYaadi = yaadiDetails.getDevices();
+										} else {
+											List<Device> existingDevicesInYaadi = yaadiDetails.getDevices();
+											totalDevicesInYaadi.addAll(existingDevicesInYaadi);
+											if(!yaadiDetails.isNumberedYaadiFilled()) {
+												List<Device> newlyAddedDevices = YaadiDetails.findDevicesEligibleForNumberedYaadi(deviceType, session, existingDevicesInYaadi.size(), locale.toString());
+												if(newlyAddedDevices!=null && !newlyAddedDevices.isEmpty()) {
+													totalDevicesInYaadi.addAll(newlyAddedDevices);
+												}
+											}
+										}																														
+									}
+									/** populate device vo **/									
+									if(totalDevicesInYaadi!=null && !totalDevicesInYaadi.isEmpty()) {
+										String yaadiDevicesCount = FormaterUtil.formatNumberNoGrouping(totalDevicesInYaadi.size(), locale.toString());
+										model.addAttribute("yaadiDevicesCount", yaadiDevicesCount);
+										List<DeviceVO> totalDevicesInYaadiVOs = populateDevicesForNumberedYaadi(totalDevicesInYaadi, locale.toString());
+										totalDevicesInYaadiVOs = DeviceVO.sort(totalDevicesInYaadiVOs, "number", ApplicationConstants.ASC);
+										model.addAttribute("totalDevicesInYaadiVOs", totalDevicesInYaadiVOs);
+									}
+									List<Date> availableYaadiLayingDates = Question.findAvailableYaadiLayingDatesForSession(null, session, locale.toString());
+									if(availableYaadiLayingDates!=null && !availableYaadiLayingDates.isEmpty()) {
+										List<String> yaadiLayingDates = new ArrayList<String>();
+										for(Date eligibleDate: availableYaadiLayingDates) {
+											yaadiLayingDates.add(FormaterUtil.formatDateToString(eligibleDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+										}
+										model.addAttribute("yaadiLayingDates", yaadiLayingDates);
+									}
+									/** populate group numbers **/
+									CustomParameter deviceTypesHavingGroupCP = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_HAVING_GROUPS", "");
+									if(deviceTypesHavingGroupCP!=null && deviceTypesHavingGroupCP.getValue()!=null && !deviceTypesHavingGroupCP.getValue().isEmpty()) {
+										if(deviceTypesHavingGroupCP.getValue().contains(deviceType.getType())) {
+											CustomParameter groupNumberLimitCP = CustomParameter.findByName(CustomParameter.class, "NO_OF_GROUPS", "");
+											if(groupNumberLimitCP!=null && groupNumberLimitCP.getValue()!=null && !groupNumberLimitCP.getValue().isEmpty()) {
+												Integer groupNumberLimit = Integer.parseInt(groupNumberLimitCP.getValue()); 
+												List<Reference> groupNumbers = new ArrayList<Reference>();
+												for(Integer i=1; i<=groupNumberLimit; i++) {
+													Reference groupNumber = new Reference();
+													groupNumber.setNumber(i.toString());
+													groupNumber.setName(FormaterUtil.formatNumberNoGrouping(i, locale.toString()));
+													groupNumbers.add(groupNumber);
+												}
+												model.addAttribute("groupNumbers", groupNumbers);
+											}
+										}
+									}
+									/** populate yaadi statuses **/
+									CustomParameter yaadiLayingStatusesCP = CustomParameter.findByName(CustomParameter.class, "YAADI_LAYING_STATUSES", "");		
+									if(yaadiLayingStatusesCP!=null && yaadiLayingStatusesCP.getValue()!=null && !yaadiLayingStatusesCP.getValue().isEmpty()) {
+										List<Status> yaadiLayingStatuses = Status.findStatusContainedIn(yaadiLayingStatusesCP.getValue(), locale.toString());
+										model.addAttribute("yaadiLayingStatuses", yaadiLayingStatuses);
+										if(yaadiDetails!=null && yaadiDetails.getLayingStatus()!=null && yaadiDetails.getLayingStatus().getId()!=null) {
+											model.addAttribute("yaadiLayingStatus", yaadiDetails.getLayingStatus());
+										}
+									}		
+									/** populate whether to allow manually entering questions **/
+									CustomParameter manuallyEnteringAllowedCP = CustomParameter.findByName(CustomParameter.class, "QIS_UNSTARRED_YAADI_MANUALLY_ENTERING_ALLOWED", "");
+									if(manuallyEnteringAllowedCP!=null) {
+										model.addAttribute("manuallyEnteringAllowed", manuallyEnteringAllowedCP.getValue());
+									}
+									retVal = "question/reports/unstarredyaadi";
+								} else {
+									logger.error("**** Error in Query of finding Yaadi Number ****");
+									model.addAttribute("errorcode", "QUERY_ERROR");
+								}								
+							}										
+						}
+					}
+				} catch(ELSException e) {
+					if(e.getParameter("error")!=null && e.getParameter("error").equalsIgnoreCase("device.yaadiNumberingParameterNotSet")) {
+						model.addAttribute("errorcode", "UNSTARRED_YAADI_NUMBERING_SESSION_PARAMETER_MISSING");						
+					} else {
+						model.addAttribute("error", e.getParameter("error"));	
+					}						
+				} catch(Exception e) {
+					e.printStackTrace();
+					model.addAttribute("error", "SOME_EXCEPTION_OCCURED");
+				}
+			}
+		}
+		
+		return retVal;
+	}
+	
+	@RequestMapping(value= "/checkduplicateyaadidetails", method = RequestMethod.GET)
+	public @ResponseBody Boolean checkDuplicateYaadiNumber(HttpServletRequest request, ModelMap model, Locale locale) {
+		Boolean isDuplicateYaadiNumber = false;
+		
+		String strHouseType = request.getParameter("houseType");
+		String strSession = request.getParameter("sessionId");
+		String strDeviceType = request.getParameter("deviceType");
+		String strYaadiNumber = request.getParameter("yaadiNumber");
+		
+		if(strHouseType!=null && strSession!=null && strDeviceType!=null && strYaadiNumber!=null){
+			if(!strHouseType.isEmpty() && !strSession.isEmpty() && !strDeviceType.isEmpty() && !strYaadiNumber.isEmpty()){
+				try {
+					HouseType houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+					if(houseType==null) {
+						logger.error("**** HouseType Not Found ****");
+						isDuplicateYaadiNumber = null;							
+					} else {
+						DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+						if(deviceType==null) {
+							logger.error("**** DeviceType Not Found ****");
+							isDuplicateYaadiNumber = null;							
+						} else {
+							Session session = Session.findById(Session.class, Long.parseLong(strSession));
+							if(session==null) {
+								logger.error("**** Session Not Found ****");
+								isDuplicateYaadiNumber = null;
+							} else {
+								CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+								if(csptServer != null && csptServer.getValue() != null && csptServer.getValue().equals("TOMCAT")){
+									strYaadiNumber = new String(strYaadiNumber.getBytes("ISO-8859-1"), "UTF-8");
+									Integer yaadiNumber = Integer.parseInt(strYaadiNumber);
+									YaadiDetails yd = YaadiDetails.find(deviceType, session, yaadiNumber, locale.toString());
+									if(yd!=null && yd.getId()!=null) {
+										isDuplicateYaadiNumber = true;
+									}
+								} else {
+									isDuplicateYaadiNumber = null;
+								}								
+							}
+						}
+					}
+				} catch(Exception e) {
+					isDuplicateYaadiNumber = null;
+				}
+			}
+		}
+		
+		return isDuplicateYaadiNumber;
+	}		
+	
+	@RequestMapping("/custp/{cname}")
+	public @ResponseBody MasterVO getCustomParameter(HttpServletRequest request, HttpServletResponse response, 
+			@PathVariable(value = "cname") String cname,Locale locale){
+		MasterVO retVal = new MasterVO();
+		try{
+			CustomParameter csptParameter = CustomParameter.findByName(CustomParameter.class, cname, "");
+			if(csptParameter != null){
+				retVal.setId(csptParameter.getId());
+				retVal.setValue(csptParameter.getValue());
+				retVal.setName(csptParameter.getName());
+			}
+		}catch(Exception er){
+			logger.error("error", er);
+		}
+		
+		return retVal;
+	}
+	
+	@RequestMapping(value = "/resetmemberpassword")
+	public @ResponseBody String resetMemberPassword(HttpServletRequest request, Locale locale){
+		String retVal = "FAILURE";
+		try{
+			String strMember = request.getParameter("memrole");
+			List<Credential> creds = Credential.findAllCredentialsByRole(strMember);
+			for(Credential cr : creds){
+				String strPassword = Credential.generatePassword(Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+				cr.setPassword(strPassword);
+				cr.merge();
+			}
+					 
+			retVal = "SUCCESS";
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		return retVal;
+	}
+	
+	@RequestMapping(value = "/decrypt")
+	public @ResponseBody String decryptPassword(HttpServletRequest request, Locale locale){
+		String strPassword = request.getParameter("upass");
+		StringBuffer str = new StringBuffer();
+		
+		if(strPassword != null && !strPassword.isEmpty()){
+			char[] chars = strPassword.toCharArray();
+			for(char c : chars){
+				char cc = (char)(((int)c) - Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
+				str.append(cc);
+			}
+		}
+		
+		return str.toString();
+	}
+	
+	@RequestMapping(value= "/devicetypesforhousetype", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getDeviceTypesForHouseType(HttpServletRequest request, ModelMap model, Locale locale) throws ELSException {
+		
+		List<MasterVO> deviceTypeVOs = new ArrayList<MasterVO>();
+		
+		String houseType = request.getParameter("houseType");
+		String deviceTypeType = request.getParameter("deviceType");
+		
+		if(houseType!=null && !houseType.isEmpty()) {
+			List<DeviceType> deviceTypes = null;
+			if(deviceTypeType!=null && !deviceTypeType.isEmpty()) {
+				deviceTypes = DeviceType.findDeviceTypesStartingWith(deviceTypeType, locale.toString());
+			} else {
+				deviceTypes = DeviceType.findAll(DeviceType.class,"priority",ApplicationConstants.ASC, locale.toString());
+			}
+			if(deviceTypes==null || deviceTypes.isEmpty()) {
+				logger.error("/**** no devicetypes found ****/");
+				throw new ELSException("ReferenceController/getDeviceTypesForHouseType", "no devicetypes found");
+			}
+			for(DeviceType deviceType: deviceTypes) {
+				MasterVO deviceTypeVO = new MasterVO();
+				deviceTypeVO.setId(deviceType.getId());
+				deviceTypeVO.setType(deviceType.getType());
+				deviceTypeVO.setName(deviceType.getName());
+				if(houseType!=null && houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+					deviceTypeVO.setDisplayName(deviceType.getName_lowerhouse());
+				} else if(houseType!=null && houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+					deviceTypeVO.setDisplayName(deviceType.getName_upperhouse());
+				} else {
+					deviceTypeVO.setDisplayName(deviceType.getName());
+				}					
+				deviceTypeVOs.add(deviceTypeVO);
+			}
+		} else {
+			logger.error("/**** request parameter housetype is not set ****/");
+			throw new ELSException("ReferenceController/getDeviceTypesForHouseType", "request parameter housetype is not set");
+		}
+		
+		return deviceTypeVOs;
+	}
+	
+	@RequestMapping(value = "/setactual", method = RequestMethod.GET)
+	public @ResponseBody String setActual(HttpServletRequest request, Locale locale){
+		String retVal = "FAILURE";
+		
+		try{
+			
+			Map<String, String[]> p = new HashMap<String, String[]>();
+			p.put("locale", new String[]{locale.toString()});
+			List report = Query.findReport("DUP_RECS", p);
+			List<Reference> ids = new ArrayList<Reference>();
+			
+			int highestNumber = Integer.parseInt(request.getParameter("hNum"));
+			for(int i = 0; i < report.size(); i++){
+				if(i > 0){
+					Object[] obj2 = (Object[])report.get(i);
+					Object[] obj1 = (Object[])report.get(i - 1);
+					
+					long id2 = Long.parseLong(obj2[0].toString());
+					long id1 = Long.parseLong(obj1[0].toString());
+					
+					int num2 = Integer.parseInt(obj2[1].toString());
+					int num1 = Integer.parseInt(obj1[1].toString());
+					
+					if(num2 == num1){
+						if(id2 > id1){
+							Reference ref = new Reference(String.valueOf(id2), String.valueOf(num2));
+							ids.add(ref);
+						}
+					}
+				}
+			}
+			
+			for(Reference r : ids){
+				highestNumber++;
+				Question q = Question.findById(Question.class, new Long(r.getId()));
+				q.setNumber(highestNumber);
+			}
+			
+			retVal = "SUCCESS";
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return retVal;
+	}
+	
+	@RequestMapping(value = "/logoutuser", method = RequestMethod.GET)
+	public @ResponseBody String logoutUser(HttpServletRequest request, HttpServletResponse response, Locale locale){
+
+		String retVal = "FAILURE";
+		try {
+
+			SessionInformation activeSession = null;
+			String strUsername = request.getParameter("username");
+
+			boolean found = false;
+			
+			for (Object principal : sessionRegistry.getAllPrincipals()) {
+				
+				for (SessionInformation session : sessionRegistry
+						.getAllSessions(principal, false)) {
+					if(principal instanceof AuthUser){
+						String userName = ((AuthUser)principal).getUsername();
+						if(strUsername != null && strUsername.equals(userName)){
+							activeSession = session;
+							break;
+						}						
+					}
+					
+				}
+				
+				if(found){
+					break;
+				}
+			}
+			if(activeSession != null){
+				activeSession.expireNow();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return retVal;
+	}
+	
+	@RequestMapping(value = "/viewcurnum", method = RequestMethod.GET)
+	public @ResponseBody Reference getCurNum(HttpServletRequest request, HttpServletResponse response, Locale locale){
+		
+		try{				
+			
+			String strDevId = request.getParameter("devid");
+			String strSession = request.getParameter("session");
+			String strClassName = request.getParameter("clsname");
+			
+			DeviceType deviceType = DeviceType.findById(DeviceType.class, new Long(strDevId));
+			Session session = Session.findById(Session.class, new Long(strSession));
+			
+			Class<?> cls = Class.forName("org.mkcl.els.domain." + strClassName);
+			Object obj = cls.newInstance();
+			Method method = null;
+			
+			
+			Object[] parameters = new Object[2];
+			
+			parameters[0] = session;
+			parameters[1] = deviceType;
+			
+			
+			for(Method m : cls.getDeclaredMethods()){
+				if(m.getName().equals("getCurNumber")){
+					method = m;
+					break;
+				}
+			}
+
+			
+			Object retVal = method.invoke(obj, parameters);
+			
+			return (org.mkcl.els.common.vo.Reference) retVal;
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+			
+		
+		Reference ref = new Reference();
+		ref.setName("NO_DATA");
+		ref.setNumber("NO_DATA");
+		return ref;
+	}
+	
+	@RequestMapping(value = "/refreshcurnum/{num}/{housetype}/{devicetype}", method = RequestMethod.GET)
+	public @ResponseBody String updateCurNum(@PathVariable("num") Integer num, 
+			@PathVariable("housetype") String houseType, @PathVariable("devicetype") String strDevice,
+			HttpServletRequest request, HttpServletResponse response, Locale locale){
+		try{
+			
+			if(strDevice.equals(ApplicationConstants.STARRED_QUESTION) 
+					|| strDevice.equals(ApplicationConstants.UNSTARRED_QUESTION)
+					|| strDevice.equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
+					|| strDevice.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+				Question.updateCurNumber(num, houseType, strDevice);
+			}else if(strDevice.equals(ApplicationConstants.MOTION_CALLING_ATTENTION)){
+				Motion.updateCurNumber(num, houseType, strDevice);
+			}else if(strDevice.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
+				StandaloneMotion.updateCurNumber(num, houseType, strDevice);
+			}
+			
+			return "SUCCESS";
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return "FAILURE";//Question.getDevicedCurrentNumber(deviceType);
+	}
+	
+	@RequestMapping(value = "user/checkIfAllowedForMultiLogin", method = RequestMethod.GET)
+	public @ResponseBody Boolean checkUserIfAllowedForMultiLogin(final HttpServletRequest request, final ModelMap map, final Locale locale) {
+		Boolean isAllowedForMultiLogin = null;
+		String credentialId = request.getParameter("credentialId");
+		if(credentialId!=null && !credentialId.isEmpty() && !credentialId.equals("false")) {
+			try {
+				Credential credential = Credential.findById(Credential.class, Long.parseLong(credentialId));
+				if(credential!=null) {
+					isAllowedForMultiLogin = credential.isAllowedForMultiLogin();
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+				isAllowedForMultiLogin = null;				
+			}			
+		}
+		return isAllowedForMultiLogin;
+	}	
+	
+	@RequestMapping(value = "/requiredStatus", method = RequestMethod.GET)
+	public @ResponseBody List<Status> loadStatus(HttpServletRequest request,
+			HttpServletResponse response, 
+			Locale locale){
+		List<Status> statuses=new ArrayList<Status>();
+		try{
+			String strDeviceType = request.getParameter("deviceType");
+			String strHouseType = request.getParameter("houseType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strUsergroupType = request.getParameter("usergroupType");
+			if(strDeviceType != null && !strDeviceType.isEmpty()
+					&& strHouseType != null && !strHouseType.isEmpty()
+					&& strSessionType != null && !strSessionType.isEmpty()
+					&& strUsergroupType != null && !strUsergroupType.isEmpty()
+					&& strSessionYear != null && !strSessionYear.isEmpty()){
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+				Session session = Session.
+						findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strSessionYear));
+				Session currentSession = Session.findLatestSession(houseType);
+				
+				if(!session.equals(currentSession)){
+					CustomParameter allowedStatus = CustomParameter.
+							findByName(CustomParameter.class,
+									deviceType.getDevice().toUpperCase()+"_GRID_STATUS_ALLOWED_"+ strUsergroupType.toUpperCase()+"_PREVIOUS_SESSION", "");
+					if(allowedStatus != null){
+						try {
+							statuses = Status.findStatusContainedIn(allowedStatus.getValue(),locale.toString());
+						} catch (ELSException e) {
+							e.printStackTrace();
+						}
+					}else{
+						CustomParameter defaultAllowedStatus = CustomParameter.
+								findByName(CustomParameter.class,
+										deviceType.getDevice().toUpperCase()+"_GRID_STATUS_ALLOWED_BY_DEFAULT", "");
+						if(defaultAllowedStatus != null){
+							try {
+								statuses = Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale.toString());
+							} catch (ELSException e) {
+								
+								e.printStackTrace();
+							}
+						}
+					}
+				}else{
+					CustomParameter allowedStatus=CustomParameter.
+							findByName(CustomParameter.class,
+									deviceType.getDevice().toUpperCase()+"_GRID_STATUS_ALLOWED_" + strUsergroupType.toUpperCase(), "");
+					if(allowedStatus!=null){
+						try {
+							statuses=Status.findStatusContainedIn(allowedStatus.getValue(),locale.toString());
+						} catch (ELSException e) {
+							
+							e.printStackTrace();
+						}
+					}else{
+						CustomParameter defaultAllowedStatus=CustomParameter.
+								findByName(CustomParameter.class,
+										deviceType.getDevice().toUpperCase()+"_GRID_STATUS_ALLOWED_BY_DEFAULT", "");
+						if(defaultAllowedStatus!=null){
+							try {
+								statuses=Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale.toString());
+							} catch (ELSException e) {
+									e.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		return statuses;
+	}
+	
+	@RequestMapping(value = "/yaadidetails/validateAndLoadQuestionDetailsForUnstarredYaadi", method = RequestMethod.GET)
+	public @ResponseBody String[] validateAndLoadQuestionDetailsForUnstarredYaadi(HttpServletRequest request,
+			HttpServletResponse response, 
+			Locale locale){
+		String[] questionDetails = new String[]{"", "number", "subject", "short_details", "content", "answer", "group_number", "yaadi_number", "number_english"};
+		
+		String questionNumber = request.getParameter("questionNumber");
+		String sessionId = request.getParameter("sessionId");
+		String deviceTypeId = request.getParameter("deviceTypeId");
+		
+		try {
+			CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(deploymentServerCP.getValue().equals("TOMCAT")){
+				questionNumber = new String(questionNumber.getBytes("ISO-8859-1"),"UTF-8");			
+			}
+			questionNumber = FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(questionNumber).toString();
+			
+			Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+	    	parameterMap.put("locale", new String[]{locale.toString()});
+	    	parameterMap.put("questionNumber", new String[]{questionNumber});
+	    	parameterMap.put("sessionId", new String[]{sessionId});
+	    	parameterMap.put("deviceTypeId", new String[]{deviceTypeId});
+	    	List resultList = Query.findReport("QIS_YAADI_MANUAL_NUMBER_VALIDATION_DETAILS", parameterMap);
+	    	
+	    	if(resultList==null || resultList.size()!=1) {
+	    		questionDetails[0]="-1";
+	    		return questionDetails;
+	    	}
+	    	
+	    	Object[] questionDetailsData = (Object[]) resultList.get(0);
+	    	
+    		Boolean isQuestionParent = Boolean.valueOf(questionDetailsData[0].toString());
+    		if(!isQuestionParent) {
+    			questionDetails[0]="-2";
+	    		return questionDetails;
+    		}
+    		
+    		Boolean isQuestionAdmitted = Boolean.valueOf(questionDetailsData[1].toString());
+    		if(!isQuestionAdmitted) {
+    			questionDetails[0]="-3";
+	    		return questionDetails;
+    		}
+
+    		Boolean isQuestionAnswered = Boolean.valueOf(questionDetailsData[2].toString());
+    		if(!isQuestionAnswered) {
+    			questionDetails[0]="-4";
+	    		return questionDetails;
+    		}
+    		
+    		Boolean isQuestionNotInExistingYaadi = Boolean.valueOf(questionDetailsData[3].toString());
+    		if(!isQuestionNotInExistingYaadi) {
+    			questionDetails[0]="-5";
+    			questionDetails[7]=questionDetailsData[14].toString();
+	    		return questionDetails;
+    		}
+    		
+    		Boolean isQuestionMemberAlive = Boolean.valueOf(questionDetailsData[4].toString());
+    		if(!isQuestionMemberAlive) {
+    			questionDetails[0]="-6";
+	    		return questionDetails;
+    		}
+    		
+    		Boolean isQuestionMemberNotSuspended = Boolean.valueOf(questionDetailsData[5].toString());
+    		if(!isQuestionMemberNotSuspended) {
+    			questionDetails[0]="-7";
+	    		return questionDetails;
+    		}
+    		
+    		Boolean isQuestionMemberActiveInHouse = Boolean.valueOf(questionDetailsData[6].toString());
+    		if(!isQuestionMemberActiveInHouse) {
+    			questionDetails[0]="-8";
+	    		return questionDetails;
+    		}
+    		
+    		Boolean isQuestionNotRemovedFromYaadi = Boolean.valueOf(questionDetailsData[7].toString());
+    		if(!isQuestionNotRemovedFromYaadi) {
+    			questionDetails[0]="-9";
+	    		return questionDetails;
+    		}
+    		
+    		questionDetails[0]=questionDetailsData[8].toString();
+    		questionDetails[1]=questionDetailsData[9].toString();
+    		questionDetails[2]=questionDetailsData[10].toString();
+    		
+    		Question question = Question.findById(Question.class, Long.parseLong(questionDetailsData[8].toString()));
+    		questionDetails[3]=question.findShortDetailsTextForYaadi(false);
+    		
+    		questionDetails[4]=questionDetailsData[11].toString();
+    		questionDetails[5]=questionDetailsData[12].toString();
+    		questionDetails[6]=questionDetailsData[13].toString();
+    		questionDetails[8]=questionDetailsData[15].toString();
+		} catch(Exception e) {
+			questionDetails[0]="0";
+			e.printStackTrace();
+		}
+		
+		return questionDetails;
+	}
+	
+	@RequestMapping(value = "/formatNumbersInGivenText", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	public @ResponseBody String formatNumbersInGivenText(HttpServletRequest request, Locale locale){
+		
+		String numberedText = request.getParameter("numberedText");
+		
+		try {
+			if(numberedText==null || numberedText.isEmpty()) {
+				return "";
+			}
+			
+			CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(deploymentServerCP.getValue().equals("TOMCAT")){
+				numberedText = new String(numberedText.getBytes("ISO-8859-1"),"UTF-8");		
+			}
+			
+			return FormaterUtil.formatNumbersInGivenText(numberedText, locale.toString());
+		} catch(Exception e) {
+			e.printStackTrace();
+			return numberedText;
+		}
+		
+	}
+	
+	@RequestMapping(value="/{committeeMeetingId}/committeeMemberNames", method=RequestMethod.GET)
+	public @ResponseBody List<String> completeProceeding(final @PathVariable("committeeMeetingId") Long committeeMeetingId, 
+			final HttpServletRequest request, final ModelMap model, final Locale locale){
+		List<String> memberNames = new ArrayList<String>(); 
+		CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, committeeMeetingId);
+		Committee committee = committeeMeeting.getCommittee();
+		List<CommitteeMember> committeeMembers = committee.getMembers();
+		for(CommitteeMember cm : committeeMembers){
+			Member m = cm.getMember();
+			memberNames.add(m.getFullname());
+		}
+		return memberNames;
+	}
+	
+	@RequestMapping(value="/rosterFromCommitteeMeeting", method=RequestMethod.GET)
+	public @ResponseBody Boolean getRosterByCommitteeMeetingAndLanguage(final HttpServletRequest request, final ModelMap model, final Locale locale){
+		String strLanguage=request.getParameter("language");
+		String strDay=request.getParameter("day");
+		String strCommitteeMeeting = request.getParameter("committeeMeeting");
+		try{
+			if(strLanguage != null && !strLanguage.equals("")
+					&& strDay != null && !strDay.equals("") 
+					&& strCommitteeMeeting!=null && !strCommitteeMeeting.equals("")){
+				Language language = Language.findById(Language.class, Long.parseLong(strLanguage));
+				CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
+				Roster roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+				if(roster != null && roster.getPublish() != null && roster.getPublish().equals(true)){
+					return true;
+				}
+			}
+		}catch(Exception e){
+			return false;
+		}
+		return false;
+	}
+	
+	@RequestMapping(value = "/yaadidetails/validateQuestionsFormattingForUnstarredYaadi", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	public @ResponseBody String validateQuestionsFormattingForUnstarredYaadi(HttpServletRequest request,
+			HttpServletResponse response,
+			Locale locale){
+		StringBuffer questionFormattingDetails = new StringBuffer();
+		
+		String selectedDeviceIds = request.getParameter("selectedDeviceIds");
+		
+		if(selectedDeviceIds!=null && !selectedDeviceIds.isEmpty()) {
+			try {
+				selectedDeviceIds = selectedDeviceIds.substring(0, selectedDeviceIds.length()-1);
+				
+				Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+		    	parameterMap.put("locale", new String[]{locale.toString()});
+		    	parameterMap.put("selectedDeviceIds", new String[]{selectedDeviceIds});
+		    	@SuppressWarnings("unchecked")
+				List<String> resultList = Query.findReport("QIS_YAADI_QUESTIONS_FORMATTING_VALIDATION_DETAILS", parameterMap, true);
+		    	
+		    	if(resultList==null || resultList.size()==0) {
+		    		questionFormattingDetails.append("error_occurred");
+		    	}
+		    	
+		    	for(String result: resultList) {
+		    		if(result!=null && !result.equals("formatting_is_valid")) {
+		    			questionFormattingDetails.append(result);
+		    			questionFormattingDetails.append("<br/>");
+		    		}
+		    	}	    		    		
+			} catch(Exception e) {
+				questionFormattingDetails.append("error_occurred");
+				e.printStackTrace();
+			}
+		}	
+		
+		if(questionFormattingDetails.toString().isEmpty()) {
+			questionFormattingDetails.append("formatting_is_valid");
+		}
+		
+		return questionFormattingDetails.toString();
 	}
 }

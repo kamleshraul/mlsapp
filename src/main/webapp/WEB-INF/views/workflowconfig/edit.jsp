@@ -74,7 +74,7 @@
 	
 	function prependOptionToDeviceType() {
 		var isDeviceTypeFieldEmpty = $('#isDeviceTypeEmpty').val();
-		var optionValue = $('#allOption').val();
+		var optionValue = $('#pleaseSelectOption').val();
 		if(isDeviceTypeFieldEmpty == 'true') {
 			var option = "<option value='0' selected>" + optionValue + "</option>";
 			$('#deviceType').prepend(option);
@@ -90,6 +90,7 @@
 		$('#addWorkflowActor').click(function(){
 			addWorkflowActor();
 		});			
+		prependOptionToDeviceType();
 	});
 	</script>
 </head>
@@ -109,6 +110,36 @@
 		<label class="small"><spring:message code="workflowconfig.devicetype" text="Device Type"/></label>
 		<form:select path="deviceType" items="${deviceTypes}" itemValue="id" itemLabel="name" cssClass="sSelect"/>
 		<form:errors path="deviceType" cssClass="validationError"/>
+	</p>
+	<p>
+		<label class="small"><spring:message code="workflowconfig.module" text="Module"/></label>
+		<select name="module" id="module" style="width:100px;height: 25px;">
+			<option value="" selected="selected"><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'/></option>	
+			<c:choose>
+				<c:when test="${module=='COMMITTEE'}">
+					<option value="COMMITTEE" selected="selected"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
+					<option value="REPORTING"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
+					<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>
+				</c:when>
+				<c:when test="${module=='REPORTING'}">
+					<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
+					<option value="REPORTING" selected="selected"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
+					<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>
+				</c:when>
+				<c:when test="${module=='EDITING'}">
+					<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
+					<option value="REPORTING" ><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
+					<option value="EDITING" selected="selected"><spring:message code="mytask.editing" text="Editing"></spring:message></option>
+				</c:when>
+				<c:otherwise>
+					<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
+					<option value="REPORTING"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
+					<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>
+				</c:otherwise>
+			</c:choose>		
+							
+		</select>
+		<form:errors path="module" cssClass="validationError"/>
 	</p>
 	<p>
 		<label class="small"><spring:message code="workflowconfig.workflow" text="Workflow"/></label>
@@ -185,6 +216,7 @@
 	<input type="hidden" id="deleteFailedMessage" name="deleteFailedMessage" value="<spring:message code='workflowconfig.deletefailedmsg' text='Cannot Be Deleted'/>">	
 	<input type="hidden" id="isDeviceTypeEmpty" name="isDeviceTypeEmpty" value="${isDeviceTypeEmpty}">	
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+	<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
 </form:form>
 </div>
 </body>

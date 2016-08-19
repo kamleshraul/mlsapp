@@ -116,7 +116,8 @@
 		}
 		/**** sub departments ****/
 		function loadSubDepartments(ministry){
-			$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+			$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+					function(data){
 				$("#subDepartment").empty();
 				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 				if(data.length>0){
@@ -143,6 +144,7 @@
 				var currentLanguage = this.id.split("_")[3];
 				if($('#revisedContentDraftPara_'+currentLanguage).css('display')=='none') {						
 					$(this).val("");
+					$('#revised-contentDraft-file-'+currentLanguage).val("");
 				}				
 			});
 			if($('#typeOfSelectedBillType').val()=="amending") {
@@ -150,6 +152,7 @@
 					var currentLanguage = this.id.split("_")[3];
 					if($('#revisedAnnexureForAmendingBillPara_'+currentLanguage).css('display')=='none') {						
 						$(this).val("");
+						$('#revised-annexureForAmendingBill-file-'+currentLanguage).val("");
 					}				
 				});
 			}
@@ -693,18 +696,22 @@
 			$('.contentDraft').each(function() {
 				var currentLanguage = this.id.split("_")[2];				
 				if(currentLanguage==$('#defaultBillLanguage').val()) {		
-					$('#contentDraft_para_'+currentLanguage).show();					
+					$('#contentDraft_para_'+currentLanguage).show();
+					$('#contentDraft_FileDiv_'+currentLanguage).show();
 				} else {
-					$('#contentDraft_para_'+currentLanguage).hide();										
+					$('#contentDraft_para_'+currentLanguage).hide();
+					$('#contentDraft_FileDiv_'+currentLanguage).hide();
 				}
 			});
 			/**** toggle contentDraft for given language icon ****/
 			$('.toggleContentDraft').click(function() {
 				var currentLanguage = this.id.split("_")[1];				
 				if($('#contentDraft_para_'+currentLanguage).css('display')=='none') {
-					$('#contentDraft_para_'+currentLanguage).show();					
+					$('#contentDraft_para_'+currentLanguage).show();
+					$('#contentDraft_FileDiv_'+currentLanguage).show();
 				} else {
-					$('#contentDraft_para_'+currentLanguage).hide();					
+					$('#contentDraft_para_'+currentLanguage).hide();
+					$('#contentDraft_FileDiv_'+currentLanguage).hide();
 				}
 				return false;
 			});
@@ -713,18 +720,22 @@
 			$('.annexureForAmendingBill').each(function() {
 				var currentLanguage = this.id.split("_")[2];				
 				if(currentLanguage==$('#defaultBillLanguage').val()) {		
-					$('#annexureForAmendingBill_para_'+currentLanguage).show();					
+					$('#annexureForAmendingBill_para_'+currentLanguage).show();
+					$('#annexureForAmendingBill_FileDiv_'+currentLanguage).show();
 				} else {
-					$('#annexureForAmendingBill_para_'+currentLanguage).hide();										
+					$('#annexureForAmendingBill_para_'+currentLanguage).hide();	
+					$('#annexureForAmendingBill_FileDiv_'+currentLanguage).hide();
 				}
 			});
 			/**** toggle annexure for given language icon ****/
 			$('.toggleAnnexureForAmendingBill').click(function() {
 				var currentLanguage = this.id.split("_")[1];				
 				if($('#annexureForAmendingBill_para_'+currentLanguage).css('display')=='none') {
-					$('#annexureForAmendingBill_para_'+currentLanguage).show();					
+					$('#annexureForAmendingBill_para_'+currentLanguage).show();	
+					$('#annexureForAmendingBill_FileDiv_'+currentLanguage).show();
 				} else {
-					$('#annexureForAmendingBill_para_'+currentLanguage).hide();					
+					$('#annexureForAmendingBill_para_'+currentLanguage).hide();
+					$('#annexureForAmendingBill_FileDiv_'+currentLanguage).hide();
 				}
 				return false;
 			});
@@ -872,11 +883,15 @@
 			});
 			$('.revisedContentDraft').each(function() {
 				var currentLanguage = this.id.split("_")[3];	
-				if($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='') {		
+				var revisedContentDraftFile = $('#revised-contentDraft-file-'+currentLanguage).val();
+				if(($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='')
+						|| (revisedContentDraftFile!=undefined && revisedContentDraftFile!='')) {
 					$('#revisedContentDraftPara_'+currentLanguage).show();
+					$('#revisedContentDraft_FileDiv_'+currentLanguage).show();
 					$('#reviseContentDraft_icon_'+currentLanguage).attr('title',$('#unReviseContentDraft_text').val());
 				} else {
 					$('#revisedContentDraftPara_'+currentLanguage).hide();
+					$('#revisedContentDraft_FileDiv_'+currentLanguage).hide();
 					if($("#contentDraft_text_"+currentLanguage).val()!=undefined && $("#contentDraft_text_"+currentLanguage).val()!='') {
 						$(this).val($("#contentDraft_text_"+currentLanguage).val());
 					}					
@@ -887,9 +902,11 @@
 				var currentLanguage = this.id.split("_")[1];				
 				if($('#revisedContentDraftPara_'+currentLanguage).css('display')=='none') {
 					$('#revisedContentDraftPara_'+currentLanguage).show();
+					$('#revisedContentDraft_FileDiv_'+currentLanguage).show();
 					$('#reviseContentDraft_icon_'+currentLanguage).attr('title',$('#unReviseContentDraft_text').val());
 				} else {
 					$('#revisedContentDraftPara_'+currentLanguage).hide();
+					$('#revisedContentDraft_FileDiv_'+currentLanguage).hide();
 					$('#reviseContentDraft_icon_'+currentLanguage).attr('title',$('#reviseContentDraft_text').val());
 				}
 				return false;
@@ -898,11 +915,15 @@
 			if($('#typeOfSelectedBillType').val()=="amending") {
 				$('.revisedAnnexureForAmendingBill').each(function() {
 					var currentLanguage = this.id.split("_")[3];	
-					if($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='') {		
+					var revisedAnnexureForAmendingBillFile = $('#revised-annexureForAmendingBill-file-'+currentLanguage).val();
+					if(($(this).val()!=null && $(this).val()!=undefined && $(this).val()!='')
+							|| (revisedAnnexureForAmendingBillFile!=undefined && revisedAnnexureForAmendingBillFile!='')) {	
 						$('#revisedAnnexureForAmendingBillPara_'+currentLanguage).show();
+						$('#revisedAnnexureForAmendingBill_FileDiv_'+currentLanguage).show();
 						$('#reviseAnnexureForAmendingBill_icon_'+currentLanguage).attr('title',$('#unReviseAnnexureForAmendingBill_text').val());
 					} else {
 						$('#revisedAnnexureForAmendingBillPara_'+currentLanguage).hide();
+						$('#revisedAnnexureForAmendingBill_FileDiv_'+currentLanguage).hide();
 						$(this).val($("#annexureForAmendingBill_text_"+currentLanguage).val());
 					}
 				});
@@ -912,9 +933,11 @@
 				var currentLanguage = this.id.split("_")[1];				
 				if($('#revisedAnnexureForAmendingBillPara_'+currentLanguage).css('display')=='none') {
 					$('#revisedAnnexureForAmendingBillPara_'+currentLanguage).show();
+					$('#revisedAnnexureForAmendingBill_FileDiv_'+currentLanguage).show();
 					$('#reviseAnnexureForAmendingBill_icon_'+currentLanguage).attr('title',$('#unReviseAnnexureForAmendingBill_text').val());
 				} else {
 					$('#revisedAnnexureForAmendingBillPara_'+currentLanguage).hide();
+					$('#revisedAnnexureForAmendingBill_FileDiv_'+currentLanguage).hide();
 					$('#reviseAnnexureForAmendingBill_icon_'+currentLanguage).attr('title',$('#reviseAnnexureForAmendingBill_text').val());
 				}
 				return false;
@@ -1029,25 +1052,8 @@
 				} else {
 					$('#customStatus').val(statusRecommended);					
 				}
-			}
+			}			
 			
-			$('.saveAsSection').click(function() {
-				var selectedText = "";
-				var language = this.id.split("_")[2];
-				/* var iframeId = "";
-				var language = this.id.split("_")[2];
-				//alert($('#revised_contentDraft_text_marathi').wysiwyg('getSelection'));
-				if(this.id.split("_")[1]=='contentDraft') {
-					iframeId = "contentDraft_text_"+language+"-wysiwyg-iframe";										
-				} else if(this.id.split("_")[1]=='revisedContentDraft') {
-					iframeId = "revised_contentDraft_text_"+language+"-wysiwyg-iframe";					
-				}				
-				selectedText = getIframeSelectionText(document.getElementById(iframeId)); */				
-				$.get('bill/addSection?language='+language+'&selectedText='+selectedText,function(data){
-					$.fancybox.open(data, {autoSize: false, width: 720, height:420});		    	
-			    });
-				return false;
-			});
 		});
 		
 		/* function dereferencingInt(referId){
@@ -1113,9 +1119,10 @@
 			
 			#opinionSoughtFromLawAndJD-wysiwyg-iframe {height: 400px;}			
 			
-			.saveAsSection {
+			.textdraft_file {
 				float: right; 
-				margin: -210px 140px;
+				margin: -210px 20px;
+				position: relative;
 			}	
 		</style>
 	</head> 
@@ -1488,7 +1495,14 @@
 									<p>
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.contentDraft" text="Draft"/></label>
 										<textarea class="wysiwyg contentDraft" id="contentDraft_text_${i.language.type}" name="contentDraft_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
-										<a id="saveAsSection_contentDraft_${i.language.type}" class="saveAsSection" href="javascript:void(0)"><spring:message code="bill.addSection" text="Add Section"/></a>
+										<div class="textdraft_file" id="contentDraft_FileDiv_${i.language.type}">
+											<jsp:include page="/common/file_load.jsp">
+												<jsp:param name="fileid" value="contentDraft-file-${i.language.type}" />
+												<jsp:param name="filetag" value="${i.file}" />
+												<jsp:param name="isUploadAllowed" value="false" />
+												<jsp:param name="isRemovable" value="false" />
+											</jsp:include>			
+										</div>
 										<input type="hidden" name="contentDraft_id_${i.language.type}" value="${i.id}">
 										<input type="hidden" name="contentDraft_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
@@ -1505,25 +1519,20 @@
 									</p>
 									<p id="revisedContentDraftPara_${i.language.type}" style="display:none;">
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.revisedContentDraft" text=" Revised Draft"/></label>						
-										<c:set var="revisedContentDraftText" value=""></c:set>
-										<c:set var="revisedContentDraftId" value=""></c:set>
-										<c:choose>
-											<c:when test="${i.language.type=='marathi'}">
-												<c:set var="revisedContentDraftText" value="${revisedContentDraft_marathi}"></c:set>
-												<c:set var="revisedContentDraftId" value="${revisedContentDraft_id_marathi}"></c:set>
-											</c:when>
-											<c:when test="${i.language.type=='hindi'}">
-												<c:set var="revisedContentDraftText" value="${revisedContentDraft_hindi}"></c:set>
-												<c:set var="revisedContentDraftId" value="${revisedContentDraft_id_hindi}"></c:set>
-											</c:when>
-											<c:when test="${i.language.type=='english'}">
-												<c:set var="revisedContentDraftText" value="${revisedContentDraft_english}"></c:set>
-												<c:set var="revisedContentDraftId" value="${revisedContentDraft_id_english}"></c:set>
-											</c:when>							
-										</c:choose>
-										<textarea class="wysiwyg revisedContentDraft" id="revised_contentDraft_text_${i.language.type}" name="revised_contentDraft_text_${i.language.type}">${revisedContentDraftText}</textarea>
-										<a id="saveAsSection_revisedContentDraft_${i.language.type}" class="saveAsSection" href="javascript:void(0)"><spring:message code="bill.addSection" text="Add Section"/></a>
-										<input type="hidden" name="revised_contentDraft_id_${i.language.type}" value="${revisedContentDraftId}">												
+										<c:set var="revisedContentDraftText" value="revisedContentDraft_${i.language.type}"></c:set>
+										<c:set var="revisedContentDraftId" value="revisedContentDraft_id_${i.language.type}"></c:set>
+										<c:set var="revisedContentDraftFile" value="revisedContentDraft-file-${i.language.type}"></c:set>										
+										<textarea class="wysiwyg revisedContentDraft" id="revised_contentDraft_text_${i.language.type}" name="revised_contentDraft_text_${i.language.type}">${requestScope[revisedContentDraftText]}</textarea>
+										<div class="textdraft_file" id="revisedContentDraft_FileDiv_${i.language.type}">
+											<jsp:include page="/common/file_load.jsp">
+												<jsp:param name="fileid" value="revised-contentDraft-file-${i.language.type}" />
+												<jsp:param name="filetag" value="${requestScope[revisedContentDraftFile]}" />
+												<jsp:param name="isUploadAllowed" value="true" />
+												<jsp:param name="isRemovable" value="true" />
+												<jsp:param name="isDeletable" value="${not empty requestScope[revisedContentDraftFile]? 'false' : 'true'}" />
+											</jsp:include>			
+										</div>
+										<input type="hidden" name="revised_contentDraft_id_${i.language.type}" value="${requestScope[revisedContentDraftId]}">												
 									</p>
 									</div>
 								</c:forEach>
@@ -1557,42 +1566,60 @@
 									<div id="annexureForAmendingBill_para_${i.language.type}" style="display:none;">
 									<p>
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.annexureForAmendingBill" text="Annexure For Amending Bill"/></label>
-										<textarea class="wysiwyg annexureForAmendingBill" id="annexureForAmendingBill_text_${i.language.type}" name="annexureForAmendingBill_text_${i.language.type}" readonly="readonly">${i.text}</textarea>
+										<textarea class="wysiwyg annexureForAmendingBill" id="annexureForAmendingBill_text_${i.language.type}" name="annexureForAmendingBill_text_${i.language.type}" ${(empty i.text and empty i.file)?'':'readonly="readonly"'}>${i.text}</textarea>
+										<div class="textdraft_file" id="annexureForAmendingBill_FileDiv_${i.language.type}">
+											<jsp:include page="/common/file_load.jsp">
+												<jsp:param name="fileid" value="annexureForAmendingBill-file-${i.language.type}" />
+												<jsp:param name="filetag" value="${i.file}" />
+												<jsp:param name="isUploadAllowed" value="${(empty i.text and empty i.file)?'true':'false'}" />
+												<jsp:param name="isRemovable" value="${(empty i.text and empty i.file)?'true':'false'}" />
+											</jsp:include>		
+										</div>
 										<input type="hidden" name="annexureForAmendingBill_id_${i.language.type}" value="${i.id}">
 										<input type="hidden" name="annexureForAmendingBill_language_id_${i.language.type}" value="${i.language.id}">						
 									</p>
-									<p>
-										<a href="#" class="reviseAnnexureForAmendingBill" id="reviseAnnexureForAmendingBill_${i.language.type}" style="margin-left: 162px;margin-right: 20px;text-decoration: none;">
-											<img id="reviseAnnexureForAmendingBill_icon_${i.language.type}" src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseAnnexureForAmendingBill' text='Revise This Annexure For Amending Bill'></spring:message>" class="imageLink" />
-										</a>
-										<c:set var="schedule7OfConstitution" value="schedule7OfConstitution_${i.language.type}"/>
-										<c:if test="${not empty requestScope[schedule7OfConstitution]}">
-										<a href="javascript:void(0)" id="viewSchedule7OfConstitution_${i.language.type}" class="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
-											<img id="s7C" src="./resources/images/s7C.jpg" title="<spring:message code='bill.viewSchedule7OfConstitution' text='View Schedule 7 Of Constitution'></spring:message>" class="imageLink" />
-										</a>
-										</c:if>
-									</p>
+									<c:choose>
+										<c:when test="${not empty i.text or not empty i.file}">
+											<p>
+												<a href="#" class="reviseAnnexureForAmendingBill" id="reviseAnnexureForAmendingBill_${i.language.type}" style="margin-left: 162px;margin-right: 20px;text-decoration: none;">
+													<img id="reviseAnnexureForAmendingBill_icon_${i.language.type}" src="./resources/images/Revise.jpg" title="<spring:message code='bill.reviseAnnexureForAmendingBill' text='Revise This Annexure For Amending Bill'></spring:message>" class="imageLink" />
+												</a>
+												<c:set var="schedule7OfConstitution" value="schedule7OfConstitution_${i.language.type}"/>
+												<c:if test="${not empty requestScope[schedule7OfConstitution]}">
+												<a href="javascript:void(0)" id="viewSchedule7OfConstitution_${i.language.type}" class="viewSchedule7OfConstitution" style="margin-right: 20px;text-decoration: none;">
+													<img id="s7C" src="./resources/images/s7C.jpg" title="<spring:message code='bill.viewSchedule7OfConstitution' text='View Schedule 7 Of Constitution'></spring:message>" class="imageLink" />
+												</a>
+												</c:if>
+											</p>
+										</c:when>
+										<c:otherwise>
+											<p>
+												<c:set var="schedule7OfConstitution" value="schedule7OfConstitution_${i.language.type}"/>
+												<c:if test="${not empty requestScope[schedule7OfConstitution]}">
+												<a href="javascript:void(0)" id="viewSchedule7OfConstitution_${i.language.type}" class="viewSchedule7OfConstitution" style="margin-left: 162px;margin-right: 20px;text-decoration: none;">
+													<img id="s7C" src="./resources/images/s7C.jpg" title="<spring:message code='bill.viewSchedule7OfConstitution' text='View Schedule 7 Of Constitution'></spring:message>" class="imageLink" />
+												</a>
+												</c:if>
+											</p>
+										</c:otherwise>
+									</c:choose>
 									<p id="revisedAnnexureForAmendingBillPara_${i.language.type}" style="display:none;">
 										<label class="wysiwyglabel">${i.language.name} <spring:message code="bill.revisedAnnexureForAmendingBill" text=" Revised Annexure For Amending Bill"/></label>						
-										<c:set var="revisedAnnexureForAmendingBillText" value=""></c:set>
-										<c:set var="revisedAnnexureForAmendingBillId" value=""></c:set>
-										<c:choose>
-											<c:when test="${i.language.type=='marathi'}">
-												<c:set var="revisedAnnexureForAmendingBillText" value="${revisedAnnexureForAmendingBill_marathi}"></c:set>
-												<c:set var="revisedAnnexureForAmendingBillId" value="${revisedAnnexureForAmendingBill_id_marathi}"></c:set>
-											</c:when>
-											<c:when test="${i.language.type=='hindi'}">
-												<c:set var="revisedAnnexureForAmendingBillText" value="${revisedAnnexureForAmendingBill_hindi}"></c:set>
-												<c:set var="revisedAnnexureForAmendingBillId" value="${revisedAnnexureForAmendingBill_id_hindi}"></c:set>
-											</c:when>
-											<c:when test="${i.language.type=='english'}">
-												<c:set var="revisedAnnexureForAmendingBillText" value="${revisedAnnexureForAmendingBill_english}"></c:set>
-												<c:set var="revisedAnnexureForAmendingBillId" value="${revisedAnnexureForAmendingBill_id_english}"></c:set>
-											</c:when>							
-										</c:choose>
-										<textarea class="wysiwyg revisedAnnexureForAmendingBill" id="revised_annexureForAmendingBill_text_${i.language.type}" name="revised_annexureForAmendingBill_text_${i.language.type}">${revisedAnnexureForAmendingBillText}</textarea>
-										<input type="hidden" name="revised_annexureForAmendingBill_id_${i.language.type}" value="${revisedAnnexureForAmendingBillId}">												
-									</p>
+										<c:set var="revisedAnnexureForAmendingBillText" value="revisedAnnexureForAmendingBill_${i.language.type}"></c:set>
+										<c:set var="revisedAnnexureForAmendingBillId" value="revisedAnnexureForAmendingBill_id_${i.language.type}"></c:set>
+										<c:set var="revisedAnnexureForAmendingBillFile" value="revisedAnnexureForAmendingBill-file-${i.language.type}"></c:set>										
+										<textarea class="wysiwyg revisedAnnexureForAmendingBill" id="revised_annexureForAmendingBill_text_${i.language.type}" name="revised_annexureForAmendingBill_text_${i.language.type}">${requestScope[revisedAnnexureForAmendingBillText]}</textarea>
+										<div class="textdraft_file" id="revisedAnnexureForAmendingBill_FileDiv_${i.language.type}">
+											<jsp:include page="/common/file_load.jsp">
+												<jsp:param name="fileid" value="revised-annexureForAmendingBill-file-${i.language.type}" />
+												<jsp:param name="filetag" value="${requestScope[revisedAnnexureForAmendingBillFile]}" />
+												<jsp:param name="isUploadAllowed" value="true" />
+												<jsp:param name="isRemovable" value="true" />
+												<jsp:param name="isDeletable" value="${not empty requestScope[revisedAnnexureForAmendingBillFile]? 'false' : 'true'}" />
+											</jsp:include>			
+										</div>
+										<input type="hidden" name="revised_annexureForAmendingBill_id_${i.language.type}" value="${requestScope[revisedAnnexureForAmendingBillId]}">												
+									</p>								
 									</div>
 								</c:forEach>
 							</div>
@@ -1822,18 +1849,28 @@
 						<div id="opinionSoughtFromLawAndJD_div" style="display: none;float: left;margin-top: 10px;">
 							<p id="opinionSoughtFromLawAndJD_para">
 								<label><spring:message code="bill.opinionSoughtFromLawAndJD" text="Opinion from Law & Judiciary Department"/></label>
+								<c:if test="${selectedDeviceTypeForBill=='bills_government' or not empty dateOfOpinionSoughtFromLawAndJD}">
+								<!-- <div id="opinionSoughtFromLawAndJD_FileDiv" style="float: right;margin-left: 20px;margin-bottom: 5px;margin-right: 20px;position: relative;"> -->
+								<jsp:include page="/common/file_load.jsp">
+									<jsp:param name="fileid" value="opinionSoughtFromLawAndJDFile" />
+									<jsp:param name="filetag" value="${domain.opinionSoughtFromLawAndJDFile}" />
+									<jsp:param name="isRemovable" value="false" />
+									<jsp:param name="isUploadAllowed" value="false" />									
+								</jsp:include>							
+								<!-- </div> -->
+								</c:if>
 								<br/>
 								<form:textarea id="opinionSoughtFromLawAndJD" path="opinionSoughtFromLawAndJD" cssClass="wysiwyg" readonly="true"></form:textarea>
 								<form:errors path="opinionSoughtFromLawAndJD" />
-							</p>					
-							<c:if test="${not empty dateOfOpinionSoughtFromLawAndJD}">
+							</p>											
+							<c:if test="${selectedDeviceTypeForBill=='bills_nonofficial' and not empty dateOfOpinionSoughtFromLawAndJD}">
 							<p>
 							<label><spring:message code="bill.dateOfOpinionSoughtFromLawAndJD" text="Date Of Opinion Sought From Law And JD"/></label>
 							<br/>
 							<input id="formattedDateOfOpinionSoughtFromLawAndJD" name="formattedDateOfOpinionSoughtFromLawAndJD" value="${formattedDateOfOpinionSoughtFromLawAndJD}" class="sText" style="margin-left: 10px !important;" readonly="readonly">
 							<input id="setDateOfOpinionSoughtFromLawAndJD" name="setDateOfOpinionSoughtFromLawAndJD" type="hidden"  value="${dateOfOpinionSoughtFromLawAndJD}">	
 							</p>
-							</c:if>
+							</c:if>	
 						</div>
 						
 						<div id="checklist_div"  style="display: none;margin-left: 420px;margin-top: 10px;">					

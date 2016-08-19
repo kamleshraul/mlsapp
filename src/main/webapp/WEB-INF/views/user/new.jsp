@@ -18,6 +18,15 @@
 		});
 
 		
+		$("#username").change(function(){
+			var reportURL = "question/report/generalreport?username="+$("#username").val()+"&report=USER_AVAILABLE&reportout=useravailable&locale=mr_IN";
+			$.get(reportURL,function(data){
+				$("#userAvailable").empty();
+				$("#userAvailable").html(data);
+			},'html');
+			
+		});
+		
 	});
 </script>
 </head>
@@ -88,7 +97,8 @@
 			<p>
 				<label class="small"><spring:message
 						code="user.username" text="Username" />&nbsp;*</label>
-				<input  type="text" class="sText" name="username" value="${username}"  />
+				<input  type="text" class="sText" name="username" value="${username}" id="username"  />
+				<div style="top: 522px; width: 200px; display: inline; height: 20px; float: right; position:absolute; left: 450px;" id="userAvailable" ></div>
 			</p>
 			
 			<p>

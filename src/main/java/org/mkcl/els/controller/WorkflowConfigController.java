@@ -137,7 +137,10 @@ public class WorkflowConfigController extends GenericController<WorkflowConfig> 
 		try{
 			String locale = domain.getLocale();
 			/**** HouseTypes ****/
-			model.addAttribute("houseType", domain.getHouseType().getId());
+			if(domain.getHouseType() != null){
+				model.addAttribute("houseType", domain.getHouseType().getId());
+			}
+			
 			/**** workflows ****/
 			List<Workflow> workflows = Workflow.findAll(Workflow.class, "name",
 					ApplicationConstants.ASC, locale);
@@ -155,6 +158,8 @@ public class WorkflowConfigController extends GenericController<WorkflowConfig> 
 			/**** workflow actors ****/
 			model.addAttribute("workflowactors", domain.getWorkflowactors());
 			model.addAttribute("workflowactorCount", domain.getWorkflowactors().size());
+			
+			model.addAttribute("module",domain.getModule());
 			
 			DeviceType deviceType = domain.getDeviceType();
 	        if(deviceType == null) {

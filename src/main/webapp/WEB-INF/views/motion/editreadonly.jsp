@@ -46,11 +46,10 @@
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <div class="fields clearfix watermark">
-<form:form action="motion" method="PUT" modelAttribute="domain">
+<%-- <form:form action="motion" method="PUT" modelAttribute="domain"> --%>
 
-	<%@ include file="/common/info.jsp" %>
+	<%-- <%@ include file="/common/info.jsp" %> --%>
 	<h2>${formattedQuestionType}: ${formattedNumber}</h2>
-	<form:errors path="version" cssClass="validationError"/>
 		
 	<p>
 	<label class="small"><spring:message code="question.number" text="Question Number"/>*</label>
@@ -63,55 +62,55 @@
 	</p>
 	
 	<p>
-	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
-	<select name="ministryEdit" id="ministryEdit" class="sSelect" disabled="disabled">
-	<c:forEach items="${ministries }" var="i">
-	<c:choose>
-	<c:when test="${i.id==ministrySelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>		
-	
-	<label class="small"><spring:message code="question.group" text="Group"/>*</label>
-	<input type="text" class="sText" id="formattedGroupEdit" name="formattedGroupEdit"  readonly="readonly" value="${formattedGroup}">		
+		<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
+		<select name="ministryEdit" id="ministryEdit" class="sSelect" disabled="disabled">
+			<c:forEach items="${ministries }" var="i">
+				<c:choose>
+					<c:when test="${i.id==ministrySelected }">
+						<option value="${i.id }" selected="selected">${i.name}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id }" >${i.name}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>		
+		
+		<%-- <label class="small"><spring:message code="question.group" text="Group"/>*</label>
+		<input type="text" class="sText" id="formattedGroupEdit" name="formattedGroupEdit"  readonly="readonly" value="${formattedGroup}"> --%>		
 	</p>	
 	
 	<p>
-	<label class="small"><spring:message code="question.department" text="Department"/></label>
-	<select name="departmentEdit" id="departmentEdit" class="sSelect" disabled="disabled">
-	<option value=""><spring:message code='please.select' text='Please Select'/></option>
-	<c:forEach items="${departments }" var="i">
-	<c:choose>
-	<c:when test="${i.id==departmentSelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>
-	
-	<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
-	<select name="subDepartmentEdit" id="subDepartmentEdit" class="sSelect" disabled="disabled">
-	<option value=""><spring:message code='please.select' text='Please Select'/></option>	
-	<c:forEach items="${subDepartments }" var="i">
-	<c:choose>
-	<c:when test="${i.id==subDepartmentSelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>		
-	<form:errors path="subDepartment" cssClass="validationError"/>	
+		<label class="small"><spring:message code="question.department" text="Department"/></label>
+		<%-- <select name="departmentEdit" id="departmentEdit" class="sSelect" disabled="disabled">
+			<option value=""><spring:message code='please.select' text='Please Select'/></option>
+			<c:forEach items="${departments }" var="i">
+				<c:choose>
+					<c:when test="${i.id==departmentSelected }">
+						<option value="${i.id }" selected="selected">${i.name}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id }" >${i.name}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>
+		
+		<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label> --%>
+		<select name="subDepartmentEdit" id="subDepartmentEdit" class="sSelect" disabled="disabled">
+			<option value=""><spring:message code='please.select' text='Please Select'/></option>	
+			<c:forEach items="${subDepartments }" var="i">
+				<c:choose>
+					<c:when test="${i.id==subDepartmentSelected }">
+						<option value="${i.id }" selected="selected">${i.name}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id }" >${i.name}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>		
+		
 	</p>	
 		
 	
@@ -136,44 +135,65 @@
 	</p>			
 	
 	<p>
-	<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
-	<a href="#" id="p${parent}" ><c:out value="${formattedParentNumber}"></c:out></a>
+		<label class="small"><spring:message code="question.parentquestion" text="Clubbed To"></spring:message></label>
+		<a href="#" id="p${parent}" ><c:out value="${formattedParentNumber}"></c:out></a>
 	</p>	
+	
 	<p>
-	<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
-	<c:choose>
-	<c:when test="${!(empty clubbedQuestions) }">
-	<c:forEach items="${clubbedQuestions }" var="i">
-	<a href="#" id="cq${i.id}" class="clubbedQuestions" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-	</c:forEach>
-	</c:when>
-	<c:otherwise>
-	<c:out value="-"></c:out>
-	</c:otherwise>
-	</c:choose>	
+		<label class="small"><spring:message code="question.clubbedquestions" text="Clubbed Questions"></spring:message></label>
+		<c:choose>
+			<c:when test="${!(empty clubbedEntities) }">
+				<c:forEach items="${clubbedEntities }" var="i">
+					<a href="#" id="cq${i.id}" class="clubbedQuestions" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+				</c:forEach>
+			</c:when>
+			<c:otherwise>
+				<c:out value="-"></c:out>
+			</c:otherwise>
+		</c:choose>	
 	</p>
 	<p>
-	<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
-	<c:choose>
-	<c:when test="${!(empty referencedQuestions) }">
-	<c:forEach items="${referencedQuestions }" var="i">
-	<a href="#" id="rq${i.number}" class="referencedQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-	</c:forEach>
-	</c:when>
-	<c:otherwise>
-	<c:out value="-"></c:out>
-	</c:otherwise>
-	</c:choose>	
+		<label class="small"><spring:message code="question.referencedquestions" text="Referenced Questions"></spring:message></label>
+		<c:choose>
+			<c:when test="${!(empty referencedMotions) }">
+				<c:forEach items="${referencedMotions }" var="i">
+					<a href="#" id="rm${i.number}" class="referencedMotions" onclick="viewMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+				</c:forEach>
+			</c:when>
+			<c:otherwise>
+				<c:out value="-"></c:out>
+			</c:otherwise>
+		</c:choose>
+		<c:choose>
+			<c:when test="${!(empty referencedQuestions) }">
+				<c:forEach items="${referencedQuestions }" var="i">
+					<a href="#" id="rq${i.number}" class="referencedQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+				</c:forEach>
+			</c:when>
+			<c:otherwise>
+				<c:out value="-"></c:out>
+			</c:otherwise>
+		</c:choose>
+		<c:choose>
+			<c:when test="${!(empty referencedResolutions) }">
+				<c:forEach items="${referencedResolutions }" var="i">
+					<a href="#" id="rm${i.number}" class="referencedResolutions" onclick="viewResolutionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+				</c:forEach>
+			</c:when>
+			<c:otherwise>
+				<c:out value="-"></c:out>
+			</c:otherwise>
+		</c:choose>
 	</p>	
 	
 	<p>	
 	<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
-	<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
+	<textarea id="subjectEdit" readonly="true" rows="2" cols="50">${domain.subject}</textarea>
 	</p>
 	
 	<p>
 	<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-	<form:textarea path="details" readonly="true" cssClass="wysiwyg"></form:textarea>
+	<textarea id="detailsId" readonly="true" class="wysiwyg">${domain.details}</textarea>
 	</p>
 	
 		
@@ -201,7 +221,7 @@
 <input id="edit_departmentSelected" value="${ departmentSelected}" type="hidden">
 <input id="edit_subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="edit_answeringDateSelected" value="${ answeringDate}" type="hidden">
-</form:form>
+<%-- </form:form> --%>
 </div>
 </body>
 </html>

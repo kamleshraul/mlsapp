@@ -65,9 +65,11 @@
 		<h4 style="color: #FF0000;">${error}</h4>
 	</c:if>
 			<div class="commandbarContent">
-			<a href="#" id="new_record" class="butSim">
-				<spring:message code="cutmotiondate.new" text="New"/>
-			</a>
+				<security:authorize access="hasAnyRole('CMOIS_TYPIST')">
+					<a href="#" id="new_record" class="butSim">
+						<spring:message code="cutmotiondate.new" text="New"/>
+					</a>
+				</security:authorize>
 			<span id="editDeleteLinks"> |
 			<a href="#" id="edit_record" class="butSim">
 			<spring:message code="cutmotiondate.edit" text="Edit"/>

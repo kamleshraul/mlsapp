@@ -25,6 +25,9 @@
 			});
 			initControls();
 		    $(':input:visible:not([readonly]):first').focus();
+		    $(':input').live('focus',function(){
+		        $(this).attr('autocomplete', 'off');
+		    });
 			$("form").submit(function(e){
 				submitForm(); 
 		        return false;					

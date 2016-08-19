@@ -17,6 +17,9 @@
 			$("#search").click(function() {
 				searchRecord();
 			});
+			$("#test_report_link").click(function() {
+				testReport();
+			});
 		});
 	</script>
 </head>
@@ -39,7 +42,10 @@
 			</a> |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
-			</a> 
+			</a><%--  |
+			<a href="#" id="test_report_link" class="butSim">
+				<spring:message code="generic.testreport" text="Test Report"/>
+			</a> --%>
 			<p>&nbsp;</p>
 		</div>
 	</div>

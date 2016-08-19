@@ -48,8 +48,8 @@ public class Rule extends BaseDomain implements Serializable {
     private HouseType houseType;
 
     /** The number. */
-    @Column(length = 600)
-    private Integer number;
+    @Column(length = 300)
+    private String number;
     
     private Integer editionYear;
     
@@ -61,6 +61,13 @@ public class Rule extends BaseDomain implements Serializable {
     joinColumns={@JoinColumn(name="rule_id", referencedColumnName="id")},
     inverseJoinColumns={@JoinColumn(name="title_id", referencedColumnName="id")})
     private List<TextDraft> titles;
+    
+    /** The content. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @JoinTable(name="rules_contentdrafts",
+    joinColumns={@JoinColumn(name="rule_id", referencedColumnName="id")},
+    inverseJoinColumns={@JoinColumn(name="content_draft_id", referencedColumnName="id")})
+    private List<TextDraft> contentDrafts;
     
     /** title in default language to show in grid or so **/
     @Transient
@@ -90,7 +97,7 @@ public class Rule extends BaseDomain implements Serializable {
      * @param locale the locale
      * @param version the version
      */
-    public Rule(final Integer number, final String locale, final Long version) {
+    public Rule(final String number, final String locale, final Long version) {
         super();
         this.number = number;
 
@@ -129,11 +136,11 @@ public class Rule extends BaseDomain implements Serializable {
 		this.houseType = houseType;
 	}
 	
-	public Integer getNumber() {
+	public String getNumber() {
         return number;
     }
 
-    public void setNumber(final Integer number) {
+    public void setNumber(final String number) {
         this.number = number;
     }
 
@@ -159,6 +166,14 @@ public class Rule extends BaseDomain implements Serializable {
 
 	public void setTitles(List<TextDraft> titles) {
 		this.titles = titles;
+	}
+
+	public List<TextDraft> getContentDrafts() {
+		return contentDrafts;
+	}
+
+	public void setContentDrafts(List<TextDraft> contentDrafts) {
+		this.contentDrafts = contentDrafts;
 	}
 
 	public String getFileEnglish() {

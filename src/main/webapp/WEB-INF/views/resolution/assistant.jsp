@@ -190,7 +190,8 @@
 		
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -486,7 +487,7 @@
 		    return false;
 	    });
 	    $('#editVotingDetails').click(function(e) {
-	    	$.get('votingdetail/'+$('#votingDetailsId').val()+'/edit?deviceId='+$("#id").val()+ "&houseType="+ $("#selectedHouseType").val()
+	    	$.get('votingdetail/editVotingDetailsForDevice?deviceId='+$("#id").val()+ "&houseType="+ $("#selectedHouseType").val()
 	    			+ "&openThroughOverlay=yes"
 	    			+ "&deviceType="+ $("#selectedDeviceType").val()
 	    			+ "&votingFor="+ $("#votingForPassingOfResolution").val(), function(data){
@@ -515,6 +516,33 @@
 	    }
 	   	  
 	});
+	
+	/**** Clubbing ****/
+	function clubbingInt(id){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		var params="resolutionId="+id
+					+"&usergroup="+$("#currentusergroup").val()
+			        +"&usergroupType="+$("#currentusergroupType").val()+'&useforfiling=yes';		
+		$.get('clubentity/init?'+params,function(data){
+			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			if(data){
+				$.unblockUI();
+			}
+			$("#clubbingResultDiv").html(data);
+			$("#clubbingResultDiv").show();
+			$("#referencingResultDiv").hide();
+			$("#assistantDiv").hide();
+			$("#backToQuestionDiv").show();			
+		},'html').fail(function(){
+			$.unblockUI();
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
+	}
 	</script>
 	 <style type="text/css">
         @media print {
@@ -581,17 +609,17 @@
 	<p>
 	<label class="small"><spring:message code="resolution.ministry" text="Ministry"/>*</label>
 	<select name="ministry" id="ministry" class="sSelect">
-	<c:forEach items="${ministries }" var="i">
-	<c:choose>
-	<c:when test="${i.id==ministrySelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>		
+		<c:forEach items="${ministries }" var="i">
+		<c:choose>
+			<c:when test="${i.id==ministrySelected }">
+				<option value="${i.id }" selected="selected">${i.name}</option>
+			</c:when>
+			<c:otherwise>
+				<option value="${i.id }" >${i.name}</option>
+			</c:otherwise>
+		</c:choose>
+		</c:forEach>
+		</select>		
 	<form:errors path="ministry" cssClass="validationError"/>	
 	<c:if test="${selectedDeviceType == 'resolutions_government'}">
 		<label class="small"><spring:message code="resolution.discussionDate" text="Discussion Date"/></label>
@@ -634,7 +662,8 @@
 	
 	<c:if test="${selectedDeviceType=='resolutions_nonofficial'}" >
 		<p>
-			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin-left: 162px;"><spring:message code="generic.referencing" text="Referencing"></spring:message></a>
+			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="resolution.addfile" text="Filing"></spring:message></a>
+			<a href="#" id="referencing" onclick="referencingInt(${domain.id});"><spring:message code="generic.referencing" text="Referencing"></spring:message></a>
 			<a href="#dereferencing" onclick="dereferencingInt(${domain.id});" style="margin: 20px;"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a>
 			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="generic.refresh" text="Refresh"></spring:message></a>	
 		</p>
@@ -684,17 +713,25 @@
 	</p>
 	
 	<c:if test="${selectedDeviceType == 'resolutions_nonofficial'}">
-	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
-	<label class="centerlabel"><spring:message code="resolution.revisedSubject" text="Revised Subject"/></label>
-	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
-	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
+		<p style="display:none;" class="revise1" id="revisedSubjectDiv">
+		<label class="centerlabel"><spring:message code="resolution.revisedSubject" text="Revised Subject"/></label>
+		<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
+		<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+		
+		<p style="display:none;" class="revise2" id="revisedNoticeContentDiv">
+		<label class="wysiwyglabel"><spring:message code="resolution.revisedNoticeContent" text="Revised Notice Content"/></label>
+		<form:textarea path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="revisedNoticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
+	</c:if>
 	
-	<p style="display:none;" class="revise2" id="revisedNoticeContentDiv">
-	<label class="wysiwyglabel"><spring:message code="resolution.revisedNoticeContent" text="Revised Notice Content"/></label>
-	<form:textarea path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="revisedNoticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-	</p>
+	<c:if test="${selectedDeviceType == 'resolutions_nonofficial'}">
+		<p>
+		<label class="small"><spring:message code="resolution.referencedResolutionText" text="Referenced Resolution Text"/></label>
+		<form:textarea path="referencedResolutionText" cssClass="sTextarea" cols="50"></form:textarea>
+		<form:errors path="referencedResolutionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
 	</c:if>
 	
 	<c:if test="${!(empty domain.factualPosition) && (selectedDeviceType == 'resolutions_nonofficial')}">
@@ -704,17 +741,17 @@
 		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 	</c:if>
-	<c:if test="${internalStatusType=='resolution_processed_underconsideration' || 
-				  internalStatusType=='resolution_final_passed' ||
-				  internalStatusType=='resolution_final_negatived'||
-				  internalStatusType=='resolution_final_withdrawn'}">
+	<c:if test="${recommendationStatusType=='resolution_processed_underconsideration' || 
+				  recommendationStatusType=='resolution_processed_passed' ||
+				  recommendationStatusType=='resolution_processed_negatived'||
+				  recommendationStatusType=='resolution_processed_withdrawn'}">
 		<p style="margin-left:165px">
 			<a id="addVotingDetail" href="javascript:void(0);"><spring:message code="resolution.addVotingDetail" text="Add Voting Details"/></a>	
 			<a id="editVotingDetails" href="javascript:void(0);" style="display: inline; margin-left: 20px;"><spring:message code="resolution.editVotingDetails" text="Edit Voting Details"/></a>
 		</p>
 	</c:if>
 	<c:choose>
-		<c:when test="${internalStatusType=='resolution_processed_underconsideration' }">
+		<c:when test="${recommendationStatusType =='resolution_processed_underconsideration' }">
 			
 			<p id="recommendationStatusDiv">
 				<label class="small"><spring:message code="resolution.currentStatus" text="Current Status"/></label>
@@ -737,14 +774,14 @@
 				</select>
 				<select id="recommendationStatusMaster" style="display:none;">
 				<c:forEach items="${recommendationStatuses}" var="i">
-				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+					<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
 				</c:forEach>
 				</select>
 				<c:if test="${houseTypeForStatus=='lowerhouse'}">
-				 <form:errors path="recommendationStatusLowerHouse" cssClass="validationError"/>	 
+					 <form:errors path="recommendationStatusLowerHouse" cssClass="validationError"/>	 
 				</c:if>
 				<c:if test="${houseTypeForStatus=='upperhouse'}">
-				 <form:errors path="recommendationStatusUpperHouse" cssClass="validationError"/>	 
+				 	<form:errors path="recommendationStatusUpperHouse" cssClass="validationError"/>	 
 				</c:if>
 			</p>
 		</c:when>
@@ -757,6 +794,7 @@
 				 <c:if test="${((internalStatusType=='resolution_system_putup' or internalStatusType=='resolution_recommend_repeat') && selectedDeviceType=='resolutions_nonofficial') 
 						|| (internalStatusType=='resolution_system_assistantprocessed' && selectedDeviceType=='resolutions_government')
 						|| ((internalStatusType=='resolution_recommend_admission' or internalStatusType=='resolution_recommend_repeat' or internalStatusType=='resolution_recommend_rejection') && selectedDeviceType=='resolutions_nonofficial' && bulkedit=='yes')}">		
+				<security:authorize access="hasAnyRole('ROIS_ASSISTANT')">
 				<p>
 				<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
 				<select id="changeInternalStatus" class="sSelect">
@@ -776,17 +814,18 @@
 				</select>
 				
 				<select id="internalStatusMaster" style="display:none;">
-				<c:forEach items="${internalStatuses}" var="i">
-				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-				</c:forEach>
+					<c:forEach items="${internalStatuses}" var="i">
+						<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+					</c:forEach>
 				</select>	
 				<c:if test="${houseTypeForStatus=='lowerhouse'}">
-				 <form:errors path="internalStatusLowerHouse" cssClass="validationError"/>	 
+				 	<form:errors path="internalStatusLowerHouse" cssClass="validationError"/>	 
 				</c:if>
 				<c:if test="${houseTypeForStatus=='upperhouse'}">
-				 <form:errors path="internalStatusUpperHouse" cssClass="validationError"/>	 
+					 <form:errors path="internalStatusUpperHouse" cssClass="validationError"/>	 
 				</c:if>
 				</p>
+				</security:authorize>
 				<p id="actorDiv" style="display: none;">
 				<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
 				<c:if test="${houseTypeForStatus=='lowerhouse'}">
@@ -886,40 +925,32 @@
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">		
-		<%-- <c:if test="${(internalStatusType=='resolution_submit'
-					||internalStatusType=='resolution_system_assistantprocessed'&& selectedDeviceType=='resolutions_nonofficial') || (internalStatusType =='resolution_system_assistantprocessed' && selectedDeviceType=='resolutions_government')
-					}">	
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-		</c:if>
-		<c:if test="${(internalStatusType =='resolution_system_putup' ||internalStatusType =='resolution_recommend_admission' || 
-						internalStatusType =='resolution_recommend_repeatadmission' && selectedDeviceType=='resolutions_nonofficial') 
-		|| (internalStatusType =='resolution_system_assistantprocessed' && selectedDeviceType=='resolutions_government')}">		
-				<c:if test="${bulkedit!='yes'}">
-					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<input id="startworkflow" type="button" value="<spring:message code='motion.putupmotion' text='Put Up Motion'/>" class="butDef">
-				</c:if>
-				<c:if test="${bulkedit=='yes'}">
-					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
-				</c:if>
-			
-		</c:if> --%>
 		<c:choose>
 			<c:when test="${internalStatusType=='resolution_submit'}">	
-			<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-		</c:when>
-		<c:when test="${internalStatusType=='resolution_system_assistantprocessed' && selectedDeviceType=='resolutions_nonofficial'}">
-			<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-		</c:when>
-		<c:otherwise>		
-				<c:if test="${bulkedit!='yes'}">
-					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<input id="startworkflow" type="button" value="<spring:message code='resolution.putupresolution' text='Put Up Resolution'/>" class="butDef">
-				</c:if>
-				<c:if test="${bulkedit=='yes'}">
-					<input id="submitBulkEdit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
-				</c:if>
-			
-		</c:otherwise>
+				<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			</c:when>
+			<c:when test="${internalStatusType=='resolution_system_assistantprocessed' && selectedDeviceType=='resolutions_nonofficial'}">
+				<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			</c:when>
+			<c:when test="${(internalStatusType=='resolution_final_admission' || internalStatusType=='resolution_final_repeatadmission') && selectedDeviceType=='resolutions_nonofficial'}">
+				<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			</c:when>
+			<c:otherwise>		
+					<c:if test="${bulkedit!='yes'}">
+						<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						<c:choose>
+							<c:when test="${internalStatusType=='resolution_system_putup' && selectedDeviceType=='resolutions_nonofficial' 
+											|| internalStatusType=='resolution_system_assistantprocessed' && selectedDeviceType=='resolutions_government'}">
+								<security:authorize access="hasAnyRole('ROIS_ASSISTANT')">
+									<input id="startworkflow" type="button" value="<spring:message code='resolution.putupresolution' text='Put Up Resolution'/>" class="butDef">
+								</security:authorize>
+							</c:when>
+						</c:choose>
+					</c:if>
+					<c:if test="${bulkedit=='yes'}">
+						<input id="submitBulkEdit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+					</c:if>
+			</c:otherwise>
 		</c:choose>
 		</p>
 	</div>
@@ -936,6 +967,7 @@
 	<form:hidden path="localizedActorNameUpperHouse"/>
 	<form:hidden path="workflowDetailsIdLowerHouse"/>
 	<form:hidden path="workflowDetailsIdUpperHouse"/>
+	<form:hidden path="file"/>
 	<form:hidden path="fileLowerHouse"/>
 	<form:hidden path="fileUpperHouse"/>
 	<form:hidden path="fileIndexLowerHouse"/>	
@@ -944,7 +976,9 @@
 	<form:hidden path="fileSentUpperHouse"/>
 	<form:hidden path="ballotStatus" value="${ballotStatusId}"/>
 	<form:hidden path="discussionStatus" value="${discussionStatusId}"/>
-	
+	<form:hidden path="karyavaliGenerationDate"/>
+	<form:hidden path="karyavaliNumber"/>
+	<form:hidden path="rejectionReason"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">	
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
@@ -1001,6 +1035,10 @@
 <input type="hidden" id="votingForPassingOfResolution" value="${votingFor}">
 </div> 
 </div>
+
+<div id="clubbingResultDiv" style="display:none;">
+</div>
+
 <div id="referencingResultDiv" style="display:none;">
 </div>
 </body>

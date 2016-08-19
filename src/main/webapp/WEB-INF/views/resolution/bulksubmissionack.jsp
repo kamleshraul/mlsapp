@@ -15,12 +15,12 @@
 	</c:if>
 	<table class="uiTable" style="width: 100%">
 		<tr>
-			<th><spring:message code="resolution.number" text="Number"></spring:message></th>
+			<%-- <th><spring:message code="resolution.number" text="Number"></spring:message></th> --%>
 			<th><spring:message code="resolution.subject" text="Subject"></spring:message></th>
 		</tr>			
 		<c:forEach items="${resolutions}" var="i">
 			<tr>
-				<td>${i.formatNumber()}</td>
+				<%-- <td>${i.formatNumber()}</td> --%>
 				<c:choose>
 					<c:when test="${i.subject==null or i.subject=='' }">
 						<td>${i.noticeContent}</td>

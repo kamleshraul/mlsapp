@@ -1,6 +1,7 @@
 package org.mkcl.els.controller.wf;
 
 import java.text.NumberFormat;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
-import org.mkcl.els.domain.chart.Chart;
+//import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
@@ -36,6 +37,8 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.ResolutionDraft;
@@ -46,6 +49,7 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
@@ -138,6 +142,8 @@ public class ResolutionWorkflowController extends BaseController{
 
 			/**** Populate Model ****/		
 			populateModel(domain,model,request,workflowDetails);
+			
+			findLatestRemarksByUserGroup(domain,model,request);
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		} catch(ELSException e){
@@ -172,6 +178,7 @@ public class ResolutionWorkflowController extends BaseController{
 		/**** House Type ****/			
 		model.addAttribute("formattedHouseType",domain.getHouseType().getName());
 		model.addAttribute("houseType",domain.getHouseType().getId());
+		model.addAttribute("houseTypeType",domain.getHouseType().getType());
 		
 		/**** Session ****/
 		Session selectedSession=domain.getSession();
@@ -267,7 +274,8 @@ public class ResolutionWorkflowController extends BaseController{
 			Ministry ministry=domain.getMinistry();
 			if(ministry!=null){
 				model.addAttribute("ministrySelected",ministry.getId());
-				List<SubDepartment> assignedSubDepartments = MemberMinister.findAssignedSubDepartments(ministry,locale);
+				List<SubDepartment> assignedSubDepartments = 
+						MemberMinister.findAssignedSubDepartments(ministry,selectedSession.getEndDate(), locale);
 				model.addAttribute("subDepartments", assignedSubDepartments);
 				SubDepartment subDepartment=domain.getSubDepartment();
 				if(subDepartment!=null){
@@ -282,7 +290,8 @@ public class ResolutionWorkflowController extends BaseController{
 			if(ministry!=null){
 				model.addAttribute("ministrySelected",ministry.getId());
 				/**** Sub Departments ****/
-				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,locale);
+				List<SubDepartment> subDepartments=
+						MemberMinister.findAssignedSubDepartments(ministry,selectedSession.getStartDate(), locale);
 				model.addAttribute("subDepartments",subDepartments);
 				SubDepartment subDepartment=domain.getSubDepartment();
 				if(subDepartment!=null){
@@ -359,6 +368,8 @@ public class ResolutionWorkflowController extends BaseController{
 		String userGroupId=workflowDetails.getAssigneeUserGroupId();
 		model.addAttribute("usergroup",workflowDetails.getAssigneeUserGroupId());
 		model.addAttribute("usergroupType",workflowDetails.getAssigneeUserGroupType());
+		model.addAttribute("userGroupName", workflowDetails.getAssigneeUserGroupName());
+		model.addAttribute("userName", this.getCurrentUser().getActualUsername());
 
 		/**** To have the task creation date and lastReceivingDate if userGroup is department in case of starred questions ***/
 		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
@@ -984,7 +995,7 @@ public class ResolutionWorkflowController extends BaseController{
 					properties.put("pv_user",username);				
 				}
 			}	
-			properties.put("pv_endflag",request.getParameter("endflag"));
+			properties.put("pv_endflag", endflag);
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "SERVERCONFIGURED", "");
 			String isServerConfigured=customParameter.getValue();
 			if(isServerConfigured!=null && !isServerConfigured.equals("")){
@@ -1193,6 +1204,7 @@ public class ResolutionWorkflowController extends BaseController{
 		String strLocale=locale.toString();
 		/**** usergroup,usergroupType,role *****/
 		List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
+		Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), null);
 		String strUserGroupType=null;
 		String strUsergroup=null;
 		if(userGroups!=null){
@@ -1202,9 +1214,12 @@ public class ResolutionWorkflowController extends BaseController{
 					String allowedUserGroups=customParameter.getValue(); 
 					for(UserGroup i:userGroups){
 						if(allowedUserGroups.contains(i.getUserGroupType().getType())){
-							strUsergroup=String.valueOf(i.getId());
-							strUserGroupType=i.getUserGroupType().getType();
-							break;
+							UserGroup ug = UserGroup.findActive(credential, i.getUserGroupType(), new Date(), locale.toString());
+							if(ug != null){
+								strUsergroup=String.valueOf(i.getId());
+								strUserGroupType=i.getUserGroupType().getType();
+								break;
+							}
 						}
 					}
 				}								
@@ -1312,6 +1327,9 @@ public class ResolutionWorkflowController extends BaseController{
 		String[] selectedItems = request.getParameterValues("items[]");
 		String strStatus=request.getParameter("status");
 		String strWorkflowSubType=request.getParameter("workflowSubType");
+		String refText = request.getParameter("refertext");
+		String remark = request.getParameter("remarks");
+		String strFile = request.getParameter("file");
 		StringBuffer recommendAdmissionMsg=new StringBuffer();
 		StringBuffer recommendRejectionMsg=new StringBuffer();
 		StringBuffer recommendClarificationFromDepartmentMsg=new StringBuffer();
@@ -1517,11 +1535,40 @@ public class ResolutionWorkflowController extends BaseController{
 							
 							wfDetails.setCompletionTime(new Date());
 							wfDetails.merge();
-							/**** Update Motion ****/
+							/**** Update Resolution ****/
 							resolution.setEditedOn(new Date());
 							resolution.setEditedBy(this.getCurrentUser().getActualUsername());
-							resolution.setEditedAs(wfDetails.getAssigneeUserGroupName());				
+							resolution.setEditedAs(wfDetails.getAssigneeUserGroupName());	
+							
+							if(refText != null && !refText.isEmpty()){
+								resolution.setReferencedResolutionText(refText);
+							}
+							if(remark != null && !remark.isEmpty()){
+								resolution.setRemarks(remark);
+							}
+							
+							if(strFile != null && !strFile.isEmpty() && !strFile.equals("-")){
+								if(resolution.getFile() == null){
+									resolution.setFile(new Integer(strFile));
+								}
+							}
+													
 							performAction(resolution, wfDetails);
+							
+//							/***Setting the edited On , Edited By and Edited As***/
+//							List<UserGroup> usergroups = this.getCurrentUser().getUserGroups();
+//							Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getUsername(), locale.toString());
+//							resolution.setEditedBy(credential.getUsername());
+//							for(UserGroup u : usergroups){
+//								UserGroup userGroup = UserGroup.findActive(credential, u.getUserGroupType(), new Date(), locale.toString());
+//								if(userGroup != null){
+//									UserGroupType userGroupType = userGroup.getUserGroupType();
+//									if(userGroupType != null){
+//										resolution.setEditedAs(userGroupType.getName());
+//									}
+//								}
+//							}
+							resolution.setEditedOn(new Date());
 							resolution.merge();
 							
 							if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
@@ -1634,7 +1681,11 @@ public class ResolutionWorkflowController extends BaseController{
 						}
 						bulkApprovalVO.setDeviceType(resolution.getType().getName());
 						bulkApprovalVO.setMember(resolution.getMember().getFullname());
-						bulkApprovalVO.setSubject(resolution.getSubject());
+						if(resolution.getRevisedNoticeContent() != null && !resolution.getRevisedNoticeContent().isEmpty()){
+							bulkApprovalVO.setSubject(resolution.getRevisedNoticeContent());
+						}else{
+							bulkApprovalVO.setSubject(resolution.getNoticeContent());
+						}
 						if(resolution.getRemarks()!=null&&!resolution.getRemarks().isEmpty()){
 							bulkApprovalVO.setLastRemark(resolution.getRemarks());
 						}else{
@@ -1651,8 +1702,7 @@ public class ResolutionWorkflowController extends BaseController{
 						bulkapprovals.add(bulkApprovalVO);
 					}/**** Status Wise Bulk Submission ****/
 					else if(strFile!=null&&!strFile.isEmpty()&&
-							strFile.equals("-")
-					){
+							strFile.equals("-")){
 						bulkApprovalVO.setId(String.valueOf(i.getId()));
 						bulkApprovalVO.setDeviceId(String.valueOf(resolution.getId()));				
 						if(resolution.getNumber()!=null){
@@ -1662,7 +1712,11 @@ public class ResolutionWorkflowController extends BaseController{
 						}
 						bulkApprovalVO.setDeviceType(resolution.getType().getName());
 						bulkApprovalVO.setMember(resolution.getMember().getFullname());
-						bulkApprovalVO.setSubject(resolution.getSubject());
+						if(resolution.getRevisedNoticeContent() != null && !resolution.getRevisedNoticeContent().isEmpty()){
+							bulkApprovalVO.setSubject(resolution.getRevisedNoticeContent());
+						}else{
+							bulkApprovalVO.setSubject(resolution.getNoticeContent());
+						}
 						if(resolution.getRemarks()!=null&&!resolution.getRemarks().isEmpty()){
 							bulkApprovalVO.setLastRemark(resolution.getRemarks());
 						}else{
@@ -1807,12 +1861,12 @@ public class ResolutionWorkflowController extends BaseController{
 			e1.printStackTrace();
 		}
 		if(resolution!=null){
-			Chart chart = null;
-			try{
-				chart = Chart.find(new Chart(resolution.getSession(),resolution.getType(), resolution.getLocale()));
-			}catch (ELSException e) {
-				e.printStackTrace();
-			}
+//			Chart chart = null;
+//			try{
+//				chart = Chart.find(new Chart(resolution.getSession(),resolution.getType(), resolution.getLocale()));
+//			}catch (ELSException e) {
+//				e.printStackTrace();
+//			}
 			if(resolution.getNumber()==null){
 				Integer number = null;
 				try {
@@ -1822,13 +1876,13 @@ public class ResolutionWorkflowController extends BaseController{
 				}
 				resolution.setNumber(number+1);
 			}
-			if(chart!=null){
-				try{
-					Chart.addToChart(resolution);
-				}catch (ELSException e) {
-					e.printStackTrace();
-				}
-			}
+//			if(chart!=null){
+//				try{
+//					Chart.addToChart(resolution);
+//				}catch (ELSException e) {
+//					e.printStackTrace();
+//				}
+//			}
 		}
 	}	
 	
@@ -1918,4 +1972,13 @@ public class ResolutionWorkflowController extends BaseController{
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
+	private void findLatestRemarksByUserGroup(final Resolution domain, final ModelMap model,
+			final HttpServletRequest request)throws ELSException {
+		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+		requestMap.put("resolutionId",new String[]{String.valueOf(domain.getId())});
+		requestMap.put("locale",new String[]{domain.getLocale()});
+		List result=Query.findReport("ROIS_GET_REVISION", requestMap);
+		model.addAttribute("latestRevisions",result);
+	}
 }

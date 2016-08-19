@@ -66,10 +66,10 @@ public class CutMotionDateDraft extends BaseDomain implements Serializable {
 	private String editedAs;
 	
 	/**** departmentDates ****/
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinTable(name="cutmotions_departments_date_priority",
-	joinColumns={@JoinColumn(name="cutmotiondate_id",referencedColumnName="id")},
-	inverseJoinColumns={@JoinColumn(name="cutmotion_department_date_priority_id",referencedColumnName="id")})
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name="cutmotiondatedraft_departments_priority",
+	joinColumns={@JoinColumn(name="cutmotiondatedraft_id",referencedColumnName="id")},
+	inverseJoinColumns={@JoinColumn(name="cutmotiondate_department_priority_id",referencedColumnName="id")})
 	private List<CutMotionDepartmentDatePriority> departmentDates;
 
 	public CutMotionDateDraft() {

@@ -40,6 +40,9 @@ public class File extends BaseDomain implements Serializable {
 	@Column(length = 100)
 	private String value; 
 	
+	/** The type **/
+	private String type;
+	
 	/** The file repository. */
 	@Autowired
 	private transient FileRepository fileRepository;
@@ -83,5 +86,12 @@ public class File extends BaseDomain implements Serializable {
 	public void setValue(String value) {
 		this.value = value;
 	}
-    
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 }

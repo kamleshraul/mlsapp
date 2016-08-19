@@ -46,7 +46,8 @@
 			copy: {
 				groupIndex: 8,
 				visible: false,
-				tooltip: "Copy"
+				tooltip: "Copy",
+				hotkey: {"ctrl": 1, "key": 67}
 			},
 
 			createLink: {
@@ -79,7 +80,8 @@
 			cut: {
 				groupIndex: 8,
 				visible: false,
-				tooltip: "Cut"
+				tooltip: "Cut",
+				hotkey: {"ctrl": 1, "key": 88}
 			},
 
 			decreaseFontSize: {
@@ -250,7 +252,8 @@
 			indent: {
 				groupIndex: 2,
 				visible: true,
-				tooltip: "Indent"
+				tooltip: "Indent",
+				hotkey: {"ctrl": 1, "key": 77}
 			},
 
 			insertHorizontalRule: {
@@ -330,7 +333,9 @@
 				css: {
 					textAlign: "center"
 				},
-				tooltip: "Justify Center"
+				tooltip: "Justify Center",
+				hotkey: {"ctrl": 1, "key": 69}
+				
 			},
 
 			justifyFull: {
@@ -339,7 +344,8 @@
 				css: {
 					textAlign: "justify"
 				},
-				tooltip: "Justify Full"
+				tooltip: "Justify Full",
+				hotkey: {"ctrl": 1, "key": 74}
 			},
 
 			justifyLeft: {
@@ -348,7 +354,8 @@
 				css: {
 					textAlign: "left"
 				},
-				tooltip: "Justify Left"
+				tooltip: "Justify Left",
+				hotkey: {"ctrl": 1, "key": 76}
 			},
 
 			justifyRight: {
@@ -357,7 +364,8 @@
 				css: {
 					textAlign: "right"
 				},
-				tooltip: "Justify Right"
+				tooltip: "Justify Right",
+				hotkey: {"ctrl": 1, "key": 82}
 			},
 
 			ltr: {
@@ -380,6 +388,7 @@
 				groupIndex: 2,
 				visible: true,
 				tooltip: "Outdent"
+				
 			},
 
 			paragraph: {
@@ -394,8 +403,9 @@
 
 			paste: {
 				groupIndex: 8,
-				visible: false,
+				visible: true,
 				tooltip: "Paste"
+				/*hotkey: {"ctrl": 1, "key": 86}*/
 			},
 
 			redo: {

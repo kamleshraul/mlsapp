@@ -10,6 +10,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -30,12 +31,14 @@ public class ActivityLog extends BaseDomain implements Serializable{
 	
 	private String classId;
 	
-	@Temporal(TemporalType.TIME)
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date timeOfAction;
 		
 	@ManyToOne(fetch = FetchType.LAZY)
 	@PrimaryKeyJoinColumn(name = "credential_id", referencedColumnName = "id")
 	private Credential credetial;
+	
+	private String userAddress;
 	
 	/**** Attributes ****/
 	
@@ -45,6 +48,30 @@ public class ActivityLog extends BaseDomain implements Serializable{
 	}
 
 	/**** Constructor ****/
+	
+	/**** Domain Methods ****/
+	public static ActivityLog logActivity(HttpServletRequest request, String locale) throws Exception{
+		ActivityLog actLog = new ActivityLog();
+
+		String userName = request.getRemoteUser();
+		String url = request.getRequestURL().toString();		
+		String userAddress = request.getRemoteAddr();
+		
+		Credential credential = Credential.findByFieldName(Credential.class, "username", userName, null);
+		
+		actLog.setCredetial(credential);
+		actLog.setTimeOfAction(new Date());
+		actLog.setLinkClicked(url);
+		actLog.setLocale(locale);
+		actLog.setUserAddress(userAddress);
+		
+		
+		
+		return (ActivityLog)actLog.persist();
+	}
+	
+	
+	/**** Domain Methods ****/
 	
 	/**** Getter Setter ****/
 	public String getEventClass() {
@@ -85,6 +112,14 @@ public class ActivityLog extends BaseDomain implements Serializable{
 
 	public void setCredetial(Credential credetial) {
 		this.credetial = credetial;
+	}
+
+	public String getUserAddress() {
+		return userAddress;
+	}
+
+	public void setUserAddress(String userAddress) {
+		this.userAddress = userAddress;
 	}
 	
 	/**** Getter Setter ****/

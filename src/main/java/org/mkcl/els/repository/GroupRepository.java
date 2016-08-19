@@ -9,7 +9,6 @@
  */
 package org.mkcl.els.repository;
 
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,10 +29,10 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.SubDepartment;
 import org.springframework.stereotype.Repository;
 
 
@@ -230,7 +229,7 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 						SimpleDateFormat dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale);
 						SimpleDateFormat format=FormaterUtil.getDateFormatter(locale);
 						SimpleDateFormat dayOfWeekFormat=FormaterUtil.getDateFormatter(dayOfWeekDateFormat.getValue(), locale);
-						NumberFormat numberFormat=FormaterUtil.getNumberFormatterNoGrouping(locale);
+						// NumberFormat numberFormat=FormaterUtil.getNumberFormatterNoGrouping(locale);
 						for(Object i:results){
 							Object[] entry=(Object[]) i;
 							QuestionDatesVO questionDatesVO=new QuestionDatesVO();
@@ -452,8 +451,9 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 						" SELECT mi.id FROM Group g " +
 						" JOIN g.ministries mi" +
 						" WHERE g.id=:groupId)" + 
-						" AND m.isExpired=false " +
-						" AND mm.ministryToDate IS NULL ORDER BY mm.priority";
+						" AND mm.ministryFromDate<=:sessionStartDate " +
+						" AND (mm.ministryToDate>=:sessionStartDate OR mm.ministryToDate IS NULL)" +
+						" ORDER BY mm.priority";
 		List<Ministry> ministries = new ArrayList<Ministry>();
 		try{
 			Query jpQuery = this.em().createQuery(query);
@@ -482,14 +482,16 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 					" (SELECT mi.id FROM Group g" +
 					" JOIN g.ministries mi" +
 					" WHERE g.id=:groupId)" +
-					" AND m.isExpired=false" +
-					" AND mm.ministryToDate IS NULL ORDER BY mm.priority";
+					" AND mm.ministryFromDate<=:sessionStartDate " +
+					" AND (mm.ministryToDate>=:sessionStartDate OR mm.ministryToDate IS NULL)" +
+					" ORDER BY mm.priority";
 		
 		
 		List<Ministry> ministries = new ArrayList<Ministry>();
 		try{
 			Query jpQuery = this.em().createQuery(query);
 			jpQuery.setParameter("groupId", group.getId());
+			jpQuery.setParameter("sessionStartDate", group.getSession().getStartDate());
 			List<Ministry> mX = jpQuery.getResultList();
 			if(mX != null){
 				ministries = null;
@@ -654,5 +656,31 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		}
 		
 		return groupNumbers;
+	}
+
+	public Group find(final SubDepartment subdepartment, final Session session,
+			final String locale) throws ELSException {
+		String query = "SELECT g FROM Group g" 
+				+ " JOIN g.subdepartments m"
+				+ " WHERE g.locale=:locale"
+				+ " AND m.id=:subdepartmentId"
+				+ " AND g.session.id =:sessionId";
+		Group group = null;
+		try{
+			TypedQuery<Group> jpQuery = this.em().createQuery(query, Group.class);
+			jpQuery.setParameter("locale", locale);
+			jpQuery.setParameter("sessionId", session.getId());
+			jpQuery.setParameter("subdepartmentId", subdepartment.getId());
+			
+			group = jpQuery.getSingleResult();
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("GroupRepository_Group_find", "Group is unavailable.");
+			throw elsException;
+		}
+				
+		return group;
 	}
 }

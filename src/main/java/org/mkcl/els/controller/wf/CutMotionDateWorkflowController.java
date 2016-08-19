@@ -336,6 +336,7 @@ public class CutMotionDateWorkflowController extends BaseController {
 		
 		populateDepartmentDates(domain, request, result);		
 		performAction(domain);
+		domain.merge();
 		if(workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_PENDING)){
 			String bulkEdit = request.getParameter("bulkedit");
 			if (bulkEdit == null || !bulkEdit.equals("yes")) {
@@ -393,7 +394,6 @@ public class CutMotionDateWorkflowController extends BaseController {
 				workflowDetails.setInternalStatus(domain.getInternalStatus().getName());
 				workflowDetails.setRecommendationStatus(domain.getRecommendationStatus().getName());
 				workflowDetails.merge();
-				domain.merge();
 				/**** display message ****/
 				model.addAttribute("type", "taskcompleted");
 				return "workflow/info";
@@ -432,14 +432,20 @@ public class CutMotionDateWorkflowController extends BaseController {
 			}
 			
 			domain.setStatus(finalStatus);
-			for(int i = 0; i < domain.getDepartmentDates().size(); i++){
-				Date discussionDate = domain.getDepartmentDates().get(i).getDiscussionDate();
+			List<CutMotionDepartmentDatePriority> oldDates = domain.getDepartmentDates();
+			List<CutMotionDepartmentDatePriority> newDates = new ArrayList<CutMotionDepartmentDatePriority>();
+						
+			for(CutMotionDepartmentDatePriority dd : oldDates){
+				Date discussionDate = dd.getDiscussionDate();
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(discussionDate);
 				cal.add(Calendar.DATE, submissionEndDateFactor * (-1));
 				Date submissionEndDate = cal.getTime();			
-				domain.getDepartmentDates().get(i).setSubmissionEndDate(submissionEndDate);
+				dd.setSubmissionEndDate(submissionEndDate);
+				newDates.add(dd);
 			}
+			
+			domain.setDepartmentDates(newDates);
 		}catch(Exception e){
 			logger.error("error", e);
 		}			
@@ -524,12 +530,17 @@ public class CutMotionDateWorkflowController extends BaseController {
 	
 				String strDepartment = request.getParameter("departmentName" + i);
 				String strDepartmentDate = request.getParameter("departmentDate" + i);
+				String strDepartmentSubmissionDate = request.getParameter("deptSubmissionDate" + i);
+				
 				if (strDepartment != null) {
 					departmentDatePriority = new CutMotionDepartmentDatePriority();
 					SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strDepartment));
 					departmentDatePriority.setSubDepartment(subDepartment);
 					departmentDatePriority.setDepartment(subDepartment.getDepartment());
 					departmentDatePriority.setDiscussionDate(FormaterUtil.formatStringToDate(strDepartmentDate, ApplicationConstants.SERVER_DATEFORMAT, domain.getLocale()));
+					if(strDepartmentSubmissionDate != null && !strDepartmentSubmissionDate.isEmpty()){
+						departmentDatePriority.setSubmissionEndDate(FormaterUtil.formatStringToDate(strDepartmentSubmissionDate, ApplicationConstants.SERVER_DATEFORMAT, domain.getLocale()));
+					}
 				}
 	
 				String id = request.getParameter("departmentId" + i);

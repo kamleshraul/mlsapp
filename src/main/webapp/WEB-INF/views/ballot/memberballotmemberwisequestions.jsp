@@ -58,7 +58,7 @@ margin-left: 30px;
 		<img src="./resources/images/word_icon.jpg" alt="Export to WORD" width="32" height="32">
 	</a>
 </div>
-<div id="reportDiv">
+<div id="reportDiv">		
 		<c:if test="${!(empty report.memberBallotMemberWiseCountVOs)}">
 			<c:set value="0" var="count"></c:set>
 			<c:set value="0" var="index"></c:set>
@@ -66,21 +66,25 @@ margin-left: 30px;
 			<c:set value="${fn:length(report.memberBallotMemberWiseCountVOs) }" var="size"></c:set>
 			<c:forEach items="${report.memberBallotMemberWiseCountVOs }" var="i">
 			<c:choose>
-			<c:when test="${i.statusTypeType=='question_final_clarificationNeededFromMember'
+			<c:when test="${i.statusTypeType=='question_recommend_clarificationNeededFromMember'
+			 ||i.statusTypeType=='question_final_clarificationNeededFromMember'
+			 ||i.statusTypeType=='question_recommend_clarificationNeededFromDepartment'
 			 ||i.statusTypeType=='question_final_clarificationNeededFromDepartment'
+			 ||i.statusTypeType=='question_recommend_clarificationNeededFromGovt'
 			 ||i.statusTypeType=='question_final_clarificationNeededFromGovt'
+			 ||i.statusTypeType=='question_recommend_clarificationNeededFromMemberAndDepartment'
 			 ||i.statusTypeType=='question_final_clarificationNeededFromMemberAndDepartment'}">
 			<c:set value="${count+i.count }" var="count"></c:set>
 			</c:when>
 			<c:otherwise>
 			<c:choose>
-				<c:when test="${i.currentDeviceType=='questions_starred' && i.statusTypeType=='question_final_admission'}">
+				<c:when test="${i.currentDeviceType=='questions_starred' && (i.statusTypeType=='question_recommend_admission' || i.statusTypeType=='question_final_admission')}">
 					<strong><spring:message code="memberballotmemberwisequestions.starredAdmit" text="Starred Admit"></spring:message>-${i.count}</strong><br>
 				</c:when>
-				<c:when test="${i.currentDeviceType=='questions_starred' && i.statusTypeType=='question_final_rejection'}">
+				<c:when test="${i.currentDeviceType=='questions_starred' && (i.statusTypeType=='question_recommend_rejection' || i.statusTypeType=='question_final_rejection')}">
 					<strong><spring:message code="memberballotmemberwisequestions.starredReject" text="Starred Reject"></spring:message>-${i.count}</strong><br>
 				</c:when>
-				<c:when test="${i.currentDeviceType=='questions_unstarred' && i.statusTypeType=='question_final_admission'}">
+				<c:when test="${(i.statusTypeType=='question_recommend_convertToUnstarredAndAdmit') || i.statusTypeType=='question_unstarred_final_admission'}">
 					<strong><spring:message code="memberballotmemberwisequestions.unstarredAndAdmit" text="Unstarred Admit"></spring:message>-${i.count}</strong><br>
 				</c:when>
 			</c:choose>
@@ -157,7 +161,7 @@ margin-left: 30px;
 			<c:if test="${!(empty report.memberBallotMemberWiseQuestionVOs) }">
 			<c:set value="0" var="count"></c:set>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${j.currentDeviceType=='questions_starred' && j.statusTypeType=='question_final_admission'&&j.groupNumber==i.number }">
+			<c:if test="${j.currentDeviceType=='questions_starred' && (j.statusTypeType=='question_recommend_admission' || j.statusTypeType=='question_final_admission') && j.groupNumber==i.number }">
 			<c:set value="${count+1 }" var="count"></c:set>
 			<c:set var="admitted" value="${j.statusType}"></c:set>
 			</c:if>
@@ -172,14 +176,16 @@ margin-left: 30px;
 					<th><spring:message code="memberballotmemberwisewuestions.sno" text="S.No"></spring:message></th>
 					<th><spring:message code="memberballotmemberwisewuestions.number" text="Question Number"></spring:message></th>
 					<th><spring:message code="memberballotmemberwisewuestions.subject" text="Subject"></spring:message></th>
+					<th><spring:message code="memberballotmemberwisewuestions.clubbingInformation" text="Clubbing Information"></spring:message></th>
 				</tr>
 			</thead>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${j.currentDeviceType=='questions_starred' && j.statusTypeType=='question_final_admission'&&j.groupNumber==i.number }">
+			<c:if test="${j.currentDeviceType=='questions_starred' && (j.statusTypeType=='question_recommend_admission' || j.statusTypeType=='question_final_admission') && j.groupNumber==i.number }">
 			<tr class="page-break">
 			<td>${j.sno}</td>
 			<td>${j.questionNumber}</td>
 			<td>${j.questionSubject}</td>
+			<td>${j.clubbingInformation}</td>
 			</tr>
 			</c:if>
 			</c:forEach>
@@ -190,7 +196,8 @@ margin-left: 30px;
 			<c:if test="${!(empty report.memberBallotMemberWiseQuestionVOs) }">
 			<c:set value="0" var="count"></c:set>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${j.currentDeviceType=='questions_unstarred' && j.statusTypeType=='question_final_admission'&&j.groupNumber==i.number }">
+			<c:if test="${(j.statusTypeType=='question_recommend_convertToUnstarredAndAdmit' || j.statusTypeType=='question_unstarred_final_admission')
+				&& j.groupNumber==i.number }">
 			<c:set value="${count+1 }" var="count"></c:set>
 			<c:set var="unstarred" value="${j.statusType}"></c:set>
 			</c:if>
@@ -203,13 +210,16 @@ margin-left: 30px;
 			<th><spring:message code="memberballotmemberwisewuestions.sno" text="S.No"></spring:message></th>
 			<th><spring:message code="memberballotmemberwisewuestions.number" text="Question Number"></spring:message></th>
 			<th><spring:message code="memberballotmemberwisewuestions.subject" text="Subject"></spring:message></th>
+			<th><spring:message code="memberballotmemberwisewuestions.clubbingInformation" text="Clubbing Information"></spring:message></th>
 			</tr>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${j.currentDeviceType=='questions_unstarred' && j.statusTypeType=='question_final_admission'&&j.groupNumber==i.number }">
+			<c:if test="${(j.statusTypeType=='question_recommend_convertToUnstarredAndAdmit' || j.statusTypeType=='question_unstarred_final_admission')
+				&& j.groupNumber==i.number }">
 			<tr>
 			<td>${j.sno}</td>
 			<td>${j.questionNumber}</td>
 			<td>${j.questionSubject}</td>
+			<td>${j.clubbingInformation}</td>
 			</tr>
 			</c:if>
 			</c:forEach>
@@ -220,27 +230,30 @@ margin-left: 30px;
 			<c:if test="${!(empty report.memberBallotMemberWiseQuestionVOs) }">
 			<c:set value="0" var="count"></c:set>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${j.statusTypeType=='question_final_rejection'&&j.groupNumber==i.number }">
+			<c:if test="${(j.statusTypeType=='question_recommend_rejection' || j.statusTypeType=='question_final_rejection') && j.groupNumber==i.number }">
 			<c:set value="${count+1 }" var="count"></c:set>
 			<c:set var="rejected" value="${j.statusType}"></c:set>
 			</c:if>
 			</c:forEach>
 			<c:if test="${count>0 }">
-			<h2 class="underlined">${rejected}</h2>
+			<%-- <h2 class="underlined">${rejected}</h2> --%>
+			<h2 class="underlined"><spring:message code="memberballotmemberwisequestions.starredReject" text="Starred Rejected"/></h2>
 			<table class="strippedTable" border="1">
 			<tr style="background-color: #A2C6E4;">
 			<th><spring:message code="memberballotmemberwisewuestions.sno" text="S.No"></spring:message></th>
 			<th><spring:message code="memberballotmemberwisewuestions.number" text="Question Number"></spring:message></th>
 			<th><spring:message code="memberballotmemberwisewuestions.subject" text="Subject"></spring:message></th>
 			<th><spring:message code="memberballotmemberwisewuestions.reason" text="Reason"></spring:message></th>
+			<%-- <th><spring:message code="memberballotmemberwisewuestions.clubbingInformation" text="Clubbing Information"></spring:message></th> --%>
 			</tr>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${j.statusTypeType=='question_final_rejection'&&j.groupNumber==i.number }">
+			<c:if test="${(j.statusTypeType=='question_recommend_rejection' || j.statusTypeType=='question_final_rejection') && j.groupNumber==i.number }">
 			<tr>
 			<td>${j.sno}</td>
 			<td>${j.questionNumber}</td>
 			<td>${j.questionSubject}</td>
 			<td>${j.questionReason}</td>
+			<%-- <td>${j.clubbingInformation}</td> --%>
 			</tr>
 			</c:if>
 			</c:forEach>
@@ -251,10 +264,14 @@ margin-left: 30px;
 			<c:if test="${!(empty report.memberBallotMemberWiseQuestionVOs) }">
 			<c:set value="0" var="count"></c:set>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${(j.statusTypeType=='question_final_clarificationNeededFromMember'
+			<c:if test="${(j.statusTypeType=='question_recommend_clarificationNeededFromMember'
+			||j.statusTypeType=='question_final_clarificationNeededFromMember'
+			||j.statusTypeType=='question_recommend_clarificationNeededFromMemberAndDepartment'
 			||j.statusTypeType=='question_final_clarificationNeededFromMemberAndDepartment'
+			||j.statusTypeType=='question_recommend_clarificationNeededFromDepartment'
 			||j.statusTypeType=='question_final_clarificationNeededFromDepartment'
-			||j.statusTypeType=='question_final_clarificationNeededFromGovt')&&j.groupNumber==i.number }">
+			||j.statusTypeType=='question_recommend_clarificationNeededFromGovt'
+			||j.statusTypeType=='question_final_clarificationNeededFromGovt') && j.groupNumber==i.number }">
 			<c:set value="${count+1 }" var="count"></c:set>
 			<c:set var="clarification" value="${j.statusType}"></c:set>
 			</c:if>
@@ -269,10 +286,14 @@ margin-left: 30px;
 			<th><spring:message code="memberballotmemberwisewuestions.status" text="Status"></spring:message></th>
 			</tr>
 			<c:forEach items="${report.memberBallotMemberWiseQuestionVOs }" var="j">
-			<c:if test="${(j.statusTypeType=='question_final_clarificationNeededFromMember'
+			<c:if test="${(j.statusTypeType=='question_recommend_clarificationNeededFromMember'
+			||j.statusTypeType=='question_final_clarificationNeededFromMember'
+			||j.statusTypeType=='question_recommend_clarificationNeededFromMemberAndDepartment'
 			||j.statusTypeType=='question_final_clarificationNeededFromMemberAndDepartment'
+			||j.statusTypeType=='question_recommend_clarificationNeededFromDepartment'
 			||j.statusTypeType=='question_final_clarificationNeededFromDepartment'
-			||j.statusTypeType=='question_final_clarificationNeededFromGovt')&&j.groupNumber==i.number }">
+			||j.statusTypeType=='question_recommend_clarificationNeededFromGovt'
+			||j.statusTypeType=='question_final_clarificationNeededFromGovt') && j.groupNumber==i.number }">
 			<tr>
 			<td>${j.sno}</td>
 			<td>${j.questionNumber}</td>

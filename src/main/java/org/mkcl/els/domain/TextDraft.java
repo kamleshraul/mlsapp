@@ -25,6 +25,14 @@ public class TextDraft extends BaseDomain implements Serializable {
     @Column(length=30000)
     private String text;
     
+    /** The text in short. */
+    @Column(length=10000)
+    private String shortText;
+    
+    /** The file having the text. */
+	@Column(length = 100)
+	private String file;
+    
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="language_id")
     private Language language;
@@ -39,6 +47,22 @@ public class TextDraft extends BaseDomain implements Serializable {
 
 	public void setText(String text) {
 		this.text = text;
+	}
+
+	public String getShortText() {
+		return shortText;
+	}
+
+	public void setShortText(String shortText) {
+		this.shortText = shortText;
+	}
+
+	public String getFile() {
+		return file;
+	}
+
+	public void setFile(String file) {
+		this.file = file;
 	}
 
 	public Language getLanguage() {

@@ -13,7 +13,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.sql.BatchUpdateException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -24,7 +23,6 @@ import java.util.Set;
 
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
-import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -599,7 +597,6 @@ public class GenericController<T extends BaseDomain> extends BaseController {
      *
      * @param binder the binder
      */
-    @SuppressWarnings("unused")
     @InitBinder(value = "domain")
     private void initBinder(final WebDataBinder binder) {
         // ***** Method to be overridden to provide custom implementation *****
@@ -848,7 +845,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
      */
     protected void populateCreateIfNoErrors(final ModelMap model,
             final T domain, 
-            final HttpServletRequest request) {
+            final HttpServletRequest request) throws Exception {
         populateIfNoErrors(model, domain, request);
     }
 
@@ -868,7 +865,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
     }
 
     protected void populateAfterCreate(final ModelMap model, final T domain,
-            final HttpServletRequest request) {
+            final HttpServletRequest request) throws Exception {
     }
 
     /**
@@ -880,7 +877,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
      */
     protected void populateUpdateIfNoErrors(final ModelMap model,
             final T domain, 
-            final HttpServletRequest request) {
+            final HttpServletRequest request) throws Exception {
         populateIfNoErrors(model, domain, request);
     }
 
@@ -900,7 +897,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
 
     protected void populateAfterUpdate(final ModelMap model, 
     		final T domain,
-            final HttpServletRequest request) {
+            final HttpServletRequest request) throws Exception {
     }
 
     /**
@@ -1081,8 +1078,9 @@ public class GenericController<T extends BaseDomain> extends BaseController {
     	
         Field[] fields = domain.getClass().getDeclaredFields();
         for (Field i : fields) {
-            String strClassType = i.getType().getSimpleName();
-            if (strClassType.equals("String")) {
+            String strClassType = i.getType().getSimpleName();            
+            boolean isTransient = i.isAnnotationPresent(javax.persistence.Transient.class);
+            if (strClassType.equals("String") && !isTransient) {
                 try {
                     //if ((String) i.get(domain) != null) {
                     //  i.set(domain, ((String) i.get(domain)).trim());

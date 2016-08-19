@@ -155,12 +155,14 @@
 		<label class="small"><spring:message code="roster.sessionType" text="Session Type"/>*</label>				
 		<input type="hidden" id="session" name="session" value="${session}"/>
 	</p>
-		
+	
+	<c:if test="${committeeMeeting == null || committeeMeeting ==''}">	
 	<p>
 		<label class="small"><spring:message code="roster.registryNo" text="Registry No."/>*</label>
 		<form:input  cssClass="integer sText" path="registerNo"/>
 		<form:errors path="registerNo" cssClass="validationError"/>	
 	</p>
+	</c:if>
 	
 	<p>
 		<label class="small"><spring:message code="roster.day" text="Day"/>*</label>
@@ -309,6 +311,10 @@
 	</div>		
 	<form:hidden path="version" />
 	<form:hidden path="locale"/>
+	<c:if test="${committeeMeeting !=''}">
+		<form:hidden path="committeeMeeting" value="${committeeMeeting}"/>
+	</c:if>
+	<form:hidden path="publish"/>
 	<input type="hidden" name="language" id="language" value="${language }">
 </form:form>
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">

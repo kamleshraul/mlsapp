@@ -1,0 +1,128 @@
+<div style="width: 750px; margin-top: 0px !important;">
+	<table style="width: 750px; margin-top: 0px !important;">
+		<tr>
+			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">$deviceName</td>
+			<td style="font-size: 22px; text-decoration: underline; width:290px; text-align: center;">
+				महाराष्ट्र विधानपरिषद
+			</td>	
+			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">
+				$fullSessionName
+			</td>
+		</tr>		
+		<tr>
+			<td style="width: 750px; text-align: right; font-size: 12px;" colspan="3">
+				<!--<span style="font-weight: bold; font-size: 17px;">प्रपत्र क्रमांक :</span><br />
+				दिनांक : $currentDate <br />	-->		
+				निर्वाचन क्षेत्र: $primaryMemConstituency
+			</td>
+		</tr>
+	</table>
+	
+	<table>
+		<tr style="font-weight: bold;">
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">
+				सदस्यांचे नाव
+			</td>
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				<!--$memberName<br />--> $support
+			</td>
+		</tr>
+		<tr style="font-weight: bold;">													
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				प्रश्न क्रमांक
+			</td>
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				$deviceNumber
+			</td>
+		</tr>
+		<tr style="font-weight: bold;">
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				गट क्रमांक 
+			</td>
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				$groupNumber &nbsp;&nbsp;&nbsp;&nbsp;( $department )
+			</td>	
+		</tr>
+		#if($finalStatus!='अतारांकित स्वीकृत करावा' && $finalStatus!='अतारांकित करावा')
+			<tr style="font-weight: bold;">
+				<td style="font-size: 18px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+					उत्तराचा दिनांक 
+				</td>
+				<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+					$answeringDate 
+				</td>	
+			</tr>
+			<tr style="font-weight: bold;">
+				<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+					विभागाला पाठवण्याची दिनांक 
+				</td>
+				<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+					$deptSendDate 
+				</td>	
+			</tr>
+		#end
+		<tr>
+			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				स्थिती 
+			</td>
+			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				$finalStatus
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3">&nbsp;</td>
+		</tr>		
+		<tr>
+			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				विषय 
+			</td>
+			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				$subject
+			</td>
+		</tr>
+		<br>
+		<tr>
+			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				$details
+			</td>
+		</tr>
+	</table>
+</div>
+<div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>
+<div style="width: 750px;">
+	<table style="width: 750px; font-weight: bold; border: 1px solid black; font-size: 16px; border-top: 1px solid black;" class="strippedTable">
+		#foreach($r in $data)
+			<tr class="page-break" style="font-weight: bold;">
+				<td style="width: 120px; padding: 2px; text-align: center; min-height: 30px;">
+					#if($r.get(27)!='assistant' && $r.get(27)!='principal_secretary')
+						$r.get(1)<br>$r.get(0)
+					#else
+						&nbsp;<br>$r.get(0)
+					#end
+				</td>
+				<td style="width: 100px; padding: 2px; text-align: center;">$r.get(28)</td>
+				<td style="width: 410px; padding: 2px;">$r.get(6)</td>
+				<!--<td style="width: 120px; padding: 2px; text-align: center;">&nbsp;</td>-->
+			</tr>
+		#end
+	</table>
+	<table style="width: 750px; font-size: 17px;">
+		<tr><td colspan="3">&nbsp;</td></tr>
+		<tr>
+			<td style="width: 150px; font-size: 16px; word-wrap: break-word; padding-left: 5px; text-align: center;">
+				<!--<br><br>
+				$principalSec<br />
+				प्रधान सचिव
+				-->
+			</td>
+			<td colspan="2" style="font-weight: bold; width: 600px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align: center;">
+				<br>
+				(&nbsp&nbsp;तारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अतारांकित स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
+				<br><br>
+				मा. सभापती
+			</td>
+		</tr>
+	</table>
+</div>
+<span class='page-break-before-forced'>&nbsp;</span>
+<hr>

@@ -35,6 +35,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -176,6 +177,30 @@ public class WorkflowController extends BaseController {
 		return "info";
 	}
 
+	public static String isUserAllowedForURL(HttpServletRequest request, UserGroup userGroup, String locale){
+		
+		String url = request.getRequestURL().toString();
+		Set<Role> uRoles = userGroup.getCredential().getRoles();
+		StringBuffer strMenus = new StringBuffer();
+		
+		for(Role r : uRoles){
+			String menusAllowed = r.getMenusAllowed();
+			if(menusAllowed != null && !menusAllowed.isEmpty()){
+				String[] menusTopLevel = menusAllowed.split("##"); 
+				for(String m : menusTopLevel){
+					String[] menusSecondLevel = m.split(",");
+					for(String menuId : menusSecondLevel){
+						MenuItem mI = MenuItem.findById(MenuItem.class, new Long(menuId));
+						if(mI != null && mI.getUrl() != null && !mI.getUrl().isEmpty()){
+							strMenus.append(mI.getUrl()+",");
+						}
+					}
+				}
+			}
+		}
+		
+		return strMenus.toString();
+	}
 	//==================== My Task Methods ====================
 
 	/**
@@ -193,12 +218,7 @@ public class WorkflowController extends BaseController {
 		String errorpage=this.getResourcePath(request).replace("module","error");
 		String locale=applocale.toString();
 		/**** This is for getting only the tasks of current user ****/
-		model.addAttribute("assignee",this.getCurrentUser().getActualUsername());
-		/**** Device Types ****/
-		List<DeviceType> deviceTypes = DeviceType.findAll(DeviceType.class,"name",ApplicationConstants.ASC, locale.toString());
-		model.addAttribute("deviceTypes", deviceTypes);
-		DeviceType selectedDeviceType=deviceTypes.get(0);
-		model.addAttribute("selectedDeviceType", selectedDeviceType.getType());
+		model.addAttribute("assignee",this.getCurrentUser().getActualUsername());		
 		/**** House Types ****/
 		List<HouseType> houseTypes = new ArrayList<HouseType>();
 		String houseType=this.getCurrentUser().getHouseType();
@@ -213,7 +233,7 @@ public class WorkflowController extends BaseController {
 		if(houseType.equals("bothhouse")){
 			houseType="lowerhouse";
 		}
-		model.addAttribute("houseType",houseType);
+		model.addAttribute("houseType",houseType);		
 		/**** Session Types ****/
 		List<SessionType> sessionTypes=SessionType.findAll(SessionType.class,"sessionType", ApplicationConstants.ASC, locale);
 		/**** Latest Session of a House Type ****/
@@ -260,14 +280,41 @@ public class WorkflowController extends BaseController {
 		}
 		model.addAttribute("years",years);
 		model.addAttribute("sessionYear",year);
+		
+		/**** Device Types. ****/
+		List<DeviceType> deviceTypes = DeviceType.findAll(DeviceType.class,"priority",ApplicationConstants.ASC, locale.toString());
+		model.addAttribute("deviceTypes", deviceTypes);
+		List<MasterVO> deviceTypeVOs = new ArrayList<MasterVO>();
+		for(DeviceType deviceType: deviceTypes) {
+			MasterVO deviceTypeVO = new MasterVO();
+			deviceTypeVO.setId(deviceType.getId());
+			deviceTypeVO.setType(deviceType.getType());
+			deviceTypeVO.setName(deviceType.getName());
+			if(houseType!=null && houseType.equals(ApplicationConstants.LOWER_HOUSE)) {
+				deviceTypeVO.setDisplayName(deviceType.getName_lowerhouse());
+			} else if(houseType!=null && houseType.equals(ApplicationConstants.UPPER_HOUSE)) {
+				deviceTypeVO.setDisplayName(deviceType.getName_upperhouse());
+			} else {
+				deviceTypeVO.setDisplayName(deviceType.getName());
+			}					
+			deviceTypeVOs.add(deviceTypeVO);
+		}
+		model.addAttribute("deviceTypeVOs", deviceTypeVOs);
+		/**** Default Value ****/	
+		DeviceType selectedDeviceType=deviceTypes.get(0);
+		model.addAttribute("selectedDeviceType", selectedDeviceType.getType());		
+		
 		/**** Types of Workflows ****/
 		/**** added by sandeep singh(jan 29 2013) ****/
-		/**** Custom Parameter To Determine The Usergroup and usergrouptype of qis users ****/			
+		/**** Custom Parameter To Determine The Usergroup and usergrouptype of qis users ****/
+		String strUserGroup = request.getParameter("usergroup");
 		List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
 		List<Status> workflowTypes=new ArrayList<Status>();
 		/**** Workflows for a particular device type will be visible 
 		 * only if the user has been assigned that device type while
 		 * creating user group for a particular user.****/
+		String url = request.getRequestURL().toString();
+		
 		if(userGroups!=null){
 			if(!userGroups.isEmpty()){				
 				for(UserGroup i:userGroups){
@@ -277,6 +324,14 @@ public class WorkflowController extends BaseController {
 					//changed for the purpose in case when there is only one device is allocated
 					//then it fails as the by default selected device is first in the 
 					//deviceType List
+					
+					String strMenus = WorkflowController.isUserAllowedForURL(request, userGroup, locale);
+					
+					if(!strMenus.contains(url.substring(url.indexOf("els/")+"els/".length()))){
+						model.addAttribute("errorcode","user_not_allowed");
+						return errorpage;
+					}
+					
 					DeviceType newSelectedDeviceType = isAllowedDevice(deviceTypes, userGroupDeviceType); 
 					if(newSelectedDeviceType != null){
 						/**** Authenticated User's usergroup and usergroupType ****/
@@ -288,8 +343,8 @@ public class WorkflowController extends BaseController {
 						CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+newSelectedDeviceType.getType().toUpperCase()+"_"+userGroupType.toUpperCase(), "");
 						if(allowedWorkflowTypes!=null){
 							try {
-								List<Status> workflowTypesForUsergroup=Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale);
-								workflowTypes.addAll(workflowTypesForUsergroup);
+									List<Status> workflowTypesForUsergroup=Status.findStatusContainedIn(allowedWorkflowTypes.getValue(), locale);
+									workflowTypes.addAll(workflowTypesForUsergroup);
 							} catch (ELSException e) {
 								e.printStackTrace();
 								model.addAttribute("error", e.getParameter());
@@ -483,18 +538,27 @@ public class WorkflowController extends BaseController {
 		String newUrlPattern=urlPattern;
 		String deviceTypeForGrid = request.getParameter("deviceTypeForGrid");
 		String strCurrentUserGroupType = request.getParameter("currentusergroupType");
-		if(deviceTypeForGrid!=null && !deviceTypeForGrid.isEmpty() ){
+		if(deviceTypeForGrid!=null && !deviceTypeForGrid.isEmpty() && !deviceTypeForGrid.equals("-")) {
 			if(deviceTypeForGrid.equals(ApplicationConstants.BILLAMENDMENT_MOTION)) {
 				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.BILLAMENDMENT_MOTION;
+			}else if(deviceTypeForGrid.equals(ApplicationConstants.ADJOURNMENT_MOTION)) {
+				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.ADJOURNMENT_MOTION;
 			}else {
-				if(strCurrentUserGroupType!=null && !strCurrentUserGroupType.isEmpty()){
-					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)){
+				if(strCurrentUserGroupType!=null && !strCurrentUserGroupType.isEmpty()) {
+					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)) {
 						newUrlPattern = urlPattern + "?usergroup="+ApplicationConstants.DEPARTMENT;
 					}
-				}
-				
-			}
+				}				
+			}			
 		} 
+		String statusForMyTaskGrid = request.getParameter("status");
+		if(statusForMyTaskGrid!=null && !statusForMyTaskGrid.isEmpty() && !statusForMyTaskGrid.equals("-")) {
+			if(newUrlPattern.equals(urlPattern)) {
+				newUrlPattern=newUrlPattern+"?status="+statusForMyTaskGrid;
+			} else {
+				newUrlPattern=newUrlPattern+"&status="+statusForMyTaskGrid;
+			}			
+		}
 		return newUrlPattern;
 	}
 

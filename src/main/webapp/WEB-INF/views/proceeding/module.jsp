@@ -6,22 +6,28 @@
 	<title><spring:message code="proceeding.list" text="List Of Proceedings"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){	
-			 $(document).keydown(function (e){
-				if(e.which==78 && e.ctrlKey){
-					e.preventDefault();
-					//console.log("partCount="+partCount);
-					$('#addPart'+$('#partCount').val()).trigger('click');
-					e.stopPropagation();
-					//return false;
+		$(document).ready(function(){	 
+			document.onkeydown = function(e){
+			    //keycode for F5 function
+				if(e.keyCode===116){
+					return false;
 				}
-				if(e.which==83 && e.ctrlKey){
-					e.preventDefault();
-					$('#savePart'+$('#partCount').val()).trigger('click');
-					e.stopPropagation();
-				}
-				
-			}); 
+			    
+				if (e.ctrlKey || e.metaKey) {
+			        switch (String.fromCharCode(e.which).toLowerCase()) {
+			        case 's':
+			            e.preventDefault();
+			            break;
+			        case 'r':
+			        	e.preventDefault();
+			        	break;
+			        case 'w':
+			        	e.preventDefault();
+			        	break;
+			        }
+			        	
+			    }
+			}
 
 			/*Tooltip*/
 			$(".toolTip").hide();					
@@ -59,8 +65,12 @@
 			/**** language changes then reload grid****/
 			$("#selectedLanguage").change(function(){
 				var value=$(this).val();
-				if(value!=""){		
-					loadRosterDayFromSessions();
+				if(value!=""){	
+					if($('#selectedModule').val()=='COMMITTEE'){
+						loadRosterDayFromCommitteeMeeting();
+					}else{
+						loadRosterDayFromSessions();
+					}
 					reloadProceedingGrid();							
 				}			
 			});	
@@ -71,6 +81,65 @@
 					reloadProceedingGrid();							
 				}			
 			});
+			
+			$("#selectedtCommitteeType").change(function(){
+				$.get('ref/committeename?committeeTypeId='+$(this).val(),function(data){
+					if(data.length>0){
+						var text="<option value=''>"+$("#pleaseSelect").val()+"</option>";
+						for( var i=0;i<data.length;i++){
+							text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						}
+						$("#selectedCommitteeName").empty();
+						$("#selectedCommitteeName").html(text);
+					}
+				}).fail(function(){
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+			});
+			
+			$("#selectedCommitteeName").change(function(){
+				$.get('ref/committeemeeting?committeeNameId='+$(this).val(),function(data){
+					if(data.length>0){
+						var text="<option value=''>"+$("#pleaseSelect").val()+"</option>";
+						for( var i=0;i<data.length;i++){
+							text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						}
+						$("#selectedCommitteeMeeting").empty();
+						$("#selectedCommitteeMeeting").html(text);
+					}
+				}).fail(function(){
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+			});
+			
+			$("#selectedCommitteeMeeting").change(function(){
+				loadRosterDayFromCommitteeMeeting();
+				reloadProceedingGrid();
+			});
+			
+			$('#selectedModule').change(function(){
+				var moduleValue = $(this).val();
+				if(moduleValue=='COMMITTEE'){
+					$('#committeeDiv').css("display","inline");
+					$('#sessionDiv').css("display","none");
+					loadRosterDayFromCommitteeMeeting();
+				}else{
+					$('#committeeDiv').css("display","none");
+					$('#sessionDiv').css("display","inline");
+					loadRosterDayFromSessions();
+				}
+				reloadProceedingGrid();
+			});
 			/**** List Tab ****/
 			$('#list_tab').click(function(){
 				showProceedingList(); 	
@@ -79,8 +148,12 @@
 			$('#details_tab').click(function(){
 				editProceeding(); 	
 			}); 
-			
-			loadRosterDayFromSessions();			
+			if($('#selectedModule').val()=='COMMITTEE'){
+				loadRosterDayFromCommitteeMeeting();
+			}else{
+				loadRosterDayFromSessions();
+			}
+						
 			/**** show roster list method is called by default.****/
 			showProceedingList();				
 		});
@@ -88,13 +161,24 @@
 		
 		function showProceedingList() {
 			$("#selectionDiv1").show();
-			showTabByIdAndUrl('list_tab', 'proceeding/list?houseType='
-					+ $('#selectedHouseType').val() + '&sessionyear='
-					+ $("#selectedSessionYear").val() + '&sessionType='
-					+ $("#selectedSessionType").val() + '&language='
-					+ $("#selectedLanguage").val() + '&day='
-					+ $("#selectedDay").val() + '&ugparam='
-					+ $("#ugparam").val());
+			if($('#selectedModule').val()=="COMMITTEE"){
+				showTabByIdAndUrl('list_tab', 'proceeding/list?houseType=0'  
+						+ '&sessionyear=0'
+						+ '&sessionType=0'
+						+ '&language='+ $("#selectedLanguage").val() 
+						+ '&day='+ $("#selectedDay").val() 
+						+ '&ugparam='+ $("#ugparam").val()
+						+ '&committeeMeeting=' +$("#selectedCommitteeMeeting").val());
+			}else{
+				showTabByIdAndUrl('list_tab', 'proceeding/list?houseType=' + $('#selectedHouseType').val() 
+						+ '&sessionyear=' + $("#selectedSessionYear").val() 
+						+ '&sessionType=' + $("#selectedSessionType").val() 
+						+ '&language=' + $("#selectedLanguage").val() 
+						+ '&day=' + $("#selectedDay").val() 
+						+ '&ugparam=' + $("#ugparam").val()
+						+ '&committeeMeeting=0');
+			}
+			
 		}
 
 		/**** edit Proceeding ****/
@@ -116,6 +200,8 @@
 			$("#selectionDiv1").hide();
 			$("#cancelFn").val("rowDblClickHandler");
 			$('#key').val(rowid);
+			/* showTabByIdAndUrl('details_tab', 'proceeding/' + rowid + '/uploadproceeding?'
+					+ $("#gridURLParams").val()); */
 			showTabByIdAndUrl('details_tab', 'proceeding/' + rowid + '/edit?'
 					+ $("#gridURLParams").val());
 		}
@@ -144,13 +230,25 @@
 		}
 		/**** reload grid ****/
 		function reloadProceedingGrid() {
-			$("#gridURLParams").val(
-					"houseType=" + $("#selectedHouseType").val()
-							+ "&sessionYear=" + $("#selectedSessionYear").val()
-							+ "&sessionType=" + $("#selectedSessionType").val()
-							+ '&language=' + $("#selectedLanguage").val()
-							+ '&day=' + $("#selectedDay").val() + '&ugparam='
-							+ $("#ugparam").val());
+			
+			if($('#selectedModule').val()=="COMMITTEE"){
+				$("#gridURLParams").val("houseType=0" 
+								+ "&sessionYear=0"
+								+ "&sessionType=0"
+								+ '&language=' + $("#selectedLanguage").val()
+								+ '&day=' + $("#selectedDay").val() 
+								+ "&committeeMeeting="+ $("#selectedCommitteeMeeting").val()
+								+ '&ugparam='+ $("#ugparam").val());
+			}else{
+				$("#gridURLParams").val("houseType=" + $("#selectedHouseType").val()
+								+ "&sessionYear=" + $("#selectedSessionYear").val()
+								+ "&sessionType=" + $("#selectedSessionType").val()
+								+ '&language=' + $("#selectedLanguage").val()
+								+ '&day=' + $("#selectedDay").val()
+								+ '&ugparam=' + $("#ugparam").val()
+								+ "&committeeMeeting=0");
+			}
+			
 			var oldURL = $("#grid").getGridParam("url");
 			var baseURL = oldURL.split("?")[0];
 			newURL = baseURL + "?" + $("#gridURLParams").val();
@@ -169,7 +267,8 @@
 				$.get('ref/rosterdays?' + params, function(data) {
 					if (data.length > 0) {
 						var text = "";
-						for ( var i = 0; i < data.length; i++) {
+						var length = data.length - 1;
+						for (var i = length; i>=0; i--) {
 							text += "<option value='"+data[i]+"'>" + data[i]
 									+ "</option>";
 						}
@@ -185,23 +284,61 @@
 			//		
 		}
 		
+		function loadRosterDayFromCommitteeMeeting() {
+			if ($("#selectedDay").length > 0) {
+				params = "committeeMeeting="+ $("#selectedCommitteeMeeting").val()
+						+ '&language=' + $("#selectedLanguage").val();
+				$.get('ref/rosterdaysfromcommitteemeeting?' + params, function(data) {
+					if (data.length > 0) {
+						var text = "";
+						for ( var i = 0; i < data.length; i++) {
+							text += "<option value='"+data[i]+"'>" + data[i]
+									+ "</option>";
+						}
+						$("#selectedDay").empty();
+						$("#selectedDay").html(text);
+					} else {
+						$("#selectedDay").empty();
+					}
+				}).done(function(){
+					reloadProceedingGrid();
+				});
+			}
+			//		
+		}
+		
 		function rosterWiseReport(){
-			var params="houseType=" + $('#selectedHouseType').val()
+			if($('#selectedModule').val()=="COMMITTEE"){
+				var params="committeeMeeting=" + $("#selectedCommitteeMeeting").val()
+				+ '&language=' + $("#selectedLanguage").val()
+				+ '&day=' +$('#selectedDay').val();
+				showTabByIdAndUrl('details_tab', 'proceeding/rosterwisereport?'+params);
+			}else{
+				var params="houseType=" + $('#selectedHouseType').val()
 				+ '&sessionYear=' + $("#selectedSessionYear").val()
 				+ '&sessionType=' + $("#selectedSessionType").val()
 				+ '&language=' + $("#selectedLanguage").val()
 				+ '&day=' +$('#selectedDay').val();
-			showTabByIdAndUrl('details_tab', 'proceeding/rosterwisereport?'+params);
+				showTabByIdAndUrl('details_tab', 'proceeding/rosterwisereport?'+params);
+			}
 		}
 		
 		function reporterWiseReport(){
-			var params="houseType=" + $('#selectedHouseType').val()
+			if($('#selectedModule').val()=="COMMITTEE"){
+				var params="committeeMeeting=" + $("#selectedCommitteeMeeting").val()
+				+ '&language=' + $("#selectedLanguage").val()
+				+ '&day=' +$('#selectedDay').val()
+				+ '&user='+$('#ugparam').val();
+				showTabByIdAndUrl('details_tab', 'proceeding/reporterwisereport?'+params);
+			}else{
+				var params="houseType=" + $('#selectedHouseType').val()
 				+ '&sessionYear=' + $("#selectedSessionYear").val()
 				+ '&sessionType=' + $("#selectedSessionType").val()
 				+ '&language=' + $("#selectedLanguage").val()
 				+ '&day=' +$('#selectedDay').val()
 				+ '&user='+$('#ugparam').val();
-			showTabByIdAndUrl('details_tab', 'proceeding/reporterwisereport?'+params);
+				showTabByIdAndUrl('details_tab', 'proceeding/reporterwisereport?'+params);
+			}
 		}
 		
 		function showPartList(key){
@@ -214,6 +351,30 @@
 			showTabByIdAndUrl('details_tab', 'proceeding/part/proceedingwiseReport?'+params);
 		}
 
+		function completeProceeding(proceedingId) {
+			 //row=$('#key').val();			
+			if(proceedingId == null||proceedingId ==''){				
+				$.prompt($('#selectRowFirstMessage').val());				
+				return false;
+			}else{
+				
+				$.prompt($('#sendForPublishMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+						$.post("proceeding/" + proceedingId + "/complete",function(data){
+							if(data){
+								$.prompt($("#successMessage").val());
+								$.unblockUI();
+							}else{
+								$.prompt($("#failureMessage").val());
+							}
+						});	
+			        }
+				}});
+				return false;
+			}
+		}
 		
 	</script>
 </head>
@@ -256,39 +417,80 @@
 			</c:choose>
 			</c:forEach>
 			</select> |	
-							
-			<a href="#" id="select_session_year" class="butSim">
-				<spring:message code="proceeding.sessionyear" text="Year"/>
-			</a>
-			<select name="selectedSessionYear" id="selectedSessionYear" style="width:100px;height: 25px;">				
-			<c:forEach var="i" items="${years}">
-			<c:choose>
-			<c:when test="${i==sessionYear }">
-			<option value="${i}" selected="selected"><c:out value="${i}"></c:out></option>				
-			</c:when>
-			<c:otherwise>
-			<option value="${i}" ><c:out value="${i}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>
-			</c:forEach> 
-			</select> |	
-								
-			<a href="#" id="select_sessionType" class="butSim">
-				<spring:message code="proceeding.sessionType" text="Session Type"/>
-			</a>
-			<select name="selectedSessionType" id="selectedSessionType" style="width:100px;height: 25px;">				
-			<c:forEach items="${sessionTypes}" var="i">
-			<c:choose>
-			<c:when test="${sessionType==i.id}">
-			<option value="${i.id}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>				
-			</c:when>
-			<c:otherwise>
-			<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>			
-			</c:forEach> 
-			</select> |		
 			
+			<div id='moduleFilter' style='display:inline;'>
+				<a href="#" id="moduletypeLabel" class="butSim">
+					<spring:message code="mytask.module" text="Module"/>
+				</a>
+				<select name="selectedModule" id="selectedModule" style="width:100px;height: 25px;">			
+					<option value=""><spring:message code='please.select' text='----Please Select----'></spring:message></option>
+					<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
+				</select> |
+			</div>
+			
+			<div id="sessionDiv" style="display:inline;">				
+				<a href="#" id="select_session_year" class="butSim">
+					<spring:message code="proceeding.sessionyear" text="Year"/>
+				</a>
+				<select name="selectedSessionYear" id="selectedSessionYear" style="width:100px;height: 25px;">				
+					<c:forEach var="i" items="${years}">
+						<c:choose>
+							<c:when test="${i==sessionYear }">
+								<option value="${i}" selected="selected"><c:out value="${i}"></c:out></option>				
+							</c:when>
+							<c:otherwise>
+								<option value="${i}" ><c:out value="${i}"></c:out></option>			
+							</c:otherwise>
+						</c:choose>
+					</c:forEach> 
+				</select> |	
+									
+				<a href="#" id="select_sessionType" class="butSim">
+					<spring:message code="proceeding.sessionType" text="Session Type"/>
+				</a>
+				<select name="selectedSessionType" id="selectedSessionType" style="width:100px;height: 25px;">				
+					<c:forEach items="${sessionTypes}" var="i">
+						<c:choose>
+							<c:when test="${sessionType==i.id}">
+								<option value="${i.id}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>				
+							</c:when>
+							<c:otherwise>
+								<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>			
+							</c:otherwise>
+						</c:choose>			
+					</c:forEach> 
+				</select> |		
+			</div>
+			
+			<div id="committeeDiv" style="display:none;">
+				<a href="#" id="select_committee_type" class="butSim">
+					<spring:message code="roster.committeeType" text="Committee Type"/>
+				</a>
+				<select name="selectedtCommitteeType" id="selectedtCommitteeType" style="width:100px;height: 25px;">				
+					<option value=""><spring:message code='please.select' text='----Please Select----'></spring:message></option>
+					<c:forEach var="i" items="${committeeTypes}">
+						<option value="${i.id}" ><c:out value="${i.name}"></c:out></option>			
+					</c:forEach> 
+				</select> |	
+									
+				<a href="#" id="select_committeeName" class="butSim">
+					<spring:message code="roster.committeeName" text="Committee Name"/>
+				</a>
+				<select name="selectedCommitteeName" id="selectedCommitteeName" style="width:100px;height: 25px;">				
+					<option value=""><spring:message code='please.select' text='----Please Select----'></spring:message></option>
+				</select> |	
+				<br> 
+				<!-- <br> -->
+				<a href="#" id="select_committeeMeeting" class="butSim">
+					<spring:message code="roster.committeeMeeting" text="Committee Meeting"/>
+				</a>
+				<select name="selectedCommitteeMeeting" id="selectedCommitteeMeeting" style="width:100px;height: 25px;">				
+					<option value=""><spring:message code='please.select' text='----Please Select----'></spring:message></option>
+					<c:forEach var="i" items="${committeeMeetings}">
+						<option value="${i.id}" ><c:out value="${i.meetingDate}"></c:out></option>			
+					</c:forEach>
+				</select> |	
+			</div>
 			<a href="#" id="select_language" class="butSim">
 				<spring:message code="proceeding.language" text="Language"/>
 			</a>
@@ -327,10 +529,14 @@
 		</div>
 		
 		<input type="hidden" id="key" name="key">	
-		<input type="hidden" id="ugparam" name="ugparam" value="${ugparam}">			
+		<input type="hidden" id="ugparam" name="ugparam" value="${ugparam}">	
+		<input type="hidden" id="slotId" name="slotId"/>		
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
+		<input type="hidden" id="sendForPublishMsg" name="sendForPublishMsg" value="<spring:message code='generic.confirmPublishMessage' text='Do you want to Complete Proceeding<!--  --> '></spring:message>" disabled="disabled">
+		<input type="hidden" id="successMessage" name="successMessage" value="<spring:message code='roster.publishSuccessMessage' text='The Proceeding is Successfully Completed '></spring:message>" disabled="disabled">	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+		<input type="hidden" id="failureMessage" name="failureMessage" value="<spring:message code='roster.publishFailureMessage' text='There is some problem in Completing proceeding kindly try after sometime '></spring:message>" disabled="disabled">
 		</div> 		
 </body>
 </html>

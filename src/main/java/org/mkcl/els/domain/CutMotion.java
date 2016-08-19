@@ -29,6 +29,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.Reference;
@@ -219,10 +220,10 @@ public class CutMotion extends Device implements Serializable {
 	
 	// =============== Referencing ====================//
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-	@JoinTable(name = "cutmotions_referencedentities", 
+	@JoinTable(name = "cutmotions_referencedunits", 
 	joinColumns = { @JoinColumn(name = "cutmotion_id", referencedColumnName = "id") }, 
-	inverseJoinColumns = { @JoinColumn(name = "referenced_entity_id", referencedColumnName = "id") })
-	private List<ReferencedEntity> referencedEntities;
+	inverseJoinColumns = { @JoinColumn(name = "referenced_unit_id", referencedColumnName = "id") })
+	private List<ReferenceUnit> referencedEntities;
 
 	/** The reply */
 	@Column(length = 30000)
@@ -296,6 +297,8 @@ public class CutMotion extends Device implements Serializable {
 					addCutMotionDraft();
 					return (CutMotion)super.persist();
 				}
+			}else if(this.getNumber() != null){
+				addCutMotionDraft();
 			}
 		}
 		return (CutMotion) super.persist();
@@ -343,7 +346,7 @@ public class CutMotion extends Device implements Serializable {
 				draft.setMainTitle(this.getMainTitle());
 			}	  
 			
-			if(this.getDeviceType().equals(ApplicationConstants.CUTMOTIONS_BUDGETARY)){
+			if(this.getDeviceType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)){
 				if(this.getRevisedSecondaryTitle() != null){
 					draft.setSecondaryTitle(this.getRevisedSecondaryTitle());
 				}else{
@@ -404,8 +407,8 @@ public class CutMotion extends Device implements Serializable {
 		if(motion != null) {
 			return motion;
 		}else {
-			if(this.getInternalStatus().getType().equals(ApplicationConstants.MOTION_INCOMPLETE) 
-					|| this.getInternalStatus().getType().equals(ApplicationConstants.MOTION_COMPLETE)) {
+			if(this.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_INCOMPLETE) 
+					|| this.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_COMPLETE)) {
 				return (CutMotion) super.merge();
 			}else {
 				CutMotion oldMotion = CutMotion.findById(CutMotion.class, this.getId());
@@ -591,7 +594,946 @@ public class CutMotion extends Device implements Serializable {
 			String locale) {
 		return getCutMotionRepository().findHighestNumberByStatusDepartment(session, deviceType, subDepartment, status, locale);
 	}
+	
+	//************************Clubbing**********************
+	public static boolean club(final Long primary, final Long clubbing, final String locale) throws ELSException{
+		
+		CutMotion m1 = CutMotion.findById(CutMotion.class, primary);
+		CutMotion m2 = CutMotion.findById(CutMotion.class, clubbing);
+		
+		return club(m1, m2, locale); 
+		
+	}
 
+	public static boolean club(final CutMotion q1,final CutMotion q2,final String locale) throws ELSException{    	
+    	boolean clubbingStatus = false;
+    	try {    		
+    		if(q1.getParent()!=null || q2.getParent()!=null) {
+    			throw new ELSException("error", "MOTION_ALREADY_CLUBBED");
+    		} else {
+    			if((q1.getDeviceType().getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)
+        				&& q2.getDeviceType().getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY))
+        				|| (q1.getDeviceType().getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)
+                				&& q2.getDeviceType().getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY))) {
+    				
+    					clubbingStatus = clubMotions(q1, q2, locale);    				
+        		} else {
+        			return false;
+        		}    			
+    		}    		
+    	} catch(ELSException ex){
+    		throw ex;
+		} catch(Exception ex){
+    		//logger.error("CLUBBING_FAILED",ex);
+			clubbingStatus = false;
+			return clubbingStatus;
+		}        
+        return clubbingStatus;
+    }
+	
+	private static boolean clubMotions(CutMotion q1, CutMotion q2, String locale) throws ELSException {
+    	boolean clubbingStatus = false;
+    	clubbingStatus = clubbingRulesForMotion(q1, q2, locale);
+    	if(clubbingStatus) {
+    		
+    		clubbingStatus = clubMotion(q1, q2, locale);
+
+    	}    	 
+    	return clubbingStatus;
+    }
+	
+	private static boolean clubbingRulesForMotion(CutMotion q1, CutMotion q2, String locale) throws ELSException {
+    	boolean clubbingStatus = clubbingRulesCommon(q1, q2, locale);
+    	
+    	CustomParameter csptClubbingMode = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CUTMOTION_CLUBBING_MODE, "");
+    	
+    	if(csptClubbingMode != null && csptClubbingMode.getValue() != null 
+    			&& !csptClubbingMode.getValue().isEmpty() && csptClubbingMode.getValue().equals("workflow")){ 
+	    	if(clubbingStatus) {
+	    		if(q1.getReply()!=null && !q1.getReply().isEmpty()) {
+	    			WorkflowDetails q1_workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(q1);
+	    			if(q1_workflowDetails!=null && q1_workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_PENDING)) {
+	    				throw new ELSException("error", "MOTION_ANSWERED_BUT_FLOW_PENDING");
+	    			}
+	    		}
+	    		if(q2.getReply()!=null && !q2.getReply().isEmpty()) {
+	    			WorkflowDetails q2_workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(q2);
+	    			if(q2_workflowDetails!=null && q2_workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_PENDING)) {
+	    				throw new ELSException("error", "MOTION_ANSWERED_BUT_FLOW_PENDING");
+	    			}
+	    		}    		
+	    	}
+    	}
+    	return clubbingStatus;
+    	
+    }
+    
+    private static boolean clubMotion(CutMotion q1, CutMotion q2, String locale) throws ELSException {
+    	//=============cases common to both houses============//
+    	boolean clubbingStatus = clubMotionsBH(q1, q2, locale);
+    	
+    	CustomParameter csptClubbingMode = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CUTMOTION_CLUBBING_MODE, "");
+
+    	if(csptClubbingMode != null && csptClubbingMode.getValue() != null 
+    			&& !csptClubbingMode.getValue().isEmpty() && csptClubbingMode.getValue().equals("workflow")){
+	    	if(!clubbingStatus) {
+	    		//=============cases specific to lowerhouse============//
+	        	/** get chart answering dates for questions **/
+	        	Date q1_AnsweringDate = q1.getAnsweringDate();
+	        	Date q2_AnsweringDate = q2.getAnsweringDate();
+	        	
+	        	Status yaadiLaidStatus = Status.findByType(ApplicationConstants.MOTION_PROCESSED_YAADILAID, locale);
+	        	
+	        	//Case 7: Both questions are admitted and balloted
+	        	if(q1.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+	    				&& q1.getRecommendationStatus().getPriority().compareTo(yaadiLaidStatus.getPriority())<0
+	    				&& q2.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+	    				&& (q1.getRecommendationStatus().getPriority().compareTo(yaadiLaidStatus.getPriority())<0)) {
+	        		Status clubbbingPostAdmissionPutupStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_CLUBBING_POST_ADMISSION, locale);
+	        		if(q1_AnsweringDate.compareTo(q2_AnsweringDate)==0 || q1.isFromDifferentBatch(q2)) {
+	        			if(q1.getNumber().compareTo(q2.getNumber())<0) {        
+	        				actualClubbingMotions(q1, q2, q2.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);          				
+	        				clubbingStatus = true;
+	        			} else if(q1.getNumber().compareTo(q2.getNumber())>0) {
+	        				actualClubbingMotions(q2, q1, q1.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	        				clubbingStatus = true;
+	        			} else {
+	        				clubbingStatus = true;
+	        			}
+	        		} else if(q1_AnsweringDate.compareTo(q2_AnsweringDate)<0) {
+	        			actualClubbingMotions(q1, q2, q2.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	        			clubbingStatus = true;
+	        		} else if(q1_AnsweringDate.compareTo(q2_AnsweringDate)>0) {
+	        			actualClubbingMotions(q2, q1, q1.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	        			clubbingStatus = true;
+	        		}
+	        	}
+	    	}    	
+    	}
+    	
+    	return clubbingStatus;
+    }
+    
+    private static boolean clubbingRulesCommon(CutMotion q1, CutMotion q2, String locale) throws ELSException {
+    	if(q1.getSession().equals(q2.getSession()) && !q1.getDeviceType().getType().equals(q2.getDeviceType().getType())) {
+    		throw new ELSException("error", "MOTIONS_FROM_DIFFERENT_DEVICETYPE");    		
+    	} else if(!q1.getMinistry().getName().equals(q2.getMinistry().getName())) {
+    		throw new ELSException("error", "MOTIONS_FROM_DIFFERENT_MINISTRY");    		
+    	} else if(!q1.getSubDepartment().getName().equals(q2.getSubDepartment().getName())) {
+    		throw new ELSException("error", "MOTIONS_FROM_DIFFERENT_DEPARTMENT");    		
+    	} else {
+    		//clubbing rules succeeded
+    		return true;
+    	}  	
+    }
+    
+    private static boolean clubMotionsBH(CutMotion q1, CutMotion q2, String locale) throws ELSException {
+    	
+    	CustomParameter csptClubbingMode = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CUTMOTION_CLUBBING_MODE, "");
+    	
+    	if(csptClubbingMode != null && csptClubbingMode.getValue() != null 
+    			&& !csptClubbingMode.getValue().isEmpty() && csptClubbingMode.getValue().equals("normal")){
+    		if(q1.getNumber().compareTo(q2.getNumber())<0) {
+				actualClubbingMotions(q1, q2, q1.getInternalStatus(), q1.getRecommendationStatus(), locale);
+				WorkflowDetails wfOfChild = WorkflowDetails.findCurrentWorkflowDetail(q2);
+				if(wfOfChild != null){
+					WorkflowDetails.endProcess(wfOfChild);
+				}
+				q2.removeExistingWorkflowAttributes();
+				return true;
+			} else if(q1.getNumber().compareTo(q2.getNumber())>0) {
+				actualClubbingMotions(q2, q1, q2.getInternalStatus(), q2.getRecommendationStatus(), locale);
+				
+				WorkflowDetails wfOfChild = WorkflowDetails.findCurrentWorkflowDetail(q1);
+				if(wfOfChild != null){
+					WorkflowDetails.endProcess(wfOfChild);
+				}
+				q1.removeExistingWorkflowAttributes();
+				
+				return true;
+			} else {
+				return false;
+			}
+    	}else{
+	    	/** get answering dates for motions **/
+	    	Date q1_DiscussionDate = q1.getDiscussionDate();
+	    	Date q2_DiscussionDate = q2.getDiscussionDate();
+	    	
+	    	Status putupStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED, locale);
+			Status approvalStatus = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION, locale);
+	    	
+	    	//Case 1: Both motions are just ready to be put up
+	    	if(q1.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED)
+	    			&& q2.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED)) {
+	    		
+	    		Status clubbedStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED, locale);
+	    		if(q1_DiscussionDate != null && q2_DiscussionDate != null){
+	    			if(q1_DiscussionDate.compareTo(q2_DiscussionDate)==0 || q1.isFromDifferentBatch(q2)) {
+	        			if(q1.getNumber().compareTo(q2.getNumber())<0) {
+	        				actualClubbingMotions(q1, q2, clubbedStatus, clubbedStatus, locale);
+	        				return true;
+	        			} else if(q1.getNumber().compareTo(q2.getNumber())>0) {
+	        				actualClubbingMotions(q2, q1, clubbedStatus, clubbedStatus, locale);
+	        				return true;
+	        			} else {
+	        				return false;
+	        			}
+	        		} else if(q1_DiscussionDate.compareTo(q2_DiscussionDate)<0) {
+	        			actualClubbingMotions(q1, q2, clubbedStatus, clubbedStatus, locale);
+	        			return true;
+	        		} else if(q1_DiscussionDate.compareTo(q2_DiscussionDate)>0) {
+	        			actualClubbingMotions(q2, q1, clubbedStatus, clubbedStatus, locale);
+	        			return true;
+	        		} else {
+	        			return false;
+	        		}
+	    		}else{
+	    			
+	    			if(q1.getNumber().compareTo(q2.getNumber())<0) {
+	    				actualClubbingMotions(q1, q2, clubbedStatus, clubbedStatus, locale);
+	    				return true;
+	    			} else if(q1.getNumber().compareTo(q2.getNumber())>0) {
+	    				actualClubbingMotions(q2, q1, clubbedStatus, clubbedStatus, locale);
+	    				return true;
+	    			} else {
+	    				return false;
+	    			}
+	    		}
+	    	} 
+	    	//Case 2A: One motion is pending in approval workflow while other is ready to be put up
+	    	else if(q1.getInternalStatus().getPriority().compareTo(putupStatus.getPriority()) > 0
+	    				&& q1.getInternalStatus().getPriority().compareTo(approvalStatus.getPriority()) < 0
+	    				&& q2.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED)) {
+	    		Status clubbbingPutupStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_CLUBBING, locale);
+	    		actualClubbingMotions(q1, q2, clubbbingPutupStatus, clubbbingPutupStatus, locale);
+	    		return true;
+	    	}
+	    	//Case 2B: One motion is pending in approval workflow while other is ready to be put up
+	    	else if(q1.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED)
+	    				&& q2.getInternalStatus().getPriority().compareTo(putupStatus.getPriority()) > 0
+	    				&& q2.getInternalStatus().getPriority().compareTo(approvalStatus.getPriority()) < 0) {
+	    		Status clubbbingPutupStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_CLUBBING, locale);
+	    		actualClubbingMotions(q2, q1, clubbbingPutupStatus, clubbbingPutupStatus, locale);
+	    		return true;
+	    	}
+	    	//Case 3: Both motions are pending in approval workflow
+	    	else if(q1.getInternalStatus().getPriority().compareTo(putupStatus.getPriority()) > 0
+	    				&& q1.getInternalStatus().getPriority().compareTo(approvalStatus.getPriority()) < 0
+	    				&& q2.getInternalStatus().getPriority().compareTo(putupStatus.getPriority()) > 0
+	    				&& q2.getInternalStatus().getPriority().compareTo(approvalStatus.getPriority()) < 0) {
+	    		Status clubbbingPutupStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_CLUBBING, locale);
+	    		WorkflowDetails q1_workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(q1);
+	    		WorkflowDetails q2_workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(q2);
+	    		int q1_approvalLevel = Integer.parseInt(q1_workflowDetails.getAssigneeLevel());
+	    		int q2_approvalLevel = Integer.parseInt(q2_workflowDetails.getAssigneeLevel());
+	    		if(q1_approvalLevel==q2_approvalLevel) {
+	    			if(q1_DiscussionDate.compareTo(q2_DiscussionDate)==0 || q1.isFromDifferentBatch(q2)) {
+	        			if(q1.getNumber().compareTo(q2.getNumber())<0) {        
+	        				WorkflowDetails.endProcess(q2_workflowDetails);
+	        				q2.removeExistingWorkflowAttributes();
+	        				actualClubbingMotions(q1, q2, clubbbingPutupStatus, clubbbingPutupStatus, locale);          				
+	        				return true;
+	        			} else if(q1.getNumber().compareTo(q2.getNumber())>0) {
+	        				WorkflowDetails.endProcess(q1_workflowDetails);
+	        				q1.removeExistingWorkflowAttributes();
+	        				actualClubbingMotions(q2, q1, clubbbingPutupStatus, clubbbingPutupStatus, locale);
+	        				return true;
+	        			} else {
+	        				return false;
+	        			}
+	        		} else if(q1_DiscussionDate.compareTo(q2_DiscussionDate)<0) {
+	        			WorkflowDetails.endProcess(q2_workflowDetails);
+	        			q2.removeExistingWorkflowAttributes();
+	        			actualClubbingMotions(q1, q2, clubbbingPutupStatus, clubbbingPutupStatus, locale);
+	        			return true;
+	        		} else if(q1_DiscussionDate.compareTo(q2_DiscussionDate)>0) {
+	        			WorkflowDetails.endProcess(q1_workflowDetails);
+	        			q1.removeExistingWorkflowAttributes();
+	        			actualClubbingMotions(q2, q1, clubbbingPutupStatus, clubbbingPutupStatus, locale);
+	        			return true;
+	        		} else {
+	        			return false;
+	        		}
+	    		} else if(q1_approvalLevel>q2_approvalLevel) {
+	    			WorkflowDetails.endProcess(q2_workflowDetails);
+	    			q2.removeExistingWorkflowAttributes();
+	    			actualClubbingMotions(q1, q2, clubbbingPutupStatus, clubbbingPutupStatus, locale);
+	    			return true;
+	    		} else if(q1_approvalLevel<q2_approvalLevel) {
+	    			WorkflowDetails.endProcess(q1_workflowDetails);
+	    			q1.removeExistingWorkflowAttributes();
+	    			actualClubbingMotions(q2, q1, clubbbingPutupStatus, clubbbingPutupStatus, locale);
+	    			return true;
+	    		} else {
+	    			return false;
+	    		}    		
+	    	}
+	    	//Case 4A: One motion is admitted but not balloted yet while other motion is ready to be put up (Nameclubbing Case)
+	    	else if(q1.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+					&& q2.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED)) {
+	    		Status nameclubbbingPutupStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_NAMECLUBBING, locale);
+	    		actualClubbingMotions(q1, q2, nameclubbbingPutupStatus, nameclubbbingPutupStatus, locale);
+	    		return true;
+	    	}
+	    	//Case 4B: One motion is admitted but not balloted yet while other motion is ready to be put up (Nameclubbing Case)
+	    	else if(q1.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED)
+					&& q2.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)) {
+	    		Status nameclubbbingPutupStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_NAMECLUBBING, locale);
+	    		actualClubbingMotions(q2, q1, nameclubbbingPutupStatus, nameclubbbingPutupStatus, locale);
+	    		return true;
+	    	}
+	    	//Case 5A: One motion is admitted but not balloted yet while other motion is pending in approval workflow (Nameclubbing Case)
+	    	else if(q1.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+					&& q2.getInternalStatus().getPriority().compareTo(putupStatus.getPriority()) > 0
+					&& q2.getInternalStatus().getPriority().compareTo(approvalStatus.getPriority()) < 0) {
+	    		Status nameclubbbingPutupStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_NAMECLUBBING, locale);
+	    		WorkflowDetails q2_workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(q2);
+	    		WorkflowDetails.endProcess(q2_workflowDetails);
+	    		q2.removeExistingWorkflowAttributes();
+	    		actualClubbingMotions(q1, q2, nameclubbbingPutupStatus, nameclubbbingPutupStatus, locale);
+	    		return true;
+	    	}
+	    	//Case 5B: One motion is admitted but not balloted yet while other motion is pending in approval workflow (Nameclubbing Case)
+	    	else if(q1.getInternalStatus().getPriority().compareTo(putupStatus.getPriority()) > 0
+					&& q1.getInternalStatus().getPriority().compareTo(approvalStatus.getPriority()) < 0
+					&& q2.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)) {
+	    		Status nameclubbbingPutupStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_NAMECLUBBING, locale);
+	    		WorkflowDetails q1_workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(q1);
+	    		if(q1_workflowDetails != null){
+	    			WorkflowDetails.endProcess(q1_workflowDetails);
+	    		}
+	    		q1.removeExistingWorkflowAttributes();
+	    		actualClubbingMotions(q2, q1, nameclubbbingPutupStatus, nameclubbbingPutupStatus, locale);
+	    		return true;
+	    	}
+	    	//Case 6: Both motions are admitted but not balloted
+	    	else if(q1.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)
+	    				&& q2.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)) {
+	    		Status clubbbingPostAdmissionPutupStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_CLUBBING_POST_ADMISSION, locale);
+	    		WorkflowDetails q1_workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(q1);
+	    		WorkflowDetails q2_workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(q2);
+	    		if(q1_workflowDetails==null && q2_workflowDetails==null) {
+	    			if(q1_DiscussionDate.compareTo(q2_DiscussionDate)==0 || q1.isFromDifferentBatch(q2)) {
+	        			if(q1.getNumber().compareTo(q2.getNumber())<0) {        
+	        				actualClubbingMotions(q1, q2, q2.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);          				
+	        				return true;
+	        			} else if(q1.getNumber().compareTo(q2.getNumber())>0) {
+	        				actualClubbingMotions(q2, q1, q1.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	        				return true;
+	        			} else {
+	        				return false;
+	        			}
+	        		} else if(q1_DiscussionDate.compareTo(q2_DiscussionDate)<0) {
+	        			actualClubbingMotions(q1, q2, q2.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	        			return true;
+	        		} else if(q1_DiscussionDate.compareTo(q2_DiscussionDate)>0) {
+	        			actualClubbingMotions(q2, q1, q1.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	        			return true;
+	        		} else {
+	        			return false;
+	        		}
+	    		} else if(q1_workflowDetails!=null && q2_workflowDetails!=null) {
+	    			int q1_approvalLevel = Integer.parseInt(q1_workflowDetails.getAssigneeLevel());
+	        		int q2_approvalLevel = Integer.parseInt(q2_workflowDetails.getAssigneeLevel());
+	        		if(q1_approvalLevel==q2_approvalLevel) {
+	        			if(q1_DiscussionDate.compareTo(q2_DiscussionDate)==0 || q1.isFromDifferentBatch(q2)) {
+	            			if(q1.getNumber().compareTo(q2.getNumber())<0) {        
+	            				WorkflowDetails.endProcess(q2_workflowDetails);
+	            				q2.removeExistingWorkflowAttributes();
+	            				actualClubbingMotions(q1, q2, q2.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);          				
+	            				return true;
+	            			} else if(q1.getNumber().compareTo(q2.getNumber())>0) {
+	            				WorkflowDetails.endProcess(q1_workflowDetails);
+	            				q1.removeExistingWorkflowAttributes();
+	            				actualClubbingMotions(q2, q1, q1.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	            				return true;
+	            			} else {
+	            				return false;
+	            			}
+	            		} else if(q1_DiscussionDate.compareTo(q2_DiscussionDate)<0) {
+	            			WorkflowDetails.endProcess(q2_workflowDetails);
+	            			q2.removeExistingWorkflowAttributes();
+	            			actualClubbingMotions(q1, q2, q2.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	            			return true;
+	            		} else if(q1_DiscussionDate.compareTo(q2_DiscussionDate)>0) {
+	            			WorkflowDetails.endProcess(q1_workflowDetails);
+	            			q1.removeExistingWorkflowAttributes();
+	            			actualClubbingMotions(q2, q1, q1.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	            			return true;
+	            		} else {
+	            			return false;
+	            		}
+	        		} else if(q1_approvalLevel>q2_approvalLevel) {
+	        			WorkflowDetails.endProcess(q2_workflowDetails);
+	        			q2.removeExistingWorkflowAttributes();
+	        			actualClubbingMotions(q1, q2, q2.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	        			return true;
+	        		} else if(q1_approvalLevel<q2_approvalLevel) {
+	        			WorkflowDetails.endProcess(q1_workflowDetails);
+	        			q1.removeExistingWorkflowAttributes();
+	        			actualClubbingMotions(q2, q1, q1.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	        			return true;
+	        		} else {
+	        			return false;
+	        		}
+	    		} else if(q1_workflowDetails==null && q2_workflowDetails!=null) {
+	    			WorkflowDetails.endProcess(q2_workflowDetails);
+	    			q2.removeExistingWorkflowAttributes();
+	    			actualClubbingMotions(q1, q2, q2.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);          				
+					return true;
+	    		} else if(q1_workflowDetails!=null && q2_workflowDetails==null) {
+	    			WorkflowDetails.endProcess(q1_workflowDetails);
+	    			q1.removeExistingWorkflowAttributes();
+	    			actualClubbingMotions(q2, q1, q1.getInternalStatus(), clubbbingPostAdmissionPutupStatus, locale);
+	    			return true;
+	    		} else {
+	    			return false;
+	    		}
+	    	}    	
+	    	else {
+	    		return false;
+	    	}
+    	}
+    }  
+    
+    public Boolean isFromDifferentBatch(CutMotion q) {
+		Boolean isFromDifferentBatch = false;
+		if(q!=null && this.getSession().findHouseType().equals(ApplicationConstants.UPPER_HOUSE)
+				&& q.getSession().findHouseType().equals(ApplicationConstants.UPPER_HOUSE)
+				&& this.getSession().getId().equals(q.getSession().getId())) {
+			
+			String firstBatchStartDateParameter = null;
+			String firstBatchEndDateParameter = null;
+			
+			if(q.getDeviceType().getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)){
+				firstBatchStartDateParameter = this.getSession().getParameter(ApplicationConstants.CUTMOTION_BUDGETARY_FIRST_BATCH_START_TIME);
+				firstBatchEndDateParameter = this.getSession().getParameter(ApplicationConstants.CUTMOTION_BUDGETARY_FIRST_BATCH_END_TIME);
+			}else if(q.getDeviceType().getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)){
+				firstBatchStartDateParameter = this.getSession().getParameter(ApplicationConstants.CUTMOTION_SUPPLEMENTARY_FIRST_BATCH_START_TIME);
+				firstBatchEndDateParameter = this.getSession().getParameter(ApplicationConstants.CUTMOTION_SUPPLEMENTARY_FIRST_BATCH_END_TIME);
+			}
+			
+			if(firstBatchStartDateParameter!=null&&firstBatchEndDateParameter!=null){
+				if((!firstBatchStartDateParameter.isEmpty())&&(!firstBatchEndDateParameter.isEmpty())){
+					Date firstBatchStartDate = FormaterUtil.formatStringToDate(firstBatchStartDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
+					Date firstBatchEndDate = FormaterUtil.formatStringToDate(firstBatchEndDateParameter, ApplicationConstants.DB_DATETIME_FORMAT);
+					String this_batch = "";
+					if(this.getSubmissionDate().compareTo(firstBatchStartDate)>=0
+							&& this.getSubmissionDate().compareTo(firstBatchEndDate)<=0) {
+						this_batch = "FIRST_BATCH";
+					} else if(this.getSubmissionDate().compareTo(firstBatchEndDate)>0) {
+						this_batch = "SECOND_BATCH";
+					}
+					String q_batch = "";
+					if(q.getSubmissionDate().compareTo(firstBatchStartDate)>=0
+							&& q.getSubmissionDate().compareTo(firstBatchEndDate)<=0) {
+						q_batch = "FIRST_BATCH";
+					} else if(this.getSubmissionDate().compareTo(firstBatchEndDate)>0) {
+						q_batch = "SECOND_BATCH";
+					}
+					if(!this_batch.isEmpty() && !q_batch.isEmpty() && !this_batch.equals(q_batch)) {
+						isFromDifferentBatch = true;
+					}
+				}
+			}
+		}
+		return isFromDifferentBatch;
+	}
+    
+    private static void actualClubbingMotions(CutMotion parent, CutMotion child,
+			Status newInternalStatus, Status newRecommendationStatus,String locale) throws ELSException {
+		/**** a.Clubbed entities of parent motion are obtained 
+		 * b.Clubbed entities of child motion are obtained
+		 * c.Child motion is updated(parent,internal status,recommendation status) 
+		 * d.Child Motion entry is made in Clubbed Entity and child motion clubbed entity is added to parent clubbed entity 
+		 * e.Clubbed entities of child motions are updated(parent,internal status,recommendation status)
+		 * f.Clubbed entities of parent(child motion clubbed entities,other clubbed entities of child question and 
+		 * clubbed entities of parent motion is updated)
+		 * g.Position of all clubbed entities of parent are updated in order of their answering date and number ****/
+		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
+			for(ClubbedEntity i:parent.getClubbedEntities()){
+				// parent & child need not be disjoint. They could
+				// be present in each other's hierarchy.
+				Long childMnId = child.getId();
+				CutMotion clubbedMn = i.getCutMotion();
+				Long clubbedMnId = clubbedMn.getId();
+				if(! childMnId.equals(clubbedMnId)) {
+					parentClubbedEntities.add(i);
+				}
+			}			
+		}
+
+		List<ClubbedEntity> childClubbedEntities=new ArrayList<ClubbedEntity>();
+		if(child.getClubbedEntities()!=null && !child.getClubbedEntities().isEmpty()){
+			for(ClubbedEntity i:child.getClubbedEntities()){
+				// parent & child need not be disjoint. They could
+				// be present in each other's hierarchy.
+				Long parentMnId = parent.getId();
+				CutMotion clubbedMn = i.getCutMotion();
+				Long clubbedMnId = clubbedMn.getId();
+				if(! parentMnId.equals(clubbedMnId)) {
+					childClubbedEntities.add(i);
+				}
+			}
+		}	
+
+		child.setParent(parent);
+		child.setClubbedEntities(null);
+		child.setInternalStatus(newInternalStatus);
+		child.setRecommendationStatus(newRecommendationStatus);
+		child.merge();
+
+		ClubbedEntity clubbedEntity=new ClubbedEntity();
+		clubbedEntity.setDeviceType(child.getDeviceType());
+		clubbedEntity.setLocale(child.getLocale());
+		clubbedEntity.setCutMotion(child);
+		clubbedEntity.persist();
+		parentClubbedEntities.add(clubbedEntity);		
+
+		CustomParameter csptClubbingMode = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CUTMOTION_CLUBBING_MODE, "");
+		if(csptClubbingMode != null){
+			if(csptClubbingMode.getValue() != null && !csptClubbingMode.getValue().isEmpty()){
+			
+				if(csptClubbingMode.getValue().equals("normal")){
+					Status submitted = Status.findByType(ApplicationConstants.CUTMOTION_SUBMIT, locale);
+					
+					if(childClubbedEntities != null && !childClubbedEntities.isEmpty()){
+						for(ClubbedEntity k : childClubbedEntities){
+							CutMotion motion = k.getCutMotion();					
+							
+							WorkflowDetails wd = WorkflowDetails.findCurrentWorkflowDetail(motion);
+							if(wd != null){
+								WorkflowDetails.endProcess(wd);
+								motion.removeExistingWorkflowAttributes();
+							}
+							
+							motion.setInternalStatus(newInternalStatus);
+							motion.setRecommendationStatus(newRecommendationStatus);
+							motion.setStatus(submitted);
+							motion.setParent(parent);
+							motion.merge();
+							parentClubbedEntities.add(k);
+						}			
+					}
+					
+				}else if(csptClubbingMode.getValue().equals("workflow")){
+					if(childClubbedEntities!=null&& !childClubbedEntities.isEmpty()){
+						for(ClubbedEntity k:childClubbedEntities){
+							CutMotion motion=k.getCutMotion();					
+							/** find current clubbing workflow if pending **/
+							String pendingWorkflowTypeForMotion = "";
+							
+							if(motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_CLUBBING)
+									|| motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING)) {
+								pendingWorkflowTypeForMotion = ApplicationConstants.CLUBBING_WORKFLOW;
+							} else if(motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_NAME_CLUBBING)
+									|| motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_NAME_CLUBBING)) {
+								pendingWorkflowTypeForMotion = ApplicationConstants.NAMECLUBBING_WORKFLOW;
+							} else if(motion.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_CLUBBING_POST_ADMISSION)
+									|| motion.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)) {
+								pendingWorkflowTypeForMotion = ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW;
+							}
+							
+							
+							if(pendingWorkflowTypeForMotion!=null && !pendingWorkflowTypeForMotion.isEmpty()) {
+								/** end current clubbing workflow **/
+								WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(motion, pendingWorkflowTypeForMotion);
+								if(wfDetails != null){
+									WorkflowDetails.endProcess(wfDetails);
+								}
+								motion.removeExistingWorkflowAttributes();
+								
+								/** put up for proper clubbing workflow as per updated parent **/
+								Status finalAdmitStatus = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION , locale);
+								Integer parent_finalAdmissionStatusPriority = finalAdmitStatus.getPriority();
+								Integer motion_finalAdmissionStatusPriority = finalAdmitStatus.getPriority();					
+								
+								if(parent.getStatus().getPriority().compareTo(parent_finalAdmissionStatusPriority)<0) {
+									Status putupForClubbingStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_CLUBBING , locale);
+									motion.setInternalStatus(putupForClubbingStatus);
+									motion.setRecommendationStatus(putupForClubbingStatus);
+								} else {
+									if(motion.getStatus().getPriority().compareTo(motion_finalAdmissionStatusPriority)<0) {
+										Status putupForNameClubbingStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_NAMECLUBBING , locale);
+										motion.setInternalStatus(putupForNameClubbingStatus);
+										motion.setRecommendationStatus(putupForNameClubbingStatus);
+									} else {
+										Status putupForClubbingPostAdmissionStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_CLUBBING_POST_ADMISSION , locale);
+										motion.setInternalStatus(putupForClubbingPostAdmissionStatus);
+										motion.setRecommendationStatus(putupForClubbingPostAdmissionStatus);
+									}
+								}
+							}
+							motion.setParent(parent);
+							motion.merge();
+							parentClubbedEntities.add(k);
+						}			
+					}
+				}
+			}
+			
+			boolean isChildBecomingParentCase = false;
+			if(parent.getParent()!=null) {
+				isChildBecomingParentCase = true;
+				parent.setParent(null);
+			}		
+			parent.setClubbedEntities(parentClubbedEntities);
+			if(isChildBecomingParentCase) {
+				Long parent_currentVersion = parent.getVersion();
+				parent_currentVersion++;
+				parent.setVersion(parent_currentVersion);
+				parent.simpleMerge();
+			} else {
+				parent.merge();
+			}		
+
+			List<ClubbedEntity> clubbedEntities=parent.findClubbedEntitiesByDiscussionDateMotionNumber(ApplicationConstants.ASC,locale);
+			Integer position=1;
+			for(ClubbedEntity i:clubbedEntities){
+				i.setPosition(position);
+				position++;
+				i.merge();
+			}
+		}
+	}
+    
+    public void removeExistingWorkflowAttributes() {
+		// Update question so as to remove existing workflow
+		// based attributes
+		this.setEndFlag(null);
+		this.setLevel("1");
+		this.setTaskReceivedOn(null);
+		this.setWorkflowDetailsId(null);
+		this.setWorkflowStarted("NO");
+		this.setWorkflowStartedOn(null);
+		this.setActor(null);
+		this.setLocalizedActorName("");	
+		this.simpleMerge();
+	}
+    
+    public List<ClubbedEntity> findClubbedEntitiesByDiscussionDateMotionNumber(final String sortOrder, final String locale) {
+    	return getCutMotionRepository().findClubbedEntitiesByDiscussionDateMotionNumber(this,sortOrder, locale);
+    }
+    
+	//************************Clubbing**********************
+    
+    //************************Unclubbing********************
+    public static boolean unclub(final Long m1, final Long m2, String locale) throws ELSException {
+		CutMotion motion1 = CutMotion.findById(CutMotion.class, m1);
+		CutMotion motion2 = CutMotion.findById(CutMotion.class, m2);
+		return unclub(motion1, motion2, locale);
+	}
+    
+    public static boolean unclub(final CutMotion q1, final CutMotion q2, String locale) throws ELSException {
+		boolean clubbingStatus = false;
+		if(q1.getParent()==null && q2.getParent()==null) {
+			throw new ELSException("error", "CLUBBED_MOTION_NOT_FOUND");
+		}
+		if(q2.getParent()!=null && q2.getParent().equals(q1)) {
+			clubbingStatus = actualUnclubbing(q1, q2, locale);
+		} else if(q1.getParent()!=null && q1.getParent().equals(q2)) {
+			clubbingStatus = actualUnclubbing(q2, q1, locale);
+		} else {
+			throw new ELSException("error", "NO_CLUBBING_BETWEEN_GIVEN_MOTIONS");
+		}
+		return clubbingStatus;
+	}
+	
+	public static boolean unclub(final CutMotion motion, String locale) throws ELSException {
+		boolean clubbingStatus = false;
+		if(motion.getParent()==null) {
+			throw new ELSException("error", "MOTION_NOT_CLUBBED");
+		}
+		clubbingStatus = actualUnclubbing(motion.getParent(), motion, locale);
+		return clubbingStatus;
+	}
+	
+	public static boolean actualUnclubbing(final CutMotion parent, final CutMotion child, String locale) throws ELSException {
+		boolean clubbingStatus = false;
+		clubbingStatus = actualUnclubbingMotions(parent, child, locale);		
+		return clubbingStatus;
+	}
+	
+	public static boolean actualUnclubbingMotions(final CutMotion parent, final CutMotion child, String locale) throws ELSException {
+		
+		boolean retVal = false;
+		CustomParameter csptClubbingMode = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CUTMOTION_CLUBBING_MODE, "");
+    	
+    	if(csptClubbingMode != null && csptClubbingMode.getValue() != null 
+    			&& !csptClubbingMode.getValue().isEmpty() && csptClubbingMode.getValue().equals("normal")){
+    		Status putupStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED, locale);
+    		Status submitStatus = Status.findByType(ApplicationConstants.CUTMOTION_SUBMIT, locale);
+    		
+    		/** remove child's clubbing entitiy from parent & update parent's clubbing entities **/
+			List<ClubbedEntity> oldClubbedMotions=parent.getClubbedEntities();
+			List<ClubbedEntity> newClubbedMotions=new ArrayList<ClubbedEntity>();
+			Integer position=0;
+			boolean found=false;
+			
+			for(ClubbedEntity i:oldClubbedMotions){
+				if(!i.getCutMotion().getId().equals(child.getId())){
+					if(found){
+						i.setPosition(position);
+						position++;
+						i.merge();
+						newClubbedMotions.add(i);
+					}else{
+						newClubbedMotions.add(i);                		
+					}
+				}else{
+					found = true;
+					position = i.getPosition();
+				}
+			}
+			if(!newClubbedMotions.isEmpty()){
+				parent.setClubbedEntities(newClubbedMotions);
+			}else{
+				parent.setClubbedEntities(null);
+			}            
+			parent.simpleMerge();
+			
+			/**break child's clubbing **/
+			child.setParent(null);
+			child.setInternalStatus(putupStatus);
+			child.setRecommendationStatus(putupStatus);
+			child.setStatus(submitStatus);
+			child.merge();
+			retVal = true;
+		}else{	
+			/** if child was clubbed with speaker/chairman approval then put up for unclubbing workflow **/
+			//TODO: write condition for above case & initiate code to send for unclubbing workflow
+			Status approvedStatus = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION, locale);		
+			if(child.getInternalStatus().getPriority().compareTo(approvedStatus.getPriority())>=0
+					&& !child.getRecommendationStatus().equals(ApplicationConstants.CUTMOTION_PUTUP_CLUBBING_POST_ADMISSION)
+					&& !child.getRecommendationStatus().equals(ApplicationConstants.CUTMOTION_RECOMMEND_CLUBBING_POST_ADMISSION)
+					&& !child.getRecommendationStatus().equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)) {
+				Status putupUnclubStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_UNCLUBBING, locale);
+				child.setRecommendationStatus(putupUnclubStatus);
+				child.merge();
+				retVal = true;
+			} else {
+				/** remove child's clubbing entitiy from parent & update parent's clubbing entities **/
+				List<ClubbedEntity> oldClubbedMotions=parent.getClubbedEntities();
+				List<ClubbedEntity> newClubbedMotions=new ArrayList<ClubbedEntity>();
+				Integer position=0;
+				boolean found=false;
+				for(ClubbedEntity i:oldClubbedMotions){
+					if(! i.getCutMotion().getId().equals(child.getId())){
+						if(found){
+							i.setPosition(position);
+							position++;
+							i.merge();
+							newClubbedMotions.add(i);
+						}else{
+							newClubbedMotions.add(i);                		
+						}
+					}else{
+						found=true;
+						position=i.getPosition();
+					}
+				}
+				if(!newClubbedMotions.isEmpty()){
+					parent.setClubbedEntities(newClubbedMotions);
+				}else{
+					parent.setClubbedEntities(null);
+				}            
+				parent.simpleMerge();
+				/**break child's clubbing **/
+				child.setParent(null);
+				/** find & end current clubbing workflow of child if pending **/
+				String pendingWorkflowTypeForMotion = "";
+				if(child.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_CLUBBING)
+						|| child.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING)) {
+					pendingWorkflowTypeForMotion = ApplicationConstants.CLUBBING_WORKFLOW;
+				} else if(child.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_NAME_CLUBBING)
+						|| child.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_NAME_CLUBBING)) {
+					pendingWorkflowTypeForMotion = ApplicationConstants.NAMECLUBBING_WORKFLOW;
+				} else if(child.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_CLUBBING_POST_ADMISSION)
+						|| child.getRecommendationStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLUBBING_POST_ADMISSION)) {
+					pendingWorkflowTypeForMotion = ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW;
+				}
+				if(pendingWorkflowTypeForMotion!=null && !pendingWorkflowTypeForMotion.isEmpty()) {
+					WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(child, pendingWorkflowTypeForMotion);	
+					WorkflowDetails.endProcess(wfDetails);
+					child.removeExistingWorkflowAttributes();
+				}
+				/** update child status **/
+				Status putupStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED, locale);
+				Status admitStatus = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION, locale);
+				if(child.getInternalStatus().getPriority().compareTo(admitStatus.getPriority())<0) {
+					child.setInternalStatus(putupStatus);
+					child.setRecommendationStatus(putupStatus);
+				} else {
+					if(child.getReply()==null || child.getReply().isEmpty()) {
+						child.setInternalStatus(admitStatus);
+						child.setRecommendationStatus(admitStatus);
+						Workflow processWorkflow = Workflow.findByStatus(admitStatus, locale);
+						UserGroupType assistantUGT = UserGroupType.findByType(ApplicationConstants.ASSISTANT, locale);
+						WorkflowDetails.startProcessAtGivenLevel(child, ApplicationConstants.APPROVAL_WORKFLOW, processWorkflow, assistantUGT, 1, locale);
+					} else {
+						child.setInternalStatus(admitStatus);
+						Status answerReceivedStatus = Status.findByType(ApplicationConstants.CUTMOTION_PROCESSED_ANSWER_RECEIVED, locale);
+						child.setRecommendationStatus(answerReceivedStatus);
+					}
+				}
+			}	
+			child.merge();
+			retVal = true;
+		}
+		return retVal;
+	}
+    //************************Unclubbing********************
+	//************************Clubbing unclubbing update*********************
+	/**** Motion Update Clubbing Starts ****/
+    public static void updateClubbing(CutMotion motion) throws ELSException {
+		//case 1: motion is child
+		if(motion.getParent()!=null) {
+			CutMotion.updateClubbingForChild(motion);
+		} 
+		//case 2: motion is parent
+		else if(motion.getParent()==null && motion.getClubbedEntities()!=null && !motion.getClubbedEntities().isEmpty()) {
+			CutMotion.updateClubbingForParent(motion);
+		}
+	}
+    
+    private static void updateClubbingForChild(CutMotion motion) throws ELSException {
+		updateClubbingForChildMotion(motion);
+	}
+    
+    private static void updateClubbingForChildMotion(CutMotion motion) throws ELSException {
+		String locale = motion.getLocale();
+		CutMotion parentMotion = motion.getParent();
+		    	
+    	Status putupStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED, motion.getLocale());
+		Status approvalStatus = Status.findByType(ApplicationConstants.CUTMOTION_FINAL_ADMISSION, motion.getLocale());
+		
+		if(motion.isFromDifferentBatch(parentMotion)) {
+			
+			if(parentMotion.getNumber().compareTo(motion.getNumber())<0) {
+				
+				updateDomainFieldsOnClubbingFinalisation(parentMotion, motion);
+				
+				if(parentMotion.getInternalStatus().getPriority().compareTo(approvalStatus.getPriority())<0) {
+					Status clubbedStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED, motion.getLocale());
+					motion.setInternalStatus(clubbedStatus);
+					motion.setRecommendationStatus(clubbedStatus);
+				} else {
+					motion.setStatus(parentMotion.getInternalStatus());
+					motion.setInternalStatus(parentMotion.getInternalStatus());
+					motion.setRecommendationStatus(parentMotion.getInternalStatus());
+				}
+				motion.simpleMerge();
+				
+			} else if(parentMotion.getNumber().compareTo(motion.getNumber())>0) {				
+				
+				WorkflowDetails parentMoion_workflowDetails = WorkflowDetails.findCurrentWorkflowDetail(parentMotion);
+				if(parentMoion_workflowDetails!=null) {
+					WorkflowDetails.endProcess(parentMoion_workflowDetails);					
+					parentMotion.removeExistingWorkflowAttributes();
+				}
+				if(parentMotion.getInternalStatus().getPriority().compareTo(approvalStatus.getPriority())<0) {
+					motion.setInternalStatus(putupStatus);
+					motion.setRecommendationStatus(putupStatus);
+					
+					//updateDomainFieldsOnClubbingFinalisation(question, parentQuestion);
+					
+					Status clubbedStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED, motion.getLocale());
+					actualClubbingMotions(motion, parentMotion, clubbedStatus, clubbedStatus, locale);
+				} else {
+					motion.setStatus(parentMotion.getInternalStatus());
+					motion.setInternalStatus(parentMotion.getInternalStatus());
+					if(parentMotion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)) {
+						Status admitDueToReverseClubbingStatus = Status.findByType(ApplicationConstants.CUTMOTION_PUTUP_ADMIT_DUE_TO_REVERSE_CLUBBING, motion.getLocale());
+						motion.setRecommendationStatus(admitDueToReverseClubbingStatus);
+						Workflow admitDueToReverseClubbingWorkflow = Workflow.findByStatus(admitDueToReverseClubbingStatus, locale);
+						WorkflowDetails.startProcess(motion, ApplicationConstants.APPROVAL_WORKFLOW, admitDueToReverseClubbingWorkflow, locale);
+					} else {
+						//TODO:handle case when parent is already rejected.. below is temporary fix
+						//clarification from ketkip remaining
+						motion.setRecommendationStatus(parentMotion.getInternalStatus());	
+						
+					}					
+					if(parentMotion.getReply()!=null && (motion.getReply()==null || motion.getReply().isEmpty())) {
+						motion.setReply(parentMotion.getReply());
+					}
+					updateDomainFieldsOnClubbingFinalisation(motion, parentMotion);
+									
+					actualClubbingMotions(motion, parentMotion, parentMotion.getInternalStatus(), parentMotion.getInternalStatus(), locale);
+				}
+			}
+		} else {
+			
+				
+			updateDomainFieldsOnClubbingFinalisation(parentMotion, motion);
+			
+			if(parentMotion.getInternalStatus().getPriority().compareTo(approvalStatus.getPriority())<0) {
+				Status clubbedStatus = Status.findByType(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED, motion.getLocale());
+				motion.setInternalStatus(clubbedStatus);
+				motion.setRecommendationStatus(clubbedStatus);
+			} else {
+				motion.setStatus(parentMotion.getInternalStatus());
+				motion.setInternalStatus(parentMotion.getInternalStatus());
+				motion.setRecommendationStatus(parentMotion.getInternalStatus());
+			}
+			motion.simpleMerge();
+		}
+	}
+    
+    public static void updateDomainFieldsOnClubbingFinalisation(CutMotion parent, CutMotion child) {
+    	updateDomainFieldsOnClubbingFinalisationForMotion(parent, child);		
+    }
+    
+    private static void updateDomainFieldsOnClubbingFinalisationForMotion(CutMotion parent, CutMotion child) {
+    	updateDomainFieldsOnClubbingFinalisationCommon(parent, child);
+    }
+    
+    private static void updateDomainFieldsOnClubbingFinalisationCommon(CutMotion parent, CutMotion child) {
+		/** copy latest subject of parent to revised subject of child **/
+		if(parent.getRevisedMainTitle()!=null && !parent.getRevisedMainTitle().isEmpty()) {
+			child.setRevisedMainTitle(parent.getRevisedMainTitle());
+		} else {
+			child.setRevisedMainTitle(parent.getMainTitle());
+		}
+		if(parent.getRevisedSubTitle()!=null && !parent.getRevisedSubTitle().isEmpty()) {
+			child.setRevisedSubTitle(parent.getRevisedSubTitle());
+		} else {
+			child.setRevisedSubTitle(parent.getSubTitle());
+		}
+		if(parent.getRevisedSecondaryTitle()!=null && !parent.getRevisedSecondaryTitle().isEmpty()) {
+			child.setRevisedSecondaryTitle(parent.getRevisedSecondaryTitle());
+		} else {
+			child.setRevisedSecondaryTitle(parent.getSecondaryTitle());
+		}
+		/** copy latest details text of parent to revised details text of child **/
+		if(parent.getRevisedNoticeContent()!=null && !parent.getRevisedNoticeContent().isEmpty()) {
+			child.setRevisedNoticeContent(parent.getRevisedNoticeContent());
+		} else {
+			child.setRevisedNoticeContent(parent.getNoticeContent());
+		}
+		/** copy latest answer of parent to revised answer of child **/
+		child.setReply(parent.getReply());
+	}
+    
+    private static void updateClubbingForParent(CutMotion motion) {
+    	updateClubbingForParentMotion(motion);		
+	}
+
+	private static void updateClubbingForParentMotion(CutMotion motion) {
+		for(ClubbedEntity ce: motion.getClubbedEntities()) {
+			CutMotion clubbedMotion = ce.getCutMotion();
+			if(clubbedMotion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED)) {
+				
+				updateDomainFieldsOnClubbingFinalisation(motion, clubbedMotion);
+				
+				clubbedMotion.setStatus(motion.getInternalStatus());
+				clubbedMotion.setInternalStatus(motion.getInternalStatus());
+				clubbedMotion.setRecommendationStatus(motion.getInternalStatus());				
+				clubbedMotion.merge();
+			}
+		}
+	}
+	//************************Clubbing unclubbing update**********************
 	/**** Getter Setters ****/
 	public HouseType getHouseType() {
 		return houseType;
@@ -985,11 +1927,11 @@ public class CutMotion extends Device implements Serializable {
 		this.clubbedEntities = clubbedEntities;
 	}
 		
-	public List<ReferencedEntity> getReferencedEntities() {
+	public List<ReferenceUnit> getReferencedEntities() {
 		return referencedEntities;
 	}
 
-	public void setReferencedEntities(List<ReferencedEntity> referencedEntities) {
+	public void setReferencedEntities(List<ReferenceUnit> referencedEntities) {
 		this.referencedEntities = referencedEntities;
 	}
 

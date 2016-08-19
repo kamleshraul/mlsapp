@@ -232,13 +232,13 @@
 	                		<fo:block font-size="9pt">&#160;</fo:block>
 	                		<fo:block>
 	                			<xsl:choose>
-	                				<xsl:when test="not(element_1_8)">
+	                				<xsl:when test="not(element_1_8) or element_1_8=''">
 	                					<fo:block font-weight="bold" text-align="center">
 	                						(उत्तर आले नाही.)
 	                					</fo:block>
 	                				</xsl:when>
 	                				<xsl:otherwise>
-	                					<fo:inline font-weight="bold"><xsl:value-of select="element_1_9"/> (<xsl:value-of select="element_1_13"/>) :</fo:inline>
+	                					<fo:inline font-weight="bold"><xsl:value-of select="element_1_9"/> (<xsl:value-of select="element_1_14"/>) :</fo:inline>
 			                			<xsl:apply-templates select="element_1_8"></xsl:apply-templates>
 	                				</xsl:otherwise>
 	                			</xsl:choose>	                			

@@ -65,11 +65,11 @@
 						<th><spring:message code='group.rotationorder.dayofweek' text='Day Of Week'></spring:message></th>
 						<th><spring:message code='group.rotationorder.answeringDate' text='Answering Date'></spring:message></th>
 						<th><spring:message code='group.rotationorder.submissionDate' text='Final Submission Date'></spring:message></th>
-						<c:choose>
+						<%-- <c:choose>
 							<c:when test="${aadwaHouseType=='lowerhouse'}" >
 								<th><spring:message code='group.rotationorder.speakerSendingDate' text='Speaker Sending Date'></spring:message></th>
 							</c:when>
-						</c:choose>
+						</c:choose> --%>
 						<th><spring:message code='group.rotationorder.lastSendingDateToDepartment' text='Last Sending Date To department'></spring:message></th>
 						<th><spring:message code='group.rotationorder.lastReceivingDateFromDepartment' text='Last receiving date From Department'></spring:message></th>
 						<th><spring:message code  ='group.rotationorder.yaadiPrintingDate' text='Yaadi printing Date'></spring:message></th>
@@ -85,7 +85,8 @@
 						<c:if test="${count==i.rowId or count > i.rowId}">
 							<c:choose>
 								<c:when test="${aadwaHouseType=='lowerhouse'}">
-									<tr><td colspan="12">&nbsp;</td></tr>
+									<!-- <tr><td colspan="12">&nbsp;</td></tr> -->
+									<tr><td colspan="11">&nbsp;</td></tr>
 								</c:when>
 								<c:when test="${aadwaHouseType=='upperhouse'}">
 									<tr><td colspan="11">&nbsp;</td></tr>
@@ -104,11 +105,11 @@
 							<td>${i.dayOfWeek }</td>
 							<td>${i.answeringDate }</td>
 							<td>${i.finalSubmissionDate }</td>
-							<c:choose>
+							<%-- <c:choose>
 								<c:when test="${aadwaHouseType=='lowerhouse'}">
 									<td>${i.speakerSendingDate }</td>
 								</c:when>
-							</c:choose>
+							</c:choose> --%>
 							<td>${i.lastSendingDateToDepartment }</td>
 							<td>${i.lastReceivingDateFromDepartment }</td>
 							<td>${i.yaadiPrintingDate }</td>

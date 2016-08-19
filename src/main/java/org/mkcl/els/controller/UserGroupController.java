@@ -10,8 +10,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.CommitteeName;
 import org.mkcl.els.domain.Credential;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
@@ -55,6 +57,12 @@ public class UserGroupController extends GenericController<UserGroup>{
 			String strCredential=request.getParameter("credential");
 			Credential credential=Credential.findById(Credential.class,Long.parseLong(strCredential));
 			domain.setCredential(credential);
+			/****Allowed Groups ****/
+			User user  = User.findByUserName(credential.getUsername(), locale);
+			if(user != null){
+				model.addAttribute("groupsAllowed", user.getGroupsAllowed());
+			}
+			
 			/**** User Group Types ****/
 			List<UserGroupType> userGroupTypes=UserGroupType.findAll(UserGroupType.class,"name",ApplicationConstants.ASC, locale);
 			model.addAttribute("userGroupTypes",userGroupTypes);
@@ -67,6 +75,23 @@ public class UserGroupController extends GenericController<UserGroup>{
 			/**** Device Types ****/
 			List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "name",ApplicationConstants.ASC, locale);
 			model.addAttribute("deviceTypes", deviceTypes);
+			
+			/*** To get the sates for an actor ***/
+			CustomParameter csptActorStates = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ACTOR_STATES, "");
+			List<Reference> refs = new ArrayList<Reference>();			
+			if(csptActorStates != null){
+				if(csptActorStates.getValue() != null && !csptActorStates.getValue().isEmpty()){
+					String[] states = csptActorStates.getValue().split(",");
+					for(String st : states){
+						String[] sts = st.split(";");
+						Reference ref = new Reference(sts[0], sts[1]);
+						refs.add(ref);
+					}
+				}				
+			}
+			model.addAttribute("actorstates", refs);
+			
+			
 			/**** Locale ****/
 			domain.setLocale(locale);
 			model.addAttribute("locale",locale);
@@ -102,7 +127,9 @@ public class UserGroupController extends GenericController<UserGroup>{
 			model.addAttribute("deviceTypes", deviceTypes);
 			model.addAttribute("selectedDeviceType",domain.getParameterValue("DEVICETYPE_"+locale).trim());
 			/**** Ministries ****/
-			List<Ministry> ministries=Ministry.findAssignedMinistries(locale);
+			//List<Ministry> ministries= Ministry.findAssignedMinistries(locale);
+			/** HACK to allow previous users to view assigned ministries and departments and subdepartments****/
+			List<Ministry> ministries= MemberMinister.findAssignedMinistries(domain.getActiveFrom(), domain.getActiveTo(), locale);
 			model.addAttribute("ministries",ministries);		
 			String strMinistry=domain.getParameterValue("MINISTRY_"+locale);
 			if(strMinistry!=null){
@@ -110,25 +137,44 @@ public class UserGroupController extends GenericController<UserGroup>{
 					model.addAttribute("selectedMinistry",strMinistry);
 					String[] ministriesList=strMinistry.split("##");
 					/**** Departments ****/
-					List<Department> departments=MemberMinister.findAssignedDepartments(ministriesList, locale);
-					model.addAttribute("departments",departments);
-					String strDepartment=domain.getParameterValue("DEPARTMENT_"+locale);
-					if(strDepartment!=null){
-						if(!strDepartment.isEmpty()){
-							model.addAttribute("selectedDepartment",strDepartment);
-							/**** Sub Departments ****/
-							String[] departmentList=strDepartment.split("##");
-							List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministriesList,departmentList, locale);
-							model.addAttribute("subdepartments", subDepartments);
-							String strSubDepartment=domain.getParameterValue("SUBDEPARTMENT_"+locale);
-							model.addAttribute("selectedSubDepartment",strSubDepartment);
-						}
-					}
+					//List<Department> departments=MemberMinister.findAssignedDepartments(ministriesList, locale);
+//					List<Department> departments=Department.findAll(Department.class, "name", ApplicationConstants.ASC, locale);
+//					model.addAttribute("departments",departments);
+//					String strDepartment=domain.getParameterValue("DEPARTMENT_"+locale);
+//					if(strDepartment!=null){
+//						if(!strDepartment.isEmpty()){
+//							model.addAttribute("selectedDepartment",strDepartment);
+//							/**** Sub Departments ****/
+//							String[] departmentList=strDepartment.split("##");
+//							//List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministriesList,departmentList, locale);
+//							List<SubDepartment> subDepartments= SubDepartment.findAll(SubDepartment.class, "name", ApplicationConstants.ASC, locale);
+//							model.addAttribute("subdepartments", subDepartments);
+//							String strSubDepartment=domain.getParameterValue("SUBDEPARTMENT_"+locale);
+//							model.addAttribute("selectedSubDepartment",strSubDepartment);
+//						}
+//					}
+					List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministriesList,domain.getActiveFrom(),domain.getActiveTo(), locale);
+					model.addAttribute("subdepartments", subDepartments);
+					String strSubDepartment=domain.getParameterValue("SUBDEPARTMENT_"+locale);
+					model.addAttribute("selectedSubDepartment",strSubDepartment);
 				}
 			}		
 			/**** User Group Types ****/
 			List<UserGroupType> userGroupTypes=UserGroupType.findAll(UserGroupType.class,"name",ApplicationConstants.ASC, locale);
 			model.addAttribute("userGroupTypes",userGroupTypes);
+			
+			/****Allowed Groups ****/
+			String allowedGroups = domain.
+					getParameterValue(ApplicationConstants.GROUPSALLOWED_KEY + "_" + locale);
+			if(allowedGroups != null && !allowedGroups.isEmpty()){
+				model.addAttribute("groupsAllowed", allowedGroups);
+			}else{
+				Credential credential = domain.getCredential();
+				User user  = User.findByUserName(credential.getUsername(), locale);
+				if(user != null){
+					model.addAttribute("groupsAllowed", user.getGroupsAllowed());
+				}
+			}
 			
 			/**** Committee Names ****/
 			HouseType houseType = HouseType.findByName(strHouseType, locale);
@@ -138,6 +184,26 @@ public class UserGroupController extends GenericController<UserGroup>{
 			String strCommitteeNames = 
 				domain.getParameterValue("COMMITTEENAME_"+locale).trim();
 			model.addAttribute("selectedCommitteeName", strCommitteeNames);
+			
+			
+			/*** To get the sates for an actor ***/
+			CustomParameter csptActorStates = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ACTOR_STATES, "");
+			List<Reference> refs = new ArrayList<Reference>();			
+			if(csptActorStates != null){
+				if(csptActorStates.getValue() != null && !csptActorStates.getValue().isEmpty()){
+					String[] states = csptActorStates.getValue().split(",");
+					for(String st : states){
+						String[] sts = st.split(";");
+						Reference ref = new Reference(sts[0], sts[1]);
+						refs.add(ref);
+					}
+				}				
+			}
+			model.addAttribute("actorstates", refs);
+			model.addAttribute("selectedActorState", domain.getParameterValue("ACTORSTATE_" + locale));
+			
+			model.addAttribute("actorRemark", domain.getParameterValue("ACTORREMARK_" + locale));
+			
 		} catch (Exception e) {
 			String message = e.getMessage();
 			if(message == null){

@@ -40,21 +40,24 @@
 	//this is for loading sessions,ministries,group,departments,subdepartments,answering dates
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data) {
 			$("#subDepartment").empty();
-			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
-			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-				subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+			var subDepartmentText="<option value='' selected='selected'>----"
+				+ $("#pleaseSelectMsg").val() + "----</option>";
+			if(data.length>0) {
+			for(var i=0 ;i<data.length; i++){
+				subDepartmentText += "<option value='" + data[i].id + "'>" + data[i].name;
 			}
 			$("#subDepartment").html(subDepartmentText);			
 			}else{
 				$("#subDepartment").empty();
-				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
+				var subDepartmentText = 
+					"<option value ='' selected='selected'>----" + $("#pleaseSelectMsg").val() + "----</option>";				
 				$("#subDepartment").html(subDepartmentText);				
 			}
 		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
+			if($("#ErrorMsg").val() != ''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 			}else{
 				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
@@ -63,38 +66,59 @@
 		});
 	}	
 
-	function loadAnsweringDates(group,ministry){
-		$.get('ref/group/'+group+'/answeringdates',function(data){
-			if(data.length>0){
+	function loadAnsweringDates(group){
+		$.get('ref/group/' + group + '/answeringdates', function(data) {
+			if(data.length > 0){
 				$("#answeringDate").empty();				
-				var answeringDatesText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
-				for(var i=0;i<data.length;i++){
-					answeringDatesText+="<option value='"+data[i].id+"'>"+data[i].name;
+				var answeringDatesText = 
+					"<option value = '' selected = 'selected'>----" + $("#pleaseSelectMsg").val() + "----</option>";
+				for(var i=0 ; i<data.length ; i++){
+					answeringDatesText += "<option value='" + data[i].id + "'>" + data[i].name;
 				}
 				$("#answeringDate").html(answeringDatesText);						
 			}else{
 				$("#answeringDate").empty();
-				var answeringDatesText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
+				var answeringDatesText = 
+					"<option value = '' selected = 'selected'>----" + $("#pleaseSelectMsg").val() + "----</option>";
 				$("#answeringDate").html(answeringDatesText);		
 			}			
-			loadSubDepartments(ministry);
+		}).fail(function(data, s, b){
+			$("#error_p").html(data);
+			/*if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}*/
+			scrollTop();
+		});
+	}
+	
+/* 	function loadGroup(ministry){
+		$.get('ref/ministry/' + ministry + '/group?'+
+				'houseType=' + $("#houseType").val()+ 
+				'&sessionYear='+$("#sessionYear").val()+ 
+				'&sessionType='+$("#sessionType").val(),function(data){
+			$("#formattedGroup").val(data.name);
+			$("#group").val(data.id);			
+			loadAnsweringDates(data.id,ministry);			
 		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
+			if($("#ErrorMsg").val() != ''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 			}else{
 				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 			}
 			scrollTop();
 		});
-	}
-
-	function loadGroup(ministry){
-		$.get('ref/ministry/'+ministry+'/group?houseType='+$("#houseType").val()+'&sessionYear='+$("#sessionYear").val()+'&sessionType='+$("#sessionType").val(),function(data){
+	} */
+	
+	function loadGroup(subdepartment){
+		$.get('ref/subdepartment/' + subdepartment + '/group?'+
+				'session=' + $("#session").val(),function(data){
 			$("#formattedGroup").val(data.name);
 			$("#group").val(data.id);			
-			loadAnsweringDates(data.id,ministry);			
+			loadAnsweringDates(data.id);			
 		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
+			if($("#ErrorMsg").val() != ''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 			}else{
 				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
@@ -104,15 +128,15 @@
 	}
 
 	function loadMinistries(session){
-		$.get('ref/session/'+session+'/ministries',function(data){
+		$.get('ref/session/' + session + '/ministries', function(data) {
 			if(data.length>0){
-				var minsitryText="<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>";
-				for(var i=0;i<data.length;i++){
-					minsitryText+="<option value='"+data[i].id+"'>"+data[i].name;				
+				var minsitryText = "<option value=''>----" + $("#pleaseSelectMsg").val() + "----</option>";
+				for(var i=0 ; i<data.length; i++){
+					minsitryText += "<option value='" + data[i].id + "'>" + data[i].name;				
 				}
 				$("#ministry").empty();
 				$("#ministry").html(minsitryText);
-				loadGroup(data[i].id);
+				loadSubDepartments(data[i].id);
 			}else{
 				$("#ministry").empty();
 				$("#formattedGroup").val("");
@@ -133,28 +157,6 @@
 	
 	$(document).ready(function(){
 		
-		/*$("#formattedMinistry").change(function(){
-			var ministryVal=$('#ministry').val();
-			console.log(ministryVal);
-			if(ministryVal!=''){
-				console.log(ministryVal);
-				loadGroup(ministryVal);
-				loadSubDepartments(ministryVal);
-			}else{
-				$("#formattedGroup").val("");
-				$("#group").val("");				
-				//$("#department").empty();				
-				$("#subDepartment").empty();				
-				$("#answeringDate").empty();
-				//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
-				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
-				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");					
-			}
-		});	*/				
-		
-		/* if($('#ministrySelected').val()=="" || $('#ministrySelected').val()==undefined){		
-			$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>");
-		} */
 		$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
 		$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");
 		
@@ -173,19 +175,22 @@
 			//current value of autocomplete.if a value is found which is there in autocomplete but not in select box
 			//then that value will be removed from the select box.
 			var value=$(this).val();
-			$("select[name='"+controlName+"'] option:selected").each(function(){
-				var optionClass=$(this).attr("class");
-				if(value.indexOf(optionClass)==-1){
-					$("select[name='"+controlName+"'] option[class='"+optionClass+"']").remove();
+			$("select[name='" + controlName + "'] option:selected").each(function(){
+				var optionClass = $(this).attr("class");
+				if(value.indexOf(optionClass) == -1){
+					$("select[name='" + controlName + "'] option[class='" + optionClass + "']").remove();
 				}		
 			});	
 			$("select[name='"+controlName+"']").hide();				
 		});
+		
 		//http://api.jqueryui.com/autocomplete/#event-select
 		$( ".autosuggestmultiple" ).autocomplete({
 			minLength:3,
 			source: function( request, response ) {
-				$.getJSON( 'ref/member/supportingmembers?session='+$("#session").val()+'&primaryMemberId='+$('#primaryMember').val(), {
+				$.getJSON( 'ref/member/supportingmembers?'+
+						'session=' + $("#session").val() +
+						'&primaryMemberId='+ $('#primaryMember').val(), {
 					term: extractLast( request.term )
 				}, response ).fail(function(){
 					if($("#ErrorMsg").val()!=''){
@@ -209,35 +214,37 @@
 				//what happens when we are selecting a value from drop down
 				var terms = $(this).val().split(",");
 				//if select box is already present i.e atleast one option is already added
-				if($("select[name='"+controlName+"']").length>0){
-					if($("select[name='"+controlName+"'] option[value='"+ui.item.id+"']").length>0){
+				if($("select[name ='" + controlName + "']").length>0){
+					if($("select[name ='" + controlName + "'] option[value='" + ui.item.id + "']").length > 0){
 					//if option being selected is already present then do nothing
 					this.value = $(this).val();					
-					$("select[name='"+controlName+"']").hide();						
+					$("select[name ='" + controlName + "']").hide();						
 					}else{
 					//if option is not present then add it in select box and autocompletebox
-					if(ui.item.id!=undefined&&ui.item.value!=undefined){
-					var text="<option value='"+ui.item.id+"' selected='selected' class='"+ui.item.value+"'></option>";
-					$("select[name='"+controlName+"']").append(text);
+					if(ui.item.id != undefined && ui.item.value != undefined){
+					var text ="<option value ='"+ ui.item.id +"' selected='selected' class = '"
+								+ ui.item.value + "'></option>";
+					$("select[name='" + controlName + "']").append(text);
 					terms.pop();
 					terms.push( ui.item.value );
 					terms.push( "" );
 					this.value = terms.join( "," );
 					}							
-					$("select[name='"+controlName+"']").hide();								
+					$("select[name='" + controlName + "']").hide();								
 					}
 				}else{
-					if(ui.item.id!=undefined&&ui.item.value!=undefined){
-					text="<select name='"+$(this).attr("id")+"'  multiple='multiple'>";
-					textoption="<option value='"+ui.item.id+"' selected='selected' class='"+ui.item.value+"'></option>";				
-					text=text+textoption+"</select>";
+					if(ui.item.id != undefined && ui.item.value != undefined){
+					text = "<select name='"+ $(this).attr("id") + "'  multiple='multiple'>";
+					textoption = "<option value='" + ui.item.id + "' selected='selected'"+
+						" class='" + ui.item.value + "'></option>";				
+					text = text + textoption + "</select>";
 					$(this).after(text);
 					terms.pop();
 					terms.push( ui.item.value );
 					terms.push( "" );
 					this.value = terms.join( "," );
 					}	
-					$("select[name='"+controlName+"']").hide();									
+					$("select[name='" + controlName + "']").hide();									
 				}		
 				return false;
 			}
@@ -248,13 +255,9 @@
 		$("#submit").click(function(e){	
 			
 			var deviceTypeTemp='${selectedQuestionType}';
-			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
+			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'
+					&& $("#copyOfquestionText").val()!=undefined){
 				$('#questionText').val($('#copyOfquestionText').val());
-				//added to validate quetion number for half hour discussion--
-				/* if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
-					$.prompt($("#referenceQuestionIncorrectMsg").val());
-					return false;
-				} */
 			}
 		});
 		
@@ -275,7 +278,8 @@
 
 			//----------------vikas dhananjay----------------------------------------------------------------------------------------------
 			var deviceTypeTemp='${selectedQuestionType}';
-			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
+			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'
+					&& $("#copyOfquestionText").val()!=undefined){
 				$('#questionText').val($('#copyOfquestionText').val());
 				//added to validate quetion number for half hour discussion--
 				/* if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
@@ -318,6 +322,22 @@
 			}});			
 	        return false;  
 	    }); 
+		
+		/* $("#submitquestion").click(function(e){
+			//removing <p><br></p>  from wysiwyg editor
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});
+			
+			//$.blockUI({ message: '' });
+			$.get('otpauth/otpinut',function(data){
+				$.fancybox.open(data,{autoSize: false, width: 450, height:200});
+			},'html');
+			
+		}); */
 		//send for submission
 		$("#submitquestion").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -336,7 +356,8 @@
 				var submissionStartDate= '${startDate}';
 				var submissionEndDate= '${endDate}';
 				if($('#copyOfquestionText').val()!=undefined){
-					if((deviceTypeTemp=='questions_halfhourdiscussion_from_question')){
+					if((deviceTypeTemp=='questions_halfhourdiscussion_from_question')
+							&& $("#copyOfquestionText")!=undefined){
 						$('#questionText').val($('#copyOfquestionText').val());
 					}
 				}
@@ -387,15 +408,14 @@
 		       					$('html').animate({scrollTop:0}, 'slow');
 		       				 	$('body').animate({scrollTop:0}, 'slow');	
 		    					$.unblockUI();	   				 	   				
-		    	            }).fail(function(){
+		    	            }).fail(function (jqxhr, textStatus, err) {
 		    	            	$.unblockUI();
-		    					if($("#ErrorMsg").val()!=''){
-		    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-		    					}else{
-		    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-		    					}
-		    					scrollTop();
-		    				});
+		    	            	$("#error_p").html("Server returned an error\n" + err +
+	                                    "\n" + textStatus + "\n" +
+	                                    "Please try again later.\n"+jqxhr.status+"\n"+jqxhr.statusText).css({'color':'red', 'display':'block'});
+		    	            	
+		    	            	scrollTop();
+                            });
 		        }
 			}});			
 	        return false;  
@@ -427,25 +447,22 @@
 				
 				var sessionId = '${session}';
 				var locale='${domain.locale}';
-				
-				
-				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&deviceTypeId='+deviceTypeTemp+'&locale='+locale+'&view=view';
+				var url = 'ref/questionid?'+
+						'strQuestionNumber=' + questionNumber + 
+						'&strSessionId=' + sessionId +
+						'&deviceTypeId=' + deviceTypeTemp +
+						'&locale='+ locale +
+						'&view=view';
 				
 				//$.prompt(url);
 				
 				$.get(url, function(data) {
-					/* if(data.id==0){
-						$.prompt($('#noQuestionMsg').val());
-					}else if(data.id==-1){
-						$.prompt($("#questionNumberIncorrectMsg").val());
-					}else{ */
-						if(data.id!=0 && data.id!=-1){
-							$('#halfHourDiscussionReference_questionId_H').val(data.id);
-							$.get('question/viewquestion?qid='+data.id,function(data){
-								$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
-							},'html');
-						}
-					//}
+					if(data.id!=0 && data.id!=-1){
+						$('#halfHourDiscussionReference_questionId_H').val(data.id);
+						$.get('question/viewquestion?qid=' + data.id +'&questionType=' + deviceTypeTemp,function(data){
+							$.fancybox.open(data,{autoSize: false, width: 800, height:700});				
+						},'html');
+					}
 				}).fail(function(){
 					if($("#ErrorMsg").val()!=''){
 						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -470,34 +487,46 @@
 				var locale='${domain.locale}';
 				
 				
-				var url = 'ref/questionid?strQuestionNumber='+questionNumber+'&strSessionId='+sessionId+'&deviceTypeId='+deviceTypeTemp+'&locale='+locale+'&view=view';
+				var url = 'ref/questionid?'+
+						'strQuestionNumber=' + questionNumber + 
+						'&strSessionId=' + sessionId + 
+						'&deviceTypeId=' + deviceTypeTemp + 
+						'&locale=' + locale +
+						'&view=view';
 				$("#halfHourDiscusionFromQuestionReferenceNumber").val(questionNumber);
 				$.get(url, function(data) {
-					/* if(data.id==0){
-						$('#subject').val('');
-						if($('#questionText').is('[readonly]')){
-							$('#questionText-wysiwyg-iframe').contents().find('html').html('');
-							$('#copyOfquestionText').val('');
-						}
-						$.prompt($('#noQuestionMsg').val());
-					}else if(data.id==-1){
-						$('#subject').val('');
-						if($('#questionText').is('[readonly]')){
-							$('#questionText-wysiwyg-iframe').contents().find('html').html('');
-							$('#copyOfquestionText').val('');
-						}
-						$.prompt($("#questionNumberIncorrectMsg").val());
-					}else{ */
 						if(data.id!=0 && data.id!=-1){
 							$('#halfHourDiscussionReference_questionId_H').val(data.id);
-							$.get('question/getsubject?qid='+data.id+'&text=1',function(data){
-								$('#subject').val(data.name);
-								if($('#questionText').is('[readonly]')){
-									$('#questionText-wysiwyg-iframe').contents().find('html').html(data.value);
-									$('#copyOfquestionText').val(data.value);
-								}else{
-									$('#questionText').wysiwyg('setContent',data.value);
+							$('#halfHourDiscusionFromQuestionReference').val(data.id);
+							$.get('question/getsubject?qid=' + data.id + '&text=1' + '&questionType=' + deviceTypeTemp ,function(data1){
+								if(data1.length>0){
+									$('#subject').val(data1[0][1]);
+									if($('#questionText').is('[readonly]')){
+										$('#questionText-wysiwyg-iframe').contents().find('html').html(data1[0][2]);
+										$('#copyOfquestionText').val(data1[0][2]);
+									}else{
+										$('#questionText').wysiwyg('setContent',data1[0][2]);
+									}
+									
+									if($('#answer').is('[readonly]')){
+										$('#answer-wysiwyg-iframe').contents().find('html').html(data1[0][6]);
+										$('#copyOfanswer').val(data1[0][6]);
+									}else{
+										$('#answer').wysiwyg('setContent',data1[0][6]);
+									}
+									
+									/*$("#formattedMinistry").val(data.formattedMinistry);
+									$("#ministry").val(data.ministry);
+									
+									$("#formattedGroup").val(data.formattedGroup);
+									$("#group").val(data.group);
+									
+									var subDepartmentText = "<option value=''>--" + $("#pleaseSelectMsg").val() + "--</option>";
+									subDepartmentText += "<option value='" + data.subDepartment + "' selected='selected'>" + data.formattedSubDepartment + "</option>";
+									$("#subDepartment").empty();
+									$("#subDepartment").html(subDepartmentText);*/
 								}
+								
 							});
 							$("#referenceDeviceType").val(data.formattedNumber);
 						}else{
@@ -525,32 +554,30 @@
 
 		$( "#formattedMinistry").autocomplete({
 			minLength:3,			
-			source:'ref/getministries?session='+$('#session').val(),
+			source:'ref/getministries?session=' + $('#session').val(),
 			select:function(event,ui){			
 			$("#ministry").val(ui.item.id);
 			},
 			change:function(event,ui){
-				var ministryVal=ui.item.id;	
-				//console.log(ministryVal);
-				if(ministryVal!=''){
-					//console.log(ministryVal);
-					loadGroup(ministryVal);
+				var ministryVal = ui.item.id;	
+				if(ministryVal != ''){
 					loadSubDepartments(ministryVal);
 				}else{
 					$("#formattedGroup").val("");
 					$("#group").val("");				
-					//$("#department").empty();				
 					$("#subDepartment").empty();				
 					$("#answeringDate").empty();
-					//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
-					$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");				
-					$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMsg").val()+"----</option>");					
+					$("#subDepartment").prepend("<option value=''>----" + $("#pleaseSelectMsg").val() + "----</option>");				
+					$("#answeringDate").prepend("<option value=''>----" + $("#pleaseSelectMsg").val() + "----</option>");					
 				}
 			}
 		});
 		
 		$('#number').change(function(){
-			$.get('ref/getQuestionByNumberAndSession?number='+$(this).val()+'&session='+$('#session').val()+'&deviceType='+$('#type').val(),function(data){
+			$.get('ref/getQuestionByNumberAndSession?'+
+					'number=' + $(this).val() +
+					'&session=' + $('#session').val() +
+					'&deviceType=' + $('#type').val(),function(data){
 				if(data){
 					$('#numberError').css('display','inline');
 				}else{
@@ -558,7 +585,95 @@
 				}
 			});
 		});
+		
+		$('#subDepartment').change(function(){
+			loadGroup($(this).val());
+		});
 	});
+	
+	//send for submission	
+	function submitData(){
+		//removing <p><br></p>  from wysiwyg editor
+		$(".wysiwyg").each(function(){
+			var wysiwygVal=$(this).val().trim();
+			if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+				$(this).val("");
+			}
+		});		
+		
+		//---------------------vikas dhananjay---------------------
+		var deviceTypeTemp='${selectedQuestionType}';
+		
+		if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
+			
+			var submissionStartDate= '${startDate}';
+			var submissionEndDate= '${endDate}';
+			if($('#copyOfquestionText').val()!=undefined){
+				if((deviceTypeTemp=='questions_halfhourdiscussion_from_question')
+						&& $("#copyOfquestionText")!=undefined){
+					$('#questionText').val($('#copyOfquestionText').val());
+				}
+			}
+			if( (new Date().getTime() < new Date(submissionStartDate).getTime())){
+				$.prompt($('#earlySubmissionMsg').val());					
+			    return false;
+			}
+			if( (new Date().getTime() > new Date(submissionEndDate).getTime())){
+				$.prompt($("#lateSubmissionMsg").val());					
+			    return false;
+			}
+			
+			if($("#primaryMember").val()==null||$("primaryMember").val()==""){
+				$.prompt($("#primaryMemberEmptyMsg").val());					
+				return false;
+			}
+			
+			if($("#subject").val()==null||$("subject").val()==""){
+				$.prompt($("#subjectEmptyMsg").val());					
+				return false;
+			}
+			if($("questionText").val()==""||$("questionText").val()==""){
+				$.prompt($("#questionEmptyMsg").val());					
+				return false;
+			}					
+			if($("ministry").val()==""||$("ministry").val()==""){
+				$.prompt($("#ministryEmptyMsg").val());					
+				return false;
+			}
+			
+			if(deviceTypeTemp=='questions_halfhourdiscussion_from_question'){
+				//added to validate quetion number for half hour discussion--
+				/* if($('#halfHourDiscussionReference_questionNumber').val()==null || $('#halfHourDiscussionReference_questionNumber').val()==""){
+					$.prompt($("#referenceQuestionIncorrectMsg").val());
+					return false;
+				} */
+			}
+		}			
+		//------------------------------------------------------------
+		/* $.prompt($('#submissionMsg').val(),{
+			buttons: {Ok:true, Cancel:false}, callback: function(v){
+	        if(v){ */
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+	        	$.post($('form').attr('action')+'?operation=submit',  
+	    	            $("form").serialize(),  
+	    	            function(data){
+	       					$('.tabContent').html(data);
+	       					$('html').animate({scrollTop:0}, 'slow');
+	       				 	$('body').animate({scrollTop:0}, 'slow');	
+	    					$.unblockUI();	   				 	   				
+	    	            }).fail(function(){
+	    	            	$.unblockUI();
+	    					if($("#ErrorMsg").val()!=''){
+	    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+	    					}else{
+	    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+	    					}
+	    					scrollTop();
+	    				});
+	        //}
+		//}});			
+        return false; 
+	}
 	</script>
 </head>
 
@@ -575,7 +690,7 @@
 	<h2><spring:message code="question.new.heading" text="Enter Question Details"/> (${formattedQuestionType})</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	
-	<security:authorize access="hasAnyRole('QIS_TYPIST','HDS_TYPIST')">	
+	<security:authorize access="hasAnyRole('QIS_TYPIST')">	
 	<p>
 		<c:choose>
 			<c:when test="${fn:contains(selectedQuestionType,'questions_halfhourdiscussion')}">
@@ -635,7 +750,7 @@
 	</p>
 	</security:authorize>
 	
-	<security:authorize access="hasAnyRole('QIS_TYPIST', 'HDS_TYPIST')">		
+	<security:authorize access="hasAnyRole('QIS_TYPIST')">		
 	<p>
 		<label class="small"><spring:message code="question.primaryMember" text="Primary Member"/>*</label>
 		<input id="formattedPrimaryMember" name="formattedPrimaryMember" type="text" class="sText autosuggest" value="${formattedPrimaryMember}">
@@ -647,7 +762,8 @@
 	<p>
 		<label class="centerlabel"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
 		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
-		<c:if test="${(selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone') and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
+		<c:if test="${(selectedQuestionType == 'questions_halfhourdiscussion_from_question')
+			 and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
 			<label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="question.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label>										
 		</c:if>
 		
@@ -661,37 +777,29 @@
 		<form:errors path="supportingMembers" cssClass="validationError"/>	
 	</p>
 		
-	<c:if test="${selectedQuestionType!='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType != 'questions_halfhourdiscussion_from_question'}">
 		<p>
 			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/>*</label>
 			<form:textarea path="subject" rows="2" cols="50"></form:textarea>
 			<form:errors path="subject" cssClass="validationError" />	
 		</p>	
-		<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
-			<p>
-				<c:choose>
-					<c:when test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">
-						<label class="wysiwyglabel"><spring:message code="question.hds.details" text="Notice Content"/>*</label>
-					</c:when>
-					<c:otherwise>
-						<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
-					</c:otherwise>					
-				</c:choose>
-				<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
-				<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		<p>
+			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
+			<form:textarea path="questionText" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
+			<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
+		</p>
+		
+		<c:if test="${selectedQuestionType == 'questions_starred' or selectedQuestionType == 'questions_unstarred'}">
+			<p style="display: none;">
+				<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+				<form:textarea path="questionreferenceText" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
+				<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			</p>
-			
-			<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
-				<p style="display: none;">
-					<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
-					<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
-					<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-				</p>
-			</c:if>
 		</c:if>
+		
 	</c:if>
 	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
+	<c:if test="${selectedQuestionType == 'questions_halfhourdiscussion_from_question'}">
 		
 		<p>
 			<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
@@ -732,37 +840,39 @@
 		
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/>*</label>
-			<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
+			<form:textarea path="questionText" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 			<form:errors path="questionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 		</p>
 		
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/>*</label>
-			<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
+			<form:textarea path="answer" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 			<form:errors path="answer" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 		<input type="hidden" name="halfHourDiscusionFromQuestionReferenceNumber" id="halfHourDiscusionFromQuestionReferenceNumber" value="${domain.halfHourDiscusionFromQuestionReferenceNumber}" />
+		<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
 	</c:if>
 	
-	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+	<c:if test="${selectedQuestionType == 'questions_shortnotice' 
+	or selectedQuestionType == 'questions_halfhourdiscussion_from_question' }">
 	<p>
 		<c:choose>
-			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
+			<c:when test="${selectedQuestionType == 'questions_shortnotice'}">
 				<label class="wysiwyglabel"><spring:message code="question.shortnoticeReason" text="Reason"/>*</label>
 			</c:when>
 			<c:otherwise>
 				<label class="wysiwyglabel"><spring:message code="question.halfhourReason" text="Points to be discussed"/>*</label>
 			</c:otherwise>
 		</c:choose>
-		<form:textarea path="reason" cssClass="wysiwyg"></form:textarea>
+		<form:textarea path="reason" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 		<form:errors path="reason" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	</c:if>	
 	
-	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='upperhouse')}">
+	<c:if test="${selectedQuestionType == 'questions_halfhourdiscussion_from_question'}">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
-		<form:textarea path="briefExplanation" cssClass="wysiwyg"></form:textarea>
+		<form:textarea path="briefExplanation" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 		<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>
 	</c:if>
@@ -776,25 +886,13 @@
 					<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 					<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
 					<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
-					<%-- <select name="ministry" id="ministry" class="sSelect">
-						<c:forEach items="${ministries }" var="i">
-							<c:choose>
-								<c:when test="${i.id==ministrySelected }">
-									<option value="${i.id }" selected="selected">${i.name}</option>
-								</c:when>
-								<c:otherwise>
-									<option value="${i.id }" >${i.name}</option>
-								</c:otherwise>
-							</c:choose>
-						</c:forEach>
-					</select> --%>
 					<form:errors path="ministry" cssClass="validationError"/>
 					<br />	
 					<label class="small"><spring:message code="question.department" text="Department"/>*</label>
 					<select name="subDepartment" id="subDepartment" class="sSelect">
 						<c:forEach items="${subDepartments }" var="i">
 							<c:choose>
-								<c:when test="${i.id==subDepartmentSelected }">
+								<c:when test="${i.id == subDepartmentSelected }">
 									<option value="${i.id }" selected="selected">${i.name}</option>
 								</c:when>
 								<c:otherwise>
@@ -805,7 +903,7 @@
 					</select>
 					<form:errors path="subDepartment" cssClass="validationError"/>
 					<br />				
-					<c:if test="${selectedQuestionType=='questions_starred'}">
+					<c:if test="${selectedQuestionType == 'questions_starred'}">
 						<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 						<select name="answeringDate" id="answeringDate" class="sSelect">
 							<c:forEach items="${answeringDates }" var="i">
@@ -821,13 +919,13 @@
 						</select>
 						<form:errors path="answeringDate" cssClass="validationError"/>
 					</c:if>	
-					<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question' or selectedQuestionType=='questions_halfhourdiscussion_standalone'}">
+					<c:if test="${selectedQuestionType == 'questions_halfhourdiscussion_from_question'}">
 						<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
 						<form:select path="discussionDate" cssClass="datemask sSelect" >
 							<option value="">---<spring:message code='please.select' text='Please Select'/>---</option>
 							<c:forEach items="${discussionDates}" var="i">
 								<c:choose>
-									<c:when  test="${i==discussionDateSelected}">
+									<c:when  test="${i == discussionDateSelected}">
 										<option value="${i}" selected="selected">${i}</option>
 									</c:when>
 									<c:otherwise>
@@ -842,21 +940,24 @@
 			</td>
 				
 			<td style="vertical-align: top;">
-				<c:if test="${not (selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse')}">
-					<p>
-				</c:if>
-				<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_standalone' and houseTypeType=='lowerhouse'}">
-					<p style="display: none;" >
-				</c:if>
+				<p>
 					<label class="small"><spring:message code="question.group" text="Group" />*</label>
 					<input type="text" class="sText" id="formattedGroup" name="formattedGroup"  readonly="readonly" value="${formattedGroup}">
 					<input type="hidden" id="group" name="group" value="${group }">
 					<form:errors path="group" cssClass="validationError"/>		
 					<br />					
-					<c:if test="${selectedQuestionType=='questions_starred'}">
+					<c:if test="${selectedQuestionType == 'questions_starred'}">
+					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 						<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
 						<form:select path="priority" cssClass="sSelect" items="${priorities}" itemLabel="name" itemValue="number" />
 						<form:errors path="priority" cssClass="validationError"/>	
+					</security:authorize>
+					<security:authorize access="hasAnyRole('QIS_TYPIST')">
+						<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
+						<form:select path="priority" cssClass="sSelect" items="${priorities}" itemLabel="name" itemValue="number" disabled="true" />
+						<form:errors path="priority" cssClass="validationError"/>
+						<input type="hidden" name="priority" value="${priorities[0].number}">
+					</security:authorize>
 					</c:if>
 				</p>	
 			</td>
@@ -865,7 +966,7 @@
 		<div class="toolTip tpGreen clearfix">
 			<p>
 				<img src="./resources/images/template/icons/light-bulb-off.png">
-				<spring:message code="rotationordernotpublished" text="Follwoing fields will be activated on {0}(Rotation Order Publishing Date)" arguments="${rotationOrderPublishDate}"/>
+				<spring:message code="rotationordernotpublished" text="Following fields will be activated on {0}(Rotation Order Publishing Date)" arguments="${rotationOrderPublishDate}"/>
 			</p>
 		</div>			
 		</c:otherwise>
@@ -889,12 +990,12 @@
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
 	<input type="hidden" name="originalType"  id="originalType" value="${questionType}"/>
+	<input type="hidden" name="questionType"  id="questionType" value="${questionType}"/>
 	<input type="hidden" name="halfHourDiscussionReference_questionId_H" id="halfHourDiscussionReference_questionId_H" />
 	<input type="hidden" name="selectedSupportingMembersIfErrors" value="${selectedSupportingMembersIfErrors}" />
 </form:form>
 
 <input id="ministrySelected" value="${ministrySelected }" type="hidden">
-<input id="departmentSelected" value="${ departmentSelected}" type="hidden">
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 
@@ -914,7 +1015,7 @@
 <input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
 <input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the question.'></spring:message>" type="hidden">
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
-
+<!-- <input type="hidden" id="copyOfquestionText" value="" /> -->
 </div>
 </body>
 </html>

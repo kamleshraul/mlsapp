@@ -8,10 +8,10 @@
 	<script type="text/javascript">	
 	function loadSubDepartments(){
 		var locale=$("#locale").val();		
-		var departments=$("#param_DEPARTMENT_"+locale).val();
+		//var departments=$("#param_DEPARTMENT_"+locale).val();
 		var ministries=$("#param_MINISTRY_"+locale).val();
-		if(departments!=''&&ministries!=''){
-			$.post('ref/subdepartments/byministriesdepartmentsname',{'departments':departments,'ministries':ministries},function(data){
+		if(ministries!=''){
+			$.post('ref/subdepartments/byministriesname',{'ministries':ministries},function(data){
 				$("#param_SUBDEPARTMENT_"+locale).empty();
 				var text="";
 				if(data.length>0){
@@ -61,15 +61,15 @@
 		arrangeElementsInSelect("param_MINISTRY_" + $("#locale").val() + " option", "selectedMinistries");
 	}
 	
-	function arrangeDepartments(){
+	/* function arrangeDepartments(){
 		arrangeElementsInSelect("param_DEPARTMENT_" + $("#locale").val() + " option", "selectedDepartments");
-	}
+	} */
 	
 	function arrangeSubdepartments(){
 		arrangeElementsInSelect("param_SUBDEPARTMENT_" + $("#locale").val() + " option", "selectedSubdepartments");
 	}
 	
-	function loadDepartments(){
+	/* function loadDepartments(){
 		var locale=$("#locale").val();		
 		var ministries=$("#param_MINISTRY_"+locale).val();
 		if(ministries!=''){
@@ -105,7 +105,7 @@
 			$("#span_param_SUBDEPARTMENT_"+locale).empty();
 			$.unblockUI();				
 		}
-	}
+	} */
 	
 	function loadCommitteeNames() {
 		var locale = $("#locale").val();
@@ -145,29 +145,29 @@
 		
 		arrangeDevices();
 		arrangeMinistries();
-		arrangeDepartments();
+	//	arrangeDepartments();
 		arrangeSubdepartments();
 		
 		var locale=$("#locale").val();
 		var idMinistry="param_MINISTRY_" + locale;
-		var idDepartment="param_DEPARTMENT_"+ locale;
+		//var idDepartment="param_DEPARTMENT_"+ locale;
 		var idSubdepartment="param_SUBDEPARTMENT_"+ locale;
 		
 		$("#" + idMinistry).multiSelect();
-		$("#" + idDepartment).multiSelect();
+		//$("#" + idDepartment).multiSelect();
 		$("#" + idSubdepartment).multiSelect();
 				
 		$("select[multiple='multiple']").css("width","188px");		
 				
 		$("#param_MINISTRY_"+locale).change(function(event){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
-		loadDepartments();
+		loadSubDepartments();
 		});		
 
-		$("#param_DEPARTMENT_"+locale).change(function(){
+		/* $("#param_DEPARTMENT_"+locale).change(function(){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
 		loadSubDepartments();		
-		});	
+		});	 */
 		
 		$('#param_HOUSETYPE_' + locale).change(function(){
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -252,7 +252,7 @@
 			</c:forEach>
 		</select>
 	</p>
-	<input type="hidden" id="selectedDepartments" value="${selectedDepartment}" />
+	<%-- <input type="hidden" id="selectedDepartments" value="${selectedDepartment}" />
 	<p>
 		<label class="small"><spring:message code="usergroup.department" text="Departments" /></label>			
 		<select  id="param_DEPARTMENT_${locale}" name="param_DEPARTMENT_${locale}" multiple="multiple" size="5">
@@ -260,7 +260,7 @@
 				<option value="${i.name}">${i.name}</option>
 			</c:forEach>
 		</select>
-	</p>	
+	</p> --%>	
 	<input type="hidden" id="selectedSubdepartments" value="${selectedSubDepartment}" />
 	<p>
 		<label class="small"><spring:message code="usergroup.subdepartment" text="Sub-Departments" /></label>			
@@ -270,6 +270,32 @@
 			</c:forEach>
 		</select>
 	</p>	
+	<p>	
+	<label class="small"><spring:message code="usergroup.groupsAllowed" text="Groups Allowed" /></label>
+	<input type="text" id="param_GROUPSALLOWED_${locale}" name="param_GROUPSALLOWED_${locale}" value="${groupsAllowed}"/>
+	</p>
+	
+	<p>	
+		<label class="small"><spring:message code="usergroup.state" text="Current State of Actor" /></label>
+		<select id="param_ACTORSTATE_${locale}" name="param_ACTORSTATE_${locale}" class="sSelect">			
+			<c:forEach items="${actorstates}" var="ac">
+				<c:choose>
+					<c:when test="${selectedActorState==ac.id}">
+						<option value="${ac.id}" selected="selected">${ac.name}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${ac.id}">${ac.name}</option>			
+					</c:otherwise>
+				</c:choose>	
+			</c:forEach>
+		</select>
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="usergroup.state.remark" text="Remark" /></label>
+		<textarea rows="3" cols="50" name="param_ACTORREMARK_${locale}" id="param_ACTORREMARK_${locale}">${actorRemark}</textarea>
+	</p>
+	
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">

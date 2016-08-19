@@ -187,7 +187,8 @@
 	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
-		$.get('ref/ministry/subdepartments?ministry='+ministry,function(data){
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 			if(data.length>0){
@@ -504,7 +505,10 @@
 		$("#subDepartment option[selected!='selected']").hide(); */
 		//**** Load actors on page load ****/
 		if($('#bulkedit').val()!='yes'&& $('#workflowstatus').val()!='COMPLETED'){
-			loadActors($("#changeInternalStatus").val());
+			var statusType = $("#internalStatusType").val().split("_");
+			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			$("#changeInternalStatus").val(id);
+			/* loadActors($("#changeInternalStatus").val()); */
 		} 
 	});
 	</script>
@@ -571,38 +575,56 @@
 	</p>	
 	
 	<p>
-	<label class="small"><spring:message code="resolution.number" text="Resolution Number"/>*</label>
-	<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
-	<input id="number" name="number" value="${domain.number}" type="hidden">
-	<form:errors path="number" cssClass="validationError"/>
-	</p>
-		
-	<p>		
-	<label class="small"><spring:message code="resolution.submissionDate" text="Submitted On"/></label>
-	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
-	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
+		<label class="small"><spring:message code="resolution.number" text="Resolution Number"/>*</label>
+		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
+		<input id="number" name="number" value="${domain.number}" type="hidden">
+		<form:errors path="number" cssClass="validationError"/>
+		<label class="small"  style="margin-left:30px;"><spring:message code="resolution.submissionDate" text="Submitted On"/></label>
+		<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+		<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	</p>
 	
 	<p>
-	<label class="small"><spring:message code="resolution.ministry" text="Ministry"/>*</label>
-	<select name="ministry" id="ministry" class="sSelect" >
-	<c:forEach items="${ministries }" var="i">
-	<c:choose>
-	<c:when test="${i.id==ministrySelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>		
-	<form:errors path="ministry" cssClass="validationError"/>	
-	<c:if test="${selectedDeviceType == 'resolutions_government'}">
-		<label class="small"><spring:message code="resolution.discussionDate" text="Discussion Date"/></label>
-		<form:input path="discussionDate" cssClass="datemask sText" readonly="${isDiscussionDateReadOnly}"/>
-		<form:errors path="discussionDate" cssClass="validationError"/>
+	<label class="small"><spring:message code="resolution.members" text="Members"/></label>
+	<input id="members" class="sTextarea" readonly="readonly" value="${formattedMember}">
+	<c:if test="${!(empty member)}">
+		<input id="member" name="member" value="${member}" type="hidden">
 	</c:if>
+	<label class="small"  style="margin-left:30px;"><spring:message code="resolution.memberConstituency" text="Constituency"/>*</label>
+		<input type="text" readonly="readonly" value="${constituency}" class="sText">
+		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>
+	</p>
+
+	<p>
+		<label class="small"><spring:message code="resolution.ministry" text="Ministry"/>*</label>
+			<select name="ministry" id="ministry" class="sSelect" >
+				<c:forEach items="${ministries }" var="i">
+					<c:choose>
+						<c:when test="${i.id==ministrySelected }">
+							<option value="${i.id }" selected="selected">${i.name}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${i.id }" >${i.name}</option>
+						</c:otherwise>
+					</c:choose>
+			</c:forEach>
+			</select>		
+		<form:errors path="ministry" cssClass="validationError"/>
+		<label class="small" style="margin-left:30px;"><spring:message code="resolution.subdepartment" text="Sub Department"/></label>
+		<select name="subDepartment" id="subDepartment" class="sSelect" >
+			<c:forEach items="${subDepartments }" var="i">
+				<c:choose>
+					<c:when test="${i.id==subDepartmentSelected }">
+						<option value="${i.id }" selected="selected">${i.name}</option>
+					</c:when>
+					<c:otherwise>
+						<option value="${i.id }" >${i.name}</option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>		
+		<form:errors path="subDepartment" cssClass="validationError"/>		
+	
 	</p>	
 	
 	<p>
@@ -620,39 +642,15 @@
 	</c:forEach>
 	</select>
 	<form:errors path="department" cssClass="validationError"/>	 --%>
+	<c:if test="${selectedDeviceType == 'resolutions_government'}">
+		<label class="small"><spring:message code="resolution.discussionDate" text="Discussion Date"/></label>
+		<form:input path="discussionDate" cssClass="datemask sText" readonly="${isDiscussionDateReadOnly}"/>
+		<form:errors path="discussionDate" cssClass="validationError"/>
+	</c:if>
 	
-	<label class="small"><spring:message code="resolution.subdepartment" text="Sub Department"/></label>
-	<select name="subDepartment" id="subDepartment" class="sSelect" >
-	<c:forEach items="${subDepartments }" var="i">
-	<c:choose>
-	<c:when test="${i.id==subDepartmentSelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>		
-	<form:errors path="subDepartment" cssClass="validationError"/>	
 	</p>	
 		
-	
-	<p>
-	<label class="small"><spring:message code="resolution.members" text="Members"/></label>
-	<input id="members" class="sTextarea" readonly="readonly" value="${formattedMember}">
-	<c:if test="${!(empty member)}">
-		<input id="member" name="member" value="${member}" type="hidden">
-	</c:if>
-	</p>
-	
-	<p>
-		<label class="small"><spring:message code="resolution.memberConstituency" text="Constituency"/>*</label>
-		<input type="text" readonly="readonly" value="${constituency}" class="sText">
-		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
-	</p>			
-	
-	<%-- <p style="display:none;">
+		<%-- <p style="display:none;">
 		<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="resolution.clubbing" text="Clubbing"></spring:message></a>
 		<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="resolution.referencing" text="Referencing"></spring:message></a>
 		<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="resolution.refresh" text="Refresh"></spring:message></a>	
@@ -698,10 +696,6 @@
 	<c:if test="${selectedDeviceType == 'resolutions_nonofficial'}">
 	<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="resolution.reviseSubject" text="Revise Subject"></spring:message></a>
 	<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="resolution.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
-	<a href="#" id="viewRevision"><spring:message code="resolution.viewrevisions" text="View Revisions"></spring:message></a>
-	</c:if>
-	<c:if test="${selectedDeviceType == 'resolutions_government'}">
-	<a href="#" id="viewRevision" style="margin-left: 162px;margin-right: 20px;"><spring:message code="resolution.viewrevisions" text="View Revisions"></spring:message></a>
 	</c:if>
 	</p>
 	
@@ -717,6 +711,14 @@
 	<form:textarea path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedNoticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
+	</c:if>
+	
+	<c:if test="${selectedDeviceType == 'resolutions_nonofficial'}">
+		<p>
+		<label class="small"><spring:message code="resolution.referencedResolutionText" text="Referenced Resolution Text"/></label>
+		<form:textarea path="referencedResolutionText" cssClass="sTextarea" cols="50"></form:textarea>
+		<form:errors path="referencedResolutionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		</p>
 	</c:if>
 	
 	<p id="internalStatusDiv">
@@ -784,47 +786,93 @@
 		</p>
 		</c:if>
 	</c:if>
+	<p>
+		<a href="#" id="viewRevision" style="margin-left:650px;"><spring:message code="resolution.viewrevisions" text="View Revisions"></spring:message></a>
+	</p>
+	<table class="uiTable" style="margin-left:165px;width:600px;">
+		<thead>
+		<tr>
+		<th style="text-align: center">
+		<spring:message code="rois.latestrevisions.user" text="Usergroup"></spring:message>
+		</th>
+		<th style="text-align: center">
+		<spring:message code="rois.latestrevisions.decision" text="Decision"></spring:message>
+		</th>
+		<th style="text-align: center">
+		<spring:message code="rois.latestrevisions.remarks" text="Remarks"></spring:message>
+		</th>
+		</tr>
+		</thead>
+		<tbody>	
+			<c:forEach items="${latestRevisions}" var="i">
+				<tr>
+					<td style="text-align: left">
+					${i[0]}<br>(${i[2]})
+					</td>
+					<td style="text-align: center">
+					${i[6]}
+					</td>
+					<td style="text-align: center">
+					${i[7]}
+					</td>
+				</tr>
+			</c:forEach>	
+			<c:if test="${workflowstatus != 'COMPLETED'}">
+				<tr>
+					<td style="text-align: left">
+						${userName}<br>
+						(${userGroupName})
+					</td>
+					<td style="text-align: center">
+						<select id="changeInternalStatus" class="sSelect">
+							<c:forEach items="${internalStatuses}" var="i">
+									<c:choose>
+										<c:when test="${i.id==internalStatus }">
+											<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+										</c:when>
+										<c:otherwise>
+											<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+										</c:otherwise>
+									</c:choose>
+							</c:forEach>
+						</select>
+						<c:if test="${houseTypeForStatus=='lowerhouse'}">
+						 <form:errors path="internalStatusLowerHouse" cssClass="validationError"/>	 
+						</c:if>
+						<c:if test="${houseTypeForStatus=='upperhouse'}">
+						 <form:errors path="internalStatusUpperHouse" cssClass="validationError"/>	 
+						</c:if>
+					</td>
+					<td>
+						<a href="#" id="viewCitation" style="margin-left: 210px;margin-top: 30px;"><spring:message code="resolution.viewcitation" text="View Citations"></spring:message></a>
+						<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+					</td>
+				</tr>
+			</c:if>	
+		</tbody>
+	</table>
+	
+	
+	
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">	
-	<p>
-	<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
-	<select id="changeInternalStatus" class="sSelect">
-	<c:forEach items="${internalStatuses}" var="i">
-	<c:choose>
-		<c:when test="${i.id==internalStatus }">
-			<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-		</c:when>
-		<c:otherwise>
-			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-		</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>
+		<select id="internalStatusMaster" style="display:none;">
+		<c:forEach items="${internalStatuses}" var="i">
+		<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+		</c:forEach>
+		</select>	
 	
-	<select id="internalStatusMaster" style="display:none;">
-	<c:forEach items="${internalStatuses}" var="i">
-	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-	</c:forEach>
-	</select>	
-	<c:if test="${houseTypeForStatus=='lowerhouse'}">
-	 <form:errors path="internalStatusLowerHouse" cssClass="validationError"/>	 
-	</c:if>
-	<c:if test="${houseTypeForStatus=='upperhouse'}">
-	 <form:errors path="internalStatusUpperHouse" cssClass="validationError"/>	 
-	</c:if>
-	</p>
-	
-	<p id="actorDiv">
-	<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
-	<c:if test="${houseTypeForStatus=='lowerhouse'}">
-		<form:select path="actorLowerHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-		<form:hidden path="actorUpperHouse"/>
-	</c:if>	
-	<c:if test="${houseTypeForStatus=='upperhouse'}">
-		<form:select path="actorUpperHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-		<form:hidden path="actorLowerHouse"/>				
-	</c:if>
-	</p>	
+		<p id="actorDiv" style="display:none;">
+		<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
+		<c:if test="${houseTypeForStatus=='lowerhouse'}">
+			<form:select path="actorLowerHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+			<form:hidden path="actorUpperHouse"/>
+		</c:if>	
+		<c:if test="${houseTypeForStatus=='upperhouse'}">
+			<form:select path="actorUpperHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+			<form:hidden path="actorLowerHouse"/>				
+		</c:if>
+		</p>		
 	</c:if>
 		
 	<c:choose>
@@ -890,20 +938,13 @@
 			</c:if>
 		</c:otherwise>
 	</c:choose>	
-	<p>
-	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="resolution.viewcitation" text="View Citations"></spring:message></a>	
-	</p>
+	
 	<c:if test="${internalStatusType == 'resolution_final_rejection' || internalStatusType == 'resolution_final_repeatrejection'}">
 	<p>
 	<label class="wysiwyglabel"><spring:message code="resolution.rejectionReason" text="Rejection reason"/></label>
 	<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
 	</p>
 	</c:if>
-	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="resolution.remarks" text="Remarks"/></label>
-	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">
 	<div class="fields">
@@ -918,7 +959,9 @@
 	</p>
 	</div>
 	</c:if>
-<form:hidden path="id"/>
+	
+	<form:hidden path="file"/>
+	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
 	<form:hidden path="workflowStartedLowerHouse"/>	
@@ -962,8 +1005,8 @@
 	<input id="reminderto" name="reminderto" value="${pv_reminderto}" type="hidden">
 	<input id="reminderfrom" name="reminderfrom" value="${pv_reminderfrom}" type="hidden">
 	<input id="remindersubject" name="remindersubject" value="${pv_remindersubject}" type="hidden">
-	<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">
-	
+	<textarea hidden="hidden" id="remindercontent" name="remindercontent">${pv_remindercontent}</textarea>
+		
 	<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">	
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden"/>
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
@@ -988,6 +1031,7 @@
 <input id="isRepeatWorkFlow" type="hidden" value="${isRepeatWorkFlow}" />
 <input id="workflowHouseType" type="hidden" value="${workflowHouseType}" />
 <input id="houseTypeType" type="hidden" value="${houseTypeForStatus}"/>
+<input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
 <input id="pleaseSelectQuestionsForFactualPosition" value="<spring:message code='please.select.questionsForFactualPosition' text='Please select questions to be asked in this factual position'/>" type="hidden">
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </div>

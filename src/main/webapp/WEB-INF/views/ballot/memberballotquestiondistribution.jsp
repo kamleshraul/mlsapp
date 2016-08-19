@@ -125,7 +125,7 @@ text-align: center;
 			<c:set value="0" var="count"></c:set>
 			<c:forEach items="${i.distributions}" var="j">
 			<c:choose>
-			<c:when test="${j.currentDeviceType=='questions_unstarred' && j.statusTypeType=='question_final_admission'}">
+			<c:when test="${j.currentDeviceType=='questions_unstarred' && j.statusTypeType=='question_unstarred_final_admission'}">
 			<td>${j.count}</td>
 			<c:set value="${count+1}" var="count"></c:set>
 			<c:set value="${unstarred+j.count}" var="unstarred"></c:set>

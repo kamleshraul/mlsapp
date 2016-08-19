@@ -297,6 +297,12 @@ public class VotingDetailController extends GenericController<VotingDetail> {
 					bill.setVotingDetails(votingDetailsForBill);
 					bill.simpleMerge();
 				}
+			}else if(domain.getDeviceType().startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
+				Resolution resolution = Resolution.findById(Resolution.class, Long.parseLong(domain.getDeviceId()));
+				if(resolution != null){
+					resolution.setVotingDetail(domain);
+					resolution.simpleMerge();
+				}
 			}
 		}
 	}
@@ -478,6 +484,66 @@ public class VotingDetailController extends GenericController<VotingDetail> {
 										bill.setVotingDetails(votingDetails);
 										bill.simpleMerge();
 										result = "success";
+									}
+								}
+							}else if(deviceType.startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)) {
+								Resolution resolution = Resolution.findById(Resolution.class, Long.parseLong(deviceId));
+								if(resolution!=null) {		
+									List<VotingDetail> votingDetails = new ArrayList<VotingDetail>();
+									for(int i=1; i<=numberOfVotingDetailsForDevice; i++) {
+										String votingDetailId = request.getParameter("id_"+i);
+										if(votingDetailId!=null) {
+											if(!votingDetailId.isEmpty()) {
+												VotingDetail votingDetail = VotingDetail.findById(VotingDetail.class, Long.parseLong(votingDetailId));
+												if(votingDetail!=null) {
+													String houseRoundStr = request.getParameter("houseRound_"+i);
+													if(houseRoundStr!=null) {
+														if(!houseRoundStr.isEmpty()) {															
+															votingDetail.setHouseRound(Integer.parseInt(houseRoundStr));
+														}
+													}
+													String totalNumberOfVotersStr = request.getParameter("totalNumberOfVoters_"+i);
+													if(totalNumberOfVotersStr!=null) {
+														if(!totalNumberOfVotersStr.isEmpty()) {															
+															votingDetail.setTotalNumberOfVoters(Integer.parseInt(totalNumberOfVotersStr));
+														}
+													}
+													String actualNumberOfVotersStr = request.getParameter("actualNumberOfVoters_"+i);
+													if(actualNumberOfVotersStr!=null) {
+														if(!actualNumberOfVotersStr.isEmpty()) {															
+															votingDetail.setActualNumberOfVoters(Integer.parseInt(actualNumberOfVotersStr));
+														}
+													}
+													String votesInFavorStr = request.getParameter("votesInFavor_"+i);
+													if(votesInFavorStr!=null) {
+														if(!votesInFavorStr.isEmpty()) {															
+															votingDetail.setVotesInFavor(Integer.parseInt(votesInFavorStr));
+														}
+													}
+													String votesAgainstStr = request.getParameter("votesAgainst_"+i);
+													if(votesAgainstStr!=null) {
+														if(!votesAgainstStr.isEmpty()) {															
+															votingDetail.setVotesAgainst(Integer.parseInt(votesAgainstStr));
+														}
+													}
+													String decision = request.getParameter("decision_"+i);
+													if(decision!=null) {
+														if(!decision.isEmpty()) {															
+															votingDetail.setDecision(decision);
+														}
+													}
+													String isInDecorumStr = request.getParameter("isInDecorum_"+i);
+//													if(isInDecorumStr!=null) {
+//														if(!isInDecorumStr.isEmpty()) {															
+//															votingDetail.setIsInDecorum(Boolean.parseBoolean(isInDecorumStr));
+//														}
+//													}
+													votingDetail.setIsInDecorum(Boolean.parseBoolean(isInDecorumStr));
+													resolution.setVotingDetail(votingDetail);
+													result = "success";
+												}
+											}
+										}
 									}
 								}
 							}

@@ -18,17 +18,20 @@
 		<script type="text/javascript" src="./resources/js/jquery/jquery.maskedinput.js?v=5"></script>	
 		<script type="text/javascript" src="./resources/js/jquery/blockUI.js?v=5"></script>				
 		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/tinymce.min.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/themes/modern/theme.min.js?v=6"></script>
 		
+			
 		<!-- Multiselect -->				
 
-		<script type="text/javascript" src="./resources/js/common.js?v=3027"></script> 
+		<script type="text/javascript" src="./resources/js/common.js?v=3043"></script>
 		
 		<script type="text/javascript" src="./resources/js/ui.sexyselect.0.6.js?v=6"></script>
 		
 		
 		
 		<!-- WYSIWYG Editor --> 
-		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=6"></script>
+		<script type="text/javascript" src="./resources/js/jquery.wysiwyg.js?v=7"></script>
 		<script type="text/javascript" src="./resources/js/wysiwyg.rmFormat.js?v=6"></script>
 		<script type="text/javascript" src="./resources/js/wysiwyg.table.js?v=5"></script>
 		<script type="text/javascript" src="./resources/js/wysiwyg.i18n.js?v=5"></script>
@@ -50,9 +53,9 @@
 	    <!-- 2 way multiselect -->
 	    <script type="text/javascript" src="./resources/js/ui.multiselect.js?q=123?v=5"></script>
 	    <script type="text/javascript" src="./resources/js/jquery.tmpl.1.1.1.js?q=123?v=5"></script>	    
-		
+		<!-- <link rel="stylesheet" rel="stylesheet" href="./resources/js/skins/lightgray/content.min.css?v=6"  /> -->
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css?v=3" />
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?v=3" />
+		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?v=4" />
 		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.jqgrid.css?v=3"  />
 		<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css?v=3"  />
 		<link rel="stylesheet" rel="stylesheet" href="./resources/css/cupertino/jquery-ui-1.8.16.custom.css?v=3"  />
@@ -126,10 +129,13 @@
             <input type="hidden" id="selectAll" value="<spring:message code='multiSelect.selectAll' text='Select All'/>"/>                 
             <input type="hidden" id="selectNone" value="<spring:message code='multiSelect.selectNone' text='Un-Select All'/>"/>
             <input type="hidden" id="outputFormatNotSetPrompt" value="<spring:message code='generic.report.outputFormatNotSetPrompt' text='Please select output format first.'/>"/>         	
-            
-                             
-                        
-		<div id="container" class="clearfix">
+            <input type="hidden" id="yesLabel" value="<spring:message code='generic.yes' text='Yes.'/>"/>
+            <input type="hidden" id="noLabel" value="<spring:message code='generic.no' text='No.'/>"/>  
+            <input type="hidden" id="noWordContentPrompt" value="<spring:message code='generic.noWordContentPrompt' text='MS Word Content is not allowed. Please paste from Notepad'/>"/>      
+           	<input type="hidden" id="noMsOfficeContentPrompt" value="<spring:message code='generic.noMsOfficeContentPrompt' text='Microsoft Office Content is not allowed. Please paste from Notepad'/>"/>
+        	<input type="hidden" id="noInvalidFormattingPrompt" value="<spring:message code='generic.noInvalidFormattingPrompt' text='Content is having invalid formatting tags which are not allowed. Please paste from Notepad'/>"/>
+        	<input type="hidden" id="loginMessageFromSystem" value="${loginMessageFromSystem}"/>
+        <div id="container" class="clearfix">
 			<div id="page">
 				<div class="menu clearfix">
 					<%@ include file="/common/menu.jsp" %>

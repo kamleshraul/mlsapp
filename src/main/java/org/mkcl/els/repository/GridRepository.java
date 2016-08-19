@@ -156,7 +156,7 @@ public class GridRepository extends BaseRepository<Grid, Long> {
 					query.setParameter(i.getName(),
 							decodedParam);
 				} else if (i.getParameterType().getSimpleName().equals("Long")) {
-						try {
+					try {
 						Long singleValue = Long.parseLong(requestMap.get(i.getName())[0]);
 						query.setParameter(i.getName(), singleValue);
 					} catch(NumberFormatException e) {	
