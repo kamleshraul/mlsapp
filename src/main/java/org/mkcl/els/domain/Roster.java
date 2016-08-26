@@ -66,6 +66,8 @@ public class Roster extends BaseDomain implements Serializable{
 	private CommitteeMeeting committeeMeeting;
 	
 	private Boolean publish;
+	
+	private Date publishedDate;
 
 	@Autowired
 	private transient RosterRepository rosterRepository;
@@ -280,5 +282,15 @@ public class Roster extends BaseDomain implements Serializable{
 	public void setPublish(Boolean publish) {
 		this.publish = publish;
 	}
+
+	public Date getPublishedDate() {
+		return publishedDate;
+	}
+
+	public void setPublishedDate(Date publishedDate) {
+		this.publishedDate = publishedDate;
+	}
+	
+	
 
 }
