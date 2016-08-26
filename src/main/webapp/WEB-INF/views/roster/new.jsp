@@ -315,6 +315,7 @@
 		<form:hidden path="committeeMeeting" value="${committeeMeeting}"/>
 	</c:if>
 	<form:hidden path="publish"/>
+	<form:hidden path="publishedDate"/>
 	<input type="hidden" name="language" id="language" value="${language }">
 </form:form>
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">

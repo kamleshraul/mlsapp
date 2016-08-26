@@ -601,6 +601,7 @@
 	<input type="hidden" name="language" id="language" value="${language }">
 	<input type="hidden" name="slots_created" id="slots_created" value="${slots_created }">	
 	<input type="hidden" name="reporterAction" id="reporterAction">	
+	<form:hidden path="publishedDate"/>
 	<form:hidden path="publish"/>
 </form:form>
 <input id="selectItemFirstMessage" value="<spring:message code='ris.selectitem' text='Select an item first'/>" type="hidden">
