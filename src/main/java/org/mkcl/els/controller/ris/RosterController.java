@@ -967,6 +967,7 @@ public class RosterController extends GenericController<Roster>{
 		try{
 			Roster roster = Roster.findById(Roster.class, id);
 			roster.setPublish(true);
+			roster.setPublishedDate(new Date());
 			roster.merge();
 			returnValue = true;
 					

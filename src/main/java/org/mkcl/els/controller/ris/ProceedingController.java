@@ -1082,10 +1082,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 						&& strPreviousContent != null && !strPreviousContent.isEmpty()
 						&& strReplacedContent != null && !strReplacedContent.isEmpty()
 						/*&& strSlot != null && !strSlot.isEmpty()*/){
-						Language language = Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
+						//Language language = Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
 						Part masterPart = Part.findById(Part.class, Long.parseLong(strPart));
-						Part slavePart = Part.findById(Part.class, Long.parseLong(strSlavePart));
-						Slot currentSlot = Slot.findById(Slot.class, Long.parseLong(strSlot));
+						//Part slavePart = Part.findById(Part.class, Long.parseLong(strSlavePart));
+						//Slot currentSlot = Slot.findById(Slot.class, Long.parseLong(strSlot));
 					
 //						Bookmark bookmark=new Bookmark();
 //						bookmark.setLanguage(language);
@@ -1122,9 +1122,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 						&& strSlot != null && !strSlot.isEmpty()
 						&& strOrderCount!=null && !strOrderCount.isEmpty()
 						&& strMasterSlot!=null && !strMasterSlot.isEmpty()){
-						Language language = Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
+						//Language language = Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
 						Part slavePart = Part.findById(Part.class, Long.parseLong(strSlavePart));
-						Slot currentSlot = Slot.findById(Slot.class, Long.parseLong(strSlot));
+						//Slot currentSlot = Slot.findById(Slot.class, Long.parseLong(strSlot));
 						Slot masterSlot= Slot.findById(Slot.class, Long.parseLong(strMasterSlot));		
 						Part part=new Part();
 						part.setChairPerson(slavePart.getChairPerson());
