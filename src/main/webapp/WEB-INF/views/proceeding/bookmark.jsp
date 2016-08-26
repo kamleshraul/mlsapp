@@ -162,7 +162,7 @@
 											console.log(value);
 											/* $("#"+divId).empty(); 
 											$("#"+divId).html(value); */
-											$('#replacedContent').val($("#"+divId).html());
+											$('#replacedContent').val(value);
 											var param="?language="+$('#language').val()+
 											  "&currentSlot="+$('#currentSlot').val()+
 											  "&slavePart="+$('#currentPart').val()+
