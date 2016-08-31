@@ -164,11 +164,11 @@
 												     			<xsl:value-of select="./element_1_6"></xsl:value-of>
 												     		</fo:block>
 												   	</fo:table-cell>
-												   	<fo:table-cell>
+											<!-- 	   	<fo:table-cell>
 													     		<fo:block font-weight="bold">
 													     			<xsl:value-of select="./element_1_4"></xsl:value-of>
 													     		</fo:block>
-													   	</fo:table-cell>								     	
+													   	</fo:table-cell>	 -->							     	
 											    </fo:table-row>
 											    	<fo:table-row>
 							     					<fo:table-cell number-columns-spanned="3">
@@ -191,11 +191,11 @@
 													     			<xsl:value-of select="./element_1_6"/>
 													     		</fo:block>
 													   	</fo:table-cell>	
-													   		<fo:table-cell>
+													<!--    		<fo:table-cell>
 													     		<fo:block>
 													     			<xsl:value-of select="./element_1_4"></xsl:value-of>
 													     		</fo:block>
-													   	</fo:table-cell>							     	
+													   	</fo:table-cell>	 -->						     	
 												    </fo:table-row>	
 										     		<!-- <xsl:choose>
 										     			<xsl:when test="./element_1_3='????? ???????'">
@@ -294,11 +294,11 @@
 												     			<xsl:value-of select="./element_4_6"></xsl:value-of>
 												     		</fo:block>
 												   	</fo:table-cell>
-												   	<fo:table-cell>
+												   	<!-- <fo:table-cell>
 													     		<fo:block >
 													     			<xsl:value-of select="./element_4_4"></xsl:value-of>
 													     		</fo:block>
-													   	</fo:table-cell>								     	
+													   	</fo:table-cell>		 -->						     	
 											    </fo:table-row>
 											    	
 											   </xsl:if>
@@ -315,11 +315,11 @@
 													     			<xsl:value-of select="./element_4_6"/>
 													     		</fo:block>
 													   	</fo:table-cell>	
-													   		<fo:table-cell>
+													   		<!-- <fo:table-cell>
 													     		<fo:block>
 													     			<xsl:value-of select="./element_4_4"></xsl:value-of>
 													     		</fo:block>
-													   	</fo:table-cell>							     	
+													   	</fo:table-cell> -->							     	
 												    </fo:table-row>	
 										     		<!-- <xsl:choose>
 										     			<xsl:when test="./element_1_3='????? ???????'">
