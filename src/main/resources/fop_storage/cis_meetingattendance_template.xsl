@@ -77,7 +77,7 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->
-			      <fo:block font-family="mangal" font-size="13px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">	
+			      <fo:block font-family="{$font}" font-size="18px" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">	
 		     		  	<fo:block font-weight="bold" text-align="center">बैठकीचे कार्यवृत्त</fo:block>
 		     		  <fo:block font-weight="bold" font-size="12px">&#160;&#160;&#160;&#160;&#160;</fo:block>
 			       		&#160;&#160;&#160;&#160;&#160;<xsl:value-of select="./element_1/element_1_2"/>ची बैठक <xsl:value-of select="./element_2"/> रोजी  <xsl:value-of select="./element_4"/> वाजता <xsl:value-of select="./element_6"/> येथे आयोजित करण्यात आली होती.सदरहू बैठकीस खालील सन्माननीय सदस्य व अधिकारी उपस्थित होते :- 				       		
