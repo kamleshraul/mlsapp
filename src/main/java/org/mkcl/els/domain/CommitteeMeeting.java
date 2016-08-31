@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="committee_meetings")
-@JsonIgnoreProperties({"committeeMeetingType","committeeSubject","prashnavali","committeeTour","committee"})
+@JsonIgnoreProperties({"committeeMeetingType","prashnavali","committeeTour","committee"})
 public class CommitteeMeeting extends BaseDomain implements Serializable{
 
 	private static final long serialVersionUID = -1754534001115968245L;
