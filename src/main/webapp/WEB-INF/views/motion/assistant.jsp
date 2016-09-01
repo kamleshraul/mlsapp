@@ -637,7 +637,12 @@
 <div id="assistantDiv">
 <form:form action="motion" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<h2>${formattedMotionType}: ${formattedNumber}</h2>
+	<h2>
+		${formattedMotionType}: ${formattedNumber}
+		<c:if test="${not empty discussionStatus}">
+			(${discussionStatus})
+		</c:if>
+	</h2>
 	<form:errors path="version" cssClass="validationError"/>
 	
 	<p style="display:none;">
