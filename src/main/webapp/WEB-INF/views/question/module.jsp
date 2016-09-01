@@ -82,6 +82,7 @@
 				if($("#currentusergroupType").val()!='member' && $("#currentusergroupType").val()!='typist'){
 					loadGroupsFromSessions();
 				}
+				loadProcessingMode();
 			}
 			reloadQuestionGrid();
 		});
@@ -94,6 +95,7 @@
 				if($("#currentusergroupType").val()!='member' && $("#currentusergroupType").val()!='typist'){
 					loadGroupsFromSessions();
 				}
+				loadProcessingMode();
 			}
 			
 			if($("#selectedGroup").val()!='' && $("#selectedGroup").val()!=null){
@@ -271,10 +273,23 @@
 				$('#processMode').val(data);
 			}
 		}).success(function(){
-			if ($('#processMode').val()  == 'upperhouse') {
+			/* if ($('#processMode').val()  == 'upperhouse') {
 				$('#memberballot_tab').show();					
 			} else {
 				$('#memberballot_tab').hide();					
+			} */
+			var selectedDeviceType = $("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
+			if (selectedDeviceType == 'questions_starred'
+					&& $('#processMode').val()  == 'upperhouse') {
+				$("#memberballot_tab").show();
+				$("#ballot_tab").hide();				
+			} else if ((selectedDeviceType == 'questions_starred' && $('#processMode').val()  == 'lowerhouse')
+					|| selectedDeviceType == 'questions_halfhourdiscussion_from_question') {
+				$("#memberballot_tab").hide();
+				$("#ballot_tab").show();
+			} else {
+				$("#memberballot_tab").hide();
+				$("#ballot_tab").hide();
 			}
 		});
 	}
