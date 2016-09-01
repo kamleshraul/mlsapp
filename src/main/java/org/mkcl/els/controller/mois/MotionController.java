@@ -842,6 +842,17 @@ public class MotionController extends GenericController<Motion>{
 			model.addAttribute("recommendationStatus",recommendationStatus.getId());
 			model.addAttribute("recommendationStatusType",recommendationStatus.getType());
 		}	
+		/** Populate whether admitted motion is discussed or not  **/
+		if(internalStatus!=null && internalStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			if(recommendationStatus!=null && recommendationStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_PROCESSED_DISCUSSED)) {
+				model.addAttribute("discussionStatus",recommendationStatus.getName());
+			} else if(recommendationStatus!=null && recommendationStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_PROCESSED_UNDISCUSSED)) {
+				model.addAttribute("discussionStatus",recommendationStatus.getName());
+			} else {
+				//if there comes status which is post discussed, then need to check discussed on drafts here..
+				model.addAttribute("discussionStatus","");
+			}
+		}
 		
 		/**** Referenced Entities are collected in refentities****/		
 		List<ReferenceUnit> referencedEntities=domain.getReferencedUnits();
@@ -1602,6 +1613,19 @@ public class MotionController extends GenericController<Motion>{
 				e.printStackTrace();
 			}
 		}	
+		Status internalStatus=domain.getInternalStatus();
+		Status recommendationStatus=domain.getRecommendationStatus();
+		/** Populate whether admitted motion is discussed or not  **/
+		if(internalStatus!=null && internalStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_FINAL_ADMISSION)) {
+			if(recommendationStatus!=null && recommendationStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_PROCESSED_DISCUSSED)) {
+				model.addAttribute("discussionStatus",recommendationStatus.getName());
+			} else if(recommendationStatus!=null && recommendationStatus.getType().trim().equalsIgnoreCase(ApplicationConstants.MOTION_PROCESSED_UNDISCUSSED)) {
+				model.addAttribute("discussionStatus",recommendationStatus.getName());
+			} else {
+				//if there comes status which is post discussed, then need to check discussed on drafts here..
+				model.addAttribute("discussionStatus","");
+			}
+		}
 		super.populateUpdateIfErrors(model, domain, request);
 	}
 

@@ -14,6 +14,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.SessionVO;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Session;
@@ -156,6 +157,34 @@ public class SessionRepository extends BaseRepository<Session, Long>{
     	try{
     		TypedQuery<Session> query=this.em().createQuery(strQuery, Session.class);
         	query.setParameter("houseTypeId", houseType);
+        	List<Session> sessions= query.getResultList();
+        	if(!sessions.isEmpty()){
+        		return sessions.get(0);
+        	}else{
+        		return new Session();
+        	}
+    	}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("SessionRepository_Session_findLatestSession", "Session  Not found");
+			throw elsException;
+		}
+    	
+    }
+    
+    public Session findLatestSessionHavingGivenDeviceTypeEnabled(final HouseType houseType, final DeviceType deviceType) throws ELSException {
+    	/*
+    	 * to find the most recent session by housetype we select all those sessions having given house
+    	 * arranged according to their start date in decreasing order.The entry at 0 position is
+    	 * the most recent session.Also if no entries are present in session then we return an empty session object
+    	 * which must be checked before performing any operation.This is done to catch JPA exception "NoEntityFound"
+    	 */
+    	String strQuery="SELECT s FROM Session s WHERE s.house.type.id=:houseTypeId AND s.deviceTypesEnabled LIKE :deviceTypePattern ORDER BY s.startDate DESC";
+    	try{
+    		TypedQuery<Session> query=this.em().createQuery(strQuery, Session.class);
+        	query.setParameter("houseTypeId", houseType.getId());
+        	query.setParameter("deviceTypePattern", "%" + deviceType.getType().trim() + "%");
         	List<Session> sessions= query.getResultList();
         	if(!sessions.isEmpty()){
         		return sessions.get(0);

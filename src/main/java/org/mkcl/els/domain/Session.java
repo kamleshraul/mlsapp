@@ -193,6 +193,10 @@ public class Session extends BaseDomain implements Serializable {
     public static Session findLatestSession(final HouseType houseType) throws ELSException {
         return getSessionRepository().findLatestSession(houseType);
     }
+    
+    public static Session findLatestSessionHavingGivenDeviceTypeEnabled(final HouseType houseType, final DeviceType deviceType) throws ELSException {
+        return getSessionRepository().findLatestSessionHavingGivenDeviceTypeEnabled(houseType, deviceType);
+    }
 
     /**
      * Find sessions by house and year.
