@@ -125,6 +125,7 @@
 							     	</xsl:when>
 								     <xsl:otherwise>					     
 									     <xsl:for-each select="./element_1" >	
+									      <xsl:variable name="countSerial" select="position()"></xsl:variable>
 										     <xsl:if test="position() = 1 or (preceding-sibling::element_1[1]/element_1_1!=./element_1_1)">
 											      <xsl:choose>
 											      	<xsl:when test="position()!=1">
@@ -155,9 +156,9 @@
 											    </fo:table-row>
 							     				<fo:table-row>
 							     					<fo:table-cell>
-												     		<fo:block font-weight="bold">
-												     			<xsl:value-of select="position()"/>)
-												     		</fo:block>
+												     		<fo:block>
+													     			(<xsl:value-of select="../element_5[$countSerial]"/>) 
+													     		</fo:block>
 												   	</fo:table-cell>
 							     					<fo:table-cell>
 												     		<fo:block font-weight="bold">
@@ -182,8 +183,8 @@
 										     	<xsl:if test="preceding-sibling::element_1[1]/element_1_1=./element_1_1">
 										     		<fo:table-row>
 								     					<fo:table-cell>
-													     		<fo:block font-weight="bold">
-													     			<xsl:value-of select="position()"/>) 
+													     		<fo:block>
+													     			(<xsl:value-of select="../element_5[$countSerial]"/>) 
 													     		</fo:block>
 													   	</fo:table-cell>
 								     					<fo:table-cell>
@@ -197,55 +198,7 @@
 													     		</fo:block>
 													   	</fo:table-cell>	 -->						     	
 												    </fo:table-row>	
-										     		<!-- <xsl:choose>
-										     			<xsl:when test="./element_1_3='????? ???????'">
-										     				<fo:table-row>
-										     					<fo:table-cell number-columns-spanned="3">
-															     		<fo:block font-weight="bold" >
-															     			????? ?????? <xsl:value-of select="./element_1_3"/>
-															     		</fo:block>
-															   	</fo:table-cell>								     	
-														    </fo:table-row>
-										     				<fo:table-row>
-										     					<fo:table-cell>
-															     		<fo:block font-weight="bold">
-															     			<xsl:value-of select="position()"/>)
-															     		</fo:block>
-															   	</fo:table-cell>
-										     					<fo:table-cell>
-															     		<fo:block font-weight="bold">
-															     			<xsl:value-of select="./element_1_6"></xsl:value-of>
-															     		</fo:block>
-															   	</fo:table-cell>								     	
-														    </fo:table-row>
-														    	<fo:table-row>
-										     					<fo:table-cell number-columns-spanned="3">
-															     		<fo:block font-weight="bold">
-															     			?????
-															     		</fo:block>
-															   	</fo:table-cell>								     	
-														    </fo:table-row>
-										     			</xsl:when>
-										     			<xsl:otherwise>
-										     				<fo:table-row>
-										     					<fo:table-cell>
-															     		<fo:block font-weight="bold">
-															     			<xsl:value-of select="position()"/>) 
-															     		</fo:block>
-															   	</fo:table-cell>
-										     					<fo:table-cell>
-															     		<fo:block>
-															     			<xsl:value-of select="./element_1_6"> </xsl:value-of><xsl:value-of select="./element_1_3"/>
-															     		</fo:block>
-															   	</fo:table-cell>	
-															   		<fo:table-cell>
-															     		<fo:block>
-															     			<xsl:value-of select="./element_1_4"></xsl:value-of>
-															     		</fo:block>
-															   	</fo:table-cell>							     	
-														    </fo:table-row>	
-										     			</xsl:otherwise>
-										     		</xsl:choose> -->
+										     	
 										     		
 											    </xsl:if>				
 											</xsl:for-each>						   
@@ -274,6 +227,7 @@
 							     	</xsl:when>
 								     <xsl:otherwise>					     
 									     <xsl:for-each select="./element_4" >	
+									      <xsl:variable name="countSerial" select="position()"></xsl:variable>
 										     <xsl:if test="position() = 1 or (preceding-sibling::element_4[1]/element_4_1!=./element_4_1)">
 											  
 											     <fo:table-row>
@@ -285,9 +239,9 @@
 											    </fo:table-row>
 							     				<fo:table-row>
 							     					<fo:table-cell>
-												     		<fo:block font-weight="bold">
-												     			<xsl:value-of select="position()"/>)
-												     		</fo:block>
+												     	<fo:block>
+													     			(<xsl:value-of select="../element_6[$countSerial]"/>) 
+													     		</fo:block>
 												   	</fo:table-cell>
 							     					<fo:table-cell>
 												     		<fo:block >
@@ -306,8 +260,8 @@
 										     	<xsl:if test="preceding-sibling::element_4[1]/element_4_1=./element_4_1">
 										     		<fo:table-row>
 								     					<fo:table-cell>
-													     		<fo:block font-weight="bold">
-													     			<xsl:value-of select="position()"/>) 
+													     		<fo:block>
+													     			(<xsl:value-of select="../element_6[$countSerial]"/>) 
 													     		</fo:block>
 													   	</fo:table-cell>
 								     					<fo:table-cell>
@@ -321,55 +275,7 @@
 													     		</fo:block>
 													   	</fo:table-cell> -->							     	
 												    </fo:table-row>	
-										     		<!-- <xsl:choose>
-										     			<xsl:when test="./element_1_3='????? ???????'">
-										     				<fo:table-row>
-										     					<fo:table-cell number-columns-spanned="3">
-															     		<fo:block font-weight="bold" >
-															     			????? ?????? <xsl:value-of select="./element_1_3"/>
-															     		</fo:block>
-															   	</fo:table-cell>								     	
-														    </fo:table-row>
-										     				<fo:table-row>
-										     					<fo:table-cell>
-															     		<fo:block font-weight="bold">
-															     			<xsl:value-of select="position()"/>)
-															     		</fo:block>
-															   	</fo:table-cell>
-										     					<fo:table-cell>
-															     		<fo:block font-weight="bold">
-															     			<xsl:value-of select="./element_1_6"></xsl:value-of>
-															     		</fo:block>
-															   	</fo:table-cell>								     	
-														    </fo:table-row>
-														    	<fo:table-row>
-										     					<fo:table-cell number-columns-spanned="3">
-															     		<fo:block font-weight="bold">
-															     			?????
-															     		</fo:block>
-															   	</fo:table-cell>								     	
-														    </fo:table-row>
-										     			</xsl:when>
-										     			<xsl:otherwise>
-										     				<fo:table-row>
-										     					<fo:table-cell>
-															     		<fo:block font-weight="bold">
-															     			<xsl:value-of select="position()"/>) 
-															     		</fo:block>
-															   	</fo:table-cell>
-										     					<fo:table-cell>
-															     		<fo:block>
-															     			<xsl:value-of select="./element_1_6"> </xsl:value-of><xsl:value-of select="./element_1_3"/>
-															     		</fo:block>
-															   	</fo:table-cell>	
-															   		<fo:table-cell>
-															     		<fo:block>
-															     			<xsl:value-of select="./element_1_4"></xsl:value-of>
-															     		</fo:block>
-															   	</fo:table-cell>							     	
-														    </fo:table-row>	
-										     			</xsl:otherwise>
-										     		</xsl:choose> -->
+										     		
 										     		
 											    </xsl:if>				
 											</xsl:for-each>						   

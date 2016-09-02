@@ -101,6 +101,7 @@
 							     	</xsl:when>
 								     <xsl:otherwise>					     
 									     <xsl:for-each select="./element_1" >	
+									      <xsl:variable name="countSerial" select="position()"></xsl:variable>
 									      <xsl:for-each select="./element_1_1" >
 									    	
 									      </xsl:for-each>
@@ -142,8 +143,8 @@
 											    
 							     				<fo:table-row>
 							     					<fo:table-cell>
-													     		<fo:block font-weight="bold">
-													     			<xsl:value-of select="position()"/>) 
+													     			<fo:block>
+													     			(<xsl:value-of select="../element_4[$countSerial]"/>) 
 													     		</fo:block>
 													   	</fo:table-cell>
 							     					<fo:table-cell>
@@ -160,8 +161,8 @@
 										     	
 										     		<fo:table-row>
 								     					<fo:table-cell>
-													     		<fo:block font-weight="bold">
-													     			<xsl:value-of select="position()"/>) 
+													     			<fo:block>
+													     			(<xsl:value-of select="../element_4[$countSerial]"/>) 
 													     		</fo:block>
 													   	</fo:table-cell>
 								     					<fo:table-cell>
@@ -181,8 +182,85 @@
 						     		</xsl:choose>	
 						    	 </fo:table-body>	
 					    	 </fo:table>	    
-	              	  </fo:block>       
-	               </fo:block>	    
+	              	  </fo:block>   
+	              	  
+	              	   <!--For invited members -->
+	              	  <fo:block >
+						<fo:table table-layout="fixed">
+								<fo:table-column column-number="1" column-width="10%" />
+								<fo:table-column column-number="2" column-width="60%" />
+								<fo:table-column column-number="3" column-width="30%" />
+							<fo:table-body>
+								<xsl:choose>
+							    	<xsl:when test="not(./element_5)">
+							    		<fo:table-row>
+							     			<fo:table-cell>
+									     		<fo:block>
+									     		
+									     		</fo:block>
+									     	</fo:table-cell>								     	
+								     	</fo:table-row>     	
+							     	</xsl:when>
+								     <xsl:otherwise>					     
+									     <xsl:for-each select="./element_5" >	
+									      <xsl:variable name="countSerial" select="position()"></xsl:variable>
+										     <xsl:if test="position() = 1 or (preceding-sibling::element_5[1]/element_5_1!=./element_5_1)">
+											  
+											     <fo:table-row>
+							     					<fo:table-cell number-columns-spanned="3">
+												     		<fo:block font-weight="bold" >
+												     			आमंत्रित सदस्य
+												     		</fo:block>
+												   	</fo:table-cell>								     	
+											    </fo:table-row>
+							     				<fo:table-row>
+							     					<fo:table-cell>
+												     	<fo:block>
+													     			(<xsl:value-of select="../element_6[$countSerial]"/>) 
+													     		</fo:block>
+												   	</fo:table-cell>
+							     					<fo:table-cell>
+												     		<fo:block >
+												     			<xsl:value-of select="./element_5_6"></xsl:value-of>
+												     		</fo:block>
+												   	</fo:table-cell>
+												   	<!-- <fo:table-cell>
+													     		<fo:block >
+													     			<xsl:value-of select="./element_5_4"></xsl:value-of>
+													     		</fo:block>
+													   	</fo:table-cell>		 -->						     	
+											    </fo:table-row>
+											    	
+											   </xsl:if>
+											   
+										     	<xsl:if test="preceding-sibling::element_5[1]/element_5_1=./element_5_1">
+										     		<fo:table-row>
+								     					<fo:table-cell>
+													     		<fo:block>
+													     			(<xsl:value-of select="../element_6[$countSerial]"/>) 
+													     		</fo:block>
+													   	</fo:table-cell>
+								     					<fo:table-cell>
+													     		<fo:block>
+													     			<xsl:value-of select="./element_5_6"/>
+													     		</fo:block>
+													   	</fo:table-cell>	
+													   		<!-- <fo:table-cell>
+													     		<fo:block>
+													     			<xsl:value-of select="./element_5_4"></xsl:value-of>
+													     		</fo:block>
+													   	</fo:table-cell> -->							     	
+												    </fo:table-row>	
+										     		
+										     		
+											    </xsl:if>				
+											</xsl:for-each>						   
+								     	</xsl:otherwise>
+						     		</xsl:choose>	
+						    	 </fo:table-body>	
+					    	 </fo:table>	    
+					    	   </fo:block>       
+	               </fo:block>	 
 			    </fo:flow>
 	        </fo:page-sequence>
 	    </fo:root>

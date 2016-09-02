@@ -151,7 +151,82 @@
 						    	 </fo:table-body>	
 					    	 </fo:table>	    
 	              	  </fo:block>        
-			      	 
+			      	 <!-- invited Members-->
+			      	 		<fo:block >
+						<fo:table table-layout="fixed">
+								<fo:table-column column-number="1" column-width="10%" />
+								<fo:table-column column-number="2" column-width="60%" />
+								<fo:table-column column-number="3" column-width="30%" />
+							<fo:table-body>
+								<xsl:choose>
+							    	<xsl:when test="not(./element_7)">
+							    		<fo:table-row>
+							     			<fo:table-cell>
+									     		<fo:block>
+									     			माहिती उपलब्ध नाही..
+									     		</fo:block>
+									     	</fo:table-cell>								     	
+								     	</fo:table-row>     	
+							     	</xsl:when>
+								     <xsl:otherwise>					     
+									     <xsl:for-each select="./element_7" >
+									     <xsl:variable name="countSerial" select="position()"></xsl:variable>	
+										     <xsl:if test="position() = 1 or (preceding-sibling::element_7[1]/element_7_1!=./element_7_1)">
+											    
+											    <fo:table-row>
+							     					<fo:table-cell number-columns-spanned="3">
+												     		<fo:block font-weight="bold" >
+												     			आमंत्रित सदस्य
+												     		</fo:block>
+												   	</fo:table-cell>								     	
+											    </fo:table-row>
+							     				<fo:table-row>
+							     					<fo:table-cell>
+												     		<fo:block>
+												     				(<xsl:value-of select="../element_8[$countSerial]"/>)
+												     		</fo:block>
+												   	</fo:table-cell>
+							     					<fo:table-cell>
+												     		<fo:block>
+												     		<xsl:value-of select="./element_7_6"></xsl:value-of> 
+												     		 <xsl:if test="./element_7_3='समिती प्रमुख'">
+												     		 तथा <xsl:value-of select="./element_7_3"/>
+												     		 </xsl:if>
+												     		
+												     		</fo:block>
+												   	</fo:table-cell>
+												   							     	
+											    </fo:table-row>
+											
+											   </xsl:if>
+											   
+										     	<xsl:if test="preceding-sibling::element_7[1]/element_7_1=./element_7_1">
+										     		<fo:table-row>
+								     					<fo:table-cell>
+													     		<fo:block>
+													     			(<xsl:value-of select="../element_8[$countSerial]"/>) 
+													     		</fo:block>
+													   	</fo:table-cell>
+								     					<fo:table-cell>
+													     		<fo:block>
+													     			<xsl:value-of select="./element_7_6"/>
+													     			 <xsl:if test="./element_7_3='समिती प्रमुख'">
+												     		 तथा <xsl:value-of select="./element_7_3"/>
+												     		 </xsl:if>
+													     		</fo:block>
+													   	</fo:table-cell>	
+													   					     	
+												    </fo:table-row>	
+										     	
+										     		
+											    </xsl:if>				
+											</xsl:for-each>						   
+								     	</xsl:otherwise>
+						     		</xsl:choose>	
+						    	 </fo:table-body>	
+					    	 </fo:table>	    
+	              	  </fo:block>   
+	              	  
 			      	<fo:block font-weight="bold" text-align="right">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 				       				 
 			    	            	   	    
