@@ -42,11 +42,14 @@ public class CommitteeReportController extends BaseController {
 			queryParameters.put("id", new String[]{id.toString()});
 			 String queryName = "CIS_PATRAKBHAG_REPORT";
 			List<Object[]> reportData = Query.findReport(queryName, queryParameters);
+			List<String> serialNo=new ArrayList<String>();
+			serialNo=this.populateSerialNumbers(reportData, locale);
 			List<String> committeIDList=new ArrayList<String>();
 			Committee committee = Committee.findById(Committee.class, id);
 			String formattedDate = FormaterUtil.formatDateToString(committee.getFormationDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 			List<Object[]> reportData1 = Query.findReport("CIS_PATRAKBHAG_INVITEDMEMBER_REPORT", queryParameters);
-			
+			List<String> serialNo1=new ArrayList<String>();
+			serialNo1=this.populateSerialNumbers(reportData1, locale);
 			String DateInIndianCalendar = FormaterUtil.getIndianDate(committee.getFormationDate(), locale);
 			if(reportData!=null && !reportData.isEmpty()) {
 				committeIDList.add(id.toString());
@@ -75,7 +78,7 @@ public class CommitteeReportController extends BaseController {
 				***/
 				/**** generate report ****/
 				if(!isError) {
-					reportFile = generateReportUsingFOP(new Object[]{reportData,formattedDate,DateInIndianCalendar,reportData1}, "cis_patrakbhag_template", "WORD", "cis_patrakbhag_report", locale.toString());
+					reportFile = generateReportUsingFOP(new Object[]{reportData,formattedDate,DateInIndianCalendar,reportData1,serialNo,serialNo1}, "cis_patrakbhag_template", "WORD", "cis_patrakbhag_report", locale.toString());
 					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
 				}			
 			}
@@ -119,10 +122,14 @@ public class CommitteeReportController extends BaseController {
 			queryParameters.put("id", new String[]{id.toString()});
 			 String queryName = "CIS_MEMORANDUM_REPORT";
 			List<Object[]> reportData = Query.findReport(queryName, queryParameters);
+			List<String> serialNo=new ArrayList<String>();
+			serialNo=this.populateSerialNumbers(reportData, locale);
 			List<String> committeIDList=new ArrayList<String>();
 			Committee committee = Committee.findById(Committee.class, id);
 	String formattedDate = FormaterUtil.formatDateToString(committee.getFormationDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
-			
+	List<Object[]> reportData1 = Query.findReport("CIS_MEMORANDUM_INVITEDMEMBER_REPORT", queryParameters);
+	List<String> serialNo1=new ArrayList<String>();
+	serialNo1=this.populateSerialNumbers(reportData1, locale);
 			String DateInIndianCalendar = FormaterUtil.getIndianDate(committee.getFormationDate(), locale);
 		
 			if(reportData!=null && !reportData.isEmpty()) {
@@ -151,7 +158,7 @@ public class CommitteeReportController extends BaseController {
 					***/
 				/**** generate report ****/
 				if(!isError) {
-					reportFile = generateReportUsingFOP(new Object[]{reportData,formattedDate,DateInIndianCalendar}, "cis_memorandum_template", "WORD", "cis_memorandum_report", locale.toString());
+					reportFile = generateReportUsingFOP(new Object[]{reportData,formattedDate,DateInIndianCalendar,serialNo,reportData1,serialNo1}, "cis_memorandum_template", "WORD", "cis_memorandum_report", locale.toString());
 					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
 				}			
 			}
@@ -342,7 +349,9 @@ public class CommitteeReportController extends BaseController {
 			String formattedDate = FormaterUtil.formatDateToString(committeemeeting.getMeetingDate(), ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
 			String meetingTime = FormaterUtil.formatNumbersInGivenText(committeemeeting.getStartTime(),locale.toString());
 			String meetingLocation = committeemeeting.getMeetingLocation();
-					
+			List<Object[]> reportData1 = Query.findReport("CIS_MEETINGATTENDANCE_INVITEDMEMBER_REPORT", queryParameters);
+			List<String> serialNo1=new ArrayList<String>();
+			serialNo1=this.populateSerialNumbers(reportData1, locale);
 					String DateInIndianCalendar = FormaterUtil.getIndianDate(committeemeeting.getMeetingDate(), locale);
 				
 			if(reportData!=null && !reportData.isEmpty()) {
@@ -350,7 +359,7 @@ public class CommitteeReportController extends BaseController {
 				
 				/**** generate report ****/
 				if(!isError) {
-					reportFile = generateReportUsingFOP(new Object[]{reportData,formattedDate,DateInIndianCalendar,meetingTime,serialNo,meetingLocation}, "cis_meetingattendance_template", "WORD", "cis_meetingattendance_report", locale.toString());
+					reportFile = generateReportUsingFOP(new Object[]{reportData,formattedDate,DateInIndianCalendar,meetingTime,serialNo,meetingLocation,reportData1,serialNo1}, "cis_meetingattendance_template", "WORD", "cis_meetingattendance_report", locale.toString());
 					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
 				}			
 			}
