@@ -64,12 +64,14 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="question.search" text="Search"/>
 			</a> |
+			<security:authorize access="hasAnyRole('SUPER_ADMIN')">		
 			<a href="#" id="resetPassword" class="butSim">
 				<spring:message code="user.resetPassword" text="Reset Password"/>
 			</a> |
 			<a href="#" id="loginForSupport" class="butSim">
 				<spring:message code="user.loginForSupport" text="Login for Support"/>
 			</a> |
+			</security:authorize>
 			</span>  
 			<p>&nbsp;</p>
 		</div>
