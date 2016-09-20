@@ -270,6 +270,9 @@
 			<form:hidden path="id" />
 			<form:hidden path="locale" />
 			<form:hidden path="version" />
+			<input type="hidden" name="createdBy" id="createdBy" value="${createdBy}">
+			<input type="hidden" name="creationDate" id="creationDate" value="${creationDate}">
+	
 		</form:form>
 	</div>
 </body>
