@@ -64,6 +64,22 @@ public class CommitteeMeeting extends BaseDomain implements Serializable{
 	@Column(name="speech", length=30000)
 	private String speech;
 	
+	/* Audit Log */
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date creationDate;
+	
+	@Column(length=1000)
+	private String createdBy;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date editedOn;
+	
+	@Column(length=1000)
+	private String editedAs;
+	
+	@Column(length=1000)
+	private String editedBy;
+	
 	@Autowired
 	private transient CommitteeMeetingRepository committeeMeetingRepository;
 
@@ -175,5 +191,46 @@ public class CommitteeMeeting extends BaseDomain implements Serializable{
 	public void setSpeech(String speech) {
 		this.speech = speech;
 	}
+	
+	public Date getCreationDate() {
+		return creationDate;
+	}
+		
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+		
+	public String getCreatedBy() {
+		return createdBy;
+	}
+		
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}	
+	
+	public Date getEditedOn() {
+		return editedOn;
+	}
+	
+	public void setEditedOn(Date editedOn) {
+		this.editedOn = editedOn;
+	}	
+	
+	public String getEditedBy() {
+		return editedBy;
+	}
+		
+	public void setEditedBy(String editedBy) {
+		this.editedBy = editedBy;
+	}
+		
+	public String getEditedAs() {
+		return editedAs;
+	}	
+	
+	public void setEditedAs(String editedAs) {
+		this.editedAs = editedAs;
+	}
+		
 
 }

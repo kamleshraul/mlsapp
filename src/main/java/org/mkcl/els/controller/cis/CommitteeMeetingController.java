@@ -1,5 +1,7 @@
 package org.mkcl.els.controller.cis;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -124,11 +126,15 @@ public class CommitteeMeetingController extends
 	protected void customValidateCreate(final CommitteeMeeting domain,
 			final BindingResult result, final HttpServletRequest request) {
 		this.valEmptyAndNull(domain, result);
-
+		//set Creation Date, created by, edited on , edited by
+		domain.setCreationDate(new Date());
+		domain.setCreatedBy(this.getCurrentUser().getActualUsername());
+		domain.setEditedOn(new Date());
+		domain.setEditedBy(this.getCurrentUser().getActualUsername());
 		// this.valFormationDateBeforeDissolutionDate(domain, result);
 		// this.valInstanceCreationUniqueness(domain, result);
 	}
-
+	
 	@Override
 	protected void populateEdit(final ModelMap model,
 			final CommitteeMeeting domain, final HttpServletRequest request) {
@@ -149,6 +155,16 @@ public class CommitteeMeetingController extends
 		this.populateprashnavalis(model, locale, committee);
 		this.populateCommitteeSubjects(model, locale, committee.getCommitteeName());
 		this.populateCommitteeSubject(model, domain);
+		
+		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+		if(dateTimeFormat!=null){  
+		if(domain.getCreationDate()!=null){
+			model.addAttribute("creationDate",FormaterUtil.
+					getDateFormatter(dateTimeFormat.getValue(),"en_US").format(domain.getCreationDate()));
+		}
+		}
+		model.addAttribute("createdBy", domain.getCreatedBy());
+	
 		// this.populateCommitteeNames(model, committeeType, locale);
 
 	}
@@ -168,7 +184,32 @@ public class CommitteeMeetingController extends
 		this.valEmptyAndNull(domain, result);
 		// this.valFormationDateBeforeDissolutionDate(domain, result);
 		// this.valInstanceUpdationUniqueness(domain, result);
+		CustomParameter dateTimeFormat=CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+		if(dateTimeFormat!=null){
+		SimpleDateFormat format=FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
+		
+		String strCreationDate=request.getParameter("creationDate");
+		if(strCreationDate!=null&&!strCreationDate.isEmpty()){
+			try {
+				domain.setCreationDate(format.parse(strCreationDate));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		String strCreatedBy=request.getParameter("createdBy");
+		domain.setCreatedBy(strCreatedBy);
 		this.valVersionMismatch(domain, result);
+		//set EditedAs
+		UserGroupType userGroupType = getUserGroupType(request, domain.getLocale());
+				if(userGroupType != null){
+					domain.setEditedAs(userGroupType.getName());
+				}
+		domain.setEditedOn(new Date());
+		domain.setEditedBy(this.getCurrentUser().getActualUsername());
+		
+		
+		}
 	}
 
 	@RequestMapping(value = "{id}/view", method = RequestMethod.GET)
@@ -598,6 +639,15 @@ public class CommitteeMeetingController extends
 					}
 				}
 			}
+		}
+		return null;
+	}
+	public static UserGroupType getUserGroupType(HttpServletRequest request,
+			String locale) {
+		String strUserGroupType = request.getParameter("usergroupType");
+		if(strUserGroupType != null && !strUserGroupType.isEmpty()){
+			UserGroupType userGroupType = UserGroupType.findByType(strUserGroupType,locale);
+			return userGroupType;
 		}
 		return null;
 	}
