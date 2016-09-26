@@ -211,7 +211,7 @@
 			  <c:set var="counter" value="1" /> 
 				
 						<c:choose>
-							<c:when test="${committeeMember.member.getAlias() != ''}">
+							<c:when test="${committeeMember.member.getAliasEnabled()==true && committeeMember.member.getAlias()!=''}">
 							
 							 	<c:choose>
 								<c:when test="${committeeMember.member.findCurrentHouseType() == '[lowerhouse]'}">
