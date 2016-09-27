@@ -58,11 +58,11 @@ public class NonCommiteeMembersController extends GenericController<NonCommiteeM
 	protected void preValidateCreate(final NonCommiteeMember domain,
 			final BindingResult result, 
 			final HttpServletRequest request) {
-		this.valEmptyAndNull(domain, result);
+		
 		this.setCommitteeMeeting(domain, request);
 		this.setNonCommitteeMemberType(domain, request);
 		this.setNonCommiteeMemberInfos(domain, request);
-		
+		this.valEmptyAndNull(domain, result);
 		this.preValidate(domain, result, request);
 	}
 
@@ -76,19 +76,19 @@ public class NonCommiteeMembersController extends GenericController<NonCommiteeM
 	//=============== VALIDATIONS =========
 	private void valEmptyAndNull(final NonCommiteeMember domain, 
 			final BindingResult result) {
-		// 'committeeName' SHOULD NOT BE NULL
+		
 		if(domain.getDepartmentName() == null || domain.getDepartmentName() == "-") {
 			result.rejectValue("departmentName", "NotEmpty",
 			"Department Name should not be empty");
 		}
 
-		// 'formationDate' SHOULD NOT BE NULL OR EMPTY
+		
 		if(domain.getNonCommitteeMemberType() == null) {
 			result.rejectValue("nonCommitteeMemberType", "NotEmpty",
 			"Non CommitteeMemberType should not be empty");
 		}
 
-		// 'dissolutionDate' SHOULD NOT BE NULL OR EMPTY
+		
 		if(domain.getNoncommiteememberinformation() == null) {
 			result.rejectValue("noncommiteememberinformation", "NotEmpty",
 			"Non commiteemember information should not be empty");
@@ -104,7 +104,7 @@ public class NonCommiteeMembersController extends GenericController<NonCommiteeM
 
 		this.populateNonCommitteeMemberType(model,
 				domain.getNonCommitteeMemberType());
-		String committeeMeetingId = request.getParameter("id");
+		String committeeMeetingId = request.getParameter("committeeMeetingId");
 		model.addAttribute("committeeMeetingId", committeeMeetingId);
 		
 	}

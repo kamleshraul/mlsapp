@@ -157,6 +157,7 @@
 	
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
+	<input type="hidden" id="committeeMeetingId" name="committeeMeetingId" value="${committeeMeetingId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">
 	<input type="hidden" id="allOption" name="allOption" value="<spring:message code='generic.allOption' text='---- All ----'></spring:message>">
 </div>
