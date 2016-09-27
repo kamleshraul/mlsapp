@@ -11,6 +11,9 @@
 	var noncommitteemembersCount = parseInt($('#noncommitteememberSize').val());
 	var totalnoncommitteemembersCount = 0;
 	totalnoncommitteemembersCount = totalnoncommitteemembersCount + noncommitteemembersCount;
+	var tourItineraryCount = parseInt($('#tourItineraryCount').val());
+	var totalTourItineraryCount = 0;
+	totalTourItineraryCount = totalTourItineraryCount + tourItineraryCount;
 	function addNonCommitteeMemberInfoFunction() {
 		noncommitteemembersCount = noncommitteemembersCount + 1;
 		totalnoncommitteemembersCount = totalnoncommitteemembersCount + 1;
@@ -21,7 +24,7 @@
 		    "</p>" +
 		 	
 		  	"<input type='button' class='button' id='" + noncommitteemembersCount + "' value='" + $('#deletenonCommitteeMemberInfoMessage').val() + "' onclick='deleteNonCommitteeMemberInfo(" + noncommitteemembersCount + ");'>" +
-	  	"<input type='hidden' id='noncommitteemembersInfoId" + noncommitteemembersCount + "' name='noncommitteemembersInfoId" + noncommitteemembersCount +"'>" +
+		  	"<input type='hidden' id='noncommitteemembersInfoId" + noncommitteemembersCount + "' name='noncommitteemembersInfoId" + noncommitteemembersCount +"'>" +
 	  	"<input type='hidden' id='noncommitteemembersInfoLocale" + noncommitteemembersCount + "' name='noncommitteemembersInfoLocale" + noncommitteemembersCount + "' value='" + $('#locale').val() +"'>" +
 	  	"<input type='hidden' id='noncommitteemembersInfoVersion" + noncommitteemembersCount + "' name='noncommitteemembersInfoVersion" + noncommitteemembersCount + "'>" +
 	  	"</div>"; 
@@ -152,7 +155,7 @@
 				<div id="noncommitteemembersInfo${noncommitteemembersCount}">
 					<p>
 						<label class="small"><spring:message code="Memberinfo.noncommitteemember" text="Member"/>*</label>
-						<input id="name${noncommitteemembersCount}" name="name${noncommitteemembersCount}" class="sText" value="${outer.name}">
+						<input id="noncommitteemember${noncommitteemembersCount}" name="noncommitteemember${noncommitteemembersCount}" class="sText" value="${outer.name}">
 					</p>
 					
 									
@@ -199,15 +202,7 @@
 	<form:hidden path="version"/>
 	<input type="hidden" name="houseType" id="houseType" value="${houseTypeId}">
 	
-	<input type="hidden" id="workflowInit" name="workflowInit" value="${workflowInit}"/>
-	<input type="hidden" id="workflowName" name="workflowName" value="${workflowName}"/>
-	<input type="hidden" id="assigneeLevel" name="assigneeLevel" value="${assigneeLevel}"/>
- 	<input type="hidden" id="houseTypeId" name="houseTypeId" value="${houseType.id}"/>
-	<input type="hidden" id="userGroupId" name="userGroupId" value="${userGroup.id}"/>
-	<input id="requestForTourMsg" value="<spring:message code='committeetour.requestForTourMsg' text='Do you want to put up request for tour?'></spring:message>" type="hidden">
-	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
-	<input type="hidden" id="pleaseSelect" name="pleaseSelect" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
-</form:form>
+	</form:form>
 </div>
 </body>
 </html>

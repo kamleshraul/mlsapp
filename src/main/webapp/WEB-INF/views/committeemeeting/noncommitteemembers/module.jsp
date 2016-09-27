@@ -13,48 +13,7 @@
 		showTabByIdAndUrl(id, url);
 	}
 	
-	function newNonCommiteeMember() {
-		$('#cancelFn').val('newNonCommiteeMember');
-		$('#key').val('');
-		var id = 'details_tab';
-		var url = 'committeemeeting/noncommitteemembers/new';
-		showTabByIdAndUrl(id, url);
-	}
-
-	function editNonCommiteeMember(rowId) {
-		$('#cancelFn').val('editNonCommiteeMember');
-		if(rowId == null || rowId == '') {
-			var msg = $('#selectRowFirstMessage').val();
-			$.prompt(msg);
-			return false;
-		}
-		alert(rowId);
-		var id = 'details_tab';
-		var url = 'committeemeeting/noncommitteemembers' + '/' + rowId + '/' + 'edit';
-		showTabByIdAndUrl(id, url);
-	}
-
-	function deleteNonCommiteeMember(rowId) {
-		if(rowId == null || rowId == '') {
-			var msg = $('#selectRowFirstMessage').val();
-			$.prompt(msg);
-			return;
-		}
-		var promptMsg = $('#confirmDeleteMessage').val() + rowId;
-		var options = {buttons: {Ok:true, Cancel:false}, 
-					   callback: function(v){
-			   				if(v){
-								$.delete_('committeemeeting/noncommitteemembers' + '/' + rowId + '/' + 'delete', 
-										null, 
-										function(data, textStatus, XMLHttpRequest) { 
-											reloadGrid(); 
-										}
-								);
-			        		}
-					  }};
-		$.prompt(promptMsg, options);
-	}
-
+	
 	function searchNonCommiteeMember() {
 		searchRecord();
 	}
@@ -75,6 +34,7 @@
 		var oldURL = $("#grid").getGridParam("url");
 		var baseURL = oldURL.split("?")[0];
 		var newURL = baseURL + "?" + getGridURLParams();
+		
 		$("#grid").setGridParam({"url":newURL});
 		$("#grid").trigger("reloadGrid");
 	}

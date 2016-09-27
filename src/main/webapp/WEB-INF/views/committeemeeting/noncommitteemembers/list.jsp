@@ -15,7 +15,7 @@ function newNonCommiteeMember() {
 		showTabByIdAndUrl(id, url);
 	}
 	
-function editNonCommiteeMember(rowId) {
+ function editNonCommiteeMember(rowId) {
 	$('#cancelFn').val('editNonCommiteeMember');
 	if(rowId == null || rowId == '') {
 		var msg = $('#selectRowFirstMessage').val();
@@ -24,10 +24,10 @@ function editNonCommiteeMember(rowId) {
 	}
 	var id = 'details_tab';
 	
-	var url = 'committeemeeting/noncommitteemembers' + '/' + rowId + '/' + 'edit';
+	var url = 'committeemeeting/noncommitteemembers' + '/' + rowId + '/' + 'edit?committeeMeetingId='+$('#committeeMeetingId').val();
 	
 	showTabByIdAndUrl(id, url);
-}
+} 
 
 function deleteNonCommiteeMember(rowId) {
 	if(rowId == null || rowId == '') {
