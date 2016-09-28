@@ -19,6 +19,7 @@ package org.mkcl.els.common.util;
  * @since v1.0.0
  */
 public class ApplicationConstants {
+	
 	/**************************************************************************************************************************/
 	/************************************************MIS AND MISCELLANEOUS BEGINS********************************************************/
 	/** To generate password **/
@@ -2517,6 +2518,10 @@ public class ApplicationConstants {
 	
 	public static final String ADJOURNMENT_MOTION_CLUBBING_MODE = "ADJOURNMENT_MOTION_CLUBBING_MODE";
 	
-	public static final String CLUBBING_MODE_APPROVAL_WORKFLOW = "approval_workflow";
+	public static final String CLUBBING_MODE_APPROVAL_WORKFLOW = "approval_workflow";	
+	
+	public static final String PASSWORD_ENCRYTPTION_REQUIRED = "PASSWORD_ENCRYTPTION_REQUIRED";
+	
+	public static final String PASSWORD_ENCRYTPTION_REQUIRED_VALUE = "1";
 	
 }

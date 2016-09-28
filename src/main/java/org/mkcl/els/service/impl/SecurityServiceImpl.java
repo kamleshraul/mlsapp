@@ -22,12 +22,14 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.service.ISecurityService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service("securityService")
 public class SecurityServiceImpl implements UserDetailsService, ISecurityService {
 	
-//	@Autowired
-//	private PasswordEncoder encoder;
+	@Autowired
+	private PasswordEncoder encoder;
 
     /*
      * (non-Javadoc)
@@ -97,15 +99,17 @@ public class SecurityServiceImpl implements UserDetailsService, ISecurityService
     
     @Override
 	public String getEncodedPassword(final String password) {
-//		String encodedPassword = encoder.encode(password);		
-//		return encodedPassword;
-    	return null;
+    	CustomParameter csptEncryptionRequired = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PASSWORD_ENCRYTPTION_REQUIRED, "");
+		if(csptEncryptionRequired!=null && csptEncryptionRequired.getValue()!=null && csptEncryptionRequired.getValue().equals(ApplicationConstants.PASSWORD_ENCRYTPTION_REQUIRED_VALUE)) {
+			String encodedPassword = encoder.encode(password);
+			return encodedPassword;
+		} else {
+			return password;
+		}
 	}
 
 	@Override
 	public boolean isAuthenticated(final String enteredPassword, final String storedPassword) {
-		boolean isAuthenticated = false;
-		//isAuthenticated = encoder.matches(enteredPassword, storedPassword);
-		return isAuthenticated;
+		return encoder.matches(enteredPassword, storedPassword);
 	}
 }

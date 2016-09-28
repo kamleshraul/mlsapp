@@ -10,6 +10,7 @@ import org.mkcl.els.common.util.PasswordValidator;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.User;
+import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -24,9 +25,8 @@ public class MyProfileController extends BaseController {
 	@Autowired 
 	private PasswordValidator passwordValidator;
 	
-	//add below field for password encryption 
-//	@Autowired 
-//	private ISecurityService securityService;
+	@Autowired 
+	private ISecurityService securityService;
 	
 	@RequestMapping(value = "/password", method = RequestMethod.GET)
     public String changePasswordInit(final ModelMap model, 
@@ -101,13 +101,13 @@ public class MyProfileController extends BaseController {
 			if(user!=null && user.getId()!=null) {
 				Credential credential = user.getCredential();
 				if(credential!=null) {
-					//remove below if-else code for password encryption
-					if(existingPassword.equals(credential.getPassword())) {	
+					if(securityService.isAuthenticated(existingPassword, credential.getPassword())) {
 						String isPasswordValidationRequired = request.getParameter("isPasswordValidationRequired");
 						if(isPasswordValidationRequired!=null && isPasswordValidationRequired.equals("yes")) {
 							if(passwordValidator.validate(newPassword)) {
 								Date currentDate = new Date();
-								credential.setPassword(newPassword);
+								String encodedPassword = securityService.getEncodedPassword(newPassword);
+								credential.setPassword(encodedPassword);
 								credential.setPasswordChangeCount(credential.getPasswordChangeCount()+1);
 								credential.setPasswordChangeDateTime(currentDate);
 								credential.merge();						
@@ -124,7 +124,8 @@ public class MyProfileController extends BaseController {
 							}
 						} else {
 							Date currentDate = new Date();
-							credential.setPassword(newPassword);
+							String encodedPassword = securityService.getEncodedPassword(newPassword);
+							credential.setPassword(encodedPassword);
 							credential.setPasswordChangeCount(credential.getPasswordChangeCount()+1);
 							credential.setPasswordChangeDateTime(currentDate);
 							credential.merge();						
@@ -140,22 +141,6 @@ public class MyProfileController extends BaseController {
 						request.getSession().setAttribute("type","error");
 				        redirectAttributes.addFlashAttribute("msg", "update_error");
 					}
-					//add below commented code for password encryption
-//					boolean isAuthenticatedWithEnteredPassword = securityService.isAuthenticated(existingPassword, credential.getPassword());
-//					if(isAuthenticatedWithEnteredPassword) {
-//						credential.setPassword(securityService.getEncodedPassword(newPassword));
-//						credential.merge();						
-//						redirectAttributes.addFlashAttribute("type", "success");
-//				        //this is done so as to remove the bug due to which update message appears even though there
-//				        //is a fresh request
-//				        request.getSession().setAttribute("type","success");
-//				        redirectAttributes.addFlashAttribute("msg", "update_success");
-//					} else {
-//						//error
-//						redirectAttributes.addFlashAttribute("type", "error");
-//						request.getSession().setAttribute("type","error");
-//				        redirectAttributes.addFlashAttribute("msg", "update_error");
-//					}
 				}
 			}
 		} else {

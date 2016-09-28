@@ -104,12 +104,12 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 		</authentication-provider>
 	</authentication-manager>
 
-	<beans:bean id="encoder" class="org.mkcl.els.common.util.CustomPasswordEncoder">
-	</beans:bean>
-		
-	<!-- <beans:bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">  
-	 	<beans:constructor-arg name="strength" value="10" />
+	<!-- <beans:bean id="encoder" class="org.mkcl.els.common.util.CustomPasswordEncoder">
 	</beans:bean> -->
+		
+	<beans:bean id="encoder" class="org.mkcl.els.common.util.CustomPasswordEncoder">
+	 	<beans:constructor-arg name="strength" value="10" />
+	</beans:bean>
 	
 	<beans:bean id="sessionAuthenticationStrategy" class="org.mkcl.els.common.util.ConcurrentSessionControlStrategyForELS">
 		<beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />						

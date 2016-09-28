@@ -15,27 +15,8 @@
 	    }
 	    $("#lang").change(function(){
 		   location.search = "?lang="+$('#lang').val();
-	    });	  
-	
-	    $("#saveForm").click(function(){
-	    	var passwordEncryptionReq = $("#encryptionRequired").val();
-	    	if (passwordEncryptionReq ==1) {
-				var hashMD5 = encodingMD5($("#j_password").val());
-				$('#j_password').val(hashMD5);
-			}
-		});
-	});
-	
-	function encodingMD5(str){
-		var retVal="";
-		for(var i = 0; i < str.length; i++){
-			var c = str.charCodeAt(i);
-			var ch = c;
-			ch = ch ^ 128;
-			retVal=retVal + String.fromCharCode(ch);
-		}
-		return retVal;
-	}
+	    });
+	});	
 </script> 
 </head>
 <style type="text/css">

@@ -138,6 +138,7 @@ import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.YaadiDetails;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
+import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -161,6 +162,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/ref")
 public class ReferenceController extends BaseController {
+	
+	@Autowired 
+	private ISecurityService securityService;
 
 	@Autowired
 	SessionRegistry sessionRegistry;
@@ -7179,14 +7183,7 @@ public class ReferenceController extends BaseController {
 			User user = User.findByUserName(username, locale.toString());
 			if(user!=null && user.getId()!=null) {
 				if(user.getCredential()!=null) {
-					//remove below if-else for encrypted password
-					if(user.getCredential().getPassword().equals(enteredPassword)) {
-						isAuthenticatedWithEnteredPassword = true;
-					} else {
-						isAuthenticatedWithEnteredPassword = false;
-					}	
-					//add below code for encrypted password
-					//isAuthenticatedWithEnteredPassword = securityService.isAuthenticated(enteredPassword, user.getCredential().getPassword());
+					isAuthenticatedWithEnteredPassword = securityService.isAuthenticated(enteredPassword, user.getCredential().getPassword());
 				}
 			}
 		} else {
@@ -8313,7 +8310,8 @@ public class ReferenceController extends BaseController {
 			List<Credential> creds = Credential.findAllCredentialsByRole(strMember);
 			for(Credential cr : creds){
 				String strPassword = Credential.generatePassword(Integer.parseInt(ApplicationConstants.DEFAULT_PASSWORD_LENGTH));
-				cr.setPassword(strPassword);
+				String encodedPassword = securityService.getEncodedPassword(strPassword);
+				cr.setPassword(encodedPassword);
 				cr.merge();
 			}
 					 

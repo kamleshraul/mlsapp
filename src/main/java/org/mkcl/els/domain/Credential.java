@@ -54,7 +54,7 @@ public class Credential extends BaseDomain implements Serializable {
     private String username;
 
     /** The password. */
-    @Column(length = 20)
+    @Column(length = 200)
     private String password;
 
     /** The enabled. */

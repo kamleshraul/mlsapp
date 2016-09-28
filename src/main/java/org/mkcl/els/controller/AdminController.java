@@ -23,6 +23,8 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.chart.ChartEntry;
+import org.mkcl.els.service.ISecurityService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +39,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/admin")
 public class AdminController extends BaseController {
+	
+	@Autowired 
+	private ISecurityService securityService;
 
 //	/**
 //	 * Starts question workflow at the given level.
@@ -599,6 +604,24 @@ public class AdminController extends BaseController {
     			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
     		}
 //    	}		
+	}
+	
+	@Transactional
+	@RequestMapping(value="/encrypt_passwords", method=RequestMethod.POST)
+	public @ResponseBody String encryptPasswords(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		List<Credential> credentials = Credential.findAll(Credential.class, "username", ApplicationConstants.ASC, "");
+		if(credentials!=null && !credentials.isEmpty()) {
+			for(Credential cr: credentials) {
+				if(cr!=null && cr.getUsername()!=null && !cr.getUsername().equals("admin")) {
+					String encodedPassword = securityService.getEncodedPassword(cr.getPassword());
+					cr.setPassword(encodedPassword);
+					cr.merge();					
+				}				
+			}
+		} else {
+			return "NO CREDENTIAL FOUND";
+		}
+		return "SUCCESS";
 	}
 	
 }

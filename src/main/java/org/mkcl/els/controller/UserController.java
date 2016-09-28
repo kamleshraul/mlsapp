@@ -29,6 +29,7 @@ import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.service.IProcessService;
+import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -52,9 +53,8 @@ public class UserController extends GenericController<User>{
 	@Autowired
 	private IProcessService processService;
 	
-	/** add below field for password encryption **/
-//	@Autowired 
-//	private ISecurityService securityService;
+	@Autowired 
+	private ISecurityService securityService;
 
 	@Override
 	protected void populateNew(final ModelMap model, final User domain, final String locale,
@@ -182,13 +182,10 @@ javax.servlet.http.HttpServletRequest)
 					}
 				}
 					
-				//remove below line for encryted password
-				credential.setPassword(defaultPassword);
+				String encodedPassword = securityService.getEncodedPassword(defaultPassword);
+				credential.setPassword(encodedPassword);
 				credential.setPasswordChangeCount(1);
 				credential.setPasswordChangeDateTime(new Date());
-				//add below commented code for encryted password				
-//				String encodedPassword = securityService.getEncodedPassword(defaultPassword);
-//				credential.setPassword(encodedPassword);
 				String[] selectedRoles=request.getParameterValues("roles");
 				Set<Role> roles=new HashSet<Role>();
 				if(selectedRoles!=null){
@@ -256,11 +253,10 @@ javax.servlet.http.HttpServletRequest)
 						}
 					}
 				}
-				//remove below line for encryted password
-				credential.setPassword(defaultPassword);
-				//add below 2 lines for encryted password				
-//				String encodedPassword = securityService.getEncodedPassword(defaultPassword);
-//				credential.setPassword(encodedPassword);
+				String encodedPassword = securityService.getEncodedPassword(defaultPassword);
+				credential.setPassword(encodedPassword);
+				credential.setPasswordChangeCount(1);
+				credential.setPasswordChangeDateTime(new Date());
 				credential.setEnabled(isEnabled); 	 	 	      
 				credential.setLocale(null);				
 				String[] selectedRoles=request.getParameterValues("roles");
@@ -378,13 +374,10 @@ javax.servlet.http.HttpServletRequest)
 			if(user!=null && user.getId()!=null) {
 				Credential credential = user.getCredential();
 				if(credential!=null) {
-					//remove following line for encrypted password
-					credential.setPassword(newPassword);
-					//add below code for encrypted password
-//					credential.setPassword(securityService.getEncodedPassword(newPassword));
-					
-					//after resetting password, user must change the password on first login
+					String encodedPassword = securityService.getEncodedPassword(newPassword);
+					credential.setPassword(encodedPassword);
 					credential.setPasswordChangeCount(1);
+					credential.setPasswordChangeDateTime(new Date());
 					
 					credential.merge();						
 					redirectAttributes.addFlashAttribute("type", "success");
