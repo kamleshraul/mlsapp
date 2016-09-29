@@ -163,7 +163,7 @@
 							    		<fo:table-row>
 							     			<fo:table-cell>
 									     		<fo:block>
-									     			माहिती उपलब्ध नाही..
+									     			
 									     		</fo:block>
 									     	</fo:table-cell>								     	
 								     	</fo:table-row>     	
@@ -227,9 +227,160 @@
 					    	 </fo:table>	    
 	              	  </fo:block>   
 	              	  
-			      	<fo:block font-weight="bold" text-align="right">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
-				       				 
-			    	            	   	    
+			      
+				       			
+	              <!-- Non committee Members-->
+			      	 		<fo:block >
+						<fo:table table-layout="fixed">
+								<fo:table-column column-number="1" column-width="60%" />
+								<fo:table-column column-number="2" column-width="40%" />
+								
+
+							<fo:table-body>
+								<xsl:choose>
+							    	<xsl:when test="not(./element_9)">
+							    		<fo:table-row>
+							     			<fo:table-cell>
+									     		<fo:block>
+									     			
+									     		</fo:block>
+									     	</fo:table-cell>								     	
+								     	</fo:table-row>     	
+							     	</xsl:when>
+								     <xsl:otherwise>					     
+									     <xsl:for-each select="./element_9" >
+									     <xsl:variable name="countSerial" select="position()"></xsl:variable>	
+										     <xsl:if test="position() = 1 or (preceding-sibling::element_9[1]/element_9_1!=./element_9_1)">
+											    
+											    <fo:table-row>
+							     					<fo:table-cell number-columns-spanned="2">
+							     								<xsl:choose>
+							    								<xsl:when test="./element_9_1='1'">
+							    								<fo:block font-weight="bold" margin-left="85mm">
+												     			<xsl:value-of select="./element_9_2"></xsl:value-of> 
+												     		</fo:block>
+							    								</xsl:when>
+							    								<xsl:otherwise>
+							    								<fo:block font-weight="bold" >
+												     			<xsl:value-of select="./element_9_2"></xsl:value-of> 
+												     		</fo:block>
+							    								</xsl:otherwise>
+							    								</xsl:choose>
+												     		
+												   	</fo:table-cell>								     	
+											    </fo:table-row>
+							     				<fo:table-row>
+							     					
+												   	
+												   	<fo:table-cell number-columns-spanned="2">
+													     		<fo:block margin-left="85mm">
+													     			(<xsl:value-of select="../element_10[$countSerial]"/>) 
+													     		&#160;
+													     			<xsl:value-of select="./element_9_3"/>
+													     			
+													     		</fo:block>
+													   	</fo:table-cell>	
+							     				
+												   							     	
+											    </fo:table-row>
+											
+											   </xsl:if>
+											   
+										     	<xsl:if test="preceding-sibling::element_9[1]/element_9_1=./element_9_1">
+										     		<fo:table-row>
+								     					   	   	<fo:table-cell number-columns-spanned="2">
+													     		<fo:block margin-left="85mm">
+													     			(<xsl:value-of select="../element_10[$countSerial]"/>) 
+													     		&#160;
+													     			<xsl:value-of select="./element_9_3"/>
+													     			
+													     		</fo:block>
+													   	</fo:table-cell>	
+								     					
+													   					     	
+												    </fo:table-row>	
+										     	
+										     		
+											    </xsl:if>				
+											</xsl:for-each>						   
+								     	</xsl:otherwise>
+						     		</xsl:choose>	
+						    	 </fo:table-body>	
+					    	 </fo:table>	    
+	              	  </fo:block>   
+	              	  
+			    	            	
+			    	            		 <!-- Non Commitee departmental Members-->
+			      	 		<fo:block >
+						<fo:table table-layout="fixed">
+								<fo:table-column column-number="1" column-width="10%" />
+								<fo:table-column column-number="2" column-width="60%" />
+								<fo:table-column column-number="3" column-width="30%" />
+							<fo:table-body>
+								<xsl:choose>
+							    	<xsl:when test="not(./element_11)">
+							    		<fo:table-row>
+							     			<fo:table-cell>
+									     		<fo:block>
+									     			
+									     		</fo:block>
+									     	</fo:table-cell>								     	
+								     	</fo:table-row>     	
+							     	</xsl:when>
+								     <xsl:otherwise>					     
+									     <xsl:for-each select="./element_11" >
+									     <xsl:variable name="countSerial" select="position()"></xsl:variable>	
+										     <xsl:if test="position() = 1 or (preceding-sibling::element_11[1]/element_11_1!=./element_11_1)">
+											    
+											    <fo:table-row>
+							     					<fo:table-cell number-columns-spanned="3">
+												     		<fo:block font-weight="bold" >
+												     			<xsl:value-of select="./element_11_2"></xsl:value-of> 
+												     		</fo:block>
+												   	</fo:table-cell>								     	
+											    </fo:table-row>
+							     				<fo:table-row>
+							     					<fo:table-cell>
+												     		<fo:block>
+												     				(<xsl:value-of select="../element_12[$countSerial]"/>)
+												     		</fo:block>
+												   	</fo:table-cell>
+							     					<fo:table-cell>
+												     		<fo:block>
+												     		<xsl:value-of select="./element_11_3"></xsl:value-of> 
+												     		
+												     		
+												     		</fo:block>
+												   	</fo:table-cell>
+												   							     	
+											    </fo:table-row>
+											
+											   </xsl:if>
+											   
+										     	<xsl:if test="preceding-sibling::element_11[1]/element_11_1=./element_11_1">
+										     		<fo:table-row>
+								     					<fo:table-cell>
+													     		<fo:block>
+													     			(<xsl:value-of select="../element_12[$countSerial]"/>) 
+													     		</fo:block>
+													   	</fo:table-cell>
+								     					<fo:table-cell>
+													     		<fo:block>
+													     			<xsl:value-of select="./element_11_3"/>
+													     			
+													     		</fo:block>
+													   	</fo:table-cell>	
+													   					     	
+												    </fo:table-row>	
+										     	
+										     		
+											    </xsl:if>				
+											</xsl:for-each>						   
+								     	</xsl:otherwise>
+						     		</xsl:choose>	
+						    	 </fo:table-body>	
+					    	 </fo:table>	    
+	              	  </fo:block>     	    
 		
 	               
 	               

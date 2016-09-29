@@ -86,8 +86,8 @@
 					<fo:block >
 						<fo:table table-layout="fixed">
 								<fo:table-column column-number="1" column-width="10%" />
-								<fo:table-column column-number="2" column-width="60%" />
-								<fo:table-column column-number="3" column-width="30%" />
+								<fo:table-column column-number="2" column-width="80%" />
+								<fo:table-column column-number="3" column-width="20%" />
 							<fo:table-body>
 								<xsl:choose>
 							    	<xsl:when test="not(./element_1)">
