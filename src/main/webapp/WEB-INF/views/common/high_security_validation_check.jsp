@@ -19,11 +19,11 @@
 							$.prompt("You did not enter the password!! Please try again...");
 						},200);
 					} else {
-						var parameters = "highSecurityPassword="+$('#highSecurityPassword').val();
+						var parameters = "highSecurityPassword="+encodeURIComponent($("#highSecurityPassword").val());
 						$.ajax({
 							url: 'high_security_validation_check',
 							data: parameters, 
-							type: 'GET',
+							type: 'POST',
 					        async: false,
 							success: function(isValidated) {
 								if(isValidated==true) {

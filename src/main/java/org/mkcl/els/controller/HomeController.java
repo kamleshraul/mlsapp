@@ -255,7 +255,7 @@ public class HomeController extends BaseController {
 	}
 	
 	/**** Perform High Security Validation Check ****/
-	@RequestMapping(value="/high_security_validation_check", method=RequestMethod.GET)
+	@RequestMapping(value="/high_security_validation_check", method=RequestMethod.POST)
 	public @ResponseBody Boolean performHighSecurityValidationCheck(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
