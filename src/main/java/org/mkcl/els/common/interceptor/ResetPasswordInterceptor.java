@@ -21,6 +21,7 @@ public class ResetPasswordInterceptor extends HandlerInterceptorAdapter {
 		{
 		if (isPasswordChangeRequired(currentUser)) {
 			if (!request.getRequestURI().contains("password")
+					&& !request.getRequestURI().contains("Password")
 					&& !request.getRequestURI().contains("login")
 					&& !request.getRequestURI().contains("home")) { // avoid
 																	// redirection
