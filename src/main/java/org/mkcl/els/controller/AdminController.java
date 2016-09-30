@@ -612,7 +612,7 @@ public class AdminController extends BaseController {
 		List<Credential> credentials = Credential.findAll(Credential.class, "username", ApplicationConstants.ASC, "");
 		if(credentials!=null && !credentials.isEmpty()) {
 			for(Credential cr: credentials) {
-				if(cr!=null && cr.getUsername()!=null && !cr.getUsername().equals("admin")) {
+				if(cr!=null && cr.getUsername()!=null) {
 					String encodedPassword = securityService.getEncodedPassword(cr.getPassword());
 					cr.setPassword(encodedPassword);
 					cr.merge();					
