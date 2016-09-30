@@ -772,12 +772,12 @@ public class RosterController extends GenericController<Roster>{
 				&&domain.getSlotDurationChangedFrom()==null){
 			result.rejectValue("slotDurationChangedFrom","SlotDurationChangedFromEmpty");
 		}
-		if(domain.getSlotDuration()!=null
+		/*if(domain.getSlotDuration()!=null
 				&&!(roster.getSlotDuration().equals(domain.getSlotDuration()))
 				&&domain.getSlotDurationChangedFrom()!=null
 				&&domain.getSlotDurationChangedFrom().before(new Date())){
 			result.rejectValue("slotDurationChangedFrom","SlotDurationChangedFromIsPastTime");
-		}
+		}*/
 		if(domain.getSlotDuration()!=null
 				&&!(roster.getSlotDuration().equals(domain.getSlotDuration()))
 				&&domain.getSlotDurationChangedFrom()!=null
