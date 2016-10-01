@@ -569,6 +569,7 @@
 	<form:hidden path="version" />
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
+	<input type="hidden" name="oldBirthDate" id="oldBirthDate" value="${oldBirthDate}">
 	<input id="house" name="house" value="${house}" type="hidden">
 	<input id="houseType" name="houseType" value="${houseType}" type="hidden">
 	<input id="sonsMsg" name="sonsMsg" value="<spring:message code='member.personal.noOfSons' text='Sons'/>" type="hidden">

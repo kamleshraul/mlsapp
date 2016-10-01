@@ -9,6 +9,9 @@
  */
 package org.mkcl.els.controller.mis;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Address;
@@ -40,6 +44,7 @@ import org.mkcl.els.domain.Relation;
 import org.mkcl.els.domain.Religion;
 import org.mkcl.els.domain.Reservation;
 import org.mkcl.els.domain.Title;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.stereotype.Controller;
@@ -174,6 +179,7 @@ public class MemberPersonalController extends GenericController<Member> {
 		model.addAttribute("familyMembers", domain.getFamilyMembers());
 		model.addAttribute("familyCount", domain.getFamilyMembers().size());
 		model.addAttribute("qualifications", domain.getQualifications());
+		model.addAttribute("oldBirthDate", domain.getBirthDate());
 		model.addAttribute("qualificationCount", domain.getQualifications()
 				.size());
 		int noOfDaughters=0;
@@ -348,6 +354,8 @@ public class MemberPersonalController extends GenericController<Member> {
 		model.addAttribute("type", "error");
 		model.addAttribute("msg", "update_failed");
 	}
+	
+	
 	//here we are just checking for version mis match in validation.there is no check for duplicate entries
 	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#customValidateCreate(org.mkcl.els.domain.BaseDomain, org.springframework.validation.BindingResult, javax.servlet.http.HttpServletRequest)
@@ -497,6 +505,25 @@ public class MemberPersonalController extends GenericController<Member> {
 	protected void populateUpdateIfNoErrors(final ModelMap model,
 			final Member domain, final HttpServletRequest request) {
 		populateIfNoErrors(model, domain, request);
+		try {
+
+			Date formattedDate = FormaterUtil.formatStringToDate(request.getParameter("oldBirthDate"),"yyyy-MM-dd");
+
+		
+				User user= User.findbyNameBirthDate(domain.getFirstName(), domain.getMiddleName(), domain.getLastName(),formattedDate);
+				if(user!=null)
+				{
+					
+					user.setBirthDate(domain.getBirthDate());
+					
+				}
+			
+			
+			
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void validateMember(Member domain, BindingResult result) {
