@@ -181,10 +181,10 @@
 			    			 }
 			    			
 							 var keyCode = e.keyCode || e.which; 
-						    	if (keyCode == 9) { 
-								e.preventDefault(); 
-								tinyMCE.activeEditor.execCommand('mceInsertContent', false, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-							}
+// 						    	if (keyCode == 9) { 
+// 								e.preventDefault(); 
+// 								tinyMCE.activeEditor.execCommand('mceInsertContent', false, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+// 							}
 						    	
 					    	if (e.ctrlKey  || e.metaKey) {
 					    		
