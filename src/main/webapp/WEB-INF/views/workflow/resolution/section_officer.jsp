@@ -778,13 +778,14 @@
 				<input type="text" class="sText Integer remaindermailDifference" id="remainderMailDifference${i}" name="remainderMailDifference${i}"/>
 			</p>
 		</c:forEach>
-		<c:if test="${!(empty domain.factualPosition) }">
+		
+	</c:if>
+	<c:if test="${!(empty domain.factualPosition) }">
 		<p>
 		<label class="wysiwyglabel"><spring:message code="resolution.factualPosition" text="Factual Position"/></label>
 		<form:textarea path="factualPosition" cssClass="wysiwyg" readonly="true"></form:textarea>
 		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
-		</c:if>
 	</c:if>
 	<p>
 		<a href="#" id="viewRevision" style="margin-left:650px;"><spring:message code="resolution.viewrevisions" text="View Revisions"></spring:message></a>
