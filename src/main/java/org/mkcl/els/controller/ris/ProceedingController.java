@@ -1717,9 +1717,19 @@ public class ProceedingController extends GenericController<Proceeding>{
 		}else if(strLanguage != null && !strLanguage.equals("")
 				&& strDay != null && !strDay.equals("") 
 				&& strCommitteeMeeting!=null && !strCommitteeMeeting.equals("")){
-			language = Language.findById(Language.class, Long.parseLong(strLanguage));
+			String[] strLanguages = strLanguage.split(",");
 			CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
-			roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+			for(String lang : strLanguages){
+				language = Language.findById(Language.class, Long.parseLong(lang));
+				try{
+					roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+					if(roster != null){
+						break;
+					}
+				}catch(Exception ex){
+					
+				}
+			}
 			model.addAttribute("committeeMeeting", committeeMeeting.getId());
 		}
 		if(roster!=null){
@@ -1847,9 +1857,22 @@ public class ProceedingController extends GenericController<Proceeding>{
 		}else if(strLanguage!=null&&!strLanguage.equals("")
 				&& strDay!=null&&!strDay.equals("")
 				&& strCommitteeMeeting != null && !strCommitteeMeeting.equals("")){
-			language = Language.findById(Language.class, Long.parseLong(strLanguage));
+//			language = Language.findById(Language.class, Long.parseLong(strLanguage));
+//			CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
+//			roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+			String[] strLanguages = strLanguage.split(",");
 			CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
-			roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+			for(String lang : strLanguages){
+				language = Language.findById(Language.class, Long.parseLong(lang));
+				try{
+					roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+					if(roster != null){
+						break;
+					}
+				}catch(Exception ex){
+					
+				}
+			}
 			Committee committee = committeeMeeting.getCommittee();
 			CommitteeName committeeName = committee.getCommitteeName();
 			committeeShortName = committeeName.getShortName();
