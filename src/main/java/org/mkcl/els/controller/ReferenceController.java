@@ -8776,9 +8776,20 @@ public class ReferenceController extends BaseController {
 			if(strLanguage != null && !strLanguage.equals("")
 					&& strDay != null && !strDay.equals("") 
 					&& strCommitteeMeeting!=null && !strCommitteeMeeting.equals("")){
-				Language language = Language.findById(Language.class, Long.parseLong(strLanguage));
+				String[] strLanguages = strLanguage.split(",");
+				Roster roster = null;
 				CommitteeMeeting committeeMeeting = CommitteeMeeting.findById(CommitteeMeeting.class, Long.parseLong(strCommitteeMeeting));
-				Roster roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+				for(String lang : strLanguages){
+					Language language = Language.findById(Language.class, Long.parseLong(lang));
+					try{
+						roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
+						if(roster != null){
+							break;
+						}
+					}catch(Exception e){
+						
+					}
+				}
 				if(roster != null && roster.getPublish() != null && roster.getPublish().equals(true)){
 					return true;
 				}
