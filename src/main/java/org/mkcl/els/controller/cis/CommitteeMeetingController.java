@@ -58,8 +58,16 @@ public class CommitteeMeetingController extends
 		try {
 			this.populateCommitteeTypesAndNames(model, locale);
 			CustomParameter languageParameter = CustomParameter.findByName(CustomParameter.class, "RIS_LANGUAGE", "");
-			Language language = Language.findByFieldName(Language.class, "type", languageParameter.getValue(), locale);
-			model.addAttribute("language", language.getId());
+			String languages = "";
+			if(languageParameter != null){
+				String[] strLanguages = languageParameter.getValue().split(",");
+				for(String s : strLanguages){
+					Language language = Language.findByFieldName(Language.class, "type",s , locale);
+					languages = languages + language.getId().toString() +",";
+				}
+				
+			}
+			model.addAttribute("language", languages);
 		} catch (ELSException e) {
 			e.printStackTrace();
 		}

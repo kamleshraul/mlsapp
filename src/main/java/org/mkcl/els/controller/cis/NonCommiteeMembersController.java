@@ -93,8 +93,11 @@ public class NonCommiteeMembersController extends GenericController<NonCommiteeM
 		this.populateNonCommitteeMemberTypes(model, locale);
 
 		this.populateNonCommitteeMemberType(model, domain.getNonCommitteeMemberType());
-		String committeeMeetingId = request.getParameter("committeeMeetingId");
-		model.addAttribute("committeeMeetingId", committeeMeetingId);
+		// after updation of non committeemember, control is redirected to edit page
+		// the request parameters are not set while redirection.you can use session attributes 
+		CommitteeMeeting committeeMeeting = domain.getCommitteeMeeting();
+//		String committeeMeetingId = request.getParameter("committeeMeetingId");
+		model.addAttribute("committeeMeetingId", committeeMeeting.getId());
 
 	}
 
