@@ -188,6 +188,29 @@
 			$("#primary").click(function(){
 				viewDetail($("#questionId").val());
 			});
+			
+			
+			/**** To show/hide viewClubbedQuestionTextsDiv to view clubbed questions text starts****/
+			$("#clubbedQuestionTextsDiv1").hide();
+			$("#hideClubQTDiv1").hide();
+			$("#viewClubbedQuestionTextsDiv1").click(function(){
+				if($("#clubbedQuestionTextsDiv1").css('display')=='none'){
+						$("#clubbedQuestionTextsDiv1").empty();
+						var text = $("#questionText1").val();
+						$("#clubbedQuestionTextsDiv1").html(text);
+						$("#hideClubQTDiv1").show();
+						$("#clubbedQuestionTextsDiv1").show();
+					}else{
+						$("#clubbedQuestionTextsDiv1").hide();
+						$("#hideClubQTDiv1").hide();
+					}
+				
+			});
+			$("#hideClubQTDiv1").click(function(){
+				$(this).hide();
+				$('#clubbedQuestionTextsDiv1').hide();
+			});
+			/**** To show/hide viewClubbedQuestionTextsDiv to view clubbed questions text end****/
 		});
 		
 		function searchExactReference() {
@@ -973,6 +996,19 @@ color: green;
 cursor: hand;
 cursor:pointer;
 }
+
+ #clubbedQuestionTextsDiv1{
+    background: none repeat-x scroll 0 0 #FFF;
+    box-shadow: 0 2px 5px #888888;
+    max-height: 260px;
+    right: 0;
+    position: fixed;
+    top: 10px;
+    width: 300px;
+    z-index: 10000;
+    overflow: auto;
+    border-radius: 10px;
+    }
 </style>
 </head>
 <body>
@@ -1078,6 +1114,10 @@ cursor:pointer;
 	<c:choose>
 		<c:when test="${whichDevice=='questions_'}" >
 			<a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${subject}
+			<a href="javascript:void(0);" id="viewClubbedQuestionTextsDiv1" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="question.clubbed.texts" text="C"></spring:message></a>
+			<c:set var="questionTextEscapingDoubleQuote" value="${fn:replace(questionText, '\"', '&#34;')}" />
+			<c:set var='questionTextEscapingSingleQuote' value='${fn:replace(questionTextEscapingDoubleQuote, "\'", "&#39;")}' />
+			<input type="hidden" id="questionText1" value='${questionTextEscapingSingleQuote}' />
 		</c:when>
 		<c:when test="${whichDevice=='resolutions_'}" >
 			<label style="color:blue;font-size:14px;">${number}:${noticeContent}</label>
@@ -1279,6 +1319,10 @@ cursor:pointer;
 			<div id="viewQuestion">
 			</div>
 		</div>
+		<div id="clubbedQuestionTextsDiv1">
+			<h1>Assistant Questio texts of clubbed questions</h1>
+		</div>
+		<div id="hideClubQTDiv1" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
 	</c:when>
 	
 	<c:when test="${whichDevice=='resolutions_'}" >
