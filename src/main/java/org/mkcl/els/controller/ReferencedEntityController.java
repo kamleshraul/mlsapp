@@ -164,7 +164,8 @@ public class ReferencedEntityController {
 									}
 								}
 								model.addAttribute("id",Long.parseLong(strDeviceId));
-								model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getNumber()));							
+								model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getNumber()));
+								model.addAttribute("questionText", question.getQuestionText());
 							}else if(strDeviceType.startsWith(ApplicationConstants.DEVICE_RESOLUTIONS)){
 								
 								if(strDeviceType.equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
