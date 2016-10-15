@@ -1403,6 +1403,7 @@ public class ApplicationConstants {
 	
 	public static String DEPUTY_SECRETARY = "deputy_secretary";
 	public static String QUESTION_FINAL_REANSWER = "question_final_reanswer";
+	public static String RESOLUTION_PROCESSED_PASSED = "resolution_processed_passed";
 	
 	public static final String PANEL_CHAIRMAN = "PANEL_CHAIRMAN";
 	
