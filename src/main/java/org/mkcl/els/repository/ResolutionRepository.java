@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import javax.persistence.EntityNotFoundException;
@@ -26,6 +27,7 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.ResolutionRevisionVO;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.House;
@@ -1924,6 +1926,292 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		query.setParameter("deviceTypeId", deviceType.getId());
 		query.setParameter("locale",locale);
 		return query.getResultList();
+	}
+
+	/**
+	 * Motion Search Based on parameters passed
+	 * **/
+	public List<SearchVO> fullTextSearchForSearching(String param, int start,
+			int noOfRecords, String locale, Map<String, String[]> requestMap) {
+			String orderByQuery=" ORDER BY ro.number ASC, s.start_date DESC, dt.id ASC";
+			/**** Condition 1 :must not contain processed question ****/
+			/**** Condition 2 :parent must be null ****/
+			String selectQuery="SELECT ro.id as id,ro.number as number,"
+					+"  ro.subject as subject,"
+					+"  ro.revised_subject as revisedSubject,"
+					+"  ro.notice_content as noticeContent,"
+					+"  ro.revised_notice_content as revisedNoticeContent,"
+					+"  st.name as status,dt.name as deviceType,s.session_year as sessionYear,"
+					+"  sety.session_type as sessionType,"
+					+"  mi.name as ministry,"
+					+"  sd.name as subdepartment,st.type as statustype," 
+					+"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName,"
+					+"  ro.discussion_date as discussionDate,"
+					+"  CASE WHEN ro.localized_actor_name_lower_house<>NULL && ro.localized_actor_name_lower_house<>'' THEN ro.localized_actor_name_lower_house"
+					+" 		 WHEN ro.localized_actor_name_upper_house<>NULL && ro.localized_actor_name_upper_house<>'' THEN ro.localized_actor_name_upper_house "
+					+" 		 ELSE '-' "
+					+"  END as actor" 
+					+"  FROM resolutions as ro "
+					+"  LEFT JOIN housetypes as ht ON(ro.housetype_id=ht.id) "
+					+"  LEFT JOIN sessions as s ON(ro.session_id=s.id) "
+					+"  LEFT JOIN sessiontypes as sety ON(s.sessiontype_id=sety.id) "
+					+"  LEFT JOIN status as st ON(ro.lowerhouse_recommendationstatus_id=st.id OR ro.upperhouse_recommendationstatus_id=st.id) "
+					+"  LEFT JOIN devicetypes as dt ON(ro.devicetype_id=dt.id) "
+					+"  LEFT JOIN members as m ON(ro.member_id=m.id) "
+					+"  LEFT JOIN titles as t ON(m.title_id=t.id) "
+					+"  LEFT JOIN ministries as mi ON(ro.ministry_id=mi.id) "
+					+"  LEFT JOIN subdepartments as sd ON(ro.subdepartment_id=sd.id) "
+					+"  WHERE ro.locale='"+locale+"'"
+					+"  AND st.type NOT IN('resolution_incomplete','resolution_complete')";
+			
+			StringBuffer filter = new StringBuffer("");
+			filter.append(addResolutionFilter(requestMap));
+			
+			String[] strSessionType = requestMap.get("sessionYear");
+			String[] strSessionYear = requestMap.get("sessionType");
+			
+			if(strSessionType == null || (strSessionType != null && strSessionType[0].equals("-")) 
+					|| strSessionYear == null || (strSessionYear != null && strSessionYear[0].equals("-"))
+					|| (strSessionType == null && strSessionYear == null)){
+				CustomParameter csptUseCurrentSession = CustomParameter.findByName(CustomParameter.class, "RESOLUTION_SEARCH_USE_CURRENT_SESSION", "");
+				if(csptUseCurrentSession != null && csptUseCurrentSession.getValue() != null 
+						&& !csptUseCurrentSession.getValue().isEmpty() && csptUseCurrentSession.getValue().equalsIgnoreCase("yes")){
+					String[] strSession = requestMap.get("session");
+					if(strSession != null && strSession[0] != null && !strSession[0].isEmpty()){
+						filter.append(" AND s.id=" + strSession[0]);
+					}
+				}
+			}
+			/**** full text query ****/
+			String searchQuery=null;
+			String query = null;
+			if(requestMap.get("number") != null){
+				if(!filter.toString().isEmpty()){
+					query = selectQuery+filter+orderByQuery;
+				}
+			}else{
+				if(!param.contains("+")&&!param.contains("-")){
+					searchQuery=" AND (( match(ro.subject,ro.notice_content,ro.revised_subject,ro.revised_notice_content) "+
+							"against('"+param+"' in natural language mode)"+
+							")||ro.subject LIKE '%"+param+"%'||ro.notice_content LIKE '%"+param+"%'||ro.revised_subject LIKE '%"+param+"%'||ro.revised_notice_content LIKE '%"+param+"%')";
+				}else if(param.contains("+")&&!param.contains("-")){
+					String[] parameters = param.split("\\+");
+					StringBuffer buffer = new StringBuffer();
+					for(String i : parameters){
+						buffer.append("+"+i+" ");
+					}
+					
+					searchQuery =" AND match(ro.subject,ro.notice_content,ro.revised_subject,ro.revised_notice_content) "+
+							"against('"+buffer.toString()+"' in boolean  mode)";
+				}else if(!param.contains("+")&&param.contains("-")){
+					String[] parameters=param.split("-");
+					StringBuffer buffer=new StringBuffer();
+					for(String i:parameters){
+						buffer.append(i+" "+"-");
+					}
+					buffer.deleteCharAt(buffer.length()-1);
+					searchQuery=" AND match(ro.subject,ro.notice_content,ro.revised_subject,ro.revised_notice_content) "+
+							"against('"+buffer.toString()+"' in boolean  mode)";
+				}else if(param.contains("+")||param.contains("-")){
+					searchQuery=" AND match(ro.subject,ro.notice_content,ro.revised_subject,ro.revised_notice_content) "+
+							"against('"+param+"' in boolean  mode)";
+				}	
+				
+				query = selectQuery + filter + searchQuery + orderByQuery;
+			}
+			/**** Final Query ****/
+			String finalQuery = "SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.noticeContent, "+
+					" rs.revisedNoticeContent,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.ministry,rs.subdepartment,rs.statustype,rs.memberName,rs.discussionDate,rs.actor FROM (" + query + ") as rs LIMIT " + start + "," + noOfRecords;
+
+			List results=this.em().createNativeQuery(finalQuery).getResultList();
+			List<SearchVO> resolutionSearchVOs=new ArrayList<SearchVO>();
+			if(results!=null){
+				for(Object i:results){
+					Object[] o=(Object[]) i;
+					SearchVO resolutionSearchVO=new SearchVO();
+					if(o[0]!=null){
+						resolutionSearchVO.setId(Long.parseLong(o[0].toString()));
+					}
+					if(o[1]!=null){
+						resolutionSearchVO.setNumber(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[1].toString())));
+					}
+					if(o[3]!=null){
+						if(!o[3].toString().isEmpty()){
+							resolutionSearchVO.setSubject(higlightText(o[3].toString(),param));
+						}else{
+							if(o[2]!=null){
+								resolutionSearchVO.setSubject(higlightText(o[2].toString(),param));
+							}
+						}
+					}else{
+						if(o[2]!=null){
+							resolutionSearchVO.setSubject(higlightText(o[2].toString(),param));
+						}
+					}				
+					if(o[5]!=null){
+						if(!o[5].toString().isEmpty()){
+							resolutionSearchVO.setNoticeContent(higlightText(o[5].toString(),param));
+						}else{
+							if(o[4]!=null){
+								resolutionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+							}
+						}
+					}else{
+						if(o[4]!=null){
+							resolutionSearchVO.setNoticeContent(higlightText(o[4].toString(),param));
+						}
+					}
+					if(o[6]!=null){
+						resolutionSearchVO.setStatus(o[6].toString());
+					}
+					if(o[7]!=null){
+						resolutionSearchVO.setDeviceType(o[7].toString());
+					}
+					if(o[8]!=null){
+						resolutionSearchVO.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[8].toString())));
+					}
+					if(o[9]!=null){
+						resolutionSearchVO.setSessionType(o[9].toString());
+					}
+					
+					if(o[10]!=null){
+						resolutionSearchVO.setMinistry(o[10].toString());
+					}
+					
+					if(o[11]!=null){
+						resolutionSearchVO.setSubDepartment(o[11].toString());
+					}
+					if(o[12]!=null){
+						resolutionSearchVO.setStatusType(o[12].toString());
+					}
+					if(o[13]!=null){
+						resolutionSearchVO.setFormattedPrimaryMember(o[13].toString());
+					}
+					if(o[14]!=null){
+						resolutionSearchVO.setChartAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(o[14].toString(), ApplicationConstants.DB_DATEFORMAT), ApplicationConstants.SERVER_DATEFORMAT, locale));
+					}
+					if(o[15]!=null){
+						resolutionSearchVO.setActor(o[15].toString());
+					}
+					resolutionSearchVOs.add(resolutionSearchVO);
+				}
+			}
+			return resolutionSearchVOs;
+	}
+	
+	
+	private String addResolutionFilter(Map<String, String[]> requestMap) {
+		StringBuffer buffer=new StringBuffer();
+		
+		if(requestMap.get("number") != null){
+			String deviceNumber = requestMap.get("number")[0];
+			if((!deviceNumber.isEmpty()) && (!deviceNumber.equals("-"))){
+				buffer.append(" AND ro.number=" + deviceNumber);
+			}
+		}
+		if(requestMap.get("primaryMember") != null){
+			String member = requestMap.get("primaryMember")[0];
+			if((!member.isEmpty()) && (!member.equals("-"))){
+				buffer.append(" AND ro.member_id=" + member);
+			}
+		}
+		if(requestMap.get("deviceType")!=null){
+			String deviceType=requestMap.get("deviceType")[0];
+			if((!deviceType.isEmpty())&&(!deviceType.equals("-"))){
+				buffer.append(" AND dt.id="+deviceType);
+			}
+		}
+		if(requestMap.get("houseType")!=null){
+			String houseType=requestMap.get("houseType")[0];
+			if((!houseType.isEmpty())&&(!houseType.equals("-"))){
+				buffer.append(" AND ht.type='"+houseType+"'");
+			}
+		}
+		if(requestMap.get("sessionYear")!=null){
+			String sessionYear=requestMap.get("sessionYear")[0];
+			if((!sessionYear.isEmpty())&&(!sessionYear.equals("-"))){
+				buffer.append(" AND s.session_year="+sessionYear);
+			}
+		}
+		if(requestMap.get("sessionType")!=null){
+			String sessionType=requestMap.get("sessionType")[0];
+			if((!sessionType.isEmpty())&&(!sessionType.equals("-"))){
+				buffer.append(" AND sety.id="+sessionType);
+			}
+		}
+		if(requestMap.get("ministry")!=null){
+			String ministry=requestMap.get("ministry")[0];
+			if((!ministry.isEmpty())&&(!ministry.equals("-"))){
+				buffer.append(" AND mi.id="+ministry);
+			}
+		}
+		if(requestMap.get("subDepartment")!=null){
+			String subDepartment=requestMap.get("subDepartment")[0];
+			if((!subDepartment.isEmpty())&&(!subDepartment.equals("-"))){
+				buffer.append(" AND sd.id="+subDepartment);
+			}
+		}	
+		if(requestMap.get("status")!=null){
+			String status=requestMap.get("status")[0];
+			if((!status.isEmpty())&&(!status.equals("-"))){
+				if(status.equals(ApplicationConstants.UNPROCESSED_FILTER)){
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.RESOLUTION_SYSTEM_ASSISTANT_PROCESSED+"')");
+					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.RESOLUTION_SYSTEM_TO_BE_PUTUP+"')");
+				}else if(status.equals(ApplicationConstants.PENDING_FILTER)){
+					buffer.append(" AND st.priority>(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.RESOLUTION_SYSTEM_TO_BE_PUTUP+"')");
+					buffer.append(" AND st.priority<(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.RESOLUTION_FINAL_ADMISSION+"')");
+				}else if(status.equals(ApplicationConstants.APPROVED_FILTER)){
+					buffer.append(" AND st.priority>=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.RESOLUTION_FINAL_ADMISSION+"')");
+					buffer.append(" AND st.priority<=(SELECT priority FROM status as sst WHERE sst.type='"+ApplicationConstants.RESOLUTION_PROCESSED_PASSED+"')");
+				} 
+			}
+		}			
+		return buffer.toString();
+	}
+	
+	
+	private String higlightText(final String textToHiglight,final String pattern) {
+
+		String highlightedText=textToHiglight;
+		String replaceMentText="<span class='highlightedSearchPattern'>";
+		String replaceMentTextEnd="</span>";
+		if((!pattern.contains("+"))&&(!pattern.contains("-"))){
+			String[] temp=pattern.trim().split(" ");
+			for(String j:temp){
+				if(!j.isEmpty()){
+					if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+						highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+					}
+				}
+			}			
+		}else if((pattern.contains("+"))&&(!pattern.contains("-"))){
+			String[] temp=pattern.trim().split("\\+");
+			for(String j:temp){
+				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+				}
+			}			
+		}else if((!pattern.contains("+"))&&(pattern.contains("-"))){
+			String[] temp=pattern.trim().split("\\-");
+			String[] temp1=temp[0].trim().split(" ");
+			for(String j:temp1){
+				if(!highlightedText.contains(replaceMentText+j.trim()+replaceMentTextEnd)){
+					highlightedText=highlightedText.replaceAll(j.trim(),replaceMentText+j.trim()+replaceMentTextEnd);
+				}
+			}		
+		}else if(pattern.contains("+")&& pattern.contains("-")){
+			String[] temp=pattern.trim().split("\\-");
+			String[] temp1=temp[0].trim().split("\\+");
+			for(String j:temp1){
+				String[] temp2=j.trim().split(" ");
+				for(String k:temp2){
+					if(!highlightedText.contains(replaceMentText+k.trim()+replaceMentTextEnd)){
+						highlightedText=highlightedText.replaceAll(k.trim(),replaceMentText+k.trim()+replaceMentTextEnd);
+					}
+				}
+			}		
+		}
+		return highlightedText;
 	}
 
 	
