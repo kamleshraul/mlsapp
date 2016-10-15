@@ -114,7 +114,7 @@
 													<td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(r[3], locale)}</td>
 													<td style="text-align: left; font-size: 12px; width: 100px;">${r[4]}</td>
 													<td style="text-align: justify; font-size: 12px; width: 520px;">${r[5]}</td>
-													<td style="text-align: center; font-size: 12px; width: 90px;">${r[6]}</td>
+													<td style="text-align: center; font-size: 12px; width: 90px;">${r[6]} ${r[9]}</td>
 												</tr>
 											</c:when>
 											<c:otherwise>
@@ -122,7 +122,7 @@
 													<td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(r[3], locale)}</td>
 													<td style="text-align: left; font-size: 12px; width: 100px;">${r[4]}</td>
 													<td style="text-align: justify; font-size: 12px; width: 520px;">${r[5]}</td>
-													<td style="text-align: center; font-size: 12px; width: 90px;">${r[6]}</td>						
+													<td style="text-align: center; font-size: 12px; width: 90px;">${r[6]} ${r[9]}</td>						
 												</tr>
 											</c:otherwise>
 										</c:choose>	
@@ -132,7 +132,7 @@
 											<td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(r[3], locale)}</td>
 											<td style="text-align: left; font-size: 12px; width: 100px;">${r[4]}</td>
 											<td style="text-align: justify; font-size: 12px; width: 520px;">${r[5]}</td>
-											<td style="text-align: center; font-size: 12px; width: 90px;">${r[6]}</td>											
+											<td style="text-align: center; font-size: 12px; width: 90px;">${r[6]} ${r[9]}</td>											
 										</tr>
 									</c:otherwise>
 								</c:choose>			
