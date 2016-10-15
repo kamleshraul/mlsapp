@@ -94,6 +94,12 @@
 					showResolutionList();
 				}
 			});
+			
+			/**** Search ****/
+			$('#search_tab').click(function() {
+				$("#selectionDiv1").hide();
+				searchInt();
+			});
 		});
 		
 		 function loadStatus(){
@@ -392,6 +398,18 @@
 				}
 			});
 		}
+		
+		/**** Search Facility ****/
+		function searchInt(){
+			//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			var params="searchfacility=yes&usergroup="+$("#currentusergroup").val()
+				        +"&usergroupType="+$("#currentusergroupType").val()+
+				        "&houseType="+$("#selectedHouseType").val()+
+				        "&sessionType="+$("#selectedSessionType").val()+
+				        "&sessionYear="+$("#selectedSessionYear").val()+
+				        "&deviceType="+$("#selectedDeviceType").val();		
+			showTabByIdAndUrl('search_tab','devicesearch/init?'+params);
+		}
 
 	</script>
 </head>
@@ -450,6 +468,14 @@
 				   		<spring:message code="resolution.ballot" text="Ballot"></spring:message>
 					</a>
 					</li>
+			</security:authorize>
+			
+			<security:authorize
+				access="!hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','ROIS_TYPIST')">
+				<li><a id="search_tab" href="#" class="tab"> <spring:message
+							code="generic.resolution.search" text="Search">
+						</spring:message>
+				</a></li>
 			</security:authorize>
 		</ul>
 		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv1">		
