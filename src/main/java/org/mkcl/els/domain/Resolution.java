@@ -44,6 +44,7 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.ResolutionRevisionVO;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.repository.ResolutionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -2918,6 +2919,12 @@ public class Resolution extends Device implements Serializable{
 
 	public void setFile(Integer file) {
 		this.file = file;
+	}
+
+	public static List<SearchVO> fullTextSearchForSearching(String param,
+			int start, int noOfRecords, String locale,
+			Map<String, String[]> requestMap) {
+		return getResolutionRepository().fullTextSearchForSearching(param,start,noOfRecords, locale, requestMap);
 	}
 
 	
