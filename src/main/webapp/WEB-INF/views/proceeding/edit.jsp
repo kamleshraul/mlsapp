@@ -175,16 +175,16 @@
 			    			 numberOfLineBreaks = (enteredText.match(/\n/g)||[]).length;
 			    			 characterCount = enteredText.length + numberOfLineBreaks;
 			    			
-			    			 if(characterCount >= pageCount){
+			    			 /* if(characterCount >= pageCount){
 			    				proceedingContent.execCommand('mcePageBreak',true,this,this);
 			    				pageCount = pageCount + maxPageCount;
-			    			 }
+			    			 } */
 			    			
 							 var keyCode = e.keyCode || e.which; 
-// 						    	if (keyCode == 9) { 
-// 								e.preventDefault(); 
-// 								tinyMCE.activeEditor.execCommand('mceInsertContent', false, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-// 							}
+						    	/* if (keyCode == 9) { 
+								e.preventDefault(); 
+								tinyMCE.activeEditor.execCommand('mceInsertContent', false, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+							} */
 						    	
 					    	if (e.ctrlKey  || e.metaKey) {
 					    		
