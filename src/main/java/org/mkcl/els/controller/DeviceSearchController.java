@@ -22,6 +22,7 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.springframework.stereotype.Controller;
@@ -173,6 +174,9 @@ public class DeviceSearchController extends BaseController{
 				if((!start.isEmpty()) && (!noOfRecords.isEmpty())){
 					if(deviceType.getDevice().equals("Motion")){
 						searchVOs = Motion.
+								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
+					}else if(deviceType.getDevice().equals("Resolution")){
+						searchVOs = Resolution.
 								fullTextSearchForSearching(param, Integer.parseInt(start), Integer.parseInt(noOfRecords), locale.toString(), requestMap);
 					}
 					
