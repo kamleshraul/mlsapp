@@ -620,7 +620,8 @@
 											"<td class='expand' style='width: 150px; max-width: 150px;'>"+
 											"<span id='number"+data[i].id+"'>"+
 											"<a onclick='viewDetail("+data[i].id+");' style='margin:10px; text-decoration: underline;'>"+									
-											deviceNumber+"</a></span>"
+											deviceNumber+"</a></span>"+
+											data[i].onlineStatus
 											+"<br>";
 									textTemp+="<span id='operation"+data[i].id+"'></span></td>";
 								

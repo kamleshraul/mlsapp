@@ -92,6 +92,7 @@ public class QuestionSearchVO {
 	
 	private String ballotStatus;
 	
+	private String onlineStatus;
 	/**
 	 * Gets the id.
 	 *
@@ -438,7 +439,17 @@ public class QuestionSearchVO {
 
 	public void setFormattedClubbedNumbers(String formattedClubbedNumbers) {
 		this.formattedClubbedNumbers = formattedClubbedNumbers;
+	}
+
+	public String getOnlineStatus() {
+		return onlineStatus;
+	}
+
+	public void setOnlineStatus(String onlineStatus) {
+		this.onlineStatus = onlineStatus;
 	}	
+	
+	
 	
 	
 }

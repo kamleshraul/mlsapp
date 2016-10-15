@@ -511,7 +511,10 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				"  CONCAT(t.name,' ',m.first_name,' ',m.last_name) as memberName, qd1.answering_date as answeringDate,"+
 				"  q.localized_actor_name as actor," +
 				"  q.ballotstatus_id as ballotStatus," +
-				"  q.parent as parent" +
+				"  q.parent as parent," +
+				"  CASE WHEN q.created_by LIKE '%typist%' THEN ''"+
+				" 		ELSE '*' "+
+				"  END as onlineStatus" +
 				"  FROM questions as q "+
 				"  LEFT JOIN housetypes as ht ON(q.housetype_id=ht.id) "+
 				"  LEFT JOIN sessions as s ON(q.session_id=s.id) "+
@@ -612,7 +615,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		}
 		/**** Final Query ****/
 		String finalQuery = "SELECT rs.id,rs.number,rs.subject,rs.revisedSubject,rs.questionText, "+
-				" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.answeringDate,rs.actor,rs.ballotStatus,rs.parent FROM (" + query + ") as rs LIMIT " + start + "," + noofRecords;
+				" rs.revisedQuestionText,rs.status,rs.deviceType,rs.sessionYear,rs.sessionType,rs.groupnumber,rs.ministry,rs.department,rs.subdepartment,rs.statustype,rs.memberName,rs.answeringDate,rs.actor,rs.ballotStatus,rs.parent,rs.onlineStatus FROM (" + query + ") as rs LIMIT " + start + "," + noofRecords;
 
 		List results=this.em().createNativeQuery(finalQuery).getResultList();
 		List<QuestionSearchVO> questionSearchVOs=new ArrayList<QuestionSearchVO>();
@@ -715,6 +718,9 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 					if(clubbedNumbers != null && !clubbedNumbers.isEmpty() && clubbedNumbers.get(0) != null){
 						questionSearchVO.setFormattedClubbedNumbers(clubbedNumbers.get(0).toString());
 					}
+				}
+				if(o[20]!= null){
+					questionSearchVO.setOnlineStatus(o[20].toString());
 				}
 				
 				questionSearchVOs.add(questionSearchVO);
