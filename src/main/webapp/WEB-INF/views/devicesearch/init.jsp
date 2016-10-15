@@ -12,8 +12,9 @@
 	
 		$(document).ready(function() {
  			var strDeviceType = $("#strDeviceType").val();
+ 			console.log(strDeviceType);
  			//If questions then only display group and answering date filter
-			if(strDeviceType.contains("questions_")){
+			if(strDeviceType.startsWith("questions_")){
 				$("#questionCriteria").css("display","inline");
 			}else{
 				$("#questionCriteria").css("display","none");
@@ -93,7 +94,7 @@
 					$(this).css("color","");					
 				}
 				if(value!='-'&&year!='-'&&houseType!='-'){
-					if($("#strDeviceType").val().contains('questions_')){
+					if($("#strDeviceType").val().startsWith('questions_')){
 						loadGrp(houseType,year,value);
 					}else{
 						loadMinWithoutGroup();
@@ -129,7 +130,7 @@
 						$(".unstarred").show();
 					}
 					
-					if(type.contains("questions_")){
+					if(type.startsWith("questions_")){
 						$("#questionCriteria").css("display","inline");
 					}else{
 						$("#questionCriteria").hide("display","none");
@@ -480,7 +481,7 @@
 							postData['sessionType']=$("#requiredSessionType").val();
 						}
 						
-						if($("#strDeviceType").val().contains("questions_")){
+						if($("#strDeviceType").val().startsWith("questions_")){
 							if($("#requiredGroup").length>0){
 								postData['group']=$("#requiredGroup").val();
 							}
@@ -533,7 +534,7 @@
 									textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].formattedPrimaryMember+" : "+data[i].noticeContent
 										+"<br/>"
 										+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
-										if($("#strDeviceType").val().contains("questions_")){
+										if($("#strDeviceType").val().startsWith("questions_")){
 											+"<strong>"+data[i].formattedGroup+"</span>,"	
 										}
 										+ data[i].ministry;
@@ -783,6 +784,9 @@ td>table{
 		<c:when test="${fn:contains(deviceTypeType, 'bills_')}">
 		<th class="expand"><spring:message code="clubbing.title" text="Title"></spring:message></th>
 		</c:when>
+		<c:when test="${fn:contains(deviceTypeType, 'resolutions_')}">
+		<th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
+		</c:when>
 		</c:choose>
 		<c:choose>
 		<c:when test="${fn:contains(deviceTypeType, 'questions_')}">
@@ -790,6 +794,9 @@ td>table{
 		</c:when>
 		<c:when test="${fn:contains(deviceTypeType, 'motions_')}">
 		<th class="expand"><spring:message code="clubbing.motion" text="Motion"></spring:message></th>
+		</c:when>
+		<c:when test="${fn:contains(deviceTypeType, 'resolutions_')}">
+		<th class="expand"><spring:message code="clubbing.resolution" text="Resolution"></spring:message></th>
 		</c:when>
 		<c:when test="${fn:contains(deviceTypeType, 'bills_')}">
 		<th class="expand"><spring:message code="clubbing.bill" text="Content Draft"></spring:message></th>
