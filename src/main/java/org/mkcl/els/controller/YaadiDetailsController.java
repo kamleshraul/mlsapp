@@ -1012,7 +1012,7 @@ public class YaadiDetailsController extends BaseController {
 	
 	@Transactional
 	@RequestMapping(value="/bulk_yaadi_update", method=RequestMethod.POST)
-	public String yaadiToDiscussUpdateAssistant(final ModelMap model,
+	public String bulkYaadiUpdate(final ModelMap model,
 			final HttpServletRequest request,
 			final Locale locale) {
 		
@@ -1021,20 +1021,23 @@ public class YaadiDetailsController extends BaseController {
 		
 		try{
 			String[] selectedItems = request.getParameterValues("items[]");
+			String strDeviceType = request.getParameter("deviceType");
 			String strYaadiLayingStatus = request.getParameter("yaadiLayingStatus");
-			String strYaadiLayingDate = request.getParameter("yaadiLayingDate");
+			String strYaadiLayingDate = request.getParameter("yaadiLayingDate");			
 			
 			if(selectedItems != null && selectedItems.length > 0
+					&& strDeviceType != null && !strDeviceType.isEmpty()
 					&& strYaadiLayingStatus != null && !strYaadiLayingStatus.isEmpty()
 					&& strYaadiLayingDate != null && !strYaadiLayingDate.isEmpty()) {
 				/**** As It Is Condition ****/
+				DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+				Status yaadiLaidStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_YAADILAID, locale.toString());
+				Status yaadiLaidStatusForGivenDeviceType = Question.findCorrespondingStatusForGivenQuestionType(yaadiLaidStatus, deviceType);
 				for(String i : selectedItems) {
 					Long id = Long.parseLong(i);
 					YaadiDetails yd = YaadiDetails.findById(YaadiDetails.class, id);
 					boolean isStatusUpdateRequiredForDevices = false;
-					boolean isLayingDateUpdateRequiredForDevices = false;
-					Status yaadiLaidStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_YAADILAID, locale.toString());
-					Status yaadiLaidStatusForGivenDeviceType = Question.findCorrespondingStatusForGivenQuestionType(yaadiLaidStatus, yd.getDeviceType());
+					boolean isLayingDateUpdateRequiredForDevices = false;					
 					if(!strYaadiLayingStatus.equals("-")) {
 						Status newYaadiLayingStatus = Status.findById(Status.class, new Long(strYaadiLayingStatus));
 						Status existingYaadiLayingStatus = yd.getLayingStatus();
