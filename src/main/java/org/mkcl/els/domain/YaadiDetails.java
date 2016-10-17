@@ -228,6 +228,10 @@ public class YaadiDetails extends BaseDomain implements Serializable {
     	return getYaadiDetailsRepository().findYaadiLayingStatus(device);
     }
     
+    public static boolean updateDevices(final YaadiDetails yd, final boolean isStatusUpdateRequiredForDevices, final Status yaadiLaidStatus, final boolean isLayingDateUpdateRequiredForDevices, final Date yaadiLayingDate) {
+    	return getYaadiDetailsRepository().updateDevices(yd, isStatusUpdateRequiredForDevices, yaadiLaidStatus, isLayingDateUpdateRequiredForDevices, yaadiLayingDate);
+    }
+    
     // ---------------------------------Getters and Setters----------------------------------------
     /**
      * Gets the yaadi details repository.

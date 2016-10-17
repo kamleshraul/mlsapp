@@ -890,6 +890,11 @@ public class YaadiDetailsController extends BaseController {
 								}
 								model.addAttribute("yaadiLayingDates", yaadiLayingDates);
 							}	
+							/** populate yaadi count limit to update in one go **/
+							CustomParameter yaadiBulkUpdateCountLimitCP = CustomParameter.findByName(CustomParameter.class, deviceType.getType().trim().toUpperCase()+"_YAADI_BULK_UPDATE_COUNT_LIMIT", "");		
+							if(yaadiBulkUpdateCountLimitCP!=null && yaadiBulkUpdateCountLimitCP.getValue()!=null && !yaadiBulkUpdateCountLimitCP.getValue().isEmpty()) {
+								model.addAttribute("yaadiBulkUpdateCountLimit", yaadiBulkUpdateCountLimitCP.getValue());
+							}
 							retVal = "yaadi_details/"+deviceType.getType().trim()+"_bulk_yaadi_update";
 						}
 					}
@@ -1024,41 +1029,31 @@ public class YaadiDetailsController extends BaseController {
 				for(String i : selectedItems) {
 					Long id = Long.parseLong(i);
 					YaadiDetails yd = YaadiDetails.findById(YaadiDetails.class, id);
-					List<Device> existingDevicesInYaadi = yd.getDevices();
+					boolean isStatusUpdateRequiredForDevices = false;
+					boolean isLayingDateUpdateRequiredForDevices = false;
+					Status yaadiLaidStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_YAADILAID, locale.toString());
+					Status yaadiLaidStatusForGivenDeviceType = Question.findCorrespondingStatusForGivenQuestionType(yaadiLaidStatus, yd.getDeviceType());
 					if(!strYaadiLayingStatus.equals("-")) {
 						Status newYaadiLayingStatus = Status.findById(Status.class, new Long(strYaadiLayingStatus));
 						Status existingYaadiLayingStatus = yd.getLayingStatus();
 						yd.setLayingStatus(newYaadiLayingStatus);
 						if(!newYaadiLayingStatus.getId().equals(existingYaadiLayingStatus.getId())
 								&& newYaadiLayingStatus.getType().equals(ApplicationConstants.YAADISTATUS_LAID)) {
-							//update questions recommendation status to yaadi laid	
-							Status yaadiLaidStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_YAADILAID, locale.toString());
-							Status yaadiLaidStatusForGivenDeviceType = Question.findCorrespondingStatusForGivenQuestionType(yaadiLaidStatus, yd.getDeviceType());
-							for(Device d: existingDevicesInYaadi) {
-								if(yd.getDevice()!=null && yd.getDevice().startsWith("question")) {
-									Question q = (Question) d;									
-									q.setRecommendationStatus(yaadiLaidStatusForGivenDeviceType);
-									q.simpleMerge();
-								}
-							}
+							
+							isStatusUpdateRequiredForDevices = true;
 						}
-					}						
-					if(!strYaadiLayingDate.equals("-")) {
-						Date newLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.DB_DATEFORMAT);
+					}		
+					Date newLayingDate = FormaterUtil.formatStringToDate(strYaadiLayingDate, ApplicationConstants.DB_DATEFORMAT);
+					if(!strYaadiLayingDate.equals("-")) {						
 						Date existingLayingDate = yd.getLayingDate();
 						yd.setLayingDate(newLayingDate);
 						if(newLayingDate.compareTo(existingLayingDate)!=0) {
-							//update questions yaadi laying date
-							for(Device d: existingDevicesInYaadi) {
-								if(yd.getDevice()!=null && yd.getDevice().startsWith("question")) {
-									Question q = (Question) d;
-									q.setYaadiLayingDate(newLayingDate);
-									q.simpleMerge();
-								}
-							}
+							
+							isLayingDateUpdateRequiredForDevices = true;
 						}
 					}
 					yd.merge();
+					YaadiDetails.updateDevices(yd, isStatusUpdateRequiredForDevices, yaadiLaidStatusForGivenDeviceType, isLayingDateUpdateRequiredForDevices, newLayingDate);
 					updated = true;
 					success.append(FormaterUtil.formatNumberNoGrouping(yd.getNumber(), yd.getLocale())+",");
 				}

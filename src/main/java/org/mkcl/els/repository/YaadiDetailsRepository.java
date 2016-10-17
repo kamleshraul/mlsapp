@@ -1,6 +1,7 @@
 package org.mkcl.els.repository;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.NoResultException;
@@ -17,6 +18,7 @@ import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.YaadiDetails;
 import org.springframework.stereotype.Repository;
 
@@ -364,5 +366,31 @@ public class YaadiDetailsRepository extends BaseRepository<YaadiDetails, Long> {
     		return null;
     	}    	
     }
+
+	public boolean updateDevices(final YaadiDetails yd, final boolean isStatusUpdateRequiredForDevices, final Status yaadiLaidStatus, final boolean isLayingDateUpdateRequiredForDevices, final Date yaadiLayingDate) {
+		boolean updateDone = false;
+		if(yd!=null && yd.getId()!=null) {
+			org.mkcl.els.domain.Query queryDB = org.mkcl.els.domain.Query.findByFieldName(Query.class, "keyField", yd.getDevice().toUpperCase()+"_YAADI_DETAILS_DEVICES_UPDATE", yd.getLocale());
+			if(queryDB!=null && queryDB.getId()!=null) {
+				Query query = this.em().createNativeQuery(queryDB.getQuery());
+				query.setParameter("isStatusUpdateRequiredForDevices", isStatusUpdateRequiredForDevices);
+				query.setParameter("yaadiLaidStatusId", yaadiLaidStatus.getId());
+				query.setParameter("isLayingDateUpdateRequiredForDevices", isLayingDateUpdateRequiredForDevices);
+				query.setParameter("yaadiLayingDate", yaadiLayingDate);
+				List<Long> yaadiDevices = new ArrayList<Long>();
+				for(Device d: yd.getDevices()) {
+					yaadiDevices.add(d.getId());
+				}
+				query.setParameter("yaadiDevices", yaadiDevices);
+				try {
+					query.executeUpdate();
+					updateDone = true;
+				} catch(Exception e) {
+					
+				}			
+			}
+		}		
+		return updateDone;
+	}
 	
 }

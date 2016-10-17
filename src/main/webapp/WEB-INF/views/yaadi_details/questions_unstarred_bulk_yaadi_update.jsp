@@ -66,7 +66,8 @@
 			if(items.length<=0){
 				$.prompt($("#selectItemsMsg").val());
 				return false;	
-			} else if(items.length>10){
+			} else if(items.length>$('#yaadiBulkUpdateCountLimit').val()){
+				$("#itemsLimitReachedMsg").val($("#itemsLimitReachedMsg").val().replace("#yaadiBulkUpdateCountLimit#", $('#yaadiBulkUpdateCountLimit').val()));
 				$.prompt($("#itemsLimitReachedMsg").val());
 				return false;	
 			}
@@ -165,8 +166,9 @@
 		<div id="yaadiSelectionDiv">
 		</div>
 	</div>
+	<input type="hidden" id="yaadiBulkUpdateCountLimit" value="${yaadiBulkUpdateCountLimit}" />
 	<input id="selectItemsMsg" value="<spring:message code='yaadidetails.bulkYaadiUpdate.prompt.selectitems' text='Please select atleast 1 yaadi to continue..'></spring:message>" type="hidden">
-	<input id="itemsLimitReachedMsg" value="<spring:message code='yaadidetails.bulkYaadiUpdate.prompt.itemsLimitReached' text='You can select only 10 yaadis at one go..'></spring:message>" type="hidden">
+	<input id="itemsLimitReachedMsg" value="<spring:message code='yaadidetails.bulkYaadiUpdate.prompt.itemsLimitReached' text='You can select only #yaadiBulkUpdateCountLimit# yaadis at one go..'></spring:message>" type="hidden">
 	<input id="submissionMsg" value="<spring:message code='yaadidetails.bulkYaadiUpdate.prompt.submit' text='Do you want to update the selected yaadis?'></spring:message>" type="hidden">
 </body>
 </html>
