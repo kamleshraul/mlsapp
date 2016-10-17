@@ -894,6 +894,8 @@ public class YaadiDetailsController extends BaseController {
 							CustomParameter yaadiBulkUpdateCountLimitCP = CustomParameter.findByName(CustomParameter.class, deviceType.getType().trim().toUpperCase()+"_YAADI_BULK_UPDATE_COUNT_LIMIT", "");		
 							if(yaadiBulkUpdateCountLimitCP!=null && yaadiBulkUpdateCountLimitCP.getValue()!=null && !yaadiBulkUpdateCountLimitCP.getValue().isEmpty()) {
 								model.addAttribute("yaadiBulkUpdateCountLimit", yaadiBulkUpdateCountLimitCP.getValue());
+							} else {
+								model.addAttribute("yaadiBulkUpdateCountLimit", "20");
 							}
 							retVal = "yaadi_details/"+deviceType.getType().trim()+"_bulk_yaadi_update";
 						}
