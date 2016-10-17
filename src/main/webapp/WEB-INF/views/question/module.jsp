@@ -227,11 +227,17 @@
 			bulkPutupAssistant();
 		});
 		
+		/**** Yaadi Details Tab ****/
+		$("#yaadi_details_tab").click(function() {
+			$("#selectionDiv1").hide();
+			yaadiDetails();
+		});
+		
 		/**** Yaadi Update ****/
 		$("#yaadiupdate_tab").click(function() {
 			$("#selectionDiv1").hide();
 			yaadiUpdate();
-		});
+		});	
 		
 		/**** Search Tab ****/
 		$('#search_tab').click(function() {
@@ -623,6 +629,26 @@
 		showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);
 	}
 	
+	/**** Yaadi Details ****/
+	function yaadiDetails() {
+		var parameters =  "houseType=" + $("#selectedHouseType").val()
+					+ "&sessionYear=" + $("#selectedSessionYear").val()
+					+ "&sessionType=" + $("#selectedSessionType").val()
+					+ "&questionType=" + $("#selectedQuestionType").val()
+					+ "&deviceType=" + $("#selectedQuestionType").val()
+					+ "&ugparam=" + $("#ugparam").val() 
+					+ "&status=" + $("#selectedStatus").val() 
+					+ "&role=" + $("#srole").val()
+					+ "&usergroup=" + $("#currentusergroup").val()
+					+ "&usergroupType=" + $("#currentusergroupType").val()
+					+ "&group=" + $("#ugparam").val()
+					+ "&answeringDate=" + $("#selectedModuleAsweringDate").val()
+					+ "&category=question";
+		
+
+		var resourceURL = 'yaadi_details/init?' + parameters;
+		showTabByIdAndUrl('yaadi_details_tab', resourceURL);
+	}	
 	
 	/**** Bulk yaadiupdate(Assistant)****/
 	function yaadiUpdate() {
@@ -1299,6 +1325,13 @@
 				</a></li>
 
 			</security:authorize>
+			<c:if test="${questionTypeType=='questions_starred' || questionTypeType=='questions_unstarred'}">
+			<li>
+				<a id="yaadi_details_tab" href="#" class="tab"> 
+					<spring:message code="generic.yaadi_details_tab" text="Yaadi Details"></spring:message>
+				</a>
+			</li>
+			</c:if>
 			<security:authorize
 				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
 				'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY',

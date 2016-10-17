@@ -48,7 +48,8 @@
 		 +"&role="+$("#ydrole").val()
 		 +"&usergroup="+$("#ydusergroup").val()
 		 +"&usergroupType="+$("#ydusergroupType").val()
-		 +"&group="+$("#ydgroup").val();
+		 +"&group="+$("#ydgroup").val()
+		 +"&answeringDate="+$("#ydansweringDate").val();
 	
 		var resource='question/yaaditodiscussupdate/assistant/view';
 		 var resourceURL=resource+"?"+parameters;
@@ -95,6 +96,7 @@
 					 	,usergroup:$("#ydusergroup").val()
 					 	,usergroupType:$("#ydusergroupType").val()
 					 	,group:$("#ydgroup").val()
+					 	,answeringDate:$("#ydansweringDate").val()
 					 	,discussionDate:$("#ydDiscussionDate").val()
 					 	,remark:$("#ydRemark").val()					 	
 					 	},
@@ -148,6 +150,7 @@
 	<input type="hidden" id="ydusergroup" value="${usergroup}">
 	<input type="hidden" id="ydusergroupType" value="${usergroupType}">
 	<input type="hidden" id="ydgroup" value="${group}">
+	<input type="hidden" id="ydansweringDate" value="${answeringDate}">
 	<input type="hidden" id="ydDiscussionDate">
 	<input type="hidden" id="ydRemark">
 	<input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the motions.'></spring:message>" type="hidden">

@@ -64,7 +64,7 @@ function editQuestion(id,readonly){
 						<th><spring:message code="question.number" text="Number"></spring:message></th>
 						<th><spring:message code="question.member" text="Member"></spring:message></th>
 						<th><spring:message code="question.subject" text="Subject"></spring:message></th>
-						<th><spring:message code="question.currentstatus" text="To Be Put Up For?"></spring:message></th>
+						<th><spring:message code="question.currentstatus" text="Current Status"></spring:message></th>
 					</tr>			
 					<c:forEach items="${questions}" var="i">
 						<tr>
@@ -74,7 +74,7 @@ function editQuestion(id,readonly){
 							<td>${i.formatNumber()}</td>
 							<td>${i.primaryMember.getFullname()}</td>
 							<td>${i.subject}</td>
-							<td>${i.internalStatus.name}</td>
+							<td>${i.recommendationStatus.name}</td>
 						</tr>
 					</c:forEach>
 			</table>

@@ -5,8 +5,10 @@ import java.text.ParseException;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,6 +32,7 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Role;
@@ -1557,6 +1560,7 @@ public class QuestionController extends GenericController<Question> {
 		String strUsergroup = request.getParameter("usergroup");
 		String strUsergroupType = request.getParameter("usergroupType");
 		String strGroup = request.getParameter("group");
+		String strAnsweringDate = request.getParameter("answeringDate");
 
 		/**** Locale ****/
 		String strLocale = locale.toString();
@@ -1565,6 +1569,8 @@ public class QuestionController extends GenericController<Question> {
 				&& strSessionType != null && !(strSessionType.isEmpty())
 				&& strSessionYear != null && !(strSessionYear.isEmpty())
 				&& strDeviceType != null && !(strDeviceType.isEmpty())
+				&& strGroup != null && !(strGroup.isEmpty())
+				&& strAnsweringDate != null && !(strAnsweringDate.isEmpty())
 				&& strStatus != null && !(strStatus.isEmpty())
 				&& strRole != null && !(strRole.isEmpty())
 				&& strUsergroupType != null && !(strUsergroupType.isEmpty())) {
@@ -1592,6 +1598,7 @@ public class QuestionController extends GenericController<Question> {
 			model.addAttribute("usergroup", strUsergroup);
 			model.addAttribute("usergroupType", strUsergroupType);
 			model.addAttribute("group", strGroup);
+			model.addAttribute("answeringDate", strAnsweringDate);
 
 			retVal = "question/yaaditoduscussupdateinit";
 		}else{
@@ -1606,7 +1613,7 @@ public class QuestionController extends GenericController<Question> {
 			final HttpServletRequest request,
 			final Locale locale) {
 		this.getYaadiToDiscussUpdateQuestions(model, request, locale.toString());
-		return "question/bulksubmissionassistantview";
+		return "question/yaaditodiscussupdateview";
 	}
 	
 	@Transactional
@@ -1673,18 +1680,19 @@ public class QuestionController extends GenericController<Question> {
 		String strSessionType = request.getParameter("sessionType");
 		String strSessionYear = request.getParameter("sessionYear");
 		String strDeviceType = request.getParameter("questionType");			
-		String strStatus = request.getParameter("status");
 		String strRole = request.getParameter("role");
 		String strUsergroup = request.getParameter("usergroup");
 		String strUsergroupType = request.getParameter("usergroupType");
 		String strGroup = request.getParameter("group");
+		String strAnsweringDate = request.getParameter("answeringDate");
 		
 		
 		if(strHouseType != null && !(strHouseType.isEmpty())
 				&& strSessionType != null && !(strSessionType.isEmpty())
 				&& strSessionYear != null && !(strSessionYear.isEmpty())
 				&& strDeviceType != null && !(strDeviceType.isEmpty())
-				&& strStatus != null && !(strStatus.isEmpty())
+				&& strGroup != null && !(strGroup.isEmpty())
+				&& strAnsweringDate != null && !(strAnsweringDate.isEmpty())
 				&& strRole != null && !(strRole.isEmpty())
 				&& strUsergroup != null && !(strUsergroup.isEmpty())
 				&& strUsergroupType != null && !(strUsergroupType.isEmpty())) {
@@ -1703,11 +1711,32 @@ public class QuestionController extends GenericController<Question> {
 				Group group=null;
 				if(strGroup!=null && strGroup !=""){
 					group=Group.findById(Group.class, Long.parseLong(strGroup));
-				}
+				}				
 				
-				Status recommendationStatus = Status.findById(Status.class,Long.parseLong(strStatus));
-				questions = Question.findAllByRecommendationStatus(session, deviceType, recommendationStatus, group , locale);
-		
+				QuestionDates qd = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				Date answeringDate = qd.getAnsweringDate();				
+				Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+				parametersMap.put("locale", new String[]{locale.toString()});
+				parametersMap.put("sessionId", new String[]{session.getId().toString()});
+				parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				if(group!=null && group.getId()!=null) {
+					parametersMap.put("groupId", new String[]{group.getId().toString()});
+				} else {
+					parametersMap.put("groupId", new String[]{"0"});
+				}				
+				parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
+				List ballotVOs = org.mkcl.els.domain.Query.findReport("YADI_BALLOT_VIEW", parametersMap);
+				if(ballotVOs!=null && !ballotVOs.isEmpty()) {
+					for(Object o: ballotVOs) {
+						Object[] device = (Object[]) o;
+						if(device!=null) {
+							Question q = Question.findById(Question.class, Long.parseLong(device[1].toString()));
+							if(q!=null) {
+								questions.add(q);
+							}
+						}
+					}
+				}
 				model.addAttribute("questions", questions);
 				if(questions != null && ! questions.isEmpty()) {
 					model.addAttribute("questionId", questions.get(0).getId());

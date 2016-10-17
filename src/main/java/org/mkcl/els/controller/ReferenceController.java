@@ -8086,7 +8086,7 @@ public class ReferenceController extends BaseController {
 	
 	@RequestMapping(value= "/yaadidetails", method = RequestMethod.GET)
 	public String loadYaadiDetails(HttpServletRequest request, ModelMap model, Locale locale) {
-		String retVal = "question/reports/error";
+		String retVal = "yaadi_details/error";
 		
 		String strHouseType = request.getParameter("houseType");
 		String strSession = request.getParameter("sessionId");
@@ -8210,7 +8210,7 @@ public class ReferenceController extends BaseController {
 									if(manuallyEnteringAllowedCP!=null) {
 										model.addAttribute("manuallyEnteringAllowed", manuallyEnteringAllowedCP.getValue());
 									}
-									retVal = "question/reports/unstarredyaadi";
+									retVal = "yaadi_details/"+ deviceType.getType().trim().toLowerCase() + "_yaadi";
 								} else {
 									logger.error("**** Error in Query of finding Yaadi Number ****");
 									model.addAttribute("errorcode", "QUERY_ERROR");
@@ -8839,5 +8839,80 @@ public class ReferenceController extends BaseController {
 		}
 		
 		return questionFormattingDetails.toString();
+	}
+	
+	@RequestMapping(value = "/yaadi_details/bulk_yaadi_selection", method = RequestMethod.GET)
+	public @ResponseBody List<Object[]> loadBulkYaadiDetails(HttpServletRequest request,
+			HttpServletResponse response, 
+			Locale locale){
+		List<Object[]> yaadiList=new ArrayList<Object[]>();
+		
+		String strYaadiNumbers = request.getParameter("yaadiNumbers");
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strDeviceType = request.getParameter("deviceType");
+		
+		if(strYaadiNumbers!=null && !strYaadiNumbers.isEmpty()
+				&& strHouseType!=null && !strHouseType.isEmpty()
+				&& strSessionType!=null && !strSessionType.isEmpty()
+				&& strSessionYear!=null && !strSessionYear.isEmpty()
+				&& strDeviceType!=null && !strDeviceType.isEmpty()) {
+			try {
+				CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(deploymentServerCP.getValue().equals("TOMCAT")){
+					strYaadiNumbers = new String(strYaadiNumbers.getBytes("ISO-8859-1"),"UTF-8");		
+				}
+				HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+				if(houseType==null) {
+					houseType = HouseType.findByName(strHouseType, locale.toString());
+				}
+				if(houseType==null) {
+					houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+				}										
+				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+				Integer sessionYear = Integer.parseInt(strSessionYear);
+				if(houseType==null || sessionType==null) {
+					logger.error("**** HouseType or SessionType Not Found ****");
+				} else {
+					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+					if(session==null) {								
+						logger.error("**** Session Not Found ****");
+					} else {
+						StringBuffer yaadiNumbers = new StringBuffer("");
+						for(String yn: strYaadiNumbers.split(",")) {
+							if(!yn.isEmpty() && yn.split("-").length>1) {
+								int yaadiRangeFirstElement = Integer.parseInt(yn.split("-")[0].trim());
+								int yaadiRangeLastElement = Integer.parseInt(yn.split("-")[1].trim());
+								for(Integer i=yaadiRangeFirstElement; i<=yaadiRangeLastElement; i++) {
+									yaadiNumbers.append(i.toString());
+									yaadiNumbers.append(",");
+								}
+							} else {
+								if(!yn.isEmpty()) {									
+//									yaadiNumbers.append(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(yn.trim()));
+									yaadiNumbers.append(Integer.parseInt(yn.trim()));
+									yaadiNumbers.append(",");
+								}								
+							}
+						}
+						yaadiNumbers.deleteCharAt(yaadiNumbers.length()-1);
+						Map<String, String[]> qparams = new HashMap<String, String[]>();
+						qparams.put("locale", new String[]{locale.toString()});
+						qparams.put("deviceTypeId", new String[]{strDeviceType});
+						qparams.put("sessionId", new String[]{session.getId().toString()});
+						qparams.put("yaadiNumbers", new String[]{yaadiNumbers.toString()});
+						List<Object[]> result = Query.findReport("YAADI_DETAILS_FOR_BULK_UPDATE", qparams, true);
+						System.out.println(result.size());
+						//TODO:
+					}					
+				}				
+				
+			} catch(Exception e) {
+				logger.error("Exception occured in fetching yaadi details");
+			}
+		}
+		
+		return yaadiList;
 	}
 }
