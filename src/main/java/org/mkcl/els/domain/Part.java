@@ -261,6 +261,10 @@ public class Part  extends BaseDomain implements Serializable{
 	}
 
 	
+	public static List<Part> findPartsByRoster(Roster roster) {
+		return getPartRepository().findPartsByRoster(roster);
+	}
+	
 	/****Getters and Setters****/
 	public Integer getOrderNo() {
 		return orderNo;
@@ -510,6 +514,8 @@ public class Part  extends BaseDomain implements Serializable{
 	public void setSpecialHeading(String specialHeading) {
 		this.specialHeading = specialHeading;
 	}
+
+	
 
 	
 	
