@@ -27,10 +27,16 @@
 			</h2>
 			<form:errors path="version" cssClass="validationError" />
 			<p>
+				<label class="small"><spring:message
+						code="citation.title" text="Title" />&nbsp;*</label>
+				<form:textarea cssClass="sTextarea" path="title" />
+				<form:errors path="title" cssClass="validationError" />
+			</p>
+			<p>
 				<label class="wysiwyglabel"><spring:message
-						code="citation.text" text="Citation" />&nbsp;*</label>
-				<form:textarea cssClass="wysiwyg" path="text" />
-				<form:errors path="text" cssClass="validationError" />
+						code="citation.content" text="Content" />&nbsp;*</label>
+				<form:textarea cssClass="wysiwyg" path="content" cssStyle="width:560px;" />
+				<form:errors path="content" cssClass="validationError" />
 			</p>
 			<div class="fields expand">
 				<h2></h2>
