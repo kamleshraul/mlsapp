@@ -446,4 +446,17 @@ public class PartRepository extends BaseRepository<Part, Serializable> {
 		
 		return query.getResultList();
 	}
+
+	public List<Part> findPartsByRoster(Roster roster) {
+		String query = "SELECT" +
+				" pr.id AS partid" +
+				" FROM parts pr" +
+				" INNER JOIN proceedings proc ON(proc.id=pr.proceeding)" +
+				" INNER JOIN slots sl ON(sl.id=proc.slot)" +
+				" WHERE sl.roster=:rosterId" +
+				" AND sl.bln_deleted=FALSE";
+		Query pQuery = this.em().createNativeQuery(query);
+		pQuery.setParameter("rosterId", roster.getId());
+		return pQuery.getResultList();
+	}
 }
