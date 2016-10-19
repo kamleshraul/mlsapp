@@ -820,19 +820,32 @@ public class QuestionReportController extends BaseController{
 						}
 					}
 					
+					//flag parameter for letter format separation based on given housetype
+					boolean isLetterFormatDependentOnHouseType = false;
+					
 					if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
 						&& question.getDateOfAnsweringByMinister()!=null
 						&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_FINAL_DATEADMITTED)
 						&& intimationLetterFilter.equals(ApplicationConstants.MEMBER)){
+						
 						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_member", outputFormat, reportFileName, locale.toString());
+					
 					}else if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
 							&& question.getDateOfAnsweringByMinister()!=null 
 							&& question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_PROCESSED_FINAL_DATEADMITTED)
 							&& intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)){
-							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_department", outputFormat, reportFileName, locale.toString()); 
+							
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_department", outputFormat, reportFileName, locale.toString()); 
+					
 					}else if(intimationLetterFilter!=null && !intimationLetterFilter.isEmpty() && !intimationLetterFilter.equals("-")) {
+						
 						try {
-							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit, outputFormat, reportFileName, locale.toString());
+							if(isLetterFormatDependentOnHouseType) {
+								reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit+"_"+question.getHouseType().getType(), outputFormat, reportFileName, locale.toString());
+							} else {
+								reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit, outputFormat, reportFileName, locale.toString());
+							}
+							
 						} catch(FileNotFoundException e) {
 							if(e.getMessage().equals(ApplicationConstants.XSLT_FILE_NOT_FOUND)) {
 								reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter, outputFormat, reportFileName, locale.toString());
@@ -840,7 +853,11 @@ public class QuestionReportController extends BaseController{
 						}
 						
 					}else {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, outputFormat, reportFileName, locale.toString());
+						if(isLetterFormatDependentOnHouseType) {
+							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit+"_"+question.getHouseType().getType(), outputFormat, reportFileName, locale.toString());
+						} else {
+							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, outputFormat, reportFileName, locale.toString());
+						}						
 					}					
 					System.out.println("Intimation Letter generated successfully in "+ outputFormat +" format!");
 					
