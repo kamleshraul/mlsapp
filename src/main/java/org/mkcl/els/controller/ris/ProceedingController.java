@@ -61,6 +61,7 @@ import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Proceeding;
+import org.mkcl.els.domain.ProceedingAutofill;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Reporter;
@@ -83,6 +84,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
@@ -203,6 +205,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 			request.setAttribute("slotDate", slot.getStartTime());
 			model.addAttribute("slotStartTime", startTime);
 			model.addAttribute("slotEndTime", endTime);
+			String currentSlotStartDate = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy", domain.getLocale());
+			String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm", domain.getLocale());
+			model.addAttribute("currentSlotStartDate", currentSlotStartDate);
+			model.addAttribute("currenSlotStartTime", currentSlotStartTime);
 			if(session!=null){
 				houseType = session.getHouse().getType();
 				model.addAttribute("session",session.getId());
@@ -361,6 +367,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 		model.addAttribute("redoCount", 0);
 		
 		model.addAttribute("documentId",domain.getDocumentId());
+		
+		String username = this.getCurrentUser().getActualUsername();
+		List<ProceedingAutofill> proceedingAutofills = ProceedingAutofill.
+				findAllByFieldName(ProceedingAutofill.class, "username", username, "id", "asc", domain.getLocale());
+		model.addAttribute("proceedingAutofills", proceedingAutofills);
 		}
 
 	}
@@ -1866,7 +1877,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 				language = Language.findById(Language.class, Long.parseLong(lang));
 				try{
 					roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
-					if(roster != null){
+					List<Part> parts = Part.findPartsByRoster(roster);
+					if(!parts.isEmpty()){
 						break;
 					}
 				}catch(Exception ex){
@@ -3784,6 +3796,27 @@ public class ProceedingController extends GenericController<Proceeding>{
 			e.printStackTrace();
 		}
 		return returnValue;
+	}
+	
+	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@RequestMapping(value="/generalreport", method=RequestMethod.GET)
+	public String getReport(HttpServletRequest request, Model model, Locale locale){
+		
+		Map<String, String[]> requestMap = request.getParameterMap();
+		List report = Query.findReport(request.getParameter("report"), requestMap);
+		if(report != null && !report.isEmpty()){
+			Object[] obj = (Object[])report.get(0);
+			if(obj != null){
+				
+				model.addAttribute("topHeader", obj[0].toString().split(";"));
+			}
+		}
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale.toString());
+		model.addAttribute("report", report);
+		
+		return "proceeding/reports/"+request.getParameter("reportout");
 	}
 	
 }
