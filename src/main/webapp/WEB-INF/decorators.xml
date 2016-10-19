@@ -586,6 +586,11 @@
 		<pattern>/sectionorderseries/*/delete</pattern>
 		<pattern>/sectionorderseries</pattern>	
 		
+		<pattern>/proceedingautofill/new</pattern>
+		<pattern>/proceedingautofill/*/edit</pattern>
+		<pattern>/proceedingautofill/*/delete</pattern>
+		<pattern>/proceedingautofill</pattern>
+		
 		<pattern>/discussionmotion/new</pattern>
 		<pattern>/discussionmotion/*/edit</pattern>
 		<pattern>/discussionmotion/*/delete</pattern>
