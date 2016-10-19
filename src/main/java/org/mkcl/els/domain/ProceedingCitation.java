@@ -2,6 +2,7 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -13,25 +14,31 @@ import org.springframework.beans.factory.annotation.Configurable;
 public class ProceedingCitation extends BaseDomain implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
+	@Column(length=30000)
+	private String title;
 	
-	private String text;
+	@Column(length=30000)
+	private String content;
 
 	public ProceedingCitation() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
 	
-	public ProceedingCitation(String text) {
-		super();
-		this.text = text;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
 }
