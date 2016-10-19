@@ -43,6 +43,7 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.OrdinanceSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.SectionVO;
+import org.mkcl.els.common.vo.TemplateVO;
 import org.mkcl.els.controller.cis.CommitteeMeetingController;
 import org.mkcl.els.controller.mois.CutMotionDateControllerUtility;
 import org.mkcl.els.controller.wf.EditingWorkflowController;
@@ -104,6 +105,8 @@ import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.Proceeding;
+import org.mkcl.els.domain.ProceedingAutofill;
+import org.mkcl.els.domain.ProceedingCitation;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
@@ -8784,7 +8787,10 @@ public class ReferenceController extends BaseController {
 					try{
 						roster = Roster.findRosterByCommitteeMeetingLanguageAndDay(committeeMeeting, language, Integer.parseInt(strDay), locale.toString());
 						if(roster != null){
-							break;
+							List<Part> parts = Part.findPartsByRoster(roster);
+							if(!parts.isEmpty()){
+								break;
+							}
 						}
 					}catch(Exception e){
 						
@@ -8840,7 +8846,7 @@ public class ReferenceController extends BaseController {
 		
 		return questionFormattingDetails.toString();
 	}
-	
+
 	@RequestMapping(value = "/yaadi_details/bulk_yaadi_selection", method = RequestMethod.GET)
 	public @ResponseBody List<Object[]> loadBulkYaadiDetails(HttpServletRequest request,
 			HttpServletResponse response, 
@@ -8914,5 +8920,22 @@ public class ReferenceController extends BaseController {
 		}
 		
 		return yaadiList;
+	}
+	
+	@RequestMapping(value="/proceedingCitation", method=RequestMethod.GET)
+	public @ResponseBody List<TemplateVO> getProceedingAutofillData(final HttpServletRequest request, 
+			final ModelMap model, 
+			final Locale locale){
+		List<TemplateVO> templateVOs = new ArrayList<TemplateVO>();
+		List<ProceedingCitation> proceedingCitations = ProceedingCitation.
+				findAll(ProceedingCitation.class, "title", "asc", locale.toString());
+		for(ProceedingCitation proceedingCitation : proceedingCitations){
+			TemplateVO templateVO = new TemplateVO();
+			templateVO.setTitle(proceedingCitation.getTitle());
+			templateVO.setContent(proceedingCitation.getContent());
+			templateVOs.add(templateVO);
+		}
+		return templateVOs;
+	
 	}
 }
