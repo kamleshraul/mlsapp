@@ -20,7 +20,7 @@
 		</tr>			
 		<c:forEach items="${questions}" var="i">
 			<tr>
-				<%-- <td>${i.formatNumber()}</td> --%>
+				<td>${i.formatNumber()}</td>
 				<td>${i.subject}</td>
 			</tr>
 		</c:forEach>

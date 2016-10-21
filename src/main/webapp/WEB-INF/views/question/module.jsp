@@ -696,7 +696,7 @@
 		} else {
 			//$('#generateIntimationLetter').attr('href', 'question/report/generateReminderLetter?'+'questionIds='+selectedQuestionIds);
 			console.log("selectedQuestionIds: " + selectedQuestionIds);
-			form_submit('question/report/generateReminderLetter', {questionIds: selectedQuestionIds, locale: 'mr_IN', reportQuery: 'QIS_REMINDER_LETTER', outputFormat: 'WORD'}, 'GET');
+			form_submit('question/report/generateReminderLetter', {questionIds: selectedQuestionIds, houseType: $('#selectedHouseType').val(), locale: 'mr_IN', reportQuery: 'QIS_REMINDER_LETTER', outputFormat: 'WORD'}, 'GET');
 		}
 	}
 	/**** To Generate Clubbed Intimation Letter ****/
@@ -1325,6 +1325,12 @@
 				</a></li>
 
 			</security:authorize>
+			<security:authorize
+				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY','QIS_CLERK',
+				'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
+				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
+				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
+				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')">
 			<c:if test="${questionTypeType=='questions_starred' || questionTypeType=='questions_unstarred'}">
 			<li>
 				<a id="yaadi_details_tab" href="#" class="tab"> 
@@ -1332,6 +1338,7 @@
 				</a>
 			</li>
 			</c:if>
+			</security:authorize>
 			<security:authorize
 				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
 				'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
@@ -1539,11 +1546,11 @@
 					<select name="selectedItemsCount" id="selectedItemsCount"
 						style="width: 100px; height: 25px;">
 						<!-- <option value="30">30</option>
-						<option value="25">25</option> -->
+						<option value="25">25</option>
 						<option value="20">20</option>
-						<option value="15">15</option>
+						<option value="15">15</option> -->
 						<option value="10">10</option>
-						<option value="5">05</option>
+						<option value="5">5</option>
 					</select>|	
 					</security:authorize>
 			</security:authorize>
