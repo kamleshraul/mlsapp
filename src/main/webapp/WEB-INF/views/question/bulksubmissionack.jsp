@@ -15,7 +15,7 @@
 	</c:if>
 	<table class="uiTable">
 		<tr>
-			<%-- <th><spring:message code="question.number" text="Number"></spring:message></th> --%>
+			<th><spring:message code="question.number" text="Number"></spring:message></th>
 			<th><spring:message code="question.subject" text="Subject"></spring:message></th>
 		</tr>			
 		<c:forEach items="${questions}" var="i">

@@ -9,6 +9,13 @@
 <script type="text/javascript">
 	var processMode = $('#processMode').val();
 	$(document).ready(function() {
+		
+		//blink notice message per second interval
+		var f = document.getElementById('noticeMessageDiv');
+	    setInterval(function() {
+	        f.style.visibility = (f.style.visibility == 'hidden' ? '' : 'hidden');
+	    }, 500);
+	    
 		if($("#selectedGroup").val()!='' && $("#selectedGroup").val()!=null){
 			loadChartAnsweringDateByGroup($("#selectedGroup").val());
 		}
@@ -1353,11 +1360,11 @@
 				
 		</ul>
 		
-		<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE', 'MEMBER_UPPERHOUSE')">
+		<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE', 'MEMBER_UPPERHOUSE')">
 		<div id="noticeMessageDiv">
-			<label style="color: green;font-size: 14px;font-weight: bold;text-decoration: blink;"><spring:message code="generic.noticemsg" text="FOR PROVIDING EFFICIENCY OF BULK SUBMISSION OF QUESTIONS, WE HAVE TEMPORARILY DISABLED BULK PUTUP.<br/>PLEASE SUBMIT QUESTIONS ONE BY ONE."/></label>
+			<label style="color: green;font-size: 14px;font-weight: bold;"><spring:message code="notification_messsage.qis.member.submission_window_extension" text="Submission Window is now extended upto 5.30pm!"/></label>
 		</div>
-		</security:authorize> --%>
+		</security:authorize>
 		
 		<div class="commandbarContent" style="margin-top: 10px;"
 			id="selectionDiv1">
