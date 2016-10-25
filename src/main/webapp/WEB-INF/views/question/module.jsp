@@ -12,9 +12,11 @@
 		
 		//blink notice message per second interval
 		var f = document.getElementById('noticeMessageDiv');
-	    setInterval(function() {
-	        f.style.visibility = (f.style.visibility == 'hidden' ? '' : 'hidden');
-	    }, 500);
+		if(f!=null && f!=undefined) {
+			setInterval(function() {
+		        f.style.visibility = (f.style.visibility == 'hidden' ? '' : 'hidden');
+		    }, 500);
+		}			    
 	    
 		if($("#selectedGroup").val()!='' && $("#selectedGroup").val()!=null){
 			loadChartAnsweringDateByGroup($("#selectedGroup").val());
@@ -1361,7 +1363,7 @@
 		</ul>
 		
 		<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE', 'MEMBER_UPPERHOUSE')">
-		<div id="noticeMessageDiv">
+		<div id="noticeMessageDiv" style="display: none;">
 			<label style="color: green;font-size: 14px;font-weight: bold;"><spring:message code="notification_messsage.qis.member.submission_window_extension" text="Submission Window is now extended upto 5.30pm!"/></label>
 		</div>
 		</security:authorize>
