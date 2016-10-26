@@ -33,7 +33,8 @@
 								+ '&language=' + $("#selectedLanguage").val()
 								+ '&day=' + $("#selectedDay").val() 
 								+ "&committeeMeeting="+ $("#selectedCommitteeMeeting").val()
-								+ '&ugparam='+ $("#ugparam").val());
+								+ '&ugparam='+ $("#ugparam").val()
+								+ '&roleType='+$("#roleType").val());
 			}else{
 				$("#sessionLinks").css("display","inline");
 				$("#gridURLParams").val("houseType=" + $("#selectedHouseType").val()
@@ -42,7 +43,8 @@
 								+ '&language=' + $("#selectedLanguage").val()
 								+ '&day=' + $("#selectedDay").val()
 								+ '&ugparam=' + $("#ugparam").val()
-								+ "&committeeMeeting=0");
+								+ "&committeeMeeting=0"
+								+ '&roleType='+$("#roleType").val());
 			}
 			/**** edit Proceeding ****/
 			$('#edit_record').click(function(){

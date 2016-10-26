@@ -168,7 +168,8 @@
 						+ '&language='+ $("#selectedLanguage").val() 
 						+ '&day='+ $("#selectedDay").val() 
 						+ '&ugparam='+ $("#ugparam").val()
-						+ '&committeeMeeting=' +$("#selectedCommitteeMeeting").val());
+						+ '&committeeMeeting=' +$("#selectedCommitteeMeeting").val()
+						+ '&roleType='+$("#roleType").val());
 			}else{
 				showTabByIdAndUrl('list_tab', 'proceeding/list?houseType=' + $('#selectedHouseType').val() 
 						+ '&sessionyear=' + $("#selectedSessionYear").val() 
@@ -176,7 +177,8 @@
 						+ '&language=' + $("#selectedLanguage").val() 
 						+ '&day=' + $("#selectedDay").val() 
 						+ '&ugparam=' + $("#ugparam").val()
-						+ '&committeeMeeting=0');
+						+ '&committeeMeeting=0'
+						+ '&roleType='+$("#roleType").val());
 			}
 			
 		}
@@ -238,7 +240,8 @@
 								+ '&language=' + $("#selectedLanguage").val()
 								+ '&day=' + $("#selectedDay").val() 
 								+ "&committeeMeeting="+ $("#selectedCommitteeMeeting").val()
-								+ '&ugparam='+ $("#ugparam").val());
+								+ '&ugparam='+ $("#ugparam").val()
+								+ '&roleType='+$("#roleType").val());
 			}else{
 				$("#gridURLParams").val("houseType=" + $("#selectedHouseType").val()
 								+ "&sessionYear=" + $("#selectedSessionYear").val()
@@ -246,7 +249,8 @@
 								+ '&language=' + $("#selectedLanguage").val()
 								+ '&day=' + $("#selectedDay").val()
 								+ '&ugparam=' + $("#ugparam").val()
-								+ "&committeeMeeting=0");
+								+ "&committeeMeeting=0"
+								+ '&roleType='+$("#roleType").val());
 			}
 			
 			var oldURL = $("#grid").getGridParam("url");
@@ -530,7 +534,8 @@
 		
 		<input type="hidden" id="key" name="key">	
 		<input type="hidden" id="ugparam" name="ugparam" value="${ugparam}">	
-		<input type="hidden" id="slotId" name="slotId"/>		
+		<input type="hidden" id="slotId" name="slotId"/>
+		<input type="hidden" id="roleType" name="roleType" value="${roleType}"/>	
 		<input type="hidden" name="pleaseSelect" id="pleaseSelect" value="<spring:message code='please.select' text='Please Select'/>">	
 		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
