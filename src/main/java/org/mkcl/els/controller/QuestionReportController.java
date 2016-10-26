@@ -923,7 +923,18 @@ public class QuestionReportController extends BaseController{
     				expectedAnswerReceivingDates.add("");
     			}
     		}
-    		reportFile = generateReportUsingFOP(new Object[] {resultList, expectedAnswerReceivingDates, serialNumbers}, "qis_reminder_letter_template", request.getParameter("outputFormat"), "qis_reminder_letter", locale.toString());
+    		HouseType houseType = null;
+    		String strHouseType = request.getParameter("houseType");
+    		if(strHouseType!=null && !strHouseType.isEmpty()) {
+    			houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+    			if(houseType==null || houseType.getId()==null) {
+    				houseType=HouseType.findByFieldName(HouseType.class,"name",strHouseType, locale.toString());
+    			}
+    			if(houseType==null || houseType.getId()==null) {
+    				houseType=HouseType.findById(HouseType.class,Long.parseLong(strHouseType));
+    			}
+    		}    		
+    		reportFile = generateReportUsingFOP(new Object[] {resultList, expectedAnswerReceivingDates, serialNumbers}, "qis_reminder_letter_template_"+houseType.getType().toLowerCase().trim(), request.getParameter("outputFormat"), "qis_reminder_letter", locale.toString()); 		
     		if(reportFile!=null) {
     			System.out.println("Report generated successfully in " + request.getParameter("outputFormat") + " format!");
     			openOrSaveReportFileFromBrowser(response, reportFile, request.getParameter("outputFormat"));
