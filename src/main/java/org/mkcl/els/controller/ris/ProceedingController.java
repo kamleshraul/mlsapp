@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,6 +67,7 @@ import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Resolution;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -177,6 +179,16 @@ public class ProceedingController extends GenericController<Proceeding>{
 		} catch (ELSException e) {
 			model.addAttribute("errorcode", "userdoesnotexist");
 			e.printStackTrace();
+		}
+		
+		Set<Role> roles = this.getCurrentUser().getRoles();
+		for(Role r : roles){
+			String roleType = r.getType();
+			if(roleType.equals(ApplicationConstants.RIS_CHIEF_REPORTER) 
+					|| roleType.equals(ApplicationConstants.RIS_REPORTER)){
+				model.addAttribute("roleType",roleType);
+				break;
+			}
 		}
 			
 		/*** CommitteeType ***/
