@@ -28,6 +28,10 @@ public class BulkApprovalVO {
 	
 	private String briefExpanation;
 	
+	private String formattedClubbedNumbers;
+	
+	private String formattedReferencedNumbers;
+	
 	/**** PENDING<COMPLETED<TIMEOUT ****/
 	private String currentStatus;
 	
@@ -166,5 +170,23 @@ public class BulkApprovalVO {
 	public String getDeviceType() {
 		return deviceType;
 	}
-		
+
+	public String getFormattedClubbedNumbers() {
+		return formattedClubbedNumbers;
+	}
+
+	public void setFormattedClubbedNumbers(String formattedClubbedNumbers) {
+		this.formattedClubbedNumbers = formattedClubbedNumbers;
+	}
+
+	public String getFormattedReferencedNumbers() {
+		return formattedReferencedNumbers;
+	}
+
+	public void setFormattedReferencedNumbers(String formattedReferencedNumbers) {
+		formattedReferencedNumbers = formattedReferencedNumbers;
+	}
+	
+	
+			
 }
