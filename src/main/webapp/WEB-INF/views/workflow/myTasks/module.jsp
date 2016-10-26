@@ -24,6 +24,10 @@
 			$("#bulkapproval_tab").click(function(){
 				bulkApproval();					
 			});
+			
+			$("#advanced_bulkapproval_tab").click(function(){
+				advancedBulkApproval();
+			});
 			/**** house type changes then reload grid****/			
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
@@ -486,6 +490,48 @@
 			});
 		}
 		
+		function advancedBulkApproval(){
+			var resourceURL="";
+			if($('#deviceTypeType').val().indexOf("resolutions_")==0){
+				resourceURL="workflow/resolution/advancedbulkapproval";					
+			}else if($('#deviceTypeType').val().indexOf("motions_")==0){
+				if($('#deviceTypeType').val().indexOf("motions_cutmotion_")==0){
+					resourceURL="workflow/cutmotion/advancedbulkapproval";	
+				}else if($('#deviceTypeType').val().indexOf("motions_eventmotion_")==0){
+					resourceURL="workflow/eventmotion/advancedbulkapproval";					
+				}else if($('#deviceTypeType').val().indexOf("motions_standalonemotion_")==0){
+					resourceURL="workflow/standalonemotion/advancedbulkapproval";					
+				}else{
+					resourceURL="workflow/motion/advancedbulkapproval";
+				}				
+			}else if($('#deviceTypeType').val().indexOf("questions_")==0){
+				resourceURL="workflow/question/advancedbulkapproval";
+			}
+			$("#selectionDiv").hide();
+			$.get(resourceURL,{houseType:$("#selectedHouseType").val(),
+				sessionYear:$("#selectedSessionYear").val(),
+				sessionType:$("#selectedSessionType").val(),
+				deviceType:$("#selectedDeviceType").val(),
+				status:$("#selectedStatus").val(),
+				group:$('#selectedGroup').val(),
+				answeringDate:$('#selectedAnsweringDate').val(),
+				status:$("#selectedStatus").val(),
+				workflowSubType:$("#selectedSubWorkflow").val(),
+				},function(data){
+					$('a').removeClass('selected');
+					$('#advance_bulkputup_tab').addClass('selected');
+					$('.tabContent').html(data);
+					scrollTop();
+			},'html').fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+		}
+		
 		function isValidRow(ids, row){
 			return (ids.contains(row));
 		}
@@ -861,6 +907,13 @@
 				<li>
 					<a id="bulkapproval_tab" href="#" class="tab">
 					   <spring:message code="generic.bulkputup" text="Bulk Putup"></spring:message>
+					</a>
+				</li>
+			</c:if>
+			<c:if test="${usergroupType=='deputy_secretary'}">
+				<li>
+					<a id="advanced_bulkapproval_tab" href="#" class="tab">
+					   <spring:message code="generic.advancedbulkputup" text="Advance Bulk Putup"></spring:message>
 					</a>
 				</li>
 			</c:if>
