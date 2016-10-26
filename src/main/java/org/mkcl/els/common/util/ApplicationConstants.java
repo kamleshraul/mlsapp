@@ -1405,6 +1405,7 @@ public class ApplicationConstants {
 	public static String QUESTION_FINAL_REANSWER = "question_final_reanswer";
 	public static String RESOLUTION_PROCESSED_PASSED = "resolution_processed_passed";
 	
+	
 	public static final String PANEL_CHAIRMAN = "PANEL_CHAIRMAN";
 	
 	public static final String PANEL_SPEAKER = "PANEL_SPEAKER";
@@ -2526,5 +2527,9 @@ public class ApplicationConstants {
 	public static final String PASSWORD_ENCRYTPTION_REQUIRED_VALUE = "1";
 	
 	public static final String INTIMATION_LETTER_FILTER_REMINDERTODEPARTMENTFORANSWER = "reminderToDepartmentForAnswer";
+	
+	public static final String RIS_CHIEF_REPORTER = "RIS_CHIEF_REPORTER";
+	
+	public static String RIS_REPORTER = "RIS_REPORTER";
 	
 }
