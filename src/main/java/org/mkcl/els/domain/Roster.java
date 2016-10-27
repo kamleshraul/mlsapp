@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -22,7 +23,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "rosters")
-@JsonIgnoreProperties({"session","language","reporters","committeeMeeting"})
+@JsonIgnoreProperties({"session","language","reporters"})
 public class Roster extends BaseDomain implements Serializable{
 
 	/*********Fields **************/
@@ -62,7 +63,7 @@ public class Roster extends BaseDomain implements Serializable{
 				referencedColumnName = "id"))
 				private List<Reporter> reporters = new ArrayList<Reporter>();
 	
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY)
 	private CommitteeMeeting committeeMeeting;
 	
 	private Boolean publish;
