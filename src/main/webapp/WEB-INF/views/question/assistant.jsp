@@ -5,6 +5,7 @@
 	<spring:message code="question" text="Question Information System"/>
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
 	<script type="text/javascript">
 	/**** detail of clubbed and refernced questions ****/		
 	function viewQuestionDetail(id){
@@ -1093,7 +1094,7 @@
 		</c:choose>
 		<p>
 		<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
-		<select name="ministry" id="ministry" class="sSelect">
+		<select name="ministry" id="ministry" class="sSelect" style="width: 270px;">
 		<c:forEach items="${ministries }" var="i">
 		<c:choose>
 		<c:when test="${i.id==ministrySelected }">
@@ -1118,7 +1119,7 @@
 		
 		<p>
 			<label class="small"><spring:message code="question.subdepartment" text="Sub Department"/></label>
-			<select name="subDepartment" id="subDepartment" class="sSelect">
+			<select name="subDepartment" id="subDepartment" class="sSelect" style="width: 270px;">
 				<c:forEach items="${subDepartments }" var="i">
 					<c:choose>
 						<c:when test="${i.id==subDepartmentSelected }">
