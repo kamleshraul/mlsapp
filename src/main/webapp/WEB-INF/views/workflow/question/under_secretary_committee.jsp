@@ -1024,7 +1024,7 @@
 	
 	<p>
 	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
-	<select name="ministry" id="ministry" class="sSelect" >
+	<select name="ministry" id="ministry" class="sSelect" style="width: 270px;">
 		<c:forEach items="${ministries }" var="i">
 			<c:choose>
 				<c:when test="${i.id==ministrySelected }">
@@ -1048,7 +1048,7 @@
 	
 	<p>
 		<label class="small"><spring:message code="question.department" text="Department"/></label>
-		<select name="subDepartment" id="subDepartment" class="sSelect">
+		<select name="subDepartment" id="subDepartment" class="sSelect" style="width: 270px;">
 			<c:forEach items="${subDepartments }" var="i">
 				<c:choose>
 					<c:when test="${i.id==subDepartmentSelected }">
