@@ -4121,7 +4121,7 @@ class QuestionReportHelper{
 				//answer = FormaterUtil.formatNumbersInGivenText(answer, locale);
 			}				
 			yaadiQuestion[7] = answer;
-			Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(q.getSession(), q.getMinistry());
+			Member answeringMember = MemberMinister.findMemberHavingMinistryInSession(session, q.getMinistry());
 			if(answeringMember != null){
 				yaadiQuestion[8] = answeringMember.findNameInGivenFormat(memberNameFormat);
 			}
@@ -4131,7 +4131,7 @@ class QuestionReportHelper{
 				logger.error("/**** subdepartment has become null for question with id: " + q.getId() + " ****/");
 				yaadiQuestion[9] = "";
 			}			
-			MemberMinister memberMinister = MemberMinister.findMemberMinisterHavingMinistryInSession(q.getSession(), q.getMinistry());
+			MemberMinister memberMinister = MemberMinister.findMemberMinisterHavingMinistryInSession(session, q.getMinistry());
 			if(memberMinister!=null) {
 				yaadiQuestion[10] = memberMinister.getDesignation().getName();
 			} else {
