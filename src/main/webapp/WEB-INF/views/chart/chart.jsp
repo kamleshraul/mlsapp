@@ -302,6 +302,7 @@
 														<spring:message code="question.shortStarredClarificationFromMemberAndDepartment" text="CMD"/>
 													</c:when>
 												</c:choose>
+												
 										</c:if>
 											<div style="font-weight: bold; font-size: 12px; display: none;" class="divDetail" id="divDetail${r[3]}">
 												<c:if test="${deviceType == 'resolutions_nonofficial'}">
@@ -338,7 +339,6 @@
 														${r[16]} ${r[19]}<br>
 														${r[17]} ${r[6]}<br>
 														${r[18]} ${r[20]}<br>
-														
 													</c:if>
 												</div>
 											</c:if>
@@ -420,6 +420,8 @@
 									</c:choose>
 								</c:otherwise>
 							</c:choose>
+							<br>
+							${r[22]}
 						</td>
 						<c:set var="counter" value="${counter + 1}"/>
 						<c:set var="rejectedNotices" value="${r[12]}" />
@@ -484,6 +486,7 @@
 													<spring:message code="question.shortStarredClarificationFromMemberAndDepartment" text="CMD"/>
 												</c:when>
 											</c:choose>
+											
 										</c:if>
 										<div style="font-weight: bold; font-size: 12px; display: none;" class="divDetail" id="divDetail${r[3]}">
 											<c:if test="${deviceType == 'resolutions_nonofficial'}">
@@ -561,6 +564,7 @@
 														<spring:message code="question.shortStarredClarificationFromMemberAndDepartment" text="CMD"/>
 													</c:when>
 												</c:choose>
+												
 											</c:if>
 											<div style="font-weight: bold; font-size: 12px; display: none;" class="divDetail" id="divDetail${r[3]}">
 												<c:if test="${deviceType == 'questions_starred'}">
@@ -602,6 +606,8 @@
 								</c:choose>
 							</c:otherwise>
 						</c:choose>
+						<br>
+						${r[22]}
 					</td>
 					<c:set var="counter" value="${counter + 1}"/>
 					<c:set var="rejectedNotices" value="${r[12]}" />
