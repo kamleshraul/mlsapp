@@ -221,6 +221,17 @@ public class ProceedingController extends GenericController<Proceeding>{
 			String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm", domain.getLocale());
 			model.addAttribute("currentSlotStartDate", currentSlotStartDate);
 			model.addAttribute("currenSlotStartTime", currentSlotStartTime);
+			
+			List<User> users=Slot.findDifferentLanguageUsersBySlot(slot);
+			String languageReporter="";
+			for(int i=0;i<users.size();i++){
+				languageReporter=languageReporter+users.get(i).getFirstName();
+				if(i+1<users.size()){
+					languageReporter=languageReporter+"/";
+				}
+			}
+			
+			model.addAttribute("languageReporter", languageReporter);
 			if(session!=null){
 				houseType = session.getHouse().getType();
 				model.addAttribute("session",session.getId());
@@ -233,8 +244,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 					if(s.getStartTime().after(slot.getStartTime())){
 						MasterVO masterVO = new MasterVO();
 						masterVO.setName(s.getName());
-						masterVO.setType(FormaterUtil.formatDateToString(s.getStartTime(), "dd-MM-yyyy HH:mm", domain.getLocale()));
-						masterVO.setValue(FormaterUtil.formatDateToString(s.getEndTime(), "dd-MM-yyyy HH:mm", domain.getLocale()));
+						masterVO.setType(FormaterUtil.formatDateToString(s.getStartTime(), "HH:mm", domain.getLocale()));
+						masterVO.setValue(FormaterUtil.formatDateToString(s.getEndTime(), "HH:mm", domain.getLocale()));
 						masterVOs.add(masterVO);
 					}
 				}
@@ -285,6 +296,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 					logger.error("Ministries not assigned to Group");
 					e.printStackTrace();
 				}
+				
+				
 				
 				
 				/****Members****/
