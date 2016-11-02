@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="adjournments")
-@JsonIgnoreProperties({""})
+@JsonIgnoreProperties({"roster"})
 public class Adjournment extends BaseDomain implements Serializable{
 
 	/**
