@@ -93,7 +93,7 @@ function initControls(){
 		}
 	});
 	
-	$.wysiwyg.rmFormat.enabled = false;
+	//$.wysiwyg.rmFormat.enabled = false;
 	
 	$('.wysiwyg').change(function(e){
 		var idval = this.id;			
