@@ -123,7 +123,7 @@
 				<spring:message code="committee.view" text="View"/>
 			</a> |
 			
-			<security:authorize access="hasAnyRole('CIS_ASSISTANT')">
+			<security:authorize access="hasAnyRole('CIS_ASSISTANT','CIS_MAIN_ASSISTANT')">
 				<hr>
 				<a href="#" id="request_to_parliamentary_minister" class="butSim">
 					<spring:message code="committee.requestToParliamentaryMinister" text="Request to Parliamentary Minister"/>
