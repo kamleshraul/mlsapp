@@ -9,6 +9,9 @@
 	</style>
 	<script type="text/javascript">
 		$(document).ready(function(){
+			//As tinymce once registered doesnot get reinitialize when the same page is loaded, hence removing the previous tinymce instance
+			tinymce.remove();
+			
 			
 			/**** Check/Uncheck Submit All ****/		
 			$("#chkall").change(function(){
