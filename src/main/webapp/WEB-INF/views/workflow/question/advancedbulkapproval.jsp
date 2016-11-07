@@ -54,11 +54,38 @@
 				$(".viewClubbedQuestionTextsDiv").click(function(){
 				 	var controlId = this.id;
 				 	var parent = controlId.split("viewClubbedQuestionTextsDiv")[1];
-					if(parent!=undefined && parent!=''){			
+				 	if(parent!=undefined && parent!=''){			
 						var questionId = $("#questionId"+parent).val();
 						if($("#clubbedQuestionTextsDiv").css('display')=='none'){
 							$("#clubbedQuestionTextsDiv").empty();
 							$.get('ref/'+questionId+'/clubbedquestiontext',function(data){
+								
+								var text="";
+								
+								for(var i = 0; i < data.length; i++){
+									text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
+								}						
+								$("#clubbedQuestionTextsDiv").html(text);
+								
+							});	
+							$("#hideClubQTDiv").show();
+							$("#clubbedQuestionTextsDiv").show();
+						}else{
+							$("#clubbedQuestionTextsDiv").hide();
+							$("#hideClubQTDiv").hide();
+						}
+					}
+				});
+				
+				/**** To show/hide viewReferencedQuestionTextsDiv to view referenced questions text starts****/
+				$(".viewReferencedQuestionTextsDiv").click(function(){
+				 	var controlId = this.id;
+				 	var parent = controlId.split("viewReferencedQuestionTextsDiv")[1];				 	
+					if(parent!=undefined && parent!=''){			
+						var questionId = $("#questionId"+parent).val();
+						if($("#clubbedQuestionTextsDiv").css('display')=='none'){
+							$("#clubbedQuestionTextsDiv").empty();
+							$.get('ref/'+questionId+'/referencedquestiontext',function(data){
 								
 								var text="";
 								
@@ -223,7 +250,9 @@
 										<br>
 										<b><spring:message code="question.clubbingTitle" /> </b> : ${i.formattedClubbedNumbers}
 										<a href="javascript:void(0);" id="viewClubbedQuestionTextsDiv${j.index}" class="viewClubbedQuestionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="question.clubbed.texts" text="C"></spring:message></a>
+										<br/><br/>
 										<b><spring:message code="question.referencingTitle" text="Referenced Question" /> </b> : ${i.formattedReferencedNumbers}
+										<a href="javascript:void(0);" id="viewReferencedQuestionTextsDiv${j.index}" class="viewReferencedQuestionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="question.referenced.texts" text="R"></spring:message></a>
 										<input type="hidden" id="questionId${j.index}" name="questionId${j.index}" value="${i.deviceId}"/>
 										<input type="hidden" id="workflowDetailsId${j.index}" name="workflowDetailsId${j.index}" value="${i.id}"/>
 									</td>

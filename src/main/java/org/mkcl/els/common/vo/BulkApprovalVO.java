@@ -184,7 +184,7 @@ public class BulkApprovalVO {
 	}
 
 	public void setFormattedReferencedNumbers(String formattedReferencedNumbers) {
-		formattedReferencedNumbers = formattedReferencedNumbers;
+		this.formattedReferencedNumbers = formattedReferencedNumbers;
 	}
 	
 	

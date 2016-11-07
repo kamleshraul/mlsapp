@@ -1464,6 +1464,10 @@ public class QuestionReportController extends BaseController{
 					Status existingLayingStatus = null;
 					
 					CustomParameter manuallyEnteringAllowedCP = CustomParameter.findByName(CustomParameter.class, "QIS_UNSTARRED_YAADI_MANUALLY_ENTERING_ALLOWED", "");
+					boolean isManualEnteringAllowed = false;
+					if(manuallyEnteringAllowedCP!=null && manuallyEnteringAllowedCP.getValue()!=null && manuallyEnteringAllowedCP.getValue().equalsIgnoreCase("true")) {
+						isManualEnteringAllowed = true;
+					}
 					
 					if(yaadiDetailsId!=null && !yaadiDetailsId.isEmpty()) {
 						yaadiDetails = YaadiDetails.findById(YaadiDetails.class, Long.parseLong(yaadiDetailsId));
@@ -1573,25 +1577,25 @@ public class QuestionReportController extends BaseController{
 									if(existingRemovedDevicesInYaadi!=null && !existingRemovedDevicesInYaadi.isEmpty()) {
 										totalRemovedDevicesInYaadi.addAll(existingRemovedDevicesInYaadi);
 									}		
-									/** remove deselected devices only when 'manually entering questions' is not allowed **/
-									if(manuallyEnteringAllowedCP==null || manuallyEnteringAllowedCP.getValue()==null || !manuallyEnteringAllowedCP.getValue().equalsIgnoreCase("true")) {
-										if(deSelectedDeviceIds!=null && !deSelectedDeviceIds.isEmpty()) {
-											List<Device> deSelectedDevicesInYaadi = new ArrayList<Device>();
-											deSelectedDeviceIds = deSelectedDeviceIds.substring(0, deSelectedDeviceIds.length()-1);
-											for(String deSelectedDeviceId: deSelectedDeviceIds.split(",")) {
-												if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
-													Question q = Question.findById(Question.class, Long.parseLong(deSelectedDeviceId));
-													if(q!=null) {
-														q.setYaadiNumber(null);
-														q.setYaadiLayingDate(null);		
-														q.simpleMerge();
+									/** remove deselected devices **/
+									if(deSelectedDeviceIds!=null && !deSelectedDeviceIds.isEmpty()) {
+										List<Device> deSelectedDevicesInYaadi = new ArrayList<Device>();
+										deSelectedDeviceIds = deSelectedDeviceIds.substring(0, deSelectedDeviceIds.length()-1);
+										for(String deSelectedDeviceId: deSelectedDeviceIds.split(",")) {
+											if(yaadiDetails.getDevice()!=null && yaadiDetails.getDevice().startsWith("question")) {
+												Question q = Question.findById(Question.class, Long.parseLong(deSelectedDeviceId));
+												if(q!=null) {
+													q.setYaadiNumber(null);
+													q.setYaadiLayingDate(null);		
+													q.simpleMerge();
+													if(!isManualEnteringAllowed) {
 														deSelectedDevicesInYaadi.add(q);
-													}
-												}							
-											}
-											totalRemovedDevicesInYaadi.addAll(deSelectedDevicesInYaadi);			
+													}													
+												}
+											}							
 										}
-									}									
+										totalRemovedDevicesInYaadi.addAll(deSelectedDevicesInYaadi);			
+									}
 									yaadiDetails.setRemovedDevices(totalRemovedDevicesInYaadi);
 									/** yaadi selected devices **/					
 									if(selectedDeviceIds!=null && !selectedDeviceIds.isEmpty()) {
@@ -1636,7 +1640,7 @@ public class QuestionReportController extends BaseController{
 							}							
 							if(yaadiDetails.getLayingStatus().getType().equals(ApplicationConstants.YAADISTATUS_DRAFTED)) {
 								/** regeneration only when 'manually entering questions' is not allowed **/
-								if(manuallyEnteringAllowedCP==null || manuallyEnteringAllowedCP.getValue()==null || !manuallyEnteringAllowedCP.getValue().equalsIgnoreCase("true")) {
+								if(!isManualEnteringAllowed) {
 									Boolean isYaadiFilledWithSelectedDevices = yaadiDetails.isNumberedYaadiFilled();
 									if(isYaadiFilledWithSelectedDevices!=null && isYaadiFilledWithSelectedDevices.equals(false)) {
 										yaadiDetails = yaadiDetails.regenerate(totalDevicesInYaadi.size());

@@ -112,6 +112,7 @@ import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.RailwayStation;
+import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.River;
@@ -5776,6 +5777,43 @@ public class ReferenceController extends BaseController {
 		
 		
 		return clubbedQuestionsVO;
+	}
+	
+	/**** To get the clubbed questions text ****/
+	@RequestMapping(value="/{id}/referencedquestiontext", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getReferencedQuestionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> referencedQuestionsVO = new ArrayList<MasterVO>();
+		
+		try{
+			
+			Question question = Question.findById(Question.class, id);
+			
+			if(question != null){
+				List<ReferenceUnit> referencedQuestions = question.getReferencedEntities();
+				
+				for(ReferenceUnit ru : referencedQuestions){
+					Question rQuestion = Question.findById(Question.class, ru.getDevice());
+					if(rQuestion != null){
+						MasterVO mVO = new MasterVO();
+						mVO.setId(rQuestion.getId());
+						mVO.setName(FormaterUtil.formatNumberNoGrouping(rQuestion.getNumber(), locale.toString()));
+						if(rQuestion.getQuestionText()!= null && !rQuestion.getQuestionText().isEmpty()){
+							mVO.setValue(rQuestion.getQuestionText());
+						}else{
+							mVO.setValue(rQuestion.getRevisedQuestionText());
+						}
+						
+						referencedQuestionsVO.add(mVO);
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error(e.toString());
+		}
+		
+		
+		return referencedQuestionsVO;
 	}
 		
 		
