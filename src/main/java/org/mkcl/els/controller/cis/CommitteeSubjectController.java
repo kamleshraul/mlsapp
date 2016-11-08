@@ -168,7 +168,7 @@ public class CommitteeSubjectController extends GenericController<CommitteeSubje
 		String cNames[] = committeeNameParam.split(delimiter);
 		for(String cName : cNames){
 			List<CommitteeName> comNames = 
-					CommitteeName.findAllByFieldName(CommitteeName.class, "name", cName, "name", "asc", locale);
+					CommitteeName.findAllByFieldName(CommitteeName.class, "displayName", cName, "displayName", "asc", locale);
 			if(comNames != null && !comNames.isEmpty()){
 				committeeNames.addAll(comNames);
 			}
