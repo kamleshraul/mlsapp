@@ -76,7 +76,7 @@
 			if(dataLength > 0) {
 				var text = "";
 				for(var i = 0; i < dataLength; i++) {
-					text += "<option value='" + data[i].name + "'>" + data[i].value + "</option>";
+					text += "<option value='" + data[i].value + "'>" + data[i].value + "</option>";
 				}
 				$('#param_COMMITTEENAME_' + locale).empty();
 				$('#param_COMMITTEENAME_' + locale).html(text);
@@ -102,7 +102,7 @@
 	$('document').ready(function(){	
 		initControls();
 		$('#key').val('');
-		$("select[multiple='multiple']").css("width","188px");	
+		$("select[multiple='multiple']").css("width","300px");	
 		var locale=$("#locale").val();		
 		$("#param_MINISTRY_"+locale).change(function(event){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
@@ -169,11 +169,11 @@
 		<select  id="param_COMMITTEENAME_${locale}" name="param_COMMITTEENAME_${locale}" multiple="multiple" size="5" style="max-width:300px;min-width:275px;">
 			<c:forEach items="${committeeNames}" var="i">				
 				<c:choose>
-					<c:when test="${fn:contains(selectedCommitteeName,i.name)}">
-						<option value="${i.name}" selected="selected">${i.displayName}</option>			
+					<c:when test="${fn:contains(selectedCommitteeName,i.displayName)}">
+						<option value="${i.displayName}" selected="selected">${i.displayName}</option>			
 					</c:when>
 					<c:otherwise>
-						<option value="${i.name}">${i.displayName}</option>	
+						<option value="${i.displayName}">${i.displayName}</option>	
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>
