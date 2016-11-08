@@ -12,6 +12,14 @@
 			//As tinymce once registered doesnot get reinitialize when the same page is loaded, hence removing the previous tinymce instance
 			tinymce.remove();
 			
+			$('.viewQuestionDetails').click(function() {
+				var controlId = this.id;
+			 	var parent = controlId.split("qid")[1];	 	
+				if(parent!=undefined && parent!=''){			
+					var questionId = $("#questionId"+parent).val();
+					viewQuestionDetail(questionId);
+				}
+			});
 			
 			/**** Check/Uncheck Submit All ****/		
 			$("#chkall").change(function(){
@@ -167,6 +175,33 @@
 				$("#actorDiv"+controlName).hide();			
 			}	
 		}
+		
+		function viewQuestionDetail(id){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+			var parameters="houseType="+$("#selectedHouseType").val()
+			+"&sessionYear="+$("#selectedSessionYear").val()
+			+"&sessionType="+$("#selectedSessionType").val()
+			+"&questionType="+$("#deviceType").val()
+			//+"&ugparam="+$("#ugparam").val() //commented as no need to send group from here.. it will be taken from question itself
+			+"&status="+$("#selectedStatus").val()
+			+"&role="+$("#srole").val()
+			+"&usergroup="+$("#currentusergroup").val()
+			+"&usergroupType="+$("#currentusergroupType").val()
+			+"&edit=false";
+			var resourceURL='question/'+id+'/edit?'+parameters;
+			$.get(resourceURL,function(data){
+				$.unblockUI();
+				$.fancybox.open(data,{autoSize:false,width:750,height:700});
+			},'html').fail(function(){
+				$.unblockUI();
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		}		
 	</script>
 	<style type="text/css">
 		  #clubbedQuestionTextsDiv {
@@ -234,7 +269,13 @@
 									</c:choose>
 											<%-- <td>${i.deviceType}</td> --%>							
 									<td style="min-width:140px;text-align:justify;">
-										${i.deviceNumber} <br> 
+										<span>
+											${i.deviceNumber} 
+										</span>
+										<span style="margin-left: 5px;">
+											<a href="#" id="qid${j.index}" class="viewQuestionDetails"><spring:message code="advancedbulk.question.details" text="Details"/></a>
+										</span>
+										<br/> 
 										${i.member}
 										<br><br>
 										<spring:message code="question.lastdecision" text="Last Decision"/> : ${i.lastDecision}
@@ -292,6 +333,7 @@
 							<input type="hidden" id="group" name="group" value="${group}"/>	
 							<input type="hidden" id="status" name="status" value="${status}"/>
 							<input type="hidden" id="answeringDate" name="answeringDate" value="${answeringDate}"/>					
+							<input type="hidden" id="srole" value="${role}" />			
 						</form>
 					</div>
 					

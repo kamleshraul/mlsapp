@@ -5178,6 +5178,24 @@ public class QuestionWorkflowController  extends BaseController{
 					
 					model.addAttribute("status", strStatus);
 					model.addAttribute("usergroup", usergroup.getId());
+					// Populate Roles
+					/**
+					 * Rules:
+					 * a. QIS roles starts with QIS_, MEMBER_
+					 * b. Any user will have single role per device type
+					 * c. Any user can have multiple roles limited to one role per device type
+					 */
+					Set<Role> roles = this.getCurrentUser().getRoles();
+					for(Role i : roles) {
+						if(i.getType().startsWith("MEMBER_")) {
+							model.addAttribute("role", i.getType());
+							break;
+						}
+						else if(i.getType().startsWith("QIS_")) {
+							model.addAttribute("role", i.getType());
+							break;
+						}
+					}
 					/**** List of Statuses ****/
 					List<Status> internalStatuses = new ArrayList<Status>();
 					HouseType houseType = HouseType.
