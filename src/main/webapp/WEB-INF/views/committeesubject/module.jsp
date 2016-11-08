@@ -89,7 +89,7 @@
 		//  3. Reload the Grid
 		if(committeeTypeId == 0) {
 			$('#committeeNameFilter').empty();
-			prependOptionToCommitteeNameFilter();
+			//prependOptionToCommitteeNameFilter();
 			reloadGrid();
 		}
 		// Else 
@@ -112,7 +112,7 @@
 				else {
 					$('#committeeNameFilter').empty();
 				}
-				prependOptionToCommitteeNameFilter();
+				//prependOptionToCommitteeNameFilter();
 				reloadGrid();
 			});
 		}
