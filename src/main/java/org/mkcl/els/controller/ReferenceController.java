@@ -141,6 +141,7 @@ import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.YaadiDetails;
+import org.mkcl.els.domain.Zillaparishad;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,6 +206,7 @@ public class ReferenceController extends BaseController {
 		
 		try {
 			return Tehsil.findTehsilsRefByDistrictId(districtId , "name" , ApplicationConstants.ASC ,locale.toString());
+			
 		} catch (ELSException e) {
 			map.addAttribute("error", e.getParameter());
 		}
@@ -2858,7 +2860,7 @@ public class ReferenceController extends BaseController {
 					String cNames[] = committeeNameParam.split("##");
 					for(String cName : cNames){
 						List<CommitteeName> comNames = 
-								CommitteeName.findAllByFieldName(CommitteeName.class, "name", cName, "name", "asc", locale.toString());
+								CommitteeName.findAllByFieldName(CommitteeName.class, "displayName", cName, "displayName", "asc", locale.toString());
 						if(comNames != null && !comNames.isEmpty()){
 							committeeNames.addAll(comNames);
 						}
@@ -3194,6 +3196,49 @@ public class ReferenceController extends BaseController {
 		return actors;
 	}
 	
+	@RequestMapping(value="/towns/bydistricts", method=RequestMethod.POST)
+	public @ResponseBody List<MasterVO> getTowns(
+			final HttpServletRequest request,
+			final Locale locale){
+		String[] districts=request.getParameterValues("districts[]");
+		//populating sub departments
+		List<MasterVO> townVOs=new ArrayList<MasterVO>();
+		if(districts != null){
+			
+			List<Town> towns=Town.findTownsbyDistricts(districts, locale.toString());
+			
+			for(Town i:towns){
+				MasterVO masterVO=new MasterVO();
+				masterVO.setId(i.getId());
+				masterVO.setName(i.getName());
+				townVOs.add(masterVO);
+			}
+		}
+		return townVOs;
+	}
+	
+	
+	@RequestMapping(value="/zillaparishads/bydistricts", method=RequestMethod.POST)
+	public @ResponseBody List<MasterVO> getzillaparishads(
+			final HttpServletRequest request,
+			final Locale locale){
+		String[] districts=request.getParameterValues("districts[]");
+		//populating sub departments
+		List<MasterVO> zillaparishadVOs=new ArrayList<MasterVO>();
+		if(districts != null){
+			
+			List<Zillaparishad> zillaparishads=Zillaparishad.findZillaparishadsbyDistricts(districts, locale.toString());
+			
+			for(Zillaparishad i:zillaparishads){
+				MasterVO masterVO=new MasterVO();
+				masterVO.setId(i.getId());
+				masterVO.setName(i.getName());
+				zillaparishadVOs.add(masterVO);
+			}
+		}
+		return zillaparishadVOs;
+	}
+	
 	@RequestMapping(value="district/{districtId}/towns", method=RequestMethod.GET)
 	public @ResponseBody List<Reference> getTownsByDistrict(@PathVariable("districtId") final Long districtId, final Locale localeObj) {
 		List<Reference> refs = new ArrayList<Reference>();
@@ -3208,6 +3253,26 @@ public class ReferenceController extends BaseController {
 			ref.setName(town.getName());
 			refs.add(ref);
 		}
+		
+		
+		return refs;
+	}
+	
+	@RequestMapping(value="district/{districtId}/zp", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> getZPByDistrict(@PathVariable("districtId") final Long districtId, final Locale localeObj) {
+		List<Reference> refs = new ArrayList<Reference>();
+		
+		District district = District.findById(District.class, districtId);
+		String locale = localeObj.toString();
+		
+		List<Zillaparishad> zillaparishads = Zillaparishad.find(district, locale);
+		for(Zillaparishad zillaparishad : zillaparishads) {
+			Reference ref = new Reference();
+			ref.setId(String.valueOf(zillaparishad.getId()));
+			ref.setName(zillaparishad.getName());
+			refs.add(ref);
+		}
+		
 		
 		return refs;
 	}
