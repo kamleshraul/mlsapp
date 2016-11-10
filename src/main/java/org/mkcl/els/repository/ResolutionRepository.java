@@ -1868,10 +1868,10 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 					Integer number = r.getNumber();
 					String formatNumber = r.formatNumber();
 					String revisedNoticeContent = null;
-					if(r.getNoticeContent() != null){
-						revisedNoticeContent = r.getNoticeContent();
-					}else if(r.getRevisedNoticeContent() != null){
+					if(r.getRevisedNoticeContent() != null && !r.getRevisedNoticeContent().isEmpty()){
 						revisedNoticeContent = r.getRevisedNoticeContent();
+					}else if(r.getNoticeContent() != null && !r.getNoticeContent().isEmpty()){
+						revisedNoticeContent = r.getNoticeContent();
 					}
 					DeviceVO deviceVO = new DeviceVO(formatNumber, revisedNoticeContent);
 					deviceVO.setNumber(number);
@@ -1893,6 +1893,7 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		+ " FROM Resolution r "
 		+ " WHERE r.type.id=:deviceTypeId"
 		+ " AND r.locale=:locale"
+		+ " AND r.session.id=:sessionId"
 		+ " AND r.member.id=:memberId");
 		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
 			buffer.append(" AND (r.internalStatusLowerHouse.type='resolution_final_admission'"
@@ -1908,6 +1909,7 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		query.setParameter("deviceTypeId", deviceType.getId());
 		query.setParameter("locale", locale);
 		query.setParameter("memberId", member.getId());
+		query.setParameter("sessionId", session.getId());
 		query.setParameter("karyavaliNumber", karyavaliNumber);
 		resolutions = query.getResultList();
 		return resolutions;
