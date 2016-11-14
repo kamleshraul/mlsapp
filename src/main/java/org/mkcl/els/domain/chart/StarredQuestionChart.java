@@ -2268,26 +2268,50 @@ class StarredQuestionChart {
 					StarredQuestionChart.questionsInClubbingStatus(
 							onChartQuestions, locale);
 			for(Question q : questionsClubbed){
-				if(!questionsInWorkflow.contains(q)){
+				boolean isParentOnSameChart = false;
+				for(Question chartedQuestion: onChartQuestions) {
+					if(chartedQuestion.getId()!=q.getId()
+							&& chartedQuestion.getId().equals(q.getParent().getId())) {
+						isParentOnSameChart = true;
+						break;
+					} 
+				}
+				if(!questionsInWorkflow.contains(q) && !isParentOnSameChart){
 					updatedChartQuestions.add(q);
 				}
 			}
 				//updatedChartQuestions.addAll(questionsClubbed);
 			
-			// The Questions not in the Workflow will compete for a place 
+			// The Remaining Questions not in the Workflow or children of same chart question will compete for a place 
 			// in the Chart
 			int requiredQuestions = 
 				maxNoOfQuestions - updatedChartQuestions.size();
-			List<Question> questionsNotInWorkflow = 
-				StarredQuestionChart.questionsNotInWorkflow(
-						onChartQuestions, locale);
-			questionsNotInWorkflow.add(question);
+			
+			List<Question> remainingChartedQuestions = new ArrayList<Question>();
+			for(Question chartedQuestion: onChartQuestions) {
+				boolean isRemainingQuestionForUpdation = true;
+				for(Question updatedChartQuestion: updatedChartQuestions) {
+					if(chartedQuestion.getId().equals(updatedChartQuestion.getId())) {
+						isRemainingQuestionForUpdation = false;
+						break;
+					}
+				}
+				if(isRemainingQuestionForUpdation) {
+					remainingChartedQuestions.add(chartedQuestion);
+				}
+			}
+			remainingChartedQuestions.add(question);
+			
+//			List<Question> questionsNotInWorkflow = 
+//				StarredQuestionChart.questionsNotInWorkflow(
+//						onChartQuestions, locale);
+//			questionsNotInWorkflow.add(question);
 			
 			// The size of candidateQuestions will always be size of 
 			// questionsNotInWorkflow + 1 (@param question as provided 
 			// in the parameter)
 			List<Question> candidateQuestions = 
-				StarredQuestionChart.reorderQuestions(questionsNotInWorkflow, 
+				StarredQuestionChart.reorderQuestions(remainingChartedQuestions, 
 						answeringDate);
 			
 			// The nature of candidateQuestions is such that the last 
@@ -2316,12 +2340,6 @@ class StarredQuestionChart {
 			Question qn = 
 				(Question) candidateQuestions.get(candidateQuestionsSize - 1);
 			
-			// Update qn's status information.
-			qn.setInternalStatus(ASSISTANT_PROCESSED);
-			qn.setRecommendationStatus(ASSISTANT_PROCESSED);
-			qn.setChartAnsweringDate(null);
-			qn = qn.simpleMerge();
-			
 			// Update qn's clubbing information
 			if(qn.getParent() == null) { // qn could be the parent
 				// If qn is a parent then remove it as a parent.
@@ -2339,6 +2357,12 @@ class StarredQuestionChart {
 				Long kidId = qn.getId();
 				ClubbedEntity.unclub(parentId, kidId, locale);
 			}
+			
+			// Update qn's status information.
+			qn.setInternalStatus(ASSISTANT_PROCESSED);
+			qn.setRecommendationStatus(ASSISTANT_PROCESSED);
+			qn.setChartAnsweringDate(null);
+			qn = qn.simpleMerge();
 			
 			// Update the Chart entry
 			if(candidateQuestionsSize >= requiredQuestions) {
@@ -2462,6 +2486,7 @@ class StarredQuestionChart {
 		for(Question q : onChartQuestions) {
 			Status internalStatus = q.getInternalStatus();
 			String type = internalStatus.getType();
+			String rtype = q.getRecommendationStatus().getType();
 			if( (type.equals(CLUBBED) 
 					|| type.equals(PUTUPCLUBBING) 
 					|| type.equals(PUTUPADMITDUETOREVERSECLUBBING) 
@@ -2469,6 +2494,11 @@ class StarredQuestionChart {
 					|| type.equals(PUTUPCLUBBINGWITHUNSTARREDQUESTION)
 					|| type.equals(PUTUPNAMECLUBBING) 
 					|| type.equals(PUTUPUNCLUBBING))) {
+				qList.add(q);
+			} else if( (rtype.equals(PUTUPADMITDUETOREVERSECLUBBING) 
+					|| rtype.equals(PUTUPCLUBBINGPOSTADMISSION) 
+					|| rtype.equals(PUTUPCLUBBINGWITHUNSTARREDQUESTION)
+					|| rtype.equals(PUTUPUNCLUBBING))) {
 				qList.add(q);
 			}
 		}
