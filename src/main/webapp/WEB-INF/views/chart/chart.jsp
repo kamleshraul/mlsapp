@@ -292,6 +292,9 @@
 													<c:when test="${r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection'}">
 														<spring:message code="question.shortStarredRejection" text="R"/>
 													</c:when>
+													<c:when test="${(r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection') and r[7] != 'y'}">
+														<spring:message code="question.shortStarredClubbedRejection" text="RC"/>
+													</c:when>
 													<c:when test="${r[5]=='question_recommend_clarificationNeededFromMember' or r[5]=='question_final_clarificationNeededFromMember'}">
 														<spring:message code="question.shortStarredClarificationFromMember" text="CM"/>
 													</c:when>
@@ -368,6 +371,9 @@
 														</c:when>
 														<c:when test="${r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection'}">
 															<spring:message code="question.shortStarredRejection" text="R"/>
+														</c:when>
+														<c:when test="${(r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection') and r[7] != 'y'}">
+															<spring:message code="question.shortStarredClubbedRejection" text="RC"/>
 														</c:when>
 														<c:when test="${r[5]=='question_recommend_clarificationNeededFromMember' or r[5]=='question_final_clarificationNeededFromMember'}">
 															<spring:message code="question.shortStarredClarificationFromMember" text="CM"/>
@@ -476,6 +482,9 @@
 												<c:when test="${r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection'}">
 													<spring:message code="question.shortStarredRejection" text="R"/>
 												</c:when>
+												<c:when test="${(r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection') and r[7] != 'y'}">
+													<spring:message code="question.shortStarredClubbedRejection" text="RC"/>
+												</c:when>
 												<c:when test="${r[5]=='question_recommend_clarificationNeededFromMember' or r[5]=='question_final_clarificationNeededFromMember'}">
 													<spring:message code="question.shortStarredClarificationFromMember" text="CM"/>
 												</c:when>
@@ -553,6 +562,9 @@
 													</c:when>
 													<c:when test="${r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection'}">
 														<spring:message code="question.shortStarredRejection" text="R"/>
+													</c:when>
+													<c:when test="${(r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection') and r[7] != 'y'}">
+														<spring:message code="question.shortStarredClubbedRejection" text="RC"/>
 													</c:when>
 													<c:when test="${r[5]=='question_recommend_clarificationNeededFromMember' or r[5]=='question_final_clarificationNeededFromMember'}">
 														<spring:message code="question.shortStarredClarificationFromMember" text="CM"/>
