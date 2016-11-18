@@ -20,6 +20,7 @@ import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.Credential;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
@@ -205,6 +206,22 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 	}
 
 	@SuppressWarnings("unchecked")
+	private List<WorkflowActor> getWorkflowActors(final WorkflowConfig workflowConfig,
+			final List<Long> usergroupTypeIds,final int level) {
+		/**** Get the closest level of particular user group ****/
+		String userGrouplevelQuery="SELECT wfa FROM WorkflowConfig wc" +
+				" JOIN wc.workflowactors wfa  "+
+				" JOIN wfa.userGroupType ugt" +
+				" WHERE wc.id=:workflowConfigId" +
+				" AND ugt.id IN(:userGroupTypeIds)";
+		javax.persistence.Query query=this.em().createQuery(userGrouplevelQuery);
+		query.setParameter("workflowConfigId", workflowConfig.getId());
+		query.setParameter("userGroupTypeIds", usergroupTypeIds);
+		List<WorkflowActor> workflowActors=query.getResultList();
+		return workflowActors;
+	}
+	
+	@SuppressWarnings("unchecked")
 	private List<WorkflowActor> getWorkflowActorsExcludingCurrent(final WorkflowConfig workflowConfig,
 			final WorkflowActor currentWorkflowActor,final String sortorder) {
 		String strQuery=null;
@@ -226,6 +243,38 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		return query.getResultList();	
 	}
 	
+	
+	@SuppressWarnings("unchecked")
+	private List<WorkflowActor> getWorkflowActorsExcludingGivenActorList(final WorkflowConfig workflowConfig,
+			final List<WorkflowActor> workflowActorsToBeExcluded,
+			final WorkflowActor currentWorkflowActor,
+			final String sortorder) {
+		String strQuery=null;
+		List<Long> wfactorIds = new ArrayList<Long>();
+		for(WorkflowActor wfa : workflowActorsToBeExcluded){
+			wfactorIds.add(wfa.getId());
+		}
+		if(sortorder.equals(ApplicationConstants.ASC)){
+			strQuery="SELECT wfa FROM WorkflowConfig wc" +
+					" JOIN wc.workflowactors wfa  "+
+					" WHERE wc.id=:workflowConfigId" +
+					" AND wfa.id >:currentWorkflowActorId" +
+					" AND wfa.id NOT IN (:wfactorIds)" +
+					" ORDER BY wfa.id "+sortorder;	
+		}else{
+			strQuery="SELECT wfa FROM WorkflowConfig wc" +
+					" JOIN wc.workflowactors wfa  "+
+					" WHERE wc.id=:workflowConfigId" +
+					" AND wfa.id NOT IN (:wfactorIds)" +
+					" AND wfa.id <:currentWorkflowActorId " +
+				    " ORDER BY wfa.id "+sortorder;	
+		}	
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("workflowConfigId", workflowConfig.getId());
+		query.setParameter("currentWorkflowActorId", currentWorkflowActor.getId());
+		query.setParameter("wfactorIds",wfactorIds);
+		return query.getResultList();	
+	}
 	/********************************Question****************************/
 	public Reference findActorVOAtGivenLevel(final Question question, final Status status, 
 			final String usergroupType, final int level, final String locale) throws ELSException {
@@ -454,11 +503,44 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				userGroupType = userGroup.getUserGroupType();
 				currentWorkflowActor = getWorkflowActor(workflowConfig,userGroupType,level);
 				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
+			}else if(status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODESKOFFICER)
+					&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+				workflowConfig = getLatest(question,question.getInternalStatus().getType(),locale.toString());
+				UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+				currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
+				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 			}else{
 				workflowConfig = getLatest(question,status,locale.toString());
 				userGroupType = userGroup.getUserGroupType();
-				currentWorkflowActor = getWorkflowActor(workflowConfig,userGroupType,level);
-				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+				currentWorkflowActor = getWorkflowActor(workflowConfig,userGroupType,(level-1));
+				CustomParameter userGroupTypeToBeExcluded = null;
+				if(status.toUpperCase().contains("FINAL")){
+					userGroupTypeToBeExcluded = CustomParameter.
+					findByName(CustomParameter.class, ApplicationConstants.USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_POSTFINAL_STATUS, "");
+				}else{
+					userGroupTypeToBeExcluded = CustomParameter.
+					findByName(CustomParameter.class, ApplicationConstants.USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_PREFINAL_STATUS, "");
+				}
+				if(userGroupTypeToBeExcluded != null && 
+						(userGroupTypeToBeExcluded.getValue() != null  && !userGroupTypeToBeExcluded.getValue().isEmpty())){
+					String strUsergroupTypes = userGroupTypeToBeExcluded.getValue();
+					String[] arrUsergroupTypes = strUsergroupTypes.split(",");
+					List<Long> usergroupTypeIds = new ArrayList<Long>();
+					for(String s : arrUsergroupTypes){
+						UserGroupType ugt = UserGroupType.findByType(s, locale);
+						if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)){
+							if(!ugt.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+								usergroupTypeIds.add(ugt.getId());
+							}
+						}else{
+							usergroupTypeIds.add(ugt.getId());
+						}						
+					}
+					List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypeIds,level);
+					allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+				}else{
+					allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+				}
 			}
 			HouseType houseType = question.getHouseType();
 			DeviceType deviceType = question.getType();
@@ -511,7 +593,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					}
 				}
 				else{
-					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT)){
+					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT) 
+							|| (userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
 						ministry = question.getMinistry();
 						subDepartment = question.getSubDepartment();
 					}
@@ -592,11 +675,16 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 									+user.getMiddleName()+" "
 									+user.getLastName());
 							reference.setName(userGroupTypeTemp.getName());
-							
 							reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
 							reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
-							references.add(reference);
-							break;
+							if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+								if(!reference.getId().equals(question.getActor())){
+									references.add(reference);
+								}
+							}else{
+								references.add(reference);
+								break;
+							}
 						}				
 					}
 				}
@@ -669,7 +757,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				UserGroupType userGroupTypeTemp=i.getUserGroupType();
 				List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
 						userGroupTypeTemp, "activeFrom",ApplicationConstants.DESC, locale);
-				if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT)){
+				if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT)
+						||userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 					ministry = question.getMinistry();
 					subDepartment = question.getSubDepartment();
 				}
@@ -734,7 +823,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					/**** Include Leave Module ****/
 					if(noOfComparisons==noOfSuccess){
 						actualActors.add(i);
-						break;
+						if(!userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+							break;
+						}
 					}				
 				}
 			}		

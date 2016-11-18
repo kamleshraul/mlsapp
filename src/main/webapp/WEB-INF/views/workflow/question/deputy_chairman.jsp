@@ -453,6 +453,9 @@
 	
 	$(document).ready(function(){
 		
+		$('#mlsBranchNotifiedOfTransfer').val(null);
+		$('#transferToDepartmentAccepted').val(null);
+		
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor = $(this).val();
@@ -1397,7 +1400,9 @@
 	</c:if>	
 	
 	<input type="hidden" id="yaadiNumber" name="yaadiNumber" value="${domain.yaadiNumber}"/>
-	<input type="hidden" id="yaadiLayingDate" name="yaadiLayingDate" value="${yaadiLayingDate}"/>			
+	<input type="hidden" id="yaadiLayingDate" name="yaadiLayingDate" value="${yaadiLayingDate}"/>
+	<form:hidden path="transferToDepartmentAccepted"/>
+	<form:hidden path="mlsBranchNotifiedOfTransfer"/>			
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">

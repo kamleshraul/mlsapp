@@ -361,18 +361,21 @@ public class QuestionWorkflowController  extends BaseController{
 		boolean boolReanswer = false;
 		/**** To set the reanswwerstatus ****/
 		String strReanswerStatus = request.getParameter("reanswerstatus");
-		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+		if((workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))
+				&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)){
 			model.addAttribute("reanswerstatus", strReanswerStatus);
+			boolReanswer = true;
 		}
-		if(strReanswerStatus != null){
-			if(!strReanswerStatus.isEmpty()){
-				boolReanswer = true;
-			}else{
-				boolReanswer = false;
-			}
-		}else{
-			boolReanswer = false;
-		}
+//		if(strReanswerStatus != null){
+//			if(!strReanswerStatus.isEmpty()){
+//				boolReanswer = true;
+//			}else{
+//				boolReanswer = false;
+//			}
+//		}else{
+//			boolReanswer = false;
+//		}
 		/**** In case of bulk edit we can update only few parameters ****/
 		model.addAttribute("bulkedit", request.getParameter("bulkedit"));
 		/**** clear remarks ****/
@@ -567,7 +570,8 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("userGroupName", workflowDetails.getAssigneeUserGroupName());
 		
 		/**** To have the task creation date and lastReceivingDate if userGroup is department in case of starred questions ***/
-		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 			boolean canAdd = false;
 
 			try{	
@@ -617,7 +621,7 @@ public class QuestionWorkflowController  extends BaseController{
 			/**** added by sandeep singh(jan 29 2013) ****/
 
 			if(boolReanswer){
-				Status reanswerStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_REANSWER, locale);
+				Status reanswerStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_REANSWER, locale);
 				domain.setRecommendationStatus(reanswerStatus);
 				populateInternalStatus(model, domain.getRecommendationStatus().getType(),
 						workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
@@ -789,7 +793,7 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("questionsToBeAskedInFactualPosition", questionsToBeAskedInFactualPosition);
 			}	
 		}
-		if(userGroupType.equals(ApplicationConstants.DEPARTMENT)){
+		if(userGroupType.equals(ApplicationConstants.DEPARTMENT) || userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 			if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 					||internalStatusType.
 						equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
@@ -827,7 +831,7 @@ public class QuestionWorkflowController  extends BaseController{
 			
 
 		//---------------------------To find the reansweringAttempt---------------------------------
-		if(userGroupType.equals(ApplicationConstants.DEPARTMENT)){
+		if(userGroupType.equals(ApplicationConstants.DEPARTMENT) || userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 			CustomParameter answeringAttempts = CustomParameter.
 					findByFieldName(CustomParameter.class, "name", 
 							ApplicationConstants.MAX_ASWERING_ATTEMPTS_STARRED, "");
@@ -848,25 +852,40 @@ public class QuestionWorkflowController  extends BaseController{
 			List<Reference> actors = new ArrayList<Reference>();
 			//TODO: Have to change the condition so as to consider the reanswering coz in normal scenario 
 			//department always does is sends back the device			
-			if(boolReanswer){
-				Status reanswerStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_REANSWER, locale);
-				actors = WorkflowConfig.findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale);
-			}else{
-				if(userGroup.getUserGroupType().getType().equals("department")
-						&& (internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-							|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
-							|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION))){
-					Status sendback = null;
-					if(questionType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
-						sendback = Status.findByType(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK, locale);
-					}else if(questionType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
-						sendback = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_SENDBACK, locale);
-					}else if(questionType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
-						sendback = Status.findByType(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_SENDBACK, locale);
-					}
-				 	actors = WorkflowConfig.
-							findQuestionActorsVO(domain, sendback ,userGroup, Integer.parseInt(domain.getLevel()), locale);
-				}else if(userGroup.getUserGroupType().getType().equals(ApplicationConstants.MEMBER)
+//			if(boolReanswer){
+//				Status reanswerStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_REANSWER, locale);
+//				actors = WorkflowConfig.findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale);
+//			}else{
+//				if(userGroup.getUserGroupType().getType().equals("department")
+//						&& (internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+//							|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+//							|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION))){
+//					Status sendback = null;
+//					if(questionType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+//						sendback = Status.findByType(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK, locale);
+//					}else if(questionType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+//						sendback = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_SENDBACK, locale);
+//					}else if(questionType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+//						sendback = Status.findByType(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_SENDBACK, locale);
+//					}
+//				 	actors = WorkflowConfig.
+//							findQuestionActorsVO(domain, sendback ,userGroup, Integer.parseInt(domain.getLevel()), locale);
+//				}else if(userGroup.getUserGroupType().getType().equals(ApplicationConstants.MEMBER)
+//						&& internalStatusType.
+//								equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+//					
+//				}else if(workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
+//						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
+//						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)
+//						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION_WORKFLOW)) {
+//					actors = WorkflowConfig.
+//							findQuestionActorsVO(domain, recommendationStatus, userGroup, Integer.parseInt(domain.getLevel()), locale);
+//				}else{
+//					actors = WorkflowConfig.
+//							findQuestionActorsVO(domain, internalStatus, userGroup, Integer.parseInt(domain.getLevel()), locale);
+//				}
+				
+				if(userGroup.getUserGroupType().getType().equals(ApplicationConstants.MEMBER)
 						&& internalStatusType.
 								equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
 					
@@ -880,15 +899,9 @@ public class QuestionWorkflowController  extends BaseController{
 					actors = WorkflowConfig.
 							findQuestionActorsVO(domain, internalStatus, userGroup, Integer.parseInt(domain.getLevel()), locale);
 				}
-			}
+//			}
 			model.addAttribute("internalStatusSelected", internalStatus.getId());
 			model.addAttribute("actors",actors);
-//			if(actors != null && !actors.isEmpty()){
-//				String nextActor = actors.get(0).getId();
-//				String[] actorArr = nextActor.split("#");
-//				domain.setLevel(actorArr[2]);
-//				domain.setLocalizedActorName(actorArr[3] + "(" + actorArr[4] + ")");
-//			}
 		}
 		/**** add domain to model ****/
 		model.addAttribute("domain", domain);
@@ -1240,6 +1253,11 @@ public class QuestionWorkflowController  extends BaseController{
 				WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
 		String userGroupType = workflowDetails.getAssigneeUserGroupType();
 		try{
+			Question previousVersionQuestion = Question.findById(Question.class, domain.getId());
+			Group prevGroup = previousVersionQuestion.getGroup();
+			Ministry prevMinistry = previousVersionQuestion.getMinistry();
+			SubDepartment prevSubdepartment = previousVersionQuestion.getSubDepartment();
+			
 			if(userGroupType.equals(ApplicationConstants.MEMBER)
 				&&	domain.getInternalStatus().getType().
 				equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
@@ -1274,26 +1292,29 @@ public class QuestionWorkflowController  extends BaseController{
 				/**** Is reanswering ****/
 				boolean boolReanswering = false;
 				String isReanswering = request.getParameter("reanswerstatus");
-				if (isReanswering != null) {
-					if(!isReanswering.isEmpty()){
-						if(isReanswering.equals("reanswer")){
-							boolReanswering = true;
-							Status reanswerStatus = Status.
-									findByType(ApplicationConstants.QUESTION_FINAL_REANSWER, locale.toString());
-
-							
-							List<Reference> actors = new ArrayList<Reference>();
-							UserGroup userGroup = UserGroup.
-								findById(UserGroup.class, Long.valueOf(workflowDetails.getAssigneeUserGroupId()));
-							actors = WorkflowConfig.
-									findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale.toString());
-							if(!actors.isEmpty()){
-								domain.setActor(actors.get(0).getId());
-								domain.setRecommendationStatus(reanswerStatus);
-							}
-						}
-					}
+				if(isReanswering != null && !isReanswering.isEmpty() && isReanswering.equals("reanswer")){
+					boolReanswering = true;
 				}
+//				if (isReanswering != null) {
+//					if(!isReanswering.isEmpty()){
+//						if(isReanswering.equals("reanswer")){
+//							boolReanswering = true;
+//							Status reanswerStatus = Status.
+//									findByType(ApplicationConstants.QUESTION_PROCESSED_REANSWER, locale.toString());
+//
+//							
+//							List<Reference> actors = new ArrayList<Reference>();
+//							UserGroup userGroup = UserGroup.
+//								findById(UserGroup.class, Long.valueOf(workflowDetails.getAssigneeUserGroupId()));
+//							actors = WorkflowConfig.
+//									findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale.toString());
+//							if(!actors.isEmpty()){
+//								domain.setActor(actors.get(0).getId());
+//								domain.setRecommendationStatus(reanswerStatus);
+//							}
+//						}
+//					}
+//				}
 
 				/**** Binding Supporting Members ****/
 				String[] strSupportingMembers = request.getParameterValues("supportingMembers");
@@ -1338,7 +1359,8 @@ public class QuestionWorkflowController  extends BaseController{
 
 			
 
-				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+						|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 
 					String operation = request.getParameter("operation");
 
@@ -1395,7 +1417,8 @@ public class QuestionWorkflowController  extends BaseController{
 				Date dateOfAnsweringByMinister = null;
 
 				/**** Setting the answering attempts in case of department****/
-				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+						|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 
 					String operation = request.getParameter("operation");
 
@@ -1704,22 +1727,33 @@ public class QuestionWorkflowController  extends BaseController{
 				Question question = Question.findById(Question.class, domain.getId());
 				// On Group Change
 				boolean isGroupChanged = false;
-				Ballot ballot =null;
-				Group fromGroup = Question.isGroupChanged(question);
-				if(question.getBallotStatus() != null){
-					ballot = Ballot.find(question);
-				}
+				boolean isMinistryChanged = false;
+				boolean isSubdepartmentChanged =false;
 				
-				QuestionDraft groupChangeDraft = Question.findLatestGroupChangedDraft(question);
-				QuestionDraft questionDraft = Question.findGroupChangedDraft(question);
-				if(fromGroup != null || (ballot != null 
-						&& groupChangeDraft!=null 
-						&& ballot.getBallotDate().before(questionDraft.getEditedOn()))) {
-					isGroupChanged = true;
+//				Group fromGroup = Question.isGroupChanged(question);
+//				Ballot ballot = Ballot.find(question);
+//				QuestionDraft groupChangeDraft = Question.findLatestGroupChangedDraft(question);
+//				QuestionDraft questionDraft = Question.findGroupChangedDraft(question);
+				if(!domain.getGroup().equals(prevGroup)) {
+					Group fromGroup = prevGroup;
+//
+//				QuestionDraft groupChangeDraft = Question.findLatestGroupChangedDraft(question);
+//				QuestionDraft questionDraft = Question.findGroupChangedDraft(question);
+//				if(fromGroup != null || (ballot != null 
+//						&& groupChangeDraft!=null 
+//						&& ballot.getBallotDate().before(questionDraft.getEditedOn()))) {
+//					isGroupChanged = true;
 					Question.onGroupChange(question, fromGroup);
+					isGroupChanged = true;
+				}else if(!domain.getMinistry().equals(prevMinistry)){
+					Question.onMinistryChange(question, prevMinistry);
+					isMinistryChanged = true;
+				}else if(!domain.getSubDepartment().equals(prevSubdepartment)){
+					Question.onSubdepartmentChange(question, prevSubdepartment);
+					isSubdepartmentChanged = true;
 				}
 				
-				if(isGroupChanged) {
+				if(isGroupChanged || isMinistryChanged || isSubdepartmentChanged) {
 					/**** display message ****/
 					model.addAttribute("type","taskcompleted");
 					return "workflow/info";
@@ -1731,7 +1765,8 @@ public class QuestionWorkflowController  extends BaseController{
 						/**** Complete Task ****/
 						String endflag = null;
 						if(boolReanswering && 
-								workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)){
+								(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+										|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
 							endflag = "continue";
 						}else{
 							if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
@@ -1927,7 +1962,8 @@ public class QuestionWorkflowController  extends BaseController{
 													newWFDetails.setSendBackBefore(new Date(newWFDetails.getAssignmentTime().getTime()+ (timeLimitMinutes * 60 * 1000)));
 												}
 											}
-										} else if (userGroupType.equals(ApplicationConstants.DEPARTMENT)) {
+										} else if (userGroupType.equals(ApplicationConstants.DEPARTMENT)
+												|| userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
 
 											/**** save the reanswer by department ****/
 											newWFDetails.setDepartmentAnswer(strReanswer);

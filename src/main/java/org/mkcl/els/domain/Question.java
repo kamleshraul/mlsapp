@@ -40,6 +40,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.ballot.Ballot;
@@ -379,6 +380,11 @@ public class Question extends Device implements Serializable {
     /** The date of answer received from department. */
     @Temporal(TemporalType.TIMESTAMP)
     private Date answerReceivedDate;
+    
+    /**** Fields for storing the confirmation of Group change ****/
+    private Boolean transferToDepartmentAccepted = false;
+    
+    private Boolean mlsBranchNotifiedOfTransfer = false;
     	       
     private static transient volatile Integer STARRED_CUR_NUM_LOWER_HOUSE = 0;
     private static transient volatile Integer STARRED_CUR_NUM_UPPER_HOUSE = 0;
@@ -2118,6 +2124,9 @@ public class Question extends Device implements Serializable {
             draft.setAnswer(this.getAnswer());
             draft.setRemarks(this.getRemarks());
             
+            draft.setMlsBranchNotifiedOfTransfer(this.getMlsBranchNotifiedOfTransfer());
+            draft.setTransferToDepartmentAccepted(this.getTransferToDepartmentAccepted());
+            
             draft.setParent(this.getParent());
             draft.setClubbedEntities(this.getClubbedEntities());
             draft.setReferencedEntities(this.getReferencedEntities());
@@ -2237,6 +2246,7 @@ public class Question extends Device implements Serializable {
 		}
 
 
+
 	private void addUnstarredQuestionDraft() {
 		if(! this.getStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_INCOMPLETE) &&
         		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_COMPLETE)) {
@@ -2245,6 +2255,9 @@ public class Question extends Device implements Serializable {
             draft.setAnsweringDate(this.getAnsweringDate());
             draft.setAnswer(this.getAnswer());
             draft.setRemarks(this.getRemarks());
+            
+            draft.setMlsBranchNotifiedOfTransfer(this.getMlsBranchNotifiedOfTransfer());
+            draft.setTransferToDepartmentAccepted(this.getTransferToDepartmentAccepted());
             
             draft.setParent(this.getParent());
             draft.setClubbedEntities(this.getClubbedEntities());
@@ -2320,6 +2333,9 @@ public class Question extends Device implements Serializable {
             draft.setAnsweringDate(this.getAnsweringDate());
             draft.setAnswer(this.getAnswer());
             draft.setRemarks(this.getRemarks());
+            
+            draft.setMlsBranchNotifiedOfTransfer(this.getMlsBranchNotifiedOfTransfer());
+            draft.setTransferToDepartmentAccepted(this.getTransferToDepartmentAccepted());
             
             draft.setParent(this.getParent());
             draft.setClubbedEntities(this.getClubbedEntities());
@@ -3524,6 +3540,26 @@ public class Question extends Device implements Serializable {
 		return answeringAttemptsByDepartment;
 	}
 	
+	public Boolean getTransferToDepartmentAccepted() {
+		return transferToDepartmentAccepted;
+	}
+
+
+	public void setTransferToDepartmentAccepted(Boolean transferToDepartmentAccepted) {
+		this.transferToDepartmentAccepted = transferToDepartmentAccepted;
+	}
+
+
+	public Boolean getMlsBranchNotifiedOfTransfer() {
+		return mlsBranchNotifiedOfTransfer;
+	}
+
+
+	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
+		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
+	}
+
+
 	/****Starred atomic value ****/
 	public static void updateStarredCurrentNumberLowerHouse(Integer num){
 		synchronized (Question.STARRED_CUR_NUM_LOWER_HOUSE) {
@@ -9169,15 +9205,28 @@ public class Question extends Device implements Serializable {
 	    			String workflowType = wfDetails.getWorkflowType();
 	    			Integer assigneeLevel = 
 	    				Integer.parseInt(wfDetails.getAssigneeLevel());
+	    			String userGroupType = wfDetails.getAssigneeUserGroupType();
 	    			
 	    			WorkflowDetails.endProcess(wfDetails);
-	    			
+	    			question.removeExistingWorkflowAttributes();
+	    			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+	    				userGroupType = ApplicationConstants.DEPARTMENT;
+	    				assigneeLevel = assigneeLevel - 1;
+	    			}
 	    			/*
 	    			 * Start the workflow at Assistant (after Speaker) level.
 	    			 */
+	    			
+//	    			WorkflowDetails.startProcessAtGivenLevel(question, 
+//	    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+//	    					ApplicationConstants.ASSISTANT, assigneeLevel, 
+//	    					locale);
+	    			
+	    			//Question in Post final status and pre ballot state can be group changed by Department 
+	    			//as well as assistant of Secretariat
 	    			WorkflowDetails.startProcessAtGivenLevel(question, 
-	    					workflowType, internalStatus, 
-	    					ApplicationConstants.ASSISTANT, assigneeLevel, 
+	    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+	    					userGroupType, assigneeLevel, 
 	    					locale);
     			}
     		}/*
@@ -9302,6 +9351,7 @@ public class Question extends Device implements Serializable {
         			
     				String workflowType = null;
         			Integer assigneeLevel = null;
+        			String userGroupType = null;
         					
     				if(wfDetails != null){
 	        			// Before ending wfDetails process collect information
@@ -9309,6 +9359,7 @@ public class Question extends Device implements Serializable {
 	        			workflowType = wfDetails.getWorkflowType();
 	        			assigneeLevel = 
 	        				Integer.parseInt(wfDetails.getAssigneeLevel());
+	        			userGroupType = wfDetails.getAssigneeUserGroupType();
 	        			
 	        			WorkflowDetails.endProcess(wfDetails);
     				}
@@ -9341,13 +9392,25 @@ public class Question extends Device implements Serializable {
     			     */
         			Chart.groupChange(question, fromGroup, true);
         			
-    				/*
-    				 * Start the workflow at Assistant (after Speaker) level.
-    				 */
-        			WorkflowDetails.startProcessAtGivenLevel(question, 
-        					workflowType, internalStatus, 
-        					ApplicationConstants.ASSISTANT, assigneeLevel, 
-        					locale);
+        			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+	    				userGroupType = ApplicationConstants.DEPARTMENT;
+	    				assigneeLevel = assigneeLevel - 1;
+	    			}
+	    			/*
+	    			 * Start the workflow at Assistant (after Speaker) level.
+	    			 */
+	    			
+//	    			WorkflowDetails.startProcessAtGivenLevel(question, 
+//	    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+//	    					ApplicationConstants.ASSISTANT, assigneeLevel, 
+//	    					locale);
+	    			
+	    			//Question in Post final status and pre ballot state can be group changed by Department 
+	    			//as well as assistant of Secretariat
+	    			WorkflowDetails.startProcessAtGivenLevel(question, 
+	    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+	    					userGroupType, assigneeLevel, 
+	    					locale);
     			    
     			}
     			else if(qnState == 
@@ -12628,4 +12691,426 @@ public class Question extends Device implements Serializable {
 		}
 		this.simpleMerge();
     }
+    
+    
+    public static void onSubdepartmentChange(final Question question,
+    		final SubDepartment subdepartment) throws ELSException {
+    	DeviceType deviceType = question.getType();
+    	String deviceTypeType = deviceType.getType();
+    	
+    	if(deviceTypeType.equals(
+    			ApplicationConstants.STARRED_QUESTION)) {
+    		Question.onStarredSubdepartmentChange(question, subdepartment);
+    	}
+    	else if(deviceTypeType.equals(
+    			ApplicationConstants.UNSTARRED_QUESTION)) {
+    		Question.onUnstarredSubdepartmentChange(question, subdepartment);
+    	}
+    	else if(deviceTypeType.equals(
+    			ApplicationConstants.SHORT_NOTICE_QUESTION)) {
+    		Question.onShortSubdepartmentChange(question, subdepartment);
+    	}
+    	else if(deviceTypeType.equals(
+    			ApplicationConstants
+    				.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+    		Question.onHalfHourSubdepartmentChange(question, subdepartment);
+    	}
+    	else {
+    		throw new ELSException("Question.onGroupChange/2", 
+    				"Method invoked for inappropriate device type.");
+    	}
+    }
+
+
+	private static void onHalfHourSubdepartmentChange(Question question,
+			SubDepartment subdepartment2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private static void onShortSubdepartmentChange(Question question,
+			SubDepartment subdepartment2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private static void onUnstarredSubdepartmentChange(Question question,
+			SubDepartment subdepartment2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private static void onStarredSubdepartmentChange(Question question,
+			SubDepartment subdepartment) throws ELSException {
+		String locale = question.getLocale();
+		CLUBBING_STATE clubbingState = Question.findClubbingState(question);
+    	STARRED_STATE qnState = Question.findStarredState(question);
+    	
+    	if(clubbingState == CLUBBING_STATE.CLUBBED) {
+    		throw new ELSException("Question.onStarredGroupChangeLH/2", 
+    				"Clubbed Question's group cannot be changed." +
+    				" Unclub the question and then change the group.");
+    	}
+    	else if(clubbingState == CLUBBING_STATE.STANDALONE) {
+    		if(qnState == STARRED_STATE.PRE_CHART || qnState == STARRED_STATE.ON_CHART) {
+    					question.setRecommendationStatus(question.getInternalStatus());
+    		 			question.merge();
+    		}else if(qnState == STARRED_STATE.IN_WORKFLOW_AND_PRE_FINAL || qnState == STARRED_STATE.POST_FINAL_AND_PRE_BALLOT) {
+    			WorkflowDetails wfDetails = 
+    				WorkflowDetails.findCurrentWorkflowDetail(question);
+    			question.removeExistingWorkflowAttributes();
+    			question.setRecommendationStatus(question.getInternalStatus());
+    			question.merge();
+    			if(wfDetails != null){
+	    			// Before ending wfDetails process collect information
+	    			// which will be useful for creating a new process later.
+	    			String workflowType = wfDetails.getWorkflowType();
+	    			Integer assigneeLevel = 
+	    				Integer.parseInt(wfDetails.getAssigneeLevel());
+	    			String userGroupType = wfDetails.getAssigneeUserGroupType();
+	    			
+	    			WorkflowDetails.endProcess(wfDetails);
+	    			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+	    				userGroupType = ApplicationConstants.DEPARTMENT;
+	    				assigneeLevel = assigneeLevel - 1;
+	    			}
+	    			  			
+	    			//Question in Post final status and pre ballot state can be group changed by Department 
+	    			//as well as assistant of Secretariat
+	    			WorkflowDetails.startProcessAtGivenLevel(question, 
+	    					ApplicationConstants.APPROVAL_WORKFLOW, question.getInternalStatus(), 
+	    					userGroupType, assigneeLevel, 
+	    					locale);
+    			}
+    		}/*
+    		 * else if qnState == QUESTION_STATE.POST_BALLOT_AND_PRE_YAADI_LAID
+    		 * then reset the group to its previous group number.
+    		 */
+    		else if(qnState == STARRED_STATE.POST_BALLOT_AND_PRE_YAADI_LAID){
+    			// TODO
+    		}
+    		
+    	}
+    	else { // clubbingState == CLUBBING_STATE.PARENT
+    		boolean isHavingIllegalChild = 
+    			Question.isHavingIllegalChild(question);
+    		if(isHavingIllegalChild) {
+    			throw new ELSException("Question.onStarredGroupChangeLH/2", 
+        				"Question has clubbings which are still in the" +
+        				" approval workflow. Group change is not allowed" +
+        				" in such an inconsistent state.");
+    		}
+    		else {
+    			if(qnState == STARRED_STATE.ON_CHART) {
+    				List<Question> clubbings = Question.findClubbings(question);
+    				
+    				// Unclub all the Questions
+        			for(Question child : clubbings) {
+        				Question.unclub(question, child, locale);
+        			}
+        			question.setRecommendationStatus(question.getInternalStatus());
+    				question.merge();
+        			
+        			Group group = question.getGroup();
+        			Ministry ministry = question.getMinistry();
+        			SubDepartment subDepartment = question.getSubDepartment();
+        			for(Question kid : clubbings) {
+        				kid.setGroup(group);
+        				kid.setMinistry(ministry);
+        				kid.setSubDepartment(subDepartment);
+        				kid.merge();
+        			}
+       			}
+    			else if(qnState == STARRED_STATE.IN_WORKFLOW_AND_PRE_FINAL) {
+    				/*
+    				 * Stop the question's workflow
+    				 */
+    				WorkflowDetails wfDetails = 
+        				WorkflowDetails.findCurrentWorkflowDetail(question);
+        			WorkflowDetails.endProcess(wfDetails);
+        			question.removeExistingWorkflowAttributes();
+    				
+        			List<Question> clubbings = Question.findClubbings(question);
+        			
+        			/*
+    				 * Unclub all the Questions
+    				 */
+        			for(Question child : clubbings) {
+        				Question.unclub(question, child, locale);
+        			}
+        			question.setRecommendationStatus(question.getInternalStatus());
+        			question.merge();
+      			
+        			Group group = question.getGroup();
+        			Ministry ministry = question.getMinistry();
+        			SubDepartment subDepartment = question.getSubDepartment();
+        			for(Question kid : clubbings) {
+        				kid.setGroup(group);
+        				kid.setMinistry(ministry);
+        				kid.setSubDepartment(subDepartment);
+        				kid.merge();
+        			}
+    			}
+    			else if(qnState == STARRED_STATE.POST_FINAL_AND_PRE_BALLOT) {
+    				/*
+    				 * Stop the question's workflow
+    				 */
+    				WorkflowDetails wfDetails = 
+        				WorkflowDetails.findCurrentWorkflowDetail(question);
+        			
+    				String workflowType = null;
+        			Integer assigneeLevel = null;
+        			String userGroupType = null;
+        					
+    				if(wfDetails != null){
+	        			// Before ending wfDetails process collect information
+	        			// which will be useful for creating a new process later.
+	        			workflowType = wfDetails.getWorkflowType();
+	        			assigneeLevel = 
+	        				Integer.parseInt(wfDetails.getAssigneeLevel());
+	        			userGroupType = wfDetails.getAssigneeUserGroupType();
+	        			WorkflowDetails.endProcess(wfDetails);
+    				}
+    				question.setRecommendationStatus(question.getInternalStatus());
+        			question.removeExistingWorkflowAttributes();
+    			   	question.merge();
+        			
+        			Ministry ministry = question.getMinistry();
+        			SubDepartment subDepartment = question.getSubDepartment();
+        			
+        			List<Question> clubbings = Question.findClubbings(question);
+        			for(Question kid : clubbings) {
+        				kid.setMinistry(ministry);
+        				kid.setSubDepartment(subDepartment);
+            			kid.merge();
+        			}
+        				  
+        			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+	    				userGroupType = ApplicationConstants.DEPARTMENT;
+	    				assigneeLevel = assigneeLevel - 1;
+	    			}
+	    			  			
+	    			//Question in Post final status and pre ballot state can be group changed by Department 
+	    			//as well as assistant of Secretariat
+	    			WorkflowDetails.startProcessAtGivenLevel(question, 
+	    					ApplicationConstants.APPROVAL_WORKFLOW, question.getInternalStatus(), 
+	    					userGroupType, assigneeLevel, 
+	    					locale);
+    			}
+    			else if(qnState == 
+    				STARRED_STATE.POST_BALLOT_AND_PRE_YAADI_LAID) {
+    				//TODOs
+    			}
+    		}
+    	}
+	}
+
+
+	public static void onMinistryChange(Question question, Ministry prevMinistry) throws ELSException {
+		DeviceType deviceType = question.getType();
+    	String deviceTypeType = deviceType.getType();
+    	
+    	if(deviceTypeType.equals(
+    			ApplicationConstants.STARRED_QUESTION)) {
+    		Question.onStarredMinistryChange(question, prevMinistry);
+    	}
+    	else if(deviceTypeType.equals(
+    			ApplicationConstants.UNSTARRED_QUESTION)) {
+    		Question.onUnstarredMinistryChange(question, prevMinistry);
+    	}
+    	else if(deviceTypeType.equals(
+    			ApplicationConstants.SHORT_NOTICE_QUESTION)) {
+    		Question.onShortNoticeMinistryChange(question, prevMinistry);
+    	}
+    	else if(deviceTypeType.equals(
+    			ApplicationConstants
+    				.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+    		Question.onHalfHourMinistryChange(question, prevMinistry);
+    	}
+    	else {
+    		throw new ELSException("Question.onMinistryChange/2", 
+    				"Method invoked for inappropriate device type.");
+    	}
+		
+	}
+
+
+	private static void onHalfHourMinistryChange(Question question,
+			Ministry prevMinistry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private static void onShortNoticeMinistryChange(Question question,
+			Ministry prevMinistry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private static void onUnstarredMinistryChange(Question question,
+			Ministry prevMinistry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private static void onStarredMinistryChange(Question question,
+			Ministry prevMinistry) throws ELSException {
+		String locale = question.getLocale();
+		CLUBBING_STATE clubbingState = Question.findClubbingState(question);
+    	STARRED_STATE qnState = Question.findStarredState(question);
+    	
+    	if(clubbingState == CLUBBING_STATE.CLUBBED) {
+    		throw new ELSException("Question.onStarredGroupChangeLH/2", 
+    				"Clubbed Question's group cannot be changed." +
+    				" Unclub the question and then change the group.");
+    	}
+    	else if(clubbingState == CLUBBING_STATE.STANDALONE) {
+    		if(qnState == STARRED_STATE.PRE_CHART || qnState == STARRED_STATE.ON_CHART) {
+    			question.setRecommendationStatus(question.getInternalStatus());
+    		 	question.merge();
+    		}else if(qnState == STARRED_STATE.IN_WORKFLOW_AND_PRE_FINAL || qnState == STARRED_STATE.POST_FINAL_AND_PRE_BALLOT) {
+    			WorkflowDetails wfDetails = 
+    				WorkflowDetails.findCurrentWorkflowDetail(question);
+    			question.removeExistingWorkflowAttributes();
+    			question.setRecommendationStatus(question.getInternalStatus());
+    			question.merge();
+    			if(wfDetails != null){
+	    			// Before ending wfDetails process collect information
+	    			// which will be useful for creating a new process later.
+	    			String workflowType = wfDetails.getWorkflowType();
+	    			Integer assigneeLevel = 
+	    				Integer.parseInt(wfDetails.getAssigneeLevel());
+	    			String userGroupType = wfDetails.getAssigneeUserGroupType();
+	    			WorkflowDetails.endProcess(wfDetails);
+	    			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+	    				userGroupType = ApplicationConstants.DEPARTMENT;
+	    				assigneeLevel = assigneeLevel - 1;
+	    			}
+	    			//Question in Post final status and pre ballot state can be group changed by Department 
+	    			//as well as assistant of Secretariat
+	    			WorkflowDetails.startProcessAtGivenLevel(question, 
+	    					ApplicationConstants.APPROVAL_WORKFLOW, question.getInternalStatus(), 
+	    					userGroupType, assigneeLevel, 
+	    					locale);
+    			}
+    		}/*
+    		 * else if qnState == QUESTION_STATE.POST_BALLOT_AND_PRE_YAADI_LAID
+    		 * then reset the group to its previous group number.
+    		 */
+    		else if(qnState == STARRED_STATE.POST_BALLOT_AND_PRE_YAADI_LAID){
+    			// TODO
+    		}
+    		
+    	}
+    	else { // clubbingState == CLUBBING_STATE.PARENT
+    		boolean isHavingIllegalChild = 
+    			Question.isHavingIllegalChild(question);
+    		if(isHavingIllegalChild) {
+    			throw new ELSException("Question.onStarredMinistryChangeLH/2", 
+        				"Question has clubbings which are still in the" +
+        				" approval workflow. Group change is not allowed" +
+        				" in such an inconsistent state.");
+    		}
+    		else {
+    			if(qnState == STARRED_STATE.ON_CHART) {
+    				List<Question> clubbings = Question.findClubbings(question);
+    				// Unclub all the Questions
+        			for(Question child : clubbings) {
+        				Question.unclub(question, child, locale);
+        			}
+        			question.setRecommendationStatus(question.getInternalStatus());
+    				question.merge();
+        			Ministry ministry = question.getMinistry();
+        			SubDepartment subDepartment = question.getSubDepartment();
+        			for(Question kid : clubbings) {
+        				kid.setMinistry(ministry);
+        				kid.setSubDepartment(subDepartment);
+        				kid.merge();
+        			}
+       			}
+    			else if(qnState == STARRED_STATE.IN_WORKFLOW_AND_PRE_FINAL) {
+    				/*
+    				 * Stop the question's workflow
+    				 */
+    				WorkflowDetails wfDetails = 
+        				WorkflowDetails.findCurrentWorkflowDetail(question);
+        			WorkflowDetails.endProcess(wfDetails);
+        			question.removeExistingWorkflowAttributes();
+    				List<Question> clubbings = Question.findClubbings(question);
+        			/*
+    				 * Unclub all the Questions
+    				 */
+        			for(Question child : clubbings) {
+        				Question.unclub(question, child, locale);
+        			}
+        			question.setRecommendationStatus(question.getInternalStatus());
+        			question.merge();
+      				Ministry ministry = question.getMinistry();
+        			SubDepartment subDepartment = question.getSubDepartment();
+        			for(Question kid : clubbings) {
+        				kid.setMinistry(ministry);
+        				kid.setSubDepartment(subDepartment);
+        				kid.merge();
+        			}
+    			}
+    			else if(qnState == STARRED_STATE.POST_FINAL_AND_PRE_BALLOT) {
+    				/*
+    				 * Stop the question's workflow
+    				 */
+    				WorkflowDetails wfDetails = 
+        				WorkflowDetails.findCurrentWorkflowDetail(question);
+        			
+    				String workflowType = null;
+        			Integer assigneeLevel = null;
+        			String userGroupType = null;
+        					
+    				if(wfDetails != null){
+	        			// Before ending wfDetails process collect information
+	        			// which will be useful for creating a new process later.
+	        			workflowType = wfDetails.getWorkflowType();
+	        			assigneeLevel = 
+	        				Integer.parseInt(wfDetails.getAssigneeLevel());
+	        			userGroupType = wfDetails.getAssigneeUserGroupType();
+	        			WorkflowDetails.endProcess(wfDetails);
+    				}
+        			question.removeExistingWorkflowAttributes();
+        			question.setRecommendationStatus(question.getInternalStatus());
+    			   	question.merge();
+        			
+        			Ministry ministry = question.getMinistry();
+        			SubDepartment subDepartment = question.getSubDepartment();
+        			
+        			List<Question> clubbings = Question.findClubbings(question);
+        			for(Question kid : clubbings) {
+        				kid.setMinistry(ministry);
+        				kid.setSubDepartment(subDepartment);
+            			kid.merge();
+        			}
+        				  
+        			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+	    				userGroupType = ApplicationConstants.DEPARTMENT;
+	    				assigneeLevel = assigneeLevel - 1;
+	    			}
+	    			  			
+	    			//Question in Post final status and pre ballot state can be group changed by Department 
+	    			//as well as assistant of Secretariat
+	    			WorkflowDetails.startProcessAtGivenLevel(question, 
+	    					ApplicationConstants.APPROVAL_WORKFLOW, question.getInternalStatus(), 
+	    					userGroupType, assigneeLevel, 
+	    					locale);
+    			}
+    			else if(qnState == 
+    				STARRED_STATE.POST_BALLOT_AND_PRE_YAADI_LAID) {
+    				//TODOs
+    			}
+    		}
+    	}
+		
+	}
 }

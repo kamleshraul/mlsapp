@@ -1402,9 +1402,14 @@ public class ApplicationConstants {
 	public static String QUESTION_PROCESSED_SENDTODESKOFFICER = "question_processed_sendToDeskOfficer";
 	
 	public static String DEPUTY_SECRETARY = "deputy_secretary";
+	
 	public static String QUESTION_FINAL_REANSWER = "question_final_reanswer";
+	
 	public static String RESOLUTION_PROCESSED_PASSED = "resolution_processed_passed";
 	
+	public static String USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_PREFINAL_STATUS = "USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_PREFINAL_STATUS";
+	
+	public static String USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_POSTFINAL_STATUS = "USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_POSTFINAL_STATUS";
 	
 	public static final String PANEL_CHAIRMAN = "PANEL_CHAIRMAN";
 	

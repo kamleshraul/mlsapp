@@ -144,6 +144,10 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     @Column(length=30000)
     private String briefExplanation;
 
+    /**** Fields for storing the confirmation of Group change ****/
+    private Boolean transferToDepartmentAccepted = false;
+    
+    private Boolean mlsBranchNotifiedOfTransfer = false;
     
     /**** Constructors ****/
 
@@ -488,5 +492,26 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 		return parent;
 	}
 
+
+	public Boolean getTransferToDepartmentAccepted() {
+		return transferToDepartmentAccepted;
+	}
+
+
+	public void setTransferToDepartmentAccepted(Boolean transferToDepartmentAccepted) {
+		this.transferToDepartmentAccepted = transferToDepartmentAccepted;
+	}
+
+
+	public Boolean getMlsBranchNotifiedOfTransfer() {
+		return mlsBranchNotifiedOfTransfer;
+	}
+
+
+	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
+		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
+	}
+
+	
 	
 }

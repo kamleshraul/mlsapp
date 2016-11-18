@@ -453,6 +453,9 @@
 		});
 	}
 	$(document).ready(function(){
+		$('#mlsBranchNotifiedOfTransfer').val(null);
+		$('#transferToDepartmentAccepted').val(null);
+		
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -1421,6 +1424,8 @@
 	<form:hidden path="level"/>
 	<form:hidden path="localizedActorName"/>
 	<form:hidden path="workflowDetailsId"/>
+	<form:hidden path="transferToDepartmentAccepted"/>
+	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		
 	</c:if>
@@ -1485,5 +1490,6 @@
 
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 <input type="hidden" id="revisedDraftLevel" name="revisedDraftLevel" value="${revisedDraftInitialLevel}"/>
+<input type="hidden" id="pleaseSelectMsg" value="<spring:message code='please.select' text='Please Select'/>"/>
 </body>
 </html>

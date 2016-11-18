@@ -117,11 +117,14 @@
 			var deviceTypeType = $('#selectedQuestionType').val();
 			var sendback = '';
 			var discuss = '';
+			var sendToDeskOfficer = '';
 			if(deviceTypeType == 'questions_starred') {
 				sendback = 
 					$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
 			    discuss = 
-			    	$("#internalStatusMaster option[value='question_recommend_discuss']").text();		
+			    	$("#internalStatusMaster option[value='question_recommend_discuss']").text();	
+			    sendToDeskOfficer = 
+			    	$("#internalStatusMaster option[value='question_processed_sendToDeskOfficer']").text();
 			} else if(deviceTypeType == 'questions_unstarred') {
 				sendback = 
 					$("#internalStatusMaster option[value='question_unstarred_recommend_sendback']").text();			
@@ -138,9 +141,15 @@
 			    discuss = 
 			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_discuss']").text();		
 			}
-			//console.log(sendback + "=" + discuss);
+			var valueToSend = "";
+			var changedInternalStatus = $("#changeInternalStatus").val();
+			if(changedInternalStatus == sendToDeskOfficer ) {
+				valueToSend = $("#internalStatus").val();
+			}else{
+				valueToSend = value;
+			} 
 			var params="question=" + $("#id").val()
-			+ "&status=" + value 
+			+ "&status=" + valueToSend 
 			+ "&usergroup=" + $("#usergroup").val()
 			+ "&level=" + $("#originalLevel").val();
 			var resourceURL='ref/question/actors?'+params;
@@ -153,21 +162,25 @@
 				$("#actor").empty();
 				var text="";
 				for(var i=0;i<data.length;i++){
-					var ugt = data[i].id.split("#")[1];
-					if(ugt!='member' && data[i].state!='active'){
-						text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name + "</option>";
-					}else{
-						text += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";	
-						if(actCount == 1){
-							actor1=data[i].id;
-							actCount++;
+					var act = data[i].id;
+					if(act.indexOf("section_officer") < 0){
+						var ugtActor = data[i].id.split("#")
+						var ugt = ugtActor[1];
+						if(ugt!='member' && data[i].state!='active'){
+							text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+						}else{
+							text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+							if(actCount == 1){
+								actor1=data[i].id;
+								actCount++;
+							}
 						}
-					}
+					}					
 				}
 				$("#actor").html(text);
-				$("#actorDiv").hide();				
+				//$("#actorDiv").hide();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value != sendback && value != discuss){
+				if(value != sendback && value != discuss && value != sendToDeskOfficer){
 					$("#internalStatus").val(value);
 				}
 				$("#recommendationStatus").val(value);	
@@ -180,7 +193,7 @@
 				$("#actor").empty();
 				$("#actorDiv").hide();
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value != sendback && value != discuss){
+				if(value != sendback && value != discuss && value != sendToDeskOfficer){
 					$("#internalStatus").val(value);
 				}
 			    $("#recommendationStatus").val(value);
@@ -195,7 +208,8 @@
 	}
 	/**** group changed ****/
 	function groupChanged(){
-		var newgroup = $("#group").val();
+		var newgroup=$("#group").val();
+		var groupChanged = '';
 		var deviceTypeType = $('#selectedQuestionType').val();
 		if(deviceTypeType == 'questions_starred') {
 			 groupChanged = $("#internalStatusMaster option[value='question_system_groupchanged']").text();
@@ -207,48 +221,49 @@
 			 groupChanged = 
 				 $("#internalStatusMaster option[value='question_halfHourFromQuestion_system_groupchanged']").text();
 		}
-		if(newgroup == ''){
-		    $("#changeInternalStatus").val("-");
+		if(newgroup==''){
+		   	$("#changeInternalStatus").val("-");
 		    $("#changeInternalStatus option").show();			    
-		    $("#changeInternalStatus option[value=']" + groupChanged + "'").hide();
+		    $("#changeInternalStatus option[value=']"+groupChanged+"'").hide();
 		    $("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 		    $.prompt($("#ministryEmptyMsg").val());
 		    return false;
 		}
 	    var oldgroup=$("#oldgroup").val();
-		    if(oldgroup != newgroup){
-			    $("#changeInternalStatus").val(newStatus);
+		    if(oldgroup!=newgroup){
+			  //  $("#changeInternalStatus").val(newStatus);
 			    $("#changeInternalStatus option").hide();			    
-			    $("#changeInternalStatus option[value=']" + groupChanged + "'").show();
+			    $("#changeInternalStatus option[value=']"+groupChanged+"'").show();
 			    $("#internalStatus").val(groupChanged);
 			    $("#recommendationStatus").val(groupChanged);
 		    }else{
 		    	$("#changeInternalStatus").val("-");
 			    $("#changeInternalStatus option").show();			    
-			    $("#changeInternalStatus option[value=']" + groupChanged + "'").hide();
+			    $("#changeInternalStatus option[value=']"+groupChanged+"'").hide();
 			    $("#internalStatus").val($("#oldInternalStatus").val());
 			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());			    
 		    }  
 		    return false;  
 	}
 	/**** sub departments ****/
-	function loadSubDepartments(ministry,department){
-		$.get('ref/ministry/subdepartments?ministry=' + ministry+ '&session='+$('#session').val(),function(data){
+	function loadSubDepartments(ministry){
+		
+		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
+				function(data){
 			$("#subDepartment").empty();
-			var subDepartmentText = "<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
-			if(data.length > 0){
-			for(var i=0 ; i < data.length ; i++){
-				subDepartmentText += "<option value='" + data[i].id + "'>" +data[i].name;
+			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";
+			if(data.length>0){
+			for(var i=0;i<data.length;i++){
+				subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
 			}
 			$("#subDepartment").html(subDepartmentText);			
 			}else{
 				$("#subDepartment").empty();
-				var subDepartmentText = "<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
+				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMsg").val()+"----</option>";				
 				$("#subDepartment").html(subDepartmentText);				
 			}
 		}).fail(function(){
-			$.unblockUI();
 			if($("#ErrorMsg").val()!=''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 			}else{
@@ -259,15 +274,13 @@
 	}
 	
     /**** groups ****/
-	function loadGroup(ministry){
-		if(ministry!=''){
-		$.get('ref/ministry/' + ministry + '/group?houseType=' + $("#houseType").val()
-				+ '&sessionYear=' + $("#sessionYear").val() 
-				+ '&sessionType=' + $("#sessionType").val(),function(data){
-			$("#formattedGroup").val(data.name);
-			$("#group").val(data.id);
-			loadDepartments(ministry);			
-		}).fail(function(){
+	function loadGroup(subdepartment){
+		if(subdepartment!=''){
+			$.get('ref/subdepartment/' + subdepartment + '/group?'+
+					'session=' + $("#session").val(),function(data){
+				$("#formattedGroup").val(data.name);
+				$("#group").val(data.id);			
+			}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 			}else{
@@ -304,15 +317,18 @@
 	}
 	$(document).ready(function(){
 		loadActors($("#changeInternalStatus").val());
-		
+
+		$('#mlsBranchNotifiedOfTransfer').val(null);
+		$('#transferToDepartmentAccepted').val(null);
 		/*******Actor changes*************/
 		$("#actor").change(function(){
-		    var actor = $(this).val();
-		    var temp = actor.split("#");
+		    var actor=$(this).val();
+		    var temp=actor.split("#");
 		    $("#level").val(temp[2]);		    
-		    $("#localizedActorName").val(temp[3] + "(" + temp[4] + ")");
+		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+		    $("#actorName").val(temp[4]);
+		    $("#actorName").css('display','inline');
 	    });
-		
 		/**** Back To Question ****/
 		$("#backToQuestion").click(function(){
 			$("#clubbingResultDiv").hide();
@@ -325,15 +341,18 @@
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
 			if($(this).val()!=''){
-				loadGroup($(this).val());
+				$("#formattedGroup").val("");
+				$("#group").val("");
+				loadSubDepartments($(this).val());
 			}else{
 				$("#formattedGroup").val("");
 				$("#group").val("");				
+				$("#department").empty();				
 				$("#subDepartment").empty();				
 				$("#answeringDate").empty();		
 				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-				groupChanged();					
+				//groupChanged();					
 			}
 		});
 		
@@ -372,6 +391,9 @@
 			return false;			
 		});	
 		
+		$('#subDepartment').change(function(){
+			loadGroup($(this).val());
+		});
 		
 		/**** Revise reason and brief explanation****/
 		$("#reviseReason").click(function(){
@@ -627,8 +649,8 @@
 			}
 		});
 		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
-		$("#ministry option[selected!='selected']").hide();
-		$("#subDepartment option[selected!='selected']").hide();
+		/* $("#ministry option[selected!='selected']").hide();
+		$("#subDepartment option[selected!='selected']").hide(); */
 		//**** Load Actors On page Load ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
 			var statusType = $("#internalStatusType").val().split("_");
@@ -743,6 +765,8 @@
 				}
 			}
 		});
+		
+		
 	});
 	
 	function resendAnswer(){
@@ -841,10 +865,12 @@
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_starred'}">
-		<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
-		<input name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
-		<input name="priority" id="priority"  type="hidden" value="${priority }">	
-		<form:errors path="priority" cssClass="validationError"/>
+		<div id="priorityDiv" style="display:none;"> 
+			<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
+			<input name="formattedPriority" id="formattedPriority" class="sText" type="text" value="${formattedPriority }" readonly="readonly">
+			<input name="priority" id="priority"  type="hidden" value="${priority }">	
+			<form:errors path="priority" cssClass="validationError"/>
+		</div>
 	</c:if>
 	</p>
 	
@@ -867,11 +893,12 @@
 	</p>
 	</c:if>
 	
-	<p>		
-	<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
-	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
-	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
-	
+	<p>
+	<div id="submissionDateDiv" style="display:none;">		
+		<label class="small"><spring:message code="question.submissionDate" text="Submitted On"/></label>
+		<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+		<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
+	</div>
 	<c:if test="${selectedQuestionType=='questions_starred'}">
 		<c:if test="${not (formattedAnsweringDate==null and (empty formattedAnsweringDate))}">
 		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
@@ -963,7 +990,7 @@
 		</c:if>	
 	</p>
 	
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="question.primaryMemberConstituency" text="Constituency"/>*</label>
 		<input type="text" readonly="readonly" value="${constituency}" class="sText">
 		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;display:none;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
@@ -1004,13 +1031,25 @@
 		<c:choose>
 			<c:when test="${!(empty referencedQuestions) }">
 				<c:forEach items="${referencedQuestions }" var="i">
-					<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+					<c:choose>
+						<c:when test="${i.state=='questions_unstarred'}">
+							<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;">
+								${i.name}, <spring:message code='device.unstarred' text='Unstarred'/> ${i.remark}
+							</a>
+						</c:when>
+						<c:otherwise>
+							<a href="#" id="rq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;">
+								${i.name}, ${i.remark}
+							</a>
+						</c:otherwise>
+					</c:choose>
 				</c:forEach>
 			</c:when>
 			<c:otherwise>
 				<c:out value="-"></c:out>
 			</c:otherwise>
 		</c:choose>
+
 		<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
 			<c:forEach items="${referencedQuestions }" var="i">
 				<option value="${i.id}" selected="selected"></option>
@@ -1118,13 +1157,13 @@
 	<form:errors path="revisedBriefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
-	<p id="internalStatusDiv">
+	<p id="internalStatusDiv" >
 	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
 	<c:if test="${workflowstatus!='COMPLETED' or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}">	
-		<p style="display: none;">
+		<p style="display:none;">
 		<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 		<select id="changeInternalStatus" class="sSelect">
 			<c:forEach items="${internalStatuses}" var="i">
@@ -1154,7 +1193,7 @@
 		<form:errors path="internalStatus" cssClass="validationError"/>	
 		</p>
 		
-		<p id="actorDiv" style="display:none;">
+		<p id="actorDiv">
 		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
 		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
 		</p>	
@@ -1192,7 +1231,7 @@
 						 internalStatusType != 'question_unstarred_final_clarificationNeededFromDepartment' and
 						 internalStatusType != 'question_shortnotice_final_clarificationNeededFromDepartment' and
 						 internalStatusType != 'question_halfHourFromQuestion_final_clarificationNeededFromDepartment'}">
-				<p>
+				<p style="display:none;">
 					<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 					<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
 					<form:errors path="answer" cssClass="validationError"></form:errors>
@@ -1240,7 +1279,7 @@
 		<h2></h2>
 		<p class="tright">
 			<%-- <c:if test="${currTimeMillis <= sendbacktimelimit}"> --%>
-				<input id="sendBack" type="button" value="<spring:message code='question.sendback' text='Send Back'/>" class="butDef">
+				<input id="sendBack" type="button" value="<spring:message code='question.sendback' text='Send Back'/>" class="butDef" style="display:none;">
 			<%-- </c:if> --%>
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</p>
@@ -1268,6 +1307,8 @@
 	<form:hidden path="level"/>
 	<form:hidden path="localizedActorName"/>
 	<form:hidden path="workflowDetailsId"/>
+	<form:hidden path="transferToDepartmentAccepted"/>
+	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		
 	</c:if>
