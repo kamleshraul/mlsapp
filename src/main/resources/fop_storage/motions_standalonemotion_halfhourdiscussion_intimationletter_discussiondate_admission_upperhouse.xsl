@@ -82,7 +82,7 @@
 								<xsl:when test="houseType='lowerhouse'">वि.स.स. यांनी महाराष्ट्र विधानसभा नियम ९२ (१) अन्वयेर</xsl:when>
 								<xsl:when test="houseType='upperhouse'">वि.प.स. यांनी महाराष्ट्र विधानपरिषद नियम ९२, अनुसार</xsl:when>
 							</xsl:choose>
-							दिलेली सूचना (अर्धा-तास चर्चेची सूचना) पुढीलप्रमाणे आहे :-							
+							दिलेली सूचना (अर्धा-तास चर्चेची सूचना <xsl:value-of select="number"/>) पुढीलप्रमाणे आहे :-							
 	            		</fo:block>  
 	            		<fo:block font-size="6px">&#160;</fo:block>    
 	            		<fo:block text-align="justify">
