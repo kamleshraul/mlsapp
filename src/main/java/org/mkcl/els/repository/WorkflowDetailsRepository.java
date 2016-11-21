@@ -176,8 +176,17 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						if(question.getChartAnsweringDate()!=null){
 							workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 						}
-						workflowDetails.setSubject(question.getSubject());
-						workflowDetails.setText(question.getQuestionText());
+						if(question.getRevisedSubject() != null && !question.getRevisedSubject().isEmpty()){
+							workflowDetails.setSubject(question.getRevisedSubject());
+						}else{
+							workflowDetails.setSubject(question.getSubject());
+						}
+						if(question.getRevisedQuestionText() != null && !question.getRevisedQuestionText().isEmpty()){
+							workflowDetails.setText(question.getRevisedQuestionText());
+						}else{
+							workflowDetails.setText(question.getQuestionText());
+						}
+						
 					}
 					workflowDetails.setProcessId(task.getProcessInstanceId());
 					workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -291,8 +300,16 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 							if(question.getChartAnsweringDate()!=null){
 								workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 							}
-							workflowDetails.setSubject(question.getSubject());
-							workflowDetails.setText(question.getQuestionText());
+							if(question.getRevisedSubject() != null && !question.getRevisedSubject().isEmpty()){
+								workflowDetails.setSubject(question.getRevisedSubject());
+							}else{
+								workflowDetails.setSubject(question.getSubject());
+							}
+							if(question.getRevisedQuestionText() != null && !question.getRevisedQuestionText().isEmpty()){
+								workflowDetails.setText(question.getRevisedQuestionText());
+							}else{
+								workflowDetails.setText(question.getQuestionText());
+							}
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
 						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -405,8 +422,16 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 										}
 										workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getSession().getYear()));
 									}
-									workflowDetails.setSubject(question.getSubject());
-									workflowDetails.setText(question.getQuestionText());
+									if(question.getRevisedSubject() != null && !question.getRevisedSubject().isEmpty()){
+										workflowDetails.setSubject(question.getRevisedSubject());
+									}else{
+										workflowDetails.setSubject(question.getSubject());
+									}
+									if(question.getRevisedQuestionText() != null && !question.getRevisedQuestionText().isEmpty()){
+										workflowDetails.setText(question.getRevisedQuestionText());
+									}else{
+										workflowDetails.setText(question.getQuestionText());
+									}
 								}
 								workflowDetails.setProcessId(i.getProcessInstanceId());
 								workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -2227,8 +2252,17 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 									}
 									workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getSession().getYear()));
 								}
-								workflowDetails.setSubject(domain.getSubject());
-								workflowDetails.setText(domain.getDetails());
+								if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+									workflowDetails.setSubject(domain.getRevisedSubject());
+								}else{
+									workflowDetails.setSubject(domain.getSubject());
+								}
+								if(domain.getRevisedDetails() != null && !domain.getRevisedDetails().isEmpty()){
+									workflowDetails.setText(domain.getRevisedDetails());
+								}else{
+									workflowDetails.setText(domain.getDetails());
+								}
+								
 								if(domain.getFile()!=null){
 									workflowDetails.setFile(String.valueOf(domain.getFile()));
 								}
@@ -2328,8 +2362,18 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getSession().getYear()));
 						}
-						workflowDetails.setSubject(domain.getSubject());
-						workflowDetails.setText(domain.getDetails());
+						
+						if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+							workflowDetails.setSubject(domain.getRevisedSubject());
+						}else{
+							workflowDetails.setSubject(domain.getSubject());
+						}
+						if((domain.getRevisedDetails() != null && !domain.getRevisedDetails().isEmpty())){
+							workflowDetails.setText(domain.getRevisedDetails());
+						}else{
+							workflowDetails.setText(domain.getDetails());
+						}
+						
 						if(domain.getFile()!=null){
 							workflowDetails.setFile(String.valueOf(domain.getFile()));
 						}
@@ -2626,9 +2670,18 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 									workflowDetails.setSessionType(motion.getSession().getType().getSessionType());
 								}
 								workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getSession().getYear()));
-							}							
-							workflowDetails.setSubject(motion.getSubject());
-							workflowDetails.setText(motion.getReason());
+							}	
+							if(motion.getRevisedSubject() != null && !motion.getRevisedSubject().isEmpty()){
+								workflowDetails.setSubject(motion.getRevisedSubject());
+							}else{
+								workflowDetails.setSubject(motion.getSubject());
+							}
+							if(motion.getReason() != null && !motion.getRevisedReason().isEmpty()){
+								workflowDetails.setText(motion.getRevisedReason());
+							}else{
+								workflowDetails.setText(motion.getReason());
+							}
+							
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
 						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -2753,8 +2806,17 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						if(motion.getFile() != null){
 							workflowDetails.setFile(motion.getFile().toString());
 						}
-						workflowDetails.setSubject(motion.getSubject());
-						workflowDetails.setText(motion.getReason());
+						if(motion.getRevisedSubject() != null && !motion.getRevisedSubject().isEmpty()){
+							workflowDetails.setSubject(motion.getRevisedSubject());
+						}else{
+							workflowDetails.setSubject(motion.getSubject());
+						}
+						if(motion.getRevisedReason() != null && !motion.getRevisedReason().isEmpty()){
+							workflowDetails.setText(motion.getRevisedReason());
+						}else{
+							workflowDetails.setText(motion.getReason());
+						}
+						
 					}
 					workflowDetails.setProcessId(task.getProcessInstanceId());
 					workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -2887,8 +2949,17 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								if(motion.getFile() != null){
 									workflowDetails.setFile(motion.getFile().toString());
 								}
-								workflowDetails.setSubject(motion.getSubject());								
-								workflowDetails.setText(motion.getReason());
+								if(motion.getRevisedSubject() != null && !motion.getRevisedSubject().isEmpty()){
+									workflowDetails.setSubject(motion.getRevisedSubject());
+								}else{
+									workflowDetails.setSubject(motion.getSubject());
+								}
+								
+								if(motion.getRevisedReason() != null && !motion.getRevisedReason().isEmpty()){
+									workflowDetails.setText(motion.getRevisedReason());
+								}else{
+									workflowDetails.setText(motion.getReason());
+								}
 							}
 							workflowDetails.setProcessId(i.getProcessInstanceId());
 							workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -3125,8 +3196,18 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							if(motion.getAnsweringDate()!=null){
 								workflowDetails.setAnsweringDate(motion.getAnsweringDate());
 							}
-							workflowDetails.setSubject(motion.getMainTitle());
-							workflowDetails.setText(motion.getNoticeContent());
+							
+							if(motion.getRevisedMainTitle() != null && !motion.getRevisedMainTitle().isEmpty()){
+								workflowDetails.setSubject(motion.getRevisedMainTitle());
+							}else{
+								workflowDetails.setSubject(motion.getMainTitle());
+							}
+							if(motion.getRevisedNoticeContent() != null && !motion.getRevisedNoticeContent().isEmpty()){
+								workflowDetails.setText(motion.getRevisedNoticeContent());
+							}else{
+								workflowDetails.setText(motion.getNoticeContent());
+							}
+							
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
 						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -3231,8 +3312,16 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							if(motion.getAnsweringDate()!=null){
 								workflowDetails.setAnsweringDate(motion.getAnsweringDate());
 							}
-							workflowDetails.setSubject(motion.getMainTitle());
-							workflowDetails.setText(motion.getNoticeContent());
+							if(motion.getRevisedMainTitle() != null && !motion.getRevisedMainTitle().isEmpty()){
+								workflowDetails.setSubject(motion.getRevisedMainTitle());
+							}else{
+								workflowDetails.setSubject(motion.getMainTitle());
+							}
+							if(motion.getRevisedNoticeContent() != null && !motion.getRevisedNoticeContent().isEmpty()){
+								workflowDetails.setText(motion.getRevisedNoticeContent());
+							}else{
+								workflowDetails.setText(motion.getNoticeContent());
+							}
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
 						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -3337,8 +3426,16 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 									}
 									workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getSession().getYear()));
 								}
-								workflowDetails.setSubject(domain.getMainTitle());
-								workflowDetails.setText(domain.getNoticeContent());
+								if(domain.getRevisedMainTitle() != null && !domain.getRevisedMainTitle().isEmpty()){
+									workflowDetails.setSubject(domain.getRevisedMainTitle());
+								}else{
+									workflowDetails.setSubject(domain.getMainTitle());
+								}
+								if(domain.getRevisedNoticeContent() != null && !domain.getRevisedNoticeContent().isEmpty()){
+									workflowDetails.setText(domain.getRevisedNoticeContent());
+								}else{
+									workflowDetails.setText(domain.getNoticeContent());
+								}
 								if(domain.getFile() != null){
 									workflowDetails.setFile(String.valueOf(domain.getFile()));
 								}
@@ -3531,8 +3628,17 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							if(motion.getDiscussionDate()!=null){
 								workflowDetails.setAnsweringDate(motion.getDiscussionDate());
 							}
-							workflowDetails.setSubject(motion.getEventTitle());
-							workflowDetails.setText(motion.getDescription());
+							if(motion.getRevisedEventTitle() != null && !motion.getRevisedEventTitle().isEmpty()){
+								workflowDetails.setSubject(motion.getRevisedEventTitle());
+							}else{
+								workflowDetails.setSubject(motion.getEventTitle());
+							}
+							if(motion.getRevisedDescription() != null && !motion.getRevisedDescription().isEmpty()){
+								workflowDetails.setText(motion.getRevisedDescription());
+							}else{
+								workflowDetails.setText(motion.getDescription());
+							}
+							
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
 						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -3649,8 +3755,16 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 									}
 									workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getSession().getYear()));
 								}
-								workflowDetails.setSubject(domain.getEventTitle());
-								workflowDetails.setText(domain.getDescription());
+								if(domain.getRevisedEventTitle() != null && !domain.getRevisedEventTitle().isEmpty()){
+									workflowDetails.setSubject(domain.getRevisedEventTitle());
+								}else{
+									workflowDetails.setSubject(domain.getEventTitle());
+								}
+								if(domain.getRevisedDescription() != null && !domain.getRevisedDescription().isEmpty()){
+									workflowDetails.setText(domain.getRevisedDescription());
+								}else{
+									workflowDetails.setText(domain.getDescription());
+								}
 								if(domain.getFile() != null){
 									workflowDetails.setFile(String.valueOf(domain.getFile()));
 								}
@@ -3767,8 +3881,17 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getSession().getYear()));
 						}
-						workflowDetails.setSubject(domain.getEventTitle());
-						workflowDetails.setText(domain.getDescription());
+						if(domain.getRevisedEventTitle() != null && !domain.getRevisedEventTitle().isEmpty()){
+							workflowDetails.setSubject(domain.getRevisedEventTitle());
+						}else{
+							workflowDetails.setSubject(domain.getEventTitle());
+						}
+						if(domain.getRevisedDescription() != null && !domain.getRevisedDescription().isEmpty()){
+							workflowDetails.setText(domain.getRevisedDescription());
+						}else{
+							workflowDetails.setText(domain.getDescription());
+						}
+						
 						if (domain.getFile() != null) {
 							workflowDetails.setFile(String.valueOf(domain.getFile()));
 						}
@@ -3974,8 +4097,17 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 									}
 									workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getSession().getYear()));
 								}
-								workflowDetails.setSubject(domain.getSubject());
-								workflowDetails.setText(domain.getNoticeContent());
+								if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+									workflowDetails.setSubject(domain.getRevisedSubject());
+								}else{
+									workflowDetails.setSubject(domain.getSubject());
+								}
+								if(domain.getRevisedNoticeContent() != null && !domain.getRevisedNoticeContent().isEmpty()){
+									workflowDetails.setText(domain.getRevisedNoticeContent());
+								}else{
+									workflowDetails.setText(domain.getNoticeContent());
+								}
+								
 								if(domain.getFile()!=null){
 									workflowDetails.setFile(String.valueOf(domain.getFile()));
 								}
@@ -4089,8 +4221,16 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(domain.getLocale()).format(domain.getSession().getYear()));
 						}
-						workflowDetails.setSubject(domain.getSubject());
-						workflowDetails.setText(domain.getNoticeContent());
+						if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+							workflowDetails.setSubject(domain.getRevisedSubject());
+						}else{
+							workflowDetails.setSubject(domain.getSubject());
+						}
+						if(domain.getRevisedNoticeContent() != null && !domain.getRevisedNoticeContent().isEmpty()){
+							workflowDetails.setText(domain.getRevisedNoticeContent());
+						}else{
+							workflowDetails.setText(domain.getNoticeContent());
+						}
 						if(domain.getFile()!=null){
 							workflowDetails.setFile(String.valueOf(domain.getFile()));
 						}
@@ -4194,8 +4334,16 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							if(motion.getDiscussionDate()!=null){
 								workflowDetails.setAnsweringDate(motion.getDiscussionDate());
 							}
-							workflowDetails.setSubject(motion.getSubject());
-							workflowDetails.setText(motion.getNoticeContent());
+							if(motion.getRevisedSubject() != null && !motion.getRevisedSubject().isEmpty()){
+								workflowDetails.setSubject(motion.getRevisedSubject());
+							}else{
+								workflowDetails.setSubject(motion.getSubject());
+							}
+							if(motion.getRevisedNoticeContent() != null && !motion.getRevisedNoticeContent().isEmpty()){
+								workflowDetails.setText(motion.getRevisedNoticeContent());
+							}else{
+								workflowDetails.setText(motion.getNoticeContent());
+							}
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
 						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -4351,8 +4499,18 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 					}
 					workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getSession().getYear()));
 				}
-				workflowDetails.setSubject(adjournmentMotion.getSubject());
-				workflowDetails.setText(adjournmentMotion.getNoticeContent());
+				if(adjournmentMotion.getRevisedSubject() != null && !adjournmentMotion.getRevisedSubject().isEmpty()){
+					workflowDetails.setSubject(adjournmentMotion.getRevisedSubject());
+				}else{
+					workflowDetails.setSubject(adjournmentMotion.getSubject());
+				}
+				
+				if(adjournmentMotion.getRevisedNoticeContent() != null && !adjournmentMotion.getRevisedNoticeContent().isEmpty()){
+					workflowDetails.setText(adjournmentMotion.getRevisedNoticeContent());
+				}else{
+					workflowDetails.setText(adjournmentMotion.getNoticeContent());
+				}
+				
 			}
 			workflowDetails.setProcessId(task.getProcessInstanceId());
 			workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -4461,8 +4619,17 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 					}
 					workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getSession().getYear()));
 				}
-				workflowDetails.setSubject(adjournmentMotion.getSubject());
-				workflowDetails.setText(adjournmentMotion.getNoticeContent());
+				if(adjournmentMotion.getRevisedSubject() != null && !adjournmentMotion.getRevisedSubject().isEmpty()){
+					workflowDetails.setSubject(adjournmentMotion.getRevisedSubject());
+				}else{
+					workflowDetails.setSubject(adjournmentMotion.getSubject());
+				}
+				
+				if(adjournmentMotion.getRevisedNoticeContent() != null && !adjournmentMotion.getRevisedNoticeContent().isEmpty()){
+					workflowDetails.setText(adjournmentMotion.getRevisedNoticeContent());
+				}else{
+					workflowDetails.setText(adjournmentMotion.getNoticeContent());
+				}
 			}
 			workflowDetails.setProcessId(i.getProcessInstanceId());
 			workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
