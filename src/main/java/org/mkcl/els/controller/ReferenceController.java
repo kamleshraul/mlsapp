@@ -3205,14 +3205,14 @@ public class ReferenceController extends BaseController {
 		List<MasterVO> townVOs=new ArrayList<MasterVO>();
 		if(districts != null){
 			
-			List<Town> towns=Town.findTownsbyDistricts(districts, locale.toString());
-			
-			for(Town i:towns){
-				MasterVO masterVO=new MasterVO();
-				masterVO.setId(i.getId());
-				masterVO.setName(i.getName());
-				townVOs.add(masterVO);
-			}
+//			List<Town> towns=Town.findTownsbyDistricts(districts, locale.toString());
+//			
+//			for(Town i:towns){
+//				MasterVO masterVO=new MasterVO();
+//				masterVO.setId(i.getId());
+//				masterVO.setName(i.getName());
+//				townVOs.add(masterVO);
+//			}
 		}
 		return townVOs;
 	}
@@ -3227,14 +3227,14 @@ public class ReferenceController extends BaseController {
 		List<MasterVO> zillaparishadVOs=new ArrayList<MasterVO>();
 		if(districts != null){
 			
-			List<Zillaparishad> zillaparishads=Zillaparishad.findZillaparishadsbyDistricts(districts, locale.toString());
-			
-			for(Zillaparishad i:zillaparishads){
-				MasterVO masterVO=new MasterVO();
-				masterVO.setId(i.getId());
-				masterVO.setName(i.getName());
-				zillaparishadVOs.add(masterVO);
-			}
+//			List<Zillaparishad> zillaparishads=Zillaparishad.findZillaparishadsbyDistricts(districts, locale.toString());
+//			
+//			for(Zillaparishad i:zillaparishads){
+//				MasterVO masterVO=new MasterVO();
+//				masterVO.setId(i.getId());
+//				masterVO.setName(i.getName());
+//				zillaparishadVOs.add(masterVO);
+//			}
 		}
 		return zillaparishadVOs;
 	}
@@ -3265,13 +3265,13 @@ public class ReferenceController extends BaseController {
 		District district = District.findById(District.class, districtId);
 		String locale = localeObj.toString();
 		
-		List<Zillaparishad> zillaparishads = Zillaparishad.find(district, locale);
-		for(Zillaparishad zillaparishad : zillaparishads) {
-			Reference ref = new Reference();
-			ref.setId(String.valueOf(zillaparishad.getId()));
-			ref.setName(zillaparishad.getName());
-			refs.add(ref);
-		}
+//		List<Zillaparishad> zillaparishads = Zillaparishad.find(district, locale);
+//		for(Zillaparishad zillaparishad : zillaparishads) {
+//			Reference ref = new Reference();
+//			ref.setId(String.valueOf(zillaparishad.getId()));
+//			ref.setName(zillaparishad.getName());
+//			refs.add(ref);
+//		}
 		
 		
 		return refs;
@@ -3507,12 +3507,13 @@ public class ReferenceController extends BaseController {
 	}
 	
 	@RequestMapping(value="/rosterdays",method=RequestMethod.GET)
-	public @ResponseBody List<Integer> getRosterDaysFromSession(final HttpServletRequest request, final Locale locale){
+	public @ResponseBody List<MasterVO> getRosterDaysFromSession(final HttpServletRequest request, final Locale locale){
 		String strhouseType=request.getParameter("houseType");
 		String stryear=request.getParameter("sessionYear");
 		String strsessionType=request.getParameter("sessionType");
 		String strlanguage=request.getParameter("language");
-		List<Integer> rosterDays=new ArrayList<Integer>();
+		//List<Integer> rosterDays=new ArrayList<Integer>();
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
 		if(strhouseType!=null&&stryear!=null&&strsessionType!=null){
 			HouseType selectedHouseType=HouseType.findByFieldName(HouseType.class,"type",strhouseType,locale.toString());
 			SessionType selectedSessionType=SessionType.findById(SessionType.class, Long.parseLong(strsessionType));
@@ -3526,10 +3527,14 @@ public class ReferenceController extends BaseController {
 			}
 			List<Roster> rosters=Roster.findAllRosterBySessionAndLanguage(session,language, locale.toString());
 			for(Roster r:rosters){
-				rosterDays.add(r.getDay());
+				MasterVO masterVO = new MasterVO();
+				masterVO.setNumber(r.getDay());
+				masterVO.setName(FormaterUtil.formatDateToString(r.getStartTime(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+				masterVOs.add(masterVO);
+				//rosterDays.add(r.getDay());
 			}
 		}
-		return rosterDays;
+		return masterVOs;
 	}
 	
 	
