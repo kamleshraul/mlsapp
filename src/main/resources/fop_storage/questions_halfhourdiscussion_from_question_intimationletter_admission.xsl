@@ -148,9 +148,9 @@
 							विषय -
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">म.वि.स. नियम ९४(१)</xsl:when>
-								<xsl:when test="houseType='upperhouse'">म.वि.प. नियम ९४(१)</xsl:when>
+								<xsl:when test="houseType='upperhouse'">म.वि.प. नियम ९२</xsl:when>
 							</xsl:choose>	
-							अन्वये उपस्थित केलेली अर्धा-तास चर्चेची सूचना.						
+							अन्वये उपस्थित केलेली अर्धा-तास चर्चेची सूचना &#160; <xsl:value-of select="number"/>.						
 						</fo:block>		
 						
 						<fo:block font-size="6px">&#160;</fo:block>
@@ -191,7 +191,7 @@
 							यांनी महाराष्ट्र <xsl:value-of select="houseTypeName"/>
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'"> नियम ९४(१)</xsl:when>
-								<xsl:when test="houseType='upperhouse'"> नियम ९४(१)</xsl:when>								
+								<xsl:when test="houseType='upperhouse'"> नियम ९२</xsl:when>								
 							</xsl:choose>
 							अन्वये उपस्थित केलेली अर्धा-तास चर्चेची सूचना माननीय
 							<xsl:choose>
@@ -304,7 +304,7 @@
 									यांनी महाराष्ट्र <xsl:value-of select="houseTypeName"/>
 									<xsl:choose>
 										<xsl:when test="houseType='lowerhouse'"> नियम ९४(१)</xsl:when>
-										<xsl:when test="houseType='upperhouse'"> नियम ९४(१)</xsl:when>								
+										<xsl:when test="houseType='upperhouse'"> नियम ९२(१)</xsl:when>								
 									</xsl:choose>
 									अन्वये उपस्थित केलेली अर्धा-तास चर्चेची सूचना.
 								</fo:block>

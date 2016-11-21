@@ -138,7 +138,7 @@
 								<xsl:when test="houseType='lowerhouse'">दिलेली म.वि.स. नियम ९४  (१) अन्वये</xsl:when>
 								<xsl:when test="houseType='upperhouse'">महाराष्ट्र विधानपरिषद नियम ९२ अन्वये उपस्थित केलेली</xsl:when>
 							</xsl:choose>
-							अर्धा-तास चर्चेची सूचना.
+							अर्धा-तास चर्चेची सूचना &#160;<xsl:value-of select="number"/>.
 						</fo:block>	
 						
 						<fo:block font-size="6px">&#160;</fo:block>
