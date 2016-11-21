@@ -273,7 +273,7 @@
 						var text = "";
 						var length = data.length - 1;
 						for (var i = length; i>=0; i--) {
-							text += "<option value='"+data[i]+"'>" + data[i]
+							text += "<option value='"+data[i].number+"'>" + data[i].name
 									+ "</option>";
 						}
 						$("#selectedDay").empty();
@@ -361,7 +361,6 @@
 				$.prompt($('#selectRowFirstMessage').val());				
 				return false;
 			}else{
-				
 				$.prompt($('#sendForPublishMsg').val(),{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
