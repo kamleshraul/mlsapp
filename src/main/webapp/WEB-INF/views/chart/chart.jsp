@@ -402,6 +402,10 @@
 										<c:when test="${r[11] == 'y' && r[5] == 'resolution_system_putup'}">
 											<img src="./resources/images/template/icons/blue_check.jpg" class="toolTip clearfix" width="2" height="10">
 										</c:when>
+										<c:when test="${r[5] == 'question_final_rejection'}">
+											<img src="./resources/images/template/icons/black_check.png" class="toolTip clearfix" width="2" height="10">
+											<div style="background: #004C00; border-radius: 5px;  height: 5px;  min-height: 6px;  min-width: 20px; width: 5px;" class="showDetails" id="stripDiv${r[3]}"></div>
+										</c:when>
 										<c:when test="${r[5] == 'question_system_putup' or r[5] == 'standalonemotion_system_putup'}">
 											<img src="./resources/images/template/icons/red_check.jpg" class="toolTip clearfix" width="2" height="10">
 											<div style="background: #004C00; border-radius: 5px;  height: 5px;  min-height: 6px;  min-width: 20px; width: 5px;" class="showDetails" id="stripDiv${r[3]}"></div>
@@ -593,6 +597,10 @@
 								<c:choose>
 									<c:when test="${r[11] == 'y' && r[5] == 'resolution_system_putup'}">
 										<img src="./resources/images/template/icons/blue_check.jpg" class="toolTip clearfix" width="2" height="10">
+									</c:when>
+									<c:when test="${r[5] == 'question_final_rejection'}">
+										<img src="./resources/images/template/icons/black_check.png" class="toolTip clearfix" width="2" height="10">
+										<div style="background: #004C00; border-radius: 5px;  height: 5px;  min-height: 6px;  min-width: 20px; width: 5px;" class="showDetails" id="stripDiv${r[3]}"></div>
 									</c:when>
 									<c:when test="${r[5] == 'question_system_putup' or r[5] == 'standalonemotion_system_putup'}">
 										<img src="./resources/images/template/icons/red_check.jpg" class="toolTip clearfix" width="2" height="10">
