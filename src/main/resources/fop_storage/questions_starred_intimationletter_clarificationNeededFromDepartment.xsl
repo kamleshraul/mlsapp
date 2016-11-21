@@ -137,8 +137,17 @@
 						
 						<fo:block font-size="4px">&#160;</fo:block>	
 						
-						<fo:block margin-left="1cm">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरिनिर्दिष्ट प्रश्नाबाबत खाली नमूद केलेल्या क्रमांक <xsl:value-of select="questionIndexesForClarification"/> वरील मुद्द्याबाबतची माहिती, या सचिवायलास त्वरीत कळवावी अशी विनंती आहे. 												
+						<fo:block margin-left="1cm">
+							<xsl:choose>
+								<xsl:when test="houseType='lowerhouse'">
+									&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरिनिर्दिष्ट प्रश्नाबाबतची वस्तुस्थिती या सचिवायलास त्वरीत कळवावी अशी विनंती आहे.
+								</xsl:when>
+								<xsl:when test="houseType='upperhouse'">
+									&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरिनिर्दिष्ट प्रश्नाबाबत खाली नमूद केलेल्या क्रमांक <xsl:value-of select="questionIndexesForClarification"/> वरील मुद्द्याबाबतची माहिती, या सचिवायलास त्वरीत कळवावी अशी विनंती आहे.
+								</xsl:when>
+							</xsl:choose>
+													
+							 												
 						</fo:block>	
 						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block margin-left="1cm">							
