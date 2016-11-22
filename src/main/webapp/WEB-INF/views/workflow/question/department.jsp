@@ -1163,7 +1163,8 @@
 	</p>
 	
 	<c:if test="${workflowstatus!='COMPLETED' or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}">	
-		<p style="display:none;">
+		<!-- <p style="display:none;"> -->
+		<p>
 		<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 		<select id="changeInternalStatus" class="sSelect">
 			<c:forEach items="${internalStatuses}" var="i">
