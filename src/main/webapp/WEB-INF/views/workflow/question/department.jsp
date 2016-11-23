@@ -163,7 +163,7 @@
 				var text="";
 				for(var i=0;i<data.length;i++){
 					var act = data[i].id;
-					if(act.indexOf("section_officer") < 0){
+					if(value != sendToDeskOfficer){
 						var ugtActor = data[i].id.split("#")
 						var ugt = ugtActor[1];
 						if(ugt!='member' && data[i].state!='active'){
@@ -173,6 +173,20 @@
 							if(actCount == 1){
 								actor1=data[i].id;
 								actCount++;
+							}
+						}
+					}else{
+						if(act.indexOf("section_officer") < 0){
+							var ugtActor = data[i].id.split("#")
+							var ugt = ugtActor[1];
+							if(ugt!='member' && data[i].state!='active'){
+								text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+							}else{
+								text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+								if(actCount == 1){
+									actor1=data[i].id;
+									actCount++;
+								}
 							}
 						}
 					}					
