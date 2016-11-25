@@ -62,6 +62,8 @@ import org.mkcl.els.domain.Title;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowActor;
+import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.YaadiDetails;
 import org.slf4j.Logger;
@@ -3722,7 +3724,7 @@ class QuestionReportHelper{
 					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "QIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
 						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
-						
+							Object[] lastObject = (Object[]) report.get(report.size()-1); 
 							for(Object o : report){
 								Object[] objx = (Object[])o;
 	
@@ -3767,6 +3769,40 @@ class QuestionReportHelper{
 								}
 							}
 							
+							//Following block is added for solving the issue of question drafts where in if there exist a draft and later the question is pending
+							// at the specific actor, the last remark is displayed
+							WorkflowConfig wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+							List<WorkflowActor> wfActors = wfConfig.getWorkflowactors();
+							List<WorkflowActor> distinctActors = new ArrayList<WorkflowActor>();
+							for(WorkflowActor wf : wfActors){
+								UserGroupType userGroupType = wf.getUserGroupType();
+								Boolean elementPresent = false;
+								for(WorkflowActor wf1 : distinctActors){
+									UserGroupType userGroupType1 = wf1.getUserGroupType();
+									if(userGroupType.getType().equals(userGroupType1.getType())){
+										elementPresent = true;
+										break;
+									}
+								}
+								if(!elementPresent){
+									distinctActors.add(wf);
+								}
+							}
+							Integer level = null;
+							for(WorkflowActor wf : distinctActors){
+								UserGroupType userGroupType = wf.getUserGroupType();
+								if(userGroupType.getType().equals(lastObject[27])){
+									level = wf.getLevel();
+								}
+								if(level != null && wf.getLevel()>level){
+									if(dataMap.containsKey(userGroupType.getType())){
+										Object[] tempObj = dataMap.get(userGroupType.getType());
+										tempObj[28] = "";
+										tempObj[6] = "";
+										dataMap.put(userGroupType.getType(), tempObj);
+									}
+								}
+							}
 							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "QIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
 							if(onPaperSigningAuthorityParameter != null){
 								String signingAuthority = onPaperSigningAuthorityParameter.getValue();

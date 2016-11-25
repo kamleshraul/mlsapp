@@ -834,7 +834,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		return actualActors;
 	}
 	
-	private WorkflowConfig getLatest(final Question question,final String internalStatus,final String locale) {
+	public WorkflowConfig getLatest(final Question question,final String internalStatus,final String locale) {
 		/**** Latest Workflow Configurations ****/
 		String[] temp=internalStatus.split("_");
 		String workflowName=temp[temp.length-1]+"_workflow";

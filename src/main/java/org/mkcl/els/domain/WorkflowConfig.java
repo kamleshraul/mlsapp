@@ -185,6 +185,12 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 				internalStatus,
 				userGroup,level,locale);
 	}
+	
+	public static WorkflowConfig getLatest(final Question question,
+			final String internalStatus,
+			final String locale) throws ELSException {
+		return getWorkflowConfigRepository().getLatest(question, internalStatus, locale);
+	}
 	/***********************Question***********************/
 		
 	/*********************************Resolution******************************/
