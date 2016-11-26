@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -178,6 +179,10 @@ public class Roster extends BaseDomain implements Serializable{
 	public static Slot findNextSlot(Slot slot) {
 		return getRosterRepository().findNextSlot(slot);
 	}
+	
+	public static Roster findByPart(Part part, Locale locale) {
+		return getRosterRepository().findByPart(part, locale.toString());
+	}
 	/*********** Setters and Getters ************/
 
 	public Session getSession() {
@@ -291,7 +296,5 @@ public class Roster extends BaseDomain implements Serializable{
 	public void setPublishedDate(Date publishedDate) {
 		this.publishedDate = publishedDate;
 	}
-	
-	
 
 }

@@ -9046,4 +9046,23 @@ public class ReferenceController extends BaseController {
 		return templateVOs;
 	
 	}
+	
+	@RequestMapping(value="/rosterPublished", method=RequestMethod.GET)
+	public @ResponseBody Boolean getPublishedRoster(final HttpServletRequest request, 
+			final ModelMap model, 
+			final Locale locale){
+		Boolean isRosterPublished = false;
+		String strPartId = request.getParameter("partId");
+		if(strPartId != null && !strPartId.isEmpty()){
+			Part part = Part.findById(Part.class, Long.parseLong(strPartId));
+			Roster roster = Roster.findByPart(part,locale);
+			if(roster != null){
+				if(roster.getPublish()){
+					isRosterPublished = true;
+				}
+			}
+		}
+		return isRosterPublished;
+	
+	}
 }

@@ -16,6 +16,7 @@ import org.mkcl.els.domain.Adjournment;
 import org.mkcl.els.domain.CommitteeMeeting;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Language;
+import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Roster;
@@ -1066,6 +1067,24 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 			nextSlot = slots.get(0);
 		}
 		return nextSlot;
+	}
+
+	public Roster findByPart(Part part, String locale) {
+		Roster roster = null;
+		String strQuery = "SELECT r FROM Part p"
+				+ "JOIN p.proceeding proc"
+				+ "JOIN proc.slot s"
+				+ "JOIN s.roster r"
+				+ "WHERE p.id=:partId ";
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("partId",part.getId());
+		List<Roster> rosters = query.getResultList();
+		if(rosters != null && !rosters.isEmpty()){
+			roster = rosters.get(0);
+		}
+				
+		
+		return roster;
 	}
 	
 	

@@ -69,7 +69,17 @@
 			/****Publish the roster proceeding for Committees & Editing****/
 			$("#complete").click(function(){
 				currentSelectedRow=$('#key').val();
-				completeProceeding(currentSelectedRow);
+				$.get("ref/rosterPublished?partId="+currentSelectedRow,function(data){
+					if(data){
+						$.prompt($('#chiefReporterPublishedMsg').val(),{
+							buttons: {Ok:true, Cancel:false}, callback: function(v){
+					        if(v){
+					        	completeProceeding(currentSelectedRow);
+					        }
+						}});
+					}
+				});
+				
 			});
 			
 			$("#rosterwise").click(function() {
@@ -233,6 +243,7 @@
 	<input type="hidden" id="sessionId" name="sessionId" value="">
 	
 	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
+	<input id="chiefReporterPublishedMsg" value="<spring:message code='proceeding.chiefReporterPublishedMsg' text='Chief Reporter has published the proceedings. Please inform Chief Reporter before making changes'/>" type="hidden">
 	</div>
 </body>
 </html>
