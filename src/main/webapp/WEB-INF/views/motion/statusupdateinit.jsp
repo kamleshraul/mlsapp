@@ -17,6 +17,12 @@
 		$("#updateStatus").change(function(){
 			
 		});
+		
+		$('.datemask').focus(function(){		
+			if($(this).val()==""){
+				$(".datemask").mask("99/99/9999");
+			}
+		});
 		/**** Page Load ****/
 		viewContent();
 	});		
@@ -69,6 +75,7 @@
 			        	{items:items
 			        	,decisionStatus:decisionStatus
 			        	,status:status
+			        	,discussionDate : $("#yddiscussionDate").val()
 			        	,houseType:$("#ydhouseType").val()
 			   		 	,sessionYear:$("#ydsessionYear").val()
 					 	,sessionType:$("#ydsessionType").val()
@@ -114,6 +121,10 @@
 					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
 		</c:forEach>
 		</select>
+		
+		<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>	
+		<input type="text" name="yddiscussionDate" id="yddiscussionDate" class="sText datemask"/>
+		
 		<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
 	</p>
 	<div id="bulkResultDiv">	

@@ -3568,6 +3568,7 @@ public class MotionController extends GenericController<Motion>{
 			String[] selectedItems = request.getParameterValues("items[]");
 			String strDecisionStatus = request.getParameter("decisionStatus");
 			String strStatus = request.getParameter("status");
+			String strDate = request.getParameter("discussionDate");
 			
 			if(selectedItems != null && selectedItems.length > 0
 					&& strDecisionStatus != null && !strDecisionStatus.isEmpty()
@@ -3579,6 +3580,10 @@ public class MotionController extends GenericController<Motion>{
 						Motion motion = Motion.findById(Motion.class, id);
 						Status status = Status.findById(Status.class, new Long(strDecisionStatus));
 						motion.setRecommendationStatus(status);
+						if(strDate!= null && !strDate.isEmpty()){
+							Date discussionDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+							motion.setAnsweringDate(discussionDate);
+						}
 						motion.simpleMerge();
 						updated = true;
 						success.append(FormaterUtil.formatNumberNoGrouping(motion.getNumber(), motion.getLocale())+",");
