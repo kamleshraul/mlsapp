@@ -113,8 +113,8 @@
 					<td style="width: 100px;">${r[3]}</td>
 					<td style="width: 300px;">${formater.formatNumbersInGivenText(r[4], locale)}</td>
 					<td style="width: 140px;">${r[5]}</td>	
-					<td style="width: 60px;">${r[6]}</td>
 					<td style="width: 60px;">${r[7]}</td>
+					<td style="width: 60px;">${r[6]}</td>
 				</tr>
 			</c:forEach>
 		</tbody>
