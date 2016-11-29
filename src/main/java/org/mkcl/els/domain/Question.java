@@ -9237,11 +9237,36 @@ public class Question extends Device implements Serializable {
     			QuestionDraft questionDraft = Question.findLatestGroupChangedDraft(question);
     			if(questionDraft != null){
     				Long draftGroupId = questionDraft.getGroup().getId();
-    				WorkflowDetails.completeTask(question);
-    				if(!draftGroupId.equals(question.getGroup().getId())){
-    					question.setGroup(questionDraft.getGroup());
-    					question.simpleMerge();
-    				}
+    				WorkflowDetails wfDetails = 
+    	    				WorkflowDetails.findCurrentWorkflowDetail(question);
+    	    		if(wfDetails != null){
+    	    			question.removeExistingWorkflowAttributes();
+    	    			// Before ending wfDetails process collect information
+    	    			// which will be useful for creating a new process later.
+    	    			String workflowType = wfDetails.getWorkflowType();
+    	    			Integer assigneeLevel = 
+    	    				Integer.parseInt(wfDetails.getAssigneeLevel());
+    	    			WorkflowDetails.completeTask(question);
+        				if(!draftGroupId.equals(question.getGroup().getId())){
+        					question.setGroup(questionDraft.getGroup());
+        					question.simpleMerge();
+        					String userGroupType = wfDetails.getAssigneeUserGroupType();
+        					if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+        	    				userGroupType = ApplicationConstants.DEPARTMENT;
+        	    				assigneeLevel = assigneeLevel - 1;
+        	    			}
+        					
+        	    			//Question in Post final status and pre ballot state can be group changed by Department 
+        	    			//as well as assistant of Secretariat
+        	    			WorkflowDetails.startProcessAtGivenLevel(question, 
+        	    					ApplicationConstants.APPROVAL_WORKFLOW, question.getInternalStatus(), 
+        	    					userGroupType, assigneeLevel, 
+        	    					locale);
+        				}
+    	    		}
+    	    		
+    				//WorkflowDetails.completeTask(question);
+
     			}
     		}
     		
