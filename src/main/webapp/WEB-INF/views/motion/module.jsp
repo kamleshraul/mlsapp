@@ -14,7 +14,7 @@
 			var currentDeviceType = $("#currentDeviceType").val();
 			var currentHouseType = $("#currentHouseType").val();		
 			
-			$("#bulkputup_tab").hide();
+			$("#bulkputup_tab").show();
 			
 			/*Tooltip*/
 			$(".toolTip").hide();					
@@ -1056,7 +1056,7 @@
 			<!-- <option value="30">30</option>
 			<option value="25">25</option>
 			<option value="20">20</option> -->
-			<option value="15">15</option>
+			<!-- <option value="15">15</option> -->
 			<option value="10">10</option>
 			<option value="5">05</option>		
 			</select>|	
