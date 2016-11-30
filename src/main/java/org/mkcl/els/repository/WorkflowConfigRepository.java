@@ -258,21 +258,28 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			strQuery="SELECT wfa FROM WorkflowConfig wc" +
 					" JOIN wc.workflowactors wfa  "+
 					" WHERE wc.id=:workflowConfigId" +
-					" AND wfa.id >:currentWorkflowActorId" +
-					" AND wfa.id NOT IN (:wfactorIds)" +
-					" ORDER BY wfa.id "+sortorder;	
+					" AND wfa.id >:currentWorkflowActorId" ;
+			if(workflowActorsToBeExcluded.size()>0){
+				strQuery = strQuery + " AND wfa.id NOT IN (:wfactorIds)" ;
+			}
+			strQuery= strQuery	+ " ORDER BY wfa.id "+sortorder;	
 		}else{
 			strQuery="SELECT wfa FROM WorkflowConfig wc" +
 					" JOIN wc.workflowactors wfa  "+
-					" WHERE wc.id=:workflowConfigId" +
-					" AND wfa.id NOT IN (:wfactorIds)" +
-					" AND wfa.id <:currentWorkflowActorId " +
+					" WHERE wc.id=:workflowConfigId";
+			if(workflowActorsToBeExcluded.size()>0){
+				strQuery = strQuery + " AND wfa.id NOT IN (:wfactorIds)" ;
+			}
+			strQuery= strQuery	+ " AND wfa.id <:currentWorkflowActorId " +
 				    " ORDER BY wfa.id "+sortorder;	
 		}	
 		javax.persistence.Query query=this.em().createQuery(strQuery);
 		query.setParameter("workflowConfigId", workflowConfig.getId());
 		query.setParameter("currentWorkflowActorId", currentWorkflowActor.getId());
-		query.setParameter("wfactorIds",wfactorIds);
+		if(workflowActorsToBeExcluded.size()>0){
+			query.setParameter("wfactorIds",wfactorIds);
+		}
+		
 		return query.getResultList();	
 	}
 	/********************************Question****************************/
