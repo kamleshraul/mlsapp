@@ -1,7 +1,10 @@
 package org.mkcl.els.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,23 +14,32 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.xmlvo.XmlVO;
+import org.mkcl.els.domain.ActivityLog;
+import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("motion/report")
@@ -667,6 +679,257 @@ public class MotionReportController extends BaseController{
 		response.setContentType("text/html; charset=utf-8");		
 		return MotionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}
+	
+	
+	@RequestMapping(value="/online_offline_submission_count_report/init",method=RequestMethod.GET)
+	public String initOnlineOfflineSubmissionCountReport(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		String responsePage="motion/reports/error";
+		
+		String strdeviceType = request.getParameter("deviceType");
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		
+		if(strdeviceType!=null && strHouseType!=null && strSessionType!=null && strSessionYear!=null
+				&& !strdeviceType.isEmpty() && !strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()) {
+			
+			/**** populate selected deviceType ****/
+			DeviceType deviceType=DeviceType.findByName(DeviceType.class, strdeviceType, locale.toString());
+			if(deviceType==null) {
+				deviceType=DeviceType.findByType(strdeviceType, locale.toString());
+			}
+			if(deviceType==null) {
+				deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strdeviceType));
+			}
+			if(deviceType==null) {
+				logger.error("**** parameter deviceType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("deviceType",deviceType.getId());
+			/**** populate selected housetype ****/
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			if(houseType==null) {
+				houseType = HouseType.findByName(strHouseType, locale.toString());
+			}
+			if(houseType==null) {
+				houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+			}
+			if(houseType==null) {
+				logger.error("**** parameter houseType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("houseType", houseType.getId());	
+			/**** populate selected sessiontype ****/
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			if(sessionType==null) {
+				logger.error("**** parameter sessionType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("sessionType", sessionType.getId());
+			/**** populate selected sessionyear ****/
+			Integer sessionYear = Integer.parseInt(strSessionYear);
+			model.addAttribute("sessionYear", sessionYear);		
+			/**** populate selected session ****/
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+			if(session==null) {								
+				logger.error("**** Session Not Found ****");
+				model.addAttribute("errorcode", "SESSIONS_NOTFOUND");
+				return responsePage;
+			}
+			model.addAttribute("session",session.getId());
+			/**** populate default from date and default to date ****/
+			Date defaultFromDate = null;
+			Date defaultToDate = null;
+			/**** submission start date of the session as default fromDate ****/
+			String submissionStartDateSessionParameter = session.getParameter(deviceType.getType().trim()+"_"+ApplicationConstants.SUBMISSION_START_DATE_MOIS_SESSION_PARAMETER_KEY);
+			if(submissionStartDateSessionParameter==null || submissionStartDateSessionParameter.isEmpty()) {
+				logger.error("**** Submission start date parameter is not set for the session ****");
+				model.addAttribute("errorcode", "submission_start_date_parameter_undefined_for_session");
+				return responsePage;				
+			}
+			
+			defaultFromDate = FormaterUtil.formatStringToDate(submissionStartDateSessionParameter, ApplicationConstants.SERVER_DATEFORMAT);
+			if(defaultFromDate==null)  {
+				logger.error("**** Submission start date parameter is set to invalid value for the session ****");
+				model.addAttribute("errorcode", "submission_start_date_parameter_invalid_for_session");
+				return responsePage;
+			}
+			/**** submission end date of the session as default toDate ****/
+			String submissionEndDateSessionParameter = session.getParameter(deviceType.getType().trim()+"_"+ApplicationConstants.SUBMISSION_END_DATE_MOIS_SESSION_PARAMETER_KEY);
+			if(submissionEndDateSessionParameter==null || submissionEndDateSessionParameter.isEmpty()) {
+				logger.error("**** Submission end date parameter is not set for the session ****");
+				model.addAttribute("errorcode", "submission_end_date_parameter_undefined_for_session");
+				return responsePage;
+			}
+			defaultToDate = FormaterUtil.formatStringToDate(submissionEndDateSessionParameter, ApplicationConstants.SERVER_DATEFORMAT);
+			if(defaultToDate==null)  {
+				logger.error("**** Submission end date parameter is set to invalid value for the session ****");
+				model.addAttribute("errorcode", "submission_end_date_parameter_invalid_for_session");
+				return responsePage;
+			}			
+			model.addAttribute("defaultFromDate", FormaterUtil.formatDateToString(defaultFromDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+			model.addAttribute("defaultToDate", FormaterUtil.formatDateToString(defaultToDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+			/**** Check whether current date is allowed for submission ****/
+			Calendar currentDateCalendar = Calendar.getInstance();
+			currentDateCalendar.setTime(new Date());	
+//			currentDateCalendar.set(2015, 6, 12);
+			currentDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
+			currentDateCalendar.set(Calendar.MINUTE, 0);
+			currentDateCalendar.set(Calendar.SECOND, 0);
+			currentDateCalendar.set(Calendar.MILLISECOND, 0);
+			if(	
+				(defaultFromDate.before(currentDateCalendar.getTime()) || defaultFromDate.equals(currentDateCalendar.getTime()))
+						&&
+				(defaultToDate.after(currentDateCalendar.getTime()) || defaultToDate.equals(currentDateCalendar.getTime()))
+			) {
+				model.addAttribute("isCurrentDateValidForSubmission", true);
+			} else {
+				model.addAttribute("isCurrentDateValidForSubmission", false);
+			}
+			responsePage = "motion/reports/online_offline_submission_count_report_init";
+		} else {
+			logger.error("**** Check request parameters 'deviceType,houseType,sessionType,sessionYear' for null/empty values ****");
+			model.addAttribute("errorcode", "insufficient_parameters");
+		}
+				
+		return responsePage;
+	}
+	
+	@Transactional
+	@RequestMapping(value="/online_offline_submission_count_report",method=RequestMethod.GET)
+	public @ResponseBody void generateOnlineOfflineSubmissionCountReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale) throws ELSException{
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		
+		String session = request.getParameter("session");
+		String deviceTypeId = request.getParameter("deviceType");
+		String houseType = request.getParameter("houseType");
+		String criteria = request.getParameter("criteria");
+		String forTodayStr = request.getParameter("forToday");
+		String fromDateStr = request.getParameter("fromDate");
+		String toDateStr = request.getParameter("toDate");
+		
+		try {
+			if(session!=null && !session.isEmpty() 
+					&& deviceTypeId!=null && !deviceTypeId.isEmpty()
+					&& houseType!=null && !houseType.isEmpty()
+					&& criteria!=null && !criteria.isEmpty()) {
+				Session sessionObj = Session.findById(Session.class, Long.parseLong(session));
+				/**** set fromDate & toDate ****/
+				Date fromDate = null;
+				Date toDate = null;
+				Boolean forToday = Boolean.parseBoolean(forTodayStr);
+				if(forToday!=null && forToday.booleanValue()==true) {
+					Date currentDate = new Date();
+					//format fromDate & toDate for query
+					fromDateStr = FormaterUtil.formatDateToString(currentDate, ApplicationConstants.DB_DATEFORMAT);
+					toDateStr = FormaterUtil.formatDateToString(currentDate, ApplicationConstants.DB_DATEFORMAT);
+				}				
+				if(fromDateStr!=null && !fromDateStr.isEmpty() && toDateStr!=null && !toDateStr.isEmpty()) {
+					if(forToday==null || forToday.booleanValue()==false) {
+						//handle server encoding for fromDate & toDate parameters
+						CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+						if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+							if(csptServer.getValue().equals("TOMCAT")){							
+								fromDateStr = new String(fromDateStr.getBytes("ISO-8859-1"), "UTF-8");
+								toDateStr = new String(toDateStr.getBytes("ISO-8859-1"), "UTF-8");						
+							}
+						}
+						//format fromDate for query
+						fromDate = FormaterUtil.formatStringToDate(fromDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+						fromDateStr = FormaterUtil.formatDateToString(fromDate, ApplicationConstants.DB_DATEFORMAT);
+						//format toDate for query
+						toDate = FormaterUtil.formatStringToDate(toDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+						toDateStr = FormaterUtil.formatDateToString(toDate, ApplicationConstants.DB_DATEFORMAT);
+					}
+					//submission status as per devicetype
+					Status submitStatus = Status.findByType(ApplicationConstants.STANDALONE_SUBMIT, locale.toString());					
+					DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceTypeId));
+					if(submitStatus!=null) {
+						Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+						queryParameters.put("locale", new String[] {locale.toString()});
+						queryParameters.put("sessionId", new String[] {session});
+						queryParameters.put("deviceTypeId", new String[] {deviceTypeId});
+						queryParameters.put("houseTypeId", new String[] {houseType});												
+						queryParameters.put("fromDate", new String[] {fromDateStr});
+						queryParameters.put("toDate", new String[] {toDateStr});
+						queryParameters.put("submitStatusId", new String[] {submitStatus.getId().toString()});
+						
+						String queryName = "MOIS_MEMBERWISE_MOTIONS_ONLINE_OFFLINE_SUBMISSION_COUNTS";
+						if(criteria.equals("datewise")) {	
+							synchronized (Session.class) {								
+								boolean isSubmissionDatesForSessionLoaded = Session.loadSubmissionDatesForDeviceTypeInSession(sessionObj, deviceType, fromDate, toDate);
+								if(isSubmissionDatesForSessionLoaded==false) {
+									//error
+									isError = true;	
+								}
+							}							
+							queryName = "MOIS_DATEWISE_MOTIONS_ONLINE_OFFLINE_SUBMISSION_COUNTS";
+						}						
+						List reportData = Query.findReport(queryName, queryParameters);
+						if(reportData!=null && !reportData.isEmpty()) {
+							/**** generate report ****/
+							if(!isError) {								
+								List<String> serialNumbers = populateSerialNumbers(reportData, locale);
+								reportFile = generateReportUsingFOP(new Object[]{reportData, criteria, serialNumbers}, "motions_online_submission_counts_template", "WORD", deviceType.getType()+"_"+criteria+"_online_submission_counts_report", locale.toString());				
+								if(reportFile!=null) {
+									System.out.println("Report generated successfully in WORD format!");
+									openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+								}
+							}
+						} else {
+							//error
+							isError = true;	
+						}
+					} else {
+						//error code
+						isError = true;	
+					}					
+				} else {
+					//error code
+					isError = true;	
+				}
+			} else {
+				//error code
+				isError = true;	
+			}
+		} catch(Exception e) {
+			//error code
+			e.printStackTrace();
+			isError = true;					
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+		}		
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}
+	}
+
 }
 
 

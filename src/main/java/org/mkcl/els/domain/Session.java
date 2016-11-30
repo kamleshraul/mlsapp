@@ -45,6 +45,7 @@ import org.mkcl.els.common.vo.SessionVO;
 import org.mkcl.els.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class Session.
@@ -252,9 +253,181 @@ public class Session extends BaseDomain implements Serializable {
 			final HouseType houseType, final Integer sessionYear) throws ELSException {
 		return getSessionRepository().findSessionsByHouseTypeAndYear(houseType,sessionYear);
 	}
+    
+	public static List<Session> findSessionsByHouseAndYearForGivenDeviceTypeEnabled(
+			final House house, final Integer sessionYear, final DeviceType deviceType) throws ELSException {
+		return getSessionRepository().findSessionsByHouseAndYearForGivenDeviceTypeEnabled(house,sessionYear,deviceType);
+	}
+	
+
+	
+	//------------------dhananjayb_23012013----------------------------
+	public static List<String> getParametersSetForDeviceType(final Long sessionId, final String deviceType) throws ELSException {
+		return getSessionRepository().getParametersSetForDeviceType(sessionId,deviceType);
+    }
+
+	public static Session find(final Integer sessionyear, final String sessiontype, final String housetype) throws ELSException {
+		return getSessionRepository().find(sessionyear,sessiontype,housetype);
+    }
+	
+	//---------------------Added by vikas & dhananjay--------------------------------
+	/**
+	 * to find the previous session of the given session 
+	 * @param session given session
+	 * @return previous session 
+	 * @throws ELSException 
+	 */
+	public static Session findPreviousSession(final Session session) throws ELSException{
+		
+		List<Session> totalSessions = new ArrayList<Session>();
+		
+		List<Session> sessionListCurrent = Session.findSessionsByHouseTypeAndYear(session.getHouse().getType(), session.getYear());		
+		sessionListCurrent.remove(session);
+		totalSessions.addAll(sessionListCurrent);
+		
+		List<Session> sessionListLast = Session.findSessionsByHouseTypeAndYear(session.getHouse().getType(), session.getYear()-1);
+				
+		if(sessionListLast.size() > 0){
+			Session lastSessionPrevYear = sessionListLast.get(0);
+			totalSessions.add(lastSessionPrevYear);
+		}
+				
+		return compareSession(totalSessions, session);
+	}
+	
+	public static Session findPreviousSessionInSameHouseForGivenDeviceTypeEnabled(final Session session, final DeviceType deviceType) throws ELSException{
+		
+		List<Session> totalSessions = new ArrayList<Session>();
+		
+		List<Session> sessionListCurrent = Session.findSessionsByHouseAndYearForGivenDeviceTypeEnabled(session.getHouse(), session.getYear(), deviceType);
+		for(Session s: sessionListCurrent) {
+			if(s.getStartDate().compareTo(session.getStartDate())<0) {
+				totalSessions.add(s);
+			}
+		}
+		
+		List<Session> sessionListLast = Session.findSessionsByHouseAndYearForGivenDeviceTypeEnabled(session.getHouse(), session.getYear()-1, deviceType);
+		
+		if(sessionListLast!=null && sessionListLast.size() > 0){
+			Session lastSessionPrevYear = sessionListLast.get(0);
+			totalSessions.add(lastSessionPrevYear);
+		}
+		
+		return compareSession(totalSessions, session);		
+	}
+	
+	/**
+	 * helper method to find the previous session 
+	 * @param sessionList 
+	 * @param session
+	 * @return
+	 */
+	private static Session compareSession(List<Session> sessionList, final Session session){
+		
+		Object[] sessions = sessionList.toArray();
+		long minDiff;
+		int indexer=-1;
+		
+		if(sessionList.size() > 0){
+			
+			minDiff = session.getStartDate().getTime() - ((Session)sessions[0]).getStartDate().getTime();
+		
+			for(int i = 0; i < sessions.length; i++){
+				
+				long tempTimeDifference = (session.getStartDate().getTime() - ((Session)sessions[i]).getStartDate().getTime()); 
+				
+				if(tempTimeDifference <= minDiff){
+					minDiff = tempTimeDifference;
+					indexer = i;
+				}
+			}
+		}
+		if(indexer >= 0)
+			return ((Session)sessions[indexer]);
+		else
+			return null;
+	}
+	
+	public String findHouseType() {
+		String sessionHouseType = null;
+		if(this.getHouse() != null) {
+			if(this.getHouse().getType() != null) {
+				if(this.getHouse().getType().getType() != null) {					
+					sessionHouseType = this.getHouse().getType().getType();					
+				}
+			}
+		}
+		return sessionHouseType;
+	}
+	
+	public List<Date> findAllSessionDates() {
+		
+		List<Date> sessionDates = new ArrayList<Date>();
+		
+		/** set calendar from session start date for processing all session dates **/
+		Calendar sessionCalender = Calendar.getInstance();
+		sessionCalender.setTime(this.getStartDate());
+		
+		/** loop through all session dates & collect them in the output list **/
+		for(sessionCalender.getTime(); sessionCalender.getTime().compareTo(this.getEndDate())<=0; sessionCalender.add(Calendar.DATE, 1)) {
+			
+			Date sessionDate = sessionCalender.getTime();	
+			
+			sessionDates.add(sessionDate);
+		}
+		
+		return sessionDates;
+	}
+	
+	public List<Date> findAllSessionDatesHavingNoHoliday() {
+		
+		List<Date> sessionDates = new ArrayList<Date>();
+		
+		/** set calendar from session start date for processing all session dates **/
+		Calendar sessionCalender = Calendar.getInstance();
+		sessionCalender.setTime(this.getStartDate());
+		
+		/** loop through all session dates & collect non-holiday dates in the output list **/
+		for(sessionCalender.getTime(); sessionCalender.getTime().compareTo(this.getEndDate())<=0; sessionCalender.add(Calendar.DATE, 1)) {
+			
+			Date sessionDate = sessionCalender.getTime();	
+			
+			//skip the date if it's holiday
+			if(Holiday.isHolidayOnDate(sessionDate, this.getLocale())) {
+				continue;
+			}
+			
+			sessionDates.add(sessionDate);
+		}
+		
+		return sessionDates;
+	}
+	
+	/** check if current date is in given session 
+	 * @throws ELSException **/
+	public static Boolean isCurrentDateInSession(final Session session) throws ELSException {	
+		if(session==null || session.getId()==null) {
+			throw new ELSException();
+		}
+		Boolean isCurrentDateInSession = null;
+		Date currentDate = new Date();
+		if(currentDate.compareTo(session.getStartDate())>=0 && currentDate.compareTo(session.getEndDate())<=0) {
+			isCurrentDateInSession = true;
+		} else {
+			isCurrentDateInSession = false;
+		}
+		return isCurrentDateInSession;
+	}
+	
+	public static List<SessionVO> findAllSessionDetailsForGivenHouseType(final HouseType houseType, final Date fromDate, final String locale) {
+		return getSessionRepository().findAllSessionDetailsForGivenHouseType(houseType, fromDate, locale);
+	}
+	
+	public static boolean loadSubmissionDatesForDeviceTypeInSession(final Session session, final DeviceType deviceType, final Date fromDate, final Date toDate) {
+		return getSessionRepository().loadSubmissionDatesForDeviceTypeInSession(session, deviceType, fromDate, toDate);
+	}
+	
     // ------------------------------Getters/Setters-----------------------
-
-
 	/**
      * Gets the house.
      *
@@ -803,146 +976,5 @@ public class Session extends BaseDomain implements Serializable {
 			}
 		}
 		return null;
-	}
-	
-	//------------------dhananjayb_23012013----------------------------
-	public static List<String> getParametersSetForDeviceType(final Long sessionId, final String deviceType) throws ELSException {
-		return getSessionRepository().getParametersSetForDeviceType(sessionId,deviceType);
-    }
-
-	public static Session find(final Integer sessionyear, final String sessiontype, final String housetype) throws ELSException {
-		return getSessionRepository().find(sessionyear,sessiontype,housetype);
-    }
-	
-	//---------------------Added by vikas & dhananjay--------------------------------
-	/**
-	 * to find the previous session of the given session 
-	 * @param session given session
-	 * @return previous session 
-	 * @throws ELSException 
-	 */
-	public static Session findPreviousSession(final Session session) throws ELSException{
-		
-		List<Session> totalSessions = new ArrayList<Session>();
-		
-		List<Session> sessionListCurrent = Session.findSessionsByHouseTypeAndYear(session.getHouse().getType(), session.getYear());		
-		sessionListCurrent.remove(session);
-		totalSessions.addAll(sessionListCurrent);
-		
-		List<Session> sessionListLast = Session.findSessionsByHouseTypeAndYear(session.getHouse().getType(), session.getYear()-1);
-				
-		if(sessionListLast.size() > 0){
-			Session lastSessionPrevYear = sessionListLast.get(0);
-			totalSessions.add(lastSessionPrevYear);
-		}
-				
-		return compareSession(totalSessions, session);
-	}
-	
-	/**
-	 * helper method to find the previous session 
-	 * @param sessionList 
-	 * @param session
-	 * @return
-	 */
-	private static Session compareSession(List<Session> sessionList, final Session session){
-		
-		Object[] sessions = sessionList.toArray();
-		long minDiff;
-		int indexer=-1;
-		
-		if(sessionList.size() > 0){
-			
-			minDiff = session.getStartDate().getTime() - ((Session)sessions[0]).getStartDate().getTime();
-		
-			for(int i = 0; i < sessions.length; i++){
-				
-				long tempTimeDifference = (session.getStartDate().getTime() - ((Session)sessions[i]).getStartDate().getTime()); 
-				
-				if(tempTimeDifference <= minDiff){
-					minDiff = tempTimeDifference;
-					indexer = i;
-				}
-			}
-		}
-		if(indexer >= 0)
-			return ((Session)sessions[indexer]);
-		else
-			return null;
-	}
-	
-	public String findHouseType() {
-		String sessionHouseType = null;
-		if(this.getHouse() != null) {
-			if(this.getHouse().getType() != null) {
-				if(this.getHouse().getType().getType() != null) {					
-					sessionHouseType = this.getHouse().getType().getType();					
-				}
-			}
-		}
-		return sessionHouseType;
-	}
-	
-	public List<Date> findAllSessionDates() {
-		
-		List<Date> sessionDates = new ArrayList<Date>();
-		
-		/** set calendar from session start date for processing all session dates **/
-		Calendar sessionCalender = Calendar.getInstance();
-		sessionCalender.setTime(this.getStartDate());
-		
-		/** loop through all session dates & collect them in the output list **/
-		for(sessionCalender.getTime(); sessionCalender.getTime().compareTo(this.getEndDate())<=0; sessionCalender.add(Calendar.DATE, 1)) {
-			
-			Date sessionDate = sessionCalender.getTime();	
-			
-			sessionDates.add(sessionDate);
-		}
-		
-		return sessionDates;
-	}
-	
-	public List<Date> findAllSessionDatesHavingNoHoliday() {
-		
-		List<Date> sessionDates = new ArrayList<Date>();
-		
-		/** set calendar from session start date for processing all session dates **/
-		Calendar sessionCalender = Calendar.getInstance();
-		sessionCalender.setTime(this.getStartDate());
-		
-		/** loop through all session dates & collect non-holiday dates in the output list **/
-		for(sessionCalender.getTime(); sessionCalender.getTime().compareTo(this.getEndDate())<=0; sessionCalender.add(Calendar.DATE, 1)) {
-			
-			Date sessionDate = sessionCalender.getTime();	
-			
-			//skip the date if it's holiday
-			if(Holiday.isHolidayOnDate(sessionDate, this.getLocale())) {
-				continue;
-			}
-			
-			sessionDates.add(sessionDate);
-		}
-		
-		return sessionDates;
-	}
-	
-	/** check if current date is in given session 
-	 * @throws ELSException **/
-	public static Boolean isCurrentDateInSession(final Session session) throws ELSException {	
-		if(session==null || session.getId()==null) {
-			throw new ELSException();
-		}
-		Boolean isCurrentDateInSession = null;
-		Date currentDate = new Date();
-		if(currentDate.compareTo(session.getStartDate())>=0 && currentDate.compareTo(session.getEndDate())<=0) {
-			isCurrentDateInSession = true;
-		} else {
-			isCurrentDateInSession = false;
-		}
-		return isCurrentDateInSession;
-	}
-	
-	public static List<SessionVO> findAllSessionDetailsForGivenHouseType(final HouseType houseType, final Date fromDate, final String locale) {
-		return getSessionRepository().findAllSessionDetailsForGivenHouseType(houseType, fromDate, locale);
-	}
+	}	
  }

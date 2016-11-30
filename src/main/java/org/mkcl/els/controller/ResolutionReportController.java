@@ -48,6 +48,7 @@ import org.mkcl.els.domain.WorkflowDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -796,8 +797,8 @@ public class ResolutionReportController extends BaseController{
 		return "resolution/reports/"+request.getParameter("reportout");
 	}
 	
-	@RequestMapping(value="/resolutionsonlinesubmissioncountreport/init",method=RequestMethod.GET)
-	public String initResolutionsOnlineSubmissionCountReport(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
+	@RequestMapping(value="/online_offline_submission_count_report/init",method=RequestMethod.GET)
+	public String initOnlineOfflineSubmissionCountReport(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
 		try{
 			/**** Log the activity ****/
 			ActivityLog.logActivity(request, locale.toString());
@@ -907,7 +908,7 @@ public class ResolutionReportController extends BaseController{
 			} else {
 				model.addAttribute("isCurrentDateValidForSubmission", false);
 			}
-			responsePage = "resolution/reports/resolutions_online_submission_count_init";
+			responsePage = "resolution/reports/online_offline_submission_count_report_init";
 		} else {
 			logger.error("**** Check request parameters 'deviceType,houseType,sessionType,sessionYear' for null/empty values ****");
 			model.addAttribute("errorcode", "insufficient_parameters");
@@ -916,8 +917,9 @@ public class ResolutionReportController extends BaseController{
 		return responsePage;
 	}
 	
-	@RequestMapping(value="/resolutionsonlinesubmissioncountreport",method=RequestMethod.GET)
-	public @ResponseBody void generateResolutionsOnlineSubmissionCountReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale) throws ELSException{
+	@Transactional
+	@RequestMapping(value="/online_offline_submission_count_report",method=RequestMethod.GET)
+	public @ResponseBody void generateOnlineOfflineSubmissionCountReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale) throws ELSException{
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
@@ -935,7 +937,11 @@ public class ResolutionReportController extends BaseController{
 					&& deviceType!=null && !deviceType.isEmpty()
 					&& houseType!=null && !houseType.isEmpty()
 					&& criteria!=null && !criteria.isEmpty()) {
-				/**** set fromDate & toDate to currentDate if forToday parameter is true ****/
+				Session sessionObj = Session.findById(Session.class, Long.parseLong(session));
+				DeviceType deviceTypeObj = DeviceType.findById(DeviceType.class, Long.parseLong(deviceType));
+				/**** set fromDate & toDate ****/
+				Date fromDate = null;
+				Date toDate = null;
 				Boolean forToday = Boolean.parseBoolean(forTodayStr);
 				if(forToday!=null && forToday.booleanValue()==true) {
 					Date currentDate = new Date();
@@ -955,10 +961,10 @@ public class ResolutionReportController extends BaseController{
 							}
 						}
 						//format fromDate for query
-						Date fromDate = FormaterUtil.formatStringToDate(fromDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+						fromDate = FormaterUtil.formatStringToDate(fromDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 						fromDateStr = FormaterUtil.formatDateToString(fromDate, ApplicationConstants.DB_DATEFORMAT);
 						//format toDate for query
-						Date toDate = FormaterUtil.formatStringToDate(toDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+						toDate = FormaterUtil.formatStringToDate(toDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 						toDateStr = FormaterUtil.formatDateToString(toDate, ApplicationConstants.DB_DATEFORMAT);
 					}
 					
@@ -976,6 +982,13 @@ public class ResolutionReportController extends BaseController{
 						
 						String queryName = "ROIS_MEMBERWISE_RESOLUTIONS_ONLINE_OFFLINE_SUBMISSION_COUNTS";
 						if(criteria.equals("datewise")) {
+							synchronized (Session.class) {								
+								boolean isSubmissionDatesForSessionLoaded = Session.loadSubmissionDatesForDeviceTypeInSession(sessionObj, deviceTypeObj, fromDate, toDate);
+								if(isSubmissionDatesForSessionLoaded==false) {
+									//error
+									isError = true;	
+								}
+							}
 							queryName = "ROIS_DATEWISE_RESOLUTIONS_ONLINE_OFFLINE_SUBMISSION_COUNTS";
 						}
 						DeviceType resolutionType = DeviceType.findById(DeviceType.class, Long.parseLong(deviceType));

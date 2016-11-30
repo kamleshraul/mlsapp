@@ -800,13 +800,13 @@
 	 	showTabByIdAndUrl('details_tab', resourceURL);
 	}
 	
-	function questionsOnlineSubmissionCountReport(){
+	function generateOnlineOfflineSubmissionCountReport(){
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		 + "&sessionYear=" + $("#selectedSessionYear").val()
 		 + "&sessionType=" + $("#selectedSessionType").val()
 		 + "&questionType=" + $("#selectedQuestionType").val()		 
 		 + "&role=" + $("#srole").val();		 	
-		var resourceURL = 'question/report/questionsonlinesubmissioncountreport/init?'+ parameters;
+		var resourceURL = 'question/report/online_offline_submission_count_report/init?'+ parameters;
 		$.get(resourceURL,function(data) {
 			$.fancybox.open(data,{autoSize:false,width:400,height:200});
 		},'html').fail(function(){				

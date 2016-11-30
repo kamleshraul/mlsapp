@@ -2517,7 +2517,11 @@ public class ApplicationConstants {
 	
 	public static final String SUBMISSION_START_DATE_SESSION_PARAMETER_KEY = "submissionStartDate";
 	
+	public static final String SUBMISSION_START_DATE_MOIS_SESSION_PARAMETER_KEY = "submissionStartTime";
+	
 	public static final String SUBMISSION_END_DATE_SESSION_PARAMETER_KEY = "submissionEndDate";
+	
+	public static final String SUBMISSION_END_DATE_MOIS_SESSION_PARAMETER_KEY = "submissionEndTime";
 	
 	public static final String GENERAL_ERROR_PAGE = "generic/error";
 	

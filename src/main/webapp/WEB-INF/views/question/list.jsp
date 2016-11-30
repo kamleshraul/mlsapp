@@ -124,9 +124,9 @@
 				memberwiseQuestionsReport();
 			});	
 			
-			/**** Generate Questions Online Submission Count Report ****/
-			$("#questions_online_submission_count_report").click(function(){
-				questionsOnlineSubmissionCountReport();
+			/**** Generate Online Offline Submission Count Report ****/
+			$("#online_offline_submission_count_report").click(function(){
+				generateOnlineOfflineSubmissionCountReport();
 			});
 			
 			/**** Questions Bulletein Report ****/
@@ -349,14 +349,14 @@
 				<a href="#" id="memberwise_questions_report" class="butSim link">
 					<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
 				</a> |		
-				<a href="#" id="questions_online_submission_count_report" class="butSim link">
-					<spring:message code="question.onlinesubmissioncountreport" text="Questions Online Submission Count Report"/>
+				<a href="#" id="online_offline_submission_count_report" class="butSim link">
+					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
 				</a> |
 				<hr> 
 				</security:authorize>
 				<security:authorize access="hasAnyRole('QIS_CLERK')">
-				<a href="#" id="questions_online_submission_count_report" class="butSim link">
-					<spring:message code="question.onlinesubmissioncountreport" text="Questions Online Submission Count Report"/>
+				<a href="#" id="online_offline_submission_count_report" class="butSim link">
+					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
 				</a> |
 				</security:authorize>
 				<a href="#" id="group_bulletein_report" class="butSim link">

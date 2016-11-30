@@ -315,14 +315,14 @@
 				showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);				
 		}
 		
-		/**** To Generate Resolutions Online Submission Count Report ****/
-		function resolutionsOnlineSubmissionCountReport(){
+		/**** To Generate Online-Offline Submission Count Report ****/
+		function generateOnlineOfflineSubmissionCountReport(){
 			var parameters = "houseType=" + $("#selectedHouseType").val()
 			 + "&sessionYear=" + $("#selectedSessionYear").val()
 			 + "&sessionType=" + $("#selectedSessionType").val()
 			 + "&deviceType=" + $("#selectedDeviceType").val()
 			 + "&role=" + $("#srole").val();		 	
-			var resourceURL = 'resolution/report/resolutionsonlinesubmissioncountreport/init?'+ parameters;
+			var resourceURL = 'resolution/report/online_offline_submission_count_report/init?'+ parameters;
 			$.get(resourceURL,function(data) {
 				$.fancybox.open(data,{autoSize:false,width:400,height:200});
 			},'html').fail(function(){				

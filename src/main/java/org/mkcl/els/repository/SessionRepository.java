@@ -220,6 +220,31 @@ public class SessionRepository extends BaseRepository<Session, Long>{
 		}
     	
     }
+    
+    public List<Session> findSessionsByHouseAndYearForGivenDeviceTypeEnabled(final House house,
+    		final Integer sessionYear,
+    		final DeviceType deviceType) throws ELSException {
+    	String strQuery="SELECT s FROM Session s WHERE s.house.id=:houseId"+
+    			" AND s.year=:sessionYear" +
+    			" AND (s.deviceTypesEnabled LIKE '"+deviceType.getType()+",%'" +
+    			" OR s.deviceTypesEnabled LIKE '%,"+deviceType.getType()+",%'" +
+    			" OR s.deviceTypesEnabled LIKE '%,"+deviceType.getType()+"')" +
+    			" ORDER BY s.startDate DESC";
+    	try{
+    		TypedQuery<Session> query=this.em().createQuery(strQuery, Session.class);
+        	query.setParameter("houseId", house.getId());
+        	query.setParameter("sessionYear", sessionYear);
+        	List<Session> sessions=query.getResultList();
+        	return sessions;
+    	}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("SessionRepository_List<Session>_findSessionsByHouseTypeAndYear", "Session  Not found");
+			throw elsException;
+		}
+    	
+    }
 
     public Session find(final Integer sessionyear, final String sessiontype,
             final String housetype) throws ELSException {
@@ -305,5 +330,19 @@ public class SessionRepository extends BaseRepository<Session, Long>{
 			}
 		}
 		return sessionVOs;
+	}
+  	
+  	public boolean loadSubmissionDatesForDeviceTypeInSession(final Session session, final DeviceType deviceType, final Date fromDate, final Date toDate) {
+		boolean isLoadingSuccessful = false;
+		
+		try {
+			this.em().createNativeQuery("call load_submissiondates_for_session_and_devicetype(?,?,?,?)").setParameter(1,session.getId()).setParameter(2,deviceType.getId()).setParameter(3,fromDate).setParameter(4,toDate).executeUpdate();
+			isLoadingSuccessful = true;
+		} catch(Exception e) {
+			logger.error("/****** load_submissiondates_for_session_and_devicetype failed to execute ******/");
+			isLoadingSuccessful = false;
+		}
+		
+		return isLoadingSuccessful;
 	}
 }

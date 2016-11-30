@@ -131,12 +131,12 @@
 												</fo:table-cell>
 												<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 													<fo:block font-weight="bold">
-														ऑनलाईन प्रश्नांची संख्या
+														ऑनलाईन सादर केलेल्या प्रश्नांची संख्या
 													</fo:block>
 												</fo:table-cell>
 												<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 													<fo:block font-weight="bold">
-														ऑफलाईन प्रश्नांची संख्या
+														ऑफलाईन सादर केलेल्या प्रश्नांची संख्या
 													</fo:block>
 												</fo:table-cell>
 												<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
@@ -264,8 +264,8 @@
 													<fo:block>
 														<xsl:choose>
 															<xsl:when test="element_2='memberwise'">
-																<fo:block font-weight="bold">ऑनलाईन प्रश्न सदस्यांची संख्या: <xsl:value-of select="element_1[1]/element_1_13"/></fo:block>
-																<fo:block font-weight="bold">ऑफलाईन प्रश्न सदस्यांची संख्या: <xsl:value-of select="element_1[1]/element_1_14"/></fo:block>
+																<fo:block font-weight="bold">ऑनलाईन सादर करणारे सदस्य: <xsl:value-of select="element_1[1]/element_1_13"/></fo:block>
+																<fo:block font-weight="bold">ऑफलाईन सादर करणारे सदस्य: <xsl:value-of select="element_1[1]/element_1_14"/></fo:block>
 															</xsl:when>		
 															<xsl:otherwise>
 																&#160;
@@ -294,7 +294,7 @@
 								</fo:block>
 			       			</xsl:when>
 			       			<xsl:otherwise>
-			       				अद्याप या अधिवेशनासाठी कोणत्याही सदस्याने प्रश्न सादर केलेले नाहीत. कृपया प्रश्न सादर झाल्यावरच हा रिपोर्ट बघावा.
+			       				अद्याप या अधिवेशनासाठी कोणत्याही सदस्याने प्रश्न सादर केलेले नाहीत.
 			       			</xsl:otherwise>
 			       		</xsl:choose>					
 			       </fo:block>

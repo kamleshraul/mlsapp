@@ -225,13 +225,13 @@
 				}
 			});
 			
-			$("#onlineOfflineCountReport").click(function(){
+			/* $("#onlineOfflineCountReport").click(function(){
 				if($("#onlineOfflineCountReportDiv").css('display')!='none'){
 					$("#onlineOfflineCountReportDiv").css({'display':'none'});
 				}else{
 					$("#onlineOfflineCountReportDiv").css({'display':'inline'});
 				}
-			});
+			}); */
 			
 			$("#goJodPatra").click(function(){
 				if($("#jodPatraDate").val()=='-'){
@@ -260,13 +260,18 @@
 				}
 			});
 			
-			$("#goOnlineOfflineCountReport").click(function(){
+			/* $("#goOnlineOfflineCountReport").click(function(){
 				if($("#onlineOfflineCountReportDate").val()=='-'){
 					$.prompt("Date not selected.");
 				}else{
 					showCountMotion();
 					$("#onlineOfflineCountReportDiv").css({'display': 'none'});
 				}
+			}); */
+			
+			/**** Generate Online Offline Submission Count Report ****/
+			$("#online_offline_submission_count_report").click(function(){
+				generateOnlineOfflineSubmissionCountReport();
 			});
 			
 			$("#formJodPatra").click(function(){
@@ -674,7 +679,7 @@
 			});
 		}
 		
-		function showCountMotion(){
+		/* function showCountMotion(){
 			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
 			+ "/" + $("#selectedSessionYear").val()
 			+ "/" + $("#selectedSessionType").val();
@@ -687,6 +692,26 @@
 							+"&locale="+$("#moduleLocale").val()
 							+"&report=MOIS_ONLINE_OFFLINE_COUNT&reportout=onoffcountreport");
 				}
+			});
+		} */
+		
+		function generateOnlineOfflineSubmissionCountReport(){
+			var parameters = "houseType=" + $("#selectedHouseType").val()
+			 + "&sessionYear=" + $("#selectedSessionYear").val()
+			 + "&sessionType=" + $("#selectedSessionType").val()
+			 + "&deviceType=" + $("#selectedMotionType").val()		 
+			 + "&role=" + $("#srole").val();		 	
+			var resourceURL = 'motion/report/online_offline_submission_count_report/init?'+ parameters;
+			$.get(resourceURL,function(data) {
+				$.fancybox.open(data,{autoSize:false,width:400,height:200});
+			},'html').fail(function(){				
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").
+					css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
 			});
 		}
 		
@@ -1197,7 +1222,7 @@
 								</a>-->						
 							</div>
 						</div>|
-						<div style="display: inline;">
+						<%-- <div style="display: inline;">
 							<a href="javascript:void(0);" id="onlineOfflineCountReport" class="butSim">
 								<spring:message code="motion.onlineoffline" text="Online Offline Count"/>
 							</a> 
@@ -1208,7 +1233,10 @@
 									<img width="20px" height="20px" src="./resources/images/word_icon.png"  title="<spring:message code='motion.selmotion.formation' text='Dated Motions'/>" />
 								</a>-->						
 							</div>
-						</div>|	
+						</div>|	 --%>
+						<a href="#" id="online_offline_submission_count_report" class="butSim link">
+							<spring:message code="smois.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
+						</a> |
 						<a href="javascript:void(0);" id="intimationletter" class="butSim">
 							<spring:message code="motion.intimationletter" text="Intimation Letter"/>
 						</a>

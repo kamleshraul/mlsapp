@@ -15,11 +15,11 @@
 					}
 				});
 				
-				/**** Resolutions Online Submission Count Report ****/
+				/**** Questions Online Submission Count Report ****/
 				$("#linkForReport").click(function(){	
-					var reportURL = "resolution/report/resolutionsonlinesubmissioncountreport?session="+$('#session').val()
+					var reportURL = "standalonemotion/report/online_offline_submission_count_report?session="+$('#session').val()
 							+"&houseType="+$('#houseType').val()
-							+"&deviceType="+$('#deviceType').val()
+							+"&questionType="+$('#questionType').val()
 							+"&criteria="+$('#criteria').val();
 							
 					if($('#forToday').is(':checked')) {
@@ -48,27 +48,27 @@
 		<p id="error_p" style="display: none;">&nbsp;</p>
 		<div class="fields clearfix">
 		<p>
-			<label class="small"><spring:message code="resolution.onlinesubmissioncountreport.fromDate" text="From Date"/>&nbsp;*</label>
+			<label class="small"><spring:message code="question.onlinesubmissioncountreport.fromDate" text="From Date"/>&nbsp;*</label>
 			<input id="fromDate" class="datemask sText" type="text" name="fromDate" value="${defaultFromDate}"/>
 		</p>
 		
 		<p>
-			<label class="small"><spring:message code="resolution.onlinesubmissioncountreport.toDate" text="To Date"/>&nbsp;*</label>
+			<label class="small"><spring:message code="question.onlinesubmissioncountreport.toDate" text="To Date"/>&nbsp;*</label>
 			<input id="toDate" class="datemask sText" type="text" name="toDate" value="${defaultToDate}"/>
 		</p>
 		
 		<c:if test="${isCurrentDateValidForSubmission == true}">
 		<p>
-			<label class="small"><spring:message code="resolution.onlinesubmissioncountreport.forToday" text="For Today?"/></label>
+			<label class="small"><spring:message code="question.onlinesubmissioncountreport.forToday" text="For Today?"/></label>
 			<input id="forToday" class="sCheck" type="checkbox" name="forToday"/>
 		</p>	
 		</c:if>
 		
 		<p>
-			<label class="small"><spring:message code="resolution.onlinesubmissioncountreport.criteria" text="Criteria"/></label>
+			<label class="small"><spring:message code="question.onlinesubmissioncountreport.criteria" text="Criteria"/></label>
 			<select class="sSelect" id="criteria" name="criteria">
-				<option value="memberwise"><spring:message code="resolution.onlinesubmissioncountreport.criteria.memberwise" text="Memberwise"/></option>
-				<option value="datewise"><spring:message code="resolution.onlinesubmissioncountreport.criteria.datewise" text="Datewise"/></option>
+				<option value="memberwise"><spring:message code="question.onlinesubmissioncountreport.criteria.memberwise" text="Memberwise"/></option>
+				<option value="datewise"><spring:message code="question.onlinesubmissioncountreport.criteria.datewise" text="Datewise"/></option>
 			</select>
 		</p>
 			
@@ -76,13 +76,13 @@
 			<h2></h2>
 			<p class="tright">
 				<a href="#" id="linkForReport" style="font-size: 20px;">
-					<spring:message code='resolution.onlinesubmissioncountreport.generateReport' text='Generate Report'/>
+					<spring:message code='question.onlinesubmissioncountreport.generateReport' text='Generate Report'/>
 				</a>
 			</p>
 		</div>
 		</div>
 		<input type="hidden" id="session" value="${session}">
-		<input type="hidden" id="deviceType" value="${deviceType}">
+		<input type="hidden" id="questionType" value="${questionType}">
 		<input type="hidden" id="houseType" value="${houseType}">
 	</body>
 </html>

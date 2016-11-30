@@ -2442,8 +2442,8 @@ public class QuestionReportController extends BaseController{
 		return "question/reports/memberwise_questions_data";
 	}
 	
-	@RequestMapping(value="/questionsonlinesubmissioncountreport/init",method=RequestMethod.GET)
-	public String initQuestionsOnlineSubmissionCountReport(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
+	@RequestMapping(value="/online_offline_submission_count_report/init",method=RequestMethod.GET)
+	public String initOnlineOfflineSubmissionCountReport(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
 		try{
 			/**** Log the activity ****/
 			ActivityLog.logActivity(request, locale.toString());
@@ -2508,34 +2508,62 @@ public class QuestionReportController extends BaseController{
 				return responsePage;
 			}
 			model.addAttribute("session",session.getId());
-			/**** submission start date of the session as default fromDate ****/
-			String submissionStartDateSessionParameter = session.getParameter(questionType.getType().trim()+"_"+ApplicationConstants.SUBMISSION_START_DATE_SESSION_PARAMETER_KEY);
-			if(submissionStartDateSessionParameter==null || submissionStartDateSessionParameter.isEmpty()) {
-				logger.error("**** Submission start date parameter is not set for the session ****");
-				model.addAttribute("errorcode", "submission_start_date_parameter_undefined_for_session");
-				return responsePage;
-			}
-			Date submissionStartDateForSession = FormaterUtil.formatStringToDate(submissionStartDateSessionParameter, ApplicationConstants.DB_DATEFORMAT);
-			if(submissionStartDateForSession==null)  {
-				logger.error("**** Submission start date parameter is set to invalid value for the session ****");
-				model.addAttribute("errorcode", "submission_start_date_parameter_invalid_for_session");
-				return responsePage;
-			}
-			model.addAttribute("defaultFromDate", FormaterUtil.formatDateToString(submissionStartDateForSession, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
-			/**** submission end date of the session as default toDate ****/
-			String submissionEndDateSessionParameter = session.getParameter(questionType.getType().trim()+"_"+ApplicationConstants.SUBMISSION_END_DATE_SESSION_PARAMETER_KEY);
-			if(submissionEndDateSessionParameter==null || submissionEndDateSessionParameter.isEmpty()) {
-				logger.error("**** Submission end date parameter is not set for the session ****");
-				model.addAttribute("errorcode", "submission_end_date_parameter_undefined_for_session");
-				return responsePage;
-			}
-			Date submissionEndDateForSession = FormaterUtil.formatStringToDate(submissionEndDateSessionParameter, ApplicationConstants.DB_DATEFORMAT);
-			if(submissionEndDateForSession==null)  {
-				logger.error("**** Submission end date parameter is set to invalid value for the session ****");
-				model.addAttribute("errorcode", "submission_end_date_parameter_invalid_for_session");
-				return responsePage;
-			}
-			model.addAttribute("defaultToDate", FormaterUtil.formatDateToString(submissionEndDateForSession, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+			/**** populate default from date and default to date ****/
+			Date defaultFromDate = null;
+			Date defaultToDate = null;
+			if(questionType.getType().trim().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+				//set defaultFromDate to next of session end date of previous session if exists or else house start date
+				Session previousSession = Session.findPreviousSessionInSameHouseForGivenDeviceTypeEnabled(session, questionType); //modify findPreviousSession to include only sessions with unstarred questions enabled
+				if(previousSession!=null && previousSession.getId()!=null) {
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(previousSession.getEndDate());
+					calendar.add(Calendar.DATE, 1);
+					defaultFromDate = calendar.getTime();
+				} else {
+					defaultFromDate = session.getHouse().getFirstDate();
+				}				
+				if(defaultFromDate==null)  {
+					logger.error("**** Start Date for Unstarred Submission in this session is not defined ****");
+					model.addAttribute("errorcode", "unstarred_start_date_undefined");
+					return responsePage;
+				}
+				defaultToDate = session.getEndDate();
+				if(defaultToDate==null)  {
+					logger.error("**** Session End Date is not defined ****");
+					model.addAttribute("errorcode", "session_end_date_undefined");
+					return responsePage;
+				}
+			} else {
+				/**** submission start date of the session as default fromDate ****/
+				String submissionStartDateSessionParameter = session.getParameter(questionType.getType().trim()+"_"+ApplicationConstants.SUBMISSION_START_DATE_SESSION_PARAMETER_KEY);
+				if(submissionStartDateSessionParameter==null || submissionStartDateSessionParameter.isEmpty()) {
+					logger.error("**** Submission start date parameter is not set for the session ****");
+					model.addAttribute("errorcode", "submission_start_date_parameter_undefined_for_session");
+					return responsePage;				
+				}
+				
+				defaultFromDate = FormaterUtil.formatStringToDate(submissionStartDateSessionParameter, ApplicationConstants.DB_DATEFORMAT);
+				if(defaultFromDate==null)  {
+					logger.error("**** Submission start date parameter is set to invalid value for the session ****");
+					model.addAttribute("errorcode", "submission_start_date_parameter_invalid_for_session");
+					return responsePage;
+				}
+				/**** submission end date of the session as default toDate ****/
+				String submissionEndDateSessionParameter = session.getParameter(questionType.getType().trim()+"_"+ApplicationConstants.SUBMISSION_END_DATE_SESSION_PARAMETER_KEY);
+				if(submissionEndDateSessionParameter==null || submissionEndDateSessionParameter.isEmpty()) {
+					logger.error("**** Submission end date parameter is not set for the session ****");
+					model.addAttribute("errorcode", "submission_end_date_parameter_undefined_for_session");
+					return responsePage;
+				}
+				defaultToDate = FormaterUtil.formatStringToDate(submissionEndDateSessionParameter, ApplicationConstants.DB_DATEFORMAT);
+				if(defaultToDate==null)  {
+					logger.error("**** Submission end date parameter is set to invalid value for the session ****");
+					model.addAttribute("errorcode", "submission_end_date_parameter_invalid_for_session");
+					return responsePage;
+				}
+			}			
+			model.addAttribute("defaultFromDate", FormaterUtil.formatDateToString(defaultFromDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+			model.addAttribute("defaultToDate", FormaterUtil.formatDateToString(defaultToDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
 			/**** Check whether current date is allowed for submission ****/
 			Calendar currentDateCalendar = Calendar.getInstance();
 			currentDateCalendar.setTime(new Date());	
@@ -2545,15 +2573,15 @@ public class QuestionReportController extends BaseController{
 			currentDateCalendar.set(Calendar.SECOND, 0);
 			currentDateCalendar.set(Calendar.MILLISECOND, 0);
 			if(	
-				(submissionStartDateForSession.before(currentDateCalendar.getTime()) || submissionStartDateForSession.equals(currentDateCalendar.getTime()))
+				(defaultFromDate.before(currentDateCalendar.getTime()) || defaultFromDate.equals(currentDateCalendar.getTime()))
 						&&
-				(submissionEndDateForSession.after(currentDateCalendar.getTime()) || submissionEndDateForSession.equals(currentDateCalendar.getTime()))
+				(defaultToDate.after(currentDateCalendar.getTime()) || defaultToDate.equals(currentDateCalendar.getTime()))
 			) {
 				model.addAttribute("isCurrentDateValidForSubmission", true);
 			} else {
 				model.addAttribute("isCurrentDateValidForSubmission", false);
 			}
-			responsePage = "question/reports/questions_online_submission_count_init";
+			responsePage = "question/reports/online_offline_submission_count_report_init";
 		} else {
 			logger.error("**** Check request parameters 'questionType,houseType,sessionType,sessionYear' for null/empty values ****");
 			model.addAttribute("errorcode", "insufficient_parameters");
@@ -2562,8 +2590,9 @@ public class QuestionReportController extends BaseController{
 		return responsePage;
 	}
 	
-	@RequestMapping(value="/questionsonlinesubmissioncountreport",method=RequestMethod.GET)
-	public @ResponseBody void generateQuestionsOnlineSubmissionCountReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale) throws ELSException{
+	@Transactional
+	@RequestMapping(value="/online_offline_submission_count_report",method=RequestMethod.GET)
+	public @ResponseBody void generateOnlineOfflineSubmissionCountReport(final HttpServletRequest request,final HttpServletResponse response,final ModelMap model,final Locale locale) throws ELSException{
 		File reportFile = null; 
 		Boolean isError = false;
 		MessageResource errorMessage = null;
@@ -2581,15 +2610,17 @@ public class QuestionReportController extends BaseController{
 					&& questionType!=null && !questionType.isEmpty()
 					&& houseType!=null && !houseType.isEmpty()
 					&& criteria!=null && !criteria.isEmpty()) {
-				/**** set fromDate & toDate to currentDate if forToday parameter is true ****/
+				Session sessionObj = Session.findById(Session.class, Long.parseLong(session));
+				/**** set fromDate & toDate ****/
+				Date fromDate = null;
+				Date toDate = null;
 				Boolean forToday = Boolean.parseBoolean(forTodayStr);
 				if(forToday!=null && forToday.booleanValue()==true) {
 					Date currentDate = new Date();
 					//format fromDate & toDate for query
 					fromDateStr = FormaterUtil.formatDateToString(currentDate, ApplicationConstants.DB_DATEFORMAT);
 					toDateStr = FormaterUtil.formatDateToString(currentDate, ApplicationConstants.DB_DATEFORMAT);
-				}
-				
+				}				
 				if(fromDateStr!=null && !fromDateStr.isEmpty() && toDateStr!=null && !toDateStr.isEmpty()) {
 					if(forToday==null || forToday.booleanValue()==false) {
 						//handle server encoding for fromDate & toDate parameters
@@ -2601,15 +2632,14 @@ public class QuestionReportController extends BaseController{
 							}
 						}
 						//format fromDate for query
-						Date fromDate = FormaterUtil.formatStringToDate(fromDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+						fromDate = FormaterUtil.formatStringToDate(fromDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 						fromDateStr = FormaterUtil.formatDateToString(fromDate, ApplicationConstants.DB_DATEFORMAT);
 						//format toDate for query
-						Date toDate = FormaterUtil.formatStringToDate(toDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+						toDate = FormaterUtil.formatStringToDate(toDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 						toDateStr = FormaterUtil.formatDateToString(toDate, ApplicationConstants.DB_DATEFORMAT);
 					}
-					
 					//submission status as per devicetype
-					Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, locale.toString());
+					Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, locale.toString());					
 					DeviceType deviceType = DeviceType.findById(DeviceType.class, Long.parseLong(questionType));
 					submitStatus = Question.findCorrespondingStatusForGivenQuestionType(submitStatus, deviceType);	
 					if(submitStatus!=null) {
@@ -2623,9 +2653,16 @@ public class QuestionReportController extends BaseController{
 						queryParameters.put("submitStatusId", new String[] {submitStatus.getId().toString()});
 						
 						String queryName = "QIS_MEMBERWISE_QUESTIONS_ONLINE_OFFLINE_SUBMISSION_COUNTS";
-						if(criteria.equals("datewise")) {
+						if(criteria.equals("datewise")) {	
+							synchronized (Session.class) {								
+								boolean isSubmissionDatesForSessionLoaded = Session.loadSubmissionDatesForDeviceTypeInSession(sessionObj, deviceType, fromDate, toDate);
+								if(isSubmissionDatesForSessionLoaded==false) {
+									//error
+									isError = true;	
+								}
+							}							
 							queryName = "QIS_DATEWISE_QUESTIONS_ONLINE_OFFLINE_SUBMISSION_COUNTS";
-						}
+						}						
 						List reportData = Query.findReport(queryName, queryParameters);
 						if(reportData!=null && !reportData.isEmpty()) {
 							/**** generate report ****/

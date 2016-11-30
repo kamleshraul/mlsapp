@@ -7,7 +7,7 @@
 		$(document).ready(function(){
 			$(".toolTip").hide();
 			$(".datemask").mask("99-99-9999");
-			$("#onlineOfflineCountReportDate").mask("9999-99-99");
+			//$("#onlineOfflineCountReportDate").mask("9999-99-99");
 			$("#selectionDiv1").show();							
 			/**** grid params which is sent to load grid data being sent ****/		
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
@@ -181,21 +181,26 @@
 			}
 			//------stats reports as html-----------------------ends----------------
 			
-			$("#onlineOfflineCountReport").click(function(){
+			/* $("#onlineOfflineCountReport").click(function(){
 				if($("#onlineOfflineCountReportDiv").css('display')!='none'){
 					$("#onlineOfflineCountReportDiv").css({'display':'none'});
 				}else{
 					$("#onlineOfflineCountReportDiv").css({'display':'inline'});
 				}
-			});
+			}); */
 			
-			$("#goOnlineOfflineCountReport").click(function(){
+			/* $("#goOnlineOfflineCountReport").click(function(){
 				if($("#onlineOfflineCountReportDate").val()=='-'){
 					$.prompt("Date not selected.");
 				}else{
 					showCountMotion();
 					$("#onlineOfflineCountReportDiv").css({'display': 'none'});
 				}
+			}); */
+			
+			/**** Generate Online Offline Submission Count Report ****/
+			$("#online_offline_submission_count_report").click(function(){
+				generateOnlineOfflineSubmissionCountReport();
 			});
 			
 		});
@@ -281,8 +286,10 @@
 					<a href="#" id="showHDGeneralReport" class="butSim">
 						<spring:message code="question.hdGeneralReport" text="HD General Report"/>
 					</a> |
-					
-					<div style="display: inline;">
+					<a href="#" id="online_offline_submission_count_report" class="butSim link">
+						<spring:message code="smois.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
+					</a> |
+					<%-- <div style="display: inline;">
 						<a href="javascript:void(0);" id="onlineOfflineCountReport" class="butSim">
 							<spring:message code="motion.onlineoffline" text="Online Offline Count"/>
 						</a> 
@@ -293,7 +300,7 @@
 								<img width="20px" height="20px" src="./resources/images/word_icon.png"  title="<spring:message code='motion.selmotion.formation' text='Dated Motions'/>" />
 							</a>-->						
 						</div>
-					</div>|	
+					</div>|	 --%>
 					<%-- <a href="#" id="showHDBallotChoiceOptionReport" class="butSim">
 						<spring:message code="question.BallotChoiceOptionReport" text="HD Ballot Choice Option Report"/>
 					</a> | --%>

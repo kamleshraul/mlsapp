@@ -78,7 +78,7 @@
 									<xsl:value-of select="element_1[1]/element_1_2"></xsl:value-of>						
 								</fo:block>								
 								<fo:block font-size="6px">&#160;</fo:block>
-								<fo:block font-size="16px" font-weight="bold" text-align="center">
+								<fo:block font-size="15.5px" font-weight="bold" text-align="center">
 									<xsl:value-of select="element_1[1]/element_1_4"></xsl:value-of>
 								</fo:block>
 								<fo:block font-size="6px">&#160;</fo:block>
@@ -131,17 +131,20 @@
 												</fo:table-cell>
 												<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 													<fo:block font-weight="bold">
-														ऑनलाईन सादर केलेल्या ठरावांची संख्या
+														ऑनलाईन सादर केलेल्या चर्चांची संख्या
 													</fo:block>
 												</fo:table-cell>
 												<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 													<fo:block font-weight="bold">
-														ऑफलाईन सादर केलेल्या ठरावांची संख्या
+														ऑफलाईन सादर केलेल्या चर्चांची संख्या
 													</fo:block>
 												</fo:table-cell>
 												<fo:table-cell border="solid 0.2mm black" display-align="before" text-align="center">
 													<fo:block font-weight="bold">
-														एकूण सादर केलेल्या ठरावांची संख्या
+														एकूण सादर केलेल्या
+													</fo:block>
+													<fo:block font-weight="bold">
+														चर्चांची संख्या
 													</fo:block>
 												</fo:table-cell>
 											</fo:table-row>
@@ -294,7 +297,7 @@
 								</fo:block>
 			       			</xsl:when>
 			       			<xsl:otherwise>
-			       				अद्याप या अधिवेशनासाठी कोणत्याही सदस्याने ठराव सादर केलेले नाहीत.
+			       				अद्याप या अधिवेशनासाठी कोणत्याही सदस्याने सर्वसाधारण अर्धा-तास चर्चा सादर केलेल्या नाहीत.
 			       			</xsl:otherwise>
 			       		</xsl:choose>					
 			       </fo:block>

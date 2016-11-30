@@ -84,9 +84,9 @@
 				memberResolutionsView();
 			});
 			
-			/**** Generate Resolutions Online Submission Count Report ****/
-			$("#resolutions_online_submission_count_report").click(function(){
-				resolutionsOnlineSubmissionCountReport();
+			/**** Generate Online Offline Submission Count Report ****/
+			$("#online_offline_submission_count_report").click(function(){
+				generateOnlineOfflineSubmissionCountReport();
 			});
 			
 			$("#karyavali_report").click(function(){
@@ -202,8 +202,8 @@
 			</security:authorize>
 			
 			<security:authorize access="hasAnyRole('ROIS_ASSISTANT','ROIS_SECTION_OFFICER','ROIS_CLERK')">
-				| <a href="#" id="resolutions_online_submission_count_report" class="butSim">
-					<spring:message code="resolution.onlinesubmissioncountreport" text="Resolutions Online Submission Count Report"/>
+				| <a href="#" id="online_offline_submission_count_report" class="butSim link">
+					<spring:message code="resolution.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
 				</a>
 			</security:authorize>
 			
