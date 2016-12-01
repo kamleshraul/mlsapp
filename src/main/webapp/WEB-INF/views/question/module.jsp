@@ -1564,7 +1564,7 @@
 					</security:authorize>
 			</security:authorize>
 			
-			<security:authorize	access="hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT', 'QIS_PRINCIPAL_SECRETARY')">
+			<security:authorize	access="hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT', 'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY')">
 				<a href="#" id="select_clubbingStatus" class="butSim"> 
 					<spring:message	code="generic.clubbingStatus" text="Clubbing Status"/>
 				</a>
