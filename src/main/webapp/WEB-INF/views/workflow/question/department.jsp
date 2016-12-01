@@ -764,7 +764,7 @@
 			resendAnswer();
 		});
 		
-		$('#answer').wysiwyg({
+/* 		$('#answer').wysiwyg({
 			initialContent:$('#defaultAnswerMessage').val(),
 			events : {
 				focus:function(e){
@@ -778,7 +778,7 @@
 					}
 				}
 			}
-		});
+		}); */
 		
 		
 	});
