@@ -527,7 +527,7 @@
 		 +"&status="+$("#selectedStatus").val()
 		 +"&role="+$("#srole").val() 
 		 + "&answeringDate=" + $("#selectedAnsweringDate").val()+"&category=standalonemotion";	
-		var resourceURL = 'standalonemotion/report/memberwisemotions?'+ parameters;	
+		var resourceURL = 'standalonemotion/report/memberwise_standalonemotions?'+ parameters;	
 		//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		showTabByIdAndUrl('details_tab', resourceURL);
 		/* $.get(resourceURL,function(data){

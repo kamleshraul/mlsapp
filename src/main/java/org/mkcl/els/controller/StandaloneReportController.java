@@ -1530,7 +1530,7 @@ public class StandaloneReportController extends BaseController{
 	}
 	
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/memberwisemotions",method=RequestMethod.GET)
+	@RequestMapping(value="/memberwise_standalonemotions",method=RequestMethod.GET)
 	public String viewMemberWiseReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
 		try{
@@ -1575,7 +1575,7 @@ public class StandaloneReportController extends BaseController{
 						return errorpage;
 					}
 					model.addAttribute("session",session.getId());			
-					/**** find all members from given house which can submit motions ****/
+					/**** find all members from given house which can submit standalone motions ****/
 					Map<String, String[]> queryParameters = new HashMap<String, String[]>();
 					queryParameters.put("houseId", new String[]{session.getHouse().getId().toString()});
 					Date limitingDateForSession = null;
@@ -1588,7 +1588,7 @@ public class StandaloneReportController extends BaseController{
 					}
 					queryParameters.put("limitingDateForSession", new String[]{FormaterUtil.formatDateToString(limitingDateForSession, ApplicationConstants.DB_DATEFORMAT)});
 					queryParameters.put("locale", new String[]{locale.toString()});
-					List resultList = Query.findReport("MEMBERS_ELIGIBLE_FOR_QUESTION_SUBMISSION_IN_GIVEN_HOUSE", queryParameters);
+					List resultList = Query.findReport("MEMBERS_ELIGIBLE_FOR_STANDALONEMOTION_SUBMISSION_IN_GIVEN_HOUSE", queryParameters);
 					if(resultList!=null && !resultList.isEmpty()) {
 						for(Object o: resultList) {								
 							Object[] result = (Object[])o;
@@ -1620,11 +1620,11 @@ public class StandaloneReportController extends BaseController{
 			model.addAttribute("type","DB_EXCEPTION");
 			return errorpage;
 		}
-		return "standalonemotion/reports/memberwise_motions";
+		return "standalonemotion/reports/memberwise_standalonemotions";
 	}
 	
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/memberwisemotions/motions",method=RequestMethod.GET)
+	@RequestMapping(value="/memberwise_standalonemotions/motions",method=RequestMethod.GET)
 	public String viewMemberWiseMotionsReport(final HttpServletRequest request,final ModelMap model,final Locale locale){
 		String errorpage="ballot/error";
 		try{
@@ -1693,7 +1693,7 @@ public class StandaloneReportController extends BaseController{
 			model.addAttribute("type","DB_EXCEPTION");
 			return errorpage;
 		}
-		return "standalonemotion/reports/memberwise_motions_data";
+		return "standalonemotion/reports/memberwise_standalonemotions_data";
 	}
 	
 	@RequestMapping(value="/bulleteinreport" ,method=RequestMethod.GET)

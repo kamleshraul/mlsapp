@@ -87,7 +87,7 @@
 				generateClubbedIntimationLetter();				
 			});
 						
-			/**** Generate Member's Questions Report ****/
+			/**** Generate Member's Standalone Motions Report ****/
 			$("#memberwise_standalonemotions_report").click(function(){
 				$("#selectionDiv1").hide();
 				memberwiseStandaloneMotionReport();

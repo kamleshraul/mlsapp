@@ -80,16 +80,16 @@
 		if(value!='-'){
 		var parameters="member="+$('#member').val()
 					+"&session="+$("#session").val()
-					+"&questionType="+$("#questionType").val()
+					+"&motionType="+$("#motionType").val()
 					+"&houseType="+$("#houseType").val()
 					+"&sessionType="+$("#sessionType").val()
 					+"&sessionYear="+$("#sessionYear").val()
 					+"&groups="+$('#groups').val()
 					+"&status="+$('#status').val();
-		var resource='question/report/memberwisequestions/questions';
+		var resource='standalonemotion/report/memberwise_standalonemotions/motions';
 		$.get(resource+'?'+parameters,function(data){
-			$("#listQuestionsDiv").empty();	
-			$("#listQuestionsDiv").html(data);
+			$("#listMotionsDiv").empty();	
+			$("#listMotionsDiv").html(data);
 			$.unblockUI();		
 		},'html').fail(function(){
 			$.unblockUI();
@@ -101,7 +101,7 @@
 			scrollTop();
 		});
 		}else{
-			$("#listQuestionsDiv").empty();
+			$("#listMotionsDiv").empty();
 			$.unblockUI();			
 		}
 		$("#errorDiv").hide();
@@ -137,20 +137,23 @@
 			<option value="${i.id }"><c:out value="${i.name}"></c:out></option>
 		</c:forEach>
 	</select>
-	<%-- <a id="cumulativeMemberQuestionsReport" href="#" style="margin-left: 20px;">
-		<spring:message code="memberwisereport.cumulativeMemberQuestionsReport" text="Cumulative Member Questions Report"/>
+	<%-- <a id="cumulativeMemberMotionsReport" href="#" style="margin-left: 20px;">
+		<spring:message code="memberwisereport.cumulativeMemberMotionsReport" text="Cumulative Member Motions Report"/>
 	</a> --%>
+	<c:if test="${houseTypeType=='upperhouse'}">
 	<label style="margin: 10px;"><spring:message code="memberwisereport.groups" text="Groups"/></label>
 	<input type="text" class="sText" id="groupNumbers" name="groupNumbers" style="width: 200px;" value="<spring:message code='generic.allSelected' text='All Selected'/>"/>
-	<input type="hidden" id="groups" name="groups" value="0"/>
+	</c:if>
+	<input type="hidden" id="groups" name="groups" value="0"/>	
 	<label style="margin: 10px;"><spring:message code="memberwisereport.status" text="Status" /></label>
 	<select id="status"></select>
 </p>
-<div id="listQuestionsDiv">
+<div id="listMotionsDiv">
 </div>
 <input type="hidden" id="session" name="session" value="${session }">
-<input type="hidden" id="questionType" name="questionType" value="${questionType}">
+<input type="hidden" id="motionType" name="motionType" value="${motionType}">
 <input type="hidden" id="houseType" name="houseType" value="${houseType}">
+<input type="hidden" id="houseTypeType" name="houseTypeType" value="${houseTypeType}">
 <input type="hidden" id="sessionType" name="sessionType" value="${sessionType}">
 <input type="hidden" id="sessionYear" name="sessionYear" value="${sessionYear}">
 <input type="hidden" id="group" name="group" value="${group}">

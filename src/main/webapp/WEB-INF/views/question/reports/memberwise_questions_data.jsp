@@ -13,6 +13,9 @@
 						<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.number" text="Question Number"/></th>
 						<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.groupNumber" text="Group Number"/></th>
 						<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.subject" text="Subject"/></th>
+						<c:if test="${memberwiseQuestions[0][12]=='upperhouse' and memberwiseQuestions[0][7]=='questions_halfhourdiscussion_from_question'}">
+							<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.subdepartment" text="Sub-Department"/></th>
+						</c:if>
 						<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.workstatus" text="Work Status"/></th>
 					</tr>
 				</thead>
@@ -31,6 +34,11 @@
 							<td style="padding-left: 15px;vertical-align: top;">
 								${formatter.formatNumbersInGivenText(question[2], locale)}
 							</td>
+							<c:if test="${question[12]=='upperhouse' and question[7]=='questions_halfhourdiscussion_from_question'}">
+								<td style="padding-left: 15px;vertical-align: top;">
+									${question[11]}
+								</td>
+							</c:if>
 							<td style="padding-left: 15px; font-weight: bold; text-align: center;vertical-align: top;">
 								<c:choose>
 									<c:when test="${question[7]=='questions_starred' and question[8]=='question_final_admission' and (empty question[5])}">
