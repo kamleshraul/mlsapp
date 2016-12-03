@@ -178,6 +178,23 @@ public class ResolutionReportController extends BaseController{
 								}
 							}
 							
+							if(dataMap.get(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY) == null 
+									&& resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+								UserGroupType userGroupType = UserGroupType.
+										findByFieldName(UserGroupType.class, "type", ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, locale.toString());
+								
+								Object[] dataCollection = new Object[25];
+								dataCollection[0] = new String(userGroupType.getName());
+								dataCollection[1] = new String("");
+								dataCollection[3] = new String("");
+								dataCollection[6] = new String("");
+								dataCollection[21] = userGroupType.getType();
+								dataCollection[22] = new String("");
+								dataCollection[24] = null;
+								
+								dataMap.put(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, dataCollection);
+							}
+							
 							if(dataMap.get(ApplicationConstants.SECRETARY) == null 
 									&& resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
 								UserGroupType userGroupType = UserGroupType.

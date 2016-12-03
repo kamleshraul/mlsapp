@@ -2539,6 +2539,8 @@ public class ApplicationConstants {
 	
 	public static final String RIS_CHIEF_REPORTER = "RIS_CHIEF_REPORTER";
 	
+	public static final String  OFFICER_ON_SPECIAL_DUTY = "officer_on_special_duty";
+	
 	public static String RIS_REPORTER = "RIS_REPORTER";
 	
 }
