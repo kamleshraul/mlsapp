@@ -2543,4 +2543,6 @@ public class ApplicationConstants {
 	
 	public static String RIS_REPORTER = "RIS_REPORTER";
 	
+	public static String CSPT_DEVICES_WITH_SUBDEPARTMENT_FILTER_IN_REFERENCING = "DEVICES_WITH_SUBDEPARTMENT_FILTER_IN_REFERENCING";
+	
 }

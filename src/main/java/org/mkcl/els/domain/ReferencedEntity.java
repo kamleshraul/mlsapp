@@ -121,8 +121,9 @@ public class ReferencedEntity extends BaseDomain implements Serializable{
 			final Integer sessionCount,
 			final Integer sessionYear, 
 			final Long sessionType,
+			final Long subDepartment,
 			final int start,final int noOfRecords,final String locale) {
-		return getReferencedEntityRepository().fullTextSearchReferencing(param, question, sessionCount, sessionYear, sessionType, start, noOfRecords, locale);
+		return getReferencedEntityRepository().fullTextSearchReferencing(param, question, sessionCount, sessionYear, sessionType, subDepartment, start, noOfRecords, locale);
 	}
 	
 	public static List<MotionSearchVO> fullTextSearchReferencing(

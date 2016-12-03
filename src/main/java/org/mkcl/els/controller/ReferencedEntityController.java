@@ -32,6 +32,7 @@ import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.StandaloneMotion;
+import org.mkcl.els.domain.SubDepartment;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -105,6 +106,24 @@ public class ReferencedEntityController {
 							model.addAttribute("whichDevice", ApplicationConstants.DEVICE_MOTIONS);
 						}
 					}
+					
+					Boolean isSubDepartmentFilterAllowed = false;
+					CustomParameter csptDevicesWithSubDepartmentFilterInReferencing = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CSPT_DEVICES_WITH_SUBDEPARTMENT_FILTER_IN_REFERENCING, "");
+					if(csptDevicesWithSubDepartmentFilterInReferencing!=null 
+							&& csptDevicesWithSubDepartmentFilterInReferencing.getValue()!=null) {						
+						for(String i: csptDevicesWithSubDepartmentFilterInReferencing.getValue().trim().split(",")) {
+							if(strDeviceType.startsWith(i)) {
+								isSubDepartmentFilterAllowed = true;
+								break;
+							}
+						}
+						if(isSubDepartmentFilterAllowed) {
+							/**** SubDepartment Filter ****/
+							List<SubDepartment> subDepartments = SubDepartment.findAll(SubDepartment.class, "name", ApplicationConstants.ASC, locale.toString());
+							model.addAttribute("subDepartments", subDepartments);
+						}
+					}
+					model.addAttribute("isSubDepartmentFilterAllowed", isSubDepartmentFilterAllowed);
 					
 					if(strUsergroupType != null){
 						if(!strUsergroupType.isEmpty()){
@@ -577,13 +596,18 @@ public class ReferencedEntityController {
         if(strSessionType!=null && !strSessionType.isEmpty() && !strSessionType.equals("-")) {
         	sessionType = Long.parseLong(strSessionType);
         }
+        Long subDepartment = null;
+        String strSubDepartment = request.getParameter("subDepartment");
+        if(strSubDepartment!=null && !strSubDepartment.isEmpty() && !strSubDepartment.equals("-") && !strSubDepartment.equals("0")) {
+        	subDepartment = Long.parseLong(strSubDepartment);
+        }
         if(questionId!=null&&start!=null&&noOfRecords!=null&&strHouseType!=null){
             if((!questionId.isEmpty())&&(!start.isEmpty())&&(!noOfRecords.isEmpty())&&(!strHouseType.isEmpty())
             		&& (strSessionCount != null && !strSessionCount.isEmpty())){
             	
                 Question question=Question.findById(Question.class, Long.parseLong(questionId));
                 int sessionCount = Integer.parseInt(strSessionCount);
-                questionSearchVOs=ReferencedEntity.fullTextSearchReferencing(param,question,sessionCount,sessionYear,sessionType,Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
+                questionSearchVOs=ReferencedEntity.fullTextSearchReferencing(param,question,sessionCount,sessionYear,sessionType,subDepartment,Integer.parseInt(start),Integer.parseInt(noOfRecords),locale.toString());
             }
         }       
         return questionSearchVOs;

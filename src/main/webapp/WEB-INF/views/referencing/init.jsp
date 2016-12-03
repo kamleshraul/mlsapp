@@ -114,6 +114,19 @@
 					previousSearchCount=record;
 				}
 			});
+			/**** Sub-Department Filter ****/
+			$("#refSubDepartment").change(function(){
+				if($(this).val()=='0'){
+					$(this).css('color','black');
+				}else{
+					$(this).css('color','blue');
+				}
+				start=0;				
+				$("#referencingResult").empty();
+				$("#searchTable tbody").empty();
+				$("#referencingDiv").hide();
+				previousSearchCount=record;
+			});
 			$("#reset").click(function(){					
 				$("#refSessionYear").prop('selectedIndex',0);
 				$("#refSessionType").prop('selectedIndex',0);
@@ -301,7 +314,7 @@
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				if((toBeSearched==previousSearchTerm)&&(previousSearchCount==record)){
 					if(/*/^questions_/.test(currentDeviceType)*/currentDeviceType.indexOf('questions')==0){
-						$.post('refentity/search',{param:$("#searchrefvalue").val(),question:$("#questionId").val(), houseType:$("#houseTypeType").val(), questionSessionYear:$("#refSessionYear").val(),questionSessionType:$("#refSessionType").val(),sessionCount:$("#refSessionCount").val(),record:record,start:start},function(data){
+						$.post('refentity/search',{param:$("#searchrefvalue").val(),question:$("#questionId").val(), houseType:$("#houseTypeType").val(), questionSessionYear:$("#refSessionYear").val(),questionSessionType:$("#refSessionType").val(),sessionCount:$("#refSessionCount").val(),subDepartment:$("#refSubDepartment").val(),record:record,start:start},function(data){
 							if(data.length>0){
 								var text="";	
 								for(var i=0;i<data.length;i++){
@@ -367,7 +380,7 @@
 	    				});	
 					}else if(currentDeviceType.indexOf("motions_")==0){
 						if(currentDeviceType.indexOf("motions_standalonemotion_")==0){
-							$.post('refentity/searchhds',{param:$("#searchrefvalue").val(),motion:$("#motionId").val(), houseType:$("#houseTypeType").val(), motionSessionYear:$("#refSessionYear").val(),motionSessionType:$("#refSessionType").val(),record:record,start:start},function(data){
+							$.post('refentity/searchhds',{param:$("#searchrefvalue").val(),motion:$("#motionId").val(), houseType:$("#houseTypeType").val(), motionSessionYear:$("#refSessionYear").val(),motionSessionType:$("#refSessionType").val(),subDepartment:$("#refSubDepartment").val(),record:record,start:start},function(data){
 								if(data.length>0){
 									var text="";	
 									for(var i=0;i<data.length;i++){
@@ -409,7 +422,7 @@
 		    					scrollTop();
 		    				});
 						}else{
-							$.post('refentity/searchmotion',{param:$("#searchrefvalue").val(),motion:$("#motionId").val(), houseType:$("#houseType").val(), motionSessionYear:$("#refSessionYear").val(),motionSessionType:$("#refSessionType").val(),record:record,start:start},function(data){
+							$.post('refentity/searchmotion',{param:$("#searchrefvalue").val(),motion:$("#motionId").val(), houseType:$("#houseType").val(), motionSessionYear:$("#refSessionYear").val(),motionSessionType:$("#refSessionType").val(),subDepartment:$("#refSubDepartment").val(),record:record,start:start},function(data){
 								if(data.length>0){
 									var text="";	
 									for(var i=0;i<data.length;i++){
@@ -462,7 +475,7 @@
 		    				});
 						}							
 					}else if(/*/^resolutions_/.test(currentDeviceType)*/currentDeviceType.indexOf('resolutions')>-1){
-						$.post('refentity/searchresolution',{param:$("#searchrefvalue").val(),resolution:$("#resolutionId").val(), resolutionSessionYear:$("#refSessionYear").val(),resolutionSessionType:$("#refSessionType").val(),record:record,start:start},function(data){
+						$.post('refentity/searchresolution',{param:$("#searchrefvalue").val(),resolution:$("#resolutionId").val(), resolutionSessionYear:$("#refSessionYear").val(),resolutionSessionType:$("#refSessionType").val(),subDepartment:$("#refSubDepartment").val(),record:record,start:start},function(data){
 							
 							if(data.length>0){
 								var text="";
@@ -508,7 +521,7 @@
 	    				});
 						
 					}else if(/^bills_/.test(currentDeviceType)){
-						$.post('refentity/searchbill',{param:$("#searchrefvalue").val(),bill:$("#billId").val(),language:$("#languageAllowed").val(),billSessionYear:$("#refSessionYear").val(),billSessionType:$("#refSessionType").val(),record:record,start:start},function(data){
+						$.post('refentity/searchbill',{param:$("#searchrefvalue").val(),bill:$("#billId").val(),language:$("#languageAllowed").val(),billSessionYear:$("#refSessionYear").val(),billSessionType:$("#refSessionType").val(),subDepartment:$("#refSubDepartment").val(),record:record,start:start},function(data){
 							
 							if(data.length>0){								
 								var text="";
@@ -1017,69 +1030,80 @@ cursor:pointer;
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
 <div id="searchBoxDiv">
-	<c:choose>
-		<c:when test="${whichDevice!='bills_' and whichDevice!='motions_'}">
-			<p>
-				<a href="javascript:void(0);">
-					<spring:message code="advancedsearch.sessioncount" text="Session Count"/>
-				</a>	
-				<select name="sessionCount" id="refSessionCount" style="width:100px;height: 25px;">				
-					<option value="0" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-					<c:forEach var="i" items="${sessionCount}">
-						<option value="${i.id}" ><c:out value="${i.name}"></c:out></option>
-					</c:forEach> 
-				</select>|
+	<p>
+		<c:choose>
+			<c:when test="${whichDevice!='bills_' and whichDevice!='motions_'}">
 				
-				<a href="#">
-					<spring:message code="advancedsearch.sessionyear" text="Session Year"/>
-				</a>	
-				<select name="sessionYear" id="refSessionYear" style="width:100px;height: 25px;">				
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-					<c:forEach var="i" items="${years}">
-						<c:choose>
-							<c:when test="${sessionYear==i.id}">
-								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
-							</c:when>
-							<c:otherwise>
-								<option value="${i.id}" ><c:out value="${i.name}"></c:out></option>			
-							</c:otherwise>
-						</c:choose>
-					</c:forEach> 
-				</select> |	
+					<a href="javascript:void(0);">
+						<spring:message code="advancedsearch.sessioncount" text="Session Count"/>
+					</a>	
+					<select name="sessionCount" id="refSessionCount" style="width:100px;height: 25px;">				
+						<option value="0" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+						<c:forEach var="i" items="${sessionCount}">
+							<option value="${i.id}" ><c:out value="${i.name}"></c:out></option>
+						</c:forEach> 
+					</select>|
 					
 					<a href="#">
-						<spring:message code="advancedsearch.sessionType" text="Session Type"/>
-					</a>			
-					<select name="sessionType" id="refSessionType" style="width:100px;height: 25px;">				
-					<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-					<c:forEach items="${sessionTypes}" var="i">
-					<c:choose>
-					<c:when test="${sessionType==i.id}">
-					<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>
-					</c:when>
-					<c:otherwise>
-					<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>	
-					</c:otherwise>
-					</c:choose>
-					</c:forEach> 
-					</select> |		
-			</p>
-		</c:when>
-		<c:otherwise>
-			<c:if test="${whichDevice!='motions_'}">
-				<a href="#" class="butSim">
-					<spring:message code="bill.language" text="Language"/>
-				</a>		
-				<select name="languageAllowed" id="languageAllowed" class="sSelect">			
-					<option value="-" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
-					<c:forEach var="i" items="${languagesAllowedForBill}">
-						<option value="${i.type}">${i.name}</option>			
-					</c:forEach>
-				</select>
-			</c:if>
-		</c:otherwise>
-	</c:choose>
-	
+						<spring:message code="advancedsearch.sessionyear" text="Session Year"/>
+					</a>	
+					<select name="sessionYear" id="refSessionYear" style="width:100px;height: 25px;">				
+						<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+						<c:forEach var="i" items="${years}">
+							<c:choose>
+								<c:when test="${sessionYear==i.id}">
+									<option value="${i.id}"><c:out value="${i.name}"></c:out></option>			
+								</c:when>
+								<c:otherwise>
+									<option value="${i.id}" ><c:out value="${i.name}"></c:out></option>			
+								</c:otherwise>
+							</c:choose>
+						</c:forEach> 
+					</select> |	
+						
+						<a href="#">
+							<spring:message code="advancedsearch.sessionType" text="Session Type"/>
+						</a>			
+						<select name="sessionType" id="refSessionType" style="width:100px;height: 25px;">				
+						<option value="-"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+						<c:forEach items="${sessionTypes}" var="i">
+						<c:choose>
+						<c:when test="${sessionType==i.id}">
+						<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>
+						</c:when>
+						<c:otherwise>
+						<option value="${i.id}"><c:out value="${i.sessionType}"></c:out></option>	
+						</c:otherwise>
+						</c:choose>
+						</c:forEach> 
+						</select> |								
+			</c:when>
+			<c:otherwise>
+				<c:if test="${whichDevice!='motions_'}">
+					<a href="#" class="butSim">
+						<spring:message code="bill.language" text="Language"/>
+					</a>		
+					<select name="languageAllowed" id="languageAllowed" class="sSelect">			
+						<option value="-" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+						<c:forEach var="i" items="${languagesAllowedForBill}">
+							<option value="${i.type}">${i.name}</option>			
+						</c:forEach>
+					</select> |
+				</c:if>
+			</c:otherwise>		
+		</c:choose>	
+		<c:if test="${isSubDepartmentFilterAllowed}">
+			<a href="#" class="butSim">
+				<spring:message code="referencing.subDepartmentFilter" text="Sub-Department"/>
+			</a>
+			<select name="refSubDepartment" id="refSubDepartment" class="sSelect" style="width: 100px; height: 25px;">	
+				<option value="0" selected="selected"><spring:message code="please.select" text="Please Select"></spring:message></option>			
+				<c:forEach var="i" items="${subDepartments}">
+					<option value="${i.id}">${i.name}</option>
+				</c:forEach>
+			</select> |
+		</c:if>	
+	</p>
 	<table cellpadding="0px" cellspacing="0px">
 		<tr> 
 			<td style="border-style:solid none solid solid;border-color:#4B7B9F;border-width:1px;">

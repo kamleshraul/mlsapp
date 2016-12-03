@@ -443,6 +443,7 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 			final int sessionCount, 
 			final Integer sessionYear,
 			final Long sessionType,
+			final Long subDepartment,
 			final int start,final int noOfRecords,final String locale) {
 		List<QuestionSearchVO> questionSearchVOs = new ArrayList<QuestionSearchVO>();
 		try{
@@ -591,6 +592,12 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					" AND m.parent IS NULL" +
 					" AND s.id IN (" + sb + ")" + strStatusFilter.toString();
 			
+			StringBuffer selectQueryBuffer = new StringBuffer(selectQuery);
+			
+			if(subDepartment!=null) {
+				selectQueryBuffer.append(" AND sd.id="+subDepartment);
+			}
+			
 			String searchQuery=null;
 			if(!param.contains("+")&&!param.contains("-")){
 				searchQuery=" AND (( match(m.subject,m.question_text,m.revised_subject,m.revised_question_text) "+
@@ -622,7 +629,7 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					" ,m.number "+ApplicationConstants.DESC + ", s.session_year "+ApplicationConstants.DESC;
 			
 			/**** Final Query ****/
-			String query = selectQuery + searchQuery + orderByQuery;
+			String query = selectQueryBuffer.toString() + searchQuery + orderByQuery;
 			
 			String finalQuery = "SELECT " +
 					"rs.id," +
