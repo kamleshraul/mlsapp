@@ -3826,13 +3826,17 @@ class QuestionReportHelper{
 								}
 							}
 							Integer level = null;
+							WorkflowDetails  wfDetails = WorkflowDetails.findCurrentWorkflowDetail(qt);
 							for(WorkflowActor wf : distinctActors){
 								UserGroupType userGroupType = wf.getUserGroupType();
 								if(userGroupType.getType().equals(lastObject[27])){
 									level = wf.getLevel();
 								}
 								if(level != null && wf.getLevel()>level){
-									if(dataMap.containsKey(userGroupType.getType())){
+									if(dataMap.containsKey(userGroupType.getType())
+											&&
+										(wfDetails!= null && 
+										Integer.parseInt(wfDetails.getAssigneeLevel())>=level)){
 										Object[] tempObj = dataMap.get(userGroupType.getType());
 										tempObj[28] = "";
 										tempObj[6] = "";
