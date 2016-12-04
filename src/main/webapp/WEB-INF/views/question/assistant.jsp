@@ -1407,6 +1407,21 @@
 		<c:if test="${fn:contains(internalStatusType, 'question_final')||fn:contains(internalStatusType, 'question_unstarred_final')}">
 			<form:hidden path="actor"/>
 		</c:if>
+		
+		<c:if test="${!(empty domain.factualPosition)}">
+			<p>
+				<label class="centerlabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+				<form:textarea path="factualPosition" rows="2" cols="50"></form:textarea>
+			</p>
+		</c:if>
+		
+		<c:if test="${!(empty domain.factualPositionFromMember)}">
+			<p>
+				<label class="centerlabel"><spring:message code="question.factualPositionFromMember" text="Factual Position from Member"/></label>
+				<form:textarea path="factualPositionFromMember" rows="2" cols="50"></form:textarea>
+			</p>
+		</c:if>
+		
 		<c:if test="${fn:contains(internalStatusType, 'question_final_clarificationNeededFromDepartment') || fn:contains(internalStatusType, 'question_unstarred_final_clarificationNeededFromDepartment')}">
 			<p>
 			<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
