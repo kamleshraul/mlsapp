@@ -8,6 +8,8 @@
 	<script type="text/javascript">
 		$(document).ready(function(){	 
 			document.onkeydown = function(e){
+				
+				//var myVar = '';
 			    //keycode for F5 function
 				if(e.keyCode===116){
 					return false;
@@ -395,6 +397,12 @@
 				   </spring:message>
 				</a>
 			</li>	
+			<li>
+				<a id="bookmarks_tab" href="#" class="tab">
+				   <spring:message code="generic.bookmarks" text="Bookmark">
+				   </spring:message>
+				</a>
+			</li>
 			<li style='display:none;'>
 				<a id="part_tab" href="#" class="tab">
 				   <spring:message code="generic.part" text="part">
