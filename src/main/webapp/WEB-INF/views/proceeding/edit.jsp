@@ -124,13 +124,14 @@
 			    	  nonbreaking_force_tab: true,
 			    	  entity_encoding : "raw",
 			    	  plugins: [
-			    	    'advlist autolink lists link image charmap print preview hr anchor',
-			    	    'searchreplace wordcount visualblocks visualchars code fullscreen',
-			    	    'insertdatetime media nonbreaking  table contextmenu directionality pagebreak',
-			    	    'emoticons template paste textcolor colorpicker textpattern imagetools lineheight'
+			    	    'print',
+			    	    'searchreplace wordcount fullscreen noneditable' ,
+			    	    'nonbreaking  table pagebreak',
+			    	    'template paste textpattern'
 			    	  ],
-			    	  toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image |fontselect fontsizeselect| lineheightselect',
-			    	  toolbar2: 'print preview media | forecolor backcolor emoticons|fullscreen',
+			    	  noneditable_noneditable_class: "nonEditable",
+			    	  toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
+			    	  toolbar2: 'print|fullscreen',
 			    	  image_advtab: true,
 			    	  templates:"ref/proceedingCitation",
 			    	  fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
@@ -158,12 +159,12 @@
 			    			 if(characterCount >= pageCount){
 			    				pageCounter = parseInt(pageCounter) + 1;
 			    				$("#pageCounter").val(pageCounter);
-			    				var headerText = "<table class='headerTable'>"
+			    				var headerText = "<table class='headerTable nonEditable'>"
 		    						+"<tbody>"
 		    						+"<tr>"
 		    							+"<td style='font-size: 12pt;text-align:left;'>"+$("#currentSlotStartDateTitle").val()+"</td>"
 		    							+"<td style='font-size: 12pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>"
-		    							+"<td style='font-size: 12pt;text-align:right;' width='200px'>"+$("#slotNameTitle").val()+" - "+$("#pageCounter").val()+"</td>"
+		    							+"<td class='slotTD' style='font-size: 12pt;text-align:right;' width='200px'>"+$("#slotNameTitle").val()+" - "+$("#pageCounter").val()+"</td>"
 		    						+"</tr>"
 		    						+"<tr>"
 		    							+"<td style='font-size: 12pt;text-align:left;'>"+$("#languageReporterTitle").val()+"</td>";
@@ -177,9 +178,14 @@
 		    						+"</tr>"
 		    					+"</thead>"
 		    					+"</table>";
-			    				tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>"+ headerText+"<br>");
+			    				tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv nonEditable' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>"+ headerText+"<br>");
 			    				$(".pageBreakDiv").css("display","block");
 			    				pageCount = pageCount + maxPageCount;
+			    				var slotTDCounter = 1;
+					        	$(".slotTD").each(function(){
+					        		$(this).html($("#slotNameTitle").val() + "-" +slotTDCounter);
+					        		slotTDCounter = parseInt(slotTDCounter) + 1;
+					        	});
 			    			 }
 			    			
 							 var keyCode = e.keyCode || e.which; 
@@ -189,27 +195,32 @@
 					    	    	pageCounter = parseInt(pageCounter) + 1;
 			    					$("#pageCounter").val(pageCounter);
 			    					console.log($("#pageCounter").val());
-			    					var headerText = "<table class='headerTable'>"
+			    					var headerText = "<table class='headerTable nonEditable'>"
 			    						+"<tbody>"
 			    						+"<tr>"
-			    							+"<td style='font-size: 12pt;text-align:left;'>"+$("#currentSlotStartDateTitle").val()+"</td>"
-			    							+"<td style='font-size: 12pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>"
-			    							+"<td style='font-size: 12pt;text-align:right;' width='200px'>"+$("#slotNameTitle").val()+" - "+$("#pageCounter").val()+"</td>"
+			    							+"<td style='font-size: 18pt;text-align:left;'>"+$("#currentSlotStartDateTitle").val()+"</td>"
+			    							+"<td style='font-size: 18pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>"
+			    							+"<td class='slotTD' style='font-size: 18pt;text-align:right;' width='200px'>"+$("#slotNameTitle").val()+"-"+$("#pageCounter").val()+"</td>"
 			    						+"</tr>"
 			    						+"<tr>"
-			    							+"<td style='font-size: 12pt;text-align:left;'>"+$("#languageReporterTitle").val()+"</td>";
+			    							+"<td style='font-size: 18pt;text-align:left;'>"+$("#languageReporterTitle").val()+"</td>";
 			    							if($("#previousReporterTitle").val()!='' && $("#previousReporterTitle").val()!= null){
-			    								headerText = headerText + "<td style='font-size: 12pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> "+$("#previousReporterTitle").val()+"</td>"; 
+			    								headerText = headerText + "<td style='font-size: 18pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> "+$("#previousReporterTitle").val()+"</td>"; 
 			    							}else{
-			    								headerText = headerText + "<td style='font-size: 12pt;text-align:center;'></td>";
+			    								headerText = headerText + "<td style='font-size: 18pt;text-align:center;'></td>";
 			    							}
 			    							
-			    							headerText = headerText +"<td style='font-size: 12pt;text-align:right;'>"+$("#currenSlotStartTimeTitle").val()+"</td>"
+			    							headerText = headerText +"<td style='font-size: 18pt;text-align:right;'>"+$("#currenSlotStartTimeTitle").val()+"</td>"
 			    						+"</tr>"
 			    					+"</thead>"
 			    					+"</table>";
-						        	tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>"+headerText+"<br>");
+						        	tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv nonEditable' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>"+headerText+"<br>");
 						        	pageCount = pageCount + maxPageCount;
+						        	var slotTDCounter = 1;
+						        	$(".slotTD").each(function(){
+						        		$(this).html($("#slotNameTitle").val() + "-" +slotTDCounter);
+						        		slotTDCounter = parseInt(slotTDCounter) + 1;
+						        	});
 						        }
 						    }
 					    	
@@ -371,9 +382,9 @@
 		   line-height: 150%; 
 	    } 
 	    
-	    .headerTable{
+	    /* .headerTable{
 	    	display:none;
-	    }
+	    } */
 			
 			
 		.imageLink{
@@ -443,7 +454,7 @@
 			div#proceedingReportDiv{
 				visibility: visible !important;
 				background: #F2F0F2;
-				font-size: 16pt;
+				font-size: 18pt;
 				font-family: Kokila;
 				line-height: 150%; 
 				text-align: justify;
@@ -562,67 +573,7 @@
 				 <input type='text' name='deviceNo' id='deviceNo' class='deviceNo sInteger sText' style='width:168px;'/>
 			</p>
 		</div>
-	
-		
-		<!-- <div style="margin-left:50px"> -->
-		<!-- <form id="proceedingForm" action="proceeding"> -->
-		<%-- <div id="outerDiv">
-			<table id="tableHeader" style="font-size: 12px">
-				<thead>
-					<tr class="print">
-						<th colspan="7">&nbsp;</th>
-					</tr>
-					<tr class="print">
-						<th width="40px">&nbsp;</th>
-						<th width="30px">&nbsp;</th>
-						<th width="30px">&nbsp;</th>
-						<th style="font-size: 12pt;text-align:left">${currentSlotStartDate}</th>
-						<th style="font-size: 12pt;text-align:center;"><spring:message code='part.generalNotice' text='Un edited Copy'/></th>
-						<th style="font-size: 12pt;text-align:right;"><span id="slotName">${slotName} -</span> </th>
-						<th width="120px">&nbsp;</th>
-					</tr>
-					<tr  class="print">
-						<th width="40px">&nbsp;</th>
-						<th width="30px">&nbsp;</th>
-						<th width="30px">&nbsp;</th>
-						<th style="font-size: 12pt; text-align: left">${languageReporter}</td>
-						<th style="font-size: 12pt; text-align: center;"><spring:message code='part.previousReporterMessage' text='Previous Reporter'/></th>
-						<th style="font-size: 12pt; text-align: right;">${currenSlotStartTime}</th>
-						<th width="120px">&nbsp;</th>
-					</tr>
-					<br>
-				</thead>
-				 <tfoot>
-				    <tr>
-				      <td colspan="7">&nbsp;</td>
-				    </tr>
-				    <tr>
-				      <td colspan="7">&nbsp;</td>
-				    </tr>
-				    <tr>
-				      <td colspan="7">&nbsp;</td>
-				    </tr>
-				 </tfoot>
-				<tbody>
-					<tr>
-						<td colspan="7">
-							<c:choose>
-								<c:when test='${!(empty parts)}'>
-									<c:forEach items='${parts}' var='outer'>
-										<div id="proceedingReportDiv" name="procContent"> 
-											${outer.revisedContent}
-										</div>
-									</c:forEach>
-								</c:when>
-								<c:otherwise>
-									<div id="proceedingReportDiv" name="procContent">Enter your content here </div>
-								</c:otherwise>
-							</c:choose>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div> --%>
+
 		<div id="outerDiv">
 			<c:choose>
 				<c:when test='${!(empty parts)}'>
@@ -634,24 +585,24 @@
 				</c:when>
 				<c:otherwise>
 					<div id="proceedingReportDiv" name="procContent">
-						<table class='headerTable'>
+						<table class='headerTable nonEditable'>
 								<tbody>
-								<tr><td style='font-size: 12pt;text-align:left;'>${currentSlotStartDate}</td>
-									<td style='font-size: 12pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>
-									<td style='font-size: 12pt;text-align:right;' width='200px'><span class='slotName'>${slotName} - </span> </td>
+								<tr><td style='font-size: 18pt;text-align:left;'>${currentSlotStartDate}</td>
+									<td style='font-size: 18pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>
+									<td class='slotTD' style='font-size: 18pt;text-align:right;' width='200px'><span class='slotName'>${slotName} - </span> </td>
 								</tr>
 								<tr>
-									<td style='font-size: 12pt;text-align:left;'>${languageReporter}</td>
+									<td style='font-size: 18pt;text-align:left;'>${languageReporter}</td>
 										<c:choose>
 											<c:when test="${previousReporter != null && previousReporter!=''}">
-												<td style='font-size: 12pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> ${previousReporter}
+												<td style='font-size: 18pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> ${previousReporter}
 											</c:when>
 											<c:otherwise>
-												<td style='font-size: 12pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/>
+												<td style='font-size: 18pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/>
 											</c:otherwise>
 										</c:choose>
 									</td>
-									<td style='font-size: 12pt;text-align:right;'>${currenSlotStartTime}</td>
+									<td style='font-size: 18pt;text-align:right;'>${currenSlotStartTime}</td>
 								</tr>
 							</thead>
 							</table> 
