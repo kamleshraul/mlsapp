@@ -13,7 +13,7 @@
 	 
 		var isCtrl = false;
 		var isShift = false;
-		var pageCount = parseInt("1");
+		var pageCounter = parseInt("1");
 		/****Disable F5 button****/
 		document.onkeydown = function(e){
 		    //keycode for F5 function
@@ -63,12 +63,12 @@
 			});
 		});
 		
-		var headerText = "<table>"
+		var headerText = "<table class='headerTable'>"
 			+"<tbody>"
 			+"<tr>"
 				+"<td style='font-size: 12pt;text-align:left;'>"+$("#currentSlotStartDateTitle").val()+"</td>"
 				+"<td style='font-size: 12pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>"
-				+"<td style='font-size: 12pt;text-align:right;' width='200px'>"+$("#slotNameTitle").val()+"</td>"
+				+"<td style='font-size: 12pt;text-align:right;' width='200px'>"+$("#slotNameTitle").val()+$("#pageCounter").val()+"</td>"
 			+"</tr>"
 			+"<tr>"
 				+"<td style='font-size: 12pt;text-align:left;'>"+$("#languageReporterTitle").val()+"</td>";
@@ -78,7 +78,7 @@
 					headerText = headerText + "<td style='font-size: 12pt;text-align:center;'></td>";
 				}
 				
-				headerText = headerText +"<td style='font-size: 12pt;text-align:right;'>"+$("currenSlotStartTimeTitle").val()+"</td>"
+				headerText = headerText +"<td style='font-size: 12pt;text-align:right;'>"+$("#currenSlotStartTimeTitle").val()+"</td>"
 			+"</tr>"
 		+"</thead>"
 		+"</table>";
@@ -174,8 +174,8 @@
 			    			 characterCount = enteredText.length + numberOfLineBreaks;
 			    			
 			    			 if(characterCount >= pageCount){
-			    				pageCount = parseInt(pageCount) + 1;
-			    				$("#pageCount").val(pageCount);
+			    				pageCounter = parseInt(pageCounter) + 1;
+			    				$("#pageCounter").val(pageCounter);
 			    				tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>"+ headerText+"<br>");
 			    				$(".pageBreakDiv").css("display","block");
 			    				pageCount = pageCount + maxPageCount;
@@ -185,7 +185,8 @@
 												    	
 					    	if (e.ctrlKey  || e.metaKey) {
 					    	    if(e.ctrlKey && keyCode == 13){
-			    					$("#pageCount").val(pageCount);
+					    	    	pageCounter = parseInt(pageCounter) + 1;
+			    					$("#pageCounter").val(pageCounter);
 						        	tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>"+headerText+"<br>");
 						        	pageCount = pageCount + maxPageCount;
 						        }
@@ -478,7 +479,7 @@
 		 
 		 .headerTable{
 	    	display:table;
-	    	border:none;
+	    	border:none !important;
 	    }
 		 
 		 div#nextSlotDiv{
@@ -696,7 +697,7 @@
 		<input type="hidden" id="languageReporterTitle" value="${languageReporter}"/>
 		<input type="hidden" id="currenSlotStartTimeTitle" value="${currenSlotStartTime}"/>
 		<input type="hidden" id="previousReporterTitle" value="${previousReporter}"/>
-		<input type="hidden" id="pageCount" />
+		<input type="hidden" id="pageCounter" />
 </body>
 
 </html>
