@@ -8,12 +8,12 @@
 	<script type="text/javascript">
 	
 	$(document).ready(function(){
-		
-		//setInterval(function(){ save() }, 3000);
+		//As tinymce once registered doesnot get reinitialize when the same page is loaded, hence removing the previous tinymce instance
+		tinymce.remove();
+	 
 		var isCtrl = false;
 		var isShift = false;
-		
-		
+		var pageCount = parseInt("1");
 		/****Disable F5 button****/
 		document.onkeydown = function(e){
 		    //keycode for F5 function
@@ -63,6 +63,26 @@
 			});
 		});
 		
+		var headerText = "<table>"
+			+"<tbody>"
+			+"<tr>"
+				+"<td style='font-size: 12pt;text-align:left;'>"+$("#currentSlotStartDateTitle").val()+"</td>"
+				+"<td style='font-size: 12pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>"
+				+"<td style='font-size: 12pt;text-align:right;' width='200px'>"+$("#slotNameTitle").val()+"</td>"
+			+"</tr>"
+			+"<tr>"
+				+"<td style='font-size: 12pt;text-align:left;'>"+$("#languageReporterTitle").val()+"</td>";
+				if($("#previousReporterTitle").val()!='' && $("#previousReporterTitle").val()!= null){
+					headerText = headerText + "<td style='font-size: 12pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> "+$("#previousReporterTitle").val()+"</td>"; 
+				}else{
+					headerText = headerText + "<td style='font-size: 12pt;text-align:center;'></td>";
+				}
+				
+				headerText = headerText +"<td style='font-size: 12pt;text-align:right;'>"+$("currenSlotStartTimeTitle").val()+"</td>"
+			+"</tr>"
+		+"</thead>"
+		+"</table>";
+		
 		  $( ".formattedMember").autocomplete({
 				minLength:3,			
 				source:'ref/member/getmembers?session='+$("#session").val(),
@@ -96,108 +116,77 @@
 				var id=this.id;
 				var count=id.split("bookmark");
 				elementCount=count[count.length-1];
-				$.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val()+'&count=1&currentPart='+$('#partId1').val(),function(data){
-					    $.fancybox.open(data, {autoSize: false, width:750, height:500});
+				showTabByIdAndUrl('bookmarks_tab', 'proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val()+'&count=1&currentPart='+$('#partId1').val());
+				/* $.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val()+'&count=1&currentPart='+$('#partId1').val(),function(data){
+					    $.fancybox.open(data, {autoSize: false, width:850, height:500});
 				    },'html');
-				    return false;
+				    return false; */
 		});
 		  
 		  /**** TinyMCE related Events ****/
-		  $("#partCount").val(1);
+		 $("#partCount").val(1);
 		 var partCount = $("#partCount").val(); 
 		 var maxPageCount = 2272;
 		 var enterCount = 22;
-		/*  var previousText = tinyMCE.activeEditor.getContent({format : 'text'});
-		 var lineBreaks = (previousText.match(/\n/g)||[]).length;
-		 var charCount = previousText.length + lineBreaks; */
 		 var pageCount =  maxPageCount;
-		 var headerText = "<table>"
-							+"<tbody>"
-							+"<tr>"
-								+"<td class='left' width='200px'></td>"
-								+"<td class='center' width='400px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>"
-								+"<td class='right' width='200px'>${r[6]} - ${count}</td>"
-							+"</tr>"
-							+"<tr>"
-								+"<td class='left'>${r[19]}</td>"
-								+"<td class='center'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> ${r[26]}</td>"
-								+"<td class='right'>${r[8]}</td>"
-							+"</tr>"
-						+"</thead>"
-						+"</table>";
-		  
 		  tinyMCE.init({
-			    //selector: '#proceedingContent'//,
-			    	
-			    	 selector: 'textarea',
-			    	 elements : "proceedingContent",
+			    	  selector: 'div#proceedingReportDiv',
+			    	  elements : "proceedingReportDiv",
 			    	  height: 590,
 			    	  width:840,
 			    	  force_br_newlines : true,
 			    	  force_p_newlines : false,
-			    	  forced_root_block : "",
-			    	  theme: 'modern',
+			    	 /*  forced_root_block : "div", */
+			    	  forced_root_block : 'div',
+			    	  inline : true,
 			    	  nonbreaking_force_tab: true,
 			    	  entity_encoding : "raw",
 			    	  plugins: [
-			    	    'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+			    	    'advlist autolink lists link image charmap print preview hr anchor',
 			    	    'searchreplace wordcount visualblocks visualchars code fullscreen',
-			    	    'insertdatetime media nonbreaking  table contextmenu directionality',
+			    	    'insertdatetime media nonbreaking  table contextmenu directionality pagebreak',
 			    	    'emoticons template paste textcolor colorpicker textpattern imagetools lineheight'
 			    	  ],
 			    	  toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image |fontselect fontsizeselect| lineheightselect',
-			    	  toolbar2: 'print preview media | forecolor backcolor emoticons',
+			    	  toolbar2: 'print preview media | forecolor backcolor emoticons|fullscreen',
 			    	  image_advtab: true,
-			    	  templates: [
-			    	    { title: 'Test template 1', content: 'Test 1' },
-			    	    { title: 'Test template 2', content: 'Test 2' }
-			    	  ],
-			    	  content_css: [
-			    	     './resources/css/content.css'
-			    	  ],
+			    	  templates:"ref/proceedingCitation",
 			    	  fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
 			    	  lineheight_formats: "100% 120% 150% 180% 200%",
 			    	  font_formats: 'Kokila=kokila,Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;AkrutiKndPadmini=Akpdmi-n',
-			    	 
-			    	  setup : function(proceedingContent)
+			    	 // pagebreak_split_block: true,
+			    	 // pagebreak_separator : "<span style='page-break-before: always;'></span>",
+			    	  setup : function(proceedingReportDiv)
 			    	  {
-			    		  proceedingContent.on('init',function(){
+			    		  proceedingReportDiv.on('init',function(){
 			    			  style_formats : [
 			    			                   {title : 'Line height 20px', selector : 'p,div,h1,h2,h3,h4,h5,h6', styles: {lineHeight: '20px'}},
 			    			                   {title : 'Line height 30px', selector : 'p,div,h1,h2,h3,h4,h5,h6', styles: {lineHeight: '30px'}}
 			    			           ]
+			    		  		
 			    		  })
 			    		 // On key up   
-			    		 proceedingContent.on('keyup', function(e) 
+			    		 proceedingReportDiv.on('keyup', function(e) 
 			    	    {
 			    			 top.tinymce.activeEditor.notificationManager.close();
 			    			 var enteredText = tinyMCE.activeEditor.getContent({format : 'text'});
 			    			 numberOfLineBreaks = (enteredText.match(/\n/g)||[]).length;
 			    			 characterCount = enteredText.length + numberOfLineBreaks;
 			    			
-			    			 /* if(characterCount >= pageCount){
-			    				proceedingContent.execCommand('mcePageBreak',true,this,this);
+			    			 if(characterCount >= pageCount){
+			    				pageCount = parseInt(pageCount) + 1;
+			    				$("#pageCount").val(pageCount);
+			    				tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>"+ headerText+"<br>");
+			    				$(".pageBreakDiv").css("display","block");
 			    				pageCount = pageCount + maxPageCount;
-			    			 } */
+			    			 }
 			    			
 							 var keyCode = e.keyCode || e.which; 
-						    	/* if (keyCode == 9) { 
-								e.preventDefault(); 
-								tinyMCE.activeEditor.execCommand('mceInsertContent', false, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-							} */
-						    	
+												    	
 					    	if (e.ctrlKey  || e.metaKey) {
-					    		
-						      /*   switch (String.fromCharCode(e.which).toLowerCase()) {
-						        case 's':
-						            e.preventDefault();
-						            updatePart();
-						            top.tinymce.activeEditor.notificationManager.close();
-						            break;
-						        } */
-						        
-						        if(e.ctrlKey && keyCode == 13){
-						        	tinyMCE.activeEditor.execCommand('mcePageBreak',true,this,this);
+					    	    if(e.ctrlKey && keyCode == 13){
+			    					$("#pageCount").val(pageCount);
+						        	tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>"+headerText+"<br>");
 						        	pageCount = pageCount + maxPageCount;
 						        }
 						    }
@@ -208,13 +197,10 @@
 							if(e.which == 16) {
 								isShift = false; 
 							}
-						
-							 
-					    		
-			    	    });
+						});
 			    		   
 				    	// action on key down
-				    	 proceedingContent.on('keydown',function(e) {
+				    	 proceedingReportDiv.on('keydown',function(e) {
 				    		if(e.which == 17) {
 				    			isCtrl = true;
 				    		}
@@ -239,12 +225,33 @@
 								isCtrl = false; 
 							}else if(e.which == 85 && isCtrl && isShift){
 								updatePart()
+							}else if(e.which == 112){
+								var element = document.getElementById("proceedingReportDiv");
+								var word = getWordPrecedingCaret(element);
+								var mainContent=$("#"+word.trim()).html();
+								if(mainContent != '' && mainContent != null){
+									tinyMCE.activeEditor.selection.select(tinymce.activeEditor.selection.getNode());
+									var formattedContent  = tinymce.activeEditor.selection.getContent();
+									formattedContent = formattedContent.replace(word," " + mainContent);
+									console.log(formattedContent);
+									tinyMCE.activeEditor.selection.setContent(formattedContent);
+									tinyMCE.activeEditor.focus();
+								} 
+							}else if(e.which ==80 && isCtrl){
+								$(".headerTable").css("display","block");
 							}
 				    	}); 
-			    			 
-			    	  }   
+			     	  }   
 		 		
 		 });
+		  
+		  var initialContent = tinyMCE.activeEditor.getContent({format : 'text'});
+		  if(initialContent!= null && initialContent != ''){
+			  var totalTextLength = initialContent.length;
+			  var totalNumberOfLineBreaks = (initialContent.match(/\n/g)||[]).length;
+			  pageCount = totalTextLength + totalNumberOfLineBreaks + maxPageCount;
+		  }
+		  
 	});
 	
 	
@@ -271,20 +278,82 @@
 
 	}
 	
+	function getCaretCharacterOffsetWithin(element) {
+	    var caretOffset = 0;
+	    if (typeof window.getSelection != "undefined") {
+	        var range = window.getSelection().getRangeAt(0);
+	        var preCaretRange = range.cloneRange();
+	        preCaretRange.selectNodeContents(element);
+	        preCaretRange.setEnd(range.endContainer, range.endOffset);
+	        caretOffset = preCaretRange.toString().replace(/\r(?!\n)|\n(?!\r)/g, "\r\n").replace(/<[img>]*>/ig, ' ')
+	        .replace(/<\/[img>]*>/ig, ' ').length;
+	    } else if (typeof document.selection != "undefined" && document.selection.type != "Control") {
+	        var textRange = document.selection.createRange();
+	        var preCaretTextRange = document.body.createTextRange();
+	        preCaretTextRange.moveToElementText(element);
+	        preCaretTextRange.setEndPoint("EndToEnd", textRange);
+	        caretOffset = preCaretTextRange.text.replace(/\r(?!\n)|\n(?!\r)/g, "\r\n").replace(/<[img>]*>/ig, ' ')
+	        .replace(/<\/[img>]*>/ig, ' ').length;
+	    }
+	    return caretOffset;
+	}
+	
+	function getWordPrecedingCaret(containerEl) {
+	    var word = "", sel, range, precedingRange;
+	    if (window.getSelection) {
+	        sel = window.getSelection();
+	        if (sel.rangeCount > 0) {
+	            range = sel.getRangeAt(0).cloneRange();
+	            range.collapse(true);
+	            range.setStart(containerEl, 0);
+	            var words = range.toString().split(" ");
+	            word =  words[words.length - 1];
+	            //precedingChar = range.toString().slice(-1);
+	            
+	        }
+	    } else if ( (sel = document.selection) && sel.type != "Control") {
+	        range = sel.createRange();
+	        precedingRange = range.duplicate();
+	        precedingRange.moveToElementText(containerEl);
+	        precedingRange.setEndPoint("EndToStart", range);
+	        var words = precedingRange.text.split(" ");
+            word =  words[words.length - 1];
+	    }
+	    return word;
+	}
 	
 
-	
 	</script>
-	<!-- <link rel="stylesheet" type="text/css" href="./resources/css/printerfriendly.css" media="print" /> -->
+	<!-- <link rel="stylesheet" type="text/css" media="print" href="./resources/css/printerfriendly.css?v=4" /> -->
 	<style type="text/css" >
-		.mce-content-body{
-			   background: #FFF;
-			   font-size: 18px;
-			   font-family: Kokila;
-			   line-height: 150%;
+	
+			
+		#outerDiv{
+			width: 21cm; 
 		}
-		
-		
+		 #proceedingReportDiv{
+		   background: #F2F0F2;
+		   font-size: 18pt;
+		   font-family: Kokila;
+		   line-height: 150%; 
+		   text-align: justify;
+		   margin-left: 150px; 
+		   width: 500px;
+		   
+		} 
+				
+		#proceedingReportDiv > p{
+		   background: #F2F0F2;
+		   font-size: 18pt;
+		   font-family: Kokila;
+		   line-height: 150%; 
+	    } 
+	    
+	    .headerTable{
+	    	display:none;
+	    }
+			
+			
 		.imageLink{
 			width: 14px;
 			height: 14px;
@@ -300,24 +369,156 @@
 			padding: 2px;
 			border: 1px solid #888888; 
 		}
+		
+		 div#proceedingReportDiv .pageBreakDiv {
+				page-break-before: always !important;}
+		
+		 .print {
+				display:none;
+			}
+		@media print{
+
+		  	div#pannelDash {
+		    	visibility: hidden;
+		    	display:none;
+		    }
+		    div#page{
+		    	visibility: hidden;
+		    }
+		    div#container {
+		    	visibility: hidden;
+		    }
+		    div#selectionDiv1{
+		    	visibility:hidden;
+		    	display:none;
+		    }
+		    div.menu{
+		    	visibility:hidden;
+		    	display:none;
+		    }
+		    div#dummyContent{
+		    	visibility:hidden;
+		    	display:none;
+		    }
+		    div#menuOption {
+		    	visibility: hidden;
+		    	display:none
+		    }
+		    div#pageHeader{
+		    	visibility : hidden;
+		    	display:none
+		    } 
+		    div#outerDiv{
+		    	visibility :hidden;
+		    	
+		    }
+		    
+		    
+		    div#proceedingReportDiv .pageBreakDiv { 
+				page-break-before: always;
+				background-color: red;}
+			div#proceedingReportDiv .page-break-before-forced { page-break-before: always !important;}
+			div#proceedingReportDiv{
+				visibility: visible !important;
+				background: #F2F0F2;
+				font-size: 16pt;
+				font-family: Kokila;
+				line-height: 150%; 
+				text-align: justify;
+				/* top: 1.905cm;  
+			 	bottom :1.905cm; */
+			 	margin-left:3.302cm;
+			 	margin-right:3.302cm;
+			 	margin-bottom: 1.905cm;
+			 	float: none !important; 
+			 	position: relative !important; 
+			 	overflow:hidden !important
+			}
+			
+			 div#proceedingReportDiv .headerTable{
+				display:block;
+				visibility: visible !important;
+			}
+			
+			div#outerDiv #tableHeader{
+				display:block;
+				visibility:visible
+			}
+			
+			div#bk{
+				visibility:hidden;
+			}
+			
+			div#clearfix{
+			visibility:hidden;
+			}
+			
+			div#tabContent{
+				visibility: hidden;
+			}
+			
+			.print {
+				display: table-row;
+			} 
+			
+			.pageBreakDiv{
+				visibility: hidden;
+				page-break-before: always !important;
+				
+			} 
+			ul.tabs {
+		     display: none !important;
+		     visibility:hidden!important;
+		   }
+		   
+		   .slotName:after {
+		    counter-increment: page;
+		    content: counter(page);
+		 }
+		 
+		 .headerTable{
+	    	display:table;
+	    	border:none;
+	    }
+		 
+		 div#nextSlotDiv{
+		 	display:none;
+		 	visibility: hidden;
+		 }
+	}
+	
+	#nextSlotDiv{
+	    background: repeat-x scroll 0 0 #FFF;
+	    box-shadow: 0 2px 5px #888888;
+	    max-height: 260px;
+	    right: 0;
+	    position: fixed;
+	    top: 10px;
+	    width: 200px;
+	    z-index: 10000;
+	    overflow: auto;
+	    border-radius: 10px;
+	    font-size: 15pt;
+	    background-color: #b0e0e6;
 	</style>
 </head>
 <body>
 	<!-- <div class="fields clearfix watermark"> -->
-		<h2><spring:message code="proceeding.edit.heading" text="Slot : "/>${slotName}	</h2> (<spring:message code="proceeding.edit.heading.timing" text="Slot Time : "/>${slotStartTime} - ${slotEndTime})
-		<c:if test="${committeeMeeting != null and committeeMeeting != ''}">
-			<spring:message code="proceeding.edit.heading.committeeName" text="Committee : "/>${committeeName}
-			<br>
-		</c:if>
-		<p>
-		<a id="viewReport" target="_blank" class="reportLinkl">
-			<spring:message code="proceeding.proceedingwiseReport" text="proceeding wise report"/>
-		</a>|
-		<a href='javascript:void(0)'  id='bookmark${partcount}' class=' addBookmark'><img src='./resources/images/star_full.jpg' title='Bookmark' class='imageLink'/></a>
-		</p>
-
-		<div style="border: 2px solid blue;border-radius: 15px;width: 850px;">
-			<p style="padding: 10px;">
+		<div id="pageHeader">
+			<h2 style="display:inline;"><spring:message code="proceeding.edit.heading" text="Slot : "/>${slotName}	</h2>| <div style="display:inline;">(<spring:message code="proceeding.edit.heading.timing" text="Slot Time : "/>${slotStartTime} - ${slotEndTime})</div>
+			<c:if test="${committeeMeeting != null and committeeMeeting != ''}">
+				<spring:message code="proceeding.edit.heading.committeeName" text="Committee : "/>${committeeName}
+				<br>
+			</c:if>|
+			<p style="display:inline;">
+			<a id="viewReport" target="_blank" class="reportLinkl" >
+				<spring:message code="proceeding.proceedingwiseReport" text="proceeding wise report"/>
+			</a>|
+			<a href='javascript:void(0)'  id='bookmark${partcount}' class=' addBookmark'><img src='./resources/images/star_full.jpg' title='Bookmark' class='imageLink'/></a>
+			</p>
+		</div>
+		<div id="menuOption" style="border: 2px solid blue;border-radius: 15px;width: 850px;">
+			<p style="padding: 5px;">
 				<label class='small'><spring:message code='part.memberName' text='Member'/></label>
 				<input type='text' class='autosuggest formattedMember sText' name='formattedPrimaryMember' id='formattedPrimaryMember' style="margin-left: 80px;"/>
 				<label class='small' style="margin-left: 50px;width:100px;">OR party</label>
@@ -328,7 +529,6 @@
 				</select>
 			</p>
 			<p>
-	
 	             <label class='small' style="margin-left: 10px;"><spring:message code='part.deviceType' text='Device Type'></spring:message></label>
 	             <select name='deviceType' id='deviceType'class='sSelect' style='width:170px;margin-left: 35px;'>
 		     		<option value="" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
@@ -341,20 +541,103 @@
 			</p>
 		</div>
 	
-		<br>
-		<br>
+		
 		<!-- <div style="margin-left:50px"> -->
 		<!-- <form id="proceedingForm" action="proceeding"> -->
+		<%-- <div id="outerDiv">
+			<table id="tableHeader" style="font-size: 12px">
+				<thead>
+					<tr class="print">
+						<th colspan="7">&nbsp;</th>
+					</tr>
+					<tr class="print">
+						<th width="40px">&nbsp;</th>
+						<th width="30px">&nbsp;</th>
+						<th width="30px">&nbsp;</th>
+						<th style="font-size: 12pt;text-align:left">${currentSlotStartDate}</th>
+						<th style="font-size: 12pt;text-align:center;"><spring:message code='part.generalNotice' text='Un edited Copy'/></th>
+						<th style="font-size: 12pt;text-align:right;"><span id="slotName">${slotName} -</span> </th>
+						<th width="120px">&nbsp;</th>
+					</tr>
+					<tr  class="print">
+						<th width="40px">&nbsp;</th>
+						<th width="30px">&nbsp;</th>
+						<th width="30px">&nbsp;</th>
+						<th style="font-size: 12pt; text-align: left">${languageReporter}</td>
+						<th style="font-size: 12pt; text-align: center;"><spring:message code='part.previousReporterMessage' text='Previous Reporter'/></th>
+						<th style="font-size: 12pt; text-align: right;">${currenSlotStartTime}</th>
+						<th width="120px">&nbsp;</th>
+					</tr>
+					<br>
+				</thead>
+				 <tfoot>
+				    <tr>
+				      <td colspan="7">&nbsp;</td>
+				    </tr>
+				    <tr>
+				      <td colspan="7">&nbsp;</td>
+				    </tr>
+				    <tr>
+				      <td colspan="7">&nbsp;</td>
+				    </tr>
+				 </tfoot>
+				<tbody>
+					<tr>
+						<td colspan="7">
+							<c:choose>
+								<c:when test='${!(empty parts)}'>
+									<c:forEach items='${parts}' var='outer'>
+										<div id="proceedingReportDiv" name="procContent"> 
+											${outer.revisedContent}
+										</div>
+									</c:forEach>
+								</c:when>
+								<c:otherwise>
+									<div id="proceedingReportDiv" name="procContent">Enter your content here </div>
+								</c:otherwise>
+							</c:choose>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div> --%>
+		<div id="outerDiv">
 			<c:choose>
 				<c:when test='${!(empty parts)}'>
 					<c:forEach items='${parts}' var='outer'>
-						<textarea id="proceedingContent" name="procContent">${outer.revisedContent}</textarea>
+						<div id="proceedingReportDiv" name="procContent">
+							${outer.revisedContent}
+						</div>
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
-					<textarea id="proceedingContent" name="procContent"/>
+					<div id="proceedingReportDiv" name="procContent">
+						<table class='headerTable'>
+								<tbody>
+								<tr><td style='font-size: 12pt;text-align:left;'>${currentSlotStartDate}</td>
+									<td style='font-size: 12pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>
+									<td style='font-size: 12pt;text-align:right;' width='200px'><span class='slotName'>${slotName} - </span> </td>
+								</tr>
+								<tr>
+									<td style='font-size: 12pt;text-align:left;'>${languageReporter}</td>
+										<c:choose>
+											<c:when test="${previousReporter != null && previousReporter!=''}">
+												<td style='font-size: 12pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> ${previousReporter}
+											</c:when>
+											<c:otherwise>
+												<td style='font-size: 12pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/>
+											</c:otherwise>
+										</c:choose>
+									</td>
+									<td style='font-size: 12pt;text-align:right;'>${currenSlotStartTime}</td>
+								</tr>
+							</thead>
+							</table> 
+					</div>
 				</c:otherwise>
 			</c:choose>
+			<%-- <div style="text-align: right"><spring:message code="part.nextReporterMessage" text="next"/>  ${nextReporter}</div> --%>
+		</div>
 		<!-- </form> -->
 		<!-- </div> -->
 		<form action="proceeding/part/save" method="post">
@@ -380,5 +663,40 @@
 		<input type="hidden" id="slot" value="${slotId}" name="slot"/>
 		<div id='dContent' style="display: none"></div>
 	<!-- </div> -->
+		<div id="autoFill" style="display:none;">
+			<c:forEach items="${proceedingAutofills}" var="i">
+				<div id="${i.shortName}">${i.autoFillContent}</div>
+			</c:forEach>
+		</div>
+		<%-- <select id="autoFill" style="display:none;">
+			<c:forEach items="${proceedingAutofills}" var="i">
+				<div id="${i.shortName}">${i.autoFillContent}</div>
+				<option value="${i.shortName}">${i.autoFillContent}</option>
+			</c:forEach>
+		</select> --%>
+		<div id="nextSlotDiv">
+			<spring:message code="proceeding.nextSlot" text="Next Slot"/>
+			<br>
+			<table>
+				<tbody>
+					<c:forEach items="${nextSlots}" var="i">
+						<tr>
+							<td>${i.name}</td>
+							<td>&nbsp;</td>
+							<td>${i.type}</td>
+							<td>&nbsp;</td>
+							<td>${i.value}</td>
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
+		</div>
+		<input type="hidden" id="currentSlotStartDateTitle" value="${currentSlotStartDate}"/>
+		<input type="hidden" id="slotNameTitle" value="${slotName}"/>
+		<input type="hidden" id="languageReporterTitle" value="${languageReporter}"/>
+		<input type="hidden" id="currenSlotStartTimeTitle" value="${currenSlotStartTime}"/>
+		<input type="hidden" id="previousReporterTitle" value="${previousReporter}"/>
+		<input type="hidden" id="pageCount" />
 </body>
+
 </html>
