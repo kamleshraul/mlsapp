@@ -253,6 +253,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 				model.addAttribute("nextSlots", masterVOs);
 				
 				if(previousSlot!=null){
+					Reporter previousReporter = previousSlot.getReporter();
+					User previousReporterUser = previousReporter.getUser();
+					model.addAttribute("previousReporter", previousReporterUser.getTitle() + " " +previousReporterUser.getLastName());
 					Proceeding previousProceeding = Proceeding.findByFieldName(Proceeding.class, "slot", previousSlot, domain.getLocale());
 					if(previousProceeding != null){
 						List<Part> previousParts = previousProceeding.getParts();
@@ -282,7 +285,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 					}
 				}
 				
-				
+				Slot nextSlot = Slot.findByStartTime(slot.getRoster(), slot.getEndTime());
+				if(nextSlot != null){
+					Reporter nextReporter = nextSlot.getReporter();
+					User nextReporterUser = nextReporter.getUser();
+					model.addAttribute("nextReporter", nextReporterUser.getTitle() + " " + nextReporterUser.getLastName());
+				}
 				/****Party****/
 				List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),domain.getLocale());
 				model.addAttribute("parties", parties);
@@ -1091,7 +1099,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 		}
 		model.addAttribute("count", strCount);
 		model.addAttribute("languages", mainlanguages);
-		model.addAttribute("currentSlot", strSlot);		
+		model.addAttribute("currentSlot", strSlot);
+		model.addAttribute("currentPart",strPart);
 		return "proceeding/bookmark";
 	}
 
@@ -1104,7 +1113,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 		String strSlavePart = request.getParameter("slavePart");
 		String strPreviousContent = request.getParameter("previousContent");
 		String strReplacedContent = request.getParameter("replacedContent");
-		String isPart = request.getParameter("isPart");
+		String isPart = request.getParameter("isBookmarkPart");
 		String strSlot = request.getParameter("currentSlot");
 		String strPartArray = request.getParameter("partIdArray");
 		String strOrderCount =  request.getParameter("orderCount");
@@ -1112,29 +1121,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 		MasterVO masterVO= new MasterVO();
 		if(isPart != null && !isPart.isEmpty()){
 			if(!Boolean.parseBoolean(isPart)){
-				if(/*strLanguage != null && !strLanguage.isEmpty()
-						&&*/ strPart != null && !strPart.isEmpty()
-						/*&& strSlavePart != null && !strSlavePart.isEmpty()*/
+				if( strPart != null && !strPart.isEmpty()
 						&& strPreviousContent != null && !strPreviousContent.isEmpty()
-						&& strReplacedContent != null && !strReplacedContent.isEmpty()
-						/*&& strSlot != null && !strSlot.isEmpty()*/){
-						//Language language = Language.findByFieldName(Language.class, "type", strLanguage, locale.toString());
+						&& strReplacedContent != null && !strReplacedContent.isEmpty()){
 						Part masterPart = Part.findById(Part.class, Long.parseLong(strPart));
-						//Part slavePart = Part.findById(Part.class, Long.parseLong(strSlavePart));
-						//Slot currentSlot = Slot.findById(Slot.class, Long.parseLong(strSlot));
-					
-//						Bookmark bookmark=new Bookmark();
-//						bookmark.setLanguage(language);
-//						bookmark.setLocale(locale.toString());
-//						bookmark.setMasterPart(masterPart);
-//						bookmark.setSlavePart(slavePart);
-//						bookmark.setSlot(currentSlot);
-//						bookmark.setPreviousText(strPreviousContent);
-//						bookmark.setTextToBeReplaced(strReplacedContent);
-//						bookmark.persist();
-						
 						masterPart.setRevisedContent(strReplacedContent);
-						
+			
 						PartDraft partDraft = new PartDraft();
 						partDraft.setEditedBy(this.getCurrentUser().getUsername());
 						partDraft.setEditedOn(new Date());
