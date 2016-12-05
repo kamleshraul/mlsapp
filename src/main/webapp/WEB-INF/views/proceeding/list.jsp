@@ -23,6 +23,7 @@
 	var flagVal=0;
 		$(document).ready(function(){
 			$(".toolTip").hide();
+			//clearInterval(myVar); 
 			//loadRosterDayFromSessions();
 			/**** grid params which is sent to load grid data being sent ****/		
 			if($('#selectedModule').val()=="COMMITTEE"){
