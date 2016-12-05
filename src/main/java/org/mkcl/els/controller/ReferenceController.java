@@ -9065,4 +9065,39 @@ public class ReferenceController extends BaseController {
 		return isRosterPublished;
 	
 	}
+	
+	@RequestMapping(value="/proceedingHeader", method=RequestMethod.GET)
+	public @ResponseBody MasterVO getProceedingHeaderDetails(final HttpServletRequest request, 
+			final ModelMap model, 
+			final Locale locale){
+		String strPart = request.getParameter("partId");
+		MasterVO masterVO = new MasterVO();
+		if(strPart != null && !strPart.isEmpty()){
+			Part part = Part.findById(Part.class, Long.parseLong(strPart));
+			Proceeding proceeding  = part.getProceeding();
+			Slot slot = proceeding.getSlot();
+			masterVO.setName(slot.getName());
+			String currentSlotStartDate = FormaterUtil.formatDateToString(slot.getStartTime(), "dd-MM-yyyy", locale.toString());
+			String currentSlotStartTime = FormaterUtil.formatDateToString(slot.getStartTime(), "HH:mm", locale.toString());
+			masterVO.setType(currentSlotStartTime);
+			masterVO.setValue(currentSlotStartDate);
+			List<User> users=Slot.findDifferentLanguageUsersBySlot(slot);
+			String languageReporter="";
+			for(int i=0;i<users.size();i++){
+				languageReporter=languageReporter+users.get(i).getFirstName();
+				if(i+1<users.size()){
+					languageReporter=languageReporter+"/";
+				}
+			}
+			masterVO.setDisplayName(languageReporter);
+			Slot previousSlot = Slot.findPreviousSlot(slot);
+			if(previousSlot != null){
+				Reporter reporter = previousSlot.getReporter();
+				User user = reporter.getUser();
+				masterVO.setFormattedOrder(user.getTitle()+" "+user.getLastName());
+			}
+		}
+		return masterVO;
+		
+	}
 }
