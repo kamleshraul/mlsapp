@@ -2517,7 +2517,7 @@ class StandaloneMotionReportHelper{
 								dataCollection[1] = new String("");
 								dataCollection[3] = new String("");
 								dataCollection[6] = new String("");
-								dataCollection[27] = new String(ApplicationConstants.SECRETARY);
+								dataCollection[27] = new String(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY);
 								dataCollection[28] = new String("");
 								
 								dataMap.put(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, dataCollection);
