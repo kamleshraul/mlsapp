@@ -1147,11 +1147,11 @@
 						</a>						
 						<select id="members" class="sSelect" style="display: inline; width:100px;">
 						</select>|
-						<security:authorize	access="!hasAnyRole('MOIS_CLERK')">
+						
  							<a href="javascript:void(0);" id="department_report" class="butSim" >
 							<spring:message code="generic.departmentWiseReport" text="Department-wise Report"/>
 							</a>|
-						</security:authorize>
+						
 					
 						<a href="javascript:void(0);" id="party_report" class="butSim" >
 							<spring:message code="generic.partyWiseReport" text="Party-wise Report"/>
