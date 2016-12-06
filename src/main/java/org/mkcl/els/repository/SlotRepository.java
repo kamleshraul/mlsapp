@@ -226,7 +226,8 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 
 	public Slot findPreviousSlot(Slot slot) {
 		String strQuery = " SELECT s FROM Slot s WHERE s.roster.id=:rosterId" +
-				" AND s.endTime<=:startTime" +
+				" AND s.endTime<=:startTime"+ 
+				" AND s.blnDeleted=false" +
 				" ORDER BY s.endTime "+ ApplicationConstants.DESC;
 		Query query = this.em().createQuery(strQuery);
 		query.setParameter("rosterId", slot.getRoster().getId());
