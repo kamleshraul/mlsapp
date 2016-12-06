@@ -6,12 +6,10 @@
 	</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
-	
 	$(document).ready(function(){
 		//As tinymce once registered doesnot get reinitialize when the same page is loaded, hence removing the previous tinymce instance
 		tinymce.remove();
-	 
-		var isCtrl = false;
+	 	var isCtrl = false;
 		var isShift = false;
 		var pageCounter = parseInt("1");
 		/****Disable F5 button****/
@@ -108,10 +106,13 @@
 		  /**** TinyMCE related Events ****/
 		 $("#partCount").val(1);
 		 var partCount = $("#partCount").val(); 
-		 var maxPageCount = 2272;
-		 var enterCount = 22;
-		 var pageCount =  maxPageCount;
-		  tinyMCE.init({
+		 var pCount = 22;
+		 if(countLines()>2){
+			 pCount = countLines() + 20;
+			 
+		 }
+		 console.log("pCount = "+pCount);
+		 tinyMCE.init({
 			    	  selector: 'div#proceedingReportDiv',
 			    	  elements : "proceedingReportDiv",
 			    	  height: 590,
@@ -130,7 +131,7 @@
 			    	    'template paste textpattern'
 			    	  ],
 			    	  noneditable_noneditable_class: "nonEditable",
-			    	  toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
+			    	  toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist ',
 			    	  toolbar2: 'print|fullscreen',
 			    	  image_advtab: true,
 			    	  templates:"ref/proceedingCitation",
@@ -150,51 +151,49 @@
 			    		  })
 			    		 // On key up   
 			    		 proceedingReportDiv.on('keyup', function(e) 
-			    	    {
-			    			 top.tinymce.activeEditor.notificationManager.close();
-			    			 var enteredText = tinyMCE.activeEditor.getContent({format : 'text'});
-			    			 numberOfLineBreaks = (enteredText.match(/\n/g)||[]).length;
-			    			 characterCount = enteredText.length + numberOfLineBreaks;
-			    			
-			    			 if(characterCount >= pageCount){
-			    				pageCounter = parseInt(pageCounter) + 1;
-			    				$("#pageCounter").val(pageCounter);
-			    				var headerText = "<table class='headerTable nonEditable'>"
-		    						+"<tbody>"
-		    						+"<tr>"
-		    							+"<td style='font-size: 12pt;text-align:left;'>"+$("#currentSlotStartDateTitle").val()+"</td>"
-		    							+"<td style='font-size: 12pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>"
-		    							+"<td class='slotTD' style='font-size: 12pt;text-align:right;' width='200px'>"+$("#slotNameTitle").val()+" - "+$("#pageCounter").val()+"</td>"
-		    						+"</tr>"
-		    						+"<tr>"
-		    							+"<td style='font-size: 12pt;text-align:left;'>"+$("#languageReporterTitle").val()+"</td>";
-		    							if($("#previousReporterTitle").val()!='' && $("#previousReporterTitle").val()!= null){
-		    								headerText = headerText + "<td style='font-size: 12pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> "+$("#previousReporterTitle").val()+"</td>"; 
-		    							}else{
-		    								headerText = headerText + "<td style='font-size: 12pt;text-align:center;'></td>";
-		    							}
-		    							
-		    							headerText = headerText +"<td style='font-size: 12pt;text-align:right;'>"+$("#currenSlotStartTimeTitle").val()+"</td>"
-		    						+"</tr>"
-		    					+"</thead>"
-		    					+"</table>";
-			    				tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv nonEditable' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>"+ headerText+"<br>");
-			    				$(".pageBreakDiv").css("display","block");
-			    				pageCount = pageCount + maxPageCount;
-			    				var slotTDCounter = 1;
-					        	$(".slotTD").each(function(){
-					        		$(this).html($("#slotNameTitle").val() + "-" +slotTDCounter);
-					        		slotTDCounter = parseInt(slotTDCounter) + 1;
-					        	});
+			    	    {	
+			    			 var lineCounter = countLines();
+			    			 var lineCount = 0;
+			    			 if(lineCounter > pCount){
+			    				 	lineCount = lineCounter -1;
+				    				pageCounter = parseInt(pageCounter) + 1;
+				    				$("#pageCounter").val(pageCounter);
+				    				var headerText = "<table class='headerTable nonEditable'>"
+			    						+"<tbody>"
+			    						+"<tr>"
+			    							+"<td style='font-size: 18pt;text-align:left;'>"+$("#currentSlotStartDateTitle").val()+"</td>"
+			    							+"<td style='font-size: 18pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>"
+			    							+"<td class='slotTD' style='font-size: 18pt;text-align:right;' width='200px'>"+$("#slotNameTitle").val()+" - "+$("#pageCounter").val()+"</td>"
+			    						+"</tr>"
+			    						+"<tr>"
+			    							+"<td style='font-size: 12pt;text-align:left;'>"+$("#languageReporterTitle").val()+"</td>";
+			    							if($("#previousReporterTitle").val()!='' && $("#previousReporterTitle").val()!= null){
+			    								headerText = headerText + "<td style='font-size: 18pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> "+$("#previousReporterTitle").val()+"</td>"; 
+			    							}else{
+			    								headerText = headerText + "<td style='font-size: 18pt;text-align:center;'></td>";
+			    							}
+			    							
+			    							headerText = headerText +"<td style='font-size: 18pt;text-align:right;'>"+$("#currenSlotStartTimeTitle").val()+"</td>"
+			    						+"</tr>"
+			    					+"</thead>"
+			    					+"</table>";
+				    				tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv nonEditable' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div>"+ headerText+"<span>&nbsp;</span>");
+				    				$(".pageBreakDiv").css("display","block");
+				    				var slotTDCounter = 1;
+						        	$(".slotTD").each(function(){
+						        		$(this).html($("#slotNameTitle").val() + "-" +slotTDCounter);
+						        		slotTDCounter = parseInt(slotTDCounter) + 1;
+						        	}); 
+						        	pCount = lineCount + pCount;
 			    			 }
-			    			
-							 var keyCode = e.keyCode || e.which; 
+			    			 top.tinymce.activeEditor.notificationManager.close();
+			    			 var keyCode = e.keyCode || e.which; 
 												    	
 					    	if (e.ctrlKey  || e.metaKey) {
 					    	    if(e.ctrlKey && keyCode == 13){
+					    	    	lineCount = lineCounter -1;
 					    	    	pageCounter = parseInt(pageCounter) + 1;
 			    					$("#pageCounter").val(pageCounter);
-			    					console.log($("#pageCounter").val());
 			    					var headerText = "<table class='headerTable nonEditable'>"
 			    						+"<tbody>"
 			    						+"<tr>"
@@ -214,13 +213,13 @@
 			    						+"</tr>"
 			    					+"</thead>"
 			    					+"</table>";
-						        	tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv nonEditable' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>"+headerText+"<br>");
-						        	pageCount = pageCount + maxPageCount;
+						        	tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv nonEditable' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div>"+headerText+"<span>&nbsp;</span>");
 						        	var slotTDCounter = 1;
 						        	$(".slotTD").each(function(){
 						        		$(this).html($("#slotNameTitle").val() + "-" +slotTDCounter);
 						        		slotTDCounter = parseInt(slotTDCounter) + 1;
 						        	});
+						        	pCount = lineCount + pCount;
 						        }
 						    }
 					    	
@@ -277,14 +276,7 @@
 			     	  }   
 		 		
 		 });
-		  
-		  var initialContent = tinyMCE.activeEditor.getContent({format : 'text'});
-		  if(initialContent!= null && initialContent != ''){
-			  var totalTextLength = initialContent.length;
-			  var totalNumberOfLineBreaks = (initialContent.match(/\n/g)||[]).length;
-			  pageCount = totalTextLength + totalNumberOfLineBreaks + maxPageCount;
-		  }
-		  
+
 	});
 	
 	
@@ -355,6 +347,52 @@
 	    return word;
 	}
 	
+	function countLines() {
+		  var divHeight = $("#proceedingReportDiv").height();
+		  console.log(divHeight);
+		  var lineHeight = $("#proceedingReportDiv").css('line-height');
+		  lineHeight = parseFloat(lineHeight);
+		  var lineCounter = divHeight / lineHeight;
+		  console.log("Lines: " + Math.round(lineCounter));
+		  return lineCounter;
+		}
+	
+/* 	function getLines(txtArea){
+		  var lineHeight = parseInt(txtArea.style.lineHeight.replace(/px/i,''));  
+		  var tr = txtArea.createTextRange();
+		  return Math.ceil(tr.boundingHeight/lineHeight);
+	}
+	
+	function checkLimits(txtArea,countChars,countLines){
+		var maxLines = 105.25;
+		var maxChars = 42.5 * 105.25; 
+		countChars.value = txtArea.text.length;
+		countLines.value = getLines(txtArea);
+		document.maxLines.value = maxLines;
+		document.maxChars.value = maxChars;
+		if((txtArea.text.length >= maxChars || getLines(txtArea) >= maxLines) 
+			    && (window.event.keyCode == 10 || window.event.keyCode == 13)){ 
+			    while(getLines(txtArea) > maxLines) 
+			      txtArea.text = txtArea.text.substr(0,txtArea.text.length-2); 
+			    while(txtArea.value.length > maxChars) 
+			      txtArea.value = txtArea.value.substr(0,txtArea.text.length-2); 
+			    alert("chars and / or lines limit reached"); 
+		}else if(txtArea.value.length > maxChars ){ 
+		    while(txtArea.value.length > maxChars) 
+		    { 
+		      txtArea.value = txtArea.value.substr(0,txtArea.value.length-1); 
+		    } 
+		    alert("chars limit reached"); 
+		}else if(countLines.value > maxLines){ 
+		    while(countLines.value > maxLines) 
+		    { 
+		      txtArea.value = txtArea.value.substr(0,txtArea.value.length-1); 
+		    } 
+		    alert("lines limit reached"); 
+		}
+		countChars.value = txtArea.value.length; 
+		countLines.value = getLines(txtArea);
+	} */
 
 	</script>
 	<!-- <link rel="stylesheet" type="text/css" media="print" href="./resources/css/printerfriendly.css?v=4" /> -->
@@ -526,7 +564,7 @@
 	    max-height: 260px;
 	    right: 0;
 	    position: fixed;
-	    top: 10px;
+	    top: 30px;
 	    width: 200px;
 	    z-index: 10000;
 	    overflow: auto;
@@ -670,6 +708,17 @@
 		<input type="hidden" id="currenSlotStartTimeTitle" value="${currenSlotStartTime}"/>
 		<input type="hidden" id="previousReporterTitle" value="${previousReporter}"/>
 		<input type="hidden" id="pageCounter" />
+		<!-- <input name="myChars" id="myChars" type="text" 
+		  style="text-align:center; border-width:0px;" value="0" 
+		  size="4" maxlength="4" readonly="readonly">
+		<input name="maxChars" id="maxChars" type="text" 
+		  style="text-align:center; border-width:0px;" value="0" 
+		  size="4" maxlength="4" readonly="readonly"> 
+		<input name="myLines" id="myLines" type="text" 
+		  style="text-align:center; border-width:0px;" value="0" 
+		  size="4" maxlength="3" readonly="readonly">
+		  <input name="maxLines" id="maxLines" type="text" 
+		  style="text-align:center; border-width:0px;" value="0" 
+		  size="4" maxlength="3" readonly="readonly"> -->
 </body>
-
 </html>
