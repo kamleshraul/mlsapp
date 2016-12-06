@@ -462,7 +462,7 @@
 			 	bottom :1.905cm; */
 			 	margin-left:3.302cm;
 			 	margin-right:3.302cm;
-			 	margin-bottom: 1.905cm;
+			 	margin-bottom: 1.00cm;
 			 	float: none !important; 
 			 	position: relative !important; 
 			 	overflow:hidden !important
