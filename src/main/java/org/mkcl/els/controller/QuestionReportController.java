@@ -3830,8 +3830,19 @@ class QuestionReportHelper{
 							for(WorkflowActor wf : distinctActors){
 								UserGroupType userGroupType = wf.getUserGroupType();
 								if(userGroupType.getType().equals(lastObject[27])){
-									level = wf.getLevel();
+									if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+										for(WorkflowActor wf1 : distinctActors){
+											UserGroupType ugt = wf1.getUserGroupType();
+											if(ugt.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+												level = wf1.getLevel();
+											}
+										}
+									}else{
+										level = wf.getLevel();
+									}
 								}
+									
+								
 								if(level != null && wf.getLevel()>level){
 									if(dataMap.containsKey(userGroupType.getType())
 											&&
