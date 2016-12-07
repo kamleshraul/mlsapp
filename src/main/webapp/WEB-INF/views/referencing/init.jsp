@@ -334,8 +334,8 @@
 									text+=$("#referMsg").val()+"</a></span>"
 									+"<a onclick='viewDetail("+data[i].id+");' style='margin:10px;'>"+$("#viewDetailMsg").val()+"</a>"
 									+"</td>";
-									text+="<td>"+data[i].subject+"</td>";			
-									text+="<td>"+data[i].questionText+"</td>";
+									text+="<td>"+data[i].subject+"</td>";		
+									text+="<td><span class='expand' style='width: 420px; max-width: 420px;'>"+data[i].formattedPrimaryMember+" : </span>"+data[i].questionText+"</td>";
 									text+="<td>"+data[i].deviceType+", " + data[i].sessionYear+", "+data[i].sessionType +
 											"<br>"+ data[i].status + ", " + data[i].subDepartment + ", ";
 											
