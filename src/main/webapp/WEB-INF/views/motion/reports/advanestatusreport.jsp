@@ -90,8 +90,9 @@
 								<th style="width: 30px;">${topHeader[0]}</th>
 								<th style="width: 50px;">${topHeader[1]}</th>
 								<th style="width: 120px;">${topHeader[2]}</th>
-								<th style="width: 325px;">${topHeader[3]}</th>
+								<th style="width: 275px;">${topHeader[3]}</th>
 								<th style="width: 125px;">${topHeader[4]}</th>
+								<th style="width: 50px;">${topHeader[6]}</th>
 								<th style="width: 50px;">${topHeader[5]}</th>
 							</tr>						
 						</thead>
@@ -106,8 +107,9 @@
 									<td style="width: 30px; text-align: center;">${formater.formatNumberNoGrouping(counter.count, locale)}</th>
 									<td style="width: 50px;">${r[1]}</th>
 									<td style="width: 120px;">${r[2]}</th>
-									<td style="width: 325px;">${r[3]}</th>
+									<td style="width: 275px;">${r[3]}</th>
 									<td style="width: 125px;">${r[4]}</th>
+									<td style="width: 50px;">${r[7]}</th>
 									<td style="width: 50px;">${r[5]}</th>
 								</tr>
 							</c:forEach>
