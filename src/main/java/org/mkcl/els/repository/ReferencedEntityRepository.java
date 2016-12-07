@@ -550,6 +550,7 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					"'-' as department, " +
 					"sd.name as subdepartment, " +
 					"st.type as statustype, " +
+					"  CONCAT(t.name,' ',me.first_name,' ',me.last_name) as memberName,"+
 					"s.sessiontype_id as sessionType, " +
 					"s.session_year as year, " +
 					"balst.type AS balStatus, " +
@@ -583,6 +584,8 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					"LEFT JOIN status as st ON(m.internalstatus_id=st.id) " +
 					"LEFT JOIN devicetypes as dt ON(m.devicetype_id=dt.id) " +
 					"LEFT JOIN ministries as mi ON(m.ministry_id=mi.id) " +
+					"  LEFT JOIN members as me ON(m.member_id=me.id) "+
+					"  LEFT JOIN titles as t ON(me.title_id=t.id) "+
 					"LEFT JOIN subdepartments as sd ON(m.subdepartment_id=sd.id) " +
 					"LEFT JOIN question_dates as qd ON(m.answering_date=qd.id) " +
 					"LEFT JOIN question_dates as qd1 ON(m.chart_answering_date=qd1.id) " +
@@ -652,7 +655,8 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					"rs.chartAnsweringDate," +
 					"rs.yaadiDate," +
 					"rs.yaadiNumber," +
-					"rs.deviceTypeType " +
+					"rs.deviceTypeType," +
+					"rs.memberName " +
 					"FROM (" + query + ") as rs LIMIT " + start + "," + noOfRecords;
 			
 			List result = this.em().createNativeQuery(finalQuery).getResultList();
@@ -756,6 +760,9 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					
 					if(o[20] != null){
 						questionSearchVO.setDeviceTypeType(o[20].toString());
+					}
+					if(o[21]!=null){
+						questionSearchVO.setFormattedPrimaryMember(o[21].toString());
 					}
 					
 					questionSearchVOs.add(questionSearchVO);			
