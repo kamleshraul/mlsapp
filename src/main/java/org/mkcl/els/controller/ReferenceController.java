@@ -3883,15 +3883,16 @@ public class ReferenceController extends BaseController {
 							model.addAttribute("questionId", question.getId());
 							model.addAttribute("questionSubject",question.getRevisedSubject());
 							model.addAttribute("questionNumber",question.getNumber());
-							model.addAttribute("questionText",question.getRevisedQuestionText());
+							if(question.getRevisedQuestionText() != null && !question.getRevisedQuestionText().isEmpty()){
+								String questionText = question.getRevisedQuestionText();
+								questionText = questionText.replaceAll("<p", "<div");
+								questionText = questionText.replaceAll("</p", "</div");
+								model.addAttribute("questionText",questionText);
+							}
+							
 							model.addAttribute("answer",question.getAnswer());
 							model.addAttribute("questionPrimaryMember",question.getPrimaryMember().findFirstLastName());
 							String supportingMembers = question.findAllMemberNamesWithConstituencies(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME);
-							/*if(!question.getSupportingMembers().isEmpty()){
-								for(SupportingMember m:question.getSupportingMembers()){
-									content=content+","+m.getMember().findFirstLastName();
-								}
-							}*/
 							model.addAttribute("supportingMember",supportingMembers);
 							if(question.getMinistry()!=null){
 								Ministry ministry=question.getMinistry();
@@ -3904,6 +3905,11 @@ public class ReferenceController extends BaseController {
 				}else if(device.equals("Resolution")){
 					Resolution resolution=Resolution.getResolution(currentSession.getId(), deviceTypeId, dNumber, locale.toString());
 					if(resolution!=null){
+						if(resolution.getRevisedNoticeContent()!= null && !resolution.getRevisedNoticeContent().isEmpty()){
+							String noticeContent  = resolution.getRevisedNoticeContent();
+							noticeContent = noticeContent.replaceAll("<p", "<div");
+							noticeContent = noticeContent.replaceAll("</p", "</div");
+						}
 						model.addAttribute("noticeContent", resolution.getNoticeContent());
 						model.addAttribute("resolutionId",resolution.getId());
 					}
@@ -3972,30 +3978,6 @@ public class ReferenceController extends BaseController {
 					model.addAttribute("billId", bill.getId());
 					return "proceeding/contentimports/bills_content";
 				}
-//				try {
-//					
-//					Class domain=Class.forName("org.mkcl.els.domain."+device,true,this.getClass().getClassLoader());
-//					Method m=domain.getMethod("getQuestion", Long.class,Long.class,Integer.class,String.class);
-//					Object returval=m.invoke(null, currentSession.getId(),deviceType.getId(),Integer.parseInt(strNumber),locale.toString());
-//					
-//					System.out.println(returval);
-//				} catch (ClassNotFoundException e) {
-//					e.printStackTrace();
-//				} catch (SecurityException e) {
-//					e.printStackTrace();
-//				} catch (NoSuchMethodException e) {
-//					e.printStackTrace();
-//				} catch (NumberFormatException e) {
-//					e.printStackTrace();
-//				} catch (IllegalArgumentException e) {
-//					e.printStackTrace();
-//				} catch (IllegalAccessException e) {
-//					e.printStackTrace();
-//				} catch (InvocationTargetException e) {
-//					e.printStackTrace();
-//				}
-				
-				
 			}
 		}
 
