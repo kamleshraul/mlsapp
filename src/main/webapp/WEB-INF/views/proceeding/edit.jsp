@@ -7,6 +7,9 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
 	$(document).ready(function(){
+		
+		/* var footerText = "<div style='font-size:18pt;text-align:right'>"+$("#nextReporterTitle").val()+"</div>";
+		$("#proceedingReportDiv").attr("title",footerText); */
 		//As tinymce once registered doesnot get reinitialize when the same page is loaded, hence removing the previous tinymce instance
 		tinymce.remove();
 	 	var isCtrl = false;
@@ -97,10 +100,6 @@
 				var count=id.split("bookmark");
 				elementCount=count[count.length-1];
 				showTabByIdAndUrl('bookmarks_tab', 'proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val()+'&count=1&currentPart='+$('#partId1').val());
-				/* $.get('proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentSlot='+$('#slot').val()+'&count=1&currentPart='+$('#partId1').val(),function(data){
-					    $.fancybox.open(data, {autoSize: false, width:850, height:500});
-				    },'html');
-				    return false; */
 		});
 		  
 		  /**** TinyMCE related Events ****/
@@ -111,7 +110,6 @@
 			 pCount = countLines() + 20;
 			 
 		 }
-		 console.log("pCount = "+pCount);
 		 tinyMCE.init({
 			    	  selector: 'div#proceedingReportDiv',
 			    	  elements : "proceedingReportDiv",
@@ -119,7 +117,6 @@
 			    	  width:840,
 			    	  force_br_newlines : true,
 			    	  force_p_newlines : false,
-			    	 /*  forced_root_block : "div", */
 			    	  forced_root_block : 'div',
 			    	  inline : true,
 			    	  nonbreaking_force_tab: true,
@@ -138,8 +135,6 @@
 			    	  fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
 			    	  lineheight_formats: "100% 120% 150% 180% 200%",
 			    	  font_formats: 'Kokila=kokila,Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;AkrutiKndPadmini=Akpdmi-n',
-			    	 // pagebreak_split_block: true,
-			    	 // pagebreak_separator : "<span style='page-break-before: always;'></span>",
 			    	  setup : function(proceedingReportDiv)
 			    	  {
 			    		  proceedingReportDiv.on('init',function(){
@@ -152,6 +147,11 @@
 			    		 // On key up   
 			    		 proceedingReportDiv.on('keyup', function(e) 
 			    	    {	
+			    			 var element = document.getElementById("proceedingReportDiv");
+			    			 var offset = getCaretCharacterOffsetWithin(element);//$(this).offset();
+			    			 console.log(offset);
+			    			 /* console.log("left" + $(this).offset().left);
+			    			 console.log("top" + $(this).offset().top); */
 			    			 var lineCounter = countLines();
 			    			 var lineCount = 0;
 			    			 if(lineCounter > pCount){
@@ -213,7 +213,7 @@
 			    						+"</tr>"
 			    					+"</thead>"
 			    					+"</table>";
-						        	tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv nonEditable' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div>"+headerText+"<span>&nbsp;</span>");
+						        	tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div id='pageBreakDiv' class='pageBreakDiv nonEditable' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div>"+headerText+"<span>&nbsp;</span>");
 						        	var slotTDCounter = 1;
 						        	$(".slotTD").each(function(){
 						        		$(this).html($("#slotNameTitle").val() + "-" +slotTDCounter);
@@ -265,12 +265,9 @@
 									tinyMCE.activeEditor.selection.select(tinymce.activeEditor.selection.getNode());
 									var formattedContent  = tinymce.activeEditor.selection.getContent();
 									formattedContent = formattedContent.replace(word," " + mainContent);
-									console.log(formattedContent);
 									tinyMCE.activeEditor.selection.setContent(formattedContent);
 									tinyMCE.activeEditor.focus();
 								} 
-							}else if(e.which ==80 && isCtrl){
-								$(".headerTable").css("display","block");
 							}
 				    	}); 
 			     	  }   
@@ -282,6 +279,10 @@
 	
 		
 	function updatePart(){
+			var toBeReplacedContent =  tinymce.activeEditor.getContent();
+			toBeReplacedContent = toBeReplacedContent.replace(/<p/gi,"<div");
+			toBeReplacedContent = toBeReplacedContent.replace(/<\/p/gi,"</div");
+			tinymce.activeEditor.setContent(toBeReplacedContent);
 			$("#partContent"+$("#partCount").val()).val(tinyMCE.activeEditor.getContent());
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$.post($("form[action='proceeding/part/save']").attr('action'),
@@ -333,9 +334,7 @@
 	            range.setStart(containerEl, 0);
 	            var words = range.toString().split(" ");
 	            word =  words[words.length - 1];
-	            //precedingChar = range.toString().slice(-1);
-	            
-	        }
+	         }
 	    } else if ( (sel = document.selection) && sel.type != "Control") {
 	        range = sel.createRange();
 	        precedingRange = range.duplicate();
@@ -349,53 +348,12 @@
 	
 	function countLines() {
 		  var divHeight = $("#proceedingReportDiv").height();
-		  console.log(divHeight);
 		  var lineHeight = $("#proceedingReportDiv").css('line-height');
 		  lineHeight = parseFloat(lineHeight);
 		  var lineCounter = divHeight / lineHeight;
-		  console.log("Lines: " + Math.round(lineCounter));
 		  return lineCounter;
 		}
-	
-/* 	function getLines(txtArea){
-		  var lineHeight = parseInt(txtArea.style.lineHeight.replace(/px/i,''));  
-		  var tr = txtArea.createTextRange();
-		  return Math.ceil(tr.boundingHeight/lineHeight);
-	}
-	
-	function checkLimits(txtArea,countChars,countLines){
-		var maxLines = 105.25;
-		var maxChars = 42.5 * 105.25; 
-		countChars.value = txtArea.text.length;
-		countLines.value = getLines(txtArea);
-		document.maxLines.value = maxLines;
-		document.maxChars.value = maxChars;
-		if((txtArea.text.length >= maxChars || getLines(txtArea) >= maxLines) 
-			    && (window.event.keyCode == 10 || window.event.keyCode == 13)){ 
-			    while(getLines(txtArea) > maxLines) 
-			      txtArea.text = txtArea.text.substr(0,txtArea.text.length-2); 
-			    while(txtArea.value.length > maxChars) 
-			      txtArea.value = txtArea.value.substr(0,txtArea.text.length-2); 
-			    alert("chars and / or lines limit reached"); 
-		}else if(txtArea.value.length > maxChars ){ 
-		    while(txtArea.value.length > maxChars) 
-		    { 
-		      txtArea.value = txtArea.value.substr(0,txtArea.value.length-1); 
-		    } 
-		    alert("chars limit reached"); 
-		}else if(countLines.value > maxLines){ 
-		    while(countLines.value > maxLines) 
-		    { 
-		      txtArea.value = txtArea.value.substr(0,txtArea.value.length-1); 
-		    } 
-		    alert("lines limit reached"); 
-		}
-		countChars.value = txtArea.value.length; 
-		countLines.value = getLines(txtArea);
-	} */
-
 	</script>
-	<!-- <link rel="stylesheet" type="text/css" media="print" href="./resources/css/printerfriendly.css?v=4" /> -->
 	<style type="text/css" >
 	
 			
@@ -410,7 +368,6 @@
 		   text-align: justify;
 		   margin-left: 150px; 
 		   width: 500px;
-		   
 		} 
 				
 		#proceedingReportDiv > p{
@@ -448,7 +405,7 @@
 				display:none;
 			}
 		@media print{
-
+         
 		  	div#pannelDash {
 		    	visibility: hidden;
 		    	display:none;
@@ -556,6 +513,13 @@
 		 	display:none;
 		 	visibility: hidden;
 		 }
+		 #proceedingReportDiv:after {
+		    display: block;
+		    content:attr(title);
+		    text-align:right;
+		    font-size:18pt;
+		    /* margin-bottom: 594mm; */ /* must be larger than largest paper size you support */
+		  }
 	}
 	
 	#nextSlotDiv{
@@ -616,13 +580,14 @@
 			<c:choose>
 				<c:when test='${!(empty parts)}'>
 					<c:forEach items='${parts}' var='outer'>
-						<div id="proceedingReportDiv" name="procContent">
+						<div id="proceedingReportDiv" name="procContent" title="<spring:message code='part.nextReporterMessage' text='Next'/>${nextReporter}">
 							${outer.revisedContent}
 						</div>
+						
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
-					<div id="proceedingReportDiv" name="procContent">
+					<div id="proceedingReportDiv" name="procContent" title="<spring:message code='part.nextReporterMessage' text='Next'/>${nextReporter}">
 						<table class='headerTable nonEditable'>
 								<tbody>
 								<tr><td style='font-size: 18pt;text-align:left;'>${currentSlotStartDate}</td>
@@ -647,10 +612,8 @@
 					</div>
 				</c:otherwise>
 			</c:choose>
-			<%-- <div style="text-align: right"><spring:message code="part.nextReporterMessage" text="next"/>  ${nextReporter}</div> --%>
+			
 		</div>
-		<!-- </form> -->
-		<!-- </div> -->
 		<form action="proceeding/part/save" method="post">
 			<c:choose>
 				<c:when test='${!(empty parts)}'>
@@ -673,18 +636,11 @@
 		<input type="hidden" id="session" name="session" value="${session}"/>
 		<input type="hidden" id="slot" value="${slotId}" name="slot"/>
 		<div id='dContent' style="display: none"></div>
-	<!-- </div> -->
 		<div id="autoFill" style="display:none;">
 			<c:forEach items="${proceedingAutofills}" var="i">
 				<div id="${i.shortName}">${i.autoFillContent}</div>
 			</c:forEach>
 		</div>
-		<%-- <select id="autoFill" style="display:none;">
-			<c:forEach items="${proceedingAutofills}" var="i">
-				<div id="${i.shortName}">${i.autoFillContent}</div>
-				<option value="${i.shortName}">${i.autoFillContent}</option>
-			</c:forEach>
-		</select> --%>
 		<div id="nextSlotDiv">
 			<spring:message code="proceeding.nextSlot" text="Next Slot"/>
 			<br>
@@ -708,17 +664,6 @@
 		<input type="hidden" id="currenSlotStartTimeTitle" value="${currenSlotStartTime}"/>
 		<input type="hidden" id="previousReporterTitle" value="${previousReporter}"/>
 		<input type="hidden" id="pageCounter" />
-		<!-- <input name="myChars" id="myChars" type="text" 
-		  style="text-align:center; border-width:0px;" value="0" 
-		  size="4" maxlength="4" readonly="readonly">
-		<input name="maxChars" id="maxChars" type="text" 
-		  style="text-align:center; border-width:0px;" value="0" 
-		  size="4" maxlength="4" readonly="readonly"> 
-		<input name="myLines" id="myLines" type="text" 
-		  style="text-align:center; border-width:0px;" value="0" 
-		  size="4" maxlength="3" readonly="readonly">
-		  <input name="maxLines" id="maxLines" type="text" 
-		  style="text-align:center; border-width:0px;" value="0" 
-		  size="4" maxlength="3" readonly="readonly"> -->
+		<input type="hidden" id="nextReporterTitle" value="${nextReporter}"/>
 </body>
 </html>
