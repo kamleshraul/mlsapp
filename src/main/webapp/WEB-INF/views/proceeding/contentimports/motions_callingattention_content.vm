@@ -1,6 +1,6 @@
 <div id="deviceContent">
 	#if($isReplyRequired==true)
-		<p>
+		<div>
 			$motionPrimaryMember,$supportingMember 
 			#if($houseType=='lowerhouse')
 				 वि.स.स. यांनी महाराष्ट्र विधानसभा नियम १०१ अनुसार दिलेली लक्षवेधी सूचना क्र. $motionNumber पुढील प्रमाणे आहे.
@@ -8,20 +8,20 @@
 				वि प.स. यांनी महाराष्ट्र विधानपरिषद नियम १०१ अनुसार दिलेली लक्षवेधी सूचना क्र. $motionNumber पुढील प्रमाणे आहे.
 			#end
 			
-		</p>
-		<p>$motionSubject</p>
-		<p>$motionDetails</p>
+		</div>
+		<div>$motionSubject</div>
+		<div>$motionDetails</div>
 		#if($motionReply!='')
 			#if($minister!='')
-				<p><b> मा. $minister यांचे निवदन</b> </p>
+				<div><b> मा. $minister यांचे निवदन</b> </div>
 			#end
-			<p>$motionReply</p>
+			<div>$motionReply</div>
 		#else
 			<div style="text-align:center"><b>निवेदन आले नाही</b></div>
 		#end
 	#else
-		<p>$motionSubject</p>
-		<p>$motionDetails</p>
+		<div>$motionSubject</div>
+		<div>$motionDetails</div>
 	#end
 </div>
 <div id="dId">
