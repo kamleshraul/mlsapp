@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -1556,6 +1558,19 @@ public class ProceedingController extends GenericController<Proceeding>{
 					revisedContent = revisedContent.replaceAll("<p></p>", "");
 					revisedContent = revisedContent.replaceAll("<div></div>", "");
 					revisedContent = revisedContent.replaceAll("<span></span>", "");
+					Pattern blockRegex = Pattern.compile( "<table .*?headerTable.*?/table>",
+                            Pattern.CASE_INSENSITIVE |
+                            Pattern.DOTALL);  
+					Matcher m = blockRegex.matcher(revisedContent);
+					StringBuffer sb = new StringBuffer();
+					boolean result = m.find();
+					while(result) {
+					m.appendReplacement(sb, "");
+					result = m.find();
+					}
+					m.appendTail(sb);
+					revisedContent = sb.toString();
+					revisedContent = revisedContent.replaceAll("<div .*?pageBreakDiv.*?>.*?</div>", "<p style='page-break-after: always;'><!-- pagebreak --></p>");
 					childVO.setProceedingContent(revisedContent);
 				}
 				
@@ -1929,6 +1944,19 @@ public class ProceedingController extends GenericController<Proceeding>{
 						revisedContent = revisedContent.replaceAll("<p></p>", "");
 						revisedContent = revisedContent.replaceAll("<div></div>", "");
 						revisedContent = revisedContent.replaceAll("<span></span>", "");
+						Pattern blockRegex = Pattern.compile( "<table .*?headerTable.*?/table>",
+                                Pattern.CASE_INSENSITIVE |
+                                Pattern.DOTALL);  
+						Matcher m = blockRegex.matcher(revisedContent);
+						StringBuffer sb = new StringBuffer();
+						boolean result = m.find();
+						while(result) {
+						m.appendReplacement(sb, "");
+						result = m.find();
+						}
+						m.appendTail(sb);
+						revisedContent = sb.toString();
+						revisedContent = revisedContent.replaceAll("<div .*?pageBreakDiv.*?>.*?</div>", "<p style='page-break-after: always;'><!-- pagebreak --></p>");
 						childVO.setProceedingContent(revisedContent);
 						if(p.getPageHeading()!=null){
 							childVO.setPageHeading(p.getPageHeading());
@@ -2123,7 +2151,21 @@ public class ProceedingController extends GenericController<Proceeding>{
 					for(Part p:parts){
 						ChildVO childVO=new ChildVO();
 						childVO.setId(p.getId());
-						childVO.setProceedingContent(p.getRevisedContent());
+						String revisedContent = p.getRevisedContent();
+						Pattern blockRegex = Pattern.compile( "<table .*?headerTable.*?/table>",
+                                Pattern.CASE_INSENSITIVE |
+                                Pattern.DOTALL);  
+						Matcher m = blockRegex.matcher(revisedContent);
+						StringBuffer sb = new StringBuffer();
+						boolean result = m.find();
+						while(result) {
+						m.appendReplacement(sb, "");
+						result = m.find();
+						}
+						m.appendTail(sb);
+						revisedContent = sb.toString();
+						revisedContent = revisedContent.replaceAll("<div .*?pageBreakDiv.*?>.*?</div>", "<p style='page-break-after: always;'><!-- pagebreak --></p>");
+						childVO.setProceedingContent(revisedContent);
 						if(p.getPageHeading()!=null){
 							childVO.setPageHeading(p.getPageHeading());
 						}else{
@@ -2410,7 +2452,21 @@ public class ProceedingController extends GenericController<Proceeding>{
 					for(Part p:parts){
 						ChildVO childVO=new ChildVO();
 						childVO.setId(p.getId());
-						childVO.setProceedingContent(p.getRevisedContent());
+						String revisedContent = p.getRevisedContent();
+						Pattern blockRegex = Pattern.compile( "<table .*?headerTable.*?/table>",
+                                Pattern.CASE_INSENSITIVE |
+                                Pattern.DOTALL);  
+						Matcher m = blockRegex.matcher(revisedContent);
+						StringBuffer sb = new StringBuffer();
+						boolean result = m.find();
+						while(result) {
+						m.appendReplacement(sb, "");
+						result = m.find();
+						}
+						m.appendTail(sb);
+						revisedContent = sb.toString();
+						revisedContent = revisedContent.replaceAll("<div .*?pageBreakDiv.*?>.*?</div>", "<p style='page-break-after: always;'><!-- pagebreak --></p>");
+						childVO.setProceedingContent(revisedContent);
 						if(p.getPageHeading()!=null){
 							childVO.setPageHeading(p.getPageHeading());
 						}else{
@@ -2765,7 +2821,21 @@ public class ProceedingController extends GenericController<Proceeding>{
 					for(Part p:parts){
 						ChildVO childVO=new ChildVO();
 						childVO.setId(p.getId());
-						childVO.setProceedingContent(p.getRevisedContent());
+						String revisedContent = p.getRevisedContent();
+						Pattern blockRegex = Pattern.compile( "<table .*?headerTable.*?/table>",
+                                Pattern.CASE_INSENSITIVE |
+                                Pattern.DOTALL);  
+						Matcher m = blockRegex.matcher(revisedContent);
+						StringBuffer sb = new StringBuffer();
+						boolean result = m.find();
+						while(result) {
+						m.appendReplacement(sb, "");
+						result = m.find();
+						}
+						m.appendTail(sb);
+						revisedContent = sb.toString();
+						revisedContent = revisedContent.replaceAll("<div .*?pageBreakDiv.*?>.*?</div>", "<p style='page-break-after: always;'><!-- pagebreak --></p>");
+						childVO.setProceedingContent(revisedContent);
 						if(p.getPageHeading()!=null){
 							childVO.setPageHeading(p.getPageHeading());
 						}else{
@@ -2952,7 +3022,21 @@ public class ProceedingController extends GenericController<Proceeding>{
 								if(j==i || (part1.getMainHeading()!=null && part1.getMainHeading().equals(mainHeading))||(part1.getPageHeading()!=null && part1.getPageHeading().equals(pageHeading))){
 									ChildVO childVO=new ChildVO();
 									childVO.setId(part1.getId());
-									childVO.setProceedingContent(part1.getRevisedContent());
+									String revisedContent = part1.getRevisedContent();
+									Pattern blockRegex = Pattern.compile( "<table .*?headerTable.*?/table>",
+			                                Pattern.CASE_INSENSITIVE |
+			                                Pattern.DOTALL);  
+									Matcher m = blockRegex.matcher(revisedContent);
+									StringBuffer sb = new StringBuffer();
+									boolean result = m.find();
+									while(result) {
+									m.appendReplacement(sb, "");
+									result = m.find();
+									}
+									m.appendTail(sb);
+									revisedContent = sb.toString();
+									revisedContent = revisedContent.replaceAll("<div .*?pageBreakDiv.*?>.*?</div>", "<p style='page-break-after: always;'><!-- pagebreak --></p>");
+									childVO.setProceedingContent(revisedContent);
 									if(part1.getChairPersonRole()!=null){
 										childVO.setMemberrole(part1.getChairPersonRole().getName());
 										if(part1.getChairPersonRole().getType().equals(ApplicationConstants.PANEL_CHAIRMAN)
@@ -3217,7 +3301,21 @@ public class ProceedingController extends GenericController<Proceeding>{
 					for(Part p:parts){
 						ChildVO childVO=new ChildVO();
 						childVO.setId(p.getId());
-						childVO.setProceedingContent(p.getRevisedContent());
+						String revisedContent = p.getRevisedContent();
+						Pattern blockRegex = Pattern.compile( "<table .*?headerTable.*?/table>",
+                                Pattern.CASE_INSENSITIVE |
+                                Pattern.DOTALL);  
+						Matcher m = blockRegex.matcher(revisedContent);
+						StringBuffer sb = new StringBuffer();
+						boolean result = m.find();
+						while(result) {
+						m.appendReplacement(sb, "");
+						result = m.find();
+						}
+						m.appendTail(sb);
+						revisedContent = sb.toString();
+						revisedContent = revisedContent.replaceAll("<div .*?pageBreakDiv.*?>.*?</div>", "<p style='page-break-after: always;'><!-- pagebreak --></p>");
+						childVO.setProceedingContent(revisedContent);
 						if(p.getPageHeading()!=null){
 							childVO.setPageHeading(p.getPageHeading());
 						}else{
