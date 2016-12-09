@@ -32,6 +32,10 @@
 	        	width: 800px;
 	        	padding: 10px;
 	        	page: auto;
+	        }
+	        
+	        .serialCount{
+	        	max-width: 8px !important;
 	        }	        
         }
         @media print{
@@ -40,6 +44,10 @@
 	        	padding: 5px;
 	        	margin-top: 10px !important;
 	        	text-align: center;
+	        }
+	        
+	        .serialCount{
+	        	max-width: 8px !important;
 	        }
 	        
 	        .page-break-before-forced{
@@ -99,6 +107,7 @@
 					<table class="strippedTable" border="1" style="width: 750px;">
 						<thead>
 							<tr>
+								<th class="serialCount" style="text-align: left; font-size: 12px; width: 8px;">${topHeader[5]}</th>
 								<th style="text-align: center; font-size: 12px; width: 30px;">${topHeader[1]}</th>
 								<th style="text-align: center; font-size: 12px; width: 300px;">${topHeader[2]}</th>
 								<th style="text-align: center; font-size: 12px; width: 60px;">${topHeader[3]}</th>
@@ -112,10 +121,11 @@
 						<tbody>
 							<c:forEach items="${report}" var="r" varStatus="counter">
 								<c:choose>
-									<c:when test="${(counter.count mod 17)==0}">
+									<c:when test="${(counter.count mod 16)==0}">
 										<c:choose>
 											<c:when test="${counter.count > 1}">
 												<tr class="page-break-after-forced">
+													<td class="serialCount" style="text-align: left; font-size: 12px; width: 8px;">${serialNumbers[counter.count-1]}</td>
 													<td style="text-align: center; font-size: 12px; width: 30px;">${r[1]}</td>
 													<td style="text-align: justify; font-size: 12px; width: 300px;">${r[2]}</td>
 													<td style="text-align: left; font-size: 12px; width: 60px;">${r[3]}</td>
@@ -124,6 +134,7 @@
 											</c:when>
 											<c:otherwise>
 												<tr>
+													<td class="serialCount" style="text-align: left; font-size: 12px; width: 8px;">${serialNumbers[counter.count-1]}</td>
 													<td style="text-align: center; font-size: 12px; width: 30px;">${r[1]}</td>
 													<td style="text-align: justify; font-size: 12px; width: 300px;">${r[2]}</td>
 													<td style="text-align: left; font-size: 12px; width: 60px;">${r[3]}</td>
@@ -134,6 +145,7 @@
 									</c:when>
 									<c:otherwise>
 										<tr>
+											<td class="serialCount" style="text-align: left; font-size: 12px; width: 8px;">${serialNumbers[counter.count-1]}</td>
 											<td style="text-align: center; font-size: 12px; width: 30px;">${r[1]}</td>
 											<td style="text-align: justify; font-size: 12px; width: 300px;">${r[2]}</td>
 											<td style="text-align: left; font-size: 12px; width: 60px;">${r[3]}</td>
