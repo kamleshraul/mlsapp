@@ -97,7 +97,7 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 
 	public Slot findByEndTime(final Roster roster,final Date endTime) {
 		try {
-			String strQuery="SELECT s FROM Slot s JOIN s.roster.id=:roster AND s.endTime=:endTime AND s.blnDeleted=false";
+			String strQuery="SELECT s FROM Slot s  WHERE s.roster.id=:roster s.endTime=:endTime AND s.blnDeleted=false";
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("roster",roster.getId());
 			query.setParameter("endTime",endTime);
@@ -110,7 +110,7 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 	
 	public Slot findByStartTime(final Roster roster,final Date startTime) {
 		try {
-			String strQuery="SELECT s FROM Slot s JOIN s.roster.id=:roster AND s.startTime=:startTime AND s.blnDeleted=false";
+			String strQuery="SELECT s FROM Slot s WHERE  s.roster.id=:roster AND s.startTime=:startTime AND s.blnDeleted=false";
 			Query query=this.em().createQuery(strQuery);
 			query.setParameter("roster",roster.getId());
 			query.setParameter("startTime",startTime);
