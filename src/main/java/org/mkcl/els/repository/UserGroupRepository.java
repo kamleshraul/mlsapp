@@ -272,6 +272,34 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 			throw elsException;
 		}
 	}
+	
+	public List<UserGroup> findActiveUserGroupsOfGivenUser(final String userName,final String houseType,final String deviceType) throws ELSException {
+		Date currentDate=new Date();  
+		String queryString = "SELECT u FROM UserGroup u JOIN u.credential cr" +
+				" WHERE cr.username=:userName AND u.parameters['HOUSETYPE_mr_IN'] LIKE:houseType"+
+				" AND u.parameters['DEVICETYPE_mr_IN'] LIKE:deviceType"+
+				" AND (u.activeTo>=:currentDate OR u.activeTo IS NULL)";
+
+		Query query = this.em().createQuery(queryString);
+		query.setParameter("userName",userName);
+		query.setParameter("houseType","%"+houseType+"%");
+		query.setParameter("deviceType", "%"+deviceType+"%");
+		query.setParameter("currentDate",currentDate);
+		try {
+			@SuppressWarnings("unchecked")
+			List<UserGroup> userGroups= query.getResultList();
+			return userGroups;
+		}catch(EntityNotFoundException ex){
+			logger.error(ex.getMessage());
+			return null;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("UserGroupRepository_UserGroup_findActiveUserGroupsForDeviceType", "No UserGroup Found");
+			throw elsException;
+		}
+	}
 
 	public Reference findResolutionActor(final Resolution resolution,final String workflowHouseType,
 			final String userGroupType,final String level,final String locale) throws ELSException {

@@ -11,6 +11,7 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.CollectionTable;
@@ -165,6 +166,11 @@ public class UserGroup extends BaseDomain implements Serializable {
 	public static UserGroup findUserGroup(String houseType, String userGroupType, String deviceType, String ministry, String subDepartment) throws ELSException {
 		return getUserGroupRepository().findUserGroup(houseType, userGroupType, deviceType, ministry, subDepartment);
 	}
+	
+	public static List<UserGroup> findActiveUserGroupsOfGivenUser(final String userName,final String houseType,final String deviceType) throws ELSException {
+		return getUserGroupRepository().findActiveUserGroupsOfGivenUser(userName, houseType, deviceType);
+	}
+	
 	public static Reference findResolutionActor(Resolution resolution,String workflowHouseType,
 			String userGroupType, String level, String locale) throws ELSException {
 		return getUserGroupRepository().findResolutionActor(resolution,workflowHouseType,userGroupType,level,locale);

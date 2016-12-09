@@ -468,17 +468,6 @@ public class BallotController extends BaseController{
 			model.addAttribute("formater", new FormaterUtil());
 			model.addAttribute("locale", locale.toString());
 			
-			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-			StringBuffer designation = new StringBuffer("");
-			for(UserGroup ug : userGroups){
-				if(ug != null){
-					designation.append(ug.getUserGroupType().getName());
-					break;
-				}
-			}
-			model.addAttribute("currentDesignation", designation.toString());
-			model.addAttribute("currentUser", (this.getCurrentUser().getTitle()+" "+this.getCurrentUser().getFirstName()+" " + this.getCurrentUser().getMiddleName() + " " +this.getCurrentUser().getLastName()));
-			
 			/** Create HouseType */
 			String strHouseType = request.getParameter("houseType");
 			HouseType houseType = HouseType.findByFieldName(HouseType.class, "type", strHouseType, locale.toString());
@@ -516,6 +505,18 @@ public class BallotController extends BaseController{
 				String strGroup = request.getParameter("group");
 				group = Group.findById(Group.class, Long.valueOf(strGroup));
 			}
+			
+			/** Populate User Details */
+			List<UserGroup> userGroups = UserGroup.findActiveUserGroupsOfGivenUser(this.getCurrentUser().getActualUsername(), houseType.getName(), deviceType.getName());
+			StringBuffer designation = new StringBuffer("");
+			for(UserGroup ug : userGroups){
+				if(ug != null){
+					designation.append(ug.getUserGroupType().getName());
+					break;
+				}
+			}
+			model.addAttribute("currentDesignation", designation.toString());
+			model.addAttribute("currentUser", (this.getCurrentUser().getTitle()+" "+this.getCurrentUser().getFirstName()+" " + this.getCurrentUser().getMiddleName() + " " +this.getCurrentUser().getLastName()));
 
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
