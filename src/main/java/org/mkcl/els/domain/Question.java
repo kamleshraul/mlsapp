@@ -7260,7 +7260,7 @@ public class Question extends Device implements Serializable {
 				}					
 				updateDomainFieldsOnClubbingFinalisation(parentQuestion, question);					
 				
-				actualClubbingStarredQuestions(question, parentQuestion, parentQuestion.getInternalStatus(), parentQuestion.getInternalStatus(), locale);
+				actualClubbingUnstarredQuestions(question, parentQuestion, parentQuestion.getInternalStatus(), parentQuestion.getInternalStatus(), locale);
 			}
 		}
 	}
