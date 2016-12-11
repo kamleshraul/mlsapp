@@ -469,6 +469,8 @@ public class ReportServiceImpl implements IReportService {
 											Element mapValueElement = new Element(mapElement.getName()+"_2");
 											if(report.get(j).getClass().getSimpleName().endsWith("List")) {
 												createInternalElements((List<Object>)report.get(j), mapValueElement);										
+											} else if(report.get(j).getClass().getSimpleName().equals("Object[]")){
+												createInternalElements(((Object[])report.get(j)), mapValueElement);					
 											} else if(report.get(j).getClass().getSimpleName().equals("String")) {
 												mapValueElement.setText(report.get(j).toString());
 												if(report.get(j).toString().startsWith("data:image")) {

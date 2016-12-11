@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.persistence.Parameter;
 
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Gender;
@@ -45,6 +46,20 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 				}
 			}
 			List results=persistenceQuery.getResultList();
+			
+			/** handling for serial number generation **/
+			if(results!=null && !results.isEmpty() && results.get(0)!=null) {
+				Object[] firstResult = (Object[]) results.get(0);
+				if(firstResult!=null && firstResult[0]!=null && firstResult[0].toString().equals("serialNumber")) {
+					int rowIndex=0;
+					for(Object r: results) {
+						Object[] row = (Object[]) r;
+						row[0] = FormaterUtil.formatNumberNoGrouping(rowIndex+1, locale);
+						rowIndex++;
+					}
+				}
+			}			
+			
 			return results;
 		}		
 		return null;
