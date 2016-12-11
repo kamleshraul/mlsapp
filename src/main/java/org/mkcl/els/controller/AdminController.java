@@ -1,11 +1,15 @@
 package org.mkcl.els.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,9 +19,13 @@ import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MessageResource;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroupType;
@@ -622,6 +630,94 @@ public class AdminController extends BaseController {
 			return "NO CREDENTIAL FOUND";
 		}
 		return "SUCCESS";
+	}
+	
+	@RequestMapping(value="/fop_template_report", method=RequestMethod.GET)
+	public @ResponseBody void fopTemplateReport(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		File reportFile = null;
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		
+		String houseTypeStr = request.getParameter("houseType");
+		String sessionYearStr = request.getParameter("sessionYear");
+		String sessionTypeStr = request.getParameter("sessionTypeId");
+		String deviceTypeStr = request.getParameter("deviceTypeId");
+		String reportQuery = request.getParameter("reportQuery");
+		String xsltFileName = request.getParameter("xsltFileName");
+		String outputFormat = request.getParameter("outputFormat");
+		String reportFileName = request.getParameter("reportFileName");
+		
+		
+		if(houseTypeStr!=null && !houseTypeStr.isEmpty()
+				&& sessionYearStr!=null && !sessionYearStr.isEmpty()
+				&& sessionTypeStr!=null && !sessionTypeStr.isEmpty()
+				&& deviceTypeStr!=null && !deviceTypeStr.isEmpty()
+				&& reportQuery!=null && !reportQuery.isEmpty()
+				&& xsltFileName!=null && !xsltFileName.isEmpty()
+				&& outputFormat!=null && !outputFormat.isEmpty()
+				&& reportFileName!=null && !reportFileName.isEmpty()) {
+			
+			try {
+//				/** find houseType **/
+//				HouseType houseType = HouseType.findByType(houseTypeStr, locale.toString());
+//				if(houseType==null) {
+//					houseType = HouseType.findByName(houseTypeStr, locale.toString());
+//				}
+//				if(houseType==null) {
+//					houseType = HouseType.findById(HouseType.class, Long.parseLong(houseTypeStr));
+//				}
+//				/** find sessionYear **/
+//				Integer sessionYear = Integer.parseInt(sessionYearStr);
+//				/** find sessionType **/
+//				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeStr));
+//				/** find session **/
+//				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				
+				Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+		    	parameterMap.put("locale", new String[]{locale.toString()});
+		    	@SuppressWarnings("rawtypes")
+				List resultList = Query.findReport(reportQuery, parameterMap);
+				
+		    	if(resultList!=null && !resultList.isEmpty()) {
+		    		//Object[] resultElement = (Object[]) resultList.get(0);
+				
+					//VO Approach
+//					reportFile = generateReportUsingFOP(reportXmlVO, xsltFileName, outputFormat, reportFileName, locale.toString());
+		    		
+					//Object Array Approach
+		    		reportFile = generateReportUsingFOP(new Object[] {resultList}, xsltFileName, outputFormat, reportFileName, locale.toString());
+					
+		    		if(reportFile!=null) {
+		    			System.out.println("Report generated successfully in " + outputFormat + " format!");
+		    			openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
+		    		}
+	    		}
+			} catch(Exception e) {
+				
+			}			
+		} else {
+			isError = true;
+			logger.error("**** Check request parameters houseType, sessionType, sessionYear, deviceType for null values ****");
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.reqparam.null", locale.toString());
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}	
 	}
 	
 }

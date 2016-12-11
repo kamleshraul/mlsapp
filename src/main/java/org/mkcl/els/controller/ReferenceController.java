@@ -8792,11 +8792,11 @@ public class ReferenceController extends BaseController {
 	    		return questionDetails;
     		}
     		
-    		Boolean isQuestionMemberActiveInHouse = Boolean.valueOf(questionDetailsData[6].toString());
-    		if(!isQuestionMemberActiveInHouse) {
-    			questionDetails[0]="-8";
-	    		return questionDetails;
-    		}
+//    		Boolean isQuestionMemberActiveInHouse = Boolean.valueOf(questionDetailsData[6].toString());
+//    		if(!isQuestionMemberActiveInHouse) {
+//    			questionDetails[0]="-8";
+//	    		return questionDetails;
+//    		}
     		
     		Boolean isQuestionNotRemovedFromYaadi = Boolean.valueOf(questionDetailsData[7].toString());
     		if(!isQuestionNotRemovedFromYaadi) {
