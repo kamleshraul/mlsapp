@@ -28,8 +28,10 @@
 		
 		if(currentDeviceType == 'questions_unstarred') {
 			$('#originalDeviceTypeSpan').show();
+			$('#answerReceivedStatusSpan').show();
 		} else {
 			$('#originalDeviceTypeSpan').hide();
+			$('#answerReceivedStatusSpan').hide();
 		}
 	
 		/**** Fro chart_tab to show or hide ****/
@@ -120,11 +122,15 @@
 			if(text == 'questions_unstarred') {
 				$('#originalDeviceTypeSpan').show();
 				loadOriginalDeviceTypesForGivenDeviceType(value);
+				$('#selectedAnswerReceivedStatus').val("-");
+				$('#answerReceivedStatusSpan').show();
 			} else {
 				$('#originalDeviceTypeSpan').hide();
 				$("#selectedOriginalDeviceType").empty();
 				var originalDeviceTypeText = "<option value='0' selected='selected'>---"+$("#pleaseSelect").val()+"---</option>";
 				$("#selectedOriginalDeviceType").html(originalDeviceTypeText);
+				$('#selectedAnswerReceivedStatus').val("-");
+				$('#answerReceivedStatusSpan').hide();
 			}
 			if(text.indexOf("questions_halfhourdiscussion_")==-1){
 				$("#hdReportsDiv").hide();
@@ -152,9 +158,9 @@
 			}
 			
 			if(text == 'questions_unstarred') {
-				$("#unstarredYaadiSpan").show();
+				$("#unstarred_admitted_departmentwise_report_span").show();
 			} else {
-				$("#unstarredYaadiSpan").hide();
+				$("#unstarred_admitted_departmentwise_report_span").hide();
 			}
 			
 			if (value != "") {
@@ -165,8 +171,13 @@
 		$("#selectedOriginalDeviceType").change(function() {
 			reloadQuestionGrid();
 		});
+		/**** answer received status changes then reload grid****/
+		$("#selectedAnswerReceivedStatus").change(function() {
+			reloadQuestionGrid();
+		});
 		/**** status changes then reload grid****/
 		$("#selectedStatus").change(function() {
+			$('#selectedAnswerReceivedStatus').val("-");
 			var value = $(this).val();
 			if (value != "") {
 				reloadQuestionGrid();
@@ -385,6 +396,7 @@
 				+ "&ugparam="+ $("#ugparam").val()
 				+ "&status=" + $("#selectedStatus").val()
 				+ "&clubbingStatus=" + $("#selectedClubbingStatus").val()
+				+ "&answerReceivedStatus=" + $("#selectedAnswerReceivedStatus").val()
 				+ "&role=" + $("#srole").val() + "&usergroup="
 				+ $("#currentusergroup").val() + "&usergroupType="
 				+ $("#currentusergroupType").val()+"&subdepartment="+(($("#selectedSubDepartment").val()==undefined)?'0':$("#selectedSubDepartment").val()));
@@ -510,6 +522,7 @@
 				+ "&ugparam=" + $("#ugparam").val() 
 				+ "&status=" + $("#selectedStatus").val() 
 				+ "&clubbingStatus=" + $("#selectedClubbingStatus").val()
+				+ "&answerReceivedStatus=" + $("#selectedAnswerReceivedStatus").val()
 				+ "&role=" + $("#srole").val() 
 				+ "&usergroup=" + $("#currentusergroup").val() 
 				+ "&usergroupType=" + $("#currentusergroupType").val()
@@ -914,6 +927,38 @@
 		 + "&reportout=" + "departmentwisequestions";	
 		var resourceURL = 'question/report/departmentwisequestions?'+ parameters;			
 		showTabByIdAndUrl('details_tab', resourceURL);
+	}
+	
+	function departmentwiseUnstarredAdmittedQuestionsReport(){
+		/* var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&subDepartment=" + $("#selectedSubDepartment").val()
+		 + "&originalDeviceType=" + $("#selectedOriginalDeviceType").val()
+		 + "&answerReceivedStatus=" + $("#selectedAnswerReceivedStatus").val()		 
+		 + "&locale=" + $("#moduleLocale").val()
+		 + "&role=" + $("#srole").val()
+		 + "&report=" + "QIS_UNSTARRED_ADMITTED_DEPARTMENTWISE_QUESTIONS_" + $("#selectedHouseType").val().toUpperCase()
+		 + "&reportout=" + "departmentwise_unstarred_admitted_questions";
+		var resourceURL = 'question/report/departmentwise_unstarred_admitted_questions?'+ parameters;			
+		showTabByIdAndUrl('details_tab', resourceURL); */
+		
+		var parameters = {
+				houseType				: $("#selectedHouseType").val(),
+				sessionYear				: $('#selectedSessionYear').val(), 
+				sessionType				: $("#selectedSessionType").val(), 
+				group					: $("#selectedGroup").val(),
+				subDepartment			: $("#selectedSubDepartment").val(),
+				originalDeviceType		: $("#selectedOriginalDeviceType").val(),
+				answerReceivedStatus	: $('#selectedAnswerReceivedStatus').val(), 
+				locale					: $("#moduleLocale").val(), 
+				role					: $("#srole").val(),
+				reportQuery				: "QIS_UNSTARRED_ADMITTED_DEPARTMENTWISE_QUESTIONS"/* + "_" + $("#selectedHouseType").val().toUpperCase()*/,
+				xsltFileName			: 'template_departmentwise_unstarred_admitted_questions'/* + '_' + $("#selectedHouseType").val()*/,
+				outputFormat			: 'WORD',
+				reportFileName			: "departmentwise_unstarred_admitted_questions"/* + "_" + $("#selectedHouseType").val()*/
+		}
+		form_submit('question/report/departmentwise_unstarred_admitted_questions', parameters, 'GET');
 	}
 	
 	function ahwalHDQConditionReport(){
@@ -1495,7 +1540,7 @@
 					<a href="#" id="workflowLabel" class="butSim" >
 						<spring:message code="mytask.chartAnsweringDate" text="Answering Date"/>
 					</a>
-					<select id="selectedModuleAsweringDate" name="selectedModuleAsweringDate" class="sSelect">
+					<select id="selectedModuleAsweringDate" name="selectedModuleAsweringDate" style="width: 115px; height: 25px;">
 						<option value="0"><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>
 					</select>|
 				</div>	
@@ -1514,6 +1559,16 @@
 						</option>
 					</c:forEach>
 				</select> |	
+				<span id="answerReceivedStatusSpan" style="display: none;">
+					<a href="#" id="select_answerReceivedStatus" class="butSim"> <spring:message
+							code="question.answerReceivedStatus" text="Answer Received Status" />
+					</a>				
+					<select name="selectedAnswerReceivedStatus" id="selectedAnswerReceivedStatus" style="width: 100px; height: 25px;">
+						<option value="-" selected="selected"><spring:message code="please.select" text="Please Select"/></option>
+						<option value="answerReceived"><spring:message code="question.answerReceivedStatus.answerReceived" text="Answer Received"/></option>
+						<option value="answerNotReceived"><spring:message code="question.answerReceivedStatus.answerNotReceived" text="Answer Not Received"/></option>						
+					</select> |
+				</span>
 				<hr>
 				<div id='questionDepartment' style="display:inline;">
 					<a href="#" id="select_department" class="butSim"> <spring:message
@@ -1527,7 +1582,7 @@
 								<c:out value="${i.name}"></c:out>
 							</option>
 						</c:forEach>
-					</select>|
+					</select> |
 				</div>	 
 			</security:authorize>
 			

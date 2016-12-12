@@ -3741,7 +3741,7 @@ public class QuestionReportController extends BaseController{
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/departmentwise_unstarred_admitted_questions", method=RequestMethod.GET)
-	public @ResponseBody void testReport(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+	public @ResponseBody void generateDepartmentwiseUnstarredAdmittedQuestionsReport(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 		File reportFile = null;
 		Boolean isError = false;
 		MessageResource errorMessage = null;

@@ -98,27 +98,27 @@
 					                        <fo:table-header>
 					                        	<fo:table-row>
 					                        		<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	   	<fo:block margin-left="0.1cm" font-weight="bold" font-size="10px">
+						                        	   	<fo:block text-align="center" font-weight="bold" font-size="10px">
 				                                        		<xsl:value-of select="../element_1/element_1_5"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block margin-left="0.1cm" font-weight="bold" font-size="10px">
+						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
 				                                        		<xsl:value-of select="../element_1/element_1_6"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="10px">
+						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
 				                                        		<xsl:value-of select="../element_1/element_1_7"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="10px">
+						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
 				                                        		<xsl:value-of select="../element_1/element_1_8"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block margin-left="0.2cm" font-weight="bold" font-size="10px">
+						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
 				                                        		<xsl:value-of select="../element_1/element_1_9"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>				                        	

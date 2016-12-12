@@ -17,6 +17,7 @@
 					+"&ugparam="+$("#ugparam").val()
 					+"&status="+$("#selectedStatus").val()
 					+"&clubbingStatus="+$("#selectedClubbingStatus").val()
+					+"&answerReceivedStatus=" + $("#selectedAnswerReceivedStatus").val()
 					+"&role="+$("#srole").val()
 					+"&usergroup="+$("#currentusergroup").val()
 					+"&usergroupType="+$("#currentusergroupType").val()
@@ -27,9 +28,9 @@
 			var currentDeviceType = 
 				$("#deviceTypeMaster option[value='"+ $("#selectedQuestionType").val() + "']").text();
 			if(currentDeviceType == 'questions_unstarred') {
-				$('#unstarredYaadiSpan').show();
+				$('#unstarred_admitted_departmentwise_report_span').show();
 			} else {
-				$("#unstarredYaadiSpan").hide();
+				$("#unstarred_admitted_departmentwise_report_span").hide();
 			}			
 			$("#member_statistics").click(function(){
 				memberStatistics();
@@ -86,6 +87,7 @@
 						+ "&ugparam=" + $("#ugparam").val()
 						+ "&status=" + $("#selectedStatus").val()
 						+ "&clubbingStatus=" + $("#selectedClubbingStatus").val()
+						+ "&answerReceivedStatus=" + $("#selectedAnswerReceivedStatus").val()
 						+ "&role=" + $("#srole").val()
 						+ "&usergroup=" + $("#currentusergroup").val()
 						+ "&usergroupType=" + $("#currentusergroupType").val()
@@ -145,6 +147,11 @@
 			$("#departmentwise_report").click(function(){				
 				$("#selectionDiv1").hide();
 				departmentwiseQuestionsReport();
+			});			
+			
+			/**** Unstarred Admitted Questions Departmentwise Report ****/
+			$("#unstarred_admitted_departmentwise_report").click(function(){
+				departmentwiseUnstarredAdmittedQuestionsReport();
 			});
 			
 			/**** Sankshipt Ahwal Report ****/
@@ -336,12 +343,17 @@
 				<a href="#" id="generateClubbedIntimationLetter" class="butSim">
 					<spring:message code="question.generateClubbedIntimationLetter" text="Generate Clubbed Intimation Letter"/>
 				</a> | 						
-				<span id="unstarredYaadiSpan">
+				<span id="unstarredYaadiSpan" style="display: none;">
 				<a href="#" id="unstarred_yaadi_report" class="butSim link">
 					<spring:message code="question.unstarred_yaadi_report" text="Unstarred Yaadi Report"/>
 				</a> |
 				<a href="#" id="unstarred_suchi_report" class="butSim link">
 					<spring:message code="question.unstarred_suchi_report" text="Unstarred Suchi Report"/>
+				</a> |
+				</span>
+				<span id="unstarred_admitted_departmentwise_report_span">
+				<a href="#" id="unstarred_admitted_departmentwise_report" class="butSim link">
+					<spring:message code="question.unstarred_admitted_departmentwise_report" text="Unstarred Admitted Departmentwise Report"/>
 				</a> |
 				</span>
 				<hr> 
