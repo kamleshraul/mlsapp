@@ -52,16 +52,29 @@
 			</td>	
 		</tr>
 		<tr style="font-weight: bold;">
-			<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
-				जोडलेल्या प्रश्नांचे क्रमांक
-			</td>
-			<td colspan="3" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				#if($formatData.get(33))
-					$formatData.get(33)
-				#else
-					-
-				#end
-			</td>	
+			#if($formatData.get(34)=='yes')
+				<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
+					ह्या प्रश्नाशी जोडलेला आहे
+				</td>
+				<td colspan="3" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
+					#if($formatData.get(35))
+						$formatData.get(35)
+					#else
+						-
+					#end
+				</td>
+			#else
+				<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
+					जोडलेल्या प्रश्नांचे क्रमांक
+				</td>
+				<td colspan="3" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
+					#if($formatData.get(33))
+						$formatData.get(33)
+					#else
+						-
+					#end
+				</td>
+			#end						
 		</tr>
 		#if($finalStatus!='अतारांकित स्वीकृत करावा' && $finalStatus!='अतारांकित करावा')
 			<tr style="font-weight: bold;">

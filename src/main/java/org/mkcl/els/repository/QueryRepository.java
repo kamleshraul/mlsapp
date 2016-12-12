@@ -48,7 +48,7 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 			List results=persistenceQuery.getResultList();
 			
 			/** handling for serial number generation **/
-			if(results!=null && !results.isEmpty() && results.get(0)!=null) {
+			if(results!=null && !results.isEmpty() && results.get(0)!=null && results.get(0).getClass().equals(Object[].class)) {
 				Object[] firstResult = (Object[]) results.get(0);
 				if(firstResult!=null && firstResult[0]!=null && firstResult[0].toString().equals("serialNumber")) {
 					int rowIndex=0;

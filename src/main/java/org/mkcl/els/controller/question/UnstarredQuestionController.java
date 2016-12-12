@@ -1237,13 +1237,23 @@ class UnstarredQuestionController {
 		}
 		
 		/**** Yaadi related things ****/
+		/** populate yaadi laying date **/
 		if(domain.getYaadiLayingDate()!=null) {
 			model.addAttribute("yaadiLayingDate", 
 					FormaterUtil.formatDateToString(domain.getYaadiLayingDate(),
 							ApplicationConstants.SERVER_DATEFORMAT, locale));
 		}
+		/** populate yaadi details text if question is present in yaadi **/
 		String yaadiDetailsText = domain.findYaadiDetailsText();
 		model.addAttribute("yaadiDetailsText", yaadiDetailsText);	
+		/** find if previous session unstarred question is parent and show its details including yaadi if present **/
+		Question parentQuestion = domain.getParent();
+		if(parentQuestion!=null
+				&& parentQuestion.getType().getType().trim().equalsIgnoreCase(ApplicationConstants.UNSTARRED_QUESTION)
+				&& domain.getSession().getStartDate().after(parentQuestion.getSession().getStartDate())) {
+			String previousSessionUnstarredParentDetailsText = domain.findPreviousSessionUnstarredParentDetailsText();
+			model.addAttribute("previousSessionUnstarredParentDetailsText", previousSessionUnstarredParentDetailsText);
+		}		
 		/** check whether question was removed from unstarred yaadi purposely  **/
 		if(domain.getParent()==null 
 				&& domain.getStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
@@ -1882,13 +1892,23 @@ class UnstarredQuestionController {
 		}
 		
 		/**** Yaadi related things ****/
+		/** populate yaadi laying date **/
 		if(domain.getYaadiLayingDate()!=null) {
 			model.addAttribute("yaadiLayingDate", 
 					FormaterUtil.formatDateToString(domain.getYaadiLayingDate(),
 							ApplicationConstants.SERVER_DATEFORMAT, locale));
 		}
+		/** populate yaadi details text if question is present in yaadi **/
 		String yaadiDetailsText = domain.findYaadiDetailsText();
-		model.addAttribute("yaadiDetailsText", yaadiDetailsText);
+		model.addAttribute("yaadiDetailsText", yaadiDetailsText);	
+		/** find if previous session unstarred question is parent and show its details including yaadi if present **/
+		Question parentQuestion = domain.getParent();
+		if(parentQuestion!=null
+				&& parentQuestion.getType().getType().trim().equalsIgnoreCase(ApplicationConstants.UNSTARRED_QUESTION)
+				&& domain.getSession().getStartDate().after(parentQuestion.getSession().getStartDate())) {
+			String previousSessionUnstarredParentDetailsText = domain.findPreviousSessionUnstarredParentDetailsText();
+			model.addAttribute("previousSessionUnstarredParentDetailsText", previousSessionUnstarredParentDetailsText);
+		}
 		/** check whether question was removed from unstarred yaadi purposely  **/
 		if(domain.getParent()==null 
 				&& domain.getStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)

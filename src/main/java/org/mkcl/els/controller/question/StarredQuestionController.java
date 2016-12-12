@@ -1459,11 +1459,20 @@ class StarredQuestionController {
 		}
 		
 		/**** Yaadi related things ****/
+		/** populate yaadi laying date **/
 		if(domain.getYaadiLayingDate()!=null) {
 			model.addAttribute("yaadiLayingDate", 
 					FormaterUtil.formatDateToString(domain.getYaadiLayingDate(),
 							ApplicationConstants.SERVER_DATEFORMAT, locale));
-		}		
+		}
+		/** find if previous session unstarred question is parent and show its details including yaadi if present **/
+		Question parentQuestion = domain.getParent();
+		if(parentQuestion!=null
+				&& parentQuestion.getType().getType().trim().equalsIgnoreCase(ApplicationConstants.UNSTARRED_QUESTION)
+				&& domain.getSession().getStartDate().after(parentQuestion.getSession().getStartDate())) {
+			String previousSessionUnstarredParentDetailsText = domain.findPreviousSessionUnstarredParentDetailsText();
+			model.addAttribute("previousSessionUnstarredParentDetailsText", previousSessionUnstarredParentDetailsText);
+		}
 	}
 
 
@@ -2179,10 +2188,19 @@ class StarredQuestionController {
 		}
 		
 		/**** Yaadi related things ****/
+		/** populate yaadi laying date **/
 		if(domain.getYaadiLayingDate()!=null) {
 			model.addAttribute("yaadiLayingDate", 
 					FormaterUtil.formatDateToString(domain.getYaadiLayingDate(),
 							ApplicationConstants.SERVER_DATEFORMAT, locale));
+		}
+		/** find if previous session unstarred question is parent and show its details including yaadi if present **/
+		Question parentQuestion = domain.getParent();
+		if(parentQuestion!=null
+				&& parentQuestion.getType().getType().trim().equalsIgnoreCase(ApplicationConstants.UNSTARRED_QUESTION)
+				&& domain.getSession().getStartDate().after(parentQuestion.getSession().getStartDate())) {
+			String previousSessionUnstarredParentDetailsText = domain.findPreviousSessionUnstarredParentDetailsText();
+			model.addAttribute("previousSessionUnstarredParentDetailsText", previousSessionUnstarredParentDetailsText);
 		}
 	}
 

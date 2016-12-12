@@ -12438,6 +12438,7 @@ public class Question extends Device implements Serializable {
 		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 		parametersMap.put("locale", new String[]{this.getLocale()});
 		parametersMap.put("questionId", new String[]{this.getId().toString()});
+		@SuppressWarnings("rawtypes")
 		List yaadiDetailsTextResult = org.mkcl.els.domain.Query.findReport("QUESTION_YADI_DETAILS_TEXT", parametersMap);
 		if(yaadiDetailsTextResult!=null && !yaadiDetailsTextResult.isEmpty()) {
 			if(yaadiDetailsTextResult.get(0)!=null) {
@@ -12447,11 +12448,27 @@ public class Question extends Device implements Serializable {
 		return yaadiDetailsText;
 	}
 	
+	public String findPreviousSessionUnstarredParentDetailsText() {
+		String previousSessionUnstarredParentDetailsText = "";
+		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+		parametersMap.put("locale", new String[]{this.getLocale()});
+		parametersMap.put("questionId", new String[]{this.getId().toString()});
+		@SuppressWarnings("rawtypes")
+		List previousSessionUnstarredParentDetailsTextResult = org.mkcl.els.domain.Query.findReport("QUESTION_PREVIOUS_SESSION_UNSTARRED_PARENT_DETAILS_TEXT", parametersMap);
+		if(previousSessionUnstarredParentDetailsTextResult!=null && !previousSessionUnstarredParentDetailsTextResult.isEmpty()) {
+			if(previousSessionUnstarredParentDetailsTextResult.get(0)!=null) {
+				previousSessionUnstarredParentDetailsText = previousSessionUnstarredParentDetailsTextResult.get(0).toString();
+			}
+		}
+		return previousSessionUnstarredParentDetailsText;
+	}
+	
 	public String findReferencingDetailsText() {
 		String referencingDetailsText = "";
 		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
 		parametersMap.put("locale", new String[]{this.getLocale()});
 		parametersMap.put("questionId", new String[]{this.getId().toString()});
+		@SuppressWarnings("rawtypes")
 		List referencingDetailsTextResult = org.mkcl.els.domain.Query.findReport("QUESTION_REFERENCING_DETAILS_TEXT", parametersMap);
 		if(referencingDetailsTextResult!=null && !referencingDetailsTextResult.isEmpty()) {
 			if(referencingDetailsTextResult.get(0)!=null) {

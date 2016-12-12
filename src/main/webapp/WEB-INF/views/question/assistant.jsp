@@ -964,9 +964,15 @@
 		<%@ include file="/common/info.jsp" %>
 		<h2>
 			${formattedQuestionType}: ${formattedNumber}
-			<c:if test="${not empty yaadiDetailsText}">
-				&nbsp;&nbsp;(${yaadiDetailsText})
-			</c:if>
+			<c:choose>
+				<c:when test="${not empty yaadiDetailsText}">
+					&nbsp;&nbsp;(${yaadiDetailsText})
+				</c:when>
+				<c:when test="${not empty previousSessionUnstarredParentDetailsText}">
+					&nbsp;&nbsp;(${previousSessionUnstarredParentDetailsText})
+				</c:when>
+				<c:otherwise></c:otherwise>
+			</c:choose>			
 		</h2>
 		<form:errors path="version" cssClass="validationError"/>
 		
