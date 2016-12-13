@@ -318,9 +318,11 @@
 		</a> |
 		</c:if>
 		<c:if test="${deviceTypeType=='questions_starred'}">
+		<security:authorize access="hasAnyRole('QIS_ASSISTANT','QIS_SECTION_OFFICER')">
 		<a href="#" id="update_questions_status" class="butSim update_devices_status">
 			<spring:message code="yaadidetails.update_questions_status" text="Update Status of Yaadi Questions"/>				
 		</a> |
+		</security:authorize>
 		</c:if>
 		<hr/>
 		<br/>
