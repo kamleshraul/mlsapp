@@ -144,7 +144,18 @@
 			});
 			/**** List Tab ****/
 			$('#list_tab').click(function(){
-				showProceedingList(); 	
+				var currentPartId = $("#partId1").val();
+				if(currentPartId != null && currentPartId!=''){
+					$.prompt($('#listNavigationConfirmationMessage').val(),{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){
+				        	showProceedingList(); 
+				        }
+					}});
+					return false;
+				}else{
+					showProceedingList(); 
+				}
 			}); 
 			/***** Details Tab ****/
 			$('#details_tab').click(function(){

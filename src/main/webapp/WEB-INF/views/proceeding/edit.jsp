@@ -17,7 +17,7 @@
 		var pageCounter = parseInt("1");
 		/****Disable F5 button****/
 		document.onkeydown = function(e){
-		    //keycode for F5 function
+		  //keycode for F5 function
 			if(e.keyCode===116){
 				return false;
 			}
@@ -665,5 +665,6 @@
 		<input type="hidden" id="previousReporterTitle" value="${previousReporter}"/>
 		<input type="hidden" id="pageCounter" />
 		<input type="hidden" id="nextReporterTitle" value="${nextReporter}"/>
+		<input type="hidden" id="listNavigationConfirmationMessage" value="<spring:message code='part.navigateToListMessage' text='Please Save before going on to other page, If already saved press Ok, if not press CANCEL and Save the Content using CTRL + SHIFT + U'/>"/>
 </body>
 </html>
