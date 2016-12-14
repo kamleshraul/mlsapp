@@ -372,6 +372,9 @@
 		   text-align: justify;
 		   margin-left: 150px; 
 		   width: 500px;
+		   max-width:500px;
+		   /* position: absolute; */
+		   
 		} 
 				
 		#proceedingReportDiv > p{
@@ -462,9 +465,11 @@
 			 	margin-left:3.302cm;
 			 	margin-right:3.302cm;
 			 	margin-bottom: 1.00cm;
+			 	width: 500px;
+		   		max-width:500px;
 			 	float: none !important; 
 			 	position: relative !important; 
-			 	overflow:hidden !important
+			 	overflow:hidden !important;
 			}
 			
 			 div#proceedingReportDiv .headerTable{

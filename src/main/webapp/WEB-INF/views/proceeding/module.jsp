@@ -147,10 +147,17 @@
 				var currentPartId = $("#partId1").val();
 				var currentPartContent = $("#proceedingReportDiv").html();
 				if(currentPartContent != null && currentPartContent != ''){
-					var currentPartContentArr = currentPartContent.split("</table>");
-					var mainContent = currentPartContentArr[1];
+					var mainContent = '';
+					var contentWithoutHeader = '';
+					if(currentPartContent.indexOf("</table>")>0){
+						mainContent = currentPartContentArr[1];
+						var currentPartContentArr = currentPartContent.split("</table>");
+					}else{
+						contentWithoutHeader = currentPartContent;
+					}
+									
 					//Assumption : If user starts typing the size of the content without headers will have length >34
-					if((mainContent.length>34) ||
+					if((mainContent.length>34) || (contentWithoutHeader>0)
 							(currentPartId != null && currentPartId!='')){
 						$.prompt($('#listNavigationConfirmationMessage').val(),{
 							buttons: {Ok:true, Cancel:false}, callback: function(v){
