@@ -145,14 +145,24 @@
 			/**** List Tab ****/
 			$('#list_tab').click(function(){
 				var currentPartId = $("#partId1").val();
-				if(currentPartId != null && currentPartId!=''){
-					$.prompt($('#listNavigationConfirmationMessage').val(),{
-						buttons: {Ok:true, Cancel:false}, callback: function(v){
-				        if(v){
-				        	showProceedingList(); 
-				        }
-					}});
-					return false;
+				var currentPartContent = $("#proceedingReportDiv").html();
+				if(currentPartContent != null && currentPartContent != ''){
+					var currentPartContentArr = currentPartContent.split("</table>");
+					var mainContent = currentPartContentArr[1];
+					//Assumption : If user starts typing the size of the content without headers will have length >34
+					if((mainContent.length>34) ||
+							(currentPartId != null && currentPartId!='')){
+						$.prompt($('#listNavigationConfirmationMessage').val(),{
+							buttons: {Ok:true, Cancel:false}, callback: function(v){
+					        if(v){
+					        	updatePart();
+					        	showProceedingList(); 
+					        }
+						}});
+						return false;
+					}else{
+						showProceedingList(); 
+					}
 				}else{
 					showProceedingList(); 
 				}
