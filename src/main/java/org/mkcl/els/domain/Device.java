@@ -209,5 +209,22 @@ public abstract class Device extends BaseDomain {
 		
 		return deviceBallotVO;
 	}
+	
+	public static String findBallotInformationText(String deviceType, Long deviceId, String locale) throws ELSException {
+		String ballotInformation = "";
+		
+		Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+		queryParameters.put("locale", new String[] {locale});
+		queryParameters.put("deviceId", new String[] {deviceId.toString()});
+		
+		@SuppressWarnings("rawtypes")
+		List resultList = Query.findReport(deviceType.toUpperCase()+"_BALLOT_INFORMATION_TEXT", queryParameters);
+		
+		if(resultList!=null && !resultList.isEmpty()) {
+			ballotInformation = (String) resultList.get(0);
+		}
+		
+		return ballotInformation;
+	}
 
 }
