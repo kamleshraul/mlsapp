@@ -147,6 +147,7 @@
 			    		 // On key up   
 			    		 proceedingReportDiv.on('keyup', function(e) 
 			    	    {	
+			    			 $("#partContent"+$("#partCount").val()).val(tinyMCE.activeEditor.getContent());
 			    			 var element = document.getElementById("proceedingReportDiv");
 			    			 var offset = getCaretCharacterOffsetWithin(element);//$(this).offset();
 			    			 console.log(offset);
@@ -283,7 +284,7 @@
 			toBeReplacedContent = toBeReplacedContent.replace(/<p/gi,"<div");
 			toBeReplacedContent = toBeReplacedContent.replace(/<\/p/gi,"</div");
 			tinymce.activeEditor.setContent(toBeReplacedContent);
-			$("#partContent"+$("#partCount").val()).val(tinyMCE.activeEditor.getContent());
+			$("#partContent"+$("#partCount").val()).val(toBeReplacedContent);
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$.post($("form[action='proceeding/part/save']").attr('action'),
 					$("form[action='proceeding/part/save']").serialize(),function(data){
