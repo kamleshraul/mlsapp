@@ -291,7 +291,10 @@
 				 if(data!=null && data!=''){		
 					
 					 $("#partId"+$("#partCount").val()).val(data.id);
+					 tinyMCE.activeEditor.selection.select(tinyMCE.activeEditor.getBody(), true);
+					 tinyMCE.activeEditor.selection.collapse(false);
 					 $.unblockUI();
+					 
 				} 
 			}).fail(function(){
 				
