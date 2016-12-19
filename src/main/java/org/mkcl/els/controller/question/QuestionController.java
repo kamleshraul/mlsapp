@@ -18,7 +18,6 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberContactVO;
-import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.controller.GenericController;
@@ -27,14 +26,15 @@ import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.ReferenceUnit;
-import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -43,7 +43,6 @@ import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
-import org.mkcl.els.domain.ballot.Ballot;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -1374,7 +1373,7 @@ public class QuestionController extends GenericController<Question> {
 	}
 
 	public static List<Reference> getReferencedEntityReferences(Question domain,
-			String locale) {
+			String locale) throws ELSException {
 		List<Reference> refentities = new ArrayList<Reference>();
 		List<ReferenceUnit> referencedEntities = domain.getReferencedEntities();
 		if(referencedEntities != null && !referencedEntities.isEmpty()){
@@ -1384,51 +1383,60 @@ public class QuestionController extends GenericController<Question> {
 						Question q = Question.findById(Question.class, re.getDevice());
 						if(q != null){
 								Reference reference=new Reference();
+								/** reference unit id **/
 								reference.setId(String.valueOf(re.getId()));
-								Integer number = re.getNumber();
-								
-								StringBuffer detail = new StringBuffer();						
-								if(re.getDeviceType().equals(ApplicationConstants.STARRED_QUESTION)){
-									detail.append(" (" 
-											+ FormaterUtil.formatNumberNoGrouping(q.getSession().getYear(), locale) + ", "
-											+ re.getSessionTypeName());
-									
+								/** id of referred device **/
+								reference.setNumber(String.valueOf(q.getId()));
+								/** detailed information of referred device **/
+								StringBuffer detail = new StringBuffer();			
+								/** session information **/
+								detail.append(" (" 
+										+ FormaterUtil.formatNumberNoGrouping(q.getSession().getYear(), locale) + ", "
+										+ re.getSessionTypeName());
+								/** ballot, yaadi and discussion information as per devicetype **/
+								if(re.getDeviceType().equals(ApplicationConstants.STARRED_QUESTION)){									
 									if(q.getBallotStatus()!=null && q.getBallotStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_BALLOTED)) {
-										Ballot b = null;
-										try {
-											b = Ballot.find(q);
-										} catch (ELSException e) {
-											e.printStackTrace();
-										}
-										if(b != null){
-											detail.append(", " + FormaterUtil.formatDateToString(b.getAnsweringDate(), 
-													ApplicationConstants.SERVER_DATEFORMAT, locale) + ")");
+										/** ballot information **/
+										detail.append(", ");
+										String ballotInformation = Device.findBallotInformationText(q.getType().getType(), q.getId(), locale);
+										if(ballotInformation != null && !ballotInformation.isEmpty()){
+											detail.append(ballotInformation);
+											/** discussion information **/
+											detail.append(", ");
+											if(q.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_DISCUSSED)) {
+												detail.append(q.getRecommendationStatus().getName());
+											} else {
+												MessageResource notDiscussedMsg = MessageResource.findByFieldName(MessageResource.class, "code", "question.not_discussed", locale);
+												if(notDiscussedMsg!=null) {
+													detail.append(notDiscussedMsg.getValue());
+												} else {
+													detail.append("-");
+												}
+											}
+											detail.append(")");
 										}else{
 											detail.append(", -)");
-										}
+										}										
 									} else {
 										detail.append(", -)");
 									}									
 									
 								}else if(q.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+									/** yaadi information **/
+									detail.append(", ");
 									String yaadiLayingStatus = q.findYaadiLayingStatus();
-									detail.append(" ("
-											+ FormaterUtil.formatNumberNoGrouping(q.getSession().getYear(), locale) + ", "
-											+ q.getSession().getType().getSessionType()
-											+ ", "
-											+ ((q.getYaadiNumber() != null)? 
-													FormaterUtil.formatNumberNoGrouping(q.getYaadiNumber(), locale):"-"));
+									detail.append(((q.getYaadiNumber() != null) ? FormaterUtil.formatNumberNoGrouping(q.getYaadiNumber(), locale):"-"));
 									if(yaadiLayingStatus!=null && (yaadiLayingStatus.equals(ApplicationConstants.YAADISTATUS_READY) || yaadiLayingStatus.equals(ApplicationConstants.YAADISTATUS_LAID))) {
 										detail.append(", " + ((q.getYaadiLayingDate() != null)? FormaterUtil.formatDateToString(q.getYaadiLayingDate(), ApplicationConstants.SERVER_DATEFORMAT, locale):"-")
 										+ ")");					
 									} else {
 										detail.append(")");
 									}
-								}
-								
-								reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(number) + detail.toString());
-								reference.setNumber(String.valueOf(q.getId()));
+								}								
+								reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(re.getNumber()) + detail.toString());
+								/** devicetype of referred device **/
 								reference.setState(q.getType().getType());
+								/** main status of referred device **/
 								reference.setRemark(q.getStatus().getName());
 								refentities.add(reference);
 						}
