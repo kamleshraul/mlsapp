@@ -26,5 +26,8 @@
 	div#reportDiv .page-break { page-break-after:auto;}
 	div#reportDiv .page-break-before-forced { page-break-before: always;}
 	div#reportDiv .centerdiv h2{font-size: 24px; font-weight: bold; }
+	div#reportDiv .centerdiv h3{font-size: 22px; font-weight: bold; }
 	div#reportDiv .centerdiv h4{font-size: 20px; font-weight: bold; }
 	h2{font-size: 24px; font-weight: bold; }
+	h3{font-size: 22px; font-weight: bold; }
+	h4{font-size: 20px; font-weight: bold; }

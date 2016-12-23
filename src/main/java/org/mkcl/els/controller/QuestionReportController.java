@@ -49,6 +49,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
@@ -2715,6 +2716,112 @@ public class QuestionReportController extends BaseController{
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	@RequestMapping(value="/partywise_questions_count_report/init",method=RequestMethod.GET)
+	public String initPartywiseQuestionsCountReport(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		String responsePage="question/reports/error";
+		
+		String strQuestionType = request.getParameter("questionType");
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		
+		if(strQuestionType!=null && strHouseType!=null && strSessionType!=null && strSessionYear!=null
+				&& !strQuestionType.isEmpty() && !strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()) {
+			
+			/**** populate selected questiontype ****/
+			DeviceType questionType=DeviceType.findByName(DeviceType.class, strQuestionType, locale.toString());
+			if(questionType==null) {
+				questionType=DeviceType.findByType(strQuestionType, locale.toString());
+			}
+			if(questionType==null) {
+				questionType=DeviceType.findById(DeviceType.class, Long.parseLong(strQuestionType));
+			}
+			if(questionType==null) {
+				logger.error("**** parameter questionType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("questionType",questionType.getId());
+			model.addAttribute("questionTypeType",questionType.getType());
+			/**** populate selected housetype ****/
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			if(houseType==null) {
+				houseType = HouseType.findByName(strHouseType, locale.toString());
+			}
+			if(houseType==null) {
+				houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+			}
+			if(houseType==null) {
+				logger.error("**** parameter houseType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("houseType", houseType.getId());	
+			/**** populate selected sessiontype ****/
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			if(sessionType==null) {
+				logger.error("**** parameter sessionType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("sessionType", sessionType.getId());
+			/**** populate selected sessionyear ****/
+			Integer sessionYear = Integer.parseInt(strSessionYear);
+			model.addAttribute("sessionYear", sessionYear);		
+			/**** populate selected session ****/
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+			if(session==null) {								
+				logger.error("**** Session Not Found ****");
+				model.addAttribute("errorcode", "SESSIONS_NOTFOUND");
+				return responsePage;
+			}
+			model.addAttribute("session",session.getId());
+			/**** populate all active parties ****/
+			List<Reference> partyList = new ArrayList<Reference>();
+			List<Party> parties = Party.findActiveParties(session.getHouse(), locale.toString());
+			for(Party p : parties){
+				Reference partyRef = new Reference(p.getId().toString(), p.getName());
+				partyList.add(partyRef);
+			}
+			model.addAttribute("partyList", partyList);
+			model.addAttribute("locale", locale.toString());
+			responsePage = "question/reports/partywise_questions_count_report_init";
+		} else {
+			logger.error("**** Check request parameters 'questionType,houseType,sessionType,sessionYear' for null/empty values ****");
+			model.addAttribute("errorcode", "insufficient_parameters");
+		}
+				
+		return responsePage;
+	}
+	
+	@RequestMapping(value="/partywise_questions_count_report", method=RequestMethod.GET)
+	public String generatePartywiseQuestionsCountReport(HttpServletRequest request, Model model, Locale locale){
+		return generateTabularHtmlReport(request, model, locale);
+	}
+	
+	private String generateTabularHtmlReport(HttpServletRequest request, Model model, Locale locale) {
+		@SuppressWarnings("unchecked")
+		Map<String, String[]> requestMap = request.getParameterMap();
+		/** Populate Headers **/
+		@SuppressWarnings("rawtypes")
+		List reportHeaders = Query.findReport(request.getParameter("reportQuery")+"_HEADERS", requestMap);
+		model.addAttribute("reportHeaders", reportHeaders);
+		reportHeaders = null;
+		@SuppressWarnings("rawtypes")
+		List reportData = Query.findReport(request.getParameter("reportQuery"), requestMap);
+		model.addAttribute("reportData", reportData);
+		reportData = null;
+		requestMap = null;
+		return "question/reports/"+request.getParameter("reportFile");
 	}
 	
 	@RequestMapping(value="/bulleteinreport" ,method=RequestMethod.GET)

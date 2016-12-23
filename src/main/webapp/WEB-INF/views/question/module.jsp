@@ -833,6 +833,16 @@
 		});
 	}
 	
+	function generatePartywiseQuestionsCountReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&questionType=" + $("#selectedQuestionType").val()
+		 + "&role=" + $("#srole").val(); 
+		var resourceURL = 'question/report/partywise_questions_count_report/init?'+ parameters;
+	 	showTabByIdAndUrl('details_tab', resourceURL);
+	}
+	
 	function groupBulleteinReport(){
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		 + "&sessionYear=" + $("#selectedSessionYear").val()

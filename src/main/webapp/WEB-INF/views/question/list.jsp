@@ -131,6 +131,12 @@
 				generateOnlineOfflineSubmissionCountReport();
 			});
 			
+			/**** Generate Partywise Questions Count Report ****/
+			$("#partywise_questions_count_report").click(function(){
+				$("#selectionDiv1").hide();
+				generatePartywiseQuestionsCountReport();
+			});
+			
 			/**** Questions Bulletein Report ****/
 			$("#group_bulletein_report").click(function(){				
 				$(this).attr('href','#');
@@ -363,6 +369,9 @@
 				</a> |		
 				<a href="#" id="online_offline_submission_count_report" class="butSim link">
 					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
+				</a> |
+				<a href="#" id="partywise_questions_count_report" class="butSim link">
+					<spring:message code="question.partywise_questions_count_report" text="Partywise Questions Count Report"/>
 				</a> |
 				<hr> 
 				</security:authorize>
