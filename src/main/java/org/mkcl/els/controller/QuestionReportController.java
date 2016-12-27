@@ -2824,6 +2824,93 @@ public class QuestionReportController extends BaseController{
 		return "question/reports/"+request.getParameter("reportFile");
 	}
 	
+	@RequestMapping(value="/extended_grid_report/init",method=RequestMethod.GET)
+	public String initExtendedGridReport(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		String responsePage="question/reports/error";
+		
+		String strQuestionType = request.getParameter("questionType");
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		
+		if(strQuestionType!=null && strHouseType!=null && strSessionType!=null && strSessionYear!=null
+				&& !strQuestionType.isEmpty() && !strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty()) {
+			
+			/**** populate selected questiontype ****/
+			DeviceType questionType=DeviceType.findByName(DeviceType.class, strQuestionType, locale.toString());
+			if(questionType==null) {
+				questionType=DeviceType.findByType(strQuestionType, locale.toString());
+			}
+			if(questionType==null) {
+				questionType=DeviceType.findById(DeviceType.class, Long.parseLong(strQuestionType));
+			}
+			if(questionType==null) {
+				logger.error("**** parameter questionType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("questionType",questionType.getId());
+			model.addAttribute("questionTypeType",questionType.getType());
+			/**** populate selected housetype ****/
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			if(houseType==null) {
+				houseType = HouseType.findByName(strHouseType, locale.toString());
+			}
+			if(houseType==null) {
+				houseType = HouseType.findById(HouseType.class, Long.parseLong(strHouseType));
+			}
+			if(houseType==null) {
+				logger.error("**** parameter houseType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("houseType", houseType.getId());	
+			/**** populate selected sessiontype ****/
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			if(sessionType==null) {
+				logger.error("**** parameter sessionType is invalid ****");
+				model.addAttribute("errorcode", "invalid_parameters");
+				return responsePage;
+			}
+			model.addAttribute("sessionType", sessionType.getId());
+			/**** populate selected sessionyear ****/
+			Integer sessionYear = Integer.parseInt(strSessionYear);
+			model.addAttribute("sessionYear", sessionYear);		
+			/**** populate selected session ****/
+			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+			if(session==null) {								
+				logger.error("**** Session Not Found ****");
+				model.addAttribute("errorcode", "SESSIONS_NOTFOUND");
+				return responsePage;
+			}
+			model.addAttribute("session",session.getId());
+			/**** populate all groups for the session ****/
+			List<Reference> groupList = new ArrayList<Reference>();
+			List<Group> groups = Group.findAllByFieldName(Group.class, "session", session, "number", ApplicationConstants.ASC, locale.toString());
+			for(Group g : groups){
+				Reference groupRef = new Reference();
+				groupRef.setId(g.getId().toString());
+				groupRef.setNumber(g.formatNumber());
+				groupList.add(groupRef);
+			}
+			model.addAttribute("groupList", groupList);
+			model.addAttribute("locale", locale.toString());
+			responsePage = "question/reports/extended_grid_report_init";
+		} else {
+			logger.error("**** Check request parameters 'questionType,houseType,sessionType,sessionYear' for null/empty values ****");
+			model.addAttribute("errorcode", "insufficient_parameters");
+		}
+				
+		return responsePage;
+	}
+	
 	@RequestMapping(value="/bulleteinreport" ,method=RequestMethod.GET)
 	public @ResponseBody void generateBulleteinReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
 		File reportFile = null; 
