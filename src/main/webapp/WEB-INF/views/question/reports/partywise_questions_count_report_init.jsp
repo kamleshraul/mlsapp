@@ -18,7 +18,7 @@
 			+"&partyId="+party
 			+"&locale="+$("#locale").val()
 			+"&reportQuery="+$("#questionTypeType").val().toUpperCase()+"_PARTYWISE_MEMBERWISE_STATUS_COUNTS"
-			+"&reportFile=partywise_questions_count_report";
+			+"&reportFileName=partywise_questions_count_report";
 			var resource='question/report/partywise_questions_count_report';
 			$.get(resource+'?'+parameters,function(data){
 				$("#reportDataDiv").empty();	

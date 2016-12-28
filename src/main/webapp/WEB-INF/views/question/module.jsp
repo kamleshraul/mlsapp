@@ -843,6 +843,18 @@
 	 	showTabByIdAndUrl('details_tab', resourceURL);
 	}
 	
+	function generateExtendedGridReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&questionType=" + $("#selectedQuestionType").val()
+		 + "&role=" + $("#srole").val()
+		 + "&usergroup=" + $("#currentusergroup").val()
+		 + "&usergroupType=" + $("#currentusergroupType").val(); 
+		var resourceURL = 'question/report/extended_grid_report/init?'+ parameters;
+	 	showTabByIdAndUrl('details_tab', resourceURL);
+	}
+	
 	function groupBulleteinReport(){
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		 + "&sessionYear=" + $("#selectedSessionYear").val()

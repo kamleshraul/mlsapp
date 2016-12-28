@@ -137,6 +137,12 @@
 				generatePartywiseQuestionsCountReport();
 			});
 			
+			/**** Generate Extended Grid Report ****/
+			$("#extended_grid_report").click(function(){
+				$("#selectionDiv1").hide();
+				generateExtendedGridReport();
+			});
+			
 			/**** Questions Bulletein Report ****/
 			$("#group_bulletein_report").click(function(){				
 				$(this).attr('href','#');
@@ -372,6 +378,9 @@
 				</a> |
 				<a href="#" id="partywise_questions_count_report" class="butSim link">
 					<spring:message code="question.partywise_questions_count_report" text="Partywise Questions Count Report"/>
+				</a> |
+				<a href="#" id="extended_grid_report" class="butSim link">
+					<spring:message code="question.extended_grid_report" text="Extended Grid Report"/>
 				</a> |
 				<hr> 
 				</security:authorize>
