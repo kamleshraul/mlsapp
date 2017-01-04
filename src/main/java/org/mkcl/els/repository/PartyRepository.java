@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PartyRepository extends BaseRepository<Party, Serializable> {
 	
+	@SuppressWarnings("unchecked")
 	public List<Party> findActiveParties(final House house, final String locale){
 		try{
 			StringBuffer strQuery = new StringBuffer("SELECT DISTINCT p FROM MemberPartyAssociation mpa" +
