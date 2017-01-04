@@ -10,20 +10,15 @@
 			<table class="strippedTable" border="1" style="margin-top: 20px; margin-left: 25px; font-size: 15px;">
 				<thead>
 					<tr>
-						<c:set var="columnHeaders" value="${fn:split(reportHeaders[0][1], ';')}"/>
-						<th style="text-align: center;font-size: 15px;vertical-align: top;">${columnHeaders[0]}</th>
-						<th style="padding-left: 15px;font-size: 15px;vertical-align: top;">${columnHeaders[1]}</th>
-						<th style="text-align: center;font-size: 15px;vertical-align: top;">${columnHeaders[2]}</th>
-						<th style="text-align: center;font-size: 15px;vertical-align: top;">${columnHeaders[3]}</th>
-						<%-- <th style="text-align: center;font-size: 15px;vertical-align: top;">${columnHeaders[4]}</th>
-						<th style="text-align: center;font-size: 15px;vertical-align: top;">${columnHeaders[5]}</th>
-						<th style="text-align: center;font-size: 15px;vertical-align: top;">${columnHeaders[6]}</th> --%>		
+						<c:forEach begin="1" end="${fn:length(reportHeaders[0]) - 1}" var="index">
+							${reportHeaders[0][index]}
+						</c:forEach>
 					</tr>
 				</thead>
 				<tbody>
 					<c:forEach items="${reportData}" var="r" varStatus="rowNumber">
 						<tr>
-							<td style="padding-left: 20px;vertical-align: top;">
+							<%-- <td style="padding-left: 20px;vertical-align: top;">
 								${r[0]}
 							</td>
 							<td style="padding-left: 15px;vertical-align: top;">
@@ -34,7 +29,7 @@
 							</td>
 							<td style="padding-left: 30px;vertical-align: top;">
 								${r[3]}
-							</td>
+							</td> --%>
 							<%-- <td style="padding-left: 30px;vertical-align: top;">
 								${r[4]}
 							</td>
@@ -43,7 +38,11 @@
 							</td>
 							<td style="padding-left: 30px;vertical-align: top;">
 								${r[6]}
-							</td> --%>												
+							</td> --%>	
+							
+							<c:forEach begin="0" end="${fn:length(r) - 1}" var="index">
+								${r[index]}
+							</c:forEach>											
 						</tr>
 					</c:forEach>
 				</tbody>

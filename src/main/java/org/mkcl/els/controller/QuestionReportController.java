@@ -2895,6 +2895,22 @@ public class QuestionReportController extends BaseController{
 				sdList.add(sdRef);
 			}
 			model.addAttribute("subdepartmentList", sdList);
+			/**** populate all available fields for the report ****/
+			CustomParameter csptExtendedReportAvailableFields = CustomParameter.findByName(CustomParameter.class, questionType.getType().toUpperCase()+"_EXTENDED_GRID_REPORT_AVAILABLE_FIELDS", "");
+			if(csptExtendedReportAvailableFields==null || csptExtendedReportAvailableFields.getValue()==null) {
+				logger.error("**** Custom Parameter '"+questionType.getType().toUpperCase()+"_EXTENDED_GRID_REPORT_AVAILABLE_FIELDS' Not Found ****");
+				model.addAttribute("errorcode", "CSPT_NOTFOUND");
+				return responsePage;
+			}			
+			model.addAttribute("availableFields", csptExtendedReportAvailableFields.getValue().split(","));
+			/**** populate default selected fields for the report ****/
+			CustomParameter csptExtendedReportDefaultFields = CustomParameter.findByName(CustomParameter.class, questionType.getType().toUpperCase()+"_EXTENDED_GRID_REPORT_DEFAULT_FIELDS", "");
+			if(csptExtendedReportDefaultFields==null || csptExtendedReportDefaultFields.getValue()==null) {
+				logger.error("**** Custom Parameter '"+questionType.getType().toUpperCase()+"_EXTENDED_GRID_REPORT_DEFAULT_FIELDS' Not Found ****");
+				model.addAttribute("errorcode", "CSPT_NOTFOUND");
+				return responsePage;
+			}			
+			model.addAttribute("defaultFields", csptExtendedReportDefaultFields.getValue().split(","));
 			model.addAttribute("locale", locale.toString());
 			responsePage = "question/reports/extended_grid_report_init";
 		} else {
@@ -2910,7 +2926,7 @@ public class QuestionReportController extends BaseController{
 		generateTabularFOPReport(request, response, locale);
 	}
 	
-	@RequestMapping(value="/extended_grid_report/html", method=RequestMethod.POST)
+	@RequestMapping(value="/extended_grid_report/html", method=RequestMethod.GET)
 	public String generateExtendedGridReport(HttpServletRequest request, Model model, Locale locale){
 		return generateTabularHtmlReport(request, model, locale);
 	}

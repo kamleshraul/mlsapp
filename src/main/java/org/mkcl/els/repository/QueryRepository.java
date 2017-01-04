@@ -25,7 +25,40 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 		if(requestMap!=null&&!requestMap.isEmpty()){
 			String locale=requestMap.get("locale")[0];
 			Query query = Query.findByFieldName(Query.class, "keyField", report, locale);
-			javax.persistence.Query persistenceQuery=this.em().createNativeQuery(query.getQuery());
+			String queryString = query.getQuery();
+			/**** in case selected fields of query need to be dynamically taken (e.g. in extended grid report) ****/
+			/** for fields **/
+			if(requestMap.get("field_select_query")!=null 
+					&& requestMap.get("field_select_query")[0]!=null
+					&& queryString.contains("field_select_query")) {
+				String field_select_query = requestMap.get("field_select_query")[0];
+				CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(deploymentServerCP.getValue().equals("TOMCAT")){
+					try {
+						field_select_query = new String(field_select_query.getBytes("ISO-8859-1"),"UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}		
+				}
+				queryString = queryString.replace("field_select_query", field_select_query);
+			}
+			/** for headers **/
+			if(requestMap.get("field_header_select_query")!=null 
+					&& requestMap.get("field_header_select_query")[0]!=null
+					&& queryString.contains("field_header_select_query")) {
+				String field_header_select_query = requestMap.get("field_header_select_query")[0];
+				CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(deploymentServerCP.getValue().equals("TOMCAT")){
+					try {
+						field_header_select_query = new String(field_header_select_query.getBytes("ISO-8859-1"),"UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}		
+				}
+				queryString = queryString.replace("field_header_select_query", field_header_select_query);
+			}
+			//====================================================================================================
+			javax.persistence.Query persistenceQuery=this.em().createNativeQuery(queryString);
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
 			Set<Parameter<?>> selectQueryParameters = persistenceQuery.getParameters();
 			for (Parameter i : selectQueryParameters) {
@@ -50,11 +83,12 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 			/** handling for serial number generation **/
 			if(results!=null && !results.isEmpty() && results.get(0)!=null && results.get(0).getClass().equals(Object[].class)) {
 				Object[] firstResult = (Object[]) results.get(0);
-				if(firstResult!=null && firstResult[0]!=null && firstResult[0].toString().equals("serialNumber")) {
+				if(firstResult!=null && firstResult[0]!=null && firstResult[0].toString().contains("serialNumber")) {
 					int rowIndex=0;
 					for(Object r: results) {
 						Object[] row = (Object[]) r;
-						row[0] = FormaterUtil.formatNumberNoGrouping(rowIndex+1, locale);
+						String serialNumber = FormaterUtil.formatNumberNoGrouping(rowIndex+1, locale);
+						row[0] = row[0].toString().replace("serialNumber", serialNumber);
 						rowIndex++;
 					}
 				}
