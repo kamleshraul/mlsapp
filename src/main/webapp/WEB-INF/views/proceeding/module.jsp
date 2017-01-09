@@ -150,8 +150,9 @@
 					var mainContent = '';
 					var contentWithoutHeader = '';
 					if(currentPartContent.indexOf("</table>")>0){
-						mainContent = currentPartContentArr[1];
 						var currentPartContentArr = currentPartContent.split("</table>");
+						mainContent = currentPartContentArr[1];
+						
 					}else{
 						contentWithoutHeader = currentPartContent;
 					}
