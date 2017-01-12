@@ -127,9 +127,11 @@
 			    	$("#internalStatusMaster option[value='question_processed_sendToDeskOfficer']").text();
 			} else if(deviceTypeType == 'questions_unstarred') {
 				sendback = 
-					$("#internalStatusMaster option[value='question_unstarred_recommend_sendback']").text();			
-			    discuss = 
-			    	$("#internalStatusMaster option[value='question_unstarred_recommend_discuss']").text();		
+					$("#internalStatusMaster option[value='question_unstarred_recommend_sendback']").text();	
+				discuss = 
+			    	$("#internalStatusMaster option[value='question_unstarred_recommend_discuss']").text();
+				sendToDeskOfficer = 
+			    	$("#internalStatusMaster option[value='question_unstarred_processed_sendToDeskOfficer']").text();
 			} else if(deviceTypeType == 'questions_shortnotice') {
 				sendback = 
 					$("#internalStatusMaster option[value='question_shortnotice_recommend_sendback']").text();			
