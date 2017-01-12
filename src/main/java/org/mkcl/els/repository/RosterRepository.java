@@ -528,6 +528,7 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 			final String reportersToBeTakenFrom) {
 		 Date startTime=adjournment.getEndTime();
 		 Date endTime=adjournment.getStartTime();
+		 Date newSlotTime = null;
 		try {
 			if(startTime!=null&&endTime!=null&&roster.getSlotDuration()!=null
 					&&roster.getReporters()!=null&&!roster.getReporters().isEmpty()){
@@ -565,7 +566,7 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 							if(roster.getCommitteeMeeting() != null){
 								slotStartTime = startTime;
 							}else{
-								slotStartTime = lastAdjournedSlot.getEndTime();;
+								slotStartTime = lastAdjournedSlot.getEndTime();
 							}
 							// slotStartTime=startTime;//lastAdjournedSlot.getEndTime();
 							Calendar calendar=Calendar.getInstance();
@@ -580,6 +581,7 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 							proceeding.setLocale(newSlot.getLocale());
 							proceeding.setSlot(newSlot);
 							proceeding.persist();
+							newSlotTime = newSlot.getEndTime();
 							if(ch=='Z'){								
 								ch='A';
 								repeat++;
@@ -597,6 +599,11 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 						if(lastGeneratedSlot!=null&&lastGeneratedSlot.getReporter()!=null){
 							lastSlotReporterPosition=lastGeneratedSlot.getReporter().getPosition();			
 							newSlot=lastGeneratedSlot;
+							if(roster.getCommitteeMeeting() != null){
+								newSlotTime = startTime;
+							}else{
+								newSlotTime = newSlot.getEndTime();
+							}
 							if(lastGeneratedSlot.getName()!=null&&!lastGeneratedSlot.getName().isEmpty()){
 								ch=lastGeneratedSlot.getName().charAt(0);
 								repeat=lastGeneratedSlot.getName().length();
@@ -615,9 +622,9 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 						}
 					}
 				}
-				Date slotStartTime=newSlot.getEndTime();
+				Date slotStartTime = newSlotTime;
 				Calendar calendar=Calendar.getInstance();
-				calendar.setTime(newSlot.getEndTime());
+				calendar.setTime(slotStartTime);
 				calendar.add(Calendar.MINUTE,roster.getSlotDuration());
 				Date slotEndTime=calendar.getTime();
 				int count=startingIndex;	
