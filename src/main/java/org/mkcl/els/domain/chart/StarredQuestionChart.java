@@ -266,7 +266,7 @@ class StarredQuestionChart {
 		Member member = question.getPrimaryMember();
 		ChartEntry ce = 
 			StarredQuestionChart.find(chart.getChartEntries(), member);
-		List<Device> devices = ce.getDevices();
+		List<Device> devices = StarredQuestionChart.findDevices(ce);//ce.getDevices();
 		devices.add(question);
 		
 		/*
@@ -1465,7 +1465,7 @@ class StarredQuestionChart {
 			Member member = question.getPrimaryMember();
 			ChartEntry ce = 
 				StarredQuestionChart.find(chart.getChartEntries(), member);
-			List<Device> devices = ce.getDevices();
+			List<Device> devices = StarredQuestionChart.findDevices(ce);//ce.getDevices();
 			
 			/*
 			 * 1. Remove @param question from the Chart
@@ -2640,7 +2640,7 @@ class StarredQuestionChart {
 			
 			ChartEntry ce = 
 				StarredQuestionChart.find(chart.getChartEntries(), member);
-			List<Device> devices = ce.getDevices();
+			List<Device> devices = StarredQuestionChart.findDevices(ce);//ce.getDevices();
 			
 			/*
 			 * 1. Remove @param question from the Chart
@@ -2706,6 +2706,10 @@ class StarredQuestionChart {
 		return chart;
 	}
 	
+	private static List<Device> findDevices(ChartEntry ce) throws ELSException {
+		return Chart.getChartRepository().find(ce);
+	}
+
 	/**
 	 * For @param targetGroup find the smallest answeringDate >= 
 	 * @param sourceChart.answeringDate. Let it be called 
@@ -2771,7 +2775,7 @@ class StarredQuestionChart {
 		Member member = question.getPrimaryMember();
 		ChartEntry ce = 
 			StarredQuestionChart.find(targetChart.getChartEntries(), member);
-		List<Device> devices = ce.getDevices();
+		List<Device> devices = StarredQuestionChart.findDevices(ce);//ce.getDevices();
 		devices.add(question);
 		
 		/*

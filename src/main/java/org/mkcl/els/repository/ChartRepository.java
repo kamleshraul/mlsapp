@@ -37,16 +37,26 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		Chart chart = null;
 		
 		StringBuffer strQuery = new StringBuffer();
-		strQuery.append(
+		/*strQuery.append(
 			"SELECT c" +
 			" FROM Chart c JOIN c.chartEntries ce" +
 			" JOIN ce.devices d" +
 			" WHERE d.id = :deviceId");
 		
 		TypedQuery<Chart> jpQuery = this.em().createQuery(strQuery.toString(), Chart.class);
+		*/
+		strQuery.append(
+				"SELECT c.id FROM charts c"
+				+" JOIN charts_chart_entries cce ON (cce.chart_id = c.id)"
+				+ " JOIN chart_entries ce ON (cce.chart_entry_id = ce.id)"
+				+ " JOIN chart_entries_devices ced ON (ced.chart_entry_id=ce.id)"
+				+ " WHERE ced.device_id=:deviceId");
+		Query jpQuery = this.em().createNativeQuery(strQuery.toString());
 		jpQuery.setParameter("deviceId", device.getId());
 		try {
-			chart = jpQuery.getSingleResult();
+			BigInteger chartId = (BigInteger) jpQuery.getSingleResult();
+			chart = Chart.findById(Chart.class, Long.parseLong(chartId.toString()));
+			//chart = jpQuery.getSingleResult();
 		}catch(EntityNotFoundException enfe){
 			logger.error(enfe.getMessage());
 		}catch (NoResultException nre) {
@@ -1424,5 +1434,19 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		}
 
 		return sb.toString();
+	}
+	
+	public List<Device> find(final ChartEntry ce) throws ELSException{
+		List<Device> devices = new ArrayList<Device>();
+		String strQuery = "SELECT device_id FROM chart_entries_devices WHERE chart_entry_id=:chartEntryId";
+		Query query = this.em().createNativeQuery(strQuery);
+		query.setParameter("chartEntryId", ce.getId());
+		List<BigInteger> deviceIds = query.getResultList();
+		for(BigInteger be : deviceIds){
+			Question question = Question.findById(Question.class, Long.parseLong(be.toString()));
+			devices.add(question);
+		}
+		return devices;
+		
 	}
 }

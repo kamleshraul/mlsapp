@@ -9967,7 +9967,7 @@ public class Question extends Device implements Serializable {
     			 * Start the workflow at Assistant (after Speaker) level.
     			 */
     			WorkflowDetails.startProcessAtGivenLevel(question, 
-    					workflowType, internalStatus, 
+    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
     					ApplicationConstants.ASSISTANT, assigneeLevel, 
     					locale);
     		}

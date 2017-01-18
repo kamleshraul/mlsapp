@@ -531,6 +531,8 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
 				model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).
 						format(domain.getChartAnsweringDate().getAnsweringDate()));
+				model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
+						format(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment()));
 			}
 		}	
 		/**** Submission Date and Creation date****/
@@ -579,6 +581,13 @@ public class QuestionWorkflowController  extends BaseController{
 					if(domain.getAnsweringDate().getLastReceivingDateFromDepartment() != null){
 						String formattedLastRecievingDateFromDepartment = FormaterUtil.getDateFormatter(locale).
 								format(domain.getAnsweringDate().getLastReceivingDateFromDepartment());
+						model.addAttribute("lastReceivingDateFromDepartment", formattedLastRecievingDateFromDepartment);
+					}
+				}
+				if(domain.getChartAnsweringDate() != null){
+					if(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment() != null){
+						String formattedLastRecievingDateFromDepartment = FormaterUtil.getDateFormatter(locale).
+								format(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment());
 						model.addAttribute("lastReceivingDateFromDepartment", formattedLastRecievingDateFromDepartment);
 					}
 				}
