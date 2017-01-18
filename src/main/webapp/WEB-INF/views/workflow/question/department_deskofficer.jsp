@@ -171,8 +171,11 @@
 				for(var i=0;i<data.length;i++){
 					var ugtActor = data[i].id.split("#")
 					var ugt = ugtActor[1];
+					console.log(ugt);
 					if(ugt!='member' && data[i].state!='active'){
 						text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name  +"("+ugtActor[4]+")"+ "</option>";
+					}else if(ugt == 'section_officer'){
+						text += "<option value='" + data[i].id +"'>" + data[i].name  + " ( "+$("#formattedHouseType").val() + " )" + "</option>";
 					}else{
 						text += "<option value='" + data[i].id + "'>" + data[i].name  +"("+ugtActor[4]+")"+ "</option>";	
 						if(actCount == 1){
@@ -197,7 +200,8 @@
 				/**** setting level,localizedActorName ****/
 				 //var actor1 = data[0].id;
 				 var temp = actor1.split("#");
-				 $("#level").val(temp[2]);		    
+				 $("#level").val(temp[2]);
+				 
 				 $("#localizedActorName").val(temp[3] + "(" + temp[4] + ")");
 			}else{
 				$("#actor").empty();
@@ -1116,11 +1120,13 @@
 	</p>
 	
 	<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
-		<p>
-			<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
-			<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-		</p>
+		<c:if test="${questionreferenceText != null and questionreferenceText !='' }">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+				<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+		</c:if>
 	</c:if>
 	
 	
@@ -1314,8 +1320,9 @@
 	<%-- <c:if test="${currTimeMillis <= sendbacktimelimit and workflowstatus!='COMPLETED'}"> --%>
 	<c:if test="${workflowstatus!='COMPLETED'}">
 		<p>
-		<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
-		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
+		<label class="centerlabel"><spring:message code="question.remarks" text="Remarks"/></label>
+		<%-- <form:textarea path="remarks" cssClass="wysiwyg"></form:textarea> --%>
+		<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
 		</p>
 	</c:if>
 	
@@ -1436,6 +1443,7 @@
 		<input type="hidden" id="defaultAnswerMessage" value="<spring:message code='question.defaultAnswer' text='Please Enter your Answer here.'/>"/>
 	</c:otherwise>
 </c:choose>
- 
+<input type="hidden" id="lowerhouseMessage" value="<spring:message code='generic.lowerhouseMessage' text='Lower House'/>"/>
+<input type="hidden" id="upperhouseMessage" value="<spring:message code='generic.upperhouseMessage' text='Upper House'/>"/>
 </body>
 </html>

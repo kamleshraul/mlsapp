@@ -333,6 +333,8 @@
 	}
 	$(document).ready(function(){
 		loadActors($("#changeInternalStatus").val());
+		$('#questionreferenceText-wysiwyg-iframe').css('max-height','50px');
+		$('#remarks-wysiwyg-iframe').css('max-height','50px');
 
 		$('#mlsBranchNotifiedOfTransfer').val(null);
 		$('#transferToDepartmentAccepted').val(null);
@@ -1087,11 +1089,13 @@
 	</p>
 	
 	<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
-		<p>
-			<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
-			<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-		</p>
+		<c:if test="${questionreferenceText != null and questionreferenceText !='' }">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+				<form:textarea path="questionreferenceText" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="questionreferenceText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+		</c:if>
 	</c:if>
 	
 	
@@ -1286,8 +1290,9 @@
 	<%-- <c:if test="${currTimeMillis <= sendbacktimelimit and workflowstatus!='COMPLETED'}"> --%>
 	<c:if test="${workflowstatus!='COMPLETED'}">
 		<p>
-		<label class="wysiwyglabel"><spring:message code="question.remarks" text="Remarks"/></label>
-		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
+		<label class="centerlabel"><spring:message code="question.remarks" text="Remarks"/></label>
+		<%-- <form:textarea path="remarks" cssClass="wysiwyg" cssStyle=""></form:textarea> --%>
+		<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
 		</p>
 	</c:if>
 	
