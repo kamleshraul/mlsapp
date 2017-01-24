@@ -9191,8 +9191,8 @@ public class Question extends Device implements Serializable {
     			 * Change recommendation status to final (internal) status.
     			 */
     			Status internalStatus = question.getInternalStatus();
-    			question.setRecommendationStatus(internalStatus);
-    			question.merge();
+//    			question.setRecommendationStatus(internalStatus);
+//    			question.merge();
     			
     			/*
     			 * Invoke Chart.groupChange/3
@@ -9202,7 +9202,6 @@ public class Question extends Device implements Serializable {
     			if(wfDetails != null){
 	    			// Before ending wfDetails process collect information
 	    			// which will be useful for creating a new process later.
-	    			String workflowType = wfDetails.getWorkflowType();
 	    			Integer assigneeLevel = 
 	    				Integer.parseInt(wfDetails.getAssigneeLevel());
 	    			String userGroupType = wfDetails.getAssigneeUserGroupType();
@@ -9939,7 +9938,7 @@ public class Question extends Device implements Serializable {
     			String workflowType = wfDetails.getWorkflowType();
     			Integer assigneeLevel = 
     				Integer.parseInt(wfDetails.getAssigneeLevel());
-    			
+    			String userGroupType = wfDetails.getAssigneeUserGroupType();
     			WorkflowDetails.endProcess(wfDetails);
     			question.removeExistingWorkflowAttributes();
     			
@@ -9947,8 +9946,8 @@ public class Question extends Device implements Serializable {
     			 * Change recommendation status to final (internal) status.
     			 */
     			Status internalStatus = question.getInternalStatus();
-    			question.setRecommendationStatus(internalStatus);
-    			question.merge();
+//    			question.setRecommendationStatus(internalStatus);
+//    			question.merge();
     			
     			/*
     			 * Conditional invocation of Chart.groupChange/3
@@ -9963,12 +9962,16 @@ public class Question extends Device implements Serializable {
     				}
     			}
     			
+    			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+    				userGroupType = ApplicationConstants.DEPARTMENT;
+    				assigneeLevel = assigneeLevel - 1;
+    			}
     			/*
     			 * Start the workflow at Assistant (after Speaker) level.
     			 */
     			WorkflowDetails.startProcessAtGivenLevel(question, 
     					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
-    					ApplicationConstants.ASSISTANT, assigneeLevel, 
+    					userGroupType, assigneeLevel, 
     					locale);
     		}
     	}
@@ -10045,7 +10048,7 @@ public class Question extends Device implements Serializable {
     				 */
     				WorkflowDetails wfDetails = 
         				WorkflowDetails.findCurrentWorkflowDetail(question);
-        			
+    				String userGroupType = wfDetails.getAssigneeUserGroupType();
         			// Before ending wfDetails process collect information
         			// which will be useful for creating a new process later.
         			String workflowType = wfDetails.getWorkflowType();
@@ -10090,12 +10093,16 @@ public class Question extends Device implements Serializable {
         				}
         			}
         			
+        			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+        				userGroupType = ApplicationConstants.DEPARTMENT;
+        				assigneeLevel = assigneeLevel - 1;
+        			}
         			/*
     				 * Start the workflow at Assistant (after Speaker) level.
     				 */
         			WorkflowDetails.startProcessAtGivenLevel(question, 
         					workflowType, internalStatus, 
-        					ApplicationConstants.ASSISTANT, assigneeLevel, 
+        					userGroupType, assigneeLevel, 
         					locale);
         		}
     		}
