@@ -12,12 +12,12 @@
 			//As tinymce once registered doesnot get reinitialize when the same page is loaded, hence removing the previous tinymce instance
 			tinymce.remove();
 			
-			$('.viewQuestionDetails').click(function() {
+			$('.viewResolutionDetails').click(function() {
 				var controlId = this.id;
-			 	var parent = controlId.split("qid")[1];	 	
+			 	var parent = controlId.split("rid")[1];	 	
 				if(parent!=undefined && parent!=''){			
-					var questionId = $("#questionId"+parent).val();
-					viewQuestionDetail(questionId);
+					var resolutionId = $("#resolutionId"+parent).val();
+					viewResolutionDetail(resolutionId);
 				}
 			});
 			
@@ -56,14 +56,14 @@
 				  toolbar: 'bold italic | alignleft aligncenter alignright alignjustify'
 				});
 			 
-			 /**** To show/hide viewClubbedQuestionTextsDiv to view clubbed questions text starts****/
+			 /**** To show/hide viewClubbedResolutionTextsDiv to view clubbed resolutions text starts****/
 				$("#clubbedResolutionTextsDiv").hide();
 				$("#hideClubQTDiv").hide();
 				$(".viewClubbedResolutionTextsDiv").click(function(){
 				 	var controlId = this.id;
 				 	var parent = controlId.split("viewClubbedResolutionTextsDiv")[1];
 				 	if(parent!=undefined && parent!=''){			
-						var questionId = $("#resolutionId"+parent).val();
+						var resolutionId = $("#resolutionId"+parent).val();
 						if($("#clubbedResolutionTextsDiv").css('display')=='none'){
 							$("#clubbedResolutionTextsDiv").empty();
 							$.get('ref/'+resolutionId+'/clubbedresolutiontext',function(data){
@@ -85,12 +85,12 @@
 					}
 				});
 				
-				/**** To show/hide viewReferencedQuestionTextsDiv to view referenced questions text starts****/
+				/**** To show/hide viewReferencedResolutionTextsDiv to view referenced resolutions text starts****/
 				$(".viewReferencedResolutionTextsDiv").click(function(){
 				 	var controlId = this.id;
 				 	var parent = controlId.split("viewReferencedResolutionTextsDiv")[1];				 	
 					if(parent!=undefined && parent!=''){			
-						var questionId = $("#resolutionId"+parent).val();
+						var resolutionId = $("#resolutionId"+parent).val();
 						if($("#clubbedResolutionTextsDiv").css('display')=='none'){
 							$("#clubbedResolutionTextsDiv").empty();
 							$.get('ref/'+resolutionId+'/referencedresolutiontext',function(data){
@@ -116,25 +116,21 @@
 					$(this).hide();
 					$('#clubbedResolutionTextsDiv').hide();
 				});
-				/**** To show/hide viewClubbedQuestionTextsDiv to view clubbed questions text end****/
+				/**** To show/hide viewClubbedResolutionTextsDiv to view clubbed resolutions text end****/
 						
 		});		
 		
 		
 		/**** load actors(Dynamically Change Actors-Actor Will be selected
-		once and it will be set for all selected questions) ****/
+		once and it will be set for all selected resolutions) ****/
 		function loadActors(value, controlName){
 			var resolution = $("#resolutionId"+controlName).val();
 			var deviceType = $("#deviceType").val();
 			
-			if(question!=undefined&&question!=''){
+			if(resolution!=undefined && resolution!=''){
 				var params="resolution="+resolution+"&status=";
-				if(($("#currentusergroupType").val()=='assistant' 
-						|| $("#currentusergroupType").val()=='section_officer') 
-						&& (value.indexOf("final")>-1)){
-					params += value+"&level="+$("#questionLevel").val();
-				}
-				params +="&usergroup="+$("#usergroup").val() ;
+				params += value+"&level="+$("#resolutionLevel").val();
+				params +="&usergroup="+$("#usergroup").val()+"&workflowHouseType="+$("#housetype").val() ;
 				var resourceURL='ref/resolution/actors?'+params;				
 				$.post(resourceURL,function(data){
 					if(data!=undefined||data!=null||data!=''){
@@ -175,7 +171,7 @@
 			+"&sessionYear="+$("#selectedSessionYear").val()
 			+"&sessionType="+$("#selectedSessionType").val()
 			+"&deviceType="+$("#deviceType").val()
-			//+"&ugparam="+$("#ugparam").val() //commented as no need to send group from here.. it will be taken from question itself
+			//+"&ugparam="+$("#ugparam").val() //commented as no need to send group from here.. it will be taken from resolution itself
 			+"&status="+$("#selectedStatus").val()
 			+"&role="+$("#srole").val()
 			+"&usergroup="+$("#currentusergroup").val()
@@ -260,7 +256,7 @@
 											${i.subject}
 										</div>
 										<br>
-										<b><spring:message code="resolution.clubbingTitle" /> </b> : ${i.formattedClubbedNumbers}
+										<b><spring:message code="resolution.clubbingTitle" text="Clubbed Resolution"/> </b> : ${i.formattedClubbedNumbers}
 										<a href="javascript:void(0);" id="viewClubbedResolutionTextsDiv${j.index}" class="viewClubbedResolutionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="resolution.clubbed.texts" text="C"></spring:message></a>
 										<br/><br/>
 										<b><spring:message code="resolution.referencingTitle" text="Referenced Resolution" /> </b> : ${i.formattedReferencedNumbers}
@@ -293,12 +289,13 @@
 						</table>
 							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 							<input type="hidden" name="resolutionlistSize" id="resolutionlistSize" value="${bulkapprovals.size()}"/>
-							<input type="hidden" id="resolutionLevel" name ="resolutionLevel" value="${level}" />
+							<input type="hidden" id="resolutionLevel" name ="resolutionLevel" value="1" />
 							<input type="hidden" id="usergroup" name="usergroup" value="${usergroup}"/>
 							<input type="hidden" id="deviceType" name="deviceType" value="${deviceType}"/>	
 							<input type="hidden" id="group" name="group" value="${group}"/>	
 							<input type="hidden" id="status" name="status" value="${status}"/>
-							<input type="hidden" id="srole" value="${role}" />			
+							<input type="hidden" id="srole" value="${role}" />	
+							<input type="hidden" id="housetype" value="${houseType}"/>		
 						</form>
 					</div>
 					
