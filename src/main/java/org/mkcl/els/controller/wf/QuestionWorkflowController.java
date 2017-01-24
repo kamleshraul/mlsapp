@@ -5116,12 +5116,33 @@ public class QuestionWorkflowController  extends BaseController{
 	@SuppressWarnings("rawtypes")
 	private void findLatestRemarksByUserGroup(final Question domain, final ModelMap model,
 			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {
+		UserGroupType userGroupType = null;
+		String username = this.getCurrentUser().getUsername();
+		Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
+		List<UserGroup> ugroups = this.getCurrentUser().getUserGroups();
+		for(UserGroup ug : ugroups){
+			UserGroup usergroup = UserGroup.findActive(credential, ug.getUserGroupType(), domain.getSubmissionDate(), domain.getLocale());
+			if(usergroup != null){
+				userGroupType = usergroup.getUserGroupType();
+				break;
+			}
+		}
+		if(userGroupType == null 
+				|| (!userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+				&& !userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
+			userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.ASSISTANT, domain.getLocale());
+		}
 		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
 		requestMap.put("questionId",new String[]{String.valueOf(domain.getId())});
 		requestMap.put("locale",new String[]{domain.getLocale()});
-		List result=Query.findReport("QIS_LATEST_REVISIONS", requestMap);
-		model.addAttribute("latestRevisions",result);
-		UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.ASSISTANT, domain.getLocale());
+		if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+				|| userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			List result=Query.findReport("QIS_LATEST_REVISION_FOR_DESKOFFICER", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}else{
+			List result=Query.findReport("QIS_LATEST_REVISIONS", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}
 		model.addAttribute("startingActor", userGroupType.getName());
 	}	
 	
