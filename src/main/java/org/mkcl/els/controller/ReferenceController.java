@@ -113,6 +113,7 @@ import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.RailwayStation;
 import org.mkcl.els.domain.ReferenceUnit;
+import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.River;
@@ -9141,5 +9142,31 @@ public class ReferenceController extends BaseController {
 			fieldHeadersSelectQueryBuffer.deleteCharAt(fieldHeadersSelectQueryBuffer.length()-1);
 		}
 		return fieldHeadersSelectQueryBuffer.toString();
+	}
+	
+	
+	
+	@RequestMapping(value="/{id}/referencedresolutiontext", method=RequestMethod.GET)
+	public @ResponseBody MasterVO getReferencedResolutionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		MasterVO referencedQuestionsVO = new MasterVO();
+		try{
+			Resolution resolution = Resolution.findById(Resolution.class, id);
+			if(resolution != null){
+				ReferencedEntity referencedEntity = resolution.getReferencedResolution();
+				Resolution refResolution = (Resolution) referencedEntity.getDevice();
+				if(refResolution != null){
+					referencedQuestionsVO.setId(refResolution.getId());
+					referencedQuestionsVO.setName(FormaterUtil.formatNumberNoGrouping(refResolution.getNumber(), locale.toString()));
+					if(refResolution.getRevisedNoticeContent()!= null && !refResolution.getRevisedNoticeContent().isEmpty()){
+						referencedQuestionsVO.setValue(refResolution.getRevisedNoticeContent());
+					}else{
+						referencedQuestionsVO.setValue(refResolution.getNoticeContent());
+					}
+				}	
+			}
+		}catch(Exception e){
+			logger.error(e.toString());
+		}
+		return referencedQuestionsVO;
 	}
 }
