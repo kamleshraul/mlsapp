@@ -59,31 +59,6 @@
 			 /**** To show/hide viewClubbedResolutionTextsDiv to view clubbed resolutions text starts****/
 				$("#clubbedResolutionTextsDiv").hide();
 				$("#hideClubQTDiv").hide();
-				$(".viewClubbedResolutionTextsDiv").click(function(){
-				 	var controlId = this.id;
-				 	var parent = controlId.split("viewClubbedResolutionTextsDiv")[1];
-				 	if(parent!=undefined && parent!=''){			
-						var resolutionId = $("#resolutionId"+parent).val();
-						if($("#clubbedResolutionTextsDiv").css('display')=='none'){
-							$("#clubbedResolutionTextsDiv").empty();
-							$.get('ref/'+resolutionId+'/clubbedresolutiontext',function(data){
-								
-								var text="";
-								
-								for(var i = 0; i < data.length; i++){
-									text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
-								}						
-								$("#clubbedResolutionTextsDiv").html(text);
-								
-							});	
-							$("#hideClubQTDiv").show();
-							$("#clubbedResolutionTextsDiv").show();
-						}else{
-							$("#clubbedResolutionTextsDiv").hide();
-							$("#hideClubQTDiv").hide();
-						}
-					}
-				});
 				
 				/**** To show/hide viewReferencedResolutionTextsDiv to view referenced resolutions text starts****/
 				$(".viewReferencedResolutionTextsDiv").click(function(){
@@ -94,14 +69,8 @@
 						if($("#clubbedResolutionTextsDiv").css('display')=='none'){
 							$("#clubbedResolutionTextsDiv").empty();
 							$.get('ref/'+resolutionId+'/referencedresolutiontext',function(data){
-								
-								var text="";
-								
-								for(var i = 0; i < data.length; i++){
-									text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
-								}						
+								var	text = "<p>"+data.name+"</p><p>"+data.value+"</p><hr />";
 								$("#clubbedResolutionTextsDiv").html(text);
-								
 							});	
 							$("#hideClubQTDiv").show();
 							$("#clubbedResolutionTextsDiv").show();
@@ -251,18 +220,18 @@
 										<spring:message code="resolution.lastremarkby" text="Last Remark By"/> ${i.lastRemarkBy} : ${i.lastRemark}
 										
 									</td>
-									<td style="text-align:justify;min-width:200px;">
+									<td style="text-align:justify;min-width:300px;">
 										<div class="editable" id="noticeContent${j.index}">
 											${i.subject}
 										</div>
 										<br>
-										<b><spring:message code="resolution.clubbingTitle" text="Clubbed Resolution"/> </b> : ${i.formattedClubbedNumbers}
-										<a href="javascript:void(0);" id="viewClubbedResolutionTextsDiv${j.index}" class="viewClubbedResolutionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="resolution.clubbed.texts" text="C"></spring:message></a>
-										<br/><br/>
 										<b><spring:message code="resolution.referencingTitle" text="Referenced Resolution" /> </b> : ${i.formattedReferencedNumbers}
 										<a href="javascript:void(0);" id="viewReferencedResolutionTextsDiv${j.index}" class="viewReferencedResolutionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="resolution.referenced.texts" text="R"></spring:message></a>
 										<input type="hidden" id="resolutionId${j.index}" name="resolutionId${j.index}" value="${i.deviceId}"/>
 										<input type="hidden" id="workflowDetailsId${j.index}" name="workflowDetailsId${j.index}" value="${i.id}"/>
+										<div class="editable" id="referenceText${j.index}">
+											${i.briefExpanation}
+										</div>
 									</td>
 									<td style="text-align:justify;min-width:200px;">
 										<c:forEach items="${internalStatuses}" var="i">
