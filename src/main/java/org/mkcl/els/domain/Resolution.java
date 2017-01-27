@@ -2927,5 +2927,9 @@ public class Resolution extends Device implements Serializable{
 		return getResolutionRepository().fullTextSearchForSearching(param,start,noOfRecords, locale, requestMap);
 	}
 
+	/*public static ReferencedEntity findReferencedEntity(Resolution domain) {
+		return getResolutionRepository().findReferencedEntity(domain);
+	}*/
+
 	
 }
