@@ -29,13 +29,13 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.DeviceNumberInformation;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
@@ -2811,7 +2811,7 @@ class StarredQuestionController {
 			final ModelMap model,
 			final AuthUser authUser,
 			final IProcessService processService, 
-			final Locale locale) {
+			final Locale locale) throws ELSException {
 		String retVal = "question/error";
 		String selectedItems = request.getParameter("items");
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
@@ -2916,15 +2916,33 @@ class StarredQuestionController {
 						&& !validationAfterEndDate 
 						&& domain.getSession().getParameter(domain.getType().getType()+"_processingMode").equals(ApplicationConstants.LOWER_HOUSE))
 						|| (strHouseType != null && strHouseType.equals(ApplicationConstants.UPPER_HOUSE) && validationForBatch)){
+					
+					DeviceNumberInformation deviceNumberInformation = null;
+					MasterVO syncDeviceNumberObject = new MasterVO();
+					synchronized(syncDeviceNumberObject) {
+						deviceNumberInformation = DeviceNumberInformation.find(domain.getOriginalType(), domain.getHouseType(), domain.getSession(), ApplicationConstants.DEFAULT_LOCALE);
+						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
+					}
 					List<Question> questions = new ArrayList<Question>();
+					/** Common Data for Improving Performance **/
+					Status timeoutStatus = Status.findByType(
+							ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
+//					Status oldStatus = Status.findByFieldName(Status.class, "type", 
+//							ApplicationConstants.QUESTION_COMPLETE, locale.toString());
+					Status newstatus = Status.findByFieldName(Status.class, "type", 
+							ApplicationConstants.QUESTION_SUBMIT, locale.toString());
+					UserGroupType userGroupType = null;
+					String strUserGroupType = request.getParameter("usergroupType");
+					if(strUserGroupType != null) {
+						userGroupType = UserGroupType.findByFieldName(UserGroupType.class,
+								"type", strUserGroupType, locale.toString());
+					}
 					for(String i : items) {
 						Long id = Long.parseLong(i);
 						Question question = Question.findById(Question.class, id);
 		
 						/**** Update Supporting Member ****/
-						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-						Status timeoutStatus = Status.findByType(
-								ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
+						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();						
 						if(question.getSupportingMembers() != null
 								&& ! question.getSupportingMembers().isEmpty()) {
 							for(SupportingMember sm : question.getSupportingMembers()) {
@@ -2964,9 +2982,7 @@ class StarredQuestionController {
 							question.setSupportingMembers(supportingMembers);
 						}
 		
-						/**** Update Status(es) ****/
-						Status newstatus = Status.findByFieldName(Status.class, "type", 
-								ApplicationConstants.QUESTION_SUBMIT, question.getLocale());
+						/**** Update Status(es) ****/						
 						question.setStatus(newstatus);
 						question.setInternalStatus(newstatus);
 						question.setRecommendationStatus(newstatus);
@@ -2975,22 +2991,27 @@ class StarredQuestionController {
 						question.setSubmissionDate(new Date());
 						question.setEditedOn(new Date());
 						question.setEditedBy(authUser.getActualUsername());
-		
-						String strUserGroupType = request.getParameter("usergroupType");
-						if(strUserGroupType != null) {
-							UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class,
-									"type", strUserGroupType, question.getLocale());
+						if(userGroupType != null) {
 							question.setEditedAs(userGroupType.getName());
 						}
 		
 						/**** Bulk Submitted ****/
 						question.setBulkSubmitted(true);
 		
-						/**** Update the Motion object ****/
-						question = question.merge();
+						/**** Update the Question object ****/
+						synchronized(syncDeviceNumberObject) {
+							question.setNumber(syncDeviceNumberObject.getNumber());
+							question = question.simpleMerge();
+							if(question.getId().toString().equals(items[items.length-1])) {
+								deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
+								deviceNumberInformation.merge();
+							} else {
+								syncDeviceNumberObject.setNumber(syncDeviceNumberObject.getNumber()+1);
+							}							
+						}
+						
 						questions.add(question);
 					}
-		
 					model.addAttribute("questions", questions);
 					retVal = "question/bulksubmissionack";
 				}else{

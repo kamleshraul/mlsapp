@@ -683,6 +683,36 @@ public class Question extends Device implements Serializable {
     	}
 		return null;
     }
+	
+	public Question mergeOnBulkSubmit() {
+		if(this.getType() != null){
+    		String deviceTypeType = this.getType().getType();
+    		if(deviceTypeType.equals(ApplicationConstants.STARRED_QUESTION)){
+    			return mergeStarredQuestionOnBulkSubmit();
+    		}
+    		else if(deviceTypeType.equals(ApplicationConstants.UNSTARRED_QUESTION)){
+    			return mergeUnstarredQuestion();
+    		}
+    		else if(deviceTypeType.equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+    			return mergeShortNoticeQuestion();
+    		}
+    		else if(deviceTypeType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+    			return mergeHalfHourDiscussionQuestionFromQuestion();
+    		}
+    	}
+		return null;
+    }
+	
+	private Question mergeStarredQuestionOnBulkSubmit() {
+		Question question = null;
+		addQuestionDraft();
+		question = (Question) super.merge();
+		return question;	
+	}
+	
+//	public Question allocateUniqueNumberOnBulkSubmit(final DeviceNumber final int serialNumberInBulk) {
+//		
+//	}
     
 	private Question mergeStarredQuestion() {
 		Question question = null;

@@ -43,15 +43,27 @@ public abstract class Device extends BaseDomain {
             	DeviceType callingAttentionMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTION_CALLING_ATTENTION, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType standaloneMotionDeviceType = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE, ApplicationConstants.DEFAULT_LOCALE);
             	
+            	DeviceNumberInformation deviceNumberInformation = null;
             	Integer number = null;
             	
             	/** update lowerhouse static current number for starred, unstarred and short notice questions **/
             	
-            	if (Question.getStarredCurrentNumberLowerHouse() == 0) {
-            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, starredQuestionDeviceType);
-            		number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, starredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
-        			Question.updateStarredCurrentNumberLowerHouse(number);
+            	latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, starredQuestionDeviceType);
+        		number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, starredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+//        		Question.setStarredCurrentNumberLowerHouseAtomic(number);
+//        		System.out.println("Atomic Value: " + Question.getStarredCurrentNumberLowerHouseAtomic());
+        		Question.updateStarredCurrentNumberLowerHouse(number);
+        		/** Object instead of Static Count **/
+        		deviceNumberInformation = DeviceNumberInformation.find(starredQuestionDeviceType, lowerHouseType, latestLowerHouseSession, ApplicationConstants.DEFAULT_LOCALE);
+        		if(deviceNumberInformation==null) {
+        			deviceNumberInformation = new DeviceNumberInformation();
+        			deviceNumberInformation.setDeviceType(starredQuestionDeviceType);
+        			deviceNumberInformation.setHouseType(lowerHouseType);
+        			deviceNumberInformation.setSession(latestLowerHouseSession);
+        			deviceNumberInformation.setLocale(ApplicationConstants.DEFAULT_LOCALE);
         		}
+        		deviceNumberInformation.setNumber(number);
+        		deviceNumberInformation.merge();
             	
             	/** update upperhouse static current number for starred, unstarred and short notice questions **/
             	if (Question.getStarredCurrentNumberUpperHouse() == 0) {
