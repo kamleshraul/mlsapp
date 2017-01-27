@@ -1242,7 +1242,8 @@
 		</tbody>
 	</table>
 	</p>
-	<c:if test="${workflowstatus!='COMPLETED' or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}">	
+	<%-- <c:if test="${workflowstatus!='COMPLETED' or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}"> --%>
+	<c:if test="${workflowstatus!='COMPLETED'}">	
 		<!-- <p style="display:none;"> -->
 		<p>
 		<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
@@ -1321,12 +1322,12 @@
 		</c:otherwise>
 	</c:choose>
 	
-	<c:if test="${workflowstatus=='COMPLETED'}">
+	<%-- <c:if test="${workflowstatus=='COMPLETED'}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.reanswer" text="Re-Answer"/></label>
 			<textarea id="reanswer" name="reanswer" class="wysiwyg">${reanswerText}</textarea>
 		</p>
-	</c:if>
+	</c:if> --%>
 	
 	<c:if test="${fn:contains(internalStatusType, 'final_clarificationNeededFromDepartment')
 					|| fn:contains(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')}">
@@ -1367,17 +1368,17 @@
 		</p>
 	</div>
 	</c:if>
-	<c:if test="${workflowstatus=='COMPLETED'}">
+<%-- 	<c:if test="${workflowstatus=='COMPLETED'}">
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">		
-			<%-- <input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef"> --%> 
+			<input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef"> 
 			<c:if test="${answeringAttempts < maxAnsweringAttempts}">
 				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 			</c:if>
 		</p>
 	</div>
-	</c:if>
+	</c:if> --%>
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 	<form:hidden path="answeringAttemptsByDepartment" />
 	<form:hidden path="id"/>
