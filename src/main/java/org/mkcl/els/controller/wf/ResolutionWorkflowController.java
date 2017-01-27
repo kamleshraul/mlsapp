@@ -1555,7 +1555,12 @@ public class ResolutionWorkflowController extends BaseController{
 								}
 							}
 													
-							performAction(resolution, wfDetails);
+							try {
+								performAction(resolution, wfDetails);
+							} catch (ELSException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 							
 //							/***Setting the edited On , Edited By and Edited As***/
 //							List<UserGroup> usergroups = this.getCurrentUser().getUserGroups();
@@ -1803,10 +1808,21 @@ public class ResolutionWorkflowController extends BaseController{
 						}else{
 							bulkApprovalVO.setSubject(resolution.getNoticeContent());
 						}
+						
+						if(resolution.getReferencedResolution() != null){
+							ReferencedEntity referencedEntity = resolution.getReferencedResolution();
+							Resolution refResolution = (Resolution) referencedEntity.getDevice();
+							bulkApprovalVO.setFormattedReferencedNumbers(refResolution.getNumber().toString());
+						}
 						if(resolution.getRemarks()!=null&&!resolution.getRemarks().isEmpty()){
 							bulkApprovalVO.setLastRemark(resolution.getRemarks());
 						}else{
 							bulkApprovalVO.setLastRemark("-");
+						}
+						if(resolution.getReferencedResolutionText() != null && !resolution.getReferencedResolutionText().isEmpty()){
+							bulkApprovalVO.setBriefExpanation(resolution.getReferencedResolutionText());
+						}else{
+							bulkApprovalVO.setBriefExpanation("-");
 						}
 						if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
 							bulkApprovalVO.setLastDecision(resolution.getInternalStatusLowerHouse().getName());
@@ -1837,6 +1853,231 @@ public class ResolutionWorkflowController extends BaseController{
 			final Locale locale,
 			final RedirectAttributes redirectAttributes,
 			final ModelMap model){
+		Resolution tempResolution  = null;
+		String resolutionlistSize = request.getParameter("resolutionlistSize");
+		if(resolutionlistSize != null && (resolutionlistSize.length() >0)) {
+			for(int i =0; i<Integer.parseInt(resolutionlistSize);i++){ 
+				String id = request.getParameter("questionId"+i);
+				String noticeContent = request.getParameter("noticeContent"+i);
+				String actor = request.getParameter("actor"+i);
+				String internalStatus = request.getParameter("internalStatus"+i);
+				String remark = request.getParameter("remark"+i);
+				String refText = request.getParameter("referenceText" + i);
+				String workflowDetailsId = request.getParameter("workflowDetailsId"+i);
+				Long wrkflowId = Long.parseLong(workflowDetailsId);
+				WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class,wrkflowId);
+				String strChecked = request.getParameter("chk"+workflowDetailsId);
+				if(strChecked != null && !strChecked.isEmpty() && Boolean.parseBoolean(strChecked)){
+					HouseType houseType = null;
+					Resolution resolution = Resolution.findById(Resolution.class,Long.parseLong(wfDetails.getDeviceId()));
+					if(resolution.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
+						houseType = HouseType.findByFieldName(HouseType.class, "name", wfDetails.getHouseType(), resolution.getLocale());
+					} else {
+						houseType=resolution.getHouseType();
+					}
+					tempResolution = resolution;
+					
+					if(noticeContent != null && !noticeContent.isEmpty()){
+						resolution.setRevisedNoticeContent(noticeContent);
+					}
+					if(remark != null && !remark.isEmpty()){
+						resolution.setRemarks(remark);
+					}
+					if(refText != null && !refText.isEmpty()){
+						resolution.setReferencedResolutionText(refText);
+					}
+					
+					/**** Update Actor ****/
+					String[] temp = actor.split("#");
+					if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+						resolution.setActorLowerHouse(actor);
+						resolution.setLocalizedActorNameLowerHouse(temp[3] + "(" + temp[4] + ")");
+						resolution.setLevelLowerHouse(temp[2]);
+					}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+						resolution.setActorUpperHouse(actor);
+						resolution.setLocalizedActorNameUpperHouse(temp[3] + "(" + temp[4] + ")");
+						resolution.setLevelUpperHouse(temp[2]);
+					}
+					
+					/**** Update Internal Status and Recommendation Status ****/
+					Status intStatus = Status.findById(Status.class, Long.parseLong(internalStatus));
+					if(internalStatus != null){
+						if(!intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
+								&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)){
+							if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+								resolution.setInternalStatusLowerHouse(intStatus);
+								resolution.setRecommendationStatusLowerHouse(intStatus);
+								resolution.setEndFlagLowerHouse("continue");
+							}else{
+								resolution.setInternalStatusUpperHouse(intStatus);
+								resolution.setRecommendationStatusUpperHouse(intStatus);
+								resolution.setEndFlagUpperHouse("continue");
+							}
+							
+						}else{
+							if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+								resolution.setRecommendationStatusLowerHouse(intStatus);
+								resolution.setEndFlagLowerHouse("continue");
+							}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+								resolution.setRecommendationStatusUpperHouse(intStatus);
+								resolution.setEndFlagUpperHouse("continue");
+							}
+						}
+					}
+					
+					/**** Complete Task ****/
+					Map<String,String> properties=new HashMap<String, String>();
+					properties.put("pv_deviceId",String.valueOf(resolution.getId()));
+					properties.put("pv_deviceTypeId",String.valueOf(resolution.getType().getId()));
+					properties.put("pv_user",temp[0]);
+					if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+						properties.put("pv_endflag",resolution.getEndFlagLowerHouse());
+					}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+						properties.put("pv_endflag",resolution.getEndFlagUpperHouse());
+					}
+					
+					CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "SERVERCONFIGURED", "");
+					String isServerConfigured=customParameter.getValue();
+					if(isServerConfigured!=null && !isServerConfigured.equals("")){
+						if(isServerConfigured.equals("yes")){
+							String mailflag=request.getParameter("mailflag");				
+							properties.put("pv_mailflag", mailflag);
+							if(mailflag!=null) {
+								if(mailflag.equals("set")) {
+									String mailfrom=request.getParameter("mailfrom");
+									properties.put("pv_mailfrom", mailfrom);
+									
+									String mailto=request.getParameter("mailto");
+									properties.put("pv_mailto", mailto);
+									
+									String mailsubject=request.getParameter("mailsubject");
+									properties.put("pv_mailsubject", mailsubject);
+									
+									String mailcontent=request.getParameter("mailcontent");
+									properties.put("pv_mailcontent", mailcontent);
+								}
+							}
+							
+							String timerflag=request.getParameter("timerflag");
+							properties.put("pv_timerflag", timerflag);
+							
+							if(timerflag!=null) {
+								if(timerflag.equals("set")) {
+									String timerduration=request.getParameter("timerduration");
+									properties.put("pv_timerduration", timerduration);
+									
+									String lasttimerduration=request.getParameter("lasttimerduration");
+									properties.put("pv_lasttimerduration", lasttimerduration);
+									
+									String reminderflag=request.getParameter("reminderflag");
+									properties.put("pv_reminderflag", reminderflag);
+									
+									if(reminderflag!=null) {
+										if(reminderflag.equals("set")) {
+											String reminderfrom=request.getParameter("reminderfrom");
+											properties.put("pv_reminderfrom", reminderfrom);
+											
+											String reminderto=request.getParameter("reminderto");
+											properties.put("pv_reminderto", reminderto);
+											
+											//String remindersubject=request.getParameter("remindersubject");
+											String remindersubject=resolution.getSubject();
+											properties.put("pv_remindersubject", remindersubject);
+											
+											//String remindercontent=request.getParameter("remindercontent");
+											String remindercontent=resolution.getNoticeContent();
+											properties.put("pv_remindercontent", remindercontent);
+										}
+									}
+								}
+							}
+						}else{
+							properties.put("pv_mailflag", "off");
+							properties.put("pv_timerflag", "off");
+						}
+					}
+					
+					String strTaskId=wfDetails.getTaskId();
+					Task task=processService.findTaskById(strTaskId);
+					processService.completeTask(task,properties);
+					String endFlag = null;
+					String level = null;
+					if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+						endFlag = resolution.getEndFlagLowerHouse();
+						level = resolution.getLevelLowerHouse();
+					}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+						endFlag = resolution.getEndFlagUpperHouse();
+						level = resolution.getLevelUpperHouse();
+					}
+					if(endFlag!=null&&!endFlag.isEmpty()
+							&&endFlag.equals("continue")){
+						/**** Create New Workflow Details ****/
+						ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+						Task newtask=processService.getCurrentTask(processInstance);
+						WorkflowDetails workflowDetails2;
+						try {
+							workflowDetails2 = WorkflowDetails.create(resolution,newtask,ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW,level,houseType);
+							if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+								resolution.setWorkflowDetailsIdLowerHouse(workflowDetails2.getId());
+								resolution.setTaskReceivedOnLowerHouse(new Date());
+								
+							}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+								resolution.setWorkflowDetailsIdUpperHouse(workflowDetails2.getId());
+								resolution.setTaskReceivedOnUpperHouse(new Date());
+							}
+						} catch (ELSException e) {
+							e.printStackTrace();
+							model.addAttribute("error", e.getParameter());
+						}
+														
+					}
+					/**** Update Old Workflow Details ****/
+					wfDetails.setStatus("COMPLETED");
+					if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+						wfDetails.setInternalStatus(resolution.getInternalStatusLowerHouse().getName());
+						wfDetails.setRecommendationStatus(resolution.getRecommendationStatusLowerHouse().getName());;	
+					}else if(resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+						wfDetails.setInternalStatus(resolution.getInternalStatusUpperHouse().getName());
+						wfDetails.setRecommendationStatus(resolution.getRecommendationStatusUpperHouse().getName());	
+					}
+					
+					wfDetails.setCompletionTime(new Date());
+					wfDetails.merge();
+					/**** Update Resolution ****/
+					resolution.setEditedOn(new Date());
+					resolution.setEditedBy(this.getCurrentUser().getActualUsername());
+					resolution.setEditedAs(wfDetails.getAssigneeUserGroupName());
+					resolution.setEditedOn(new Date());
+					try {
+						performAction(resolution, wfDetails);
+					} catch (ELSException e) {
+						e.printStackTrace();
+						logger.error(e.toString());
+						model.addAttribute("error", e.getParameter());
+					}
+					
+					resolution.merge();
+				}
+			}	
+		}
+		if(tempResolution != null){
+			HouseType tempHouseType = tempResolution.getHouseType();
+			if(tempHouseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+				request.getSession().setAttribute("workflowSubType", tempResolution.getInternalStatusLowerHouse().getType());
+			}if(tempHouseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+				request.getSession().setAttribute("workflowSubType", tempResolution.getInternalStatusUpperHouse().getType());
+			}
+			
+			request.getSession().setAttribute("houseType", tempResolution.getHouseType().getName());
+			request.getSession().setAttribute("sessionType", tempResolution.getSession().getType().getSessionType());
+			request.getSession().setAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(tempResolution.getSession().getYear(), locale.toString()));
+			request.getSession().setAttribute("deviceType", tempResolution.getType().getName());
+			String status = request.getParameter("status");
+			if(status != null && !status.isEmpty()){
+				request.getSession().setAttribute("status", status);
+			}
+			
+		}
 		redirectAttributes.addFlashAttribute("type", "success");
         //this is done so as to remove the bug due to which update message appears even though there
         //is a fresh new/edit request i.e after creating/updating records if we click on
@@ -1978,7 +2219,7 @@ public class ResolutionWorkflowController extends BaseController{
 		}
 	}
 
-	private void performAction(final Resolution domain, final WorkflowDetails workflowDetails) {
+	private void performAction(final Resolution domain, final WorkflowDetails workflowDetails) throws ELSException{
 		String internalStatus=null;
 		String recommendationStatus=null;
 		HouseType houseType = null;
