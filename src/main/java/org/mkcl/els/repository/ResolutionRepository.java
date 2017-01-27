@@ -37,6 +37,7 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.ResolutionDraft;
 import org.mkcl.els.domain.Session;
@@ -2215,6 +2216,19 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		}
 		return highlightedText;
 	}
+
+	/*public ReferencedEntity findReferencedEntity(Resolution domain) {
+		String strQuery = "SELECT id FROM referenced_entities WHERE device=:resolutionId";
+		Query query = this.em().createNativeQuery(strQuery);
+		query.setParameter("resolutionId", domain.getId());
+		try{
+		Long referencedEntityId = (Long) query.getSingleResult();
+		ReferencedEntity referencedEntity = ReferencedEntity.findById(ReferencedEntity.class, referencedEntityId);
+		return referencedEntity;
+		}catch(Exception e){
+			return null;
+		}
+	}*/
 
 	
 }
