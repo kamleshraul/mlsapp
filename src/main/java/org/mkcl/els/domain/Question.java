@@ -38,6 +38,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
@@ -709,10 +710,6 @@ public class Question extends Device implements Serializable {
 		question = (Question) super.merge();
 		return question;	
 	}
-	
-//	public Question allocateUniqueNumberOnBulkSubmit(final DeviceNumber final int serialNumberInBulk) {
-//		
-//	}
     
 	private Question mergeStarredQuestion() {
 		Question question = null;
@@ -721,43 +718,18 @@ public class Question extends Device implements Serializable {
 				|| (this.getInternalStatus().getType()
 						.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED))) {
 			if (this.getNumber() == null) {
-				synchronized (Question.class) {
-
-					Integer number = null;
+				synchronized(this) {
 					try {
-
-						String houseType = this.getHouseType().getType();
-						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {							
-							if (Question.getStarredCurrentNumberLowerHouse() == 0) {
-								number = Question.
-										assignQuestionNo(this.getHouseType(),this.getSession(), 
-												this.getType(),this.getLocale());
-								Question.updateStarredCurrentNumberLowerHouse(number);
-							}
-						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
-							if (Question.getStarredCurrentNumberUpperHouse() == 0) {
-								number = Question.
-										assignQuestionNo(this.getHouseType(),this.getSession(), 
-												this.getType(),this.getLocale());
-								Question.updateStarredCurrentNumberUpperHouse(number);
-							}
-						}
-						
-	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
-	            			this.setNumber(Question.getStarredCurrentNumberLowerHouse() + 1);
-	            			Question.updateStarredCurrentNumberLowerHouse(Question.getStarredCurrentNumberLowerHouse() + 1);
-	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
-	            			this.setNumber(Question.getStarredCurrentNumberUpperHouse() + 1);
-	            			Question.updateStarredCurrentNumberUpperHouse(Question.getStarredCurrentNumberUpperHouse() + 1);
-	            		}
-	            		
+						DeviceNumberInformation deviceNumberInformation = DeviceNumberInformation.find(this.getOriginalType(), this.getHouseType(), this.getSession(), this.getLocale());
+						deviceNumberInformation.setNumber(deviceNumberInformation.getNumber()+1);
+						deviceNumberInformation.merge();
+						this.setNumber(deviceNumberInformation.getNumber());					
 						addQuestionDraft();
 						question = (Question) super.merge();
-						
-					}catch (ELSException e) {
+					} catch (ELSException e) {
 						e.printStackTrace();
-					}
-				}
+					}			
+				}				
 			} else {
 				Question oldQuestion = Question.findById(Question.class,
 						this.getId());
