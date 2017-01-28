@@ -724,7 +724,6 @@ public class Question extends Device implements Serializable {
 						deviceNumberInformation.setNumber(deviceNumberInformation.getNumber()+1);
 						deviceNumberInformation.merge();
 						this.setNumber(deviceNumberInformation.getNumber());					
-						addQuestionDraft();
 						question = (Question) super.merge();
 					} catch (ELSException e) {
 						e.printStackTrace();
@@ -2098,6 +2097,14 @@ public class Question extends Device implements Serializable {
             	"QuestionRepository has not been injected in Question Domain");
         }
         return questionRepository;
+    }
+    
+    /**
+     * Adds the question draft for Memberside Submission.
+     * Will be removed post archival of drafts so that performance issue is solved.
+     */
+    public void addQuestionDraftForMembersideSubmission() {
+    	this.addQuestionDraft();
     }
     
     /**
