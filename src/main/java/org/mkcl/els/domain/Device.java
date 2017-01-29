@@ -110,14 +110,14 @@ public abstract class Device extends BaseDomain {
             			deviceNumberInformation.setSession(latestLowerHouseSession);
             			deviceNumberInformation.setLocale(ApplicationConstants.DEFAULT_LOCALE);
             			deviceNumberInformation.persist();
-            			//Question.updateStarredCurrentNumberLowerHouse(number); remove later
+            			//Question.updateHDQCurrentNumberLowerHouse(number); remove later
         			}        			
         		} else {        			
         			synchronized(deviceNumberInformation) {
         				number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, hdqQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
             			deviceNumberInformation.setNumber(number);
             			deviceNumberInformation.merge();
-            			//Question.updateStarredCurrentNumberLowerHouse(number); remove later
+            			//Question.updateHDQCurrentNumberLowerHouse(number); remove later
         			}
         		}
             	
@@ -135,14 +135,14 @@ public abstract class Device extends BaseDomain {
             			deviceNumberInformation.setSession(latestUpperHouseSession);
             			deviceNumberInformation.setLocale(ApplicationConstants.DEFAULT_LOCALE);
             			deviceNumberInformation.persist();
-            			//Question.updateStarredCurrentNumberUpperHouse(number); remove later
+            			//Question.updateHDQCurrentNumberUpperHouse(number); remove later
         			}        			
         		} else {        			
         			synchronized(deviceNumberInformation) {
         				number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, hdqQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
             			deviceNumberInformation.setNumber(number);
             			deviceNumberInformation.merge();
-            			//Question.updateStarredCurrentNumberUpperHouse(number); remove later
+            			//Question.updateHDQCurrentNumberUpperHouse(number); remove later
         			}
         		}
             	
