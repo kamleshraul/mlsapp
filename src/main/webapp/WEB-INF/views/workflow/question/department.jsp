@@ -1384,6 +1384,7 @@
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
+	<form:hidden path="bulkSubmitted"/>
 	<form:hidden path="workflowStarted"/>	
 	<form:hidden path="endFlag"/>
 	<form:hidden path="factualPositionFromMember"/>
