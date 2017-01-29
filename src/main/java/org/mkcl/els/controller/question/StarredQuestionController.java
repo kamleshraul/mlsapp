@@ -2928,7 +2928,7 @@ class StarredQuestionController {
 					DeviceNumberInformation deviceNumberInformation = null;
 					MasterVO syncDeviceNumberObject = new MasterVO();
 					synchronized(syncDeviceNumberObject) {
-						deviceNumberInformation = DeviceNumberInformation.find(domain.getOriginalType(), domain.getHouseType(), domain.getSession(), ApplicationConstants.DEFAULT_LOCALE);
+						deviceNumberInformation = DeviceNumberInformation.find(domain.getOriginalType(), domain.getHouseType(), domain.getSession(), domain.getLocale());
 						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
 					}
 					List<Question> questions = new ArrayList<Question>();

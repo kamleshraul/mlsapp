@@ -27,6 +27,7 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.DeviceNumberInformation;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
@@ -2331,10 +2332,19 @@ class UnstarredQuestionController {
 			final ModelMap model,
 			final AuthUser authUser,
 			final IProcessService processService,
-			final Locale locale) {
+			final Locale locale) throws ELSException {
 		String selectedItems = request.getParameter("items");
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
 			String[] items = selectedItems.split(",");
+			
+			Question domain = Question.findById(Question.class, new Long(items[0]));
+			DeviceType starredQuestionType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, domain.getLocale());
+			DeviceNumberInformation deviceNumberInformation = null;
+			MasterVO syncDeviceNumberObject = new MasterVO();
+			synchronized(syncDeviceNumberObject) {
+				deviceNumberInformation = DeviceNumberInformation.find(starredQuestionType, domain.getHouseType(), domain.getSession(), domain.getLocale());
+				syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
+			}
 
 			List<Question> questions = new ArrayList<Question>();
 			for(String i : items) {
@@ -2405,9 +2415,19 @@ class UnstarredQuestionController {
 
 				/**** Bulk Submitted ****/
 				question.setBulkSubmitted(true);
-
-				/**** Update the Motion object ****/
-				question = question.merge();
+				
+				/**** Update the Question object ****/
+				synchronized(syncDeviceNumberObject) {
+					question.setNumber(syncDeviceNumberObject.getNumber());
+					question = question.simpleMerge();
+					if(question.getId().toString().equals(items[items.length-1])) {
+						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
+						deviceNumberInformation.merge();
+					} else {
+						syncDeviceNumberObject.setNumber(syncDeviceNumberObject.getNumber()+1);
+					}							
+				}
+				
 				questions.add(question);
 			}
 
