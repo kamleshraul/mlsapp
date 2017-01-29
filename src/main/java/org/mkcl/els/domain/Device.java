@@ -46,44 +46,104 @@ public abstract class Device extends BaseDomain {
             	DeviceNumberInformation deviceNumberInformation = null;
             	Integer number = null;
             	
-            	/** update lowerhouse static current number for starred, unstarred and short notice questions **/
-            	
-            	latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, starredQuestionDeviceType);
-        		number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, starredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
-//        		Question.setStarredCurrentNumberLowerHouseAtomic(number);
-//        		System.out.println("Atomic Value: " + Question.getStarredCurrentNumberLowerHouseAtomic());
-        		Question.updateStarredCurrentNumberLowerHouse(number);
+            	/** update lowerhouse static current number for starred, unstarred and short notice questions **/            	
+            	latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, starredQuestionDeviceType);        		
         		/** Object instead of Static Count **/
         		deviceNumberInformation = DeviceNumberInformation.find(starredQuestionDeviceType, lowerHouseType, latestLowerHouseSession, ApplicationConstants.DEFAULT_LOCALE);
         		if(deviceNumberInformation==null) {
         			deviceNumberInformation = new DeviceNumberInformation();
-        			deviceNumberInformation.setDeviceType(starredQuestionDeviceType);
-        			deviceNumberInformation.setHouseType(lowerHouseType);
-        			deviceNumberInformation.setSession(latestLowerHouseSession);
-        			deviceNumberInformation.setLocale(ApplicationConstants.DEFAULT_LOCALE);
+        			synchronized(deviceNumberInformation) {
+        				deviceNumberInformation.setDeviceType(starredQuestionDeviceType);
+            			deviceNumberInformation.setHouseType(lowerHouseType);
+            			number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, starredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.setNumber(number);
+            			deviceNumberInformation.setSession(latestLowerHouseSession);
+            			deviceNumberInformation.setLocale(ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.persist();
+            			//Question.updateStarredCurrentNumberLowerHouse(number); remove later
+        			}        			
+        		} else {        			
+        			synchronized(deviceNumberInformation) {
+        				number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, starredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.setNumber(number);
+            			deviceNumberInformation.merge();
+            			//Question.updateStarredCurrentNumberLowerHouse(number); remove later
+        			}
         		}
-        		deviceNumberInformation.setNumber(number);
-        		deviceNumberInformation.merge();
-            	
+        		
             	/** update upperhouse static current number for starred, unstarred and short notice questions **/
-            	if (Question.getStarredCurrentNumberUpperHouse() == 0) {
-            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, starredQuestionDeviceType);
-            		number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, starredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
-        			Question.updateStarredCurrentNumberUpperHouse(number);
+        		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, starredQuestionDeviceType);
+        		/** Object instead of Static Count **/
+        		deviceNumberInformation = DeviceNumberInformation.find(starredQuestionDeviceType, upperHouseType, latestUpperHouseSession, ApplicationConstants.DEFAULT_LOCALE);
+        		if(deviceNumberInformation==null) {
+        			deviceNumberInformation = new DeviceNumberInformation();
+        			synchronized(deviceNumberInformation) {
+        				deviceNumberInformation.setDeviceType(starredQuestionDeviceType);
+            			deviceNumberInformation.setHouseType(upperHouseType);
+            			number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, starredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.setNumber(number);
+            			deviceNumberInformation.setSession(latestUpperHouseSession);
+            			deviceNumberInformation.setLocale(ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.persist();
+            			//Question.updateStarredCurrentNumberUpperHouse(number); remove later
+        			}        			
+        		} else {        			
+        			synchronized(deviceNumberInformation) {
+        				number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, starredQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.setNumber(number);
+            			deviceNumberInformation.merge();
+            			//Question.updateStarredCurrentNumberUpperHouse(number); remove later
+        			}
         		}
             	
             	/** update lowerhouse static current number for half hour discussion from questions **/
-            	if (Question.getHDQCurrentNumberLowerHouse() == 0) {
-            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, hdqQuestionDeviceType);
-            		number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, hdqQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
-        			Question.updateHDQCurrentNumberLowerHouse(number);
+            	latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, hdqQuestionDeviceType);        		
+        		/** Object instead of Static Count **/
+        		deviceNumberInformation = DeviceNumberInformation.find(hdqQuestionDeviceType, lowerHouseType, latestLowerHouseSession, ApplicationConstants.DEFAULT_LOCALE);
+        		if(deviceNumberInformation==null) {
+        			deviceNumberInformation = new DeviceNumberInformation();
+        			synchronized(deviceNumberInformation) {
+        				deviceNumberInformation.setDeviceType(hdqQuestionDeviceType);
+            			deviceNumberInformation.setHouseType(lowerHouseType);
+            			number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, hdqQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.setNumber(number);
+            			deviceNumberInformation.setSession(latestLowerHouseSession);
+            			deviceNumberInformation.setLocale(ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.persist();
+            			//Question.updateStarredCurrentNumberLowerHouse(number); remove later
+        			}        			
+        		} else {        			
+        			synchronized(deviceNumberInformation) {
+        				number = Question.assignQuestionNo(lowerHouseType, latestLowerHouseSession, hdqQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.setNumber(number);
+            			deviceNumberInformation.merge();
+            			//Question.updateStarredCurrentNumberLowerHouse(number); remove later
+        			}
         		}
             	
             	/** update upperhouse static current number for half hour discussion from questions **/
-            	if (Question.getHDQCurrentNumberUpperHouse() == 0) {
-            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, hdqQuestionDeviceType);
-            		number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, hdqQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
-        			Question.updateHDQCurrentNumberUpperHouse(number);
+            	latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, hdqQuestionDeviceType);
+        		/** Object instead of Static Count **/
+        		deviceNumberInformation = DeviceNumberInformation.find(hdqQuestionDeviceType, upperHouseType, latestUpperHouseSession, ApplicationConstants.DEFAULT_LOCALE);
+        		if(deviceNumberInformation==null) {
+        			deviceNumberInformation = new DeviceNumberInformation();
+        			synchronized(deviceNumberInformation) {
+        				deviceNumberInformation.setDeviceType(hdqQuestionDeviceType);
+            			deviceNumberInformation.setHouseType(upperHouseType);
+            			number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, hdqQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.setNumber(number);
+            			deviceNumberInformation.setSession(latestUpperHouseSession);
+            			deviceNumberInformation.setLocale(ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.persist();
+            			//Question.updateStarredCurrentNumberUpperHouse(number); remove later
+        			}        			
+        		} else {        			
+        			synchronized(deviceNumberInformation) {
+        				number = Question.assignQuestionNo(upperHouseType, latestUpperHouseSession, hdqQuestionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            			deviceNumberInformation.setNumber(number);
+            			deviceNumberInformation.merge();
+            			//Question.updateStarredCurrentNumberUpperHouse(number); remove later
+        			}
         		}
             	
             	/** update lowerhouse static current number for non government resolutions **/
