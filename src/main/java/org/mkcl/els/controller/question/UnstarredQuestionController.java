@@ -1051,7 +1051,15 @@ class UnstarredQuestionController {
 		//Populate createdby
 		model.addAttribute("createdBy",domain.getCreatedBy());
 		
-
+		/**** Add Memberside Submission Draft for case of populating just after submission ****/
+		if(domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SUBMIT)
+				&& !usergroupType.equals(ApplicationConstants.MEMBER)
+				&& !usergroupType.equals(ApplicationConstants.TYPIST)
+				&& (domain.getDrafts()==null || domain.getDrafts().isEmpty())) {
+			domain.addQuestionDraftForMembersideSubmission();
+			domain.simpleMerge();
+		}
+		
 		//populate bulkedit
 		String bulkedit=request.getParameter("bulkedit");
 		if(bulkedit!=null){
