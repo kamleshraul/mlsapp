@@ -143,9 +143,9 @@
 			<property name="user" value="${db.username}" />
 			<property name="password" value="${db.password}" />
 			<property name="idleConnectionTestPeriod" value="540" />
-			<property name="acquireIncrement" value="5" />
-			<property name="initialPoolSize" value="5" />
-			<property name="minPoolSize" value="5" />
+			<property name="acquireIncrement" value="25" />
+			<property name="initialPoolSize" value="100" />
+			<property name="maxPoolSize" value="1000" />
 		</bean>
 	</beans>
 
