@@ -697,6 +697,7 @@ public class Question extends Device implements Serializable {
 					try {
 						DeviceType starredQuestionType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
 						deviceNumberInformation = DeviceNumberInformation.find(starredQuestionType, this.getHouseType(), this.getSession(), this.getLocale());
+						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
 						this.setNumber(syncDeviceNumberObject.getNumber());
 						question = (Question) super.merge();
 						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
@@ -769,6 +770,7 @@ public class Question extends Device implements Serializable {
 					try {
 						DeviceType starredQuestionType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
 						deviceNumberInformation = DeviceNumberInformation.find(starredQuestionType, this.getHouseType(), this.getSession(), this.getLocale());
+						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
 						this.setNumber(syncDeviceNumberObject.getNumber());
 						question = (Question) super.merge();
 						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
