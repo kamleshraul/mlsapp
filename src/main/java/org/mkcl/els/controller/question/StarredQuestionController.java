@@ -2504,14 +2504,18 @@ class StarredQuestionController {
 		request.getSession().setAttribute("questionType", request.getParameter("questionType"));
 		/**** Parameters which are read from request in populate edit needs to be saved in session Starts ****/
 		Question question = Question.findById(Question.class, domain.getId());
-		// On Group Change
-		Group fromGroup = Question.isGroupChanged(question);
-		if(fromGroup != null) {
-			Question.onGroupChange(question, fromGroup);
-		}
 		
-		// Add to Chart
-		Chart.addToChart(question);
+		Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
+		if(domain.getInternalStatus().getPriority()>submitStatus.getPriority()) {
+			// On Group Change
+			Group fromGroup = Question.isGroupChanged(question);
+			if(fromGroup != null) {
+				Question.onGroupChange(question, fromGroup);
+			}
+			
+			// Add to Chart
+			Chart.addToChart(question);
+		}	
 		
 		/**** Supporting Member Workflow/Put Up Workflow ****/
 		String operation=request.getParameter("operation");
