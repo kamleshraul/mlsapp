@@ -19,7 +19,6 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
-import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
@@ -27,7 +26,6 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.DeviceNumberInformation;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
@@ -2152,20 +2150,11 @@ class ShortNoticeController {
 			final ModelMap model,
 			final AuthUser authUser,
 			final IProcessService processService,
-			final Locale locale) throws ELSException {
+			final Locale locale) {
 		String selectedItems = request.getParameter("items");
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
 			String[] items = selectedItems.split(",");
 
-			Question domain = Question.findById(Question.class, new Long(items[0]));
-			DeviceType starredQuestionType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, domain.getLocale());
-			DeviceNumberInformation deviceNumberInformation = null;
-			MasterVO syncDeviceNumberObject = new MasterVO();
-			synchronized(syncDeviceNumberObject) {
-				deviceNumberInformation = DeviceNumberInformation.find(starredQuestionType, domain.getHouseType(), domain.getSession(), domain.getLocale());
-				syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
-			}
-			
 			List<Question> questions = new ArrayList<Question>();
 			for(String i : items) {
 				Long id = Long.parseLong(i);
@@ -2237,17 +2226,7 @@ class ShortNoticeController {
 				question.setBulkSubmitted(true);
 				
 				/**** Update the Question object ****/
-				synchronized(syncDeviceNumberObject) {
-					question.setNumber(syncDeviceNumberObject.getNumber());
-					question = question.simpleMerge();
-					if(question.getId().toString().equals(items[items.length-1])) {
-						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
-						deviceNumberInformation.merge();
-					} else {
-						syncDeviceNumberObject.setNumber(syncDeviceNumberObject.getNumber()+1);
-					}							
-				}
-				
+				question = question.merge();
 				questions.add(question);
 			}
 

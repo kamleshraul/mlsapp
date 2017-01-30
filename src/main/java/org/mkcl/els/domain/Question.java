@@ -38,7 +38,6 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
@@ -471,24 +470,44 @@ public class Question extends Device implements Serializable {
     private synchronized Question persistHalfHourDiscussionQuestionFromQuestion() {
     	if(this.getStatus().getType().
     			equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SUBMIT)) {
-    		if (this.getNumber() == null) {
-				DeviceNumberInformation deviceNumberInformation = null;
-				MasterVO syncDeviceNumberObject = new MasterVO();
-				synchronized(syncDeviceNumberObject) {
+            if(this.getNumber() == null) {
+            	synchronized (Question.class) {
+                	Integer number = null;
 					try {
-						deviceNumberInformation = DeviceNumberInformation.find(this.getOriginalType(), this.getHouseType(), this.getSession(), this.getLocale());
-						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
-						this.setNumber(syncDeviceNumberObject.getNumber());
-						Question q = (Question)super.persist();
-						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
-						deviceNumberInformation.merge();
 						
-						return q;
+						String houseType = this.getHouseType().getType();
+						
+						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {							
+							if (Question.getHDQCurrentNumberLowerHouse() == 0) {
+								number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateHDQCurrentNumberLowerHouse(number);
+							}
+						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+							if (Question.getHDQCurrentNumberUpperHouse() == 0) {
+								number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateHDQCurrentNumberUpperHouse(number);
+							}
+						}
+						
+	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+	            			this.setNumber(Question.getHDQCurrentNumberLowerHouse() + 1);
+	            			Question.updateHDQCurrentNumberLowerHouse(Question.getHDQCurrentNumberLowerHouse() + 1);
+	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+	            			this.setNumber(Question.getHDQCurrentNumberUpperHouse() + 1);
+	            			Question.updateHDQCurrentNumberUpperHouse(Question.getHDQCurrentNumberUpperHouse() + 1);
+	            		}
+	            		
+	            		//addQuestionDraft();
+	                    return (Question)super.persist();
 					} catch (ELSException e) {
 						e.printStackTrace();
 					}
-				}
-			}
+                }
+            }
             else if(this.getNumber()!=null){
             	addQuestionDraft();
             }
@@ -499,25 +518,44 @@ public class Question extends Device implements Serializable {
 
 	private Question persistShortNoticeQuestion() {
 		if(this.getStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SUBMIT)) {
-			if (this.getNumber() == null) {
-				DeviceNumberInformation deviceNumberInformation = null;
-				MasterVO syncDeviceNumberObject = new MasterVO();
-				synchronized(syncDeviceNumberObject) {
+            if(this.getNumber() == null) {
+            	synchronized (Question.class) {
+                	Integer number = null;
 					try {
-						DeviceType starredQuestionType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
-						deviceNumberInformation = DeviceNumberInformation.find(starredQuestionType, this.getHouseType(), this.getSession(), this.getLocale());
-						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
-						this.setNumber(syncDeviceNumberObject.getNumber());
-						Question q = (Question)super.persist();
-						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
-						deviceNumberInformation.merge();
 						
-						return q;
+						String houseType = this.getHouseType().getType();
+						
+						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {							
+							if (Question.getStarredCurrentNumberLowerHouse() == 0) {
+								number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberLowerHouse(number);
+							}
+						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+							if (Question.getStarredCurrentNumberUpperHouse() == 0) {
+								number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberUpperHouse(number);
+							}
+						}
+						
+	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            			Question.updateStarredCurrentNumberLowerHouse(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            			Question.updateStarredCurrentNumberUpperHouse(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            		}
+	            		
+	            		//addQuestionDraft();
+	                    return (Question)super.persist();
 					} catch (ELSException e) {
 						e.printStackTrace();
 					}
-				}
-			}
+                }
+            }
             else if(this.getNumber()!=null){
             	addQuestionDraft();
             }
@@ -528,25 +566,44 @@ public class Question extends Device implements Serializable {
 
 	private Question persistUnstarredQuestion() {
 		if(this.getStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SUBMIT)) {
-			if (this.getNumber() == null) {
-				DeviceNumberInformation deviceNumberInformation = null;
-				MasterVO syncDeviceNumberObject = new MasterVO();
-				synchronized(syncDeviceNumberObject) {
+            if(this.getNumber() == null) {
+                synchronized (Question.class) {
+                	Integer number = null;
 					try {
-						DeviceType starredQuestionType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
-						deviceNumberInformation = DeviceNumberInformation.find(starredQuestionType, this.getHouseType(), this.getSession(), this.getLocale());
-						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
-						this.setNumber(syncDeviceNumberObject.getNumber());
-						Question q = (Question)super.persist();
-						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
-						deviceNumberInformation.merge();
 						
-						return q;
+						String houseType = this.getHouseType().getType();
+						
+						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {							
+							if (Question.getStarredCurrentNumberLowerHouse() == 0) {
+								number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberLowerHouse(number);
+							}
+						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+							if (Question.getStarredCurrentNumberUpperHouse() == 0) {
+								number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberUpperHouse(number);
+							}
+						}
+						
+	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            			Question.updateStarredCurrentNumberLowerHouse(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            			Question.updateStarredCurrentNumberUpperHouse(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            		}
+	            		
+	            		//addQuestionDraft();
+	                    return (Question)super.persist();
 					} catch (ELSException e) {
 						e.printStackTrace();
 					}
-				}
-			}
+                }
+            }
             else if(this.getNumber()!=null){
             	addQuestionDraft();
             }
@@ -557,24 +614,47 @@ public class Question extends Device implements Serializable {
 
 	private Question persistStarredQuestion() {
 		if(this.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)) {
-			if (this.getNumber() == null) {
-				DeviceNumberInformation deviceNumberInformation = null;
-				MasterVO syncDeviceNumberObject = new MasterVO();
-				synchronized(syncDeviceNumberObject) {
+            if(this.getNumber() == null) {
+                synchronized (Question.class) {
+                	
+                	Integer number = null;
 					try {
-						deviceNumberInformation = DeviceNumberInformation.find(this.getOriginalType(), this.getHouseType(), this.getSession(), this.getLocale());
-						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
-						this.setNumber(syncDeviceNumberObject.getNumber());
-						Question q = (Question)super.persist();
-						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
-						deviceNumberInformation.merge();
+						String houseType = this.getHouseType().getType();
+						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {							
+							if (Question.getStarredCurrentNumberLowerHouse() == 0) {
+								number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberLowerHouse(number);
+							}
+						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+							if (Question.getStarredCurrentNumberUpperHouse() == 0) {
+								number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberUpperHouse(number);
+							}
+						}
 						
-						return q;
-					} catch (ELSException e) {
+	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            			Question.updateStarredCurrentNumberLowerHouse(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            			Question.updateStarredCurrentNumberUpperHouse(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            		}
+	            		
+	            		//addQuestionDraft();
+	            		Question q = (Question)super.persist();
+	            		
+	            		return q;
+					}catch(Exception e){
 						e.printStackTrace();
+					}finally{
+						
 					}
-				}
-			}
+                }
+            }
             else if(this.getNumber()!=null){
             	addQuestionDraft();
             }
@@ -603,7 +683,7 @@ public class Question extends Device implements Serializable {
     	}
 		return null;
     }
-	
+    
 	private Question mergeStarredQuestion() {
 		Question question = null;
 		if ((this.getInternalStatus().getType()
@@ -611,17 +691,40 @@ public class Question extends Device implements Serializable {
 				|| (this.getInternalStatus().getType()
 						.equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED))) {
 			if (this.getNumber() == null) {
-				DeviceNumberInformation deviceNumberInformation = null;
-				MasterVO syncDeviceNumberObject = new MasterVO();
-				synchronized(syncDeviceNumberObject) {
+				synchronized (Question.class) {
+
+					Integer number = null;
 					try {
-						deviceNumberInformation = DeviceNumberInformation.find(this.getOriginalType(), this.getHouseType(), this.getSession(), this.getLocale());
-						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
-						this.setNumber(syncDeviceNumberObject.getNumber());
+
+						String houseType = this.getHouseType().getType();
+						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {							
+							if (Question.getStarredCurrentNumberLowerHouse() == 0) {
+								number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberLowerHouse(number);
+							}
+						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+							if (Question.getStarredCurrentNumberUpperHouse() == 0) {
+								number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberUpperHouse(number);
+							}
+						}
+						
+	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            			Question.updateStarredCurrentNumberLowerHouse(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            			Question.updateStarredCurrentNumberUpperHouse(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            		}
+	            		
+						//addQuestionDraft();
 						question = (Question) super.merge();
-						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
-						deviceNumberInformation.merge();
-					} catch (ELSException e) {
+						
+					}catch (ELSException e) {
 						e.printStackTrace();
 					}
 				}
@@ -690,23 +793,44 @@ public class Question extends Device implements Serializable {
         if((this.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SUBMIT)) 
         		|| (this.getInternalStatus().getType().
         				equals(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_ASSISTANT_PROCESSED))){
-        	if (this.getNumber() == null) {
-				DeviceNumberInformation deviceNumberInformation = null;
-				MasterVO syncDeviceNumberObject = new MasterVO();
-				synchronized(syncDeviceNumberObject) {
-					try {
-						DeviceType starredQuestionType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
-						deviceNumberInformation = DeviceNumberInformation.find(starredQuestionType, this.getHouseType(), this.getSession(), this.getLocale());
-						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
-						this.setNumber(syncDeviceNumberObject.getNumber());
-						question = (Question) super.merge();
-						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
-						deviceNumberInformation.merge();
+            if(this.getNumber() == null) {
+                synchronized (Question.class) {
+
+                	try {
+						
+						String houseType = this.getHouseType().getType();
+						
+						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {							
+							if (Question.getStarredCurrentNumberLowerHouse() == 0) {
+								Integer number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberLowerHouse(number);
+							}
+						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+							if (Question.getStarredCurrentNumberUpperHouse() == 0) {
+								Integer number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberUpperHouse(number);
+							}
+						}
+						
+	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            			Question.updateStarredCurrentNumberLowerHouse(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            			Question.updateStarredCurrentNumberUpperHouse(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            		}
+	            		
+	            		//addQuestionDraft();
+	                    question = (Question) super.merge();
 					} catch (ELSException e) {
 						e.printStackTrace();
 					}
-				}
-			}
+                }
+            }
             else {
             	Question oldQuestion = Question.findById(Question.class, this.getId());
             	if(this.getClubbedEntities() == null){
@@ -763,23 +887,44 @@ public class Question extends Device implements Serializable {
         if((this.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SUBMIT)) 
         		|| (this.getInternalStatus().getType().
         				equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_ASSISTANT_PROCESSED))){
-        	if (this.getNumber() == null) {
-				DeviceNumberInformation deviceNumberInformation = null;
-				MasterVO syncDeviceNumberObject = new MasterVO();
-				synchronized(syncDeviceNumberObject) {
-					try {
-						DeviceType starredQuestionType = DeviceType.findByType(ApplicationConstants.STARRED_QUESTION, this.getLocale());
-						deviceNumberInformation = DeviceNumberInformation.find(starredQuestionType, this.getHouseType(), this.getSession(), this.getLocale());
-						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
-						this.setNumber(syncDeviceNumberObject.getNumber());
-						question = (Question) super.merge();
-						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
-						deviceNumberInformation.merge();
+            if(this.getNumber() == null) {
+                synchronized (Question.class) {
+
+                	try {
+						
+						String houseType = this.getHouseType().getType();
+						
+						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {							
+							if (Question.getStarredCurrentNumberLowerHouse() == 0) {
+								Integer number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberLowerHouse(number);
+							}
+						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+							if (Question.getStarredCurrentNumberUpperHouse() == 0) {
+								Integer number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateStarredCurrentNumberUpperHouse(number);
+							}
+						}
+						
+	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            			Question.updateStarredCurrentNumberLowerHouse(Question.getStarredCurrentNumberLowerHouse() + 1);
+	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+	            			this.setNumber(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            			Question.updateStarredCurrentNumberUpperHouse(Question.getStarredCurrentNumberUpperHouse() + 1);
+	            		}
+	            		
+	            		//addQuestionDraft();
+	                    question = (Question) super.merge();
 					} catch (ELSException e) {
 						e.printStackTrace();
 					}
-				}
-			}
+                }
+            }
             else {
             	Question oldQuestion = Question.findById(Question.class, this.getId());
             	if(this.getClubbedEntities() == null){
@@ -837,22 +982,44 @@ public class Question extends Device implements Serializable {
         		equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SUBMIT)) 
         		|| (this.getInternalStatus().getType().
         				equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_ASSISTANT_PROCESSED))){
-        	if (this.getNumber() == null) {
-				DeviceNumberInformation deviceNumberInformation = null;
-				MasterVO syncDeviceNumberObject = new MasterVO();
-				synchronized(syncDeviceNumberObject) {
-					try {
-						deviceNumberInformation = DeviceNumberInformation.find(this.getOriginalType(), this.getHouseType(), this.getSession(), this.getLocale());
-						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
-						this.setNumber(syncDeviceNumberObject.getNumber());
-						question = (Question) super.merge();
-						deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
-						deviceNumberInformation.merge();
+            if(this.getNumber() == null) {
+                synchronized (Question.class) {
+
+                	try {
+						
+                		String houseType = this.getHouseType().getType();
+						
+						if (houseType.equals(ApplicationConstants.LOWER_HOUSE)) {							
+							if (Question.getHDQCurrentNumberLowerHouse() == 0) {
+								Integer number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateHDQCurrentNumberLowerHouse(number);
+							}
+						} else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+							if (Question.getHDQCurrentNumberUpperHouse() == 0) {
+								Integer number = Question.
+										assignQuestionNo(this.getHouseType(),this.getSession(), 
+												this.getType(),this.getLocale());
+								Question.updateHDQCurrentNumberUpperHouse(number);
+							}
+						}
+						
+	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
+	            			this.setNumber(Question.getHDQCurrentNumberLowerHouse() + 1);
+	            			Question.updateHDQCurrentNumberLowerHouse(Question.getHDQCurrentNumberLowerHouse() + 1);
+	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
+	            			this.setNumber(Question.getHDQCurrentNumberUpperHouse() + 1);
+	            			Question.updateHDQCurrentNumberUpperHouse(Question.getHDQCurrentNumberUpperHouse() + 1);
+	            		}
+	            		
+	            		//addQuestionDraft();
+	                    question = (Question) super.merge();
 					} catch (ELSException e) {
 						e.printStackTrace();
 					}
-				}
-			}
+                }
+            }
             else {
             	Question oldQuestion = Question.findById(Question.class, this.getId());
             	if(this.getClubbedEntities() == null){

@@ -29,7 +29,6 @@ import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.DeviceNumberInformation;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
@@ -2823,7 +2822,7 @@ class StarredQuestionController {
 			final ModelMap model,
 			final AuthUser authUser,
 			final IProcessService processService, 
-			final Locale locale) throws ELSException {
+			final Locale locale) {
 		String retVal = "question/error";
 		String selectedItems = request.getParameter("items");
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
@@ -2928,33 +2927,15 @@ class StarredQuestionController {
 						&& !validationAfterEndDate 
 						&& domain.getSession().getParameter(domain.getType().getType()+"_processingMode").equals(ApplicationConstants.LOWER_HOUSE))
 						|| (strHouseType != null && strHouseType.equals(ApplicationConstants.UPPER_HOUSE) && validationForBatch)){
-					
-					DeviceNumberInformation deviceNumberInformation = null;
-					MasterVO syncDeviceNumberObject = new MasterVO();
-					synchronized(syncDeviceNumberObject) {
-						deviceNumberInformation = DeviceNumberInformation.find(domain.getOriginalType(), domain.getHouseType(), domain.getSession(), domain.getLocale());
-						syncDeviceNumberObject.setNumber(deviceNumberInformation.getNumber()+1);
-					}
 					List<Question> questions = new ArrayList<Question>();
-					/** Common Data for Improving Performance **/
-					Status timeoutStatus = Status.findByType(
-							ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
-//					Status oldStatus = Status.findByFieldName(Status.class, "type", 
-//							ApplicationConstants.QUESTION_COMPLETE, locale.toString());
-					Status newstatus = Status.findByFieldName(Status.class, "type", 
-							ApplicationConstants.QUESTION_SUBMIT, locale.toString());
-					UserGroupType userGroupType = null;
-					String strUserGroupType = request.getParameter("usergroupType");
-					if(strUserGroupType != null) {
-						userGroupType = UserGroupType.findByFieldName(UserGroupType.class,
-								"type", strUserGroupType, locale.toString());
-					}
 					for(String i : items) {
 						Long id = Long.parseLong(i);
 						Question question = Question.findById(Question.class, id);
 		
 						/**** Update Supporting Member ****/
-						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();						
+						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+						Status timeoutStatus = Status.findByType(
+								ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
 						if(question.getSupportingMembers() != null
 								&& ! question.getSupportingMembers().isEmpty()) {
 							for(SupportingMember sm : question.getSupportingMembers()) {
@@ -2994,7 +2975,9 @@ class StarredQuestionController {
 							question.setSupportingMembers(supportingMembers);
 						}
 		
-						/**** Update Status(es) ****/						
+						/**** Update Status(es) ****/
+						Status newstatus = Status.findByFieldName(Status.class, "type", 
+								ApplicationConstants.QUESTION_SUBMIT, question.getLocale());
 						question.setStatus(newstatus);
 						question.setInternalStatus(newstatus);
 						question.setRecommendationStatus(newstatus);
@@ -3003,7 +2986,11 @@ class StarredQuestionController {
 						question.setSubmissionDate(new Date());
 						question.setEditedOn(new Date());
 						question.setEditedBy(authUser.getActualUsername());
-						if(userGroupType != null) {
+		
+						String strUserGroupType = request.getParameter("usergroupType");
+						if(strUserGroupType != null) {
+							UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class,
+									"type", strUserGroupType, question.getLocale());
 							question.setEditedAs(userGroupType.getName());
 						}
 		
@@ -3011,17 +2998,7 @@ class StarredQuestionController {
 						question.setBulkSubmitted(true);
 		
 						/**** Update the Question object ****/
-						synchronized(syncDeviceNumberObject) {
-							question.setNumber(syncDeviceNumberObject.getNumber());
-							question = question.simpleMerge();
-							if(question.getId().toString().equals(items[items.length-1])) {
-								deviceNumberInformation.setNumber(syncDeviceNumberObject.getNumber());
-								deviceNumberInformation.merge();
-							} else {
-								syncDeviceNumberObject.setNumber(syncDeviceNumberObject.getNumber()+1);
-							}							
-						}
-						
+						question = question.merge();
 						questions.add(question);
 					}
 					model.addAttribute("questions", questions);
