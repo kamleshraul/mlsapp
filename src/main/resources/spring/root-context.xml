@@ -145,6 +145,7 @@
 			<property name="idleConnectionTestPeriod" value="540" />
 			<property name="acquireIncrement" value="25" />
 			<property name="initialPoolSize" value="100" />
+			<property name="minPoolSize" value="10" />
 			<property name="maxPoolSize" value="1000" />
 		</bean>
 	</beans>
