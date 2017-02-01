@@ -2192,8 +2192,8 @@ public class ResolutionController extends GenericController<Resolution> {
 							}
 						}else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
 							if(!domain.getStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_SUBMIT) &&
-									!domain.getStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT)&&
-									!domain.getStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER)){
+									!domain.getStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT)&&
+									!domain.getStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER)){
 									domain.setStatusUpperHouse(status);
 									domain.setInternalStatusUpperHouse(status);
 									domain.setRecommendationStatusUpperHouse(status);
