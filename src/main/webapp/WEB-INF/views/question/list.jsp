@@ -405,7 +405,10 @@
 			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
 				<a href="#" id="memberwise_questions_report" class="butSim link">
 					<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
-				</a> |		
+				</a> |	
+				<a href="#" id="online_offline_submission_count_report" class="butSim link">
+					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
+				</a>	
 			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
