@@ -2273,6 +2273,8 @@ public class ApplicationConstants {
 	
 	public static final String QUESTION_UNSTARRED_FINAL_REJECT_CLUBBING_WITH_UNSTARRED_FROM_PREVIOUS_SESSION = "question_unstarred_final_reject_clubbingWithUnstarredFromPreviousSession";
 	
+	public static final String QUESTION_UNSTARRED_PROCESSED_SENDTODESKOFFICER = "question_unstarred_processed_sendToDeskOfficer";
+	
 	/* For Short Notice Questions */
 	public static final String QUESTION_SHORTNOTICE_PUTUP_CLUBBING="question_shortnotice_putup_clubbing";
 	
@@ -2544,5 +2546,6 @@ public class ApplicationConstants {
 	public static String RIS_REPORTER = "RIS_REPORTER";
 	
 	public static String CSPT_DEVICES_WITH_SUBDEPARTMENT_FILTER_IN_REFERENCING = "DEVICES_WITH_SUBDEPARTMENT_FILTER_IN_REFERENCING";
+	
 	
 }
