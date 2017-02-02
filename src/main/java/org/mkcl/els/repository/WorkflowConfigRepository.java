@@ -510,7 +510,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				userGroupType = userGroup.getUserGroupType();
 				currentWorkflowActor = getWorkflowActor(workflowConfig,userGroupType,level);
 				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
-			}else if(status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODESKOFFICER)
+			}else if((status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODESKOFFICER) 
+						|| status.equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTODESKOFFICER))
 					&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 				workflowConfig = getLatest(question,question.getInternalStatus().getType(),locale.toString());
 				UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
