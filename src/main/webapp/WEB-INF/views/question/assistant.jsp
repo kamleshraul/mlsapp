@@ -1247,16 +1247,30 @@
 		</c:choose>			
 		
 		<p>	
-			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>
-			<form:textarea path="subject" rows="2" cols="50"></form:textarea>
+			<label class="centerlabel"><spring:message code="question.subject" text="Subject"/></label>			
+			<c:choose>
+				<c:when test="${houseTypeType=='upperhouse'}">
+					<form:textarea path="subject" rows="2" cols="50"></form:textarea>
+				</c:when>
+				<c:otherwise>
+					<form:textarea path="subject" rows="2" cols="50" readonly="true"></form:textarea>
+				</c:otherwise>
+			</c:choose>
 			<form:errors path="subject" cssClass="validationError"/>	
 		</p>
 	
 		
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-			<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="questionText" cssClass="validationError"/>	
+			<c:choose>
+				<c:when test="${houseTypeType=='upperhouse'}">
+					<form:textarea path="questionText" cssClass="wysiwyg"></form:textarea>
+				</c:when>
+				<c:otherwise>
+					<form:textarea path="questionText" cssClass="wysiwyg" readonly="true"></form:textarea>
+				</c:otherwise>
+			</c:choose>			
+			<form:errors path="questionText" cssClass="validationError"/>
 		</p>
 		
 		<c:if test="${selectedQuestionType=='questions_starred' or selectedQuestionType=='questions_unstarred'}">
