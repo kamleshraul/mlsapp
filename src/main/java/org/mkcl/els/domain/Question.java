@@ -1844,8 +1844,7 @@ public class Question extends Device implements Serializable {
                 }
             };
             Collections.sort(newQList, c);
-        }
-        else if(sortOrder.equals(ApplicationConstants.DESC)) {
+        } else if(sortOrder.equals(ApplicationConstants.DESC)) {
             Comparator<Question> c = new Comparator<Question>() {
 
                 @Override
@@ -12794,8 +12793,190 @@ public class Question extends Device implements Serializable {
 
 
 	private static void onUnstarredSubdepartmentChange(Question question,
-			SubDepartment subdepartment2) {
-		// TODO Auto-generated method stub
+			SubDepartment subdepartment2) throws ELSException {
+		String locale = question.getLocale();
+		CLUBBING_STATE clubbingState = Question.findClubbingState(question);
+    	UNSTARRED_STATE qnState = Question.findUnstarredState(question);
+    	
+    	if(clubbingState == CLUBBING_STATE.CLUBBED) {
+    		throw new ELSException("Question.onUnStarredGroupChangeLH/2", 
+    				"Clubbed Question's group cannot be changed." +
+    				" Unclub the question and then change the group.");
+    	}else if(clubbingState == CLUBBING_STATE.STANDALONE) {
+    		if(qnState == UNSTARRED_STATE.PRE_WORKFLOW) {
+    			// Change status to "GROUP_CHANGED"
+//    			question.setInternalStatus(GROUP_CHANGED);
+//    			question.setRecommendationStatus(GROUP_CHANGED);
+//    			question.merge();
+    		}
+    		else if(qnState == UNSTARRED_STATE.IN_WORKFLOW_AND_PRE_FINAL) {
+    			// Stop the workflow
+//    			WorkflowDetails wfDetails = 
+//    				WorkflowDetails.findCurrentWorkflowDetail(question);
+//    			WorkflowDetails.endProcess(wfDetails);
+//    			question.removeExistingWorkflowAttributes();
+//    			
+//    			// Change status to "GROUP_CHANGED"
+//    			question.setInternalStatus(GROUP_CHANGED);
+//    			question.setRecommendationStatus(GROUP_CHANGED);
+//    			question.merge();
+    		}
+    		else if(qnState == UNSTARRED_STATE.POST_FINAL_AND_PRE_YAADI_LAID) {
+    			/*
+    			 * Stop the workflow
+    			 */
+    			WorkflowDetails wfDetails = 
+    				WorkflowDetails.findCurrentWorkflowDetail(question);
+    			
+    			// Before ending wfDetails process collect information
+    			// which will be useful for creating a new process later.
+    			String workflowType = wfDetails.getWorkflowType();
+    			Integer assigneeLevel = 
+    				Integer.parseInt(wfDetails.getAssigneeLevel());
+    			String userGroupType = wfDetails.getAssigneeUserGroupType();
+    			WorkflowDetails.endProcess(wfDetails);
+    			question.removeExistingWorkflowAttributes();
+    			
+    			/*
+    			 * Change recommendation status to final (internal) status.
+    			 */
+    			Status internalStatus = question.getInternalStatus();
+
+    			/*
+    			 * Conditional invocation of Chart.groupChange/3
+    			 */
+    			
+    			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+    				userGroupType = ApplicationConstants.DEPARTMENT;
+    				assigneeLevel = assigneeLevel - 1;
+    			}
+    			/*
+    			 * Start the workflow at Assistant (after Speaker) level.
+    			 */
+    			WorkflowDetails.startProcessAtGivenLevel(question, 
+    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+    					userGroupType, assigneeLevel, 
+    					locale);
+    		}
+    	}else { // clubbingState == CLUBBING_STATE.PARENT
+    		boolean isHavingIllegalChild = 
+        			Question.isHavingIllegalChild(question);
+        		if(isHavingIllegalChild) {
+        			throw new ELSException(
+        					"Question.onUnstarredMinistryChangeCommon/2", 
+            				"Question has clubbings which are still in the" +
+            				" approval workflow. Group change is not allowed" +
+            				" in such an inconsistent state.");
+        		}
+        		else {
+        			if(qnState == UNSTARRED_STATE.PRE_WORKFLOW) {
+        				/*
+//        				 * Change parent's status to GROUP_CHANGED.
+//        				 */
+//        				question.setInternalStatus(GROUP_CHANGED);
+//            			question.setRecommendationStatus(GROUP_CHANGED);
+//            			question.merge();
+//            			
+//            			/* Parent's group & related information 
+//        				 * has already changed. Perform the same on Kids.
+//        				 */
+//            			Group group = question.getGroup();
+            			Ministry ministry = question.getMinistry();
+            			SubDepartment subDepartment = question.getSubDepartment();
+            			
+            			List<Question> clubbings = Question.findClubbings(question);
+            			for(Question kid : clubbings) {
+//            				kid.setGroup(group);
+            				kid.setMinistry(ministry);
+            				kid.setSubDepartment(subDepartment);           			
+                			kid.merge();
+            			}
+            		}
+            		else if(qnState == UNSTARRED_STATE.IN_WORKFLOW_AND_PRE_FINAL) {
+            			/*
+        				 * Stop the question's workflow
+        				 */
+        				WorkflowDetails wfDetails = 
+            				WorkflowDetails.findCurrentWorkflowDetail(question);
+            			WorkflowDetails.endProcess(wfDetails);
+            			question.removeExistingWorkflowAttributes();
+            			
+            			/*
+        				 * Change parent's status to GROUP_CHANGED.
+        				 */
+//        				question.setInternalStatus(GROUP_CHANGED);
+//            			question.setRecommendationStatus(GROUP_CHANGED);
+//            			question.merge();
+//            			
+//            			/* Parent's group & related information 
+//        				 * has already changed. Perform the same on Kids.
+//        				 */
+//            			Group group = question.getGroup();
+            			Ministry ministry = question.getMinistry();
+            			SubDepartment subDepartment = question.getSubDepartment();
+            			
+            			List<Question> clubbings = Question.findClubbings(question);
+            			for(Question kid : clubbings) {
+//            				kid.setGroup(group);
+            				kid.setMinistry(ministry);
+            				kid.setSubDepartment(subDepartment);           			
+                			kid.merge();
+            			}
+            		}
+            		else if(qnState == 
+            			UNSTARRED_STATE.POST_FINAL_AND_PRE_YAADI_LAID) {
+            			/*
+        				 * Stop the question's workflow
+        				 */
+        				WorkflowDetails wfDetails = 
+            				WorkflowDetails.findCurrentWorkflowDetail(question);
+        				String userGroupType = wfDetails.getAssigneeUserGroupType();
+            			// Before ending wfDetails process collect information
+            			// which will be useful for creating a new process later.
+            			String workflowType = wfDetails.getWorkflowType();
+            			Integer assigneeLevel = 
+            				Integer.parseInt(wfDetails.getAssigneeLevel());
+            			
+            			WorkflowDetails.endProcess(wfDetails);
+            			question.removeExistingWorkflowAttributes();
+            			
+            			/*
+            			 * Change recommendation status to final (internal) status.
+            			 */
+            			Status internalStatus = question.getInternalStatus();
+            			question.setRecommendationStatus(internalStatus);
+            			question.merge();
+            			
+            			/* Parent's group & related information 
+        				 * has already changed. Perform the same on Kids.
+        				 */
+            			Group group = question.getGroup();
+            			Ministry ministry = question.getMinistry();
+            			SubDepartment subDepartment = question.getSubDepartment();
+            			
+            			List<Question> clubbings = Question.findClubbings(question);
+            			for(Question kid : clubbings) {
+            				kid.setGroup(group);
+            				kid.setMinistry(ministry);
+            				kid.setSubDepartment(subDepartment);           			
+                			kid.merge();
+            			}
+            			
+   			
+            			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+            				userGroupType = ApplicationConstants.DEPARTMENT;
+            				assigneeLevel = assigneeLevel - 1;
+            			}
+            			/*
+        				 * Start the workflow at Assistant (after Speaker) level.
+        				 */
+            			WorkflowDetails.startProcessAtGivenLevel(question, 
+            					workflowType, internalStatus, 
+            					userGroupType, assigneeLevel, 
+            					locale);
+            		}
+        		}
+    	}
 		
 	}
 
@@ -13010,9 +13191,190 @@ public class Question extends Device implements Serializable {
 
 
 	private static void onUnstarredMinistryChange(Question question,
-			Ministry prevMinistry) {
-		// TODO Auto-generated method stub
-		
+			Ministry prevMinistry) throws ELSException {
+		String locale = question.getLocale();
+		CLUBBING_STATE clubbingState = Question.findClubbingState(question);
+    	UNSTARRED_STATE qnState = Question.findUnstarredState(question);
+    	
+    	if(clubbingState == CLUBBING_STATE.CLUBBED) {
+    		throw new ELSException("Question.onUnStarredGroupChangeLH/2", 
+    				"Clubbed Question's group cannot be changed." +
+    				" Unclub the question and then change the group.");
+    	}else if(clubbingState == CLUBBING_STATE.STANDALONE) {
+    		if(qnState == UNSTARRED_STATE.PRE_WORKFLOW) {
+    			// Change status to "GROUP_CHANGED"
+//    			question.setInternalStatus(GROUP_CHANGED);
+//    			question.setRecommendationStatus(GROUP_CHANGED);
+//    			question.merge();
+    		}
+    		else if(qnState == UNSTARRED_STATE.IN_WORKFLOW_AND_PRE_FINAL) {
+    			// Stop the workflow
+//    			WorkflowDetails wfDetails = 
+//    				WorkflowDetails.findCurrentWorkflowDetail(question);
+//    			WorkflowDetails.endProcess(wfDetails);
+//    			question.removeExistingWorkflowAttributes();
+//    			
+//    			// Change status to "GROUP_CHANGED"
+//    			question.setInternalStatus(GROUP_CHANGED);
+//    			question.setRecommendationStatus(GROUP_CHANGED);
+//    			question.merge();
+    		}
+    		else if(qnState == UNSTARRED_STATE.POST_FINAL_AND_PRE_YAADI_LAID) {
+    			/*
+    			 * Stop the workflow
+    			 */
+    			WorkflowDetails wfDetails = 
+    				WorkflowDetails.findCurrentWorkflowDetail(question);
+    			
+    			// Before ending wfDetails process collect information
+    			// which will be useful for creating a new process later.
+    			String workflowType = wfDetails.getWorkflowType();
+    			Integer assigneeLevel = 
+    				Integer.parseInt(wfDetails.getAssigneeLevel());
+    			String userGroupType = wfDetails.getAssigneeUserGroupType();
+    			WorkflowDetails.endProcess(wfDetails);
+    			question.removeExistingWorkflowAttributes();
+    			
+    			/*
+    			 * Change recommendation status to final (internal) status.
+    			 */
+    			Status internalStatus = question.getInternalStatus();
+
+    			/*
+    			 * Conditional invocation of Chart.groupChange/3
+    			 */
+    			
+    			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+    				userGroupType = ApplicationConstants.DEPARTMENT;
+    				assigneeLevel = assigneeLevel - 1;
+    			}
+    			/*
+    			 * Start the workflow at Assistant (after Speaker) level.
+    			 */
+    			WorkflowDetails.startProcessAtGivenLevel(question, 
+    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+    					userGroupType, assigneeLevel, 
+    					locale);
+    		}
+    	}else { // clubbingState == CLUBBING_STATE.PARENT
+    		boolean isHavingIllegalChild = 
+        			Question.isHavingIllegalChild(question);
+        		if(isHavingIllegalChild) {
+        			throw new ELSException(
+        					"Question.onUnstarredMinistryChangeCommon/2", 
+            				"Question has clubbings which are still in the" +
+            				" approval workflow. Group change is not allowed" +
+            				" in such an inconsistent state.");
+        		}
+        		else {
+        			if(qnState == UNSTARRED_STATE.PRE_WORKFLOW) {
+        				/*
+//        				 * Change parent's status to GROUP_CHANGED.
+//        				 */
+//        				question.setInternalStatus(GROUP_CHANGED);
+//            			question.setRecommendationStatus(GROUP_CHANGED);
+//            			question.merge();
+//            			
+//            			/* Parent's group & related information 
+//        				 * has already changed. Perform the same on Kids.
+//        				 */
+//            			Group group = question.getGroup();
+            			Ministry ministry = question.getMinistry();
+            			SubDepartment subDepartment = question.getSubDepartment();
+            			
+            			List<Question> clubbings = Question.findClubbings(question);
+            			for(Question kid : clubbings) {
+//            				kid.setGroup(group);
+            				kid.setMinistry(ministry);
+            				kid.setSubDepartment(subDepartment);           			
+                			kid.merge();
+            			}
+            		}
+            		else if(qnState == UNSTARRED_STATE.IN_WORKFLOW_AND_PRE_FINAL) {
+            			/*
+        				 * Stop the question's workflow
+        				 */
+        				WorkflowDetails wfDetails = 
+            				WorkflowDetails.findCurrentWorkflowDetail(question);
+            			WorkflowDetails.endProcess(wfDetails);
+            			question.removeExistingWorkflowAttributes();
+            			
+            			/*
+        				 * Change parent's status to GROUP_CHANGED.
+        				 */
+//        				question.setInternalStatus(GROUP_CHANGED);
+//            			question.setRecommendationStatus(GROUP_CHANGED);
+//            			question.merge();
+//            			
+//            			/* Parent's group & related information 
+//        				 * has already changed. Perform the same on Kids.
+//        				 */
+//            			Group group = question.getGroup();
+            			Ministry ministry = question.getMinistry();
+            			SubDepartment subDepartment = question.getSubDepartment();
+            			
+            			List<Question> clubbings = Question.findClubbings(question);
+            			for(Question kid : clubbings) {
+//            				kid.setGroup(group);
+            				kid.setMinistry(ministry);
+            				kid.setSubDepartment(subDepartment);           			
+                			kid.merge();
+            			}
+            		}
+            		else if(qnState == 
+            			UNSTARRED_STATE.POST_FINAL_AND_PRE_YAADI_LAID) {
+            			/*
+        				 * Stop the question's workflow
+        				 */
+        				WorkflowDetails wfDetails = 
+            				WorkflowDetails.findCurrentWorkflowDetail(question);
+        				String userGroupType = wfDetails.getAssigneeUserGroupType();
+            			// Before ending wfDetails process collect information
+            			// which will be useful for creating a new process later.
+            			String workflowType = wfDetails.getWorkflowType();
+            			Integer assigneeLevel = 
+            				Integer.parseInt(wfDetails.getAssigneeLevel());
+            			
+            			WorkflowDetails.endProcess(wfDetails);
+            			question.removeExistingWorkflowAttributes();
+            			
+            			/*
+            			 * Change recommendation status to final (internal) status.
+            			 */
+            			Status internalStatus = question.getInternalStatus();
+            			question.setRecommendationStatus(internalStatus);
+            			question.merge();
+            			
+            			/* Parent's group & related information 
+        				 * has already changed. Perform the same on Kids.
+        				 */
+            			Group group = question.getGroup();
+            			Ministry ministry = question.getMinistry();
+            			SubDepartment subDepartment = question.getSubDepartment();
+            			
+            			List<Question> clubbings = Question.findClubbings(question);
+            			for(Question kid : clubbings) {
+            				kid.setGroup(group);
+            				kid.setMinistry(ministry);
+            				kid.setSubDepartment(subDepartment);           			
+                			kid.merge();
+            			}
+            			
+   			
+            			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+            				userGroupType = ApplicationConstants.DEPARTMENT;
+            				assigneeLevel = assigneeLevel - 1;
+            			}
+            			/*
+        				 * Start the workflow at Assistant (after Speaker) level.
+        				 */
+            			WorkflowDetails.startProcessAtGivenLevel(question, 
+            					workflowType, internalStatus, 
+            					userGroupType, assigneeLevel, 
+            					locale);
+            		}
+        		}
+    	}
 	}
 
 
