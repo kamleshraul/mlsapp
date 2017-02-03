@@ -1,5 +1,6 @@
 package org.mkcl.els.repository;
 
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -2217,18 +2218,20 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		return highlightedText;
 	}
 
-	/*public ReferencedEntity findReferencedEntity(Resolution domain) {
-		String strQuery = "SELECT id FROM referenced_entities WHERE device=:resolutionId";
+	public ReferencedEntity findReferencedEntity(Resolution domain) {
+		String strQuery = "SELECT re.id FROM referenced_entities re "
+				+ "			JOIN resolutions ro ON (re.id=ro.referenced_resolution)"
+				+ "         WHERE ro.id=:resolutionId";
 		Query query = this.em().createNativeQuery(strQuery);
 		query.setParameter("resolutionId", domain.getId());
 		try{
-		Long referencedEntityId = (Long) query.getSingleResult();
-		ReferencedEntity referencedEntity = ReferencedEntity.findById(ReferencedEntity.class, referencedEntityId);
+		BigInteger referencedEntityId = (BigInteger) query.getSingleResult();
+		ReferencedEntity referencedEntity = ReferencedEntity.findById(ReferencedEntity.class, Long.parseLong(referencedEntityId.toString()));
 		return referencedEntity;
 		}catch(Exception e){
 			return null;
 		}
-	}*/
+	}
 
 	
 }
