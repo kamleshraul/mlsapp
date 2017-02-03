@@ -1562,7 +1562,7 @@ public class QuestionWorkflowController  extends BaseController{
 					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
 							&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
 									|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
-							&& domain.getAnswer()!=null && domain.getAnswerReceivedDate()==null) {					
+							&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() && domain.getAnswerReceivedDate()==null) {					
 						domain.setAnswerReceivedDate(new Date());
 					}
 				}						
