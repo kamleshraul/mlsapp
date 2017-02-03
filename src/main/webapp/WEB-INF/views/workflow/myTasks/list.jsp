@@ -104,6 +104,10 @@
 			$(".sentBackTasksReport").click(function(e){
 				sentBackTasksReport();
 			});
+			
+			$("#departmentStatementReport").click(function(e){
+				generateDepartmentStatementReport();
+			});
 		});
 	</script>
 	<style type="text/css">
@@ -172,6 +176,11 @@
 					&nbsp; &nbsp;<input type="text" class="sText datetimemask" id="sumRepToDate" style="display: inline;width:115px">
 					<div id="goResolutionRep" style="display: inline; border: 2px solid black; width: 10px; height: 10px;">Go</div>
 				 </div>
+			 </security:authorize>
+			 <security:authorize access="hasAnyRole('QIS_DEPARTMENT_USER')">
+				 <a href="javascript:void(0);" id="departmentStatementReport" class="butSim">
+					<spring:message code="resolution.departmentStatementReport" text="Department Statement"/>
+				 </a>
 			 </security:authorize>
 			 <br>
 			 <hr>

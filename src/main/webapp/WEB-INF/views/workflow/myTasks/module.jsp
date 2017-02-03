@@ -801,7 +801,23 @@
 			});
 		}
 		
-		
+		function generateDepartmentStatementReport(){
+			$.get('ref/sessionbyparametername?houseType='+$("#selectedHouseType").val() +
+					'&sessionType=' + $("#selectedSessionType").val() + 
+					'&year=' + $("#selectedSessionYear").val(),function(data){
+				
+				if(data){
+					
+					var url = "question/report/generalreport?sessionId=" + data.id
+					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+					+ "&assignee=" + $("#authusername").val()
+					+ "&locale=mr_IN" 
+					+ "&reportout=question_department_statement_report"
+					+ "&report=QIS_DEPARTMENT_STATEMENT_REPORT";
+					showTabByIdAndUrl('details_tab', url);
+				}
+			});
+		}
 		
 		
 		
