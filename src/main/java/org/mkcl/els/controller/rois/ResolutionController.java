@@ -1253,7 +1253,7 @@ public class ResolutionController extends GenericController<Resolution> {
 					List<Reference> refentities=new ArrayList<Reference>();
 					List<String> refentitiesSessionDevice = new ArrayList<String>();
 					
-					ReferencedEntity referencedResolution= domain.getReferencedResolution();//Resolution.findReferencedEntity(domain);//domain.getReferencedResolution();
+					ReferencedEntity referencedResolution = Resolution.findReferencedEntity(domain);//domain.getReferencedResolution();
 					if(referencedResolution!=null){
 						
 						Reference reference=new Reference();
