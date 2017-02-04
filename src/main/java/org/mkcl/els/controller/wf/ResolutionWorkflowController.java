@@ -1808,9 +1808,8 @@ public class ResolutionWorkflowController extends BaseController{
 						}else{
 							bulkApprovalVO.setSubject(resolution.getNoticeContent());
 						}
-						
-						if(resolution.getReferencedResolution() != null){
-							ReferencedEntity referencedEntity = resolution.getReferencedResolution();
+						ReferencedEntity referencedEntity = Resolution.findReferencedEntity(resolution);
+						if(referencedEntity != null){
 							Resolution refResolution = (Resolution) referencedEntity.getDevice();
 							bulkApprovalVO.setFormattedReferencedNumbers(refResolution.getNumber().toString());
 						}
