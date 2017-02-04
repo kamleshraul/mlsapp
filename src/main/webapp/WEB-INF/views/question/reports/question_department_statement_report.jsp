@@ -97,12 +97,11 @@
 								<th style="text-align: center; font-size: 12px; width: 60px;">${topHeader[1]}</th>
 								<th style="text-align: center; font-size: 12px; width: 200px;">${topHeader[2]}</th>
 								<th style="text-align: center; font-size: 12px; width: 250px;">${topHeader[3]}</th>
-								<th style="text-align: center; font-size: 12px; width: 90px">${topHeader[4]}</th>
-								<th style="text-align: center; font-size: 12px; width: 90px">${topHeader[5]}</th>
-								<th style="text-align: center; font-size: 12px; width: 90px">${topHeader[6]}</th>
-								<th style="text-align: center; font-size: 12px; width: 90px">${topHeader[7]}</th>					
+								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[4]}</th>
+								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[5]}</th>
+								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[6]}</th>
+								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[7]}</th>					
 							</tr>
-						
 							<tr>
 								<td colspan="8">&nbsp;</td>
 							</tr>
@@ -110,21 +109,37 @@
 						<tbody>
 							<c:set var="countingVar" value="0"/>
 							<c:set var="deskOfficerDisplayed" value="no"/>
+							<c:set var="questionDisplayed" value="no"/>
 							<c:forEach items="${report}" var="r" varStatus="counter" >
 								<c:if test="${counter.index==countingVar}">
-									<c:set var="srNo" value="${formater.formatNumberNoGrouping(counter.count, locale)}"/>
-									<c:set var="formattedNumber" value="${formater.formatNumberNoGrouping(r[2], locale)}"/>
-									<c:set var="member" value="${r[4]}"/>
-									<c:set var="subject" value="${r[5]}"/>
-									<c:set var="lastDepartmentAnsweringDate" value="${r[8]}"/>
-									<c:set var="answeringDate" value="${r[9]}"/>
-									<c:set var="formattedActor" value="${r[10]}"/>
-									<c:set var="answeringStatus" value="${r[7]}"/>
-									<c:set var="actor" value="${fn:split(r[10], '#')}" />
+									<c:set var="deskOfficerDisplayed" value="no"/>
 									<c:set var="countVar" value="${countingVar}"/>
 									<c:forEach items = "${report}" begin="${countVar}" end ="${report.size()}" var="j" varStatus="innerCount">
 										<c:if test="${r[2]==j[2]}">
+											<c:set var="questionDisplayed" value="no"/>
 											<c:if test="${j[6]=='department_deskofficer' && deskOfficerDisplayed=='no'}">
+												<tr>
+													<td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
+													<td style="text-align: left; font-size: 12px; width: 60px;">${formater.formatNumberNoGrouping(r[2], locale)}</td>
+													<td style="text-align: center; font-size: 12px; width: 200px;">${r[4]}</td>
+													<td style="text-align: center; font-size: 12px; width: 250px;">${r[5]}</td>
+													<td style="text-align: justify; font-size: 12px; width: 90px;">${r[8]}</td>
+													<td style="text-align: left; font-size: 12px; width: 90px;">${r[9]}</td>
+													<td style="text-align: justify; font-size: 12px; width: 90px;">
+														${j[3]}
+														<c:set var="countingVar" value="${innerCount.index}"/>
+														<c:set var="deskOfficerDisplayed" value="yes"/>
+														<c:set var="questionDisplayed" value="yes"/>
+													</td>
+													<td style="text-align: left; font-size: 12px; width: 90px;">${r[7]}</td>
+												</tr>
+											</c:if>
+											<c:set var="countingVar" value="${innerCount.index+1}"/>
+										</c:if>
+									</c:forEach>
+									<c:if test="${deskOfficerDisplayed=='no' }">
+										<c:if test="${questionDisplayed=='no'}">
+											<tr>
 												<td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
 												<td style="text-align: left; font-size: 12px; width: 60px;">${formater.formatNumberNoGrouping(r[2], locale)}</td>
 												<td style="text-align: center; font-size: 12px; width: 200px;">${r[4]}</td>
@@ -132,33 +147,29 @@
 												<td style="text-align: justify; font-size: 12px; width: 90px;">${r[8]}</td>
 												<td style="text-align: left; font-size: 12px; width: 90px;">${r[9]}</td>
 												<td style="text-align: justify; font-size: 12px; width: 90px;">
-													${j[3]}
-													<c:set var="countingVar" value="${innerCount.index}"/>
-													<c:set var="deskOfficerDisplayed" value="yes"/>
+													<c:choose>
+														<c:when test="${r[10]!=null && r[10]!='' }">
+															<c:set var="actor" value="${fn:split(r[10], '#')}" />
+															<c:choose>
+																<c:when test="${actor[1]=='department' or actor[1]=='department_deskofficer'}">
+																	${actor[4]}
+																</c:when>
+																<c:otherwise>
+																	-
+																</c:otherwise>
+															</c:choose>
+														</c:when>
+														<c:otherwise>
+															
+														</c:otherwise>
+													</c:choose>
 												</td>
 												<td style="text-align: left; font-size: 12px; width: 90px;">${r[7]}</td>
-											</c:if>
+											</tr>
+											<c:set var="questionDisplayed" value="yes"/>
 										</c:if>
-									</c:forEach>
+									</c:if> 
 								</c:if>
-								<c:if test="${deskOfficerDisplayed=='no' }">
-									<c:set var="countingVar" value="${counter.index+1}"/>
-								</c:if>
-								<%-- <tr>
-									<td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
-									<td style="text-align: left; font-size: 12px; width: 60px;">${formater.formatNumberNoGrouping(r[2], locale)}</td>
-									<td style="text-align: center; font-size: 12px; width: 200px;">${r[4]}</td>
-									<td style="text-align: center; font-size: 12px; width: 250px;">${r[5]}</td>
-									<td style="text-align: justify; font-size: 12px; width: 90px;">${r[8]}</td>
-									<td style="text-align: left; font-size: 12px; width: 90px;">${r[9]}</td>
-									<td style="text-align: justify; font-size: 12px; width: 90px;">
-									<c:set var="actor" value="${fn:split(r[10], '#')}" />
-										${actor[4]}
-									</td>
-									<td style="text-align: left; font-size: 12px; width: 90px;">${r[7]}</td>					
-								</tr> --%>
-								 
-								<c:set var="number" value="${r[2]}" />
 							</c:forEach>
 						</tbody>
 					</table>
