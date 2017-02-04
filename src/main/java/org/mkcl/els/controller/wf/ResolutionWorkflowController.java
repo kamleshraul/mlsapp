@@ -165,8 +165,8 @@ public class ResolutionWorkflowController extends BaseController{
 			final HttpServletRequest request,final WorkflowDetails workflowDetails) throws Exception {
 		/**** In case of bulk edit we can update only few parameters ****/
 		model.addAttribute("bulkedit",request.getParameter("bulkedit"));
-		
-		if(domain.getReferencedResolution() != null){
+		ReferencedEntity referencedResolution = Resolution.findReferencedEntity(domain);
+		if(referencedResolution != null){
 			model.addAttribute("isRepeatWorkFlow", "yes");
 		}else{
 			model.addAttribute("isRepeatWorkFlow", "no");
@@ -509,7 +509,7 @@ public class ResolutionWorkflowController extends BaseController{
 		/**** Referenced Resolution are collected in refentities****/
 		List<Reference> refentities=new ArrayList<Reference>();
 		List<String> refentitiesSessionDevice = new ArrayList<String>();
-		ReferencedEntity referencedResolution=domain.getReferencedResolution();
+		
 		if(referencedResolution!=null){
 			
 			Reference reference=new Reference();
