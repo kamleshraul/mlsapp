@@ -5,15 +5,24 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<script type="text/javascript">
 	var contentKey="";
-	var isBookmarkPart=false;
-	var isBookmarkCtrl = false;
-	var isBookmarkShift = false;
+	var isPart=false;
+	var isCtrl = false;
+	var isShift = false;
 	var divCount='';
+	
 	$(document).ready(function(){	
 		tinymce.remove();
 		 var maxPageCount = 2272;
 		 var enterCount = 22;
 		 var pageCount =  maxPageCount;
+		 $("#partCount").val(1);
+		 var partCount = $("#partCount").val(); 
+		 var pCount = 22;
+		 if(countLines()>2){
+			 pCount = countLines() + 20;
+			 
+		 }
+		 var pageCounter = parseInt("1");
 		tinyMCE.init({
 	    	  selector: 'div#bkproceedingReportDiv',
 	    	  elements : "bkproceedingReportDiv",
@@ -26,13 +35,14 @@
 	    	  nonbreaking_force_tab: true,
 	    	  entity_encoding : "raw",
 	    	  plugins: [
-	    	    'advlist autolink lists link image charmap print preview hr anchor pagebreak',
-	    	    'searchreplace wordcount visualblocks visualchars code fullscreen',
-	    	    'insertdatetime media nonbreaking  table contextmenu directionality',
-	    	    'emoticons template paste textcolor colorpicker textpattern imagetools lineheight'
-	    	  ],
-	    	  toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image |fontselect fontsizeselect| lineheightselect',
-	    	  toolbar2: 'print preview media | forecolor backcolor emoticons|fullscreen',
+			    	    'print',
+			    	    'searchreplace wordcount fullscreen noneditable' ,
+			    	    'nonbreaking  table pagebreak',
+			    	    'template paste textpattern'
+			    	  ],
+	    	  noneditable_noneditable_class: "nonEditable",
+	    	  toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist ',
+	    	  toolbar2: 'print|fullscreen',
 	    	  image_advtab: true,
 	    	  templates:"ref/proceedingCitation",
 	    	  fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
@@ -47,89 +57,133 @@
 	    			                   {title : 'Line height 30px', selector : 'p,div,h1,h2,h3,h4,h5,h6', styles: {lineHeight: '30px'}}
 	    			           ]
 	    		  });
-	    		  
-	    		// On key up   
+	    		  // On key up   
 		    		 bkproceedingReportDiv.on('keyup', function(e) 
-		    	    {
-		    			 top.tinymce.activeEditor.notificationManager.close();
-		    			 var enteredText = tinyMCE.activeEditor.getContent({format : 'text'});
-		    			 numberOfLineBreaks = (enteredText.match(/\n/g)||[]).length;
-		    			 characterCount = enteredText.length + numberOfLineBreaks;
-		    			
-		    			 if(characterCount >= pageCount){
-		    				proceedingReportDiv.execCommand('mcePageBreak',true,this,this);
-		    				//tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>");
-		    				$(".pageBreakDiv").css("display","block");
-		    				pageCount = pageCount + maxPageCount;
+		    	    {	
+		    			 $("#partContent"+$("#partCount").val()).val(tinyMCE.activeEditor.getContent());
+		    			 var element = document.getElementById("bkproceedingReportDiv");
+		    			 var offset = getCaretCharacterOffsetWithin(element);//$(this).offset();
+		    			 console.log(offset);
+		    			 /* console.log("left" + $(this).offset().left);
+		    			 console.log("top" + $(this).offset().top); */
+		    			 var lineCounter = countLines();
+		    			 var lineCount = 0;
+		    			 if(lineCounter > pCount){
+		    				 	lineCount = lineCounter -1;
+			    				pageCounter = parseInt(pageCounter) + 1;
+			    				$("#pageCounter").val(pageCounter);
+			    				var headerText = "<table class='headerTable nonEditable'>"
+		    						+"<tbody>"
+		    						+"<tr>"
+		    							+"<td style='font-size: 18pt;text-align:left;'>"+$("#currentSlotStartDate").html()+"</td>"
+		    							+"<td style='font-size: 18pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>"
+		    							+"<td class='slotTD' style='font-size: 18pt;text-align:right;' width='200px'>"+$("#slotName").html()+" - "+$("#pageCounter").val()+"</td>"
+		    						+"</tr>"
+		    						+"<tr>"
+		    							+"<td style='font-size: 12pt;text-align:left;'>"+$("#languageReporter").html()+"</td>";
+		    							if($("#previousReporter").html()!='' && $("#previousReporter").html()!= null){
+		    								headerText = headerText + "<td style='font-size: 18pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> "+$("#previousReporter").html()+"</td>"; 
+		    							}else{
+		    								headerText = headerText + "<td style='font-size: 18pt;text-align:center;'></td>";
+		    							}
+		    							
+		    							headerText = headerText +"<td style='font-size: 18pt;text-align:right;'>"+$("#currenSlotStartTime").html()+"</td>"
+		    						+"</tr>"
+		    					+"</thead>"
+		    					+"</table>";
+			    				tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv nonEditable' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div>"+ headerText+"<span>&nbsp;</span>");
+			    				$(".pageBreakDiv").css("display","block");
+			    				var slotTDCounter = 1;
+					        	$(".slotTD").each(function(){
+					        		$(this).html($("#slotNameTitle").val() + "-" +slotTDCounter);
+					        		slotTDCounter = parseInt(slotTDCounter) + 1;
+					        	}); 
+					        	pCount = lineCount + pCount;
 		    			 }
-		    			
-						 var keyCode = e.keyCode || e.which; 
-						 /* if (keyCode == 9) { 
-							e.preventDefault(); 
-							tinyMCE.activeEditor.execCommand('mceInsertContent', false, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-						} */
-					    	
+		    			 top.tinymce.activeEditor.notificationManager.close();
+		    			 var keyCode = e.keyCode || e.which; 
+											    	
 				    	if (e.ctrlKey  || e.metaKey) {
 				    	    if(e.ctrlKey && keyCode == 13){
-					        	tinyMCE.activeEditor.execCommand('mcePageBreak',true,this,this);
-					        	//tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div class='pageBreakDiv' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div><br>");
-					        	//tinyMCE.activeEditor.execCommand('mceInsertContent', false,$(".pageBreakDiv").clone() + "<br>");
-					        	$(".pageBreakDiv").css("display","block");
-					        	pageCount = pageCount + maxPageCount;
+				    	    	lineCount = lineCounter -1;
+				    	    	pageCounter = parseInt(pageCounter) + 1;
+		    					$("#pageCounter").val(pageCounter);
+		    					var headerText = "<table class='headerTable nonEditable'>"
+		    						+"<tbody>"
+		    						+"<tr>"
+		    							+"<td style='font-size: 18pt;text-align:left;'>"+$("#currentSlotStartDate").html()+"</td>"
+		    							+"<td style='font-size: 18pt;text-align:center;' width='800px'><spring:message code='part.generalNotice' text='Un edited Copy'/></td>"
+		    							+"<td class='slotTD' style='font-size: 18pt;text-align:right;' width='200px'>"+$("#slotName").html()+"-"+$("#pageCounter").val()+"</td>"
+		    						+"</tr>"
+		    						+"<tr>"
+		    							+"<td style='font-size: 18pt;text-align:left;'>"+$("#languageReporter").html()+"</td>";
+		    							if($("#previousReporter").html()!='' && $("#previousReporter").html()!= null){
+		    								headerText = headerText + "<td style='font-size: 18pt;text-align:center;'><spring:message code='part.previousReporterMessage' text='Previous Reporter'/> "+$("#previousReporter").html()+"</td>"; 
+		    							}else{
+		    								headerText = headerText + "<td style='font-size: 18pt;text-align:center;'></td>";
+		    							}
+		    							
+		    							headerText = headerText +"<td style='font-size: 18pt;text-align:right;'>"+$("#currenSlotStartTime").html()+"</td>"
+		    						+"</tr>"
+		    					+"</thead>"
+		    					+"</table>";
+					        	tinyMCE.activeEditor.execCommand('mceInsertContent', false, "<div id='pageBreakDiv' class='pageBreakDiv nonEditable' style='page-break-before: always; width: 100%; border: 1px dotted; font-size: 20px; height: 20px; text-align: center; background-color: mediumturquoise;'>Page Break</div>"+headerText+"<span>&nbsp;</span>");
+					        	var slotTDCounter = 1;
+					        	$(".slotTD").each(function(){
+					        		$(this).html($("#slotName").html() + "-" +slotTDCounter);
+					        		slotTDCounter = parseInt(slotTDCounter) + 1;
+					        	});
+					        	pCount = lineCount + pCount;
 					        }
 					    }
 				    	
 				    	if(e.which == 17) {
-							isBookmarkCtrl = false; 
+							isCtrl = false; 
 						}
 						if(e.which == 16) {
-							isBookmarkShift = false; 
+							isShift = false; 
 						}
 					});
 		    		   
 			    	// action on key down
 			    	 bkproceedingReportDiv.on('keydown',function(e) {
 			    		if(e.which == 17) {
-			    			isBookmarkCtrl = true;
+			    			isCtrl = true;
 			    		}
 			    		if(e.which == 16) {
-			    			isBookmarkShift = true;
+			    			isShift = true;
 			    		}
-			    		if(e.which == 69 && isBookmarkCtrl && isBookmarkShift) { 
+			    		if(e.which == 69 && isCtrl && isShift) { 
 			    			tinyMCE.activeEditor.execCommand('JustifyCenter',true,this,this);
-							isBookmarkCtrl = false; 
-							isBookmarkShift = false; 
-						}else if(e.which == 89 && isBookmarkCtrl && isBookmarkShift){
+							isCtrl = false; 
+							isCtrl = false; 
+						}else if(e.which == 89 && isCtrl && isShift){
 							tinyMCE.activeEditor.execCommand('JustifyLeft',true,this,this);
-							isBookmarkCtrl = false; 
-							isBookmarkShift = false; 
-						}else if(e.which == 79 && isBookmarkCtrl && isBookmarkShift){
+							isCtrl = false; 
+							isCtrl = false; 
+						}else if(e.which == 79 && isCtrl && isShift){
 							tinyMCE.activeEditor.execCommand('JustifyFull',true,this,this);
-							isBookmarkCtrl = false; 
-							isBookmarkShift = false; 
-						}else if(e.which == 88 && isBookmarkCtrl && isBookmarkShift){
+							isCtrl = false; 
+							isCtrl = false; 
+						}else if(e.which == 88 && isCtrl && isShift){
 							tinyMCE.activeEditor.execCommand('JustifyFull',true,this,this);
-							isBookmarkCtrl = false; 
-							isBookmarkShift = false; 
-						}else if(e.which == 85 && isBookmarkCtrl && isBookmarkShift){
+							isCtrl = false; 
+							isCtrl = false; 
+						}else if(e.which == 85 && isCtrl && isShift){
 							updatePart()
 						}else if(e.which == 112){
-							var textContent = tinyMCE.activeEditor.getContent({format : 'text'});
-							var pos = textContent.lastIndexOf(" ");
-							var length = textContent.length;
-							var res = textContent.substring(pos,length-1);
-							var mainContent=$("#autoFill option[value='"+res.trim()+"']").text();
+							var element = document.getElementById("bkproceedingReportDiv");
+							var word = getWordPrecedingCaret(element);
+							var mainContent=$("#"+word.trim()).html();
 							if(mainContent != '' && mainContent != null){
-								var formattedContent  = tinyMCE.activeEditor.getContent();
-								formattedContent = formattedContent.replace(res," " + mainContent);
-								tinyMCE.activeEditor.setContent(formattedContent);
+								tinyMCE.activeEditor.selection.select(tinymce.activeEditor.selection.getNode());
+								var formattedContent  = tinymce.activeEditor.selection.getContent();
+								formattedContent = formattedContent.replace(word," " + mainContent);
+								tinyMCE.activeEditor.selection.setContent(formattedContent);
 								tinyMCE.activeEditor.focus();
-							}
-						}else if(e.which ==80 && isBookmarkCtrl){
-							console.log("printing....");
-							$(".headerTable").css("display","block");
+							} 
 						}
-			    	}); 
+			    	});
 		     	 
 	     	  }   
  		
@@ -485,11 +539,15 @@
 	<input type="hidden" name="masterSlot" id="masterSlot"/>
 	<input type="hidden" name="proceeding" id="proceeding" value="${proceedingId}"/>
 	<input type="hidden" name="currentPart" id="currentPart" value = "${currentPart}" />
-	<input type="hidden" name = "masterPart" id="masterPart"/>
+	<input type="hidden" name="masterPart" id="masterPart"/>
 	<input type="hidden" name="isBookmarkPart" id="isBookmarkPart" value = "false" />
 	<input type="hidden" name="count" id="count" value="${count}"/>
 	<input type="hidden" name="bookmarkSize" id="bookmarkSize" value="${bookmarkSize}"/>
-	
+	<input type="hidden" name="currenSlotStartTime" id="currenSlotStartTime" />
+	<input type="hidden" name="currentSlotStartDate" id="currentSlotStartDate"/>
+	<!-- <input type="hidden" name="slotName" id="slotName"/> -->
+	<input type="hidden" name="languageReporter" id="languageReporter"/>
+	<input type="hidden" name="previousReporter" id="previousReporter"/>
 	</form:form>
 	<input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the motions.'></spring:message>" type="hidden">
 	<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
