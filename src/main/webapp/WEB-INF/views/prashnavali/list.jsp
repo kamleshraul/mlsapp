@@ -60,7 +60,7 @@
 <div>
 	<div class="commandbar">
 		<div class="commandbarContent">
-			<security:authorize access="hasAnyRole('CIS_ASSISTANT')">
+			<security:authorize access="hasAnyRole('CIS_ASSISTANT','CIS_MAIN_ASSISTANT')">
 				<a href="#" id="new_record" class="butSim">
 					<spring:message code="prashnavali.new" text="New"/>
 				</a> |
