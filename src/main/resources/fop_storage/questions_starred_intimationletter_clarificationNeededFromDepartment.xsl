@@ -140,7 +140,12 @@
 						<fo:block margin-left="1cm">
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">
-									&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरिनिर्दिष्ट प्रश्नाबाबतची वस्तुस्थिती या सचिवायलास त्वरीत कळवावी अशी विनंती आहे.
+									&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<fo:inline font-weight="bold">उपरिनिर्दिष्ट प्रश्नाबाबतची वस्तुस्थिती</fo:inline> या सचिवायलास
+									<fo:inline font-weight="bold">त्वरीत									
+									<xsl:if test="boolean(daysCountForReceivingClarificationFromDepartment)">
+										<xsl:value-of select="daysCountForReceivingClarificationFromDepartment"/> दिवसात
+									</xsl:if>							
+									कळवावी</fo:inline> अशी विनंती आहे.
 								</xsl:when>
 								<xsl:when test="houseType='upperhouse'">
 									&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरिनिर्दिष्ट प्रश्नाबाबत खाली नमूद केलेल्या क्रमांक <xsl:value-of select="questionIndexesForClarification"/> वरील मुद्द्याबाबतची माहिती, या सचिवायलास त्वरीत कळवावी अशी विनंती आहे.
@@ -151,12 +156,31 @@
 						</fo:block>	
 						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block margin-left="1cm">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;सदरहू प्रश्न  स्वीकृत करण्यासारख्या आहे की नाही हे ठरविण्यासाठी ही माहिती आवश्यक असून ती हे पत्र मिळाल्यापासून चार दिवसांच्या आत या सचिवालयास कळवावी. 
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;सदरहू प्रश्न  स्वीकृत करण्यासारख्या आहे की नाही हे ठरविण्यासाठी ही माहिती आवश्यक असून ती हे पत्र मिळाल्यापासून
+							 <xsl:choose>
+								<xsl:when test="boolean(daysCountForReceivingClarificationFromDepartment)">
+									<xsl:value-of select="daysCountForReceivingClarificationFromDepartment"/> दिवसांच्या आत
+								</xsl:when>
+								<xsl:otherwise>
+									चार दिवसांच्या आत
+								</xsl:otherwise>
+							</xsl:choose>
+							या सचिवालयास कळवावी. 
 							उक्त अवधीत आपणाकडून माहिती न आल्यास, प्रश्न स्वीकृत होऊन तो शासनाकडे उत्तरासाठी पाठविला जाण्याची शक्यता आहे 												
 						</fo:block>
 						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block margin-left="1cm">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;सदरहू प्रश्न  स्वीकृत झाल्यास, तो दिनांक __________ रोजी उत्तरासाठी ठेवण्यात येईल.												
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+							सदरहू प्रश्न  स्वीकृत झाल्यास, तो दिनांक
+							<xsl:choose>
+								<xsl:when test="boolean(answeringDate)">
+									<xsl:value-of select="answeringDate"/>
+								</xsl:when>
+								<xsl:otherwise>
+									__________
+								</xsl:otherwise>
+							</xsl:choose>
+							रोजी उत्तरासाठी ठेवण्यात येईल.									
 						</fo:block>
 							
 						<fo:block font-size="6px">&#160;</fo:block>		

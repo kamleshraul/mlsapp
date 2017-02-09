@@ -134,7 +134,16 @@
 								<xsl:when test="houseType='lowerhouse'">महाराष्ट्र विधानसभा नियम ७२ (२)</xsl:when>
 								<xsl:when test="houseType='upperhouse'">महाराष्‍ट्र विधानमंडळ नियमांतील नियम ७०(२)</xsl:when>
 							</xsl:choose>							
-							अन्वये तीस दिवसांच्‍या आत म्‍हणजे दिनांक __________ पावेतो या सचिवालयास पाठविण्‍यात यावे – 
+							अन्वये
+							<xsl:choose>
+								<xsl:when test="boolean(daysCountForReceivingAnswerFromDepartment)">
+									<xsl:value-of select="daysCountForReceivingAnswerFromDepartment"/>
+								</xsl:when>
+								<xsl:otherwise>
+									तीस
+								</xsl:otherwise>
+							</xsl:choose>
+							दिवसांच्‍या आत म्‍हणजे दिनांक __________ पावेतो या सचिवालयास पाठविण्‍यात यावे – 
 						</fo:block>	
 						<fo:block font-size="4px">&#160;</fo:block>				
 						<fo:block>

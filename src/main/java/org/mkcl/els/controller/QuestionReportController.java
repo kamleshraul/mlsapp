@@ -49,6 +49,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.NumberInfo;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
@@ -535,6 +536,42 @@ public class QuestionReportController extends BaseController{
 				} else {
 					letterVO.setFactualPosition("");
 				} 
+				
+				/**** days counts for clarification/answer ****/
+				NumberInfo daysCount = null;
+				/** daysCountForReceivingClarificationFromDepartment **/
+				CustomParameter csptDaysCountForReceivingClarificationFromDepartment = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_CLARIFICATION_FROM_DEPARTMENT, "");
+				if(csptDaysCountForReceivingClarificationFromDepartment!=null) {
+					String daysCountForReceivingClarificationFromDepartment = csptDaysCountForReceivingClarificationFromDepartment.getValue();
+					if(daysCountForReceivingClarificationFromDepartment!=null) {
+						daysCount = NumberInfo.findByFieldName(NumberInfo.class, "number", Long.parseLong(daysCountForReceivingClarificationFromDepartment), locale.toString());
+						if(daysCount!=null && daysCount.getId()!=null) {
+							letterVO.setDaysCountForReceivingClarificationFromDepartment(daysCount.getNumberText());
+						}
+					}					
+				}
+				/** daysCountForReceivingClarificationFromMember **/
+				CustomParameter csptDaysCountForReceivingClarificationFromMember = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_CLARIFICATION_FROM_MEMBER, "");
+				if(csptDaysCountForReceivingClarificationFromMember!=null) {
+					String daysCountForReceivingClarificationFromMember = csptDaysCountForReceivingClarificationFromMember.getValue();
+					if(daysCountForReceivingClarificationFromMember!=null) {
+						daysCount = NumberInfo.findByFieldName(NumberInfo.class, "number", Long.parseLong(daysCountForReceivingClarificationFromMember), locale.toString());
+						if(daysCount!=null && daysCount.getId()!=null) {
+							letterVO.setDaysCountForReceivingClarificationFromMember(daysCount.getNumberText());
+						}
+					}					
+				}
+				/** daysCountForReceivingAnswerFromDepartment **/
+				CustomParameter csptDaysCountForReceivingAnswerFromDepartment = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
+				if(csptDaysCountForReceivingAnswerFromDepartment!=null) {
+					String daysCountForReceivingAnswerFromDepartment = csptDaysCountForReceivingAnswerFromDepartment.getValue();
+					if(daysCountForReceivingAnswerFromDepartment!=null) {
+						daysCount = NumberInfo.findByFieldName(NumberInfo.class, "number", Long.parseLong(daysCountForReceivingAnswerFromDepartment), locale.toString());
+						if(daysCount!=null && daysCount.getId()!=null) {
+							letterVO.setDaysCountForReceivingAnswerFromDepartment(daysCount.getNumberText());
+						}
+					}					
+				}
 				
 				/**** populating fields for half-hour discussion from questions ****/
 				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {

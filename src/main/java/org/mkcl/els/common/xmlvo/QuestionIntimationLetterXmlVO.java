@@ -88,6 +88,12 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	private String referredQuestionYaadiNumber;
 	
 	private String referredQuestionYaadiLayingDate;
+	
+	private String daysCountForReceivingClarificationFromDepartment;
+	
+	private String daysCountForReceivingClarificationFromMember;
+	
+	private String daysCountForReceivingAnswerFromDepartment;
 
 	@XmlElement(name = "deviceType")
 	public String getDeviceType() {
@@ -443,6 +449,36 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 
 	public void setReferredQuestionYaadiLayingDate(String referredQuestionYaadiLayingDate) {
 		this.referredQuestionYaadiLayingDate = referredQuestionYaadiLayingDate;
+	}
+
+	@XmlElement(name = "daysCountForReceivingClarificationFromDepartment")
+	public String getDaysCountForReceivingClarificationFromDepartment() {
+		return daysCountForReceivingClarificationFromDepartment;
+	}
+
+	public void setDaysCountForReceivingClarificationFromDepartment(
+			String daysCountForReceivingClarificationFromDepartment) {
+		this.daysCountForReceivingClarificationFromDepartment = daysCountForReceivingClarificationFromDepartment;
+	}
+
+	@XmlElement(name = "daysCountForReceivingClarificationFromMember")
+	public String getDaysCountForReceivingClarificationFromMember() {
+		return daysCountForReceivingClarificationFromMember;
+	}
+
+	public void setDaysCountForReceivingClarificationFromMember(
+			String daysCountForReceivingClarificationFromMember) {
+		this.daysCountForReceivingClarificationFromMember = daysCountForReceivingClarificationFromMember;
+	}
+
+	@XmlElement(name = "daysCountForReceivingAnswerFromDepartment")
+	public String getDaysCountForReceivingAnswerFromDepartment() {
+		return daysCountForReceivingAnswerFromDepartment;
+	}
+
+	public void setDaysCountForReceivingAnswerFromDepartment(
+			String daysCountForReceivingAnswerFromDepartment) {
+		this.daysCountForReceivingAnswerFromDepartment = daysCountForReceivingAnswerFromDepartment;
 	}	
 
 }

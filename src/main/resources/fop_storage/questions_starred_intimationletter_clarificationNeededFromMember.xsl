@@ -137,7 +137,10 @@
 						<fo:block font-size="4px">&#160;</fo:block>
 						
 						<fo:block margin-left="1cm">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;आपल्या- उपरिनिर्दिष्ट प्रश्नाबाबत खाली नमूद केलेल्या क्रमांक <xsl:value-of select="questionIndexesForClarification"/> वरील मुद्द्याबाबत खुलासा करावा अशी विनंती आहे. 												
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;आपल्या- उपरिनिर्दिष्ट प्रश्नाबाबत खाली नमूद केलेल्या क्रमांक <xsl:value-of select="questionIndexesForClarification"/> वरील मुद्द्याबाबत
+							<fo:inline font-weight="bold">
+							<xsl:if test="boolean(daysCountForReceivingClarificationFromMember)">त्वरीत <xsl:value-of select="daysCountForReceivingClarificationFromMember"/> दिवसात</xsl:if>
+							खुलासा करावा अशी विनंती आहे.</fo:inline>
 						</fo:block>
 							
 						<fo:block font-size="4px">&#160;</fo:block>		
