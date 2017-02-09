@@ -1029,7 +1029,7 @@
 <input id="deviceType" value="${domain.type.type}" type="hidden" />
 <input id="isRepeatWorkFlow" type="hidden" value="${isRepeatWorkFlow}" />
 <input id="resolutionType" type="hidden" value="${selectedDeviceType}" />
-<input id="refResolutionEntity" type="hidden" value="${domain.referencedResolution.id}" />
+<input id="refResolutionEntity" type="hidden" value="${referencedEntityId}" />
 <input id="houseTypeType" type="hidden" value="${houseTypeForStatus }"/>
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 <input type="hidden" id="votingForPassingOfResolution" value="${votingFor}">

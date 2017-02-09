@@ -919,7 +919,7 @@
 				   <spring:message code="generic.details" text="Details"></spring:message>
 				</a>
 			</li>
-			<c:if test="${usergroupType!='department'}">
+			<c:if test="${usergroupType!='department' || usergroupType!='department_deskofficer'}">
 				<li>
 					<a id="bulkapproval_tab" href="#" class="tab">
 					   <spring:message code="generic.bulkputup" text="Bulk Putup"></spring:message>
@@ -1044,7 +1044,7 @@
 				</select>
 			</div> 
 			<hr>
-			<c:if test="${usergroupType!='department'}">
+			<c:if test="${usergroupType!='department' || usergroupType!='department_deskofficer'}">
 				<a href="#" id="select_itemcount" class="butSim">
 					<spring:message code="device.itemcount" text="No. of Devices(Bulk Putup)"/>
 				</a>
