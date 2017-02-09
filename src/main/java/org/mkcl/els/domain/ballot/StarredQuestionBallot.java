@@ -1,5 +1,6 @@
 package org.mkcl.els.domain.ballot;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +28,7 @@ import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
+import org.mkcl.els.domain.MemberBallotAttendance;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Query;
@@ -1402,7 +1404,8 @@ class StarredQuestionBallot {
 		DeviceType deviceType = b.getDeviceType();
 		Date answeringDate = b.getAnsweringDate();
 		String locale = b.getLocale();
-		
+		HouseType houseType = session.getHouse().getType();
+		String strHouseType = houseType.getType();
 		Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale);
 		
 		if(ballot == null) {
@@ -1412,11 +1415,16 @@ class StarredQuestionBallot {
 				throw new ELSException("Ballot_createStarredAssemblyBallot", "PRE_BALLOT_NOT_CREATED");
 			}
 			else {
+				List<BallotEntry> randomizedList = new ArrayList<BallotEntry>();
 				List<BallotEntry> preBallotList = 
 						StarredQuestionBallot.findPreBallotEntries(preBallot.getBallotEntries()); 
-				List<BallotEntry> randomizedList = StarredQuestionBallot.randomize(preBallotList);
+				if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+					randomizedList = StarredQuestionBallot.randomize(preBallotList);
+				}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+					randomizedList = StarredQuestionBallot.customRandomize(preBallotList, session, deviceType, answeringDate, locale);
+				}
+				
 				List<BallotEntry> sequencedList = StarredQuestionBallot.addSequenceNumbers(randomizedList, noOfRounds);
-
 				b.setBallotEntries(sequencedList);
 				b.persist();
 				
@@ -1432,6 +1440,60 @@ class StarredQuestionBallot {
 		}
 	}
 	
+	private static List<BallotEntry> customRandomize(List<BallotEntry> ballotEntries, Session session, DeviceType deviceType, Date answeringDate, String locale) throws ELSException {
+		List<BallotEntry> preBallotList = StarredQuestionBallot.randomize(ballotEntries);
+		List<BallotEntry> finalBallotEntries = new ArrayList<BallotEntry>();
+		List<BallotEntry> uniqueBallotEntries = new ArrayList<BallotEntry>();
+		List<BallotEntry> nonUniqueBallotEntries = new ArrayList<BallotEntry>();
+		/**** Check How Many Positions Cannot Be Same ****/
+		CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "NUMBER_OF_UNIQUE_POSITION_ACROSS_BALLOT", "");
+		int noOfUniquePositions = Integer.parseInt(customParameter.getValue());
+		
+		for(BallotEntry i: preBallotList){
+			Boolean unique = membersNotPresentAtPositionX(session,deviceType,answeringDate,i,noOfUniquePositions,locale);
+			if(unique && uniqueBallotEntries.size()<=noOfUniquePositions){					
+				uniqueBallotEntries.add(i);
+			}else{
+				nonUniqueBallotEntries.add(i);
+			}
+		}		
+		finalBallotEntries.addAll(uniqueBallotEntries);
+		finalBallotEntries.addAll(nonUniqueBallotEntries);
+		
+		return finalBallotEntries;
+	}
+
+	private static Boolean membersNotPresentAtPositionX(Session session, DeviceType deviceType, Date answeringDate,
+			BallotEntry ballotEntry, Integer noOfUniquePositions, String locale) throws ELSException {
+		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+		parametersMap.put("locale", new String[]{locale.toString()});
+		parametersMap.put("sessionId", new String[]{session.getId().toString()});
+		parametersMap.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+		parametersMap.put("membersAtPositionXId", new String[]{ballotEntry.getMember().getId().toString()});
+		parametersMap.put("noOfUniquePositions", new String[]{noOfUniquePositions.toString()});
+		parametersMap.put("answeringDate", new String[]{FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.DB_DATEFORMAT)});
+		List counts = org.mkcl.els.domain.Query.findReport("QIS_MEMBER_POSITIONCOUNT_IN_BALLOT", parametersMap);
+		Long count = null;
+		try {
+			for(Object i: counts) {
+				if(i!=null) {
+					String counter =   i.toString();
+					count = Long.parseLong(counter);
+													
+				}
+			}
+			if(count==0){
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			ELSException elsException = new ELSException();
+			elsException.setParameter("StarredQuestionBallot_Boolean_membersNotPrsentAtPositionX", "No member position found.");
+			throw elsException;
+		}
+	}
+
 	private static List<BallotEntry> findPreBallotEntries(
 			final List<BallotEntry> preBallotList) {
 		List<BallotEntry> preBallotEntryList = new ArrayList<BallotEntry>();
