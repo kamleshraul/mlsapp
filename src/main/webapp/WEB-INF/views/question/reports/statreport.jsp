@@ -127,7 +127,7 @@
 					<th style="width: 82px; padding: 2px;"><spring:message code="qis.report.stat.col1" text="Column 1"/></th>
 					<th style="width: 80px; padding: 2px;"><spring:message code="qis.report.stat.col2" text="Column 2"/></th>
 					<th style="width: 80px; padding: 2px;"><spring:message code="qis.report.stat.col3" text="Column 3"/></th>
-					<th style="width: 80px; padding: 2px;"><spring:message code="qis.report.stat.col4" text="Column 4"/></th>
+					<%-- <th style="width: 80px; padding: 2px;"><spring:message code="qis.report.stat.col4" text="Column 4"/></th> --%>
 					<th style="width: 80px; padding: 2px;"><spring:message code="qis.report.stat.col5" text="Column 5"/></th>
 					<th style="width: 90px; padding: 2px;"><spring:message code="qis.report.stat.col6" text="Column 6"/></th>
 					<th style="width: 95px; padding: 2px;"><spring:message code="qis.report.stat.col7" text="Column 7"/></th>
@@ -176,7 +176,7 @@
 								</c:otherwise>
 							</c:choose>
 						</td>
-						<td>
+						<%-- <td>
 							<c:choose>
 								<c:when test="${empty r[4]}">
 									-
@@ -185,7 +185,7 @@
 									${r[4]}
 								</c:otherwise>
 							</c:choose>
-						</td>
+						</td> --%>
 						<td>
 							<c:choose>
 								<c:when test="${empty r[5]}">
@@ -262,7 +262,7 @@
 							</c:otherwise>
 						</c:choose>
 					</td>
-					<td class="finalTotal">
+					<%-- <td class="finalTotal">
 						<c:choose>
 							<c:when test="${empty report[0][12]}">
 								-
@@ -271,7 +271,7 @@
 								${report[0][12]}
 							</c:otherwise>
 						</c:choose>
-					</td>
+					</td> --%>
 					<td class="finalTotal">
 						<c:choose>
 							<c:when test="${empty report[0][13]}">
