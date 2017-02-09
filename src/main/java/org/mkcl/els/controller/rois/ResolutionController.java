@@ -1253,19 +1253,19 @@ public class ResolutionController extends GenericController<Resolution> {
 					List<Reference> refentities=new ArrayList<Reference>();
 					List<String> refentitiesSessionDevice = new ArrayList<String>();
 					
-					ReferencedEntity referencedResolution = Resolution.findReferencedEntity(domain);//domain.getReferencedResolution();
-					if(referencedResolution!=null){
-						
+					Long referencedEntityId = Resolution.findReferencedEntity(domain);//domain.getReferencedResolution();
+					if(referencedEntityId!=null){
+						model.addAttribute("referencedEntityId",referencedEntityId);
 						Reference reference=new Reference();
-						reference.setId(String.valueOf(referencedResolution.getId()));
-						Device refDevice = referencedResolution.getDevice();
-						Resolution refResolution = (Resolution)refDevice;
-						reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(refResolution.getNumber()));
-						reference.setNumber(String.valueOf(refResolution.getId()));
-						refentities.add(reference);
-						
-						Session referencedResolutionSession = refResolution.getSession();
-						refentitiesSessionDevice.add("[" + referencedResolutionSession.getType().getSessionType()+", "+FormaterUtil.formatNumberNoGrouping(referencedResolutionSession.getYear(), locale) + "], " + refResolution.getType().getName());
+						reference.setId(String.valueOf(referencedEntityId));
+						Resolution refResolution = Resolution.findReferencedResolution(domain);
+						if(refResolution != null){
+							reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(refResolution.getNumber()));
+							reference.setNumber(String.valueOf(refResolution.getId()));
+							refentities.add(reference);
+							Session referencedResolutionSession = refResolution.getSession();
+							refentitiesSessionDevice.add("[" + referencedResolutionSession.getType().getSessionType()+", "+FormaterUtil.formatNumberNoGrouping(referencedResolutionSession.getYear(), locale) + "], " + refResolution.getType().getName());
+						}
 						model.addAttribute("isRepeatWorkFlow", "yes");
 					}			
 					model.addAttribute("referencedResolutions",refentities);

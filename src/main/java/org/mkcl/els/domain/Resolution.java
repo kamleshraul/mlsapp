@@ -1702,6 +1702,20 @@ public class Resolution extends Device implements Serializable{
 		this.simpleMerge();
 	}
     
+    public static List<SearchVO> fullTextSearchForSearching(String param,
+			int start, int noOfRecords, String locale,
+			Map<String, String[]> requestMap) {
+		return getResolutionRepository().fullTextSearchForSearching(param,start,noOfRecords, locale, requestMap);
+	}
+
+	public static Long findReferencedEntity(Resolution domain) {
+		return getResolutionRepository().findReferencedEntity(domain);
+	}
+
+	public static Resolution findReferencedResolution(Resolution referencedResolution) {
+		return getResolutionRepository().findReferencedResolution(referencedResolution);
+	}
+    
 	/**** Getters and Setters ****/
 	/**
 	 * Gets the house type.
@@ -2243,7 +2257,9 @@ public class Resolution extends Device implements Serializable{
 	 * @return the referenced resolutions
 	 */
 	public ReferencedEntity getReferencedResolution() {
-		return referencedResolution;
+		Long referencedEntityId = getResolutionRepository().findReferencedEntity(this);
+		ReferencedEntity referencedEntity = ReferencedEntity.findById(ReferencedEntity.class, referencedEntityId);
+		return referencedEntity;
 	}
 
 	/**
@@ -2921,15 +2937,7 @@ public class Resolution extends Device implements Serializable{
 		this.file = file;
 	}
 
-	public static List<SearchVO> fullTextSearchForSearching(String param,
-			int start, int noOfRecords, String locale,
-			Map<String, String[]> requestMap) {
-		return getResolutionRepository().fullTextSearchForSearching(param,start,noOfRecords, locale, requestMap);
-	}
-
-	public static ReferencedEntity findReferencedEntity(Resolution domain) {
-		return getResolutionRepository().findReferencedEntity(domain);
-	}
+	
 
 	
 }

@@ -30,6 +30,7 @@ import org.mkcl.els.common.vo.ResolutionRevisionVO;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
@@ -2218,7 +2219,7 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		return highlightedText;
 	}
 
-	public ReferencedEntity findReferencedEntity(Resolution domain) {
+	public Long findReferencedEntity(Resolution domain) {
 		String strQuery = "SELECT re.id FROM referenced_entities re "
 				+ "			JOIN resolutions ro ON (re.id=ro.referenced_resolution)"
 				+ "         WHERE ro.id=:resolutionId";
@@ -2226,11 +2227,27 @@ public class ResolutionRepository extends BaseRepository<Resolution, Long>{
 		query.setParameter("resolutionId", domain.getId());
 		try{
 		BigInteger referencedEntityId = (BigInteger) query.getSingleResult();
-		ReferencedEntity referencedEntity = ReferencedEntity.findById(ReferencedEntity.class, Long.parseLong(referencedEntityId.toString()));
-		return referencedEntity;
+		//ReferencedEntity referencedEntity = ReferencedEntity.findById(ReferencedEntity.class, Long.parseLong(referencedEntityId.toString()));
+		return Long.parseLong(referencedEntityId.toString());
 		}catch(Exception e){
 			return null;
 		}
+	}
+
+	public Resolution findReferencedResolution(Resolution referencedResolution) {
+		String strQuery = "SELECT device FROM referenced_entities re"
+				+ " JOIN resolutions ro ON (re.id=ro.referenced_resolution)"
+				+ " WHERE ro.id=:resolutionId";
+		Query query = this.em().createNativeQuery(strQuery);
+		query.setParameter("resolutionId", referencedResolution.getId());
+		try{
+		BigInteger resolutionId = (BigInteger) query.getSingleResult();
+		Resolution resolution = Resolution.findById(Resolution.class, Long.parseLong(resolutionId.toString()));
+		return resolution;
+		}catch(Exception e){
+			return null;
+		}
+		
 	}
 
 	

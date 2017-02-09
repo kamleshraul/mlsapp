@@ -165,7 +165,7 @@ public class ResolutionWorkflowController extends BaseController{
 			final HttpServletRequest request,final WorkflowDetails workflowDetails) throws Exception {
 		/**** In case of bulk edit we can update only few parameters ****/
 		model.addAttribute("bulkedit",request.getParameter("bulkedit"));
-		ReferencedEntity referencedResolution = Resolution.findReferencedEntity(domain);
+		Long referencedResolution = Resolution.findReferencedEntity(domain);
 		if(referencedResolution != null){
 			model.addAttribute("isRepeatWorkFlow", "yes");
 		}else{
@@ -513,14 +513,15 @@ public class ResolutionWorkflowController extends BaseController{
 		if(referencedResolution!=null){
 			
 			Reference reference=new Reference();
-			reference.setId(String.valueOf(referencedResolution.getId()));
-			Device refDevice = referencedResolution.getDevice();
-			Resolution refResolution = (Resolution)refDevice;
-			reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(refResolution.getNumber()));
-			reference.setNumber(String.valueOf(refResolution.getId()));
-			refentities.add(reference);
-			Session referencedResolutionSession = refResolution.getSession();
-			refentitiesSessionDevice.add("[" + referencedResolutionSession.getType().getSessionType()+", "+FormaterUtil.formatNumberNoGrouping(referencedResolutionSession.getYear(), locale) + "], " + refResolution.getType().getName());
+			reference.setId(String.valueOf(referencedResolution));
+			Resolution refResolution = Resolution.findReferencedResolution(domain);
+			if(refResolution != null){
+				reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).format(refResolution.getNumber()));
+				reference.setNumber(String.valueOf(refResolution.getId()));
+				refentities.add(reference);
+				Session referencedResolutionSession = refResolution.getSession();
+				refentitiesSessionDevice.add("[" + referencedResolutionSession.getType().getSessionType()+", "+FormaterUtil.formatNumberNoGrouping(referencedResolutionSession.getYear(), locale) + "], " + refResolution.getType().getName());
+			}
 		}			
 		model.addAttribute("referencedResolutions",refentities);
 		model.addAttribute("referencedResolutionsSessionAndDevice", refentitiesSessionDevice);
@@ -1808,9 +1809,9 @@ public class ResolutionWorkflowController extends BaseController{
 						}else{
 							bulkApprovalVO.setSubject(resolution.getNoticeContent());
 						}
-						ReferencedEntity referencedEntity = Resolution.findReferencedEntity(resolution);
+						Long referencedEntity = Resolution.findReferencedEntity(resolution);
 						if(referencedEntity != null){
-							Resolution refResolution = (Resolution) referencedEntity.getDevice();
+							Resolution refResolution = Resolution.findReferencedResolution(resolution);
 							bulkApprovalVO.setFormattedReferencedNumbers(refResolution.getNumber().toString());
 						}
 						if(resolution.getRemarks()!=null&&!resolution.getRemarks().isEmpty()){
