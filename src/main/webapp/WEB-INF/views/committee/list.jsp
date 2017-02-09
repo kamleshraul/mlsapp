@@ -100,7 +100,7 @@
 <div>
 	<div class="commandbar">
 		<div class="commandbarContent">
-			<security:authorize access="hasAnyRole('CIS_ASSISTANT')">
+			<security:authorize access="hasAnyRole('CIS_MAIN_ASSISTANT')">
 				<a href="#" id="new_record" class="butSim">
 					<spring:message code="committee.new" text="New"/>
 				</a> |
@@ -123,7 +123,7 @@
 				<spring:message code="committee.view" text="View"/>
 			</a> |
 			
-			<security:authorize access="hasAnyRole('CIS_ASSISTANT','CIS_MAIN_ASSISTANT')">
+			<security:authorize access="hasAnyRole('CIS_MAIN_ASSISTANT')">
 				<hr>
 				<a href="#" id="request_to_parliamentary_minister" class="butSim">
 					<spring:message code="committee.requestToParliamentaryMinister" text="Request to Parliamentary Minister"/>
@@ -133,15 +133,15 @@
 					<spring:message code="committee.requestToLeaderOfOpposition" text="Request to Leader of Opposition"/>
 				</a> |
 				
-				<a href="#" id="patrakbhag" class="butSim">
+				
+			</security:authorize>
+			<a href="#" id="patrakbhag" class="butSim">
 					<spring:message code="committee.patrakbhag" text="Patrak Bhag"/>
 				</a> |
 				
 					<a href="#" id="knyapan" class="butSim">
 					<spring:message code="committee.knyapan" text="knyapan"/>
 				</a> |
-			</security:authorize>
-			
 			<security:authorize access="hasAnyRole('CIS_SPEAKER', 'CIS_CHAIRMAN')">
 				<hr>
 				<a href="#" id="invited_member_addition" class="butSim">
