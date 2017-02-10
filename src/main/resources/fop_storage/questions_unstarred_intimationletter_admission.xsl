@@ -143,7 +143,16 @@
 									तीस
 								</xsl:otherwise>
 							</xsl:choose>
-							दिवसांच्‍या आत म्‍हणजे दिनांक __________ पावेतो या सचिवालयास पाठविण्‍यात यावे – 
+							दिवसांच्‍या आत म्‍हणजे 
+							<xsl:choose>
+								<xsl:when test="boolean(lastReceivingDateFromDepartment)">
+									<fo:inline font-weight="bold"><xsl:value-of select="lastReceivingDateFromDepartment"/> पावेतो</fo:inline>
+								</xsl:when>
+								<xsl:otherwise>
+									दिनांक __________ पावेतो
+								</xsl:otherwise>
+							</xsl:choose>							
+							या सचिवालयास पाठविण्‍यात यावे – 
 						</fo:block>	
 						<fo:block font-size="4px">&#160;</fo:block>				
 						<fo:block>
