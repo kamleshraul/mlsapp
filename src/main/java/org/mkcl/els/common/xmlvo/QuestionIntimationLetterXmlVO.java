@@ -65,6 +65,8 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String lastSendingDateToDepartment;
 	
+	private String lastReceivingDateFromDepartment;
+	
 	private String rejectionReason;
 	
 	private String questionIndexesForClarification;
@@ -337,6 +339,16 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 
 	public void setLastSendingDateToDepartment(String lastSendingDateToDepartment) {
 		this.lastSendingDateToDepartment = lastSendingDateToDepartment;
+	}
+
+	@XmlElement(name = "lastReceivingDateFromDepartment")
+	public String getLastReceivingDateFromDepartment() {
+		return lastReceivingDateFromDepartment;
+	}
+
+	public void setLastReceivingDateFromDepartment(
+			String lastReceivingDateFromDepartment) {
+		this.lastReceivingDateFromDepartment = lastReceivingDateFromDepartment;
 	}
 
 	@XmlElement(name = "rejectionReason")

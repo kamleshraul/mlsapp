@@ -2257,9 +2257,10 @@ public class Resolution extends Device implements Serializable{
 	 * @return the referenced resolutions
 	 */
 	public ReferencedEntity getReferencedResolution() {
-		Long referencedEntityId = getResolutionRepository().findReferencedEntity(this);
-		ReferencedEntity referencedEntity = ReferencedEntity.findById(ReferencedEntity.class, referencedEntityId);
-		return referencedEntity;
+		return referencedResolution;
+//		Long referencedEntityId = getResolutionRepository().findReferencedEntity(this);
+//		ReferencedEntity referencedEntity = ReferencedEntity.findById(ReferencedEntity.class, referencedEntityId);
+//		return referencedEntity;
 	}
 
 	/**

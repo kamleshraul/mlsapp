@@ -1555,7 +1555,7 @@ public class QuestionWorkflowController  extends BaseController{
 									|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
 							&& (domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
 									|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTODEPARTMENT))
-							&& domain.getAnswer()==null) {
+							&& (domain.getAnswer()==null || domain.getAnswer().isEmpty())) {
 						domain.setAnswerRequestedDate(new Date());
 					}
 					

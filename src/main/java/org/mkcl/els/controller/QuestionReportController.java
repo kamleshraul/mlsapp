@@ -566,6 +566,13 @@ public class QuestionReportController extends BaseController{
 				if(csptDaysCountForReceivingAnswerFromDepartment!=null) {
 					String daysCountForReceivingAnswerFromDepartment = csptDaysCountForReceivingAnswerFromDepartment.getValue();
 					if(daysCountForReceivingAnswerFromDepartment!=null) {
+						if(question.getAnswerRequestedDate()!=null) {
+							Calendar calendar = Calendar.getInstance();
+							calendar.setTime(question.getAnswerRequestedDate());
+							calendar.add(Calendar.DATE, Integer.parseInt(daysCountForReceivingAnswerFromDepartment));
+							String lastReceivingDateFromDepartment = FormaterUtil.formatDateToString(calendar.getTime(), ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString());
+							letterVO.setLastReceivingDateFromDepartment(lastReceivingDateFromDepartment);
+						}						
 						daysCount = NumberInfo.findByFieldName(NumberInfo.class, "number", Long.parseLong(daysCountForReceivingAnswerFromDepartment), locale.toString());
 						if(daysCount!=null && daysCount.getId()!=null) {
 							letterVO.setDaysCountForReceivingAnswerFromDepartment(daysCount.getNumberText());
