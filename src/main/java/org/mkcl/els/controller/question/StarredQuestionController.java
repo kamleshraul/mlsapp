@@ -1480,6 +1480,9 @@ class StarredQuestionController {
 			String previousSessionUnstarredParentDetailsText = domain.findPreviousSessionUnstarredParentDetailsText();
 			model.addAttribute("previousSessionUnstarredParentDetailsText", previousSessionUnstarredParentDetailsText);
 		}
+		/** populate discussion details text if question is discussed **/
+		String discussionDetailsText = domain.findDiscussionDetailsText();
+		model.addAttribute("discussionDetailsText", discussionDetailsText);
 	}
 
 
@@ -2209,6 +2212,9 @@ class StarredQuestionController {
 			String previousSessionUnstarredParentDetailsText = domain.findPreviousSessionUnstarredParentDetailsText();
 			model.addAttribute("previousSessionUnstarredParentDetailsText", previousSessionUnstarredParentDetailsText);
 		}
+		/** populate discussion details text if question is discussed **/
+		String discussionDetailsText = domain.findDiscussionDetailsText();
+		model.addAttribute("discussionDetailsText", discussionDetailsText);
 	}
 
 

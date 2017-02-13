@@ -968,6 +968,9 @@
 				<c:when test="${not empty yaadiDetailsText}">
 					&nbsp;&nbsp;(${yaadiDetailsText})
 				</c:when>
+				<c:when test="${not empty discussionDetailsText}">
+					&nbsp;&nbsp;(${discussionDetailsText})
+				</c:when>
 				<c:when test="${not empty previousSessionUnstarredParentDetailsText}">
 					&nbsp;&nbsp;(${previousSessionUnstarredParentDetailsText})
 				</c:when>

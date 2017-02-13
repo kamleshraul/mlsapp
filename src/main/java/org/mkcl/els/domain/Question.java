@@ -12462,6 +12462,21 @@ public class Question extends Device implements Serializable {
 		return yaadiDetailsText;
 	}
 	
+	public String findDiscussionDetailsText() {
+		String discussionDetailsText = "";
+		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+		parametersMap.put("locale", new String[]{this.getLocale()});
+		parametersMap.put("questionId", new String[]{this.getId().toString()});
+		@SuppressWarnings("rawtypes")
+		List discussionDetailsTextResult = org.mkcl.els.domain.Query.findReport("QUESTION_DISCUSSION_DETAILS_TEXT", parametersMap);
+		if(discussionDetailsTextResult!=null && !discussionDetailsTextResult.isEmpty()) {
+			if(discussionDetailsTextResult.get(0)!=null) {
+				discussionDetailsText = discussionDetailsTextResult.get(0).toString();
+			}
+		}
+		return discussionDetailsText;
+	}
+	
 	public String findPreviousSessionUnstarredParentDetailsText() {
 		String previousSessionUnstarredParentDetailsText = "";
 		Map<String, String[]> parametersMap = new HashMap<String, String[]>();
