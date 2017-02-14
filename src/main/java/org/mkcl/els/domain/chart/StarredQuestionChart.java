@@ -2630,14 +2630,14 @@ class StarredQuestionChart {
 	private static Chart processSourceGroupChart(final Question question,
 			final Group sourceGroup) throws ELSException {
 		Chart chart = Chart.find(question);
-		
 		if(chart != null) {
 			Member member = question.getPrimaryMember();
 			Session session = question.getSession();
 			Group group = chart.getGroup();
 			Date answeringDate = chart.getAnsweringDate();
 			String locale = chart.getLocale();
-			
+			Chart latestChart = findLatestChart(session, group, question.getOriginalType(), locale);
+			Date latestChartAnsweringDate = latestChart.getAnsweringDate();
 			ChartEntry ce = 
 				StarredQuestionChart.find(chart.getChartEntries(), member);
 			List<Device> devices = StarredQuestionChart.findDevices(ce);//ce.getDevices();
@@ -2664,8 +2664,16 @@ class StarredQuestionChart {
 			 * 3. Since 1 question has left the Chart, so add 1 question
 			 * to the Chart.
 			 */
-			Date finalSubmissionDate = group.getFinalSubmissionDate(answeringDate);
-			int dateComparator = finalSubmissionDate.compareTo(new Date());
+			int dateComparator = -1;
+			if(latestChart != null && latestChart.equals(chart)){
+				Date finalSubmissionDate = group.getFinalSubmissionDate(answeringDate);
+				if(question.getSubmissionDate() != null){
+					dateComparator = finalSubmissionDate.compareTo(question.getSubmissionDate());
+				}else{
+					dateComparator = finalSubmissionDate.compareTo(new Date());
+				}
+			}
+			
 			if(dateComparator>=0){
 				Question q = StarredQuestionChart.onGroupChangeAddQuestionLH(
 						session, member, sourceGroup, answeringDate,
