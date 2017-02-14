@@ -610,7 +610,10 @@
 					var questionsAskedInThisFactualPosition = $("#questionsAskedInThisFactualPosition").val();
 					questionsAskedInThisFactualPosition = questionsAskedInThisFactualPosition.join("##");
 					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);	
-				}				
+					
+				}	
+				
+				
 			}
 			
 			if($('#internalStatusType').val()=="question_final_rejection"){
@@ -636,6 +639,14 @@
 		    	    		});
 				}			
 				return false;
+			}else if($('#internalStatusType').val()=="question_final_clarificationNeededFromDepartment" ||
+					$('#internalStatusType').val()=="question_final_clarificationNeededFromMember" ||
+					$('#internalStatusType').val()=="question_final_clarificationNeededFromMemberAndDepartment"){
+				if($("#currenthousetype").val()=='lowerhouse'){
+					$('#questionsAskedInFactualPosition').val($("#remarks").val());
+				}else{
+					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
+				}
 			}
 			
 		});
