@@ -313,7 +313,7 @@
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			return false;
-		}else if(type == value || value == sendToMember){			
+		}else if(type == value || value == sendToMember || value == sendBack || value == discuss){			
 		    valueToSend=$("#internalStatus").val();
 		    $("#endFlag").val("continue");
 	    } 
