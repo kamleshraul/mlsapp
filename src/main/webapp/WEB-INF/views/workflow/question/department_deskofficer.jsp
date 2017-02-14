@@ -171,15 +171,20 @@
 				for(var i=0;i<data.length;i++){
 					var ugtActor = data[i].id.split("#")
 					var ugt = ugtActor[1];
-					console.log(ugt);
 					if(ugt!='member' && data[i].state!='active'){
 						text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name  +"("+ugtActor[4]+")"+ "</option>";
 					}else if(ugt == 'section_officer'){
 						text += "<option value='" + data[i].id +"'>" + data[i].name  + " ( "+$("#formattedHouseType").val() + " )" + "</option>";
+						if(actCount == 1){
+							actor1=data[i].id;
+							console.log(actor1);
+							actCount++;
+						}
 					}else{
 						text += "<option value='" + data[i].id + "'>" + data[i].name  +"("+ugtActor[4]+")"+ "</option>";	
 						if(actCount == 1){
 							actor1=data[i].id;
+							console.log(actor1);
 							actCount++;
 						}
 					}

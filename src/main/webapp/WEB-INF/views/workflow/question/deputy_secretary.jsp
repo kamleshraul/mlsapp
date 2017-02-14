@@ -285,9 +285,7 @@
 					}else{
 						text += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";	
 						if(actCount == 1){
-							console.log(actor1);
 							actor1=data[i].id;
-							console.log(actor1);
 							actCount++;
 						}
 					}
