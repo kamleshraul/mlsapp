@@ -614,7 +614,7 @@
 					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
 				}
 				
-				if($("#currenthousetype").val()=='lowerhouse'){
+				/* if($("#currenthousetype").val()=='lowerhouse'){
 					if($('#internalStatusType').val()=="question_final_clarificationNeededFromDepartment" ||
 							$('#internalStatusType').val()=="question_final_clarificationNeededFromMember" ||
 							$('#internalStatusType').val()=="question_final_clarificationNeededFromMemberAndDepartment") {
@@ -631,7 +631,7 @@
 							}
 						}
 					}
-				}
+				} */
 			}
 			
 			if($('#internalStatusType').val()=="question_final_rejection"){
