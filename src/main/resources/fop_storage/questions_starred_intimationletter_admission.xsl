@@ -76,17 +76,55 @@
 						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
 					</xsl:variable>
 	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
-						<fo:block text-align="right">
-							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
-							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
-								<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
-							</xsl:choose>
-							</fo:block>						
-							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
-							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
-							<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
-						</fo:block>			
+						<xsl:choose>
+							<xsl:when test="houseType='lowerhouse'">
+								<fo:block margin-left="13cm">
+									<fo:table>
+										<fo:table-body>
+										<fo:table-row>
+											<fo:table-cell>
+												<fo:block>
+													क्रमांक - _____&#160;/&#160;
+													<xsl:choose>
+														<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
+														<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
+													</xsl:choose>
+												</fo:block>
+											</fo:table-cell>
+										</fo:table-row>
+										<fo:table-row>
+											<fo:table-cell>
+												<fo:block>महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
+											</fo:table-cell>
+										</fo:table-row>
+										<fo:table-row>
+											<fo:table-cell>
+												<fo:block>विधान भवन, <xsl:value-of select="sessionPlace"/></fo:block>
+											</fo:table-cell>
+										</fo:table-row>
+										<fo:table-row>
+											<fo:table-cell>
+												<fo:block>दिनांक - <xsl:value-of select="inwardLetterDate"/></fo:block>
+											</fo:table-cell>
+										</fo:table-row>
+										</fo:table-body>
+									</fo:table>							
+								</fo:block>
+							</xsl:when>
+							<xsl:otherwise>
+								<fo:block text-align="right">
+									<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
+									<xsl:choose>
+										<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
+										<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
+									</xsl:choose>
+									</fo:block>						
+									<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
+									<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
+									<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+								</fo:block>
+							</xsl:otherwise>
+						</xsl:choose>			
 						
 						<!-- <fo:block font-size="8px">&#160;</fo:block> -->					
 						
