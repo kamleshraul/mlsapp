@@ -187,9 +187,9 @@
 							<fo:inline><xsl:value-of select="memberNames"/></fo:inline>			
 						</fo:block>
 						<fo:block font-size="4px">&#160;</fo:block>
-						<xsl:if test="questionReferenceText!=''">
+						<!-- <xsl:if test="questionReferenceText!=''">
 							<xsl:value-of select="questionReferenceText"/>
-						</xsl:if>
+						</xsl:if> -->
 						<fo:block font-weight="bold">
 							सन्माननीय
 							<xsl:choose>

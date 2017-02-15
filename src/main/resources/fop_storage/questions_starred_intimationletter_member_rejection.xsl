@@ -177,7 +177,7 @@
 						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block>
 							<fo:inline>प्रश्न - </fo:inline>
-							<xsl:choose>
+							<!-- <xsl:choose>
 							<xsl:when test="questionReferenceText!=''">
 								<xsl:value-of select="questionReferenceText"/>
 								<fo:block margin-left="1cm"><xsl:apply-templates select="questionText"/></fo:block>
@@ -185,7 +185,8 @@
 							<xsl:otherwise>
 								<fo:inline margin-left="1cm"><xsl:apply-templates select="questionText"/></fo:inline>
 							</xsl:otherwise>
-							</xsl:choose>							
+							</xsl:choose> -->	
+							<fo:inline margin-left="1cm"><xsl:apply-templates select="questionText"/></fo:inline>						
 						</fo:block>						
 					</fo:block>							          
 	            </fo:flow>
