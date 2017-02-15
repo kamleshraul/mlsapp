@@ -604,16 +604,32 @@
 				}
 			});
 			
+			var validationCheck = "success";
+			
 			if($("#selectedQuestionType").val()=='questions_starred'){
 				
 				if($("#questionsAskedInThisFactualPosition").val()!=undefined) {
 					var questionsAskedInThisFactualPosition = $("#questionsAskedInThisFactualPosition").val();
 					questionsAskedInThisFactualPosition = questionsAskedInThisFactualPosition.join("##");
-					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);	
+					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
+				}
+				
+				if($('#internalStatusType').val()=="question_final_clarificationNeededFromDepartment" ||
+						$('#internalStatusType').val()=="question_final_clarificationNeededFromMember" ||
+						$('#internalStatusType').val()=="question_final_clarificationNeededFromMemberAndDepartment") {
 					
-				}	
-				
-				
+					var sendToDepartmentStatus = $("#internalStatusMaster option[value='question_processed_sendToDepartment']").text();
+					var sendToMemberStatus = $("#internalStatusMaster option[value='question_processed_sendToMember']").text();
+					if($('#changeInternalStatus').val()==sendToDepartmentStatus
+							|| $('#changeInternalStatus').val()==sendToMemberStatus) {
+						if($("#remarks").val()==undefined || $("#remarks").val()=="") {
+							$.prompt("Please enter the remarks for factual position related queries");
+							validationCheck = "error";
+						} else {
+							$('#questionsAskedInFactualPosition').val($("#remarks").val());
+						}
+					}
+				}
 			}
 			
 			if($('#internalStatusType').val()=="question_final_rejection"){
@@ -639,16 +655,28 @@
 		    	    		});
 				}			
 				return false;
-			}else if($('#internalStatusType').val()=="question_final_clarificationNeededFromDepartment" ||
-					$('#internalStatusType').val()=="question_final_clarificationNeededFromMember" ||
-					$('#internalStatusType').val()=="question_final_clarificationNeededFromMemberAndDepartment"){
-				if($("#currenthousetype").val()=='lowerhouse'){
-					$('#questionsAskedInFactualPosition').val($("#remarks").val());
-				}else{
-					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
-				}
 			}
 			
+			if(validationCheck=="success") {
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+				$.post($('form').attr('action'), $("form").serialize(),
+	    	            function(data){
+	       					$('.tabContent').html(data);
+	       					$('html').animate({scrollTop:0}, 'slow');
+	       				 	$('body').animate({scrollTop:0}, 'slow');	
+	       					 $.unblockUI();	
+	    	            }).fail(function(){
+	    	    			$.unblockUI();
+	    	    			if($("#ErrorMsg").val()!=''){
+	    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+	    	    			}else{
+	    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+	    	    			}
+	    	    			scrollTop();
+	    	    		});
+			} else {
+				return false;
+			}					
 		});
 		/**** On Bulk Edit ****/
 		$("#submitBulkEdit").click(function(e){
@@ -1643,7 +1671,7 @@
 		<h2></h2>
 		<p class="tright">		
 		<c:if test="${bulkedit!='yes'}">
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</c:if>
 		<c:if test="${bulkedit=='yes'}">
 			<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
