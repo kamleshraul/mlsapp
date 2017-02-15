@@ -614,19 +614,21 @@
 					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
 				}
 				
-				if($('#internalStatusType').val()=="question_final_clarificationNeededFromDepartment" ||
-						$('#internalStatusType').val()=="question_final_clarificationNeededFromMember" ||
-						$('#internalStatusType').val()=="question_final_clarificationNeededFromMemberAndDepartment") {
-					
-					var sendToDepartmentStatus = $("#internalStatusMaster option[value='question_processed_sendToDepartment']").text();
-					var sendToMemberStatus = $("#internalStatusMaster option[value='question_processed_sendToMember']").text();
-					if($('#changeInternalStatus').val()==sendToDepartmentStatus
-							|| $('#changeInternalStatus').val()==sendToMemberStatus) {
-						if($("#remarks").val()==undefined || $("#remarks").val()=="") {
-							$.prompt("Please enter the remarks for factual position related queries");
-							validationCheck = "error";
-						} else {
-							$('#questionsAskedInFactualPosition').val($("#remarks").val());
+				if($("#currenthousetype").val()=='lowerhouse'){
+					if($('#internalStatusType').val()=="question_final_clarificationNeededFromDepartment" ||
+							$('#internalStatusType').val()=="question_final_clarificationNeededFromMember" ||
+							$('#internalStatusType').val()=="question_final_clarificationNeededFromMemberAndDepartment") {
+						
+						var sendToDepartmentStatus = $("#internalStatusMaster option[value='question_processed_sendToDepartment']").text();
+						var sendToMemberStatus = $("#internalStatusMaster option[value='question_processed_sendToMember']").text();
+						if($('#changeInternalStatus').val()==sendToDepartmentStatus
+								|| $('#changeInternalStatus').val()==sendToMemberStatus) {
+							if($("#remarks").val()==undefined || $("#remarks").val()=="") {
+								$.prompt("Please enter the remarks for factual position related queries");
+								validationCheck = "error";
+							} else {
+								$('#questionsAskedInFactualPosition').val($("#remarks").val());
+							}
 						}
 					}
 				}
