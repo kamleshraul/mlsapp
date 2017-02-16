@@ -109,10 +109,10 @@
 				generateDepartmentStatementReport();
 			});
 			
-			if($("#currentusergroupType").val()=='department' 
+			/* if($("#currentusergroupType").val()=='department' 
 					||$("#currentusergroupType").val()=='department_deskofficer' ){
 				$("#intimationLetterFilter").css("display","none");
-			}
+			} */
 		});
 	</script>
 	<style type="text/css">
