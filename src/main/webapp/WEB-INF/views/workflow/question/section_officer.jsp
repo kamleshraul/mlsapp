@@ -313,11 +313,15 @@
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			return false;
-		}else if(type == value || value == sendToMember || value == sendBack || value == discuss){			
+		}else if(type == value || value == sendToMember){			
 		    valueToSend=$("#internalStatus").val();
 		    $("#recommendationStatus").val(value);
 		    $("#endFlag").val("continue");
-	    } 
+	    }else if(value == sendBack || value == discuss) {
+	    	 $("#endFlag").val("continue");
+	    	 $("#recommendationStatus").val(value);
+	    	 valueToSend=value;
+	    }
 	    else if(value == dateAndAnswerReceived) {
 	    	$("#recommendationStatus").val(value);
 	    	valueToSend=$("#internalStatus").val();
