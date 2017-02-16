@@ -71,12 +71,20 @@
 			    </fo:static-content>
 	
 				<!-- body -->
-	            <fo:flow flow-name="xsl-region-body">	
+	            <fo:flow flow-name="xsl-region-body">
 	            	<xsl:variable name="endPartOfSubDepartment">
 						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
 					</xsl:variable>
+					<xsl:variable name="primaryMemberName">						
+						<xsl:choose>
+							<xsl:when test="substring-before(memberNames,',')!=''">
+								<xsl:value-of select="substring-before(memberNames,',')"/>
+							</xsl:when>
+							<xsl:otherwise><xsl:value-of select="memberNames"/></xsl:otherwise>
+						</xsl:choose>					
+					</xsl:variable>
 	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
-						<!-- <fo:block text-align="right">
+						<fo:block text-align="right">
 							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
@@ -86,38 +94,6 @@
 							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
 							<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
-						</fo:block> -->
-						<fo:block margin-left="13cm">
-							<fo:table>
-								<fo:table-body>
-								<fo:table-row>
-									<fo:table-cell>
-										<fo:block>
-											क्रमांक - _____&#160;/&#160;
-											<xsl:choose>
-												<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
-												<xsl:when test="houseType='upperhouse'">ई-१</xsl:when>
-											</xsl:choose>
-										</fo:block>
-									</fo:table-cell>
-								</fo:table-row>
-								<fo:table-row>
-									<fo:table-cell>
-										<fo:block>महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
-									</fo:table-cell>
-								</fo:table-row>
-								<fo:table-row>
-									<fo:table-cell>
-										<fo:block>विधान भवन, <xsl:value-of select="sessionPlace"/></fo:block>
-									</fo:table-cell>
-								</fo:table-row>
-								<fo:table-row>
-									<fo:table-cell>
-										<fo:block>दिनांक - <xsl:value-of select="inwardLetterDate"/></fo:block>
-									</fo:table-cell>
-								</fo:table-row>
-								</fo:table-body>
-							</fo:table>							
 						</fo:block>		
 						
 						<!-- <fo:block>&#160;</fo:block> -->
@@ -128,94 +104,46 @@
 							<fo:block margin-left="1cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 						</fo:block>	
 						
-						<fo:block font-size="6px">&#160;</fo:block>					
+						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block text-align="left">
-							<fo:block>प्रति,</fo:block>	
-							<fo:block margin-left="1cm" font-weight="bold">					
-							<fo:block>उप सचिव</fo:block>
+							<fo:block>प्रति,</fo:block>						
+							<fo:block font-weight="bold" margin-left="1cm"><xsl:value-of select="primaryMemberName"/>
 							<xsl:choose>
-								<xsl:when test="isSubDepartmentNameSameAsDepartmentName='true'">
-									<fo:block font-weight="bold"><xsl:value-of select="department"/></fo:block>
-								</xsl:when>
-								<xsl:otherwise>
-									<xsl:choose>
-										<xsl:when test="subDepartment='सार्वजनिक बांधकाम (सार्वजनिक उपक्रम)'">
-											<fo:block font-weight="bold"><xsl:value-of select="department"/> (सार्वजनिक उपक्रम)</fo:block>
-										</xsl:when>
-										<xsl:when test="subDepartment='सार्वजनिक बांधकाम (सार्वजनिक उपक्रम वगळून)'">
-											<fo:block font-weight="bold"><xsl:value-of select="department"/> (सार्वजनिक उपक्रम वगळून)</fo:block>
-										</xsl:when>
-										<xsl:when test="subDepartment='सार्वजनिक बांधकाम (सार्वजनिक उपक्रमांसह)'">
-											<fo:block font-weight="bold"><xsl:value-of select="department"/> (सार्वजनिक उपक्रमांसह)</fo:block>
-										</xsl:when>
-										<xsl:otherwise>
-											<fo:block font-weight="bold"><xsl:value-of select="department"/> (<xsl:value-of select="subDepartment"/>)</fo:block>
-										</xsl:otherwise>
-									</xsl:choose>
-								</xsl:otherwise>
+							<xsl:when test="hasMoreMembers='yes'">
+								<xsl:choose>
+									<xsl:when test="houseType='lowerhouse'"> व इतर वि.स.स.</xsl:when>
+									<xsl:when test="houseType='upperhouse'"> व इतर वि.प.स.</xsl:when>
+								</xsl:choose>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:choose>
+									<xsl:when test="houseType='lowerhouse'">, वि.स.स.</xsl:when>
+									<xsl:when test="houseType='upperhouse'">, वि.प.स.</xsl:when>
+								</xsl:choose> 
+							</xsl:otherwise>
 							</xsl:choose>
-							<fo:block font-weight="normal">महाराष्ट्र शासन मंत्रालय, मुंबई - ४०० ०३२</fo:block>	
-							</fo:block>
+							</fo:block>							
 						</fo:block>		
 						
 						<fo:block font-size="6px">&#160;</fo:block>
 						
-						<fo:block text-align="center" font-weight="bold">विषय: <xsl:value-of select="houseTypeName"/>&#160;<xsl:value-of select="deviceType"/> क्रमांक - <xsl:value-of select="number"/></fo:block>
+						<fo:block text-align="center" font-weight="bold">विषय: आपला <xsl:value-of select="deviceType"/> क्रमांक - <xsl:value-of select="number"/></fo:block>
 						
 						<fo:block font-size="6px">&#160;</fo:block>
 						
 						<fo:block>महोदय,</fo:block>	
 						
-						<fo:block font-size="4px">&#160;</fo:block>	
+						<fo:block font-size="4px">&#160;</fo:block>
 						
-						<fo:block margin-left="1cm">
-							<xsl:choose>
-								<xsl:when test="houseType='lowerhouse'">
-									&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<fo:inline font-weight="bold">उपरिनिर्दिष्ट प्रश्नाबाबतची वस्तुस्थिती</fo:inline> या सचिवायलास
-									<fo:inline font-weight="bold">त्वरीत									
-									<xsl:if test="boolean(daysCountForReceivingClarificationFromDepartment)">
-										<xsl:value-of select="daysCountForReceivingClarificationFromDepartment"/> दिवसात
-									</xsl:if>							
-									कळवावी</fo:inline> अशी विनंती आहे.
-								</xsl:when>
-								<xsl:when test="houseType='upperhouse'">
-									&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;उपरिनिर्दिष्ट प्रश्नाबाबत खाली नमूद केलेल्या क्रमांक <xsl:value-of select="questionIndexesForClarification"/> वरील मुद्द्याबाबतची माहिती, या सचिवायलास त्वरीत कळवावी अशी विनंती आहे.
-								</xsl:when>
-							</xsl:choose>
-													
-							 												
-						</fo:block>	
-						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block margin-left="1cm">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;सदरहू प्रश्न  स्वीकृत करण्यासारख्या आहे की नाही हे ठरविण्यासाठी ही माहिती आवश्यक असून ती हे पत्र मिळाल्यापासून
-							 <xsl:choose>
-								<xsl:when test="boolean(daysCountForReceivingClarificationFromDepartment)">
-									<xsl:value-of select="daysCountForReceivingClarificationFromDepartment"/> दिवसांच्या आत
-								</xsl:when>
-								<xsl:otherwise>
-									चार दिवसांच्या आत
-								</xsl:otherwise>
-							</xsl:choose>
-							या सचिवालयास कळवावी. 
-							उक्त अवधीत आपणाकडून माहिती न आल्यास, प्रश्न स्वीकृत होऊन तो शासनाकडे उत्तरासाठी पाठविला जाण्याची शक्यता आहे 												
-						</fo:block>
-						<fo:block font-size="4px">&#160;</fo:block>
-						<fo:block margin-left="1cm">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-							सदरहू प्रश्न  स्वीकृत झाल्यास, तो दिनांक
-							<xsl:choose>
-								<xsl:when test="boolean(answeringDate)">
-									<xsl:value-of select="answeringDate"/>
-								</xsl:when>
-								<xsl:otherwise>
-									__________
-								</xsl:otherwise>
-							</xsl:choose>
-							रोजी उत्तरासाठी ठेवण्यात येईल.									
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;आपल्या- उपरिनिर्दिष्ट प्रश्नाबाबत खाली नमूद केलेल्या क्रमांक <xsl:value-of select="questionIndexesForClarification"/> वरील मुद्द्याबाबत
+							<fo:inline font-weight="bold">
+							<xsl:if test="boolean(daysCountForReceivingClarificationFromMember)">त्वरीत <xsl:value-of select="daysCountForReceivingClarificationFromMember"/> दिवसात</xsl:if>
+							खुलासा करावा अशी विनंती आहे.</fo:inline>
 						</fo:block>
 							
-						<fo:block font-size="6px">&#160;</fo:block>		
+						<fo:block font-size="4px">&#160;</fo:block>		
 								
 						<fo:block text-align="right">
 							<fo:block margin-right="2cm">आपला</fo:block>
@@ -223,7 +151,7 @@
 							<fo:block margin-right="1.4cm">कक्ष अधिकारी,</fo:block>		
 							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
 						</fo:block>
-						-----------------------------------------------------------------------------------------------------------------------------------------
+						--------------------------------------------------------------------------------------------------------------------------------------------
 						<fo:block font-weight="bold">
 							<xsl:for-each select="questionsAskedForClarification/questionAskedForClarification">
 								<fo:block><xsl:value-of select="value"/></fo:block>
@@ -232,7 +160,7 @@
 								</xsl:if> -->								
 							</xsl:for-each>
 						</fo:block>	
-						-----------------------------------------------------------------------------------------------------------------------------------------
+						--------------------------------------------------------------------------------------------------------------------------------------------
 						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block text-align="center" font-weight="bold">विषय - <xsl:value-of select="subject"/></fo:block>
 						<fo:block font-size="4px">&#160;</fo:block>
@@ -257,12 +185,12 @@
 										<xsl:otherwise>
 											<xsl:value-of select="subDepartment"/> मंत्री
 										</xsl:otherwise>
-									</xsl:choose>
+									</xsl:choose>									
 								</xsl:otherwise>
 							</xsl:choose>
 							पुढील गोष्टींचा खुलासा करतील काय :-
 						</fo:block>
-						<!-- <fo:block>&#160;</fo:block> -->						
+						<!-- <fo:block>&#160;</fo:block> -->
 						<fo:block>&#160;&#160;<xsl:apply-templates select="questionText"/></fo:block>
 					</fo:block>							          
 	            </fo:flow>

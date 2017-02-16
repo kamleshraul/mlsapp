@@ -76,7 +76,7 @@
 						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
 					</xsl:variable>
 	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
-						<!-- <fo:block text-align="right">
+						<fo:block text-align="right">
 							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">ब-१</xsl:when>
@@ -86,8 +86,8 @@
 							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
 							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
 							<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
-						</fo:block> -->
-						<fo:block margin-left="13cm">
+						</fo:block>
+						<!-- <fo:block margin-left="13cm">
 							<fo:table>
 								<fo:table-body>
 								<fo:table-row>
@@ -118,7 +118,7 @@
 								</fo:table-row>
 								</fo:table-body>
 							</fo:table>							
-						</fo:block>		
+						</fo:block> -->		
 						
 						<!-- <fo:block>&#160;</fo:block> -->
 						
@@ -223,14 +223,15 @@
 							<fo:block margin-right="1.4cm">कक्ष अधिकारी,</fo:block>		
 							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
 						</fo:block>
-						<!-- <fo:block font-weight="bold">
+						-----------------------------------------------------------------------------------------------------------------------------------------
+						<fo:block font-weight="bold">
 							<xsl:for-each select="questionsAskedForClarification/questionAskedForClarification">
 								<fo:block><xsl:value-of select="value"/></fo:block>
 								<xsl:if test="position()!=last()">
 									<fo:block>&#160;</fo:block>
 								</xsl:if>								
 							</xsl:for-each>
-						</fo:block> -->	
+						</fo:block>	
 						-----------------------------------------------------------------------------------------------------------------------------------------
 						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block text-align="center" font-weight="bold">विषय - <xsl:value-of select="subject"/></fo:block>
