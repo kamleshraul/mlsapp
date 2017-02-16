@@ -26,8 +26,10 @@
 		var currentDeviceType = $("#currentDeviceType").val();
 		var currentHouseType = $("#currentHouseType").val();
 		
-		if(currentDeviceType == 'questions_unstarred') {
-			$('#originalDeviceTypeSpan').show();
+		if(currentDeviceType == 'questions_unstarred' || currentDeviceType == 'questions_starred') {
+			if(currentDeviceType == 'questions_unstarred'){
+				$('#originalDeviceTypeSpan').show();
+			}
 			$('#answerReceivedStatusSpan').show();
 		} else {
 			$('#originalDeviceTypeSpan').hide();

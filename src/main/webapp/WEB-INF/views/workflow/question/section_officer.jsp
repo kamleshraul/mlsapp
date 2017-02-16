@@ -315,6 +315,7 @@
 			return false;
 		}else if(type == value || value == sendToMember || value == sendBack || value == discuss){			
 		    valueToSend=$("#internalStatus").val();
+		    $("#recommendationStatus").val(value);
 		    $("#endFlag").val("continue");
 	    } 
 	    else if(value == dateAndAnswerReceived) {

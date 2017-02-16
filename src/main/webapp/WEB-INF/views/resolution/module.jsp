@@ -112,6 +112,7 @@
 			$.get('ref/requiredStatus?'+ params,function(data){
 				$("#selectedStatus").empty();
 				if(data.length>0){
+				var selectedStatusText="<option value='' selected='selected'>----"+$("#pleaseSelect").val()+"----</option>";
 				for(var i=0;i<data.length;i++){
 					selectedStatusText+="<option value='"+data[i].id+"'>"+data[i].name;
 				}
