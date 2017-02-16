@@ -667,8 +667,8 @@
 			}
 		});
 		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
-		/* $("#ministry option[selected!='selected']").hide();
-		$("#subDepartment option[selected!='selected']").hide(); */
+		$("#ministry option[selected!='selected']").hide();
+		$("#subDepartment option[selected!='selected']").hide(); 
 		//**** Load Actors On page Load ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
 			var statusType = $("#internalStatusType").val().split("_");
@@ -767,6 +767,28 @@
 		$("#reanswer_workflow").click(function() {
 			resendAnswer();
 		});
+		
+		$('#isTransferable').change(function() {
+	        if ($(this).is(':checked')) {
+	        	$("#ministry option[selected!='selected']").show();
+	    		$("#subDepartment option[selected!='selected']").show(); 
+	    		$("#transferP").css("display","inline-block");
+	    		$("#submit").css("display","none");
+	        }else{
+	        	$("#ministry option[selected!='selected']").hide();
+	    		$("#subDepartment option[selected!='selected']").hide(); 
+	    		$("#transferP").css("display","none");
+	    		$("#submit").css("display","inline-block");
+	        }
+	    });
+		
+		$('#mlsBranchNotifiedOfTransfer').change(function() {
+	        if ($(this).is(':checked') && $("#isTransferable").is(':checked')) {
+	        	$("#submit").css("display","inline-block");
+	        }else{
+	        	$("#submit").css("display","none");
+	        }
+	    });
 		
 /* 		$('#answer').wysiwyg({
 			initialContent:$('#defaultAnswerMessage').val(),
@@ -943,7 +965,10 @@
 		</c:if>
 	</c:if>
 	</p>
-	
+	<p>
+		<label class="small"><spring:message code="question.isTransferable" text="is question to be transfered?"/></label>
+		<input type="checkbox" name="isTransferable" id="isTransferable" class="sCheck">
+	</p>
 	<p>
 	<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
 	<select name="ministry" id="ministry" class="sSelect" style="width: 270px;">
@@ -984,7 +1009,14 @@
 	</select>		
 	<form:errors path="subDepartment" cssClass="validationError"/>	
 	</p>	
+	
+	<p id="transferP" style="display:none;">
+		<label class="small" id="subdepartmentValue"><spring:message code="question.transferToDepartmentAccepted" text="Is the Transfer to Department Accepted"/></label>
+		<input type="checkbox" id="transferToDepartmentAccepted" name="transferToDepartmentAccepted" class="sCheck"/>
 		
+		<label class="small" style="margin-left: 175px;"><spring:message code="question.mlsBranchNotified" text="Is the Respective Question Branch Notified"/></label>
+		<input type="checkbox" id="mlsBranchNotifiedOfTransfer" name="mlsBranchNotifiedOfTransfer" class="sCheck"/>
+	</p>	
 	
 	<p>
 		<label class="centerlabel"><spring:message code="question.members" text="Members"/></label>

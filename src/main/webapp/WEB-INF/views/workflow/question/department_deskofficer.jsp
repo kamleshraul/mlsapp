@@ -1403,7 +1403,7 @@
 		</p>
 	</div>
 	</c:if>
-	<%-- <c:if test="${workflowstatus=='COMPLETED'}">
+	<c:if test="${workflowstatus=='COMPLETED'}">
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">		
@@ -1413,7 +1413,7 @@
 			</c:if>
 		</p>
 	</div>
-	</c:if> --%>
+	</c:if> 
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 	<form:hidden path="answeringAttemptsByDepartment" />
 	<form:hidden path="id"/>
