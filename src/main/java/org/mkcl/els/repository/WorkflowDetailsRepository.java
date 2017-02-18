@@ -1,6 +1,7 @@
 package org.mkcl.els.repository;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -4912,6 +4913,25 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		
 		billAmendmentMotion.simpleMerge();
 		return workflowDetails;		
+	}
+
+	public Long findRevisedQuestionTextWorkflowCount(Question question,Status resendRevisedQuestionTextStatus, WorkflowDetails wfDetails) {
+		Long workflowDetailCount = (long) 0;
+		String strQuery = "SELECT count(id) FROM workflow_details "
+				+ " WHERE device_id=:questionId"
+				+ " AND recommendation_status=(SELECT name FROM status WHERE id=:statusId)"
+				+ " AND id<=:workflowDetailsId";
+		Query query = this.em().createNativeQuery(strQuery);
+		query.setParameter("questionId", question.getId());
+		query.setParameter("statusId", resendRevisedQuestionTextStatus.getId());
+		query.setParameter("workflowDetailsId", wfDetails.getId());
+		try{
+		BigInteger count = (BigInteger) query.getSingleResult();
+		workflowDetailCount = Long.parseLong(count.toString());
+		return workflowDetailCount;
+		}catch(Exception e){
+			return workflowDetailCount;
+		}
 	}
 	
 }
