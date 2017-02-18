@@ -2543,6 +2543,8 @@ public class ApplicationConstants {
 	
 	public static final String  OFFICER_ON_SPECIAL_DUTY = "officer_on_special_duty";
 	
+	public static final String QUESTION_UNSTARRED_PROCESSED_REANSWER = "question_unstarred_processed_reanswer";
+	
 	public static String RIS_REPORTER = "RIS_REPORTER";
 	
 	public static String CSPT_DEVICES_WITH_SUBDEPARTMENT_FILTER_IN_REFERENCING = "DEVICES_WITH_SUBDEPARTMENT_FILTER_IN_REFERENCING";
@@ -2552,5 +2554,15 @@ public class ApplicationConstants {
 	public static String DAYS_COUNT_FOR_RECEIVING_CLARIFICATION_FROM_MEMBER = "DAYS_COUNT_FOR_RECEIVING_CLARIFICATION_FROM_MEMBER";
 	
 	public static String DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT = "DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT";
+	
+	public static String QUESTION_PROCESSED_RESENDREVISEDQUESTIONTEXT = "question_processed_resendRevisedQuestionText";
+	
+	public static String QUESTION_UNSTARRED_PROCESSED_RESENDREVISEDQUESTIONTEXT = "question_unstarred_processed_resendRevisedQuestionText";
+	
+	public static String QUESTION_UNSTARRED_PROCESSED_RESENDREVISEDQUESTIONTEXTTODEPARTMENT= "question_unstarred_processed_resendRevisedQuestionTextToDepartment";
+	
+	public static String QUESTION_PROCESSED_RESENDREVISEDQUESTIONTEXTTODEPARTMENT= "question_processed_resendRevisedQuestionTextToDepartment";
+	
+	
 	
 }
