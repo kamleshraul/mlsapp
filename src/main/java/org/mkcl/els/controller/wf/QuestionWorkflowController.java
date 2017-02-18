@@ -364,7 +364,7 @@ public class QuestionWorkflowController  extends BaseController{
 		if((workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
 				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))
 				&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)){
-			model.addAttribute("reanswerstatus", strReanswerStatus);
+			
 			boolReanswer = true;
 		}
 //		if(strReanswerStatus != null){
@@ -376,6 +376,15 @@ public class QuestionWorkflowController  extends BaseController{
 //		}else{
 //			boolReanswer = false;
 //		}
+		
+		/********Set resendRevisedQuestionText **********/
+		boolean  boolResendRevisedQuestionText = false;
+		if((workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT)
+				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER))
+				&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)){
+			boolResendRevisedQuestionText = true;
+		}
+		
 		/**** In case of bulk edit we can update only few parameters ****/
 		model.addAttribute("bulkedit", request.getParameter("bulkedit"));
 		/**** clear remarks ****/
@@ -630,8 +639,25 @@ public class QuestionWorkflowController  extends BaseController{
 			/**** added by sandeep singh(jan 29 2013) ****/
 
 			if(boolReanswer){
-				Status reanswerStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_REANSWER, locale);
+				Status reanswerStatus = null;
+				if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+					reanswerStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_REANSWER, locale);
+				}else if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+					reanswerStatus = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_REANSWER, locale);
+				}
+				model.addAttribute("reanswerstatus", reanswerStatus.getType());
 				domain.setRecommendationStatus(reanswerStatus);
+				populateInternalStatus(model, domain.getRecommendationStatus().getType(),
+						workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
+			}else if(boolResendRevisedQuestionText){
+				Status resendQuestionTextStatus = null;
+				if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+					resendQuestionTextStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_RESENDREVISEDQUESTIONTEXT, locale);
+				}else if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+					resendQuestionTextStatus = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_RESENDREVISEDQUESTIONTEXT, locale);
+				}
+				model.addAttribute("resendQuestionTextStatus", resendQuestionTextStatus.getType());
+				domain.setRecommendationStatus(resendQuestionTextStatus);
 				populateInternalStatus(model, domain.getRecommendationStatus().getType(),
 						workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
 			}else{
@@ -1301,8 +1327,15 @@ public class QuestionWorkflowController  extends BaseController{
 				/**** Is reanswering ****/
 				boolean boolReanswering = false;
 				String isReanswering = request.getParameter("reanswerstatus");
-				if(isReanswering != null && !isReanswering.isEmpty() && isReanswering.equals("reanswer")){
+				if(isReanswering != null && !isReanswering.isEmpty()){
 					boolReanswering = true;
+				}
+				
+				/*** Is Resubmission of Revised Question Text***/
+				boolean boolResendRevisedQuestionText = false; 
+				String resendRevisedQuestionTextStatus = request.getParameter("resendQuestionTextStatus");
+				if(resendRevisedQuestionTextStatus != null && !resendRevisedQuestionTextStatus.isEmpty()){
+					boolResendRevisedQuestionText = true;
 				}
 //				if (isReanswering != null) {
 //					if(!isReanswering.isEmpty()){
@@ -1582,7 +1615,8 @@ public class QuestionWorkflowController  extends BaseController{
 				/**** If reanswer workflow is invoked then its straight forward ****/
 				/****  to set the domain's answer as reanswer by department ****/
 				if(domain.getType() != null && 
-						domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+						(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
+						|| domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION))){
 					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
 						if(workflowDetails.getDepartmentAnswer() != null){
 							if(workflowDetails.getAssigneeUserGroupType().
@@ -1777,6 +1811,10 @@ public class QuestionWorkflowController  extends BaseController{
 								(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
 										|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
 							endflag = "continue";
+						}else if(boolResendRevisedQuestionText 
+								&& (workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+										||workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT))){
+							endflag = "continue";
 						}else{
 							if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
 								endflag = endFlagForCurrentWorkflow;
@@ -1794,6 +1832,8 @@ public class QuestionWorkflowController  extends BaseController{
 							} else {
 								nextuser = question.getActor();
 							}							
+						}else if(boolResendRevisedQuestionText){
+							nextuser = actorForCurrentWorkflow;
 						}else{
 							nextuser = request.getParameter("actor");
 						}
@@ -1816,7 +1856,7 @@ public class QuestionWorkflowController  extends BaseController{
 
 						String strTaskId = workflowDetails.getTaskId();
 						Task task = null;
-						if (!boolReanswering){
+						if (!boolReanswering && !boolResendRevisedQuestionText){
 							task = processService.findTaskById(strTaskId);
 							processService.completeTask(task,properties);
 
@@ -1918,10 +1958,37 @@ public class QuestionWorkflowController  extends BaseController{
 										model.addAttribute("error", e.getParameter());
 										e.printStackTrace();
 									}				
+								}else if(boolResendRevisedQuestionText){
+									ProcessDefinition processDefinition =processService.
+											findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+									ProcessInstance processInstance = processService.
+											createProcessInstance(processDefinition, properties);
+									/**** Process Started and task created ****/
+									Task resendRevisedQuestionTextTask = processService.getCurrentTask(processInstance);
+									WorkflowDetails pendingWorkflow = WorkflowDetails.findCurrentWorkflowDetail(question);
+									WorkflowDetails resendRevisedQuestionTextWorkflowDetails;
+									try {
+										if(pendingWorkflow != null){
+											Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
+											processService.completeTask(prevTask, properties);
+											pendingWorkflow.setStatus("COMPLETED");
+											pendingWorkflow.setCompletionTime(new Date());
+											pendingWorkflow.merge();
+										}
+										resendRevisedQuestionTextWorkflowDetails = WorkflowDetails.
+												create(domain,resendRevisedQuestionTextTask,usergroupType,currentDeviceTypeWorkflowType,level);
+										question.setWorkflowDetailsId(resendRevisedQuestionTextWorkflowDetails.getId());
+										resendRevisedQuestionTextWorkflowDetails.setPreviousWorkflowDetail(workflowDetails.getId());
+										resendRevisedQuestionTextWorkflowDetails.merge();
+										
+									} catch (ELSException e) {
+										model.addAttribute("error", e.getParameter());
+										e.printStackTrace();
+									}				
 								}
 
 
-								if(!boolReanswering){
+								if(!boolReanswering && !boolResendRevisedQuestionText){
 									ProcessInstance processInstance = processService.findProcessInstanceById(
 											task.getProcessInstanceId());
 									Task newtask = processService.getCurrentTask(processInstance);
