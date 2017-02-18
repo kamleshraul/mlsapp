@@ -349,6 +349,10 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getRepository().completeTask(question);
 	}
 		
+	public static Long findRevisedQuestionTextWorkflowCount(Question question, Status resendRevisedQuestionTextStatus, WorkflowDetails wfDetails) {
+		return getRepository().findRevisedQuestionTextWorkflowCount(question, resendRevisedQuestionTextStatus, wfDetails);
+		
+	}
 	// End Process
 //	public void endProcess() {
 //		getRepository().endProcess(this);
@@ -1295,5 +1299,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		}
 		return decisionStatusForMyTaskGrid;
 	}
+
+
 
 }
