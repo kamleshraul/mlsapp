@@ -209,10 +209,13 @@ public class QuestionReportController extends BaseController{
 		String strQuestionId = request.getParameter("questionId");		
 		String strWorkflowId = request.getParameter("workflowId");
 		String intimationLetterFilter=request.getParameter("intimationLetterFilter");
-
+		Boolean isResendRevisedQuestionTextWorkflow = false;
+		Status resendRevisedQuestionText = null;
+		WorkflowDetails workflowDetails = null;
+		Long workflowDetailCount = (long) 0;
 		//in case if request comes from workflow page, question id is retrived from workflow details
 		if(strWorkflowId!=null && !strWorkflowId.isEmpty()) {
-			WorkflowDetails workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
+			workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
 			if(workflowDetails!=null) {
 				strQuestionId = workflowDetails.getDeviceId();
 			}
@@ -225,6 +228,20 @@ public class QuestionReportController extends BaseController{
 				Status status = question.getInternalStatus();	
 				String statusType=status.getType();
 				DeviceType deviceType = question.getType();
+				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
+					resendRevisedQuestionText = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_RESENDREVISEDQUESTIONTEXTTODEPARTMENT, locale.toString());
+				}else if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+					resendRevisedQuestionText = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_RESENDREVISEDQUESTIONTEXTTODEPARTMENT, locale.toString());
+				}
+				if(workflowDetails != null){
+					workflowDetailCount = WorkflowDetails.findRevisedQuestionTextWorkflowCount(question, resendRevisedQuestionText, workflowDetails);
+					if(workflowDetails.getRecommendationStatus().equals(resendRevisedQuestionText.getName())
+						|| workflowDetailCount > 0){
+						isResendRevisedQuestionTextWorkflow = true;
+					}
+					
+				}
+						
 				letterVO.setDeviceType(deviceType.getName());
 				if(question.getNumber()!=null) {
 					letterVO.setNumber(FormaterUtil.formatNumberNoGrouping(question.getNumber(), question.getLocale()));
@@ -248,6 +265,8 @@ public class QuestionReportController extends BaseController{
 				if(group!=null) {
 					letterVO.setGroupNumber(FormaterUtil.formatNumberNoGrouping(group.getNumber(), question.getLocale()));
 				}
+				
+				
 				String formattedText = "";
 				if(question.getRevisedSubject()!=null && !question.getRevisedSubject().isEmpty()) {
 					formattedText = question.getRevisedSubject();					
@@ -259,10 +278,19 @@ public class QuestionReportController extends BaseController{
 				if(question.getParent()!=null) {
 					formattedText = question.getQuestionText();
 				} else {
-					if(question.getRevisedQuestionText()!=null && !question.getRevisedQuestionText().isEmpty()) {
-						formattedText = question.getRevisedQuestionText();					
+					if(isResendRevisedQuestionTextWorkflow){
+						formattedText = workflowDetails.getText();
+						letterVO.setIsRevisedQuestionTextWorkflow(isResendRevisedQuestionTextWorkflow);
+					}else if(question.getRevisedQuestionText()!=null && !question.getRevisedQuestionText().isEmpty()) {
+						if(workflowDetails != null){
+							formattedText = workflowDetails.getText();
+						}else{
+							formattedText = question.getRevisedQuestionText();
+						}
+						letterVO.setIsRevisedQuestionTextWorkflow(isResendRevisedQuestionTextWorkflow);
 					} else {
 						formattedText = question.getQuestionText();
+						letterVO.setIsRevisedQuestionTextWorkflow(isResendRevisedQuestionTextWorkflow);
 					}
 				}				
 				//formattedText = FormaterUtil.formatNumbersInGivenText(formattedText, question.getLocale());
