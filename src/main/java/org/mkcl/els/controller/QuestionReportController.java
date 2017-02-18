@@ -214,10 +214,12 @@ public class QuestionReportController extends BaseController{
 		WorkflowDetails workflowDetails = null;
 		Long workflowDetailCount = (long) 0;
 		//in case if request comes from workflow page, question id is retrived from workflow details
+		Date letterReceivedOn = null;
 		if(strWorkflowId!=null && !strWorkflowId.isEmpty()) {
 			workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
 			if(workflowDetails!=null) {
 				strQuestionId = workflowDetails.getDeviceId();
+				letterReceivedOn = workflowDetails.getCompletionTime();
 			}
 		}
 
@@ -836,6 +838,83 @@ public class QuestionReportController extends BaseController{
 				List<User> users = User.findByRole(false, role.getName(), locale.toString());
 				//as principal secretary for starred question is only one, so user is obviously first element of the list.
 				letterVO.setUserName(users.get(0).findFirstLastName());
+				
+				/**** inward letter details ****/
+				/** inward letter date **/
+				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					Date inwardDate = null;				
+					String inwardDateQueryName = null;
+					if(statusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
+						
+						inwardDateQueryName = "ADMISSION_INWARD_DATE";
+						
+					} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)) {
+						
+						inwardDateQueryName = "REJECTION_INWARD_DATE";
+						
+					} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+						
+						inwardDateQueryName = "CONVERT_TO_UNSTARRED_AND_ADMIT_INWARD_DATE";
+						
+					} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+						
+						inwardDateQueryName = "CLARIFICATION_FROM_DEPARTMENT_INWARD_DATE";
+						
+					} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						
+						inwardDateQueryName = "CLARIFICATION_FROM_MEMBER_INWARD_DATE";
+						
+					}
+					if(inwardDateQueryName!=null) {
+						Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+						parametersMap.put("locale", new String[]{locale.toString()});
+						parametersMap.put("deviceId", new String[]{question.getId().toString()});
+						if(letterReceivedOn!=null) {
+							parametersMap.put("taskReceivedOn", new String[]{FormaterUtil.formatDateToString(letterReceivedOn, ApplicationConstants.DB_DATEFORMAT)});
+						} else {
+							parametersMap.put("taskReceivedOn", new String[]{""});
+						}					
+						@SuppressWarnings("rawtypes")
+						List inwardDateList = org.mkcl.els.domain.Query.findReport(inwardDateQueryName, parametersMap);
+						if(inwardDateList!=null && !inwardDateList.isEmpty()) {
+							if(inwardDateList.get(0)!=null) {
+								inwardDate = FormaterUtil.formatStringToDate(inwardDateList.get(0).toString(), ApplicationConstants.DB_DATEFORMAT);
+								letterVO.setInwardLetterDate(FormaterUtil.formatDateToString(inwardDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_1, locale.toString()));
+							}
+						}					
+					}
+				}		
+				
+				/**** remarks for clarification ****/
+				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+					if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							
+							|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						
+						letterVO.setRemarksForClarification(question.getRemarks());
+					}					
+				}
 
 				/**** generate report ****/				
 				try {
@@ -898,6 +977,11 @@ public class QuestionReportController extends BaseController{
 					
 					//flag parameter for letter format separation based on given housetype
 					boolean isLetterFormatDependentOnHouseType = false;
+					
+					if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						isLetterFormatDependentOnHouseType = true;						
+					}
 					
 					if(deviceType.getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)
 						&& question.getDateOfAnsweringByMinister()!=null
