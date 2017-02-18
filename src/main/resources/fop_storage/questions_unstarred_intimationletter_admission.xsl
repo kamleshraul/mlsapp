@@ -75,7 +75,10 @@
 	            	<xsl:variable name="endPartOfSubDepartment">
 						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
 					</xsl:variable>
-	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
+	            	<fo:block font-family="Mangal" font-size="10.5px">
+	            		<xsl:if test="isRevisedQuestionTextWorkflow='true'">
+	            			<fo:block font-weight="bold" text-align="center">सुधारित प्रारूप</fo:block>
+	            		</xsl:if>	            					
 						<fo:block text-align="right">
 							<fo:block margin-right="1.0cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>
