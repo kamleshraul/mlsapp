@@ -134,6 +134,7 @@
 		var admitDueToReverseClubbingApproved = '';
 		var recommendRejection = '';
 		var finalRejection = '';
+		var resendToSectionOfficer = '';
 		var deviceTypeType = $('#selectedQuestionType').val();
 		if(deviceTypeType == 'questions_starred') {
 			putUpForDateApproval = $("#internalStatusMaster option[value='question_processed_putUpForDateApproval']").text();
@@ -154,6 +155,7 @@
 			admitDueToReverseClubbingApproved = $("#internalStatusMaster option[value='question_final_admitDueToReverseClubbing']").text();
 			recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
 			finalRejection = $("#internalStatusMaster option[value='question_final_rejection']").text();
+			resendToSectionOfficer = $("#internalStatusMaster option[value='question_processed_resendRevisedQuestionTextToSectionOfficer']").text();
 		}else if(deviceTypeType == 'questions_unstarred') {
 			putUpForDateApproval = $("#internalStatusMaster option[value='question_unstarred_processed_putUpForDateApproval']").text();
 			sendToSectionOfficer = $("#internalStatusMaster option[value='question_unstarred_processed_sendToSectionOfficer']").text();
@@ -173,6 +175,7 @@
 			admitDueToReverseClubbingApproved = $("#internalStatusMaster option[value='question_unstarred_final_admitDueToReverseClubbing']").text();
 			recommendRejection = $("#internalStatusMaster option[value='question_unstarred_recommend_rejection']").text();
 			finalRejection = $("#internalStatusMaster option[value='question_unstarred_final_rejection']").text();
+			resendToSectionOfficer = $("#internalStatusMaster option[value='question_unstarred_processed_resendRevisedQuestionTextToSectionOfficer']").text();
 		}else if(deviceTypeType == 'questions_shortnotice') {
 			putUpForDateApproval = $("#internalStatusMaster option[value='question_shortnotice_processed_putUpForDateApproval']").text();
 			sendToSectionOfficer = $("#internalStatusMaster option[value='question_shortnotice_processed_sendToSectionOfficer']").text();
@@ -192,6 +195,7 @@
 			admitDueToReverseClubbingApproved = $("#internalStatusMaster option[value='question_shortnotice_final_admitDueToReverseClubbing']").text();
 			recommendRejection = $("#internalStatusMaster option[value='question_shortnotice_recommend_rejection']").text();
 			finalRejection = $("#internalStatusMaster option[value='question_shortnotice_final_rejection']").text();
+			resendToSectionOfficer = $("#internalStatusMaster option[value='question_shortnotice_processed_resendRevisedQuestionTextToSectionOfficer']").text();
 		}else if(deviceTypeType == 'questions_halfhourdiscussion_from_question') {
 			putUpForDateApproval = $("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_putUpForDateApproval']").text();
 			sendToSectionOfficer = $("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_sendToSectionOfficer']").text();
@@ -211,13 +215,15 @@
 			admitDueToReverseClubbingApproved = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_admitDueToReverseClubbing']").text();
 			recommendRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_rejection']").text();
 			finalRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_rejection']").text();
+			resendToSectionOfficer = $("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_resendRevisedQuestionTextToSectionOfficer']").text();
 		}
 		var currentRecommendationStatus = $("#recommendationStatus").val();
 		
 		var valueToSend = "";
 		var changedInternalStatus = $("#changeInternalStatus").val();
 		if(changedInternalStatus == putUpForDateApproval || 
-				changedInternalStatus == sendToSectionOfficer) {
+		   changedInternalStatus == sendToSectionOfficer ||
+		   changedInternalStatus == resendToSectionOfficer) {
 			valueToSend = $("#internalStatus").val();
 		} 
 		else if(value==clubbingApproved || value==clubbingRejected					
@@ -275,7 +281,8 @@
 				if(value != putUpForDateApproval && value != sendToSectionOfficer
 						&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
 						&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
-						&& value != admitDueToReverseClubbingRecommendApprove){
+						&& value != admitDueToReverseClubbingRecommendApprove
+						&& value != resendToSectionOfficer){
 					$("#internalStatus").val(value);
 					$("#actorDiv").show();
 				} else {
@@ -296,7 +303,7 @@
 				$("#actor").empty();
 				$("#actorDiv").hide();
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value != putUpForDateApproval && value != sendToSectionOfficer
+				if(value != putUpForDateApproval && value != sendToSectionOfficer && value != resendToSectionOfficer
 						&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
 						&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
 						&& value != admitDueToReverseClubbingRecommendApprove){
@@ -325,7 +332,7 @@
 		}
 		
 		var valueType = '';
-		if(value != putUpForDateApproval && value != sendToSectionOfficer
+		if(value != putUpForDateApproval && value != sendToSectionOfficer && value != resendToSectionOfficer
 				&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
 				&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
 				&& value != admitDueToReverseClubbingRecommendApprove){
@@ -794,7 +801,8 @@
 			}
 		});
 		//***** On Page Load Internal Status Actors Will be Loaded ****/
-		if($('#workflowstatus').val()!='COMPLETED'){
+		if($('#workflowstatus').val()!='COMPLETED' || ($("#workflowstatus").val()=='COMPLETED' 
+				&& ($("#internalStatusType").val()=='question_final_admission' || $("#internalStatusType").val()=='question_unstarred_final_admission'))){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
@@ -1284,7 +1292,9 @@
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>	
-			<c:if test="${workflowstatus != 'COMPLETED'}">
+			<c:if test="${workflowstatus != 'COMPLETED' 
+						or (workflowstatus == 'COMPLETED' 
+						and (internalStatusType=='question_final_admission' or internalStatusType=='question_unstarred_final_admission'))}">
 				<tr>
 					<td>
 						${userName}<br>
@@ -1324,7 +1334,9 @@
 		</p>
 	</c:if>
 	
-	<c:if test="${workflowstatus!='COMPLETED' }">	
+	<c:if test="${workflowstatus != 'COMPLETED' 
+						or (workflowstatus == 'COMPLETED' 
+						and (internalStatusType=='question_final_admission' or internalStatusType=='question_unstarred_final_admission'))}">
 	<p>
 	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">
 		<p>
@@ -1401,20 +1413,38 @@
 		</p>
 	</c:if>
 	
-	<c:if test="${workflowstatus!='COMPLETED' }">
-	<div class="fields">
-		<h2></h2>
-		<p class="tright">		
-		<c:if test="${bulkedit!='yes'}">
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-			
-		</c:if>
-		<c:if test="${bulkedit=='yes'}">
-			<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
-		</c:if>
-		</p>
-	</div>
-	</c:if>
+	<c:choose>
+		<c:when test="${workflowstatus!='COMPLETED' }">
+			<div class="fields">
+				<h2></h2>
+				<p class="tright">		
+				<c:if test="${bulkedit!='yes'}">
+					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					
+				</c:if>
+				<c:if test="${bulkedit=='yes'}">
+					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+				</c:if>
+				</p>
+			</div>
+		</c:when>
+		<c:otherwise>
+			<c:if test="${internalStatusType=='question_final_admission'
+					|| internalStatusType=='question_unstarred_final_admission'}">
+					<div class="fields">
+				<h2></h2>
+				<p class="tright">		
+				<c:if test="${bulkedit!='yes'}">
+					<input id="resubmit" type="submit" value="<spring:message code='generic.resubmit' text='Resubmit'/>" class="butDef">
+				</c:if>
+				<c:if test="${bulkedit=='yes'}">
+					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+				</c:if>
+				</p>
+			</div>			
+			</c:if>
+		</c:otherwise>
+	</c:choose>
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
@@ -1427,6 +1457,7 @@
 	<form:hidden path="workflowDetailsId"/>
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
+	<input type="hidden" id="resendQuestionTextStatus" name="resendQuestionTextStatus" value="${resendQuestionTextStatus}" />
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		
 	</c:if>
@@ -1452,6 +1483,7 @@
 	
 	<input type="hidden" id="yaadiNumber" name="yaadiNumber" value="${domain.yaadiNumber}"/>
 	<input type="hidden" id="yaadiLayingDate" name="yaadiLayingDate" value="${yaadiLayingDate}"/>
+	<input type="hidden" id="resendQuestionTextStatus" name="resendQuestionTextStatus" value="${resendQuestionTextStatus}" />
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">

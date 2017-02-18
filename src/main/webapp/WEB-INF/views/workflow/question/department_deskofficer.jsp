@@ -766,9 +766,9 @@
 		});
 		
 		/**** To make the next task available ****/
-		/* $("#reanswer_workflow").click(function() {
+		 $("#reanswer_workflow").click(function() {
 			resendAnswer();
-		}); */
+		});
 		
 		/* $('#answer').wysiwyg({
 			initialContent:$('#defaultAnswerMessage').val(),
@@ -835,11 +835,11 @@
 <c:set var="currTimeMillis" value="<%=(new Date()).getTime()%>" />
 <form:form action="workflow/question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
-	<%-- <c:if test="${(answeringAttempts < maxAnsweringAttempts) and (workflowstatus=='COMPLETED')}">
+	 <c:if test="${(answeringAttempts < maxAnsweringAttempts) and (workflowstatus=='COMPLETED')}">
 		<a href="#" id="reanswer_workflow" class="butSim">	
 			<spring:message code="generic.reactivate_task" text="Re-Send Answer"/>
 		</a> | 
-	</c:if> --%>
+	</c:if> 
 	<h2>
 	<c:choose>
 	<c:when test="${workflowstatus=='COMPLETED'}">
@@ -1218,7 +1218,7 @@
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	<p>
-	<table class="uiTable" style="margin-left:165px;">
+	<table class="uiTable" style="width: 900px;">
 		<thead>
 			<tr>
 			<th>
@@ -1228,8 +1228,12 @@
 			<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
 			</th>
 			<th>
+			<spring:message code="qis.latestrevisions.revisedQuestionText" text="Revised Question Text"></spring:message>
+			</th>
+			<th>
 			<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
 			</th>
+			
 			</tr>
 		</thead>
 		<tbody>	
@@ -1248,6 +1252,7 @@
 			</c:forEach> 
 			
 			<c:set var="count" value="0"></c:set>
+			<c:set var="revisedQuestionTextRevision" value=" "/>
 			<c:forEach items="${latestRevisions }" var="i">
 				<c:choose>
 					<c:when test="${count>= startingActorCount}">
@@ -1264,6 +1269,11 @@
 								<c:otherwise>${i[2]}</c:otherwise>
 							</c:choose>							
 							</td>
+							<td style="text-align: justify;">
+								<c:if test="${i[7]!= revisedQuestionTextRevision}">
+									${i[7]}
+								</c:if>
+							</td>
 							<td>
 							${i[4]}
 							</td>
@@ -1274,12 +1284,13 @@
 						<c:set var="count" value="${count+1 }"></c:set>
 					</c:otherwise>
 				</c:choose>
+				<c:set var="revisedQuestionTextRevision" value="${i[7]}"/>
 			</c:forEach>
 		</tbody>
 	</table>
 	</p>
-	<%-- <c:if test="${workflowstatus!='COMPLETED' or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}"> --%>
-	<c:if test="${workflowstatus!='COMPLETED'}">	
+	<c:if test="${workflowstatus!='COMPLETED' or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}">
+	<%-- <c:if test="${workflowstatus!='COMPLETED'}"> --%>	
 		<p>
 		<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
 		<select id="changeInternalStatus" class="sSelect">
@@ -1357,12 +1368,12 @@
 		</c:otherwise>
 	</c:choose>
 	
-	<%-- <c:if test="${workflowstatus=='COMPLETED'}">
+	 <c:if test="${workflowstatus=='COMPLETED'}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="question.reanswer" text="Re-Answer"/></label>
 			<textarea id="reanswer" name="reanswer" class="wysiwyg">${reanswerText}</textarea>
 		</p>
-	</c:if> --%>
+	</c:if> 
 	
 	<c:if test="${fn:contains(internalStatusType, 'final_clarificationNeededFromDepartment')
 					|| fn:contains(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')}">

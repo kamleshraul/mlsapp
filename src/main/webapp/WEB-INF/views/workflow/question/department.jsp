@@ -727,10 +727,7 @@
 				}
 			});
 						
-			if(($('#answer').val()=="" && $('#factualPosition').val()=="" 
-					|| ($("#workflowstatus").val()=='COMPLETED' && $('#reanswer').val()==""))){
-				$.prompt($('#noAnswerProvidedMsg').val());
-			}else{
+			
 				$.prompt($('#submissionMsg').val(),{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 				        if(v){				        	
@@ -759,7 +756,7 @@
 				        }
 					}
 				});
-			}
+			
 			return false;		
 		});
 		
@@ -1214,7 +1211,7 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	<p>
-	<table class="uiTable" style="margin-left:165px;">
+	<table class="uiTable" style="width:900px;">
 		<thead>
 			<tr>
 			<th>
@@ -1222,6 +1219,9 @@
 			</th>
 			<th>
 			<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
+			</th>
+			<th>
+			<spring:message code="qis.latestrevisions.revisedQuestionText" text="Revised Question Text"></spring:message>
 			</th>
 			<th>
 			<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
@@ -1244,6 +1244,7 @@
 			</c:forEach> 
 			
 			<c:set var="count" value="0"></c:set>
+			<c:set var="revisedQuestionTextRevision" value=" "/>
 			<c:forEach items="${latestRevisions }" var="i">
 				<c:choose>
 					<c:when test="${count>= startingActorCount}">
@@ -1260,6 +1261,11 @@
 								<c:otherwise>${i[2]}</c:otherwise>
 							</c:choose>							
 							</td>
+							<td style="text-align: justify;">
+								<c:if test="${i[7]!= revisedQuestionTextRevision}">
+									${i[7]}
+								</c:if>
+							</td>
 							<td>
 							${i[4]}
 							</td>
@@ -1270,6 +1276,7 @@
 						<c:set var="count" value="${count+1 }"></c:set>
 					</c:otherwise>
 				</c:choose>
+				<c:set var="revisedQuestionTextRevision" value="${i[7]}"/>
 			</c:forEach>
 		</tbody>
 	</table>
