@@ -140,6 +140,8 @@
 					 && $('#internalStatusType').val()!="resolution_final_clarificationNeededFromMember"){
 					$("#internalStatus").val(value);
 					$("#actorDiv").show();
+				}else if (value == sendback && value == discuss){
+					$("#actorDiv").show();
 				}
 				$("#recommendationStatus").val(value);	
 				/**** setting level,localizedActorName ****/
@@ -158,12 +160,12 @@
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").empty();
 				}
-			$("#actorDiv").hide();
-			/**** in case of sendback and discuss only recommendation status is changed ****/
-			if(value != sendback && value != discuss){
-				$("#internalStatus").val(value);
-			}
-		    $("#recommendationStatus").val(value);
+				$("#actorDiv").hide();
+				/**** in case of sendback and discuss only recommendation status is changed ****/
+				if(value != sendback && value != discuss){
+					$("#internalStatus").val(value);
+				}
+			    $("#recommendationStatus").val(value);
 			}
 		}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
