@@ -181,10 +181,14 @@
 			</p>
 			
 			<p>
-				<label class="wysiwyglabel"><spring:message code="question.details" text="Details"/></label>
-				<form:textarea path="questionText" readonly="true" cssClass="wysiwyg"></form:textarea>
+				<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"/>*</label>
+				<form:textarea path="reason" cssClass="wysiwyg" readonly="true"></form:textarea>
 			</p>
 			
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
+				<form:textarea path="briefExplanation" readonly="true" cssClass="wysiwyg"></form:textarea>
+			</p>
 		</c:when>
 		<c:when test="${houseTypeType=='upperhouse'}">		
 			<p>	
