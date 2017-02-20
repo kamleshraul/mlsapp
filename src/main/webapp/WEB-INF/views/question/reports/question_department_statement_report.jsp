@@ -93,7 +93,7 @@
 					<table class="strippedTable" border="1" style="width: 750px;">
 						<thead>
 							<tr>
-								<th style="text-align: center; font-size: 12px; width: 40px;">${topHeader[0]}</th>
+								<%-- <th style="text-align: center; font-size: 12px; width: 40px;">${topHeader[0]}</th> --%>
 								<th style="text-align: center; font-size: 12px; width: 60px;">${topHeader[1]}</th>
 								<th style="text-align: center; font-size: 12px; width: 200px;">${topHeader[2]}</th>
 								<th style="text-align: center; font-size: 12px; width: 250px;">${topHeader[3]}</th>
@@ -119,7 +119,7 @@
 											<c:set var="questionDisplayed" value="no"/>
 											<c:if test="${j[6]=='department_deskofficer' && deskOfficerDisplayed=='no'}">
 												<tr>
-													<td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
+													<%-- <td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td> --%>
 													<td style="text-align: left; font-size: 12px; width: 60px;">${formater.formatNumberNoGrouping(r[2], locale)}</td>
 													<td style="text-align: center; font-size: 12px; width: 200px;">${r[4]}</td>
 													<td style="text-align: center; font-size: 12px; width: 250px;">${r[5]}</td>
@@ -140,7 +140,7 @@
 									<c:if test="${deskOfficerDisplayed=='no' }">
 										<c:if test="${questionDisplayed=='no'}">
 											<tr>
-												<td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
+												<%-- <td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td> --%>
 												<td style="text-align: left; font-size: 12px; width: 60px;">${formater.formatNumberNoGrouping(r[2], locale)}</td>
 												<td style="text-align: center; font-size: 12px; width: 200px;">${r[4]}</td>
 												<td style="text-align: center; font-size: 12px; width: 250px;">${r[5]}</td>
