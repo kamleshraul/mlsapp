@@ -810,6 +810,7 @@
 					
 					var url = "question/report/generalreport?sessionId=" + data.id
 					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+					+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
 					+ "&assignee=" + $("#authusername").val()
 					+ "&locale=mr_IN" 
 					+ "&reportout=question_department_statement_report"
