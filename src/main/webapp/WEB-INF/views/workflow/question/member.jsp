@@ -586,7 +586,7 @@
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
-			$("#changeInternalStatus").change();
+			//$("#changeInternalStatus").change();
 			//loadActors($("#changeInternalStatus").val());
 		}
 	});

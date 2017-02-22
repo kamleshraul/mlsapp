@@ -117,7 +117,8 @@
 			var deviceTypeType = $('#selectedQuestionType').val();
 			var sendback = '';
 			var discuss = '';
-			var sendToSectionOfficer = ''
+			var sendToSectionOfficer = '';
+			var sendToDeskOfficer = '';
 			if(deviceTypeType == 'questions_starred') {
 				sendback = 
 					$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
