@@ -877,4 +877,23 @@ public class BallotRepository extends BaseRepository<Ballot, Long> {
 		questions = query.getResultList();
 		return questions;
 	}
+
+	public Ballot findByDeviceId(Long deviceId) {
+		Ballot ballot = null;
+		try{
+			String strQuery = " SELECT b.* FROM ballots b" +
+					" JOIN ballots_ballot_entries bbe ON (bbe.ballot_id=b.id)" +
+					" JOIN ballot_entries be ON (be.id=bbe.ballot_entry_id)" +
+					" JOIN ballot_entries_device_sequences beds ON (beds.ballot_entry_id=be.id)" +
+					" JOIN device_sequences ds ON (ds.id=beds.device_sequence_id)" +
+					" WHERE ds.device_id=:deviceId";
+			Query query = this.em().createNativeQuery(strQuery, Ballot.class);
+			query.setParameter("deviceId",deviceId);
+			ballot = (Ballot) query.getSingleResult();  
+		}catch(Exception ex){
+			
+			logger.error(ex.getMessage());
+		}
+		return ballot;
+	}
 }

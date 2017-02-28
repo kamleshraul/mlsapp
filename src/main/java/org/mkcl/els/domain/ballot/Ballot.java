@@ -142,6 +142,9 @@ public class Ballot extends BaseDomain implements Serializable {
 	//=============== VIEW METHODS ==================
 	//
 	//===============================================
+	public static Ballot findByDeviceId(Long deviceId) {
+		return getRepository().findByDeviceId(deviceId);
+	}
 	/**
 	 * Returns null if Ballot does not exist for the specified parameters
 	 * OR
@@ -693,6 +696,8 @@ public class Ballot extends BaseDomain implements Serializable {
 		 getRepository().removeBallotUH(this);
 		
 	}
+	
+
 	//===============================================
 	//
 	//=============== INTERNAL METHODS ==============
@@ -760,5 +765,7 @@ public class Ballot extends BaseDomain implements Serializable {
 	public void setBallotDate(final Date ballotDate) {
 		this.ballotDate = ballotDate;
 	}
+
+	
 
 }

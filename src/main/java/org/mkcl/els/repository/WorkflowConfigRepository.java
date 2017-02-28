@@ -570,7 +570,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			Ministry ministry = null;
 			SubDepartment subDepartment = null;
 			if(question.getBallotStatus() != null){
-				Ballot ballot = Ballot.find(question);
+				Ballot ballot = Ballot.findByDeviceId(question.getId());
 				QuestionDraft questionDraft = Question.findLatestGroupChangedDraft(question);
 				QuestionDraft latestGroupChangedDraft = Question.findGroupChangedDraft(question);
 				if(ballot != null && questionDraft != null 
