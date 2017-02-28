@@ -195,14 +195,19 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				sortedSet.add(absDifference);				
 			}
 		}
-		actorsMap.get(sortedSet.iterator().next());
-		Iterator<Integer> iterator=sortedSet.iterator();
-		int lowestAbs=0;
-		while(iterator.hasNext()){
-			lowestAbs=iterator.next();
-			break;
+		if(!actorsMap.isEmpty()){
+			actorsMap.get(sortedSet.iterator().next());
+			Iterator<Integer> iterator=sortedSet.iterator();
+			int lowestAbs=0;
+			while(iterator.hasNext()){
+				lowestAbs=iterator.next();
+				break;
+			}
+			return actorsMap.get(String.valueOf(lowestAbs));
+		}else{
+			return null;
 		}
-		return actorsMap.get(String.valueOf(lowestAbs));
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -491,7 +496,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		if(status.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)
 			||status.equals(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_GROUPCHANGED)
 			||status.equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_GROUPCHANGED)
-			||status.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_GROUPCHANGED)){
+			||status.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_GROUPCHANGED)
+			||status.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_GROUPCHANGED)
+			||status.equals(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP)){
 
 		}else{
 			/**** Note :Here this can be configured so that list of workflows which
