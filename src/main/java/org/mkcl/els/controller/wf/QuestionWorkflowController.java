@@ -367,6 +367,7 @@ public class QuestionWorkflowController  extends BaseController{
 			
 			boolReanswer = true;
 		}
+		
 //		if(strReanswerStatus != null){
 //			if(!strReanswerStatus.isEmpty()){
 //				boolReanswer = true;
@@ -381,10 +382,20 @@ public class QuestionWorkflowController  extends BaseController{
 		boolean  boolResendRevisedQuestionText = false;
 		if((workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT)
 				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER))
-				&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)){
+				&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)
+				&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+					|| (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)))){
 			boolResendRevisedQuestionText = true;
 		}
 		
+		/******Set Clarification Not Received *********/
+		boolean boolClarificationNotReceived = false;
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+				&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)
+				&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)))){
+			boolClarificationNotReceived = true;
+		}
 		/**** In case of bulk edit we can update only few parameters ****/
 		model.addAttribute("bulkedit", request.getParameter("bulkedit"));
 		/**** clear remarks ****/
@@ -659,6 +670,17 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("resendQuestionTextStatus", resendQuestionTextStatus.getType());
 				domain.setRecommendationStatus(resendQuestionTextStatus);
 				populateInternalStatus(model, domain.getRecommendationStatus().getType(),
+						workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
+			}else if(boolClarificationNotReceived){
+				Status clarificationStatus = null;
+				if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+					clarificationStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_REPUTUP, locale);
+				}else if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
+					clarificationStatus = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_CLARIFICATION_REPUTUP, locale);
+				}
+				model.addAttribute("clarificationStatus", clarificationStatus.getType());
+				domain.setRecommendationStatus(clarificationStatus);
+				populateInternalStatus(model, clarificationStatus.getType(),
 						workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
 			}else{
 				if(workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
@@ -1337,6 +1359,14 @@ public class QuestionWorkflowController  extends BaseController{
 				if(resendRevisedQuestionTextStatus != null && !resendRevisedQuestionTextStatus.isEmpty()){
 					boolResendRevisedQuestionText = true;
 				}
+				
+				/**** Is Clarification of Question Received or not *************/
+				boolean boolClarificationStatus = false;
+				String clarificationStatus = request.getParameter("clarificationStatus");
+				if(clarificationStatus != null && !clarificationStatus.isEmpty()){
+					boolClarificationStatus = true;
+				}
+				
 //				if (isReanswering != null) {
 //					if(!isReanswering.isEmpty()){
 //						if(isReanswering.equals("reanswer")){
@@ -1815,6 +1845,8 @@ public class QuestionWorkflowController  extends BaseController{
 								&& (workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
 										||workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT))){
 							endflag = "continue";
+						}else if(boolClarificationStatus && workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+							endflag = "end";
 						}else{
 							if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
 								endflag = endFlagForCurrentWorkflow;
@@ -1834,6 +1866,8 @@ public class QuestionWorkflowController  extends BaseController{
 							}							
 						}else if(boolResendRevisedQuestionText){
 							nextuser = actorForCurrentWorkflow;
+						}else if(boolClarificationStatus){
+							//DO Nothing
 						}else{
 							nextuser = request.getParameter("actor");
 						}
@@ -1856,7 +1890,7 @@ public class QuestionWorkflowController  extends BaseController{
 
 						String strTaskId = workflowDetails.getTaskId();
 						Task task = null;
-						if (!boolReanswering && !boolResendRevisedQuestionText){
+						if (!boolReanswering && !boolResendRevisedQuestionText && !boolClarificationStatus){
 							task = processService.findTaskById(strTaskId);
 							processService.completeTask(task,properties);
 
@@ -1985,10 +2019,20 @@ public class QuestionWorkflowController  extends BaseController{
 										model.addAttribute("error", e.getParameter());
 										e.printStackTrace();
 									}				
+								}else if(boolClarificationStatus){
+									/**** Process Started and task created ****/
+									WorkflowDetails pendingWorkflow = WorkflowDetails.findCurrentWorkflowDetail(question);
+									if(pendingWorkflow != null){
+										Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
+										processService.completeTask(prevTask, properties);
+										pendingWorkflow.setStatus("COMPLETED");
+										pendingWorkflow.setCompletionTime(new Date());
+										pendingWorkflow.merge();
+									}
 								}
 
 
-								if(!boolReanswering && !boolResendRevisedQuestionText){
+								if(!boolReanswering && !boolResendRevisedQuestionText && !boolClarificationStatus){
 									ProcessInstance processInstance = processService.findProcessInstanceById(
 											task.getProcessInstanceId());
 									Task newtask = processService.getCurrentTask(processInstance);
