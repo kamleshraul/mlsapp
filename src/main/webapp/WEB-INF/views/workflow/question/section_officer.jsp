@@ -1012,12 +1012,13 @@
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load actors on page load ****/
 		if($('#workflowstatus').val()!='COMPLETED' || ($("#workflowstatus").val()=='COMPLETED' 
-				&& ($("#internalStatusType").val()=='question_final_admission' || $("#internalStatusType").val()=='question_unstarred_final_admission'))){
+				&& ($("#internalStatusType").val()=='question_final_admission' || $("#internalStatusType").val()=='question_unstarred_final_admission'
+				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromDepartment'))){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
 			$("#changeInternalStatus").change();
-			//loadActors($("#changeInternalStatus").val());
+			loadActors($("#changeInternalStatus").val());
 		}
 		
 		$('#isAllowedInYaadi').click(function() {
@@ -1474,7 +1475,8 @@
 				</c:choose>
 			</c:forEach>
 			<c:if test="${workflowstatus!='COMPLETED' or (workflowstatus=='COMPLETED' and (internalStatusType=='question_final_admission'
-					|| internalStatusType=='question_unstarred_final_admission'))}">
+					|| internalStatusType=='question_unstarred_final_admission'
+					|| internalStatusType=='question_final_clarificationNeededFromDepartment'))}">
 				<tr>
 					<td>
 						${userName}<br>
@@ -1608,7 +1610,8 @@
 	</c:if>
 	
 	<c:if test="${workflowstatus!='COMPLETED' or (workflowstatus=='COMPLETED' and (internalStatusType=='question_final_admission'
-					|| internalStatusType=='question_unstarred_final_admission'))}">	
+					|| internalStatusType=='question_unstarred_final_admission'
+					|| internalStatusType=='question_final_clarificationNeededFromDepartment'))}">	
 	<p>
 	<select id="internalStatusMaster" style="display:none;">
 		<c:forEach items="${internalStatuses}" var="i">
@@ -1696,7 +1699,8 @@
 	</c:if>
 	
 	<c:if test="${workflowstatus=='COMPLETED' and (internalStatusType=='question_final_admission'
-					|| internalStatusType=='question_unstarred_final_admission')}">
+					|| internalStatusType=='question_unstarred_final_admission'
+					|| internalStatusType=='question_final_clarificationNeededFromDepartment')}">
 		<div class="fields">
 			<h2></h2>
 			<p class="tright">		
@@ -1724,6 +1728,7 @@
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<input type="hidden" id="resendQuestionTextStatus" name="resendQuestionTextStatus" value="${resendQuestionTextStatus}"/>
+	<input type="hidden" id="clarificationStatus" name="clarificationStatus" value="${clarificationStatus}"/>
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		
 	</c:if>
