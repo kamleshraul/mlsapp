@@ -2025,7 +2025,7 @@ public class QuestionWorkflowController  extends BaseController{
 									if(pendingWorkflow != null){
 										Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
 										processService.completeTask(prevTask, properties);
-										pendingWorkflow.setStatus("COMPLETED");
+										pendingWorkflow.setStatus("TIMEOUT");
 										pendingWorkflow.setCompletionTime(new Date());
 										pendingWorkflow.merge();
 									}
