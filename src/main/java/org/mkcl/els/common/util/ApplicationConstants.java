@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.common.util;
 
+import org.mkcl.els.domain.UserGroupType;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -2562,6 +2563,12 @@ public class ApplicationConstants {
 	public static String QUESTION_UNSTARRED_PROCESSED_RESENDREVISEDQUESTIONTEXTTODEPARTMENT= "question_unstarred_processed_resendRevisedQuestionTextToDepartment";
 	
 	public static String QUESTION_PROCESSED_RESENDREVISEDQUESTIONTEXTTODEPARTMENT= "question_processed_resendRevisedQuestionTextToDepartment";
+	
+	public static String LEADER_OF_OPPOSITION = "leader_of_opposition";
+	
+	public static String QUESTION_PROCESSED_CLARIFICATION_REPUTUP = "question_processed_clarification_reputup";
+	
+	public static String QUESTION_UNSTARRED_PROCESSED_CLARIFICATION_REPUTUP = "question_unstarred_processed_clarification_reputup";
 	
 	
 	
