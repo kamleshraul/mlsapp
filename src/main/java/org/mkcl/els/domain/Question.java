@@ -2866,7 +2866,17 @@ public class Question extends Device implements Serializable {
 				}
 			}
 		} else {
-			questionDates = question.getChartAnsweringDate();
+			/** 03-01-2017 may be hack and should be removed if found incorrect **/
+			if(question.getAnsweringDate()!=null && question.getChartAnsweringDate()!=null) {
+				if(question.getAnsweringDate().getAnsweringDate().after(question.getChartAnsweringDate().getAnsweringDate())) {
+					questionDates = question.getAnsweringDate();
+				} else {
+					questionDates = question.getChartAnsweringDate();
+				}
+			} else {
+				questionDates = question.getChartAnsweringDate();
+			}						
+			//questionDates = question.getChartAnsweringDate();
 		}		
 		return questionDates;
 	}
