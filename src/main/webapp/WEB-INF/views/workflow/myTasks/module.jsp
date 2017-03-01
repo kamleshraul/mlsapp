@@ -779,12 +779,12 @@
 		}
 		
 		function generateResolutionWorkflowSummaryReport(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$.get('ref/sessionbyparametername?houseType='+$("#selectedHouseType").val() +
 					'&sessionType=' + $("#selectedSessionType").val() + 
 					'&year=' + $("#selectedSessionYear").val(),function(data){
 				
 				if(data){
-					
 					var url = "resolution/report/generalreport?sessionId=" + data.id
 					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
 					+ "&workflowStatus=" + $("#selectedStatus").val()
@@ -795,19 +795,20 @@
 					+ "&report=RESOLUTION_WORKFLOW_SUMMARY_REPORT"
 					+ "&fromDate=" + ($("#sumRepFromDate").val()==''?'0':$("#sumRepFromDate").val())
 					+ "&toDate=" + ($("#sumRepToDate").val()==''?'0':$("#sumRepToDate").val());
-					
 					showTabByIdAndUrl('details_tab', url);
+					
 				}
 			});
+			
 		}
 		
 		function generateDepartmentStatementReport(){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$.get('ref/sessionbyparametername?houseType='+$("#selectedHouseType").val() +
 					'&sessionType=' + $("#selectedSessionType").val() + 
 					'&year=' + $("#selectedSessionYear").val(),function(data){
 				
 				if(data){
-					
 					var url = "question/report/generalreport?sessionId=" + data.id
 					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
 					+ "&statusType=" + ($("#selectedSubWorkflow").val()==''?'0':$("#selectedSubWorkflow").val()) 
@@ -816,8 +817,10 @@
 					+ "&reportout=question_department_statement_report"
 					+ "&report=QIS_DEPARTMENT_STATEMENT_REPORT";
 					showTabByIdAndUrl('details_tab', url);
+					$.unblockUI();
 				}
 			});
+			
 		}
 		
 		
