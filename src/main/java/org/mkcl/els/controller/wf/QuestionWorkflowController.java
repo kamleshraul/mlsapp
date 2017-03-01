@@ -611,6 +611,30 @@ public class QuestionWorkflowController  extends BaseController{
 						model.addAttribute("lastReceivingDateFromDepartment", formattedLastRecievingDateFromDepartment);
 					}
 				}
+				/** validation for restricting late answer filling **/				
+				if(domain.getStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)) {
+					//check validation flag
+					CustomParameter csptValidationFlagForLastReceivingDateFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_"+domain.getHouseType().getType().toUpperCase()+"_"+ApplicationConstants.VALIDATION_FLAG_FOR_LAST_RECEIVING_DATE_FROM_DEPARTMENT, "");
+					if(csptValidationFlagForLastReceivingDateFromDepartment!=null) {
+						String validationFlagForLastReceivingDateFromDepartment = csptValidationFlagForLastReceivingDateFromDepartment.getValue();
+						if(validationFlagForLastReceivingDateFromDepartment!=null
+								&& !validationFlagForLastReceivingDateFromDepartment.isEmpty()) {
+							if(Boolean.valueOf(validationFlagForLastReceivingDateFromDepartment)) {
+								//perform validation
+								if(domain.getAnsweringDate()!=null 
+										&& domain.getAnsweringDate().getAnsweringDate().after(domain.getChartAnsweringDate().getAnsweringDate())) {
+									if(domain.getAnsweringDate().getLastReceivingDateFromDepartment().before(new Date())) {
+										model.addAttribute("lateAnswerFillingFlag", "set");
+									}
+								} else {
+									if(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment().before(new Date())) {
+										model.addAttribute("lateAnswerFillingFlag", "set");
+									}
+								}
+							}
+						}
+					}
+				}
 
 				CustomParameter serverTimeStamp = 
 						CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");

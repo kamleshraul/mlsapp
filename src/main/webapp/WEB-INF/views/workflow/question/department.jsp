@@ -1403,7 +1403,9 @@
 			<%-- <c:if test="${currTimeMillis <= sendbacktimelimit}"> --%>
 				<input id="sendBack" type="button" value="<spring:message code='question.sendback' text='Send Back'/>" class="butDef" style="display:none;">
 			<%-- </c:if> --%>
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<c:if test="${empty lateAnswerFillingFlag or lateAnswerFillingFlag!='set'}">
+				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			</c:if>			
 		</p>
 	</div>
 	</c:if>

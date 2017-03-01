@@ -2570,6 +2570,6 @@ public class ApplicationConstants {
 	
 	public static String QUESTION_UNSTARRED_PROCESSED_CLARIFICATION_REPUTUP = "question_unstarred_processed_clarification_reputup";
 	
-	
+	public static String VALIDATION_FLAG_FOR_LAST_RECEIVING_DATE_FROM_DEPARTMENT = "VALIDATION_FLAG_FOR_LAST_RECEIVING_DATE_FROM_DEPARTMENT";
 	
 }
