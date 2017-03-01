@@ -122,7 +122,7 @@
 													<%-- <td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td> --%>
 													<td style="text-align: left; font-size: 12px; width: 60px;">${formater.formatNumberNoGrouping(r[2], locale)}</td>
 													<td style="text-align: center; font-size: 12px; width: 200px;">${r[4]}</td>
-													<td style="text-align: center; font-size: 12px; width: 250px;">${r[5]}</td>
+													<td style="text-align: justify; font-size: 12px; width: 250px;">${r[5]}</td>
 													<td style="text-align: justify; font-size: 12px; width: 90px;">${r[8]}</td>
 													<td style="text-align: left; font-size: 12px; width: 90px;">${r[9]}</td>
 													<td style="text-align: justify; font-size: 12px; width: 90px;">
@@ -143,7 +143,7 @@
 												<%-- <td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td> --%>
 												<td style="text-align: left; font-size: 12px; width: 60px;">${formater.formatNumberNoGrouping(r[2], locale)}</td>
 												<td style="text-align: center; font-size: 12px; width: 200px;">${r[4]}</td>
-												<td style="text-align: center; font-size: 12px; width: 250px;">${r[5]}</td>
+												<td style="text-align: justify; font-size: 12px; width: 250px;">${r[5]}</td>
 												<td style="text-align: justify; font-size: 12px; width: 90px;">${r[8]}</td>
 												<td style="text-align: left; font-size: 12px; width: 90px;">${r[9]}</td>
 												<td style="text-align: justify; font-size: 12px; width: 90px;">
