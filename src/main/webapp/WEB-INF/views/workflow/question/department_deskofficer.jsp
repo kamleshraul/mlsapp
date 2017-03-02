@@ -155,7 +155,15 @@
 				valueToSend = $("#internalStatus").val();
 			}else{
 				valueToSend = value;
-			} 
+			}
+			/* hide submit for sending answer in case of late answer filling validation */
+			if(changedInternalStatus == sendToSectionOfficer
+					&& $("#lateAnswerFillingFlag").val()=="set"
+					&& $("#internalStatusType").val()=="question_final_admission") {
+				$('#submit').hide();
+			}else{
+				$('#submit').show();
+			}
 			var params="question=" + $("#id").val()
 			+ "&status=" + valueToSend 
 			+ "&usergroup=" + $("#usergroup").val()
@@ -1411,9 +1419,7 @@
 			<%-- <c:if test="${currTimeMillis <= sendbacktimelimit}"> --%>
 				<input id="sendBack" type="button" value="<spring:message code='question.sendback' text='Send Back'/>" class="butDef" style="display:none;">
 			<%-- </c:if> --%>
-			<c:if test="${empty lateAnswerFillingFlag or lateAnswerFillingFlag!='set'}">
-				<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-			</c:if>
+			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</p>
 	</div>
 	</c:if>
@@ -1474,6 +1480,7 @@
 	
 	<input type="hidden" id="yaadiNumber" name="yaadiNumber" value="${domain.yaadiNumber}"/>
 	<input type="hidden" id="yaadiLayingDate" name="yaadiLayingDate" value="${yaadiLayingDate}"/>
+	<input type="hidden" id="lateAnswerFillingFlag" name="lateAnswerFillingFlag" value="${lateAnswerFillingFlag}"/>
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">

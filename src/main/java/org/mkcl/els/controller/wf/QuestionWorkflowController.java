@@ -28,6 +28,7 @@ import javax.validation.Valid;
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BulkApprovalVO;
 import org.mkcl.els.common.vo.MasterVO;
@@ -622,12 +623,12 @@ public class QuestionWorkflowController  extends BaseController{
 							if(Boolean.valueOf(validationFlagForLastReceivingDateFromDepartment)) {
 								//perform validation
 								if(domain.getAnsweringDate()!=null 
-										&& domain.getAnsweringDate().getAnsweringDate().after(domain.getChartAnsweringDate().getAnsweringDate())) {
-									if(domain.getAnsweringDate().getLastReceivingDateFromDepartment().before(new Date())) {
+										&& domain.getAnsweringDate().getAnsweringDate().after(domain.getChartAnsweringDate().getAnsweringDate())) {									
+									if(DateUtil.compareDatePartOnly(domain.getAnsweringDate().getLastReceivingDateFromDepartment(), new Date())<0) {
 										model.addAttribute("lateAnswerFillingFlag", "set");
 									}
 								} else {
-									if(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment().before(new Date())) {
+									if(DateUtil.compareDatePartOnly(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment(), new Date())<0) {
 										model.addAttribute("lateAnswerFillingFlag", "set");
 									}
 								}
