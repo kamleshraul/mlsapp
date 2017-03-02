@@ -357,9 +357,17 @@
 		    valueToSend=value;
 	    }	
 		
+		//hack SectionOfficer
+		var params = '';
+		if(type == value || value == sendToMember || value == resendRevisedQuestionText){
+			 params="question=" + $("#id").val() + "&status=" + valueToSend +
+			"&usergroup=" + $("#usergroup").val() + "&level=8";
+		}else{
+			 params="question=" + $("#id").val() + "&status=" + valueToSend +
+			"&usergroup=" + $("#usergroup").val() + "&level=" + $("#originalLevel").val();
+		}
 			
-		var params="question=" + $("#id").val() + "&status=" + valueToSend +
-		"&usergroup=" + $("#usergroup").val() + "&level=" + $("#originalLevel").val();
+		
 		var resourceURL = 'ref/question/actors?' + params;
 		
 		$.post(resourceURL,function(data){
