@@ -77,14 +77,14 @@
 					</xsl:variable>
 	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
 						<fo:block text-align="right">
-							<fo:block margin-right="1.45cm">क्रमांक - _____&#160;/&#160;
+							<fo:block margin-right="1.60cm">क्रमांक - _____&#160;/&#160;
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">फ</xsl:when>
 								<xsl:when test="houseType='upperhouse'">ई-२</xsl:when>
 							</xsl:choose>
 							</fo:block>						
-							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
-							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
+							<fo:block margin-right="0.35cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
+							<fo:block margin-right="0.80cm">विधान भवन, मुंबई / नागपूर</fo:block>
 							<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
 						</fo:block>			
 						
@@ -160,8 +160,8 @@
 						
 						<fo:block font-size="4px">&#160;</fo:block>	
 						
-						<fo:block margin-left="1.5cm">							
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;माननीय  
+						<fo:block margin-left="1.10cm">							
+							माननीय  
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
 								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
@@ -171,7 +171,7 @@
 								<xsl:when test="houseType='lowerhouse'">विधानसभेत </xsl:when>
 								<xsl:when test="houseType='upperhouse'">विधानपरिषदेत</xsl:when>
 							</xsl:choose>
-							 &#160;मांडण्यासाठी  <fo:inline font-weight="bold">स्वीकृत</fo:inline> केला आहे.
+							 मांडण्यासाठी  <fo:inline font-weight="bold">स्वीकृत</fo:inline> केला आहे.
 						</fo:block>	
 						<fo:block font-size="4px">&#160;</fo:block>		
 								<fo:block text-align="right">
@@ -202,10 +202,10 @@
 												<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
 												<xsl:choose>
 													<xsl:when test="sessionPlace='मुंबई'">
-														<fo:block>(२) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग,मंत्रालय,मुंबई 400 032.</fo:block>
+														<fo:block>(२) "विधानकार्य कक्ष", सामान्य प्रशासन विभाग, मंत्रालय, मुंबई ४०० ०३२.</fo:block>
 													</xsl:when>
 													<xsl:when test="sessionPlace='नागपूर'">
-														(२) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग,शिबीर  कार्यालय, नागपूर
+														(२) "विधानकार्य कक्ष", सामान्य प्रशासन विभाग, शिबीर  कार्यालय, नागपूर
 													</xsl:when>
 												</xsl:choose>
 												<fo:block>(३) सर्व संबंधित सदस्य</fo:block>
@@ -215,10 +215,10 @@
 												<fo:block>(२) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
 												<xsl:choose>
 													<xsl:when test="sessionPlace='मुंबई'">
-														<fo:block>(३) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग,मंत्रालय,मुंबई 400 032.</fo:block>
+														<fo:block>(३) "विधानकार्य कक्ष", सामान्य प्रशासन विभाग, मंत्रालय, मुंबई ४०० ०३२.</fo:block>
 													</xsl:when>
 													<xsl:when test="sessionPlace='नागपूर'">
-														<fo:block>(३) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग,शिबीर  कार्यालय, नागपूर</fo:block>
+														<fo:block>(३) "विधानकार्य कक्ष", सामान्य प्रशासन विभाग, शिबीर  कार्यालय, नागपूर</fo:block>
 													</xsl:when>
 												</xsl:choose>
 												<fo:block>(४) सर्व संबंधित सदस्य</fo:block>
@@ -236,10 +236,10 @@
 												</xsl:choose>	
 												<xsl:choose>
 													<xsl:when test="sessionPlace='मुंबई'">
-														<fo:block>(३) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग,मंत्रालय,मुंबई 400 032.</fo:block>
+														<fo:block>(३) "विधानकार्य कक्ष", सामान्य प्रशासन विभाग, मंत्रालय, मुंबई ४०० ०३२.</fo:block>
 													</xsl:when>
 													<xsl:when test="sessionPlace='नागपूर'">
-														<fo:block>(३) "विधानकार्य कक्ष",सामान्य प्रशासन विभाग,शिबीर  कार्यालय, नागपूर</fo:block>
+														<fo:block>(३) "विधानकार्य कक्ष", सामान्य प्रशासन विभाग, शिबीर  कार्यालय, नागपूर</fo:block>
 													</xsl:when>
 												</xsl:choose>
 												<fo:block>(४) सर्व संबंधित सदस्य</fo:block>
@@ -252,7 +252,7 @@
 													<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
 													<xsl:choose>
 														<xsl:when test="sessionPlace='मुंबई'">
-															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई 400 032</fo:block>
+															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई ४०० ०३२</fo:block>
 														</xsl:when>
 														<xsl:when test="sessionPlace='नागपूर'">
 															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, शिबीर  कार्यालय, नागपूर</fo:block>
@@ -264,7 +264,7 @@
 													<fo:block>(१) माननीय <fo:inline font-weight="bold"><xsl:value-of select="primaryMemberDesignation"/></fo:inline></fo:block>
 													<xsl:choose>
 														<xsl:when test="sessionPlace='मुंबई'">
-															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई 400 032</fo:block>
+															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई ४०० ०३२</fo:block>
 														</xsl:when>
 														<xsl:when test="sessionPlace='नागपूर'">
 															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, शिबीर  कार्यालय, नागपूर</fo:block>
@@ -283,7 +283,7 @@
 													</xsl:choose>
 													<xsl:choose>
 														<xsl:when test="sessionPlace='मुंबई'">
-															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई 400 032</fo:block>
+															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, मंत्रालय, मुंबई ४०० ०३२</fo:block>
 														</xsl:when>
 														<xsl:when test="sessionPlace='नागपूर'">
 															<fo:block>(२) सचिव, संसदीय कार्य विभाग, महाराष्ट्र शासन, शिबीर  कार्यालय, नागपूर</fo:block>
@@ -313,7 +313,7 @@
 										वि.प.स
 									</xsl:when>
 								</xsl:choose>
-							</fo:inline> यांनी मांडावयाचा ठराव.	
+							</fo:inline>यांनी मांडावयाचा ठराव.	
 							</fo:block>															
 						</fo:block>
 						<fo:block font-size="6px">&#160;</fo:block>
