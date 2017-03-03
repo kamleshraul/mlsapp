@@ -61,6 +61,12 @@ public class CutMotionDateControllerUtility{
 				if(!username.isEmpty()){
 					Credential credential = Credential.findByFieldName(Credential.class,"username",username,"");
 					UserGroup userGroup = UserGroup.findActive(credential, domain.getSession().getEndDate(), locale);
+					userGroupType = userGroup.getUserGroupType().getType();
+					if(status.getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_ADMISSION)
+							&& userGroupType.equals(ApplicationConstants.MEMBER)){
+						UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.LEADER_OF_OPPOSITION, locale);
+						userGroup = UserGroup.findActive(credential,ugt , domain.getSession().getEndDate(), locale);
+					}
 					userGroupId = String.valueOf(userGroup.getId());
 					userGroupType = userGroup.getUserGroupType().getType();
 					userGroupName = userGroup.getUserGroupType().getName();
@@ -530,10 +536,12 @@ public class CutMotionDateControllerUtility{
 		for (WorkflowActor wfa : actors) {
 			MasterVO mvo = new MasterVO();
 			User user = getUser(wfa, houseType, deviceType, locale);
-			String value = wfa.getId()+ ";" + wfa.getLevel() + ";" + concat(new String[] { user.getTitle(), user.getFirstName(), user.getMiddleName(), user.getLastName() }, " ");
-			mvo.setValue(value);
-			mvo.setName(getUserGroup(wfa, houseType, deviceType, locale).getUserGroupType().getName());
-			actorsVO.add(mvo);
+			if(user != null){
+				String value = wfa.getId()+ ";" + wfa.getLevel() + ";" + concat(new String[] { user.getTitle(), user.getFirstName(), user.getMiddleName(), user.getLastName() }, " ");
+				mvo.setValue(value);
+				mvo.setName(getUserGroup(wfa, houseType, deviceType, locale).getUserGroupType().getName());
+				actorsVO.add(mvo);
+			}
 		}
 
 		return actorsVO;
@@ -570,10 +578,12 @@ public class CutMotionDateControllerUtility{
 		for (WorkflowActor wfa : actors) {
 			MasterVO mvo = new MasterVO();
 			User user = getUser(wfa, houseType, deviceType, locale);
-			String value = wfa.getId()+ ";" + wfa.getLevel() + ";" + concat(new String[] { user.getTitle(), user.getFirstName(), user.getMiddleName(), user.getLastName() }, " ");
-			mvo.setValue(value);
-			mvo.setName(getUserGroup(wfa, houseType, deviceType, locale).getUserGroupType().getName());
-			actorsVO.add(mvo);
+			if(user != null){
+				String value = wfa.getId()+ ";" + wfa.getLevel() + ";" + concat(new String[] { user.getTitle(), user.getFirstName(), user.getMiddleName(), user.getLastName() }, " ");
+				mvo.setValue(value);
+				mvo.setName(getUserGroup(wfa, houseType, deviceType, locale).getUserGroupType().getName());
+				actorsVO.add(mvo);
+			}
 		}
 
 		return actorsVO;
