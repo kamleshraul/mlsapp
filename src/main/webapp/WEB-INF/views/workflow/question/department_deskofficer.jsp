@@ -1298,7 +1298,11 @@
 		</tbody>
 	</table>
 	</p>
-	<c:if test="${workflowstatus!='COMPLETED' or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}">
+	<c:if test="${(workflowstatus!='COMPLETED' and (internalStatusType == 'question_final_admission' or internalStatusType =='question_unstarred_final_admission'
+												or internalStatusType == 'question_final_clarificationNeededFromDepartment'
+												or internalStatusType =='question_unstarred_final_clarificationNeededFromDepartment'
+												or internalStatusType =='question_final_clarificationNeededFromMemberAndDepartment')) 
+		or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}">
 	<%-- <c:if test="${workflowstatus!='COMPLETED'}"> --%>	
 		<p>
 		<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
@@ -1423,7 +1427,7 @@
 		</p>
 	</div>
 	</c:if>
-	<c:if test="${workflowstatus=='COMPLETED'}">
+	<%-- <c:if test="${workflowstatus=='COMPLETED'}">
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">		
@@ -1433,7 +1437,7 @@
 			</c:if>
 		</p>
 	</div>
-	</c:if> 
+	</c:if>  --%>
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 	<form:hidden path="answeringAttemptsByDepartment" />
 	<form:hidden path="id"/>
