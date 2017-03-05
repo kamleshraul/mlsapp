@@ -262,7 +262,7 @@
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>
 				</a> |
 			</security:authorize>
-			 <security:authorize access="!hasAnyRole('SMOIS_TYPIST', 'SMOIS_CLERK','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+			 <security:authorize access="!hasAnyRole('SMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
