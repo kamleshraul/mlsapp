@@ -351,6 +351,10 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	public static Reference findActorVOAtFirstLevel(final StandaloneMotion motion, final Workflow processWorkflow, final String locale) {
 		return getWorkflowConfigRepository().findActorVOAtFirstLevel(motion, processWorkflow, locale);
 	}
+	
+	public static WorkflowConfig getLatest(StandaloneMotion standalonemotion, String internalStatus, String locale) {
+		return getWorkflowConfigRepository().getLatest(standalonemotion, internalStatus, locale);
+	}
 	/****************************StandaloneMotion********************/
 	
 	/****************************EventMotion*******************************/
@@ -489,4 +493,6 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 					workflowName, level, locale);
 	}
 	/****************************** Prashnavali ***************************/
+
+
 }
