@@ -52,6 +52,8 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowActor;
+import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.ballot.Ballot;
 import org.slf4j.Logger;
@@ -2430,46 +2432,20 @@ class StandaloneMotionReportHelper{
 				StandaloneMotion qt = StandaloneMotion.findById(StandaloneMotion.class, id);
 				List report = generatetCurrentStatusReport(qt, strDevice, locale.toString());				
 				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();
-				CustomParameter csptAllowedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "SMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "SMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
-				String houseType = null;
-				/**** To decide the hierarchy of authorities ****/
-				Map<String, String[]> hierarchyParameters = new HashMap<String, String[]>();
-				hierarchyParameters.put("locale", new String[]{locale.toString()});
-				hierarchyParameters.put("id", new String[]{qt.getId().toString()});
-				List authorityHierarchy = Query.findReport("SMOIS_AUTHORITY_HIERARCHY", hierarchyParameters);
-				if(authorityHierarchy != null && csptAllowedUserGroupForStatusReportSign != null){
-					if(csptAllowedUserGroupForStatusReportSign.getValue() != null && !csptAllowedUserGroupForStatusReportSign.getValue().isEmpty()){
-						for(Object ah : authorityHierarchy){
-							Object[] auList = (Object[]) ah;
-							if(auList != null){							
-								if(auList[1] != null){
-									String au = auList[1].toString();
-									if(csptAllowedUserGroupForStatusReportSign.getValue().contains(au)){
-										if(au.equals(ApplicationConstants.UNDER_SECRETARY) || au.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
-											dataMap.put(ApplicationConstants.UNDER_SECRETARY, null);
-										}else{
-											dataMap.put(au, null);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				
 				if(report != null && !report.isEmpty()){
-										
+					
 					List<User> users = User.findByRole(false, "SMOIS_PRINCIPAL_SECRETARY", locale.toString());
 					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
-					
-					if(csptAllowedUserGroupForStatusReportSign != null){
-						if(csptAllowedUserGroupForStatusReportSign.getValue() != null && !csptAllowedUserGroupForStatusReportSign.getValue().isEmpty()){
-						
+	
+					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "SMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "SMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
+					if(csptAllwedUserGroupForStatusReportSign != null){
+						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
+							Object[] lastObject = (Object[]) report.get(report.size()-1); 
 							for(Object o : report){
 								Object[] objx = (Object[])o;
 	
 								if(objx[27] != null && !objx[27].toString().isEmpty()){
-									if(csptAllowedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
+									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
 										
 										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
 																				
@@ -2485,7 +2461,7 @@ class StandaloneMotionReportHelper{
 														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
 													}
 												}
-											}else{
+											}else {
 												dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
 											}
 										}else{
@@ -2509,71 +2485,242 @@ class StandaloneMotionReportHelper{
 								}
 							}
 							
-							if(dataMap.get(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY) == null && qt.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, locale.toString());
-								
-								Object[] dataCollection = new Object[30];
-								dataCollection[0] = new String(userGroupType.getName());
-								dataCollection[1] = new String("");
-								dataCollection[3] = new String("");
-								dataCollection[6] = new String("");
-								dataCollection[27] = new String(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY);
-								dataCollection[28] = new String("");
-								
-								dataMap.put(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, dataCollection);
-							}
-							
-							if(dataMap.get(ApplicationConstants.SECRETARY) == null && qt.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.SECRETARY, locale.toString());
-								
-								Object[] dataCollection = new Object[30];
-								dataCollection[0] = new String(userGroupType.getName());
-								dataCollection[1] = new String("");
-								dataCollection[3] = new String("");
-								dataCollection[6] = new String("");
-								dataCollection[27] = new String(ApplicationConstants.SECRETARY);
-								dataCollection[28] = new String("");
-								
-								dataMap.put(ApplicationConstants.SECRETARY, dataCollection);
-							}
-							
-							if(dataMap.get(ApplicationConstants.PRINCIPAL_SECRETARY) == null){
-								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
-								
-								Object[] dataCollection = new Object[30];
-								dataCollection[0] = new String(userGroupType.getName());
-								dataCollection[1] = new String("");
-								dataCollection[3] = new String("");
-								dataCollection[6] = new String("");
-								dataCollection[27] = new String(ApplicationConstants.PRINCIPAL_SECRETARY);
-								dataCollection[28] = new String("");
-								
-								dataMap.put(ApplicationConstants.PRINCIPAL_SECRETARY, dataCollection);
-							}
-							
-							if(dataMap.isEmpty()){
-								for(String val : csptAllowedUserGroupForStatusReportSign.getValue().split(",")){
-								
-									Reference ref = UserGroup.findStandaloneMotionActor(qt, val, String.valueOf(0), locale.toString());
-									Object[] actor = new Object[30];
-									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-										actor[0] = new String(ref.getId().split("#")[3]);
-										actor[1] = new String(ref.getId().split("#")[4]);
-									}else{
-										actor[0] = new String(ref.getId().split("#")[3]);
-										actor[1] = new String("");
+							//Following block is added for solving the issue of question drafts where in if there exist a draft and later the question is pending
+							// at the specific actor, the last remark is displayed
+							WorkflowConfig wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+							List<WorkflowActor> wfActors = wfConfig.getWorkflowactors();
+							List<WorkflowActor> distinctActors = new ArrayList<WorkflowActor>();
+							for(WorkflowActor wf : wfActors){
+								UserGroupType userGroupType = wf.getUserGroupType();
+								Boolean elementPresent = false;
+								for(WorkflowActor wf1 : distinctActors){
+									UserGroupType userGroupType1 = wf1.getUserGroupType();
+									if(userGroupType.getType().equals(userGroupType1.getType())){
+										elementPresent = true;
+										break;
 									}
-									actor[3] = new String("");
-									actor[6] = new String("");
-									actor[28] = new String("");
-									
-									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-										dataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+								}
+								if(!elementPresent){
+									distinctActors.add(wf);
+								}
+							}
+							Integer level = null;
+							WorkflowDetails  wfDetails = WorkflowDetails.findCurrentWorkflowDetail(qt);
+							for(WorkflowActor wf : distinctActors){
+								UserGroupType userGroupType = wf.getUserGroupType();
+								if(userGroupType.getType().equals(lastObject[27])){
+									if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+										for(WorkflowActor wf1 : distinctActors){
+											UserGroupType ugt = wf1.getUserGroupType();
+											if(ugt.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+												level = wf1.getLevel();
+											}
+										}
 									}else{
-										dataMap.put(val, actor);
+										level = wf.getLevel();
+									}
+								}
+									
+								
+								if(level != null && wf.getLevel()>level){
+									if(dataMap.containsKey(userGroupType.getType())
+											&&
+										(wfDetails!= null && 
+										Integer.parseInt(wfDetails.getAssigneeLevel())>=level)){
+										Object[] tempObj = dataMap.get(userGroupType.getType());
+										tempObj[28] = "";
+										tempObj[6] = "";
+										dataMap.put(userGroupType.getType(), tempObj);
 									}
 								}
 							}
+							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "SMOIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+qt.getHouseType().getType(), "");
+							if(onPaperSigningAuthorityParameter != null){
+								String signingAuthority = onPaperSigningAuthorityParameter.getValue();
+								String[] signingAuthorities = signingAuthority.split(",");
+								for(String str : signingAuthorities){
+									String authority = str;
+									if(str.equals(ApplicationConstants.UNDER_SECRETARY) || str.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+										str = ApplicationConstants.UNDER_SECRETARY;
+									}
+									if(dataMap.get(str) == null){
+										UserGroupType userGroupType = null;
+										Reference ref = null;
+										if(authority.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+											 userGroupType = UserGroupType.
+													findByFieldName(UserGroupType.class, "type", authority, locale.toString());
+											 ref = UserGroup.findStandaloneMotionActor(qt, authority, String.valueOf(0), locale.toString());
+										}else{
+											 userGroupType = UserGroupType.
+													findByFieldName(UserGroupType.class, "type", str, locale.toString());
+											 ref = UserGroup.findStandaloneMotionActor(qt, str, String.valueOf(0), locale.toString());
+										}
+										
+										if(ref.getId() != null){
+											Object[] actor = new Object[32];
+											if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) 
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY)){
+												actor[0] = new String(ref.getId().split("#")[3]);
+												actor[1] = new String(ref.getId().split("#")[4]);
+											}else{
+												actor[0] = new String(ref.getId().split("#")[3]);
+												actor[1] = new String("");
+											}
+											actor[3] = new String("");
+											actor[6] = new String("");
+											actor[27] = userGroupType.getType();
+											actor[28] = new String("");
+											actor[31] = null;
+											dataMap.put(str, actor);
+										}
+									}
+								}
+							}
+//				CustomParameter csptAllowedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)? "SMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "SMOIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
+//				String houseType = null;
+//				/**** To decide the hierarchy of authorities ****/
+//				Map<String, String[]> hierarchyParameters = new HashMap<String, String[]>();
+//				hierarchyParameters.put("locale", new String[]{locale.toString()});
+//				hierarchyParameters.put("id", new String[]{qt.getId().toString()});
+//				List authorityHierarchy = Query.findReport("SMOIS_AUTHORITY_HIERARCHY", hierarchyParameters);
+//				if(authorityHierarchy != null && csptAllowedUserGroupForStatusReportSign != null){
+//					if(csptAllowedUserGroupForStatusReportSign.getValue() != null && !csptAllowedUserGroupForStatusReportSign.getValue().isEmpty()){
+//						for(Object ah : authorityHierarchy){
+//							Object[] auList = (Object[]) ah;
+//							if(auList != null){							
+//								if(auList[1] != null){
+//									String au = auList[1].toString();
+//									if(csptAllowedUserGroupForStatusReportSign.getValue().contains(au)){
+//										if(au.equals(ApplicationConstants.UNDER_SECRETARY) || au.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+//											dataMap.put(ApplicationConstants.UNDER_SECRETARY, null);
+//										}else{
+//											dataMap.put(au, null);
+//										}
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//				
+//				if(report != null && !report.isEmpty()){
+//										
+//					List<User> users = User.findByRole(false, "SMOIS_PRINCIPAL_SECRETARY", locale.toString());
+//					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
+//					
+//					if(csptAllowedUserGroupForStatusReportSign != null){
+//						if(csptAllowedUserGroupForStatusReportSign.getValue() != null && !csptAllowedUserGroupForStatusReportSign.getValue().isEmpty()){
+//						
+//							for(Object o : report){
+//								Object[] objx = (Object[])o;
+//	
+//								if(objx[27] != null && !objx[27].toString().isEmpty()){
+//									if(csptAllowedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
+//										
+//										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
+//																				
+//										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+//											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
+//												if(objx != null){
+//													if(objx[6] != null && objx[6].toString().length() > 0){
+//														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+//													}else{
+//														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
+//														tempObj[28] = objx[28];
+//														
+//														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
+//													}
+//												}
+//											}else{
+//												dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+//											}
+//										}else{
+//											if(dataMap.get(userGroupType.getType()) != null){
+//												if(objx != null){
+//													if(objx[6] != null && objx[6].toString().length() > 0){
+//														dataMap.put(userGroupType.getType(), objx);
+//													}else{
+//														Object[] tempObj = dataMap.get(userGroupType.getType());
+//														tempObj[28] = objx[28];
+//														
+//														dataMap.put(userGroupType.getType(), tempObj);
+//													}
+//												}
+//												
+//											}else{
+//												dataMap.put(userGroupType.getType(), objx);
+//											}
+//										}
+//									}
+//								}
+//							}
+//							
+//							if(dataMap.get(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY) == null && qt.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+//								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, locale.toString());
+//								
+//								Object[] dataCollection = new Object[30];
+//								dataCollection[0] = new String(userGroupType.getName());
+//								dataCollection[1] = new String("");
+//								dataCollection[3] = new String("");
+//								dataCollection[6] = new String("");
+//								dataCollection[27] = new String(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY);
+//								dataCollection[28] = new String("");
+//								
+//								dataMap.put(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, dataCollection);
+//							}
+//							
+//							if(dataMap.get(ApplicationConstants.SECRETARY) == null && qt.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+//								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.SECRETARY, locale.toString());
+//								
+//								Object[] dataCollection = new Object[30];
+//								dataCollection[0] = new String(userGroupType.getName());
+//								dataCollection[1] = new String("");
+//								dataCollection[3] = new String("");
+//								dataCollection[6] = new String("");
+//								dataCollection[27] = new String(ApplicationConstants.SECRETARY);
+//								dataCollection[28] = new String("");
+//								
+//								dataMap.put(ApplicationConstants.SECRETARY, dataCollection);
+//							}
+//							
+//							if(dataMap.get(ApplicationConstants.PRINCIPAL_SECRETARY) == null){
+//								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
+//								
+//								Object[] dataCollection = new Object[30];
+//								dataCollection[0] = new String(userGroupType.getName());
+//								dataCollection[1] = new String("");
+//								dataCollection[3] = new String("");
+//								dataCollection[6] = new String("");
+//								dataCollection[27] = new String(ApplicationConstants.PRINCIPAL_SECRETARY);
+//								dataCollection[28] = new String("");
+//								
+//								dataMap.put(ApplicationConstants.PRINCIPAL_SECRETARY, dataCollection);
+//							}
+//							
+//							if(dataMap.isEmpty()){
+//								for(String val : csptAllowedUserGroupForStatusReportSign.getValue().split(",")){
+//								
+//									Reference ref = UserGroup.findStandaloneMotionActor(qt, val, String.valueOf(0), locale.toString());
+//									Object[] actor = new Object[30];
+//									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+//										actor[0] = new String(ref.getId().split("#")[3]);
+//										actor[1] = new String(ref.getId().split("#")[4]);
+//									}else{
+//										actor[0] = new String(ref.getId().split("#")[3]);
+//										actor[1] = new String("");
+//									}
+//									actor[3] = new String("");
+//									actor[6] = new String("");
+//									actor[28] = new String("");
+//									
+//									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+//										dataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+//									}else{
+//										dataMap.put(val, actor);
+//									}
+//								}
+//							}
 	
 							model.addAttribute("data", dataMap);
 							model.addAttribute("formatData", report.get(report.size()-1));
