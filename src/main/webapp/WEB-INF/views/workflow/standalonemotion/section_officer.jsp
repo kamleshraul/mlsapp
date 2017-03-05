@@ -147,6 +147,7 @@
 		    $("#endFlag").val("continue");
 	    } else {
 		    valueToSend=value;
+		    $("#internalStatus").val(value);
 	    }	
 		
 		//$("#endflag").val("continue");
@@ -674,7 +675,7 @@
 			var id= $(items[0]).text().trim();
 			$("#changeInternalStatus").val(id);
 			$("#changeInternalStatus").change();
-			//loadActors($("#changeInternalStatus").val());
+			loadActors($("#changeInternalStatus").val());
 		}
 	});
 	</script>
