@@ -4,7 +4,7 @@
 	#if($supportingMember!='' && $supportingMember)
 		$supportingMember
 	#end
-	</b>: $questionText
+	</b>: सन्माननीय <b> $ministryName मंत्री <b> पुढील गोष्टींचा खुलासा करतील काय :- $questionText
 	</div>
 	#if($minister!='')
 	<div>
