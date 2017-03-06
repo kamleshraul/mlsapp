@@ -44,6 +44,8 @@ import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowActor;
+import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,24 +118,17 @@ public class ResolutionReportController extends BaseController{
 			if(strDevice != null && !strDevice.isEmpty()){
 				Resolution resolution = Resolution.findById(Resolution.class, id);
 				String strHouseType = resolution.getHouseType().getType();
-				List report = generatetCurrentStatusReport(resolution, strDevice, locale.toString());				
-				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();	
+				List report = generatetCurrentStatusReport(resolution, strDevice, locale.toString());		
+				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();
 				if(report != null && !report.isEmpty()){
-										
+					
 					List<User> users = User.findByRole(false, "ROIS_PRINCIPALSECRETARY", locale.toString());
-					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() 
-														+ " " + users.get(0).getLastName());
-					CustomParameter csptAllwedUserGroupForStatusReportSign = null;
-					if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
-						csptAllwedUserGroupForStatusReportSign = CustomParameter.
-								findByName(CustomParameter.class,  "ROIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE", "");
-					}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
-						csptAllwedUserGroupForStatusReportSign = CustomParameter.
-								findByName(CustomParameter.class,  "ROIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE", "");
-					}					
+					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() + " " + users.get(0).getLastName());
+	
+					CustomParameter csptAllwedUserGroupForStatusReportSign = CustomParameter.findByName(CustomParameter.class, (strHouseType.equals(ApplicationConstants.LOWER_HOUSE)? "ROIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE": "ROIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE"), "");
 					if(csptAllwedUserGroupForStatusReportSign != null){
-						if(csptAllwedUserGroupForStatusReportSign.getValue() != null 
-								&& !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
+						if(csptAllwedUserGroupForStatusReportSign.getValue() != null && !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
+							Object[] lastObject = (Object[]) report.get(report.size()-1); 
 							for(Object o : report){
 								Object[] objx = (Object[])o;
 	
@@ -154,7 +149,7 @@ public class ResolutionReportController extends BaseController{
 														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
 													}
 												}
-											}else{
+											}else {
 												dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
 											}
 										}else{
@@ -178,78 +173,236 @@ public class ResolutionReportController extends BaseController{
 								}
 							}
 							
-							if(dataMap.get(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY) == null 
-									&& resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-								UserGroupType userGroupType = UserGroupType.
-										findByFieldName(UserGroupType.class, "type", ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, locale.toString());
-								
-								Object[] dataCollection = new Object[25];
-								dataCollection[0] = new String(userGroupType.getName());
-								dataCollection[1] = new String("");
-								dataCollection[3] = new String("");
-								dataCollection[6] = new String("");
-								dataCollection[21] = userGroupType.getType();
-								dataCollection[22] = new String("");
-								dataCollection[24] = null;
-								
-								dataMap.put(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, dataCollection);
+							//Following block is added for solving the issue of question drafts where in if there exist a draft and later the question is pending
+							// at the specific actor, the last remark is displayed
+							WorkflowConfig wfConfig = null;
+							if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+								wfConfig = WorkflowConfig.getLatest(resolution, resolution.getInternalStatusLowerHouse().getType(), locale.toString());
+							}else{
+								wfConfig = WorkflowConfig.getLatest(resolution, resolution.getInternalStatusUpperHouse().getType(), locale.toString());
 							}
-							
-							if(dataMap.get(ApplicationConstants.SECRETARY) == null 
-									&& resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-								UserGroupType userGroupType = UserGroupType.
-										findByFieldName(UserGroupType.class, "type", ApplicationConstants.SECRETARY, locale.toString());
-								
-								Object[] dataCollection = new Object[25];
-								dataCollection[0] = new String(userGroupType.getName());
-								dataCollection[1] = new String("");
-								dataCollection[3] = new String("");
-								dataCollection[6] = new String("");
-								dataCollection[21] = userGroupType.getType();
-								dataCollection[22] = new String("");
-								dataCollection[24] = null;
-								
-								dataMap.put(ApplicationConstants.SECRETARY, dataCollection);
-							}
-							
-							if(dataMap.get(ApplicationConstants.PRINCIPAL_SECRETARY) == null){
-								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
-								
-								Object[] dataCollection = new Object[25];
-								dataCollection[0] = new String(userGroupType.getName());
-								dataCollection[1] = new String("");
-								dataCollection[3] = new String("");
-								dataCollection[6] = new String("");
-								dataCollection[21] = userGroupType.getType();
-								dataCollection[22] = new String("");
-								dataCollection[24] = null;
-								
-								dataMap.put(ApplicationConstants.PRINCIPAL_SECRETARY, dataCollection);
-							}
-							
-							if(dataMap.isEmpty()){
-								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
-								
-									Reference ref = UserGroup.findResolutionActor(resolution,resolution.getHouseType().getType(), val, String.valueOf(0), locale.toString());
-									Object[] actor = new Object[30];
-									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-										actor[0] = new String(ref.getId().split("#")[3]);
-										actor[1] = new String(ref.getId().split("#")[4]);
-									}else{
-										actor[0] = new String(ref.getId().split("#")[3]);
-										actor[1] = new String("");
+							List<WorkflowActor> wfActors = wfConfig.getWorkflowactors();
+							List<WorkflowActor> distinctActors = new ArrayList<WorkflowActor>();
+							for(WorkflowActor wf : wfActors){
+								UserGroupType userGroupType = wf.getUserGroupType();
+								Boolean elementPresent = false;
+								for(WorkflowActor wf1 : distinctActors){
+									UserGroupType userGroupType1 = wf1.getUserGroupType();
+									if(userGroupType.getType().equals(userGroupType1.getType())){
+										elementPresent = true;
+										break;
 									}
-									actor[3] = new String("");
-									actor[6] = new String("");
-									actor[28] = new String("");
-									
-									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
-										dataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+								}
+								if(!elementPresent){
+									distinctActors.add(wf);
+								}
+							}
+							Integer level = null;
+							WorkflowDetails  wfDetails = WorkflowDetails.findCurrentWorkflowDetail(resolution, resolution.getHouseType().getName());
+							for(WorkflowActor wf : distinctActors){
+								UserGroupType userGroupType = wf.getUserGroupType();
+								if(userGroupType.getType().equals(lastObject[21])){
+									if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+										for(WorkflowActor wf1 : distinctActors){
+											UserGroupType ugt = wf1.getUserGroupType();
+											if(ugt.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+												level = wf1.getLevel();
+											}
+										}
 									}else{
-										dataMap.put(val, actor);
+										level = wf.getLevel();
+									}
+								}
+									
+								
+								if(level != null && wf.getLevel()>level){
+									if(dataMap.containsKey(userGroupType.getType())
+											&&
+										(wfDetails!= null && 
+										Integer.parseInt(wfDetails.getAssigneeLevel())>=level)){
+										Object[] tempObj = dataMap.get(userGroupType.getType());
+										tempObj[22] = "";
+										tempObj[6] = "";
+										dataMap.put(userGroupType.getType(), tempObj);
 									}
 								}
 							}
+							CustomParameter onPaperSigningAuthorityParameter = CustomParameter.findByName(CustomParameter.class, "ROIS_CURRENTSTATUS_ONPAPER_SIGNING_AUTHORITY_"+strHouseType, "");
+							if(onPaperSigningAuthorityParameter != null){
+								String signingAuthority = onPaperSigningAuthorityParameter.getValue();
+								String[] signingAuthorities = signingAuthority.split(",");
+								for(String str : signingAuthorities){
+									String authority = str;
+									if(str.equals(ApplicationConstants.UNDER_SECRETARY) || str.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+										str = ApplicationConstants.UNDER_SECRETARY;
+									}
+									if(dataMap.get(str) == null){
+										UserGroupType userGroupType = null;
+										Reference ref = null;
+										if(authority.equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
+											 userGroupType = UserGroupType.
+													findByFieldName(UserGroupType.class, "type", authority, locale.toString());
+											 ref = UserGroup.findResolutionActor(resolution, strHouseType,authority, String.valueOf(0), locale.toString());
+										}else{
+											 userGroupType = UserGroupType.
+													findByFieldName(UserGroupType.class, "type", str, locale.toString());
+											 ref = UserGroup.findResolutionActor(resolution,strHouseType, str, String.valueOf(0), locale.toString());
+										}
+										
+										if(ref.getId() != null){
+											Object[] actor = new Object[32];
+											if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) 
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY)){
+												actor[0] = new String(ref.getId().split("#")[3]);
+												actor[1] = new String(ref.getId().split("#")[4]);
+											}else{
+												actor[0] = new String(ref.getId().split("#")[3]);
+												actor[1] = new String("");
+											}
+											actor[3] = new String("");
+											actor[6] = new String("");
+											actor[21] = userGroupType.getType();
+											actor[22] = new String("");
+											actor[24] = null;
+											dataMap.put(str, actor);
+										}
+									}
+								}
+							}
+//				Map<String, Object[]> dataMap = new LinkedHashMap<String, Object[]>();	
+//				if(report != null && !report.isEmpty()){
+//										
+//					List<User> users = User.findByRole(false, "ROIS_PRINCIPALSECRETARY", locale.toString());
+//					model.addAttribute("principalSec", users.get(0).getTitle() + " " + users.get(0).getFirstName() 
+//														+ " " + users.get(0).getLastName());
+//					CustomParameter csptAllwedUserGroupForStatusReportSign = null;
+//					if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+//						csptAllwedUserGroupForStatusReportSign = CustomParameter.
+//								findByName(CustomParameter.class,  "ROIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_LOWERHOUSE", "");
+//					}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+//						csptAllwedUserGroupForStatusReportSign = CustomParameter.
+//								findByName(CustomParameter.class,  "ROIS_ALLOWED_USERGROUPS_FOR_STATUS_REPORT_SIGN_UPPERHOUSE", "");
+//					}					
+//					if(csptAllwedUserGroupForStatusReportSign != null){
+//						if(csptAllwedUserGroupForStatusReportSign.getValue() != null 
+//								&& !csptAllwedUserGroupForStatusReportSign.getValue().isEmpty()){
+//							for(Object o : report){
+//								Object[] objx = (Object[])o;
+//	
+//								if(objx[21] != null && !objx[21].toString().isEmpty()){
+//									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[21].toString())){
+//										
+//										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[21].toString(), locale.toString());
+//																				
+//										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
+//											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
+//												if(objx != null){
+//													if(objx[6] != null && objx[6].toString().length() > 0){
+//														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+//													}else{
+//														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
+//														tempObj[22] = objx[22];
+//														
+//														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
+//													}
+//												}
+//											}else{
+//												dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
+//											}
+//										}else{
+//											if(dataMap.get(userGroupType.getType()) != null){
+//												if(objx != null){
+//													if(objx[6] != null && objx[6].toString().length() > 0){
+//														dataMap.put(userGroupType.getType(), objx);
+//													}else{
+//														Object[] tempObj = dataMap.get(userGroupType.getType());
+//														tempObj[22] = objx[22];
+//														
+//														dataMap.put(userGroupType.getType(), tempObj);
+//													}
+//												}
+//												
+//											}else{
+//												dataMap.put(userGroupType.getType(), objx);
+//											}
+//										}
+//									}
+//								}
+//							}
+//							
+//							if(dataMap.get(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY) == null 
+//									&& resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+//								UserGroupType userGroupType = UserGroupType.
+//										findByFieldName(UserGroupType.class, "type", ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, locale.toString());
+//								
+//								Object[] dataCollection = new Object[25];
+//								dataCollection[0] = new String(userGroupType.getName());
+//								dataCollection[1] = new String("");
+//								dataCollection[3] = new String("");
+//								dataCollection[6] = new String("");
+//								dataCollection[21] = userGroupType.getType();
+//								dataCollection[22] = new String("");
+//								dataCollection[24] = null;
+//								
+//								dataMap.put(ApplicationConstants.OFFICER_ON_SPECIAL_DUTY, dataCollection);
+//							}
+//							
+//							if(dataMap.get(ApplicationConstants.SECRETARY) == null 
+//									&& resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+//								UserGroupType userGroupType = UserGroupType.
+//										findByFieldName(UserGroupType.class, "type", ApplicationConstants.SECRETARY, locale.toString());
+//								
+//								Object[] dataCollection = new Object[25];
+//								dataCollection[0] = new String(userGroupType.getName());
+//								dataCollection[1] = new String("");
+//								dataCollection[3] = new String("");
+//								dataCollection[6] = new String("");
+//								dataCollection[21] = userGroupType.getType();
+//								dataCollection[22] = new String("");
+//								dataCollection[24] = null;
+//								
+//								dataMap.put(ApplicationConstants.SECRETARY, dataCollection);
+//							}
+//							
+//							if(dataMap.get(ApplicationConstants.PRINCIPAL_SECRETARY) == null){
+//								UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.PRINCIPAL_SECRETARY, locale.toString());
+//								
+//								Object[] dataCollection = new Object[25];
+//								dataCollection[0] = new String(userGroupType.getName());
+//								dataCollection[1] = new String("");
+//								dataCollection[3] = new String("");
+//								dataCollection[6] = new String("");
+//								dataCollection[21] = userGroupType.getType();
+//								dataCollection[22] = new String("");
+//								dataCollection[24] = null;
+//								
+//								dataMap.put(ApplicationConstants.PRINCIPAL_SECRETARY, dataCollection);
+//							}
+//							
+//							if(dataMap.isEmpty()){
+//								for(String val : csptAllwedUserGroupForStatusReportSign.getValue().split(",")){
+//								
+//									Reference ref = UserGroup.findResolutionActor(resolution,resolution.getHouseType().getType(), val, String.valueOf(0), locale.toString());
+//									Object[] actor = new Object[30];
+//									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+//										actor[0] = new String(ref.getId().split("#")[3]);
+//										actor[1] = new String(ref.getId().split("#")[4]);
+//									}else{
+//										actor[0] = new String(ref.getId().split("#")[3]);
+//										actor[1] = new String("");
+//									}
+//									actor[3] = new String("");
+//									actor[6] = new String("");
+//									actor[28] = new String("");
+//									
+//									if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)){
+//										dataMap.put(ApplicationConstants.UNDER_SECRETARY, actor);
+//									}else{
+//										dataMap.put(val, actor);
+//									}
+//								}
+//							}
 	
 							model.addAttribute("data", dataMap);
 							model.addAttribute("formatData", report.get(report.size()-1));
