@@ -3899,6 +3899,7 @@ public class ReferenceController extends BaseController {
 								Ministry ministry=question.getMinistry();
 								Member member=MemberMinister.findMemberHavingMinistryInSession(question.getSession(), ministry);
 								model.addAttribute("minister",member.findFirstLastName());
+								model.addAttribute("ministryName", question.getSubDepartment().getName());
 							}
 						}
 					}
