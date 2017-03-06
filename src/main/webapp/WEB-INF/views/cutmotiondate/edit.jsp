@@ -104,9 +104,34 @@
 			var param = "?usergroup="+$("#userGroup").val()+
 					"&usergroupType="+$("#userGroupType").val()+
 					"&role="+$("#role").val()+"&operation=submit";
-			$.post($("form[action='cutmotiondate']").attr('action')+param,
+			
+			/* $.post($("form[action='cutmotiondate']").attr('action')+param,
 					$("form[action='cutmotiondate']").serialize(),function(data){
-			});
+			}); */
+			
+			$.prompt($('#submissionMsg').val(),{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+		        if(v){
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		        	$.post($('form').attr('action')+param, 
+		    	            $("form").serialize(),  
+		    	            function(data){
+		       					$('.tabContent').html(data);
+		       					$('html').animate({scrollTop:0}, 'slow');
+		       				 	$('body').animate({scrollTop:0}, 'slow');	
+		    					$.unblockUI();	   				 	   				
+		    	            }).fail(function(){
+		    					$.unblockUI();
+		    					if($("#ErrorMsg").val()!=''){
+		    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+		    					}else{
+		    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+		    					}
+		    					scrollTop();
+		    				});
+		        }
+			}});			
+	        return false;
 		});
 	});
 	</script>
@@ -220,6 +245,7 @@
 	<input type="hidden" id="usergroupType" name="usergroupType" value="${usergroupType}" />
 	<input type="hidden" id="pRole" name="role" value="${role}" />	
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
+	<input id="submissionMsg" value="<spring:message code='client.prompt.cutmotiondate.submit' text='Do you want to submit the motion.'></spring:message>" type="hidden">
 	<input type="hidden" id="setCretedOn" name="setCreatedOn" value="${createOn}" />
 </form:form> 
 </div>

@@ -16,7 +16,7 @@
 			});	
 			/**** Details ****/		
 			$('#details_tab').click(function(){
-				$("#selectionDiv1").show();								
+				$("#selectionDiv1").hide();								
 				editCutMotionDate();
 			});			
 			
@@ -106,7 +106,7 @@
 					"&usergroupType="+$("#userGroupType").val()+
 					"&role="+$("#role").val();
 				}
-			showTabByIdAndUrl('details_tab','cutmotiondate/'+row+'/edit?'+params);
+				showTabByIdAndUrl('details_tab','cutmotiondate/'+row+'/edit?'+params);
 			}			
 		}		
 		/**** double clicking record in grid handler ****/		
@@ -123,9 +123,9 @@
 				"&usergroupType="+$("#userGroupType").val()+
 				"&role="+$("#role").val();
 			}
-			$('#editDeleteLinks').show();
+			$('#editDeleteLinks').hide();
 			$('#list_record').hide();
-			$("#selectionDiv1").show();
+			$("#selectionDiv1").hide();
 			showTabByIdAndUrl('details_tab', 'cutmotiondate/'+rowid+'/edit?'+params);
 		}	
 		/**** delete cutmotion date ****/	

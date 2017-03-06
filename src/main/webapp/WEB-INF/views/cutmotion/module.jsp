@@ -17,6 +17,9 @@
 		
 		/*Tooltip*/
 		$(".toolTip").hide();
+		
+		$("#bulkputup_tab").hide();
+		
 		/**** here we are trying to add date mask in grid search when field names ends with date ****/
 		$(".sf .field").change(function() {
 			var field = $(this).val();

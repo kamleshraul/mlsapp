@@ -558,10 +558,12 @@ public class CutMotionDateControllerUtility{
 		for (WorkflowActor wfa : actors) {
 			MasterVO mvo = new MasterVO();
 			User user = getUser(wfa, houseType, deviceType, locale);
-			String value = wfa.getId()+ ";" + wfa.getLevel() + ";" + concat(new String[] { user.getTitle(), user.getFirstName(), user.getMiddleName(), user.getLastName() }, " ");
-			mvo.setValue(value);
-			mvo.setName(getUserGroup(wfa, houseType, deviceType, locale).getUserGroupType().getName());
-			actorsVO.add(mvo);
+			if(user != null) {
+				String value = wfa.getId()+ ";" + wfa.getLevel() + ";" + concat(new String[] { user.getTitle(), user.getFirstName(), user.getMiddleName(), user.getLastName() }, " ");
+				mvo.setValue(value);
+				mvo.setName(getUserGroup(wfa, houseType, deviceType, locale).getUserGroupType().getName());
+				actorsVO.add(mvo);
+			}			
 		}
 
 		return actorsVO;
