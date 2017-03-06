@@ -204,6 +204,10 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 				internalStatus, 
 				userGroup,level,workflowHouseType,locale);
 	}
+	
+	public static WorkflowConfig getLatest(Resolution resolution, String internalStatus, String locale) {
+		return getWorkflowConfigRepository().getLatest(resolution, internalStatus, locale);
+	}
 	/*********************************Resolution******************************/
 	
 	/*********************************Bills******************************/
@@ -493,6 +497,8 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 					workflowName, level, locale);
 	}
 	/****************************** Prashnavali ***************************/
+
+	
 
 
 }
