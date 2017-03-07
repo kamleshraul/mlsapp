@@ -229,6 +229,9 @@ public class QuestionReportController extends BaseController{
 				QuestionIntimationLetterXmlVO letterVO = new QuestionIntimationLetterXmlVO();
 				Status status = question.getInternalStatus();	
 				String statusType=status.getType();
+				if(workflowDetails!=null) {
+					statusType=workflowDetails.getWorkflowSubType();
+				}
 				DeviceType deviceType = question.getType();
 				if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)){
 					resendRevisedQuestionText = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_RESENDREVISEDQUESTIONTEXTTODEPARTMENT, locale.toString());
@@ -919,7 +922,7 @@ public class QuestionReportController extends BaseController{
 				/**** generate report ****/				
 				try {
 					String reportFileName = "intimationletter";
-					if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+					if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
 						reportFileName += "_unstarred";
 					} else if(question.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
 						reportFileName += "_starred";

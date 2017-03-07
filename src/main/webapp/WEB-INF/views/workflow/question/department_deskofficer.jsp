@@ -345,8 +345,10 @@
 		});
 	}
 	$(document).ready(function(){
-		$("#answerP").hide();
-		$("#factualP").hide();
+		if($('#workflowstatus').val()=="PENDING") {
+			$("#answerP").hide();
+			$("#factualP").hide();
+		}		
 				
 		loadActors($("#changeInternalStatus").val());
 		/*******Actor changes*************/

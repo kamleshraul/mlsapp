@@ -317,6 +317,7 @@ public class QuestionWorkflowController  extends BaseController{
 			/**** Adding workflowdetails and task to model ****/
 			model.addAttribute("workflowdetails", workflowDetails.getId());
 			model.addAttribute("workflowstatus", workflowDetails.getStatus());
+			model.addAttribute("workflowSubType", workflowDetails.getWorkflowSubType());
 			Question domain = Question.findById(Question.class, Long.parseLong(workflowDetails.getDeviceId()));
 
 			Set<Role> roles = this.getCurrentUser().getRoles();
@@ -670,7 +671,16 @@ public class QuestionWorkflowController  extends BaseController{
 			model.addAttribute("internalStatusType", internalStatus.getType());
 			String nextInternalStatus[] = internalStatus.getType().split("_");
 			model.addAttribute("nextInternalStatus", nextInternalStatus[nextInternalStatus.length-1]);
-			model.addAttribute("formattedInternalStatus", internalStatus.getName());
+			if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+					|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+				if(workflowDetails.getWorkflowSubType().equals(internalStatus.getType())) {
+					model.addAttribute("formattedInternalStatus", internalStatus.getName());
+				} else {
+					model.addAttribute("formattedInternalStatus", workflowDetails.getInternalStatus());
+				}
+			} else {
+				model.addAttribute("formattedInternalStatus", internalStatus.getName());
+			}			
 			/**** list of put up options available ****/
 			/**** added by sandeep singh(jan 29 2013) ****/
 
