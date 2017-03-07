@@ -2587,6 +2587,30 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			return new WorkflowConfig();
 		}	
 	}
+	
+//	public WorkflowConfig getLatest(final CutMotion motion,final String internalStatus,final String locale) {
+//		/**** Latest Workflow Configurations ****/
+//		String[] temp = internalStatus.split("_");
+//		String workflowName = temp[temp.length-1]+"_workflow";
+//		String strQuery = "SELECT wc FROM WorkflowConfig wc" +
+//				" JOIN wc.workflow wf" +
+//				" JOIN wc.deviceType d " +
+//				" JOIN wc.houseType ht" +
+//				" WHERE d.id=:deviceTypeId" +
+//				" AND wf.type=:workflowName" +
+//				" AND ht.id=:houseTypeId"+
+//				" AND wc.isLocked=true ORDER BY wc.id " + ApplicationConstants.DESC ;				
+//		javax.persistence.Query query = this.em().createQuery(strQuery);
+//		query.setParameter("deviceTypeId", motion.getDeviceType().getId());
+//		query.setParameter("workflowName", workflowName);
+//		query.setParameter("houseTypeId", motion.getHouseType().getId());
+//		try{
+//			return (WorkflowConfig) query.getResultList().get(0);
+//		}catch(Exception ex){
+//			ex.printStackTrace();
+//			return new WorkflowConfig();
+//		}	
+//	}
 
 	private Reference findActorDetails(final CutMotion motion, final WorkflowActor workflowActor, final String locale) {
 		Reference actorAtGivenLevel = null;
@@ -2715,7 +2739,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		return firstActor;		
 	}
 	
-	private WorkflowConfig getLatest(final CutMotion motion,final String internalStatus,final String locale) {
+	public WorkflowConfig getLatest(final CutMotion motion,final String internalStatus,final String locale) {
 		/**** Latest Workflow Configurations ****/
 		String[] temp=internalStatus.split("_");
 		String workflowName=temp[temp.length-1]+"_workflow";

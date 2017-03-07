@@ -595,6 +595,92 @@ public class CutMotion extends Device implements Serializable {
 		return getCutMotionRepository().findHighestNumberByStatusDepartment(session, deviceType, subDepartment, status, locale);
 	}
 	
+	public String findAllMemberNames(String nameFormat) {
+		StringBuffer allMemberNamesBuffer = new StringBuffer("");
+		Member member = null;
+		String memberName = "";				
+		/** primary member **/
+		member = this.getPrimaryMember();		
+		if(member==null) {
+			return allMemberNamesBuffer.toString();
+		}		
+		memberName = member.findNameInGivenFormat(nameFormat);
+		if(memberName!=null && !memberName.isEmpty()) {
+			if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+				allMemberNamesBuffer.append(memberName);
+			}						
+		} else {
+			return allMemberNamesBuffer.toString();
+		}						
+		/** supporting members **/
+		List<SupportingMember> supportingMembers = this.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				member = sm.getMember();
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+					memberName = member.findNameInGivenFormat(nameFormat);
+					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {				
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+							if(allMemberNamesBuffer.length()>0) {
+								allMemberNamesBuffer.append(", " + memberName);
+							} else {
+								allMemberNamesBuffer.append(memberName);
+							}
+						}																		
+					}									
+				}				
+			}
+		}		
+		/** clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = CutMotion.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				/**
+				 * show only those clubbed questions which are not in state of
+				 * (processed to be putup for nameclubbing, putup for
+				 * nameclubbing, pending for nameclubbing approval)
+				 **/
+				if (ce.getStandaloneMotion().getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_SYSTEM_CLUBBED)
+						|| ce.getStandaloneMotion().getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)) {
+					member = ce.getStandaloneMotion().getPrimaryMember();
+					if(member!=null) {
+						memberName = member.findNameInGivenFormat(nameFormat);
+						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+								if(allMemberNamesBuffer.length()>0) {
+									allMemberNamesBuffer.append(", " + memberName);
+								} else {
+									allMemberNamesBuffer.append(memberName);
+								}
+							}							
+						}												
+					}
+					List<SupportingMember> clubbedSupportingMembers = ce.getStandaloneMotion().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+								memberName = member.findNameInGivenFormat(nameFormat);
+								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+										if(allMemberNamesBuffer.length()>0) {
+											allMemberNamesBuffer.append(", " + memberName);
+										} else {
+											allMemberNamesBuffer.append(memberName);
+										}
+									}									
+								}								
+							}
+						}
+					}
+				}
+			}
+		}		
+		return allMemberNamesBuffer.toString();
+	}
+	
 	//************************Clubbing**********************
 	public static boolean club(final Long primary, final Long clubbing, final String locale) throws ELSException{
 		

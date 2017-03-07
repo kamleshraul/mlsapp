@@ -437,6 +437,10 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 			final String locale) {
 		return getWorkflowConfigRepository().findCutMotionDateActors(houseType, userGroup, status, workflowName, level, locale);
 	}
+	
+	public static WorkflowConfig getLatest(CutMotion cutmotion, String internalStatus, String locale) {
+		return getWorkflowConfigRepository().getLatest(cutmotion, internalStatus, locale);
+	}
 	/***************************CutMotion********************************/
 	
 	/***************************DiscussionMotion*************************/

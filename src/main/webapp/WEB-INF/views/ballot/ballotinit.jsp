@@ -22,7 +22,8 @@
 				$('#yaadiDiv').show();
 			}		
 			
-			$("#pre_ballot").click(function(event, isHighSecurityValidationRequired){			
+			$("#pre_ballot").click(function(event, isHighSecurityValidationRequired){		
+				//isHighSecurityValidationRequired = false;
 				if(isHighSecurityValidationRequired!=false) {
 					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
 					return false;
