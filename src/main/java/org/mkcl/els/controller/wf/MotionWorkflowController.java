@@ -1,5 +1,6 @@
 package org.mkcl.els.controller.wf;
 
+import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -67,7 +68,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/workflow/motion")
 public class MotionWorkflowController extends BaseController{
@@ -1687,4 +1688,458 @@ public class MotionWorkflowController extends BaseController{
 		}
 	}
 	
+	/**** Bulk Approval(By Any Authority) ****/
+	@RequestMapping(value="/advancedbulkapproval",method=RequestMethod.GET)
+	public String getAdvancedBulkApproval(final HttpServletRequest request,final Locale locale,
+			final ModelMap model){
+		try{
+			/**** Request Params ****/
+			String strHouseType = request.getParameter("houseType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strMotionType = request.getParameter("deviceType");
+			String strStatus = request.getParameter("status");
+			String strWorkflowSubType = request.getParameter("workflowSubType");
+			String strLocale = locale.toString();
+			String strAnsweringDate = request.getParameter("answeringDate");
+			String strGroup = request.getParameter("group");
+			String assignee = this.getCurrentUser().getActualUsername();
+			String strItemsCount = null;
+			CustomParameter itemsCountParameter = CustomParameter.findByName(CustomParameter.class, "ADVANCED_BULKAPPROVAL_ITEM_COUNT", "");
+			if(itemsCountParameter != null){
+				strItemsCount = itemsCountParameter.getValue();
+			}
+			/**** usergroup,usergroupType,role *****/
+			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+			Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), null);
+			String strUserGroupType = null;
+			String strUsergroup = null;
+			UserGroup usergroup = null;
+			if(userGroups != null && !userGroups.isEmpty()){
+				CustomParameter customParameter = CustomParameter.
+						findByName(CustomParameter.class,"MOIS_ALLOWED_USERGROUPTYPES", "");
+				if(customParameter != null){
+					String allowedUserGroups = customParameter.getValue(); 
+					for(UserGroup i : userGroups){
+						UserGroup ug = UserGroup.findActive(credential, i.getUserGroupType(), new Date(), locale.toString());
+						if(ug != null){
+							if(allowedUserGroups.contains(i.getUserGroupType().getType())){
+								strUsergroup = String.valueOf(i.getId());
+								strUserGroupType = i.getUserGroupType().getType();
+								usergroup = UserGroup.findById(UserGroup.class, Long.parseLong(strUsergroup));
+								break;
+							}
+						}
+					}
+				}
+			}	
+			
+			if(request.getSession().getAttribute("type")==null){
+	            model.addAttribute("type","");
+	        }else{
+	        	model.addAttribute("type",request.getSession().getAttribute("type"));
+	            request.getSession().removeAttribute("type");
+	        }
+			
+			if(strHouseType!=null&&!(strHouseType.isEmpty())
+					&&strSessionType!=null&&!(strSessionType.isEmpty())
+					&&strSessionYear!=null&&!(strSessionYear.isEmpty())
+					&&strMotionType!=null&&!(strMotionType.isEmpty())){
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(customParameter!=null){
+					String server=customParameter.getValue();
+					if(server.equals("TOMCAT")){
+						try {
+							strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+							strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+							strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+							strMotionType = new String(strMotionType.getBytes("ISO-8859-1"),"UTF-8");
+							strGroup = new String(strGroup.getBytes("ISO-8859-1"),"UTF-8");
+							
+						}
+						catch (UnsupportedEncodingException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}else{
+				strHouseType = request.getSession().getAttribute("houseType").toString();
+				strSessionType = request.getSession().getAttribute("sessionType").toString();
+				strSessionYear = request.getSession().getAttribute("sessionYear").toString();
+				strMotionType = request.getSession().getAttribute("deviceType").toString();
+				strWorkflowSubType = request.getSession().getAttribute("workflowSubType").toString();
+				strStatus = request.getSession().getAttribute("status").toString();
+				if(request.getSession().getAttribute("answeringDate") != null){
+					strAnsweringDate = request.getSession().getAttribute("answeringDate").toString();
+				}
+			}
+	
+			if(strHouseType!=null&&!(strHouseType.isEmpty())
+					&&strSessionType!=null&&!(strSessionType.isEmpty())
+					&&strSessionYear!=null&&!(strSessionYear.isEmpty())
+					&&strMotionType!=null&&!(strMotionType.isEmpty())
+					&&strStatus!=null&&!(strStatus.isEmpty())
+					&&strUsergroup!=null&&!(strUsergroup.isEmpty())
+					&&strUserGroupType!=null&&!(strUserGroupType.isEmpty())
+					&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){
+					
+					model.addAttribute("status", strStatus);
+					model.addAttribute("usergroup", usergroup.getId());
+					// Populate Roles
+					/**
+					 * Rules:
+					 * a. QIS roles starts with QIS_, MEMBER_
+					 * b. Any user will have single role per device type
+					 * c. Any user can have multiple roles limited to one role per device type
+					 */
+					Set<Role> roles = this.getCurrentUser().getRoles();
+					for(Role i : roles) {
+						if(i.getType().startsWith("MEMBER_")) {
+							model.addAttribute("role", i.getType());
+							break;
+						}
+						else if(i.getType().startsWith("MOIS_")) {
+							model.addAttribute("role", i.getType());
+							break;
+						}
+					}
+					/**** List of Statuses ****/
+					List<Status> internalStatuses = new ArrayList<Status>();
+					HouseType houseType = HouseType.
+							findByFieldName(HouseType.class,"name",strHouseType, strLocale);
+					DeviceType motionType = DeviceType.
+							findByFieldName(DeviceType.class,"name",strMotionType,strLocale);
+					Status internalStatus = Status.findByType(strWorkflowSubType, strLocale);
+					CustomParameter finalApprovingAuthority = CustomParameter.
+							findByName(CustomParameter.class,motionType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+					CustomParameter deviceTypeInternalStatusUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "MOTION_PUT_UP_OPTIONS_"+motionType.getType().toUpperCase()+"_"+internalStatus.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					CustomParameter deviceTypeHouseTypeInternalStatusUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "MOTION_PUT_UP_OPTIONS_"+motionType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+internalStatus.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					CustomParameter deviceTypeHouseTypeUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "MOTION_PUT_UP_OPTIONS_"+motionType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					CustomParameter deviceTypeUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "MOTION_PUT_UP_OPTIONS_"+motionType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					if(finalApprovingAuthority!=null 
+							&&finalApprovingAuthority.getValue().contains(strUserGroupType)){
+						CustomParameter finalApprovingAuthorityStatus = CustomParameter.
+								findByName(CustomParameter.class,"MOTION_PUT_UP_OPTIONS_"+strUserGroupType.toUpperCase(),"");
+						if(finalApprovingAuthorityStatus != null){
+							internalStatuses = Status.
+									findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), strLocale);
+						}
+					}/**** MOTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
+					else if(deviceTypeInternalStatusUsergroup != null){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), strLocale);
+					}/**** MOTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE + HOUSETYPE + INTERNALSTATUS_TYPE+USERGROUP(PRE Final Status)****/
+					else if(deviceTypeHouseTypeInternalStatusUsergroup !=null ){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeHouseTypeInternalStatusUsergroup.getValue(), strLocale);
+					}
+					/**** MOTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
+					else if(deviceTypeHouseTypeUsergroup != null){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), strLocale);
+					}	
+					/**** MOTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
+					else if(deviceTypeUsergroup != null){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeUsergroup.getValue(), strLocale);
+					}	
+					model.addAttribute("internalStatuses", internalStatuses);				
+					model.addAttribute("workflowSubType", strWorkflowSubType);
+					Date answeringDate = null;
+					if(strAnsweringDate != null && !strAnsweringDate.isEmpty()){
+						 answeringDate=FormaterUtil.
+								 formatStringToDate(strAnsweringDate, ApplicationConstants.DB_DATEFORMAT);
+						 model.addAttribute("answeringDate", strAnsweringDate);
+					}
+					/**** Workflow Details ****/
+					List<WorkflowDetails> workflowDetails = WorkflowDetails.
+								findAll(strHouseType, strSessionType, strSessionYear,
+										strMotionType, strStatus, strWorkflowSubType,
+										assignee, strItemsCount, strLocale, null, strGroup, answeringDate);
+					/**** Populating Bulk Approval VOs ****/
+					List<BulkApprovalVO> bulkapprovals = new ArrayList<BulkApprovalVO>();
+					NumberFormat format = FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
+					int counter = 0;
+					for(WorkflowDetails i:workflowDetails){
+						BulkApprovalVO bulkApprovalVO=new BulkApprovalVO();				
+						Motion motion=Motion.findById(Motion.class,Long.parseLong(i.getDeviceId()));
+						{
+							bulkApprovalVO.setId(String.valueOf(i.getId()));
+							bulkApprovalVO.setDeviceId(String.valueOf(motion.getId()));	
+							
+							Map<String, String[]> parameters = new HashMap<String, String[]>();
+							parameters.put("locale", new String[]{locale.toString()});
+							parameters.put("motionId", new String[]{motion.getId().toString()});
+							List clubbedNumbers = org.mkcl.els.domain.Query.findReport("MOIS_GET_CLUBBEDNUMBERS", parameters);
+							if(clubbedNumbers != null && !clubbedNumbers.isEmpty() && clubbedNumbers.get(0) != null){
+								bulkApprovalVO.setFormattedClubbedNumbers(clubbedNumbers.get(0).toString());
+							}
+							
+							List referencedNumbers = org.mkcl.els.domain.Query.findReport("MOIS_GET_REFERENCEDNUMBERS", parameters);
+							if(referencedNumbers != null && !referencedNumbers.isEmpty() && referencedNumbers.get(0) != null){
+								bulkApprovalVO.setFormattedReferencedNumbers(referencedNumbers.get(0).toString());
+							}
+							
+							if(motion.getNumber()!=null){
+								bulkApprovalVO.setDeviceNumber(format.format(motion.getNumber()));
+							}else{
+								bulkApprovalVO.setDeviceNumber("-");
+							}
+							bulkApprovalVO.setDeviceType(motion.getType().getName());
+							bulkApprovalVO.setMember(motion.getPrimaryMember().getFullname());
+							if(motion.getRevisedSubject() != null && !motion.getRevisedSubject().equals("")){
+								bulkApprovalVO.setSubject(motion.getRevisedSubject());
+							}else{
+								bulkApprovalVO.setSubject(motion.getSubject());
+							}
+							if(motion.getRevisedDetails() != null && !motion.getRevisedDetails().isEmpty()){
+								bulkApprovalVO.setBriefExpanation(motion.getRevisedDetails());
+							}else{
+								bulkApprovalVO.setBriefExpanation(motion.getDetails());
+							}
+							
+							if(motion.getRemarks()!=null&&!motion.getRemarks().isEmpty()){
+								bulkApprovalVO.setLastRemark(motion.getRemarks());
+							}else{
+								bulkApprovalVO.setLastRemark("-");
+							}
+							bulkApprovalVO.setLastDecision(motion.getInternalStatus().getName());
+							bulkApprovalVO.setLastRemarkBy(motion.getEditedAs());	
+							bulkApprovalVO.setCurrentStatus(i.getStatus());
+							bulkapprovals.add(bulkApprovalVO);
+							
+						
+						if(counter == 0){
+							model.addAttribute("level", motion.getLevel());
+							counter++;
+						}
+					}
+					
+					model.addAttribute("bulkapprovals", bulkapprovals);
+					if(bulkapprovals!=null&&!bulkapprovals.isEmpty()){
+						model.addAttribute("motionId",bulkapprovals.get(0).getDeviceId());				
+					}
+				}
+					model.addAttribute("deviceType", motionType.getId());
+			}
+			return "workflow/motion/advancedbulkapproval";	
+		}catch (ELSException ee) {
+			model.addAttribute("error", ee.getParameter());
+			model.addAttribute("type", "error");
+			return "workflow/info";
+		}catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("error", "Bulk approval is unavailable please try after some time.");
+			model.addAttribute("type", "error");
+			return "workflow/info";
+		}
+	}
+	
+	@RequestMapping(value="/advancedbulkapproval",method=RequestMethod.POST)
+	public String advancedBulkApproval(final HttpServletRequest request,
+			final Locale locale,
+			final RedirectAttributes redirectAttributes,
+			final ModelMap model) throws ELSException{
+		String listSize = request.getParameter("motionlistSize");
+		Motion tempMotion  = null;
+		if(listSize != null && !listSize.isEmpty()){
+			for(int i =0; i<Integer.parseInt(listSize);i++){
+				String id = request.getParameter("motionId"+i);
+				String subject = request.getParameter("subject"+i);
+				String motionText = request.getParameter("motionText"+i);
+				String actor = request.getParameter("actor"+i);
+				String internalStatus = request.getParameter("internalStatus"+i);
+				String remark = request.getParameter("remark"+i);
+				String workflowDetailsId = request.getParameter("workflowDetailsId"+i);
+				Long wrkflowId = Long.parseLong(workflowDetailsId);
+				WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class,wrkflowId);
+				String strChecked = request.getParameter("chk"+workflowDetailsId);
+				if(strChecked != null && !strChecked.isEmpty() && Boolean.parseBoolean(strChecked)){
+					Motion motion = Motion.findById(Motion.class,Long.parseLong(wfDetails.getDeviceId()));
+					tempMotion = motion;
+					if(motionText != null && !motionText.isEmpty()){
+						motion.setRevisedDetails(motionText);
+					}
+					if(remark != null && !remark.isEmpty()){
+						motion.setRemarks(remark);
+					}
+					if(subject != null && !subject.isEmpty()){
+						motion.setRevisedSubject(subject);
+					}
+					if(actor == null || actor.isEmpty()){
+						actor = motion.getActor();
+						String[] temp = actor.split("#");
+						actor = temp[1];
+					}
+					String level = request.getParameter("motionLevel");
+					if(level == null || level.isEmpty()){
+						level = motion.getLevel();
+					}
+
+					/**** Update Actor ****/
+					String[] temp = actor.split("#");
+					motion.setActor(actor);
+					motion.setLocalizedActorName(temp[3] + "(" + temp[4] + ")");
+					motion.setLevel(temp[2]);
+					/**** Update Internal Status and Recommendation Status ****/
+					Status intStatus = Status.findById(Status.class, Long.parseLong(internalStatus));
+					if(internalStatus != null){
+						if(!intStatus.getType().equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS) 
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+						/*&& !intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_SENDTODEPARTMENT)
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_SENDTOSECTIONOFFICER)
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_UNSTARRED_RECOMMEND_DISCUSS) 
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_UNSTARRED_RECOMMEND_SENDBACK)
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_UNSTARRED_PROCESSED_SENDTODEPARTMENT)
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_SENDTOSECTIONOFFICER)*/
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS) 
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+				/*		&& !intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_SENDTODEPARTMENT)
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_SENDTOSECTIONOFFICER)*/
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_RECOMMEND_DISCUSS) 
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_RECOMMEND_SENDBACK)
+				/*		&& !intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_SENDTODEPARTMENT)
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_SENDTOSECTIONOFFICER)*/
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)
+						&& !intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED)
+						)
+						{
+							motion.setInternalStatus(intStatus);
+							motion.setRecommendationStatus(intStatus);
+							motion.setEndFlag("continue");
+						}else if(intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)
+								||intStatus.getType().equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED)){
+							Status toBePutUp = Status.findByType(ApplicationConstants.MOTION_SYSTEM_TO_BE_PUTUP, locale.toString());
+							motion.setInternalStatus(toBePutUp);
+							motion.setRecommendationStatus(toBePutUp);
+							motion.setEndFlag(null);
+							motion.setActor(null);
+							motion.setLevel(null);
+							motion.setLocalizedActorName(null);
+						}else{
+							motion.setRecommendationStatus(intStatus);
+							motion.setEndFlag("continue");
+						}
+					}
+
+					/**** Complete Task ****/
+					Map<String,String> properties = new HashMap<String, String>();
+					properties.put("pv_deviceId", String.valueOf(motion.getId()));
+					properties.put("pv_deviceTypeId", String.valueOf(motion.getType().getId()));
+					properties.put("pv_user", temp[0]);
+					properties.put("pv_endflag", motion.getEndFlag());
+					UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+					String strTaskId = wfDetails.getTaskId();
+					Task task = processService.findTaskById(strTaskId);
+					processService.completeTask(task, properties);	
+					if(motion.getEndFlag() != null && !motion.getEndFlag().isEmpty()
+							&& motion.getEndFlag().equals("continue")){
+						/**** Create New Workflow Details ****/
+						ProcessInstance processInstance = 
+								processService.findProcessInstanceById(task.getProcessInstanceId());
+						Workflow workflowFromUpdatedStatus = null;
+						try {
+							Status iStatus = motion.getInternalStatus();
+							String internalStatusType = iStatus.getType();
+							Status recommendationStatus = motion.getRecommendationStatus();
+							String recommendationStatusType = recommendationStatus.getType();
+
+							if(recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING_POST_ADMISSION)
+									|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING_POST_ADMISSION)
+									|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_UNCLUBBING)
+									|| recommendationStatusType.equals(ApplicationConstants.MOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING)
+									) {
+								workflowFromUpdatedStatus = Workflow.findByStatus(recommendationStatus, locale.toString());
+							} 
+							else if(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLUBBING)
+								
+									|| (internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+										&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+									||(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+										&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED))
+									||(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+										&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_NOT_RECEIVED))
+									||(internalStatusType.equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+										&& recommendationStatusType.equals(ApplicationConstants.MOTION_PROCESSED_CLARIFICATION_RECEIVED))
+									) {
+								workflowFromUpdatedStatus = Workflow.findByStatus(iStatus, locale.toString());
+							}
+							else {
+								workflowFromUpdatedStatus = Workflow.findByStatus(iStatus, locale.toString());
+							}
+				
+						} catch(ELSException e) {
+							e.printStackTrace();
+							model.addAttribute("error", "Bulk approval is unavailable please try after some time.");
+							model.addAttribute("type", "error");
+							
+						}
+						Task newtask = processService.getCurrentTask(processInstance);
+						WorkflowDetails workflowDetails2 = null;
+						try {
+							workflowDetails2 = WorkflowDetails.create(motion,newtask,usergroupType,workflowFromUpdatedStatus.getType(),level);
+						} catch (ELSException e) {
+							e.printStackTrace();
+							model.addAttribute("error", e.getParameter());
+						}
+						motion.setWorkflowDetailsId(workflowDetails2.getId());
+						motion.setTaskReceivedOn(new Date());								
+					}
+					/**** Update Old Workflow Details ****/
+					wfDetails.setStatus("COMPLETED");
+					wfDetails.setInternalStatus(motion.getInternalStatus().getName());
+					wfDetails.setRecommendationStatus(motion.getRecommendationStatus().getName());
+					wfDetails.setCompletionTime(new Date());
+					if(!motion.getType().getType().startsWith("motions_halfhourdiscussion_") 
+){
+						wfDetails.setAnsweringDate(motion.getAnsweringDate());
+					}
+					wfDetails.setDecisionInternalStatus(motion.getInternalStatus().getName());
+					wfDetails.setDecisionRecommendStatus(motion.getRecommendationStatus().getName());
+					wfDetails.merge();
+					/**** Update Motion ****/
+					motion.setEditedOn(new Date());
+					motion.setEditedBy(this.getCurrentUser().getActualUsername());
+					motion.setEditedAs(wfDetails.getAssigneeUserGroupName());				
+					performAction(motion);
+					motion.merge();
+				}
+			}
+		}
+		
+		if(tempMotion != null){
+			request.getSession().setAttribute("houseType", tempMotion.getHouseType().getName());
+			request.getSession().setAttribute("sessionType", tempMotion.getSession().getType().getSessionType());
+			request.getSession().setAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(tempMotion.getSession().getYear(), locale.toString()));
+			request.getSession().setAttribute("deviceType", tempMotion.getType().getName());
+			request.getSession().setAttribute("workflowSubType", tempMotion.getInternalStatus().getType());
+			
+		}
+		String group = request.getParameter("group");
+		if(group != null && !group.isEmpty()){
+			request.getSession().setAttribute("strGroup", group);
+		}
+		String answeringDate = request.getParameter("answeringDate");
+		if(answeringDate != null && !answeringDate.isEmpty()){
+			request.getSession().setAttribute("strAnsweringDate", answeringDate);
+		}
+		String status = request.getParameter("status");
+		if(status != null && !status.isEmpty()){
+			request.getSession().setAttribute("status", status);
+		}
+		redirectAttributes.addFlashAttribute("type", "success");
+        //this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh new/edit request i.e after creating/updating records if we click on
+        //new /edit then success message appears
+        request.getSession().setAttribute("type","success");
+        redirectAttributes.addFlashAttribute("msg", "create_success");
+        String returnUrl = "redirect:/workflow/motion/advancedbulkapproval";
+        return returnUrl;
+//		getAdvancedBulkApproval(request, locale, model);
+	}
+
 }
