@@ -207,8 +207,10 @@
 				}
 				if(value ==sendToDeskOfficer){
 					$("#answerP").css("display","none");
+					$("#factualP").css("display","none");
 				}else{
 					$("#answerP").css("display","inline-block");
+					$("#factualP").css("display","inline-block");
 				}
 				$("#recommendationStatus").val(value);	
 				/**** setting level,localizedActorName ****/
@@ -343,6 +345,8 @@
 		});
 	}
 	$(document).ready(function(){
+		$("#answerP").hide();
+		$("#factualP").hide();
 				
 		loadActors($("#changeInternalStatus").val());
 		/*******Actor changes*************/
@@ -1418,10 +1422,10 @@
 		<form:input path="lastDateOfFactualPositionReceiving" cssClass="datemask sText" readonly="true"/>
 		<form:errors path="lastDateOfFactualPositionReceiving" cssClass="validationError"/>
 		</p>
-		<p>
-		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
-		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
-		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+		<p id="factualP">
+			<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+			<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+			<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 	</c:if>
 	
