@@ -738,39 +738,57 @@
 				}
 			});
 						
-			if(($('#answer').val()=="" && $('#factualPosition').val()=="" 
-					|| ($("#workflowstatus").val()=='COMPLETED' && $('#reanswer').val()==""))){
-				$.prompt($('#noAnswerProvidedMsg').val());
-			}else{
-				$.prompt($('#submissionMsg').val(),{
-					buttons: {Ok:true, Cancel:false}, callback: function(v){
-				        if(v){				        	
-							$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-							var url = $('form').attr('action')+'?operation=workflowsubmit';
-							if($("#workflowstatus").val()=='COMPLETED'){
-								url += '&reanswerstatus=reanswer';
-							}
-							$.post(url,  
-				    	            $("form").serialize(),
-				    	            function(data){
-				       					$('.tabContent').html(data);
-				       					$('html').animate({scrollTop:0}, 'slow');
-				       				 	$('body').animate({scrollTop:0}, 'slow');	
-				       				 	$.unblockUI();	
-				    	            }
-							).fail(function(){
-		    	    			$.unblockUI();
-		    	    			if($("#ErrorMsg").val()!=''){
-		    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-		    	    			}else{
-		    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-		    	    			}
-		    	    			scrollTop();
-		    	    		});
-				        }
-					}
-				});
+			var deviceTypeType = $('#selectedQuestionType').val();
+			var sendToSectionOfficer = '';
+			if(deviceTypeType == 'questions_starred') {
+				sendToSectionOfficer = 
+			    	$("#internalStatusMaster option[value='question_processed_sendToSectionOfficer']").text();			    
+			} else if(deviceTypeType == 'questions_unstarred') {
+				sendToSectionOfficer = 
+			    	$("#internalStatusMaster option[value='question_unstarred_processed_sendToSectionOfficer']").text();
+			} else if(deviceTypeType == 'questions_shortnotice') {
+				sendToSectionOfficer = 
+			    	$("#internalStatusMaster option[value='question_shortnotice_processed_sendToSectionOfficer']").text();		
+			} else if(deviceTypeType == 'questions_halfhourdiscussion_from_question') {
+				sendToSectionOfficer = 
+			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_sendToSectionOfficer']").text();		
 			}
+			var changedInternalStatus = $("#changeInternalStatus").val();			
+			if(changedInternalStatus == sendToSectionOfficer) {
+				if(($('#answer').val()=="" && $('#factualPosition').val()=="" 
+						|| ($("#workflowstatus").val()=='COMPLETED' && $('#reanswer').val()==""))){
+					$.prompt($('#noAnswerProvidedMsg').val());
+					return false;
+				}
+			}
+			$.prompt($('#submissionMsg').val(),{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){				        	
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+						var url = $('form').attr('action')+'?operation=workflowsubmit';
+						if($("#workflowstatus").val()=='COMPLETED'){
+							url += '&reanswerstatus=reanswer';
+						}
+						$.post(url,  
+			    	            $("form").serialize(),
+			    	            function(data){
+			       					$('.tabContent').html(data);
+			       					$('html').animate({scrollTop:0}, 'slow');
+			       				 	$('body').animate({scrollTop:0}, 'slow');	
+			       				 	$.unblockUI();	
+			    	            }
+						).fail(function(){
+	    	    			$.unblockUI();
+	    	    			if($("#ErrorMsg").val()!=''){
+	    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+	    	    			}else{
+	    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+	    	    			}
+	    	    			scrollTop();
+	    	    		});
+			        }
+				}
+			});			
 			return false;		
 		});
 		
@@ -1423,7 +1441,7 @@
 			<%-- <c:if test="${currTimeMillis <= sendbacktimelimit}"> --%>
 				<input id="sendBack" type="button" value="<spring:message code='question.sendback' text='Send Back'/>" class="butDef" style="display:none;">
 			<%-- </c:if> --%>
-			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</p>
 	</div>
 	</c:if>
