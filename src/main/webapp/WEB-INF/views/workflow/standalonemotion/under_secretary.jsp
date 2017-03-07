@@ -108,7 +108,7 @@
 		if(value!='-'){
 		var valueToSend = "";
 		var sendback=$("#internalStatusMaster option[value='standalonemotion_recommend_sendback']").text();			
-		var discuss=$("#internalStatusMaster option[value='standalkonemotion_recommend_discuss']").text();		
+		var discuss=$("#internalStatusMaster option[value='standalonemotion_recommend_discuss']").text();		
 		var admitDate = $("#internalStatusMaster option[value='standalonemotion_processed_admitDate']").text();
 		var resubmitDate = $("#internalStatusMaster option[value='standalonemotion_processed_resubmitDate']").text();
 		var nameclubbing=$("#internalStatusMaster option[value='standalonemotion_final_nameclubbing']").text();    
