@@ -5869,8 +5869,119 @@ public class ReferenceController extends BaseController {
 		
 		return referencedQuestionsVO;
 	}
+	
+	/**** To get the clubbed motions text ****/
+	@RequestMapping(value="/{id}/clubbedmotiontext", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getClubbedMotionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> clubbedMotionsVO = new ArrayList<MasterVO>();
+		
+		try{
+			
+			Motion parent = Motion.findById(Motion.class, id);
+			
+			if(parent != null){
+				List<ClubbedEntity> clubbedMotions = parent.getClubbedEntities();
+				
+				for(ClubbedEntity ce : clubbedMotions){
+					Motion cMotion = ce.getMotion();
+					if(cMotion != null){
+						MasterVO mVO = new MasterVO();
+						mVO.setId(cMotion.getId());
+						mVO.setName(FormaterUtil.formatNumberNoGrouping(cMotion.getNumber(), locale.toString()));
+						if(cMotion.getDetails()!= null && !cMotion.getDetails().isEmpty()){
+							mVO.setValue(cMotion.getDetails());
+						}else{
+							mVO.setValue(cMotion.getRevisedDetails());
+						}
+						
+						clubbedMotionsVO.add(mVO);
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error(e.toString());
+		}
 		
 		
+		return clubbedMotionsVO;
+	}
+	
+	/**** To get the clubbed motions text ****/
+	@RequestMapping(value="/{id}/referencedmotiontext", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getReferencedMotionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> referencedMotionsVO = new ArrayList<MasterVO>();
+		
+		try{
+			
+			Motion motion = Motion.findById(Motion.class, id);
+			
+			if(motion != null){
+				List<ReferenceUnit> referencedMotions = motion.getReferencedUnits();
+				
+				for(ReferenceUnit ru : referencedMotions){
+					Motion rMotion = Motion.findById(Motion.class, ru.getDevice());
+					if(rMotion != null){
+						MasterVO mVO = new MasterVO();
+						mVO.setId(rMotion.getId());
+						mVO.setName(FormaterUtil.formatNumberNoGrouping(rMotion.getNumber(), locale.toString()));
+						if(rMotion.getDetails()!= null && !rMotion.getDetails().isEmpty()){
+							mVO.setValue(rMotion.getDetails());
+						}else{
+							mVO.setValue(rMotion.getRevisedDetails());
+						}
+						
+						referencedMotionsVO.add(mVO);
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error(e.toString());
+		}
+		
+		
+		return referencedMotionsVO;
+	}
+	
+		
+	/**** To get the clubbed questions text ****/
+	@RequestMapping(value="/{id}/referencedstandalonetext", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getReferencedStandaloneTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		List<MasterVO> referencedQuestionsVO = new ArrayList<MasterVO>();
+		
+		try{
+			
+			StandaloneMotion standalonemotion = StandaloneMotion.findById(StandaloneMotion.class, id);
+			
+			if(standalonemotion != null){
+				List<ReferenceUnit> referencedQuestions = standalonemotion.getReferencedEntities();
+				
+				for(ReferenceUnit ru : referencedQuestions){
+					StandaloneMotion rstandalonemotion = StandaloneMotion.findById(StandaloneMotion.class, ru.getDevice());
+					if(rstandalonemotion != null){
+						MasterVO mVO = new MasterVO();
+						mVO.setId(rstandalonemotion.getId());
+						mVO.setName(FormaterUtil.formatNumberNoGrouping(rstandalonemotion.getNumber(), locale.toString()));
+						if(rstandalonemotion.getRevisedReason()!= null && !rstandalonemotion.getRevisedReason().isEmpty()){
+							mVO.setValue(rstandalonemotion.getRevisedReason());
+						}else{
+							mVO.setValue(rstandalonemotion.getReason());
+						}
+						
+						referencedQuestionsVO.add(mVO);
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error(e.toString());
+		}
+		
+		
+		return referencedQuestionsVO;
+	}
+	
 	@RequestMapping(value="/newpendingtasks", method=RequestMethod.GET)
 	public @ResponseBody MasterVO getNewPendingTasks(HttpServletRequest request, Locale locale){
 		MasterVO data = new MasterVO();
