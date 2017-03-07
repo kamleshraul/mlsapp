@@ -454,7 +454,7 @@
 			if(isStatusLoaded=="yes") {
 				$("#changeInternalStatus").change();
 			}
-			//loadActors($("#changeInternalStatus").val());
+			loadActors($("#changeInternalStatus").val());
 		} 
 	});
 	</script>
