@@ -279,6 +279,7 @@
 		<pattern>workflow/resolution</pattern>
 		<pattern>/workflow/resolution/advancedbulkapproval</pattern>
 		<pattern>workflow/motion</pattern>	
+		<pattern>/workflow/motion/advancedbulkapproval</pattern>
 		<pattern>workflow/bill</pattern>
 		<pattern>workflow/billamendmentmotion</pattern>
 		<pattern>/workflow/myTasks/*/process</pattern>	
