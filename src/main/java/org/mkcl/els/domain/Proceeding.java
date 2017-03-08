@@ -11,6 +11,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.repository.ProceedingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -100,6 +101,11 @@ public class Proceeding extends BaseDomain implements Serializable{
 
 	public static List<Proceeding> findAllFilledProceedingBySlot(Slot s) {
 		return getProceedingRepository().findAllFilledProceedingBySlot(s);
+	}
+
+
+	public static List<RevisionHistoryVO> getRevisions(Long partId, String locale) {
+		return getProceedingRepository().getRevisions(partId, locale);
 	}
 
 }
