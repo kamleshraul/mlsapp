@@ -35,6 +35,7 @@ import org.mkcl.els.common.vo.ChildVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ParentVO;
 import org.mkcl.els.common.vo.PartDraftVO;
+import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.xmlvo.ProceedingXMLVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.BaseDomain;
@@ -3934,4 +3935,12 @@ public class ProceedingController extends GenericController<Proceeding>{
 		return "proceeding/reports/"+request.getParameter("reportout");
 	}
 	
+	
+	@RequestMapping(value="/revisions/{partId}",method=RequestMethod.GET)
+	public String getDrafts(final Locale locale,@PathVariable("partId")  final Long partId,
+			final ModelMap model){
+		List<RevisionHistoryVO> drafts=Proceeding.getRevisions(partId,locale.toString());
+		model.addAttribute("drafts",drafts);		
+		return "proceeding/revisions";
+	}
 }
