@@ -8,6 +8,21 @@
 	<script type="text/javascript">
 	$(document).ready(function(){
 		
+		/**** Revisions ****/
+	    $("#viewRevision").click(function(){
+		    $.get('proceeding/revisions/'+$("#partId1").val(),function(data){
+			    $.fancybox.open(data,{autoSize: false, width: 900, height:700});
+		    }).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+		    return false;
+	    });
+		
 		/* var footerText = "<div style='font-size:18pt;text-align:right'>"+$("#nextReporterTitle").val()+"</div>";
 		$("#proceedingReportDiv").attr("title",footerText); */
 		//As tinymce once registered doesnot get reinitialize when the same page is loaded, hence removing the previous tinymce instance
@@ -544,6 +559,7 @@
 	    border-radius: 10px;
 	    font-size: 15pt;
 	    background-color: #b0e0e6;
+	    }
 	</style>
 </head>
 <body>
@@ -558,7 +574,10 @@
 			<a id="viewReport" target="_blank" class="reportLinkl" >
 				<spring:message code="proceeding.proceedingwiseReport" text="proceeding wise report"/>
 			</a>|
-			<a href='javascript:void(0)'  id='bookmark${partcount}' class=' addBookmark'><img src='./resources/images/star_full.jpg' title='Bookmark' class='imageLink'/></a>
+			<a href='javascript:void(0)'  id='bookmark${partcount}' class=' addBookmark'><img src='./resources/images/star_full.jpg' title='Bookmark' class='imageLink'/></a>|
+			<a id="viewRevision" target="_blank" class="reportLinkl" >
+				<spring:message code="proceeding.viewRevision" text="ViewRevision"/>
+			</a>|			
 			</p>
 		</div>
 		<div id="menuOption" style="border: 2px solid blue;border-radius: 15px;width: 850px;">
