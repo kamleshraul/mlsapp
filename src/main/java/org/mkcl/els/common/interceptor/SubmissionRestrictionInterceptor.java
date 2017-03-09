@@ -27,6 +27,7 @@ public class SubmissionRestrictionInterceptor extends HandlerInterceptorAdapter 
 		CustomParameter csptRestEndTime = CustomParameter.findByName(CustomParameter.class, "RESTRICTION_END_TIME", "");
 		CustomParameter csptRestOperations = CustomParameter.findByName(CustomParameter.class, "RESTRICTION_OPERATIONS", "");
 		
+		
 		if(csptRestURLs != null 
 				&& csptRestRoles != null 
 				&& csptRestStartTime != null 
@@ -44,6 +45,8 @@ public class SubmissionRestrictionInterceptor extends HandlerInterceptorAdapter 
 				if(user != null){
 					Credential cr = Credential.findByFieldName(Credential.class, "username", user, null);
 					if(contains(cr.getRoles(), csptRestRoles.getValue())){
+						
+						if(containsRestrictionsForDevice(cr,url)){
 						Date submitTime = new Date();
 						
 						Calendar cal = Calendar.getInstance();
@@ -77,6 +80,7 @@ public class SubmissionRestrictionInterceptor extends HandlerInterceptorAdapter 
 									return false;
 								}
 							}
+						}
 						}
 						
 					}
@@ -119,6 +123,28 @@ public class SubmissionRestrictionInterceptor extends HandlerInterceptorAdapter 
 			String[] urlAndOperation = r.split(":");
 			if(url.equals(urlAndOperation[0])){
 				retVal = r;
+				break;
+			}
+		}
+		
+		return retVal;
+	}
+	private boolean containsRestrictionsForDevice(final Credential cr,final String url){
+		boolean retVal = false;
+		StringBuffer buffer=new StringBuffer();
+		for(Role i:cr.getRoles()){
+			buffer.append(i.getType()+",");
+		}
+		if(!buffer.toString().isEmpty()){
+		buffer.deleteCharAt(buffer.length()-1);
+		}
+		buffer.toString();
+		CustomParameter csptRestDevices = CustomParameter.findByName(CustomParameter.class, "RESTRICTION_"+buffer.toString()+"_DEVICES", "");
+String[] restrictUrls = csptRestDevices.getValue().split(",");
+		
+		for(String r : restrictUrls){
+			if(url.equals(r)){
+				retVal = true;
 				break;
 			}
 		}
