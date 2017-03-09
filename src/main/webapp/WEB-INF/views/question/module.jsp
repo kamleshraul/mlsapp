@@ -57,7 +57,17 @@
 		} else {
 			$("#memberballot_tab").hide();
 			$("#ballot_tab").hide();
-		}		
+		}	
+		
+		/**** For yaadi details tab to be visible ****/
+		if($("#currentusergroupType").val()=='clerk' || $("#currentusergroupType").val()=='assistant') {
+			if(currentDeviceType == 'questions_unstarred') {
+				$("#yaadi_details_tab").show();
+			} else {
+				$("#yaadi_details_tab").hide();
+			}
+		}	
+		
 		/*Tooltip*/
 		$(".toolTip").hide();
 		/**** here we are trying to add date mask in grid search when field names ends with date ****/
@@ -157,6 +167,14 @@
 			} else {
 				$("#memberballot_tab").hide();
 				$("#ballot_tab").hide();
+			}
+			
+			if($("#currentusergroupType").val()=='clerk' || $("#currentusergroupType").val()=='assistant') {
+				if(text == 'questions_unstarred') {
+					$("#yaadi_details_tab").show();
+				} else {
+					$("#yaadi_details_tab").hide();
+				}
 			}
 			
 			if(text == 'questions_unstarred') {
@@ -1409,13 +1427,11 @@
 				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
 				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
 				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')">
-			<c:if test="${questionTypeType=='questions_starred' || questionTypeType=='questions_unstarred'}">
 			<li>
 				<a id="yaadi_details_tab" href="#" class="tab"> 
 					<spring:message code="generic.yaadi_details_tab" text="Yaadi Details"></spring:message>
 				</a>
 			</li>
-			</c:if>
 			</security:authorize>
 			<security:authorize
 				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
