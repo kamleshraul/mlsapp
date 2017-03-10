@@ -199,7 +199,8 @@
 				
 			});
 			
-			$("#create_ballot").click(function(event, isHighSecurityValidationRequired){			
+			$("#create_ballot").click(function(event, isHighSecurityValidationRequired){	
+				//isHighSecurityValidationRequired = false;
 				if(isHighSecurityValidationRequired!=false) {
 					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
 					return false;
@@ -296,7 +297,8 @@
 			});
 			
 			
-			$("#view_ballot").click(function(event, isHighSecurityValidationRequired){			
+			$("#view_ballot").click(function(event, isHighSecurityValidationRequired){	
+				//isHighSecurityValidationRequired = false;
 				if(isHighSecurityValidationRequired!=false) {
 					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
 					return false;
