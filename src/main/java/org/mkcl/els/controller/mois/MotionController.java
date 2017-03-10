@@ -804,6 +804,13 @@ public class MotionController extends GenericController<Motion>{
 		/**** Created By ****/
 		model.addAttribute("createdBy",domain.getCreatedBy());
 		model.addAttribute("dataEnteredBy",domain.getDataEnteredBy());
+		//populate member status name
+		if(usergroupType !=null && !(usergroupType.isEmpty()) && usergroupType.equals("member")){
+			Status memberStatus = domain.findMemberStatus();
+			if(memberStatus!=null){				
+				model.addAttribute("formattedMemberStatus", memberStatus.getName());
+			}
+		}
 		/**** Status,Internal Status and recommendation Status ****/
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();
