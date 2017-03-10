@@ -1070,7 +1070,17 @@ class UnstarredQuestionController {
 				model.addAttribute("bulkedit",bulkedit);
 				request.getSession().removeAttribute("bulkedit");
 			}
-		}		
+		}	
+		//populate member status name and devicetype
+		if(usergroupType !=null && !(usergroupType.isEmpty()) && usergroupType.equals("member")){
+			Status memberStatus = domain.findMemberStatus();
+			if(memberStatus!=null){				
+				model.addAttribute("formattedMemberStatus", memberStatus.getName());
+			}
+			if(domain.getOriginalType()!=null) {
+				model.addAttribute("formattedQuestionType",domain.getOriginalType().getName());
+			}
+		}
 		//populate Statuses
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();

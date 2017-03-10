@@ -821,10 +821,10 @@
 		</c:if>
 	</c:if>
 	
-	<c:if test="${not empty formattedStatus}">
+	<c:if test="${not empty formattedMemberStatus}">
 	<p id="mainStatusDiv">
 	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
-	<input id="formattedStatus" name="formattedStatus" value="${formattedStatus }" type="text" readonly="readonly" class="sText">
+	<input id="formattedMemberStatus" name="formattedMemberStatus" value="${formattedMemberStatus }" type="text" readonly="readonly" class="sText">
 	</p>
 	</c:if>
 	

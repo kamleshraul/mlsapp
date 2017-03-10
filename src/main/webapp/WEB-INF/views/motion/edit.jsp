@@ -371,7 +371,7 @@
 		<form:errors path="details" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>	
 	
-	<security:authorize access="!hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+	<%-- <security:authorize access="!hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 		<p id="internalStatusDiv">
 			<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
 			<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly" class="sText">
@@ -383,7 +383,14 @@
 			<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
 			<input id="formattedInternalStatus" name="formattedInternalStatus" value="${domain.status.name }" type="text" readonly="readonly" class="sText">
 		</p>
-	</security:authorize>
+	</security:authorize> --%>
+	
+	<c:if test="${not empty formattedMemberStatus}">
+	<p id="mainStatusDiv">
+	<label class="small"><spring:message code="question.currentStatus" text="Current Status"/></label>
+	<input id="formattedMemberStatus" name="formattedMemberStatus" value="${formattedMemberStatus }" type="text" readonly="readonly" class="sText">
+	</p>
+	</c:if>
 	
 	<table>
 		<c:choose>

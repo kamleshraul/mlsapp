@@ -1280,6 +1280,16 @@ class StarredQuestionController {
 				request.getSession().removeAttribute("bulkedit");
 			}
 		}		
+		//populate member status name and devicetype
+		if(usergroupType !=null && !(usergroupType.isEmpty()) && usergroupType.equals("member")){
+			Status memberStatus = domain.findMemberStatus();
+			if(memberStatus!=null){				
+				model.addAttribute("formattedMemberStatus", memberStatus.getName());
+			}
+			if(domain.getOriginalType()!=null) {
+				model.addAttribute("formattedQuestionType",domain.getOriginalType().getName());
+			}
+		}
 		//populate Statuses
 		Status status=domain.getStatus();
 		Status internalStatus=domain.getInternalStatus();
@@ -1289,16 +1299,12 @@ class StarredQuestionController {
 			model.addAttribute("status",status.getId());
 			model.addAttribute("memberStatusType",status.getType());
 			model.addAttribute("formattedStatus", status.getName());
-		}
-		
+		}		
 		if(internalStatus!=null){
 			//populate internal status
 			model.addAttribute("internalStatus",internalStatus.getId());
 			model.addAttribute("internalStatusType", internalStatus.getType());
-			model.addAttribute("formattedInternalStatus", internalStatus.getName());
-			
-			
-			
+			model.addAttribute("formattedInternalStatus", internalStatus.getName());			
 			
 			// set End Flag and Level incase of assistant
 			if(usergroupType !=null && !(usergroupType.isEmpty()) && usergroupType.equals("assistant")){

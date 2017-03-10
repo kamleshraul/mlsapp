@@ -2082,6 +2082,25 @@ public class Question extends Device implements Serializable {
     	return Question.getQuestionRepository().getMemberPutupCount(member, session, deviceType, locale);
     }
     
+    public Status findMemberStatus() {	
+		Status memberStatus = null;
+		try {		
+			if(this.getStatus()!=null) {
+				Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, this.getLocale());
+				submitStatus = Question.findCorrespondingStatusForGivenQuestionType(submitStatus, this.getOriginalType());
+				if(this.getStatus().getPriority()>=submitStatus.getPriority()) {
+					memberStatus = submitStatus;
+				} else {
+					memberStatus = this.getStatus();
+				}
+			}
+		} catch (ELSException e) {
+			return null;
+		}		
+		
+		return memberStatus;
+	}
+    
     /**** INTERNAL METHODS ****/
     /**
      * Gets the question repository.

@@ -681,6 +681,25 @@ import org.springframework.transaction.annotation.Transactional;
 		return getMotionRepository().findAllCompleteByCreator(session, username, motionType, itemsCount, strLocale);
 	}
 	
+	public Status findMemberStatus() {	
+		Status memberStatus = null;
+		try {		
+			if(this.getStatus()!=null) {
+				Status submitStatus = Status.findByType(ApplicationConstants.MOTION_SUBMIT, this.getLocale());
+				submitStatus = Question.findCorrespondingStatusForGivenQuestionType(submitStatus, this.getType());
+				if(this.getStatus().getPriority()>=submitStatus.getPriority()) {
+					memberStatus = submitStatus;
+				} else {
+					memberStatus = this.getStatus();
+				}
+			}
+		} catch (ELSException e) {
+			return null;
+		}		
+		
+		return memberStatus;
+	}
+	
 	/**** Getters and Setters ****/
 	public HouseType getHouseType() {
 		return houseType;
