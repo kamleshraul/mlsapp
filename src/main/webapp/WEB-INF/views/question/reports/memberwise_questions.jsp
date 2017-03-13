@@ -108,6 +108,18 @@
 		$("#successDiv").hide();
 	}
 </script>
+<style type="text/css">
+    @media screen{
+     a.viewQuestion{
+     	text-decoration: underline !important;
+     } 	        
+    }
+    @media print{
+     a.viewQuestion{
+     	text-decoration: none !important;
+     }    
+    }                
+</style>
 </head>
 <body>
 <p id="error_p" style="display: none;">&nbsp;</p>
