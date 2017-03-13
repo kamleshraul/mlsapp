@@ -1,4 +1,33 @@
 <%@ include file="/common/taglibs.jsp"%>
+<script type="text/javascript">
+	$('.viewQuestion').click(function() {
+		var qid = $(this).attr('id').split("_")[1];
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
+		var parameters="houseType="+$("#selectedHouseType").val()
+		+"&sessionYear="+$("#selectedSessionYear").val()
+		+"&sessionType="+$("#selectedSessionType").val()
+		+"&questionType="+$("#selectedQuestionType").val()
+		+"&ugparam="+$("#ugparam").val()
+		+"&status="+$("#selectedStatus").val()
+		+"&role="+$("#srole").val()
+		+"&usergroup="+$("#currentusergroup").val()
+		+"&usergroupType="+$("#currentusergroupType").val()
+		+"&edit=false";
+		var resourceURL='question/'+qid+'/edit?'+parameters;
+		$.get(resourceURL,function(data){
+			$.unblockUI();
+			$.fancybox.open(data,{autoSize:false,width:750,height:700});
+		},'html').fail(function(){
+			$.unblockUI();
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
+	});
+</script>
 <c:choose>
 	<c:when test="${empty memberwiseQuestions}">
 		<h3><spring:message code="qis.memberwisequestions.noentriesfound" text="No Questions Submitted Yet."/></h3>
@@ -25,8 +54,8 @@
 							<td style="padding-left: 15px; font-weight: bold;vertical-align: top;text-align: center;">
 								${formatter.formatNumberNoGrouping(rowNumber.count, locale)}.
 							</td>
-							<td style="padding-left: 15px; font-weight: bold;vertical-align: top;text-align: center;">
-								${question[1]}
+							<td style="padding-left: 15px; font-weight: bold;vertical-align: top;text-align: center;">								
+								<a href="#" id="viewQuestion_${question[13]}" class="viewQuestion" style="">${question[1]}</a>
 							</td>
 							<td style="padding-left: 15px; font-weight: bold;vertical-align: top;text-align: center;">
 								${formatter.formatNumberNoGrouping(question[10],locale)}
