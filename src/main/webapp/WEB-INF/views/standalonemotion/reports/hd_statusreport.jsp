@@ -135,23 +135,27 @@
 					<table id="mainReportTab" style="width: 700px; border: 1px solid black;" border="1" align="center" class="strippedTable">  
 						<thead>
 							<tr>
-								<th style="width: 40px; text-align: center;"><spring:message code="question.hdq.report.status.srno" text="Sr. No." /></th>
+								<th style="width: 30px; text-align: center;"><spring:message code="question.hdq.report.status.srno" text="Sr. No." /></th>
 								<th style="width: 80px; text-align: center;"><spring:message code="question.hdq.report.status.hdqNumber" text="HDQ Number" /></th>
-								<%-- <th style="width: 80px; text-align: center;"><spring:message code="question.hdq.report.status.questionNumber" text="Question Number" /></th> --%>
+								<th style="width: 80px; text-align: center;"><spring:message code="question.hdq.report.status.questionNumber" text="Question Number" /></th>
 								<th style="width: 80px; text-align: center;"><spring:message code="question.hdq.report.status.memberName" text="Member" /></th>
-								<th style="width: 320px; text-align: center;"><spring:message code="question.hdq.report.status.subject" text="Subject" /></th>
+								<th style="width: 220px; text-align: center;"><spring:message code="question.hdq.report.status.subject" text="Subject" /></th>
 								<th style="width: 100px; text-align: center;"><spring:message code="question.hdq.report.status.status" text="Status" /></th>
+								<th style="width: 80px; text-align: center;"><spring:message code="question.hdq.report.status.discussionDate" text="Discussion Date" /></th>
+								<th style="width: 80px; text-align: center;"><spring:message code="question.hdq.report.status.ballotDate" text="Ballot Date" /></th>
 							</tr>
 						</thead>
 						<tbody>
 							<c:forEach items="${report}" var="r" varStatus="counter">
 								<tr>
-									<td style="width: 40px; text-align: center;">${formater.formatNumberNoGrouping(counter.count,locale)}</td>
+									<td style="width: 30px; text-align: center;">${formater.formatNumberNoGrouping(counter.count,locale)}</td>
 									<td style="width: 80px; text-align: center;">${r[0]}</td>
-									<%-- <td style="width: 80px; text-align: center;">${r[1]}</td> --%>
+									<td style="width: 80px; text-align: center;">${r[1]}</td>
 									<td style="width: 80px; text-align: center;">${r[2]}</td>
-									<td style="width: 320px; text-align: center;">${formater.formatNumbersInGivenText(r[3], locale)}</td>
+									<td style="width: 220px; text-align: center;">${formater.formatNumbersInGivenText(r[3], locale)}</td>
 									<td style="font-weight: bold; width: 100px; text-align: center;">${r[4]}</td>
+									<td style="width: 80px; text-align: center;">${r[5]}</td>
+									<td style="width: 80px; text-align: center;">${r[6]}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
