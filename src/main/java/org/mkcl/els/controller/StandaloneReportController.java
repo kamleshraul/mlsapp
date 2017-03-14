@@ -460,10 +460,34 @@ public class StandaloneReportController extends BaseController{
 
 				/**** generate report ****/				
 				try {
+					String reportFileName = "intimationletter";
+					if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+						reportFileName += "_laq";
+					} else if(question.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+						reportFileName += "_lcq";
+					}
+					reportFileName += "(" + question.getNumber() + ")";
+					if(statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+							|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+						
+						reportFileName += "_clarification(department)";
+						
+					} else if(statusType.equals(ApplicationConstants.STANDALONE_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
+							|| statusType.equals(ApplicationConstants.STANDALONE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+						
+						if(intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)) {
+							reportFileName += "_clarification(department)";
+						} else {
+							reportFileName += "_clarification(member)";
+						}						
+						
+					} else {
+						reportFileName += "_" + statusTypeSplit;
+					}
 					if(intimationLetterFilter!=null && !intimationLetterFilter.isEmpty() && !intimationLetterFilter.equals("-")) {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit + "_" + question.getHouseType().getType(), "WORD", "_intimation_letter", locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit + "_" + question.getHouseType().getType(), "WORD", reportFileName, locale.toString());
 					}else {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit + "_" + question.getHouseType().getType(), "WORD", "intimation_letter", locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit + "_" + question.getHouseType().getType(), "WORD", reportFileName, locale.toString());
 					}					
 					System.out.println("Intimation Letter generated successfully in WORD format!");
 
