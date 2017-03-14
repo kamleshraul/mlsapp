@@ -323,9 +323,11 @@
 									var session = ""+data[i].sessionId;
 									
 									if(session!=$("#currentSession").val().trim()){
+										
 										text+="referencing(" + data[i].id + ");' style='margin:10px; color: #00FF00;'>";
 									}else{
-										if(data[i].ballotStatus=="NOT"){
+										console.log(data[i].statusType);
+										if(data[i].ballotStatus=="NOT" && (data[i].statusType !='question_final_rejection' && data[i].statusType !='question_unstarred_final_rejection')){
 											text+="javascript:void(0);' style='margin:10px; color: #FF0000;' disabled='disabled'>";
 										}else{
 											text+="referencing(" + data[i].id + ");' style='margin:10px; color: #00FF00;'>";
