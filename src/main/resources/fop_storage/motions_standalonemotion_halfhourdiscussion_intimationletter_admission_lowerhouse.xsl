@@ -82,8 +82,9 @@
 								<xsl:when test="houseType='lowerhouse'">वि.स.स. यांनी महाराष्ट्र विधानसभा नियम ९४ अन्वये</xsl:when>
 								<xsl:when test="houseType='upperhouse'">वि.प.स. यांनी महाराष्ट्र विधानपरिषद नियम ९२, अनुसार</xsl:when>
 							</xsl:choose>
-							दिलेली अर्धा तास चर्चेची सूचना पुढीलप्रमाणे आहे :-							
+							दिलेली अर्धा तास चर्चेची				
 	            		</fo:block>  
+	            		<fo:block>सूचना (क्रमांक: <fo:inline font-weight="bold"><xsl:value-of select="number"/></fo:inline>) पुढीलप्रमाणे आहे :-</fo:block>
 	            		<fo:block font-size="6px">&#160;</fo:block>    
 	            		<fo:block>	            			
 	            			<xsl:choose>
