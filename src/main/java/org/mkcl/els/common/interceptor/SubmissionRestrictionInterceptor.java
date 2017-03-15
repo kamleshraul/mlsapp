@@ -139,11 +139,12 @@ public class SubmissionRestrictionInterceptor extends HandlerInterceptorAdapter 
 		buffer.deleteCharAt(buffer.length()-1);
 		}
 		buffer.toString();
+		String rurl =(url.indexOf("/")>0? url.substring(0,url.indexOf("/")):url);
 		CustomParameter csptRestDevices = CustomParameter.findByName(CustomParameter.class, "RESTRICTION_"+buffer.toString()+"_DEVICES", "");
 String[] restrictUrls = csptRestDevices.getValue().split(",");
 		
 		for(String r : restrictUrls){
-			if(url.equals(r)){
+			if(rurl.equals(r)){
 				retVal = true;
 				break;
 			}
