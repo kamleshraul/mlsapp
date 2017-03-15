@@ -683,18 +683,13 @@ import org.springframework.transaction.annotation.Transactional;
 	
 	public Status findMemberStatus() {	
 		Status memberStatus = null;
-		try {		
-			if(this.getStatus()!=null) {
-				Status submitStatus = Status.findByType(ApplicationConstants.MOTION_SUBMIT, this.getLocale());
-				submitStatus = Question.findCorrespondingStatusForGivenQuestionType(submitStatus, this.getType());
-				if(this.getStatus().getPriority()>=submitStatus.getPriority()) {
-					memberStatus = submitStatus;
-				} else {
-					memberStatus = this.getStatus();
-				}
+		if(this.getStatus()!=null) {
+			Status submitStatus = Status.findByType(ApplicationConstants.MOTION_SUBMIT, this.getLocale());
+			if(this.getStatus().getPriority()>=submitStatus.getPriority()) {
+				memberStatus = submitStatus;
+			} else {
+				memberStatus = this.getStatus();
 			}
-		} catch (ELSException e) {
-			return null;
 		}		
 		
 		return memberStatus;
