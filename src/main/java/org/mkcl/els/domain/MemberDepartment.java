@@ -26,6 +26,8 @@ import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.repository.MemberDepartmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -64,6 +66,9 @@ public class MemberDepartment extends BaseDomain implements Serializable {
 
 	/** The is independent charge. */
 	private Boolean isIndependentCharge;
+	
+	@Autowired
+    private transient MemberDepartmentRepository repository;
 
 	/**** Constructor ****/
 	
@@ -76,6 +81,18 @@ public class MemberDepartment extends BaseDomain implements Serializable {
 	}
 
 	/**** Domain methods ****/
+	public static MemberDepartmentRepository getMemberDepartmentRepository() {
+		MemberDepartmentRepository repository = new MemberDepartment().repository;
+    	if (repository == null) {
+    		throw new IllegalStateException(
+                  "MemberDepartmentRepository has not been injected in MemberDepartment Domain");
+    	}
+    	return repository;
+    }
+	
+	public static List<Department> findActiveDepartmentsOnDate(final Date onDate, final String locale) {
+		return getMemberDepartmentRepository().findActiveDepartmentsOnDate(onDate, locale);
+	}
 	
 	/**** Getters and Setters for the MemberDepartment ****/ 
 	/**

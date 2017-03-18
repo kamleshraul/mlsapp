@@ -42,6 +42,17 @@
 			$("#refreshList").click(function() {
 				refreshList();
 			});
+			
+			$("#generateCurrentStatusReport").click(function(){
+				var selectedMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				
+				if(selectedMotionId.length>=1){
+					showCurrentStatusReport('multiple',selectedMotionId);
+				}else{
+					showCurrentStatusReport('all','');
+				}
+			});
+			
 			//---ADDED BY VIKAS------------------
 			$('#gridURLParams_ForNew').val($('#gridURLParams').val());		
 			
@@ -112,7 +123,12 @@
 			</a> |
 			<a href="#" id="refreshList" class="butSim">
 				<spring:message code="generic.refresh" text="Refresh"/>
-			</a> |		
+			</a> |	
+			<security:authorize access="!hasAnyRole('CMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<a href="#" id="generateCurrentStatusReport" class="butSim">
+					<spring:message code="cutmotion.generateCurrentStatusReport" text="Generate Current Status Report"/>
+				</a> |
+			</security:authorize>	
 			<p>&nbsp;</p>
 		</div>
 	</div>

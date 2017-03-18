@@ -914,6 +914,36 @@ import org.springframework.beans.factory.annotation.Configurable;
 						}
 					}
 				}
+			}else if(device instanceof CutMotion) {
+				CutMotion question = (CutMotion) device;
+				session = question.getSession();
+				/** parameter for date on which to check if member was/is active as per session **/
+				Date activeOnCheckDate = null;
+				Date currentDate = new Date();
+				if(currentDate.compareTo(session.getStartDate())<=0) {
+					activeOnCheckDate = session.getStartDate();
+				} else if(currentDate.compareTo(session.getStartDate())>0
+						&& currentDate.compareTo(session.getEndDate())<0) {
+					activeOnCheckDate = new Date();
+				} else {
+					activeOnCheckDate = session.getEndDate();
+				}
+				String locale = question.getLocale();
+				MemberRole memberRole = MemberRole.find(session.getHouse().getType(), ApplicationConstants.MEMBER, locale);
+				HouseMemberRoleAssociation hmra = Member.find(this,memberRole,activeOnCheckDate,locale);
+				if(hmra!=null){
+					boolean isMemberAllowed = isMemberAllowed(hmra,question);
+					if(isMemberAllowed){
+						boolean isActivePresidingOfficer = this.isActiveMemberInAnyOfGivenRolesOn(
+								ApplicationConstants.NON_MEMBER_ROLES.split(","),activeOnCheckDate, locale);
+						if(!isActivePresidingOfficer){
+							boolean isMinister=this.isActiveMinisterOn(activeOnCheckDate, locale);
+							if(!isMinister){
+								isSupportingOrClubbedMemberToBeAddedForDevice=true;
+							}
+						}
+					}
+				}
 			}
 		}
 		return isSupportingOrClubbedMemberToBeAddedForDevice;
@@ -935,6 +965,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 				}
 			}else if(device instanceof StandaloneMotion){
 				StandaloneMotion q = (StandaloneMotion) device;
+				if(hmra.getFromDate().before(q.getSubmissionDate())
+						&& hmra.getToDate().after(q.getSubmissionDate())){
+					return true;
+				}
+			}else if(device instanceof CutMotion){
+				CutMotion q = (CutMotion) device;
 				if(hmra.getFromDate().before(q.getSubmissionDate())
 						&& hmra.getToDate().after(q.getSubmissionDate())){
 					return true;

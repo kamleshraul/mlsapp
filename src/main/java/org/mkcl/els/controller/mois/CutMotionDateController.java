@@ -29,9 +29,11 @@ import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotionDate;
 import org.mkcl.els.domain.CutMotionDepartmentDatePriority;
+import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.MemberDepartment;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -264,6 +266,10 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 				domain.setSession(session);
 			}
 			
+			/**** active departments as on session start date ****/
+			List<Department> departments = MemberDepartment.findActiveDepartmentsOnDate(session.getStartDate(), locale);
+			model.addAttribute("departments", departments);
+			
 			try{
 				CutMotionDate cutMotionDate = CutMotionDate.findCutMotionDateSessionDeviceType(session, deviceType, locale);
 				if(cutMotionDate != null/* && cutMotionDate.getStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_FINAL_DATE_ADMISSION)*/){
@@ -456,7 +462,7 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 				submissionEndDateFactor = new Integer(strSubmissionendDateFactor);
 			}
 			
-			if(budgetLayDate == null){
+			if(deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY) && budgetLayDate == null){
 				model.addAttribute("errorcode", "budgetlaydat_setting_error");
 				return;
 			}
@@ -465,7 +471,7 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 			Date sessionEndDate = session.getEndDate();
 			List<Reference> references = new ArrayList<Reference>();
 	
-			if((sessionStartDate != null) && (sessionStartDate != null)){
+			if((sessionStartDate != null) && (sessionEndDate != null)){
 				
 				Calendar start = Calendar.getInstance();
 				Calendar end = Calendar.getInstance();
@@ -483,9 +489,11 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 				for (; !start.after(end); start.add(Calendar.DATE, 1)) {
 					Date current = start.getTime();
 					
-					if(current.after(budgetLayDate) 
-							&& !Holiday.isHolidayOnDate(current, locale)){
-						dates.add(current);
+					if(!Holiday.isHolidayOnDate(current, locale)){
+						if(deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)
+								|| (deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY) && current.after(budgetLayDate))) {
+							dates.add(current);
+						}						
 					}
 				}
 	

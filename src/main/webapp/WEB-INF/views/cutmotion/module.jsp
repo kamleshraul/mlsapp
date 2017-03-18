@@ -280,6 +280,12 @@
 		});
 
 	}
+	
+	function showCurrentStatusReport(val, moId){
+		$("#selectionDiv1").hide();
+		var device = $("#deviceTypeMaster option[value='"+$("#selectedCutMotionType").val()+"']").text().split("_")[0];
+		showTabByIdAndUrl('details_tab', "cutmotion/report/currentstatusreport?device="+ device +"&reportType="+val+"&moId="+moId);
+	}
 </script>
 <style type="text/css">
 	.butSim:link{

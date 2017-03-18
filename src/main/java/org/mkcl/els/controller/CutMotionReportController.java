@@ -143,10 +143,10 @@ class CutMotionReportHelper{
 							for(Object o : report){
 								Object[] objx = (Object[])o;
 	
-								if(objx[27] != null && !objx[27].toString().isEmpty()){
-									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[27].toString())){
+								if(objx[23] != null && !objx[23].toString().isEmpty()){
+									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[23].toString())){
 										
-										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[27].toString(), locale.toString());
+										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[23].toString(), locale.toString());
 																				
 										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
 											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
@@ -155,7 +155,7 @@ class CutMotionReportHelper{
 														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
 													}else{
 														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
-														tempObj[28] = objx[28];
+														tempObj[24] = objx[24];
 														
 														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
 													}
@@ -170,7 +170,7 @@ class CutMotionReportHelper{
 														dataMap.put(userGroupType.getType(), objx);
 													}else{
 														Object[] tempObj = dataMap.get(userGroupType.getType());
-														tempObj[28] = objx[28];
+														tempObj[24] = objx[24];
 														
 														dataMap.put(userGroupType.getType(), tempObj);
 													}
@@ -227,7 +227,7 @@ class CutMotionReportHelper{
 										(wfDetails!= null && 
 										Integer.parseInt(wfDetails.getAssigneeLevel())>=level)){
 										Object[] tempObj = dataMap.get(userGroupType.getType());
-										tempObj[28] = "";
+										tempObj[24] = "";
 										tempObj[6] = "";
 										dataMap.put(userGroupType.getType(), tempObj);
 									}
@@ -268,9 +268,9 @@ class CutMotionReportHelper{
 											}
 											actor[3] = new String("");
 											actor[6] = new String("");
-											actor[27] = userGroupType.getType();
-											actor[28] = new String("");
-											actor[31] = null;
+											actor[23] = userGroupType.getType();
+											actor[24] = new String("");
+											actor[27] = null;
 											dataMap.put(str, actor);
 										}
 									}
@@ -284,7 +284,7 @@ class CutMotionReportHelper{
 					page = (qt.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE))? "cutmotion/reports/statusreportlowerhouse": "cutmotion/reports/statusreportupperhouse";
 				}		
 	
-				model.addAttribute("qid", qt.getId());
+				model.addAttribute("moid", qt.getId());
 			}
 		}catch(Exception e){
 			logger.error(e.getMessage(),e);
@@ -317,12 +317,12 @@ class CutMotionReportHelper{
 		for(Object o : list){
 			Object[] data = (Object[]) o;
 			String details = ((data[4] != null)? data[4].toString():"-");
-			String subject = ((data[5] != null)? data[5].toString():"-");
+			String mainTitle = ((data[5] != null)? data[5].toString():"-");
 			String remarks = ((data[6] != null)? data[6].toString():"-");
 			
-			((Object[])o)[17] = support;
+			((Object[])o)[15] = support;
 			((Object[])o)[4] = FormaterUtil.formatNumbersInGivenText(details, locale);
-			((Object[])o)[5] = FormaterUtil.formatNumbersInGivenText(subject, locale);
+			((Object[])o)[5] = FormaterUtil.formatNumbersInGivenText(mainTitle, locale);
 			((Object[])o)[6] = FormaterUtil.formatNumbersInGivenText(remarks, locale);
 			data = null;
 		}

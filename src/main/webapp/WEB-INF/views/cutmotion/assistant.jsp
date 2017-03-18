@@ -679,23 +679,23 @@
 		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
 	</p>			
 	
-	<p>
+	<%-- <p>
 		<c:if test="${bulkedit!='yes'}">	
 			<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="generic.clubbing" text="Clubbing"></spring:message></a>
 			<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="generic.referencing" text="Referencing"></spring:message></a>
 			<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="generic.refresh" text="Refresh"></spring:message></a>
 		</c:if>	
-	</p>
+	</p> --%>
 		
-	<c:if test="${!(empty parent)}">	
+	<%-- <c:if test="${!(empty parent)}">	
 		<p>
 			<label class="small"><spring:message code="cutmotion.parentmotion" text="Clubbed To"></spring:message></label>
 			<a href="#" id="p${parent}" onclick="viewmotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 			<input type="hidden" id="parent" name="parent" value="${parent}">
 		</p>
-	</c:if>	
+	</c:if> --%>	
 	
-	<p>
+	<%-- <p>
 		<label class="small"><spring:message code="generic.clubbed" text="Clubbed Motions"></spring:message></label>
 		<c:choose>
 			<c:when test="${!(empty clubbedEntities) }">
@@ -719,9 +719,9 @@
 				<c:out value="-"></c:out>
 			</c:otherwise>
 		</c:choose>
-	</p>
+	</p> --%>
 		
-	<p>
+	<%-- <p>
 		<label class="small"><spring:message code="cutmotion.referencedmotions" text="Referenced Motions"></spring:message></label>
 		<c:choose>
 			<c:when test="${!(empty referencedMotions) }">
@@ -740,9 +740,9 @@
 				<c:out value="-"></c:out>
 			</c:otherwise>
 		</c:choose>		
-	</p>
+	</p> --%>
 		
-	<c:if test="${!(empty referencedQuestions) }">		
+	<%-- <c:if test="${!(empty referencedQuestions) }">		
 		<p>
 			<label class="small"><spring:message code="motion.referencedquestions" text="Referenced Questions"></spring:message></label>
 			<c:choose>
@@ -756,9 +756,9 @@
 				</c:otherwise>
 			</c:choose>		
 		</p>
-	</c:if>
+	</c:if> --%>
 		
-	<c:if test="${!(empty referencedResolutions) }">
+	<%-- <c:if test="${!(empty referencedResolutions) }">
 		<p>
 			<label class="small"><spring:message code="motion.referencedmotions" text="Referenced Resolutions"></spring:message></label>
 			<c:choose>
@@ -772,15 +772,15 @@
 				</c:otherwise>
 			</c:choose>		
 		</p>
-	</c:if>
+	</c:if> --%>
 		
-	<c:if test="${!(empty referencedEntities) }">
+	<%-- <c:if test="${!(empty referencedEntities) }">
 		<select id="referencedEntities" name="referencedEntities" multiple="multiple" style="display:none;">
 			<c:forEach items="${referencedEntities }" var="i">
 				<option value="${i.id}" selected="selected"></option>
 			</c:forEach>
 		</select>
-	</c:if>
+	</c:if> --%>
 	
 	<p>	
 		<label class="centerlabel"><spring:message code="cutmotion.mainTitle" text="Main Title"/></label>
