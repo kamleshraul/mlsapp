@@ -90,6 +90,7 @@
 								<th style="text-align: center; font-size: 12px; width: 300px;">${topHeader[2]}</th>
 								<th style="text-align: center; font-size: 12px; width: 60px;">${topHeader[3]}</th>
 								<%-- <th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[4]}</th> --%>
+								<th style="text-align: center; font-size: 12px; width: 60px;">${topHeader[5]}</th>
 							</tr>
 						
 							<tr>
@@ -107,6 +108,7 @@
 													<td style="text-align: justify; font-size: 12px; width: 300px;">${r[2]}</td>
 													<td style="text-align: left; font-size: 12px; width: 60px;">${r[3]}</td>
 													<%-- <td style="text-align: left; font-size: 12px; width: 90px;">${r[4]}</td> --%>
+													<td style="text-align: left; font-size: 12px; width: 60px;">${r[5]}</td>
 												</tr>
 											</c:when>
 											<c:otherwise>
@@ -115,6 +117,7 @@
 													<td style="text-align: justify; font-size: 12px; width: 300px;">${r[2]}</td>
 													<td style="text-align: left; font-size: 12px; width: 60px;">${r[3]}</td>
 													<%-- <td style="text-align: left; font-size: 12px; width: 90px;">${r[4]}</td> --%>
+													<td style="text-align: left; font-size: 12px; width: 60px;">${r[5]}</td>
 												</tr>
 											</c:otherwise>
 										</c:choose>	
@@ -125,6 +128,7 @@
 											<td style="text-align: justify; font-size: 12px; width: 300px;">${r[2]}</td>
 											<td style="text-align: left; font-size: 12px; width: 60px;">${r[3]}</td>
 											<%-- <td style="text-align: left; font-size: 12px; width: 90px;">${r[4]}</td> --%>
+											<td style="text-align: left; font-size: 12px; width: 60px;">${r[5]}</td>
 										</tr>
 									</c:otherwise>
 								</c:choose>			
