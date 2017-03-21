@@ -104,7 +104,7 @@
 			return false;
 		}else if(type==value || sendToMember==value){
 			valueToSend=$("#internalStatus").val();
-			$("#actorDiv").hide();
+			//$("#actorDiv").hide();
 	    }else{
 		    valueToSend=value;
 	    }		
@@ -134,7 +134,7 @@
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").html(text);
 				}
-				$("#actorDiv").hide();				
+				//$("#actorDiv").hide();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				 if(value != sendback && value != discuss && $('#internalStatusType').val()!="resolution_final_clarificationNeededFromDepartment"
 					 && $('#internalStatusType').val()!="resolution_final_clarificationNeededFromMember"){
@@ -160,7 +160,7 @@
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").empty();
 				}
-				$("#actorDiv").hide();
+				//$("#actorDiv").hide();
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value != sendback && value != discuss){
 					$("#internalStatus").val(value);
@@ -510,7 +510,7 @@
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
-			/* loadActors($("#changeInternalStatus").val()); */
+			 loadActors($("#changeInternalStatus").val()); 
 		} 
 	});
 	</script>
