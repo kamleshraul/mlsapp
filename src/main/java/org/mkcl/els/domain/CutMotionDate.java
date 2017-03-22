@@ -236,7 +236,9 @@ public class CutMotionDate extends BaseDomain implements Serializable{
     	
     	for(CutMotionDepartmentDatePriority ct : data){
     		if(ct.getCutMotionDateId()==null || ct.getCutMotionDateId().isEmpty()) {
-    			ct.setCutMotionDateId(this.getId().toString());
+    			if(this.getId()!=null) {
+    				ct.setCutMotionDateId(this.getId().toString());
+    			}    			
     		}
     		CutMotionDepartmentDatePriority tempCT = (CutMotionDepartmentDatePriority)ct.persist();
     		newData.add(tempCT);    		
