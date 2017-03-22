@@ -376,13 +376,13 @@
 				
 				<p style="display: inline;">
 					<label class="small"><spring:message code="cutmotion.amountToBeDeducted" text="Deductible Amount"/>*</label>
-					<form:input path="amountToBeDeducted" cssClass="sText integer"/>
+					<form:input path="amountToBeDeducted" cssClass="sText"/>
 					<form:errors path="amountToBeDeducted" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 				</p>
 				
 				<p style="display: inline;">
 					<label class="small"><spring:message code="cutmotion.totalAmoutDemanded" text="Demanded Amount"/>*</label>
-					<form:input path="totalAmoutDemanded" cssClass="sText integer"/>
+					<form:input path="totalAmoutDemanded" cssClass="sText"/>
 					<form:errors path="totalAmoutDemanded" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 				</p>
 				
@@ -396,7 +396,7 @@
 				<c:if test="${selectedMotionType=='motions_cutmotion_supplementary'}">
 					<p style="display: inline;">
 						<label class="small"><spring:message code="cutmotion.itemNumber" text="Item Number"/>*</label>
-						<form:input path="itemNumber" cssClass="sText integer"/>
+						<form:input path="itemNumber" cssClass="sText"/>
 						<form:errors path="itemNumber" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 					</p>
 				</c:if>
