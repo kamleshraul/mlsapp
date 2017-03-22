@@ -42,6 +42,8 @@ public abstract class Device extends BaseDomain {
             	DeviceType govResolutionDeviceType = DeviceType.findByType(ApplicationConstants.GOVERNMENT_RESOLUTION, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType callingAttentionMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTION_CALLING_ATTENTION, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType standaloneMotionDeviceType = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE, ApplicationConstants.DEFAULT_LOCALE);
+            	DeviceType budgetaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY, ApplicationConstants.DEFAULT_LOCALE);
+            	DeviceType supplementaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY, ApplicationConstants.DEFAULT_LOCALE);
             	
             	Integer number = null;
             	
@@ -129,6 +131,34 @@ public abstract class Device extends BaseDomain {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, standaloneMotionDeviceType);
             		number = StandaloneMotion.assignStandaloneMotionNo(upperHouseType, latestUpperHouseSession, standaloneMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
             		StandaloneMotion.updateHDSCurrentNumberUpperHouse(number);
+        		}
+            	
+            	/** update lowerhouse static current number for budgetary cutmotions **/
+            	if (CutMotion.getBudgetaryCutMotionCurrentNumberLowerHouse() == 0) {
+            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, budgetaryCutMotionDeviceType);
+            		number = CutMotion.assignCutMotionNo(lowerHouseType, latestLowerHouseSession, budgetaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		CutMotion.updateBudgetaryCutMotionCurrentNumberLowerHouse(number);
+        		}
+            	
+            	/** update upperhouse static current number for budgetary cutmotions **/
+            	if (CutMotion.getBudgetaryCutMotionCurrentNumberUpperHouse() == 0) {
+            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, budgetaryCutMotionDeviceType);
+            		number = CutMotion.assignCutMotionNo(upperHouseType, latestUpperHouseSession, budgetaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		CutMotion.updateBudgetaryCutMotionCurrentNumberUpperHouse(number);
+        		}
+            	
+            	/** update lowerhouse static current number for supplementary cutmotions **/
+            	if (CutMotion.getSupplementaryCutMotionCurrentNumberLowerHouse() == 0) {
+            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, supplementaryCutMotionDeviceType);
+            		number = CutMotion.assignCutMotionNo(lowerHouseType, latestLowerHouseSession, supplementaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		CutMotion.updateSupplementaryCutMotionCurrentNumberLowerHouse(number);
+        		}
+            	
+            	/** update upperhouse static current number for supplementary cutmotions **/
+            	if (CutMotion.getSupplementaryCutMotionCurrentNumberUpperHouse() == 0) {
+            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, supplementaryCutMotionDeviceType);
+            		number = CutMotion.assignCutMotionNo(upperHouseType, latestUpperHouseSession, supplementaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+            		CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(number);
         		}
             	
             	Device.isCurrentNumberForDevicesUpdateRequired(false);
