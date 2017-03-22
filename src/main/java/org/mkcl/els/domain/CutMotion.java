@@ -318,6 +318,7 @@ public class CutMotion extends Device implements Serializable {
 				! this.getStatus().getType().equals(ApplicationConstants.CUTMOTION_COMPLETE)) {
 			CutMotionDraft draft = new CutMotionDraft();
 			draft.setLocale(this.getLocale());
+			draft.setDeviceId(this.getId().toString());
 			draft.setRemarks(this.getRemarks());
 			draft.setClubbedEntities(this.getClubbedEntities());
 			draft.setReferencedEntities(this.getReferencedEntities());
@@ -679,6 +680,10 @@ public class CutMotion extends Device implements Serializable {
 			}
 		}		
 		return allMemberNamesBuffer.toString();
+	}
+	
+	public static List<CutMotionDraft> findDraftsForGivenDevice(final Long deviceId) {
+		return getCutMotionRepository().findDraftsForGivenDevice(deviceId);
 	}
 	
 	//************************Clubbing**********************
