@@ -4274,66 +4274,6 @@ public class QuestionReportController extends BaseController{
 		requestMap = null;
 		return "question/reports/"+request.getParameter("reportFileName");
 	}
-	
-	@SuppressWarnings("unchecked")
-	private void generateTabularFOPReport(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		File reportFile = null;
-		Boolean isError = false;
-		MessageResource errorMessage = null;
-		
-		String reportQuery = request.getParameter("reportQuery");
-		String xsltFileName = request.getParameter("xsltFileName");
-		String outputFormat = request.getParameter("outputFormat");
-		String reportFileName = request.getParameter("reportFileName");
-		
-		if(reportQuery!=null && !reportQuery.isEmpty()
-				&& xsltFileName!=null && !xsltFileName.isEmpty()
-				&& outputFormat!=null && !outputFormat.isEmpty()
-				&& reportFileName!=null && !reportFileName.isEmpty()) {
-			try {
-				Map<String, String[]> requestMap = request.getParameterMap();
-				/** Populate Headers **/
-				List<Object[]> reportHeaders = Query.findReport(request.getParameter("reportQuery")+"_HEADERS", requestMap);
-				/** Populate Data **/
-				@SuppressWarnings("rawtypes")
-				List reportData = Query.findReport(request.getParameter("reportQuery"), requestMap);		
-				/**** generate fop report ****/
-				/** create report in reportFile **/
-				reportFile = generateReportUsingFOP(new Object[] {reportHeaders, reportData}, xsltFileName, outputFormat, reportFileName, locale.toString());
-				/** open reportFile for view/download in browser **/
-	    		if(reportFile!=null) {
-	    			System.out.println("Report generated successfully in " + outputFormat + " format!");
-	    			openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
-	    		}
-			} catch(Exception e) {
-				e.printStackTrace();
-				isError = true;					
-				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
-			}
-		} else {
-			isError = true;
-			logger.error("**** Check request parameters reportQuery, xsltFileName, outputFormat, reportFileName for null values ****");
-			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.reqparam.null", locale.toString());
-		}
-		if(isError) {
-			try {
-				//response.sendError(404, "Report cannot be generated at this stage.");
-				if(errorMessage != null) {
-					if(!errorMessage.getValue().isEmpty()) {
-						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
-					} else {
-						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
-					}
-				} else {
-					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
-				}
-
-				return;
-			} catch (IOException e) {						
-				e.printStackTrace();
-			}
-		}
-	}
 }
 
 /**** Helper for producing reports ****/
