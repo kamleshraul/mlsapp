@@ -116,6 +116,11 @@ public class CutMotionReportController extends BaseController{
 		response.setContentType("text/html; charset=utf-8");		
 		return CutMotionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}
+	
+	@RequestMapping(value="/yaadi_report", method=RequestMethod.GET)
+	public @ResponseBody void generateYaadiReport(HttpServletRequest request, HttpServletResponse response, Locale locale){
+		generateTabularFOPReport(request, response, locale);
+	}
 
 }
 
