@@ -18,6 +18,7 @@ import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
+import org.mkcl.els.domain.CutMotionDraft;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
@@ -49,7 +50,7 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ClubbedEntity> findClubbedEntitiesByQuestionNumber(final CutMotion motion, 
+	public List<ClubbedEntity> findClubbedEntitiesByCutMotionNumber(final CutMotion motion, 
 			final String sortOrder, final String locale) {
 		String strQuery = "SELECT m  FROM CutMotion q JOIN q.clubbedEntities m" +
 				" WHERE q.id=:motionId ORDER BY m.question.number " + sortOrder;
@@ -449,8 +450,9 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 				+ " AND m.status.id=:statusId"
 				+ " AND m.subDepartment.id=:subDepartmentId"
 				+ " ORDER BY m.demandNumber " 
-				+ sortOrder + ", m.amountToBeDeducted " 
-				+ sortOrder + ", m.submissionDate " 
+				+ sortOrder + ", m.amountToBeDeducted "
+				+ sortOrder + ", m.primaryMember.lastName"
+				//+ sortOrder + ", m.submissionDate " 
 				+ sortOrder);
 		
 		TypedQuery<CutMotion> tQuery = this.em().createQuery(strQuery.toString(), CutMotion.class);
@@ -498,5 +500,18 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("motionId", motion.getId());
 		return query.getResultList();
+	}
+	
+	public List<CutMotionDraft> findDraftsForGivenDevice(final Long deviceId) {
+		if(deviceId==null) {
+			return null;
+		}
+		List<CutMotionDraft> drafts = null;
+		
+		String queryString = "SELECT qd FROM CutMotionDraft qd WHERE deviceId=:deviceId";
+		TypedQuery<CutMotionDraft> query = this.em().createQuery(queryString, CutMotionDraft.class);
+		query.setParameter("deviceId", deviceId.toString());
+		drafts = query.getResultList();
+		return drafts;
 	}
 }

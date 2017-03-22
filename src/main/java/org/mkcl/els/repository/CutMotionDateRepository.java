@@ -1,11 +1,14 @@
 package org.mkcl.els.repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.CutMotionDate;
+import org.mkcl.els.domain.CutMotionDateDraft;
+import org.mkcl.els.domain.CutMotionDepartmentDatePriority;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Session;
@@ -50,6 +53,32 @@ public class CutMotionDateRepository extends BaseRepository<CutMotionDate, Seria
 		CutMotionDate cutMotionDate = query.getSingleResult();
 		
 		return cutMotionDate;
+	}
+	
+	public List<CutMotionDepartmentDatePriority> findDepartmentDatePriorityDetailsForGivenCutMotionDate(final Long cutMotionDateId) {
+		if(cutMotionDateId==null) {
+			return null;
+		}
+		List<CutMotionDepartmentDatePriority> drafts = null;
+		
+		String queryString = "SELECT cdp FROM CutMotionDepartmentDatePriority cdp WHERE cutMotionDateId=:cutMotionDateId";
+		TypedQuery<CutMotionDepartmentDatePriority> query = this.em().createQuery(queryString, CutMotionDepartmentDatePriority.class);
+		query.setParameter("cutMotionDateId", cutMotionDateId.toString());
+		drafts = query.getResultList();
+		return drafts;
+	} 
+	
+	public List<CutMotionDateDraft> findDraftsForGivenCutMotionDate(final Long cutMotionDateId) {
+		if(cutMotionDateId==null) {
+			return null;
+		}
+		List<CutMotionDateDraft> drafts = null;
+		
+		String queryString = "SELECT cdd FROM CutMotionDateDraft cdd WHERE deviceId=:cutMotionDateId";
+		TypedQuery<CutMotionDateDraft> query = this.em().createQuery(queryString, CutMotionDateDraft.class);
+		query.setParameter("cutMotionDateId", cutMotionDateId.toString());
+		drafts = query.getResultList();
+		return drafts;
 	}
 
 }
