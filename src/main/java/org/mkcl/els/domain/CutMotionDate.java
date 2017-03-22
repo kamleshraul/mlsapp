@@ -20,7 +20,6 @@ import javax.persistence.TemporalType;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.repository.CutMotionDateRepository;
-import org.mkcl.els.repository.WorkflowConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
@@ -162,6 +161,14 @@ public class CutMotionDate extends BaseDomain implements Serializable{
 	public static CutMotionDate findCutMotionDateSessionDeviceType(final Session session, final DeviceType deviceType, final String locale) throws Exception{
 		return getCutMotionDateRepository().findCutMotionDateSessionDeviceType(session, deviceType, locale);
 	}
+	
+	public static List<CutMotionDepartmentDatePriority> findDepartmentDatePriorityDetailsForGivenCutMotionDate(final Long cutMotionDateId) {
+		return getCutMotionDateRepository().findDepartmentDatePriorityDetailsForGivenCutMotionDate(cutMotionDateId);
+	} 
+	
+	public static List<CutMotionDateDraft> findDraftsForGivenCutMotionDate(final Long cutMotionDateId) {
+		return getCutMotionDateRepository().findDraftsForGivenCutMotionDate(cutMotionDateId);
+	}
 	/**** Static Methods ****/	
 	
 	/**** Method ****/
@@ -224,6 +231,9 @@ public class CutMotionDate extends BaseDomain implements Serializable{
     	List<CutMotionDepartmentDatePriority> newData = new ArrayList<CutMotionDepartmentDatePriority>();
     	
     	for(CutMotionDepartmentDatePriority ct : data){
+    		if(ct.getCutMotionDateId()==null || ct.getCutMotionDateId().isEmpty()) {
+    			ct.setCutMotionDateId(this.getId().toString());
+    		}
     		CutMotionDepartmentDatePriority tempCT = (CutMotionDepartmentDatePriority)ct.persist();
     		newData.add(tempCT);    		
     	}
