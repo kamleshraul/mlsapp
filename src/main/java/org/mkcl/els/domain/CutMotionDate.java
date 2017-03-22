@@ -184,6 +184,10 @@ public class CutMotionDate extends BaseDomain implements Serializable{
         if(! this.getStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_DATE_INCOMPLETE) &&
         		! this.getStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_DATE_COMPLETE)) {
             CutMotionDateDraft draft = new CutMotionDateDraft();
+            draft.setLocale(this.getLocale());
+            if(this.getId()!=null) {
+				draft.setCutMotionDateId(this.getId().toString());
+			}
             draft.setDeviceType(this.getDeviceType());
             draft.setRemarks(this.getRemarks());
                                   
