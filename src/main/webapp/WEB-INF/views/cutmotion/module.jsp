@@ -261,6 +261,10 @@
 	}
 	
 	function assignNumberAfterApproval(){
+		if($("#selectedSubDepartment").val()==undefined || $("#selectedSubDepartment").val()=='') {
+			$.prompt("Please select department for assigning the numbers after approval!");
+			return false;
+		}
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		+ "&sessionYear=" + $("#selectedSessionYear").val()
 		+ "&sessionType=" + $("#selectedSessionType").val()
@@ -285,6 +289,26 @@
 		$("#selectionDiv1").hide();
 		var device = $("#deviceTypeMaster option[value='"+$("#selectedCutMotionType").val()+"']").text().split("_")[0];
 		showTabByIdAndUrl('details_tab', "cutmotion/report/currentstatusreport?device="+ device +"&reportType="+val+"&moId="+moId);
+	}
+	
+	function generateYaadiReport(){
+		if($("#selectedSubDepartment").val()==undefined || $("#selectedSubDepartment").val()=='') {
+			$.prompt("Please select department for the yaadi report!");
+			return false;
+		}
+		var parameters = {
+				houseType				: $("#selectedHouseType").val(),
+				sessionYear				: $('#selectedSessionYear').val(), 
+				sessionType				: $("#selectedSessionType").val(), 
+				subDepartment			: $("#selectedSubDepartment").val(),
+				cutMotionType			: $("#selectedCutMotionType").val(),
+				locale					: $("#moduleLocale").val(),
+				reportQuery				: "CMOIS_YAADI_REPORT"/* + "_" + $("#selectedHouseType").val().toUpperCase()*/,
+				xsltFileName			: 'cmois_yaadi_report_template'/* + '_' + $("#selectedHouseType").val()*/,
+				outputFormat			: 'WORD',
+				reportFileName			: "cmois_yaadi_report"/* + "_" + $("#selectedCutMotionType").val()*/
+		}
+		form_submit('cutmotion/report/yaadi_report', parameters, 'GET');
 	}
 </script>
 <style type="text/css">

@@ -75,6 +75,10 @@
 				assignNumberAfterApproval();
 			});
 			
+			$("#generateYaadiReport").click(function(){				
+				generateYaadiReport();
+			});
+			
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -129,6 +133,11 @@
 					<spring:message code="cutmotion.generateCurrentStatusReport" text="Generate Current Status Report"/>
 				</a> |
 			</security:authorize>	
+			<security:authorize access="hasAnyRole('CMOIS_ASSISTANT','CMOIS_SECTION_OFFICER')">				
+				<a href="#" id="generateYaadiReport" class="butSim">
+					<spring:message code="cutmotion.generateYaadiReport" text="Generate Yaadi Report"/>
+				</a> |
+			</security:authorize>
 			<p>&nbsp;</p>
 		</div>
 	</div>
