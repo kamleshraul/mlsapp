@@ -38,6 +38,7 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
@@ -79,7 +80,12 @@ public class CutMotionController extends GenericController<CutMotion>{
 		model.addAttribute("moduleLocale", locale.toString());
 		
 		/**** Selected Motion Type ****/
-		DeviceType deviceType=DeviceType.findByFieldName(DeviceType.class, "type",request.getParameter("type"), locale);
+		DeviceType deviceType = null;
+		try {
+			deviceType = CutMotionController.getDeviceType(request, locale);
+		} catch (ELSException e) {
+			model.addAttribute("CutMotionController", e.getParameter());
+		}
 		if(deviceType!=null){
 			/**** Available Motion Types ****/
 			List<DeviceType> deviceTypes = new ArrayList<DeviceType>();
@@ -1138,13 +1144,26 @@ public class CutMotionController extends GenericController<CutMotion>{
 
 	@Override
 	protected void customValidateUpdate(final CutMotion domain, final BindingResult result,
-			final HttpServletRequest request) {
+			final HttpServletRequest request) {		
 		/**** Supporting Members and various Validations ****/
 		populateSupportingMembers(domain,request);
 		String role = request.getParameter("role");
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
+		}
+		if(role.equals("CMOIS_TYPIST")){
+			if(domain.getNumber()==null){
+				result.rejectValue("number","NumberEmpty");
+				//check for duplicate motion
+			}
+			Boolean flag = CutMotion.isExist(domain.getNumber(),domain.getDeviceType(), domain.getSession(), domain.getLocale());
+			CutMotion cutMotion = CutMotion.findById(CutMotion.class, domain.getId());
+			if(!cutMotion.getNumber().equals(domain.getNumber())){
+				if(flag){
+					result.rejectValue("number", "NonUnique","Duplicate Parameter");
+				}
+			}
 		}
 		String operation=request.getParameter("operation");
 		if(operation!=null&&!operation.isEmpty()){
@@ -1181,17 +1200,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 				}
 			}else /**** Submission By Member/Clerk****/
-				if(operation.equals("submit")){
-					if(role.equals("CMOIS_TYPIST")){
-						if(domain.getNumber()==null){
-							result.rejectValue("number","NumberEmpty");
-							//check for duplicate motion
-						}
-						/*Boolean flag = CutMotion.isExist(domain.getNumber(),domain.getDeviceType(), domain.getSession(), domain.getLocale());
-						if(flag){
-							result.rejectValue("number", "NonUnique","Duplicate Parameter");
-						}*/
-					}
+				if(operation.equals("submit")){					
 					/**** Submission ****/
 					if(domain.getHouseType()==null){
 						result.rejectValue("houseType","HousetypeEmpty");
@@ -1216,17 +1225,6 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 				}else /**** Start Workflow By assistant ****/
 					if(operation.equals("startworkflow")){
-						if(role.equals("CMOIS_TYPIST")){
-							if(domain.getNumber()==null){
-								result.rejectValue("number","NumberEmpty");
-								//check for duplicate motion
-							}
-							/*Boolean flag = CutMotion.isExist(domain.getNumber(),domain.getDeviceType(), domain.getSession(), domain.getLocale());
-							if(flag){
-								result.rejectValue("number", "NonUnique","Duplicate Parameter");
-							}*/
-						}
-						
 						if(domain.getHouseType()==null){
 							result.rejectValue("houseType","HousetypeEmpty");
 						}
@@ -2499,5 +2497,18 @@ public class CutMotionController extends GenericController<CutMotion>{
 			logger.error("CutMotionController_assignNumberAfterApproval", e);
 		}
 		return retVal;
+	}
+	
+	//=================UTILITY METHODS==============================
+	public static DeviceType getDeviceType(final HttpServletRequest request,
+			final String locale) throws ELSException {
+		String deviceTypeType = request.getParameter("type");
+		
+		if(deviceTypeType == null || deviceTypeType.isEmpty()) {
+			throw new ELSException("CutMotionController.getDeviceType/2", "Device type is not set in the Request");
+		}
+		
+		DeviceType deviceType = DeviceType.findByType(deviceTypeType, locale);
+		return deviceType;
 	}
 }

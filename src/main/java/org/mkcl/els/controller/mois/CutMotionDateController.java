@@ -25,6 +25,7 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotionDate;
@@ -118,6 +119,11 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 			/**** Device Types ****/
 			List<DeviceType> deviceTypes = DeviceType.findDeviceTypesStartingWith("motions_cutmotion_", locale);
 			model.addAttribute("deviceTypes", deviceTypes);
+			
+			// Populate default Device type
+			DeviceType deviceType = CutMotionDateController.getDeviceType(request, locale);
+			model.addAttribute("deviceType", deviceType.getId());
+			model.addAttribute("deviceTypeType", deviceType.getType());
 			
 			/**** House Types ****/
 			List<HouseType> houseTypes = new ArrayList<HouseType>();
@@ -754,39 +760,26 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 			domain.setEditedAs(userGroupType.getName());
 		}
 		boolean canGoAhead = true;
-		/**** Question status will be complete if all mandatory fields have been filled ****/
+		/**** CutMotion status will be complete if all mandatory fields have been filled ****/
 		
 		if(canGoAhead){			
-			if(operation!=null){
-				if(!operation.isEmpty()){
-					if(operation.trim().equals("submit")){
-						if(domain.getSubmissionDate() == null){
-							domain.setSubmissionDate(new Date());
-						}
-						
-						Status newstatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTIONDATE_DATE_SUBMIT, domain.getLocale());
-						domain.setStatus(newstatus);
-						domain.setInternalStatus(newstatus);
-						domain.setRecommendationStatus(newstatus);
-					}else{
-						Status status = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTIONDATE_DATE_COMPLETE, domain.getLocale());
-						if(!domain.getStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_DATE_SUBMIT) && !operation.trim().equals("startworkflow")){
-							domain.setStatus(status);
-							domain.setInternalStatus(status);
-							domain.setRecommendationStatus(status);
-						}						
+			if(operation!=null && !operation.isEmpty()){
+				if(operation.trim().equals("submit")){
+					if(domain.getSubmissionDate() == null){
+						domain.setSubmissionDate(new Date());
 					}
-				}else{
-					Status status = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTIONDATE_DATE_COMPLETE, domain.getLocale());
-					if(!domain.getStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_DATE_SUBMIT)){
-						domain.setStatus(status);
-						domain.setInternalStatus(status);
-						domain.setRecommendationStatus(status);
-					}
+					
+					Status newstatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTIONDATE_DATE_SUBMIT, domain.getLocale());
+					domain.setStatus(newstatus);
+					domain.setInternalStatus(newstatus);
+					domain.setRecommendationStatus(newstatus);
 				}
-			}else{
-				Status status = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTIONDATE_DATE_COMPLETE, domain.getLocale());
-				if(!domain.getStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_DATE_SUBMIT)){
+			}
+			// operation is Null OR Empty
+			else{
+				if(!userGroupType.getType().equals(ApplicationConstants.ASSISTANT)
+						&& !userGroupType.getType().equals(ApplicationConstants.CLERK)){
+					Status status = Status.findByFieldName(Status.class, "type", ApplicationConstants.CUTMOTIONDATE_DATE_COMPLETE, domain.getLocale());
 					domain.setStatus(status);
 					domain.setInternalStatus(status);
 					domain.setRecommendationStatus(status);
@@ -998,5 +991,18 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 			logger.error("error", e);
 		}
 		return retVal;
-	} 
+	}
+	
+	//=================UTILITY METHODS==============================
+	public static DeviceType getDeviceType(final HttpServletRequest request,
+			final String locale) throws ELSException {
+		String deviceTypeType = request.getParameter("type");
+		
+		if(deviceTypeType == null || deviceTypeType.isEmpty()) {
+			throw new ELSException("CutMotionDateController.getDeviceType/2", "Device type is not set in the Request");
+		}
+		
+		DeviceType deviceType = DeviceType.findByType(deviceTypeType, locale);
+		return deviceType;
+	}
 }

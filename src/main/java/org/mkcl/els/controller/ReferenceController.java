@@ -8732,6 +8732,9 @@ public class ReferenceController extends BaseController {
 				Motion.updateCurNumber(num, houseType, strDevice);
 			}else if(strDevice.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 				StandaloneMotion.updateCurNumber(num, houseType, strDevice);
+			}else if(strDevice.equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY)
+					|| strDevice.equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)){
+				CutMotion.updateCurNumber(num, houseType, strDevice);
 			}
 			
 			return "SUCCESS";

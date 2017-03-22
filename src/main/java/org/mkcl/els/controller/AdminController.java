@@ -17,6 +17,11 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.xmlvo.TestXmlVO;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.CutMotion;
+import org.mkcl.els.domain.CutMotionDate;
+import org.mkcl.els.domain.CutMotionDateDraft;
+import org.mkcl.els.domain.CutMotionDepartmentDatePriority;
+import org.mkcl.els.domain.CutMotionDraft;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
@@ -718,6 +723,84 @@ public class AdminController extends BaseController {
 				e.printStackTrace();
 			}
 		}	
+	}
+	
+	/**
+	 * Recovers all the drafts for given cutmotiondate
+	 * Sample: /els/admin/recover_drafts/cutmotiondate/id/3072
+	 */
+	@Transactional
+	@RequestMapping(value="recover_drafts/cutmotiondate/id/{id}", method=RequestMethod.GET)
+	public @ResponseBody String recoverCutMotionDateDrafts(@PathVariable("id") final Long cutMotionDateId) {
+		try {
+			CutMotionDate cutMotionDate = CutMotionDate.findById(CutMotionDate.class, cutMotionDateId);
+			if(cutMotionDate==null) {
+				logger.error("cutmotiondate id is invalid");
+				throw new Exception();
+			}
+			List<CutMotionDateDraft> drafts = CutMotionDate.findDraftsForGivenCutMotionDate(cutMotionDateId);
+			if(drafts!=null && !drafts.isEmpty()) {
+				cutMotionDate.setDrafts(drafts);
+				cutMotionDate.simpleMerge();
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+		}		
+		return "SUCCESS";
+	}
+	
+	/**
+	 * Recovers all the cutmotiondepartmentdatepriority details for given cutmotiondate
+	 * Sample: /els/admin/recover_cutmotiondepartmentdatepriority_details/cutmotiondate/id/3072
+	 */
+	@Transactional
+	@RequestMapping(value="recover_cutmotiondepartmentdatepriority_details/cutmotiondate/id/{id}", method=RequestMethod.GET)
+	public @ResponseBody String recoverCutMotionDepartmentDatePriorityDetails(@PathVariable("id") final Long cutMotionDateId) {
+		try {
+			CutMotionDate cutMotionDate = CutMotionDate.findById(CutMotionDate.class, cutMotionDateId);
+			if(cutMotionDate==null) {
+				logger.error("cutmotiondate id is invalid");
+				throw new Exception();
+			}
+			List<CutMotionDepartmentDatePriority> departmentDates = CutMotionDate.findDepartmentDatePriorityDetailsForGivenCutMotionDate(cutMotionDateId);
+			if(departmentDates!=null && !departmentDates.isEmpty()) {
+				cutMotionDate.setDepartmentDates(departmentDates);
+				cutMotionDate.simpleMerge();
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+		}		
+		return "SUCCESS";
+	}
+	
+	/**
+	 * Recovers all the drafts for given cutmotion
+	 * Sample: /els/admin/recover_drafts/cutmotion/id/3072
+	 */
+	@Transactional
+	@RequestMapping(value="recover_drafts/cutmotion/id/{id}", method=RequestMethod.GET)
+	public @ResponseBody String recoverCutMotionDrafts(@PathVariable("id") final Long cutMotionId) {
+		try {
+			CutMotion cutMotion = CutMotion.findById(CutMotion.class, cutMotionId);
+			if(cutMotion==null) {
+				logger.error("cutmotion id is invalid");
+				throw new Exception();
+			}
+			List<CutMotionDraft> drafts = CutMotion.findDraftsForGivenDevice(cutMotionId);
+			if(drafts!=null && !drafts.isEmpty()) {
+				cutMotion.setDrafts(drafts);
+				cutMotion.simpleMerge();
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+		}		
+		return "SUCCESS";
 	}
 	
 }
