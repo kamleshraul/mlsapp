@@ -222,7 +222,7 @@ public class CutMotionDate extends BaseDomain implements Serializable{
     @Override
 	@Transactional
 	public CutMotionDate persist() {
-    	this.setDepartmentDates(saveDepartmentDatePriority(this.getDepartmentDates()));
+//    	this.setDepartmentDates(saveDepartmentDatePriority(this.getDepartmentDates()));
     	addCutMotiondateDraft();    	
         return (CutMotionDate)super.persist();
 	}
