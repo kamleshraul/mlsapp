@@ -76,9 +76,13 @@
 					}
 					text+="<option value='-'>----"+$("#pleaseSelectMessage").val()+"----</option>";
 					$("#appractor").html(text);
-					if(!$("#currentusergroupType").val()=='speaker'){
+					/* if(!$("#currentusergroupType").val()=='speaker'){
 						$("#actorDiv").show();
 					}else{
+						$("#actorDiv").hide();
+					} */
+					$("#actorDiv").show();
+					if($("#currentusergroupType").val()=='speaker'){
 						$("#actorDiv").hide();
 					}
 				}else{
