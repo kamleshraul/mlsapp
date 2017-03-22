@@ -48,7 +48,11 @@
 					$("#subDepartment").html(subDepartmentText);				
 				}
 			});
-		}		
+		}	
+		/**** new cutmotion ****/
+		function newCutMotion_ForNew() {
+			showTabByIdAndUrl('details_tab','cutmotion/new?'+$("#gridURLParams_ForNew").val());
+		}
 		$(document).ready(function(){					
 			/**** Ministry Changes ****/	
 			$("#ministry").change(function(){
@@ -257,6 +261,10 @@
 				$("#details").attr("readonly","readonly");
 				$("#selectedSupportingMembers").attr("readonly","readonly");			
 			}	
+			
+			$('#new_record_ForNew').click(function(){	
+				newCutMotion_ForNew();
+			});
 					
 			/**** To prevent copy paste in supporting member field ****/
 			$("#selectedSupportingMembers").bind('copy paste', function (e) {
@@ -271,7 +279,15 @@
 	<c:if test="${(error!='') && (error!=null)}">
 		<h4 style="color: #FF0000;">${error}</h4>
 	</c:if>
-	
+	<div class="commandbar">
+		<div class="commandbarContent">
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','CMOIS_TYPIST')">
+			<a href="#" id="new_record_ForNew" class="butSim">
+				<spring:message code="cutmotion.new" text="New"/>
+			</a> |
+			</security:authorize>
+		</div>
+	</div>
 	<div class="fields clearfix watermark">
 	
 		<form:form action="cutmotion" method="PUT" modelAttribute="domain">
