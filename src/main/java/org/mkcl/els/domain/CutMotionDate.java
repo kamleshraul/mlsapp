@@ -36,6 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 		"workflowStartedOn",
 		"taskReceivedOn",
 		"departmentDates",
+		"drafts",
+		"recommendationStatus",
 		"createdBy",
 		"editedBy",
 		"editedAs",
