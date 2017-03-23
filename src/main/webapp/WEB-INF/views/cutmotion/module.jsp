@@ -462,8 +462,9 @@
 						</c:forEach>
 					</c:if>
 				</select>|	
-				<hr>
-				<div id='cutMotionDepartment' style="display:inline;">
+				<hr>				
+			</security:authorize>
+			<div id='cutMotionDepartment' style="display:inline;">
 				<a href="#" id="select_department" class="butSim"> <spring:message
 						code="cutmotion.department" text="Department" />
 				</a>
@@ -477,7 +478,6 @@
 					</c:forEach>
 				</select>|
 			</div>
-			</security:authorize>
 			<hr>
 		</div>		
 			

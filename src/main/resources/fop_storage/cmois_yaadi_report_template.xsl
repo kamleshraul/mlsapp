@@ -68,7 +68,10 @@
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->	
 			       <fo:block font-family="Mangal" font-size="10.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
-			       		<fo:block font-size="20px" font-weight="bold" text-align="center" border-bottom-width="1px" border-bottom-style="solid">
+			       		<!-- <fo:block font-size="20px" font-weight="bold" text-align="center" border-bottom-width="1px" border-bottom-style="solid">
+							<xsl:value-of select="element_1/element_1_1"/>
+						</fo:block> -->
+						<fo:block font-size="20px" font-weight="bold" text-align="center" text-decoration="underline">
 							<xsl:value-of select="element_1/element_1_1"/>
 						</fo:block>
 	       				<fo:block font-size="14px" font-weight="bold" text-align="center" text-decoration="underline">
@@ -84,7 +87,7 @@
 							<xsl:value-of select="element_1/element_1_5"/>
 						</fo:block>
 						<fo:block font-size="4px">&#160;</fo:block>
-						<fo:block font-size="15px" font-weight="bold" text-align="center" text-decoration="underline">
+						<fo:block font-size="16px" font-weight="bold" text-align="center" text-decoration="underline">
 							<xsl:value-of select="element_1/element_1_6"/>
 						</fo:block>
 						<fo:block font-size="6px">&#160;</fo:block>
@@ -104,7 +107,7 @@
 												</fo:table-cell>
 												<fo:table-cell border-top="solid 0.2mm black" border-bottom="solid 0.2mm black" display-align="before" text-align="center">
 													<fo:block font-weight="bold">
-														कपात (रू.)
+														कपात
 													</fo:block>
 												</fo:table-cell>
 												<fo:table-cell border-top="solid 0.2mm black" border-bottom="solid 0.2mm black" display-align="before" text-align="center">
@@ -113,9 +116,26 @@
 													</fo:block>
 												</fo:table-cell>
 											</fo:table-row>
+											<fo:table-row>
+												<fo:table-cell display-align="before" text-align="center">
+													<fo:block font-weight="bold">
+														&#160;
+													</fo:block>
+												</fo:table-cell>
+												<fo:table-cell display-align="before" text-align="center">
+													<fo:block font-weight="bold">
+														रूपये
+													</fo:block>
+												</fo:table-cell>
+												<fo:table-cell display-align="before" text-align="center">
+													<fo:block font-weight="bold">
+														&#160;
+													</fo:block>
+												</fo:table-cell>
+											</fo:table-row>
 										</fo:table-header>
 										<fo:table-body>
-											<fo:table-row>
+											<!-- <fo:table-row>
 												<fo:table-cell>
 													<fo:block>&#160;</fo:block>
 												</fo:table-cell>
@@ -125,7 +145,7 @@
 												<fo:table-cell>
 													<fo:block>&#160;</fo:block>																			
 												</fo:table-cell>																				
-											</fo:table-row>
+											</fo:table-row> -->
 											<xsl:for-each select="element_2">
 												<xsl:variable name="rowCount" select="position()"/>
 												<xsl:choose>
