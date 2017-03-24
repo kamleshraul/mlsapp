@@ -7861,7 +7861,8 @@ public class ReferenceController extends BaseController {
 		if(strCommitteeNameId != null && !strCommitteeNameId.isEmpty()){
 			CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, Long.parseLong(strCommitteeNameId));
 			if(committeeName != null){
-				List<CommitteeMeeting> committeeMeetings = CommitteeMeeting.find(committeeName, locale.toString());
+				List<CommitteeMeeting> committeeMeetings = CommitteeMeeting.find(committeeName, locale.toString(),ApplicationConstants.DESC);
+				//Collections.sort(committeeMeetings, Collections.reverseOrder());
 				for(CommitteeMeeting c: committeeMeetings){
 					MasterVO masterVO = new MasterVO();
 					masterVO.setId(c.getId());

@@ -100,6 +100,10 @@ public class CommitteeMeeting extends BaseDomain implements Serializable{
 			String locale) {
 		return getCommitteeMeetingRepository().find(committeeName,locale);
 	}
+	
+	public static List<CommitteeMeeting> find(CommitteeName committeeName, String locale, String sortOrder) {
+		return getCommitteeMeetingRepository().find(committeeName, locale, sortOrder);
+	}
 
 	public CommitteeMeetingType getCommitteeMeetingType() {
 		return committeeMeetingType;
@@ -231,6 +235,5 @@ public class CommitteeMeeting extends BaseDomain implements Serializable{
 	public void setEditedAs(String editedAs) {
 		this.editedAs = editedAs;
 	}
-		
 
 }

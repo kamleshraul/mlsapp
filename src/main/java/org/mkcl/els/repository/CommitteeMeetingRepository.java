@@ -24,5 +24,19 @@ public class CommitteeMeetingRepository extends BaseRepository<CommitteeMeeting,
 		query.setParameter("locale", locale);
 		return query.getResultList();
 	}
+	
+	public List<CommitteeMeeting> find(final CommitteeName committeeName,
+			String locale, String sortOrder) {
+		String strQuery = "SELECT cm FROM CommitteeMeeting cm"
+				+ " JOIN cm.committee c"
+				+ " JOIN c.committeeName cn"
+				+ " WHERE cn.id=:committeeNameId"
+				+ " AND cn.locale=:locale"
+				+ " ORDER BY cm.meetingDate "+ sortOrder;
+		Query query = this.em().createQuery(strQuery);
+		query.setParameter("committeeNameId", committeeName.getId());
+		query.setParameter("locale", locale);
+		return query.getResultList();
+	}
 
 }
