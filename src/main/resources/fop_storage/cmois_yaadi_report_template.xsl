@@ -36,8 +36,8 @@
 	                  	margin-top="2cm" margin-bottom="2cm"
 	                  	margin-left="2cm" margin-right="2cm">
 			      	<fo:region-body margin-top="1cm"/>        
-				    <fo:region-before extent="2cm"/>
-				    <fo:region-after region-name="page-number" extent="1.5cm"/>
+				    <fo:region-before region-name="page-number" extent="2cm"/>
+				    <fo:region-after extent="1.5cm"/>
   				</fo:simple-page-master>
 	   				
   				<fo:page-sequence-master master-name="simple">
@@ -59,10 +59,10 @@
 	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="page-number">	        	
-		        	<fo:block font-family="Mangal" font-size="9pt" text-align="right">
-		        		Page <fo:page-number/>	        				        		
+		        	<fo:block font-family="Mangal" font-size="10pt" text-align="center">
+		        		<fo:page-number/>		        				        		
 		        	</fo:block>
-		        </fo:static-content>				
+		        </fo:static-content>		
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
