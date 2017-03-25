@@ -1282,7 +1282,7 @@
 	</table>
 	</p>
 	<%-- <c:if test="${workflowstatus!='COMPLETED' or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}"> --%>
-	<c:if test="${workflowstatus!='COMPLETED'}">	
+	<c:if test="${workflowstatus!='COMPLETED' and fn:contains(internalStatusType, 'final')}">	
 		<!-- <p style="display:none;"> -->
 		<p>
 		<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
@@ -1396,7 +1396,7 @@
 		</p>
 	</c:if>
 	
-	<c:if test="${workflowstatus!='COMPLETED' }">
+	<c:if test="${workflowstatus!='COMPLETED' and fn:contains(internalStatusType, 'final')}">
 	<div class="fields">
 		<h2></h2>
 		<p class="tright">
