@@ -262,6 +262,14 @@ public class CutMotionDate extends BaseDomain implements Serializable{
     	return retVal;
     }
     
+    public Date findPublishingDate() {
+    	return getCutMotionDateRepository().findPublishingDateOfCutMotionDate(this);
+    }
+    
+    public List<Date> findActiveDiscussionDates() {
+    	return getCutMotionDateRepository().findActiveDiscussionDates(this);
+    }
+    
     @Override
 	@Transactional
 	public CutMotionDate merge() {

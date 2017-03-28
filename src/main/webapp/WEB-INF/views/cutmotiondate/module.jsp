@@ -186,7 +186,19 @@
 			
 			$.get(url,function(data){
 				if(data){
-					showTabByIdAndUrl('details_tab','motion/report/cutmotion/genreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedDeviceType").val()+"&statusId=" + $("#selectedStatus").val() + "&locale="+$("#moduleLocale").val()+"&report=CUTMOTIONDATE_PATRAK_REPORT&reportout=cutmotiondatepatrak");
+					//showTabByIdAndUrl('details_tab','motion/report/cutmotion/genreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedDeviceType").val()+"&statusId=" + $("#selectedStatus").val() + "&locale="+$("#moduleLocale").val()+"&reportQuery=CUTMOTIONDATE_PATRAKBHAG2_REPORT&reportFileName=cutmotiondate_patrakbhag2_report");
+					form_submit(
+							'cutmotiondate/report/patrakbhag2', 
+							{
+								sessionId: data.id, 
+								deviceTypeId: $('#selectedDeviceType').val(), 
+								reportQuery: 'CUTMOTIONDATE_PATRAKBHAG2_REPORT', 
+								xsltFileName: 'template_cutmotiondate_patrakbhag2',
+								reportFileName: 'cutmotiondate_patrakbhag2',
+								outputFormat: 'WORD'
+							}, 
+							'GET'
+					);
 				}
 			});
 		}

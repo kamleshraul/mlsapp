@@ -1,6 +1,8 @@
 package org.mkcl.els.repository;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.TypedQuery;
@@ -79,6 +81,57 @@ public class CutMotionDateRepository extends BaseRepository<CutMotionDate, Seria
 		query.setParameter("cutMotionDateId", cutMotionDateId.toString());
 		drafts = query.getResultList();
 		return drafts;
+	}
+	
+	public Date findPublishingDateOfCutMotionDate(final CutMotionDate cutMotionDate) {
+		Date publishingDate = null;
+		try {
+			StringBuffer strQuery = new StringBuffer("SELECT cmdd.editedOn FROM CutMotionDate cmd" +
+								" JOIN cmd.drafts cmdd" +
+								" WHERE cmd.session.id=:sessionId" + 
+								" AND cmd.deviceType.id=:deviceTypeId" + 
+								" AND cmd.locale=:locale" +
+								" AND cmdd.internalStatus.type=:cutMotionDateAdmission" +
+								" ORDER BY cmdd.editedOn");
+			
+			TypedQuery<Date> query = this.em().createQuery(strQuery.toString(), Date.class);
+			query.setParameter("sessionId", cutMotionDate.getSession().getId());
+			query.setParameter("deviceTypeId", cutMotionDate.getDeviceType().getId());
+			query.setParameter("cutMotionDateAdmission", ApplicationConstants.CUTMOTIONDATE_FINAL_DATE_ADMISSION);
+			query.setParameter("locale", cutMotionDate.getLocale());
+			query.setMaxResults(1);
+			publishingDate = query.getSingleResult();
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}		
+		
+		return publishingDate;
+	}
+	
+	public List<Date> findActiveDiscussionDates(final CutMotionDate cutMotionDate) {
+		List<Date> activeDiscussionDates = new ArrayList<Date>();
+		try {
+			StringBuffer strQuery = new StringBuffer("SELECT DISTINCT cmdd.discussionDate FROM CutMotionDate cmd" +
+								" JOIN cmd.departmentDates cmdd" +
+								" WHERE cmd.session.id=:sessionId" + 
+								" AND cmd.deviceType.id=:deviceTypeId" + 
+								" AND cmd.locale=:locale" +								
+								" ORDER BY cmdd.discussionDate");
+			
+			TypedQuery<Date> query = this.em().createQuery(strQuery.toString(), Date.class);
+			query.setParameter("sessionId", cutMotionDate.getSession().getId());
+			query.setParameter("deviceTypeId", cutMotionDate.getDeviceType().getId());
+			query.setParameter("locale", cutMotionDate.getLocale());			
+			activeDiscussionDates = query.getResultList();
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			return activeDiscussionDates;
+		}		
+		
+		return activeDiscussionDates;
 	}
 
 }
