@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
@@ -1873,6 +1874,150 @@ public class QuestionReportController extends BaseController{
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	@RequestMapping(value="/member_starred_suchi_view" ,method=RequestMethod.GET)
+	public String generateMemberSuchiViewReport(final HttpServletRequest request, final HttpServletRequest response, final ModelMap model, final Locale locale) {
+		String returnURL = "question/reports/error";
+		
+		try{
+			/**** Log the activity ****/
+			ActivityLog.logActivity(request, locale.toString());
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		try{
+			String strHouseType=request.getParameter("houseType");
+			String strSessionType=request.getParameter("sessionType");
+			String strSessionYear=request.getParameter("sessionYear");	    
+			String strDeviceType=request.getParameter("questionType");
+			if(strDeviceType == null){
+				strDeviceType = request.getParameter("deviceType");
+			}
+			String strAnsweringDate = request.getParameter("answeringDate");
+			
+			if(strHouseType!=null && strSessionType!=null && strSessionYear!=null && strDeviceType!=null && strAnsweringDate!=null){
+				if(!strHouseType.isEmpty() && !strSessionType.isEmpty() && !strSessionYear.isEmpty() && !strDeviceType.isEmpty() && !strAnsweringDate.isEmpty()) {
+					HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, locale.toString());
+					SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
+					Integer sessionYear=Integer.parseInt(strSessionYear);
+					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+					
+					DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
+					String processingMode = session.getParameter(deviceType.getType()+"_"+ApplicationConstants.PROCESSINGMODE);
+					
+					QuestionDates questionDates = 
+							QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+					Date answeringDate = questionDates.getAnsweringDate();
+					
+					String answeringDateSelection = "";					
+					if(DateUtil.compareDatePartOnly(answeringDate, new Date())==0) {
+						answeringDateSelection = "CURRENT_DATE";
+					} else {
+						answeringDateSelection = "SELECTED_DATE";
+					}
+					if(questionDates.getSuchiPublished()==null || questionDates.getSuchiPublished().equals(false)) {
+						model.addAttribute("errorcode", "SUCHI_NOT_PUBLISHED_FOR_"+answeringDateSelection);		
+						return returnURL;
+					} else {
+						Date publishingDate = questionDates.getSuchiPublishingDate();
+						model.addAttribute("publishingDate", FormaterUtil.formatDateToString(publishingDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2, locale.toString()));
+						Group group = Group.find(session, answeringDate, locale.toString());					
+						List<RoundVO> roundVOs = Ballot.findBallotedRoundVOsForSuchi(session, deviceType,processingMode,  group, answeringDate, locale.toString());
+						if(roundVOs==null || roundVOs.isEmpty()) {
+							model.addAttribute("errorcode", "SUCHI_DATA_NOT_FOUND_FOR_"+answeringDateSelection);
+							return returnURL;
+						}
+						
+						model.addAttribute("houseType", houseType.getName());
+						model.addAttribute("sessionNumber", session.getNumber().toString());
+						model.addAttribute("sessionType", sessionType.getSessionType());
+						model.addAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(sessionYear, locale.toString()));
+						model.addAttribute("sessionPlace", session.getPlace().getPlace());
+						CustomParameter roleCustomParameter = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_SUCHI_FOOTER_ROLE", "");
+						if(roleCustomParameter==null) {
+							logger.error("/**** role parameter for yaadi footer not set. ****/");
+							throw new ELSException("QuestionReportController/generateYaadiReport", "role parameter for yaadi footer not set.");
+						}
+						Role role = Role.findByFieldName(Role.class, "type", roleCustomParameter.getValue(), locale.toString());
+						if(role==null) {
+							logger.error("/**** role '"+roleCustomParameter.getValue()+"' is not found. ****/");
+							throw new ELSException("QuestionReportController/generateYaadiReport", "role '"+roleCustomParameter.getValue()+"' is not found.");
+						}
+						model.addAttribute("userRole", role.getLocalizedName());
+						List<User> users = User.findByRole(false, role.getName(), locale.toString());
+						//as principal secretary for starred question is only one, so user is obviously first element of the list.
+						model.addAttribute("userName", users.get(0).findFirstLastName());
+
+						List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
+						int count = 0;
+						for(Ministry mi: Group.findMinistriesByPriority(group)) { //group.getMinistries()) {
+							count++;
+							String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
+							MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
+							ministryVOs.add(ministryVO);	            	
+						}
+						model.addAttribute("ministryVOs", ministryVOs);
+						
+						SimpleDateFormat dbFormat = null;
+						CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
+						if(dbDateFormat!=null){
+							dbFormat=FormaterUtil.getDateFormatter(dbDateFormat.getValue(), locale.toString());
+						}
+						//Added the following code to solve the marathi month and day issue
+						String[] strAnsweringDates=dbFormat.format(answeringDate).split(",");
+						String answeringDay=FormaterUtil.getDayInMarathi(strAnsweringDates[0],locale.toString());
+						model.addAttribute("answeringDay", answeringDay);
+						String[] strAnsweringMonth=strAnsweringDates[1].split(" ");
+						String answeringMonth=FormaterUtil.getMonthInMarathi(strAnsweringMonth[1], locale.toString());
+						String formattedAnsweringDate = FormaterUtil.formatDateToString(answeringDate, ApplicationConstants.ROTATIONORDER_WITH_DAY_DATEFORMAT, locale.toString());
+						model.addAttribute("answeringDate", formattedAnsweringDate);
+						String answeringDateInIndianCalendar = FormaterUtil.getIndianDate(answeringDate, locale);
+						model.addAttribute("answeringDateInIndianCalendar", answeringDateInIndianCalendar);
+						
+						int totalNumberOfDevices = 0;
+						for(RoundVO r: roundVOs) {
+							totalNumberOfDevices += r.getDeviceVOs().size();
+						}
+						model.addAttribute("totalNumberOfDevices", FormaterUtil.formatNumberNoGrouping(totalNumberOfDevices, locale.toString()));
+						model.addAttribute("roundVOs", roundVOs);
+						
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTime(new Date());
+						calendar.add(Calendar.DATE, -1);
+						CustomParameter reportDateFormatParameter = CustomParameter.findByName(CustomParameter.class, "template_questionSuchi_report".toUpperCase() + "_REPORTDATE_FORMAT", "");
+						if(reportDateFormatParameter!=null && reportDateFormatParameter.getValue()!=null) {
+							String formattedReportDate = FormaterUtil.formatDateToString(calendar.getTime(), reportDateFormatParameter.getValue(), locale.toString());
+							if(reportDateFormatParameter.getValue().equals("dd MMM, yyyy")) {
+								String[] strDate=formattedReportDate.split(",");
+								String[] strMonth=strDate[0].split(" ");
+								String month=FormaterUtil.getMonthInMarathi(strMonth[1], locale.toString());
+								formattedReportDate = strMonth[0] + " " + month + ", " + strDate[1];
+							}
+							model.addAttribute("reportDate", formattedReportDate);
+						} else {
+							model.addAttribute("reportDate", FormaterUtil.formatDateToString(calendar.getTime(), ApplicationConstants.REPORT_DATEFORMAT, locale.toString()));
+						}
+						Map<String,String[]> qParams = new HashMap<String, String[]>();
+						qParams.put("locale", new String[]{locale.toString()});
+						qParams.put("sessionId", new String[]{session.getId().toString()});
+						List reportLocalizedDetails = Query.findReport("MEMBER_SUCHI_VIEW_LOCALIZED_CONTENT", qParams);
+						model.addAttribute("reportLocalizedDetails", reportLocalizedDetails);
+						return "question/reports/member_starred_suchi_view";
+					}
+				} else {
+					model.addAttribute("errorcode", "insufficient_parameters");
+				}
+			} else {
+				model.addAttribute("errorcode", "insufficient_parameters");
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+			
+		}
+		
+		return returnURL;
 	}
 
 	@RequestMapping(value="/viewSuchi" ,method=RequestMethod.GET)

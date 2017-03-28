@@ -31,7 +31,16 @@
 				$('#unstarred_admitted_departmentwise_report_span').show();
 			} else {
 				$("#unstarred_admitted_departmentwise_report_span").hide();
-			}			
+			}	
+			/**** show/hide member_starred_suchi_view span as per selected devicetype ****/
+			if($('#currentusergroupType').val()=='member' && currentDeviceType == 'questions_stared') {
+				$('#member_starred_suchi_view_span').show();
+				$('#suchiAnsweringDate').css('display', 'inline-block'); 
+				populateSessionAnsweringDatesForMemberSuchiView();		
+			} else {
+				$('#suchiAnsweringDate').css('display', 'none');
+				$("#member_starred_suchi_view_span").hide();
+			}
 			$("#member_statistics").click(function(){
 				memberStatistics();
 			});
@@ -68,6 +77,18 @@
 			$("#member_questions_detail_view").click(function() {
 				$("#selectionDiv1").hide();
 				memberQuestionsDetailView();
+			});
+			
+			/****Member's Starred Questions Suchi View ****/
+			$("#member_starred_suchi_view").click(function() {
+				if($('#suchiAnsweringDate').css('display')!='none' && $('#suchiAnsweringDate').val()=='0') {
+					$.prompt("Please select the suchi answering date!");
+				} else if($('#suchiAnsweringDate').css('display')=='none' && $('#suchiAnsweringDate').val()=='0') {
+					$('#suchiAnsweringDate').css('display', 'inline-block');
+				} else if($('#suchiAnsweringDate').val()!='0') {	
+					$("#selectionDiv1").hide();
+					memberStarredSuchiView();
+				}
 			});
 			
 			$("#statreport").click(function(){
@@ -281,12 +302,22 @@
 				<spring:message code="question.search" text="Search"/>
 			</a> |
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<hr/>
 				<a href="#" id="member_questions_view" class="butSim">
 					<spring:message code="question.member_questions_view" text="Member's Questions View"/>
 				</a> |
 				<a href="#" id="member_questions_detail_view" class="butSim">
 					<spring:message code="question.member_questions_detail_view" text="Member's Questions Detail View"/>
 				</a> |
+				<span id="member_starred_suchi_view_span" style="display: none;">
+				<a href="#" id="member_starred_suchi_view" class="butSim">
+					<spring:message code="question.member_starred_suchi_view" text="Starred Questions Suchi"/>
+				</a>
+				<select id="suchiAnsweringDate" name="suchiAnsweringDate" style="width: 115px; height: 25px;display: none;">
+					<option value="0"><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>
+				</select> |
+				<%-- <a class="butSim" href="javascript:void(0);" id="goSuchiView"><spring:message code="suchi_view.go" text="Go" /></a> | --%>
+				</span>
 			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<a href="#" id="statreport" class="butSim">

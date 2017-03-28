@@ -64,6 +64,8 @@ public class FormaterUtil {
 
     private static final String TUE="मंगळवार";
     
+    private static final String SHAKE_FORMAT_LABEL="शके";
+    
     /*** Indian month names ***/
     private static Map<Integer, String> indianMonths_mr_IN = new HashMap<Integer, String>();
     
@@ -671,6 +673,38 @@ public class FormaterUtil {
 					FormaterUtil.formatNumberNoGrouping(
 							indianCalendar.get(IndianCalendar.DAY_OF_MONTH), locale.toString())
 							+ ", " + FormaterUtil.formatNumberNoGrouping(
+									indianCalendar.get(IndianCalendar.YEAR), locale.toString());
+			
+		}
+		
+		return "";
+	}
+	
+	/*** To get the Indian month name in shake format ***/
+	public static String getIndianDateInShakeFormat(final Date date, final Locale locale){
+		IndianCalendar indianCalendar = new IndianCalendar(locale);
+		indianCalendar.setTime(date);
+		
+		if(locale.toString().equals("mr_IN")){
+			
+			return indianMonths_mr_IN.get(indianCalendar.get(IndianCalendar.MONTH)) + " " + 
+					FormaterUtil.formatNumberNoGrouping(
+							indianCalendar.get(IndianCalendar.DAY_OF_MONTH), locale.toString())
+							+ ", " 
+							+ FormaterUtil.SHAKE_FORMAT_LABEL
+							+ " "
+							+ FormaterUtil.formatNumberNoGrouping(
+									indianCalendar.get(IndianCalendar.YEAR), locale.toString());
+			
+		}else if(locale.toString().equals("en_US")){
+			
+			return indianMonths_en_US.get(indianCalendar.get(IndianCalendar.MONTH)) + " " + 
+					FormaterUtil.formatNumberNoGrouping(
+							indianCalendar.get(IndianCalendar.DAY_OF_MONTH), locale.toString())
+							+ ", " 
+							+ FormaterUtil.SHAKE_FORMAT_LABEL
+							+ " "
+							+ FormaterUtil.formatNumberNoGrouping(
 									indianCalendar.get(IndianCalendar.YEAR), locale.toString());
 			
 		}

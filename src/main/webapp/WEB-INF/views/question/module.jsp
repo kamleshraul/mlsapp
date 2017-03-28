@@ -183,6 +183,16 @@
 				$("#unstarred_admitted_departmentwise_report_span").hide();
 			}
 			
+			/**** show/hide member_starred_suchi_view span as per selected devicetype ****/
+			if($('#currentusergroupType').val()=='member' && text == 'questions_stared') {
+				$('#member_starred_suchi_view_span').show();
+				$('#suchiAnsweringDate').css('display', 'inline-block'); 
+				populateSessionAnsweringDatesForMemberSuchiView();				
+			} else {
+				$('#suchiAnsweringDate').css('display', 'none'); 
+				$("#member_starred_suchi_view_span").hide();
+			}
+			
 			if (value != "") {
 				reloadQuestionGrid();
 			}
@@ -444,6 +454,66 @@
 		+ "&report=MEMBER_QUESTIONS_DETAIL_VIEW"
 		+ "&reportout=member_questions_detail_view";
 		showTabByIdAndUrl('details_tab','question/report/generalreport?'+parameters);
+	}
+	
+	function populateSessionAnsweringDatesForMemberSuchiView() {
+		//populate answering dates for member suchi view
+		if($('#suchiAnsweringDate > option').length == 1 && $('#suchiAnsweringDate').val()=='0') {			
+			params = "houseType=" + $('#selectedHouseType').val()
+				+ '&sessionYear=' + $("#selectedSessionYear").val()
+				+ '&sessionType=' + $("#selectedSessionType").val();
+			$.get(
+				'ref/answering_dates_for_member_suchi_view?' + params,
+				function(data) {
+					if (data.length > 0) {
+						var currentDate = new Date().toJSON().split('T')[0];
+						var text = "";
+						for ( var i = 0; i < data.length; i++) {																		
+							if(i==0) {
+								if(data[i].value==currentDate) {
+									text += "<option value='"+data[i].id+"' selected='selected'>"+ data[i].name + "</option>";
+								} else {
+									text += "<option value='"+data[i].id+"'>"+ data[i].name + "</option>";
+								}
+							} else {
+								text += "<option value='"+data[i].id+"'>"+ data[i].name + "</option>";
+							}
+						}
+						selectText = $("#suchiAnsweringDate").html();
+						$("#suchiAnsweringDate").empty();								
+						$("#suchiAnsweringDate").html(selectText+text);
+					} else {
+						selectText = $("#suchiAnsweringDate option[value='0']").html();
+						$("#suchiAnsweringDate").empty();
+						$("#suchiAnsweringDate").html(selectText);
+					}
+			}).fail(
+				function() {
+					if ($("#ErrorMsg").val() != '') {
+						$("#error_p").html($("#ErrorMsg").val()).css({
+							'color' : 'red',
+							'display' : 'block'
+						});
+					} else {
+						$("#error_p").html(
+								"Error occured contact for support.").css({
+							'color' : 'red',
+							'display' : 'block'
+						});
+					}
+					scrollTop();
+			});
+		}
+	}
+	
+	function memberStarredSuchiView() {
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&questionType=" + $("#selectedQuestionType").val()
+		+ "&answeringDate=" + $("#suchiAnsweringDate").val()
+		+"&locale="+$("#moduleLocale").val();
+		showTabByIdAndUrl('details_tab','question/report/member_starred_suchi_view?'+parameters);
 	}
 
 	/**** new question ****/

@@ -9378,4 +9378,47 @@ public class ReferenceController extends BaseController {
 		}
 		return vos;
 	}
+	
+	@RequestMapping(value="/answering_dates_for_member_suchi_view")
+	public @ResponseBody List<MasterVO> loadAnsweringDatesForMemberSuchiView(final HttpServletRequest request,
+			final Locale locale){
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		String strHouseType = request.getParameter("houseType");
+		String strYear = request.getParameter("sessionYear");
+		String strSessionType = request.getParameter("sessionType");
+		String strlocale = locale.toString();
+		if(strHouseType != null && !strHouseType.isEmpty()
+			&& strSessionType != null && !strSessionType.isEmpty()
+			&& strYear != null && !strYear.isEmpty()){
+			HouseType houseType = HouseType.findByType(strHouseType, strlocale);
+			SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+			try {
+				Session session = Session.
+						findSessionByHouseTypeSessionTypeYear(houseType, sessionType, Integer.parseInt(strYear));				
+				if(session != null){
+					Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+					queryParameters.put("locale", new String[]{locale.toString()});
+					queryParameters.put("sessionId", new String[]{session.getId().toString()});					
+					@SuppressWarnings("unchecked")
+					List<QuestionDates> answeringDates = Query.findResultListOfGivenClass("SESSION_ANSWERING_DATES_FOR_MEMBER_SUCHI_VIEW", queryParameters, QuestionDates.class);
+					if(answeringDates!=null && !answeringDates.isEmpty()) {
+						for (QuestionDates qd : answeringDates) {
+							MasterVO masterVO = new MasterVO();
+							masterVO.setId(qd.getId());
+							masterVO.setValue(qd.getAnsweringDate().toString());
+							masterVO.setName(FormaterUtil.formatDateToString(qd.getAnsweringDate(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+							masterVOs.add(masterVO);							
+						}
+					}					
+				}
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return masterVOs;
+	}
 }
