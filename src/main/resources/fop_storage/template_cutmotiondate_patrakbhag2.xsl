@@ -59,7 +59,7 @@
 	        	
 	        	<!-- header -->
 	        	<fo:static-content flow-name="rb-common">
-					<fo:block font-family="Mangal" font-size="11pt" font-weight="bold" text-align="right" text-decoration="underline">
+					<fo:block font-family="Mangal" font-size="10.5pt" font-weight="bold" text-align="right" text-decoration="underline">
 		        		<xsl:value-of select="element_1/element_1_1"/>		        		
 		        	</fo:block>
 			    </fo:static-content>
@@ -74,7 +74,7 @@
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		    
 			       <!-- content as per report -->	
-			       <fo:block font-family="Mangal" font-size="11pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">			       
+			       <fo:block font-family="Mangal" font-size="10.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">			       
 			       		<fo:block font-size="18pt" font-weight="bold" text-align="center" text-decoration="underline">
 			       			<xsl:value-of select="element_1/element_1_2"/>
 			       		</fo:block>
@@ -122,7 +122,7 @@
 			                        </fo:table-header>
 			                        <fo:table-body>	                        	                    	
 		                            	<xsl:for-each select="./element_2" >
-			                            	<fo:table-row border="solid 0.1mm black">	                                	
+		                            		<fo:table-row border="solid 0.1mm black">	                                	
 			                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="2px" padding-right="2px">
 			                                        <fo:block  text-align="center">
 			                                        	<xsl:value-of select="element_2_1[1]" />)
@@ -139,7 +139,7 @@
 		                                        			<fo:table-column column-number="1" column-width="1cm" />
 	                        								<fo:table-column column-number="2" column-width="6.5cm" />
 	                        								<fo:table-body>
-	                        									<xsl:for-each select="./element_2_2" >
+	                        									<xsl:for-each select="./element_2_2" >	                        									
 			                                        			<fo:table-row border-collapse="collapse">			     						
 									     							<fo:table-cell>
 									     								<fo:block text-align="center">
@@ -156,6 +156,11 @@
 	                        								</fo:table-body>
 		                                        		</fo:table>		                                        	
 			                                        </fo:block> 
+			                                        <xsl:if test="position()=last()">
+			                                        <fo:block font-size="14pt" font-weight="bold" text-align="center">
+				     									<xsl:value-of select="../element_1/element_1_9"/>
+				     								</fo:block>
+			                                        </xsl:if>			                                        
 			                                    </fo:table-cell>		                                    
 			                                    <fo:table-cell display-align="center" border-width="0.5pt" border-style="solid" padding-left="2px" padding-right="2px">
 			                                        <fo:block  text-align="center">
@@ -163,37 +168,93 @@
 			                                        </fo:block>
 			                                    </fo:table-cell>                                   	
 			                                </fo:table-row>	                               
-		                            </xsl:for-each>	
-		                            <fo:table-row border-collapse="collapse">			     						
-		     							<fo:table-cell>
-		     								<fo:block>
-		     									&#160;
-		     								</fo:block>
-		     							</fo:table-cell>
-		     							<fo:table-cell>
-		     								<fo:block>
-		     									&#160;
-		     								</fo:block>
-		     							</fo:table-cell>
-		     							<fo:table-cell display-align="after">
-		     								<fo:block font-size="14pt" font-weight="bold" text-align="center">
-		     									<xsl:value-of select="element_1/element_1_9"/>
-		     								</fo:block>
-		     							</fo:table-cell>
-		     							<fo:table-cell>
-		     								<fo:block>
-		     									&#160;
-		     								</fo:block>
-		     							</fo:table-cell>		     										     							
-		     						</fo:table-row>
+		                            </xsl:for-each>
 		                        	</fo:table-body>
 		                		</fo:table>
 			     			</xsl:when>
 			     			<xsl:otherwise>
-		     					<xsl:value-of select="../element_1/element_1_20"/>
+		     					<xsl:value-of select="element_1/element_1_20"/>
 		     				</xsl:otherwise>
 			     		</xsl:choose>                		
                			</fo:block>
+               			<fo:block text-align="justify">
+               				&#160;&#160;&#160;&#160;&#160;&#160;
+               				<xsl:value-of select="element_1/element_1_10"/>
+               			</fo:block>
+               			<fo:block font-size="6pt">
+               				<fo:leader leader-pattern="rule" leader-length="100%" rule-style="solid" rule-thickness="2pt"/>
+               			</fo:block>   
+               			<fo:block font-weight="bold">
+               				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
+               					<fo:table-column column-number="1" column-width="5cm" />
+		                        <fo:table-column column-number="2" column-width="8cm" />
+		                        <fo:table-column column-number="3" column-width="5cm" />
+		                        <fo:table-body>
+		                        	<fo:table-row border-collapse="collapse">
+		                        		<fo:table-cell>
+		     								<fo:block text-align="left">
+		     									<xsl:value-of select="element_1/element_1_11"/>,
+		     								</fo:block>
+		     							</fo:table-cell>
+		     							<fo:table-cell>
+		     								<fo:block>
+		     									&#160;
+		     								</fo:block>
+		     							</fo:table-cell>
+		     							<fo:table-cell>
+		     								<fo:block text-align="center">
+		     									<xsl:value-of select="element_5"/>,
+		     								</fo:block>
+		     							</fo:table-cell>
+		                        	</fo:table-row>
+		                        	<fo:table-row border-collapse="collapse">
+		                        		<fo:table-cell>
+		     								<fo:block text-align="left">
+		     									<xsl:value-of select="element_1/element_1_12"/>,
+		     								</fo:block>
+		     							</fo:table-cell>
+		     							<fo:table-cell>
+		     								<fo:block>
+		     									&#160;
+		     								</fo:block>
+		     							</fo:table-cell>
+		     							<fo:table-cell>
+		     								<fo:block text-align="center">
+		     									<xsl:value-of select="element_6"/>,
+		     								</fo:block>				     								
+		     							</fo:table-cell>
+		                        	</fo:table-row>
+		                        	<fo:table-row border-collapse="collapse">
+		                        		<fo:table-cell>
+		     								<fo:block text-align="left">
+		     									<xsl:value-of select="element_1/element_1_13"/> : <xsl:value-of select="element_3"/>
+		     								</fo:block>
+		     							</fo:table-cell>
+		     							<fo:table-cell>
+		     								<fo:block>
+		     									&#160;
+		     								</fo:block>
+		     							</fo:table-cell>
+		     							<fo:table-cell>
+		     								<fo:block text-align="center">
+		     									<xsl:value-of select="element_1/element_1_2"/>
+		     								</fo:block>
+		     							</fo:table-cell>
+		                        	</fo:table-row>
+		                        </fo:table-body>
+               				</fo:table>
+	                	</fo:block>   
+	                	<fo:block font-size="6pt">&#160;</fo:block>   
+               			<fo:block font-weight="bold">
+               				<xsl:value-of select="element_1/element_1_14"/> :
+               			</fo:block> 
+               			<fo:block margin-top="5pt" margin-left="1.5cm">
+               				<fo:block><xsl:value-of select="element_1/element_1_15"/>.</fo:block>
+               				<fo:block><xsl:value-of select="element_1/element_1_16"/>.</fo:block>
+               				<fo:block><xsl:value-of select="element_1/element_1_17"/>.</fo:block>
+               				<fo:block><xsl:value-of select="element_1/element_1_18"/>.</fo:block>
+               				<fo:block><xsl:value-of select="element_1/element_1_19"/>.</fo:block>
+               			</fo:block>    			
 			       </fo:block>
 			    </fo:flow>
 	        </fo:page-sequence>
