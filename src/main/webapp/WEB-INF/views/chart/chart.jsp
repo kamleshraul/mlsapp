@@ -204,6 +204,7 @@
 <table class="uiTable" border="1" style="width:700px;">
 	<thead>
 		<tr>
+		<th><spring:message code="chart.serialNumber" text="Sr No"/></th>
 		<th><spring:message code="member.name" text="Member Name"/></th>
 		<c:forEach begin="1" end="${maxQns}" var="i">
 				<c:if test="${deviceType == 'questions_starred'}">
@@ -228,6 +229,7 @@
 		<c:set var="rejectedNotices" value="" />
 		<c:set var="rejectedCount" value="" />
 		<c:set var="extraCount" value="" />
+		<c:set var="indexNo" value="1"/>
 		<c:forEach items="${report}" var="r">
 			<c:choose>
 				<c:when test="${memberName != r[1]}">
@@ -247,6 +249,7 @@
 					</c:if>
 					
 					<tr>
+						<td>${indexNo} <c:set var="indexNo" value="${indexNo + 1}"/></td>
 						<td>${r[1]}</td>
 						<td align="center">
 							<c:choose>		
@@ -437,6 +440,7 @@
 						<c:set var="rejectedNotices" value="${r[12]}" />
 						<c:set var="rejectedCount" value="${r[13]}" />
 						<c:set var="extraCount" value="${r[14]}" />
+						
 						<%-- <td>
 							${counter}:${rejectedNotices}:${rejectedCount}:${extraCount}
 						</td> --%>
@@ -630,6 +634,7 @@
 						${r[22]}
 					</td>
 					<c:set var="counter" value="${counter + 1}"/>
+					
 					<c:set var="rejectedNotices" value="${r[12]}" />
 					<c:set var="rejectedCount" value="${r[13]}" />
 					<c:set var="extraCount" value="${r[14]}" />
@@ -639,6 +644,7 @@
 				</c:otherwise>
 			</c:choose>
 			<c:set var="memberName" value="${r[1]}" />
+			
 		</c:forEach>
 				
 		<c:if test="${counter < maxQns}">
@@ -650,6 +656,7 @@
 			<td align="center"><a href="#" class="rejectedCount" id="rejectedCount" title="${rejectedNotices}" style="text-decoration: none;">${rejectedCount}</a></td>
 			<td align="center">${extraCount}</td>
 		</c:if>
+		
 		</tr>
 	</tbody>
 </table>
