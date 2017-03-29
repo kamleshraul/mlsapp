@@ -73,7 +73,11 @@ public class QuestionDates extends BaseDomain implements Serializable {
     
     @Temporal(TemporalType.DATE)
     private Date speakerSendingDate;
+    
+    @Temporal(TemporalType.DATE)
+    private Date suchiPublishingDate;
 
+    private Boolean suchiPublished;
 
     /**** Constructors ****/
 
@@ -216,6 +220,23 @@ public class QuestionDates extends BaseDomain implements Serializable {
 		this.speakerSendingDate = speakerSendingDate;
 	}
 	
+	
+	public Boolean getSuchiPublished() {
+		return suchiPublished;
+	}
+
+	public void setSuchiPublished(Boolean suchiPublished) {
+		this.suchiPublished = suchiPublished;
+	}
+	
+	public Date getSuchiPublishingDate() {
+		return suchiPublishingDate;
+	}
+
+	public void setSuchiPublishingDate(Date suchiPublishingDate) {
+		this.suchiPublishingDate = suchiPublishingDate;
+	}
+
 	/**** Added By Sandeep Singh (Jan 30 2013) ****/
 	public String findFormattedAnsweringDate(){
 		SimpleDateFormat format=FormaterUtil.getDateFormatter(this.getLocale());
