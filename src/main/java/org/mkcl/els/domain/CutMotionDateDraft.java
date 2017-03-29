@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -71,6 +70,12 @@ public class CutMotionDateDraft extends BaseDomain implements Serializable {
 	joinColumns={@JoinColumn(name="cutmotiondatedraft_id",referencedColumnName="id")},
 	inverseJoinColumns={@JoinColumn(name="cutmotiondate_department_priority_id",referencedColumnName="id")})
 	private List<CutMotionDepartmentDatePriority> departmentDates;
+	
+	/**
+     * To keep the referring cutmotiondate in order to preserve its all drafts details
+     */
+    @Column(length=45, name="cutmotiondate_id")
+    private String cutMotionDateId;
 
 	public CutMotionDateDraft() {
 		super();
@@ -147,5 +152,13 @@ public class CutMotionDateDraft extends BaseDomain implements Serializable {
 	public void setDepartmentDates(
 			List<CutMotionDepartmentDatePriority> departmentDates) {
 		this.departmentDates = departmentDates;
+	}
+
+	public String getCutMotionDateId() {
+		return cutMotionDateId;
+	}
+
+	public void setCutMotionDateId(String cutMotionDateId) {
+		this.cutMotionDateId = cutMotionDateId;
 	}
 }

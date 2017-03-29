@@ -143,6 +143,12 @@ public class CutMotionDraft extends BaseDomain implements Serializable{
     /** The reason. */
     @Column(length=30000)
     private String rejectionReason;
+    
+    /**
+     * To keep the referring device in order to preserve all device drafts details
+     */
+    @Column(length=45)
+    private String deviceId;
         
     /**** Constructors ****/
 
@@ -327,5 +333,13 @@ public class CutMotionDraft extends BaseDomain implements Serializable{
 
 	public void setRejectionReason(String rejectionReason) {
 		this.rejectionReason = rejectionReason;
+	}
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
 	}
 }

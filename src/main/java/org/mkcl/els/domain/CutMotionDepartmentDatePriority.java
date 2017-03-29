@@ -3,7 +3,7 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -42,10 +42,15 @@ public class CutMotionDepartmentDatePriority extends BaseDomain implements Seria
 	
 	/**** submissionEndDate ****/
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date submissionEndDate;
-	
+	private Date submissionEndDate;	
 	
 	private Integer priority;
+	
+	/**
+     * To keep the referring cutmotiondate in order to preserve its all cutmotiondepartmentdatepriority details
+     */
+    @Column(length=45, name="cutmotiondate_id")    
+    private String cutMotionDateId;
 
 	public CutMotionDepartmentDatePriority() {
 		super();
@@ -99,5 +104,13 @@ public class CutMotionDepartmentDatePriority extends BaseDomain implements Seria
 
 	public void setPriority(Integer priority) {
 		this.priority = priority;
+	}
+
+	public String getCutMotionDateId() {
+		return cutMotionDateId;
+	}
+
+	public void setCutMotionDateId(String cutMotionDateId) {
+		this.cutMotionDateId = cutMotionDateId;
 	}
 }
