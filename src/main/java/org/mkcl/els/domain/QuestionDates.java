@@ -74,7 +74,8 @@ public class QuestionDates extends BaseDomain implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date speakerSendingDate;
     
-    @Temporal(TemporalType.DATE)
+    /** The suchi publishing date. */
+    @Temporal(TemporalType.TIMESTAMP)
     private Date suchiPublishingDate;
 
     private Boolean suchiPublished;
