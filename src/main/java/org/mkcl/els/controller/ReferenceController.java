@@ -9421,4 +9421,20 @@ public class ReferenceController extends BaseController {
 		}
 		return masterVOs;
 	}
+	
+	@RequestMapping(value = "check_if_suchi_published_on_selected_answering_date", method = RequestMethod.GET)
+	public @ResponseBody Boolean checkIfSuchiPublishedOnSelectedAnsweringDate(final HttpServletRequest request, final ModelMap map, final Locale locale) {
+		Boolean isSuchiPublishedOnSelectedAnsweringDate = null;
+		String answeringDateId = request.getParameter("answeringDate");
+		if(answeringDateId!=null && !answeringDateId.isEmpty()) {
+			QuestionDates answeringDateForSuchi = QuestionDates.findById(QuestionDates.class, Long.parseLong(answeringDateId));
+			if(answeringDateForSuchi!=null) {
+				isSuchiPublishedOnSelectedAnsweringDate = answeringDateForSuchi.getSuchiPublished();
+				if(isSuchiPublishedOnSelectedAnsweringDate==null) {
+					isSuchiPublishedOnSelectedAnsweringDate = false;
+				}
+			}			
+		}
+		return isSuchiPublishedOnSelectedAnsweringDate;
+	}
 }

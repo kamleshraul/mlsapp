@@ -1081,5 +1081,28 @@ public class YaadiDetailsController extends BaseController {
 		
 		return loadBulkYaadiDetails(request, model, locale);
 	}
+	
+	@RequestMapping(value = "/publish_suchi_on_selected_answering_date", method = RequestMethod.POST)
+    public @ResponseBody int publishSuchiOnSelectedAnsweringDate(final HttpServletRequest request,final Locale locale) {
+		int updateStatus = 0;
+		String answeringDateId = request.getParameter("answeringDate");
+		if(answeringDateId!=null && !answeringDateId.isEmpty()) {
+			try {
+				QuestionDates answeringDateForSuchi = QuestionDates.findById(QuestionDates.class, Long.parseLong(answeringDateId));
+				if(answeringDateForSuchi!=null) {
+					if(answeringDateForSuchi.getSuchiPublished()==null || answeringDateForSuchi.getSuchiPublished().equals(false)) {
+						answeringDateForSuchi.setSuchiPublished(true);
+						answeringDateForSuchi.setSuchiPublishingDate(new Date());
+					}
+					answeringDateForSuchi.merge();
+					updateStatus = 1;
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+				updateStatus = 0;
+			}			
+		}
+		return updateStatus;
+	}
 
 }

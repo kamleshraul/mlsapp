@@ -8,6 +8,25 @@
 			$("#error_msg").empty();
 		}		
 		$(document).ready(function() {
+			/* show publish button for unpublished suchi on default answering date populated */
+			if($("#deviceType").val()=='questions_starred') {
+				if($('#selectedAnsweringDate').val()!=undefined && $('#selectedAnsweringDate').val()!=""
+						&& $('#selectedAnsweringDate').val()>0) {					
+					populatePublishButtonForSelectedAnsweringDate();					
+				}
+			}
+			/* show publish button for unpublished suchi on selected answering date after change */
+			$('#selectedAnsweringDate').change(function() {
+				if($('#selectedAnsweringDate').val()!=undefined && $('#selectedAnsweringDate').val()!=""
+						&& $('#selectedAnsweringDate').val()>0) {					
+					populatePublishButtonForSelectedAnsweringDate();					
+				}
+			});
+			/* publish suchi if unpublished on click of publish button */
+			$('#publishButton1').click(function() {
+				publishSuchiOnSelectedAnsweringDate();
+			});
+			
 			$("#generate_yaadi").click(function(event, isHighSecurityValidationRequired){
 				if(isHighSecurityValidationRequired!=false) {
 					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
@@ -265,12 +284,115 @@
 			}
 		}
 		
-	</script>
-	<!-- <style type="text/css">
-		.o{
-			vertical-align: middle;
+		function populatePublishButtonForSelectedAnsweringDate() {
+			var parameters = "answeringDate=" + $("#selectedAnsweringDate").val();						
+			$.ajax({url: 'ref/check_if_suchi_published_on_selected_answering_date', data: parameters,
+				type: 'GET',
+				async: false,
+				success: function(data) {	
+					if(data==false) {
+						$('#publishButton1').show();
+					} else {
+						$('#publishButton1').hide();
+					}
+				},
+				error: function(data) {
+					$.prompt("Some error occurred to find if suchi is published or not!");
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.");
+					}
+				}
+			});			
 		}
-	</style> -->
+		
+		function publishSuchiOnSelectedAnsweringDate() {
+			var parameters = "answeringDate=" + $("#selectedAnsweringDate").val();						
+			$.ajax({url: 'ref/check_if_suchi_published_on_selected_answering_date', data: parameters,
+				type: 'GET',
+				async: false,
+				success: function(data) {
+					var promptMsg = "";
+					var successMsg = "";
+					if(data==false) {
+						promptMsg = "Do you really want to publish suchi for the selected answering date now?";
+						successMsg = "Suchi for the selected answering date published now!"
+					} else if(data==true) {
+						$.prompt("Suchi for the selected answering date is already published!");
+						return false;
+					} else {
+						return false;
+					} 						
+					$.prompt(promptMsg,{
+						buttons: {Ok:true, Cancel:false}, callback: function(v){
+				       if(v){
+				       	$.post('yaadi_details/publish_suchi_on_selected_answering_date?'+parameters, function(data) {
+								if(data==1) {
+									$('#publishButton1').hide();
+									$.prompt(successMsg);
+								} else {
+									alert("Some error occured.. contact support");
+									if($("#ErrorMsg").val()!=''){
+										$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+									}else{
+										$("#error_p").html("Error occured contact for support.");
+									}
+								}
+							});
+				       }
+					}});
+				}
+			});			
+		}
+	</script>
+	<style type="text/css">
+		.publishButton {
+		  /* background-color: #004A7F; */
+		  background-color: #fa3e3e;
+		  -webkit-border-radius: 10px;
+		  border-radius: 10px;
+		  border: none;
+		  color: #FFFFFF;
+		  cursor: pointer;
+		  display: inline-block;
+		  font-family: Arial;
+		  font-size: 12px;
+		  padding: 5px 10px;
+		  text-align: center;
+		  text-decoration: none;
+		}
+		@-webkit-keyframes glowing {
+		  0% { background-color: #B20000; -webkit-box-shadow: 0 0 3px #B20000; }
+		  50% { background-color: #FF0000; -webkit-box-shadow: 0 0 5px #FF0000; }
+		  100% { background-color: #B20000; -webkit-box-shadow: 0 0 3px #B20000; }
+		}
+		
+		@-moz-keyframes glowing {
+		  0% { background-color: #B20000; -moz-box-shadow: 0 0 3px #B20000; }
+		  50% { background-color: #FF0000; -moz-box-shadow: 0 0 5px #FF0000; }
+		  100% { background-color: #B20000; -moz-box-shadow: 0 0 3px #B20000; }
+		}
+		
+		@-o-keyframes glowing {
+		  0% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
+		  50% { background-color: #FF0000; box-shadow: 0 0 5px #FF0000; }
+		  100% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
+		}
+		
+		@keyframes glowing {
+		  0% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
+		  50% { background-color: #FF0000; box-shadow: 0 0 5px #FF0000; }
+		  100% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
+		}
+		
+		.publishButton {
+		  -webkit-animation: glowing 1500ms infinite;
+		  -moz-animation: glowing 1500ms infinite;
+		  -o-animation: glowing 1500ms infinite;
+		  animation: glowing 1500ms infinite;
+		}
+	</style>
 </head>
 
 <body>
@@ -311,7 +433,13 @@
 		</a> |
 		<a href="#" id="view_suchi" class="butSim">
 			<spring:message code="yaadidetails.viewSuchi" text="Suchi Report"/>
-		</a> |
+		</a>
+		<c:if test="${deviceTypeType=='questions_starred'}">
+		<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+			<button type="button" id="publishButton1" class="publishButton" style="display: none;">Publish!</button>
+		</security:authorize>
+		</c:if>
+		|
 		<c:if test="${deviceTypeType=='questions_unstarred'}">
 		<a href="#" id="bulk_yaadi_update" class="butSim">
 			<spring:message code="yaadidetails.bulkYaadiUpdate" text="Bulk Yaadi Update"/>				

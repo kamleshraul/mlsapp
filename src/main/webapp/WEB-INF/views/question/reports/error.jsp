@@ -76,7 +76,7 @@
 		<div class="toolTip tpRed clearfix">
 			<p>
 				<img src="./resources/images/template/icons/light-bulb-off.png">
-				<spring:message code="question.report.errorcode.SUCHI_NOT_PUBLISHED_FOR__SELECTED_DATE" text="Suchi is not published for the selected answering date"/>
+				<spring:message code="question.report.errorcode.SUCHI_NOT_PUBLISHED_FOR_SELECTED_DATE" text="Suchi is not published for the selected answering date"/>
 			</p>
 			<p></p>
 		</div>

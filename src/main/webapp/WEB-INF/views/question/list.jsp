@@ -82,7 +82,7 @@
 			/****Member's Starred Questions Suchi View ****/
 			$("#member_starred_suchi_view").click(function() {
 				if($('#suchiAnsweringDate').css('display')!='none' && $('#suchiAnsweringDate').val()=='0') {
-					$.prompt("Please select the suchi answering date!");
+					$.prompt($('#suchiAnsweringDateSelectionPromptMsg').val());
 				} else if($('#suchiAnsweringDate').css('display')=='none' && $('#suchiAnsweringDate').val()=='0') {
 					$('#suchiAnsweringDate').css('display', 'inline-block');
 				} else if($('#suchiAnsweringDate').val()!='0') {	
@@ -447,7 +447,7 @@
 	<%@ include file="/common/gridview.jsp" %>
 	<input type="hidden" id="grid_id" value="${gridId}">
 	<input type="hidden" id="gridURLParams" name="gridURLParams">
-		
+	<input id="suchiAnsweringDateSelectionPromptMsg" value="<spring:message code='question.suchiAnsweringDateSelectionPromptMsg' text='Please select the suchi answering date!'/>" type="hidden">	
 	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 	</div>
