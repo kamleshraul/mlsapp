@@ -23,7 +23,12 @@
 				}
 			});
 			/* publish suchi if unpublished on click of publish button */
-			$('#publishButton1').click(function() {
+			$('#publishButton1').click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
 				publishSuchiOnSelectedAnsweringDate();
 			});
 			
@@ -326,8 +331,8 @@
 					} 						
 					$.prompt(promptMsg,{
 						buttons: {Ok:true, Cancel:false}, callback: function(v){
-				       if(v){
-				       	$.post('yaadi_details/publish_suchi_on_selected_answering_date?'+parameters, function(data) {
+				       if(v){				    	 	
+				       		$.post('yaadi_details/publish_suchi_on_selected_answering_date?'+parameters, function(data) {
 								if(data==1) {
 									$('#publishButton1').hide();
 									$.prompt(successMsg);
