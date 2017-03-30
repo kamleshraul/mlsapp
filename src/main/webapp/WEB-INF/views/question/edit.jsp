@@ -927,7 +927,7 @@
 	</table>
 	
 	<c:if test="${recommendationStatusType == 'question_processed_rejectionWithReason'}">
-	<p>
+	<p style="display: none;">
 	<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
 	<form:textarea path="rejectionReason" cssClass="wysiwyg invalidFormattingAllowed" readonly="true"></form:textarea>
 	</p>
