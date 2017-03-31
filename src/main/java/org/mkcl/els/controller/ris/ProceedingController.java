@@ -288,7 +288,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 					}
 				}
 				
-				Slot nextSlot = Slot.findByStartTime(slot.getRoster(), slot.getEndTime());
+				Slot nextSlot = Slot.findNextSlot(slot);
 				if(nextSlot != null){
 					Reporter nextReporter = nextSlot.getReporter();
 					User nextReporterUser = nextReporter.getUser();

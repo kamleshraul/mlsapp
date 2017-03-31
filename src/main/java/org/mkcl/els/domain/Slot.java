@@ -136,6 +136,10 @@ public class Slot extends BaseDomain implements Serializable{
 	public static List<Slot> findActiveSlots(Roster roster2) {
 		return getSlotRepository().findActiveSlots(roster2);
 	}
+	
+	public static Slot findNextSlot(Slot slot) {
+		return getSlotRepository().findNextSlot(slot);
+	}
 	/*********** Setters and Getters ************/	
 	
 	public Reporter getReporter() {
