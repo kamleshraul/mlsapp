@@ -449,11 +449,11 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 				//+ " AND m.internalStatus.id=:internalStatusId"
 				+ " AND m.status.id=:statusId"
 				+ " AND m.subDepartment.id=:subDepartmentId"
-				+ " ORDER BY m.demandNumber " 
-				+ sortOrder + ", m.amountToBeDeducted "
-				+ sortOrder + ", m.primaryMember.lastName"
-				//+ sortOrder + ", m.submissionDate " 
-				+ sortOrder);
+				+ " ORDER BY m.demandNumber " + sortOrder
+				+ ", m.amountToBeDeducted " + sortOrder 
+				+ ", m.primaryMember.lastName " + sortOrder
+				//+ ", m.submissionDate " + sortOrder
+				);
 		
 		TypedQuery<CutMotion> tQuery = this.em().createQuery(strQuery.toString(), CutMotion.class);
 		tQuery.setParameter("sessionId", session.getId());
