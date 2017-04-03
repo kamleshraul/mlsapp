@@ -1411,7 +1411,7 @@
 			<c:if test="${internalStatusType == 'question_final_rejection' or
 						  internalStatusType == 'question_unstarred_final_rejection' or
 						  internalStatusType == 'question_halfHourDiscussion_final_rejection' or
-						  internalStatusType == 'question_shortnotice_final_rejection'} ">
+						  internalStatusType == 'question_shortnotice_final_rejection'}">
 				<p id="rejectionReasonP">
 					<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
 					<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
