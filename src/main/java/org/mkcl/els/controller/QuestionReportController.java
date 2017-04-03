@@ -1931,6 +1931,8 @@ public class QuestionReportController extends BaseController{
 						}
 						
 						model.addAttribute("houseType", houseType.getName());
+						model.addAttribute("deviceType", deviceType.getId());
+						model.addAttribute("session", session.getId());
 						model.addAttribute("sessionNumber", session.getNumber().toString());
 						model.addAttribute("sessionType", sessionType.getSessionType());
 						model.addAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(sessionYear, locale.toString()));

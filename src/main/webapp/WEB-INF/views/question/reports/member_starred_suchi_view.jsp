@@ -10,23 +10,18 @@
 	<script type="text/javascript">
 		var ids, counter, limit, dataSize;
 		$(document).ready(function(){			
-			$('.viewQuestion').click(function() {
-				var qid = $(this).attr('id').split("_")[1];
+			$('.viewQuestion').click(function(e) {
+				e.preventDefault();
+				var qNum = $(this).attr('id').split("_")[1];
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
-				var parameters="houseType="+$("#selectedHouseType").val()
-				+"&sessionYear="+$("#selectedSessionYear").val()
-				+"&sessionType="+$("#selectedSessionType").val()
-				+"&questionType="+$("#selectedQuestionType").val()
-				+"&ugparam="+$("#ugparam").val()
-				+"&status="+$("#selectedStatus").val()
-				+"&role="+$("#srole").val()
-				+"&usergroup="+$("#currentusergroup").val()
-				+"&usergroupType="+$("#currentusergroupType").val()
-				+"&edit=false";
-				var resourceURL='question/'+qid+'/edit?'+parameters;
+				var parameters="session="+$("#session").val()
+				+"&deviceType="+$("#deviceType").val()
+				+"&number="+qNum
+				+"&viewName=question/reports/question_view_in_yaadi_format";
+				var resourceURL='ref/device?'+parameters;
 				$.get(resourceURL,function(data){
 					$.unblockUI();
-					$.fancybox.open(data,{autoSize:false,width:750,height:700});
+					$.fancybox.open(data,{autoSize:false,width:650,height:600});
 				},'html').fail(function(){
 					$.unblockUI();
 					if($("#ErrorMsg").val()!=''){
@@ -283,7 +278,7 @@
 										${deviceVO.serialNumber}
 									</td>
 									<td width="16%" style="font-size: 13pt;font-weight: bold;vertical-align: top;text-align: center;">
-										<a href="#" id="viewQuestion_${deviceVO.id}" class="viewQuestion" style="">${deviceVO.formattedNumber}</a>						
+										<a href="#" id="viewQuestion_${deviceVO.number}" class="viewQuestion" style="">${deviceVO.formattedNumber}</a>						
 									</td>
 									<td width="38%" style="font-size: 13pt;font-weight: bold;vertical-align: top;text-align: left;padding-left: 5px;padding-right: 5px;">
 										${deviceVO.memberNames}
@@ -348,5 +343,7 @@
 			</div>
 		</div>
 	</div>
+	<input type="hidden" id="session" value="${session}">
+	<input type="hidden" id="deviceType" value="${deviceType}">
 </body>
 </html>

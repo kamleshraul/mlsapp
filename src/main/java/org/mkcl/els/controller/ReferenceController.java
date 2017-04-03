@@ -3832,6 +3832,7 @@ public class ReferenceController extends BaseController {
 		String strNumber=request.getParameter("number");
 		String strSessionId = request.getParameter("session");
 		String strDeviceTypeId= request.getParameter("deviceType");
+		String viewName = request.getParameter("viewName");
 		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
 
 		Integer dNumber=null;
@@ -3878,12 +3879,15 @@ public class ReferenceController extends BaseController {
 								model.addAttribute("answeringDate",FormaterUtil.formatMonthsMarathi(answeringDate,locale.toString()));
 								model.addAttribute("member",question.getPrimaryMember().findFirstLastName());
 								model.addAttribute("questionId", question.getId());
-								return "proceeding/contentimports/questions_halfanhourfromquestion_content";
+								if(viewName==null || viewName.isEmpty()) {
+									viewName = "proceeding/contentimports/questions_halfanhourfromquestion_content";
+								}
 							}
 						}else{
 							model.addAttribute("questionId", question.getId());
 							model.addAttribute("questionSubject",question.getRevisedSubject());
 							model.addAttribute("questionNumber",question.getNumber());
+							model.addAttribute("formattedQuestionNumber",FormaterUtil.formatNumberNoGrouping(question.getNumber(), locale.toString()));
 							if(question.getRevisedQuestionText() != null && !question.getRevisedQuestionText().isEmpty()){
 								String questionText = question.getRevisedQuestionText();
 								questionText = questionText.replaceAll("<p", "<div");
@@ -3903,7 +3907,9 @@ public class ReferenceController extends BaseController {
 							}
 						}
 					}
-					return "proceeding/contentimports/questions_starred_content";
+					if(viewName==null || viewName.isEmpty()) {
+						viewName = "proceeding/contentimports/questions_starred_content";
+					}
 				}else if(device.equals("Resolution")){
 					Resolution resolution=Resolution.getResolution(currentSession.getId(), deviceTypeId, dNumber, locale.toString());
 					if(resolution!=null){
@@ -3915,7 +3921,9 @@ public class ReferenceController extends BaseController {
 						model.addAttribute("noticeContent", resolution.getNoticeContent());
 						model.addAttribute("resolutionId",resolution.getId());
 					}
-					return "proceeding/contentimports/resolutions_content";
+					if(viewName==null || viewName.isEmpty()) {
+						viewName = "proceeding/contentimports/resolutions_content";
+					}
 				}else if(device.equals("Motion")){
 					String content="";
 					Motion motion=Motion.getMotion(currentSession.getId(), deviceTypeId, dNumber, locale.toString());
@@ -3942,7 +3950,9 @@ public class ReferenceController extends BaseController {
 						}
 						model.addAttribute("houseType", motion.getHouseType().getType());
 					}
-					return "proceeding/contentimports/motions_callingattention_content";
+					if(viewName==null || viewName.isEmpty()) {
+						viewName = "proceeding/contentimports/motions_callingattention_content";
+					}
 				}else if(device.equals("Bill")){
 					String billyear=request.getParameter("billYear");
 					String billHouseType=request.getParameter("billHouseType");
@@ -3978,12 +3988,14 @@ public class ReferenceController extends BaseController {
 					model.addAttribute("billNumber", RomanNumeral.getRomanEquivalent(bill.getNumber()));
 					
 					model.addAttribute("billId", bill.getId());
-					return "proceeding/contentimports/bills_content";
+					if(viewName==null || viewName.isEmpty()) {
+						viewName = "proceeding/contentimports/bills_content";
+					}
 				}
 			}
 		}
 
-		return "";
+		return viewName;
 	}
 	
 	@RequestMapping(value="/gethalfhourdiscussionfromquestion",method=RequestMethod.GET)

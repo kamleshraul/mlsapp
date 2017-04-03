@@ -1,0 +1,29 @@
+<div id='deviceContent'>
+	<div style="text-align: center;margin-left: 50px;margin-right: 50px;">
+		<b>$questionSubject</b>
+	</div>
+	<br/>
+	<div><b> * $formattedQuestionNumber
+	&nbsp;&nbsp;       
+	#if($supportingMember!='' && $supportingMember)
+		$supportingMember
+	#end
+	</b>: सन्माननीय <b> $ministryName मंत्री </b> पुढील गोष्टींचा खुलासा करतील काय :- $questionText
+	</div>
+	<br/>
+	#if($minister!='')
+	<div>
+		#if($answer!='' && $answer)
+			<b>$minister :</b> $answer
+		#else
+			<div style="text-align:center"><b>(उत्तर आले नाही )</b></div>
+		#end	
+	</div>
+	#else
+		#if($answer!='' &&  $answer)
+			$answer
+		#else
+		  <div style="text-align:center"><b>(उत्तर आले नाही )</b></div>
+		#end
+	#end
+</div>
