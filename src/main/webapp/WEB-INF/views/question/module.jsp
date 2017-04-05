@@ -433,6 +433,10 @@
 	}
 	
 	function memberQuestionsView() {
+		var viewMode = "";
+		if($('#selectedHouseType').val()=='lowerhouse') { //in case to show statuses for lowerhouse
+			viewMode = "_with_status";
+		}
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		+ "&sessionYear=" + $("#selectedSessionYear").val()
 		+ "&sessionType=" + $("#selectedSessionType").val()
@@ -440,7 +444,7 @@
 		+ "&createdBy=" + $("#ugparam").val()
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_QUESTIONS_VIEW"
-		+ "&reportout=member_questions_view";
+		+ "&reportout=member_questions_view"+viewMode;
 		showTabByIdAndUrl('details_tab','question/report/generalreport?'+parameters);
 	}
 	
