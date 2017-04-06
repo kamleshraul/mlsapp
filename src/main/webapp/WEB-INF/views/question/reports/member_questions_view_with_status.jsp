@@ -119,15 +119,15 @@
 								</c:choose>
 								<th style="text-align: center; font-size: 12px; min-width: 60px;">${topHeader[3]}</th>
 								<c:if test="${report[0][11]=='status_visible'}">
-									<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[4]}</th>
-									<th style="text-align: center; font-size: 12px; width: 250px;">${topHeader[6]}</th>
+									<th style="text-align: center; font-size: 12px; min-width: 90px;">${topHeader[4]}</th>
+									<%-- <th style="text-align: center; font-size: 12px; width: 250px;">${topHeader[6]}</th> --%>
 								</c:if>					
 							</tr>
 						
 							<tr>
 								<c:choose>
 									<c:when test="${report[0][11]=='status_visible'}">
-										<td colspan="6">&nbsp;</td>
+										<td colspan="5">&nbsp;</td>
 									</c:when>
 									<c:otherwise>
 										<td colspan="4">&nbsp;</td>
@@ -154,18 +154,26 @@
 													</c:choose>
 													<td style="text-align: left; font-size: 12px; min-width: 60px;vertical-align: top;">${r[3]}</td>
 													<c:if test="${r[11]=='status_visible'}">
-														<td style="text-align: center; font-size: 12px; padding-left: 15px;vertical-align: top;">
+														<td style="font-size: 12px;vertical-align: top;">
 															<c:choose>
 																<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (empty r[6])}">
-																	${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[5]}
+																	<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[5]}</p>
 																</c:when>
 																<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (not empty r[6])}">
-																	${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[7]}
+																	<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[7]}</p>
 																</c:when>
-																<c:otherwise>${r[4]}</c:otherwise>						
+																<c:when test="${r[9]=='question_final_rejection' and (not empty r[12])}">
+																	<p align="center">${r[4]}</p>
+																	<br/>
+																	<p align="justify">${r[12]}</p>
+																	<c:if test="${not empty r[13]}">
+																		<p align="justify">${r[13]}</p>
+																	</c:if>
+																</c:when>
+																<c:otherwise><p align="center">${r[4]}</p></c:otherwise>
 															</c:choose>							
 														</td>
-														<td style="text-align: justify; font-size: 12px; width: 250px;vertical-align: top;">${r[12]}</td>
+														<%-- <td style="text-align: justify; font-size: 12px; width: 250px;vertical-align: top;">${r[12]}</td> --%>
 													</c:if>
 												</tr>
 											</c:when>
@@ -183,18 +191,26 @@
 													</c:choose>
 													<td style="text-align: left; font-size: 12px; min-width: 60px;vertical-align: top;">${r[3]}</td>
 													<c:if test="${r[11]=='status_visible'}">
-														<td style="text-align: center; font-size: 12px; padding-left: 15px;vertical-align: top;">
+														<td style="font-size: 12px;vertical-align: top;">
 															<c:choose>
 																<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (empty r[6])}">
-																	${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[5]}
+																	<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[5]}</p>
 																</c:when>
 																<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (not empty r[6])}">
-																	${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[7]}
+																	<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[7]}</p>
 																</c:when>
-																<c:otherwise>${r[4]}</c:otherwise>						
+																<c:when test="${r[9]=='question_final_rejection' and (not empty r[12])}">
+																	<p align="center">${r[4]}</p>
+																	<br/>
+																	<p align="justify">${r[12]}</p>
+																	<c:if test="${not empty r[13]}">
+																		<p align="justify">${r[13]}</p>
+																	</c:if>
+																</c:when>
+																<c:otherwise><p align="center">${r[4]}</p></c:otherwise>
 															</c:choose>							
 														</td>
-														<td style="text-align: justify; font-size: 12px; width: 250px;vertical-align: top;">${r[12]}</td>
+														<%-- <td style="text-align: justify; font-size: 12px; width: 250px;vertical-align: top;">${r[12]}</td> --%>
 													</c:if>													
 												</tr>
 											</c:otherwise>
@@ -214,18 +230,25 @@
 											</c:choose>													
 											<td style="text-align: left; font-size: 12px; min-width: 60px;vertical-align: top;">${r[3]}</td>
 											<c:if test="${r[11]=='status_visible'}">
-												<td style="text-align: center; font-size: 12px; padding-left: 15px;vertical-align: top;">
+												<td style="font-size: 12px;vertical-align: top;">
 													<c:choose>
 														<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (empty r[6])}">
-															${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[5]}
+															<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[5]}</p>
 														</c:when>
 														<c:when test="${r[8]=='questions_starred' and r[9]=='question_final_admission' and (not empty r[6])}">
-															${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[7]}
+															<p align="center">${r[4]}<br/><br/><spring:message code="generic.date" text="Date"/> ${r[7]}</p>
 														</c:when>
-														<c:otherwise>${r[4]}</c:otherwise>						
+														<c:when test="${r[9]=='question_final_rejection' and (not empty r[12])}">
+															<p align="center">${r[4]}</p>															
+															<p align="justify">${r[12]}</p>
+															<c:if test="${not empty r[13]}">
+																<p align="justify">${r[13]}</p>
+															</c:if>
+														</c:when>
+														<c:otherwise><p align="center">${r[4]}</p></c:otherwise>
 													</c:choose>							
 												</td>
-												<td style="text-align: justify; font-size: 12px; width: 250px;vertical-align: top;">${r[12]}</td>
+												<%-- <td style="text-align: justify; font-size: 12px; width: 250px;vertical-align: top;">${r[12]}</td> --%>
 											</c:if>
 										</tr>
 									</c:otherwise>
