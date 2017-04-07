@@ -1590,9 +1590,9 @@
 		<form:textarea path="factualPositionFromMember" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="factualPositionFromMember" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
-	</c:if>	
+	</c:if>		
 	
-	<c:if test="${internalStatusType != 'question_final_rejection'&&
+	<%-- <c:if test="${internalStatusType != 'question_final_rejection'&&
 				 internalStatusType!='question_final_clarificationNeededFromDepartment' &&
 				 internalStatusType!='question_final_clarificationNeededFromMember' && 
 				 internalStatusType != 'question_unstarred_final_rejection'&&
@@ -1601,13 +1601,20 @@
 				 internalStatusType != 'question_shortnotice_final_rejection'&&
 				 internalStatusType!='question_shortnotice_final_clarificationNeededFromDepartment' &&
 				 internalStatusType!='question_shortnotice_final_clarificationNeededFromMember'  
-				 }">
+				 }"> --%>
+	<c:choose>
+	<c:when test="${fn:endsWith(internalStatusType, 'final_admission')}">
 		<p>
 		<label class="small"><spring:message code="question.lastDateOfAnswerReceiving" text="Last date of receiving answer"/></label>
-		<form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText" value='${formattedLastAnswerReceivingDate}'/>
+		<%-- <form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText" value='${formattedLastAnswerReceivingDate}'/> --%>
+		<input id="lastDateOfAnswerReceiving" name="setLastDateOfAnswerReceiving" class="datemask sText" value="${formattedLastAnswerReceivingDate}"/>
 		<form:errors path="lastDateOfAnswerReceiving" cssClass="validationError"/>
 		</p>
-	</c:if>
+	</c:when>
+	<c:otherwise>
+		<input type="hidden" id="lastDateOfAnswerReceiving" name="setLastDateOfAnswerReceiving" class="datemask sText" value="${formattedLastAnswerReceivingDate}"/>
+	</c:otherwise>
+	</c:choose>
 	
 	<c:if test="${internalStatusType=='question_final_clarificationNeededFromDepartment' ||
 				 internalStatusType=='question_final_clarificationNeededFromMember' }">

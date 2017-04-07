@@ -599,17 +599,22 @@ public class QuestionReportController extends BaseController{
 				CustomParameter csptDaysCountForReceivingAnswerFromDepartment = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
 				if(csptDaysCountForReceivingAnswerFromDepartment!=null) {
 					String daysCountForReceivingAnswerFromDepartment = csptDaysCountForReceivingAnswerFromDepartment.getValue();
-					if(daysCountForReceivingAnswerFromDepartment!=null) {
-						if(question.getAnswerRequestedDate()!=null) {
-							Calendar calendar = Calendar.getInstance();
-							calendar.setTime(question.getAnswerRequestedDate());
-							calendar.add(Calendar.DATE, Integer.parseInt(daysCountForReceivingAnswerFromDepartment));
-							String lastReceivingDateFromDepartment = FormaterUtil.formatDateToString(calendar.getTime(), ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString());
-							letterVO.setLastReceivingDateFromDepartment(lastReceivingDateFromDepartment);
-						}						
+					if(daysCountForReceivingAnswerFromDepartment!=null) {												
 						daysCount = NumberInfo.findByFieldName(NumberInfo.class, "number", Long.parseLong(daysCountForReceivingAnswerFromDepartment), locale.toString());
 						if(daysCount!=null && daysCount.getId()!=null) {
 							letterVO.setDaysCountForReceivingAnswerFromDepartment(daysCount.getNumberText());
+						}
+						Date lastDateOfAnswerReceiving = null;
+						if(question.getLastDateOfAnswerReceiving()!=null) {
+							 lastDateOfAnswerReceiving = question.getLastDateOfAnswerReceiving();
+						} else {
+							if(question.getAnswerRequestedDate()!=null) {
+								lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(question.getAnswerRequestedDate(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale.toString());
+							}
+						}
+						if(lastDateOfAnswerReceiving!=null) {
+							String lastReceivingDateFromDepartment = FormaterUtil.formatDateToString(lastDateOfAnswerReceiving, ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString());
+							letterVO.setLastReceivingDateFromDepartment(lastReceivingDateFromDepartment);
 						}
 					}					
 				}
@@ -898,7 +903,7 @@ public class QuestionReportController extends BaseController{
 						if(inwardDateList!=null && !inwardDateList.isEmpty()) {
 							if(inwardDateList.get(0)!=null) {
 								inwardDate = FormaterUtil.formatStringToDate(inwardDateList.get(0).toString(), ApplicationConstants.DB_DATEFORMAT);
-								letterVO.setInwardLetterDate(FormaterUtil.formatDateToString(inwardDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_1, locale.toString()));
+								letterVO.setInwardLetterDate(FormaterUtil.formatDateToString(inwardDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2, locale.toString()));
 							}
 						}					
 					}

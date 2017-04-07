@@ -777,7 +777,13 @@ public class ApplicationConstants {
 	public static final String QUESTION_FINAL_REPEATREJECTION="question_final_repeatrejection";
 
 	public static final String QUESTION_PROCESSED_SENDTOSECTIONOFFICER = "question_processed_sendToSectionOfficer";
+	
+	public static final String QUESTION_UNSTARRED_PROCESSED_SENDTOSECTIONOFFICER = "question_unstarred_processed_sendToSectionOfficer";
 
+	public static final String QUESTION_SHORTNOTICE_PROCESSED_SENDTOSECTIONOFFICER = "question_shortnotice_processed_sendToSectionOfficer";
+	
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_SENDTOSECTIONOFFICER = "question_halfHourFromQuestion_processed_sendToSectionOfficer";
+	
 	public static final String QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_final_convertToUnstarredAndAdmitClubbedWithPreviousSession";
 	
 	public static final String QUESTION_UNSTARRED_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT_CLUBBED="question_unstarred_final_convertToUnstarredAndAdmitClubbedWithPreviousSession";

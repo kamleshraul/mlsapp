@@ -87,8 +87,15 @@
 							</xsl:choose>
 							</fo:block>						
 							<fo:block margin-right="0.40cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
-							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>
-							<fo:block margin-right="1.82cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+							<fo:block margin-right="1.21cm">विधान भवन, मुंबई/नागपूर</fo:block>							
+							<xsl:choose>
+								<xsl:when test="boolean(inwardLetterDate)">
+									<fo:block margin-right="1.82cm">दिनांक - <xsl:value-of select="inwardLetterDate"></xsl:value-of></fo:block>
+								</xsl:when>
+								<xsl:otherwise>
+									<fo:block margin-right="0.2cm">दिनांक - &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
+								</xsl:otherwise>
+							</xsl:choose>							
 						</fo:block>			
 						
 						<!-- <fo:block>&#160;</fo:block> -->					

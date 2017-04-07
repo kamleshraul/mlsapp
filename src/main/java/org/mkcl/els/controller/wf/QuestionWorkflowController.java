@@ -38,7 +38,6 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
 import org.mkcl.els.controller.question.QuestionController;
-import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.ClarificationNeededFrom;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
@@ -46,6 +45,7 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
+import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
@@ -55,7 +55,6 @@ import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.ReferenceUnit;
-import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -69,7 +68,6 @@ import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.YaadiDetails;
-import org.mkcl.els.domain.ballot.Ballot;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -529,33 +527,62 @@ public class QuestionWorkflowController  extends BaseController{
 
 
 			/**** Answering Dates ****/
-			if(group != null){
-				List<QuestionDates> answeringDates = group.getQuestionDates();
-				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
-				for(QuestionDates i : answeringDates){
-					MasterVO masterVO = new MasterVO(i.getId(),
-							FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
-					masterVOs.add(masterVO);
+			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+				Date lastDateOfAnswerReceiving = null;
+				if(domain.getLastDateOfAnswerReceiving()!=null) {
+					lastDateOfAnswerReceiving = domain.getLastDateOfAnswerReceiving();
+				} else {
+					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+							&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+							&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTOSECTIONOFFICER)) {
+						
+						String daysCountForReceivingAnswerFromDepartment = "30";
+						CustomParameter csptDaysCountForReceivingAnswerFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
+						if(csptDaysCountForReceivingAnswerFromDepartment!=null
+								&& csptDaysCountForReceivingAnswerFromDepartment.getValue()!=null) {
+							daysCountForReceivingAnswerFromDepartment = csptDaysCountForReceivingAnswerFromDepartment.getValue();
+						}
+						if(domain.getAnswerRequestedDate()!=null) {
+							lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(domain.getAnswerRequestedDate(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale);
+						} else {
+							lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(new Date(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale);
+						}
+						domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
+					}
 				}
-				model.addAttribute("answeringDates", masterVOs);
-				if(domain.getAnsweringDate() != null){
-					model.addAttribute("answeringDate", domain.getAnsweringDate().getId());
-					model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).
-							format(domain.getAnsweringDate().getAnsweringDate()));
-					model.addAttribute("answeringDateSelected", domain.getAnsweringDate().getId());
-					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
-							format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
-				}
-			}
+				if(lastDateOfAnswerReceiving!=null) {
+					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.formatDateToString(lastDateOfAnswerReceiving, ApplicationConstants.SERVER_DATEFORMAT, locale));
+				}				
 			
-			/**** Set Chart answering date ****/
-			if(domain.getChartAnsweringDate() != null) {
-				model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
-				model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).
-						format(domain.getChartAnsweringDate().getAnsweringDate()));
-				model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
-						format(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment()));
-			}
+			} else {
+				if(group != null){
+					List<QuestionDates> answeringDates = group.getQuestionDates();
+					List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+					for(QuestionDates i : answeringDates){
+						MasterVO masterVO = new MasterVO(i.getId(),
+								FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
+						masterVOs.add(masterVO);
+					}
+					model.addAttribute("answeringDates", masterVOs);
+					if(domain.getAnsweringDate() != null){
+						model.addAttribute("answeringDate", domain.getAnsweringDate().getId());
+						model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).
+								format(domain.getAnsweringDate().getAnsweringDate()));
+						model.addAttribute("answeringDateSelected", domain.getAnsweringDate().getId());
+						model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
+								format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
+					}
+				}			
+				
+				/**** Set Chart answering date ****/
+				if(domain.getChartAnsweringDate() != null) {
+					model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
+					model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).
+							format(domain.getChartAnsweringDate().getAnsweringDate()));
+					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
+							format(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment()));
+				}
+			}			
 		}	
 		/**** Submission Date and Creation date****/
 		CustomParameter dateTimeFormat = 
@@ -1663,6 +1690,12 @@ public class QuestionWorkflowController  extends BaseController{
 							&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() && domain.getAnswerReceivedDate()==null) {					
 						domain.setAnswerReceivedDate(new Date());
 					}
+					
+					String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");
+					if(strLastDateOfAnswerReceiving!=null && !strLastDateOfAnswerReceiving.isEmpty()) {
+						Date lastDateOfAnswerReceiving = FormaterUtil.formatStringToDate(strLastDateOfAnswerReceiving, ApplicationConstants.DB_DATEFORMAT, locale.toString());
+						domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
+					}			
 				}						
 
 				/**** setting the date of factual position receiving. ****/

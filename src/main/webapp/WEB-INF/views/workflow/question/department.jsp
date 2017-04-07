@@ -918,7 +918,8 @@
 					selectedQuestionType == 'questions_unstarred' ||
 					selectedQuestionType == 'questions_shortnotice'}">
 			<label class="small"><spring:message code="question.lastDateFromDepartment" text="Last Date From Department"/></label>
-			<form:input path="lastDateOfAnswerReceiving" cssClass="datemask sText" readonly="true" value="${lastReceivingDateFromDepartment}"/>
+			<input id="formattedLastAnswerReceivingDate" name="formattedLastAnswerReceivingDate" class="datemask sText" value="${formattedLastAnswerReceivingDate}" readonly="readonly"/>
+			<input type="hidden" id="lastDateOfAnswerReceiving" name="setLastDateOfAnswerReceiving" class="datemask sText" value="${formattedLastAnswerReceivingDate}"/>
 			<form:errors path="lastDateOfAnswerReceiving" cssClass="validationError"/>
 		</c:if>
 	</p>
