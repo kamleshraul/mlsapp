@@ -108,7 +108,7 @@
 						<thead>
 							<tr>
 								<th class="serialCount" style="text-align: left; font-size: 12px; min-width: 20px; max-width: 20px; ">${topHeader[5]}</th>
-								<th style="text-align: center; font-size: 12px; width: 30px;">${topHeader[1]}</th>
+								<th style="text-align: center; font-size: 12px; width: 60px;">${topHeader[1]}</th>
 								<c:choose>
 									<c:when test="${report[0][11]=='status_visible'}">
 										<th style="text-align: center; font-size: 12px; width: 250px;">${topHeader[2]}</th>
@@ -143,7 +143,7 @@
 											<c:when test="${counter.count > 1}">
 												<tr class="page-break-after-forced">
 													<td class="serialCount" style="text-align: left; font-size: 12px; min-width: 20px; max-width: 20px; vertical-align: top;">${serialNumbers[counter.count-1]}</td>
-													<td style="text-align: center; font-size: 12px; width: 30px;vertical-align: top;">${r[1]}</td>
+													<td style="text-align: center; font-size: 12px; width: 60px;vertical-align: top;">${r[1]}</td>
 													<c:choose>
 														<c:when test="${r[11]=='status_visible'}">
 															<td style="text-align: justify; font-size: 12px; width: 250px;vertical-align: top;">${r[2]}</td>
@@ -180,7 +180,7 @@
 											<c:otherwise>
 												<tr>
 													<td class="serialCount" style="text-align: left; font-size: 12px; min-width: 20px; max-width: 20px; vertical-align: top;">${serialNumbers[counter.count-1]}</td>
-													<td style="text-align: center; font-size: 12px; width: 30px;vertical-align: top;">${r[1]}</td>
+													<td style="text-align: center; font-size: 12px; width: 60px;vertical-align: top;">${r[1]}</td>
 													<c:choose>
 														<c:when test="${r[11]=='status_visible'}">
 															<td style="text-align: justify; font-size: 12px; width: 250px;vertical-align: top;">${r[2]}</td>
@@ -219,7 +219,7 @@
 									<c:otherwise>
 										<tr>
 											<td class="serialCount" style="text-align: left; font-size: 12px; min-width: 20px; max-width: 20px; vertical-align: top;">${serialNumbers[counter.count-1]}</td>
-											<td style="text-align: center; font-size: 12px; width: 30px;vertical-align: top;">${r[1]}</td>
+											<td style="text-align: center; font-size: 12px; width: 60px;vertical-align: top;">${r[1]}</td>
 											<c:choose>
 												<c:when test="${r[11]=='status_visible'}">
 													<td style="text-align: justify; font-size: 12px; width: 250px;vertical-align: top;">${r[2]}</td>

@@ -262,6 +262,61 @@ class StarredQuestionController {
 		if(mode !=null && !mode.isEmpty()){
 			model.addAttribute("processMode",mode);
 		}
+		
+		/****Member's Questions Views Visibility Parameters****/
+		Boolean sessionEndDateFlag = false;
+		Date sessionEndDate = latestSession.getEndDate();
+		if(sessionEndDate!=null) {
+			String sessionEndDateTimeStr = FormaterUtil.formatDateToString(sessionEndDate, ApplicationConstants.DB_DATEFORMAT);
+			CustomParameter visibilityStartTimeCP = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_START_TIME_FOR_MEMBER_QUESTIONS_VIEW", "");
+			if(visibilityStartTimeCP!=null && visibilityStartTimeCP.getValue()!=null) {
+				sessionEndDateTimeStr = sessionEndDateTimeStr + " " + visibilityStartTimeCP.getValue();
+				Date sessionEndDateTime = FormaterUtil.formatStringToDate(sessionEndDateTimeStr, ApplicationConstants.DB_DATETIME_FORMAT);
+				if(new Date().compareTo(sessionEndDateTime)>=0) {
+					sessionEndDateFlag = true;
+				}
+			}
+		}
+		
+		Boolean statusFlag = false;		
+		CustomParameter statusFlagForMemberQuestionsView = CustomParameter.findByName(CustomParameter.class, "STATUS_FLAG_FOR_MEMBER_QUESTIONS_VIEW", "");
+		if(statusFlagForMemberQuestionsView!=null && statusFlagForMemberQuestionsView.getValue()!=null
+				&& statusFlagForMemberQuestionsView.getValue().equals("visible")) {
+			statusFlag = true; 
+		}
+		if(statusFlag.equals(true) && sessionEndDateFlag.equals(true) && houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+			model.addAttribute("member_questions_view_status_flag", "status_visible");
+		}
+		
+		Boolean visibilityFlagForAdmitted = false;
+		CustomParameter visibilityFlagForMemberAdmittedQuestionsView = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_FLAG_FOR_MEMBER_ADMITTED_QUESTIONS_VIEW", "");
+		if(visibilityFlagForMemberAdmittedQuestionsView!=null && visibilityFlagForMemberAdmittedQuestionsView.getValue()!=null
+				&& visibilityFlagForMemberAdmittedQuestionsView.getValue().equals("visible")) {
+			visibilityFlagForAdmitted = true; 
+		}
+		if(visibilityFlagForAdmitted.equals(true) && sessionEndDateFlag.equals(true) && houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+			model.addAttribute("member_admitted_questions_view_flag", "admitted_visible");
+		}
+		
+		Boolean visibilityFlagForRejected = false;
+		CustomParameter visibilityFlagForMemberRejectedQuestionsView = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_FLAG_FOR_MEMBER_REJECTED_QUESTIONS_VIEW", "");
+		if(visibilityFlagForMemberRejectedQuestionsView!=null && visibilityFlagForMemberRejectedQuestionsView.getValue()!=null
+				&& visibilityFlagForMemberRejectedQuestionsView.getValue().equals("visible")) {
+			visibilityFlagForRejected = true; 
+		}
+		if(visibilityFlagForRejected.equals(true) && sessionEndDateFlag.equals(true) && houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+			model.addAttribute("member_rejected_questions_view_flag", "rejected_visible");
+		}
+		
+		Boolean visibilityFlagForUnstarred = false;
+		CustomParameter visibilityFlagForMemberUnstarredQuestionsView = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_FLAG_FOR_MEMBER_UNSTARRED_QUESTIONS_VIEW", "");
+		if(visibilityFlagForMemberUnstarredQuestionsView!=null && visibilityFlagForMemberUnstarredQuestionsView.getValue()!=null
+				&& visibilityFlagForMemberUnstarredQuestionsView.getValue().equals("visible")) {
+			visibilityFlagForUnstarred = true; 
+		}
+		if(visibilityFlagForUnstarred.equals(true) && sessionEndDateFlag.equals(true) && houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)) {
+			model.addAttribute("member_unstarred_questions_view_flag", "unstarred_visible");
+		}
 	}
 	
 	

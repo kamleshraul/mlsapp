@@ -32,6 +32,15 @@
 			} else {
 				$("#unstarred_admitted_departmentwise_report_span").hide();
 			}	
+			if($('#member_admitted_questions_view_flag').val()=="admitted_visible") {
+				$('#member_admitted_questions_view_span').show();
+			}
+			if($('#member_rejected_questions_view_flag').val()=="rejected_visible") {
+				$('#member_rejected_questions_view_span').show();
+			}
+			if($('#member_unstarred_questions_view_flag').val()=="unstarred_visible") {
+				$('#member_unstarred_questions_view_span').show();
+			}
 			/**** show/hide member_starred_suchi_view span as per selected devicetype ****/
 			if($('#currentusergroupType').val()=='member' && currentDeviceType == 'questions_stared') {
 				$('#member_starred_suchi_view_span').show();
@@ -70,13 +79,31 @@
 			/****Member's Questions View ****/
 			$("#member_questions_view").click(function() {
 				$("#selectionDiv1").hide();
-				memberQuestionsView();
+				memberQuestionsView("all");
 			});
 			
 			/****Member's Questions Detail View ****/
 			$("#member_questions_detail_view").click(function() {
 				$("#selectionDiv1").hide();
 				memberQuestionsDetailView();
+			});
+			
+			/****Member's Rejected Questions View ****/
+			$("#member_rejected_questions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberQuestionsView("rejected");
+			});
+			
+			/****Member's Admitted Questions View ****/
+			$("#member_admitted_questions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberQuestionsView("admitted");
+			});
+			
+			/****Member's Unstarred Questions View ****/
+			$("#member_unstarred_questions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberQuestionsView("unstarred");
 			});
 			
 			/****Member's Starred Questions Suchi View ****/
@@ -308,7 +335,7 @@
 				</a> |
 				<a href="#" id="member_questions_detail_view" class="butSim">
 					<spring:message code="question.member_questions_detail_view" text="Member's Questions Detail View"/>
-				</a> |
+				</a> |				
 				<span id="member_starred_suchi_view_span" style="display: none;">
 				<a href="#" id="member_starred_suchi_view" class="butSim">
 					<spring:message code="question.member_starred_suchi_view" text="Starred Questions Suchi"/>
@@ -317,7 +344,23 @@
 					<option value="0"><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>
 				</select> |
 				<%-- <a class="butSim" href="javascript:void(0);" id="goSuchiView"><spring:message code="suchi_view.go" text="Go" /></a> | --%>
+				</span>	
+				<hr/>				
+				<span id="member_admitted_questions_view_span" style="display: none;">
+				<a href="#" id="member_admitted_questions_view" class="butSim">
+					<spring:message code="question.member_admitted_questions_view" text="Member's Admitted Questions Detail View"/>
+				</a> |
 				</span>
+				<span id="member_rejected_questions_view_span" style="display: none;">
+				<a href="#" id="member_rejected_questions_view" class="butSim">
+					<spring:message code="question.member_rejected_questions_view" text="Member's Rejected Questions Detail View"/>
+				</a> |		
+				</span>
+				<span id="member_unstarred_questions_view_span" style="display: none;">
+				<a href="#" id="member_unstarred_questions_view" class="butSim">
+					<spring:message code="question.member_unstarred_questions_view" text="Member's Unstarred Questions Detail View"/>
+				</a> |	
+				</span>		
 			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 				<a href="#" id="statreport" class="butSim">

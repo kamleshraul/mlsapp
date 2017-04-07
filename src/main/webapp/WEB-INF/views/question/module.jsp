@@ -432,15 +432,17 @@
 				+ $("#currentusergroupType").val()+"&subdepartment="+(($("#selectedSubDepartment").val()==undefined)?'0':$("#selectedSubDepartment").val()));
 	}
 	
-	function memberQuestionsView() {
+	function memberQuestionsView(status_filter) {
 		var viewMode = "";
-		if($('#selectedHouseType').val()=='lowerhouse') { //in case to show statuses for lowerhouse
+		if($('#member_questions_view_status_flag').val()=='status_visible') { //in case to show statuses for lowerhouse
 			viewMode = "_with_status";
 		}
+		//$.get('/ref/status_visibility_for_member_in_session?')
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		+ "&sessionYear=" + $("#selectedSessionYear").val()
 		+ "&sessionType=" + $("#selectedSessionType").val()
 		+ "&questionType=" + $("#selectedQuestionType").val()
+		+ "&statusFilter=" + status_filter
 		+ "&createdBy=" + $("#ugparam").val()
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_QUESTIONS_VIEW"
@@ -1791,6 +1793,10 @@
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>" />
 		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
 		<input type="hidden" id="processMode" value="${processMode}" />
+		<input type="hidden" id="member_questions_view_status_flag" value="${member_questions_view_status_flag}" />
+		<input type="hidden" id="member_admitted_questions_view_flag" value="${member_admitted_questions_view_flag}" />
+		<input type="hidden" id="member_rejected_questions_view_flag" value="${member_rejected_questions_view_flag}" />
+		<input type="hidden" id="member_unstarred_questions_view_flag" value="${member_unstarred_questions_view_flag}" />
 	</div>
 </body>
 </html>
