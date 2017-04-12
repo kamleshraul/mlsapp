@@ -1469,10 +1469,12 @@
 				</p>
 			</c:when>
 			<c:otherwise>
+				<c:if test="${fn:endsWith(internalStatusType, '_final_rejection')}">
 				<p id="rejectionReasonP" style="display:block;">
 					<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
 					<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
 				</p>
+				</c:if>				
 			</c:otherwise>
 		</c:choose>
 		
@@ -1495,7 +1497,7 @@
 					<input type="hidden" id="ballotStatus" name="ballotStatus" value="${ballotStatusId}"/>
 				</c:when>
 			</c:choose> --%>
-			<c:if test="${fn:contains(internalStatusType, 'question_final') || fn:contains(internalStatusType, 'question_unstarred_final')}">
+			<c:if test="${fn:contains(internalStatusType, 'question_final_admission') || fn:contains(internalStatusType, 'question_unstarred_final_admission')}">
 				<p>
 					<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 					<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
