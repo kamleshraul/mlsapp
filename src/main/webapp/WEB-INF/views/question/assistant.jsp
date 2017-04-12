@@ -1576,7 +1576,7 @@
 					</c:if>
 					<%--- Remove the Following if conditions after session... Hack given for the council branch  --%>
 					
-					<c:if test="${fn:contains(internalStatusType, 'question_final') || fn:contains(internalStatusType, 'question_unstarred_final')}">
+					<c:if test="${fn:contains(internalStatusType, 'question_final') || fn:contains(internalStatusType, 'question_unstarred_final') || fn:contains(internalStatusType, 'question_shortnotice_final') || fn:contains(internalStatusType, 'question_halfHourFromQuestion_final')}">
 						<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT')">
 							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 						</security:authorize>					
