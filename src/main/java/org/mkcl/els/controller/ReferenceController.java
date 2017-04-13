@@ -7878,7 +7878,7 @@ public class ReferenceController extends BaseController {
 				for(CommitteeMeeting c: committeeMeetings){
 					MasterVO masterVO = new MasterVO();
 					masterVO.setId(c.getId());
-					masterVO.setName(FormaterUtil.formatDateToString(c.getMeetingDate(), ApplicationConstants.SERVER_DATEFORMAT));
+					masterVO.setName(FormaterUtil.formatDateToString(c.getMeetingDate(), ApplicationConstants.SERVER_DATEFORMAT)+' '+c.getStartTime());
 					committeeMeetingVOs.add(masterVO);
 				}
 			}
