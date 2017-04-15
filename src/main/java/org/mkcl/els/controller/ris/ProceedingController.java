@@ -1559,7 +1559,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 					revisedContent = revisedContent.replaceAll("<p></p>", "");
 					revisedContent = revisedContent.replaceAll("<div></div>", "");
 					revisedContent = revisedContent.replaceAll("<span></span>", "");
-					Pattern blockRegex = Pattern.compile( "<table .*?headerTable.*?/table>",
+					//revisedContent = revisedContent.replaceAll("<table.*?headerTable.*?>.*?</table>", "");
+					Pattern blockRegex = Pattern.compile( "<table class.*?headerTable.*?>.*?</table>",
                             Pattern.CASE_INSENSITIVE |
                             Pattern.DOTALL);  
 					Matcher m = blockRegex.matcher(revisedContent);
