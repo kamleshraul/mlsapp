@@ -1091,15 +1091,15 @@
 					<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 				</p>
 			</c:when>
-			<c:when test="${selectedQuestionType=='questions_unstarred'}">
+			<c:when test="${selectedQuestionType == 'questions_unstarred'}">
 				<c:if test="${not empty formattedChartAnsweringDate}">
-					<p>
-						<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
-						<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
-					</p>
+				<p>
+					<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
+					<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
+					<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+				</p>
 				</c:if>
-				<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
-			</c:when>
+			</c:when>			
 		</c:choose>
 		<p>
 		<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
