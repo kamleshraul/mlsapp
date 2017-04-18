@@ -516,8 +516,12 @@ public class QuestionWorkflowController  extends BaseController{
 			model.addAttribute("group", domain.getGroup().getId());
 
 			/**** Sub Departments ****/
+			Date onDate = selectedSession.getEndDate();
+			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION) && onDate.before(new Date())) {
+				onDate = new Date();
+			}
 			List<SubDepartment> subDepartments = 
-					MemberMinister.findAssignedSubDepartments(ministry, selectedSession.getEndDate(), locale);
+					MemberMinister.findAssignedSubDepartments(ministry, onDate, locale);
 			model.addAttribute("subDepartments", subDepartments); 
 			SubDepartment subDepartment = domain.getSubDepartment();
 			if(subDepartment != null){
