@@ -974,24 +974,28 @@
 		<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	</div>
 	<c:if test="${selectedQuestionType=='questions_starred'}">
-		<c:if test="${not (formattedAnsweringDate==null and (empty formattedAnsweringDate))}">
+		<c:if test="${not empty formattedAnsweringDate}">
 		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
-		</c:if>
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
+		</c:if>
+		<c:if test="${not empty formattedChartAnsweringDate}">
 		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+		</c:if>
 	</c:if>
 	
 	<c:if test="${selectedQuestionType=='questions_unstarred'}">
-		<c:if test="${not (formattedAnsweringDate==null and (empty formattedAnsweringDate))}">
+		<c:if test="${not empty formattedAnsweringDate}">
 		<label class="small"><spring:message code="question.answeringDate" text="Answering Date"/></label>
 		<input id="formattedAnsweringDate" name="formattedAnsweringDate" value="${formattedAnsweringDate }" class="sText" readonly="readonly">
 		<input id="answeringDate" name="answeringDate" type="hidden"  value="${answeringDate}">
+		</c:if>
+		<c:if test="${not empty formattedChartAnsweringDate}">
 		<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 		</c:if>
 	</c:if>
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-		<c:if test="${not (discussionDateSelected==null and (empty discussionDateSelected))}">
+		<c:if test="${not empty discussionDateSelected}">
 			<label class="small"><spring:message code="question.discussionDate" text="Discussion Date"/></label>
 			<input id="formattedDiscussionDate"value="${formattedDiscussionDateSelected }" class="sText" readonly="readonly">
 			<input id="discussionDate" name="discussionDate" value="${discussionDateSelected }" type="hidden">
