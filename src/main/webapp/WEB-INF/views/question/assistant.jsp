@@ -1084,22 +1084,22 @@
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_starred'}">
 				<p>
-					<c:if test="${formattedChartAnsweringDate !=null}">
+					<c:if test="${not empty formattedChartAnsweringDate}">
 						<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
 						<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
 					</c:if>	
 					<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
 				</p>
 			</c:when>
-			<c:when test="${selectedQuestionType == 'questions_unstarred'}">
-				<c:if test="${formattedChartAnsweringDate !=null}">
-				<p>
-					<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
-					<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
-					<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
-				</p>
+			<c:when test="${selectedQuestionType=='questions_unstarred'}">
+				<c:if test="${not empty formattedChartAnsweringDate}">
+					<p>
+						<label class="small"><spring:message code="question.chartAnsweringDate" text="Chart Answering Date"/></label>
+						<input id="formattedChartAnsweringDate" name="formattedChartAnsweringDate" value="${formattedChartAnsweringDate}" class="sText" readonly="readonly">
+					</p>
 				</c:if>
-			</c:when>			
+				<input id="chartAnsweringDate" name="chartAnsweringDate" type="hidden"  value="${chartAnsweringDate}">
+			</c:when>
 		</c:choose>
 		<p>
 		<label class="small"><spring:message code="question.ministry" text="Ministry"/>*</label>
