@@ -527,6 +527,37 @@ public class QuestionWorkflowController  extends BaseController{
 
 
 			/**** Answering Dates ****/
+			if(group != null){
+				List<QuestionDates> answeringDates = group.getQuestionDates();
+				List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+				for(QuestionDates i : answeringDates){
+					MasterVO masterVO = new MasterVO(i.getId(),
+							FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
+					masterVOs.add(masterVO);
+				}
+				model.addAttribute("answeringDates", masterVOs);
+				if(domain.getAnsweringDate() != null){
+					model.addAttribute("answeringDate", domain.getAnsweringDate().getId());
+					model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).
+							format(domain.getAnsweringDate().getAnsweringDate()));
+					model.addAttribute("answeringDateSelected", domain.getAnsweringDate().getId());
+					if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+						model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
+								format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
+					}						
+				}
+			}			
+			
+			/**** Set Chart answering date ****/
+			if(domain.getChartAnsweringDate() != null) {
+				model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
+				model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).
+						format(domain.getChartAnsweringDate().getAnsweringDate()));
+				if(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
+							format(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment()));
+				}					
+			}
 			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
 				Date lastDateOfAnswerReceiving = null;
 				if(domain.getLastDateOfAnswerReceiving()!=null) {
@@ -554,34 +585,6 @@ public class QuestionWorkflowController  extends BaseController{
 					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.formatDateToString(lastDateOfAnswerReceiving, ApplicationConstants.SERVER_DATEFORMAT, locale));
 				}				
 			
-			} else {
-				if(group != null){
-					List<QuestionDates> answeringDates = group.getQuestionDates();
-					List<MasterVO> masterVOs = new ArrayList<MasterVO>();
-					for(QuestionDates i : answeringDates){
-						MasterVO masterVO = new MasterVO(i.getId(),
-								FormaterUtil.getDateFormatter(locale).format(i.getAnsweringDate()));
-						masterVOs.add(masterVO);
-					}
-					model.addAttribute("answeringDates", masterVOs);
-					if(domain.getAnsweringDate() != null){
-						model.addAttribute("answeringDate", domain.getAnsweringDate().getId());
-						model.addAttribute("formattedAnsweringDate",FormaterUtil.getDateFormatter(locale).
-								format(domain.getAnsweringDate().getAnsweringDate()));
-						model.addAttribute("answeringDateSelected", domain.getAnsweringDate().getId());
-						model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
-								format(domain.getAnsweringDate().getLastReceivingDateFromDepartment()));
-					}
-				}			
-				
-				/**** Set Chart answering date ****/
-				if(domain.getChartAnsweringDate() != null) {
-					model.addAttribute("chartAnsweringDate", domain.getChartAnsweringDate().getId());
-					model.addAttribute("formattedChartAnsweringDate",FormaterUtil.getDateFormatter(locale).
-							format(domain.getChartAnsweringDate().getAnsweringDate()));
-					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.getDateFormatter(locale).
-							format(domain.getChartAnsweringDate().getLastReceivingDateFromDepartment()));
-				}
 			}			
 		}	
 		/**** Submission Date and Creation date****/
