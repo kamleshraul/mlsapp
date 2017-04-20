@@ -22,6 +22,7 @@ import javax.validation.Valid;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.MasterVO;
@@ -374,7 +375,12 @@ javax.servlet.http.HttpServletRequest)
 		try{
 			/**** Ministries ****/	
 			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);
-			List<Ministry> ministries = Ministry.findAssignedMinistriesInSession(session.getStartDate(), locale);
+			List<Ministry> ministries = new ArrayList<Ministry>();
+			if(DateUtil.compareDatePartOnly(new Date(), session.getEndDate())<=0) {
+				ministries = Ministry.findAssignedMinistriesInSession(session.getStartDate(), locale);
+			} else {
+				ministries = Ministry.findAll(Ministry.class, "name", ApplicationConstants.ASC, locale);
+			}			
 			
 //			//to exclude ministries of other existing groups. 	
 //			List<Ministry> ministriesOfOtherGroupsInSameSession = new ArrayList<Ministry>();
