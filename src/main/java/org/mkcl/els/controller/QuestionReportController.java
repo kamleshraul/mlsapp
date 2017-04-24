@@ -1458,20 +1458,7 @@ public class QuestionReportController extends BaseController{
 				//as principal secretary & secretary for starred question is only one, so user is obviously first element of the list.
 				data.setUserName(users.get(0).findFirstLastName());
 
-				List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
-				int count = 0;
-
-				try {
-					for(Ministry mi: Group.findMinistriesByPriority(group)) { //group.getMinistries()) {
-						count++;
-						String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
-						MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
-						ministryVOs.add(ministryVO);	            	
-					}
-				} catch (ELSException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				List<MinistryVO> ministryVOs = Group.findMinistriesByMinisterView(group, locale.toString());
 				data.setMinistryVOs(ministryVOs);
 				SimpleDateFormat dbFormat = null;
 				CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
@@ -1957,14 +1944,7 @@ public class QuestionReportController extends BaseController{
 						//as principal secretary for starred question is only one, so user is obviously first element of the list.
 						model.addAttribute("userName", users.get(0).findFirstLastName());
 
-						List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
-						int count = 0;
-						for(Ministry mi: Group.findMinistriesByPriority(group)) { //group.getMinistries()) {
-							count++;
-							String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
-							MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
-							ministryVOs.add(ministryVO);	            	
-						}
+						List<MinistryVO> ministryVOs = Group.findMinistriesByMinisterView(group, locale.toString());
 						model.addAttribute("ministryVOs", ministryVOs);
 						
 						SimpleDateFormat dbFormat = null;
@@ -2133,19 +2113,7 @@ public class QuestionReportController extends BaseController{
 					//as principal secretary for starred question is only one, so user is obviously first element of the list.
 					data.setUserName(users.get(0).findFirstLastName());
 
-					List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
-					int count = 0;
-					try {
-						for(Ministry mi: Group.findMinistriesByPriority(group)) { //group.getMinistries()) {
-							count++;
-							String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
-							MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
-							ministryVOs.add(ministryVO);	            	
-						}
-					} catch (ELSException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					List<MinistryVO> ministryVOs = Group.findMinistriesByMinisterView(group, locale.toString());
 					data.setMinistryVOs(ministryVOs);
 					SimpleDateFormat dbFormat = null;
 					CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");

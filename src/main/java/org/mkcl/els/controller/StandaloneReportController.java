@@ -779,7 +779,7 @@ public class StandaloneReportController extends BaseController{
 	}
 	//----------------------------------------------------------------------
 	@RequestMapping(value="/viewYaadi" ,method=RequestMethod.GET)
-	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model) throws ELSException{
 		File reportFile = null; 
 
 		String strHouseType=request.getParameter("houseType");
@@ -882,20 +882,7 @@ public class StandaloneReportController extends BaseController{
 				//as principal secretary for starred question is only one, so user is obviously first element of the list.
 				data.setUserName(users.get(0).findFirstLastName());
 
-				List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
-				int count = 0;
-
-				try {
-					for(Ministry mi: Group.findMinistriesByPriority(group)) { //group.getMinistries()) {
-						count++;
-						String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
-						MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
-						ministryVOs.add(ministryVO);	            	
-					}
-				} catch (ELSException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				List<MinistryVO> ministryVOs = Group.findMinistriesByMinisterView(group, locale.toString());
 				data.setMinistryVOs(ministryVOs);
 				SimpleDateFormat dbFormat = null;
 				CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");
@@ -1286,19 +1273,7 @@ public class StandaloneReportController extends BaseController{
 					//as principal secretary for starred question is only one, so user is obviously first element of the list.
 					data.setUserName(users.get(0).findFirstLastName());
 
-					List<MinistryVO> ministryVOs = new ArrayList<MinistryVO>();
-					int count = 0;
-					try {
-						for(Ministry mi: Group.findMinistriesByPriority(group)) { //group.getMinistries()) {
-							count++;
-							String ministryNumber = FormaterUtil.formatNumberNoGrouping(count, locale.toString());
-							MinistryVO ministryVO = new MinistryVO(mi.getId(), ministryNumber, mi.getName());
-							ministryVOs.add(ministryVO);	            	
-						}
-					} catch (ELSException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					List<MinistryVO> ministryVOs = Group.findMinistriesByMinisterView(group, locale.toString());
 					data.setMinistryVOs(ministryVOs);
 					SimpleDateFormat dbFormat = null;
 					CustomParameter dbDateFormat=CustomParameter.findByName(CustomParameter.class,"ROTATION_ORDER_DATE_FORMAT", "");

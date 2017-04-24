@@ -13,7 +13,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -22,6 +24,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.MinistryVO;
 import org.mkcl.els.common.vo.QuestionDatesVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.CustomParameter;
@@ -506,6 +509,29 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 		}
 		
 		return ministries;	
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<MinistryVO> findMinistriesByMinisterView(final Group group, final String locale) throws ELSException {
+		List<MinistryVO> ministriesByMinisterView = new ArrayList<MinistryVO>();
+		Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+		queryParameters.put("locale", new String[]{locale});
+		queryParameters.put("groupId", new String[]{group.getId().toString()});
+		String sessionStartDate = FormaterUtil.formatDateToString(group.getSession().getStartDate(), ApplicationConstants.DB_DATEFORMAT);
+		queryParameters.put("sessionStartDate", new String[]{sessionStartDate});
+		List resultList = org.mkcl.els.domain.Query.findReport("LOAD_GROUP_MINISTRIES_BY_MINISTER_VIEW", queryParameters);
+		if(resultList!=null && !resultList.isEmpty()) {
+			for(Object result: resultList) {
+				Object[] r = (Object[]) result;
+				if(r!=null && r.length>0) {
+					MinistryVO ministryVO = new MinistryVO();
+					ministryVO.setNumber(r[0].toString());
+					ministryVO.setName(r[1].toString());
+					ministriesByMinisterView.add(ministryVO);
+				}
+			}
+		}
+		return ministriesByMinisterView;		
 	}
 	
 	@SuppressWarnings("unchecked")

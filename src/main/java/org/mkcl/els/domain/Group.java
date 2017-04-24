@@ -35,6 +35,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.MinistryVO;
 import org.mkcl.els.common.vo.QuestionDatesVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.repository.GroupRepository;
@@ -387,6 +388,11 @@ public class Group extends BaseDomain implements Serializable {
 	public static List<Ministry> findMinistriesByPriority(
 			final Group group) throws ELSException {
 		return Group.getRepository().findMinistriesByPriority(group);
+	}
+	
+	public static List<MinistryVO> findMinistriesByMinisterView(
+			final Group group, final String locale) throws ELSException {
+		return Group.getRepository().findMinistriesByMinisterView(group, locale);
 	}
 	
 	public static List<Ministry> findMinistriesInGroupsForSessionExcludingGivenGroup(
