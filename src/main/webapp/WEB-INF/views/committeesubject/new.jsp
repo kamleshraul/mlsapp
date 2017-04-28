@@ -24,12 +24,12 @@
 	<form:errors path="version" cssClass="validationError"/>
 	<p>
 		<label class="small"><spring:message code="committeetour.committeename" text="Committee Name" />*</label>
-		<input type="text" id="committeeDisplayName" name="committeeDisplayName" value="${committeeDisplayName}" readonly="readonly" class="sText"/>
+		<input type="text" id="committeeDisplayName" name="committeeDisplayName" value="${committeeDisplayName}" readonly="readonly" class="sText" />
 		<form:hidden path="committeeName" value="${committeName}"/>
 	</p>
 	<p> 
-		<label class="small"><spring:message code="committeesubject.name" text="Name"/>*</label>
-		<form:textarea path="name" cssClass="sTextArea"/>
+		<label class="small"><spring:message code="committeesubject" text="Name"/>*</label>
+		<form:textarea path="name" cssClass="wysiwyg"/>
 		<form:errors path="name" cssClass="validationError"/>	
 	</p>
 	
