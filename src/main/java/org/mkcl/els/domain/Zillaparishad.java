@@ -22,6 +22,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.repository.ZillaparishadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class Zillaparishad.
@@ -87,8 +88,24 @@ public class Zillaparishad extends BaseDomain implements Serializable {
 		return getZillaparishadRepository().findZillaparishadsRefByDistrictId(districtId,sortBy,sortOrder,locale);
 	}
 
+	@Transactional(readOnly = true)
+	public static List<Zillaparishad> findZillaparishadsByDistrictId(final Long districtId,
+			final String sortBy, final String sortOrder, final String locale) throws ELSException {
+		return getZillaparishadRepository().findZillaparishadsByDistrictId(districtId, sortBy,
+				sortOrder, locale);
+	}
     public static List<Zillaparishad> findByState(final Long stateId, final String locale) throws ELSException {
 		return getZillaparishadRepository().findByState(stateId,locale);
+	}
+    
+    public static List<Zillaparishad> find(final District district, 
+			final String locale) {
+		return getZillaparishadRepository().find(district, locale);
+	}
+    
+    public static List<Zillaparishad> findZillaparishadsbyDistricts(
+			final String[] districts, final String locale) {
+		return getZillaparishadRepository().findZillaparishadsbyDistricts(districts, locale);
 	}
     // ------------------------------------------Getters/Setters-----------------------------------
 
