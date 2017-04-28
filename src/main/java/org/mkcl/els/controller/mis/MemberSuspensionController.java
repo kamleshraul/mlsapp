@@ -332,8 +332,6 @@ public class MemberSuspensionController extends BaseController {
                      "Member Suspension start date can not be null");
          }else if(((String)params[1]).isEmpty()){
              errors.rejectValue("estimatedEndDateOfSuspension","NotEmpty","Member Suspension estimated end date can not be null");
-         }else if(((String)params[2]).isEmpty()){
-             errors.rejectValue("actualEndDateOfSuspension","NotEmpty","Member Suspension Actual end date can not be null");
          }else if(((String)params[3]).isEmpty()){
              errors.rejectValue("reasonOfSuspension","NotEmpty","Reason for Suspension can not be null");
          }else{
@@ -346,11 +344,14 @@ public class MemberSuspensionController extends BaseController {
  						"EndDateBeforeStartDate", 
  				"Estimated End Date Of Suspension cannot be set prior to Start date od suspension");
  			 }
+        	 if(actualEndDateOfSuspension!=null)
+        	 {
         	 if(actualEndDateOfSuspension.before(startDateOfSuspension)||actualEndDateOfSuspension.after(estimatedEndDateOfSuspension))
         	 {
         		 errors.rejectValue("actualEndDateOfSuspension",
   						"ActualDateBetweenStartANDEndDate", 
   				"Actual End date cannot be set prior to Formation date or after Estimated end date");
+        	 }
         	 }
          }
 	
@@ -394,9 +395,8 @@ public class MemberSuspensionController extends BaseController {
                      "Member Suspension start date can not be null");
          }else if(((String)params[1]).isEmpty()){
         	 result.rejectValue("estimatedEndDateOfSuspension","NotEmpty","Member Suspension estimated end date can not be null");
-         }else if(((String)params[2]).isEmpty()){
-        	 result.rejectValue("actualEndDateOfSuspension","NotEmpty","Member Suspension Actual end date can not be null");
-         }else if(((String)params[3]).isEmpty()){
+         }
+         else if(((String)params[3]).isEmpty()){
         	 result.rejectValue("reasonOfSuspension","NotEmpty","Reason for Suspension can not be null");
          }else{
         	 Date startDateOfSuspension = domain.getStartDateOfSuspension();
@@ -408,11 +408,14 @@ public class MemberSuspensionController extends BaseController {
  						"EndDateBeforeStartDate", 
  				"Estimated End Date Of Suspension cannot be set prior to Start date od suspension");
  			 }
+        	 if(actualEndDateOfSuspension!=null)
+        	 {
         	 if(actualEndDateOfSuspension.before(startDateOfSuspension)||actualEndDateOfSuspension.after(estimatedEndDateOfSuspension))
         	 {
         		 result.rejectValue("actualEndDateOfSuspension",
   						"ActualDateBetweenStartANDEndDate", 
   				"Actual End date cannot be set prior to Formation date or after Estimated end date");
+        	 }
         	 }
          }
 	}
