@@ -3206,14 +3206,14 @@ public class ReferenceController extends BaseController {
 		List<MasterVO> townVOs=new ArrayList<MasterVO>();
 		if(districts != null){
 			
-//			List<Town> towns=Town.findTownsbyDistricts(districts, locale.toString());
-//			
-//			for(Town i:towns){
-//				MasterVO masterVO=new MasterVO();
-//				masterVO.setId(i.getId());
-//				masterVO.setName(i.getName());
-//				townVOs.add(masterVO);
-//			}
+			List<Town> towns=Town.findTownsbyDistricts(districts, locale.toString());
+			
+			for(Town i:towns){
+				MasterVO masterVO=new MasterVO();
+				masterVO.setId(i.getId());
+				masterVO.setName(i.getName());
+				townVOs.add(masterVO);
+			}
 		}
 		return townVOs;
 	}
@@ -3228,14 +3228,14 @@ public class ReferenceController extends BaseController {
 		List<MasterVO> zillaparishadVOs=new ArrayList<MasterVO>();
 		if(districts != null){
 			
-//			List<Zillaparishad> zillaparishads=Zillaparishad.findZillaparishadsbyDistricts(districts, locale.toString());
-//			
-//			for(Zillaparishad i:zillaparishads){
-//				MasterVO masterVO=new MasterVO();
-//				masterVO.setId(i.getId());
-//				masterVO.setName(i.getName());
-//				zillaparishadVOs.add(masterVO);
-//			}
+			List<Zillaparishad> zillaparishads=Zillaparishad.findZillaparishadsbyDistricts(districts, locale.toString());
+			
+			for(Zillaparishad i:zillaparishads){
+				MasterVO masterVO=new MasterVO();
+				masterVO.setId(i.getId());
+				masterVO.setName(i.getName());
+				zillaparishadVOs.add(masterVO);
+			}
 		}
 		return zillaparishadVOs;
 	}
