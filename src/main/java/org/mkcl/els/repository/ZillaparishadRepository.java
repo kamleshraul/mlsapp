@@ -17,8 +17,12 @@ import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.domain.District;
+import org.mkcl.els.domain.Town;
 import org.mkcl.els.domain.Zillaparishad;
 import org.springframework.stereotype.Repository;
+
+import com.trg.search.Search;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -100,4 +104,81 @@ public class ZillaparishadRepository extends BaseRepository<Zillaparishad,Long> 
 			throw elsException;
 		}
 	}
+	
+	/**
+	 * Find Zillaparishads by district id.
+	 *
+	 * @param districtid
+	 *            the district id
+	 * @param orderBy
+	 *            the order by
+	 * @param sortOrder
+	 *            the sort order
+	 * @param locale
+	 *            the locale
+	 * @return the list
+	 * @author Rajeshs
+	 * @throws ELSException 
+	 * @since v1.0.0
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Zillaparishad> findZillaparishadsByDistrictId(final Long districtId,
+			final String orderBy, final String sortOrder, final String locale) throws ELSException {
+		String strQuery="SELECT t FROM Zillaparishad t" +
+				" WHERE t.district.id=:districtId" +
+				" AND t.locale=:locale" +
+				" ORDER BY t."+orderBy+" "+sortOrder;
+		List<Zillaparishad> zillaparishads = new ArrayList<Zillaparishad>();
+		
+		try{
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("districtId", districtId);
+			query.setParameter("locale", locale);
+			
+			List<Zillaparishad> dX = query.getResultList();
+			if(dX != null){
+				zillaparishads = dX;
+			}
+		}catch(Exception e) {	
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("DistrictRepository_List<District>_findDistrictsByStateId", "No district found.");
+			throw elsException;
+		}
+		return zillaparishads;
+	}
+	
+	public List<Zillaparishad> find(final District district, 
+			final String locale) {
+		Search search = new Search();
+		search.addFilterEqual("district", district);
+		search.addFilterEqual("locale", locale);
+		List<Zillaparishad> zillaparishads = this.search(search);
+		return zillaparishads;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Zillaparishad> findZillaparishadsbyDistricts(
+			final String[] districtsArray, final String locale) {
+		List<Zillaparishad> zillaparishads = new ArrayList<Zillaparishad>();
+		try {
+			String initialQuery = "SELECT DISTINCT(z) FROM Zillaparishad z  "
+								+ " where z.locale='"
+					+ locale + "' AND z.district IN ( ";
+			StringBuffer buffer = new StringBuffer();
+			for (String i : districtsArray) {
+				buffer.append("'" + i + "',");
+			}
+			buffer.deleteCharAt(buffer.length() - 1);
+			String query = initialQuery + buffer.toString()
+					+ ") ORDER BY z.name";
+			zillaparishads = this.em().createQuery(query).getResultList();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		}
+		return zillaparishads;
+	}
+	
 }
