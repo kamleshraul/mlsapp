@@ -44,7 +44,7 @@ public class CommitteeNameController extends GenericController<CommitteeName> {
 			final HttpServletRequest request) {
 		this.valEmptyAndNull(domain, result);
 		this.valDuration(domain, result);
-		this.valMemberCount(domain, result);
+		//this.valMemberCount(domain, result);
 		this.valInstanceCreationUniqueness(domain, result);
 		this.valRules(domain, result);
 	}
@@ -66,7 +66,7 @@ public class CommitteeNameController extends GenericController<CommitteeName> {
 			final HttpServletRequest request) {
 		this.valEmptyAndNull(domain, result);
 		this.valDuration(domain, result);
-		this.valMemberCount(domain, result);
+		//this.valMemberCount(domain, result);
 		this.valInstanceUpdationUniqueness(domain, result);
 		this.valRules(domain, result);
 		this.valVersionMismatch(domain, result);
