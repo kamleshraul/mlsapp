@@ -9,6 +9,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.repository.MemberMinisterRepository;
 import org.mkcl.els.repository.TownRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -31,6 +33,15 @@ public class Town extends BaseDomain implements Serializable {
 	@Autowired
 	private transient TownRepository repository;
 	
+	   public static TownRepository getTownRepository() {
+		   TownRepository repository = new Town().repository;
+	    	if (repository == null) {
+	    		throw new IllegalStateException(
+	                  "TownRepository has not been injected in Town Domain");
+	    	}
+	    	return repository;
+	    }
+	
 	//=============== CONSTRUCTORS =============
 	public Town() {
 		super();
@@ -49,14 +60,24 @@ public class Town extends BaseDomain implements Serializable {
 	public static Town find(final String name, 
 			final District district, 
 			final String locale) {
-		return Town.getRepository().find(name, district, locale);
+		return getTownRepository().find(name, district, locale);
 	}
 	
 	public static List<Town> find(final District district, 
 			final String locale) {
-		return Town.getRepository().find(district, locale);
+		return getTownRepository().find(district, locale);
 	}
 	
+	public static List<Town> findTownsbyDistricts(
+			final String[] districts, final String locale) {
+		return getTownRepository().findTownsbyDistricts(districts, locale);
+	}
+	
+	public static List<Town> findTownsByDistrictId(final Long districtId,
+			final String sortBy, final String sortOrder, final String locale) throws ELSException {
+		return getTownRepository().findTownsByDistrictId(districtId, sortBy,
+				sortOrder, locale);
+	}
 	//=============== INTERNAL METHODS =========
 	private static TownRepository getRepository() {
 		TownRepository repository = new Town().repository;
