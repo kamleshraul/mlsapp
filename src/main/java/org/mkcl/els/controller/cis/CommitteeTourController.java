@@ -40,6 +40,7 @@ import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.WorkflowActor;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.domain.Zillaparishad;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -74,10 +75,8 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			final CommitteeTour domain,
 			final String locale, 
 			final HttpServletRequest request) {
-		domain.setLocale(locale);
 		
-		//String strCommitteeType = request.getParameter("committeeType");
-		//CommitteeType committeeType = CommitteeType.findById(CommitteeType.class, Long.parseLong(strCommitteeType));
+		domain.setLocale(locale);
 		String strCommitteeName = request.getParameter("committeeName");
 		CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, Long.parseLong(strCommitteeName));
 		if(committeeName != null){
@@ -87,17 +86,25 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		
 		this.populateCommitteeNames(model, locale);
 		
-		List<State> states = this.populateStates(model, locale);
+		List<State> states = State.find(locale);
+		model.addAttribute("states", states);
 		
 		State state = states.get(0);
 		List<District> districts = this.populateDistricts(model, state, locale);
+		model.addAttribute("districts", districts);
 		
 		District district = districts.get(0);
-		this.populateTowns(model, district, locale);
+		List<Zillaparishad> zillaparishads =this.populateZillaparishads(model, district, locale);
+		model.addAttribute("zillaparishads", zillaparishads);
+				
+		List<Town> towns =this.populateTowns(model, district, locale);
+		model.addAttribute("towns", towns);
 		
-		this.populateItinerariesCount(model, 0);
+		model.addAttribute("tourItineraryCount", 0);
+
 		this.populateLanguages(model, locale);
-		this.populateReportersCount(model, 0);
+		model.addAttribute("committeeReporterCount", 0);
+	
 	}
 
 	@Override
@@ -238,15 +245,15 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		CommitteeTour tour = CommitteeTour.findById(CommitteeTour.class, id);
 		Committee committee = tour.getCommittee();
 		CommitteeName committeeName = committee.getCommitteeName();
-		Town town = tour.getTown();
-		District district = District.find(town, locale);
-		State state = State.find(district, locale);
+		//Town town = tour.getTown();
+		//District district = District.find(town, locale);
+		//State state = State.find(district, locale);
 		
 		model.addAttribute("id", tour.getId());
 		model.addAttribute("committeeName", committeeName.getDisplayName());
-		model.addAttribute("state", state.getName());
-		model.addAttribute("district", district.getName());
-		model.addAttribute("town", town.getName());
+		//model.addAttribute("state", state.getName());
+		//model.addAttribute("district", district.getName());
+		//model.addAttribute("town", town.getName());
 		model.addAttribute("venueName", tour.getVenueName());
 		
 		String dateFormatKey = ApplicationConstants.SERVER_DATETIMEFORMAT;
@@ -264,10 +271,12 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		model.addAttribute("toDate", toDate);
 
 		List<TourItinerary> itineraries = tour.getItineraries();
-		this.populateItineraries(model, itineraries);
+	
+		model.addAttribute("itineraries", itineraries);
 		
 		List<CommitteeReporter> reporters = tour.getReporters();
-		this.populateReporters(model, reporters);
+		model.addAttribute("reporters", reporters);
+
 
 		return "committeetour/view";
 	}
@@ -414,23 +423,34 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		Committee committee = domain.getCommittee();
 		this.populateCommitteeName(model, committee);
 		
-		Town town = domain.getTown();
-		District district = District.find(town, locale);
-		State state = State.find(district, locale);
-		this.populateState(model, state);		
-		this.populateDistrict(model, district);
+		List<Town> towns = domain.getTowns();
+		model.addAttribute("towns", towns);
+		
+		List<Zillaparishad> zillaparishads = domain.getZillaparishads();
+		model.addAttribute("zillaparishads", zillaparishads);
+		
+		List<District> districts = domain.getDistricts();		
+
+		model.addAttribute("districts", districts);		
+		State state = State.find(districts.get(0), locale);
+		model.addAttribute("state", state);		
 
 		List<TourItinerary> itineraries = domain.getItineraries();
-		this.populateItineraries(model, itineraries);
-		this.populateItinerariesCount(model, itineraries.size());
+		model.addAttribute("itineraries", itineraries);
+	
+		model.addAttribute("tourItineraryCount", itineraries.size());
 		
 		List<CommitteeReporter> reporters = domain.getReporters();
-		this.populateReporters(model, reporters);
-		this.populateReportersCount(model, reporters.size());
+		
+	
+		model.addAttribute("reporters", reporters);
+
+		model.addAttribute("committeeReporterCount", reporters.size());
 		
 		// STEP 3: Populate Status
 		Status status = this.getStatus(wfDetails);
-		this.populateStatus(model, status);
+		model.addAttribute("status", status);
+
 		
 		// STEP 4: Populate Actor
 		Boolean isHideNextActors = 
@@ -1408,37 +1428,44 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		this.populateCommitteeName(model, committee);
 		this.populateCommitteeNames(model, locale);
 		
-		Town town = domain.getTown();
+		List<Town> town = domain.getTowns();
+		List<District> district=domain.getDistricts();
+		List<Zillaparishad> zillaparishad=domain.getZillaparishads();
 		
-		District district = null;
-		if(town != null) {
-			district = District.find(town, locale);
-		}
-		else {
-			// Populate the district as chosen by the User
-			String strDistrictId = request.getParameter("district");
-			if(strDistrictId != null) {
-				Long districtId = Long.valueOf(strDistrictId);
-				district = District.findById(District.class, districtId);
-			}
-		}
+		List<State> states = State.find(locale);
+		model.addAttribute("states", states);
 		
-		State state = State.find(district, locale);
-		this.populateStates(model, locale);
-		this.populateState(model, state);		
+		
+		List<District> districts = this.populateDistricts(model, states.get(0), locale);
+		model.addAttribute("districts", district);
+		
+	
+		List<Zillaparishad> zillaparishads =this.populateZillaparishads(model, districts.get(0), locale);
+		model.addAttribute("zillaparishads", zillaparishad);
+				
+		List<Town> towns =this.populateTowns(model, districts.get(0), locale);
+		model.addAttribute("towns", town);
+		
+		
+		State state = State.find(district.get(0), locale);
+	
+		model.addAttribute("state", state);				
 		this.populateDistricts(model, state, locale);
-		this.populateDistrict(model, district);
-		this.populateTowns(model, district, locale);
+		
+
 		
 		List<TourItinerary> itineraries = domain.getItineraries();
-		this.populateItineraries(model, itineraries);
-		this.populateItinerariesCount(model, itineraries.size());
+
+		model.addAttribute("itineraries", itineraries);	
+		model.addAttribute("itinerariesCount",  itineraries.size());	
+		
 		
 		this.populateLanguages(model, locale);
 		
 		List<CommitteeReporter> reporters = domain.getReporters();
-		this.populateReporters(model, reporters);
-		this.populateReportersCount(model, reporters.size());
+		model.addAttribute("reporters", reporters);	
+		model.addAttribute("reportersCount",  reporters.size());
+
 	}
 	
 	private void populateCommitteeNames(final ModelMap model, 
@@ -1466,17 +1493,9 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		model.addAttribute("committeeName", committeeName);
 	}
 	
-	private List<State> populateStates(final ModelMap model, 
-			final String locale) {
-		List<State> states = State.find(locale);
-		model.addAttribute("states", states);
-		return states;
-	}
+
 	
-	private void populateState(final ModelMap model, 
-			final State state) {
-		model.addAttribute("state", state);		
-	}
+
 	
 	private List<District> populateDistricts(final ModelMap model, 
 			final State state, 
@@ -1487,7 +1506,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 			List<District> districts = 
 				District.findDistrictsByStateId(stateId, "name", 
 						ApplicationConstants.ASC, locale);
-			model.addAttribute("districts", districts);
+			
 			return districts;
 		} 
 		catch (ELSException e) {
@@ -1498,37 +1517,53 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		
 	}
 	
-	private void populateDistrict(final ModelMap model, 
-			final District district) {
-		model.addAttribute("district", district);		
-	}
-	
-	private void populateTowns(final ModelMap model, 
+
+	private List<Zillaparishad> populateZillaparishads(final ModelMap model, 
 			final District district, 
 			final String locale) {
-		List<Town> towns = Town.find(district, locale);
-		model.addAttribute("towns", towns);
+		Long districtId = district.getId();
+		
+		try {
+			List<Zillaparishad> zillaparishads = 
+					Zillaparishad.findZillaparishadsByDistrictId(districtId, "name", 
+						ApplicationConstants.ASC, locale);
+			
+			return zillaparishads;
+		} 
+		catch (ELSException e) {
+			e.printStackTrace();
+		}
+		
+		return new ArrayList<Zillaparishad>();
+		
 	}
 	
-	private void populateItineraries(final ModelMap model,
-			final List<TourItinerary> itineraries) {
-		model.addAttribute("itineraries", itineraries);
+
+	
+
+	
+
+	
+	private List<Town> populateTowns(final ModelMap model, 
+			final District district, 
+			final String locale) {
+		Long districtId = district.getId();
+		
+		try {
+			List<Town> towns = 
+					Town.findTownsByDistrictId(districtId, "name", 
+						ApplicationConstants.ASC, locale);
+			
+			return towns;
+		} 
+		catch (ELSException e) {
+			e.printStackTrace();
+		}
+		
+		return new ArrayList<Town>();
+		
 	}
 	
-	private void populateItinerariesCount(final ModelMap model,
-			final Integer tourItineraryCount) {
-		model.addAttribute("tourItineraryCount", tourItineraryCount);
-	}
-	
-	private void populateReporters(final ModelMap model,
-			final List<CommitteeReporter> reporters) {
-		model.addAttribute("reporters", reporters);
-	}
-	
-	private void populateReportersCount(final ModelMap model,
-			final Integer committeeReporterCount) {
-		model.addAttribute("committeeReporterCount", committeeReporterCount);
-	}
 	
 	private void populateLanguages(final ModelMap model,
 			final String locale) {
@@ -1693,7 +1728,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		}
 		
 		// 'town' SHOULD NOT BE NULL
-		if(domain.getTown() == null) {
+		if(domain.getTowns() == null) {
 			result.rejectValue("town", "NotEmpty", 
 					"Town should not be empty");
 		}
