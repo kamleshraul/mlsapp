@@ -434,7 +434,7 @@
 	
 	function memberQuestionsView(status_filter) {
 		var viewMode = "";
-		if($('#member_questions_view_status_flag').val()=='status_visible') { //in case to show statuses for lowerhouse
+		if(status_filter=='rejected' && $('#member_questions_view_status_flag').val()=='status_visible') { //in case to show statuses for lowerhouse
 			viewMode = "_with_status";
 		}
 		//$.get('/ref/status_visibility_for_member_in_session?')
