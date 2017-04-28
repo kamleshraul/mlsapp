@@ -58,12 +58,6 @@ public class Committee extends BaseDomain implements Serializable {
 	@Temporal(TemporalType.DATE)
 	private Date dissolutionDate;
 	
-	/**
-	 * The Chairman of the Committee (CommitteeMember with the 
-	 * designation of Committee Chairman) is stored as the first
-	 * entry in members list. This entry is followed by the members
-	 * in the committee with designation = Committee Member
-	 */
 	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	@JoinTable(name="committees_committee_members",
 			joinColumns={@JoinColumn(name="committee_id", 
