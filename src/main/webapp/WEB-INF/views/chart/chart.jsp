@@ -668,7 +668,7 @@
 			<b>&#9668;</b>
 	</div>
 	<div id="groupChangedDiv" style="display:none"></div>
-	<div style="position: fixed; z-index: 999; background: scroll; right: 45px; bottom: 50px;">
+	<div style="position: fixed; z-index: 999; background: scroll; right: 45px; bottom: 30px;">
 		<div style="color: #FFF; border: 1px solid black; background: #F00; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.putUpCount' text='Put Up Count'/>">${putupCount}</a></div>
 		<div style="color: #000; border: 1px solid black; background: #0F0; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.processedCount' text='Processed Count'/>">${processedCount}</a></div>
 		<div style="color: #FFF; border: 1px solid black; background: #00F; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.clubbedCount' text='Clubbed Count'/>">${clubbedCount}</a></div>
@@ -676,7 +676,17 @@
 		<div style="color: #000; border: 1px solid black; background: #rgb(175,175,175); width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.rejectCount' text='Rejected Count'/>">${rejectCount}</a></div>
 		<div style="color: #000; border: 1px solid black; background: #FF9980; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.UnstarredCount' text='Unstarred Count'/>" >${unstarredCount}</a></div>
 	</div>
-	
+	<div  style="position: fixed; z-index: 999; background: scroll; right: 25px; bottom: 70px;width: 300px;overflow: auto; height:480px;">
+		<c:forEach items="${departmentwiseCounts}" var="i">
+			<div style="color: black; border: 1px solid black; background:#80dfff; width: 200px; height: 30px; padding: 2px; font-weight: bold; vertical-align: middle; display: inline-block;font-size:14px;">
+				${i.name} 
+			</div>
+			<div style="color: black; border: 1px solid black; background:#80dfff; width: 50px; height: 30px; padding: 2px; font-weight: bold; vertical-align: middle; display: inline-block;text-align: center;font-size:14px;">
+				${i.formattedNumber}
+			</div>
+			<div style="height:1px;"></div>
+		</c:forEach>
+	</div>
 </c:if>
 <div id="detailShower" style="font-weight: bold; font-size: 12px; padding: 4px; background: #DAEDFF; display: none; z-index: 1000; border: 2px solid #004C00; position: absolute; width: 180px;">v</div>
 
