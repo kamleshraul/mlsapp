@@ -354,6 +354,21 @@ public class ChartController extends BaseController{
 						simplifiedList = new ArrayList<Object[]>();
 					}
 					model.addAttribute("report", simplifiedList);
+					
+					//Code for Displaying Departmentwise question count on chart
+					List starredChartDepartmentWiseCounts = org.mkcl.els.domain.Query.findReport("STARRED_CHART_DEPARTMENTWISE_COUNT", parametersMap);
+					List<MasterVO> departmentCountVOs = new ArrayList<MasterVO>();
+					if(starredChartDepartmentWiseCounts!=null && !starredChartDepartmentWiseCounts.isEmpty()) {
+						for(int i = 0; i < starredChartDepartmentWiseCounts.size(); i++ ){
+							Object[] obj = ((Object[])starredChartDepartmentWiseCounts.get(i));
+							MasterVO masterVO = new MasterVO();
+							
+							masterVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(Integer.parseInt(obj[0].toString()), locale.toString()));
+							masterVO.setName(obj[1].toString());
+							departmentCountVOs.add(masterVO);
+						}				
+					}
+					model.addAttribute("departmentwiseCounts", departmentCountVOs);
 				}
 			
 				

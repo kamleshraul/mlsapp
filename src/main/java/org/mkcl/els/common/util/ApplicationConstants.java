@@ -2552,6 +2552,8 @@ public class ApplicationConstants {
 	
 	public static final String QUESTION_UNSTARRED_PROCESSED_REANSWER = "question_unstarred_processed_reanswer";
 	
+	public static final Object MOTION_PROCESSED_SENDTODESKOFFICER = "motion_processed_sendToDeskOfficer";
+	
 	public static String RIS_REPORTER = "RIS_REPORTER";
 	
 	public static String CSPT_DEVICES_WITH_SUBDEPARTMENT_FILTER_IN_REFERENCING = "DEVICES_WITH_SUBDEPARTMENT_FILTER_IN_REFERENCING";
