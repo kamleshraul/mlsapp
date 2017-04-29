@@ -24,7 +24,7 @@
 	
 	<!-- Table displaying members -->
 	<c:if test="${not empty noncommiteememberinformations}">
-		<label class="small"><spring:message code="noncommitteemember.member" text="noncommitteemember"/></label>
+		
 		<table class="uiTable" border="1">
 			<tr>
 				<th><spring:message code="noncommitteemember.member" text="Member"/></th>
