@@ -2050,4 +2050,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 				return getMemberRepository().findHouseTypeByDate(this.getId(),new Date());
 	}
 	
+	public static List<Member> findMembersWithHousetype(final String houseType,
+			final String locale) {
+		List<Member> members = getMemberRepository().findMembersWithHousetype(houseType, locale);
+		
+		
+		return members;
+	}
+	
 }
