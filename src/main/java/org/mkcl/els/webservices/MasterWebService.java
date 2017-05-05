@@ -13,11 +13,16 @@ package org.mkcl.els.webservices;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
+import org.mkcl.els.domain.ApplicationLocale;
+import org.mkcl.els.domain.Citizen;
+import org.mkcl.els.domain.CitizenQuestion;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.District;
@@ -29,9 +34,12 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.State;
+import org.mkcl.els.domain.SubDepartment;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -210,4 +218,102 @@ public class MasterWebService {
         reference.setNumber(String.valueOf(house.getTotalMembers()));
         return reference;
     }
+    
+    @RequestMapping(value = "/locale")
+    public @ResponseBody
+    List<MasterVO> getLocale() throws ELSException {
+        List<ApplicationLocale> locales= ApplicationLocale.findAllLocale();
+        
+      
+        List<MasterVO> localesVOs=new ArrayList<MasterVO>();
+        for(ApplicationLocale i:locales){
+        	MasterVO masterVO=new MasterVO();
+			masterVO.setId(i.getId());
+			masterVO.setValue(i.getLocale());
+			masterVO.setName(i.getDisplayName());
+			localesVOs.add(masterVO);
+        }
+        return localesVOs;
+    }
+    
+    @RequestMapping(value = "/member/{houseType}/{locale}")
+    public @ResponseBody
+    List<MasterVO> getMembersByHouseType(@PathVariable("houseType") final String houseType, @PathVariable("locale") final String locale) throws ELSException {
+        List<Member> members= Member.findMembersWithHousetype(houseType, locale);
+        
+      
+        List<MasterVO> membersVOs=new ArrayList<MasterVO>();
+        for(Member i:members){
+        	MasterVO masterVO=new MasterVO();
+			masterVO.setId(i.getId());
+			masterVO.setValue(i.getLocale());
+			masterVO.setName(i.getFullname());
+			masterVO.setDisplayName(i.getAlias());
+			membersVOs.add(masterVO);
+        }
+        return membersVOs;
+    }
+    
+    @RequestMapping(value = "/subdepartments/{locale}")
+    public @ResponseBody
+    List<MasterVO> getSubdepartments(@PathVariable("locale") final String locale) throws ELSException {
+        List<SubDepartment> subdepartments= SubDepartment.findAll(SubDepartment.class, "name",ApplicationConstants.ASC, locale);
+        
+      
+        List<MasterVO> subdepartmentsVOs=new ArrayList<MasterVO>();
+        for(SubDepartment i:subdepartments){
+        	MasterVO masterVO=new MasterVO();
+			masterVO.setId(i.getId());
+			masterVO.setName(i.getName());
+			masterVO.setIsSelected(i.getIsExpired());
+			subdepartmentsVOs.add(masterVO);
+        }
+        return subdepartmentsVOs;
+    }
+    
+    @RequestMapping(value = "/Citizen/{mobile}/{locale}")
+    public @ResponseBody
+    List<MasterVO> findCitizensBy(@PathVariable("mobile") final String mobile,@PathVariable("locale") final String locale) throws ELSException {
+        List<Citizen> citizens= Citizen.findAllByFieldName(Citizen.class, "mobile", mobile,"mobile",ApplicationConstants.ASC, locale);
+        
+      
+        List<MasterVO> citizensVOs=new ArrayList<MasterVO>();
+        for(Citizen i:citizens){
+        	MasterVO masterVO=new MasterVO();
+			masterVO.setId(i.getId());
+			masterVO.setName(i.getName());
+			masterVO.setFormattedNumber(i.getMobile());
+			masterVO.setValue(i.getEmail());
+			citizensVOs.add(masterVO);
+        }
+        return citizensVOs;
+    }
+    
+    @RequestMapping(value = "/AddCitizen", method = RequestMethod.POST)
+    public @ResponseBody
+    boolean addCitizens(  HttpServletRequest request) throws ELSException {
+    String name = request.getParameter("name");
+    String mobile = request.getParameter("mobile");
+    String email = request.getParameter("email");
+    String locale = request.getParameter("locale");
+    
+       boolean status=Citizen.AddCitizen(name,mobile,email,locale);
+       return status;
+                  
+    }
+    
+    @RequestMapping(value = "/AddCitizenQuestion")
+    public @ResponseBody
+    boolean addCitizenQuestion(HttpServletRequest request) throws ELSException {
+    	String citizenId = request.getParameter("citizenId");
+        String questionText = request.getParameter("questionText");
+        String memberId = request.getParameter("memberId");
+        String locale = request.getParameter("locale");
+        
+    	boolean status= CitizenQuestion.AddCitizenQuestion(citizenId,questionText,memberId,locale);
+    	 return status;           
+    }
+    
+    
+
 }
