@@ -85,7 +85,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		}
 		
 		this.populateCommitteeNames(model, locale);
-		
+		System.out.println("Raj");
 		List<State> states = State.find(locale);
 		model.addAttribute("states", states);
 		
@@ -251,9 +251,10 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		
 		model.addAttribute("id", tour.getId());
 		model.addAttribute("committeeName", committeeName.getDisplayName());
-		//model.addAttribute("state", state.getName());
-		//model.addAttribute("district", district.getName());
-		//model.addAttribute("town", town.getName());
+		model.addAttribute("state", tour.getState().getName());
+		model.addAttribute("districts", tour.getDistricts());
+		model.addAttribute("towns", tour.getTowns());
+		model.addAttribute("zillaparishads", tour.getZillaparishads());
 		model.addAttribute("venueName", tour.getVenueName());
 		
 		String dateFormatKey = ApplicationConstants.SERVER_DATETIMEFORMAT;
