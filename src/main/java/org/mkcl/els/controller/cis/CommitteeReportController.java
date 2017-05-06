@@ -300,7 +300,7 @@ public class CommitteeReportController extends BaseController {
 				}
 				/**** generate report ****/
 				if(!isError) {
-					reportFile = generateReportUsingFOP(new Object[]{reportData, committeIDList}, "cis_firstMeeting_template", "WORD", "cis_firstMeeting_report", locale.toString());
+					reportFile = generateReportUsingFOP(new Object[]{reportData, committeIDList}, "cis_firstmeeting_template", "WORD", "cis_firstMeeting_report", locale.toString());
 					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
 				}			
 			}
