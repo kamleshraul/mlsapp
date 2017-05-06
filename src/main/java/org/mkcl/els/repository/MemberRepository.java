@@ -44,6 +44,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.ElectionResult;
 import org.mkcl.els.domain.FamilyMember;
 import org.mkcl.els.domain.House;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
@@ -2950,5 +2951,29 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		List result=query.getResultList();
 		
 		return result.toString();
+	}
+	
+	public List<Member> findMembersWithHousetype(final String houseType, 
+					final String locale) {
+		CustomParameter parameter =
+			CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		String currentDate = 
+			FormaterUtil.formatDateToString(new Date(), parameter.getValue());
+
+
+		String strQuery = "SELECT m from " +
+			" Member m JOIN m.houseMemberRoleAssociations mhr " +
+			" LEFT JOIN mhr.role mr " +
+			" LEFT JOIN mr.houseType ht " +
+			"LEFT JOIN mhr.constituency c"+
+			" WHERE mhr.fromDate <= '" + currentDate  + "'" +
+			" AND mhr.toDate >= '" + currentDate  + "'" +			
+			" AND ht.type = '" + houseType  + "'" +	
+			" AND mr.type = 'MEMBER'"+
+			" AND ht.locale = '" + locale + "'";
+
+		TypedQuery<Member> query = this.em().createQuery(strQuery, Member.class);
+		List<Member> members = query.getResultList();
+		return members;
 	}
 }
