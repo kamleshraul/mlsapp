@@ -372,6 +372,16 @@ public class CommitteeReportController extends BaseController {
 				}			
 			}
 			
+			if((reportData2!=null && !reportData2.isEmpty()) || (reportData3!=null && !reportData3.isEmpty()) ) {
+			
+				
+				/**** generate report ****/
+				if(!isError) {
+					reportFile = generateReportUsingFOP(new Object[]{formattedDate,DateInIndianCalendar,meetingTime,meetingLocation,reportData2,serialNo2,reportData3,serialNo3}, "cis_meetingattendance_template1", "WORD", "cis_meetingattendance_report", locale.toString());
+					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+				}			
+			}
+			
 		}catch(Exception e) {
 			e.printStackTrace();
 			isError = true;					
