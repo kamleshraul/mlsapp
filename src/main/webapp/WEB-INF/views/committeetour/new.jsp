@@ -15,35 +15,89 @@
 				for(var i = 0; i < dataLength; i++) {
 					text += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
 				}
-				$('#district').empty();
-				$('#district').html(text);
+				$('#districts').empty();
+				$('#districts').html(text);
 
 				// Trigger District change, so that towns corresponding to the district will be set
-				var districtId = data[0].id;
-				onDistrictChange(districtId);
+// 				var districtId = data[0].id;
+// 				onDistrictChange(districtId);
 			}
 			else {
-				$('#district').empty();
+				$('#districts').empty();
 			}
 		});
 	}
 
-	function onDistrictChange(districtId) {
-		var resourceURL = "ref/district/" + districtId + "/towns";
-		$.get(resourceURL, function(data){
-			var dataLength = data.length;
-			if(dataLength > 0) {
-				var text = "";
-				for(var i = 0; i < dataLength; i++) {
-					text += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+	function loadTowns() {
+		
+		var locale=$("#locale").val();		
+	
+		var districts=$("#districts").val();
+		if(districts!=''){
+			$.post('ref/towns/bydistricts',{'districts':districts},function(data){
+				$("#towns").empty();
+				var text="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+					}
+					$("#towns").html(text);
+					$("#towns").multiSelect();
+					$.unblockUI();				
+				}else{
+					$("#towns").empty();
+					$.unblockUI();				
 				}
-				$('#town').empty();
-				$('#town').html(text);
-			}
-			else {
-				$('#town').empty();
-			}
-		});
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		}else{
+			$("#town").empty();
+			
+			$.unblockUI();			
+		}
+	
+	}
+	
+function loadZillaparishads() {
+		
+		var locale=$("#locale").val();		
+		
+		var districts=$("#districts").val();
+		if(districts!=''){
+			$.post('ref/zillaparishads/bydistricts',{'districts':districts},function(data){
+				$("#zillaparishads").empty();
+				var text="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+					}
+					$("#zillaparishads").html(text);
+					$("#zillaparishads").multiSelect();
+					$.unblockUI();				
+				}else{
+					$("#zillaparishads").empty();
+					$.unblockUI();				
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		}else{
+			$("#zillaparishads").empty();
+			
+			$.unblockUI();			
+		}
+	
 	}
 
 	var tourItineraryCount = parseInt($('#tourItineraryCount').val());
@@ -75,6 +129,7 @@
 		  	"<textarea name='tourItineraryStayover" + tourItineraryCount + "' id='tourItineraryStayover" + tourItineraryCount + "' rows='2' cols='50'></textarea>" +
 		  	"</p>" +
   		  	"<input type='button' class='button' id='" + tourItineraryCount + "' value='" + $('#deleteItineraryMessage').val() + "' onclick='deleteItinerary(" + tourItineraryCount + ");'>" +
+  		  	"<input type='button' id='addItinerary' class='button' text='Add Itinerary'"+
 		  	"<input type='hidden' id='tourItineraryId" + tourItineraryCount + "' name='tourItineraryId" + tourItineraryCount +"'>" +
 		  	"<input type='hidden' id='tourItineraryLocale" + tourItineraryCount + "' name='tourItineraryLocale" + tourItineraryCount + "' value='" + $('#locale').val() +"'>" +
 		  	"<input type='hidden' id='tourItineraryVersion" + tourItineraryCount + "' name='tourItineraryVersion" + tourItineraryCount + "'>" +
@@ -208,10 +263,19 @@
 			onStateChange(stateId);
 		});
 
-		$('#district').change(function(){
-			var districtId = $('#district').val();
-			onDistrictChange(districtId);
+		$('#districts').change(function(){
+		
+// 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 	
+			$("#towns").empty();
+			loadTowns();
+// 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
+			$("#zillaparishads").empty();
+			loadZillaparishads();
 		});
+		
+	
+		
+	
 
 		$('#addItinerary').click(function(){
 			addItinerary();
@@ -257,46 +321,35 @@
 	
 	<!-- state is a simple input field and not a form input field because
 		 it is not an attribute of the CommitteeTour instance. -->
-	<p>
-	<label class="small"><spring:message code="committeetour.state" text="State" />*</label>
-	<select class="sSelect" id="state" name="state">
-		<c:forEach items="${states}" var="i">
-			<c:choose>
-				<c:when test="${state.id == i.id}">
-					<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-				</c:when>
-				<c:otherwise>
-					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-				</c:otherwise>
-			</c:choose>
-		</c:forEach>
-	</select>
+
+		<input type="hidden" id="selectedStates" value="${selectedStates}" />
+
+		<p>
+		<label class="small"><spring:message code="committeetour.state" text="State"/>*</label>
+		<form:select path="state" items="${states}" itemValue="id" itemLabel="name"  class="sSelect" id="state" name="state" />
+		<form:errors path="state" cssClass="validationError"/>
+	</p>
+
+	<input type="hidden" id="selectedDistricts" value="${selectedDistricts}" />
+
+		<p>
+		<label class="small"><spring:message code="committeetour.district" text="District"/>*</label>
+		<form:select path="districts" items="${districts}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
+		<form:errors path="districts" cssClass="validationError"/>
 	</p>
 	
-	<!-- district is a simple input field and not a form input field because
-		 it is not an attribute of the CommitteeTour instance. -->
-	<p>
-	<label class="small"><spring:message code="committeetour.district" text="District" />*</label>
-	<select class="sSelect" id="district" name="district">
-		<c:forEach items="${districts}" var="i">
-			<c:choose>
-				<c:when test="${district.id == i.id}">
-					<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-				</c:when>
-				<c:otherwise>
-					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-				</c:otherwise>
-			</c:choose>
-		</c:forEach>
-	</select>
-	</p>
-	
+	<input type="hidden" id="selectedTowns" value="${selectedTowns}" />
 	<p>
 	<label class="small"><spring:message code="committeetour.town" text="Town" />*</label>
-	<form:select path="town" items="${towns}" itemLabel="name" itemValue="id" cssClass="sSelect"></form:select>										
-	<form:errors path="town" cssClass="validationError"/>
+	<form:select path="towns" items="${towns}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>										
+	<form:errors path="towns" cssClass="validationError"/>
 	</p>
-	
+	<input type="hidden" id="selectedZillaparishads" value="${selectedZillaparishads}" />
+	<p>
+		<label class="small"><spring:message code="committeetour.zillaparishads" text="Zillaparishad"/></label>
+		<form:select path="zillaparishads" items="${zillaparishads}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
+		<form:errors path="zillaparishads" cssClass="validationError"/>
+	</p>
 	<p> 
 	<label class="small"><spring:message code="committeetour.venueName" text="Venue Name"/>*</label>
 	<form:input path="venueName" cssClass="sText"/>
