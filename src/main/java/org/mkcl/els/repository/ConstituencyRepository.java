@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -25,8 +23,6 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.HouseType;
 import org.springframework.stereotype.Repository;
-
-import com.trg.search.Search;
 
 
 /**
@@ -201,6 +197,37 @@ public class ConstituencyRepository extends BaseRepository<Constituency, Long>{
 			elsException.setParameter("ConstituencyRepository_List<Constituency>_findAllByDisplayName", "No contituency found.");
 			throw elsException;
 		}
+		return constituencies;
+	}
+	
+	public List<Constituency> findConstituenciesByDistrictId(final Long districtId,
+			final String houseType,final String sortBy, final String sortOrder, final String locale) throws ELSException {
+		String strquery = "SELECT c FROM Constituency c" +
+						" JOIN c.houseType AS ht"+
+						" JOIN c.districts AS d"+
+					" WHERE d.id=:districtId" +
+					" AND ht.type=:houseType "+
+					" AND c.locale=:locale" +
+					" ORDER BY d."+ sortBy + " " + sortOrder;
+		
+		List<Constituency> constituencies=new ArrayList<Constituency>();
+		
+		try{
+			Query query = this.em().createQuery(strquery);
+			query.setParameter("districtId", districtId);
+			query.setParameter("houseType", houseType);
+			query.setParameter("locale", locale);
+			 constituencies= query.getResultList();
+			
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("ConstituencyRepository_List<Reference>_findConstituenciesByDistrictId", "No Constituency found.");
+			throw elsException;
+		}
+		
 		return constituencies;
 	}
 
