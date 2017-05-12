@@ -218,6 +218,7 @@ public class MasterWebService {
         reference.setNumber(String.valueOf(house.getTotalMembers()));
         return reference;
     }
+    //Methods for Android App
     
     @RequestMapping(value = "/locale")
     public @ResponseBody
@@ -291,29 +292,95 @@ public class MasterWebService {
     
     @RequestMapping(value = "/AddCitizen", method = RequestMethod.POST)
     public @ResponseBody
-    boolean addCitizens(  HttpServletRequest request) throws ELSException {
+    Reference addCitizens(  HttpServletRequest request) throws ELSException {
     String name = request.getParameter("name");
     String mobile = request.getParameter("mobile");
     String email = request.getParameter("email");
     String locale = request.getParameter("locale");
     
-       boolean status=Citizen.AddCitizen(name,mobile,email,locale);
-       return status;
+    
+       Citizen c= Citizen.AddCitizen(name,mobile,email,locale);
+       String status="failed";
+       if(c!=null)
+       {
+       	status="success";
+       }
+       
+       
+       Reference reference=new Reference();
+       reference.setNumber(String.valueOf(c.getId()));
+       reference.setState(status);
+       return reference; 
                   
     }
     
     @RequestMapping(value = "/AddCitizenQuestion")
     public @ResponseBody
-    boolean addCitizenQuestion(HttpServletRequest request) throws ELSException {
-    	String citizenId = request.getParameter("citizenId");
+    Reference addCitizenQuestion(HttpServletRequest request) throws ELSException {
+    	String citizenID = request.getParameter("citizenID");
+        String memberID = request.getParameter("memberID");
+        String districtID = request.getParameter("districtID");
+        String constituencyID = request.getParameter("constituencyID");
+        String departmentID = request.getParameter("departmentID");
         String questionText = request.getParameter("questionText");
-        String memberId = request.getParameter("memberId");
         String locale = request.getParameter("locale");
         
-    	boolean status= CitizenQuestion.AddCitizenQuestion(citizenId,questionText,memberId,locale);
-    	 return status;           
+          
+        
+        CitizenQuestion c= CitizenQuestion.AddCitizenQuestion(citizenID,districtID,constituencyID,departmentID,questionText,memberID,locale);
+        String status="failed";
+        if(c!=null)
+        {
+        	status="success";
+        }
+        
+        
+        Reference reference=new Reference();
+        reference.setNumber(String.valueOf(c.getId()));
+        reference.setState(status);
+        return reference; 
+    }
+    
+    @RequestMapping(value = "/districts/{locale}")
+    public @ResponseBody
+    List<Reference> getDistricts(@PathVariable("locale") final String locale) {
+        String defaultstate=((CustomParameter)CustomParameter.findByName(CustomParameter.class, "DEFAULT_STATE", locale)).getValue();
+        State state=State.findByName(State.class,defaultstate, locale);
+        try {
+			return District.findDistrictsRefByStateId(state.getId(), "name", ApplicationConstants.ASC, locale);
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+    }
+    
+    @RequestMapping(value = "/constituenciesByDistrict/{district}/{houseType}/{locale}")
+    public @ResponseBody
+    List<MasterVO> getConstituenciesByDistrict(@PathVariable("district") final String district,@PathVariable("houseType") final String houseType,@PathVariable("locale") final String locale) {
+        
+        try {
+        	 List<Constituency> constituencies= Constituency.findConstituenciesByDistrictId(Long.parseLong(district),houseType, "name", ApplicationConstants.ASC, locale);
+			
+			 
+	        List<MasterVO> constituenciesVOs=new ArrayList<MasterVO>();
+	        for(Constituency i:constituencies){
+	        	MasterVO masterVO=new MasterVO();
+				masterVO.setId(i.getId());
+				masterVO.setName(i.getName());
+				masterVO.setValue(i.getDisplayName());
+				constituenciesVOs.add(masterVO);
+	        }
+	        return constituenciesVOs;
+	        
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
     }
     
     
+   
 
 }
