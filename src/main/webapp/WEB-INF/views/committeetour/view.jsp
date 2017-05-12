@@ -24,15 +24,7 @@
 	<label class="small"><spring:message code="committeetour.state" text="State" /></label>
 	<input type="text" id="state" name="state" value="${state}" class="sText" readonly="readonly"/>
 	</p>
-	
-	<select class="sSelect" id="committeeName" name="committeeName">
-		<c:forEach items="${districts}" var="i">
-			
-					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-				
-		</c:forEach>
-	</select>
-	
+
 	<p> 
 	<label class="small"><spring:message code="committeetour.venueName" text="Venue Name"/></label>
 	<input type="text" id="venueName" name="venueName" value="${venueName}" class="sText" readonly="readonly"/>
