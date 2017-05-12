@@ -104,6 +104,8 @@ function loadZillaparishads() {
 	var totalTourItineraryCount = 0;
 	totalTourItineraryCount = totalTourItineraryCount + tourItineraryCount;
 	function addItinerary() {
+		alert("tourItineraryCount:"+tourItineraryCount);
+		alert("totalTourItineraryCount:"+totalTourItineraryCount);
 		tourItineraryCount = tourItineraryCount + 1;
 		totalTourItineraryCount = totalTourItineraryCount + 1;
 
@@ -128,8 +130,9 @@ function loadZillaparishads() {
 		  	"<label class='small'>" + $('#tourItineraryStayoverMessage').val() + "</label>" +
 		  	"<textarea name='tourItineraryStayover" + tourItineraryCount + "' id='tourItineraryStayover" + tourItineraryCount + "' rows='2' cols='50'></textarea>" +
 		  	"</p>" +
+		  	"<input type='button' class='button' id='addItinerary' value='<spring:message code='committeetour.addItinerary' text='Add Itinerary'></spring:message>' ;>"+
   		  	"<input type='button' class='button' id='" + tourItineraryCount + "' value='" + $('#deleteItineraryMessage').val() + "' onclick='deleteItinerary(" + tourItineraryCount + ");'>" +
-  		  	"<input type='button' id='addItinerary' class='button' text='Add Itinerary'"+
+  		  	
 		  	"<input type='hidden' id='tourItineraryId" + tourItineraryCount + "' name='tourItineraryId" + tourItineraryCount +"'>" +
 		  	"<input type='hidden' id='tourItineraryLocale" + tourItineraryCount + "' name='tourItineraryLocale" + tourItineraryCount + "' value='" + $('#locale').val() +"'>" +
 		  	"<input type='hidden' id='tourItineraryVersion" + tourItineraryCount + "' name='tourItineraryVersion" + tourItineraryCount + "'>" +
@@ -142,7 +145,7 @@ function loadZillaparishads() {
 			$('#itinerary'+ prevCount).after(text);
 		}
 		$('#tourItineraryCount').val(tourItineraryCount); 
-
+alert("tourItineraryCount"+tourItineraryCount);
 		// To apply datemask to the date fields
 		$('.datemask').focus(function(){
 			if($(this).val() == ""){
@@ -208,6 +211,8 @@ function loadZillaparishads() {
 			"<label class='small'>" + $('#committeeReporterNoOfReportersMessage').val() + "*</label>" +
 			"<input name='committeeReporterNoOfReporters" + committeeReporterCount + "' id='committeeReporterNoOfReporters" + committeeReporterCount + "' class='sText Integer'>" +
 			"</p>" +
+		 	"<input type='button' id='addReporter' class='button' value='" + $('#addCommitteeReporterMessage').val() + "' >"+
+	  		
 			"<input type='button' class='button' id='" + committeeReporterCount + "' value='" + $('#deleteCommitteeReporterMessage').val() + "' onclick='deleteReporter(" + committeeReporterCount + ");'>" +
 			"<input type='hidden' id='committeeReporterId" + committeeReporterCount + "' name='committeeReporterId" + committeeReporterCount +"'>" +
 			"<input type='hidden' id='committeeReporterLocale" + committeeReporterCount + "' name='committeeReporterLocale" + committeeReporterCount + "' value='" + $('#locale').val() +"'>" +
@@ -275,11 +280,12 @@ function loadZillaparishads() {
 		
 	
 		
-	
-
-		$('#addItinerary').click(function(){
+		$('#addItinerary').one('click', function(){
+			alert("call to addIt");
 			addItinerary();
 		});
+
+
 
 		$('#addReporter').click(function(){
 			addReporter();
@@ -406,7 +412,7 @@ function loadZillaparishads() {
 					<label class="small"><spring:message code="committeetour.touritinerary.stayover" text="Stayover"/></label>
 					<textarea id="tourItineraryStayover${itineraryCount}" name="tourItineraryStayover${itineraryCount}" rows="2" cols="50">${outer.getStayOver()}</textarea>
 					</p>
-					
+				
 					<input type='button' id='${itineraryCount}' class='button' value='<spring:message code="committeetour.touritinerary.deleteItinerary" text="Delete Itinerary"></spring:message>' onclick='deleteItinerary(${itineraryCount});'/>
 					
 					<!-- Hidden variables required for each instance of TourItinerary -->
@@ -422,6 +428,7 @@ function loadZillaparishads() {
 		<input type="hidden" id="tourItineraryCount" name="tourItineraryCount" value="${tourItineraryCount}"/>
 		
 		<input type="hidden" id="deleteItineraryMessage" name="deleteItineraryMessage" value="<spring:message code='committeetour.touritinerary.deleteItinerary' text='Delete Itinerary'></spring:message>" disabled="disabled"/>
+		<input type="hidden" id="AddItineraryMessage" name="addItineraryMessage" value="<spring:message code='committeetour.addItinerary' text='Add Itinerary'></spring:message>" disabled="disabled"/>
 		
 		<input type="hidden" id="tourItineraryDateMessage" name="tourItineraryDateMessage" value="<spring:message code='committeetour.touritinerary.date' text='Date'></spring:message>" disabled="disabled"/>
 		<input type="hidden" id="tourItineraryFromTimeMessage" name="tourItineraryFromTimeMessage" value="<spring:message code='committeetour.touritinerary.fromTime' text='From time'></spring:message>" disabled="disabled"/>
@@ -482,7 +489,7 @@ function loadZillaparishads() {
 		
 		<!-- Hidden Messages to preserve the localization of the field names -->
 		<input type="hidden" id="committeeReporterCount" name="committeeReporterCount" value="${committeeReporterCount}"/>
-		
+		<input type="hidden" id="addCommitteeReporterMessage" name="addCommitteeReporterMessage" value="<spring:message code='committeetour.committeereporter.addReporter' text='Add Reporter'></spring:message>" disabled="disabled"/>
 		<input type="hidden" id="deleteCommitteeReporterMessage" name="deleteCommitteeReporterMessage" value="<spring:message code='committeetour.committeereporter.deleteReporter' text='Delete Reporter'></spring:message>" disabled="disabled"/>
 		<input type="hidden" id="committeeReporterLanguageMessage" name="committeeReporterLanguageMessage" value="<spring:message code='committeetour.committeereporter.language' text='Language'></spring:message>" disabled="disabled"/>
 		<input type="hidden" id="committeeReporterNoOfReportersMessage" name="committeeReporterNoOfReportersMessage" value="<spring:message code='committeetour.committeereporter.noOfReporters' text='No. of Reporters'></spring:message>" disabled="disabled"/>
