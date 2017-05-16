@@ -1914,24 +1914,65 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			allEligibleActors = getWorkflowActorsExcludingCurrent(
 					workflowConfig, currentWorkflowActor,
 					ApplicationConstants.DESC);
+		}else if(status.equals(ApplicationConstants.MOTION_PROCESSED_SENDTODESKOFFICER)
+			&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			workflowConfig = getLatest(motion, motion.getInternalStatus()
+					.getType(), locale.toString());
+			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
+			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 		} else {
 			workflowConfig = getLatest(motion, status, locale.toString());
 			userGroupType = userGroup.getUserGroupType();
 			currentWorkflowActor = getWorkflowActor(workflowConfig,
 					userGroupType, level);
-			allEligibleActors = getWorkflowActorsExcludingCurrent(
-					workflowConfig, currentWorkflowActor,
-					ApplicationConstants.ASC);
+//			allEligibleActors = getWorkflowActorsExcludingCurrent(
+//					workflowConfig, currentWorkflowActor,
+//					ApplicationConstants.ASC);
+			CustomParameter userGroupTypeToBeExcluded = null;
+			if(status.toUpperCase().contains("FINAL")){
+				userGroupTypeToBeExcluded = CustomParameter.
+				findByName(CustomParameter.class, ApplicationConstants.USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_POSTFINAL_STATUS, "");
+			}else{
+				userGroupTypeToBeExcluded = CustomParameter.
+				findByName(CustomParameter.class, ApplicationConstants.USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_PREFINAL_STATUS, "");
+			}
+			if(userGroupTypeToBeExcluded != null && 
+					(userGroupTypeToBeExcluded.getValue() != null  && !userGroupTypeToBeExcluded.getValue().isEmpty())){
+				String strUsergroupTypes = userGroupTypeToBeExcluded.getValue();
+				String[] arrUsergroupTypes = strUsergroupTypes.split(",");
+				List<Long> usergroupTypeIds = new ArrayList<Long>();
+				for(String s : arrUsergroupTypes){
+					UserGroupType ugt = UserGroupType.findByType(s, locale);
+					if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)){
+						if(!ugt.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+							usergroupTypeIds.add(ugt.getId());
+						}
+					}else{
+						usergroupTypeIds.add(ugt.getId());
+					}						
+				}
+				List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypeIds,level);
+				allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+			}else{
+				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			}
 		}
 		HouseType houseType = motion.getHouseType();
 		DeviceType deviceType = motion.getType();
 		Ministry ministry = motion.getMinistry();
 		SubDepartment subDepartment = motion.getSubDepartment();
+
 		for (WorkflowActor i : allEligibleActors) {
 			UserGroupType userGroupTypeTemp = i.getUserGroupType();
 			List<UserGroup> userGroups = UserGroup.findAllByFieldName(
 					UserGroup.class, "userGroupType", userGroupTypeTemp,
 					"activeFrom", ApplicationConstants.DESC, locale);
+			if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT) 
+					|| (userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
+				ministry = motion.getMinistry();
+				subDepartment = motion.getSubDepartment();
+			}
 			for (UserGroup j : userGroups) {
 				int noOfComparisons = 0;
 				int noOfSuccess = 0;
@@ -1940,10 +1981,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					HouseType bothHouse = HouseType.findByFieldName(
 							HouseType.class, "type", "bothhouse", locale);
 					if (params.get(ApplicationConstants.HOUSETYPE_KEY + "_"
-							+ locale) != null
-							&& !params.get(
-									ApplicationConstants.HOUSETYPE_KEY + "_"
-											+ locale).contains(
+							+ locale) != null && !params.get(ApplicationConstants.HOUSETYPE_KEY + "_" + locale).contains(
 									bothHouse.getName())) {
 						if (params.get(
 								ApplicationConstants.HOUSETYPE_KEY + "_"
@@ -2017,8 +2055,15 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 							+ " " + user.getMiddleName() + " "
 							+ user.getLastName());
 					reference.setName(userGroupTypeTemp.getName());
-					references.add(reference);
-					break;
+					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+						if(!reference.getId().equals(motion.getActor())){
+							references.add(reference);
+						}
+					}else{
+						references.add(reference);
+						break;
+					}
+					
 				}
 			}
 		}

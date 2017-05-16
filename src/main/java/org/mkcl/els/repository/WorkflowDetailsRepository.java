@@ -33,6 +33,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.PrintRequisition;
 import org.mkcl.els.domain.Question;
@@ -40,6 +41,7 @@ import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.Workflow;
@@ -187,6 +189,21 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 						}else{
 							workflowDetails.setText(question.getQuestionText());
 						}
+						if(question.getFactualPosition() != null && !question.getFactualPosition().isEmpty()){
+							workflowDetails.setReply(question.getFactualPosition());
+						}
+						if(question.getFactualPositionFromMember() != null && !question.getFactualPositionFromMember().isEmpty()){
+							workflowDetails.setReply(question.getFactualPositionFromMember());
+						}
+						if(question.getAnswer() != null && !question.getAnswer().isEmpty()){
+							workflowDetails.setReply(question.getAnswer());
+						}
+						if(question.getMinistry() != null){
+							workflowDetails.setMinistry(question.getMinistry().getName());
+						}
+						if(question.getSubDepartment() != null){
+							workflowDetails.setSubdepartment(question.getSubDepartment().getName());
+						}
 						
 					}
 					workflowDetails.setProcessId(task.getProcessInstanceId());
@@ -311,6 +328,21 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 							}else{
 								workflowDetails.setText(question.getQuestionText());
 							}
+							if(question.getFactualPosition() != null && !question.getFactualPosition().isEmpty()){
+								workflowDetails.setReply(question.getFactualPosition());
+							}
+							if(question.getFactualPositionFromMember() != null && !question.getFactualPositionFromMember().isEmpty()){
+								workflowDetails.setReply(question.getFactualPositionFromMember());
+							}
+							if(question.getAnswer() != null && !question.getAnswer().isEmpty()){
+								workflowDetails.setReply(question.getAnswer());
+							}
+							if(question.getMinistry() != null){
+								workflowDetails.setMinistry(question.getMinistry().getName());
+							}
+							if(question.getSubDepartment() != null){
+								workflowDetails.setSubdepartment(question.getSubDepartment().getName());
+							}
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
 						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -432,6 +464,21 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 										workflowDetails.setText(question.getRevisedQuestionText());
 									}else{
 										workflowDetails.setText(question.getQuestionText());
+									}
+									if(question.getFactualPosition() != null && !question.getFactualPosition().isEmpty()){
+										workflowDetails.setReply(question.getFactualPosition());
+									}
+									if(question.getFactualPositionFromMember() != null && !question.getFactualPositionFromMember().isEmpty()){
+										workflowDetails.setReply(question.getFactualPositionFromMember());
+									}
+									if(question.getAnswer() != null && !question.getAnswer().isEmpty()){
+										workflowDetails.setReply(question.getAnswer());
+									}
+									if(question.getMinistry() != null){
+										workflowDetails.setMinistry(question.getMinistry().getName());
+									}
+									if(question.getSubDepartment() != null){
+										workflowDetails.setSubdepartment(question.getSubDepartment().getName());
 									}
 								}
 								workflowDetails.setProcessId(i.getProcessInstanceId());
@@ -752,7 +799,17 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							workflowDetails.setText(resolution.getRevisedNoticeContent());
 						} else {
 							workflowDetails.setText(resolution.getNoticeContent());
-						}						
+						}	
+						
+						if(resolution.getFactualPosition() != null && !resolution.getFactualPosition().isEmpty()){
+							workflowDetails.setReply(resolution.getFactualPosition());
+						}
+						if(resolution.getMinistry() != null){
+							workflowDetails.setMinistry(resolution.getMinistry().getName());
+						}
+						if(resolution.getSubDepartment() != null){
+							workflowDetails.setSubdepartment(resolution.getSubDepartment().getName());
+						}
 					}
 					workflowDetails.setProcessId(task.getProcessInstanceId());
 					workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -1144,6 +1201,13 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getSession().getYear()));
 						}
 						workflowDetails.setSubject(bill.getDefaultTitle());
+						
+						if(bill.getMinistry() != null){
+							workflowDetails.setMinistry(bill.getMinistry().getName());
+						}
+						if(bill.getSubDepartment() != null){
+							workflowDetails.setSubdepartment(bill.getSubDepartment().getName());
+						}
 					}
 					workflowDetails.setProcessId(task.getProcessInstanceId());
 					workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -1260,6 +1324,12 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getSession().getYear()));
 						}
 						workflowDetails.setSubject(bill.getDefaultTitle());
+						if(bill.getMinistry() != null){
+							workflowDetails.setMinistry(bill.getMinistry().getName());
+						}
+						if(bill.getSubDepartment() != null){
+							workflowDetails.setSubdepartment(bill.getSubDepartment().getName());
+						}
 					}					
 					workflowDetails.setProcessId(task.getProcessInstanceId());
 					workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -1393,7 +1463,13 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 									}
 									workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getSession().getYear()));
 								}
-								workflowDetails.setSubject(bill.getDefaultTitle());								
+								workflowDetails.setSubject(bill.getDefaultTitle());	
+								if(bill.getMinistry() != null){
+									workflowDetails.setMinistry(bill.getMinistry().getName());
+								}
+								if(bill.getSubDepartment() != null){
+									workflowDetails.setSubdepartment(bill.getSubDepartment().getName());
+								}
 							}
 							workflowDetails.setProcessId(i.getProcessInstanceId());
 							workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -2137,6 +2213,16 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}
 							workflowDetails.setSubject(motion.getSubject());
 							workflowDetails.setText(motion.getDetails());
+							
+							if(motion.getMinistry() != null){
+								workflowDetails.setMinistry(motion.getMinistry().getName());
+							}
+							if(motion.getSubDepartment() != null){
+								workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
+							}
+							if(motion.getReply() != null && !motion.getReply().isEmpty()){
+								workflowDetails.setReply(motion.getReply());
+							}
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
 						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -2377,6 +2463,15 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						
 						if(domain.getFile()!=null){
 							workflowDetails.setFile(String.valueOf(domain.getFile()));
+						}
+						if(domain.getMinistry() != null){
+							workflowDetails.setMinistry(domain.getMinistry().getName());
+						}
+						if(domain.getSubDepartment() != null){
+							workflowDetails.setSubdepartment(domain.getSubDepartment().getName());
+						}
+						if(domain.getReply() != null && !domain.getReply().isEmpty()){
+							workflowDetails.setReply(domain.getReply());
 						}
 					}
 					workflowDetails.setProcessId(task.getProcessInstanceId());
@@ -2682,6 +2777,15 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}else{
 								workflowDetails.setText(motion.getReason());
 							}
+							if(motion.getSubDepartment() != null){
+								workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
+							}
+							if(motion.getMinistry() != null){
+								workflowDetails.setMinistry(motion.getMinistry().getName());
+							}
+							if(motion.getFactualPosition() != null && !motion.getFactualPosition().isEmpty()){
+								workflowDetails.setReply(motion.getFactualPosition());
+							}
 							
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
@@ -2817,7 +2921,15 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						}else{
 							workflowDetails.setText(motion.getReason());
 						}
-						
+						if(motion.getSubDepartment() != null){
+							workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
+						}
+						if(motion.getMinistry() != null){
+							workflowDetails.setMinistry(motion.getMinistry().getName());
+						}
+						if(motion.getFactualPosition() != null && !motion.getFactualPosition().isEmpty()){
+							workflowDetails.setReply(motion.getFactualPosition());
+						}
 					}
 					workflowDetails.setProcessId(task.getProcessInstanceId());
 					workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -2960,6 +3072,16 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 									workflowDetails.setText(motion.getRevisedReason());
 								}else{
 									workflowDetails.setText(motion.getReason());
+								}
+								
+								if(motion.getSubDepartment() != null){
+									workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
+								}
+								if(motion.getMinistry() != null){
+									workflowDetails.setMinistry(motion.getMinistry().getName());
+								}
+								if(motion.getFactualPosition() != null && !motion.getFactualPosition().isEmpty()){
+									workflowDetails.setReply(motion.getFactualPosition());
 								}
 							}
 							workflowDetails.setProcessId(i.getProcessInstanceId());
@@ -3208,7 +3330,15 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							}else{
 								workflowDetails.setText(motion.getNoticeContent());
 							}
-							
+							if(motion.getSubDepartment() != null){
+								workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
+							}
+							if(motion.getMinistry() != null){
+								workflowDetails.setMinistry(motion.getMinistry().getName());
+							}
+							if(motion.getReply() != null && !motion.getReply().isEmpty()){
+								workflowDetails.setReply(motion.getReply());
+							}
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
 						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -3322,6 +3452,15 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								workflowDetails.setText(motion.getRevisedNoticeContent());
 							}else{
 								workflowDetails.setText(motion.getNoticeContent());
+							}
+							if(motion.getSubDepartment() != null){
+								workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
+							}
+							if(motion.getMinistry() != null){
+								workflowDetails.setMinistry(motion.getMinistry().getName());
+							}
+							if(motion.getReply() != null && !motion.getReply().isEmpty()){
+								workflowDetails.setReply(motion.getReply());
 							}
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
@@ -3769,6 +3908,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								if(domain.getFile() != null){
 									workflowDetails.setFile(String.valueOf(domain.getFile()));
 								}
+								
 							}
 							workflowDetails.setProcessId(i.getProcessInstanceId());
 							workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -4112,6 +4252,26 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								if(domain.getFile()!=null){
 									workflowDetails.setFile(String.valueOf(domain.getFile()));
 								}
+								
+								if(domain.getClarification() != null && !domain.getClarification().isEmpty()){
+									workflowDetails.setReply(domain.getClarification());
+								}
+								if(domain.getMinistries() !=null && !domain.getMinistries().isEmpty()){
+									List<Ministry> ministries = new ArrayList<Ministry>();
+									String strMinistries = "";
+									for(Ministry m : ministries){
+										strMinistries = strMinistries + m.getName() + "##";
+									}
+									workflowDetails.setMinistry(strMinistries);
+								}
+								if(domain.getSubDepartments() !=null && !domain.getSubDepartments().isEmpty()){
+									List<SubDepartment> subdepartments = new ArrayList<SubDepartment>();
+									String strSubdepartments = "";
+									for(SubDepartment s : subdepartments){
+										strSubdepartments = strSubdepartments + s.getName() + "##";
+									}
+									workflowDetails.setSubdepartment(strSubdepartments);
+								}
 							}
 							workflowDetails.setProcessId(i.getProcessInstanceId());
 							workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -4234,6 +4394,25 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						}
 						if(domain.getFile()!=null){
 							workflowDetails.setFile(String.valueOf(domain.getFile()));
+						}
+						if(domain.getClarification() != null && !domain.getClarification().isEmpty()){
+							workflowDetails.setReply(domain.getClarification());
+						}
+						if(domain.getMinistries() !=null && !domain.getMinistries().isEmpty()){
+							List<Ministry> ministries = new ArrayList<Ministry>();
+							String strMinistries = "";
+							for(Ministry m : ministries){
+								strMinistries = strMinistries + m.getName() + "##";
+							}
+							workflowDetails.setMinistry(strMinistries);
+						}
+						if(domain.getSubDepartments() !=null && !domain.getSubDepartments().isEmpty()){
+							List<SubDepartment> subdepartments = new ArrayList<SubDepartment>();
+							String strSubdepartments = "";
+							for(SubDepartment s : subdepartments){
+								strSubdepartments = strSubdepartments + s.getName() + "##";
+							}
+							workflowDetails.setSubdepartment(strSubdepartments);
 						}
 					}
 					workflowDetails.setProcessId(task.getProcessInstanceId());
@@ -4511,7 +4690,15 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				}else{
 					workflowDetails.setText(adjournmentMotion.getNoticeContent());
 				}
-				
+				if(adjournmentMotion.getMinistry() != null){
+					workflowDetails.setMinistry(adjournmentMotion.getMinistry().getName());
+				}
+				if(adjournmentMotion.getSubDepartment() != null){
+					workflowDetails.setSubdepartment(adjournmentMotion.getSubDepartment().getName());
+				}
+				if(adjournmentMotion.getReply() != null && !adjournmentMotion.getReply().isEmpty()){
+					workflowDetails.setReply(adjournmentMotion.getReply());
+				}
 			}
 			workflowDetails.setProcessId(task.getProcessInstanceId());
 			workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -4630,6 +4817,15 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 					workflowDetails.setText(adjournmentMotion.getRevisedNoticeContent());
 				}else{
 					workflowDetails.setText(adjournmentMotion.getNoticeContent());
+				}
+				if(adjournmentMotion.getMinistry() != null){
+					workflowDetails.setMinistry(adjournmentMotion.getMinistry().getName());
+				}
+				if(adjournmentMotion.getSubDepartment() != null){
+					workflowDetails.setSubdepartment(adjournmentMotion.getSubDepartment().getName());
+				}
+				if(adjournmentMotion.getReply() != null && !adjournmentMotion.getReply().isEmpty()){
+					workflowDetails.setReply(adjournmentMotion.getReply());
 				}
 			}
 			workflowDetails.setProcessId(i.getProcessInstanceId());
