@@ -9216,65 +9216,65 @@ public class ReferenceController extends BaseController {
 		
 	}
 	
-	@RequestMapping(value = "/field_select_query_for_report", method = RequestMethod.GET)
-	public @ResponseBody String loadFieldsSelectQueryForReport(HttpServletRequest request,
-			HttpServletResponse response, 
-			Locale locale){
-		StringBuffer fieldsSelectQueryBuffer = new StringBuffer("");
-		
-		try {			
-			@SuppressWarnings("unchecked")
-			Map<String, String[]> requestMap = request.getParameterMap();			
-			String reportFieldsCount = request.getParameter("reportFieldsCount");
-			for(int i=1; i<=Integer.parseInt(reportFieldsCount); i++) {
-				Map<String, String[]> parameterMap = new HashMap<String, String[]>();
-				parameterMap.putAll(requestMap);
-				parameterMap.put("reportField", new String[] {request.getParameter("reportField_"+i)});
-				@SuppressWarnings("rawtypes")
-				List reportSelect = Query.findReport(request.getParameter("reportSelectQuery"), parameterMap);
-				fieldsSelectQueryBuffer.append(reportSelect.get(0).toString().replaceAll("_colon_", ":").trim());
-				fieldsSelectQueryBuffer.append(",\n");				
-				parameterMap = null;
-			}			
-		} catch(Exception e) {
-			logger.error("Exception occured in loading field_select_query_for_report");
-		}
-		if(fieldsSelectQueryBuffer.length()>0) {
-			fieldsSelectQueryBuffer.deleteCharAt(fieldsSelectQueryBuffer.length()-1);
-			fieldsSelectQueryBuffer.deleteCharAt(fieldsSelectQueryBuffer.length()-1);
-		}
-		return fieldsSelectQueryBuffer.toString();
-	}
-	
-	@RequestMapping(value = "/field_header_select_query_for_report", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
-	public @ResponseBody String loadFieldHeadersSelectQueryForReport(HttpServletRequest request,
-			HttpServletResponse response, 
-			Locale locale){
-		StringBuffer fieldHeadersSelectQueryBuffer = new StringBuffer("");
-		
-		try {			
-			@SuppressWarnings("unchecked")
-			Map<String, String[]> requestMap = request.getParameterMap();			
-			String reportFieldsCount = request.getParameter("reportFieldsCount");
-			for(int i=1; i<=Integer.parseInt(reportFieldsCount); i++) {
-				Map<String, String[]> parameterMap = new HashMap<String, String[]>();
-				parameterMap.putAll(requestMap);
-				parameterMap.put("reportField", new String[] {request.getParameter("reportField_"+i)});
-				@SuppressWarnings("rawtypes")
-				List reportHeaderSelect = Query.findReport(request.getParameter("reportHeaderSelectQuery"), parameterMap);
-				fieldHeadersSelectQueryBuffer.append(reportHeaderSelect.get(0).toString().replaceAll("_colon_", ":").trim());
-				fieldHeadersSelectQueryBuffer.append(",\n");				
-				parameterMap = null;
-			}			
-		} catch(Exception e) {
-			logger.error("Exception occured in loading field_headers_select_query_for_report");
-		}
-		if(fieldHeadersSelectQueryBuffer.length()>0) {
-			fieldHeadersSelectQueryBuffer.deleteCharAt(fieldHeadersSelectQueryBuffer.length()-1);
-			fieldHeadersSelectQueryBuffer.deleteCharAt(fieldHeadersSelectQueryBuffer.length()-1);
-		}
-		return fieldHeadersSelectQueryBuffer.toString();
-	}
+//	@RequestMapping(value = "/field_select_query_for_report", method = RequestMethod.GET)
+//	public @ResponseBody String loadFieldsSelectQueryForReport(HttpServletRequest request,
+//			HttpServletResponse response, 
+//			Locale locale){
+//		StringBuffer fieldsSelectQueryBuffer = new StringBuffer("");
+//		
+//		try {			
+//			@SuppressWarnings("unchecked")
+//			Map<String, String[]> requestMap = request.getParameterMap();			
+//			String reportFieldsCount = request.getParameter("reportFieldsCount");
+//			for(int i=1; i<=Integer.parseInt(reportFieldsCount); i++) {
+//				Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+//				parameterMap.putAll(requestMap);
+//				parameterMap.put("reportField", new String[] {request.getParameter("reportField_"+i)});
+//				@SuppressWarnings("rawtypes")
+//				List reportSelect = Query.findReport(request.getParameter("reportSelectQuery"), parameterMap);
+//				fieldsSelectQueryBuffer.append(reportSelect.get(0).toString().replaceAll("_colon_", ":").trim());
+//				fieldsSelectQueryBuffer.append(",\n");				
+//				parameterMap = null;
+//			}			
+//		} catch(Exception e) {
+//			logger.error("Exception occured in loading field_select_query_for_report");
+//		}
+//		if(fieldsSelectQueryBuffer.length()>0) {
+//			fieldsSelectQueryBuffer.deleteCharAt(fieldsSelectQueryBuffer.length()-1);
+//			fieldsSelectQueryBuffer.deleteCharAt(fieldsSelectQueryBuffer.length()-1);
+//		}
+//		return fieldsSelectQueryBuffer.toString();
+//	}
+//	
+//	@RequestMapping(value = "/field_header_select_query_for_report", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+//	public @ResponseBody String loadFieldHeadersSelectQueryForReport(HttpServletRequest request,
+//			HttpServletResponse response, 
+//			Locale locale){
+//		StringBuffer fieldHeadersSelectQueryBuffer = new StringBuffer("");
+//		
+//		try {			
+//			@SuppressWarnings("unchecked")
+//			Map<String, String[]> requestMap = request.getParameterMap();			
+//			String reportFieldsCount = request.getParameter("reportFieldsCount");
+//			for(int i=1; i<=Integer.parseInt(reportFieldsCount); i++) {
+//				Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+//				parameterMap.putAll(requestMap);
+//				parameterMap.put("reportField", new String[] {request.getParameter("reportField_"+i)});
+//				@SuppressWarnings("rawtypes")
+//				List reportHeaderSelect = Query.findReport(request.getParameter("reportHeaderSelectQuery"), parameterMap);
+//				fieldHeadersSelectQueryBuffer.append(reportHeaderSelect.get(0).toString().replaceAll("_colon_", ":").trim());
+//				fieldHeadersSelectQueryBuffer.append(",\n");				
+//				parameterMap = null;
+//			}			
+//		} catch(Exception e) {
+//			logger.error("Exception occured in loading field_headers_select_query_for_report");
+//		}
+//		if(fieldHeadersSelectQueryBuffer.length()>0) {
+//			fieldHeadersSelectQueryBuffer.deleteCharAt(fieldHeadersSelectQueryBuffer.length()-1);
+//			fieldHeadersSelectQueryBuffer.deleteCharAt(fieldHeadersSelectQueryBuffer.length()-1);
+//		}
+//		return fieldHeadersSelectQueryBuffer.toString();
+//	}
 	
 	
 	
