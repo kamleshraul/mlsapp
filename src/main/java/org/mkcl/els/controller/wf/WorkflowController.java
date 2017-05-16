@@ -24,22 +24,27 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.activiti.engine.impl.cmd.FindActiveActivityIdsCmd;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Grid;
+import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.MemberDepartment;
 import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.UserGroup;
 import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
@@ -256,8 +261,23 @@ public class WorkflowController extends BaseController {
 				List<MasterVO> groupNumberVOs=new ArrayList<MasterVO>();
 				for(int i=0;i<groups.length;i++){
 					MasterVO groupNumber=new MasterVO();
-					groupNumber.setName(FormaterUtil.formatNumbersInGivenText(groups[i], locale));
-					groupNumberVOs.add(groupNumber);
+					try {
+						Group group = Group.findByNumberHouseTypeSessionTypeYear(Integer.parseInt(groups[i]), lastSessionCreated.getHouse().getType(), lastSessionCreated.getType(), year);
+						groupNumber.setName(FormaterUtil.formatNumbersInGivenText(groups[i], locale));
+						groupNumber.setId(group.getId());
+						groupNumberVOs.add(groupNumber);
+					} catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						model.addAttribute("errorcode","nogroupentriesfound");
+						return errorpage;
+					} catch (ELSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						model.addAttribute("errorcode","nogroupentriesfound");
+						return errorpage;
+					}
+					
 				}
 				model.addAttribute("groups", groupNumberVOs);
 			}
@@ -304,21 +324,23 @@ public class WorkflowController extends BaseController {
 		DeviceType selectedDeviceType=deviceTypes.get(0);
 		model.addAttribute("selectedDeviceType", selectedDeviceType.getType());		
 		
+
+		
 		/**** Types of Workflows ****/
 		/**** added by sandeep singh(jan 29 2013) ****/
 		/**** Custom Parameter To Determine The Usergroup and usergrouptype of qis users ****/
 		String strUserGroup = request.getParameter("usergroup");
 		List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
 		List<Status> workflowTypes=new ArrayList<Status>();
-		/**** Workflows for a particular device type will be visible 
+		List<SubDepartment> subdepartments = new ArrayList<SubDepartment>();
+ 		/**** Workflows for a particular device type will be visible 
 		 * only if the user has been assigned that device type while
 		 * creating user group for a particular user.****/
 		String url = request.getRequestURL().toString();
-		
 		if(userGroups!=null){
 			if(!userGroups.isEmpty()){				
 				for(UserGroup i:userGroups){
-					UserGroup userGroup=UserGroup.findById(UserGroup.class,i.getId());					
+					UserGroup userGroup=UserGroup.findById(UserGroup.class,i.getId());	
 					String userGroupDeviceType=userGroup.getParameterValue(ApplicationConstants.DEVICETYPE_KEY+"_"+locale);
 					//userGroupDeviceType.contains(selectedDeviceType.getName())
 					//changed for the purpose in case when there is only one device is allocated
@@ -330,6 +352,16 @@ public class WorkflowController extends BaseController {
 					if(!strMenus.contains(url.substring(url.indexOf("els/")+"els/".length()))){
 						model.addAttribute("errorcode","user_not_allowed");
 						return errorpage;
+					}
+					
+					String userGroupSubdepartments = userGroup.getParameterValue(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale);
+					
+					String[] strSubdepartments = userGroupSubdepartments.split("##");
+					for(String s : strSubdepartments){
+						SubDepartment subdepartment = SubDepartment.findByName(SubDepartment.class, s, locale);
+						if( subdepartment != null && !subdepartments.contains(subdepartment)){
+							subdepartments.add(subdepartment);
+						}
 					}
 					
 					DeviceType newSelectedDeviceType = isAllowedDevice(deviceTypes, userGroupDeviceType); 
@@ -376,7 +408,8 @@ public class WorkflowController extends BaseController {
 							}
 						}
 					}
-				}					
+				}		
+				model.addAttribute("subdepartments", subdepartments);
 			}else{
 				model.addAttribute("errorcode","current_user_has_no_usergroups");
 				return errorpage;

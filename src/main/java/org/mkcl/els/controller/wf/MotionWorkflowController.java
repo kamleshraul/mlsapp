@@ -289,7 +289,15 @@ public class MotionWorkflowController extends BaseController{
 		model.addAttribute("workflowstatus",workflowDetails.getStatus());
 		Motion domain=Motion.findById(Motion.class,Long.parseLong(workflowDetails.getDeviceId()));
 		/**** Populate Model ****/		
-		populateModel(domain,model,request,workflowDetails);		
+		populateModel(domain,model,request,workflowDetails);	
+		/**** Find Latest Remarks ****/
+		try {
+			findLatestRemarksByUserGroup(domain,model,request,workflowDetails);
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return workflowDetails.getForm();
 	}
 
@@ -698,22 +706,59 @@ public class MotionWorkflowController extends BaseController{
 			
 			
 			Motion motion = Motion.findById(Motion.class, domain.getId());
-		
+			boolean isMinistryChanged = false;
+			boolean isSubDepartmentChanged = false;
+			if(!domain.getMinistry().equals(motion.getMinistry())){
+				isMinistryChanged = true;
+			}else if(!domain.getSubDepartment().equals(motion.getSubDepartment())){
+				isSubDepartmentChanged = true;
+			}
+			
+			
+			if(isMinistryChanged || isSubDepartmentChanged){
+				domain.setRecommendationStatus(motion.getInternalStatus());
+				domain.merge();
+				WorkflowDetails wfDetails = 
+						WorkflowDetails.findCurrentWorkflowDetail(motion);
+				motion.removeExistingWorkflowAttributes();
+				motion.setRecommendationStatus(motion.getInternalStatus());
+				
+				if(wfDetails != null){
+					// Before ending wfDetails process collect information
+					// which will be useful for creating a new process later.
+					int assigneeLevel = 
+						Integer.parseInt(wfDetails.getAssigneeLevel());
+					UserGroupType ugt = UserGroupType.findByType(userGroupType, locale.toString());				
+					WorkflowDetails.endProcess(wfDetails);
+					if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+						ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale.toString());	
+						assigneeLevel = assigneeLevel - 1;
+					}
+					Workflow workflow = Workflow.findByStatus(motion.getInternalStatus(), locale.toString());
+					//Motion in Post final status and pre ballot state can be group changed by Department 
+					//as well as assistant of Secretariat
+					WorkflowDetails.startProcessAtGivenLevel(motion, ApplicationConstants.APPROVAL_WORKFLOW, workflow, ugt, assigneeLevel, locale.toString());
+					
+					/**** display message ****/
+					
+					model.addAttribute("type","taskcompleted");
+					return "workflow/info";
+				}
+			}
+			
 			String bulkEdit=request.getParameter("bulkedit");
 			if(bulkEdit==null||!bulkEdit.equals("yes")){
 				/**** Complete Task ****/		
-				String nextuser=domain.getActor();
-				String level=domain.getLevel();
+				String nextuser = domain.getActor();
+				String level = domain.getLevel();
 				Map<String,String> properties=new HashMap<String, String>();
 				properties.put("pv_deviceId",String.valueOf(domain.getId()));
 				properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
 				UserGroupType usergroupType = null; 
-				if(nextuser!=null){
-					if(!nextuser.isEmpty()){
-						String[] temp=nextuser.split("#");
-						properties.put("pv_user",temp[0]);
-						usergroupType = UserGroupType.findByType(temp[1], locale.toString());
-					}
+				if(nextuser!=null && !nextuser.isEmpty()){
+					String[] temp=nextuser.split("#");
+					properties.put("pv_user",temp[0]);
+					usergroupType = UserGroupType.findByType(temp[1], locale.toString());
 				}	
 				String endflag=domain.getEndFlag();
 				properties.put("pv_endflag",request.getParameter("endflag"));
@@ -721,37 +766,35 @@ public class MotionWorkflowController extends BaseController{
 				Task task=processService.findTaskById(strTaskId);
 				processService.completeTask(task,properties);		
 				
-				if(endflag!=null){
-					if(!endflag.isEmpty()){
-						if(endflag.equals("continue")){
-							ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-							Task newtask = processService.getCurrentTask(processInstance);
-							/**** Workflow Detail entry made only if its not the end of workflow ****/
-							WorkflowDetails workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
-							
-							/**** FOr CLarificationFromMember and Department ****/
-							if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
-									&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT)){
-									
-								Map<String, String> parameters = new HashMap<String, String>();
-								User user = User.find(domain.getPrimaryMember());
-								Credential credential = user.getCredential();
-								parameters.put("pv_endflag", endflag);	
-								parameters.put("pv_user",credential.getUsername());
-								parameters.put("pv_deviceId", String.valueOf(motion.getId()));
-								parameters.put("pv_deviceTypeId", String.valueOf(motion.getType().getId()));
-	
-								ProcessDefinition processDefinition1 =processService.
-										findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
-								ProcessInstance processInstance1 = processService.
-										createProcessInstance(processDefinition1, parameters);
-								Task newMembertask = processService.getCurrentTask(processInstance1);
-								WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);
-												
-							}
-							domain.setWorkflowDetailsId(workflowDetails2.getId());
-							domain.setTaskReceivedOn(new Date());
+				if(endflag!=null && !endflag.isEmpty()){
+					if(endflag.equals("continue")){
+						ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+						Task newtask = processService.getCurrentTask(processInstance);
+						/**** Workflow Detail entry made only if its not the end of workflow ****/
+						WorkflowDetails workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
+						
+						/**** FOr CLarificationFromMember and Department ****/
+						if(domain.getInternalStatus().getType().equals(ApplicationConstants.MOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+								&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.MOTION_PROCESSED_SEND_TO_DEPARTMENT)){
+								
+							Map<String, String> parameters = new HashMap<String, String>();
+							User user = User.find(domain.getPrimaryMember());
+							Credential credential = user.getCredential();
+							parameters.put("pv_endflag", endflag);	
+							parameters.put("pv_user",credential.getUsername());
+							parameters.put("pv_deviceId", String.valueOf(motion.getId()));
+							parameters.put("pv_deviceTypeId", String.valueOf(motion.getType().getId()));
+
+							ProcessDefinition processDefinition1 =processService.
+									findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+							ProcessInstance processInstance1 = processService.
+									createProcessInstance(processDefinition1, parameters);
+							Task newMembertask = processService.getCurrentTask(processInstance1);
+							WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);
+											
 						}
+						domain.setWorkflowDetailsId(workflowDetails2.getId());
+						domain.setTaskReceivedOn(new Date());
 					}
 				}
 				workflowDetails.setStatus("COMPLETED");
@@ -2140,6 +2183,40 @@ public class MotionWorkflowController extends BaseController{
         String returnUrl = "redirect:/workflow/motion/advancedbulkapproval";
         return returnUrl;
 //		getAdvancedBulkApproval(request, locale, model);
+	}
+	
+	
+	
+	@SuppressWarnings("rawtypes")
+	private void findLatestRemarksByUserGroup(final Motion domain, final ModelMap model,
+			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {
+		UserGroupType userGroupType = null;
+		String username = this.getCurrentUser().getUsername();
+		Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
+		List<UserGroup> ugroups = this.getCurrentUser().getUserGroups();
+		for(UserGroup ug : ugroups){
+			UserGroup usergroup = UserGroup.findActive(credential, ug.getUserGroupType(), domain.getSubmissionDate(), domain.getLocale());
+			if(usergroup != null){
+				userGroupType = usergroup.getUserGroupType();
+				break;
+			}
+		}
+		if(userGroupType == null 
+				|| (!userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+				&& !userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
+			userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.ASSISTANT, domain.getLocale());
+		}else{
+			userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.DEPARTMENT, domain.getLocale());
+		}
+		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+		requestMap.put("motionId",new String[]{String.valueOf(domain.getId())});
+		requestMap.put("locale",new String[]{domain.getLocale()});
+		if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+				|| userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			List result=Query.findReport("MOIS_LATEST_REVISION_FOR_DESKOFFICER", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}
+		model.addAttribute("startingActor", userGroupType.getName());
 	}
 
 }
