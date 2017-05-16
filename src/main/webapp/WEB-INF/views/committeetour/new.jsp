@@ -104,8 +104,7 @@ function loadZillaparishads() {
 	var totalTourItineraryCount = 0;
 	totalTourItineraryCount = totalTourItineraryCount + tourItineraryCount;
 	function addItinerary() {
-		alert("tourItineraryCount:"+tourItineraryCount);
-		alert("totalTourItineraryCount:"+totalTourItineraryCount);
+		
 		tourItineraryCount = tourItineraryCount + 1;
 		totalTourItineraryCount = totalTourItineraryCount + 1;
 
@@ -145,7 +144,7 @@ function loadZillaparishads() {
 			$('#itinerary'+ prevCount).after(text);
 		}
 		$('#tourItineraryCount').val(tourItineraryCount); 
-alert("tourItineraryCount"+tourItineraryCount);
+
 		// To apply datemask to the date fields
 		$('.datemask').focus(function(){
 			if($(this).val() == ""){
@@ -280,8 +279,8 @@ alert("tourItineraryCount"+tourItineraryCount);
 		
 	
 		
-		$('#addItinerary').one('click', function(){
-			alert("call to addIt");
+		$('#addItinerary').live('click', function(){
+			
 			addItinerary();
 		});
 
@@ -321,7 +320,7 @@ alert("tourItineraryCount"+tourItineraryCount);
 		</c:forEach>
 	</select> --%>
 	<input type="text" id="committeeDisplayName" name="committeeDisplayName" value="${committeeDisplayName}" readonly="readonly" class="sText"/>
-	<input type="hidden" id="committeeName" name="committeeName" value="${committeName}"/>
+	<input type="hidden" id="committeeName" name="committeeName" value="${committeeName}"/>
 	<form:errors path="committee" cssClass="validationError"/>
 	</p>
 	
