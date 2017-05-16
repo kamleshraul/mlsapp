@@ -33,18 +33,102 @@
 				for(var i = 0; i < dataLength; i++) {
 					text += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
 				}
-				$('#district').empty();
-				$('#district').html(text);
+				$('#districts').empty();
+				$("#towns").empty();
+				$("#zillaparishads").empty();
+				$('#districts').html(text);
 
 				// Trigger District change, so that towns corresponding to the district will be set
-				var districtId = data[0].id;
-				onDistrictChange(districtId);
+// 				var districtId = data[0].id;
+// 				onDistrictChange(districtId);
 			}
 			else {
-				$('#district').empty();
+				$('#districts').empty();
 			}
 		});
 	}
+
+	function loadTowns() {
+		
+		var locale=$("#locale").val();		
+	
+		var districts=$("#districts").val();
+		if(districts!=''){
+			$.post('ref/towns/bydistricts',{'districts':districts},function(data){
+				$("#towns").empty();
+				var text="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+					}
+					$("#towns").html(text);
+					$("#towns").multiSelect();
+					$.unblockUI();				
+				}else{
+					$("#towns").empty();
+					$.unblockUI();				
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		}else{
+			$("#towns").empty();
+			
+			$.unblockUI();			
+		}
+	
+	}
+	
+function loadZillaparishads() {
+		
+		var locale=$("#locale").val();		
+		
+		var districts=$("#districts").val();
+		if(districts!=''){
+			$.post('ref/zillaparishads/bydistricts',{'districts':districts},function(data){
+				$("#zillaparishads").empty();
+				var text="";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+					}
+					$("#zillaparishads").html(text);
+					$("#zillaparishads").multiSelect();
+					$.unblockUI();				
+				}else{
+					$("#zillaparishads").empty();
+					$.unblockUI();				
+				}
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});	
+		}else{
+			$("#zillaparishads").empty();
+			
+			$.unblockUI();			
+		}
+	
+	}
+	
+$('#districts').change(function(){
+	
+//		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 	
+	$("#towns").empty();
+	loadTowns();
+//		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
+	$("#zillaparishads").empty();
+	loadZillaparishads();
+});
 
 	function onDistrictChange(districtId) {
 		var resourceURL = "ref/district/" + districtId + "/towns";
@@ -55,11 +139,11 @@
 				for(var i = 0; i < dataLength; i++) {
 					text += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
 				}
-				$('#town').empty();
-				$('#town').html(text);
+				$('#towns').empty();
+				$('#towns').html(text);
 			}
 			else {
-				$('#town').empty();
+				$('#towns').empty();
 			}
 		});
 	}
@@ -310,11 +394,13 @@
 	<!-- committeename is a simple input field and not a form input field because
 		 it is not an attribute of the CommitteeTour instance. -->
 	<p>
+	${committeeName.id}
 	<label class="small"><spring:message code="committeetour.committeename" text="Committee Name" />*</label>
 	<select id="committeeName" name="committeeName" class="sSelect">
 		<c:forEach items="${committeeNames}" var="i">
 			<c:choose>
 				<c:when test="${committeeName.id == i.id}">
+				${i.id} 
 					<option value="${i.id}" selected="selected"><c:out value="${i.displayName}"></c:out></option>
 				</c:when>
 				<c:otherwise>
@@ -325,47 +411,33 @@
 	</select>
 	<form:errors path="committee" cssClass="validationError"/>
 	</p>
-	
-	<!-- state is a simple input field and not a form input field because
-		 it is not an attribute of the CommitteeTour instance. -->
-	<p>
-	<label class="small"><spring:message code="committeetour.state" text="State" />*</label>
-	<select class="sSelect" id="state" name="state">
-		<c:forEach items="${states}" var="i">
-			<c:choose>
-				<c:when test="${state.id == i.id}">
-					<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-				</c:when>
-				<c:otherwise>
-					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-				</c:otherwise>
-			</c:choose>
-		</c:forEach>
-	</select>
+
+<input type="hidden" id="selectedStates" value="${selectedStates}" />
+
+		<p>
+		<label class="small"><spring:message code="committeetour.state" text="State"/>*</label>
+		<form:select path="state" items="${states}" itemValue="id" itemLabel="name"  class="sSelect" id="state" name="state" />
+		<form:errors path="state" cssClass="validationError"/>
 	</p>
+
 	
 	<!-- district is a simple input field and not a form input field because
 		 it is not an attribute of the CommitteeTour instance. -->
-	<p>
-	<label class="small"><spring:message code="committeetour.district" text="District" />*</label>
-	<select class="sSelect" id="district" name="district">
-		<c:forEach items="${districts}" var="i">
-			<c:choose>
-				<c:when test="${district.id == i.id}">
-					<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-				</c:when>
-				<c:otherwise>
-					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-				</c:otherwise>
-			</c:choose>
-		</c:forEach>
-	</select>
+<input type="hidden" id="selectedDistricts" value="${selectedDistricts}" />
+
+		<p>
+		<label class="small"><spring:message code="committeetour.district" text="District"/>*</label>
+		<form:select path="districts" items="${districts}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
+		<form:errors path="districts" cssClass="validationError"/>
 	</p>
+
+	<input type="hidden" id="selectedTowns" value="${selectedTowns}" />
 	
+	<input type="hidden" id="selectedZillaparishads" value="${selectedZillaparishads}" />
 	<p>
-	<label class="small"><spring:message code="committeetour.town" text="Town" />*</label>
-	<form:select path="town" items="${towns}" itemLabel="name" itemValue="id" cssClass="sSelect"></form:select>										
-	<form:errors path="town" cssClass="validationError"/>
+		<label class="small"><spring:message code="committeetour.zillaparishads" text="Zillaparishad"/></label>
+		<form:select path="zillaparishads" items="${zillaparishads}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
+		<form:errors path="zillaparishads" cssClass="validationError"/>
 	</p>
 	
 	<p> 
@@ -497,7 +569,7 @@
 			</c:forEach>
 		</select>
 		</p>
-		
+		<input type="text" id="committeeReporterCount" name="committeeReporterCount" value="${committeeReporterCount}"/>
 		<!-- Hidden Messages to preserve the localization of the field names -->
 		<input type="hidden" id="committeeReporterCount" name="committeeReporterCount" value="${committeeReporterCount}"/>
 		
@@ -572,7 +644,7 @@
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
-	
+	<input type="hidden" id="committeeName" name="committeeName" value="${committeeName}"/>
 	<input type="hidden" id="workflowInit" name="workflowInit" value="${workflowInit}"/>
 	<input type="hidden" id="workflowName" name="workflowName" value="${workflowName}"/>
 	<input type="hidden" id="assigneeLevel" name="assigneeLevel" value="${assigneeLevel}"/>
