@@ -594,6 +594,11 @@
 		<pattern>/proceedingautofill/*/delete</pattern>
 		<pattern>/proceedingautofill</pattern>
 		
+		<pattern>/documentlink/new</pattern>
+		<pattern>/documentlink/*/edit</pattern>
+		<pattern>/documentlink/*/delete</pattern>
+		<pattern>/documentlink</pattern>
+		
 		<pattern>/discussionmotion/new</pattern>
 		<pattern>/discussionmotion/*/edit</pattern>
 		<pattern>/discussionmotion/*/delete</pattern>
