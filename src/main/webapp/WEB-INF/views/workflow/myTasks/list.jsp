@@ -17,6 +17,7 @@
 						+"&assignee="+$("#assignee").val()
 						+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
 						+"&answeringDate="+$("#selectedAnsweringDate").val()
+						+"&subdepartment="+$("#selectedDepartment").val()
 						);
 			$('#process_record').click(function(){
 				process($('#key').val());

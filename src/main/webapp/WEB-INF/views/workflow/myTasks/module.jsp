@@ -172,6 +172,7 @@
 				var value=$(this).val();
 				if(value!=""){
 					loadChartAnsweringDateByGroup(value);
+					loadDepartmentByGroup(value);
 					$('#answeringDateDiv').css('display','inline-block');
 					
 				}
@@ -182,6 +183,11 @@
 				reloadMyTaskGrid();
 				
 			});
+			
+			$("#selectedDepartment").change(function(){
+				reloadMyTaskGrid()
+			});
+			
 			/**** Keyboard Events ****/	
 			$(document).keydown(function (e){
 				if(e.which==83 && e.ctrlKey){
@@ -379,6 +385,7 @@
 						+"&assignee="+$("#assignee").val()
 						+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
 						+"&answeringDate="+$("#selectedAnsweringDate").val()
+						+"&subdepartment="+$("#selectedDepartment").val()
 						);
 				var oldURL=$("#grid").getGridParam("url");
 				var baseURL=oldURL.split("?")[0];
@@ -633,10 +640,13 @@
 				$('#selectedGroup').empty();
 				if(data.length>0){
 					var text= "<option value=''>"+$('#pleaseSelectOption').val()+"</option>";
+					var text2 = "<option value=''>"+$('#pleaseSelectOption').val()+"</option>";
 					for(var i = 0;i <data.length; i++){
 						text = text + "<option value='"+ data[i].name +"'>"+data[i].name+"</option>";
+						text2 = text2 + "<option value='"+ data[i].name +"'>"+data[i].id+"</option>";
 					}
 					$('#selectedGroup').html(text);
+					$("#groupMaster").html(text2);
 				}	
 			});
 		}
@@ -821,6 +831,24 @@
 				}
 			});
 			
+		}
+		
+		function loadDepartmentByGroup(value){
+			$.get("ref/getDepartment?group="+$("#groupMaster option[value='" + $("#selectedGroup").val() + "']").text()
+					+ "&houseType=" + $("#houseTypeMaster option[value='" + $("#selectedHouseType").val() + "']").text()
+					+ "&deviceType=" + $("#deviceTypeMaster option[value='" + $("#selectedDeviceType").val() + "']").text()
+					+ "&sessionType="+$("#selectedSessionType").val()
+					+ "&sessionYear="+$("#selectedSessionYear").val()
+					+ "&usergroupType="+ $("#currentusergroupType").val(),function(data){
+				$('#selectedDepartment').empty();
+				var text="<option value=''>"+$('#pleaseSelectOption').val()+"</option>";
+				if(data.length>0){
+					for(var i=0;i<data.length;i++){
+						text=text+"<option value='"+data[i].name+"'>"+data[i].name+"</option>";	
+					}
+				}
+				$('#selectedDepartment').html(text);
+			});
 		}
 		
 		
@@ -1021,16 +1049,28 @@
 					<c:forEach items="${groups}" var="i">
 						<option value="${i.name}">${i.name}</option>
 					</c:forEach>			
-			</select>|
+				</select>|
 			</div>
 			<div id='answeringDateDiv' style='display: none;' >
-			<a href="#" id="workflowLabel" class="butSim" >
-				<spring:message code="mytask.chartAnsweringDate" text="Answering Date"/>
-			</a>
-			<select id="selectedAnsweringDate" name="selectedAnsweringDate" class="sSelect">
-				<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>
-			</select>|
-			</div>										
+				<a href="#" id="workflowLabel" class="butSim" >
+					<spring:message code="mytask.chartAnsweringDate" text="Answering Date"/>
+				</a>
+				<select id="selectedAnsweringDate" name="selectedAnsweringDate" class="sSelect">
+					<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>
+				</select>|
+			</div>	
+			<div id='departmentDiv' style='display: inline;'>
+				<a href="#" id="workflowLabel" class="butSim" >
+					<spring:message code="mytask.department" text="Department"/>
+				</a>
+				<select id="selectedDepartment" name="selectedDepartment" class="sSelect">
+					<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>
+					<c:forEach items="${subdepartments}" var="i">
+						<option value="${i.name}">${i.name}</option>
+					</c:forEach>
+				</select>|
+			</div>	
+			<hr>									
 			<a href="#" id="workflowLabel" class="butSim">
 				<spring:message code="mytask.workflow" text="Workflow"/>
 			</a>
@@ -1047,7 +1087,7 @@
 					</c:forEach>
 				</select>
 			</div> 
-			<hr>
+			
 			<c:if test="${usergroupType!='department' || usergroupType!='department_deskofficer'}">
 				<a href="#" id="select_itemcount" class="butSim">
 					<spring:message code="device.itemcount" text="No. of Devices(Bulk Putup)"/>
@@ -1126,6 +1166,15 @@
 				<c:forEach items="${houseTypes}" var="i">
 					<option value="${i.name}"><c:out value="${i.type}"></c:out></option>			
 				</c:forEach>
+			</select>
+		</div>
+		
+		<div style="display: none;">
+			<select id="groupMaster">
+				<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>			
+				<c:forEach items="${groups}" var="i">
+					<option value="${i.name}">${i.id}</option>
+				</c:forEach>			
 			</select>
 		</div>
 		
