@@ -12,6 +12,7 @@ package org.mkcl.els.common.vo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -44,6 +45,8 @@ public class MasterVO {
     private String formattedOrder;
     
     private Boolean isSelected;
+    
+    private Date sessionDate;
     
     
     //=============== CONSTRUCTORS ==================
@@ -171,6 +174,15 @@ public class MasterVO {
 
 	public void setIsSelected(final Boolean isSelected) {
 		this.isSelected = isSelected;
+	}
+
+	
+	public Date getSessionDate() {
+		return sessionDate;
+	}
+
+	public void setSessionDate(Date sessionDate) {
+		this.sessionDate = sessionDate;
 	}
 
 	@Override
