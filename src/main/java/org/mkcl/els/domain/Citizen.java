@@ -24,8 +24,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 @JsonIgnoreProperties()
 public class Citizen extends BaseDomain implements Serializable {
 
-
-
 	// ---------------------------------Attributes------------------------------------------
 	/** The Constant serialVersionUID. */
 	private transient static final long serialVersionUID = 1L;
@@ -40,8 +38,7 @@ public class Citizen extends BaseDomain implements Serializable {
 
     /** The email. */
     @Column(length = 1000)
-    private String email;
-    
+    private String email;    
 
 	/** The Citizen repository. */
 	@Autowired
@@ -49,6 +46,16 @@ public class Citizen extends BaseDomain implements Serializable {
 	
 
 	// ---------------------------------Constructors----------------------------------------------
+	/**
+	 * Instantiates a new user.
+	 */
+	public Citizen() {
+		super();
+
+	}
+	
+	
+	// ---------------------------------Domain Methods----------------------------------------------
 	/**
 	 * Gets the member repository.
 	 *
@@ -62,66 +69,38 @@ public class Citizen extends BaseDomain implements Serializable {
 		}
 		return citizenRepository;
 	}
-
 	
-	/**
-	 * Instantiates a new user.
-	 */
-	public Citizen() {
-		super();
-
-	}
-	
-
-	public String getName() {
-		return name;
-	}
-
-
-
-
-
-	public void setName(final String name) {
-		this.name = name;
-	}
-
-
-
-
-
-	public String getMobile() {
-		return mobile;
-	}
-
-
-
-
-
-	public void setMobile(final String mobile) {
-		this.mobile = mobile;
-	}
-
-
-
-
-
-	public String getEmail() {
-		return email;
-	}
-
-
-
-
-
-	public void setEmail(final String email) {
-		this.email = email;
-	}
-
 	public static Citizen AddCitizen(final String name,
 			final String mobile,final String email,final String locale) throws ELSException {
 		return getCitizenRepository().AddCitizen(name,mobile,email,locale);
 		
 		
+	}
+
+	
+	// ---------------------------------Getters and Setters----------------------------------------------
+	public String getName() {
+		return name;
+	}
+
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(final String mobile) {
+		this.mobile = mobile;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(final String email) {
+		this.email = email;
 	}
 
 }
