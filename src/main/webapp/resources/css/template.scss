@@ -1,0 +1,188 @@
+// variable
+$greenTheme:#406b03;
+$redTheme:#ac031f;
+$defTheme:#0aa89e;
+// common css 
+// Green Theme
+.text-uppercase {
+    text-transform: uppercase;
+}
+
+.green-theme .text-primary {
+    color: $greenTheme;
+}
+
+.green-theme #menubar.menubar-inverse:before {
+    background: $greenTheme;
+}
+
+.green-theme #content section .style-primary {
+    background-color: $greenTheme;
+    border-color: $greenTheme;
+}
+
+.green-theme .btn-primary {
+    background-color: $greenTheme;
+    border-color: $greenTheme;
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: darken($greenTheme, 5%);
+        border-color: darken($greenTheme, 5%);
+    }
+}
+
+.green-theme .nav-tabs.tabs-accent > li.active > a,
+.green-theme .nav-tabs.tabs-accent > li.active > a:hover,
+.green-theme .nav-tabs.tabs-accent > li.active > a:focus {
+    border-color: $greenTheme;
+    color: $greenTheme;
+}
+
+.green-theme .calender {
+    .fc-unthemed .fc-event {
+        border-color: $greenTheme;
+        background-color: $greenTheme;
+    }
+}
+
+.green-theme .alert-callout.alert-success:before {
+    background: $greenTheme;
+}
+
+.green-theme .text-theme {
+    color: $greenTheme;
+}
+
+// Red-theme
+.red-theme .text-primary {
+    color: $redTheme;
+}
+
+.red-theme #menubar.menubar-inverse:before {
+    background: $redTheme;
+}
+
+.red-theme #content section .style-primary {
+    background-color: $redTheme;
+    border-color: $redTheme;
+}
+
+.red-theme .btn-primary {
+    background-color: $redTheme;
+    border-color: $redTheme;
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: darken($redTheme, 5%);
+        border-color: darken($redTheme, 5%);
+    }
+}
+
+.red-theme .nav-tabs.tabs-accent > li.active > a,
+.red-theme .nav-tabs.tabs-accent > li.active > a:hover,
+.red-theme .nav-tabs.tabs-accent > li.active > a:focus {
+    border-color: $redTheme;
+    color: $redTheme;
+}
+
+.red-theme .calender {
+    .fc-unthemed .fc-event {
+        border-color: $redTheme;
+        background-color: $redTheme;
+    }
+}
+
+.red-theme .alert-callout.alert-success:before {
+    background: $redTheme;
+}
+
+.red-theme .text-theme {
+    color: $redTheme;
+}
+
+// grey-theme
+.alert-callout.alert-success:before {
+    background: $defTheme;
+}
+
+.text-theme {
+    color: $defTheme;
+}
+
+.menubar-inverse .gui-controls li .title,
+.menubar-inverse .gui-icon {
+    color: #fff;
+}
+
+.user-more-info {
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.29);
+    .dl-horizontal.dl-icon dd {
+        margin-bottom: 8px;
+    }
+    .dl-horizontal.dl-icon {
+        margin-bottom: 0;
+        dt {
+            padding-top: 0;
+        }
+    }
+   
+}
+
+.profile-section {
+    small {
+        color: rgba(255, 255, 255, 0.9);
+    }
+}
+
+.profile-section .overlay {
+    padding: 18px 25px;
+}
+
+
+    .menubar-pin .gui-controls > li:not(.gui-folder) > a:hover {
+        background-color: rgba(0, 0, 0, 0.2) !important;
+    }
+
+
+@media(max-width:768px) {
+    .party-symbol {
+        margin: 20px 0;
+    }
+    .navbar-search.expanded .form-group {
+        max-width: 300px;
+    }
+    .profile-section {
+        text-align: center;
+        .profile-img-wrapper {
+            margin: 0 auto;
+        }
+        .party-symbol {
+            float: none !important;
+            /* width: 50px !important; */
+            margin: 10px auto 40px auto;
+        }
+    }
+    .headerbar-right .header-nav-options {
+   
+         float: none !important; 
+         margin: 0 auto;
+         vertical-align: middle;
+
+    }
+    .headerbar{
+        .headerbar-right{
+            text-align: center; 
+        }
+    }
+    .header-nav > li:last-child{
+        float:right;
+    }
+}
+
+@media(max-width:480px) {
+    .navbar-search.expanded .form-group {
+        max-width: 200px;
+    }
+}
