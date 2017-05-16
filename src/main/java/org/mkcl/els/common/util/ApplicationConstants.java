@@ -2582,4 +2582,6 @@ public class ApplicationConstants {
 	
 	public static String PART_GET_REVISION = "PART_GET_REVISION";
 	
+	public static String PARLIAMENTARY_AFFAIRS_MINISTER = "parliamentary_affairs_minister";
+	
 }
