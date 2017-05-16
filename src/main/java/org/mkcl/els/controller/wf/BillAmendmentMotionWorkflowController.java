@@ -55,7 +55,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@Controller
+@Controller 
 @RequestMapping("/workflow/billamendmentmotion")
 public class BillAmendmentMotionWorkflowController extends BaseController {
 	
