@@ -10,6 +10,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +20,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.repository.ApplicationLocaleRepository;
+import org.mkcl.els.repository.SubDepartmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -53,6 +58,10 @@ public class SubDepartment extends BaseDomain implements Serializable{
     /** The is expired. */
     @Column
     private Boolean isExpired;
+    
+	/** The SubDepartment repository. */
+	@Autowired
+	private transient SubDepartmentRepository subDepartmentRepository;
     // ---------------------------------Constructors-------------------------------------------------
 
 	/**
@@ -150,6 +159,19 @@ public class SubDepartment extends BaseDomain implements Serializable{
 	public void setIsExpired(final Boolean isExpired) {
 		this.isExpired = isExpired;
 	}
+	
+    public static SubDepartmentRepository getSubDepartmentRepository() {
+    	SubDepartmentRepository subDepartmentRepository = new SubDepartment().subDepartmentRepository;
+		if (subDepartmentRepository == null) {
+			throw new IllegalStateException(
+					"MemberRepository has not been injected in Member Domain");
+		}
+		return subDepartmentRepository;
+	}
+	
+	  public static List<SubDepartment> findAllSubDepartments(final String locale) throws ELSException {
+	    	return getSubDepartmentRepository().findAllSubDepartment(locale);
+		}
 
 
 }

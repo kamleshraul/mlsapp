@@ -10,11 +10,15 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.mkcl.els.common.exception.ELSException;
+import org.mkcl.els.repository.ApplicationLocaleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -51,6 +55,10 @@ public class ApplicationLocale extends BaseDomain implements Serializable {
     /** The language type. */
     @Column(length = 90)
     private String languageType;
+    
+	/** The member repository. */
+	@Autowired
+	private transient ApplicationLocaleRepository applicationLocaleRepository;
 
     // ==================== Constructors ====================
     /**
@@ -209,6 +217,15 @@ public class ApplicationLocale extends BaseDomain implements Serializable {
     public String getLanguageType() {
 		return languageType;
 	}
+    
+    public static ApplicationLocaleRepository getApplicationLocaleRepository() {
+    	ApplicationLocaleRepository applicationLocaleRepository = new ApplicationLocale().applicationLocaleRepository;
+		if (applicationLocaleRepository == null) {
+			throw new IllegalStateException(
+					"MemberRepository has not been injected in Member Domain");
+		}
+		return applicationLocaleRepository;
+	}
 
     /**
      * Sets the language type.
@@ -218,4 +235,8 @@ public class ApplicationLocale extends BaseDomain implements Serializable {
 	public void setLanguageType(String languageType) {
 		this.languageType = languageType;
 	}
+	
+	  public static List<ApplicationLocale> findAllLocale() throws ELSException {
+	    	return getApplicationLocaleRepository().findAllLocale();
+		}
 }

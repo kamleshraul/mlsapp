@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="committee_tours")
-@JsonIgnoreProperties({"committee","districts","zillaparishads","town","reporters", "itineraries",
+@JsonIgnoreProperties({"committee","state","districts","zillaparishads","towns","reporters", "itineraries",
 	"status", "internalStatusLH", "recommendationStatusLH",
 	"internalStatusUH", "recommendationStatusUH", "drafts"})
 public class CommitteeTour extends BaseDomain implements Serializable {
@@ -42,10 +42,20 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	private String venueName;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="town_id")
-	private Town town;
+	@JoinColumn(name="state_id")
+	private State state;
+
 	
-	/** Zillaparishad */
+	/** towns */
+	@ManyToMany(fetch=FetchType.LAZY)
+	@JoinTable(name = "committee_tours_towns",
+			joinColumns = { @JoinColumn(name = "committee_tour_id",
+					referencedColumnName = "id") },
+					inverseJoinColumns = { @JoinColumn(name = "town_id",
+							referencedColumnName = "id") })
+							private List<Town> towns;
+	
+	/** districts */
 	@ManyToMany(fetch=FetchType.LAZY)
 	@JoinTable(name = "committee_tours_district",
 			joinColumns = { @JoinColumn(name = "committee_tour_id",
@@ -54,7 +64,7 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 							referencedColumnName = "id") })
 							private List<District> districts;
 	
-	/** Zillaparishad */
+	/** zillaparishads */
 	@ManyToMany(fetch=FetchType.LAZY)
 	@JoinTable(name = "committee_tours_zillaparishad",
 			joinColumns = { @JoinColumn(name = "committee_tour_id",
@@ -152,6 +162,7 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 		this.setItineraries(new ArrayList<TourItinerary>());
 		this.setDrafts(new ArrayList<CommitteeTourDraft>());
 		this.setDistricts(new ArrayList<District>());
+		this.setTowns(new ArrayList<Town>());
 		this.setZillaparishads(new ArrayList<Zillaparishad>());
 	}
 	
@@ -226,14 +237,11 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 		HouseType houseType = committeeType.getHouseType();
 		
 		if(this.getVenueName() != null
-				&& this.getTown() != null
+				
 				&& this.getFromDate() != null
 				&& this.getToDate() != null
 				&& this.getSubject() != null
-				&& ! this.getReporters().isEmpty()
-				&& ! this.getItineraries().isEmpty()
-				&& ! this.getDistricts().isEmpty()
-				&& ! this.getZillaparishads().isEmpty()
+			
 				) {
 			Status CREATED = Status.findByType(
 					ApplicationConstants.COMMITTEETOUR_CREATED, 
@@ -293,7 +301,7 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 			CommitteeType committeeType = committeeName.getCommitteeType();
 			HouseType houseType = committeeType.getHouseType();
 			if(this.getVenueName() != null
-					&& this.getTown() != null
+					&& this.getTowns() != null
 					&& this.getFromDate() != null
 					&& this.getToDate() != null
 					&& this.getSubject() != null
@@ -377,13 +385,7 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 		this.venueName = venueName;
 	}
 
-	public Town getTown() {
-		return town;
-	}
 
-	public void setTown(final Town town) {
-		this.town = town;
-	}
 
 	public Date getFromDate() {
 		return fromDate;
@@ -424,6 +426,13 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 	public void setItineraries(final List<TourItinerary> itineraries) {
 		this.itineraries = itineraries;
 	}
+	public List<Town> getTowns() {
+		return towns;
+	}
+
+	public void setTowns(final List<Town> towns) {
+		this.towns = towns;
+	}
 	
 	public List<District> getDistricts() {
 		return districts;
@@ -447,6 +456,13 @@ public class CommitteeTour extends BaseDomain implements Serializable {
 
 	public void setStatus(final Status status) {
 		this.status = status;
+	}
+	public State getState() {
+		return state;
+	}
+
+	public void setState(final State state) {
+		this.state = state;
 	}
 
 	public Status getInternalStatusLH() {

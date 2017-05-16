@@ -173,6 +173,16 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	@Transient
 	private String decisionStatusForMyTaskGrid;
 	
+	/****Ministry****/
+	private String ministry;
+	
+	/****Subdepartment*****/
+	private String subdepartment;
+	
+	/**** Replies of Devices ****/
+	private String reply;
+	
+	
 	@Autowired
     private transient WorkflowDetailsRepository workflowDetailsRepository;
 	
@@ -1300,6 +1310,31 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return decisionStatusForMyTaskGrid;
 	}
 
+	public String getMinistry() {
+		return ministry;
+	}
+
+	public void setMinistry(String ministry) {
+		this.ministry = ministry;
+	}
+
+	public String getSubdepartment() {
+		return subdepartment;
+	}
+
+	public void setSubdepartment(String subdepartment) {
+		this.subdepartment = subdepartment;
+	}
+
+	public String getReply() {
+		return reply;
+	}
+
+	public void setReply(String reply) {
+		this.reply = reply;
+	}
+
+	
 
 
 }

@@ -103,6 +103,11 @@ public class MotionDraft extends Device implements Serializable{
     @JoinTable(name="motiondrafts_referencedunits", joinColumns={@JoinColumn(name="motiondraft_id", referencedColumnName="id")}, inverseJoinColumns={@JoinColumn(name="referenced_unit_id", referencedColumnName="id")})
     List<ReferenceUnit> referencedUnits;
 
+    
+    /**** Fields for storing the confirmation of Group change ****/
+    private Boolean transferToDepartmentAccepted = false;
+    
+    private Boolean mlsBranchNotifiedOfTransfer = false;
     /**
      * ** Setters and Getters ***.
      *
@@ -351,5 +356,23 @@ public class MotionDraft extends Device implements Serializable{
 
 	public Motion getParent() {
 		return parent;
+	}
+
+	public Boolean getTransferToDepartmentAccepted() {
+		return transferToDepartmentAccepted;
+	}
+
+	public void setTransferToDepartmentAccepted(Boolean transferToDepartmentAccepted) {
+		this.transferToDepartmentAccepted = transferToDepartmentAccepted;
+	}
+
+	public Boolean getMlsBranchNotifiedOfTransfer() {
+		return mlsBranchNotifiedOfTransfer;
+	}
+
+	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
+		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
 	}  
+	
+	
 }

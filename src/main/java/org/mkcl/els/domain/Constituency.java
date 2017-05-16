@@ -25,6 +25,7 @@ import javax.persistence.Table;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.vo.MasterVO;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.repository.ConstituencyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -363,4 +364,10 @@ public class Constituency extends BaseDomain implements Serializable {
             final UpperHouseConstituencyType upperHouseConstituencyType) {
         this.upperHouseConstituencyType = upperHouseConstituencyType;
     }
+    
+    public static List<Constituency> findConstituenciesByDistrictId(final Long districtId,
+    		final String houseType,final String sortBy, final String sortOrder, final String locale) throws ELSException {
+		return getConstituencyRepository().findConstituenciesByDistrictId(districtId,houseType,
+				sortBy, sortOrder, locale);
+	}
 }

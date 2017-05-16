@@ -244,6 +244,11 @@ import org.springframework.transaction.annotation.Transactional;
 	@Column(length = 3000)	
 	private String refText;
 	
+    /**** Fields for storing the confirmation of Group change ****/
+    private Boolean transferToDepartmentAccepted = false;
+    
+    private Boolean mlsBranchNotifiedOfTransfer = false;
+    
 	/**** Synch variables for motion lower house****/
 	private transient volatile static Integer CALLING_ATTENTION_CUR_NUM_LOWER_HOUSE = 0;
 	
@@ -399,6 +404,8 @@ import org.springframework.transaction.annotation.Transactional;
 			draft.setStatus(this.getStatus());
 			draft.setInternalStatus(this.getInternalStatus());
 			draft.setRecommendationStatus(this.getRecommendationStatus());
+			draft.setMlsBranchNotifiedOfTransfer(this.getMlsBranchNotifiedOfTransfer());
+			draft.setTransferToDepartmentAccepted(this.getTransferToDepartmentAccepted());
 			if(this.getRevisedDetails()!= null && this.getRevisedSubject() != null){
 				draft.setDetails(this.getRevisedDetails());
 				draft.setSubject(this.getRevisedSubject());                
@@ -1070,6 +1077,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 	public void setRefText(String refText) {
 		this.refText = refText;
+	}
+	
+	public Boolean getTransferToDepartmentAccepted() {
+		return transferToDepartmentAccepted;
+	}
+
+	public void setTransferToDepartmentAccepted(Boolean transferToDepartmentAccepted) {
+		this.transferToDepartmentAccepted = transferToDepartmentAccepted;
+	}
+
+	public Boolean getMlsBranchNotifiedOfTransfer() {
+		return mlsBranchNotifiedOfTransfer;
+	}
+
+	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
+		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
 	}
 
 	//************************Clubbing**********************
