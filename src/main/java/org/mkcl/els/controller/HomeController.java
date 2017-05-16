@@ -9,14 +9,18 @@
  */
 package org.mkcl.els.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
@@ -25,9 +29,20 @@ import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.DocumentLink;
+import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberMinister;
+import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MenuItem;
+import org.mkcl.els.domain.Party;
+import org.mkcl.els.domain.PartySymbol;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Role;
+import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.User;
+import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -134,7 +149,17 @@ public class HomeController extends BaseController {
         //right now all menus are visible to all.
         Set<Role> roles=this.getCurrentUser().getRoles();
         StringBuffer buffer=new StringBuffer();
+        Boolean isUserAllowedForDashboardView = false; //for showing dashboard post login to allowed users only
+        CustomParameter rolesAllowedForDashBoardViewCP = CustomParameter.findByName(CustomParameter.class, "ROLES_ALLOWED_FOR_DASHBOARD_VIEW", "");
         for(Role i:roles){
+        	if(rolesAllowedForDashBoardViewCP!=null && rolesAllowedForDashBoardViewCP.getValue()!=null) {
+        		for(String allowedRole: rolesAllowedForDashBoardViewCP.getValue().split(",")) {
+        			if(i.getType().trim().equalsIgnoreCase(allowedRole.trim())) {
+        				isUserAllowedForDashboardView = true;
+        				break;
+        			}
+        		}
+        	}
         	if(i.getMenusAllowed()!=null && !i.getMenusAllowed().isEmpty()){
         		String menuAllowedIds = i.getMenusAllowed().replaceAll("##",",");
         		StringBuffer filteredBuffer=new StringBuffer();
@@ -212,7 +237,26 @@ public class HomeController extends BaseController {
         //update static current numbers for all devices on first successful login post deployment
         Device.updateCurrentNumberForDevices();
         
+        //flag for checking if this request is redirection to home page
+        String redirectedToHomePage = request.getParameter("redirectedToHomePage");
+        if(redirectedToHomePage==null || !redirectedToHomePage.equals("yes")) {
+             if(isUserAllowedForDashboardView) {
+            	populateMemberProfile(model, request, locale);
+             	return "member_dashboard";
+             } else {
+             	return "home";
+             }
+        } 
         return "home";
+    }
+    
+
+	//redirect to home page using POST (taken for hiding the flag of request parameter 'redirectedToHomePage')
+    @RequestMapping(value = "/home", method = RequestMethod.POST)
+    public String redirectToHome(final ModelMap model, 
+    		final HttpServletRequest request,
+            final Locale locale) {  
+    	return home(model, request, locale);
     }
     
  // for 403 access denied page
@@ -285,5 +329,123 @@ public class HomeController extends BaseController {
 		}
 		
 		return isHighSecurityValidated;
+	}
+	
+    private void populateMemberProfile(ModelMap model, HttpServletRequest request, Locale locale) {
+    	
+		Member member = Member.findMember(this.getCurrentUser().getFirstName(), 
+				this.getCurrentUser().getMiddleName(), 
+				this.getCurrentUser().getLastName(), 
+				this.getCurrentUser().getBirthDate(), locale.toString());
+		
+		
+		if(member != null){
+			model.addAttribute("memberName", member.getFullname());
+			model.addAttribute("memberPhoto", member.getPhoto());
+			model.addAttribute("constituency",member.findConstituency().getDisplayName());
+			
+			if(member.getBirthDate()!=null){
+				model.addAttribute("memberBirthDate",FormaterUtil.formatDateToString(member.getBirthDate(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+			}
+			model.addAttribute("memberBirthPlace",member.getBirthPlace());
+			if(member.getMemberPartyAssociations() != null && !member.getMemberPartyAssociations().isEmpty()){
+				Party party = member.findParty();
+				if(party != null){
+					model.addAttribute("memberParty", party.getName());
+					List<PartySymbol> partySymbols = party.getPartySymbols();
+					if(partySymbols != null && !partySymbols.isEmpty()){
+						model.addAttribute("memberPartyPhoto",partySymbols.get(0).getSymbol());
+					}
+					
+				}
+				
+			}
+			String  strHouseType = this.getCurrentUser().getHouseType();
+			HouseType houseType = HouseType.findByType(strHouseType, locale.toString());
+			model.addAttribute("housetype", strHouseType);
+			
+			List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "name", ApplicationConstants.ASC, locale.toString());
+			model.addAttribute("houseTypes", houseTypes);
+			
+			Session session = null;
+			try {
+				session = Session.findLatestSession(houseType);
+			} catch (ELSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Date currentDate = new Date();
+			if(session.getStartDate().equals(currentDate) 
+				|| session.getEndDate().equals(currentDate)
+				|| (session.getStartDate().before(currentDate) && session.getEndDate().after(currentDate))){
+				model.addAttribute("sessionType", session.getType().getId());
+				model.addAttribute("sessionYear", session.getYear());
+			}
+			List<SessionType> sessionTypes = SessionType.findAll(SessionType.class, "sessionType", ApplicationConstants.ASC, locale.toString());
+			model.addAttribute("sessionTypes", sessionTypes);
+			
+			List<Integer> years = new ArrayList<Integer>();
+			CustomParameter houseFormationYear = 
+					CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+			if(houseFormationYear != null) {
+				Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+				for(int i = session.getYear(); i >= formationYear; i--) {
+					years.add(i);
+				}
+			}
+			
+			model.addAttribute("years", years);
+			
+			Map<String, String[]> params = new HashMap<String, String[]>();
+			params.put("memberId", new String[]{member.getId().toString()});
+			params.put("locale", new String[]{locale.toString()});
+			List report = Query.findReport("LOAD_MINISTER_OF_MEMBER", params);
+			if(report != null && !report.isEmpty()){
+				Object[] obj = (Object[])report.get(0);
+				if(obj[0] != null){
+					model.addAttribute("memberDesignation", obj[0]);
+				}else{
+					List<MemberRole> memberRoles = HouseMemberRoleAssociation.findAllActiveRolesOfMemberInSession(member, session, locale.toString());
+					for(MemberRole mr : memberRoles){
+						if(mr.getType().equalsIgnoreCase(ApplicationConstants.STATE_MINISTER)
+							|| mr.getType().equalsIgnoreCase(ApplicationConstants.SPEAKER)
+							|| mr.getType().equalsIgnoreCase(ApplicationConstants.CHAIRMAN)
+							|| mr.getType().equalsIgnoreCase(ApplicationConstants.DEPUTY_CHAIRMAN)
+							|| mr.getType().equalsIgnoreCase(ApplicationConstants.DEPUTY_SPEAKER)
+							|| mr.getType().equalsIgnoreCase(ApplicationConstants.LEADER_OF_OPPOSITION)){
+							model.addAttribute("memberRole",mr.getName());
+							break;
+						}else{
+							model.addAttribute("memberRole",mr.getName());
+						}
+					}
+				}
+			}
+			
+			Map<String, String[]> parameters = new HashMap<String, String[]>();
+			parameters.put("memberId", new String[]{member.getId().toString()});
+			parameters.put("sessionId", new String[]{session.getId().toString()});
+			parameters.put("locale", new String[]{locale.toString()});
+			List report1 = Query.findReport("MEMBER_DEVICES_COUNT", parameters);
+			if(report1 != null && !report1.isEmpty()){
+				for(int i=0;i<report1.size();i++){
+					Object[] obj = (Object[])report1.get(i);
+					for(int j=0;j<obj.length;j++){
+						model.addAttribute(obj[2]+"_count", obj[1]);
+					}
+					
+				}
+			}
+			
+			try {
+				DocumentLink rotationOrderLink = DocumentLink.findRotationOrderLinkBySession(session);
+				if(rotationOrderLink != null){
+					model.addAttribute("rotationOrderLink", rotationOrderLink.getUrl());
+				}
+			} catch (ELSException e) {
+				model.addAttribute("error", e.getParameter());
+			}
+		}
+		
 	}
 }

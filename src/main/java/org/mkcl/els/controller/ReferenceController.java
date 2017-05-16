@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +78,7 @@ import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.District;
 import org.mkcl.els.domain.Division;
 import org.mkcl.els.domain.Document;
+import org.mkcl.els.domain.DocumentLink;
 import org.mkcl.els.domain.Election;
 import org.mkcl.els.domain.ElectionType;
 import org.mkcl.els.domain.EventMotion;
@@ -89,6 +91,7 @@ import org.mkcl.els.domain.GovernmentScheme;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Highway;
+import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.IdentificationKey;
@@ -5615,7 +5618,6 @@ public class ReferenceController extends BaseController {
 			
 			try{
 				String strGroup = request.getParameter("group");
-				String strUserGroup = request.getParameter("userGroup");
 				String strDeviceType = request.getParameter("deviceType");
 				String strHouseType = request.getParameter("houseType");
 				String strUserGroupType = request.getParameter("usergroupType");
@@ -7497,7 +7499,9 @@ public class ReferenceController extends BaseController {
 							
 							for(String s: groupsAllowed.split(",")){
 								MasterVO masterVo = new MasterVO();
+								Group group = Group.findByNumberHouseTypeSessionTypeYear(new Integer(s), houseType, sessionType, year);
 								masterVo.setName(FormaterUtil.formatNumberNoGrouping(new Integer(s), locale.toString()));
+								masterVo.setId(group.getId());
 								vos.add(masterVo);
 							}
 							break;
@@ -9448,5 +9452,44 @@ public class ReferenceController extends BaseController {
 			}			
 		}
 		return isSuchiPublishedOnSelectedAnsweringDate;
+	}
+	
+	
+	@RequestMapping(value="/documentlinks", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getSessionDocumentLinks(final HttpServletRequest request, final Locale locale){
+		List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+		try{
+			String strSessionType = request.getParameter("sessiontype");
+			String strHouseType = request.getParameter("housetype");
+			String strSessionYear = request.getParameter("sessionyear");
+			Integer latestYear = new GregorianCalendar().get(Calendar.YEAR);
+			if(strSessionType != null && !strSessionType.isEmpty()
+				&& strHouseType != null && !strHouseType.isEmpty()
+				&& strSessionYear != null && !strSessionYear.isEmpty()){
+				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(strSessionType));
+				HouseType houseType =  HouseType.findByType(strHouseType, locale.toString());
+				Integer sessionYear = Integer.parseInt(strSessionYear);
+				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+				if(session != null){
+					List<DocumentLink> documentLinks = DocumentLink.findAllByFieldName(DocumentLink.class, "session", session, "sessionDate", ApplicationConstants.ASC, locale.toString());
+					for(DocumentLink dl : documentLinks){
+						if(!dl.getTitle().equalsIgnoreCase("Rotation Order")){
+							MasterVO masterVO = new MasterVO();
+							masterVO.setId(dl.getId());
+							masterVO.setName(dl.getLocalizedTitle());
+							masterVO.setType(dl.getTitle());
+							masterVO.setDisplayName(dl.getUrl());
+							masterVO.setSessionDate(
+									FormaterUtil.formatStringToDate(FormaterUtil.formatDateToString(dl.getSessionDate(), ApplicationConstants.DB_DATEFORMAT), ApplicationConstants.DB_DATEFORMAT));
+							masterVOs.add(masterVO);
+						}
+					}
+				}
+				
+			}
+		}catch(Exception e){
+			logger.error(e.toString());
+		}
+		return masterVOs;
 	}
 }
