@@ -170,26 +170,29 @@
 	    var clarificationReceived=$("#internalStatusMaster option[value='motion_processed_clarificationReceived']").text();
 	    var clarificationNotReceived=$("#internalStatusMaster option[value='motion_processed_clarificationNotReceived']").text();
 	    var answerReceived=$("#internalStatusMaster option[value='motion_processed_answerReceived']").text();
-	    
-	    if(value==sendback && value == discuss && value == sendToDepartment){
-	    	value = $("#oldInternalStatus").val();
+	    var params = '';
+		
+	    var valueToSend = value;
+	    if(value==sendback || value == discuss || value == sendToDepartment){
+	    	valueToSend = $("#oldInternalStatus").val();
 	    	$("#endFlag").val("continue");
 	    }else if(value == answerReceived || value == clarificationReceived || value == clarificationNotReceived) {
-	    	
-	    	/*
-	    	value == answerReceived || value == rejectedWithReason 
-				|| value == departmentIntimated ||value == clarificationReceived 
-				|| value == clarificationNotReceived
-	    	*/
-				$("#endFlag").val("end");
+	    		$("#endFlag").val("end");
 				$("#recommendationStatus").val(value);
 				$("#actor").empty();
 				$("#actorDiv").hide();
 				return false;	    	
 	    }
 	    
-	    var params="motion="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
+	    if(sendToDepartment == value){
+			 params="motion="+$("#id").val()+"&status="+valueToSend+
+				"&usergroup="+$("#usergroup").val()+"&level=10";
+		}else{
+			 params="motion="+$("#id").val()+"&status="+valueToSend+
+				"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
+		}
+	    
+	    
 		var resourceURL='ref/motion/actors?'+params;
 		
 	    $.post(resourceURL,function(data){
@@ -209,7 +212,9 @@
 				$("#actor").html(text);
 				$("#actorDiv").show();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
+				if(value!=sendback && value!=discuss && 
+						value != answerReceived && value != clarificationReceived &&
+						value != clarificationNotReceived && value != sendToDepartment ){
 					$("#internalStatus").val(value);
 				}
 				$("#recommendationStatus").val(value);	
@@ -222,7 +227,9 @@
 				$("#actor").empty();
 				$("#actorDiv").hide();
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
+				if(value!=sendback && value!=discuss && 
+						value != answerReceived && value != clarificationReceived &&
+						value != clarificationNotReceived && value != sendToDepartment ){
 					$("#internalStatus").val(value);
 				}
 		   	 	$("#recommendationStatus").val(value);
@@ -406,7 +413,7 @@
 			    }else if(statusType=="motion_processed_sendToDepartment"
 			    		|| statusType=='motion_recommend_sendback'
 			    		|| statusType=='motion_recommend_discuss'){
-			    	loadActors($("#internalStatus").val());	
+			    	loadActors(value);	
 				    $("#recommendationStatus").val(value);
 				    $("#endFlag").val("continue");				    
 			    }else{
@@ -936,6 +943,8 @@
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
+	<form:hidden path="transferToDepartmentAccepted"/>
+	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">

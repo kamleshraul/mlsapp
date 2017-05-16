@@ -161,54 +161,98 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
-		var params="motion="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
-		var resourceURL='ref/motion/actors?'+params;
-	    var sendback=$("#internalStatusMaster option[value='motion_recommend_sendback']").text();			
-	    var discuss=$("#internalStatusMaster option[value='motion_recommend_discuss']").text();		
-		$.post(resourceURL,function(data){
-			if(data!=undefined||data!=null||data!=''){
-				var length=data.length;
-				$("#actor").empty();
-				var text="";
-				for(var i=0;i<data.length;i++){
-					if(i!=0){
-					text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
-					}else{
-						text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
-						$("#actorName").val(data[i].id.split("#")[4]);
+			var sendback = $("#internalStatusMaster option[value='motion_recommend_sendback']").text();			
+		    var discuss = $("#internalStatusMaster option[value='motion_recommend_discuss']").text();	
+		    var sendToDeskOfficer = $("#internalStatusMaster option[value='motion_processed_sendToDeskOfficer']").text();	
+		    
+			var valueToSend = "";
+			var changedInternalStatus = $("#changeInternalStatus").val();
+			if(changedInternalStatus == sendToDeskOfficer ) {
+				valueToSend = $("#internalStatus").val();
+			}else{
+				valueToSend = value;
+			} 	
+			
+			var params="motion="+$("#id").val()+"&status=" + valueToSend + 
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
+			var resourceURL = 'ref/motion/actors?'+params;
+		    
+			$.post(resourceURL,function(data){
+				if(data!=undefined||data!=null||data!=''){
+					var length=data.length;
+					$("#actor").empty();
+					var text="";
+					/* for(var i=0;i<data.length;i++){
+						if(i!=0){
+						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						}else{
+							text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+							$("#actorName").val(data[i].id.split("#")[4]);
+						}
+					} */
+					var text="";
+					var actor1="";
+					var actCount = 1;
+					for(var i=0;i<data.length;i++){
+						var act = data[i].id;
+						if(value != sendToDeskOfficer){
+							var ugtActor = data[i].id.split("#");
+							var ugt = ugtActor[1];
+							if(ugt!='member'){
+								text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+							}else{
+								text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+								if(actCount == 1){
+									actor1=data[i].id;
+									actCount++;
+								}
+							}
+						}else{
+							if(act.indexOf("section_officer") < 0){
+								var ugtActor = data[i].id.split("#")
+								var ugt = ugtActor[1];
+								if(ugt!='member'){
+									text += "<option value='" + data[i].id + "'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+								}else{
+									text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+									if(actCount == 1){
+										actor1=data[i].id;
+										actCount++;
+									}
+								}
+							}
+						}					
 					}
+					//text+="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
+					$("#actor").html(text);
+					$("#actorDiv").show();				
+					/**** in case of sendback and discuss only recommendation status is changed ****/
+					if(value != sendback && value != discuss && value != sendToDeskOfficer){
+						$("#internalStatus").val(value);
+					}
+					$("#recommendationStatus").val(value);	
+					/**** setting level,localizedActorName ****/
+					 //var actor1=data[0].id;
+					 var temp = actor1.split("#");
+					 $("#level").val(temp[2]);		    
+					 $("#actorName").val(temp[3]+"("+temp[4]+")");					
+				}else{
+					$("#actor").empty();
+					$("#actorDiv").hide();
+					/**** in case of sendback and discuss only recommendation status is changed ****/
+					if(value!=sendback&&value!=discuss){
+					$("#internalStatus").val(value);
+					}
+				    $("#recommendationStatus").val(value);
 				}
-				text+="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
-				$("#actor").html(text);
-				//$("#actorDiv").show();				
-				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
-				$("#internalStatus").val(value);
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 				}
-				$("#recommendationStatus").val(value);	
-				/**** setting level,localizedActorName ****/
-				 var actor1=data[0].id;
-				 var temp=actor1.split("#");
-				 $("#level").val(temp[2]);		    
-				 $("#actorName").val(temp[3]+"("+temp[4]+")");					
-			}else{
-			$("#actor").empty();
-			$("#actorDiv").hide();
-			/**** in case of sendback and discuss only recommendation status is changed ****/
-			if(value!=sendback&&value!=discuss){
-			$("#internalStatus").val(value);
-			}
-		    $("#recommendationStatus").val(value);
-			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});
+				scrollTop();
+			});
 		}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
@@ -265,6 +309,9 @@
 		});
 	}
 	$(document).ready(function(){
+		
+		$('#mlsBranchNotifiedOfTransfer').val(null);
+		$('#transferToDepartmentAccepted').val(null);
 		
 		/**** Back To motion ****/
 		$("#backToMotion").click(function(){
@@ -507,6 +554,32 @@
 			$("#changeInternalStatus").change();
 			//loadActors($("#changeInternalStatus").val());
 		}
+	    
+		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
+		$("#ministry option[selected!='selected']").hide();
+		$("#subDepartment option[selected!='selected']").hide(); 
+		
+		$('#isTransferable').change(function() {
+	        if ($(this).is(':checked')) {
+	        	$("#ministry option[selected!='selected']").show();
+	    		$("#subDepartment option[selected!='selected']").show(); 
+	    		$("#transferP").css("display","inline-block");
+	    		$("#submit").css("display","none");
+	        }else{
+	        	$("#ministry option[selected!='selected']").hide();
+	    		$("#subDepartment option[selected!='selected']").hide(); 
+	    		$("#transferP").css("display","none");
+	    		$("#submit").css("display","inline-block");
+	        }
+	    });
+		
+		$('#mlsBranchNotifiedOfTransfer').change(function() {
+	        if ($(this).is(':checked') && $("#isTransferable").is(':checked')) {
+	        	$("#submit").css("display","inline-block");
+	        }else{
+	        	$("#submit").css("display","none");
+	        }
+	    });
 	});
 	</script>
 	 <style type="text/css">
@@ -588,8 +661,11 @@
 		</p>
 			
 	</div>
-	
-	<div style="display: inline-block;">
+	<p>
+		<label class="small"><spring:message code="motion.isTransferable" text="is Motion to be transfered?"/></label>
+		<input type="checkbox" name="isTransferable" id="isTransferable" class="sCheck">
+	</p>
+	<div>
 		<p>
 			<label class="small"><spring:message code="motion.ministry" text="Ministry"/>*</label>
 			<select name="ministry" id="ministry" class="sSelect">
@@ -626,7 +702,13 @@
 			<form:errors path="subDepartment" cssClass="validationError"/>	
 		</p>	
 	</div>	
-	
+	<p id="transferP" style="display:none;">
+		<label class="small" id="subdepartmentValue"><spring:message code="motion.transferToDepartmentAccepted" text="Is the Transfer to Department Accepted"/></label>
+		<input type="checkbox" id="transferToDepartmentAccepted" name="transferToDepartmentAccepted" class="sCheck"/>
+		
+		<label class="small" style="margin-left: 175px;"><spring:message code="motion.mlsBranchNotified" text="Is the Respective Question Branch Notified"/></label>
+		<input type="checkbox" id="mlsBranchNotifiedOfTransfer" name="mlsBranchNotifiedOfTransfer" class="sCheck"/>
+	</p>
 	<p>
 	<label class="centerlabel"><spring:message code="motion.members" text="Members"/></label>
 	<textarea id="members" class="sTextarea" readonly="readonly" rows="2" cols="50">${memberNames}</textarea>
@@ -741,83 +823,165 @@
 			</c:forEach>
 		</select>
 	</c:if>
+	<%-- <c:choose>
+		<c:when test="hasAnyRole('MOIS_DEPARTMENT_USER')">
+			
+		</c:when>
+		<c:otherwise>
+			<p>	
+				<label class="centerlabel"><spring:message code="motion.subject" text="Subject"/></label>
+				<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
+				<form:errors path="subject" cssClass="validationError"/>	
+			</p>	
+				
+			<p>
+				<label class="wysiwyglabel"><spring:message code="motion.details" text="Details"/></label>
+				<form:textarea path="details" readonly="true" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="details" cssClass="validationError"/>	
+			</p>
+			<p>
+				<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="motion.reviseSubject" text="Revise Subject"></spring:message></a>
+				<a href="#" id="reviseDetails" style="margin-right: 20px;"><spring:message code="motion.reviseDetails" text="Revise Details"></spring:message></a>
+				<a href="#" id="viewRevision"><spring:message code="motion.viewrevisions" text="View Revisions"></spring:message></a>
+			</p>
+		</c:otherwise>
+	</c:choose> --%>
+		
 	
-	<p>	
-	<label class="centerlabel"><spring:message code="motion.subject" text="Subject"/></label>
-	<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
-	<form:errors path="subject" cssClass="validationError"/>	
-	</p>	
-	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="motion.details" text="Details"/></label>
-	<form:textarea path="details" readonly="true" cssClass="wysiwyg"></form:textarea>
-	<form:errors path="details" cssClass="validationError"/>	
-	</p>	
-	
-	<p>
-		<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="motion.reviseSubject" text="Revise Subject"></spring:message></a>
-		<a href="#" id="reviseDetails" style="margin-right: 20px;"><spring:message code="motion.reviseDetails" text="Revise Details"></spring:message></a>
-		<a href="#" id="viewRevision"><spring:message code="motion.viewrevisions" text="View Revisions"></spring:message></a>
-	</p>	
+		
 	
 	<p style="display:none;" class="revise1" id="revisedSubjectDiv">
-	<label class="centerlabel"><spring:message code="motion.revisedSubject" text="Revised Subject"/></label>
+	<label class="centerlabel"><spring:message code="motion.subject" text="Subject"/></label>
 	<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
 	<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p style="display:none;" class="revise2" id="revisedDetailsDiv">
-	<label class="wysiwyglabel"><spring:message code="motion.revisedDetails" text="Revised Details"/></label>
+	<label class="wysiwyglabel"><spring:message code="motion.details" text="Details"/></label>
 	<form:textarea path="revisedDetails" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="revisedDetails" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
 	<p id="internalStatusDiv">
-	<label class="small"><spring:message code="motion.currentStatus" text="Current Status"/></label>
-	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
+		<label class="small"><spring:message code="motion.currentStatus" text="Current Status"/></label>
+		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
+	</p>
+	
+	<p>
+	<table class="uiTable" style="width:900px;">
+		<thead>
+			<tr>
+			<th>
+			<spring:message code="mois.latestrevisions.user" text="Usergroup"></spring:message>
+			</th>
+			<th>
+			<spring:message code="mois.latestrevisions.decision" text="Decision"></spring:message>
+			</th>
+			<th>
+			<spring:message code="mois.latestrevisions.revisedDetails" text="Revised Details"></spring:message>
+			</th>
+			<th>
+			<spring:message code="mois.latestrevisions.remarks" text="Remarks"></spring:message>
+			</th>
+			</tr>
+		</thead>
+		<tbody>	
+			<c:set var="startingActor" value="${startingActor}"></c:set>
+			<c:set var="startingActorCount" value="0"></c:set>
+			<c:forEach items="${latestRevisions}" var="i">	
+				<c:choose>
+					<c:when test="${i[0]==startingActor}">	
+						<c:set var="startingActorCount" value="${count}"></c:set>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:when>
+					<c:otherwise>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach> 
+			
+			<c:set var="count" value="0"></c:set>
+			<c:set var="revisedDetailRevision" value=" "/>
+			<c:forEach items="${latestRevisions }" var="i">
+				<c:choose>
+					<c:when test="${count>= startingActorCount}">
+						<tr>
+							<td>
+							${i[0]}<br>${i[1]}
+							</td>
+							<td>
+							<c:choose>
+								<c:when test="${fn:endsWith(i[9],'recommend_sendback')
+										|| fn:endsWith(i[9],'recommend_discuss')}">
+									${i[3]}
+								</c:when>
+								<c:otherwise>${i[2]}</c:otherwise>
+							</c:choose>							
+							</td>
+							<td style="text-align: justify;">
+								<c:if test="${i[7]!= revisedDetailRevision}">
+									${i[7]}
+								</c:if>
+							</td>
+							<td>
+							${i[4]}
+							</td>
+						</tr>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:when>
+					<c:otherwise>
+						<c:set var="count" value="${count+1 }"></c:set>
+					</c:otherwise>
+				</c:choose>
+				<c:set var="revisedDetailRevision" value="${i[7]}"/>
+			</c:forEach>
+		</tbody>
+	</table>
 	</p>
 
-	<p style="display:none;">
-	<label class="small"><spring:message code="motion.putupfor" text="Put up for"/></label>	
-	<select id="changeInternalStatus" class="sSelect">
-	<c:forEach items="${internalStatuses}" var="i">
-		<c:choose>
-				<c:when test="${i.id==internalStatusSelected }">
-				<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-				</c:when>
-				<c:otherwise>
-				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-				</c:otherwise>
-		</c:choose>
-	</c:forEach>
-	</select>
+	<p>
+		<label class="small"><spring:message code="motion.putupfor" text="Put up for"/></label>	
+		<select id="changeInternalStatus" class="sSelect">
+		<c:forEach items="${internalStatuses}" var="i">
+			<c:choose>
+					<c:when test="${i.id==internalStatusSelected }">
+					<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+					</c:when>
+					<c:otherwise>
+					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+					</c:otherwise>
+			</c:choose>
+		</c:forEach>
+		</select>
 	
-	<select id="internalStatusMaster" style="display:none;">
-	<c:forEach items="${internalStatuses}" var="i">
-	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-	</c:forEach>
-	</select>	
-	<form:errors path="internalStatus" cssClass="validationError"/>	
+		<select id="internalStatusMaster" style="display:none;">
+			<c:forEach items="${internalStatuses}" var="i">
+			<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+			</c:forEach>
+		</select>	
+		<form:errors path="internalStatus" cssClass="validationError"/>	
 	</p>
 	
 	<p id="actorDiv" style="display:none;">
 		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
 		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
-		<input type="text" class="sText" readonly="readonly" id="actorName" value=""/>
+		<!-- <input type="text" class="sText" readonly="readonly" id="actorName" value=""/> -->
 	</p>	
 		
-	<p>
-	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="motion.viewcitation" text="View Citations"></spring:message></a>	
+	<p style="display:none;">
+	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;display:none;"><spring:message code="motion.viewcitation" text="View Citations"></spring:message></a>	
 	</p>
 	
+	<c:if test="${fn:contains(internalStatusType, 'final_admission')
+					and workflowstatus=='COMPLETED'}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="motion.reply" text="Nivedan"/></label>
+			<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
+		</p>	
+	</c:if>
 	<p>
-	<label class="wysiwyglabel"><spring:message code="motion.reply" text="Nivedan"/></label>
-	<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
-	</p>	
-	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="motion.remarks" text="Remarks"/></label>
-	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
+		<label class="wysiwyglabel"><spring:message code="motion.remarks" text="Remarks"/></label>
+		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
 	</p>	
 	
 	<c:if test="${workflowstatus=='PENDING'}">
@@ -833,7 +997,6 @@
 			</p>
 		</div>
 	</c:if>
-	
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -841,6 +1004,8 @@
 	<form:hidden path="endFlag"/>
 	<form:hidden path="level"/>
 	<form:hidden path="localizedActorName"/>
+	<form:hidden path="subject"/>
+	<form:hidden path="details"/>
 	<input type="hidden" name="workflowDetailsId" id="workflowDetailsId" value="${workflowdetails}" />	
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
