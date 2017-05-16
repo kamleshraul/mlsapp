@@ -81,11 +81,11 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		CommitteeName committeeName = CommitteeName.findById(CommitteeName.class, Long.parseLong(strCommitteeName));
 		if(committeeName != null){
 			model.addAttribute("committeeDisplayName", committeeName.getDisplayName());
-			model.addAttribute("committeName",committeeName.getId());
+			model.addAttribute("committeeName",committeeName.getId());
 		}
 		
 		this.populateCommitteeNames(model, locale);
-		System.out.println("Raj");
+		
 		List<State> states = State.find(locale);
 		model.addAttribute("states", states);
 		
@@ -1438,18 +1438,18 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		
 		
 		List<District> districts = this.populateDistricts(model, states.get(0), locale);
-		model.addAttribute("districts", district);
+		model.addAttribute("districts", districts);
 		
 	
 		List<Zillaparishad> zillaparishads =this.populateZillaparishads(model, districts.get(0), locale);
-		model.addAttribute("zillaparishads", zillaparishad);
+		model.addAttribute("zillaparishads", zillaparishads);
 				
 		List<Town> towns =this.populateTowns(model, districts.get(0), locale);
-		model.addAttribute("towns", town);
-		
-		
-		State state = State.find(district.get(0), locale);
-	
+		model.addAttribute("towns", towns);
+		State state=new State();
+		if(district!=null){
+		state = State.find(district.get(0), locale);
+		}
 		model.addAttribute("state", state);				
 		this.populateDistricts(model, state, locale);
 		
@@ -1458,7 +1458,8 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		List<TourItinerary> itineraries = domain.getItineraries();
 
 		model.addAttribute("itineraries", itineraries);	
-		model.addAttribute("itinerariesCount",  itineraries.size());	
+		model.addAttribute("itinerariesCount",  itineraries.size());
+		model.addAttribute("tourItineraryCount",  itineraries.size());	
 		
 		
 		this.populateLanguages(model, locale);
@@ -1466,6 +1467,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		List<CommitteeReporter> reporters = domain.getReporters();
 		model.addAttribute("reporters", reporters);	
 		model.addAttribute("reportersCount",  reporters.size());
+		model.addAttribute("committeeReporterCount",  reporters.size());
 
 	}
 	
@@ -1728,11 +1730,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 					"Committee should not be empty");
 		}
 		
-		// 'town' SHOULD NOT BE NULL
-		if(domain.getTowns() == null) {
-			result.rejectValue("town", "NotEmpty", 
-					"Town should not be empty");
-		}
+		
 		
 		// 'venueName' SHOULD NOT BE NULL OR EMPTY
 		if(domain.getVenueName() == null || domain.getVenueName().isEmpty()) {
