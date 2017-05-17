@@ -821,7 +821,7 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	private String getFullWorkflowName(final Status status) {
 		
 		String wfName = getWorkflowName(status);
-		String fullWfName = wfName + "_workflow";
+		String fullWfName = "tour"+wfName + "_workflow";
 		return fullWfName;
 	}
 	
@@ -1447,8 +1447,12 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 		List<Town> towns =this.populateTowns(model, districts.get(0), locale);
 		model.addAttribute("towns", towns);
 		State state=new State();
-		if(district!=null){
+		if(district!=null && district.size()!=0){
 		state = State.find(district.get(0), locale);
+		}
+		else
+		{
+			state = states.get(0);
 		}
 		model.addAttribute("state", state);				
 		this.populateDistricts(model, state, locale);
@@ -1493,7 +1497,11 @@ public class CommitteeTourController extends GenericController<CommitteeTour> {
 	private void populateCommitteeName(final ModelMap model, 
 			final Committee committee) {
 		CommitteeName committeeName = committee.getCommitteeName();
-		model.addAttribute("committeeName", committeeName);
+		if(committeeName != null){
+			model.addAttribute("committeeDisplayName", committeeName.getDisplayName());
+			model.addAttribute("committeeName",committeeName);
+		}
+		
 	}
 	
 
