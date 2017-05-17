@@ -394,13 +394,14 @@ $('#districts').change(function(){
 	<!-- committeename is a simple input field and not a form input field because
 		 it is not an attribute of the CommitteeTour instance. -->
 	<p>
-	${committeeName.id}
+	
 	<label class="small"><spring:message code="committeetour.committeename" text="Committee Name" />*</label>
 	<select id="committeeName" name="committeeName" class="sSelect">
 		<c:forEach items="${committeeNames}" var="i">
+	
+			
 			<c:choose>
 				<c:when test="${committeeName.id == i.id}">
-				${i.id} 
 					<option value="${i.id}" selected="selected"><c:out value="${i.displayName}"></c:out></option>
 				</c:when>
 				<c:otherwise>
@@ -431,7 +432,12 @@ $('#districts').change(function(){
 		<form:errors path="districts" cssClass="validationError"/>
 	</p>
 
-	<input type="hidden" id="selectedTowns" value="${selectedTowns}" />
+<input type="hidden" id="selectedTowns" value="${selectedTowns}" />
+	<p>
+	<label class="small"><spring:message code="committeetour.town" text="Town" />*</label>
+	<form:select path="towns" items="${towns}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>										
+	<form:errors path="towns" cssClass="validationError"/>
+	</p>
 	
 	<input type="hidden" id="selectedZillaparishads" value="${selectedZillaparishads}" />
 	<p>
@@ -569,7 +575,7 @@ $('#districts').change(function(){
 			</c:forEach>
 		</select>
 		</p>
-		<input type="text" id="committeeReporterCount" name="committeeReporterCount" value="${committeeReporterCount}"/>
+		
 		<!-- Hidden Messages to preserve the localization of the field names -->
 		<input type="hidden" id="committeeReporterCount" name="committeeReporterCount" value="${committeeReporterCount}"/>
 		
