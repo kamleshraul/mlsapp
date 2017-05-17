@@ -1,5 +1,6 @@
 package org.mkcl.els.controller.wf;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -186,6 +187,15 @@ public class CutMotionWorkflowController extends BaseController {
 				buffer.deleteCharAt(buffer.length() - 1);
 				model.addAttribute("supportingMembersName", buffer.toString());
 			}
+		}
+		/**** Amount to be deducted ****/
+		if(motion.getAmountToBeDeducted() != null){
+			model.addAttribute("formattedAmountToBeDeducted",FormaterUtil.formatNumberForIndianCurrencyWithSymbol(motion.getAmountToBeDeducted(), locale));
+		}
+		
+		/**** Total Amount demanded ****/
+		if(motion.getTotalAmoutDemanded() != null){
+			model.addAttribute("formattedTotalAmoutDemanded",FormaterUtil.formatNumberForIndianCurrencyWithSymbol(motion.getTotalAmoutDemanded(), locale));
 		}
 		/**** Decision Status ****/
 		Status approveStatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.SUPPORTING_MEMBER_APPROVED, locale);
@@ -395,6 +405,16 @@ public class CutMotionWorkflowController extends BaseController {
 		/**** Internal Number ****/
 		if (domain.getInternalNumber() != null) {
 			model.addAttribute("formattedInternalNumber", FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getInternalNumber()));
+		}
+		
+		/**** Amount to be deducted ****/
+		if(domain.getAmountToBeDeducted() != null){
+			model.addAttribute("formattedAmountToBeDeducted",FormaterUtil.formatNumberForIndianCurrencyWithSymbol(domain.getAmountToBeDeducted(), locale));
+		}
+		
+		/**** Total Amount demanded ****/
+		if(domain.getTotalAmoutDemanded() != null){
+			model.addAttribute("formattedTotalAmoutDemanded",FormaterUtil.formatNumberForIndianCurrencyWithSymbol(domain.getTotalAmoutDemanded(), locale));
 		}
 		
 		model.addAttribute("level", domain.getLevel());
@@ -656,6 +676,26 @@ public class CutMotionWorkflowController extends BaseController {
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
+			}			
+			/**** Set Amount to be deducted ****/
+			String setAmountToBeDeducted = request.getParameter("setAmountToBeDeducted");
+			if(setAmountToBeDeducted!=null && !setAmountToBeDeducted.isEmpty()) {
+				BigDecimal amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setAmountToBeDeducted, domain.getLocale());
+				if(amountToBeDeducted==null) {
+					amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrency(setAmountToBeDeducted, domain.getLocale());
+				}
+				domain.setAmountToBeDeducted(amountToBeDeducted);
+				System.out.println("amountToBeDeducted: " + domain.getAmountToBeDeducted());
+			}			
+			/**** Set Total Amount demanded ****/
+			String setTotalAmoutDemanded = request.getParameter("setTotalAmoutDemanded");
+			if(setTotalAmoutDemanded!=null && !setTotalAmoutDemanded.isEmpty()) {
+				BigDecimal totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setTotalAmoutDemanded, domain.getLocale());
+				if(totalAmountDemanded==null) {
+					totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrency(setTotalAmoutDemanded, domain.getLocale());
+				}
+				domain.setTotalAmoutDemanded(totalAmountDemanded);
+				System.out.println("totalAmountDemanded: " + domain.getTotalAmoutDemanded());
 			}
 			
 			//---new code
