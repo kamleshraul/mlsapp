@@ -404,13 +404,13 @@
 				
 				<p style="display: inline;">
 					<label class="small"><spring:message code="cutmotion.amountToBeDeducted" text="Deductible Amount"/>*</label>
-					<form:input path="amountToBeDeducted" cssClass="sText"/>
+					<input name="setAmountToBeDeducted" value="${formattedAmountToBeDeducted}" type="text" class="sText"/>
 					<form:errors path="amountToBeDeducted" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 				</p>
 				
 				<p style="display: inline;">
 					<label class="small"><spring:message code="cutmotion.totalAmoutDemanded" text="Demanded Amount"/>*</label>
-					<form:input path="totalAmoutDemanded" cssClass="sText"/>
+					<input name="setTotalAmoutDemanded" type="text" class="sText" value="${formattedTotalAmoutDemanded}"/>
 					<form:errors path="totalAmoutDemanded" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 				</p>
 				

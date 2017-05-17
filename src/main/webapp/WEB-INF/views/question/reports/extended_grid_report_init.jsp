@@ -159,7 +159,12 @@
 		
 		//****Refresh Extended Grid Report in HTML Format****//
 		$('#refreshExtendedGridReport').click(function() {
-			var reportURL = "question/report/extended_grid_report/html";
+			var reportURL = "question/report/extended_grid_report";
+			if($('#outputFormat').val()=='HTML') {
+				reportURL += "/html";
+			} else { //for PDF and WORD.. currently available formats
+				reportURL += "/doc";
+			}
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$.get(reportURL, $('#extendedGridReportForm').serialize(),
     	            function(data){
@@ -199,54 +204,29 @@
 	        if(v){
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				$.ajax({
-					url: 'ref/field_select_query_for_report',
+					url: reportURL,
 					data: $('#extendedGridReportForm').serialize(),
 					type: 'GET',
 			        async: false,
 					success: function(data) {
-						$("#field_select_query").attr('value', data);
-						$.ajax({
-							url: 'ref/field_header_select_query_for_report',
-							data: $('#extendedGridReportForm').serialize(),
-							type: 'GET',
-					        async: false,
-							success: function(data) {
-								$("#field_header_select_query").attr('value', data);							
-								$.get(reportURL, $('#extendedGridReportForm').serialize(),
-					    	            function(data){
-					        				$('#reportConfigDiv').hide();
-					        				$('#reportDataDiv').empty();
-					       					$('#reportDataDiv').html(data);    
-					       					$('#backToReportConfigSpan').removeAttr('hidden');
-					       					$('#refreshExtendedGridReportSpan').removeAttr('hidden');
-					       					$('#extendedGridReport').attr('hidden', 'true');
-					       					$('html').animate({scrollTop:0}, 'slow');
-					       				 	$('body').animate({scrollTop:0}, 'slow');	
-					    					$.unblockUI();	   				 	   				
-					    	            }).fail(function(){
-					    					$.unblockUI();
-					    					if($("#ErrorMsg").val()!=''){
-					    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-					    					}else{
-					    						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-					    					}
-					    					scrollTop();
-					    				});
-							}
-						}).fail(function(){
-							if($("#ErrorMsg").val()!=''){
-								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-							}else{
-								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-							}					
-						});
+						$('#reportConfigDiv').hide();
+        				$('#reportDataDiv').empty();
+       					$('#reportDataDiv').html(data);    
+       					$('#backToReportConfigSpan').removeAttr('hidden');
+       					$('#refreshExtendedGridReportSpan').removeAttr('hidden');
+       					$('#extendedGridReport').attr('hidden', 'true');
+       					$('html').animate({scrollTop:0}, 'slow');
+       				 	$('body').animate({scrollTop:0}, 'slow');	
+    					$.unblockUI();
 					}
 				}).fail(function(){
+					$.unblockUI();
 					if($("#ErrorMsg").val()!=''){
 						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 					}else{
 						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-					}					
+					}
+					scrollTop();					
 				});
 	        }
 		}});			
@@ -374,9 +354,16 @@
 				<tr>
 					<td>
 						<table id="filterTable">
-							<tr class="filter_row" id="clubbing_status_filter">
+							<c:forEach items="${defaultFilters}" var="i">
+								<c:choose>
+									<c:when test="${fn:contains(i, 'clubbing_status_filter')}">
+										<c:set var="clubbing_status_filter_visible" value="yes"/>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+							<tr class="filter_row" id="clubbing_status_filter" ${clubbing_status_filter_visible!='yes' ? 'hidden="true"' : ''}>
 								<td class="filter_field" id="clubbing_status_filter_field">
-									<input type="checkbox" id="clubbing_status_filter_checkbox" class="sCheck filter_checkbox" checked="checked">
+									<input type="checkbox" id="clubbing_status_filter_checkbox" class="sCheck filter_checkbox" ${clubbing_status_filter_visible=='yes' ? 'checked="checked"' : ''}>
 									<label class="small" for="clubbing_status"><spring:message code="extended_grid_report.clubbing_status_filter.filter_field" text="Clubbing Status"/></label>
 									<input type="hidden" id="clubbing_status_filter_applied" name="clubbing_status_filter_applied" value="true"/>
 								</td>
@@ -394,9 +381,16 @@
 								</td>
 							</tr>
 							
-							<tr class="filter_row" id="effective_status_filter">
+							<c:forEach items="${defaultFilters}" var="i">
+								<c:choose>
+									<c:when test="${fn:contains(i, 'effective_status_filter')}">
+										<c:set var="effective_status_filter_visible" value="yes"/>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+							<tr class="filter_row" id="effective_status_filter" ${effective_status_filter_visible!='yes' ? 'hidden="true"' : ''}>
 								<td class="filter_field" id="effective_status_filter_field">
-									<input type="checkbox" id="effective_status_filter_checkbox" class="sCheck filter_checkbox" checked="checked">
+									<input type="checkbox" id="effective_status_filter_checkbox" class="sCheck filter_checkbox" ${effective_status_filter_visible=='yes' ? 'checked="checked"' : ''}>
 									<label class="small" for="effective_status"><spring:message code="extended_grid_report.effective_status_filter.filter_field" text="Status"/></label>
 									<input type="hidden" id="effective_status_filter_applied" name="effective_status_filter_applied" value="true"/>
 								</td>
@@ -406,22 +400,34 @@
 										<option value="eq"><spring:message code="extended_grid_report.filter_operator.eq" text="is"/></option>
 										<option value="clarificationNeededFromDepartment"><spring:message code="extended_grid_report.effective_status_filter.filter_operator.clarification_needed_from_department" text="Clarification From Department"/></option>
 										<option value="clarificationNeededFromMember"><spring:message code="extended_grid_report.effective_status_filter.filter_operator.clarification_needed_from_member" text="Clarification From Member"/></option>
+										<option value="discussedInHouse"><spring:message code="extended_grid_report.effective_status_filter.filter_operator.discussedInHouse" text="Discussed In House"/></option>
+										<option value="unansweredDueToMemberAbsence"><spring:message code="extended_grid_report.effective_status_filter.filter_operator.unansweredDueToMemberAbsence" text="Un-answered Due To Member Absence"/></option>
+										<option value="unansweredDueToMinisterAbsence"><spring:message code="extended_grid_report.effective_status_filter.filter_operator.unansweredDueToMinisterAbsence" text="Un-answered Due To Minister Absence"/></option>
 										<%-- <option value="lapsed"><spring:message code="extended_grid_report.effective_status_filter.filter_operator.lapsed" text="Lapsed"/></option> --%>
 									</select>
 								</td>
 								<td class="filter_values" id="effective_status_filter_values" hidden="true">
 									<select id="effective_status" name="effective_status" style="width: 250px; height: 25px;">
-										<option value="question_submit"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.question_submit" text="Just Submitted"/></option>
-										<option value="question_final_admission"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.question_final_admission" text="Admitted"/></option>
-										<option value="question_final_rejection"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.question_final_rejection" text="Rejected"/></option>
-										<option value="question_unstarred_final_admission"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.question_unstarred_final_admission" text="Unstarred Admitted"/></option>
+										<option value="submit"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.${questionTypeType}.submit" text="Just Submitted"/></option>
+										<option value="final_admission"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.${questionTypeType}.final_admission" text="Admitted"/></option>
+										<option value="final_rejection"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.${questionTypeType}.final_rejection" text="Rejected"/></option>
+										<c:if test="${questionTypeType=='questions_starred' || questionTypeType=='questions_shortnotice'}">
+											<option value="convertToUnstarredAndAdmit"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.${questionTypeType}.convertToUnstarredAndAdmit" text="Unstarred Admitted"/></option>
+										</c:if>
 									</select>
 								</td>
 							</tr>
 							
-							<tr class="filter_row" id="group_filter" hidden="true">
+							<c:forEach items="${defaultFilters}" var="i">
+								<c:choose>
+									<c:when test="${fn:contains(i, 'group_filter')}">
+										<c:set var="group_filter_visible" value="yes"/>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+							<tr class="filter_row" id="group_filter" ${group_filter_visible!='yes' ? 'hidden="true"' : ''}>
 								<td class="filter_field" id="group_filter_field">
-									<input type="checkbox" id="group_filter_checkbox" class="sCheck filter_checkbox">
+									<input type="checkbox" id="group_filter_checkbox" class="sCheck filter_checkbox" ${group_filter_visible=='yes' ? 'checked="checked"' : ''}>
 									<label class="small" for="group"><spring:message code="extended_grid_report.group_filter.filter_field" text="Group"/></label>
 									<input type="hidden" id="group_filter_applied" name="group_filter_applied" value="false"/>
 								</td>
@@ -440,9 +446,16 @@
 								</td>
 							</tr>
 							
-							<tr class="filter_row" id="group_changed_status_filter" hidden="true">
+							<c:forEach items="${defaultFilters}" var="i">
+								<c:choose>
+									<c:when test="${fn:contains(i, 'group_changed_status_filter')}">
+										<c:set var="group_changed_status_filter_visible" value="yes"/>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+							<tr class="filter_row" id="group_changed_status_filter" ${group_changed_status_filter_visible!='yes' ? 'hidden="true"' : ''}>
 								<td class="filter_field" id="group_changed_status_filter_field">
-									<input type="checkbox" id="group_changed_status_filter_checkbox" class="sCheck filter_checkbox">
+									<input type="checkbox" id="group_changed_status_filter_checkbox" class="sCheck filter_checkbox" ${group_changed_status_filter_visible=='yes' ? 'checked="checked"' : ''}>
 									<label class="small" for="group_changed_status"><spring:message code="extended_grid_report.group_changed_status_filter.filter_field" text="Group Changed Status"/></label>
 									<input type="hidden" id="group_changed_status_filter_applied" name="group_changed_status_filter_applied" value="true"/>
 								</td>
@@ -465,9 +478,44 @@
 								</td>
 							</tr>
 							
-							<tr class="filter_row" id="subdepartment_filter" hidden="true">
+							<c:forEach items="${defaultFilters}" var="i">
+								<c:choose>
+									<c:when test="${fn:contains(i, 'answeringDate_filter')}">
+										<c:set var="answeringDate_filter_visible" value="yes"/>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+							<tr class="filter_row" id="answeringDate_filter" ${answeringDate_filter_visible!='yes' ? 'hidden="true"' : ''}>
+								<td class="filter_field" id="answeringDate_filter_field">
+									<input type="checkbox" id="answeringDate_filter_checkbox" class="sCheck filter_checkbox" ${answeringDate_filter_visible=='yes' ? 'checked="checked"' : ''}>
+									<label class="small" for="answeringDate"><spring:message code="extended_grid_report.answeringDate_filter.filter_field" text="Answering Date"/></label>
+									<input type="hidden" id="answeringDate_filter_applied" name="answeringDate_filter_applied" value="false"/>
+								</td>
+								<td class="filter_operator" id="answeringDate_filter_operator">
+									<select id="answeringDate_operator" name="answeringDate_operator" style="width: 100px; height: 25px;">
+										<option value="0" selected="selected"><spring:message code="extended_grid_report.filter_operator.any" text="Any"/></option>
+										<option value="eq"><spring:message code="extended_grid_report.filter_operator.eq" text="is"/></option>
+									</select>
+								</td>
+								<td class="filter_values" id="answeringDate_filter_values" hidden="true">
+									<select id="answeringDate" name="answeringDate" style="width: 100px; height: 25px;">
+										<c:forEach items="${answeringDateList}" var="ansDate">
+											<option value="${ansDate.id}">${ansDate.name}</option>
+										</c:forEach>
+									</select>
+								</td>
+							</tr>
+							
+							<c:forEach items="${defaultFilters}" var="i">
+								<c:choose>
+									<c:when test="${fn:contains(i, 'subdepartment_filter')}">
+										<c:set var="subdepartment_filter_visible" value="yes"/>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+							<tr class="filter_row" id="subdepartment_filter" ${subdepartment_filter_visible!='yes' ? 'hidden="true"' : ''}>
 								<td class="filter_field" id="subdepartment_filter_field">
-									<input type="checkbox" id="subdepartment_filter_checkbox" class="sCheck filter_checkbox">
+									<input type="checkbox" id="subdepartment_filter_checkbox" class="sCheck filter_checkbox" ${subdepartment_filter_visible=='yes' ? 'checked="checked"' : ''}>
 									<label class="small" for="subdepartment"><spring:message code="extended_grid_report.subdepartment_filter.filter_field" text="Department"/></label>
 									<input type="hidden" id="subdepartment_filter_applied" name="subdepartment_filter_applied" value="false"/>
 								</td>
@@ -486,9 +534,16 @@
 								</td>
 							</tr>
 							
-							<tr class="filter_row" id="subdepartment_changed_status_filter" hidden="true">
+							<c:forEach items="${defaultFilters}" var="i">
+								<c:choose>
+									<c:when test="${fn:contains(i, 'subdepartment_changed_status_filter')}">
+										<c:set var="subdepartment_changed_status_filter_visible" value="yes"/>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+							<tr class="filter_row" id="subdepartment_changed_status_filter" ${subdepartment_changed_status_filter_visible!='yes' ? 'hidden="true"' : ''}>
 								<td class="filter_field" id="subdepartment_changed_status_filter_field">
-									<input type="checkbox" id="subdepartment_changed_status_filter_checkbox" class="sCheck filter_checkbox">
+									<input type="checkbox" id="subdepartment_changed_status_filter_checkbox" class="sCheck filter_checkbox" ${subdepartment_changed_status_filter_visible=='yes' ? 'checked="checked"' : ''}>
 									<label class="small" for="subdepartment_changed_status"><spring:message code="extended_grid_report.subdepartment_changed_status_filter.filter_field" text="Department Changed Status"/></label>
 									<input type="hidden" id="subdepartment_changed_status_filter_applied" name="subdepartment_changed_status_filter_applied" value="true"/>
 								</td>
@@ -511,9 +566,16 @@
 								</td>
 							</tr>
 							
-							<tr class="filter_row" id="lapsed_status_filter" hidden="true">
+							<c:forEach items="${defaultFilters}" var="i">
+								<c:choose>
+									<c:when test="${fn:contains(i, 'lapsed_status_filter')}">
+										<c:set var="lapsed_status_filter_visible" value="yes"/>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+							<tr class="filter_row" id="lapsed_status_filter" ${lapsed_status_filter_visible!='yes' ? 'hidden="true"' : ''}>
 								<td class="filter_field" id="lapsed_status_filter_field">
-									<input type="checkbox" id="lapsed_status_filter_checkbox" class="sCheck filter_checkbox">
+									<input type="checkbox" id="lapsed_status_filter_checkbox" class="sCheck filter_checkbox" ${lapsed_status_filter_visible=='yes' ? 'checked="checked"' : ''}>
 									<label class="small" for="lapsed_status"><spring:message code="extended_grid_report.lapsed_status_filter.filter_field" text="Lapsed Status"/></label>
 									<input type="hidden" id="lapsed_status_filter_applied" name="lapsed_status_filter_applied" value="true"/>
 								</td>
@@ -536,14 +598,12 @@
 						<p>
 							<label class="small"><spring:message code="extended_grid_report.add_filter" text="Add Filter" /></label>
 							<select id="addFilter" style="width: 100px; height: 25px;">
-								<option value="-" selected="selected"><spring:message code='please.select' text='Please Select'/></option>				
-								<option value="clubbing_status_filter"><spring:message code='extended_grid_report.clubbing_status_filter.filter_field' text='Clubbing Status'/></option>
-								<option value="effective_status_filter"><spring:message code='extended_grid_report.effective_status_filter.filter_field' text='Status'/></option>
-								<option value="group_filter"><spring:message code='extended_grid_report.group_filter.filter_field' text='Group'/></option>
-								<option value="group_changed_status_filter"><spring:message code='extended_grid_report.group_changed_status_filter.filter_field' text='Group Changed Status'/></option>
-								<option value="subdepartment_filter"><spring:message code='extended_grid_report.subdepartment_filter.filter_field' text='Department'/></option>
-								<option value="subdepartment_changed_status_filter"><spring:message code='extended_grid_report.subdepartment_changed_status_filter.filter_field' text='Department Changed Status'/></option>
-								<option value="lapsed_status_filter"><spring:message code='extended_grid_report.lapsed_status_filter.filter_field' text='Lapsed Status'/></option>
+								<option value="-" selected="selected"><spring:message code='please.select' text='Please Select'/></option>
+								<c:forEach items="${availableFilters}" var="i">
+									<option value="${fn:trim(i)}">
+										<spring:message code="extended_grid_report.${fn:trim(i)}.filter_field" text="${fn:trim(i)}"/>
+									</option>
+								</c:forEach>
 							</select>
 						</p>
 					</td>
@@ -650,8 +710,8 @@
 		<input type="hidden" id="reportFieldsCount" name="reportFieldsCount" value="">
 		<input type="hidden" id="reportSelectQuery" name="reportSelectQuery" value="${fn:toUpperCase(questionTypeType)}_EXTENDED_GRID_QUERY_SELECTED_FIELDS">
 		<input type="hidden" id="reportHeaderSelectQuery" name="reportHeaderSelectQuery" value="${fn:toUpperCase(questionTypeType)}_EXTENDED_GRID_QUERY_HEADERS_SELECTED_FIELDS">
-		<input type="hidden" id="field_select_query" name="field_select_query" value="">
-		<input type="hidden" id="field_header_select_query" name="field_header_select_query" value="">
+		<!-- <input type="hidden" id="field_select_query" name="field_select_query" value=""> -->
+		<!-- <input type="hidden" id="field_header_select_query" name="field_header_select_query" value=""> -->
 		<input type="hidden" id="xsltFileName" name="xsltFileName" value="template_extended_grid_report">
 		<input type="hidden" id="outputFormat" name="outputFormat" value="HTML">
 		<input type="hidden" id="reportFileName" name="reportFileName" value="extended_grid_report">

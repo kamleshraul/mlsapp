@@ -160,7 +160,8 @@
 															<fo:table-cell margin-left="12px">
 																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_2"/></fo:block>
 																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_3"/></fo:block>
-																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_4"/></fo:block>
+																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_8"/></fo:block>
+																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_9"/>, <xsl:value-of select="element_2_4"/></fo:block>
 																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_5"/></fo:block>																			
 															</fo:table-cell>																				
 														</fo:table-row>
@@ -201,13 +202,97 @@
 														<fo:block text-align="justify">
 															<xsl:value-of select="element_2_7"/>																		
 														</fo:block>
-														<fo:block>&#160;</fo:block>																				
+														<fo:block font-size="4px">&#160;</fo:block>																				
 													</fo:table-cell>																				
 												</fo:table-row>
 											</xsl:for-each>											
 										</fo:table-body>
 									</fo:table>
 								</fo:block>
+								<fo:block font-size="6pt">
+		               				<fo:leader leader-pattern="rule" leader-length="100%" rule-style="solid" rule-thickness="2pt"/>
+		               			</fo:block>
+								<fo:block font-size="4px">&#160;</fo:block>
+								<fo:block font-weight="bold">
+		               				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
+		               					<fo:table-column column-number="1" column-width="5cm" />
+				                        <fo:table-column column-number="2" column-width="8cm" />
+				                        <fo:table-column column-number="3" column-width="5cm" />
+				                        <fo:table-body>
+				                        	<fo:table-row border-collapse="collapse">
+				                        		<fo:table-cell>
+				     								<fo:block text-align="left">
+				     									<xsl:value-of select="element_1/element_1_9"/>
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block>
+				     									&#160;
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block text-align="center">
+				     									<xsl:value-of select="element_1/element_1_8"/>,
+				     								</fo:block>
+				     							</fo:table-cell>
+				                        	</fo:table-row>
+				                        	<fo:table-row border-collapse="collapse">
+				                        		<fo:table-cell>
+				     								<fo:block text-align="left">
+				     									<xsl:value-of select="element_1/element_1_10"/>,
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block>
+				     									&#160;
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block text-align="center">
+				     									<xsl:value-of select="element_1/element_1_7"/>,
+				     								</fo:block>				     								
+				     							</fo:table-cell>
+				                        	</fo:table-row>
+				                        	<fo:table-row border-collapse="collapse">
+				                        		<fo:table-cell>
+				     								<fo:block text-align="left">
+				     									<xsl:value-of select="element_1/element_1_11"/> : <xsl:value-of select="reportDate"/>
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block>
+				     									&#160;
+				     								</fo:block>
+				     							</fo:table-cell>
+				     							<fo:table-cell>
+				     								<fo:block text-align="center">
+				     									<xsl:value-of select="element_1/element_1_1"/>
+				     								</fo:block>
+				     							</fo:table-cell>
+				                        	</fo:table-row>
+				                        </fo:table-body>
+		               				</fo:table>
+			                	</fo:block>   
+			                	<fo:block font-size="6px">&#160;</fo:block>   
+		               			<fo:block font-weight="bold">
+		               				<xsl:value-of select="element_1/element_1_12"/> :
+		               			</fo:block> 
+		               			<fo:block margin-top="5pt" margin-left="1.5cm">
+		               				<fo:block><xsl:value-of select="element_1/element_1_13"/></fo:block>
+		               				<fo:block><xsl:value-of select="element_1/element_1_14"/></fo:block>
+		               				<fo:block><xsl:value-of select="element_1/element_1_15"/></fo:block>
+		               				<fo:block><xsl:value-of select="element_1/element_1_16"/></fo:block>
+		               				<fo:block><xsl:value-of select="element_1/element_1_17"/></fo:block>
+		               			</fo:block>
+		               			<fo:block margin-top="50">
+		               				&#160;
+		               			</fo:block>
+		               			<fo:block font-size="6pt" text-align="center">               				
+		               				_____________________________________________
+		               			</fo:block>
+		               			<fo:block font-size="9.5px" text-align="center">
+		               				<xsl:value-of select="element_1/element_1_18"/>
+		               			</fo:block>
 			       			</xsl:when>
 			       			<xsl:otherwise>
 			       				अद्याप या अधिवेशनासाठी कोणत्याही सदस्याने कपात सूचना सादर केलेल्या नाहीत.
