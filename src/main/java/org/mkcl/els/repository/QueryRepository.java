@@ -32,14 +32,14 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 					&& requestMap.get("field_select_query")[0]!=null
 					&& queryString.contains("field_select_query")) {
 				String field_select_query = requestMap.get("field_select_query")[0];
-				CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				if(deploymentServerCP.getValue().equals("TOMCAT")){
-					try {
-						field_select_query = new String(field_select_query.getBytes("ISO-8859-1"),"UTF-8");
-					} catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
-					}		
-				}
+//				CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+//				if(deploymentServerCP.getValue().equals("TOMCAT")){
+//					try {
+//						field_select_query = new String(field_select_query.getBytes("ISO-8859-1"),"UTF-8");
+//					} catch (UnsupportedEncodingException e) {
+//						e.printStackTrace();
+//					}		
+//				}
 				queryString = queryString.replace("field_select_query", field_select_query);
 			}
 			/** for headers **/
@@ -47,14 +47,14 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 					&& requestMap.get("field_header_select_query")[0]!=null
 					&& queryString.contains("field_header_select_query")) {
 				String field_header_select_query = requestMap.get("field_header_select_query")[0];
-				CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
-				if(deploymentServerCP.getValue().equals("TOMCAT")){
-					try {
-						field_header_select_query = new String(field_header_select_query.getBytes("ISO-8859-1"),"UTF-8");
-					} catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
-					}		
-				}
+//				CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+//				if(deploymentServerCP.getValue().equals("TOMCAT")){
+//					try {
+//						field_header_select_query = new String(field_header_select_query.getBytes("ISO-8859-1"),"UTF-8");
+//					} catch (UnsupportedEncodingException e) {
+//						e.printStackTrace();
+//					}		
+//				}
 				queryString = queryString.replace("field_header_select_query", field_header_select_query);
 			}
 			//====================================================================================================

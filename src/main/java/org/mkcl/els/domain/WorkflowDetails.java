@@ -174,12 +174,15 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	private String decisionStatusForMyTaskGrid;
 	
 	/****Ministry****/
+	@Column(length = 900)
 	private String ministry;
 	
 	/****Subdepartment*****/
+	@Column(length = 900)
 	private String subdepartment;
 	
 	/**** Replies of Devices ****/
+	@Column(length=30000)
 	private String reply;
 	
 	

@@ -11,6 +11,7 @@ package org.mkcl.els.domain;
  */
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -74,10 +75,12 @@ public class CutMotion extends Device implements Serializable {
 	private Integer internalNumber;
 
 	/**amount to be deducted **/
-	private Double amountToBeDeducted;
+	@Column(precision=20, scale=2)
+	private BigDecimal amountToBeDeducted;
 
-	/** Total Mount **/
-	private Double totalAmoutDemanded;
+	/** Total Amount **/
+	@Column(precision=20, scale=2)
+	private BigDecimal totalAmoutDemanded;
 
 	/** The submission date. */
 	@Temporal(TemporalType.TIMESTAMP)
@@ -1907,19 +1910,19 @@ public class CutMotion extends Device implements Serializable {
 		this.internalNumber = internalNumber;
 	}
 
-	public Double getAmountToBeDeducted() {
+	public BigDecimal getAmountToBeDeducted() {
 		return amountToBeDeducted;
 	}
 
-	public void setAmountToBeDeducted(Double amountToBeDeducted) {
+	public void setAmountToBeDeducted(BigDecimal amountToBeDeducted) {
 		this.amountToBeDeducted = amountToBeDeducted;
 	}
 
-	public Double getTotalAmoutDemanded() {
+	public BigDecimal getTotalAmoutDemanded() {
 		return totalAmoutDemanded;
 	}
 
-	public void setTotalAmoutDemanded(Double totalAmoutDemanded) {
+	public void setTotalAmoutDemanded(BigDecimal totalAmoutDemanded) {
 		this.totalAmoutDemanded = totalAmoutDemanded;
 	}
 

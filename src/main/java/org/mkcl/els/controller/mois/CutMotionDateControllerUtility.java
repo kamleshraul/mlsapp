@@ -62,9 +62,14 @@ public class CutMotionDateControllerUtility{
 					Credential credential = Credential.findByFieldName(Credential.class,"username",username,"");
 					UserGroup userGroup = UserGroup.findActive(credential, domain.getSession().getEndDate(), locale);
 					userGroupType = userGroup.getUserGroupType().getType();
-					if(status.getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_ADMISSION)
+					if((status.getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_ADMISSION) || status.getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_REJECTION))
 							&& userGroupType.equals(ApplicationConstants.MEMBER)){
 						UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.LEADER_OF_OPPOSITION, locale);
+						userGroup = UserGroup.findActive(credential,ugt , domain.getSession().getEndDate(), locale);
+					
+					} else if((status.getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_ADMISSION) || status.getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_REJECTION))
+							&& userGroupType.equals(ApplicationConstants.DEPARTMENT)){
+						UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.PARLIAMENTARY_AFFAIRS_MINISTER, locale);
 						userGroup = UserGroup.findActive(credential,ugt , domain.getSession().getEndDate(), locale);
 					}
 					userGroupId = String.valueOf(userGroup.getId());

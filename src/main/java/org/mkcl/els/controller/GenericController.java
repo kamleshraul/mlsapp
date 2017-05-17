@@ -666,6 +666,7 @@ public class GenericController<T extends BaseDomain> extends BaseController {
                     || strClassType.equals("Number")
                     || strClassType.equals("Long")
                     || strClassType.equals("Double")
+                    || strClassType.equals("BigDecimal")
                     || strClassType.equals("java.util.List")
                     || strClassType.equals("JoinPoint$StaticPart")
                     || strClassType.equals("StaticPart")

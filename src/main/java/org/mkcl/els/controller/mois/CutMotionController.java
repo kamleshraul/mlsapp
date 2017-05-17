@@ -1,5 +1,7 @@
 package org.mkcl.els.controller.mois;
 
+
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -775,10 +777,21 @@ public class CutMotionController extends GenericController<CutMotion>{
 			model.addAttribute("formattedNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getNumber()));
 		}
 		
-		/**** Number ****/
+		/**** Internal Number ****/
 		if(domain.getInternalNumber() != null){
 			model.addAttribute("formattedInternalNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getInternalNumber()));
 		}
+		
+		/**** Amount to be deducted ****/
+		if(domain.getAmountToBeDeducted() != null){
+			model.addAttribute("formattedAmountToBeDeducted",FormaterUtil.formatNumberForIndianCurrencyWithSymbol(domain.getAmountToBeDeducted(), locale));
+		}
+		
+		/**** Total Amount demanded ****/
+		if(domain.getTotalAmoutDemanded() != null){
+			model.addAttribute("formattedTotalAmoutDemanded",FormaterUtil.formatNumberForIndianCurrencyWithSymbol(domain.getTotalAmoutDemanded(), locale));
+		}
+		
 		/**** Created By ****/
 		model.addAttribute("createdBy",domain.getCreatedBy());
 		model.addAttribute("dataEnteredBy",domain.getDataEnteredBy());
@@ -1302,12 +1315,57 @@ public class CutMotionController extends GenericController<CutMotion>{
 			}
 		}
 		model.addAttribute("selectedSupportingMembersIfErrors", selectedSupportingMembersIfErrors);
+		
+		/**** Set Amount to be deducted ****/
+		String setAmountToBeDeducted = request.getParameter("setAmountToBeDeducted");
+		if(setAmountToBeDeducted!=null && !setAmountToBeDeducted.isEmpty()) {
+			BigDecimal amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setAmountToBeDeducted, domain.getLocale());
+			if(amountToBeDeducted==null) {
+				amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrency(setAmountToBeDeducted, domain.getLocale());
+			}
+			domain.setAmountToBeDeducted(amountToBeDeducted);
+			System.out.println("amountToBeDeducted: " + domain.getAmountToBeDeducted());
+		}
+		
+		/**** Set Total Amount demanded ****/
+		String setTotalAmoutDemanded = request.getParameter("setTotalAmoutDemanded");
+		if(setTotalAmoutDemanded!=null && !setTotalAmoutDemanded.isEmpty()) {
+			BigDecimal totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setTotalAmoutDemanded, domain.getLocale());
+			if(totalAmountDemanded==null) {
+				totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrency(setTotalAmoutDemanded, domain.getLocale());
+			}
+			domain.setTotalAmoutDemanded(totalAmountDemanded);
+			System.out.println("totalAmountDemanded: " + domain.getTotalAmoutDemanded());
+		}
+		
 		super.populateCreateIfErrors(model, domain, request);
 	}
 
 	@Override
 	protected void populateUpdateIfErrors(final ModelMap model, CutMotion domain,
 			final HttpServletRequest request) {
+		/**** Set Amount to be deducted ****/
+		String setAmountToBeDeducted = request.getParameter("setAmountToBeDeducted");
+		if(setAmountToBeDeducted!=null && !setAmountToBeDeducted.isEmpty()) {
+			BigDecimal amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setAmountToBeDeducted, domain.getLocale());
+			if(amountToBeDeducted==null) {
+				amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrency(setAmountToBeDeducted, domain.getLocale());
+			}
+			domain.setAmountToBeDeducted(amountToBeDeducted);
+			System.out.println("amountToBeDeducted: " + domain.getAmountToBeDeducted());
+		}
+		
+		/**** Set Total Amount demanded ****/
+		String setTotalAmoutDemanded = request.getParameter("setTotalAmoutDemanded");
+		if(setTotalAmoutDemanded!=null && !setTotalAmoutDemanded.isEmpty()) {
+			BigDecimal totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setTotalAmoutDemanded, domain.getLocale());
+			if(totalAmountDemanded==null) {
+				totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrency(setTotalAmoutDemanded, domain.getLocale());
+			}
+			domain.setTotalAmoutDemanded(totalAmountDemanded);
+			System.out.println("totalAmountDemanded: " + domain.getTotalAmoutDemanded());
+		}
+		
 		/**** updating submission date and creation date ****/
 		String strCreationDate=request.getParameter("setCreationDate");
 		String strSubmissionDate=request.getParameter("setSubmissionDate");
@@ -1345,6 +1403,29 @@ public class CutMotionController extends GenericController<CutMotion>{
 		if(domain.getSubDepartment() != null){
 			domain.setDepartment(domain.getSubDepartment().getDepartment());
 		}
+		
+		/**** Set Amount to be deducted ****/
+		String setAmountToBeDeducted = request.getParameter("setAmountToBeDeducted");
+		if(setAmountToBeDeducted!=null && !setAmountToBeDeducted.isEmpty()) {
+			BigDecimal amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setAmountToBeDeducted, domain.getLocale());
+			if(amountToBeDeducted==null) {
+				amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrency(setAmountToBeDeducted, domain.getLocale());
+			}
+			domain.setAmountToBeDeducted(amountToBeDeducted);
+			System.out.println("amountToBeDeducted: " + domain.getAmountToBeDeducted());
+		}
+		
+		/**** Set Total Amount demanded ****/
+		String setTotalAmoutDemanded = request.getParameter("setTotalAmoutDemanded");
+		if(setTotalAmoutDemanded!=null && !setTotalAmoutDemanded.isEmpty()) {
+			BigDecimal totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setTotalAmoutDemanded, domain.getLocale());
+			if(totalAmountDemanded==null) {
+				totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrency(setTotalAmoutDemanded, domain.getLocale());
+			}
+			domain.setTotalAmoutDemanded(totalAmountDemanded);
+			System.out.println("totalAmountDemanded: " + domain.getTotalAmoutDemanded());
+		}
+		
 		/**** Status ,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
 		/**** In case of submission ****/
 		String operation = request.getParameter("operation");
@@ -1474,6 +1555,28 @@ public class CutMotionController extends GenericController<CutMotion>{
 		/**** Set department ****/
 		if(domain.getSubDepartment() != null){
 			domain.setDepartment(domain.getSubDepartment().getDepartment());
+		}
+		
+		/**** Set Amount to be deducted ****/
+		String setAmountToBeDeducted = request.getParameter("setAmountToBeDeducted");
+		if(setAmountToBeDeducted!=null && !setAmountToBeDeducted.isEmpty()) {
+			BigDecimal amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setAmountToBeDeducted, domain.getLocale());
+			if(amountToBeDeducted==null) {
+				amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrency(setAmountToBeDeducted, domain.getLocale());
+			}
+			domain.setAmountToBeDeducted(amountToBeDeducted);
+			System.out.println("amountToBeDeducted: " + domain.getAmountToBeDeducted());
+		}
+		
+		/**** Set Total Amount demanded ****/
+		String setTotalAmoutDemanded = request.getParameter("setTotalAmoutDemanded");
+		if(setTotalAmoutDemanded!=null && !setTotalAmoutDemanded.isEmpty()) {
+			BigDecimal totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setTotalAmoutDemanded, domain.getLocale());
+			if(totalAmountDemanded==null) {
+				totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrency(setTotalAmoutDemanded, domain.getLocale());
+			}
+			domain.setTotalAmoutDemanded(totalAmountDemanded);
+			System.out.println("totalAmountDemanded: " + domain.getTotalAmoutDemanded());
 		}
 		
 		/**** Checking if its submission request or normal update ****/

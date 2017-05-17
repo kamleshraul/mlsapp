@@ -494,9 +494,11 @@ public class CutMotionDateWorkflowController extends BaseController {
 				for (; !start.after(end); start.add(Calendar.DATE, 1)) {
 					Date current = start.getTime();
 					
-					if(current.after(budgetLayDate) 
-							&& !Holiday.isHolidayOnDate(current, locale)){
-						dates.add(current);
+					if(!Holiday.isHolidayOnDate(current, locale)){
+						if(deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)
+								|| (deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY) && current.after(budgetLayDate))) {
+							dates.add(current);
+						}						
 					}
 				}
 	

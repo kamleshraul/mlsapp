@@ -9,8 +9,10 @@
  */
 package org.mkcl.els.common.util;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
+import java.text.Format;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -496,6 +498,46 @@ public class FormaterUtil {
     public static String formatNumberNoGrouping(Object value , String locale){
     	return getNumberFormatterNoGrouping(locale).format(value);
     }
+    
+    public static String formatNumberForIndianCurrency(Object value, String locale) {
+    	Format formatForIndianCurrency = com.ibm.icu.text.NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
+        
+        String indianCurrencyNumber = formatForIndianCurrency.format(value).substring(2); //substring is used to eliminate Indian Currency Symbol
+        
+    	return formatNumbersInGivenText(indianCurrencyNumber, locale);
+    }
+    
+    public static String formatNumberForIndianCurrencyWithSymbol(Object value, String locale) {
+    	Format formatForIndianCurrency = com.ibm.icu.text.NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
+        
+    	String indianCurrencyNumber = formatForIndianCurrency.format(value);
+        
+    	return formatNumbersInGivenText(indianCurrencyNumber, locale);
+    }
+    
+    public static BigDecimal parseNumberForIndianCurrency(String formattedNumber, String locale) {
+    	try {
+    		formattedNumber = formattedNumber.replaceAll(",", "");
+    		Number number = getNumberFormatterNoGrouping(locale).parse(formattedNumber);
+			return new BigDecimal(getNumberFormatterNoGrouping(locale).format(number));
+		} catch (ParseException e) {
+			//e.printStackTrace();
+			return null;
+		}
+    }
+    
+    public static BigDecimal parseNumberForIndianCurrencyWithSymbol(String formattedNumber, String locale) {   	   	
+    	Format formatForIndianCurrency = com.ibm.icu.text.NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
+        
+    	try {
+    		formattedNumber = formattedNumber.replaceAll(",", "");
+    		Number number = (Number) formatForIndianCurrency.parseObject(formattedNumber);
+			return new BigDecimal(getNumberFormatterNoGrouping("en_US").format(number));
+		} catch (ParseException e) {
+			//e.printStackTrace();
+			return null;
+		}
+    }
 
     
     //-------vikas dhananjay------------------
@@ -788,7 +830,8 @@ public class FormaterUtil {
 	public static String formatNumbersInGivenText(final String givenText, final String locale) {
 		String formattedText = givenText;
 		
-		if(formattedText!=null && !formattedText.isEmpty()) {
+		if(formattedText!=null && !formattedText.isEmpty() && locale!=null && !locale.isEmpty() && !locale.equals("en_US")) {
+			
 			formattedText = formattedText.replaceAll("0", FormaterUtil.formatNumberNoGrouping(0, locale));
 			formattedText = formattedText.replaceAll("1", FormaterUtil.formatNumberNoGrouping(1, locale));
 			formattedText = formattedText.replaceAll("2", FormaterUtil.formatNumberNoGrouping(2, locale));
