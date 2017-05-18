@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -302,17 +303,23 @@ public class ReportServiceImpl implements IReportService {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void createInternalElements(List<Object> currentObj, Element currentElement) {
+	private void createInternalElements(List<Object> currentObj, Element currentElement, String locale) {
 		for(int k = 0; k < currentObj.size(); k++){
 			
 			Element internalElement = new Element(currentElement.getName()+"_"+(k+1));
 			if(currentObj.get(k) != null){
 				if(currentObj.get(k).getClass().getSimpleName().endsWith("Object[]")) {
-					createInternalElements((Object[])currentObj.get(k), internalElement);
+					createInternalElements((Object[])currentObj.get(k), internalElement, locale);
 				}else if(currentObj.get(k).getClass().getSimpleName().endsWith("List")) {
-					createInternalElements((List<Object>)currentObj.get(k), internalElement);
-				} else if(currentObj.get(k).getClass().getSimpleName().equals("String")
-						|| currentObj.get(k).getClass().getSimpleName().endsWith("Integer")
+					createInternalElements((List<Object>)currentObj.get(k), internalElement, locale);
+				} else if(currentObj.get(k).getClass().getSimpleName().equals("String")) {
+					if(currentObj.get(k).toString().startsWith("currency")) {
+						String formattedCurrencyValue = formatValueForIndianCurrency(currentObj.get(k).toString(), locale);
+						internalElement.setText(formattedCurrencyValue);								
+					} else {
+						internalElement.setText(currentObj.get(k).toString());
+					}
+				} else if(currentObj.get(k).getClass().getSimpleName().endsWith("Integer")
 						|| currentObj.get(k).getClass().getSimpleName().equals("Long")
 						|| currentObj.get(k).getClass().getSimpleName().equals("Boolean")
 						|| currentObj.get(k).getClass().getSimpleName().equals("Date")) {
@@ -326,17 +333,23 @@ public class ReportServiceImpl implements IReportService {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void createInternalElements(Object[] currentObj, Element currentElement) {
+	private void createInternalElements(Object[] currentObj, Element currentElement, String locale) {
 		for(int k = 0; k < currentObj.length; k++){
 			
 			Element internalElement = new Element(currentElement.getName()+ "_" + (k + 1));
 			if (currentObj[k] != null) {
 				if (currentObj[k].getClass().getSimpleName().endsWith("Object[]")) {
-					createInternalElements((Object[]) currentObj[k],internalElement);
-				}else if (currentObj[k].getClass().getSimpleName().endsWith("List")) {
-					createInternalElements((List<Object>) currentObj[k],internalElement);
-				} else if (currentObj[k].getClass().getSimpleName().equals("String")
-						|| currentObj[k].getClass().getSimpleName().endsWith("Integer")
+					createInternalElements((Object[]) currentObj[k],internalElement,locale);
+				} else if(currentObj[k].getClass().getSimpleName().endsWith("List")) {
+					createInternalElements((List<Object>) currentObj[k],internalElement,locale);
+				} else if(currentObj[k].getClass().getSimpleName().equals("String")) {
+					if(currentObj[k].toString().startsWith("currency")) {
+						String formattedCurrencyValue = formatValueForIndianCurrency(currentObj[k].toString(), locale);
+						internalElement.setText(formattedCurrencyValue);								
+					} else {
+						internalElement.setText(currentObj[k].toString());
+					}
+				} else if(currentObj[k].getClass().getSimpleName().endsWith("Integer")
 						|| currentObj[k].getClass().getSimpleName().equals("Long")
 						|| currentObj[k].getClass().getSimpleName().equals("Boolean")
 						|| currentObj[k].getClass().getSimpleName().equals("Date")) {
@@ -396,13 +409,16 @@ public class ReportServiceImpl implements IReportService {
 							if(reportFields[i].toString().startsWith("data:image")) {
 								String image_filename = generateImageElement("element_"+Integer.toString(i+1), reportFields[i].toString());
 						        singleElement.setText(image_filename);
+							} else if(reportFields[i].toString().startsWith("currency")) {
+								String formattedCurrencyValue = formatValueForIndianCurrency(reportFields[i].toString(), locale);
+								singleElement.setText(formattedCurrencyValue);								
 							} else {
 								singleElement.setText(reportFields[i].toString());
 							}							
 							root.addContent(singleElement);					
 						} else if(classType.equals("Object[]")){				
 							Element listElement = new Element("element_"+(i+1));		
-							createInternalElements(((Object[])reportFields[i]), listElement);
+							createInternalElements(((Object[])reportFields[i]), listElement, locale);
 							//singleElement.setText(reportFields[i].toString());
 							root.addContent(listElement);					
 						} else if(classType.endsWith("List")){					
@@ -411,13 +427,16 @@ public class ReportServiceImpl implements IReportService {
 							for (int j = 0; j < report.size(); j++) {						
 								Element listElement = new Element("element_"+(i+1));
 								if(report.get(j).getClass().getSimpleName().equals("Object[]")){
-									createInternalElements(((Object[])report.get(j)), listElement);
+									createInternalElements(((Object[])report.get(j)), listElement, locale);
 								}else if(report.get(j).getClass().getSimpleName().endsWith("List")) {							
-									createInternalElements((List<Object>)report.get(j), listElement);
+									createInternalElements((List<Object>)report.get(j), listElement, locale);
 								} else if(report.get(j).getClass().getSimpleName().equals("String")) {
 									if(report.get(j).toString().startsWith("data:image")) {
 										String image_filename = generateImageElement("element_"+Integer.toString(i+1)+"_"+Integer.toString(j+1), report.get(j).toString());
 										listElement.setText(image_filename);
+									} else if(report.get(j).toString().startsWith("currency")) {
+										String formattedCurrencyValue = formatValueForIndianCurrency(report.get(j).toString(), locale);
+										listElement.setText(formattedCurrencyValue);								
 									} else {
 										listElement.setText(report.get(j).toString());
 									}									
@@ -440,11 +459,14 @@ public class ReportServiceImpl implements IReportService {
 										for (int j = 0; j < report.size(); j++) {	
 											Element mapKeyElement = new Element(mapElement.getName()+"_1");
 											if(report.get(j).getClass().getSimpleName().endsWith("List")) {
-												createInternalElements((List<Object>)report.get(j), mapKeyElement);										
+												createInternalElements((List<Object>)report.get(j), mapKeyElement, locale);										
 											} else if(report.get(j).getClass().getSimpleName().equals("String")) {
 												if(report.get(j).toString().startsWith("data:image")) {
 													String image_filename = generateImageElement(mapElement.getName()+"_"+Integer.toString(i+1)+"_"+Integer.toString(j+1)+"_1", report.get(j).toString());
 													mapKeyElement.setText(image_filename);
+												} else if(report.get(j).toString().startsWith("currency")) {
+													String formattedCurrencyValue = formatValueForIndianCurrency(report.get(j).toString(), locale);
+													mapKeyElement.setText(formattedCurrencyValue);								
 												} else {
 													mapKeyElement.setText(report.get(j).toString());
 												}
@@ -457,6 +479,9 @@ public class ReportServiceImpl implements IReportService {
 										if(entry.getKey().toString().startsWith("data:image")) {
 											String image_filename = generateImageElement(mapElement.getName()+"_"+Integer.toString(i+1)+"_1", entry.getKey().toString());
 											mapKeyElement.setText(image_filename);
+										} else if(entry.getKey().toString().startsWith("currency")) {
+											String formattedCurrencyValue = formatValueForIndianCurrency(entry.getKey().toString(), locale);
+											mapKeyElement.setText(formattedCurrencyValue);								
 										} else {
 											mapKeyElement.setText(entry.getKey().toString());
 										}										
@@ -468,14 +493,17 @@ public class ReportServiceImpl implements IReportService {
 										for (int j = 0; j < report.size(); j++) {							
 											Element mapValueElement = new Element(mapElement.getName()+"_2");
 											if(report.get(j).getClass().getSimpleName().endsWith("List")) {
-												createInternalElements((List<Object>)report.get(j), mapValueElement);										
+												createInternalElements((List<Object>)report.get(j), mapValueElement, locale);										
 											} else if(report.get(j).getClass().getSimpleName().equals("Object[]")){
-												createInternalElements(((Object[])report.get(j)), mapValueElement);					
+												createInternalElements(((Object[])report.get(j)), mapValueElement, locale);					
 											} else if(report.get(j).getClass().getSimpleName().equals("String")) {
 												mapValueElement.setText(report.get(j).toString());
 												if(report.get(j).toString().startsWith("data:image")) {
 													String image_filename = generateImageElement(mapElement.getName()+"_"+Integer.toString(i+1)+"_"+Integer.toString(j+1)+"_2", report.get(j).toString());
 													mapValueElement.setText(image_filename);
+												} else if(report.get(j).toString().startsWith("currency")) {
+													String formattedCurrencyValue = formatValueForIndianCurrency(report.get(j).toString(), locale);
+													mapValueElement.setText(formattedCurrencyValue);								
 												} else {
 													mapValueElement.setText(report.get(j).toString());
 												}
@@ -488,6 +516,9 @@ public class ReportServiceImpl implements IReportService {
 										if(entry.getValue().toString().startsWith("data:image")) {
 											String image_filename = generateImageElement(mapElement.getName()+"_"+Integer.toString(i+1)+"_2", entry.getValue().toString());
 											mapValueElement.setText(image_filename);
+										} else if(entry.getValue().toString().startsWith("currency")) {
+											String formattedCurrencyValue = formatValueForIndianCurrency(entry.getValue().toString(), locale);
+											mapValueElement.setText(formattedCurrencyValue);							
 										} else {
 											mapValueElement.setText(entry.getValue().toString());
 										}
@@ -527,6 +558,19 @@ public class ReportServiceImpl implements IReportService {
 		} else {
 			throw new Exception();
 		}		      
+	}
+	
+	private String formatValueForIndianCurrency(String value, String locale) {
+		String formattedCurrencyValue = value;
+		BigDecimal currencyValue = FormaterUtil.parseNumberForIndianCurrency(value.split(":")[1], locale);
+		if(currencyValue!=null) {
+			if(value.split(":")[0].equals("currencyWithSymbol")) {
+				formattedCurrencyValue = FormaterUtil.formatNumberForIndianCurrencyWithSymbol(currencyValue, locale);
+			} else if(value.split(":")[0].equals("currency")) {
+				formattedCurrencyValue = FormaterUtil.formatNumberForIndianCurrency(currencyValue, locale);
+			}			
+		}
+		return formattedCurrencyValue;
 	}
 	
 	public void convertXML2FO() throws IOException, TransformerException {
@@ -1064,7 +1108,7 @@ public class ReportServiceImpl implements IReportService {
 	        	if(node.hasChildNodes() && node.getFirstChild().isSameNode(node.getLastChild()) && node.getTextContent().startsWith("data:image")) {
 	        		String image_filename = generateImageElement(node.getNodeName()+"_"+Integer.toString(i+1), node.getTextContent());
 			        node.setTextContent(image_filename);
-	        	}        
+	        	}
 	        }
 	    }
 	    

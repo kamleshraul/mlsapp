@@ -500,19 +500,43 @@ public class FormaterUtil {
     }
     
     public static String formatNumberForIndianCurrency(Object value, String locale) {
+    	return formatNumberForIndianCurrency(value, false, locale);
+    }
+    
+    public static String formatNumberForIndianCurrency(Object value, Boolean includeZeroValueAfterDecimalPoint, String locale) {
     	Format formatForIndianCurrency = com.ibm.icu.text.NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
         
         String indianCurrencyNumber = formatForIndianCurrency.format(value).substring(2); //substring is used to eliminate Indian Currency Symbol
         
-    	return formatNumbersInGivenText(indianCurrencyNumber, locale);
+        if(includeZeroValueAfterDecimalPoint) {
+        	return formatNumbersInGivenText(indianCurrencyNumber, locale);
+        } else {
+        	if(indianCurrencyNumber.endsWith(".00")) {
+        		return formatNumbersInGivenText(indianCurrencyNumber, locale).substring(0, indianCurrencyNumber.length()-3); //remove post decimal point
+        	} else {
+        		return formatNumbersInGivenText(indianCurrencyNumber, locale);
+        	}
+        }
     }
     
     public static String formatNumberForIndianCurrencyWithSymbol(Object value, String locale) {
+    	return formatNumberForIndianCurrencyWithSymbol(value, false, locale);
+    }
+    
+    public static String formatNumberForIndianCurrencyWithSymbol(Object value, Boolean includeZeroValueAfterDecimalPoint, String locale) {
     	Format formatForIndianCurrency = com.ibm.icu.text.NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
         
     	String indianCurrencyNumber = formatForIndianCurrency.format(value);
         
-    	return formatNumbersInGivenText(indianCurrencyNumber, locale);
+    	if(includeZeroValueAfterDecimalPoint) {
+        	return formatNumbersInGivenText(indianCurrencyNumber, locale);
+        } else {
+        	if(indianCurrencyNumber.endsWith(".00")) {
+        		return formatNumbersInGivenText(indianCurrencyNumber, locale).substring(0, indianCurrencyNumber.length()-3); //remove post decimal point
+        	} else {
+        		return formatNumbersInGivenText(indianCurrencyNumber, locale);
+        	}
+        }
     }
     
     public static BigDecimal parseNumberForIndianCurrency(String formattedNumber, String locale) {

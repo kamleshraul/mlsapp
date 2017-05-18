@@ -161,7 +161,7 @@
 																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_2"/></fo:block>
 																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_3"/></fo:block>
 																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_8"/></fo:block>
-																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_9"/>, <xsl:value-of select="element_2_4"/></fo:block>
+																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_9"/>, रूपये:- <xsl:value-of select="element_2_4"/>/-</fo:block>
 																<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_5"/></fo:block>																			
 															</fo:table-cell>																				
 														</fo:table-row>
