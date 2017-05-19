@@ -2584,4 +2584,10 @@ public class ApplicationConstants {
 	
 	public static String PARLIAMENTARY_AFFAIRS_MINISTER = "parliamentary_affairs_minister";
 	
+	public static String DAY_WORKING_SCOPE_COMMON = "common";
+	
+	public static String DAY_WORKING_SCOPE_HOUSE_PROCEEDING = "house_proceeding";
+	
+	public static String DAY_WORKING_SCOPE_SECRETARIAT_STAFF = "secretariat_staff";
+	
 }
