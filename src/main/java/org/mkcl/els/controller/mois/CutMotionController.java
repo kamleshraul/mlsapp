@@ -2532,7 +2532,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 				if(cutMotionDate.getStatus().getType().equals(dateAdmitted.getType())){
 					for(CutMotionDepartmentDatePriority p : cutMotionDate.getDepartmentDates()){
 						if(cutMotion.getSubDepartment() != null){
-							if(p.getSubDepartment().getName().equals(cutMotion.getSubDepartment().getName()) && p.getDepartment().getName().equals(cutMotion.getSubDepartment().getDepartment().getName())){
+							if(p.getSubDepartment().getName().equals(cutMotion.getSubDepartment().getName())/* && p.getDepartment().getName().equals(cutMotion.getSubDepartment().getDepartment().getName())*/){
 								if(cutMotion.getSubmissionDate() != null){
 									if(cutMotion.getSubmissionDate().before(p.getSubmissionEndDate())){
 										retVal = true;

@@ -246,15 +246,11 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 				model.addAttribute("role",strRole);
 			}
 			
-			/**** sub-department ****/
-			List<SubDepartment> subdepartments = SubDepartment.findAll(SubDepartment.class, "name", ApplicationConstants.ASC, locale);
-			model.addAttribute("subdepartments", subdepartments);
-						
 			/**** device types ****/
 			List<DeviceType> deviceTypes = DeviceType.findDeviceTypesStartingWith("motions_cutmotion_", locale);
 			model.addAttribute("deviceTypes", deviceTypes);
 			
-			/**** Load the tentative discussion dates ****/
+			/**** session and related data ****/
 			String strSessionYear = request.getParameter("sessionYear");
 			String strSessionType = request.getParameter("sessionType");
 			Integer sessionYear = null;
@@ -272,10 +268,20 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 				domain.setSession(session);
 			}
 			
-			/**** active departments as on session start date ****/
-			List<Department> departments = MemberDepartment.findActiveDepartmentsOnDate(session.getStartDate(), locale);
+			/**** active departments as on session related date ****/
+			Date onDate = new Date();
+			if(onDate.compareTo(session.getStartDate())<=0) {
+				onDate = session.getStartDate();
+			} else if(onDate.compareTo(session.getEndDate())>=0) {
+				onDate = session.getEndDate();
+			}
+			List<Department> departments = MemberDepartment.findActiveDepartmentsOnDate(onDate, locale);
 			model.addAttribute("departments", departments);
 			
+			/**** sub-department ****/
+			List<SubDepartment> subdepartments = SubDepartment.findAll(SubDepartment.class, "name", ApplicationConstants.ASC, locale);
+			model.addAttribute("subdepartments", subdepartments);
+						
 			try{
 				CutMotionDate cutMotionDate = CutMotionDate.findCutMotionDateSessionDeviceType(session, deviceType, locale);
 				if(cutMotionDate != null/* && cutMotionDate.getStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_FINAL_DATE_ADMISSION)*/){
@@ -286,6 +292,7 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 				logger.error("error", e);
 			}
 			
+			/**** Load the tentative discussion dates ****/
 			populateDiscussionDates(deviceType, session, model, locale.toString());
 			
 			/**** department actor count ****/
@@ -362,17 +369,48 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 			model.addAttribute("houseTypeType", domain.getSession().getHouse().getType());
 			model.addAttribute("formattedHouseType", domain.getSession().getHouse().getName());
 			
-			model.addAttribute("deviceType", domain.getDeviceType().getId());
-			model.addAttribute("deviceTypeType", domain.getDeviceType().getType());
-			model.addAttribute("formattedDeviceType", domain.getDeviceType().getName());
+			/**** DeviceTypes ****/
+			List<DeviceType> deviceTypes = DeviceType.findDeviceTypesStartingWith("motions_cutmotion_", locale);
+			model.addAttribute("deviceTypes", deviceTypes);			
+			DeviceType deviceType = domain.getDeviceType();
+	        if(deviceType == null) {
+	        	model.addAttribute("isDeviceTypeEmpty", true);
+	        }else {
+	        	model.addAttribute("isDeviceTypeEmpty", false);
+	        	model.addAttribute("deviceType", domain.getDeviceType().getId());
+				model.addAttribute("deviceTypeType", domain.getDeviceType().getType());
+				model.addAttribute("formattedDeviceType", domain.getDeviceType().getName());
+	        }
 			
-			model.addAttribute("formattedSessionYear", FormaterUtil.formatNumberNoGrouping(domain.getSession().getYear(), domain.getLocale()));
-			model.addAttribute("sessionYear", domain.getSession().getYear());
-			model.addAttribute("sessionType", domain.getSession().getType().getId());
-			model.addAttribute("formattedSessionType", domain.getSession().getType().getSessionType());
-			model.addAttribute("sessionTypeType", domain.getSession().getType().getType());
-			model.addAttribute("session", domain.getSession().getId());
+			/**** Session and related data ****/
+	        Session session = domain.getSession();
+			model.addAttribute("formattedSessionYear", FormaterUtil.formatNumberNoGrouping(session.getYear(), domain.getLocale()));
+			model.addAttribute("sessionYear", session.getYear());
+			model.addAttribute("sessionType", session.getType().getId());
+			model.addAttribute("formattedSessionType", session.getType().getSessionType());
+			model.addAttribute("sessionTypeType", session.getType().getType());
+			model.addAttribute("session", session.getId());
 			
+			/**** active departments as on session related date ****/
+			Date onDate = new Date();
+			if(onDate.compareTo(session.getStartDate())<=0) {
+				onDate = session.getStartDate();
+			} else if(onDate.compareTo(session.getEndDate())>=0) {
+				onDate = session.getEndDate();
+			}
+			List<Department> departments = MemberDepartment.findActiveDepartmentsOnDate(onDate, locale);
+			model.addAttribute("departments", departments);
+			
+			/**** sub-department ****/
+			List<SubDepartment> subdepartments = SubDepartment.findAll(SubDepartment.class, "name", ApplicationConstants.ASC, locale);
+			model.addAttribute("subdepartments", subdepartments);
+			
+			/**** department actors ****/
+			model.addAttribute("domainsubdepartments", domain.getDepartmentDates());
+			model.addAttribute("departmentCount", domain.getDepartmentDates().size());
+			
+			/**** Load the tentative discussion dates ****/
+			populateDiscussionDates(domain.getDeviceType(), domain.getSession(), model, locale);
 			
 			if(domain.getStatus() != null){
 				model.addAttribute("status", domain.getStatus().getId());
@@ -395,27 +433,8 @@ public class CutMotionDateController extends GenericController<CutMotionDate> {
 			}			
 			if(domain.getTaskReceivedOn() != null){
 				model.addAttribute("taskReceivedOnDate", FormaterUtil.formatDateToString(domain.getTaskReceivedOn(), ApplicationConstants.SERVER_DATETIMEFORMAT, "en_US"));
-			}
+			}			
 			
-			/**** Subdepartment ****/
-			List<SubDepartment> subdepartments = SubDepartment.findAll(SubDepartment.class, "name", ApplicationConstants.ASC, locale);
-			model.addAttribute("subdepartments", subdepartments);
-			
-			/**** device types ****/
-			List<DeviceType> deviceTypes = DeviceType.findDeviceTypesStartingWith("motions_cutmotion_", locale);
-			model.addAttribute("deviceTypes", deviceTypes);
-			
-			/**** department actors ****/
-			model.addAttribute("domainsubdepartments", domain.getDepartmentDates());
-			model.addAttribute("departmentCount", domain.getDepartmentDates().size());
-			
-			DeviceType deviceType = domain.getDeviceType();
-	        if(deviceType == null) {
-	        	model.addAttribute("isDeviceTypeEmpty", true);
-	        }else {
-	        	model.addAttribute("isDeviceTypeEmpty", false);
-	        }
-	        populateDiscussionDates(domain.getDeviceType(), domain.getSession(), model, locale);
 	        if(domain.getInternalStatus() != null && (domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_SYSTEM_ASSISTANT_DATE_PROCESSED)
 	        		|| domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_ADMISSION)
 	        		|| domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTIONDATE_RECOMMEND_DATE_REJECTION))){

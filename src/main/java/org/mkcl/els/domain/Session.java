@@ -21,8 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Logger;
-
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -40,12 +38,10 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
-import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.SessionVO;
 import org.mkcl.els.repository.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The Class Session.
@@ -361,25 +357,18 @@ public class Session extends BaseDomain implements Serializable {
 	}
 	
 	public List<Date> findAllSessionDates() {
-		
-		List<Date> sessionDates = new ArrayList<Date>();
-		
-		/** set calendar from session start date for processing all session dates **/
-		Calendar sessionCalender = Calendar.getInstance();
-		sessionCalender.setTime(this.getStartDate());
-		
-		/** loop through all session dates & collect them in the output list **/
-		for(sessionCalender.getTime(); sessionCalender.getTime().compareTo(this.getEndDate())<=0; sessionCalender.add(Calendar.DATE, 1)) {
-			
-			Date sessionDate = sessionCalender.getTime();	
-			
-			sessionDates.add(sessionDate);
-		}
-		
-		return sessionDates;
+		return findAllSessionDates(true, null); //finding all the session dates including holidays and hence no day working scope needed to match
 	}
 	
-	public List<Date> findAllSessionDatesHavingNoHoliday() {
+	public List<Date> findAllSessionDatesHavingNoHoliday() {	
+		return findAllSessionDates(false, ApplicationConstants.DAY_WORKING_SCOPE_HOUSE_PROCEEDING); //finding all the session dates discluding holidays applicable for default 'house proceeding' day working scope
+	}
+	
+	public List<Date> findAllSessionDatesHavingNoHoliday(String dayWorkingScope) {
+		return findAllSessionDates(false, dayWorkingScope); //finding all the session dates discluding holidays applicable for given day working scope
+	}
+	
+	public List<Date> findAllSessionDates(Boolean includedHolidays, String dayWorkingScope) {
 		
 		List<Date> sessionDates = new ArrayList<Date>();
 		
@@ -390,12 +379,14 @@ public class Session extends BaseDomain implements Serializable {
 		/** loop through all session dates & collect non-holiday dates in the output list **/
 		for(sessionCalender.getTime(); sessionCalender.getTime().compareTo(this.getEndDate())<=0; sessionCalender.add(Calendar.DATE, 1)) {
 			
-			Date sessionDate = sessionCalender.getTime();	
+			Date sessionDate = sessionCalender.getTime();
 			
-			//skip the date if it's holiday
-			if(Holiday.isHolidayOnDate(sessionDate, this.getLocale())) {
-				continue;
-			}
+			if(!includedHolidays) {
+				//skip the date if it's holiday for given day working scope
+				if(Holiday.isHolidayOnDate(sessionDate, dayWorkingScope, this.getLocale())) {
+					continue;
+				}
+			}			
 			
 			sessionDates.add(sessionDate);
 		}
