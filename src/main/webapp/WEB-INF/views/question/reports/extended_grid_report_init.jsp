@@ -581,14 +581,14 @@
 								</td>
 								<td class="filter_operator" id="lapsed_status_filter_operator">
 									<select id="lapsed_status_operator" name="lapsed_status_operator" style="width: 100px; height: 25px;">
-										<option value="-" selected="selected"><spring:message code="extended_grid_report.filter_operator.any" text="Any"/></option>
-										<option value="eq"><spring:message code="extended_grid_report.filter_operator.eq" text="is"/></option>
+										<option value="-"><spring:message code="extended_grid_report.filter_operator.any" text="Any"/></option>
+										<option value="eq" selected="selected"><spring:message code="extended_grid_report.filter_operator.eq" text="is"/></option>
 									</select>
 								</td>
-								<td class="filter_values" id="lapsed_status_filter_values" hidden="true">
+								<td class="filter_values" id="lapsed_status_filter_values">
 									<select id="lapsed_status" name="lapsed_status" style="width: 100px; height: 25px;">									
 										<option value="lapsed"><spring:message code="extended_grid_report.lapsed_status_filter.lapsed_status_filter_values.lapsed" text="Lapsed"/></option>
-										<option value="unlapsed"><spring:message code="extended_grid_report.lapsed_status_filter.lapsed_status_filter_values.unlapsed" text="Not Lapsed"/></option>
+										<option value="unlapsed" selected="selected"><spring:message code="extended_grid_report.lapsed_status_filter.lapsed_status_filter_values.unlapsed" text="Not Lapsed"/></option>
 									</select>
 								</td>
 							</tr>
