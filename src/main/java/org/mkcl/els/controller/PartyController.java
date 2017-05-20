@@ -125,10 +125,15 @@ public class PartyController extends GenericController<Party> {
 		if(party.getRegisteredOfficeAddress()!=null) {
 			String rStateName = "";
 	        String rDistrictName = "";
-
-			rStateName = party.getRegisteredOfficeAddress().getState().getName();
-			rDistrictName = party.getRegisteredOfficeAddress().getDistrict().getName();
-
+	        //Added by Anand
+	        // As the State and District was empty the previous code was throwing null pointer exception, hence add Null Check for the same
+	        if(party.getRegisteredOfficeAddress().getState() != null){
+	        	rStateName = party.getRegisteredOfficeAddress().getState().getName();
+	        	if(party.getRegisteredOfficeAddress().getDistrict() != null){
+	        		rDistrictName = party.getRegisteredOfficeAddress().getDistrict().getName();
+	        	}
+	        }
+			
 			List<State> states = State.findAll(State.class, "name", "asc",
                     party.getLocale());
             State selectedState = State.findByName(State.class, rStateName,
@@ -162,39 +167,36 @@ public class PartyController extends GenericController<Party> {
 		if(party.getStateOfficeAddress()!=null) {
 			String sStateName = "";
 	        String sDistrictName = "";
-
-			sStateName = party.getStateOfficeAddress().getState().getName();
-			sDistrictName = party.getStateOfficeAddress().getDistrict().getName();
-
-			List<State> states = State.findAll(State.class, "name", "asc",
-                    party.getLocale());
-            State selectedState = State.findByName(State.class, sStateName,
-                    party.getLocale());
-            model.addAttribute("statesS", states);
-
-            List<District> districts = new ArrayList<District>();
-            try{
-            	districts = District.findDistrictsByStateId(selectedState.getId(), "name", "asc", party.getLocale());
-            }catch (ELSException e) {
-				model.addAttribute("PartyController", e.getParameter());			
-			}catch (Exception e) {
-				String message = e.getMessage();
-				
-				if(message == null){
-					message = "There is some problem, request may not complete successfully.";
-				}
-				
-				model.addAttribute("error", message);
-				e.printStackTrace();
-			}
-            District selectedDistrict = District.findByName(District.class, sDistrictName,
-                    party.getLocale());
-            model.addAttribute("districtsS", districts);
-
-            List<Tehsil> tehsils = Tehsil.findAllByFieldName(Tehsil.class, "district", selectedDistrict, "name", "asc",
-    				party.getLocale());
-            model.addAttribute("tehsilsS", tehsils);
-		}
+	        //Added by Anand
+	        // As the State and District was empty the previous code was throwing null pointer exception, hence add Null Check for the same
+	        if(party.getStateOfficeAddress().getState() != null){
+	        	sStateName = party.getStateOfficeAddress().getState().getName();
+	        	if(party.getStateOfficeAddress().getDistrict() != null){
+	        		sDistrictName = party.getStateOfficeAddress().getDistrict().getName();
+	        	}
+	        	State selectedState = State.findByName(State.class, sStateName, party.getLocale());
+	            List<District> districts = new ArrayList<District>();
+	            try{
+	             	districts = District.findDistrictsByStateId(selectedState.getId(), "name", "asc", party.getLocale());
+	            }catch (ELSException e) {
+	 				model.addAttribute("PartyController", e.getParameter());			
+	 			}catch (Exception e) {
+	 				String message = e.getMessage();
+	 				if(message == null){
+	 					message = "There is some problem, request may not complete successfully.";
+	 				}
+	 				model.addAttribute("error", message);
+	 				e.printStackTrace();
+	 			 }
+	             District selectedDistrict = District.findByName(District.class, sDistrictName, party.getLocale());
+	             model.addAttribute("districtsS", districts);
+	             List<Tehsil> tehsils = Tehsil.findAllByFieldName(Tehsil.class, "district", selectedDistrict, "name", "asc",
+	     				party.getLocale());
+	             model.addAttribute("tehsilsS", tehsils);
+	        }
+			List<State> states = State.findAll(State.class, "name", "asc", party.getLocale());
+			  model.addAttribute("statesS", states);
+           }
 
 		int symbolCount = party.getPartySymbols().size();
 		model.addAttribute("symbolCount", symbolCount);
