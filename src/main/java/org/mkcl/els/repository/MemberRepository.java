@@ -2670,7 +2670,12 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	public Constituency findConstituency(final Long id) {
 		try {
 			String query="SELECT c FROM HouseMemberRoleAssociation mhr JOIN mhr.constituency c WHERE mhr.member.id="+id+" ORDER BY mhr.fromDate "+ApplicationConstants.DESC;
-			return (Constituency) this.em().createQuery(query).getSingleResult();
+			List constituencies = this.em().createQuery(query).getResultList();
+			if(constituencies != null && !constituencies.isEmpty()){
+				return (Constituency) constituencies.get(0);
+			}else{
+				return null;
+			}
 		} catch (Exception e) {
 			logger.error("Entity Not Found",e);
 			return null;
