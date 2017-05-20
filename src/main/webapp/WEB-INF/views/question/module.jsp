@@ -951,6 +951,22 @@
 	 	showTabByIdAndUrl('details_tab', resourceURL);
 	}
 	
+	function generateStatisticalCountsReport(){
+		var devicetype = $("#deviceTypeMaster option[value='" + $("#selectedQuestionType").val() + "']").text();
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&questionType=" + $("#selectedQuestionType").val()
+		 + "&role=" + $("#srole").val()
+		 + "&usergroup=" + $("#currentusergroup").val()
+		 + "&usergroupType=" + $("#currentusergroupType").val()
+		 + "&reportQuery=" + devicetype.toUpperCase()+"_STATISTICAL_COUNTS_QUERY"
+		 + "&reportFileName=qis_statistical_counts_report"
+		 + "&locale=" + $("#moduleLocale").val();
+		var resourceURL = 'question/report/statistical_counts_report?'+ parameters;
+	 	showTabByIdAndUrl('details_tab', resourceURL);
+	}
+	
 	function groupBulleteinReport(){
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		 + "&sessionYear=" + $("#selectedSessionYear").val()
