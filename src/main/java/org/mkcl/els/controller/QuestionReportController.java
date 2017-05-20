@@ -26,6 +26,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.CountsUsingGroupByReportVO;
 import org.mkcl.els.common.vo.DeviceVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MinistryVO;
@@ -1353,6 +1354,28 @@ public class QuestionReportController extends BaseController{
 		
 		return "question/reports/"+request.getParameter("reportout");		
 	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/statistical_counts_report", method=RequestMethod.GET)
+	public String generateStatisticalCountsReport(HttpServletRequest request, ModelMap model, Locale locale){
+		Map<String, String[]> requestMap = request.getParameterMap();
+		/** Populate Headers **/
+		@SuppressWarnings("rawtypes")
+		List reportHeaders = Query.findReport(request.getParameter("reportQuery")+"_HEADERS", requestMap);
+		model.addAttribute("reportHeaders", reportHeaders);
+		reportHeaders = null;
+		/** Populate Data **/
+		@SuppressWarnings("rawtypes")
+		List reportData = Query.findReport(request.getParameter("reportQuery"), requestMap);
+		QuestionReportHelper.convertReportDataIntoMapGenericApproach(reportData, model);
+		model.addAttribute("reportData", reportData);		
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale.toString());		
+		reportData = null;
+		requestMap = null;
+		return "question/reports/"+request.getParameter("reportFileName");
+	}
+	
 	//----------------------------------------------------------------------
 	@RequestMapping(value="/viewYaadi" ,method=RequestMethod.GET)
 	public @ResponseBody void generateYaadiReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model) throws ELSException{
@@ -3155,25 +3178,62 @@ public class QuestionReportController extends BaseController{
 			}
 			model.addAttribute("session",session.getId());
 			/**** populate all groups for the session ****/
-			List<Reference> groupList = new ArrayList<Reference>();
+			List<Reference> groupList = new ArrayList<Reference>();			
 			List<Group> groups = Group.findAllByFieldName(Group.class, "session", session, "number", ApplicationConstants.ASC, locale.toString());
-			for(Group g : groups){
-				Reference groupRef = new Reference();
-				groupRef.setId(g.getId().toString());
-				groupRef.setNumber(g.formatNumber());
-				groupList.add(groupRef);
-			}
+			if(groups!=null) {
+				for(Group g : groups){
+					Reference groupRef = new Reference();
+					groupRef.setId(g.getId().toString());
+					groupRef.setNumber(g.formatNumber());
+					groupList.add(groupRef);					
+				}
+			}			
 			model.addAttribute("groupList", groupList);
+			/**** populate all answering dates for the session ****/
+			List<MasterVO> answeringDateList = new ArrayList<MasterVO>();
+			Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+			queryParameters.put("locale", new String[]{locale.toString()});
+			queryParameters.put("sessionId", new String[]{session.getId().toString()});					
+			@SuppressWarnings("unchecked")
+			List<QuestionDates> answeringDates = Query.findResultListOfGivenClass("SESSION_ANSWERING_DATES_FOR_EXTENDED_GRID_REPORT", queryParameters, QuestionDates.class);
+			if(answeringDates!=null && !answeringDates.isEmpty()) {
+				for (QuestionDates qd : answeringDates) {
+					MasterVO masterVO = new MasterVO();
+					masterVO.setId(qd.getId());
+					masterVO.setValue(qd.getAnsweringDate().toString());
+					masterVO.setName(FormaterUtil.formatDateToString(qd.getAnsweringDate(), ApplicationConstants.SERVER_DATEFORMAT, locale.toString()));
+					answeringDateList.add(masterVO);							
+				}
+			}
+			model.addAttribute("answeringDateList", answeringDateList);
 			/**** populate all subdepartments from the subdepartment master ****/
 			List<Reference> sdList = new ArrayList<Reference>();
 			List<SubDepartment> subDepartments = SubDepartment.findAll(SubDepartment.class, "name", ApplicationConstants.ASC, locale.toString());
-			for(SubDepartment sd : subDepartments){
-				Reference sdRef = new Reference();
-				sdRef.setId(sd.getId().toString());
-				sdRef.setName(sd.getName());
-				sdList.add(sdRef);
-			}
+			if(subDepartments!=null) {
+				for(SubDepartment sd : subDepartments){
+					Reference sdRef = new Reference();
+					sdRef.setId(sd.getId().toString());
+					sdRef.setName(sd.getName());
+					sdList.add(sdRef);
+				}
+			}			
 			model.addAttribute("subdepartmentList", sdList);
+			/**** populate all available filters for the report ****/
+			CustomParameter csptExtendedReportAvailableFilters = CustomParameter.findByName(CustomParameter.class, questionType.getType().toUpperCase()+"_EXTENDED_GRID_REPORT_AVAILABLE_FILTERS", "");
+			if(csptExtendedReportAvailableFilters==null || csptExtendedReportAvailableFilters.getValue()==null) {
+				logger.error("**** Custom Parameter '"+questionType.getType().toUpperCase()+"_EXTENDED_GRID_REPORT_AVAILABLE_FILTERS' Not Found ****");
+				model.addAttribute("errorcode", "CSPT_NOTFOUND");
+				return responsePage;
+			}			
+			model.addAttribute("availableFilters", csptExtendedReportAvailableFilters.getValue().split(","));
+			/**** populate default selected filters for the report ****/
+			CustomParameter csptExtendedReportDefaultFilters = CustomParameter.findByName(CustomParameter.class, questionType.getType().toUpperCase()+"_EXTENDED_GRID_REPORT_DEFAULT_FILTERS", "");
+			if(csptExtendedReportDefaultFilters==null || csptExtendedReportDefaultFilters.getValue()==null) {
+				logger.error("**** Custom Parameter '"+questionType.getType().toUpperCase()+"_EXTENDED_GRID_REPORT_DEFAULT_FILTERS' Not Found ****");
+				model.addAttribute("errorcode", "CSPT_NOTFOUND");
+				return responsePage;
+			}			
+			model.addAttribute("defaultFilters", csptExtendedReportDefaultFilters.getValue().split(","));
 			/**** populate all available fields for the report ****/
 			CustomParameter csptExtendedReportAvailableFields = CustomParameter.findByName(CustomParameter.class, questionType.getType().toUpperCase()+"_EXTENDED_GRID_REPORT_AVAILABLE_FIELDS", "");
 			if(csptExtendedReportAvailableFields==null || csptExtendedReportAvailableFields.getValue()==null) {
@@ -3205,8 +3265,65 @@ public class QuestionReportController extends BaseController{
 		generateTabularFOPReport(request, response, locale);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/extended_grid_report/html", method=RequestMethod.GET)
 	public String generateExtendedGridReport(HttpServletRequest request, Model model, Locale locale){
+		StringBuffer fieldHeadersSelectQueryBuffer = new StringBuffer("");
+		StringBuffer fieldsSelectQueryBuffer = new StringBuffer("");
+		
+		try {			
+			@SuppressWarnings("unchecked")
+			Map<String, String[]> requestMap = request.getParameterMap();			
+			String reportFieldsCount = request.getParameter("reportFieldsCount");
+			for(int i=1; i<=Integer.parseInt(reportFieldsCount); i++) {
+				Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+				parameterMap.putAll(requestMap);
+				parameterMap.put("reportField", new String[] {request.getParameter("reportField_"+i)});
+				
+				@SuppressWarnings("rawtypes")
+				List reportHeaderSelect = Query.findReport(request.getParameter("reportHeaderSelectQuery"), parameterMap);
+				fieldHeadersSelectQueryBuffer.append(reportHeaderSelect.get(0).toString().replaceAll("_colon_", ":").trim());
+				fieldHeadersSelectQueryBuffer.append(",\n");
+				
+				@SuppressWarnings("rawtypes")
+				List reportSelect = Query.findReport(request.getParameter("reportSelectQuery"), parameterMap);
+				fieldsSelectQueryBuffer.append(reportSelect.get(0).toString().replaceAll("_colon_", ":").trim());
+				fieldsSelectQueryBuffer.append(",\n");
+				
+				parameterMap = null;
+			}			
+		} catch(Exception e) {
+			logger.error("Exception occured in loading field_headers_select_query_for_report");
+		}
+		if(fieldHeadersSelectQueryBuffer.length()>0) {
+			fieldHeadersSelectQueryBuffer.deleteCharAt(fieldHeadersSelectQueryBuffer.length()-1);
+			fieldHeadersSelectQueryBuffer.deleteCharAt(fieldHeadersSelectQueryBuffer.length()-1);
+		}
+		if(fieldsSelectQueryBuffer.length()>0) {
+			fieldsSelectQueryBuffer.deleteCharAt(fieldsSelectQueryBuffer.length()-1);
+			fieldsSelectQueryBuffer.deleteCharAt(fieldsSelectQueryBuffer.length()-1);
+		}
+		
+		Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+		queryParameters.putAll(request.getParameterMap());
+		queryParameters.put("field_header_select_query", new String[]{fieldHeadersSelectQueryBuffer.toString()});
+		queryParameters.put("field_select_query", new String[]{fieldsSelectQueryBuffer.toString()});
+		/** Populate Headers **/
+		@SuppressWarnings("rawtypes")
+		List reportHeaders = Query.findReport(request.getParameter("reportQuery")+"_HEADERS", queryParameters);
+		model.addAttribute("reportHeaders", reportHeaders);
+		reportHeaders = null;
+		/** Populate Data **/
+		@SuppressWarnings("rawtypes")
+		List reportData = Query.findReport(request.getParameter("reportQuery"), queryParameters);
+		model.addAttribute("reportData", reportData);
+		reportData = null;
+		queryParameters = null;
+		return "question/reports/"+request.getParameter("reportFileName");
+	}
+	
+	@RequestMapping(value="/extended_grid_report/html", method=RequestMethod.POST)
+	public String generateExtendedGridReportPOST(HttpServletRequest request, Model model, Locale locale){
 		return generateTabularHtmlReport(request, model, locale);
 	}
 	
@@ -4945,5 +5062,140 @@ class QuestionReportHelper{
 		
 		unstarredYaadiData = new Object[]{yaadiQuestions, totalNumberOfYaadiQuestions, houseTypeName, sessionNumber, sessionTypeName, sessionYear, sessionPlace, userName, yaadiNumber, yaadiLayingDate};
 		return unstarredYaadiData;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void convertReportDataIntoMapGenericApproach(final List reportData, final ModelMap model) {
+		if(reportData!=null && !reportData.isEmpty()) {
+			for(int i=0; i<3; i++) {
+				Map dataMap = new LinkedHashMap<String, List<String>>();
+				List<String> dataMapValues = new ArrayList<String>();
+				String groupByFieldValue = "";
+				long groupByFieldCount = 0;
+				int groupByFieldRowCount = 0;
+				int loopCnt = 1;
+				for(Object rd : reportData) {					
+					Object[] o = (Object[]) rd;					
+					if(i==(3-1)) { //innermost level of group by where directs counts are mapped
+						dataMapValues = new ArrayList<String>();
+						dataMapValues.add(o[i+1].toString());
+						dataMap.put(o[i].toString(), dataMapValues);
+						model.addAttribute("dataMap"+(i+1), dataMap);
+						groupByFieldCount = Long.parseLong(o[3].toString());
+						model.addAttribute("dataMap"+(i+1)+"_"+o[i].toString(), groupByFieldCount);
+						groupByFieldRowCount = 1;
+						model.addAttribute("dataMap"+(i+1)+"_"+o[i].toString()+"_rowCount", groupByFieldRowCount);
+						
+					} else { //outer levels of group by where each level is mapped to its next level
+						if(loopCnt==1) {
+							groupByFieldValue = o[i].toString();
+						}
+						if(!o[i].toString().equals(groupByFieldValue)) {						
+							//dataMap = new LinkedHashMap<String, List<String>>();
+							dataMapValues = new ArrayList<String>();
+							groupByFieldValue = o[i].toString();
+							groupByFieldCount = Long.parseLong(o[3].toString());
+							groupByFieldRowCount = 1;
+						} else {
+							dataMap.put(o[i].toString(), dataMapValues);
+							model.addAttribute("dataMap"+(i+1), dataMap);
+							groupByFieldCount += Long.parseLong(o[3].toString());
+							model.addAttribute("dataMap"+(i+1)+"_"+o[i].toString(), groupByFieldCount);
+							groupByFieldRowCount += 1;
+							model.addAttribute("dataMap"+(i+1)+"_"+o[i].toString()+"_rowCount", groupByFieldRowCount);
+						}
+						if(!dataMapValues.contains(o[i+1].toString())) {
+							dataMapValues.add(o[i+1].toString());
+						}
+					}					
+					loopCnt++;
+				}
+			}
+		}
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static Map convertReportDataIntoMap(final List reportData, final ModelMap model) {
+		Map dataMap1 = new LinkedHashMap<String, Map>();
+		if(reportData!=null && !reportData.isEmpty()) {
+			String groupByFieldValue1 = "";			
+			int loopCnt1 = 1;
+			for(Object rd1 : reportData) {
+				long groupByFieldCount1 = 0;
+				Object[] o1 = (Object[]) rd1;
+				if(loopCnt1==1) {
+					groupByFieldValue1 = o1[0].toString();
+				}				
+				if(loopCnt1==1 || !o1[0].toString().equals(groupByFieldValue1)) {
+					Map dataMap2 = new LinkedHashMap<String, Map>();
+					String groupByFieldValue2 = "";					
+					int loopCnt2 = 1;
+					for(Object rd2 : reportData) {		
+						long groupByFieldCount2 = 0;
+						Object[] o2 = (Object[]) rd2;
+						if(o2[0].toString().equals(o1[0].toString())) { //for same group
+							if(loopCnt2==1) {
+								groupByFieldValue2 = o2[1].toString();	
+							}				
+							if(loopCnt2==1 || !o2[1].toString().equals(groupByFieldValue2)) {
+								Map dataMap3 = new LinkedHashMap<String, Long>();
+								String groupByFieldValue3 = "";
+								int loopCnt3 = 1;
+								for(Object rd3 : reportData) {
+									Object[] o3 = (Object[]) rd3;
+									if(o3[1].toString().equals(o2[1].toString())) { //for same assistant
+										if(loopCnt3==1) {
+											groupByFieldValue3 = o3[2].toString();
+										}				
+										if(loopCnt3==1 || !o3[2].toString().equals(groupByFieldValue3)) {
+											dataMap3.put(o3[2].toString(), Long.parseLong(o3[3].toString()));
+											groupByFieldValue3 = o3[2].toString();
+											groupByFieldCount1 += Long.parseLong(o3[3].toString());
+											groupByFieldCount2 += Long.parseLong(o3[3].toString());
+										}
+									}	
+									loopCnt3++;
+								}
+								dataMap2.put(o2[1].toString(), dataMap3);
+								model.addAttribute("dataMap2_"+o2[1].toString(), groupByFieldCount2);
+								groupByFieldValue2 = o2[1].toString();
+							}
+						}		
+						loopCnt2++;
+					}
+					dataMap1.put(o1[0].toString(), dataMap2);
+					model.addAttribute("dataMap1_"+o1[0].toString(), groupByFieldCount1);
+					groupByFieldValue1 = o1[0].toString();
+					groupByFieldCount1 = 0;
+				}		
+				loopCnt1++;
+			}
+		}
+		
+		return dataMap1;
+	}
+	
+	private List<CountsUsingGroupByReportVO> findCountsUsingGroupByReportVO(final List reportData) {
+		List<CountsUsingGroupByReportVO> countsUsingGroupByReportVOs = new ArrayList<CountsUsingGroupByReportVO>();
+	
+		if(reportData!=null && !reportData.isEmpty()) {
+			CountsUsingGroupByReportVO[] countsArr = new CountsUsingGroupByReportVO[3];
+			for(int i=3; i>0; i--) {
+				CountsUsingGroupByReportVO countsUsingGroupByReportVO = new CountsUsingGroupByReportVO();
+				int loopCnt = 1;
+				String groupByFieldValue = "";
+				for(Object rd : reportData) {
+					Object[] o = (Object[]) rd;
+					if(loopCnt==1) {
+						groupByFieldValue = o[i].toString();
+						countsArr[i-1].setGroupByFieldValue(groupByFieldValue);
+						
+					}
+					
+				}
+			}
+		}
+		
+		return countsUsingGroupByReportVOs;
 	}
 }
