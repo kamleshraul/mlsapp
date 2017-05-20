@@ -152,7 +152,9 @@ public class HomeController extends BaseController {
         Boolean isUserAllowedForDashboardView = false; //for showing dashboard post login to allowed users only
         CustomParameter rolesAllowedForDashBoardViewCP = CustomParameter.findByName(CustomParameter.class, "ROLES_ALLOWED_FOR_DASHBOARD_VIEW", "");
         for(Role i:roles){
-        	if(rolesAllowedForDashBoardViewCP!=null && rolesAllowedForDashBoardViewCP.getValue()!=null) {
+        	if(rolesAllowedForDashBoardViewCP!=null 
+        			&& rolesAllowedForDashBoardViewCP.getValue()!=null
+        			&& !rolesAllowedForDashBoardViewCP.getValue().isEmpty()) {
         		for(String allowedRole: rolesAllowedForDashBoardViewCP.getValue().split(",")) {
         			if(i.getType().trim().equalsIgnoreCase(allowedRole.trim())) {
         				isUserAllowedForDashboardView = true;
