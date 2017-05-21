@@ -18,11 +18,20 @@
 		<p></p>
 	</div>
 </c:when>
-<c:when test="${errorcode eq 'budgetlaydat_setting_error'}">
+<c:when test="${errorcode eq 'budgetLayDate_setting_error'}">
 	<div class="toolTip tpRed clearfix">
 		<p>
 			<img src="./resources/images/template/icons/light-bulb-off.png">
-			<spring:message code="cutmotion.errorcode.budgetlaydate_setting" text="Budget Lay Date is not set for this Device."/>
+			<spring:message code="cutmotion.errorcode.budgetLayDate_setting" text="Budget Lay Date is not set for this Session."/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
+<c:when test="${errorcode eq 'submissionEndDateFactor_setting_error'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="cutmotion.errorcode.submissionEndDateFactor_setting" text="Submission End Date Factor is not set for this Session."/>
 		</p>
 		<p></p>
 	</div>
