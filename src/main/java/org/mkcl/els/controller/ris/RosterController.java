@@ -23,7 +23,6 @@ import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.CommitteeMeeting;
 import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Reporter;
@@ -204,14 +203,8 @@ public class RosterController extends GenericController<Roster>{
 						Date startDate=null;
 						try {
 							startDate=format.parse(strStartTime);
-							Date nextDate=Holiday.getNextSessionDate(selectedSession,startDate, 1, locale);
-							if(nextDate!=null
-									&&selectedSession.getStartDate()!=null
-									&&selectedSession.getEndDate()!=null
-									&&(nextDate.after(selectedSession.getStartDate())
-											||nextDate.equals(selectedSession.getStartDate()))
-											&&(nextDate.before(selectedSession.getEndDate())
-													||nextDate.equals(selectedSession.getEndDate()))){
+							Date nextDate=selectedSession.getNextSessionDate(startDate, 1, locale);
+							if(nextDate!=null){
 								SimpleDateFormat localizedFormat=FormaterUtil.getDateFormatter(domain.getLocale());
 								String formattedNextDate=localizedFormat.format(nextDate);
 								CustomParameter localizedStartTime=CustomParameter.findByName(CustomParameter.class,"SESSION_START_TIME_"+houseType.getType().toUpperCase(), locale);

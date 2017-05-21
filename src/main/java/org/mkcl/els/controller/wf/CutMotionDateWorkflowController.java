@@ -230,7 +230,11 @@ public class CutMotionDateWorkflowController extends BaseController {
 			model.addAttribute("domainsubdepartments", domain.getDepartmentDates());
 			model.addAttribute("departmentCount", domain.getDepartmentDates().size());
 			
+			/**** Load the tentative discussion dates ****/
 			populateDiscussionDates(domain.getDeviceType(), domain.getSession(), model, locale);
+			
+			/**** Load the tentative submission end dates for populated discussion dates ****/
+			populateSubmissionEndDatesForDiscussionDates(domain.getDeviceType(), domain.getSession(), model, locale);
 		}catch(Exception e){
 			logger.error("error", e);
 		}
@@ -449,26 +453,17 @@ public class CutMotionDateWorkflowController extends BaseController {
 		}catch(Exception e){
 			logger.error("error", e);
 		}			
-	}
-	
+	}	
 	
 	private void populateDiscussionDates(DeviceType deviceType, Session session, ModelMap model, String locale){
-		try{
+		try{			
+			Date budgetLayDate = null;			
 			String strBudgetLayDate = session.getParameter(deviceType.getType() + "_budgetLayDate");
-			String strSubmissionendDateFactor = session.getParameter(deviceType.getType() + "_submissionEndDateFactor");
-			Date budgetLayDate = null;
-			Integer submissionEndDateFactor = null;
-			
 			if(strBudgetLayDate != null && !strBudgetLayDate.isEmpty()){
 				budgetLayDate = FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, ApplicationConstants.SYSTEM_LOCALE).parse(strBudgetLayDate);
-			}
-			
-			if(strSubmissionendDateFactor != null && !strSubmissionendDateFactor.isEmpty()){
-				submissionEndDateFactor = new Integer(strSubmissionendDateFactor);
-			}
-			
-			if(budgetLayDate == null){
-				model.addAttribute("errorcode", "budgetlaydat_setting_error");
+			}			
+			if(deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY) && budgetLayDate == null){
+				model.addAttribute("errorcode", "budgetLayDate_setting_error");
 				return;
 			}
 			
@@ -476,7 +471,7 @@ public class CutMotionDateWorkflowController extends BaseController {
 			Date sessionEndDate = session.getEndDate();
 			List<Reference> references = new ArrayList<Reference>();
 	
-			if((sessionStartDate != null) && (sessionStartDate != null)){
+			if((sessionStartDate != null) && (sessionEndDate != null)){
 				
 				Calendar start = Calendar.getInstance();
 				Calendar end = Calendar.getInstance();
@@ -515,6 +510,83 @@ public class CutMotionDateWorkflowController extends BaseController {
 				}
 				
 				model.addAttribute("discussionDates", references);
+			}
+		}catch(Exception e){
+			logger.error("error", e);
+			model.addAttribute("errorcode", "discussiondate_setting_error");
+		}
+	}
+	
+	private void populateSubmissionEndDatesForDiscussionDates(DeviceType deviceType, Session session, ModelMap model, String locale){
+		try{
+			Date budgetLayDate = null;			
+			String strBudgetLayDate = session.getParameter(deviceType.getType() + "_budgetLayDate");
+			if(strBudgetLayDate != null && !strBudgetLayDate.isEmpty()){
+				budgetLayDate = FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, ApplicationConstants.SYSTEM_LOCALE).parse(strBudgetLayDate);
+			}			
+			if(deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY) && budgetLayDate == null){
+				model.addAttribute("errorcode", "budgetLayDate_setting_error");
+				return;
+			}
+			
+			Integer submissionEndDateFactor = null;
+			String strSubmissionendDateFactor = session.getParameter(deviceType.getType() + "_submissionEndDateFactor");
+			if(strSubmissionendDateFactor != null && !strSubmissionendDateFactor.isEmpty()){
+				submissionEndDateFactor = new Integer(strSubmissionendDateFactor);
+			}			
+			if(submissionEndDateFactor == null){
+				model.addAttribute("errorcode", "submissionEndDateFactor_setting_error");
+				return;
+			}
+			
+			Date sessionStartDate = session.getStartDate();
+			Date sessionEndDate = session.getEndDate();
+			List<Reference> references = new ArrayList<Reference>();
+	
+			if((sessionStartDate != null) && (sessionEndDate != null)){
+				
+				Calendar start = Calendar.getInstance();
+				Calendar end = Calendar.getInstance();
+				
+				List<Date> dates = new ArrayList<Date>();
+				CustomParameter parameter = CustomParameter.findByName(CustomParameter.class, "SERVER_DATEFORMAT", "");
+				SimpleDateFormat dateFormat = null;
+				
+				if(parameter != null){
+					dateFormat = FormaterUtil.getDateFormatter(parameter.getValue(), session.getLocale());
+				}
+				
+				start.setTime(sessionStartDate);
+				end.setTime(sessionEndDate);
+				for (; !start.after(end); start.add(Calendar.DATE, 1)) {
+					Date current = start.getTime();
+					
+					if(!Holiday.isHolidayOnDate(current, locale)){
+						if(deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)
+								|| (deviceType.getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY) && current.after(budgetLayDate))) {
+							
+							Date submissionEndDateForCurrentDiscussionDate = Holiday.getLastWorkingDateFrom(current, submissionEndDateFactor, locale);
+							
+							if(submissionEndDateForCurrentDiscussionDate!=null) {
+								dates.add(submissionEndDateForCurrentDiscussionDate);
+							}							
+						}						
+					}
+				}
+	
+				Collections.sort(dates);
+	
+				for(Date date: dates){
+	
+					Reference reference = new Reference();
+	
+					reference.setId(dateFormat.format(date));
+					reference.setName(dateFormat.format(date));
+	
+					references.add(reference);    
+				}
+				
+				model.addAttribute("submissionEndDates", references);
 			}
 		}catch(Exception e){
 			logger.error("error", e);

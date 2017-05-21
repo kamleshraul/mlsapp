@@ -418,6 +418,24 @@ public class Session extends BaseDomain implements Serializable {
 		return getSessionRepository().loadSubmissionDatesForDeviceTypeInSession(session, deviceType, fromDate, toDate);
 	}
 	
+	public Date getNextSessionDate(final Date currentDate, final int difference, final String locale) {
+		if(currentDate != null) {
+			/**** Find Next Date (add difference to current date and obtain next working date) ****/
+			Date nextDate = Holiday.getNextWorkingDateFrom(currentDate, difference, locale);
+			/**** Return if the Next Date is a session date in this session ****/
+			if(this.getStartDate()!=null
+					&& this.getEndDate()!=null
+					&& (nextDate.after(this.getStartDate())
+							||nextDate.equals(this.getStartDate()))
+							&&(nextDate.before(this.getEndDate())
+									||nextDate.equals(this.getEndDate()))){
+				
+				return nextDate;
+			}		
+		} 
+		return null;
+	}
+	
     // ------------------------------Getters/Setters-----------------------
 	/**
      * Gets the house.

@@ -200,6 +200,13 @@ public class Holiday extends BaseDomain implements Serializable {
 	}
 	
 	public static Date getLastWorkingDateFrom(Date fromDate, int difference, String locale) {
+		return getLastWorkingDateFrom(fromDate, difference, ApplicationConstants.DAY_WORKING_SCOPE_HOUSE_PROCEEDING, locale);
+	}    
+	
+	public static Date getLastWorkingDateFrom(Date fromDate, int difference, String dayWorkingScopeType, String locale) {
+		if(difference>0) {
+			difference = -difference;
+		}
 		if(fromDate != null) {
 			Calendar dateField = Calendar.getInstance();    		
 			dateField.setTime(fromDate); 
@@ -207,7 +214,7 @@ public class Holiday extends BaseDomain implements Serializable {
 				dateField.add(Calendar.DATE, difference);
 			}			
 			Date checkDate = dateField.getTime();    		
-			while(Holiday.isHolidayOnDate(checkDate, locale)){
+			while(Holiday.isHolidayOnDate(checkDate, dayWorkingScopeType, locale)){
 				dateField.setTime(checkDate);
 				dateField.add(Calendar.DATE, -1);
 				checkDate=dateField.getTime();    			
@@ -217,9 +224,13 @@ public class Holiday extends BaseDomain implements Serializable {
 		else {
 			return null;
 		}
-	}    
+	}
 
 	public static Date getNextWorkingDateFrom(Date fromDate, int difference, String locale) {
+		return getNextWorkingDateFrom(fromDate, difference, ApplicationConstants.DAY_WORKING_SCOPE_HOUSE_PROCEEDING, locale);
+	}
+	
+	public static Date getNextWorkingDateFrom(Date fromDate, int difference, String dayWorkingScopeType, String locale) {
 		if(fromDate != null) {
 			Calendar dateField = Calendar.getInstance();    		
 			dateField.setTime(fromDate); 
@@ -227,7 +238,7 @@ public class Holiday extends BaseDomain implements Serializable {
 				dateField.add(Calendar.DATE, difference);
 			}			
 			Date checkDate = dateField.getTime();
-			while(Holiday.isHolidayOnDate(checkDate, locale)){
+			while(Holiday.isHolidayOnDate(checkDate, dayWorkingScopeType, locale)){
 				dateField.setTime(checkDate);
 				dateField.add(Calendar.DATE, 1);
 				checkDate=dateField.getTime();    			
@@ -237,59 +248,5 @@ public class Holiday extends BaseDomain implements Serializable {
 		else {
 			return null;
 		}
-	}
-
-
-	public static Date getNextSessionDate(final Session session,final Date currentDate,
-			final int difference,final String locale) {
-		if(currentDate != null) {
-			/**** Next Date(add difference to current date and obtain next date) ****/
-			Calendar dateField = Calendar.getInstance();    		
-			dateField.setTime(currentDate); 
-			if(difference != 0){     			
-				dateField.add(Calendar.DATE, difference);
-			}			
-			Date nextDate = dateField.getTime();
-//			SimpleDateFormat sf=new SimpleDateFormat("EEEE");
-//			/**** if next date is saturday then new next date will be nextdate+2 and if next date is 
-//			 * sunday then new next date is next ****/
-//			if(sf.format(nextDate).equals("Saturday")){
-//				dateField.add(Calendar.DATE, 2);
-//				nextDate=dateField.getTime();
-//			}else if(sf.format(nextDate).equals("Sunday")){
-//				dateField.add(Calendar.DATE, 1);
-//				nextDate=dateField.getTime();
-//			}
-			/**** If next date is holiday find next date.This loop continues till next date
-			 * is not a holiday ****/
-			while(Holiday.isHolidayOnDate(nextDate, locale)){
-//				if(sf.format(nextDate).equals("Friday")){
-//					dateField.setTime(nextDate);
-//					dateField.add(Calendar.DATE, 3);
-//					nextDate=dateField.getTime();    				
-//				} else if(sf.format(nextDate).equals("Saturday")){
-//					dateField.setTime(nextDate);
-//					dateField.add(Calendar.DATE, 2);
-//					nextDate=dateField.getTime();
-//				} else {
-//					dateField.setTime(nextDate);
-//					dateField.add(Calendar.DATE, 1);
-//					nextDate=dateField.getTime();
-//				}    	
-				dateField.setTime(nextDate);
-				dateField.add(Calendar.DATE, 1);
-				nextDate=dateField.getTime();
-			}
-			if(session.getStartDate()!=null
-					&&session.getEndDate()!=null
-					&&(nextDate.after(session.getStartDate())
-							||nextDate.equals(session.getStartDate()))
-							&&(nextDate.before(session.getEndDate())
-									||nextDate.equals(session.getEndDate()))){
-				return nextDate;
-
-			}		
-		} 
-		return null;
 	}
 }
