@@ -33,7 +33,7 @@ public class CitizenQuestionRepository extends BaseRepository<CitizenQuestion, L
 		cq.setLocale(locale);
 		CitizenQuestion c = (CitizenQuestion)  cq.persist();
 		
-		return c.toString();
+		return c.getId().toString();
 			} catch (Exception e) {
 				e.printStackTrace();
 				return "ERROR";

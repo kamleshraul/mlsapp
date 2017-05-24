@@ -21,11 +21,11 @@ public class CitizenRepository extends BaseRepository<Citizen, Long> {
 					c.setName(name);
 					c.setEmail(email);
 					Citizen cId = (Citizen) c.persist();
-					return cId.toString();
+					return cId.getId().toString();
 				}
 				else
 				{					
-					return "Citizen with same mobile number already exists!";
+					return "ERROR";
 				}
 		
 		
