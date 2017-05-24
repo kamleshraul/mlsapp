@@ -237,10 +237,28 @@ public class MasterWebService {
         return localesVOs;
     }
     
-    @RequestMapping(value = "/member/{houseType}/{locale}")
+   /* @RequestMapping(value = "/member/{houseType}/{locale}")
     public @ResponseBody
     List<MasterVO> getMembersByHouseType(@PathVariable("houseType") final String houseType, @PathVariable("locale") final String locale) throws ELSException {
         List<Member> members= Member.findMembersWithHousetype(houseType, locale);
+        
+      
+        List<MasterVO> membersVOs=new ArrayList<MasterVO>();
+        for(Member i:members){
+        	MasterVO masterVO=new MasterVO();
+			masterVO.setId(i.getId());
+			masterVO.setValue(i.getLocale());
+			masterVO.setName(i.getFullname());
+			masterVO.setDisplayName(i.getAlias());
+			membersVOs.add(masterVO);
+        }
+        return membersVOs;
+    }*/
+    
+    @RequestMapping(value = "/member/{houseType}/{constituency}")
+    public @ResponseBody
+    List<MasterVO> getMembersByconstituency(@PathVariable("houseType") final String houseType,@PathVariable("constituency") final Long constituency) throws ELSException {
+        List<Member> members= Member.findMembersWithconstituency(houseType,constituency);
         
       
         List<MasterVO> membersVOs=new ArrayList<MasterVO>();
@@ -299,22 +317,29 @@ public class MasterWebService {
     String locale = request.getParameter("locale");
     
     
-       Citizen c= Citizen.AddCitizen(name,mobile,email,locale);
+       String c= Citizen.AddCitizen(name,mobile,email,locale);
        String status="failed";
-       if(c!=null)
+       if(c!="ERROR")
        {
        	status="success";
        }
        
-       
+      
        Reference reference=new Reference();
-       reference.setNumber(String.valueOf(c.getId()));
+       if (status=="success")
+       {
+       reference.setNumber(c);
        reference.setState(status);
+       }else
+       {
+    	   reference.setState(status);
+    	   reference.setRemark(c);
+       }
        return reference; 
                   
     }
     
-    @RequestMapping(value = "/AddCitizenQuestion")
+    @RequestMapping(value = "/AddCitizenQuestion",method = RequestMethod.POST)
     public @ResponseBody
     Reference addCitizenQuestion(HttpServletRequest request) throws ELSException {
     	String citizenID = request.getParameter("citizenID");
@@ -327,17 +352,25 @@ public class MasterWebService {
         
           
         
-        CitizenQuestion c= CitizenQuestion.AddCitizenQuestion(citizenID,districtID,constituencyID,departmentID,questionText,memberID,locale);
+        String c= CitizenQuestion.AddCitizenQuestion(citizenID,districtID,constituencyID,departmentID,questionText,memberID,locale);
         String status="failed";
-        if(c!=null)
+        if(c!="ERROR")
         {
         	status="success";
         }
         
         
         Reference reference=new Reference();
-        reference.setNumber(String.valueOf(c.getId()));
+        if (status=="success")
+        {
+        reference.setNumber(c);
         reference.setState(status);
+        }else
+        {
+        	reference.setState(status);
+        	reference.setRemark(c);
+        }
+        
         return reference; 
     }
     
