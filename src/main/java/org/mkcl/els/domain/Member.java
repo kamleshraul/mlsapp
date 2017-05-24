@@ -2058,4 +2058,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return members;
 	}
 	
+	public static List<Member> findMembersWithconstituency(final String houseType,final Long constituency			) {
+		List<Member> members = getMemberRepository().findMembersWithConstituency(houseType,constituency);
+		
+		
+		return members;
+	}
+	
 }

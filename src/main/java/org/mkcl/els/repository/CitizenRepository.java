@@ -8,23 +8,31 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CitizenRepository extends BaseRepository<Citizen, Long> {
 
-	public Citizen AddCitizen(final String name,
+	public String AddCitizen(final String name,
 			final String mobile,final String email,final String locale) throws ELSException{
 			try{
-		Citizen c=new Citizen();
-		c.setLocale(locale);
-		c.setMobile(mobile);
-		c.setName(name);
-		c.setEmail(email);
-		Citizen cId = (Citizen) c.persist();
+				
+				Citizen c1= (Citizen) Citizen.findByFieldName(Citizen.class, "mobile", mobile,locale);
+				if(c1==null)
+				{
+					Citizen c=new Citizen();
+					c.setLocale(locale);
+					c.setMobile(mobile);
+					c.setName(name);
+					c.setEmail(email);
+					Citizen cId = (Citizen) c.persist();
+					return cId.toString();
+				}
+				else
+				{					
+					return "Citizen with same mobile number already exists!";
+				}
 		
-		return cId;
+		
 	} catch (Exception e) {
-		logger.error("Entity Not Found",e);
-		return null;
+		e.printStackTrace();
+		return "ERROR";
 	}
-		
-		
-	
+						
 	}
 }

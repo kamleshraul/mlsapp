@@ -70,7 +70,7 @@ public class Citizen extends BaseDomain implements Serializable {
 		return citizenRepository;
 	}
 	
-	public static Citizen AddCitizen(final String name,
+	public static String AddCitizen(final String name,
 			final String mobile,final String email,final String locale) throws ELSException {
 		return getCitizenRepository().AddCitizen(name,mobile,email,locale);
 		

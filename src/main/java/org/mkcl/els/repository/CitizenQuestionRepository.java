@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CitizenQuestionRepository extends BaseRepository<CitizenQuestion, Long> {
 
-	public CitizenQuestion AddCitizenQuestion(final String citizenID,final String districtID,final String constituencyID,final String departmentID,
+	public String AddCitizenQuestion(final String citizenID,final String districtID,final String constituencyID,final String departmentID,
 			final String questionText,final String memberID,final String locale) throws ELSException{
 			try{
 		Citizen citizenObj=Citizen.findById(Citizen.class, Long.parseLong(citizenID));
@@ -33,11 +33,11 @@ public class CitizenQuestionRepository extends BaseRepository<CitizenQuestion, L
 		cq.setLocale(locale);
 		CitizenQuestion c = (CitizenQuestion)  cq.persist();
 		
-		return c;
-		} catch (Exception e) {
-			logger.error("Entity Not Found",e);
-			return null;
-		}
+		return c.toString();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return "ERROR";
+			}
 	
 	}
 }

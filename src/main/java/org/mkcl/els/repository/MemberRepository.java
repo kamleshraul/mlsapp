@@ -2981,4 +2981,28 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 		List<Member> members = query.getResultList();
 		return members;
 	}
+	
+	public List<Member> findMembersWithConstituency(final String houseType,final Long constituency) {
+CustomParameter parameter =
+	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+String currentDate = 
+	FormaterUtil.formatDateToString(new Date(), parameter.getValue());
+
+
+String strQuery = "SELECT m from " +
+	" Member m JOIN m.houseMemberRoleAssociations mhr " +
+	" LEFT JOIN mhr.role mr " +
+	" LEFT JOIN mr.houseType ht " +
+	"LEFT JOIN mhr.constituency c"+
+	" WHERE mhr.fromDate <= '" + currentDate  + "'" +
+	" AND mhr.toDate >= '" + currentDate  + "'" +			
+	" AND ht.type = '" + houseType  + "'" +
+	" AND c.id = " + constituency  + "" +	
+	" AND mr.type = 'MEMBER'";
+
+TypedQuery<Member> query = this.em().createQuery(strQuery, Member.class);
+List<Member> members = query.getResultList();
+return members;
+	}
+	
 }

@@ -197,7 +197,7 @@ public class CitizenQuestion extends BaseDomain implements Serializable {
 
 
 
-	public static CitizenQuestion AddCitizenQuestion(final String citizenID,final String districtID,final String constituencyID,final String departmentID,
+	public static String AddCitizenQuestion(final String citizenID,final String districtID,final String constituencyID,final String departmentID,
 			final String questionText,final String memberID,final String locale) throws ELSException {
 		 return getCitizenQuestionRepository().AddCitizenQuestion(citizenID,districtID,constituencyID,departmentID,questionText,memberID,locale);
 		
