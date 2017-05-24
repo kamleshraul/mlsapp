@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -147,6 +148,8 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 			
 			group = jpQuery.getSingleResult();
 			
+		}catch(NoResultException nre) {
+			return null;
 		}catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());

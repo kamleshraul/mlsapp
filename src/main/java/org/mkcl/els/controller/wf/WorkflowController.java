@@ -263,9 +263,11 @@ public class WorkflowController extends BaseController {
 					MasterVO groupNumber=new MasterVO();
 					try {
 						Group group = Group.findByNumberHouseTypeSessionTypeYear(Integer.parseInt(groups[i]), lastSessionCreated.getHouse().getType(), lastSessionCreated.getType(), year);
-						groupNumber.setName(FormaterUtil.formatNumbersInGivenText(groups[i], locale));
-						groupNumber.setId(group.getId());
-						groupNumberVOs.add(groupNumber);
+						if(group!=null) {
+							groupNumber.setName(FormaterUtil.formatNumbersInGivenText(groups[i], locale));
+							groupNumber.setId(group.getId());
+							groupNumberVOs.add(groupNumber);
+						}						
 					} catch (NumberFormatException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
