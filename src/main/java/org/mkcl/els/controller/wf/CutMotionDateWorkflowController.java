@@ -18,6 +18,7 @@ import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.CutMotionDepartmentDateVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
@@ -33,7 +34,9 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberDepartment;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
@@ -133,17 +136,17 @@ public class CutMotionDateWorkflowController extends BaseController {
 			model.addAttribute("houseType", houseType.getId());
 	
 			/**** Session ****/
-			Session selectedSession = domain.getSession();
-			model.addAttribute("session", selectedSession.getId());
+			Session session = domain.getSession();
+			model.addAttribute("session", session.getId());
 	
 			/**** Session Year ****/
 			Integer sessionYear = 0;
-			sessionYear = selectedSession.getYear();
+			sessionYear = session.getYear();
 			model.addAttribute("formattedSessionYear", FormaterUtil.getNumberFormatterNoGrouping(locale).format(sessionYear));
 			model.addAttribute("sessionYear", sessionYear);
 	
 			/**** Session Type ****/
-			SessionType sessionType = selectedSession.getType();
+			SessionType sessionType = session.getType();
 			model.addAttribute("formattedSessionType", sessionType.getSessionType());
 			model.addAttribute("sessionType", sessionType.getId());
 	
@@ -218,23 +221,28 @@ public class CutMotionDateWorkflowController extends BaseController {
 			/**** add domain to model ****/
 			model.addAttribute("domain", domain);
 			
-			/**** Subdepartment ****/
-			List<SubDepartment> subdepartments = SubDepartment.findAll(SubDepartment.class, "name", ApplicationConstants.ASC, locale);
-			model.addAttribute("subdepartments", subdepartments);
+			/**** active departments as on session related date ****/
+			Date onDate = new Date();
+			if(onDate.compareTo(session.getStartDate())<=0) {
+				onDate = session.getStartDate();
+			} else if(onDate.compareTo(session.getEndDate())>=0) {
+				onDate = session.getEndDate();
+			}
+			List<Department> departments = MemberDepartment.findActiveDepartmentsOnDate(onDate, locale);
+			model.addAttribute("departments", departments);
 			
 			/**** device types ****/
 			List<DeviceType> deviceTypes = DeviceType.findDeviceTypesStartingWith("motions_cutmotion_", locale);
 			model.addAttribute("deviceTypes", deviceTypes);
-			
-			/**** department actors ****/
-			model.addAttribute("domainsubdepartments", domain.getDepartmentDates());
-			model.addAttribute("departmentCount", domain.getDepartmentDates().size());
 			
 			/**** Load the tentative discussion dates ****/
 			populateDiscussionDates(domain.getDeviceType(), domain.getSession(), model, locale);
 			
 			/**** Load the tentative submission end dates for populated discussion dates ****/
 			populateSubmissionEndDatesForDiscussionDates(domain.getDeviceType(), domain.getSession(), model, locale);
+			
+			/**** Load the department dates ****/
+			populateDepartmentDatesInModel(domain, model, locale);
 		}catch(Exception e){
 			logger.error("error", e);
 		}
@@ -338,7 +346,7 @@ public class CutMotionDateWorkflowController extends BaseController {
 			userGroupType = userGroup.getUserGroupType();
 		}
 		
-		populateDepartmentDates(domain, request, result);		
+		populateDepartmentDatesInDomain(domain, request, result);	
 		performAction(domain);
 		domain.merge();
 		if(workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_PENDING)){
@@ -503,7 +511,7 @@ public class CutMotionDateWorkflowController extends BaseController {
 	
 					Reference reference = new Reference();
 	
-					reference.setId(dateFormat.format(date));
+					reference.setId(FormaterUtil.formatDateToString(date, ApplicationConstants.DB_DATEFORMAT));
 					reference.setName(dateFormat.format(date));
 	
 					references.add(reference);    
@@ -580,7 +588,7 @@ public class CutMotionDateWorkflowController extends BaseController {
 	
 					Reference reference = new Reference();
 	
-					reference.setId(dateFormat.format(date));
+					reference.setId(FormaterUtil.formatDateToString(date, ApplicationConstants.DB_DATEFORMAT));
 					reference.setName(dateFormat.format(date));
 	
 					references.add(reference);    
@@ -593,54 +601,116 @@ public class CutMotionDateWorkflowController extends BaseController {
 			model.addAttribute("errorcode", "discussiondate_setting_error");
 		}
 	}
-
-	private void populateDepartmentDates(final CutMotionDate domain,
+	
+	private void populateDepartmentDatesInModel(CutMotionDate domain, ModelMap model, String locale) {
+		List<CutMotionDepartmentDateVO> departmentDateVOs = new ArrayList<CutMotionDepartmentDateVO>();
+		if(domain.getId()!=null) {
+			Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+			queryParameters.put("locale", new String[]{locale});
+			queryParameters.put("cutMotionDateId", new String[]{domain.getId().toString()});
+			@SuppressWarnings("unchecked")
+			List<Object[]> queryResult = Query.findReport("LOAD_CUTMOTIONDATE_DEPARTMENT_DATES", queryParameters);
+			if(queryResult!=null && !queryResult.isEmpty()) {
+				for(Object[] result: queryResult) {
+					if(result!=null && result.length==5) {
+						CutMotionDepartmentDateVO departmentDateVO = new CutMotionDepartmentDateVO();
+						departmentDateVO.setDiscussionDate(result[0].toString());
+						departmentDateVO.setFormattedDiscussionDate(result[1].toString());
+						departmentDateVO.setSubmissionEndDate(result[2].toString());
+						departmentDateVO.setFormattedSubmissionEndDate(result[3].toString());
+						List<String[]> departments = new ArrayList<String[]>();
+						if(result[4]!=null && !result[4].toString().isEmpty()) {
+							String departmentsData = result[4].toString();
+							for(String i: departmentsData.split("_;_")) {
+								String[] departmentData = i.split("~");
+								departmentData[2] = FormaterUtil.formatNumberNoGrouping(Integer.parseInt(departmentData[2]), locale);
+								departments.add(departmentData);
+							}				
+						}					
+						departmentDateVO.setDepartments(departments);
+						departmentDateVOs.add(departmentDateVO);
+					}
+				}
+			}
+		}		
+		model.addAttribute("departmentDateVOs", departmentDateVOs);
+	}
+	
+	private void populateDepartmentDatesInDomain(final CutMotionDate domain,
 			final HttpServletRequest request, final BindingResult result) {
 		try{
-			List<CutMotionDepartmentDatePriority> cutMotionDapertmentDatePriorities = new ArrayList<CutMotionDepartmentDatePriority>();
-			Integer departmentCount = Integer.parseInt(request.getParameter("departmentCount"));
-			for (int i = 1; i <= departmentCount; i++) {
-				CutMotionDepartmentDatePriority departmentDatePriority = null;
-	
-				String strDepartment = request.getParameter("departmentName" + i);
-				String strDepartmentDate = request.getParameter("departmentDate" + i);
-				String strDepartmentSubmissionDate = request.getParameter("deptSubmissionDate" + i);
-				
-				if (strDepartment != null) {
-					departmentDatePriority = new CutMotionDepartmentDatePriority();
-					SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strDepartment));
-					departmentDatePriority.setSubDepartment(subDepartment);
-					departmentDatePriority.setDepartment(subDepartment.getDepartment());
-					departmentDatePriority.setDiscussionDate(FormaterUtil.formatStringToDate(strDepartmentDate, ApplicationConstants.SERVER_DATEFORMAT, domain.getLocale()));
-					if(strDepartmentSubmissionDate != null && !strDepartmentSubmissionDate.isEmpty()){
-						departmentDatePriority.setSubmissionEndDate(FormaterUtil.formatStringToDate(strDepartmentSubmissionDate, ApplicationConstants.SERVER_DATEFORMAT, domain.getLocale()));
+			List<CutMotionDepartmentDatePriority> departmentDates = new ArrayList<CutMotionDepartmentDatePriority>();
+			Integer discussionDatesCount = Integer.parseInt(request.getParameter("discussionDatesCount"));
+			for (int i = 1; i <= discussionDatesCount; i++) {
+				Date discussionDate = FormaterUtil.formatStringToDate(request.getParameter("discussionDate"+i), ApplicationConstants.DB_DATEFORMAT);
+				Date submissionEndDate = FormaterUtil.formatStringToDate(request.getParameter("submissionEndDate"+i), ApplicationConstants.DB_DATEFORMAT);
+				Integer departmentsCount = Integer.parseInt(request.getParameter("discussionDate"+i+"_departmentsCount"));
+				if(departmentsCount.intValue()==0) { //user left departments unselected
+					CutMotionDepartmentDatePriority departmentDateForDiscussionDate = null;
+					List<CutMotionDepartmentDatePriority> departmentDatesForDiscussionDate = domain.findDepartmentDatesForDiscussionDate(discussionDate);					
+					if(departmentDatesForDiscussionDate!=null && departmentDatesForDiscussionDate.size()==1) {
+						departmentDateForDiscussionDate = departmentDatesForDiscussionDate.get(0);
+					} else {
+						departmentDateForDiscussionDate = new CutMotionDepartmentDatePriority();
+						departmentDateForDiscussionDate.setLocale(domain.getLocale());						
+					}			
+					departmentDateForDiscussionDate.setDiscussionDate(discussionDate);
+					departmentDateForDiscussionDate.setSubmissionEndDate(submissionEndDate);
+					departmentDateForDiscussionDate.setDepartment(null);
+					departmentDateForDiscussionDate.setSubDepartment(null);
+					departmentDateForDiscussionDate.setPriority(1);
+					
+					departmentDates.add(departmentDateForDiscussionDate);
+				} else {
+					for (int j = 1; j <= departmentsCount; j++) {
+						String departmentIdStr = request.getParameter("discussionDate"+i+"_department"+j);
+						String departmentPriorityStr = request.getParameter("discussionDate"+i+"_department"+j+"_priority");
+						Department department = Department.findById(Department.class, Long.parseLong(departmentIdStr));
+						List<CutMotionDepartmentDatePriority> departmentDatesForDepartment = domain.findDepartmentDatesForDepartment(department);
+						/** load active subdepartments for the department as on session related date **/
+						Date onDate = new Date();
+						if(onDate.compareTo(domain.getSession().getStartDate())<=0) {
+							onDate = domain.getSession().getStartDate();
+						} else if(onDate.compareTo(domain.getSession().getEndDate())>=0) {
+							onDate = domain.getSession().getEndDate();
+						}
+						Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+						queryParameters.put("locale", new String[]{domain.getLocale()});
+						queryParameters.put("departmentId", new String[]{department.getId().toString()});
+						queryParameters.put("onDate", new String[]{FormaterUtil.formatDateToString(onDate, ApplicationConstants.DB_DATEFORMAT)});
+						@SuppressWarnings("unchecked")
+						List<SubDepartment> subDepartments = Query.findResultListOfGivenClass("LOAD_ACTIVE_SUBDEPARTMENTS_HAVING_GIVEN_DEPARTMENT_ON_GIVEN_DATE", queryParameters, SubDepartment.class);
+						for(SubDepartment sd: subDepartments) {
+							CutMotionDepartmentDatePriority departmentDate = null;							
+							for(CutMotionDepartmentDatePriority existingDepartmentDate: departmentDatesForDepartment) {
+								if(existingDepartmentDate.getSubDepartment().getId().equals(sd.getId())) {
+									departmentDate = existingDepartmentDate;
+									break;
+								}
+							}
+							if(departmentDate==null) {
+								departmentDate = new CutMotionDepartmentDatePriority();
+								departmentDate.setLocale(domain.getLocale());
+							}
+							departmentDate.setDiscussionDate(discussionDate);
+							departmentDate.setSubmissionEndDate(submissionEndDate);
+							departmentDate.setDepartment(department);
+							departmentDate.setSubDepartment(sd);
+							departmentDate.setPriority(Integer.parseInt(departmentPriorityStr));
+							
+							departmentDates.add(departmentDate);
+						}
 					}
-				}
-	
-				String id = request.getParameter("departmentId" + i);
-				if (id != null) {
-					if (!id.isEmpty()) {
-						departmentDatePriority.setId(Long.parseLong(id));
-					}
-				}
-	
-				String version = request.getParameter("departmentVersion" + i);
-				if (version != null) {
-					if (!version.isEmpty()) {
-						departmentDatePriority.setVersion(Long.parseLong(version));
-					}
-				}
-	
-				String locale = request.getParameter("departmentLocale" + i);
-				if (locale != null) {
-					if (!locale.isEmpty()) {
-						departmentDatePriority.setLocale(locale);
-					}
-				}
-				cutMotionDapertmentDatePriorities.add(departmentDatePriority);
+				}				
 			}
-			domain.setDepartmentDates(cutMotionDapertmentDatePriorities);
-		}catch (Exception e) {
+			domain.setDepartmentDates(departmentDates);
+		} catch (Exception e) {
+			//set existing departmentDates
+			CutMotionDate cutMotionDate = CutMotionDate.findById(CutMotionDate.class, domain.getId());
+			if(cutMotionDate!=null) {
+				domain.setDepartmentDates(cutMotionDate.getDepartmentDates());
+			}
+			//exception message handling
 			String message = null;
 			if(e instanceof ELSException){
 				message = ((ELSException) e).getParameter();
@@ -654,7 +724,7 @@ public class CutMotionDateWorkflowController extends BaseController {
 			}
 			
 			//model.addAttribute("error", message);
-			e.printStackTrace();
+			e.printStackTrace();		
 		}
 	}
 }

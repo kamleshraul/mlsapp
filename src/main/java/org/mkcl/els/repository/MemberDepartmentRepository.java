@@ -19,8 +19,11 @@ public class MemberDepartmentRepository extends BaseRepository<MemberMinister, L
 		try {
 			String strQuery = "SELECT DISTINCT d FROM MemberDepartment md " +
 					"JOIN md.department d " +
+					"JOIN md.subDepartments sd " +
 					"WHERE md.locale=:locale " +
 					"AND d.isExpired=:isExpired " +
+					"AND sd.isExpired=:isExpired " +
+					"AND sd.department.id=d.id " +
 					"AND (md.toDate IS NULL OR md.toDate>=:onDate)";
 			
 			TypedQuery<Department> query = this.em().createQuery(strQuery, Department.class);

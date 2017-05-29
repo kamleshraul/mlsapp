@@ -55,7 +55,7 @@
 	    <script type="text/javascript" src="./resources/js/jquery.tmpl.1.1.1.js?q=123?v=5"></script>	    
 		<!-- <link rel="stylesheet" rel="stylesheet" href="./resources/js/skins/lightgray/content.min.css?v=6"  /> -->
 		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/reset.css?v=3" />
-		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?v=4" />
+		<link rel="stylesheet" type="text/css" media="all" href="./resources/css/template/blue.css?v=5" />
 		<link rel="stylesheet" rel="stylesheet" href="./resources/css/ui.jqgrid.css?v=3"  />
 		<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css?v=3"  />
 		<link rel="stylesheet" rel="stylesheet" href="./resources/css/cupertino/jquery-ui-1.8.16.custom.css?v=3"  />

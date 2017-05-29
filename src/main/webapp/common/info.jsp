@@ -1,6 +1,6 @@
 <%@ include file="/common/taglibs.jsp"%>
 <c:if test="${type eq 'error'}">
-	<div class="toolTip tpRed clearfix">
+	<div id="update_failed_div" class="toolTip tpRed clearfix">
 		<p style="font-size: 14px;">
 			<img src="./resources/images/template/icons/light-bulb-off.png">
 			<spring:message code="update_failed" text="Please correct following errors."/>
@@ -9,7 +9,7 @@
 	</div>
 </c:if>
 <c:if test="${type eq 'success'}">
-	<div class="toolTip tpGreen clearfix">
+	<div id="update_success_div" class="toolTip tpGreen clearfix">
 		<p style="font-size: 14px;">
 			<img src="./resources/images/template/icons/light-bulb-off.png">
 			<spring:message code="update_success" text="Data saved successfully."/>
@@ -18,7 +18,7 @@
 	</div>
 </c:if>
 <c:if test="${type eq 'taskcompleted'}">
-	<div class="toolTip tpGreen clearfix">
+	<div id="task_completed_div" class="toolTip tpGreen clearfix">
 		<p style="font-size: 14px;">
 			<spring:message code="task_completed" text="Task Completed successfully."/>
 		</p>

@@ -170,7 +170,7 @@ public class CutMotionDate extends BaseDomain implements Serializable{
 	
 	public static List<CutMotionDateDraft> findDraftsForGivenCutMotionDate(final Long cutMotionDateId) {
 		return getCutMotionDateRepository().findDraftsForGivenCutMotionDate(cutMotionDateId);
-	}
+	}	
 	/**** Static Methods ****/	
 	
 	/**** Method ****/
@@ -277,6 +277,13 @@ public class CutMotionDate extends BaseDomain implements Serializable{
     	return (CutMotionDate) super.merge();
 	}
     
+    public List<CutMotionDepartmentDatePriority> findDepartmentDatesForDiscussionDate(final Date discussionDate) {
+    	return getCutMotionDateRepository().findDepartmentDatesForDiscussionDate(this, discussionDate);
+    }
+    
+    public List<CutMotionDepartmentDatePriority> findDepartmentDatesForDepartment(final Department department) {
+    	return getCutMotionDateRepository().findDepartmentDatesForDepartment(this, department);
+    }
 	/**** Method ****/
 
 

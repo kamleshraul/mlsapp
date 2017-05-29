@@ -861,6 +861,40 @@
 		border-top: 1px solid transparent;
 		max-width: 250px;
 	}
+	
+	/***** For inner table (to stop inheriting parent table css) ****/
+	.innerTable{
+		font-family: inherit !important;
+		font-size: inherit !important;			
+		width: 100% !important;			
+		text-align: inherit !important;
+		border-collapse: collapse !important;
+		border: 0 0 0 0 !important;
+	}
+	.innerTable tbody{
+	}
+	.innerTable tr:nth-child(even) {background: inherit !important;}
+	.innerTable tr:nth-child(odd) {background: inherit !important;}
+	.innerTable th
+	{
+		font-size: inherit !important;
+		font-weight: inherit !important;
+		padding: 0px !important;
+		/* background: #FEFFD1; */	
+		border-top: 0px !important;
+		border-bottom: 0px !important;
+		/* color: #039; */
+		background-color: inherit !important;
+	}
+	.innerTable td
+	{
+		padding: 0px !important;
+		/* background: #e8edff; */
+		border-bottom: 0px !important;
+		/* color: #669; */
+		border-top: 0px !important;
+		max-width: inherit !important;
+	}
 		
 	
 	/**

@@ -1,7 +1,11 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -64,6 +68,59 @@ public class CutMotionDepartmentDatePriority extends BaseDomain implements Seria
 		this.subDepartment = subDepartment;
 		this.discussionDate = discussionDate;
 		this.submissionEndDate = submissionEndDate;
+	}
+	
+	public static List<CutMotionDepartmentDatePriority> sortByDiscussionDateAndPriority(final List<CutMotionDepartmentDatePriority> departmentDates) {
+		List<CutMotionDepartmentDatePriority> sortedDepartmentDates = null;
+		if(departmentDates!=null) {
+			sortedDepartmentDates = new ArrayList<CutMotionDepartmentDatePriority>();
+			sortedDepartmentDates.addAll(departmentDates);
+			if(sortedDepartmentDates.size()>1) { //sort if list is atleast having 2 elements otherwise return as it is
+				Comparator<CutMotionDepartmentDatePriority> c = new Comparator<CutMotionDepartmentDatePriority>() {
+					@Override
+					public int compare(final CutMotionDepartmentDatePriority departmentDate1, final CutMotionDepartmentDatePriority departmentDate2) {
+						//=========check null objects===================
+						if (departmentDate1 == null) {
+					        return (departmentDate2 == null) ? 0 : -1;
+					    }
+					    if (departmentDate2 == null) {
+					        return 1;
+					    }		
+					    //==============================================
+					    
+					    //=========check null discussion dates==========
+					    if (departmentDate1.getDiscussionDate() == null) {
+					        return (departmentDate2.getDiscussionDate() == null) ? 0 : -1;
+					    }
+					    if (departmentDate2.getDiscussionDate() == null) {
+					        return 1;
+					    }
+					    //==============================================
+					    
+					    //=========sort by discussion dates=============
+					    int discussionDateSortingResult = departmentDate1.getDiscussionDate().compareTo(departmentDate2.getDiscussionDate());
+				        if (discussionDateSortingResult != 0) {
+				            return discussionDateSortingResult;
+				        }
+				        //==============================================		
+				        
+				        //=========check null priorities================
+					    if (departmentDate1.getPriority() == null) {
+					        return (departmentDate2.getPriority() == null) ? 0 : -1;
+					    }
+					    if (departmentDate2.getPriority() == null) {
+					        return 1;
+					    }
+					    //==============================================
+					    
+				        //=========sort further by priorities===========				    
+						return departmentDate1.getPriority().compareTo(departmentDate2.getPriority());
+					}
+				};
+				Collections.sort(sortedDepartmentDates, c);
+			}
+		}
+		return sortedDepartmentDates;
 	}
 
 	public Department getDepartment() {

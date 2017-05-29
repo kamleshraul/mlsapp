@@ -648,7 +648,7 @@
 							</tr>
 							<tr>
 								<td>
-									<select id="allItems" multiple="multiple" style="height:200px;width:150px;">
+									<select id="allItems" multiple="multiple" size="10" style="width:150px;">
 										<c:forEach items="${availableFields}" var="i">
 											<option value="${fn:trim(i)}">
 												<spring:message code="extended_grid_report.available_fields.${fn:trim(i)}" text="${fn:trim(i)}"/>
@@ -664,7 +664,7 @@
 									<input type="button" id="to1" value="&lt;" class="btnMS"  />
 								</td>
 								<td>
-									<select id="selectedItems" multiple="multiple" style="height:200px;width:150px;">
+									<select id="selectedItems" multiple="multiple" size="10" style="width:150px;">
 										<c:forEach items="${defaultFields}" var="i">
 											<option value="${fn:trim(i)}">
 												<spring:message code="extended_grid_report.available_fields.${fn:trim(i)}" text="${fn:trim(i)}"/>

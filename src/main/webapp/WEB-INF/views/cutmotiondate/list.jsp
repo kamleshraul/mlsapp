@@ -44,18 +44,18 @@
 				searchRecord();
 			});
 			
-			$("#cutmotiondatePatrak").click(function(e){
+			/* $("#cutmotiondatePatrak").click(function(e){
 				
 				$("#cutmotiondateDiv").toggle();
 				
-			});			
+			}); */			
 			
 			$("#cutmotiondatePatrakReport").click(function(){
 				$("#selectionDiv1").hide();
 				showCutmotionDatePatrakReport();
 			});
 			
-			$("#cutmotiondateDiv").hide();
+			//$("#cutmotiondateDiv").hide();
 		});				
 	</script>
 </head>
@@ -89,11 +89,19 @@
 			<a href="#" id="cutmotiondatePatrak" class="butSim">
 				<spring:message code="generic.cutmotiondateReport" text="Reports"/>
 			</a> |
-			<div style="display: inline;" id="cutmotiondateDiv">
+			<%-- <div style="display: inline;" id="cutmotiondateDiv">
 				<a href="#" id="cutmotiondatePatrakReport" class="butSim">
 					<spring:message code="generic.cutmotiondatePatrak" text="Patrak"/>
 				</a> |
-			</div>	
+			</div> --%>	
+			<security:authorize access="!hasAnyRole('CMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<a href="#" id="generateCurrentStatusReport" class="butSim">
+					<spring:message code="cutmotion.generateCurrentStatusReport" text="Current Status Report"/>
+				</a> |
+			</security:authorize>
+			<a href="#" id="cutmotiondatePatrakReport" class="butSim">
+				<spring:message code="generic.cutmotiondatePatrak" text="Patrak Bhag 2"/>
+			</a> |
 			<p>&nbsp;</p>
 		</div>
 	<%@ include file="/common/gridview.jsp" %>

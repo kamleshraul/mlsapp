@@ -11,6 +11,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.domain.CutMotionDate;
 import org.mkcl.els.domain.CutMotionDateDraft;
 import org.mkcl.els.domain.CutMotionDepartmentDatePriority;
+import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Session;
@@ -132,6 +133,35 @@ public class CutMotionDateRepository extends BaseRepository<CutMotionDate, Seria
 		}		
 		
 		return activeDiscussionDates;
+	}
+	
+	public List<CutMotionDepartmentDatePriority> findDepartmentDatesForDiscussionDate(final CutMotionDate cutMotionDate, final Date discussionDate) {
+		String queryString = "SELECT DISTINCT cmdd FROM CutMotionDate cmd " +
+							 "JOIN cmd.departmentDates cmdd " +
+							 "WHERE cmd.id=:cutMotionDateId " +
+							 "AND cmdd.discussionDate=:discussionDate " +
+							 "ORDER BY cmdd.priority";
+		
+		TypedQuery<CutMotionDepartmentDatePriority> query = this.em().createQuery(queryString, CutMotionDepartmentDatePriority.class);
+		query.setParameter("cutMotionDateId", cutMotionDate.getId());
+		query.setParameter("discussionDate", discussionDate);
+		
+		return query.getResultList();
+	}
+	
+	public List<CutMotionDepartmentDatePriority> findDepartmentDatesForDepartment(final CutMotionDate cutMotionDate, final Department department) {
+		String queryString = "SELECT DISTINCT cmdd FROM CutMotionDate cmd " +
+							 "JOIN cmd.departmentDates cmdd " +
+							 "JOIN cmdd.department dept " +
+							 "WHERE cmd.id=:cutMotionDateId " +
+							 "AND dept.id=:departmentId " +
+							 "ORDER BY cmdd.priority";
+		
+		TypedQuery<CutMotionDepartmentDatePriority> query = this.em().createQuery(queryString, CutMotionDepartmentDatePriority.class);
+		query.setParameter("cutMotionDateId", cutMotionDate.getId());
+		query.setParameter("departmentId", department.getId());
+		
+		return query.getResultList();
 	}
 
 }
