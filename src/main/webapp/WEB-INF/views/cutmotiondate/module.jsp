@@ -181,6 +181,18 @@
 			$('#selectedDeviceType').prepend(option);
 		}	
 		
+		function showCurrentStatusReport(){
+			var row=$('#key').val();
+			if(row==null||row==''){
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			}else{
+				$("#selectionDiv1").hide();
+				var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text().split("_")[0];
+				showTabByIdAndUrl('details_tab', "cutmotiondate/report/currentstatusreport?device="+ device +"&reportType=single&cutMotionDateId="+row);
+			}			
+		}
+		
 		function showCutmotionDatePatrakReport(){
 			var url = "ref/sessionbyhousetype/"+$("#selectedHouseType").val()+"/"+$("#selectedSessionYear").val()+"/"+$("#selectedSessionType").val();
 			
@@ -291,7 +303,12 @@
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>
-			</select> |								
+			</select>	
+			<select id="deviceTypeMaster" style="display: none;">
+				<c:forEach items="${deviceTypes}" var="i">
+					<option value="${i.id }">${i.type }</option>
+				</c:forEach>
+			</select> |		
 			<hr>		
 			<a href="#" id="select_status" class="butSim"> <spring:message code="generic.status" text="Status" /></a>
 			<select name="selectedStatus" id="selectedStatus" style="width: 190px; height: 25px;">

@@ -28,6 +28,7 @@ import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
+import org.mkcl.els.domain.CutMotionDate;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DiscussionMotion;
@@ -2047,6 +2048,42 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			Workflow workflow = motion.findWorkflowFromStatus();
 			if(workflow!=null) {
 				workflowDetails = findCurrentWorkflowDetail(motion, workflow.getType());
+			}			
+		}catch (NoResultException e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		}catch(Exception e){	
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_motion", "WorkflowDetails Not Found");
+			throw elsException;
+		}		
+		
+		return workflowDetails;		
+	}
+	
+	public WorkflowDetails findCurrentWorkflowDetail(final CutMotionDate cutMotionDate, String workflowType) {
+		try{
+			String query="SELECT m FROM WorkflowDetails m WHERE m.deviceId="+cutMotionDate.getId()
+			+" AND m.workflowType='"+workflowType+"' "
+			+" ORDER BY m.assignmentTime "+ApplicationConstants.DESC;
+			WorkflowDetails workflowDetails=(WorkflowDetails) this.em().createQuery(query).setMaxResults(1).getSingleResult();
+			return workflowDetails;
+		}catch(Exception e){
+			e.printStackTrace();
+			return new WorkflowDetails();
+		}		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public WorkflowDetails findCurrentWorkflowDetail(final CutMotionDate cutMotionDate) throws ELSException{
+		WorkflowDetails workflowDetails = null;
+		try{
+			Workflow workflow = Workflow.findByStatus(cutMotionDate.getInternalStatus(), cutMotionDate.getLocale());
+			if(workflow!=null) {
+				//workflowDetails = findCurrentWorkflowDetail(cutMotionDate, workflow.getType());
+				workflowDetails = findCurrentWorkflowDetail(cutMotionDate, ApplicationConstants.APPROVAL_WORKFLOW);
 			}			
 		}catch (NoResultException e) {
 			e.printStackTrace();

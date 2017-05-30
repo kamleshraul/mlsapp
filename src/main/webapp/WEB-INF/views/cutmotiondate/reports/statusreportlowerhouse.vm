@@ -1,0 +1,136 @@
+<div style="width: 760px; margin-top: 0px !important;">
+	<table style="width: 760px; margin-top: 0px !important;">
+		<tr>
+			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">$formatData.get(6) दिनांक</td>
+			<td style="font-size: 22px; text-decoration: underline; width:290px; text-align: center;">
+				महाराष्ट्र विधानसभा
+			</td>	
+			<td style="font-size: 18px; text-decoration: underline; width:230px; text-align: center;">
+				$formatData.get(12)
+			</td>
+		</tr>		
+	</table>
+	<br/>	
+	<table>		
+		<tr>
+			<td colspan="3">
+				<div id="discussionDatesTableDiv">
+					#if($departmentDateVOs && $departmentDateVOs.size()>0)
+						<table id="discussionDatesTable" style="width: 100%;" class="strippedTable">
+							<thead>
+								<tr>
+									<th class="expand" width="25%" valign="top">
+										<label class="tableHeaderColumnLabel">चर्चेचा वार व दिनांक</label>
+									</th>
+									<th class="expand" width="50%" valign="top">
+										<label class="tableHeaderColumnLabel">विभागांचा प्राथम्यक्रम</label>
+									</th>
+									<th class="expand" width="25%" valign="top">
+										<label class="tableHeaderColumnLabel">सूचना स्वीकारण्याची<br/>अंतिम तारीख</label>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="discussionDatesDiv">
+								#foreach($i in $departmentDateVOs)
+									<tr>
+										<td class="expand" width="25%" valign="top">
+											$i.formattedDiscussionDate
+										</td>
+										<td class="expand" width="50%">
+											#if($i.departments && $i.departments.size()>0)
+												<table class="innerTable" border="0">
+													#foreach($j in $i.departments)
+														<tr>
+															<td width="10%">
+																<label>($j.get(2))</label>
+															</td>
+															<td width="90%">
+																<label style="padding-left: 0px !important;">$j.get(1)</label>												
+															</td>
+														</tr>
+													#end												
+												</table>
+											#else
+												<label>कृपया निवडा</label>
+											#end										
+										</td>
+										<td class="expand" width="25%" valign="top">
+											<label style="padding-left: 0px !important;">$i.formattedSubmissionEndDate</label>
+										</td>
+									</tr>
+								#end
+							</tbody>
+						</table>
+					#else
+						<h4>चर्चेचा दिनांक उपलब्ध नाही.</h4>
+					#end					
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3">&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				सादर केल्याचा दिनांक
+			</td>
+			<td colspan="2" style="font-weight: bold; text-decoration: none; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				$formatData.get(16)
+			</td>
+		</tr>
+		<tr>
+			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				स्थिती
+			</td>
+			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				$formatData.get(15)
+			</td>
+		</tr>			
+	</table>
+</div>
+<br/>
+<div style="width: 760px; border-top: 2px dotted black;">&nbsp;</div>
+<div style="width: 760px;">	
+	<table style="width: 760px; font-weight: bold; border: 2px solid black; font-size: 16px;" class="uiTable">
+		#foreach($r in $data)
+			<tr class="page-break" style="font-weight: bold;">
+				<td style="width: 120px; padding: 2px; text-align: center; min-height: 30px;">
+					#if($r.get(13)!='assistant' && $r.get(13)!='principal_secretary')
+						$r.get(1)<br>$r.get(0)
+					#else
+						&nbsp;<br>$r.get(0)
+					#end
+				</td>
+				<td style="width: 100px; padding: 2px; text-align: center;">
+					#if($r.get(14))
+						$r.get(14)
+					#else
+						-
+					#end
+				</td>
+				<td style="width: 410px; padding: 2px;">$r.get(4)</td>
+				<!--<td style="width: 120px; padding: 2px; text-align: center;">&nbsp;</td>-->
+			</tr>
+		#end
+	</table>
+	<table style="width: 760px; font-size: 17px;">
+		<tr><td colspan="3">&nbsp;</td></tr>
+		<tr>
+			<td style="width: 150px; font-size: 16px; word-wrap: break-word; padding-left: 5px; text-align: center;">
+				<!--<br><br>
+				$principalSec<br />
+				प्रधान सचिव
+				-->
+			</td>
+			
+			<td colspan="2" style="font-weight: bold; width: 600px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align: center;">
+				<br>
+				(&nbsp&nbsp;स्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;अस्वीकृत&nbsp&nbsp;&nbsp&nbsp;/&nbsp&nbsp;&nbsp&nbsp;चर्चा करावा&nbsp&nbsp;)<br>
+				<br><br>
+				मा. अध्यक्ष
+			</td>		
+		</tr>
+	</table>
+</div>
+<span class='page-break-before-forced'>&nbsp;</span>
+<hr>

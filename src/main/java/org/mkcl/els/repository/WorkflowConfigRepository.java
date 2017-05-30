@@ -22,6 +22,7 @@ import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
+import org.mkcl.els.domain.CutMotionDate;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DiscussionMotion;
@@ -2782,6 +2783,30 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		tQuery.setMaxResults(1);
 		WorkflowActor firstActor = tQuery.getSingleResult();
 		return firstActor;		
+	}
+	
+	public WorkflowConfig getLatest(final CutMotionDate cutMotionDate,final String internalStatus,final String locale) {
+		/**** Latest Workflow Configurations ****/
+		String[] temp=internalStatus.split("_");
+		String workflowName=temp[temp.length-1]+"_workflow";
+		String strQuery="SELECT wc FROM WorkflowConfig wc" +
+				" JOIN wc.workflow wf" +
+				" JOIN wc.deviceType d " +
+				" JOIN wc.houseType ht" +
+				" WHERE d.id=:deviceTypeId" +
+				" AND wf.type=:workflow"+
+				" AND ht.id=:houseTypeId" +
+				" AND wc.isLocked=true ORDER BY wc.id "+ApplicationConstants.DESC ;				
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("deviceTypeId", cutMotionDate.getDeviceType().getId());
+		query.setParameter("workflow",workflowName);
+		query.setParameter("houseTypeId", cutMotionDate.getHouseType().getId());
+		try{
+			return (WorkflowConfig) query.getResultList().get(0);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return new WorkflowConfig();
+		}	
 	}
 	
 	public WorkflowConfig getLatest(final CutMotion motion,final String internalStatus,final String locale) {

@@ -533,6 +533,10 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getRepository().findCurrentWorkflowDetail(motion, workflowType);
 	}
 	
+	public static WorkflowDetails findCurrentWorkflowDetail(final CutMotionDate cutMotionDate) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(cutMotionDate);
+	}
+	
 	public static WorkflowDetails startProcessAtGivenLevel(final Motion motion, 
 			final String processDefinitionKey, 
 			final Workflow processWorkflow, 
