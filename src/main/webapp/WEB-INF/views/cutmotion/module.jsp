@@ -274,11 +274,12 @@
 		var resourceURL = 'cutmotion/assignnumberafterapproval?' + parameters;
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		$.get(resourceURL, function(data){
-			
+			$.unblockUI();
 			if(data=='failure'){
 				$.prompt("<p style='color: red;'>Error Occured</p>");
-			}
-			$.unblockUI();
+			} else {
+				$.prompt("Internal Numbers assigned successfully!");
+			}			
 		}).fail(function(){
 			$.unblockUI();
 		});
