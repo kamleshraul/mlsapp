@@ -232,10 +232,10 @@ class CutMotionDateReportHelper{
 							for(Object o : report){
 								Object[] objx = (Object[])o;
 	
-								if(objx[15] != null && !objx[15].toString().isEmpty()){
-									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[15].toString())){
+								if(objx[13] != null && !objx[13].toString().isEmpty()){
+									if(csptAllwedUserGroupForStatusReportSign.getValue().contains(objx[13].toString())){
 										
-										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[15].toString(), locale.toString());
+										UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class, "type", objx[13].toString(), locale.toString());
 																				
 										if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) || userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY)){
 											if(dataMap.get(ApplicationConstants.UNDER_SECRETARY) != null){
@@ -244,7 +244,7 @@ class CutMotionDateReportHelper{
 														dataMap.put(ApplicationConstants.UNDER_SECRETARY, objx);
 													}else{
 														Object[] tempObj = dataMap.get(ApplicationConstants.UNDER_SECRETARY);
-														tempObj[16] = objx[16];
+														tempObj[14] = objx[14];
 														
 														dataMap.put(ApplicationConstants.UNDER_SECRETARY, tempObj);
 													}
@@ -259,7 +259,7 @@ class CutMotionDateReportHelper{
 														dataMap.put(userGroupType.getType(), objx);
 													}else{
 														Object[] tempObj = dataMap.get(userGroupType.getType());
-														tempObj[16] = objx[16];
+														tempObj[14] = objx[14];
 														
 														dataMap.put(userGroupType.getType(), tempObj);
 													}
@@ -296,7 +296,7 @@ class CutMotionDateReportHelper{
 							WorkflowDetails  wfDetails = WorkflowDetails.findCurrentWorkflowDetail(cutMotionDate);
 							for(WorkflowActor wf : distinctActors){
 								UserGroupType userGroupType = wf.getUserGroupType();
-								if(userGroupType.getType().equals(lastObject[15])){
+								if(userGroupType.getType().equals(lastObject[13])){
 									if(userGroupType.getType().equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE)){
 										for(WorkflowActor wf1 : distinctActors){
 											UserGroupType ugt = wf1.getUserGroupType();
@@ -316,7 +316,7 @@ class CutMotionDateReportHelper{
 										(wfDetails!= null && 
 										Integer.parseInt(wfDetails.getAssigneeLevel())>=level)){
 										Object[] tempObj = dataMap.get(userGroupType.getType());
-										tempObj[16] = "";
+										tempObj[14] = "";
 										tempObj[4] = "";
 										dataMap.put(userGroupType.getType(), tempObj);
 									}
@@ -357,8 +357,8 @@ class CutMotionDateReportHelper{
 											}
 											actor[3] = new String("");
 											actor[4] = new String("");
-											actor[15] = userGroupType.getType();
-											actor[16] = new String("");
+											actor[13] = userGroupType.getType();
+											actor[14] = new String("");
 											dataMap.put(str, actor);
 										}
 									}

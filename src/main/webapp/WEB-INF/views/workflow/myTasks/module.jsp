@@ -592,7 +592,12 @@
 				if(deviceType.indexOf('motions_standalonemotion_')==0){
 					showTabByIdAndUrl('details_tab', "standalonemotion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 				}else if(deviceType.indexOf('motions_cutmotion_')==0){
-					
+					if($('#selectedSubWorkflow').val().match("dateadmission$")
+							|| $('#selectedSubWorkflow').val().match("daterejection$")) {
+						showTabByIdAndUrl('details_tab', "cutmotiondate/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
+					} else {
+						showTabByIdAndUrl('details_tab', "cutmotion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
+					}					
 				}else if(deviceType.indexOf('motions_discussionmotion_')==0){
 					
 				}else{
