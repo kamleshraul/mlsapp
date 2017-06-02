@@ -97,10 +97,13 @@ public class HomeController extends BaseController {
         else {
             model.addAttribute("selectedLocale", DEFAULT_LOCALE);
         }
-        
-        CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "PASSWORD_ENCRYTPTION_REQUIRED", "");
-        if(cp != null){
-        	model.addAttribute("passwordEncryptionReq", cp.getValue());
+        CustomParameter cpSecretKey = CustomParameter.findByName(CustomParameter.class, "SECRET_KEY_FOR_ENCRYPTION", "");
+        if(cpSecretKey != null){
+        	model.addAttribute("secret_key", cpSecretKey.getValue());
+        }
+        CustomParameter cpEncryptionRequired = CustomParameter.findByName(CustomParameter.class, "PASSWORD_ENCRYTPTION_REQUIRED", "");
+        if(cpEncryptionRequired != null){
+        	model.addAttribute("passwordEncryptionReq", cpEncryptionRequired.getValue());
         }
         model.addAttribute("locales", supportedLocales);
         return "login";
