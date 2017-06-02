@@ -27,10 +27,6 @@
 		function encryptPassword() {
 			if($('#j_password').val()!=undefined && $('#j_password').val()!="") {
 				var encryptedPwd = CryptoJS.AES.encrypt($('#j_password').val(), '${secret_key}');		
-				//var decryptedPwd = CryptoJS.AES.decrypt(encryptedPwd, '${secret_key}');
-				//console.log("Original Password: " + $('#j_password').val());
-				//console.log("Encrypted Password: " + encryptedPwd);
-				//console.log("Decrypted Password: " + decryptedPwd.toString(CryptoJS.enc.Utf8));
 				$('#j_password').val(encryptedPwd);
 			}		
 		}
