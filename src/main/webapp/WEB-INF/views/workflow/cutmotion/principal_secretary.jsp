@@ -782,7 +782,7 @@
 	</p>
 	
 	<c:if test="${selectedMotionType=='motions_cutmotion_budgetary'}">
-		<p>	
+		<p style="display: none;">	
 			<label class="centerlabel"><spring:message code="cutmotion.secondaryTitle" text="Secondary Title"/></label>
 			<form:textarea path="secondaryTitle" readonly="true" rows="2" cols="50"></form:textarea>
 			<form:errors path="secondaryTitle" cssClass="validationError"/>	
@@ -804,7 +804,7 @@
 	<p>
 		<a href="#" id="reviseMainTitle" style="margin-left: 162px;margin-right: 20px;"><spring:message code="cutmotion.reviseMainTitle" text="Revise Main Title"></spring:message></a>
 		<c:if test="${selectedMotionType=='motions_cutmotion_budgetary'}">
-			<a href="#" id=reviseSecondaryTitle style="margin-right: 20px;"><spring:message code="cutmotion.reviseSecondaryTitle" text="Revise Secondary Title"></spring:message></a>
+			<a href="#" id=reviseSecondaryTitle style="margin-right: 20px;display: none;"><spring:message code="cutmotion.reviseSecondaryTitle" text="Revise Secondary Title"></spring:message></a>
 		</c:if>
 		<a href="#" id="reviseSubTitle" style="margin-right: 20px;"><spring:message code="cutmotion.reviseSubTitle" text="Revise Sub Title"></spring:message></a>
 		<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="cutmotion.reviseNoticeContent" text="Revise Content"></spring:message></a>

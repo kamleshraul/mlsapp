@@ -355,7 +355,7 @@
 				</p>	
 				
 				<c:if test="${selectedMotionType=='motions_cutmotion_budgetary'}">
-					<p>
+					<p style="display: none;">
 						<label class="centerlabel"><spring:message code="cutmotion.secondaryTitle" text="Secondary Title"/>*</label>
 						<form:textarea path="secondaryTitle" rows="2" cols="50"></form:textarea>
 						<form:errors path="secondaryTitle" cssClass="validationError" />	
