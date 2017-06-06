@@ -9,7 +9,6 @@
 				initControls();	
 				
 				$('#existingPassword').change(function() {
-					console.log("change event fired!");
 					var isPasswordValid = true;
 					if($('#existingPassword').val()=='') {
 						$.prompt("Please enter existing password");
