@@ -9,6 +9,7 @@
 				initControls();	
 				
 				$('#existingPassword').change(function() {
+					console.log("change event fired!");
 					var isPasswordValid = true;
 					if($('#existingPassword').val()=='') {
 						$.prompt("Please enter existing password");
@@ -21,13 +22,14 @@
 							isPasswordValid = false;
 						} else {
 							isPasswordValid = true;
-						}
+						}						
 						/* if(result==false) {
 							$.prompt("Incorrect Password!");
 							$('#existingPassword').val("");
 							$('#newPassword').val("");
 						} */
 					}).done(function(){
+						decryptPassword('existingPassword');
 						if(isPasswordValid==false) {
 							$.prompt("Incorrect Password!");
 							$('#existingPassword').val("");
@@ -109,12 +111,14 @@
 			function encryptPassword(passwordElementId) {
 				if($('#'+passwordElementId).val()!=undefined && $('#'+passwordElementId).val()!="") {
 					var encryptedPwd = CryptoJS.AES.encrypt($('#'+passwordElementId).val(), 'M#kcl1234');
-					//var encryptedPwd = CryptoJS.AES.encrypt($('#'+passwordElementId).val(), '${secret_key}');
-					//var decryptedPwd = CryptoJS.AES.decrypt(encryptedPwd, '${secret_key}');
-					//console.log("Original Password: " + $('#'+passwordElementId).val());
-					//console.log("Encrypted Password: " + encryptedPwd);
-					//console.log("Decrypted Password: " + decryptedPwd.toString(CryptoJS.enc.Utf8));
 					$('#'+passwordElementId).val(encryptedPwd);
+				}		
+			}
+			
+			function decryptPassword(passwordElementId) {
+				if($('#'+passwordElementId).val()!=undefined && $('#'+passwordElementId).val()!="") {
+					var decryptedPwd = CryptoJS.AES.decrypt($('#'+passwordElementId).val(), 'M#kcl1234');
+					$('#'+passwordElementId).val(decryptedPwd.toString(CryptoJS.enc.Utf8));
 				}		
 			}
 		</script>
