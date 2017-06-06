@@ -3,6 +3,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<title><spring:message code="myProfile.changePassword" text="Change Password"/></title>
+		<script type="text/javascript" src="./resources/js/crypto-js.js"></script>
 		<script type="text/javascript">
 			$('document').ready(function(){	
 				initControls();	
@@ -13,6 +14,7 @@
 						$.prompt("Please enter existing password");
 						return false;
 					}
+					encryptPassword('existingPassword');
 					$.get('ref/user/isAuthenticatedWithEnteredPassword?username='+$("#username").val()
 								+'&enteredPassword='+encodeURIComponent($("#existingPassword").val()), function(result) {
 						if(result==false) {
@@ -102,7 +104,19 @@
     					$.unblockUI();	   				 	   				
 	    	        });
 				});
-			});		
+			});
+			
+			function encryptPassword(passwordElementId) {
+				if($('#'+passwordElementId).val()!=undefined && $('#'+passwordElementId).val()!="") {
+					var encryptedPwd = CryptoJS.AES.encrypt($('#'+passwordElementId).val(), 'M#kcl1234');
+					//var encryptedPwd = CryptoJS.AES.encrypt($('#'+passwordElementId).val(), '${secret_key}');
+					//var decryptedPwd = CryptoJS.AES.decrypt(encryptedPwd, '${secret_key}');
+					//console.log("Original Password: " + $('#'+passwordElementId).val());
+					//console.log("Encrypted Password: " + encryptedPwd);
+					//console.log("Decrypted Password: " + decryptedPwd.toString(CryptoJS.enc.Utf8));
+					$('#'+passwordElementId).val(encryptedPwd);
+				}		
+			}
 		</script>
 	</head>
 	<body>		
