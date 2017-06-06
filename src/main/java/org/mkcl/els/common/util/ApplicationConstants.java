@@ -2590,4 +2590,8 @@ public class ApplicationConstants {
 	
 	public static String DAY_WORKING_SCOPE_SECRETARIAT_STAFF = "secretariat_staff";
 	
+	public static String ANSWER_RECEIVED_MODE_ONLINE = "ONLINE";
+	
+	public static String ANSWER_RECEIVED_MODE_OFFLINE = "OFFLINE";
+	
 }

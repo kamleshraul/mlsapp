@@ -1696,6 +1696,7 @@ public class QuestionWorkflowController  extends BaseController{
 									|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
 							&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() && domain.getAnswerReceivedDate()==null) {					
 						domain.setAnswerReceivedDate(new Date());
+						domain.setAnswerReceivedMode(ApplicationConstants.ANSWER_RECEIVED_MODE_ONLINE);
 					}
 					
 					String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");

@@ -381,6 +381,10 @@ public class Question extends Device implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date answerReceivedDate;
     
+    /** The answer received mode (ONLINE/OFFLINE). */
+    @Column(name="answer_received_mode", length=50)
+    private String answerReceivedMode;
+    
     /**** Fields for storing the confirmation of Group change ****/
     private Boolean transferToDepartmentAccepted = false;
     
@@ -3478,6 +3482,16 @@ public class Question extends Device implements Serializable {
 		this.answerReceivedDate = answerReceivedDate;
 	}
 	
+
+	public String getAnswerReceivedMode() {
+		return answerReceivedMode;
+	}
+
+
+	public void setAnswerReceivedMode(String answerReceivedMode) {
+		this.answerReceivedMode = answerReceivedMode;
+	}
+
 
 	public ReferencedEntity getReferencedHDS() {
 		return referencedHDS;
