@@ -56,6 +56,10 @@ public class MyProfileController extends BaseController {
         	model.addAttribute("confirmedPassword",request.getSession().getAttribute("confirmedPassword"));
             request.getSession().removeAttribute("confirmedPassword");
         }
+        CustomParameter cpSecretKey = CustomParameter.findByName(CustomParameter.class, "SECRET_KEY_FOR_ENCRYPTION", "");
+        if(cpSecretKey != null){
+        	model.addAttribute("secret_key", cpSecretKey.getValue());
+        }
         CustomParameter isPasswordValidationRequired = CustomParameter.findByName(CustomParameter.class, "PASSWORD_STRING_VALIDATION_REQUIREMENT", "");
         if(isPasswordValidationRequired!=null && isPasswordValidationRequired.getValue()!=null) {
         	model.addAttribute("isPasswordValidationRequired", isPasswordValidationRequired.getValue());

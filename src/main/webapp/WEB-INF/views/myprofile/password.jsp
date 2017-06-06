@@ -109,14 +109,14 @@
 			
 			function encryptPassword(passwordElementId) {
 				if($('#'+passwordElementId).val()!=undefined && $('#'+passwordElementId).val()!="") {
-					var encryptedPwd = CryptoJS.AES.encrypt($('#'+passwordElementId).val(), 'M#kcl1234');
+					var encryptedPwd = CryptoJS.AES.encrypt($('#'+passwordElementId).val(), '${secret_key}');
 					$('#'+passwordElementId).val(encryptedPwd);
 				}		
 			}
 			
 			function decryptPassword(passwordElementId) {
 				if($('#'+passwordElementId).val()!=undefined && $('#'+passwordElementId).val()!="") {
-					var decryptedPwd = CryptoJS.AES.decrypt($('#'+passwordElementId).val(), 'M#kcl1234');
+					var decryptedPwd = CryptoJS.AES.decrypt($('#'+passwordElementId).val(), '${secret_key}');
 					$('#'+passwordElementId).val(decryptedPwd.toString(CryptoJS.enc.Utf8));
 				}		
 			}
