@@ -97,6 +97,7 @@
 						$.prompt("New & Confirmed Passwords do not match");
 						return false;
 					}
+					encryptPassword('existingPassword');
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 					$.post($('form').attr('action'), $("form").serialize(), function(data){
        					$('.tabbar').html(data);
