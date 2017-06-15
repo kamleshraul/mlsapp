@@ -434,6 +434,7 @@ class StarredQuestionController {
 		DeviceType questionType = QuestionController.getDeviceTypeById(request, locale);
 		model.addAttribute("formattedQuestionType", questionType.getName());
 		model.addAttribute("questionType", questionType.getId());
+		model.addAttribute("deviceType", questionType.getId());
 		model.addAttribute("selectedQuestionType", questionType.getType());
 		
 		//Populate Session
@@ -781,6 +782,7 @@ class StarredQuestionController {
 		DeviceType questionType = domain.getType();
 		model.addAttribute("formattedQuestionType", questionType.getName());
 		model.addAttribute("questionType", questionType.getId());
+		model.addAttribute("deviceType", questionType.getId());
 		model.addAttribute("selectedQuestionType", questionType.getType());
 		
 		//Populate Session
@@ -1122,6 +1124,7 @@ class StarredQuestionController {
 		DeviceType deviceType=domain.getType();
 		model.addAttribute("formattedQuestionType",deviceType.getName());
 		model.addAttribute("questionType",deviceType.getId());
+		model.addAttribute("deviceType", deviceType.getId());
 		model.addAttribute("selectedQuestionType",deviceType.getType());
 		if(domain.getOriginalType()!=null) {
 			model.addAttribute("originalType",domain.getOriginalType().getId());
@@ -1838,6 +1841,7 @@ class StarredQuestionController {
 		DeviceType deviceType=domain.getType();
 		model.addAttribute("formattedQuestionType",deviceType.getName());
 		model.addAttribute("questionType",deviceType.getId());
+		model.addAttribute("deviceType", deviceType.getId());
 		model.addAttribute("selectedQuestionType",deviceType.getType());
 		if(domain.getOriginalType()!=null) {
 			model.addAttribute("originalType",domain.getOriginalType().getId());
@@ -2700,9 +2704,12 @@ class StarredQuestionController {
 						findAllByMember(session, primaryMember, deviceType, itemCount, locale.toString());	
 			}
 		}
+		model.addAttribute("houseType", houseType.getId());
 		model.addAttribute("questionType", deviceType.getId());
+		model.addAttribute("deviceType", deviceType.getId());
 		model.addAttribute("questions", questions);
 		model.addAttribute("size", questions.size());
+		model.addAttribute("locale", locale.toString());
 
 		String userGroupType = request.getParameter("usergroupType");
 		model.addAttribute("usergroupType", userGroupType);
@@ -2993,7 +3000,7 @@ class StarredQuestionController {
 				if((!validationBeforeStartDate 
 						&& !validationAfterEndDate 
 						&& domain.getSession().getParameter(domain.getType().getType()+"_processingMode").equals(ApplicationConstants.LOWER_HOUSE))
-						|| (strHouseType != null && strHouseType.equals(ApplicationConstants.UPPER_HOUSE) && validationForBatch)){
+						|| (domain.getSession().getParameter(domain.getType().getType()+"_processingMode").equals(ApplicationConstants.UPPER_HOUSE) && validationForBatch)){
 					List<Question> questions = new ArrayList<Question>();
 					for(String i : items) {
 						Long id = Long.parseLong(i);

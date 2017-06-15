@@ -24,6 +24,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -104,6 +105,30 @@ public class HomeController extends BaseController {
         CustomParameter cpEncryptionRequired = CustomParameter.findByName(CustomParameter.class, "PASSWORD_ENCRYTPTION_REQUIRED", "");
         if(cpEncryptionRequired != null){
         	model.addAttribute("passwordEncryptionReq", cpEncryptionRequired.getValue());
+        }
+        CustomParameter cpLoginDisabledNotificationFlag = CustomParameter.findByName(CustomParameter.class, "LOGIN_DISABLED_NOTIFICATION_FLAG", "");
+        if(cpLoginDisabledNotificationFlag != null){
+        	model.addAttribute("login_disabled_notification_flag", cpLoginDisabledNotificationFlag.getValue());
+        	String loginDisabledNotificationFlag = cpLoginDisabledNotificationFlag.getValue();
+        	if(loginDisabledNotificationFlag!=null) {
+        		model.addAttribute("login_disabled_notification_flag", loginDisabledNotificationFlag);
+        		if(loginDisabledNotificationFlag.equals("ON")) {
+        			CustomParameter cpLoginDisabledNotificationUserGroupTypes = CustomParameter.findByName(CustomParameter.class, "LOGIN_DISABLED_NOTIFICATION_USERGROUP_TYPES", "");
+        			if(cpLoginDisabledNotificationUserGroupTypes!=null
+        					&& cpLoginDisabledNotificationUserGroupTypes.getValue()!=null) {
+        				List<String> loginDisabledUsernames = new ArrayList<String>();
+        				for(String ugt: cpLoginDisabledNotificationUserGroupTypes.getValue().split(",")) {
+        					List<String> usernames = Credential.findAllActiveUsernamesByUserGroupType(ugt.trim(), new Date(), locale.toString());
+        					if(usernames!=null && !usernames.isEmpty()) {
+        						loginDisabledUsernames.addAll(usernames);
+        					} 					
+        				}
+        				model.addAttribute("loginDisabledUsernames", loginDisabledUsernames);
+        			}
+        		}
+        	} else {
+        		model.addAttribute("login_disabled_notification_flag", "");
+        	}
         }
         model.addAttribute("locales", supportedLocales);
         return "login";
@@ -270,7 +295,7 @@ public class HomeController extends BaseController {
     		final HttpServletRequest request,
             final Locale locale) {
 
- 	return "login";
+ 		return "login";
 
  	}
  	

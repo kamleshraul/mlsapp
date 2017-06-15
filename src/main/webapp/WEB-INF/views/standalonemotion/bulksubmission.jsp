@@ -55,7 +55,10 @@
 						}
 					});
 		        	$.post('standalonemotion/bulksubmission?items='+items
-		        			+"&usergroupType="+$("#usergroupType").val(),  		    	             
+		        			+"&usergroupType=" + $("#usergroupType").val()
+		        			+"&houseType=" + $('#houseType').val()
+		        			+"&deviceType=" + $('#deviceType').val()
+		        			+"&locale=" + $('#locale').val(),
 		    	            function(data){
 		       					$('html').animate({scrollTop:0}, 'slow');
 		       				 	$('body').animate({scrollTop:0}, 'slow');	
@@ -113,6 +116,9 @@
 </div>	
 	<input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the questions.'></spring:message>" type="hidden">
 	<input type="hidden" id="usergroupType" value="${usergroupType}" name="usergroupType"/>
+	<input type="hidden" name="houseType" id="houseType" value="${houseType}"/>
+	<input type="hidden" name="deviceType" id="deviceType" value="${deviceType}"/>
+	<input type="hidden" name="locale" id="locale" value="${locale}"/>
 	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </body>
 </html>

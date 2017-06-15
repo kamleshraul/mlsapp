@@ -968,6 +968,7 @@
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
 	<input type="hidden" name="originalType" id="originalType" value="${originalType}">
 	<input type="hidden" name="questionType" id="questionType" value="${questionType}">
+	<input type="hidden" name="deviceType" id="deviceType" value="${deviceType}"/>
 	<input type="hidden" name="department" id="department" value="${departmentSelected }">
 	
 	

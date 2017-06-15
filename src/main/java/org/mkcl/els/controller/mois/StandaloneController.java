@@ -26,36 +26,24 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
-import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.BaseDomain;
-import org.mkcl.els.domain.Bill;
-import org.mkcl.els.domain.BillAmendmentMotion;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
-import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Department;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
-import org.mkcl.els.domain.DiscussionMotion;
-import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
-import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.Motion;
-import org.mkcl.els.domain.Question;
-import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.ReferenceUnit;
-import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.StandaloneMotion;
-import org.mkcl.els.domain.StandaloneMotionDraft;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
@@ -65,7 +53,6 @@ import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
-import org.mkcl.els.domain.ballot.Ballot;
 import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -450,6 +437,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 				questionType = DeviceType.findById(DeviceType.class,Long.parseLong(selectedQuestionType));
 				model.addAttribute("formattedQuestionType", questionType.getName());
 				model.addAttribute("questionType", questionType.getId());
+				model.addAttribute("deviceType", questionType.getId());
 				model.addAttribute("selectedQuestionType", questionType.getType());
 			}else{
 				logger.error("**** Check request parameter 'questionType' for no value ****");
@@ -690,6 +678,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 		DeviceType questionType = domain.getType();
 		model.addAttribute("formattedQuestionType", questionType.getName());
 		model.addAttribute("questionType", questionType.getId());
+		model.addAttribute("deviceType", questionType.getId());
 		model.addAttribute("selectedQuestionType", questionType.getType());
 		/**** Device Type Ends ****/		
 
@@ -1184,6 +1173,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 							result.rejectValue("subject","SubjectEmpty");
 						}
 						
+						//submission date limit validation
 						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
 						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
 							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
@@ -1460,6 +1450,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 					}
 					
 					if(operation.equals("submit")) {
+						//submission date limit validation
 						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
 						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
 							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
@@ -2886,8 +2877,12 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 				if(primaryMember != null){
 					questions = StandaloneMotion.findAllByMember(session, primaryMember,deviceType, itemsCount, strLocale);	
 				}	
+				model.addAttribute("houseType", houseType.getId());
+				model.addAttribute("questionType", deviceType.getId());
+				model.addAttribute("deviceType", deviceType.getId());
 				model.addAttribute("questions", questions);
 				model.addAttribute("size", questions.size());
+				model.addAttribute("locale", locale.toString());
 
 				String userGroupType = request.getParameter("usergroupType");
 				model.addAttribute("usergroupType", userGroupType);
@@ -2914,84 +2909,104 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 		String selectedItems = request.getParameter("items");
 
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
-			String[] items = selectedItems.split(",");
+			String[] items = selectedItems.split(",");			
+			StandaloneMotion domain = StandaloneMotion.findById(StandaloneMotion.class, new Long(items[0]));
+			boolean validationForSubmissionDate = false;
+			//submission date limit validation
+			CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+			if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+				String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+				if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+					String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+					for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+						if(dt.trim().equals(domain.getType().getType().trim())) {
+							if(!StandaloneMotion.isAllowedForSubmission(domain, new Date())){
+								validationForSubmissionDate = true;								
+							}
+							break;
+						}
+					}
+				}
+			}
 
-			List<StandaloneMotion> questions = new ArrayList<StandaloneMotion>();
-			for(String i : items) {
-				Long id = Long.parseLong(i);
-				StandaloneMotion question = StandaloneMotion.findById(StandaloneMotion.class, id);
+			if(!validationForSubmissionDate) {
+				List<StandaloneMotion> questions = new ArrayList<StandaloneMotion>();
+				for(String i : items) {
+					Long id = Long.parseLong(i);
+					StandaloneMotion question = StandaloneMotion.findById(StandaloneMotion.class, id);
 
-				/**** Update Supporting Member ****/
-				List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-				Status timeoutStatus = Status.findByType(
-						ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
-				if(question.getSupportingMembers() != null
-						&& ! question.getSupportingMembers().isEmpty()) {
-					for(SupportingMember sm : question.getSupportingMembers()) {
-						if(sm.getDecisionStatus().getType().equals(
-								ApplicationConstants.SUPPORTING_MEMBER_NOTSEND) ||
-								sm.getDecisionStatus().getType().equals(
-										ApplicationConstants.SUPPORTING_MEMBER_PENDING)) {
-							/**** Update Supporting Member ****/
-							sm.setDecisionStatus(timeoutStatus);
-							sm.setApprovalDate(new Date());	
-							sm.setApprovedText(question.getReason());
-							sm.setApprovedSubject(question.getSubject());
-							sm.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
+					/**** Update Supporting Member ****/
+					List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+					Status timeoutStatus = Status.findByType(
+							ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
+					if(question.getSupportingMembers() != null
+							&& ! question.getSupportingMembers().isEmpty()) {
+						for(SupportingMember sm : question.getSupportingMembers()) {
+							if(sm.getDecisionStatus().getType().equals(
+									ApplicationConstants.SUPPORTING_MEMBER_NOTSEND) ||
+									sm.getDecisionStatus().getType().equals(
+											ApplicationConstants.SUPPORTING_MEMBER_PENDING)) {
+								/**** Update Supporting Member ****/
+								sm.setDecisionStatus(timeoutStatus);
+								sm.setApprovalDate(new Date());	
+								sm.setApprovedText(question.getReason());
+								sm.setApprovedSubject(question.getSubject());
+								sm.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
 
-							/**** Update Workflow Details ****/
-							String strWorkflowdetails = sm.getWorkflowDetailsId();
-							if(strWorkflowdetails != null && ! strWorkflowdetails.isEmpty()) {
-								WorkflowDetails workflowDetails = WorkflowDetails.findById(
-										WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
-								workflowDetails.setStatus("TIMEOUT");
-								workflowDetails.setCompletionTime(new Date());
-								workflowDetails.merge();
+								/**** Update Workflow Details ****/
+								String strWorkflowdetails = sm.getWorkflowDetailsId();
+								if(strWorkflowdetails != null && ! strWorkflowdetails.isEmpty()) {
+									WorkflowDetails workflowDetails = WorkflowDetails.findById(
+											WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
+									workflowDetails.setStatus("TIMEOUT");
+									workflowDetails.setCompletionTime(new Date());
+									workflowDetails.merge();
 
-								/**** Complete Task ****/
-								String strTaskId = workflowDetails.getTaskId();
-								Task task = processService.findTaskById(strTaskId);
-								processService.completeTask(task);
+									/**** Complete Task ****/
+									String strTaskId = workflowDetails.getTaskId();
+									Task task = processService.findTaskById(strTaskId);
+									processService.completeTask(task);
+								}
+							}
+
+							if(! sm.getDecisionStatus().getType().equals(
+									ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)) {
+								supportingMembers.add(sm);
 							}
 						}
 
-						if(! sm.getDecisionStatus().getType().equals(
-								ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)) {
-							supportingMembers.add(sm);
-						}
+						question.setSupportingMembers(supportingMembers);
 					}
 
-					question.setSupportingMembers(supportingMembers);
+					/**** Update Status(es) ****/
+					Status newstatus = Status.findByFieldName(Status.class, "type", 
+							ApplicationConstants.STANDALONE_SUBMIT, question.getLocale());
+					question.setStatus(newstatus);
+					question.setInternalStatus(newstatus);
+					question.setRecommendationStatus(newstatus);
+
+					/**** Edited On, Edited By and Edited As is set ****/
+					question.setSubmissionDate(new Date());
+					question.setEditedOn(new Date());
+					question.setEditedBy(this.getCurrentUser().getActualUsername());
+
+					String strUserGroupType = request.getParameter("usergroupType");
+					if(strUserGroupType != null) {
+						UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class,
+								"type", strUserGroupType, question.getLocale());
+						question.setEditedAs(userGroupType.getName());
+					}
+
+					/**** Bulk Submitted ****/
+					question.setBulkSubmitted(true);
+
+					/**** Update the Motion object ****/
+					question = question.merge();
+					questions.add(question);
 				}
 
-				/**** Update Status(es) ****/
-				Status newstatus = Status.findByFieldName(Status.class, "type", 
-						ApplicationConstants.STANDALONE_SUBMIT, question.getLocale());
-				question.setStatus(newstatus);
-				question.setInternalStatus(newstatus);
-				question.setRecommendationStatus(newstatus);
-
-				/**** Edited On, Edited By and Edited As is set ****/
-				question.setSubmissionDate(new Date());
-				question.setEditedOn(new Date());
-				question.setEditedBy(this.getCurrentUser().getActualUsername());
-
-				String strUserGroupType = request.getParameter("usergroupType");
-				if(strUserGroupType != null) {
-					UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class,
-							"type", strUserGroupType, question.getLocale());
-					question.setEditedAs(userGroupType.getName());
-				}
-
-				/**** Bulk Submitted ****/
-				question.setBulkSubmitted(true);
-
-				/**** Update the Motion object ****/
-				question = question.merge();
-				questions.add(question);
-			}
-
-			model.addAttribute("questions", questions);
+				model.addAttribute("questions", questions);
+			}			
 		}
 
 		return "standalonemotion/bulksubmissionack";

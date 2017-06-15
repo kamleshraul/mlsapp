@@ -3814,7 +3814,7 @@ public class StandaloneMotion extends Device implements Serializable {
     			Date startDate = FormaterUtil.formatStringToDate(session.getParameter(motion.getType().getType() + "_submissionStartDate"), ApplicationConstants.DB_DATETIME_FORMAT);
     			Date endDate = FormaterUtil.formatStringToDate(session.getParameter(motion.getType().getType() + "_submissionEndDate"), ApplicationConstants.DB_DATETIME_FORMAT);
     			
-    			if(date.after(startDate) && date.before(endDate)){
+    			if(date.compareTo(startDate)>=0 && date.compareTo(endDate)<=0){
     				return true;
     			}
     		}

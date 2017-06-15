@@ -435,6 +435,7 @@
 	<input id="role" name="role" value="${role}" type="hidden">
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
+	<input id="deviceType" name="deviceType" value="${deviceType}" type="hidden">
 	<input type="hidden" id="expectedDiscussionDate" name="expectedDiscussionDate" value="${expectedDiscussionDate}"/>	
 	</form:form>
 	<input id="ministrySelected" value="${ministrySelected }" type="hidden">

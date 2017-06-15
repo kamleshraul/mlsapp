@@ -462,6 +462,7 @@ public class ResolutionController extends GenericController<Resolution> {
 					resolutionType=DeviceType.findById(DeviceType.class,Long.parseLong(selectedResolutionType));
 					model.addAttribute("formattedResolutionType", resolutionType.getName());
 					model.addAttribute("resolutionType", resolutionType.getId());
+					model.addAttribute("deviceType",resolutionType.getId());
 					model.addAttribute("selectedResolutionType", resolutionType.getType());
 				}else{
 					logger.error("**** Check request parameter 'ResolutionType' for no value ****");
@@ -814,7 +815,8 @@ public class ResolutionController extends GenericController<Resolution> {
 	
 			/**** Device Type ****/
 			DeviceType resolutionType=domain.getType();
-			model.addAttribute("formattedDeviceType",resolutionType.getName());
+			model.addAttribute("formattedDeviceType",resolutionType.getName());			
+			model.addAttribute("resolutionType", resolutionType.getId());
 			model.addAttribute("deviceType",resolutionType.getId());
 			model.addAttribute("selectedDeviceType",resolutionType.getType());
 	
@@ -1591,6 +1593,7 @@ public class ResolutionController extends GenericController<Resolution> {
 							result.rejectValue("noticeContent","NoticeContentEmpty");
 						}
 						
+						//submission date limit validations
 						if(domain.getSession()!=null && domain.getType()!=null) {
 							CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
 							if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
@@ -1604,6 +1607,7 @@ public class ResolutionController extends GenericController<Resolution> {
 												String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_submissionStartDate");
 												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Resolution cannot be submitted before " + submissionStartLimitDateStr);
 											}
+											break;
 										}
 									}
 								}
@@ -1958,7 +1962,7 @@ public class ResolutionController extends GenericController<Resolution> {
 							result.rejectValue("noticeContent","NoticeContentEmpty");
 						}
 						
-						
+						//submission date limit validations
 						if(domain.getSession()!=null && domain.getType()!=null) {
 							CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
 							if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
@@ -1972,6 +1976,7 @@ public class ResolutionController extends GenericController<Resolution> {
 												String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_submissionStartDate");
 												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Resolution cannot be submitted before " + submissionStartLimitDateStr);
 											}
+											break;
 										}
 									}
 								}
@@ -2909,8 +2914,12 @@ public class ResolutionController extends GenericController<Resolution> {
 					if(primaryMember != null){
 						resolutions = Resolution.findAllByMember(session,primaryMember,deviceType,itemsCount,strLocale);
 					}
+					model.addAttribute("houseType", houseType.getId());
+					model.addAttribute("resolutionType", deviceType.getId());
+					model.addAttribute("deviceType",deviceType.getId());
 					model.addAttribute("resolutions",resolutions);
 					model.addAttribute("size",resolutions.size());
+					model.addAttribute("locale", locale.toString());
 					String userGroupType = request.getParameter("usergroupType");
 					model.addAttribute("usergroupType", userGroupType);
 				} catch (ELSException e) {
@@ -2939,52 +2948,76 @@ public class ResolutionController extends GenericController<Resolution> {
 		String selectedItems = request.getParameter("items");
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
 			String[] items = selectedItems.split(",");
+			Resolution domain = Resolution.findById(Resolution.class, new Long(items[0]));
+			boolean validationForSubmissionDate = false;
+			//submission date limit validations
+			if(domain.getSession()!=null && domain.getType()!=null) {
+				CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+				if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+					String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+					if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+						String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+						
+						for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+							if(dt.trim().equals(domain.getType().getType().trim())) {
+								if(!Resolution.isAllowedForSubmission(domain, new Date())) {
+									String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_submissionStartDate");
+									validationForSubmissionDate = true;
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
 
-			List<Resolution> resolutions = new ArrayList<Resolution>();
-			for(String i : items) {
-				Long id = Long.parseLong(i);
-				Resolution resolution = Resolution.findById(Resolution.class, id);
+			if(!validationForSubmissionDate) {
+				List<Resolution> resolutions = new ArrayList<Resolution>();
+				for(String i : items) {
+					Long id = Long.parseLong(i);
+					Resolution resolution = Resolution.findById(Resolution.class, id);
 
-				/**** Update Status(es) ****/
-				Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_SUBMIT, resolution.getLocale());
-				if(resolution.getType().getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
-					if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+					/**** Update Status(es) ****/
+					Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_SUBMIT, resolution.getLocale());
+					if(resolution.getType().getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
+						if(resolution.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+							resolution.setStatusLowerHouse(newstatus);
+							resolution.setInternalStatusLowerHouse(newstatus);
+							resolution.setRecommendationStatusLowerHouse(newstatus);
+						}else if(resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+							resolution.setStatusUpperHouse(newstatus);
+							resolution.setInternalStatusUpperHouse(newstatus);
+							resolution.setRecommendationStatusUpperHouse(newstatus);
+						}
+					}else if(resolution.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)){
 						resolution.setStatusLowerHouse(newstatus);
 						resolution.setInternalStatusLowerHouse(newstatus);
 						resolution.setRecommendationStatusLowerHouse(newstatus);
-					}else if(resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
 						resolution.setStatusUpperHouse(newstatus);
 						resolution.setInternalStatusUpperHouse(newstatus);
 						resolution.setRecommendationStatusUpperHouse(newstatus);
 					}
-				}else if(resolution.getType().getType().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)){
-					resolution.setStatusLowerHouse(newstatus);
-					resolution.setInternalStatusLowerHouse(newstatus);
-					resolution.setRecommendationStatusLowerHouse(newstatus);
-					resolution.setStatusUpperHouse(newstatus);
-					resolution.setInternalStatusUpperHouse(newstatus);
-					resolution.setRecommendationStatusUpperHouse(newstatus);
+					
+					
+
+					/**** Edited On,Edited By and Edited As is set ****/
+					resolution.setSubmissionDate(new Date());
+					resolution.setEditedOn(new Date());
+					resolution.setEditedBy(this.getCurrentUser().getActualUsername());
+					String strUserGroupType=request.getParameter("usergroupType");
+					if(strUserGroupType!=null){
+						UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, resolution.getLocale());
+						resolution.setEditedAs(userGroupType.getName());
+					}				
+					/**** Bulk Submitted ****/
+					resolution.setBulkSubmitted(true);
+					/**** Update the Motion object ****/
+					resolution = resolution.merge();
+					resolutions.add(resolution);
 				}
-				
-				
 
-				/**** Edited On,Edited By and Edited As is set ****/
-				resolution.setSubmissionDate(new Date());
-				resolution.setEditedOn(new Date());
-				resolution.setEditedBy(this.getCurrentUser().getActualUsername());
-				String strUserGroupType=request.getParameter("usergroupType");
-				if(strUserGroupType!=null){
-					UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, resolution.getLocale());
-					resolution.setEditedAs(userGroupType.getName());
-				}				
-				/**** Bulk Submitted ****/
-				resolution.setBulkSubmitted(true);
-				/**** Update the Motion object ****/
-				resolution = resolution.merge();
-				resolutions.add(resolution);
-			}
-
-			model.addAttribute("resolutions", resolutions);
+				model.addAttribute("resolutions", resolutions);
+			}			
 		}
 		return "resolution/bulksubmissionack";
 	}

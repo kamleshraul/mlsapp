@@ -40,14 +40,10 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Party;
-import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferenceUnit;
-import org.mkcl.els.domain.ReferencedEntity;
-import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
-import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.SupportingMember;
@@ -408,6 +404,7 @@ public class MotionController extends GenericController<Motion>{
 				motionType=DeviceType.findById(DeviceType.class,Long.parseLong(selectedMotionType));
 				model.addAttribute("formattedMotionType", motionType.getName());
 				model.addAttribute("motionType", motionType.getId());
+				model.addAttribute("deviceType", motionType.getId());
 				model.addAttribute("selectedMotionType", motionType.getType());
 			}else{
 				logger.error("**** Check request parameter 'motionType' for no value ****");
@@ -636,6 +633,7 @@ public class MotionController extends GenericController<Motion>{
 		DeviceType motionType=domain.getType();
 		model.addAttribute("formattedMotionType",motionType.getName());
 		model.addAttribute("motionType",motionType.getId());
+		model.addAttribute("deviceType", motionType.getId());
 		model.addAttribute("selectedMotionType",motionType.getType());	
 
 		/**** Bulk Edit ****/
@@ -1186,9 +1184,7 @@ public class MotionController extends GenericController<Motion>{
 						}
 						
 						//submission date limit validations (configurable through custom parameters)
-						if(domain.getSession()!=null && domain.getType()!=null) {
-						
-							//submission start date limit validation
+						if(domain.getSession()!=null && domain.getType()!=null) {						
 							CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
 							if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
 								String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
@@ -1204,7 +1200,6 @@ public class MotionController extends GenericController<Motion>{
 													if(!Motion.allowedInFirstBatch(domain, new Date())){
 														strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_" + "firstBatchStartTime");
 														result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
-														break;
 													}
 												}
 												
@@ -1212,22 +1207,20 @@ public class MotionController extends GenericController<Motion>{
 													if(!Motion.allowedInSecondBatch(domain, new Date())){
 														strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_" + "secondBatchStartTime");
 														result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
-														break;
 													}
 												}
 												
 												if(batch.equals(0)){
-													result.rejectValue("version","SubmissionNotAllowed_batch","Motion cannot be submitted.");
-													break;
+													result.rejectValue("version","SubmissionNotAllowed_batch","Motion cannot be submitted.");													
 												}
 											}else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){												
 												
 												if(!Motion.isAllowedForSubmission(domain, new Date(), "")){
 													String strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_submissionStartTime");
 													result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
-													break;
 												}
 											}
+											break;
 										}
 									}								
 								}
@@ -1399,16 +1392,13 @@ public class MotionController extends GenericController<Motion>{
 					
 					//submission date limit validations (configurable through custom parameters)
 					if(domain.getSession()!=null && domain.getType()!=null) {
-					
-						//submission start date limit validation
 						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
 						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
 							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
 							if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
 								String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
 								for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
-									if(dt.trim().equals(domain.getType().getType().trim())) {
-										
+									if(dt.trim().equals(domain.getType().getType().trim())) {										
 										if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
 											Integer batch = Motion.findBatch(domain, new Date());
 											String strSubDate = null;
@@ -1417,7 +1407,6 @@ public class MotionController extends GenericController<Motion>{
 												if(!Motion.allowedInFirstBatch(domain, new Date())){
 													strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_" + "firstBatchStartTime");
 													result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
-													break;
 												}
 											}
 											
@@ -1425,22 +1414,20 @@ public class MotionController extends GenericController<Motion>{
 												if(!Motion.allowedInSecondBatch(domain, new Date())){
 													strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_" + "secondBatchStartTime");
 													result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
-													break;
 												}
 											}
 											
 											if(batch.equals(0)){
 												result.rejectValue("version","SubmissionNotAllowed_batch","Motion cannot be submitted.");
-												break;
 											}
 										}else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){												
 											
 											if(!Motion.isAllowedForSubmission(domain, new Date(), "")){
 												String strSubDate = domain.getSession().getParameter(domain.getType().getType() + "_submissionStartTime");
 												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Motion cannot be submitted before " + strSubDate);
-												break;
 											}
 										}
+										break;
 									}
 								}								
 							}
@@ -2432,10 +2419,13 @@ public class MotionController extends GenericController<Motion>{
 						&&strMotionType!=null&&!(strMotionType.isEmpty())
 						&&strItemsCount!=null&&!(strItemsCount.isEmpty())){
 					HouseType houseType=HouseType.findByFieldName(HouseType.class,"type",strHouseType, strLocale);
+					model.addAttribute("houseType", houseType.getId());
 					SessionType sessionType=SessionType.findById(SessionType.class,Long.parseLong(strSessionType));
 					Integer sessionYear=Integer.parseInt(strSessionYear);
 					Session session=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
 					DeviceType motionType=DeviceType.findById(DeviceType.class,Long.parseLong(strMotionType));
+					model.addAttribute("motionType",motionType.getId());
+					model.addAttribute("deviceType", motionType.getId());
 					Integer itemsCount=Integer.parseInt(strItemsCount);
 					if(userGroupType.equals(ApplicationConstants.TYPIST)){
 						CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_BULKPUTUP_FOR_TYPIST", "");
@@ -2458,6 +2448,7 @@ public class MotionController extends GenericController<Motion>{
 			
 			model.addAttribute("motions",motions);
 			model.addAttribute("size",motions.size());
+			model.addAttribute("locale", locale.toString());
 			
 			model.addAttribute("usergroupType", userGroupType);
 						
@@ -2486,41 +2477,150 @@ public class MotionController extends GenericController<Motion>{
 		String selectedItems = request.getParameter("items");
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
 			String[] items = selectedItems.split(",");
-
-			List<Motion> motions = new ArrayList<Motion>();
-			Long firstId = null;
-			if(items != null && items.length > 0){
-				firstId = new Long(items[0]);
+			Motion domain = Motion.findById(Motion.class, new Long(items[0]));
+			boolean validationForSubmissionDate = false;
+			//submission date limit validations (configurable through custom parameters)
+			if(domain.getSession()!=null && domain.getType()!=null) {						
+				CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+				if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+					String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+					if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+						String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+						for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+							if(dt.trim().equals(domain.getType().getType().trim())) {
+								if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+									Integer batch = Motion.findBatch(domain, new Date());	
+									
+									if(batch.equals(1)){
+										if(!Motion.allowedInFirstBatch(domain, new Date())){
+											validationForSubmissionDate = true;
+										}
+									}
+									
+									if(batch.equals(2)){
+										if(!Motion.allowedInSecondBatch(domain, new Date())){
+											validationForSubmissionDate = true;
+										}
+									}
+									
+									if(batch.equals(0)){
+										validationForSubmissionDate = true;												
+									}
+								}else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){												
+									
+									if(!Motion.isAllowedForSubmission(domain, new Date(), "")){
+										validationForSubmissionDate = true;
+									}
+								}
+								break;
+							}
+						}								
+					}
+				}
 			}
 			
-			try{
-//				Motion firstMotion = Motion.findById(Motion.class, firstId);
-//				String strSubDate = null;
-//				
-//				if(firstMotion != null){
-//					//submission date limit validations (configurable through custom parameters)
-//					if(firstMotion.getSession()!=null && firstMotion.getType()!=null) {
+			if(!validationForSubmissionDate) {
+				List<Motion> motions = new ArrayList<Motion>();
+				Long firstId = null;
+				if(items != null && items.length > 0){
+					firstId = new Long(items[0]);
+				}
+				
+				try{
+//					Motion firstMotion = Motion.findById(Motion.class, firstId);
+//					String strSubDate = null;
 //					
-//						//submission start date limit validation
-//						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
-//						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
-//							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
-//							if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
-//								String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
-//								for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
-//									if(dt.trim().equals(firstMotion.getType().getType().trim())) {
-//										
-//										if(firstMotion.getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-//											Integer batch = Motion.findBatch(firstMotion, new Date());
+//					if(firstMotion != null){
+//						//submission date limit validations (configurable through custom parameters)
+//						if(firstMotion.getSession()!=null && firstMotion.getType()!=null) {
+//						
+//							//submission start date limit validation
+//							CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+//							if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+//								String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+//								if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+//									String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+//									for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+//										if(dt.trim().equals(firstMotion.getType().getType().trim())) {
 //											
-//											if(batch.equals(1) || batch.equals(2)){
-//												if(Motion.allowedInFirstBatch(firstMotion, new Date()) 
-//														|| Motion.allowedInSecondBatch(firstMotion, new Date())){
-//													
+//											if(firstMotion.getType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+//												Integer batch = Motion.findBatch(firstMotion, new Date());
+//												
+//												if(batch.equals(1) || batch.equals(2)){
+//													if(Motion.allowedInFirstBatch(firstMotion, new Date()) 
+//															|| Motion.allowedInSecondBatch(firstMotion, new Date())){
+//														
+//														for(String i : items) {
+//															Long id = Long.parseLong(i);
+//															Motion motion = Motion.findById(Motion.class, id);
+	//
+//															/**** Update Supporting Member ****/
+//															List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+//															Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
+//															if(motion.getSupportingMembers() != null) {
+//																if(! motion.getSupportingMembers().isEmpty()) {
+//																	for(SupportingMember sm : motion.getSupportingMembers()) {
+//																		if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
+//																				sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
+//																			/**** Update Supporting Member ****/
+//																			sm.setDecisionStatus(timeoutStatus);
+//																			sm.setApprovalDate(new Date());	
+//																			sm.setApprovedText(motion.getDetails());
+//																			sm.setApprovedSubject(motion.getSubject());
+//																			sm.setApprovalType("ONLINE");
+//																			/**** Update Workflow Details ****/
+//																			String strWorkflowdetails=sm.getWorkflowDetailsId();
+//																			if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
+//																				WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+//																				workflowDetails.setStatus("TIMEOUT");
+//																				workflowDetails.setCompletionTime(new Date());
+//																				workflowDetails.merge();
+//																				/**** Complete Task ****/
+//																				String strTaskId=workflowDetails.getTaskId();
+//																				Task task=processService.findTaskById(strTaskId);
+//																				processService.completeTask(task);
+//																			}		
+//																		}
+//																		if(!sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
+//																			supportingMembers.add(sm);
+//																		}
+//																	}
+//																	motion.setSupportingMembers(supportingMembers);
+//																}
+//															}
+	//
+//															/**** Update Status(es) ****/
+//															Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, motion.getLocale());
+//															motion.setStatus(newstatus);
+//															motion.setInternalStatus(newstatus);
+//															motion.setRecommendationStatus(newstatus);
+	//
+//															/**** Edited On,Edited By and Edited As is set ****/
+//															motion.setSubmissionDate(new Date());
+//															motion.setEditedOn(new Date());
+//															motion.setEditedBy(this.getCurrentUser().getActualUsername());
+//															String strUserGroupType=request.getParameter("usergroupType");
+//															if(strUserGroupType!=null){
+//																UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, motion.getLocale());
+//																motion.setEditedAs(userGroupType.getName());
+//															}				
+//															/**** Bulk Submitted ****/
+//															motion.setBulkSubmitted(true);
+//															/**** Update the Motion object ****/
+//															motion = motion.merge();
+//															motions.add(motion);
+//														}
+	//
+//														model.addAttribute("motions", motions);
+//													}
+//												}
+//											}else if(firstMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){												
+//												
+//												if(Motion.isAllowedForSubmission(firstMotion, new Date(), "")){
 //													for(String i : items) {
 //														Long id = Long.parseLong(i);
 //														Motion motion = Motion.findById(Motion.class, id);
-//
+	//
 //														/**** Update Supporting Member ****/
 //														List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
 //														Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
@@ -2555,13 +2655,13 @@ public class MotionController extends GenericController<Motion>{
 //																motion.setSupportingMembers(supportingMembers);
 //															}
 //														}
-//
+	//
 //														/**** Update Status(es) ****/
 //														Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, motion.getLocale());
 //														motion.setStatus(newstatus);
 //														motion.setInternalStatus(newstatus);
 //														motion.setRecommendationStatus(newstatus);
-//
+	//
 //														/**** Edited On,Edited By and Edited As is set ****/
 //														motion.setSubmissionDate(new Date());
 //														motion.setEditedOn(new Date());
@@ -2577,150 +2677,84 @@ public class MotionController extends GenericController<Motion>{
 //														motion = motion.merge();
 //														motions.add(motion);
 //													}
-//
+	//
 //													model.addAttribute("motions", motions);
 //												}
 //											}
-//										}else if(firstMotion.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){												
-//											
-//											if(Motion.isAllowedForSubmission(firstMotion, new Date(), "")){
-//												for(String i : items) {
-//													Long id = Long.parseLong(i);
-//													Motion motion = Motion.findById(Motion.class, id);
-//
-//													/**** Update Supporting Member ****/
-//													List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-//													Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
-//													if(motion.getSupportingMembers() != null) {
-//														if(! motion.getSupportingMembers().isEmpty()) {
-//															for(SupportingMember sm : motion.getSupportingMembers()) {
-//																if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
-//																		sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
-//																	/**** Update Supporting Member ****/
-//																	sm.setDecisionStatus(timeoutStatus);
-//																	sm.setApprovalDate(new Date());	
-//																	sm.setApprovedText(motion.getDetails());
-//																	sm.setApprovedSubject(motion.getSubject());
-//																	sm.setApprovalType("ONLINE");
-//																	/**** Update Workflow Details ****/
-//																	String strWorkflowdetails=sm.getWorkflowDetailsId();
-//																	if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
-//																		WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
-//																		workflowDetails.setStatus("TIMEOUT");
-//																		workflowDetails.setCompletionTime(new Date());
-//																		workflowDetails.merge();
-//																		/**** Complete Task ****/
-//																		String strTaskId=workflowDetails.getTaskId();
-//																		Task task=processService.findTaskById(strTaskId);
-//																		processService.completeTask(task);
-//																	}		
-//																}
-//																if(!sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
-//																	supportingMembers.add(sm);
-//																}
-//															}
-//															motion.setSupportingMembers(supportingMembers);
-//														}
-//													}
-//
-//													/**** Update Status(es) ****/
-//													Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, motion.getLocale());
-//													motion.setStatus(newstatus);
-//													motion.setInternalStatus(newstatus);
-//													motion.setRecommendationStatus(newstatus);
-//
-//													/**** Edited On,Edited By and Edited As is set ****/
-//													motion.setSubmissionDate(new Date());
-//													motion.setEditedOn(new Date());
-//													motion.setEditedBy(this.getCurrentUser().getActualUsername());
-//													String strUserGroupType=request.getParameter("usergroupType");
-//													if(strUserGroupType!=null){
-//														UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, motion.getLocale());
-//														motion.setEditedAs(userGroupType.getName());
-//													}				
-//													/**** Bulk Submitted ****/
-//													motion.setBulkSubmitted(true);
-//													/**** Update the Motion object ****/
-//													motion = motion.merge();
-//													motions.add(motion);
-//												}
-//
-//												model.addAttribute("motions", motions);
-//											}
 //										}
-//									}
-//								}								
+//									}								
+//								}
 //							}
 //						}
 //					}
-//				}
-				
-				
-				for(String i : items) {
-					Long id = Long.parseLong(i);
-					Motion motion = Motion.findById(Motion.class, id);
+					
+					
+					for(String i : items) {
+						Long id = Long.parseLong(i);
+						Motion motion = Motion.findById(Motion.class, id);
 
-					/**** Update Supporting Member ****/
-					List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-					Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
-					if(motion.getSupportingMembers() != null) {
-						if(! motion.getSupportingMembers().isEmpty()) {
-							for(SupportingMember sm : motion.getSupportingMembers()) {
-								if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
-										sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
-									/**** Update Supporting Member ****/
-									sm.setDecisionStatus(timeoutStatus);
-									sm.setApprovalDate(new Date());	
-									sm.setApprovedText(motion.getDetails());
-									sm.setApprovedSubject(motion.getSubject());
-									sm.setApprovalType("ONLINE");
-									/**** Update Workflow Details ****/
-									String strWorkflowdetails=sm.getWorkflowDetailsId();
-									if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
-										WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
-										workflowDetails.setStatus("TIMEOUT");
-										workflowDetails.setCompletionTime(new Date());
-										workflowDetails.merge();
-										/**** Complete Task ****/
-										String strTaskId=workflowDetails.getTaskId();
-										Task task=processService.findTaskById(strTaskId);
-										processService.completeTask(task);
-									}		
+						/**** Update Supporting Member ****/
+						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+						Status timeoutStatus=Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
+						if(motion.getSupportingMembers() != null) {
+							if(! motion.getSupportingMembers().isEmpty()) {
+								for(SupportingMember sm : motion.getSupportingMembers()) {
+									if(sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)||
+											sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_PENDING)){
+										/**** Update Supporting Member ****/
+										sm.setDecisionStatus(timeoutStatus);
+										sm.setApprovalDate(new Date());	
+										sm.setApprovedText(motion.getDetails());
+										sm.setApprovedSubject(motion.getSubject());
+										sm.setApprovalType("ONLINE");
+										/**** Update Workflow Details ****/
+										String strWorkflowdetails=sm.getWorkflowDetailsId();
+										if(strWorkflowdetails!=null&&!strWorkflowdetails.isEmpty()){
+											WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
+											workflowDetails.setStatus("TIMEOUT");
+											workflowDetails.setCompletionTime(new Date());
+											workflowDetails.merge();
+											/**** Complete Task ****/
+											String strTaskId=workflowDetails.getTaskId();
+											Task task=processService.findTaskById(strTaskId);
+											processService.completeTask(task);
+										}		
+									}
+									if(!sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
+										supportingMembers.add(sm);
+									}
 								}
-								if(!sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
-									supportingMembers.add(sm);
-								}
+								motion.setSupportingMembers(supportingMembers);
 							}
-							motion.setSupportingMembers(supportingMembers);
 						}
+
+						/**** Update Status(es) ****/
+						Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, motion.getLocale());
+						motion.setStatus(newstatus);
+						motion.setInternalStatus(newstatus);
+						motion.setRecommendationStatus(newstatus);
+
+						/**** Edited On,Edited By and Edited As is set ****/
+						motion.setSubmissionDate(new Date());
+						motion.setEditedOn(new Date());
+						motion.setEditedBy(this.getCurrentUser().getActualUsername());
+						String strUserGroupType=request.getParameter("usergroupType");
+						if(strUserGroupType!=null){
+							UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, motion.getLocale());
+							motion.setEditedAs(userGroupType.getName());
+						}				
+						/**** Bulk Submitted ****/
+						motion.setBulkSubmitted(true);
+						/**** Update the Motion object ****/
+						motion = motion.merge();
+						motions.add(motion);
 					}
 
-					/**** Update Status(es) ****/
-					Status newstatus=Status.findByFieldName(Status.class, "type", ApplicationConstants.MOTION_SUBMIT, motion.getLocale());
-					motion.setStatus(newstatus);
-					motion.setInternalStatus(newstatus);
-					motion.setRecommendationStatus(newstatus);
-
-					/**** Edited On,Edited By and Edited As is set ****/
-					motion.setSubmissionDate(new Date());
-					motion.setEditedOn(new Date());
-					motion.setEditedBy(this.getCurrentUser().getActualUsername());
-					String strUserGroupType=request.getParameter("usergroupType");
-					if(strUserGroupType!=null){
-						UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class,"type",strUserGroupType, motion.getLocale());
-						motion.setEditedAs(userGroupType.getName());
-					}				
-					/**** Bulk Submitted ****/
-					motion.setBulkSubmitted(true);
-					/**** Update the Motion object ****/
-					motion = motion.merge();
-					motions.add(motion);
+					model.addAttribute("motions", motions);
+				}catch(Exception e){
+					
 				}
-
-				model.addAttribute("motions", motions);
-			}catch(Exception e){
-				
-			}
+			}			
 		}
 		return "motion/bulksubmissionack";
 	}

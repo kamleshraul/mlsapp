@@ -240,6 +240,14 @@ public class Credential extends BaseDomain implements Serializable {
     public static List<Credential> findAllCredentialsByRole(final String role){
     	return getRepository().findAllCredentialsByRole(role);
     }
+    
+    public static List<Credential> findAllActiveByUserGroupType(final String userGroupType, final Date onDate, final String locale) {
+    	return getRepository().findAllActiveByUserGroupType(userGroupType, onDate, locale);
+    }
+    
+    public static List<String> findAllActiveUsernamesByUserGroupType(final String userGroupType, final Date onDate, final String locale) {
+    	return getRepository().findAllActiveUsernamesByUserGroupType(userGroupType, onDate, locale);
+    }
     // ------------------------------------------Getters/Setters-----------------------------------
     /**
      * Gets the username.

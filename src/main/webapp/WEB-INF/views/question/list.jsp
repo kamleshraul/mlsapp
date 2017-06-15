@@ -179,6 +179,11 @@
 				generateOnlineOfflineSubmissionCountReport();
 			});
 			
+			/**** Generate Online Offline Answers Received Count Report ****/
+			$("#online_offline_answered_count_report").click(function(){
+				generateOnlineOfflineAnswersReceivedCountReport();
+			});
+			
 			/**** Generate Partywise Questions Count Report ****/
 			$("#partywise_questions_count_report").click(function(){
 				$("#selectionDiv1").hide();
@@ -189,6 +194,12 @@
 			$("#extended_grid_report").click(function(){
 				$("#selectionDiv1").hide();
 				generateExtendedGridReport();
+			});
+			
+			/**** Statistical Counts Report ****/
+			$("#statistical_counts_report").click(function(){
+				$("#selectionDiv1").hide();
+				generateStatisticalCountsReport();
 			});
 			
 			/**** Questions Bulletein Report ****/
@@ -462,6 +473,10 @@
 				<a href="#" id="online_offline_submission_count_report" class="butSim link">
 					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
 				</a> |
+				<a href="#" id="online_offline_answered_count_report" class="butSim link">
+					<spring:message code="question.online_offline_answered_count_report" text="Online-Offline Answers Received Count Report"/>
+				</a> |
+				<hr>
 				</security:authorize>
 				<a href="#" id="group_bulletein_report" class="butSim link">
 					<spring:message code="question.group_bulletein_report" text="Group Bulletein Report"/>
@@ -474,6 +489,9 @@
 				</a> |
 				<a href="#" id="ahwal_report" class="butSim link">
 					<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
+				</a> |
+				<a href="#" id="statistical_counts_report" class="butSim link">
+					<spring:message code="question.statistical_counts_report" text="Statistical Counts Report"/>
 				</a> |
 			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">

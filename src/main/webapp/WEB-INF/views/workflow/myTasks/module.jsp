@@ -956,7 +956,7 @@
 				   <spring:message code="generic.details" text="Details"></spring:message>
 				</a>
 			</li>
-			<c:if test="${usergroupType!='department' || usergroupType!='department_deskofficer'}">
+			<c:if test="${usergroupType!='department' and usergroupType!='department_deskofficer'}">
 				<li>
 					<a id="bulkapproval_tab" href="#" class="tab">
 					   <spring:message code="generic.bulkputup" text="Bulk Putup"></spring:message>
@@ -971,8 +971,17 @@
 				</li>
 			</c:if>
 					
-		</ul>
-		<div class="commandbarContent" style="margin-top: 10px;" id="selectionDiv">	
+		</ul>		
+		<div class="commandbarContent" id="selectionDiv">	
+			<c:if test="${usergroupType=='department' || usergroupType=='department_deskofficer'}">
+				<div id="notification_div" class="toolTip tpYellow clearfix">
+					<p style="font-size: 14px;margin: 0;">
+						<img src="./resources/images/template/icons/light-bulb-off.png">
+						<spring:message code="system.notification_messsage.department.login_disabled_for_device_submission" text="Login will be disabled tomorrow till 2pm for questions online submission by members."/>
+					</p>
+				</div>
+			</c:if>
+			<div style="margin-top: 10px;">
 			<a href="#" id="houseTypeLabel" class="butSim">
 				<spring:message code="mytask.housetype" text="House Type"/>
 			</a>
@@ -1093,7 +1102,7 @@
 				</select>
 			</div> 
 			
-			<c:if test="${usergroupType!='department' || usergroupType!='department_deskofficer'}">
+			<c:if test="${usergroupType!='department' and usergroupType!='department_deskofficer'}">
 				<a href="#" id="select_itemcount" class="butSim">
 					<spring:message code="device.itemcount" text="No. of Devices(Bulk Putup)"/>
 				</a>
@@ -1123,7 +1132,8 @@
 						<option value="10">10</option>		
 					</select> |
 				</div>
-			</c:if>		
+			</c:if>	
+			</div>	
 		</div>
 		<div id="nextTaskDiv" style="display: none;">
 			<a href="#" id="next_task" class="butSim" style="text-decoration: none;">	

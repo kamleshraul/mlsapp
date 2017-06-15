@@ -371,6 +371,7 @@ class HalfHourDiscussionFromQuestionController {
 		DeviceType questionType = QuestionController.getDeviceTypeById(request, locale);
 		model.addAttribute("formattedQuestionType", questionType.getName());
 		model.addAttribute("questionType", questionType.getId());
+		model.addAttribute("deviceType", questionType.getId());
 		model.addAttribute("selectedQuestionType", questionType.getType());
 		
 		//Populate Session
@@ -812,6 +813,7 @@ class HalfHourDiscussionFromQuestionController {
 		}
 		model.addAttribute("formattedQuestionType", questionType.getName());
 		model.addAttribute("questionType", questionType.getId());
+		model.addAttribute("deviceType", questionType.getId());
 		model.addAttribute("selectedQuestionType", questionType.getType());
 		
 		//Populate Session
@@ -1235,6 +1237,7 @@ class HalfHourDiscussionFromQuestionController {
 		DeviceType deviceType=domain.getType();
 		model.addAttribute("formattedQuestionType",deviceType.getName());
 		model.addAttribute("questionType",deviceType.getId());
+		model.addAttribute("deviceType", deviceType.getId());
 		model.addAttribute("selectedQuestionType",deviceType.getType());
 		if(domain.getOriginalType()!=null) {
 			model.addAttribute("originalType",domain.getOriginalType().getId());
@@ -1896,6 +1899,7 @@ class HalfHourDiscussionFromQuestionController {
 		DeviceType deviceType=domain.getType();
 		model.addAttribute("formattedQuestionType",deviceType.getName());
 		model.addAttribute("questionType",deviceType.getId());
+		model.addAttribute("deviceType", deviceType.getId());
 		model.addAttribute("selectedQuestionType",deviceType.getType());
 		if(domain.getOriginalType()!=null) {
 			model.addAttribute("originalType",domain.getOriginalType().getId());
@@ -2743,9 +2747,12 @@ class HalfHourDiscussionFromQuestionController {
 						findAllByMember(session, primaryMember, deviceType, itemCount, locale.toString());	
 			}
 		}
+		model.addAttribute("houseType", houseType.getId());
 		model.addAttribute("questionType", deviceType.getId());
+		model.addAttribute("deviceType", deviceType.getId());
 		model.addAttribute("questions", questions);
 		model.addAttribute("size", questions.size());
+		model.addAttribute("locale", locale.toString());
 
 		String userGroupType = request.getParameter("usergroupType");
 		model.addAttribute("usergroupType", userGroupType);

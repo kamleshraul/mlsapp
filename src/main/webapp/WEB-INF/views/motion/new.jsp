@@ -434,6 +434,7 @@
 	<input id="bulkedit" name="bulkedit" value="no" type="hidden">
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
+	<input type="hidden" name="deviceType" id="deviceType" value="${deviceType}"/>
 	<input type="hidden" name="selectedSupportingMembersIfErrors" value="${selectedSupportingMembersIfErrors}" />
 </form:form>
 

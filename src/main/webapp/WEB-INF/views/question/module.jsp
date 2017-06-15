@@ -929,6 +929,26 @@
 		});
 	}
 	
+	function generateOnlineOfflineAnswersReceivedCountReport(){
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&questionType=" + $("#selectedQuestionType").val()		 
+		 + "&role=" + $("#srole").val();		 	
+		var resourceURL = 'question/report/online_offline_answered_count_report/init?'+ parameters;
+		$.get(resourceURL,function(data) {
+			$.fancybox.open(data,{autoSize:false,width:400,height:200});
+		},'html').fail(function(){				
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").
+				css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
+	}
+	
 	function generatePartywiseQuestionsCountReport(){
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		 + "&sessionYear=" + $("#selectedSessionYear").val()

@@ -381,6 +381,7 @@ class UnstarredQuestionController {
 		DeviceType questionType = QuestionController.getDeviceTypeById(request, locale);
 		model.addAttribute("formattedQuestionType", questionType.getName());
 		model.addAttribute("questionType", questionType.getId());
+		model.addAttribute("deviceType", questionType.getId());
 		model.addAttribute("selectedQuestionType", questionType.getType());
 		
 		//Populate Session
@@ -617,6 +618,13 @@ class UnstarredQuestionController {
 		model.addAttribute("formattedHouseType", houseType.getName());
 		model.addAttribute("houseTypeType", houseType.getType());
 		model.addAttribute("houseType", houseType.getId());
+		
+		//populate DeviceType
+		DeviceType questionType = domain.getType();
+		model.addAttribute("formattedQuestionType", questionType.getName());
+		model.addAttribute("questionType", questionType.getId());
+		model.addAttribute("deviceType", questionType.getId());
+		model.addAttribute("selectedQuestionType", questionType.getType());
 		
 		//populate Session Year
 		Integer sessionYear = QuestionController.stringToIntegerYear(request, domain.getLocale());
@@ -871,6 +879,7 @@ class UnstarredQuestionController {
 		DeviceType deviceType=domain.getType();
 		model.addAttribute("formattedQuestionType",deviceType.getName());
 		model.addAttribute("questionType",deviceType.getId());
+		model.addAttribute("deviceType", deviceType.getId());
 		model.addAttribute("selectedQuestionType",deviceType.getType());
 		if(domain.getOriginalType()!=null) {
 			model.addAttribute("originalType",domain.getOriginalType().getId());
@@ -1529,6 +1538,7 @@ class UnstarredQuestionController {
 		DeviceType deviceType=domain.getType();
 		model.addAttribute("formattedQuestionType",deviceType.getName());
 		model.addAttribute("questionType",deviceType.getId());
+		model.addAttribute("deviceType", deviceType.getId());
 		model.addAttribute("selectedQuestionType",deviceType.getType());
 		if(domain.getOriginalType()!=null) {
 			model.addAttribute("originalType",domain.getOriginalType().getId());
@@ -2331,9 +2341,12 @@ class UnstarredQuestionController {
 						findAllByMember(session, primaryMember, deviceType, itemCount, locale.toString());	
 			}
 		}
+		model.addAttribute("houseType", houseType.getId());
 		model.addAttribute("questionType", deviceType.getId());
+		model.addAttribute("deviceType", deviceType.getId());
 		model.addAttribute("questions", questions);
 		model.addAttribute("size", questions.size());
+		model.addAttribute("locale", locale.toString());
 
 		String userGroupType = request.getParameter("usergroupType");
 		model.addAttribute("usergroupType", userGroupType);

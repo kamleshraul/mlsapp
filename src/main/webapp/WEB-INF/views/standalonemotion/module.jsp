@@ -17,7 +17,7 @@
 		} else {
 			$("#chart_tab").hide();
 		}
-		$("#bulkputup_tab").hide();
+		$("#bulkputup_tab").show();
 		if (currentDeviceType == 'motions_standalonemotion_halfhourdiscussion') {
 			$("#ballot_tab").show();
 		} else {
