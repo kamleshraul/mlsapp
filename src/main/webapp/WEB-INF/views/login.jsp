@@ -23,7 +23,7 @@
 		    });
 		    $('#j_username').change(function() {
 		    	if($('#login_disabled_notification_flag').val()=='ON') {
-		    		$('#login_disabled_notification_message').hide();
+		    		$('#login_disabled_notification_message_para').hide();
 		    		var isUserToBeNotified = "no";
 		    		$('#login_disabled_usernames option').each(function() {
 		    			if($(this).val()==$('#j_username').val()) {
@@ -33,8 +33,10 @@
 		    		if(isUserToBeNotified=="yes") {
 		    			$('#saveForm').hide();
 		    			$.prompt($('#login_disabled_notification_message').val());
+		    			$('#login_disabled_notification_message_para').show();
 	    			} else {
 		    			$('#saveForm').show();
+		    			$('#login_disabled_notification_message').hide();
 		    		}
 		    	}
 		    });
@@ -205,6 +207,12 @@
 		<c:if test="${empty param['error']}"> 
 	  		<p class="info"></p>
 		</c:if> 
+		
+		<c:if test="${login_disabled_notification_flag=='ON'}">
+			<p id="login_disabled_notification_message_para" style="display: none;font-weight: bold;color: orange;">
+				<spring:message code="system.notification_message.login_disabled" text="Your Login is disabled for some reason."/>
+			</p>
+		</c:if>
 		
 		<h1><spring:message code="login.vidhanmandal" text=""></spring:message></h1>
 		
