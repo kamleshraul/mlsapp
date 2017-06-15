@@ -977,7 +977,7 @@
 				<div id="notification_div" class="toolTip tpYellow clearfix">
 					<p style="font-size: 14px;margin: 0;">
 						<img src="./resources/images/template/icons/light-bulb-off.png">
-						<spring:message code="system.notification_messsage.department.login_disabled_for_device_submission" text="Login will be disabled tomorrow till 2pm for questions online submission by members."/>
+						<spring:message code="system.notification_message.department.login_disabled_for_device_submission" text="Login will be disabled tomorrow till 2pm for questions online submission by members."/>
 					</p>
 				</div>
 			</c:if>
