@@ -8,6 +8,8 @@
 	
 	<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js"></script>
 	<script type="text/javascript" src="./resources/js/crypto-js.js"></script>
+	<script type="text/javascript" src="./resources/js/jquery/jquery-impromptu.3.2.min.js"></script>
+	<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css"  />
 	
 	<script type="text/javascript"> 
 		$(document).ready(function(){
@@ -18,6 +20,23 @@
 		    }
 		    $("#lang").change(function(){
 			   location.search = "?lang="+$('#lang').val();
+		    });
+		    $('#j_username').change(function() {
+		    	if($('#login_disabled_notification_flag').val()=='ON') {
+		    		$('#login_disabled_notification_message').hide();
+		    		var isUserToBeNotified = "no";
+		    		$('#login_disabled_usernames option').each(function() {
+		    			if($(this).val()==$('#j_username').val()) {
+		    				isUserToBeNotified = "yes";		    				
+		    			}
+		    		});
+		    		if(isUserToBeNotified=="yes") {
+		    			$('#saveForm').hide();
+		    			$.prompt($('#login_disabled_notification_message').val());
+	    			} else {
+		    			$('#saveForm').show();
+		    		}
+		    	}
 		    });
 		    $('#saveForm').click(function() {
 		    	encryptPassword();
@@ -169,45 +188,66 @@
 </head>
 <body>
 	<h4 id="error_p">&nbsp;</h4>
+	
 	<c:if test="${(error!='') && (error!=null)}">
 		<h4 style="color: #FF0000;">${error}</h4>
 	</c:if>
- 		<form id="form" action="<c:url value='/j_spring_security_check'/>" method="post" autocomplete="off">
-	<img alt="" src="./resources/images/header.jpg" >
-	<p></p>
-	<c:if test="${not empty param['error']}"> 
-		<p class="error">${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}</p>
-		<c:remove var = "SPRING_SECURITY_LAST_EXCEPTION" scope = "session" />
-	</c:if> 
-	<c:if test="${empty param['error']}"> 
-  		<p class="info"></p>
-	</c:if> 
- 		<h1><spring:message code="login.vidhanmandal" text=""></spring:message></h1>
- 		<p style="display:none;">
-  	<input type="hidden" value="${lang}" id="language">
-	<label for="lang"><spring:message code="lang" text="Change Language" /></label>	
-	<select id="lang" name="language" >
-		<c:forEach items="${locales}" var="i">
-		<option value="${i.localeString}">${i.displayName}</option>
-		</c:forEach>					
-	</select>
- 		</p>
-	<p>
-	<label for="j_username"><spring:message code="user_lbl_username" text="Username" /></label>
-	<input type="text" id="j_username"   value="" name="j_username"/>
-	</p>
-	<p>
-	<label for="password"><spring:message code="user_lbl_password" text="Password" /></label>
-	<input type="password" id="j_password"  value="" name="j_password" autocomplete="false"/>
-	</p>
-	<p>
-	<!-- <span class="fl">
-		<a href="#">I Forgot My Password!</a>
-	</span> -->
-	<input id="saveForm" class="button button-gray fr" type="submit" value="<spring:message code='user_lbl_login' text='Login'/>"/>
-	</p>
-	<input id="selectedLocale" name="selectedLocale" value="${selectedLocale}" type="hidden">
+	
+ 	<form id="form" action="<c:url value='/j_spring_security_check'/>" method="post" autocomplete="off">
+		<img alt="" src="./resources/images/header.jpg" >
+		<p></p>
+		
+		<c:if test="${not empty param['error']}">
+			<p class="error">${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}</p>
+			<c:remove var = "SPRING_SECURITY_LAST_EXCEPTION" scope = "session" />
+		</c:if> 
+		
+		<c:if test="${empty param['error']}"> 
+	  		<p class="info"></p>
+		</c:if> 
+		
+		<h1><spring:message code="login.vidhanmandal" text=""></spring:message></h1>
+		
+		<p style="display:none;">
+		  	<input type="hidden" value="${lang}" id="language">
+			<label for="lang"><spring:message code="lang" text="Change Language" /></label>	
+			<select id="lang" name="language" >
+				<c:forEach items="${locales}" var="i">
+				<option value="${i.localeString}">${i.displayName}</option>
+				</c:forEach>					
+			</select>
+	 	</p>
+	 	
+		<p>
+			<label for="j_username"><spring:message code="user_lbl_username" text="Username" /></label>
+			<input type="text" id="j_username"   value="" name="j_username"/>
+		</p>
+		
+		<p>
+			<label for="password"><spring:message code="user_lbl_password" text="Password" /></label>
+			<input type="password" id="j_password"  value="" name="j_password" autocomplete="false"/>
+		</p>
+		
+		<p>
+			<!-- <span class="fl">
+				<a href="#">I Forgot My Password!</a>
+			</span> -->
+			<input id="saveForm" class="button button-gray fr" type="submit" value="<spring:message code='user_lbl_login' text='Login'/>"/>
+		</p>
+		
+		<input id="selectedLocale" name="selectedLocale" value="${selectedLocale}" type="hidden">
 	</form>
-	<input id="encryptionRequired" name="encryptionRequired" value="${passwordEncryptionReq}" type="hidden"/>
+	
+	<c:if test="${login_disabled_notification_flag=='ON'}">
+		<select id="login_disabled_usernames" style="display: none;">
+			<c:forEach items="${loginDisabledUsernames}" var="i">
+				<option value="${i}">${i}</option>
+			</c:forEach>
+		</select>
+	</c:if>
+	
+	<input id="encryptionRequired" name="encryptionRequired" value="${passwordEncryptionReq}" type="hidden"/>	
+	<input type="hidden" id="login_disabled_notification_flag" value="${login_disabled_notification_flag}">
+	<input type="hidden" id="login_disabled_notification_message" value="<spring:message code='system.notification_message.login_disabled' text='Your Login is disabled for some reason.'/>" />
 </body>
 </html>
