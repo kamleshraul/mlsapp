@@ -60,6 +60,7 @@
 		        	$.post('question/bulksubmission?items='+items
 		        			+"&usergroupType=" + $("#usergroupType").val()
 		        			+"&houseType=" + $('#houseType').val()
+		        			+"&questionType=" + $('#questionType').val()
 		        			+"&deviceType=" + $('#deviceType').val()
 		        			+"&locale=" + $('#locale').val(),
 		    	            function(data){
