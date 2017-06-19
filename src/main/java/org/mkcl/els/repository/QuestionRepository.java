@@ -51,6 +51,7 @@ import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.YaadiDetails;
 import org.springframework.stereotype.Repository;
@@ -2424,23 +2425,35 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 			final DeviceType deviceType, 
 			final Status internalStatus, 
 			final Group group,
+			final SubDepartment subdepartment,
 			final Integer itemsCount,
 			final String locale) throws ELSException {
 		
-		String query = "SELECT q FROM Question q WHERE q.session.id=:sessionId"+
+		StringBuffer strQuery = new StringBuffer("SELECT q FROM Question q WHERE q.session.id=:sessionId"+
 				" AND q.type.id=:deviceTypeId AND q.locale=:locale"+
 				" AND q.group.id=:groupId  AND q.internalStatus.id=:internalStatusId"+
-				" AND q.workflowStarted=:workflowStarted " +
-				" AND ((q.internalStatus IS NOT NULL AND q.internalStatus.type LIKE '%clubbing%' AND q.parent IS NOT NULL) OR (q.parent IS  NULL)))"+
-				" ORDER BY q.number";
+				" AND (q.workflowStarted=:workflowStarted OR q.workflowStarted IS NULL)"+
+				" AND ((q.internalStatus IS NOT NULL AND q.internalStatus.type LIKE '%clubbing%' AND q.parent IS NOT NULL) OR (q.parent IS  NULL))");
+		/*String query = "SELECT q FROM Question q WHERE q.session.id=:sessionId" +
+				" AND q.type.id=:deviceTypeId AND q.locale=:locale" +
+				" AND q.group.id=:groupId  AND q.internalStatus.id=:internalStatusId" +
+				" AND (q.workflowStarted=:workflowStarted OR q.workflowStarted IS NULL)" +
+				" AND ((q.internalStatus IS NOT NULL AND q.internalStatus.type LIKE '%clubbing%' AND q.parent IS NOT NULL) OR (q.parent IS  NULL)))";*/
+		if(subdepartment != null){
+			strQuery.append(" AND q.subDepartment.id=:subdepartmentId");
+		}
+		strQuery.append(" ORDER BY q.number");
 		try{
-			TypedQuery<Question> q=this.em().createQuery(query.toString(), Question.class);
+			TypedQuery<Question> q=this.em().createQuery(strQuery.toString(), Question.class);
 			q.setMaxResults(itemsCount);
 			q.setParameter("sessionId", session.getId());
 			q.setParameter("deviceTypeId", deviceType.getId());
 			q.setParameter("locale", locale);
 			q.setParameter("groupId", group.getId());
 			q.setParameter("internalStatusId", internalStatus.getId());
+			if(subdepartment != null){
+				q.setParameter("subdepartmentId", subdepartment.getId());
+			}
 			q.setParameter("workflowStarted", "NO");
 			return q.getResultList();
 		}catch(Exception e) {

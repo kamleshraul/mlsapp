@@ -275,7 +275,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 			final DeviceType deviceType,
 			final String locale) throws ELSException {
 		StringBuffer strQuery = new StringBuffer();
-		TypedQuery<Question> jpQuery = null;
+		Query jpQuery = null;
 		
 		if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 			String hdsQuery = this.findHDSMembersQuestionsQuery(member, session, deviceType, locale);
@@ -295,7 +295,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 				String date = 
 					FormaterUtil.formatDateToString(answeringDate, parameter.getValue());*/
 				
-			jpQuery = this.em().createQuery(strQuery.toString(), Question.class);
+			jpQuery = this.em().createNativeQuery(strQuery.toString(), Question.class);
 			jpQuery.setParameter("sessionId", session.getId());
 			jpQuery.setParameter("groupId", group.getId());
 			jpQuery.setParameter("answeringDate", answeringDate);
@@ -1104,8 +1104,25 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		String date = 
 			FormaterUtil.formatDateToString(answeringDate, parameter.getValue());*/
 		
+		/** Added the native query to retrieve the result  **/
+		
 		StringBuffer strQuery = new StringBuffer();
-		strQuery.append(
+		strQuery.append("SELECT q.*"
+				+ " FROM questions q"
+				+ " WHERE q.id IN ("
+				+ " SELECT device_id"
+				+ " FROM charts c"
+				+ " JOIN charts_chart_entries  cce ON (c.id = cce.chart_id)"
+				+ " JOIN chart_entries ce ON (ce.id = cce.chart_entry_id)"
+				+ " JOIN chart_entries_devices ced ON (ced.chart_entry_id=ce.id)"
+				+ " WHERE c.session_id = :sessionId"
+				+ " AND c.group_id = :groupId" 
+				+ " AND c.answering_date = :answeringDate"
+				+ " AND c.device_type =:deviceTypeId" 
+				+ " AND c.locale = :locale" 
+				+ " AND ce.member_id =:memberId)"
+				+ " ORDER BY q.number ASC");
+/*		strQuery.append(
 			"SELECT q" +
 			" FROM Question q" +
 			" WHERE q.id IN (" +
@@ -1118,7 +1135,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 				" AND c.locale = :locale" +
 				" AND ce.member.id =:memberId)" +
 				" ORDER BY q.number ASC)"
-			);
+			);*/
 		
 		return strQuery.toString();
 	}
