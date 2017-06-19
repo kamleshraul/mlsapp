@@ -745,8 +745,8 @@
 	    	if($(this).val()!=''){
 	    		var recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
 			   	if(recommendRejection == $("#internalStatus").val()){
-			   		var rejectionReason = $(this).val().replace("<p></p>","");
-			    	$("#rejectionReason").val(rejectionReason.trim());
+			   		var rejectionReason = $(this).val().replace("<br><p></p>","");
+			   		$("#rejectionReason").val(rejectionReason.trim());
 			    }
 	    	}
 	    	
@@ -1469,12 +1469,12 @@
 				</p>
 			</c:when>
 			<c:otherwise>
-				<c:if test="${fn:endsWith(internalStatusType, '_final_rejection')}">
-				<p id="rejectionReasonP" style="display:block;">
+				<%-- <c:if test="${fn:endsWith(internalStatusType, '_final_rejection')}"> --%>
+				<p id="rejectionReasonP" style="display:none;">
 					<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
 					<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
 				</p>
-				</c:if>				
+				<%-- </c:if>	 --%>			
 			</c:otherwise>
 		</c:choose>
 		
