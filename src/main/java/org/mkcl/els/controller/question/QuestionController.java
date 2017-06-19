@@ -796,15 +796,20 @@ public class QuestionController extends GenericController<Question> {
 			Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType,sessionType, sessionYear);
 			String strStatus = request.getParameter("status");
 			String strGroup = request.getParameter("group");
+			String strDepartment = request.getParameter("department");
 			if(strStatus != null && !(strStatus.isEmpty())) {
 				List<Question> questions = new ArrayList<Question>();
 				Group group=null;
 				if(strGroup!=null && strGroup !=""){
 					group=Group.findById(Group.class, Long.parseLong(strGroup));
 				}
+				SubDepartment subdepartment = null;
+				if(strDepartment != null && !strDepartment.equals("-")){
+					subdepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strDepartment));
+				}
 	
 				Status internalStatus = Status.findById(Status.class,Long.parseLong(strStatus));
-				questions = Question.findAllByStatus(session, deviceType, internalStatus,group ,
+				questions = Question.findAllByStatus(session, deviceType, internalStatus,group , subdepartment,
 						itemCount, locale);
 				
 				model.addAttribute("questions", questions);

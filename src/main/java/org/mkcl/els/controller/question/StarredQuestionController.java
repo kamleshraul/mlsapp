@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -2717,7 +2716,7 @@ class StarredQuestionController {
 	
 	}
 
-
+			
 //	public static String bulkSubmission(final HttpServletRequest request,
 //			final ModelMap model,
 //			final AuthUser authUser,
@@ -3105,6 +3104,7 @@ class StarredQuestionController {
 		String strUsergroupType = request.getParameter("usergroupType");
 		String strItemsCount = request.getParameter("itemscount");
 		String strGroup = request.getParameter("group");
+		String strDepartment = request.getParameter("department");
 
 		if( strSessionType != null && !(strSessionType.isEmpty())
 				&& strSessionYear != null && !(strSessionYear.isEmpty())
@@ -3120,25 +3120,28 @@ class StarredQuestionController {
 			if(currentStatus!=null) {
 				statusBasedStatuses =  CustomParameter.findByName(CustomParameter.class,
 								"QUESTION_PUT_UP_OPTIONS_" + deviceType.getType().toUpperCase() + "_" +
-								currentStatus.getType() + "_" + 
+								currentStatus.getType().toUpperCase() + "_" + 
 								strUsergroupType.toUpperCase(), "");
 			}			 
 			/**** QUESTION_PUT_UP_OPTIONS_ + QUESTION_TYPE + HOUSE_TYPE + USERGROUP_TYPE ****/
 			CustomParameter defaultStatus = CustomParameter.findByName(CustomParameter.class,
 					"QUESTION_PUT_UP_OPTIONS_" + deviceType.getType().toUpperCase() + "_" +
 							 strUsergroupType.toUpperCase(), "");
-
-			List<Status> internalStatuses;
-			try {
-				if(statusBasedStatuses!=null) {
-					internalStatuses = Status.findStatusContainedIn(statusBasedStatuses.getValue(),locale.toString());
-				} else {
-					internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(),locale.toString());
-				}				
-				model.addAttribute("internalStatuses", internalStatuses);
-			} catch (ELSException e) {
-				model.addAttribute("error", e.getParameter());
+			List<Status> internalStatuses = new ArrayList<Status>(); 
+			if(!strUsergroupType.equals(ApplicationConstants.CLERK)){
+				try {
+					if(statusBasedStatuses!=null) {
+						internalStatuses = Status.findStatusContainedIn(statusBasedStatuses.getValue(),locale.toString());
+					} else {
+						internalStatuses = Status.findStatusContainedIn(defaultStatus.getValue(),locale.toString());
+					}				
+					
+				} catch (ELSException e) {
+					model.addAttribute("error", e.getParameter());
+				}
 			}
+			model.addAttribute("internalStatuses", internalStatuses);
+			
 			/**** Request Params To Model Attribute ****/
 			model.addAttribute("houseType", houseType.getType());
 			model.addAttribute("sessionType", strSessionType);
@@ -3150,6 +3153,7 @@ class StarredQuestionController {
 			model.addAttribute("usergroupType", strUsergroupType);
 			model.addAttribute("itemscount", strItemsCount);
 			model.addAttribute("group", strGroup);
+			model.addAttribute("department", strDepartment);
 
 			retVal = "question/bulksubmissionassistantint";
 		}else{
@@ -3168,6 +3172,7 @@ class StarredQuestionController {
 		String[] selectedItems = request.getParameterValues("items[]");
 		String strStatus = request.getParameter("currentStatus");
 		StringBuffer assistantProcessed = new StringBuffer();
+		StringBuffer clerkProcessed = new StringBuffer();
 		StringBuffer recommendAdmission = new StringBuffer();
 		StringBuffer recommendRejection = new StringBuffer();
 		StringBuffer recommendRepeatRejection = new StringBuffer();
@@ -3190,8 +3195,64 @@ class StarredQuestionController {
 				for(String i : selectedItems) {
 					Long id = Long.parseLong(i);
 					Question question = Question.findById(Question.class, id);
-
-					if(!question.getInternalStatus().getType().
+					// For Clerk Processing 
+					if(question.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)){
+						// set Edited On and EditedBy
+						question.setEditedOn(new Date());
+						question.setEditedBy(authUser.getActualUsername());
+						Credential credential = Credential.findByFieldName(Credential.class, "username", authUser.getActualUsername(), null);
+						List<UserGroup> userGroups = authUser.getUserGroups();
+						UserGroupType userGroupType = null;
+						for(UserGroup ug : userGroups){
+							UserGroup userGroup = UserGroup.findActive(credential, ug.getUserGroupType(), new Date(), locale.toString());
+							if(userGroup != null){
+								userGroupType = userGroup.getUserGroupType();
+								break;
+							}
+						}
+						
+						/**** In case of assistant if internal status=submit,ministry,department,group is set 
+						 * then change its internal and recommendstion status to assistant processed ****/
+						
+						CustomParameter assistantProcessedAllowed = CustomParameter.
+								findByName(CustomParameter.class,"QIS_ASSISTANT_PROCESSED_ALLOWED_FOR","");
+						if(assistantProcessedAllowed != null){
+							List<UserGroupType> userGroupTypes = QuestionController.
+									delimitedStringToUGTList(assistantProcessedAllowed.getValue(), ",", question.getLocale());
+							Boolean isUserGroupAllowed = QuestionController.isUserGroupTypeExists(userGroupTypes, userGroupType);
+							if(isUserGroupAllowed){
+								String internalStatusType = question.getInternalStatus().getType();
+								Group group = question.getGroup();
+								if((internalStatusType.equals(ApplicationConstants.QUESTION_SUBMIT)
+									||internalStatusType.equals(ApplicationConstants.QUESTION_SYSTEM_GROUPCHANGED)) 
+									&& question.getMinistry()!=null 
+									&& group!=null 
+									&& question.getSubDepartment()!=null) {
+									Status ASSISTANT_PROCESSED = Status.
+											findByType(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED, question.getLocale());
+									question.setInternalStatus(ASSISTANT_PROCESSED);
+									question.setRecommendationStatus(ASSISTANT_PROCESSED);
+								}
+							}
+						}
+						
+						question.merge();
+						
+						Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, question.getLocale());
+						if(question.getInternalStatus().getPriority()>submitStatus.getPriority()) {
+							// On Group Change
+							Group fromGroup = Question.isGroupChanged(question);
+							if(fromGroup != null) {
+								Question.onGroupChange(question, fromGroup);
+							}
+							
+							// Add to Chart
+							Chart.addToChart(question);
+							clerkProcessed.append(question.formatNumber() + ",");
+						}
+						
+						
+					}else if(!question.getInternalStatus().getType().
 							equals(ApplicationConstants.QUESTION_SYSTEM_ASSISTANT_PROCESSED)){
 						/**** Create Process ****/
 						ProcessDefinition processDefinition = null;
@@ -3306,7 +3367,7 @@ class StarredQuestionController {
 						assistantProcessed.append(question.formatNumber() + ",");
 					}
 				}
-
+				model.addAttribute("clerkProcessed", clerkProcessed.toString());
 				model.addAttribute("assistantProcessed", assistantProcessed.toString());
 			}else {
 				Long statusId = Long.parseLong(strStatus);
