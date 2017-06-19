@@ -62,16 +62,18 @@
 				<tr>
 					<th><spring:message code="question.submitall" text="Submit All"></spring:message>
 					<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
-					<th><spring:message code="question.number" text="Number"></spring:message></th>
+					<th><spring:message code="question.number" text="Number"/> <spring:message code="question.subdepartment" text="Subdepartment"/></th>
 					<th><spring:message code="question.member" text="Member"></spring:message></th>
 					<th><spring:message code="question.subject" text="Subject"></spring:message></th>
+					<th><spring:message code="question.questionText" text="Question text"></spring:message></th>
 				</tr>			
 				<c:forEach items="${questions}" var="i">
 					<tr>
 						<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"></td>
-						<td>${i.formatNumber()}</td>
+						<td>${i.formatNumber()} <br>${i.subdepartment.name}</td>
 						<td>${i.primaryMember.getFullname()}</td>
 						<td>${i.subject}</td>
+						<td>${i.questionText}</td>
 					</tr>
 				</c:forEach>
 			</table>

@@ -59,6 +59,9 @@ function editQuestion(id,readonly){
 			<c:if test="${! (empty assistantProcessed) }">
 			<p style="color:red;margin-bottom: 15px;">${assistantProcessed} cannot be put up.Please change put up options to admission,rejection etc.</p>
 			</c:if>
+			<c:if test="${! (empty clerkProcessed) }">
+			<p style="color:green;margin-bottom: 15px;">Clerk has Processed the following questions  :- ${clerkProcessed}.</p>
+			</c:if>
 			<c:if test="${! (empty recommendAdmission) }">
 			<p style="color:green;margin-bottom: 15px;">${recommendAdmission} sent for admission.</p>
 			</c:if>
@@ -92,23 +95,26 @@ function editQuestion(id,readonly){
 			<c:if test="${! (empty recommendUnClubbing) }">
 			<p style="color:green;margin-bottom: 15px;">${recommendUnClubbing} sent for Un-Clubbing.</p>
 			</c:if>
-			<table class="uiTable">
+			<table class="uiTable" style="min-width:900px;">
 					<tr>
-						<th><spring:message code="question.submitall" text="Submit All"></spring:message>
+						<th style="width:20px;"><spring:message code="question.submitall" text="Submit All"></spring:message>
 						<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>
-						<th><spring:message code="question.number" text="Number"></spring:message></th>
-						<th><spring:message code="question.member" text="Member"></spring:message></th>
+						<th><spring:message code="question.detail" text="Details"/></th>
 						<th><spring:message code="question.subject" text="Subject"></spring:message></th>
-						<th><spring:message code="question.currentstatus" text="To Be Put Up For?"></spring:message></th>
+						<th><spring:message code="question.questionText" text="Question text"></spring:message></th>
+						<%-- <th><spring:message code="question.currentstatus" text="To Be Put Up For?"></spring:message></th> --%>
 					</tr>			
 					<c:forEach items="${questions}" var="i">
 						<tr>
-							<td><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
+							<td style="width:20px;"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
 							<a href="#" class="edit" id="edit${i.id}"><spring:message code="question.edit" text="Edit"></spring:message></a></td>
-							<td>${i.formatNumber()}</td>
-							<td>${i.primaryMember.getFullname()}</td>
+							<td>
+								<b><spring:message code="question.number" text="Number"/> </b>: ${i.formatNumber()} <br>
+								<b><spring:message code="question.primaryMember" text="Member"/> </b> : ${i.primaryMember.getFullname()} <br>
+								<b><spring:message code="question.department" text="Department"/> </b> : ${i.subDepartment.name}</td>
 							<td>${i.subject}</td>
-							<td>${i.internalStatus.name}</td>
+							<td>${i.questionText}</td>
+							<%-- <td>${i.internalStatus.name}</td> --%>
 						</tr>
 					</c:forEach>
 			</table>

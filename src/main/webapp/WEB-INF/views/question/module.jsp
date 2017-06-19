@@ -741,7 +741,8 @@
 					+ "&role=" + $("#srole").val()
 					+ "&usergroup=" + $("#currentusergroup").val()
 					+ "&usergroupType=" + $("#currentusergroupType").val()
-					+ "&group=" + $("#ugparam").val();
+					+ "&group=" + $("#ugparam").val()
+					+ "&department="+$("#selectedSubDepartment").val();
 		var resourceURL = 'question/bulksubmission/assistant/int?' + parameters
 				+ "&itemscount=" + $("#selectedItemsCount").val();
 		showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);
@@ -1468,7 +1469,7 @@
 				</a></li>
 			</security:authorize>
 			<security:authorize
-				access="hasAnyRole('QIS_ASSISTANT')">
+				access="hasAnyRole('QIS_ASSISTANT','QIS_CLERK')">
 				<li><a id="bulkputupassistant_tab" href="#" class="tab"> <spring:message
 							code="generic.bulkputup" text="Bulk Putup">
 						</spring:message>
@@ -1790,7 +1791,7 @@
 				</select>
 			</security:authorize>			
 			
-			<security:authorize	access="hasAnyRole('QIS_ASSISTANT')">		
+			<security:authorize	access="hasAnyRole('QIS_ASSISTANT','QIS_CLERK')">		
 				<a href="#" id="select_itemcount" class="butSim"> <spring:message
 						code="question.itemcount" text="No. of Questions(Bulk Putup)" />
 				</a>
