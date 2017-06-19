@@ -3,13 +3,10 @@
 <head>
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<script type="text/javascript">
-		function clearErrorMsg(){
-			$("#error_msg").empty();
-		}		
+	<script type="text/javascript">				
 		$(document).ready(function() {
 			/* show publish button for unpublished suchi on default answering date populated */
-			if($("#deviceType").val()=='questions_starred') {
+			if($("#deviceType").val()=='questions_stared') {
 				if($('#selectedAnsweringDate').val()!=undefined && $('#selectedAnsweringDate').val()!=""
 						&& $('#selectedAnsweringDate').val()>0) {					
 					populatePublishButtonForSelectedAnsweringDate();					
@@ -18,7 +15,7 @@
 			/* show publish button for unpublished suchi on selected answering date after change */
 			$('#selectedAnsweringDate').change(function() {
 				if($('#selectedAnsweringDate').val()!=undefined && $('#selectedAnsweringDate').val()!=""
-						&& $('#selectedAnsweringDate').val()>0) {					
+						&& $('#selectedAnsweringDate').val()<0) {					
 					populatePublishButtonForSelectedAnsweringDate();					
 				}
 			});
@@ -254,6 +251,10 @@
 		});
 		
 		//---------------------------------functions---------------
+		function clearErrorMsg(){
+			$("#error_msg").empty();
+			$("#error_p").empty();
+		}
 		function showLog(){
 			var parameters;
 			if($("#category").val()=='question'){
@@ -290,6 +291,7 @@
 		}
 		
 		function populatePublishButtonForSelectedAnsweringDate() {
+			clearErrorMsg();
 			var parameters = "answeringDate=" + $("#selectedAnsweringDate").val();						
 			$.ajax({url: 'ref/check_if_suchi_published_on_selected_answering_date', data: parameters,
 				type: 'GET',
@@ -312,7 +314,8 @@
 			});			
 		}
 		
-		function publishSuchiOnSelectedAnsweringDate() {
+		function publishSuchiOnSelectedAnsweringDate() {	
+			clearErrorMsg();
 			var parameters = "answeringDate=" + $("#selectedAnsweringDate").val();						
 			$.ajax({url: 'ref/check_if_suchi_published_on_selected_answering_date', data: parameters,
 				type: 'GET',
@@ -439,7 +442,7 @@
 		<a href="#" id="view_suchi" class="butSim">
 			<spring:message code="yaadidetails.viewSuchi" text="Suchi Report"/>
 		</a>
-		<c:if test="${deviceTypeType=='questions_starred'}">
+		<c:if test="${deviceTypeType=='questions_stared'}">
 		<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 			<button type="button" id="publishButton1" class="publishButton" style="display: none;">Publish!</button>
 		</security:authorize>
