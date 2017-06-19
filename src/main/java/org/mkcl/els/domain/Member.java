@@ -801,15 +801,19 @@ import org.springframework.beans.factory.annotation.Configurable;
 				session = question.getSession();
 				/** parameter for date on which to check if member was/is active as per session **/
 				Date activeOnCheckDate = null;
-				Date currentDate = new Date();				
-				if(currentDate.compareTo(session.getStartDate())<=0) {
-					activeOnCheckDate = session.getStartDate();
-				} else if(currentDate.compareTo(session.getStartDate())>0
-						&& currentDate.compareTo(session.getEndDate())<0) {
-					activeOnCheckDate = new Date();
+				Date currentDate = new Date();
+				if(question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+					activeOnCheckDate = currentDate;
 				} else {
-					activeOnCheckDate = session.getEndDate();
-				}
+					if(currentDate.compareTo(session.getStartDate())<=0) {
+						activeOnCheckDate = session.getStartDate();
+					} else if(currentDate.compareTo(session.getStartDate())>0
+							&& currentDate.compareTo(session.getEndDate())<0) {
+						activeOnCheckDate = currentDate;
+					} else {
+						activeOnCheckDate = session.getEndDate();
+					}
+				}				
 				/** parameter for date on which to check if member was/is active at the submission time of device **/
 				Date activeOnCheckDateAtSubmission = question.getSubmissionDate();
 				
