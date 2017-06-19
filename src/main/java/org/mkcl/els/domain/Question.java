@@ -2481,10 +2481,10 @@ public class Question extends Device implements Serializable {
 			final DeviceType deviceType, 
 			final Status internalStatus,
 			final Group group,
+			final SubDepartment subdepartment,
 			final Integer itemsCount,
 			final String locale) throws ELSException {
-		return getQuestionRepository().findAllByStatus(session, deviceType, internalStatus, 
-				group,itemsCount, locale);
+		return getQuestionRepository().findAllByStatus(session, deviceType, internalStatus, group, subdepartment, itemsCount, locale);
 	}
 	
 	public static List<Question> findAllByRecommendationStatus(final Session session,
