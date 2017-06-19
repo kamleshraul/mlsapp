@@ -94,15 +94,26 @@
 	<input type="text" id="state" name="state" value="${state.name}" class="sText" readonly="readonly"/>
 	</p>
 	
-	<p>
-	<label class="small"><spring:message code="committeetour.district" text="District" />*</label>
-	<input type="text" id="district" name="district" value="${district.name}" class="sText" readonly="readonly"/>
+<input type="hidden" id="selectedDistricts" value="${selectedDistricts}" />
+
+		<p>
+		<label class="small"><spring:message code="committeetour.district" text="District"/>*</label>
+		<form:select path="districts" items="${districts}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
+		<form:errors path="districts" cssClass="validationError"/>
 	</p>
-	
+
+<input type="hidden" id="selectedTowns" value="${selectedTowns}" />
 	<p>
 	<label class="small"><spring:message code="committeetour.town" text="Town" />*</label>
-	<form:select path="town" items="${towns}" itemLabel="name" itemValue="id" cssClass="sSelect"></form:select>										
-	<form:errors path="town" cssClass="validationError"/>
+	<form:select path="towns" items="${towns}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>										
+	<form:errors path="towns" cssClass="validationError"/>
+	</p>
+	
+	<input type="hidden" id="selectedZillaparishads" value="${selectedZillaparishads}" />
+	<p>
+		<label class="small"><spring:message code="committeetour.zillaparishads" text="Zillaparishad"/></label>
+		<form:select path="zillaparishads" items="${zillaparishads}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
+		<form:errors path="zillaparishads" cssClass="validationError"/>
 	</p>
 	
 	<p> 
@@ -162,6 +173,7 @@
 				<c:set var="itineraryCount" value="${itineraryCount + 1}"></c:set>
 			</c:forEach>
 		</table>
+		
 		<input type="hidden" id="tourItineraryCount" name="tourItineraryCount" value="${fn:length(itineraries)}"/>
 	</c:if>
 	
@@ -190,55 +202,7 @@
 		<input type="hidden" id="committeeReporterCount" name="committeeReporterCount" value="${fn:length(reporters)}"/>
 	</c:if>	
 	
-	<p>
-	<label class="small"><spring:message code="committeetour.putUpFor" text="Put Up For" /></label>
-	<select id="status" name="status" class="sSelect">
-	<c:choose>
-		<c:when test="${not empty statuses}">
-			<c:forEach items="${statuses}" var="i">
-				<c:choose>
-					<c:when test="${status.id == i.id}">
-						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</c:when>
-		<c:otherwise>
-			<option value="${status.id}" selected="selected"><c:out value="${status.name}"></c:out></option>
-		</c:otherwise>
-	</c:choose>		
-	</select>
-	</p>
-		
-	<c:if test="${hideNextActors ne true}">
-		<c:if test="${not empty actor}">
-			<p>
-			<label class="small"><spring:message code="committeetour.nextactor" text="Next Actor"/></label>
-			<select id="actor" name="actor" class="sSelect">
-			<c:choose>
-				<c:when test="${not empty actors}">
-					<c:forEach items="${actors}" var="i">
-						<c:choose>
-							<c:when test="${actor.id == i.id}">
-								<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>
-							</c:when>
-							<c:otherwise>
-								<option value="${i.id}"><c:out value="${i.name}"></c:out></option>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-				</c:when>
-				<c:otherwise>
-					<option value="${actor.id}" selected="selected"><c:out value="${actor.name}"></c:out></option>
-				</c:otherwise>
-			</c:choose>
-			</select>
-			</p>
-		</c:if>
-	</c:if>
+	
 		
 	<p>
 		<label class="wysiwyglabel"><spring:message code="committee.remarks" text="Remarks"/></label>

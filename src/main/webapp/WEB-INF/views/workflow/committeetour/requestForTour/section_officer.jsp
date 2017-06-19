@@ -99,10 +99,18 @@
 	<input type="text" id="district" name="district" value="${district.name}" class="sText" readonly="readonly"/>
 	</p>
 	
+	<input type="hidden" id="selectedTowns" value="${selectedTowns}" />
 	<p>
 	<label class="small"><spring:message code="committeetour.town" text="Town" />*</label>
-	<form:select path="town" items="${towns}" itemLabel="name" itemValue="id" cssClass="sSelect"></form:select>										
-	<form:errors path="town" cssClass="validationError"/>
+	<form:select path="towns" items="${towns}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>										
+	<form:errors path="towns" cssClass="validationError"/>
+	</p>
+	
+	<input type="hidden" id="selectedZillaparishads" value="${selectedZillaparishads}" />
+	<p>
+		<label class="small"><spring:message code="committeetour.zillaparishads" text="Zillaparishad"/></label>
+		<form:select path="zillaparishads" items="${zillaparishads}" itemValue="id" itemLabel="name"  multiple="true" size="5" cssClass="sSelect" cssStyle="height:100px;margin-top:5px;"/>
+		<form:errors path="zillaparishads" cssClass="validationError"/>
 	</p>
 	
 	<p> 
