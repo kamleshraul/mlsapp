@@ -92,11 +92,11 @@
 						$("#selectedModule").val('');
 					}
 					loadSubWorkflowByDeviceType(value);
-					if(device == 'questions_starred'){
+					/* if(device == 'questions_starred'){
 						$('#fileDiv').css("display","none");
 					}else{
 						$('#fileDiv').css("display","inline");
-					} 
+					}  */
 				}
 				var houseType = $("#houseTypeMaster option[value='"+$("#selectedHouseType").val()+"']").text();
 				if(device.indexOf('motions_')==0  
@@ -132,11 +132,11 @@
 					 if(($('#currentusergroupType').val()=="assistant") && value.indexOf("final")>-1&&$('#currenthousetype').val()=='lowerhouse'){
 						$('#bulkapproval_tab').hide();
 						$('#selectedItemsCount').hide();
-						$('#selectedFileCount').hide();
+						//$('#selectedFileCount').hide();
 					}else{
 						$('#bulkapproval_tab').show();
 						$('#selectedItemsCount').show();
-						$('#selectedFileCount').show();
+						//$('#selectedFileCount').show();
 					} 
 					var deviceTypeForGrid = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
 					/* if(deviceTypeForGrid=='motions_billamendment') {
@@ -185,6 +185,10 @@
 			});
 			
 			$("#selectedDepartment").change(function(){
+				reloadMyTaskGrid()
+			});
+			
+			$("#selectedReplyStatus").change(function(){
 				reloadMyTaskGrid()
 			});
 			
@@ -386,6 +390,7 @@
 						+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
 						+"&answeringDate="+$("#selectedAnsweringDate").val()
 						+"&subdepartment="+$("#selectedDepartment").val()
+						+"&replyReceivedStatus="+$("#selectedReplyStatus").val()
 						);
 				var oldURL=$("#grid").getGridParam("url");
 				var baseURL=oldURL.split("?")[0];
@@ -438,7 +443,7 @@
 				} */
 				$("#selectedSubWorkflow").html(selectedSubWorkflowText);
 				$("#groupDiv").hide();
-				$("#fileDiv").hide();
+				//$("#fileDiv").hide();
 			}).done(function(){
 				$('#selectedSubWorkflow').trigger('change');
 			}).fail(function(){
@@ -973,85 +978,85 @@
 					
 		</ul>		
 		<div class="commandbarContent" id="selectionDiv">	
-			<%-- <c:if test="${usergroupType=='department' || usergroupType=='department_deskofficer'}">
+			<c:if test="${usergroupType=='department' || usergroupType=='department_deskofficer'}">
 				<div id="notification_div" class="toolTip tpYellow clearfix">
 					<p style="font-size: 14px;margin: 0;">
 						<img src="./resources/images/template/icons/light-bulb-off.png">
 						<spring:message code="system.notification_message.department.login_disabled_for_device_submission" text="Login will be disabled tomorrow till 2pm for questions online submission by members."/>
 					</p>
 				</div>
-			</c:if> --%>
+			</c:if>
 			<div style="margin-top: 10px;">
 			<a href="#" id="houseTypeLabel" class="butSim">
 				<spring:message code="mytask.housetype" text="House Type"/>
 			</a>
 			<select name="selectedHouseType" id="selectedHouseType" style="width:100px;height: 25px;">			
-			<c:forEach items="${houseTypes}" var="i">
-			<c:choose>
-			<c:when test="${houseType==i.type}">
-			<option value="${i.name}" selected="selected"><c:out value="${i.name}"></c:out></option>			
-			</c:when>
-			<c:otherwise>
-			<option value="${i.name}"><c:out value="${i.name}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>
-			</c:forEach>
+				<c:forEach items="${houseTypes}" var="i">
+					<c:choose>
+						<c:when test="${houseType==i.type}">
+							<option value="${i.name}" selected="selected"><c:out value="${i.name}"></c:out></option>			
+						</c:when>
+						<c:otherwise>
+							<option value="${i.name}"><c:out value="${i.name}"></c:out></option>			
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
 			</select> |					
 			<a href="#" id="sessionYearlabel" class="butSim">
 				<spring:message code="mytask.sessionYear" text="Year"/>
 			</a>
 			<select name="selectedSessionYear" id="selectedSessionYear" style="width:100px;height: 25px;">				
-			<c:forEach var="i" items="${years}">
-			<c:choose>
-			<c:when test="${i==sessionYear }">
-			<option value="${i}" selected="selected"><c:out value="${i}"></c:out></option>				
-			</c:when>
-			<c:otherwise>
-			<option value="${i}" ><c:out value="${i}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>
-			</c:forEach> 
+				<c:forEach var="i" items="${years}">
+					<c:choose>
+						<c:when test="${i==sessionYear }">
+							<option value="${i}" selected="selected"><c:out value="${i}"></c:out></option>				
+						</c:when>
+						<c:otherwise>
+							<option value="${i}" ><c:out value="${i}"></c:out></option>			
+						</c:otherwise>
+					</c:choose>
+				</c:forEach> 
 			</select> |						
 			<a href="#" id="sessiontypeLabel" class="butSim">
 				<spring:message code="mytask.sessionType" text="Session Type"/>
 			</a>
 			<select name="selectedSessionType" id="selectedSessionType" style="width:100px;height: 25px;">				
-			<c:forEach items="${sessionTypes}" var="i">
-			<c:choose>
-			<c:when test="${sessionType==i.id}">
-			<option value="${i.sessionType}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>				
-			</c:when>
-			<c:otherwise>
-			<option value="${i.sessionType}"><c:out value="${i.sessionType}"></c:out></option>			
-			</c:otherwise>
-			</c:choose>			
-			</c:forEach> 
+				<c:forEach items="${sessionTypes}" var="i">
+					<c:choose>
+						<c:when test="${sessionType==i.id}">
+							<option value="${i.sessionType}" selected="selected"><c:out value="${i.sessionType}"></c:out></option>				
+						</c:when>
+						<c:otherwise>
+							<option value="${i.sessionType}"><c:out value="${i.sessionType}"></c:out></option>			
+						</c:otherwise>
+					</c:choose>			
+				</c:forEach> 
 			</select> |				
 			<a href="#" id="devicetypeLabel" class="butSim">
 				<spring:message code="mytask.deviceType" text="Device Type"/>
 			</a>
 			<select name="selectedDeviceType" id="selectedDeviceType" style="width:100px;height: 25px;">			
-			<c:forEach items="${deviceTypeVOs}" var="i">
-			<option value="${i.name}"><c:out value="${i.displayName}"></c:out></option>			
-			</c:forEach>
+				<c:forEach items="${deviceTypeVOs}" var="i">
+					<option value="${i.name}"><c:out value="${i.displayName}"></c:out></option>			
+				</c:forEach>
 			</select> |
 			<div id='moduleFilter' style='display:inline;'>
-			<a href="#" id="moduletypeLabel" class="butSim">
-				<spring:message code="mytask.module" text="Module"/>
-			</a>
-			<select name="selectedModule" id="selectedModule" style="width:100px;height: 25px;">			
-				<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
-				<option value="REPORTING"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
-				<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>				
-			</select> |
+				<a href="#" id="moduletypeLabel" class="butSim">
+					<spring:message code="mytask.module" text="Module"/>
+				</a>
+				<select name="selectedModule" id="selectedModule" style="width:100px;height: 25px;">			
+					<option value="COMMITTEE"><spring:message code="mytask.committee" text="Committee"></spring:message></option>			
+					<option value="REPORTING"><spring:message code="mytask.reporting" text="Reporting"></spring:message></option>
+					<option value="EDITING"><spring:message code="mytask.editing" text="Editing"></spring:message></option>				
+				</select> |
 			</div>	
 			<a href="#" id="statusLabel" class="butSim">
 				<spring:message code="mytask.status" text="Status"/>
 			</a>
 			<select id="selectedStatus" name="selectedStatus">
-			<option value="PENDING"><spring:message code="mytask.pending" text="Pending"></spring:message></option>
-			<option value="COMPLETED"><spring:message code="mytask.completed" text="Completed"></spring:message></option>
-			<option value="TIMEOUT"><spring:message code="mytask.timeout" text="Timeout"></spring:message></option>
+				<option value="PENDING"><spring:message code="mytask.pending" text="Pending"></spring:message></option>
+				<option value="COMPLETED"><spring:message code="mytask.completed" text="Completed"></spring:message></option>
+				<option value="TIMEOUT"><spring:message code="mytask.timeout" text="Timeout"></spring:message></option>
 			</select> |	
 			<hr>
 			<div id="groupDiv" style='display: inline;'>
@@ -1084,24 +1089,39 @@
 					</c:forEach>
 				</select>|
 			</div>	
+			
 			<hr>									
 			<a href="#" id="workflowLabel" class="butSim">
 				<spring:message code="mytask.workflow" text="Workflow"/>
 			</a>
 			<select id="selectedSubWorkflow" name="selectedSubWorkflow">
-			<option value=""><spring:message code='please.select' text='Please Select'/></option>			
-			<c:forEach items="${workflowTypes}" var="i">
-				<option value="${i.type}">${i.name}</option>
-			</c:forEach>			
+				<option value=""><spring:message code='please.select' text='Please Select'/></option>			
+				<c:forEach items="${workflowTypes}" var="i">
+					<option value="${i.type}">${i.name}</option>
+				</c:forEach>			
 			</select>| 
+			
 			<div id="subWFMasterDiv" style="display: none;">
 				<select id="subWFMaster">
 					<c:forEach items="${workflowTypes}" var="i">
 						<option value="${i.type}">${i.id}</option>
 					</c:forEach>
 				</select>
-			</div> 
+			</div> |
 			
+			<c:if test="${usergroupType=='section_officer'}">
+				<div id='replyFilter' style='display:inline;' >	
+					<a href="#" id="select_reply" class="butSim">
+						<spring:message code="mytask.reply" text="Reply Status"/>
+					</a>
+					<select name="selectedReplyStatus" id="selectedReplyStatus" style="width:100px;height: 25px;">			
+						<option value="-"><spring:message code='please.select' text='Please Select'/></option>
+						<option value="replyReceived"><spring:message code='mytask.replyReceived' text='Reply Received'/></option>
+						<option value="replyNotReceived"><spring:message code='mytask.replyNotReceived' text='Reply Not Received'/></option>			
+				
+					</select> |
+				</div>
+			</c:if>	
 			<c:if test="${usergroupType!='department' and usergroupType!='department_deskofficer'}">
 				<a href="#" id="select_itemcount" class="butSim">
 					<spring:message code="device.itemcount" text="No. of Devices(Bulk Putup)"/>
@@ -1114,24 +1134,6 @@
 					<option value="10">10</option>
 					<option value="5">05</option>		
 				</select> |
-				<div id='fileDiv' style='display:inline;' >	
-					<a href="#" id="select_filecount" class="butSim">
-						<spring:message code="motion.filecount" text="Select File(Bulk Putup)"/>
-					</a>
-					<select name="selectedFileCount" id="selectedFileCount" style="width:100px;height: 25px;">			
-						<option value="-"><spring:message code='please.select' text='Please Select'/></option>			
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3">3</option>
-						<option value="4">4</option>
-						<option value="5">5</option>
-						<option value="6">6</option>
-						<option value="7">7</option>
-						<option value="8">8</option>
-						<option value="9">9</option>
-						<option value="10">10</option>		
-					</select> |
-				</div>
 			</c:if>	
 			</div>	
 		</div>
@@ -1208,6 +1210,7 @@
 		<input type="hidden" id="currentRowId" value="" />
 		<input type="hidden" id="allRowIds" value="" />
 		<input type="hidden" id="persistentGridRowId" value="" />
+		<input type="hidden" id="selectedFileCount" value="-">
 		<input type="hidden" id="pleaseSelectOption" name="pleaseSelectOption" value="<spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message>">
 		
 	</div> 
