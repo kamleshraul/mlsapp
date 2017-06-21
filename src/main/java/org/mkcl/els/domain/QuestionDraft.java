@@ -153,6 +153,19 @@ public class QuestionDraft extends BaseDomain implements Serializable{
      */
     private Long questionId;
     
+    /** For Maintaining priority, rejection reason and chart answering date **/
+    
+    @Column(name="priority")
+    private Integer priority;
+    
+    /** The  Chart Answering Date. */
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="chart_answering_date")
+    private QuestionDates chartAnsweringDate;
+    
+    @Column(name="rejection_reason",length=30000)
+    private String rejectionReason;
+    
     /**** Constructors ****/
 
 	/**
@@ -526,6 +539,34 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 		this.questionId = questionId;
 	}
 
+	public Integer getPriority() {
+	return priority;
+}
+
+
+public void setPriority(Integer priority) {
+	this.priority = priority;
+}
+
+
+public QuestionDates getChartAnsweringDate() {
+	return chartAnsweringDate;
+}
+
+
+public void setChartAnsweringDate(QuestionDates chartAnsweringDate) {
+	this.chartAnsweringDate = chartAnsweringDate;
+}
+
+
+public String getRejectionReason() {
+	return rejectionReason;
+}
+
+
+public void setRejectionReason(String rejectionReason) {
+	this.rejectionReason = rejectionReason;
+}
 	
 	
 }
