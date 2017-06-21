@@ -18,6 +18,7 @@
 						+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
 						+"&answeringDate="+$("#selectedAnsweringDate").val()
 						+"&subdepartment="+$("#selectedDepartment").val()
+						+"&replyReceivedStatus="+$("#selectedReplyStatus").val()
 						);
 			$('#process_record').click(function(){
 				process($('#key').val());
