@@ -741,7 +741,8 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 				" WHERE ug.userGroupType.id=:usergroupTypeId "+
 				" AND ug.activeFrom<=:onDate"+
 				" AND ug.activeTo>=:onDate"+
-				" AND ug.credential.id=:credentialId";
+				" AND ug.credential.id=:credentialId"+ 
+				" ORDER BY ug.id DESC";
 		Query query = this.em().createQuery(strQuery);
 		query.setParameter("usergroupTypeId", usergroupType.getId());
 		query.setParameter("onDate", onDate);
