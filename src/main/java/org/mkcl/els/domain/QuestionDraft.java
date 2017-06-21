@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -148,6 +149,11 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     private Boolean transferToDepartmentAccepted = false;
     
     private Boolean mlsBranchNotifiedOfTransfer = false;
+    
+    /**
+     * To keep the referring question in order to preserve its all question drafts details
+     */
+    private Long questionId;
     
     /**** Constructors ****/
 
@@ -510,6 +516,16 @@ public class QuestionDraft extends BaseDomain implements Serializable{
 
 	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
 		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
+	}
+
+
+	public Long getQuestionId() {
+		return questionId;
+	}
+
+
+	public void setQuestionId(Long questionId) {
+		this.questionId = questionId;
 	}
 
 	

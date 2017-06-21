@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -24,13 +25,12 @@ import org.mkcl.els.domain.CutMotionDepartmentDatePriority;
 import org.mkcl.els.domain.CutMotionDraft;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
-import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.Session;
-import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroupType;
@@ -634,6 +634,32 @@ public class AdminController extends BaseController {
 		} else {
 			return "NO CREDENTIAL FOUND";
 		}
+		return "SUCCESS";
+	}
+	
+	/**
+	 * Recovers all the drafts for given question
+	 * Sample: /els/admin/recover_drafts/question/id/3072
+	 */
+	@Transactional
+	@RequestMapping(value="recover_drafts/question/id/{id}", method=RequestMethod.GET)
+	public @ResponseBody String recoverQuestionDrafts(@PathVariable("id") final Long questionId) {
+		try {
+			Question question = Question.findById(Question.class, questionId);
+			if(question==null) {
+				logger.error("question id is invalid");
+				throw new Exception();
+			}
+			List<QuestionDraft> drafts = QuestionDraft.findAllByFieldName(QuestionDraft.class, "questionId", questionId, "id", ApplicationConstants.ASC, question.getLocale());
+			if(drafts!=null && !drafts.isEmpty()) {
+				question.setDrafts(new LinkedHashSet<QuestionDraft>(drafts));
+				question.simpleMerge();
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+		}		
 		return "SUCCESS";
 	}
 	

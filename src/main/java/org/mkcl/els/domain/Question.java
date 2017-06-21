@@ -2149,6 +2149,7 @@ public class Question extends Device implements Serializable {
     	if(! this.getStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_INCOMPLETE) &&
         		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_COMPLETE)) {
             QuestionDraft draft = new QuestionDraft();
+            draft.setQuestionId(this.getId());
             draft.setType(this.getType());
             draft.setAnsweringDate(this.getAnsweringDate());
             draft.setAnswer(this.getAnswer());
@@ -2218,6 +2219,7 @@ public class Question extends Device implements Serializable {
 		 if(! this.getStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_INCOMPLETE) &&
 	        		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_COMPLETE)) {
 	            QuestionDraft draft = new QuestionDraft();
+	            draft.setQuestionId(this.getId());
 	            draft.setType(this.getType());
 	            draft.setAnsweringDate(this.getAnsweringDate());
 	            draft.setAnswer(this.getAnswer());
@@ -2281,6 +2283,7 @@ public class Question extends Device implements Serializable {
 		if(! this.getStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_INCOMPLETE) &&
         		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_COMPLETE)) {
             QuestionDraft draft = new QuestionDraft();
+            draft.setQuestionId(this.getId());
             draft.setType(this.getType());
             draft.setAnsweringDate(this.getAnsweringDate());
             draft.setAnswer(this.getAnswer());
@@ -2359,6 +2362,7 @@ public class Question extends Device implements Serializable {
 	  if(! this.getStatus().getType().equals(ApplicationConstants.QUESTION_INCOMPLETE) &&
         		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_COMPLETE)) {
             QuestionDraft draft = new QuestionDraft();
+            draft.setQuestionId(this.getId());
             draft.setType(this.getType());
             draft.setAnsweringDate(this.getAnsweringDate());
             draft.setAnswer(this.getAnswer());
