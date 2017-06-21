@@ -389,6 +389,10 @@ public class Question extends Device implements Serializable {
     private Boolean transferToDepartmentAccepted = false;
     
     private Boolean mlsBranchNotifiedOfTransfer = false;
+    
+    /**** Reason for Late Reply ****/
+    @Column(name="reason_for_late_reply",length=30000)
+    private String reasonForLateReply;
     	       
     private static transient volatile Integer STARRED_CUR_NUM_LOWER_HOUSE = 0;
     private static transient volatile Integer STARRED_CUR_NUM_UPPER_HOUSE = 0;
@@ -2404,6 +2408,16 @@ public class Question extends Device implements Serializable {
                 draft.setSubject(this.getSubject());
             }
         	
+        	if(this.getChartAnsweringDate() != null){
+        		draft.setChartAnsweringDate(this.getChartAnsweringDate());
+        	}
+        	
+        	if(this.getRejectionReason() != null && !this.getRejectionReason().isEmpty()){
+        		draft.setRejectionReason(this.getRejectionReason());
+        	}
+        	
+        	draft.setPriority(this.getPriority());
+        	
         	/**** for submission draft avoid query for fetching drafts ****/
         	UserGroupType ugt = UserGroupType.findByName(UserGroupType.class, this.getEditedAs(), this.getLocale());
             if(ugt!=null && (ugt.getType().equalsIgnoreCase(ApplicationConstants.MEMBER) 
@@ -3621,6 +3635,15 @@ public class Question extends Device implements Serializable {
 
 	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
 		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
+	}
+
+	public String getReasonForLateReply() {
+		return reasonForLateReply;
+	}
+
+
+	public void setReasonForLateReply(String reasonForLateReply) {
+		this.reasonForLateReply = reasonForLateReply;
 	}
 
 
