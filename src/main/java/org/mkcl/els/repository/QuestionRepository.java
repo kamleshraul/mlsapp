@@ -3449,4 +3449,19 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	public boolean getState(Question q){
 		return this.em().contains(q);
 	}
+	
+	public String restoreQuestionTextBeforeClubbing(final Question question) {
+		String strQuery = "SELECT qd.question_text FROM questions q " 
+						+ "INNER JOIN questions_drafts_association qda ON (qda.question_id=q.id) "
+						+ "INNER JOIN question_drafts qd ON (qd.id=qda.question_draft_id) "
+						+ "WHERE q.id=:questionId "
+						+ "AND (qd.parent<>:parentId OR qd.parent IS NULL) "
+						+ "ORDER BY qd.edited_on DESC LIMIT 1";
+		
+		Query query = this.em().createNativeQuery(strQuery);
+		query.setParameter("questionId", question.getId());
+		query.setParameter("parentId", question.getParent());
+		String questionText = (String) query.getSingleResult();
+		return questionText;
+	}
 }

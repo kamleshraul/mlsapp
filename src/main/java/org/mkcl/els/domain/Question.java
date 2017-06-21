@@ -3947,7 +3947,7 @@ public class Question extends Device implements Serializable {
     @Transactional(noRollbackFor={OptimisticLockException.class})
     private static void actualClubbingWithPreviousSessionUnstarredQuestion(Question parent,Question child,
 			Status newInternalStatus,Status newRecommendationStatus,String locale) throws ELSException {
-		/**** a.Clubbed entities of parent question are obtained 
+		/**** a.Clubbed entities of parent question are obtained.. also fetch latest question text from one of them
 		 * b.Clubbed entities of child question are obtained
 		 * c.Child question is updated(parent,internal status,recommendation status) 
 		 * d.Child Question entry is made in Clubbed Entity and child question clubbed entity is added to parent clubbed entity 
@@ -3956,6 +3956,7 @@ public class Question extends Device implements Serializable {
 		 * clubbed entities of parent question is updated)
 		 * g.Position of all clubbed entities of parent are updated in order of their chart answering date and number ****/
 		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		String latestQuestionText = null;
 		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
 			for(ClubbedEntity i:parent.getClubbedEntities()){
 				// parent & child need not be disjoint. They could
@@ -3964,6 +3965,13 @@ public class Question extends Device implements Serializable {
 				Question clubbedQn = i.getQuestion();
 				Long clubbedQnId = clubbedQn.getId();
 				if(! childQnId.equals(clubbedQnId)) {
+					/** fetch parent's latest question text from first of its children **/
+					if(latestQuestionText==null) {
+						String parentQuestionText = clubbedQn.getRevisedQuestionText();
+						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
+							parentQuestionText = clubbedQn.getQuestionText();
+						}
+					}					
 					parentClubbedEntities.add(i);
 				}
 			}			
@@ -3982,11 +3990,20 @@ public class Question extends Device implements Serializable {
 				}
 			}
 		}	
-
+		
+		/** fetch parent's latest question text **/
+		if(latestQuestionText==null) {
+			latestQuestionText = parent.getRevisedQuestionText();
+			if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+				latestQuestionText = parent.getQuestionText();
+			}
+		}		
+		
 		child.setParent(parent);
 		child.setClubbedEntities(null);
 		child.setInternalStatus(newInternalStatus);
 		child.setRecommendationStatus(newRecommendationStatus);
+		child.setRevisedQuestionText(latestQuestionText);
 //			if(child.getFile()!=null){
 //				child.setFile(null);
 //				child.setFileIndex(null);
@@ -4078,6 +4095,7 @@ public class Question extends Device implements Serializable {
 				question.setEditedBy(child.getEditedBy());
 				question.setEditedOn(child.getEditedOn());
 				question.setParent(parent);
+				question.setRevisedQuestionText(latestQuestionText);
 				question.merge();
 				parentClubbedEntities.add(k);
 			}			
@@ -4499,6 +4517,7 @@ public class Question extends Device implements Serializable {
 		 * clubbed entities of parent question is updated)
 		 * g.Position of all clubbed entities of parent are updated in order of their chart answering date and number ****/
 		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		String latestQuestionText = null;
 		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
 			for(ClubbedEntity i:parent.getClubbedEntities()){
 				// parent & child need not be disjoint. They could
@@ -4507,6 +4526,13 @@ public class Question extends Device implements Serializable {
 				Question clubbedQn = i.getQuestion();
 				Long clubbedQnId = clubbedQn.getId();
 				if(! childQnId.equals(clubbedQnId)) {
+					/** fetch parent's latest question text from first of its children **/
+					if(latestQuestionText==null) {
+						String parentQuestionText = clubbedQn.getRevisedQuestionText();
+						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
+							parentQuestionText = clubbedQn.getQuestionText();
+						}
+					}
 					parentClubbedEntities.add(i);
 				}
 			}			
@@ -4525,11 +4551,20 @@ public class Question extends Device implements Serializable {
 				}
 			}
 		}	
+		
+		/** fetch parent's latest question text **/
+		if(latestQuestionText==null) {
+			latestQuestionText = parent.getRevisedQuestionText();
+			if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+				latestQuestionText = parent.getQuestionText();
+			}
+		}
 
 		child.setParent(parent);
 		child.setClubbedEntities(null);
 		child.setInternalStatus(newInternalStatus);
 		child.setRecommendationStatus(newRecommendationStatus);
+		child.setRevisedQuestionText(latestQuestionText);
 //			if(child.getFile()!=null){
 //				child.setFile(null);
 //				child.setFileIndex(null);
@@ -4635,6 +4670,7 @@ public class Question extends Device implements Serializable {
 				question.setEditedBy(child.getEditedBy());
 				question.setEditedOn(child.getEditedOn());
 				question.setParent(parent);
+				question.setRevisedQuestionText(latestQuestionText);
 				question.merge();
 				parentClubbedEntities.add(k);
 			}			
@@ -5011,6 +5047,7 @@ public class Question extends Device implements Serializable {
 		 * clubbed entities of parent question is updated)
 		 * g.Position of all clubbed entities of parent are updated in order of their chart answering date and number ****/
 		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		String latestQuestionText = null;
 		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
 			for(ClubbedEntity i:parent.getClubbedEntities()){
 				// parent & child need not be disjoint. They could
@@ -5019,6 +5056,13 @@ public class Question extends Device implements Serializable {
 				Question clubbedQn = i.getQuestion();
 				Long clubbedQnId = clubbedQn.getId();
 				if(! childQnId.equals(clubbedQnId)) {
+					/** fetch parent's latest question text from first of its children **/
+					if(latestQuestionText==null) {
+						String parentQuestionText = clubbedQn.getRevisedQuestionText();
+						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
+							parentQuestionText = clubbedQn.getQuestionText();
+						}
+					}
 					parentClubbedEntities.add(i);
 				}
 			}			
@@ -5037,11 +5081,20 @@ public class Question extends Device implements Serializable {
 				}
 			}
 		}	
+		
+		/** fetch parent's latest question text **/
+		if(latestQuestionText==null) {
+			latestQuestionText = parent.getRevisedQuestionText();
+			if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+				latestQuestionText = parent.getQuestionText();
+			}
+		}
 
 		child.setParent(parent);
 		child.setClubbedEntities(null);
 		child.setInternalStatus(newInternalStatus);
 		child.setRecommendationStatus(newRecommendationStatus);
+		child.setRevisedQuestionText(latestQuestionText);
 //			if(child.getFile()!=null){
 //				child.setFile(null);
 //				child.setFileIndex(null);
@@ -5125,6 +5178,7 @@ public class Question extends Device implements Serializable {
 				question.setEditedBy(child.getEditedBy());
 				question.setEditedOn(child.getEditedOn());
 				question.setParent(parent);
+				question.setRevisedQuestionText(latestQuestionText);
 				question.merge();
 				parentClubbedEntities.add(k);
 			}			
@@ -5388,6 +5442,7 @@ public class Question extends Device implements Serializable {
 		 * clubbed entities of parent question is updated)
 		 * g.Position of all clubbed entities of parent are updated in order of their chart answering date and number ****/
 		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		String latestQuestionText = null;
 		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
 			for(ClubbedEntity i:parent.getClubbedEntities()){
 				// parent & child need not be disjoint. They could
@@ -5396,6 +5451,13 @@ public class Question extends Device implements Serializable {
 				Question clubbedQn = i.getQuestion();
 				Long clubbedQnId = clubbedQn.getId();
 				if(! childQnId.equals(clubbedQnId)) {
+					/** fetch parent's latest question text from first of its children **/
+					if(latestQuestionText==null) {
+						String parentQuestionText = clubbedQn.getRevisedQuestionText();
+						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
+							parentQuestionText = clubbedQn.getQuestionText();
+						}
+					}
 					parentClubbedEntities.add(i);
 				}
 			}			
@@ -5414,11 +5476,20 @@ public class Question extends Device implements Serializable {
 				}
 			}
 		}	
+		
+		/** fetch parent's latest question text **/
+		if(latestQuestionText==null) {
+			latestQuestionText = parent.getRevisedQuestionText();
+			if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+				latestQuestionText = parent.getQuestionText();
+			}
+		}
 
 		child.setParent(parent);
 		child.setClubbedEntities(null);
 		child.setInternalStatus(newInternalStatus);
 		child.setRecommendationStatus(newRecommendationStatus);
+		child.setRevisedQuestionText(latestQuestionText);
 //			if(child.getFile()!=null){
 //				child.setFile(null);
 //				child.setFileIndex(null);
@@ -5475,6 +5546,7 @@ public class Question extends Device implements Serializable {
 				question.setEditedBy(child.getEditedBy());
 				question.setEditedOn(child.getEditedOn());
 				question.setParent(parent);
+				question.setRevisedQuestionText(latestQuestionText);
 				question.merge();
 				parentClubbedEntities.add(k);
 			}			
@@ -5517,6 +5589,7 @@ public class Question extends Device implements Serializable {
 		 * clubbed entities of parent question is updated)
 		 * g.Position of all clubbed entities of parent are updated in order of their number ****/
 		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		String latestQuestionText = null;
 		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
 			for(ClubbedEntity i:parent.getClubbedEntities()){
 				// parent & child need not be disjoint. They could
@@ -5525,6 +5598,13 @@ public class Question extends Device implements Serializable {
 				Question clubbedQn = i.getQuestion();
 				Long clubbedQnId = clubbedQn.getId();
 				if(! childQnId.equals(clubbedQnId)) {
+					/** fetch parent's latest question text from first of its children **/
+					if(latestQuestionText==null) {
+						String parentQuestionText = clubbedQn.getRevisedQuestionText();
+						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
+							parentQuestionText = clubbedQn.getQuestionText();
+						}
+					}
 					parentClubbedEntities.add(i);
 				}
 			}			
@@ -5549,12 +5629,22 @@ public class Question extends Device implements Serializable {
 			WorkflowDetails.endProcess(wfDetails);
 		}
 		child.removeExistingWorkflowAttributes();
+		
+		/** fetch parent's latest question text **/
+		if(latestQuestionText==null) {
+			latestQuestionText = parent.getRevisedQuestionText();
+			if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+				latestQuestionText = parent.getQuestionText();
+			}
+		}
+		
 		child.setParent(parent);
 		child.setClubbedEntities(null);
 		child.setType(parent.getType());
 		child.setStatus(newInternalStatus);
 		child.setInternalStatus(newInternalStatus);
 		child.setRecommendationStatus(newRecommendationStatus);
+		child.setRevisedQuestionText(latestQuestionText);
 		updateDomainFieldsOnClubbingFinalisation(parent, child);
 //			if(child.getFile()!=null){
 //				child.setFile(null);
@@ -5588,6 +5678,7 @@ public class Question extends Device implements Serializable {
 				question.setStatus(newInternalStatus);
 				question.setInternalStatus(newInternalStatus);
 				question.setRecommendationStatus(newRecommendationStatus);
+				question.setRevisedQuestionText(latestQuestionText);
 				updateDomainFieldsOnClubbingFinalisation(parent, question);
 				question.merge();
 				parentClubbedEntities.add(k);
@@ -5837,6 +5928,7 @@ public class Question extends Device implements Serializable {
 		 * clubbed entities of parent question is updated)
 		 * g.Position of all clubbed entities of parent are updated in order of their chart answering date and number ****/
 		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		String latestQuestionText = null;
 		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
 			for(ClubbedEntity i:parent.getClubbedEntities()){
 				// parent & child need not be disjoint. They could
@@ -5845,6 +5937,13 @@ public class Question extends Device implements Serializable {
 				Question clubbedQn = i.getQuestion();
 				Long clubbedQnId = clubbedQn.getId();
 				if(! childQnId.equals(clubbedQnId)) {
+					/** fetch parent's latest question text from first of its children **/
+					if(latestQuestionText==null) {
+						String parentQuestionText = clubbedQn.getRevisedQuestionText();
+						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
+							parentQuestionText = clubbedQn.getQuestionText();
+						}
+					}
 					parentClubbedEntities.add(i);
 				}
 			}			
@@ -5863,11 +5962,20 @@ public class Question extends Device implements Serializable {
 				}
 			}
 		}	
+		
+		/** fetch parent's latest question text **/
+		if(latestQuestionText==null) {
+			latestQuestionText = parent.getRevisedQuestionText();
+			if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+				latestQuestionText = parent.getQuestionText();
+			}
+		}
 
 		child.setParent(parent);
 		child.setClubbedEntities(null);
 		child.setInternalStatus(newInternalStatus);
 		child.setRecommendationStatus(newRecommendationStatus);
+		child.setRevisedQuestionText(latestQuestionText);
 //			if(child.getFile()!=null){
 //				child.setFile(null);
 //				child.setFileIndex(null);
@@ -5923,6 +6031,7 @@ public class Question extends Device implements Serializable {
 				question.setEditedBy(child.getEditedBy());
 				question.setEditedOn(child.getEditedOn());
 				question.setParent(parent);
+				question.setRevisedQuestionText(latestQuestionText);
 				question.merge();
 				parentClubbedEntities.add(k);
 			}			
@@ -6192,6 +6301,7 @@ public class Question extends Device implements Serializable {
 		 * clubbed entities of parent question is updated)
 		 * g.Position of all clubbed entities of parent are updated in order of their chart answering date and number ****/
 		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		String latestQuestionText = null;
 		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
 			for(ClubbedEntity i:parent.getClubbedEntities()){
 				// parent & child need not be disjoint. They could
@@ -6200,6 +6310,13 @@ public class Question extends Device implements Serializable {
 				Question clubbedQn = i.getQuestion();
 				Long clubbedQnId = clubbedQn.getId();
 				if(! childQnId.equals(clubbedQnId)) {
+					/** fetch parent's latest question text from first of its children **/
+					if(latestQuestionText==null) {
+						String parentQuestionText = clubbedQn.getRevisedQuestionText();
+						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
+							parentQuestionText = clubbedQn.getQuestionText();
+						}
+					}
 					parentClubbedEntities.add(i);
 				}
 			}			
@@ -6218,11 +6335,20 @@ public class Question extends Device implements Serializable {
 				}
 			}
 		}	
+		
+		/** fetch parent's latest question text **/
+		if(latestQuestionText==null) {
+			latestQuestionText = parent.getRevisedQuestionText();
+			if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+				latestQuestionText = parent.getQuestionText();
+			}
+		}
 
 		child.setParent(parent);
 		child.setClubbedEntities(null);
 		child.setInternalStatus(newInternalStatus);
 		child.setRecommendationStatus(newRecommendationStatus);
+		child.setRevisedQuestionText(latestQuestionText);
 //			if(child.getFile()!=null){
 //				child.setFile(null);
 //				child.setFileIndex(null);
@@ -6328,6 +6454,7 @@ public class Question extends Device implements Serializable {
 				question.setEditedBy(child.getEditedBy());
 				question.setEditedOn(child.getEditedOn());
 				question.setParent(parent);
+				question.setRevisedQuestionText(latestQuestionText);
 				question.merge();
 				parentClubbedEntities.add(k);
 			}			
@@ -6673,6 +6800,7 @@ public class Question extends Device implements Serializable {
 		 * clubbed entities of parent question is updated)
 		 * g.Position of all clubbed entities of parent are updated in order of their chart answering date and number ****/
 		List<ClubbedEntity> parentClubbedEntities=new ArrayList<ClubbedEntity>();
+		String latestQuestionText = null;
 		if(parent.getClubbedEntities()!=null && !parent.getClubbedEntities().isEmpty()){
 			for(ClubbedEntity i:parent.getClubbedEntities()){
 				// parent & child need not be disjoint. They could
@@ -6681,6 +6809,13 @@ public class Question extends Device implements Serializable {
 				Question clubbedQn = i.getQuestion();
 				Long clubbedQnId = clubbedQn.getId();
 				if(! childQnId.equals(clubbedQnId)) {
+					/** fetch parent's latest question text from first of its children **/
+					if(latestQuestionText==null) {
+						String parentQuestionText = clubbedQn.getRevisedQuestionText();
+						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
+							parentQuestionText = clubbedQn.getQuestionText();
+						}
+					}
 					parentClubbedEntities.add(i);
 				}
 			}			
@@ -6699,11 +6834,20 @@ public class Question extends Device implements Serializable {
 				}
 			}
 		}	
+		
+		/** fetch parent's latest question text **/
+		if(latestQuestionText==null) {
+			latestQuestionText = parent.getRevisedQuestionText();
+			if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+				latestQuestionText = parent.getQuestionText();
+			}
+		}
 
 		child.setParent(parent);
 		child.setClubbedEntities(null);
 		child.setInternalStatus(newInternalStatus);
 		child.setRecommendationStatus(newRecommendationStatus);
+		child.setRevisedQuestionText(latestQuestionText);
 //			if(child.getFile()!=null){
 //				child.setFile(null);
 //				child.setFileIndex(null);
@@ -6759,6 +6903,7 @@ public class Question extends Device implements Serializable {
 				question.setEditedBy(child.getEditedBy());
 				question.setEditedOn(child.getEditedOn());
 				question.setParent(parent);
+				question.setRevisedQuestionText(latestQuestionText);
 				question.merge();
 				parentClubbedEntities.add(k);
 			}			
@@ -7734,13 +7879,32 @@ public class Question extends Device implements Serializable {
 			child.setRevisedSubject(parent.getRevisedSubject());
 		} else {
 			child.setRevisedSubject(parent.getSubject());
-		}
-		/** copy latest question text of parent to revised question text of child **/
-		if(parent.getRevisedQuestionText()!=null && !parent.getRevisedQuestionText().isEmpty()) {
-			child.setRevisedQuestionText(parent.getRevisedQuestionText());
+		}	
+		/*** update revised question text accordingly ***/
+		if(child.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SYSTEM_CLUBBED)) {
+			/** copy latest question text of parent to revised question text of child **/
+			if(parent.getRevisedQuestionText()!=null && !parent.getRevisedQuestionText().isEmpty()) {
+				child.setRevisedQuestionText(parent.getRevisedQuestionText());
+			} else {
+				child.setRevisedQuestionText(parent.getQuestionText());
+			}
 		} else {
-			child.setRevisedQuestionText(parent.getQuestionText());
-		}
+			/** fetch child's latest question text **/
+			String childQuestionText = child.getRevisedQuestionText();
+			if(childQuestionText==null || childQuestionText.isEmpty()) {
+				childQuestionText = child.getQuestionText();
+			}
+			/** copy latest question text of child to revised question text of parent and its other clubbed questions if any **/
+			parent.setRevisedQuestionText(childQuestionText);
+			parent.simpleMerge();
+			for(ClubbedEntity ce: parent.getClubbedEntities()) {
+				Question clubbedQuestion = ce.getQuestion();
+				if(!clubbedQuestion.getId().equals(child.getId())) {
+					clubbedQuestion.setRevisedQuestionText(childQuestionText);
+					clubbedQuestion.simpleMerge();
+				}
+			}
+		}		
 		/** copy latest answer of parent to revised answer of child **/
 		child.setAnswer(parent.getAnswer());
 		/** copy latest rejection reason of parent to revised rejection reason of child **/
@@ -7873,6 +8037,7 @@ public class Question extends Device implements Serializable {
 				parent.setClubbedEntities(null);
 			}            
 			parent.simpleMerge();
+			child.setRevisedQuestionText(child.restoreQuestionTextBeforeClubbing());
 			/**break child's clubbing **/
 			child.setParent(null);
 			/** find & end current clubbing workflow of child if pending **/
@@ -8000,6 +8165,7 @@ public class Question extends Device implements Serializable {
 				parent.setClubbedEntities(null);
 			}            
 			parent.simpleMerge();
+			child.setRevisedQuestionText(child.restoreQuestionTextBeforeClubbing());
 			/**break child's clubbing **/
 			child.setParent(null);
 			/** find & end current clubbing workflow of child if pending **/
@@ -8130,6 +8296,7 @@ public class Question extends Device implements Serializable {
 				parent.setClubbedEntities(null);
 			}            
 			parent.simpleMerge();
+			child.setRevisedQuestionText(child.restoreQuestionTextBeforeClubbing());
 			/**break child's clubbing **/
 			child.setParent(null);
 			/** find & end current clubbing workflow of child if pending **/
@@ -8237,6 +8404,7 @@ public class Question extends Device implements Serializable {
 				parent.setClubbedEntities(null);
 			}            
 			parent.simpleMerge();
+			child.setRevisedQuestionText(child.restoreQuestionTextBeforeClubbing());
 			/**break child's clubbing **/
 			child.setParent(null);
 			/** find & end current clubbing workflow of child if pending **/
@@ -8358,6 +8526,7 @@ public class Question extends Device implements Serializable {
 				parent.setClubbedEntities(null);
 			}            
 			parent.simpleMerge();
+			child.setRevisedQuestionText(child.restoreQuestionTextBeforeClubbing());
 			/**break child's clubbing **/
 			child.setParent(null);
 			/** find & end current clubbing workflow of child if pending **/
@@ -8469,6 +8638,7 @@ public class Question extends Device implements Serializable {
 				parent.setClubbedEntities(null);
 			}            
 			parent.simpleMerge();
+			child.setRevisedQuestionText(child.restoreQuestionTextBeforeClubbing());
 			/**break child's clubbing **/
 			child.setParent(null);
 			/** find & end current clubbing workflow of child if pending **/
@@ -12626,6 +12796,10 @@ public class Question extends Device implements Serializable {
 			}
 		}
 		return shortDetailsText;
+	}
+	
+	public String restoreQuestionTextBeforeClubbing() {
+		return getQuestionRepository().restoreQuestionTextBeforeClubbing(this);
 	}
 	
 	public Question copyQuestion(){

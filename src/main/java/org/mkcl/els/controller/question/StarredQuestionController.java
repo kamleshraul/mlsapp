@@ -25,6 +25,7 @@ import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -2626,6 +2627,21 @@ class StarredQuestionController {
 						}
 					}
 				}else if(operation.equals("startworkflow")){
+						if(question.getParent()!=null) {
+							/** fetch question's latest question text **/
+							String latestQuestionText = question.getRevisedQuestionText();
+							if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+								latestQuestionText = question.getQuestionText();
+							}
+							/** copy latest question text of question to revised question text of its parent's other clubbed questions if any **/
+							for(ClubbedEntity ce: question.getParent().getClubbedEntities()) {
+								Question clubbedQuestion = ce.getQuestion();
+								if(!clubbedQuestion.getId().equals(question.getId())) {
+									clubbedQuestion.setRevisedQuestionText(latestQuestionText);
+									clubbedQuestion.simpleMerge();
+								}
+							}
+						}
 						ProcessDefinition processDefinition = processService.
 								findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 						Map<String,String> properties = new HashMap<String, String>();					
@@ -2650,8 +2666,7 @@ class StarredQuestionController {
 						Task task= processService.getCurrentTask(processInstance);
 						if(endflag!=null && !endflag.isEmpty() ){
 							if(endflag.equals("continue")){
-								Workflow workflow = question.findWorkflowFromStatus();								
-								
+								Workflow workflow = question.findWorkflowFromStatus();							
 								WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,usergroupType,workflow.getType(),level);
 								question.setWorkflowDetailsId(workflowDetails.getId());
 							}
