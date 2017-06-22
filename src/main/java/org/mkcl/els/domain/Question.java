@@ -3967,9 +3967,9 @@ public class Question extends Device implements Serializable {
 				if(! childQnId.equals(clubbedQnId)) {
 					/** fetch parent's latest question text from first of its children **/
 					if(latestQuestionText==null) {
-						String parentQuestionText = clubbedQn.getRevisedQuestionText();
-						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
-							parentQuestionText = clubbedQn.getQuestionText();
+						latestQuestionText = clubbedQn.getRevisedQuestionText();
+						if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+							latestQuestionText = clubbedQn.getQuestionText();
 						}
 					}					
 					parentClubbedEntities.add(i);
@@ -4528,9 +4528,9 @@ public class Question extends Device implements Serializable {
 				if(! childQnId.equals(clubbedQnId)) {
 					/** fetch parent's latest question text from first of its children **/
 					if(latestQuestionText==null) {
-						String parentQuestionText = clubbedQn.getRevisedQuestionText();
-						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
-							parentQuestionText = clubbedQn.getQuestionText();
+						latestQuestionText = clubbedQn.getRevisedQuestionText();
+						if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+							latestQuestionText = clubbedQn.getQuestionText();
 						}
 					}
 					parentClubbedEntities.add(i);
@@ -5058,9 +5058,9 @@ public class Question extends Device implements Serializable {
 				if(! childQnId.equals(clubbedQnId)) {
 					/** fetch parent's latest question text from first of its children **/
 					if(latestQuestionText==null) {
-						String parentQuestionText = clubbedQn.getRevisedQuestionText();
-						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
-							parentQuestionText = clubbedQn.getQuestionText();
+						latestQuestionText = clubbedQn.getRevisedQuestionText();
+						if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+							latestQuestionText = clubbedQn.getQuestionText();
 						}
 					}
 					parentClubbedEntities.add(i);
@@ -5453,9 +5453,9 @@ public class Question extends Device implements Serializable {
 				if(! childQnId.equals(clubbedQnId)) {
 					/** fetch parent's latest question text from first of its children **/
 					if(latestQuestionText==null) {
-						String parentQuestionText = clubbedQn.getRevisedQuestionText();
-						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
-							parentQuestionText = clubbedQn.getQuestionText();
+						latestQuestionText = clubbedQn.getRevisedQuestionText();
+						if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+							latestQuestionText = clubbedQn.getQuestionText();
 						}
 					}
 					parentClubbedEntities.add(i);
@@ -5600,9 +5600,9 @@ public class Question extends Device implements Serializable {
 				if(! childQnId.equals(clubbedQnId)) {
 					/** fetch parent's latest question text from first of its children **/
 					if(latestQuestionText==null) {
-						String parentQuestionText = clubbedQn.getRevisedQuestionText();
-						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
-							parentQuestionText = clubbedQn.getQuestionText();
+						latestQuestionText = clubbedQn.getRevisedQuestionText();
+						if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+							latestQuestionText = clubbedQn.getQuestionText();
 						}
 					}
 					parentClubbedEntities.add(i);
@@ -5939,9 +5939,9 @@ public class Question extends Device implements Serializable {
 				if(! childQnId.equals(clubbedQnId)) {
 					/** fetch parent's latest question text from first of its children **/
 					if(latestQuestionText==null) {
-						String parentQuestionText = clubbedQn.getRevisedQuestionText();
-						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
-							parentQuestionText = clubbedQn.getQuestionText();
+						latestQuestionText = clubbedQn.getRevisedQuestionText();
+						if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+							latestQuestionText = clubbedQn.getQuestionText();
 						}
 					}
 					parentClubbedEntities.add(i);
@@ -6312,9 +6312,9 @@ public class Question extends Device implements Serializable {
 				if(! childQnId.equals(clubbedQnId)) {
 					/** fetch parent's latest question text from first of its children **/
 					if(latestQuestionText==null) {
-						String parentQuestionText = clubbedQn.getRevisedQuestionText();
-						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
-							parentQuestionText = clubbedQn.getQuestionText();
+						latestQuestionText = clubbedQn.getRevisedQuestionText();
+						if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+							latestQuestionText = clubbedQn.getQuestionText();
 						}
 					}
 					parentClubbedEntities.add(i);
@@ -6811,9 +6811,9 @@ public class Question extends Device implements Serializable {
 				if(! childQnId.equals(clubbedQnId)) {
 					/** fetch parent's latest question text from first of its children **/
 					if(latestQuestionText==null) {
-						String parentQuestionText = clubbedQn.getRevisedQuestionText();
-						if(parentQuestionText==null || parentQuestionText.isEmpty()) {
-							parentQuestionText = clubbedQn.getQuestionText();
+						latestQuestionText = clubbedQn.getRevisedQuestionText();
+						if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+							latestQuestionText = clubbedQn.getQuestionText();
 						}
 					}
 					parentClubbedEntities.add(i);
