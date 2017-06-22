@@ -2154,6 +2154,7 @@ public class Question extends Device implements Serializable {
         		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_COMPLETE)) {
             QuestionDraft draft = new QuestionDraft();
             draft.setQuestionId(this.getId());
+            draft.setLocale(this.getLocale());
             draft.setType(this.getType());
             draft.setAnsweringDate(this.getAnsweringDate());
             draft.setAnswer(this.getAnswer());
@@ -2224,6 +2225,7 @@ public class Question extends Device implements Serializable {
 	        		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_COMPLETE)) {
 	            QuestionDraft draft = new QuestionDraft();
 	            draft.setQuestionId(this.getId());
+	            draft.setLocale(this.getLocale());
 	            draft.setType(this.getType());
 	            draft.setAnsweringDate(this.getAnsweringDate());
 	            draft.setAnswer(this.getAnswer());
@@ -2288,6 +2290,7 @@ public class Question extends Device implements Serializable {
         		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_COMPLETE)) {
             QuestionDraft draft = new QuestionDraft();
             draft.setQuestionId(this.getId());
+            draft.setLocale(this.getLocale());
             draft.setType(this.getType());
             draft.setAnsweringDate(this.getAnsweringDate());
             draft.setAnswer(this.getAnswer());
@@ -2367,6 +2370,7 @@ public class Question extends Device implements Serializable {
         		! this.getStatus().getType().equals(ApplicationConstants.QUESTION_COMPLETE)) {
             QuestionDraft draft = new QuestionDraft();
             draft.setQuestionId(this.getId());
+            draft.setLocale(this.getLocale());
             draft.setType(this.getType());
             draft.setAnsweringDate(this.getAnsweringDate());
             draft.setAnswer(this.getAnswer());
@@ -12847,6 +12851,8 @@ public class Question extends Device implements Serializable {
 	public static QuestionDraft addDraft(Question q, String editedBy, String editedAs, String remark) {
 
 		QuestionDraft draft = new QuestionDraft();
+		draft.setQuestionId(q.getId());
+		draft.setLocale(q.getLocale());
 		draft.setType(q.getType());
 		draft.setAnsweringDate(q.getAnsweringDate());
 		draft.setAnswer(q.getAnswer());

@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -3451,6 +3452,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 	}
 	
 	public String restoreQuestionTextBeforeClubbing(final Question question) {
+		String restoredQuestiontext = question.getRevisedQuestionText(); //initiate with latest revised text
 		String strQuery = "SELECT qd.question_text FROM questions q " 
 						+ "INNER JOIN questions_drafts_association qda ON (qda.question_id=q.id) "
 						+ "INNER JOIN question_drafts qd ON (qd.id=qda.question_draft_id) "
@@ -3460,8 +3462,24 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		
 		Query query = this.em().createNativeQuery(strQuery);
 		query.setParameter("questionId", question.getId());
-		query.setParameter("parentId", question.getParent());
-		String questionText = (String) query.getSingleResult();
-		return questionText;
+		query.setParameter("parentId", question.getParent().getId());
+		try {
+			restoredQuestiontext = (String) query.getSingleResult();
+		} catch(NoResultException e) {
+			List<QuestionDraft> drafts = QuestionDraft.findAllByFieldName(QuestionDraft.class, "questionId", question.getId(), "id", ApplicationConstants.ASC, question.getLocale());
+			if(drafts!=null && !drafts.isEmpty()) {
+				question.setDrafts(new LinkedHashSet<QuestionDraft>(drafts));
+				question.simpleMerge();
+//				for(int i=drafts.size()-1; i>=0; i--) {
+//					if(drafts.get(i).getParent()==null || !drafts.get(i).getParent().getId().equals(question.getParent().getId())) {
+//						restoredQuestiontext = drafts.get(i).getQuestionText();
+//						break;
+//					}
+//				}
+				restoredQuestiontext = (String) query.getSingleResult();
+			}
+			return restoredQuestiontext; //later try restoring drafts and query again
+		}
+		return restoredQuestiontext;
 	}
 }
