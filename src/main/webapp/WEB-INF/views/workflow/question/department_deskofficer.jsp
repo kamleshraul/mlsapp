@@ -1417,6 +1417,12 @@
 		</p>
 	</c:if> 
 	
+	<p id="lateReplyReasonDiv">
+		<label class="wysiwyglabel"><spring:message code="question.reasonForLateReply" text="Reason for Late Reply"/></label>
+		<form:textarea path="reasonForLateReply" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
+	</p>
+	
 	<c:if test="${fn:contains(internalStatusType, 'final_clarificationNeededFromDepartment')
 					|| fn:contains(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')}">
 		<p>
