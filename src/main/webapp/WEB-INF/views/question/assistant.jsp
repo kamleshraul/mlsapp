@@ -741,6 +741,37 @@
 	    	$("#revisedBriefExplanationDiv").show();
 	    }   
 	    
+	    var isPendingClubbedQuestionSearched = false;
+	    var isPendingClubbedQuestionFound = false;
+	    var revisedQuestionTextOriginal = $('#revisedQuestionText').val();
+	    var clubbedQuestionNumbers = "";
+	    $('#revisedQuestionText').change(function() {
+	    	var idval = this.id;
+	    	if(isPendingClubbedQuestionFound) {
+	    		if($('#'+idval).val()!=revisedQuestionTextOriginal) {
+    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
+    			}
+	    		$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Flows");
+	    		return false;
+	    	}
+	    	if($('#clubbedEntities option').length>0 && !isPendingClubbedQuestionSearched) {
+	    		$.get('ref/question/'+$('#id').val()+'/isclubbedquestionpending', function(data) {
+		    		if(data!=undefined && data.length>0) {
+		    			clubbedQuestionNumbers = data;
+		    			if($('#'+idval).val()!=revisedQuestionTextOriginal) {
+		    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
+		    			}
+		    			isPendingClubbedQuestionFound = true;
+		    			$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Flows");
+		    			//$('#pendingClubbedQuestionsMessage').text("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Flows");
+		    			//$('#pendingClubbedQuestionsMessage').show();		    			
+		    			return false;
+		    		}
+		    	});
+	    		isPendingClubbedQuestionSearched = true;
+	    	}	    	
+    	});
+	    
 	    $("#remarks").change(function(){
 	    	if($(this).val()!=''){
 	    		var recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
@@ -1354,6 +1385,7 @@
 		<p style="display:none;" class="revise2" id="revisedQuestionTextDiv">
 		<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
 		<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
+		<!-- <label id="pendingClubbedQuestionsMessage" style="float: right;margin-top: -100px;margin-right: 40px;display: none;"></label> -->
 		<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 		

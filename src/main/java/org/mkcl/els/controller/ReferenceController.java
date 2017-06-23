@@ -9492,4 +9492,35 @@ public class ReferenceController extends BaseController {
 		}
 		return masterVOs;
 	}
+	
+	@RequestMapping(value="/question/{id}/isclubbedquestionpending", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	public @ResponseBody String getPendingClubbedQuestions(final HttpServletRequest request, final @PathVariable("id") Long questionId, final Locale locale){
+		StringBuffer pendingClubbedQuestionNumbers = new StringBuffer("");
+		
+		Question question = Question.findById(Question.class, questionId);
+		if(question!=null 
+				&& question.getClubbedEntities()!=null 
+				&& !question.getClubbedEntities().isEmpty()) {
+			
+			Integer finalStatusPriority = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, locale.toString()).getPriority();
+			
+			int clubbedCount = 1;
+			for(ClubbedEntity ce: question.getClubbedEntities()) {
+				Question clubbedQuestion = ce.getQuestion();
+				
+				if(!clubbedQuestion.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SYSTEM_CLUBBED)
+						&& clubbedQuestion.getRecommendationStatus().getPriority()<finalStatusPriority) {
+					
+					pendingClubbedQuestionNumbers.append(FormaterUtil.formatNumberNoGrouping(clubbedQuestion.getNumber(), locale.toString()));
+					
+					if(clubbedCount < question.getClubbedEntities().size()) {
+						pendingClubbedQuestionNumbers.append(", ");
+					}
+					clubbedCount++;								
+				}
+			}
+		}
+		
+		return pendingClubbedQuestionNumbers.toString();
+	}
 }
