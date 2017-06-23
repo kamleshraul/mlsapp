@@ -1266,7 +1266,16 @@ public class ResolutionController extends GenericController<Resolution> {
 							reference.setNumber(String.valueOf(refResolution.getId()));
 							refentities.add(reference);
 							Session referencedResolutionSession = refResolution.getSession();
-							refentitiesSessionDevice.add("[" + referencedResolutionSession.getType().getSessionType()+", "+FormaterUtil.formatNumberNoGrouping(referencedResolutionSession.getYear(), locale) + "], " + refResolution.getType().getName());
+							StringBuffer strReferenceResolution = new StringBuffer("[" + referencedResolutionSession.getType().getSessionType()+", "+FormaterUtil.formatNumberNoGrouping(referencedResolutionSession.getYear(), locale) + "], "
+									+ refResolution.getType().getName());
+							if(houseTypeForStatus.equals(ApplicationConstants.LOWER_HOUSE)){
+								strReferenceResolution.append(", " + refResolution.getInternalStatusLowerHouse().getName());
+							}else{
+								strReferenceResolution.append("," + refResolution.getInternalStatusUpperHouse().getName());
+							}
+							refentitiesSessionDevice.add(strReferenceResolution.toString());
+							
+							
 						}
 						model.addAttribute("isRepeatWorkFlow", "yes");
 					}			
