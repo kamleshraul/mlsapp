@@ -1091,6 +1091,13 @@ public class Question extends Device implements Serializable {
      * @return the question
      */
     public Question simpleMerge() {
+    	if(!this.getStatus().getType().endsWith(ApplicationConstants.STATUS_INCOMPLETE)
+    			|| !this.getStatus().getType().endsWith(ApplicationConstants.STATUS_COMPLETE)) {
+    		if(this.getDrafts()==null || this.getDrafts().isEmpty()) {
+    			Question dbQuestion = Question.findById(Question.class, this.getId());
+    			this.setDrafts(dbQuestion.getDrafts());
+    		}
+    	}
         Question q = (Question) super.merge();
         return q;
     }
