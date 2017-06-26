@@ -5349,6 +5349,7 @@ public class QuestionWorkflowController  extends BaseController{
 			String strLocale = locale.toString();
 			String strAnsweringDate = request.getParameter("answeringDate");
 			String strGroup = request.getParameter("group");
+			String strSubDepartment = request.getParameter("subdepartment");
 			String assignee = this.getCurrentUser().getActualUsername();
 			String strItemsCount = null;
 			CustomParameter itemsCountParameter = CustomParameter.findByName(CustomParameter.class, "ADVANCED_BULKAPPROVAL_ITEM_COUNT", "");
@@ -5401,7 +5402,9 @@ public class QuestionWorkflowController  extends BaseController{
 							strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
 							strQuestionType = new String(strQuestionType.getBytes("ISO-8859-1"),"UTF-8");
 							strGroup = new String(strGroup.getBytes("ISO-8859-1"),"UTF-8");
-							
+							if(strSubDepartment != null && !strSubDepartment.isEmpty()){
+								strSubDepartment = new String(strSubDepartment.getBytes("ISO-8859-1"),"UTF-8");
+							}
 						}
 						catch (UnsupportedEncodingException e) {
 							e.printStackTrace();
@@ -5415,6 +5418,10 @@ public class QuestionWorkflowController  extends BaseController{
 				strQuestionType = request.getSession().getAttribute("deviceType").toString();
 				strWorkflowSubType = request.getSession().getAttribute("workflowSubType").toString();
 				strStatus = request.getSession().getAttribute("status").toString();
+				if(request.getSession().getAttribute("subdepartment") != null){
+					strSubDepartment = request.getSession().getAttribute("subdepartment").toString();
+				}
+				
 				if(request.getSession().getAttribute("answeringDate") != null){
 					strAnsweringDate = request.getSession().getAttribute("answeringDate").toString();
 				}
@@ -5501,11 +5508,12 @@ public class QuestionWorkflowController  extends BaseController{
 								 formatStringToDate(strAnsweringDate, ApplicationConstants.DB_DATEFORMAT);
 						 model.addAttribute("answeringDate", strAnsweringDate);
 					}
+
 					/**** Workflow Details ****/
 					List<WorkflowDetails> workflowDetails = WorkflowDetails.
 								findAll(strHouseType, strSessionType, strSessionYear,
 										strQuestionType, strStatus, strWorkflowSubType,
-										assignee, strItemsCount, strLocale, null, strGroup, answeringDate);
+										assignee, strItemsCount, strLocale, null, strGroup, strSubDepartment, answeringDate);
 					/**** Populating Bulk Approval VOs ****/
 					List<BulkApprovalVO> bulkapprovals = new ArrayList<BulkApprovalVO>();
 					NumberFormat format = FormaterUtil.getNumberFormatterNoGrouping(locale.toString());
