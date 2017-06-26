@@ -529,6 +529,7 @@
 				answeringDate:$('#selectedAnsweringDate').val(),
 				status:$("#selectedStatus").val(),
 				workflowSubType:$("#selectedSubWorkflow").val(),
+				subdepartment: $("#selectedDepartment").val()
 				},function(data){
 					$('a').removeClass('selected');
 					$('#advance_bulkputup_tab').addClass('selected');
