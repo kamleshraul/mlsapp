@@ -1051,6 +1051,73 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<WorkflowDetails> findAll(String strHouseType,
+			String strSessionType, String strSessionYear, String strDeviceType,
+			String strStatus, String strWorkflowSubType, String assignee,
+			String strItemsCount, String strLocale, String file, String group, String subdepartment,
+			Date answeringDate) throws ELSException {
+		StringBuffer buffer=new StringBuffer();
+		buffer.append("SELECT wd FROM WorkflowDetails wd" +
+				" WHERE houseType=:houseType"+
+				" AND sessionType=:sessionType" +
+				" AND sessionYear=:sessionYear"+
+				" AND assignee=:assignee" +
+				" AND deviceType=:deviceType"+
+				" AND locale=:locale");
+		if(file!=null&&!file.isEmpty()&&!file.equals("-")){
+			buffer.append(" AND file=:file");
+		}else{
+			buffer.append(" AND status=:status");
+			buffer.append(" AND workflowSubType=:workflowSubType");
+		}
+		
+		if(group!=null && !group.isEmpty()){
+			buffer.append(" AND groupNumber=:group");
+		}
+		if(answeringDate!=null){
+			buffer.append(" AND answeringDate=:answeringDate");
+		}
+		if(subdepartment != null && !subdepartment.isEmpty() && !subdepartment.equals("-")){
+			buffer.append(" AND subdepartment=:subdepartment");
+		}
+		buffer.append(" ORDER BY device_number");
+		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
+		try{
+			Query query=this.em().createQuery(buffer.toString());
+			query.setParameter("houseType",strHouseType);
+			query.setParameter("sessionType",strSessionType);
+			query.setParameter("sessionYear",strSessionYear);
+			query.setParameter("assignee",assignee);
+			query.setParameter("deviceType",strDeviceType);
+			query.setParameter("locale",strLocale);
+			if(file!=null&&!file.isEmpty()&&!file.equals("-")){
+				query.setParameter("file",file);
+			}else{
+				query.setParameter("status",strStatus);
+				query.setParameter("workflowSubType",strWorkflowSubType);
+			}
+			if(group!=null &&!group.isEmpty()){
+				query.setParameter("group", group);
+			}
+			if(answeringDate!=null){
+				query.setParameter("answeringDate", answeringDate);
+			}
+			if(subdepartment != null && !subdepartment.isEmpty() && !subdepartment.equals("-")){
+				query.setParameter("subdepartment", subdepartment);
+			}
+			query.setMaxResults(Integer.parseInt(strItemsCount));
+			workflowDetails=query.getResultList();
+			return workflowDetails;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findAll", "WorkflowDetails Not found");
+			throw elsException;
+		}
+	}
+	
 	public WorkflowDetails findCurrentWorkflowDetail(final UserGroup userGroup,
 			final String domainIds,
 			final String workflowType,
