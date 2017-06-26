@@ -444,6 +444,23 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 				strStatus, strWorkflowSubType, assignee, strItemsCount, strLocale, file, group, answeringDate);
 	}
 	
+	public static List<WorkflowDetails> findAll(final String strHouseType,
+			final String strSessionType,
+			final String strSessionYear,
+			final String strMotionType,
+			final String strStatus,
+			final String strWorkflowSubType,
+			final String assignee,
+			final String strItemsCount,
+			final String strLocale,
+			final String file,
+			final String group,
+			final String subdepartment,
+			final Date answeringDate) throws ELSException {
+		return getRepository().findAll(strHouseType, strSessionType, strSessionYear, strMotionType,
+				strStatus, strWorkflowSubType, assignee, strItemsCount, strLocale, file, group, subdepartment, answeringDate);
+	}
+	
 	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUser(final Map<String, String> parameters, 
 			final String orderBy,
 			final String sortOrder) {
