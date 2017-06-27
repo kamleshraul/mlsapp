@@ -751,7 +751,7 @@
 	    		if($('#'+idval).val()!=revisedQuestionTextOriginal) {
     				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
     			}
-	    		$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Flows");
+	    		$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Approval Flows");
 	    		return false;
 	    	}
 	    	if($('#clubbedEntities option').length>0 && !isPendingClubbedQuestionSearched) {
