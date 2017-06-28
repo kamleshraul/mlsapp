@@ -586,6 +586,7 @@ public class QuestionWorkflowController  extends BaseController{
 					}
 				}
 				if(lastDateOfAnswerReceiving!=null) {
+					model.addAttribute("lastDateOfAnswerReceiving", lastDateOfAnswerReceiving);
 					model.addAttribute("formattedLastAnswerReceivingDate", FormaterUtil.formatDateToString(lastDateOfAnswerReceiving, ApplicationConstants.SERVER_DATEFORMAT, locale));
 				}				
 			
@@ -1701,7 +1702,9 @@ public class QuestionWorkflowController  extends BaseController{
 					
 					String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");
 					if(strLastDateOfAnswerReceiving!=null && !strLastDateOfAnswerReceiving.isEmpty()) {
-						Date lastDateOfAnswerReceiving = FormaterUtil.formatStringToDate(strLastDateOfAnswerReceiving, ApplicationConstants.DB_DATEFORMAT, locale.toString());
+						Date lastDateOfAnswerReceiving = FormaterUtil.getDateFormatter("en_US").parse(strLastDateOfAnswerReceiving);
+						//Added the above code as the following code was giving exception of unparseble date
+						//Date lastDateOfAnswerReceiving = FormaterUtil.formatStringToDate(strLastDateOfAnswerReceiving, ApplicationConstants.DB_DATEFORMAT, locale.toString());
 						domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
 					}			
 				}						
