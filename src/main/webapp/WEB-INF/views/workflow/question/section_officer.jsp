@@ -1698,6 +1698,13 @@
 			<textarea id="reanswer" name="reanswer" class="wysiwyg" readonly="readonly">${isReanswered}</textarea>
 		</p>
 	</c:if>
+	<c:if test="${not empty domain.reasonForLateReply}">
+		<p>
+		<label class="wysiwyglabel"><spring:message code="question.reasonForLateReply" text="Reason for Late Reply"/></label>
+		<form:textarea path="reasonForLateReply" cssClass="wysiwyg"></form:textarea>
+		<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
+		</p>
+	</c:if>
 		
 	<c:if test="${workflowstatus!='COMPLETED' }">
 	<div class="fields">

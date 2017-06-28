@@ -153,8 +153,12 @@
 			var changedInternalStatus = $("#changeInternalStatus").val();
 			if(changedInternalStatus == sendToSectionOfficer) {
 				valueToSend = $("#internalStatus").val();
+				if(new Date()> new Date($("#lastDateForAnswerReceiving").val())){
+					$("#lateReplyReasonDiv").css("display","block");
+				}
 			}else{
 				valueToSend = value;
+				$("#lateReplyReasonDiv").css("display","none");
 			}
 			/* hide submit for sending answer in case of late answer filling validation */
 			if(changedInternalStatus == sendToSectionOfficer
@@ -348,8 +352,11 @@
 		if($('#workflowstatus').val()=="PENDING") {
 			$("#answerP").hide();
 			$("#factualP").hide();
+			
 		}		
 				
+		
+		
 		loadActors($("#changeInternalStatus").val());
 		/*******Actor changes*************/
 		$("#actor").change(function(){
@@ -764,6 +771,10 @@
 				if(($('#answer').val()=="" && $('#factualPosition').val()=="" 
 						|| ($("#workflowstatus").val()=='COMPLETED' && $('#reanswer').val()==""))){
 					$.prompt($('#noAnswerProvidedMsg').val());
+					return false;
+				}
+				if(deviceTypeType == 'questions_unstarred' && $("#workflowstatus").val()=='PENDING' && $('#reasonForLateReply').val()==""){
+					$.prompt($('#noLateReplyReasonProvidedMsg').val());
 					return false;
 				}
 			}
@@ -1417,7 +1428,7 @@
 		</p>
 	</c:if> 
 	
-	<p id="lateReplyReasonDiv">
+	<p id="lateReplyReasonDiv" style="display:none;">
 		<label class="wysiwyglabel"><spring:message code="question.reasonForLateReply" text="Reason for Late Reply"/></label>
 		<form:textarea path="reasonForLateReply" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
@@ -1573,5 +1584,7 @@
 </c:choose>
 <input type="hidden" id="lowerhouseMessage" value="<spring:message code='generic.lowerhouseMessage' text='Lower House'/>"/>
 <input type="hidden" id="upperhouseMessage" value="<spring:message code='generic.upperhouseMessage' text='Upper House'/>"/>
+<input type="hidden" id="lastDateForAnswerReceiving" value="${lastDateOfAnswerReceiving}"/>
+<input id="noLateReplyReasonProvidedMsg" value='<spring:message code="client.error.nolatereplyreason" text="Please provide reason for Late Reply"></spring:message>' type="hidden" />
 </body>
 </html>
