@@ -2167,83 +2167,129 @@ class ShortNoticeController {
 		String selectedItems = request.getParameter("items");
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
 			String[] items = selectedItems.split(",");
+			Question domain = Question.findById(Question.class, new Long(items[0]));
+			boolean validationForSubmissionDate = false;
+			//submission start date limit validation
+			CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+			if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+				String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+				if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+					String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+					for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+						if(dt.trim().equals(domain.getType().getType().trim())) {
+							String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_"+ApplicationConstants.SUBMISSION_START_DATE_SESSION_PARAMETER_KEY);
+							if(submissionStartLimitDateStr!=null && !submissionStartLimitDateStr.isEmpty()) {
+								Date submissionStartLimitDate = FormaterUtil.formatStringToDate(submissionStartLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
+								if(submissionStartLimitDate!=null
+										&& submissionStartLimitDate.after(new Date())) {
+									validationForSubmissionDate = true;
+								}
+							}
+							break;
+						}
+					}								
+				}
+			}
+			//submission end date limit validation
+			CustomParameter deviceTypesHavingSubmissionEndDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_END_DATE_VALIDATION, "");
+			if(deviceTypesHavingSubmissionEndDateValidationCP!=null) {
+				String deviceTypesHavingSubmissionEndDateValidationValue = deviceTypesHavingSubmissionEndDateValidationCP.getValue();
+				if(deviceTypesHavingSubmissionEndDateValidationValue!=null) {
+					String[] deviceTypesHavingSubmissionEndDateValidation = deviceTypesHavingSubmissionEndDateValidationValue.split(",");
+					for(String dt: deviceTypesHavingSubmissionEndDateValidation) {
+						if(dt.trim().equals(domain.getType().getType().trim())) {
+							String submissionEndLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_"+ApplicationConstants.SUBMISSION_END_DATE_SESSION_PARAMETER_KEY);
+							if(submissionEndLimitDateStr!=null && !submissionEndLimitDateStr.isEmpty()) {
+								Date submissionEndLimitDate = FormaterUtil.formatStringToDate(submissionEndLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
+								if(submissionEndLimitDate!=null
+										&& submissionEndLimitDate.before(new Date())) {
+									validationForSubmissionDate = true;
+								}
+							}
+							break;
+						}
+					}								
+				}
+			}
 
-			List<Question> questions = new ArrayList<Question>();
-			for(String i : items) {
-				Long id = Long.parseLong(i);
-				Question question = Question.findById(Question.class, id);
+			if(!validationForSubmissionDate) {
+				List<Question> questions = new ArrayList<Question>();
+				for(String i : items) {
+					Long id = Long.parseLong(i);
+					Question question = Question.findById(Question.class, id);
 
-				/**** Update Supporting Member ****/
-				List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-				Status timeoutStatus = Status.findByType(
-						ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
-				if(question.getSupportingMembers() != null
-						&& ! question.getSupportingMembers().isEmpty()) {
-					for(SupportingMember sm : question.getSupportingMembers()) {
-						if(sm.getDecisionStatus().getType().equals(
-								ApplicationConstants.SUPPORTING_MEMBER_NOTSEND) ||
-								sm.getDecisionStatus().getType().equals(
-										ApplicationConstants.SUPPORTING_MEMBER_PENDING)) {
-							/**** Update Supporting Member ****/
-							sm.setDecisionStatus(timeoutStatus);
-							sm.setApprovalDate(new Date());	
-							sm.setApprovedText(question.getQuestionText());
-							sm.setApprovedSubject(question.getSubject());
-							sm.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
+					/**** Update Supporting Member ****/
+					List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+					Status timeoutStatus = Status.findByType(
+							ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
+					if(question.getSupportingMembers() != null
+							&& ! question.getSupportingMembers().isEmpty()) {
+						for(SupportingMember sm : question.getSupportingMembers()) {
+							if(sm.getDecisionStatus().getType().equals(
+									ApplicationConstants.SUPPORTING_MEMBER_NOTSEND) ||
+									sm.getDecisionStatus().getType().equals(
+											ApplicationConstants.SUPPORTING_MEMBER_PENDING)) {
+								/**** Update Supporting Member ****/
+								sm.setDecisionStatus(timeoutStatus);
+								sm.setApprovalDate(new Date());	
+								sm.setApprovedText(question.getQuestionText());
+								sm.setApprovedSubject(question.getSubject());
+								sm.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
 
-							/**** Update Workflow Details ****/
-							String strWorkflowdetails = sm.getWorkflowDetailsId();
-							if(strWorkflowdetails != null && ! strWorkflowdetails.isEmpty()) {
-								WorkflowDetails workflowDetails = WorkflowDetails.findById(
-										WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
-								workflowDetails.setStatus("TIMEOUT");
-								workflowDetails.setCompletionTime(new Date());
-								workflowDetails.merge();
+								/**** Update Workflow Details ****/
+								String strWorkflowdetails = sm.getWorkflowDetailsId();
+								if(strWorkflowdetails != null && ! strWorkflowdetails.isEmpty()) {
+									WorkflowDetails workflowDetails = WorkflowDetails.findById(
+											WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
+									workflowDetails.setStatus("TIMEOUT");
+									workflowDetails.setCompletionTime(new Date());
+									workflowDetails.merge();
 
-								/**** Complete Task ****/
-								String strTaskId = workflowDetails.getTaskId();
-								Task task = processService.findTaskById(strTaskId);
-								processService.completeTask(task);
+									/**** Complete Task ****/
+									String strTaskId = workflowDetails.getTaskId();
+									Task task = processService.findTaskById(strTaskId);
+									processService.completeTask(task);
+								}
+							}
+
+							if(! sm.getDecisionStatus().getType().equals(
+									ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)) {
+								supportingMembers.add(sm);
 							}
 						}
 
-						if(! sm.getDecisionStatus().getType().equals(
-								ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)) {
-							supportingMembers.add(sm);
-						}
+						question.setSupportingMembers(supportingMembers);
 					}
 
-					question.setSupportingMembers(supportingMembers);
+					/**** Update Status(es) ****/
+					Status newstatus = Status.findByFieldName(Status.class, "type", 
+							ApplicationConstants.QUESTION_SHORTNOTICE_SUBMIT, question.getLocale());
+					question.setStatus(newstatus);
+					question.setInternalStatus(newstatus);
+					question.setRecommendationStatus(newstatus);
+
+					/**** Edited On, Edited By and Edited As is set ****/
+					question.setSubmissionDate(new Date());
+					question.setEditedOn(new Date());
+					question.setEditedBy(authUser.getActualUsername());
+
+					String strUserGroupType = request.getParameter("usergroupType");
+					if(strUserGroupType != null) {
+						UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class,
+								"type", strUserGroupType, question.getLocale());
+						question.setEditedAs(userGroupType.getName());
+					}
+
+					/**** Bulk Submitted ****/
+					question.setBulkSubmitted(true);
+					
+					/**** Update the Question object ****/
+					question = question.merge();
+					questions.add(question);
 				}
 
-				/**** Update Status(es) ****/
-				Status newstatus = Status.findByFieldName(Status.class, "type", 
-						ApplicationConstants.QUESTION_SHORTNOTICE_SUBMIT, question.getLocale());
-				question.setStatus(newstatus);
-				question.setInternalStatus(newstatus);
-				question.setRecommendationStatus(newstatus);
-
-				/**** Edited On, Edited By and Edited As is set ****/
-				question.setSubmissionDate(new Date());
-				question.setEditedOn(new Date());
-				question.setEditedBy(authUser.getActualUsername());
-
-				String strUserGroupType = request.getParameter("usergroupType");
-				if(strUserGroupType != null) {
-					UserGroupType userGroupType = UserGroupType.findByFieldName(UserGroupType.class,
-							"type", strUserGroupType, question.getLocale());
-					question.setEditedAs(userGroupType.getName());
-				}
-
-				/**** Bulk Submitted ****/
-				question.setBulkSubmitted(true);
-				
-				/**** Update the Question object ****/
-				question = question.merge();
-				questions.add(question);
-			}
-
-			model.addAttribute("questions", questions);
+				model.addAttribute("questions", questions);
+			}		
 		}
 
 		return "question/bulksubmissionack";
