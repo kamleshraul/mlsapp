@@ -546,7 +546,14 @@
 		}
 		
 		function isValidRow(ids, row){
-			return (ids.contains(row));
+			var isValidRowFound = false;
+			var idsArray = ids.split(',');
+			for(i=0; i<idsArray.length && !isValidRowFound; i++) {
+				if(idsArray[i] == row) {
+					isValidRowFound = true;
+				}
+			}
+			return isValidRowFound;
 		}
 
 		function onPageLoad() {
