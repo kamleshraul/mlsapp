@@ -755,7 +755,7 @@
 	    		return false;
 	    	}
 	    	if($('#clubbedEntities option').length>0 && !isPendingClubbedQuestionSearched) {
-	    		$.get('ref/question/'+$('#id').val()+'/isclubbedquestionpending', function(data) {
+	    		$.get('ref/question/'+$('#id').val()+'/is_clubbedquestion_pendingwith_updatedquestiontext', function(data) {
 		    		if(data!=undefined && data.length>0) {
 		    			clubbedQuestionNumbers = data;
 		    			if($('#'+idval).val()!=revisedQuestionTextOriginal) {

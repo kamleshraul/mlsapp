@@ -9493,7 +9493,7 @@ public class ReferenceController extends BaseController {
 		return masterVOs;
 	}
 	
-	@RequestMapping(value="/question/{id}/isclubbedquestionpending", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	@RequestMapping(value="/question/{id}/is_clubbedquestion_pendingwith_updatedquestiontext", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	public @ResponseBody String getPendingClubbedQuestions(final HttpServletRequest request, final @PathVariable("id") Long questionId, final Locale locale){
 		StringBuffer pendingClubbedQuestionNumbers = new StringBuffer("");
 		
@@ -9511,12 +9511,25 @@ public class ReferenceController extends BaseController {
 				if(!clubbedQuestion.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_SYSTEM_CLUBBED)
 						&& clubbedQuestion.getRecommendationStatus().getPriority()<finalStatusPriority) {
 					
-					pendingClubbedQuestionNumbers.append(FormaterUtil.formatNumberNoGrouping(clubbedQuestion.getNumber(), locale.toString()));
-					
-					if(clubbedCount < question.getClubbedEntities().size()) {
-						pendingClubbedQuestionNumbers.append(", ");
+					/** fetch parent's latest question text **/
+					String latestParentQuestionText = question.getRevisedQuestionText();
+					if(latestParentQuestionText==null || latestParentQuestionText.isEmpty()) {
+						latestParentQuestionText = question.getQuestionText();
 					}
-					clubbedCount++;								
+					/** fetch child's latest question text **/
+					String latestClubbedQuestionText = clubbedQuestion.getRevisedQuestionText();
+					if(latestClubbedQuestionText==null || latestClubbedQuestionText.isEmpty()) {
+						latestClubbedQuestionText = clubbedQuestion.getQuestionText();
+					}
+					/** add the pending clubbed question only if there is difference between the question texts **/
+					if(!latestClubbedQuestionText.equals(latestParentQuestionText)) {
+						pendingClubbedQuestionNumbers.append(FormaterUtil.formatNumberNoGrouping(clubbedQuestion.getNumber(), locale.toString()));
+						
+						if(clubbedCount < question.getClubbedEntities().size()) {
+							pendingClubbedQuestionNumbers.append(", ");
+						}
+						clubbedCount++;
+					}													
 				}
 			}
 		}

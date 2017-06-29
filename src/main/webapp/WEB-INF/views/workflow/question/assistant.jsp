@@ -574,6 +574,37 @@
 			}
 		}
 		
+		var isPendingClubbedQuestionSearched = false;
+	    var isPendingClubbedQuestionFound = false;
+	    var revisedQuestionTextOriginal = $('#revisedQuestionText').val();
+	    var clubbedQuestionNumbers = "";
+	    $('#revisedQuestionText').change(function() {
+	    	var idval = this.id;
+	    	if(isPendingClubbedQuestionFound) {
+	    		if($('#'+idval).val()!=revisedQuestionTextOriginal) {
+    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
+    			}
+	    		$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Approval Flows");
+	    		return false;
+	    	}
+	    	if($('#clubbedEntities option').length>0 && !isPendingClubbedQuestionSearched) {
+	    		$.get('ref/question/'+$('#id').val()+'/is_clubbedquestion_pendingwith_updatedquestiontext', function(data) {
+		    		if(data!=undefined && data.length>0) {
+		    			clubbedQuestionNumbers = data;
+		    			if($('#'+idval).val()!=revisedQuestionTextOriginal) {
+		    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
+		    			}
+		    			isPendingClubbedQuestionFound = true;
+		    			$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Flows");
+		    			//$('#pendingClubbedQuestionsMessage').text("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Flows");
+		    			//$('#pendingClubbedQuestionsMessage').show();		    			
+		    			return false;
+		    		}
+		    	});
+	    		isPendingClubbedQuestionSearched = true;
+	    	}	    	
+    	});
+		
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
 		    $.get('question/revisions/'+$("#id").val(),function(data){
