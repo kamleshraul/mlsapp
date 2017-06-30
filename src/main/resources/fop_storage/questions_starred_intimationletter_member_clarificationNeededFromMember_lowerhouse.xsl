@@ -149,14 +149,11 @@
 							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>								
 						</fo:block>
 						
-						<!-- <fo:block font-weight="bold">
+						<fo:block font-weight="bold">
 							<xsl:for-each select="questionsAskedForClarification/questionAskedForClarification">
 								<fo:block><xsl:value-of select="value"/></fo:block>
-								<xsl:if test="position()!=last()">
-									<fo:block>&#160;</fo:block>
-								</xsl:if>								
 							</xsl:for-each>
-						</fo:block> -->	
+						</fo:block> 
 						--------------------------------------------------------------------------------------------------------------------------------------------
 						<fo:block font-size="4px">&#160;</fo:block>
 						<fo:block text-align="center" font-weight="bold">विषय - <xsl:value-of select="subject"/></fo:block>
