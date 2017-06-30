@@ -153,7 +153,7 @@
 			var changedInternalStatus = $("#changeInternalStatus").val();
 			if(changedInternalStatus == sendToSectionOfficer) {
 				valueToSend = $("#internalStatus").val();
-				if(new Date()> new Date($("#lastDateForAnswerReceiving").val())){
+				if(($("#lastDateForAnswerReceiving").val()!='') && (new Date()> new Date($("#lastDateForAnswerReceiving").val()))){
 					$("#lateReplyReasonDiv").css("display","block");
 				}
 			}else{
@@ -773,7 +773,8 @@
 					$.prompt($('#noAnswerProvidedMsg').val());
 					return false;
 				}
-				if(deviceTypeType == 'questions_unstarred' && $("#workflowstatus").val()=='PENDING' && $('#reasonForLateReply').val()==""){
+				if(deviceTypeType == 'questions_unstarred' && $("#workflowstatus").val()=='PENDING' 
+						&& $("#lastDateForAnswerReceiving").val()!='' && $('#reasonForLateReply').val()==""){
 					$.prompt($('#noLateReplyReasonProvidedMsg').val());
 					return false;
 				}
