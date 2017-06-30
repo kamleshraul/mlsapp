@@ -875,22 +875,30 @@ public class QuestionWorkflowController  extends BaseController{
 				}				
 				model.addAttribute("questionsToBeAskedInFactualPosition", questionsToBeAskedInFactualPosition);
 			}else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				||internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 				||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 				||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-				||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+				||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+				||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+				||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)){
 				/**** setting the questions to be asked in factual position. ****/
 				List<MasterVO> questionsToBeAskedInFactualPosition = new ArrayList<MasterVO>();
 				String sessionParameter = null;
-				if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+				if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						||internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
 					sessionParameter = selectedSession.
 							getParameter("questions_starred_clarificationFromMemberQuestions");
-				}else if (internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+				}else if (internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
 					sessionParameter = selectedSession.
 							getParameter("questions_unstarred_clarificationFromMemberQuestions");
-				}else if (internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+				}else if (internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
 					sessionParameter = selectedSession.
 							getParameter("questions_shortnotice_clarificationFromMemberQuestions");
-				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)){
 					sessionParameter = selectedSession.
 							getParameter("questions_halfHourFromQuestion_clarificationFromMemberQuestions");
 				}
@@ -941,11 +949,19 @@ public class QuestionWorkflowController  extends BaseController{
 		}else if(userGroupType.equals(ApplicationConstants.MEMBER)){
 			if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
 					||internalStatusType.
+						equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+					||internalStatusType.
 						equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+					||internalStatusType.
+						equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 					||internalStatusType.
 						equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
 					||internalStatusType.
-						equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
+						equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+					||internalStatusType.
+						equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+					||internalStatusType.
+						equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)){
 				String questionsAskedInFactualPosition = "";
 				if(domain.getQuestionsAskedInFactualPosition() !=null 
 						&& !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
@@ -1416,780 +1432,769 @@ public class QuestionWorkflowController  extends BaseController{
 						
 				
 			}else{
-				/**** Is reanswering ****/
-				boolean boolReanswering = false;
-				String isReanswering = request.getParameter("reanswerstatus");
-				if(isReanswering != null && !isReanswering.isEmpty()){
-					boolReanswering = true;
-				}
-				
-				/*** Is Resubmission of Revised Question Text***/
-				boolean boolResendRevisedQuestionText = false; 
-				String resendRevisedQuestionTextStatus = request.getParameter("resendQuestionTextStatus");
-				if(resendRevisedQuestionTextStatus != null && !resendRevisedQuestionTextStatus.isEmpty()){
-					boolResendRevisedQuestionText = true;
-				}
-				
-				/**** Is Clarification of Question Received or not *************/
-				boolean boolClarificationStatus = false;
-				String clarificationStatus = request.getParameter("clarificationStatus");
-				if(clarificationStatus != null && !clarificationStatus.isEmpty()){
-					boolClarificationStatus = true;
-				}
-				
-//				if (isReanswering != null) {
-//					if(!isReanswering.isEmpty()){
-//						if(isReanswering.equals("reanswer")){
-//							boolReanswering = true;
-//							Status reanswerStatus = Status.
-//									findByType(ApplicationConstants.QUESTION_PROCESSED_REANSWER, locale.toString());
-//
-//							
-//							List<Reference> actors = new ArrayList<Reference>();
-//							UserGroup userGroup = UserGroup.
-//								findById(UserGroup.class, Long.valueOf(workflowDetails.getAssigneeUserGroupId()));
-//							actors = WorkflowConfig.
-//									findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale.toString());
-//							if(!actors.isEmpty()){
-//								domain.setActor(actors.get(0).getId());
-//								domain.setRecommendationStatus(reanswerStatus);
-//							}
-//						}
-//					}
-//				}
-
-				/**** Binding Supporting Members ****/
-				String[] strSupportingMembers = request.getParameterValues("supportingMembers");
-				if(strSupportingMembers != null){
-					if(strSupportingMembers.length > 0){
-						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-						for(String i : strSupportingMembers){
-							SupportingMember supportingMember = 
-									SupportingMember.findById(SupportingMember.class, Long.parseLong(i));
-							supportingMembers.add(supportingMember);
-						}
-						domain.setSupportingMembers(supportingMembers);
+				String operation = request.getParameter("operation");
+				if(operation != null && !operation.isEmpty() && operation.equals("save")){
+					previousVersionQuestion.setEditedOn(new Date());
+					previousVersionQuestion.setEditedBy(this.getCurrentUser().getActualUsername());
+					previousVersionQuestion.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+					if(domain.getRevisedQuestionText() != null && !domain.getRevisedQuestionText().isEmpty()){
+						previousVersionQuestion.setRevisedQuestionText(domain.getRevisedQuestionText());
 					}
-				}
-				
-				String[] strClubbedEntities = request.getParameterValues("clubbedEntities");
-				if(strClubbedEntities != null){
-					if(strClubbedEntities.length > 0){
-						List<ClubbedEntity> clubbedEntities = new ArrayList<ClubbedEntity>();
-						for(String i : strClubbedEntities){
-							ClubbedEntity clubbedEntity = 
-									ClubbedEntity.findById(ClubbedEntity.class, Long.parseLong(i));
-							clubbedEntities.add(clubbedEntity);
-						}
-						domain.setClubbedEntities(clubbedEntities);
+					if(domain.getRevisedBriefExplanation() != null && !domain.getRevisedBriefExplanation().isEmpty()){
+						previousVersionQuestion.setRevisedBriefExplanation(domain.getRevisedBriefExplanation());
 					}
-				}
-				
-				String[] strReferencedEntities = request.getParameterValues("referencedEntities");
-				if(strReferencedEntities != null){
-					if(strReferencedEntities.length > 0){
-						List<ReferenceUnit> referencedEntities = new ArrayList<ReferenceUnit>();
-						for(String i : strReferencedEntities){
-							ReferenceUnit referencedEntity = ReferenceUnit.
-									findById(ReferenceUnit.class, Long.parseLong(i));
-							referencedEntities.add(referencedEntity);
-						}
-						domain.setReferencedEntities(referencedEntities);
+					if(domain.getRevisedSubject() != null && !domain.getRevisedSubject().isEmpty()){
+						previousVersionQuestion.setRevisedSubject(domain.getRevisedSubject());
 					}
-				}
-
-
-			
-
-				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
-						|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
-
-					String operation = request.getParameter("operation");
-
-					if(operation != null && !operation.isEmpty()){
-
-						if(operation.equals("workflowsubmit")){
-							if(domain.getAnswer() == null 
-									&& domain.getFactualPosition()==null 
-									&& domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
-								result.rejectValue("factualPosition", "FactualPositionEmpty");
-
-								if(domain.getAnswer().isEmpty() && domain.getFactualPosition().isEmpty()){
-									result.rejectValue("answer", "AnswerEmpty");
+					if(domain.getRevisedReason() != null && !domain.getRevisedReason().isEmpty()){
+						previousVersionQuestion.setRevisedReason(domain.getRevisedReason());
+					}
+					previousVersionQuestion.simpleMerge();
+					model.addAttribute("type","success");
+					//populateModel(domain, model, request, workflowDetails);
+					return "redirect:/workflow/myTasks/"+workflowDetails.getId()+"/process";
+				}else{
+					/**** Is reanswering ****/
+					boolean boolReanswering = false;
+					String isReanswering = request.getParameter("reanswerstatus");
+					if(isReanswering != null && !isReanswering.isEmpty()){
+						boolReanswering = true;
+					}
+					
+					/*** Is Resubmission of Revised Question Text***/
+					boolean boolResendRevisedQuestionText = false; 
+					String resendRevisedQuestionTextStatus = request.getParameter("resendQuestionTextStatus");
+					if(resendRevisedQuestionTextStatus != null && !resendRevisedQuestionTextStatus.isEmpty()){
+						boolResendRevisedQuestionText = true;
+					}
+					
+					/**** Is Clarification of Question Received or not *************/
+					boolean boolClarificationStatus = false;
+					String clarificationStatus = request.getParameter("clarificationStatus");
+					if(clarificationStatus != null && !clarificationStatus.isEmpty()){
+						boolClarificationStatus = true;
+					}
+					
+	//				if (isReanswering != null) {
+	//					if(!isReanswering.isEmpty()){
+	//						if(isReanswering.equals("reanswer")){
+	//							boolReanswering = true;
+	//							Status reanswerStatus = Status.
+	//									findByType(ApplicationConstants.QUESTION_PROCESSED_REANSWER, locale.toString());
+	//
+	//							
+	//							List<Reference> actors = new ArrayList<Reference>();
+	//							UserGroup userGroup = UserGroup.
+	//								findById(UserGroup.class, Long.valueOf(workflowDetails.getAssigneeUserGroupId()));
+	//							actors = WorkflowConfig.
+	//									findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale.toString());
+	//							if(!actors.isEmpty()){
+	//								domain.setActor(actors.get(0).getId());
+	//								domain.setRecommendationStatus(reanswerStatus);
+	//							}
+	//						}
+	//					}
+	//				}
+	
+					/**** Binding Supporting Members ****/
+					String[] strSupportingMembers = request.getParameterValues("supportingMembers");
+					if(strSupportingMembers != null){
+						if(strSupportingMembers.length > 0){
+							List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+							for(String i : strSupportingMembers){
+								SupportingMember supportingMember = 
+										SupportingMember.findById(SupportingMember.class, Long.parseLong(i));
+								supportingMembers.add(supportingMember);
+							}
+							domain.setSupportingMembers(supportingMembers);
+						}
+					}
+					
+					String[] strClubbedEntities = request.getParameterValues("clubbedEntities");
+					if(strClubbedEntities != null){
+						if(strClubbedEntities.length > 0){
+							List<ClubbedEntity> clubbedEntities = new ArrayList<ClubbedEntity>();
+							for(String i : strClubbedEntities){
+								ClubbedEntity clubbedEntity = 
+										ClubbedEntity.findById(ClubbedEntity.class, Long.parseLong(i));
+								clubbedEntities.add(clubbedEntity);
+							}
+							domain.setClubbedEntities(clubbedEntities);
+						}
+					}
+					
+					String[] strReferencedEntities = request.getParameterValues("referencedEntities");
+					if(strReferencedEntities != null){
+						if(strReferencedEntities.length > 0){
+							List<ReferenceUnit> referencedEntities = new ArrayList<ReferenceUnit>();
+							for(String i : strReferencedEntities){
+								ReferenceUnit referencedEntity = ReferenceUnit.
+										findById(ReferenceUnit.class, Long.parseLong(i));
+								referencedEntities.add(referencedEntity);
+							}
+							domain.setReferencedEntities(referencedEntities);
+						}
+					}
+	
+					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+							|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+	
+						if(operation != null && !operation.isEmpty()){
+	
+							if(operation.equals("workflowsubmit")){
+								if(domain.getAnswer() == null 
+										&& domain.getFactualPosition()==null 
+										&& domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+									result.rejectValue("factualPosition", "FactualPositionEmpty");
+	
+									if(domain.getAnswer().isEmpty() && domain.getFactualPosition().isEmpty()){
+										result.rejectValue("answer", "AnswerEmpty");
+									}
+								} 
+								String internalStatusType = domain.getInternalStatus().getType();
+								if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)||
+										internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)||
+										internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)||
+										internalStatusType.
+										equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)){
+									if(domain.getRejectionReason()==null){
+										result.rejectValue("rejectionReason", "RejectionReasonEmpty");
+									}else if(domain.getRejectionReason().isEmpty()){
+										result.rejectValue("rejectionReason", "RejectionReasonEmpty");
+									}
 								}
-							} 
-							String internalStatusType = domain.getInternalStatus().getType();
-							if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)||
-									internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)||
-									internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)||
-									internalStatusType.
-									equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)){
-								if(domain.getRejectionReason()==null){
-									result.rejectValue("rejectionReason", "RejectionReasonEmpty");
-								}else if(domain.getRejectionReason().isEmpty()){
-									result.rejectValue("rejectionReason", "RejectionReasonEmpty");
+							}else if(operation.equals("workflowsendback")){
+								long currentTimeMillis = System.currentTimeMillis();
+	
+								if(currentTimeMillis > workflowDetails.getSendBackBefore().getTime()){
+									if(domain.getRemarks() == null){
+										result.rejectValue("answer", "AnswerEmpty");						
+									}else if(domain.getAnswer().isEmpty()){
+										result.rejectValue("answer", "AnswerEmpty");
+									}
 								}
 							}
-						}else if(operation.equals("workflowsendback")){
-							long currentTimeMillis = System.currentTimeMillis();
-
-							if(currentTimeMillis > workflowDetails.getSendBackBefore().getTime()){
-								if(domain.getRemarks() == null){
-									result.rejectValue("answer", "AnswerEmpty");						
-								}else if(domain.getAnswer().isEmpty()){
-									result.rejectValue("answer", "AnswerEmpty");
-								}
+	
+							if(result.getFieldErrorCount("answer")>0){
+								if(!model.containsAttribute("errorcode")){
+									model.addAttribute("errorcode","no_answer_provided_department");
+									return "workflow/myTasks/error";
+								}		
 							}
 						}
-
-						if(result.getFieldErrorCount("answer")>0){
-							if(!model.containsAttribute("errorcode")){
-								model.addAttribute("errorcode","no_answer_provided_department");
-								return "workflow/myTasks/error";
-							}		
-						}
 					}
-				}
-
-				/**** Updating domain ****/
-				domain.setEditedOn(new Date());
-				domain.setEditedBy(this.getCurrentUser().getActualUsername());
-				domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
-				String strDateOfAnsweringByMinister = request.getParameter("dateOfAnsweringByMinister");
-				Date dateOfAnsweringByMinister = null;
-
-				/**** Setting the answering attempts in case of department****/
-				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
-						|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
-
-					String operation = request.getParameter("operation");
-
-					boolean goAhead = false;
-
-					if(operation != null && !operation.isEmpty()){
-						if(operation.equals("workflowsubmit")){
+	
+					/**** Updating domain ****/
+					domain.setEditedOn(new Date());
+					domain.setEditedBy(this.getCurrentUser().getActualUsername());
+					domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
+					String strDateOfAnsweringByMinister = request.getParameter("dateOfAnsweringByMinister");
+					Date dateOfAnsweringByMinister = null;
+	
+					/**** Setting the answering attempts in case of department****/
+					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+							|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+	
+						boolean goAhead = false;
+	
+						if(operation != null && !operation.isEmpty()){
+							if(operation.equals("workflowsubmit")){
+								goAhead = true;
+							}
+						}
+	
+						if(boolReanswering){
+							goAhead = true;
+						}	
+	
+						if(domain.getAnswer() != null){
 							goAhead = true;
 						}
-					}
-
-					if(boolReanswering){
-						goAhead = true;
-					}	
-
-					if(domain.getAnswer() != null){
-						goAhead = true;
-					}
-
-					if(goAhead){
-						Integer attempts = domain.getAnsweringAttemptsByDepartment();
-						if(attempts == null){
-							domain.setAnsweringAttemptsByDepartment(1);
-						}else{
-							domain.setAnsweringAttemptsByDepartment(attempts + 1);
+	
+						if(goAhead){
+							Integer attempts = domain.getAnsweringAttemptsByDepartment();
+							if(attempts == null){
+								domain.setAnsweringAttemptsByDepartment(1);
+							}else{
+								domain.setAnsweringAttemptsByDepartment(attempts + 1);
+							}
 						}
 					}
-				}
-
-				String strDiscussionDate = request.getParameter("discussionDate");
-				String strHalfHourDiscussionFromQuestionReference = 
-						request.getParameter("halfHourDiscusionFromQuestionReference");
-				Date dateDiscussionDate = null;
-				Long refQuestionId = null;
-				try { 
-					if(strDateOfAnsweringByMinister != null && !strDateOfAnsweringByMinister.isEmpty()){
-						dateOfAnsweringByMinister=FormaterUtil.getDateFormatter("en_US").parse(strDateOfAnsweringByMinister);
-					}
-
-					if(strDiscussionDate != null){
-						if(!strDiscussionDate.isEmpty()){
-							dateDiscussionDate = FormaterUtil.getDateFormatter("en_US").parse(strDiscussionDate);
-							String strTempDiscussionDate = 
-									FormaterUtil.getDateFormatter("yyyy-MM-dd","en_US").format(dateDiscussionDate);
-							dateDiscussionDate =
-									FormaterUtil.getDateFormatter("yyyy-MM-dd","en_US").parse(strTempDiscussionDate);
-
-							//set the discussion date
-							domain.setDiscussionDate(dateDiscussionDate);
-						}			
-					}
-					if(strHalfHourDiscussionFromQuestionReference != null){
-						if(!strHalfHourDiscussionFromQuestionReference.isEmpty()){
-							refQuestionId = new Long(strHalfHourDiscussionFromQuestionReference);
-							Question refQ = Question.findById(Question.class, refQuestionId);
-							domain.setHalfHourDiscusionFromQuestionReference(refQ);
-						}				
-					}
-				} catch (ParseException e1) {
-					try {
+	
+					String strDiscussionDate = request.getParameter("discussionDate");
+					String strHalfHourDiscussionFromQuestionReference = 
+							request.getParameter("halfHourDiscusionFromQuestionReference");
+					Date dateDiscussionDate = null;
+					Long refQuestionId = null;
+					try { 
 						if(strDateOfAnsweringByMinister != null && !strDateOfAnsweringByMinister.isEmpty()){
-							dateOfAnsweringByMinister = 
-									FormaterUtil.getDateFormatter(locale.toString()).
-									parse(strDateOfAnsweringByMinister);
+							dateOfAnsweringByMinister=FormaterUtil.getDateFormatter("en_US").parse(strDateOfAnsweringByMinister);
 						}
-					} catch (ParseException e) {
-						logger.error(e.getMessage());
-					}
-				}
-				domain.setDateOfAnsweringByMinister(dateOfAnsweringByMinister);
-				/**** updating submission date and creation date ****/
-				String strCreationDate = request.getParameter("setCreationDate");
-				String strSubmissionDate = request.getParameter("setSubmissionDate");
-				String strWorkflowStartedOnDate = request.getParameter("workflowStartedOnDate");
-				String strTaskReceivedOnDate = request.getParameter("taskReceivedOnDate");
-				CustomParameter dateTimeFormat = 
-						CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
-				if(dateTimeFormat != null){
-					SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
-					try {
-						if(strSubmissionDate!=null){
-							domain.setSubmissionDate(format.parse(strSubmissionDate));
+	
+						if(strDiscussionDate != null){
+							if(!strDiscussionDate.isEmpty()){
+								dateDiscussionDate = FormaterUtil.getDateFormatter("en_US").parse(strDiscussionDate);
+								String strTempDiscussionDate = 
+										FormaterUtil.getDateFormatter("yyyy-MM-dd","en_US").format(dateDiscussionDate);
+								dateDiscussionDate =
+										FormaterUtil.getDateFormatter("yyyy-MM-dd","en_US").parse(strTempDiscussionDate);
+								//set the discussion date
+								domain.setDiscussionDate(dateDiscussionDate);
+							}			
 						}
-						if(strCreationDate!=null){
-							domain.setCreationDate(format.parse(strCreationDate));
+						if(strHalfHourDiscussionFromQuestionReference != null){
+							if(!strHalfHourDiscussionFromQuestionReference.isEmpty()){
+								refQuestionId = new Long(strHalfHourDiscussionFromQuestionReference);
+								Question refQ = Question.findById(Question.class, refQuestionId);
+								domain.setHalfHourDiscusionFromQuestionReference(refQ);
+							}				
 						}
-						if(strWorkflowStartedOnDate!=null && !strWorkflowStartedOnDate.isEmpty()){
-							domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
+					} catch (ParseException e1) {
+						try {
+							if(strDateOfAnsweringByMinister != null && !strDateOfAnsweringByMinister.isEmpty()){
+								dateOfAnsweringByMinister = 
+										FormaterUtil.getDateFormatter(locale.toString()).
+										parse(strDateOfAnsweringByMinister);
+							}
+						} catch (ParseException e) {
+							logger.error(e.getMessage());
 						}
-						if(strTaskReceivedOnDate!=null && !strTaskReceivedOnDate.isEmpty()){
-							domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
+					}
+					domain.setDateOfAnsweringByMinister(dateOfAnsweringByMinister);
+					/**** updating submission date and creation date ****/
+					String strCreationDate = request.getParameter("setCreationDate");
+					String strSubmissionDate = request.getParameter("setSubmissionDate");
+					String strWorkflowStartedOnDate = request.getParameter("workflowStartedOnDate");
+					String strTaskReceivedOnDate = request.getParameter("taskReceivedOnDate");
+					CustomParameter dateTimeFormat = 
+							CustomParameter.findByName(CustomParameter.class,"SERVER_DATETIMEFORMAT", "");
+					if(dateTimeFormat != null){
+						SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
+						try {
+							if(strSubmissionDate!=null){
+								domain.setSubmissionDate(format.parse(strSubmissionDate));
+							}
+							if(strCreationDate!=null){
+								domain.setCreationDate(format.parse(strCreationDate));
+							}
+							if(strWorkflowStartedOnDate!=null && !strWorkflowStartedOnDate.isEmpty()){
+								domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
+							}
+							if(strTaskReceivedOnDate!=null && !strTaskReceivedOnDate.isEmpty()){
+								domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
+							}
 						}
-					}
-					catch (ParseException e) {
-						e.printStackTrace();
-					}
-				}
-				
-				/**** answer related dates ****/
-				String allowedDeviceTypes = "";
-				CustomParameter deviceTypesForAnswerRelatedDates = 
-						CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_FOR_ANSWER_RELATED_DATES", locale.toString());
-				if(deviceTypesForAnswerRelatedDates!=null) {
-					allowedDeviceTypes = deviceTypesForAnswerRelatedDates.getValue();
-				} else {
-					allowedDeviceTypes = 
-							ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION;
-				}
-				if(allowedDeviceTypes.contains(domain.getType().getType())) {
-					SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
-					String strAnswerRequestedDate = request.getParameter("setAnswerRequestedDate");
-					if(strAnswerRequestedDate != null && !strAnswerRequestedDate.isEmpty()) {
-						if(dateTimeFormat != null) {						
-							domain.setAnswerRequestedDate(format.parse(strAnswerRequestedDate));
-						}					
-					}
-					String strAnswerReceivedDate = request.getParameter("setAnswerReceivedDate");
-					if(strAnswerReceivedDate !=null && !strAnswerReceivedDate.isEmpty()) {
-						if(dateTimeFormat != null) {
-							domain.setAnswerReceivedDate(format.parse(strAnswerReceivedDate));
-						}					
-					}
-					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
-							&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-									|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
-							&& (domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
-									|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTODEPARTMENT))
-							&& (domain.getAnswer()==null || domain.getAnswer().isEmpty())) {
-						domain.setAnswerRequestedDate(new Date());
+						catch (ParseException e) {
+							e.printStackTrace();
+						}
 					}
 					
-					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
-							&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-									|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
-							&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() && domain.getAnswerReceivedDate()==null) {					
-						domain.setAnswerReceivedDate(new Date());
-						domain.setAnswerReceivedMode(ApplicationConstants.ANSWER_RECEIVED_MODE_ONLINE);
+					/**** answer related dates ****/
+					String allowedDeviceTypes = "";
+					CustomParameter deviceTypesForAnswerRelatedDates = 
+							CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_FOR_ANSWER_RELATED_DATES", locale.toString());
+					if(deviceTypesForAnswerRelatedDates!=null) {
+						allowedDeviceTypes = deviceTypesForAnswerRelatedDates.getValue();
+					} else {
+						allowedDeviceTypes = 
+								ApplicationConstants.STARRED_QUESTION + ", " + ApplicationConstants.UNSTARRED_QUESTION;
 					}
+					if(allowedDeviceTypes.contains(domain.getType().getType())) {
+						SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
+						String strAnswerRequestedDate = request.getParameter("setAnswerRequestedDate");
+						if(strAnswerRequestedDate != null && !strAnswerRequestedDate.isEmpty()) {
+							if(dateTimeFormat != null) {						
+								domain.setAnswerRequestedDate(format.parse(strAnswerRequestedDate));
+							}					
+						}
+						String strAnswerReceivedDate = request.getParameter("setAnswerReceivedDate");
+						if(strAnswerReceivedDate !=null && !strAnswerReceivedDate.isEmpty()) {
+							if(dateTimeFormat != null) {
+								domain.setAnswerReceivedDate(format.parse(strAnswerReceivedDate));
+							}					
+						}
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+								&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
+								&& (domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
+										|| domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTODEPARTMENT))
+								&& (domain.getAnswer()==null || domain.getAnswer().isEmpty())) {
+							domain.setAnswerRequestedDate(new Date());
+						}
+						
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)
+								&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+										|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION))
+								&& domain.getAnswer()!=null && !domain.getAnswer().isEmpty() && domain.getAnswerReceivedDate()==null) {					
+							domain.setAnswerReceivedDate(new Date());
+							domain.setAnswerReceivedMode(ApplicationConstants.ANSWER_RECEIVED_MODE_ONLINE);
+						}
+						
+						String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");
+						if(strLastDateOfAnswerReceiving!=null && !strLastDateOfAnswerReceiving.isEmpty()) {
+							Date lastDateOfAnswerReceiving = FormaterUtil.getDateFormatter("en_US").parse(strLastDateOfAnswerReceiving);
+							//Added the above code as the following code was giving exception of unparseble date
+							//Date lastDateOfAnswerReceiving = FormaterUtil.formatStringToDate(strLastDateOfAnswerReceiving, ApplicationConstants.DB_DATEFORMAT, locale.toString());
+							domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
+						}			
+					}						
+	
+					/**** setting the date of factual position receiving. ****/
+					userGroupType=workflowDetails.getAssigneeUserGroupType();
 					
-					String strLastDateOfAnswerReceiving = request.getParameter("setLastDateOfAnswerReceiving");
-					if(strLastDateOfAnswerReceiving!=null && !strLastDateOfAnswerReceiving.isEmpty()) {
-						Date lastDateOfAnswerReceiving = FormaterUtil.getDateFormatter("en_US").parse(strLastDateOfAnswerReceiving);
-						//Added the above code as the following code was giving exception of unparseble date
-						//Date lastDateOfAnswerReceiving = FormaterUtil.formatStringToDate(strLastDateOfAnswerReceiving, ApplicationConstants.DB_DATEFORMAT, locale.toString());
-						domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
-					}			
-				}						
-
-				/**** setting the date of factual position receiving. ****/
-				userGroupType=workflowDetails.getAssigneeUserGroupType();
-				
-				/** allow question to be eligible for unstarred yaadi if it was removed before & now allowed **/
-				String isAllowedInYaadiStr = request.getParameter("isAllowedInYaadi");
-				if(isAllowedInYaadiStr!=null && !isAllowedInYaadiStr.isEmpty()) {
-					Boolean isAllowedInYaadi = Boolean.parseBoolean(isAllowedInYaadiStr);
-					if(isAllowedInYaadi!=null && isAllowedInYaadi.equals(true)) {
-						YaadiDetails.allowDeviceInYaadiDetails(domain);
-					}
-				}					
-
-				/**** If reanswer workflow is invoked then its straight forward ****/
-				/****  to set the domain's answer as reanswer by department ****/
-				if(domain.getType() != null && 
-						(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
-						|| domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION))){
-					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
-						if(workflowDetails.getDepartmentAnswer() != null){
-							if(workflowDetails.getAssigneeUserGroupType().
-									equals(ApplicationConstants.SECTION_OFFICER)){
-								if(workflowDetails.getDepartmentAnswer() != null){
-									domain.setAnswer(workflowDetails.getDepartmentAnswer());
-								}
-							}
-						}else{
-							/**** if workflow is not of reanswer then in that case find the ****/
-							/**** reanswer workflow and set the reanswer to domain ****/
-
-							Map<String, String> parameters = new HashMap<String, String>();
-							parameters.put("locale", locale.toString());
-							parameters.put("assignee", workflowDetails.getAssignee());
-							parameters.put("status", "PENDING");
-							parameters.put("deviceId", workflowDetails.getDeviceId());
-
-
-							List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.
-									findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
-							WorkflowDetails reanswerWorkflowIfAny = null;
-
-							if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
-								for(WorkflowDetails wf : reanswerWorkflowsIfAny){
-									if(!wf.getProcessId().equals(workflowDetails.getProcessId()) 
-											&& wf.getDepartmentAnswer() != null){
-										reanswerWorkflowIfAny = wf;
-										break;
-									}
-								}					
-								if(reanswerWorkflowIfAny != null){
-									domain.setAnswer(reanswerWorkflowIfAny.getDepartmentAnswer());
-								}				
-							}
+					/** allow question to be eligible for unstarred yaadi if it was removed before & now allowed **/
+					String isAllowedInYaadiStr = request.getParameter("isAllowedInYaadi");
+					if(isAllowedInYaadiStr!=null && !isAllowedInYaadiStr.isEmpty()) {
+						Boolean isAllowedInYaadi = Boolean.parseBoolean(isAllowedInYaadiStr);
+						if(isAllowedInYaadi!=null && isAllowedInYaadi.equals(true)) {
+							YaadiDetails.allowDeviceInYaadiDetails(domain);
 						}
-					}
-				}
-
-				String currentDeviceTypeWorkflowType = null;
-				Workflow workflowFromUpdatedStatus = domain.findWorkflowFromStatus();
-				
-				//String sendbackactor=request.getParameter("sendbackactor");
-				if(workflowFromUpdatedStatus!=null) {
-					currentDeviceTypeWorkflowType = workflowFromUpdatedStatus.getType();
-				}			
-				
-				/**** added by dhananjayb.. required in case when domain is updated with start of new workflow before completion of current workflow ****/
-				String endFlagForCurrentWorkflow = domain.getEndFlag();				
-				String actorForCurrentWorkflow = domain.getActor();
-//				String localizedActorName = domain.getLocalizedActorName();
-//				Long workflowDetailsIdForCurrentWorkflow = domain.getWorkflowDetailsId();
-//				String levelForCurrentWorkflow = domain.getLevel();
-//				String workflowStarted = domain.getWorkflowStarted();					
-				
-				
-				{
-					/* Find if next actors are not active then create a draft for them if draft is 
-					 * not existing for that actors.
-					 */
-					try{
-						String strNextuser = request.getParameter("actor");
-						String[] nextuser = null;
-						int nextUserLevel = 0;
-						if(strNextuser != null && !strNextuser.isEmpty()){
-								nextuser = strNextuser.split("#");
-								nextUserLevel = Integer.parseInt(nextuser[2]);
-						} 
-												
-						Question q = null;
-						
-						if(domain.getId() != null){
-							q = Question.findById(Question.class, domain.getId());
-						}else{
-							q = domain.copyQuestion();
-						}
-						
-						
-						Map<String, String[]> params = new HashMap<String, String[]>();
-						params.put("locale", new String[]{locale.toString()});
-						params.put("sessionId", new String[]{domain.getSession().getId().toString()});
-						params.put("ugType", new String[]{ApplicationConstants.ASSISTANT});
-						params.put("qId", new String[]{domain.getId().toString()});
-						List data = Query.findReport("ACTIVE_USER", params);
-						String strUsername = null;
-						if(data != null && !data.isEmpty()){
-							Object[] obj = (Object[])data.get(0);
-							strUsername = obj[1].toString();
-						}
-					
-						Credential cr = null;
-						if(strUsername != null){
-							cr = Credential.findByFieldName(Credential.class, "username", strUsername, null);
-						}
-						
-						if(cr != null){
-							UserGroup assistant = UserGroup.findActive(cr, UserGroupType.findByType(ApplicationConstants.ASSISTANT, domain.getLocale()),new Date(), domain.getLocale());
-							List<Reference> refs = WorkflowConfig.
-									findQuestionActorsVO(q,domain.getInternalStatus(),
-											assistant,1,q.getLocale());
-							
-							Set<QuestionDraft> ogDrafts = q.getDrafts();
-							Set<QuestionDraft> drafts = new HashSet<QuestionDraft>();
-								
-							for(Reference ref : refs){
-								
-								String[] user = ref.getId().split("#");
-								
-								if(!user[1].equals(ApplicationConstants.MEMBER) && !user[1].equals(ApplicationConstants.DEPARTMENT) && !user[1].equals(ApplicationConstants.DEPARTMENT_DESKOFFICER) && !ref.getState().equals(ApplicationConstants.ACTOR_ACTIVE)){
-									
-									int refLevel = Integer.parseInt(user[2]);
-									
-									if(refLevel < nextUserLevel){
-										boolean foundUsersDraft = false;
-										if(ogDrafts != null && !ogDrafts.isEmpty()){
-											for(QuestionDraft qd : ogDrafts){
-												if(qd.getEditedAs().equals(user[3]) 
-														&& qd.getEditedBy().equals(user[0])){
-													foundUsersDraft = true;
-													break;
-												}
-											}
-											
-											if(!foundUsersDraft){
-												QuestionDraft qdn = Question.addDraft(q, user[0], user[3], ref.getRemark());
-												drafts.add(qdn);
-											}
-										}
-									}
-								}
-							}
-							if(drafts != null && !drafts.isEmpty()){
-								domain.setDrafts(drafts);
-							}
-						}
-					} catch (ELSException e) {
-						e.printStackTrace();
-						return "redirect:workflow/myTasks/"+workflowDetails.getId()+"/process";
-					}
-				}
-				
-				/*if(domain.getDrafts()==null) {
-					Question question = Question.findById(Question.class, domain.getId());
-					domain.setDrafts(question.getDrafts());
-				}*/
-				
-				performAction(domain);
-				
-				domain.merge();				
-				
-				Question question = Question.findById(Question.class, domain.getId());
-				// On Group Change
-				boolean isGroupChanged = false;
-				boolean isMinistryChanged = false;
-				boolean isSubdepartmentChanged =false;
-				
-//				Group fromGroup = Question.isGroupChanged(question);
-//				Ballot ballot = Ballot.find(question);
-//				QuestionDraft groupChangeDraft = Question.findLatestGroupChangedDraft(question);
-//				QuestionDraft questionDraft = Question.findGroupChangedDraft(question);
-				if(!domain.getGroup().equals(prevGroup)) {
-					Group fromGroup = prevGroup;
-//
-//				QuestionDraft groupChangeDraft = Question.findLatestGroupChangedDraft(question);
-//				QuestionDraft questionDraft = Question.findGroupChangedDraft(question);
-//				if(fromGroup != null || (ballot != null 
-//						&& groupChangeDraft!=null 
-//						&& ballot.getBallotDate().before(questionDraft.getEditedOn()))) {
-//					isGroupChanged = true;
-					Question.onGroupChange(question, fromGroup);
-					isGroupChanged = true;
-				}else if(!domain.getMinistry().equals(prevMinistry)){
-					Question.onMinistryChange(question, prevMinistry);
-					isMinistryChanged = true;
-				}else if(!domain.getSubDepartment().equals(prevSubdepartment)){
-					Question.onSubdepartmentChange(question, prevSubdepartment);
-					isSubdepartmentChanged = true;
-				}
-				
-				if(isGroupChanged || isMinistryChanged || isSubdepartmentChanged) {
-					/**** display message ****/
-					model.addAttribute("type","taskcompleted");
-					return "workflow/info";
-				}
-				else {
-					String bulkEdit=request.getParameter("bulkedit");
-					if(bulkEdit==null||!bulkEdit.equals("yes")){
-
-						/**** Complete Task ****/
-						String endflag = null;
-						if(boolReanswering && 
-								(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
-										|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
-							endflag = "continue";
-						}else if(boolResendRevisedQuestionText 
-								&& (workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
-										||workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT))){
-							endflag = "continue";
-						}else if(boolClarificationStatus && workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
-							endflag = "end";
-						}else{
-							if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
-								endflag = endFlagForCurrentWorkflow;
-							} else {
-								endflag = question.getEndFlag();
-							}							
-						}
-
-						Map<String,String> properties=new HashMap<String, String>();
-						String level="";						
-						String nextuser = null;
-						if(boolReanswering){
-							if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
-								nextuser = actorForCurrentWorkflow;
-							} else {
-								nextuser = question.getActor();
-							}							
-						}else if(boolResendRevisedQuestionText){
-							nextuser = actorForCurrentWorkflow;
-						}else if(boolClarificationStatus){
-							//DO Nothing
-						}else{
-							nextuser = request.getParameter("actor");
-						}
-
-						properties.put("pv_deviceId", String.valueOf(question.getId()));
-						properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
-						UserGroupType usergroupType = null; 
-						if(nextuser != null){
-							if(!nextuser.isEmpty()){
-								String[] temp = nextuser.split("#");
-								properties.put("pv_user", temp[0]);
-								level = temp[2];
-								usergroupType = UserGroupType.findByType(temp[1], locale.toString());
-							}
-						}
-						properties.put("pv_endflag", endflag);
-						
-						String strReanswer = request.getParameter("reanswer");
-						workflowDetails.setDepartmentAnswer(strReanswer);
-
-						String strTaskId = workflowDetails.getTaskId();
-						Task task = null;
-						if (!boolReanswering && !boolResendRevisedQuestionText && !boolClarificationStatus){
-							task = processService.findTaskById(strTaskId);
-							processService.completeTask(task,properties);
-
-							if(domain.getType() != null 
-									&& domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
-								/**** If user is section officer and if he/she amrks the end of workflow ****/
-								/**** Terminate the flows of both normal and reanswer flow if any ****/
+					}					
+	
+					/**** If reanswer workflow is invoked then its straight forward ****/
+					/****  to set the domain's answer as reanswer by department ****/
+					if(domain.getType() != null && 
+							(domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)
+							|| domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION))){
+						if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+							if(workflowDetails.getDepartmentAnswer() != null){
 								if(workflowDetails.getAssigneeUserGroupType().
 										equals(ApplicationConstants.SECTION_OFFICER)){
 									if(workflowDetails.getDepartmentAnswer() != null){
-
-
-										if(workflowDetails.getPreviousWorkflowDetail() != null){
-											WorkflowDetails prevWorkflowDetails = 
-													WorkflowDetails.findById(WorkflowDetails.class, workflowDetails.getPreviousWorkflowDetail());
-
-											Map<String, String> parameters = new HashMap<String, String>();
-											
-											parameters.put("locale", locale.toString());
-											parameters.put("assignee", workflowDetails.getAssignee());
-											parameters.put("status", "PENDING");
-											parameters.put("processId", prevWorkflowDetails.getProcessId());
-
-											List<WorkflowDetails> pendingWorkflows = 
-													WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
-											WorkflowDetails pendingWorkflow;
-
-											if(pendingWorkflows != null && !pendingWorkflows.isEmpty()){
-												pendingWorkflow = pendingWorkflows.get(0);
-
-												Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
-												processService.completeTask(prevTask, properties);
-
-												pendingWorkflow.setStatus("COMPLETED");
-												pendingWorkflow.setCompletionTime(new Date());
-												pendingWorkflow.merge();
-											}								
-										}
-									}else{
-
-										Map<String, String> parameters = new HashMap<String, String>();
-										parameters.put("locale", locale.toString());
-										parameters.put("assignee", workflowDetails.getAssignee());
-										parameters.put("status", "PENDING");
-										parameters.put("deviceId", workflowDetails.getDeviceId());
-
-
-										List<WorkflowDetails> reanswerWorkflowsIfAny = 
-												WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
-										WorkflowDetails reanswerWorkflowIfAny = null;
-
-										if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
-											for(WorkflowDetails wf : reanswerWorkflowsIfAny){
-												if(!wf.getProcessId().equals(workflowDetails.getProcessId()) 
-														&& wf.getDepartmentAnswer() != null){
-													reanswerWorkflowIfAny = wf;
-													break;
-												}
-											}
-
-											if(reanswerWorkflowIfAny != null){
-												Task prevTask = processService.findTaskById(reanswerWorkflowIfAny.getTaskId());
-												processService.completeTask(prevTask, properties);
-
-												reanswerWorkflowIfAny.setStatus("COMPLETED");
-												reanswerWorkflowIfAny.setCompletionTime(new Date());
-												reanswerWorkflowIfAny.merge();
-											}
-										}	
+										domain.setAnswer(workflowDetails.getDepartmentAnswer());
 									}
+								}
+							}else{
+								/**** if workflow is not of reanswer then in that case find the ****/
+								/**** reanswer workflow and set the reanswer to domain ****/
+								Map<String, String> parameters = new HashMap<String, String>();
+								parameters.put("locale", locale.toString());
+								parameters.put("assignee", workflowDetails.getAssignee());
+								parameters.put("status", "PENDING");
+								parameters.put("deviceId", workflowDetails.getDeviceId());
+								List<WorkflowDetails> reanswerWorkflowsIfAny = WorkflowDetails.
+										findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+								WorkflowDetails reanswerWorkflowIfAny = null;
+	
+								if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
+									for(WorkflowDetails wf : reanswerWorkflowsIfAny){
+										if(!wf.getProcessId().equals(workflowDetails.getProcessId()) 
+												&& wf.getDepartmentAnswer() != null){
+											reanswerWorkflowIfAny = wf;
+											break;
+										}
+									}					
+									if(reanswerWorkflowIfAny != null){
+										domain.setAnswer(reanswerWorkflowIfAny.getDepartmentAnswer());
+									}				
 								}
 							}
 						}
-
-						if(endflag != null && !endflag.isEmpty()){
+					}
+	
+					String currentDeviceTypeWorkflowType = null;
+					Workflow workflowFromUpdatedStatus = domain.findWorkflowFromStatus();
+					if(workflowFromUpdatedStatus!=null) {
+						currentDeviceTypeWorkflowType = workflowFromUpdatedStatus.getType();
+					}			
+					
+					/**** added by dhananjayb.. required in case when domain is updated with start of new workflow before completion of current workflow ****/
+					String endFlagForCurrentWorkflow = domain.getEndFlag();				
+					String actorForCurrentWorkflow = domain.getActor();
+					{
+						/* Find if next actors are not active then create a draft for them if draft is 
+						 * not existing for that actors.
+						 */
+						try{
+							String strNextuser = request.getParameter("actor");
+							String[] nextuser = null;
+							int nextUserLevel = 0;
+							if(strNextuser != null && !strNextuser.isEmpty()){
+									nextuser = strNextuser.split("#");
+									nextUserLevel = Integer.parseInt(nextuser[2]);
+							} 
+													
+							Question q = null;
+							
+							if(domain.getId() != null){
+								q = Question.findById(Question.class, domain.getId());
+							}else{
+								q = domain.copyQuestion();
+							}
+							
+							
+							Map<String, String[]> params = new HashMap<String, String[]>();
+							params.put("locale", new String[]{locale.toString()});
+							params.put("sessionId", new String[]{domain.getSession().getId().toString()});
+							params.put("ugType", new String[]{ApplicationConstants.ASSISTANT});
+							params.put("qId", new String[]{domain.getId().toString()});
+							List data = Query.findReport("ACTIVE_USER", params);
+							String strUsername = null;
+							if(data != null && !data.isEmpty()){
+								Object[] obj = (Object[])data.get(0);
+								strUsername = obj[1].toString();
+							}
 						
-							if(endflag.equals("continue")){
+							Credential cr = null;
+							if(strUsername != null){
+								cr = Credential.findByFieldName(Credential.class, "username", strUsername, null);
+							}
+							
+							if(cr != null){
+								UserGroup assistant = UserGroup.findActive(cr, UserGroupType.findByType(ApplicationConstants.ASSISTANT, domain.getLocale()),new Date(), domain.getLocale());
+								List<Reference> refs = WorkflowConfig.
+										findQuestionActorsVO(q,domain.getInternalStatus(),
+												assistant,1,q.getLocale());
 								
-								if (boolReanswering){
-
-									ProcessDefinition processDefinition =processService.
-											findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
-									ProcessInstance processInstance = processService.
-											createProcessInstance(processDefinition, properties);
-									/**** Process Started and task created ****/
-									Task reanswertask = processService.getCurrentTask(processInstance);
-
-									WorkflowDetails reanswerWorkflowDetails;
-									try {
-										reanswerWorkflowDetails = WorkflowDetails.
-												create(domain,reanswertask,usergroupType,currentDeviceTypeWorkflowType,level);
-										question.setWorkflowDetailsId(reanswerWorkflowDetails.getId());
-										reanswerWorkflowDetails.setDepartmentAnswer(strReanswer);
-										reanswerWorkflowDetails.setPreviousWorkflowDetail(workflowDetails.getId());
-
-										reanswerWorkflowDetails.merge();
-
-									} catch (ELSException e) {
-										model.addAttribute("error", e.getParameter());
-										e.printStackTrace();
-									}				
-								}else if(boolResendRevisedQuestionText){
-									ProcessDefinition processDefinition =processService.
-											findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
-									ProcessInstance processInstance = processService.
-											createProcessInstance(processDefinition, properties);
-									/**** Process Started and task created ****/
-									Task resendRevisedQuestionTextTask = processService.getCurrentTask(processInstance);
-									WorkflowDetails pendingWorkflow = WorkflowDetails.findCurrentWorkflowDetail(question);
-									WorkflowDetails resendRevisedQuestionTextWorkflowDetails;
-									try {
-										if(pendingWorkflow != null){
-											Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
-											processService.completeTask(prevTask, properties);
-											pendingWorkflow.setStatus("COMPLETED");
-											pendingWorkflow.setCompletionTime(new Date());
-											pendingWorkflow.merge();
-										}
-										resendRevisedQuestionTextWorkflowDetails = WorkflowDetails.
-												create(domain,resendRevisedQuestionTextTask,usergroupType,currentDeviceTypeWorkflowType,level);
-										question.setWorkflowDetailsId(resendRevisedQuestionTextWorkflowDetails.getId());
-										resendRevisedQuestionTextWorkflowDetails.setPreviousWorkflowDetail(workflowDetails.getId());
-										resendRevisedQuestionTextWorkflowDetails.merge();
+								Set<QuestionDraft> ogDrafts = q.getDrafts();
+								Set<QuestionDraft> drafts = new HashSet<QuestionDraft>();
+									
+								for(Reference ref : refs){
+									
+									String[] user = ref.getId().split("#");
+									
+									if(!user[1].equals(ApplicationConstants.MEMBER) && !user[1].equals(ApplicationConstants.DEPARTMENT) && !user[1].equals(ApplicationConstants.DEPARTMENT_DESKOFFICER) && !ref.getState().equals(ApplicationConstants.ACTOR_ACTIVE)){
 										
-									} catch (ELSException e) {
-										model.addAttribute("error", e.getParameter());
-										e.printStackTrace();
-									}				
-								}else if(boolClarificationStatus){
-									/**** Process Started and task created ****/
-									WorkflowDetails pendingWorkflow = WorkflowDetails.findCurrentWorkflowDetail(question);
-									if(pendingWorkflow != null){
-										Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
-										processService.completeTask(prevTask, properties);
-										pendingWorkflow.setStatus("TIMEOUT");
-										pendingWorkflow.setCompletionTime(new Date());
-										pendingWorkflow.merge();
-									}
-								}
-
-
-								if(!boolReanswering && !boolResendRevisedQuestionText && !boolClarificationStatus){
-									ProcessInstance processInstance = processService.findProcessInstanceById(
-											task.getProcessInstanceId());
-									Task newtask = processService.getCurrentTask(processInstance);
-									
-		
-									/**** Workflow Detail entry made only if its not the end of workflow ****/
-									WorkflowDetails newWFDetails = 
-											WorkflowDetails.create(question, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
-									
-									/**** FOr CLarificationFromMember and Department ****/
-									if(domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
-											&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)){
-											
-											Map<String, String> parameters = new HashMap<String, String>();
-											User user = User.find(domain.getPrimaryMember());
-											Credential credential = user.getCredential();
-											parameters.put("pv_endflag", endflag);	
-											parameters.put("pv_user",credential.getUsername());
-											parameters.put("pv_deviceId", String.valueOf(question.getId()));
-											parameters.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
-
-											ProcessDefinition processDefinition1 =processService.
-													findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
-											ProcessInstance processInstance1 = processService.
-													createProcessInstance(processDefinition1, parameters);
-											Task newMembertask = processService.getCurrentTask(processInstance1);
-											WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);
-															
-										}
-									
-									/**** Define the timer ****/
-									if (question.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-
-										if (userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) {
-											if(workflowDetails.getSendBackBefore() != null){
-												newWFDetails.setSendBackBefore(workflowDetails.getSendBackBefore());
-											}else{
-												CustomParameter cstpSendBackTimeLimitMinutes = 
-														CustomParameter.findByName(CustomParameter.class,
-														ApplicationConstants.DEPARTMENT_SENDBACK_TIME_LIMIT,"");
-
-												if (cstpSendBackTimeLimitMinutes != null
-														&& !cstpSendBackTimeLimitMinutes.getValue().isEmpty()) {
-
-													int timeLimitMinutes = 
-															((int)Double.parseDouble(cstpSendBackTimeLimitMinutes.getValue())) * 60;
-													newWFDetails.setSendBackBefore(new Date(newWFDetails.getAssignmentTime().getTime()+ (timeLimitMinutes * 60 * 1000)));
+										int refLevel = Integer.parseInt(user[2]);
+										
+										if(refLevel < nextUserLevel){
+											boolean foundUsersDraft = false;
+											if(ogDrafts != null && !ogDrafts.isEmpty()){
+												for(QuestionDraft qd : ogDrafts){
+													if(qd.getEditedAs().equals(user[3]) 
+															&& qd.getEditedBy().equals(user[0])){
+														foundUsersDraft = true;
+														break;
+													}
+												}
+												
+												if(!foundUsersDraft){
+													QuestionDraft qdn = Question.addDraft(q, user[0], user[3], ref.getRemark());
+													drafts.add(qdn);
 												}
 											}
-										} else if (userGroupType.equals(ApplicationConstants.DEPARTMENT)
-												|| userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
-
-											/**** save the reanswer by department ****/
-											newWFDetails.setDepartmentAnswer(strReanswer);
-											newWFDetails.setSendBackBefore(workflowDetails.getSendBackBefore());
 										}
 									}
-									newWFDetails.merge();
+								}
+								if(drafts != null && !drafts.isEmpty()){
+									domain.setDrafts(drafts);
 								}
 							}
-										
+						} catch (ELSException e) {
+							e.printStackTrace();
+							return "redirect:workflow/myTasks/"+workflowDetails.getId()+"/process";
 						}
-						if(domain.getChartAnsweringDate() != null) {
-							workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
-						}
-						workflowDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
-						workflowDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
-						workflowDetails.setStatus("COMPLETED");
-						workflowDetails.setCompletionTime(new Date());
-						
-						workflowDetails.merge();		
+					}
+			
+					performAction(domain);
+					
+					domain.merge();				
+					
+					Question question = Question.findById(Question.class, domain.getId());
+					// On Group Change
+					boolean isGroupChanged = false;
+					boolean isMinistryChanged = false;
+					boolean isSubdepartmentChanged =false;
+					
+					if(!domain.getGroup().equals(prevGroup)) {
+						Group fromGroup = prevGroup;
+						Question.onGroupChange(question, fromGroup);
+						isGroupChanged = true;
+					}else if(!domain.getMinistry().equals(prevMinistry)){
+						Question.onMinistryChange(question, prevMinistry);
+						isMinistryChanged = true;
+					}else if(!domain.getSubDepartment().equals(prevSubdepartment)){
+						Question.onSubdepartmentChange(question, prevSubdepartment);
+						isSubdepartmentChanged = true;
+					}
+					
+					if(isGroupChanged || isMinistryChanged || isSubdepartmentChanged) {
 						/**** display message ****/
 						model.addAttribute("type","taskcompleted");
 						return "workflow/info";
 					}
+					else {
+						String bulkEdit=request.getParameter("bulkedit");
+						if(bulkEdit==null||!bulkEdit.equals("yes")){
+	
+							/**** Complete Task ****/
+							String endflag = null;
+							if(boolReanswering && 
+									(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+											|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
+								endflag = "continue";
+							}else if(boolResendRevisedQuestionText 
+									&& (workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+											||workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT))){
+								endflag = "continue";
+							}else if(boolClarificationStatus && workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+								endflag = "end";
+							}else{
+								if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
+									endflag = endFlagForCurrentWorkflow;
+								} else {
+									endflag = question.getEndFlag();
+								}							
+							}
+	
+							Map<String,String> properties=new HashMap<String, String>();
+							String level="";						
+							String nextuser = null;
+							if(boolReanswering){
+								if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
+									nextuser = actorForCurrentWorkflow;
+								} else {
+									nextuser = question.getActor();
+								}							
+							}else if(boolResendRevisedQuestionText){
+								nextuser = actorForCurrentWorkflow;
+							}else if(boolClarificationStatus){
+								//DO Nothing
+							}else{
+								nextuser = request.getParameter("actor");
+							}
+	
+							properties.put("pv_deviceId", String.valueOf(question.getId()));
+							properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
+							UserGroupType usergroupType = null; 
+							if(nextuser != null){
+								if(!nextuser.isEmpty()){
+									String[] temp = nextuser.split("#");
+									properties.put("pv_user", temp[0]);
+									level = temp[2];
+									usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+								}
+							}
+							properties.put("pv_endflag", endflag);
+							
+							String strReanswer = request.getParameter("reanswer");
+							workflowDetails.setDepartmentAnswer(strReanswer);
+	
+							String strTaskId = workflowDetails.getTaskId();
+							Task task = null;
+							if (!boolReanswering && !boolResendRevisedQuestionText && !boolClarificationStatus){
+								task = processService.findTaskById(strTaskId);
+								processService.completeTask(task,properties);
+	
+								if(domain.getType() != null 
+										&& domain.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+									/**** If user is section officer and if he/she amrks the end of workflow ****/
+									/**** Terminate the flows of both normal and reanswer flow if any ****/
+									if(workflowDetails.getAssigneeUserGroupType().
+											equals(ApplicationConstants.SECTION_OFFICER)){
+										if(workflowDetails.getDepartmentAnswer() != null){
+	
+	
+											if(workflowDetails.getPreviousWorkflowDetail() != null){
+												WorkflowDetails prevWorkflowDetails = 
+														WorkflowDetails.findById(WorkflowDetails.class, workflowDetails.getPreviousWorkflowDetail());
+	
+												Map<String, String> parameters = new HashMap<String, String>();
+												
+												parameters.put("locale", locale.toString());
+												parameters.put("assignee", workflowDetails.getAssignee());
+												parameters.put("status", "PENDING");
+												parameters.put("processId", prevWorkflowDetails.getProcessId());
+	
+												List<WorkflowDetails> pendingWorkflows = 
+														WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+												WorkflowDetails pendingWorkflow;
+	
+												if(pendingWorkflows != null && !pendingWorkflows.isEmpty()){
+													pendingWorkflow = pendingWorkflows.get(0);
+	
+													Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
+													processService.completeTask(prevTask, properties);
+	
+													pendingWorkflow.setStatus("COMPLETED");
+													pendingWorkflow.setCompletionTime(new Date());
+													pendingWorkflow.merge();
+												}								
+											}
+										}else{
+	
+											Map<String, String> parameters = new HashMap<String, String>();
+											parameters.put("locale", locale.toString());
+											parameters.put("assignee", workflowDetails.getAssignee());
+											parameters.put("status", "PENDING");
+											parameters.put("deviceId", workflowDetails.getDeviceId());
+	
+	
+											List<WorkflowDetails> reanswerWorkflowsIfAny = 
+													WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.DESC);
+											WorkflowDetails reanswerWorkflowIfAny = null;
+	
+											if(reanswerWorkflowsIfAny != null && !reanswerWorkflowsIfAny.isEmpty()){
+												for(WorkflowDetails wf : reanswerWorkflowsIfAny){
+													if(!wf.getProcessId().equals(workflowDetails.getProcessId()) 
+															&& wf.getDepartmentAnswer() != null){
+														reanswerWorkflowIfAny = wf;
+														break;
+													}
+												}
+	
+												if(reanswerWorkflowIfAny != null){
+													Task prevTask = processService.findTaskById(reanswerWorkflowIfAny.getTaskId());
+													processService.completeTask(prevTask, properties);
+	
+													reanswerWorkflowIfAny.setStatus("COMPLETED");
+													reanswerWorkflowIfAny.setCompletionTime(new Date());
+													reanswerWorkflowIfAny.merge();
+												}
+											}	
+										}
+									}
+								}
+							}
+	
+							if(endflag != null && !endflag.isEmpty()){
+							
+								if(endflag.equals("continue")){
+									
+									if (boolReanswering){
+	
+										ProcessDefinition processDefinition =processService.
+												findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+										ProcessInstance processInstance = processService.
+												createProcessInstance(processDefinition, properties);
+										/**** Process Started and task created ****/
+										Task reanswertask = processService.getCurrentTask(processInstance);
+	
+										WorkflowDetails reanswerWorkflowDetails;
+										try {
+											reanswerWorkflowDetails = WorkflowDetails.
+													create(domain,reanswertask,usergroupType,currentDeviceTypeWorkflowType,level);
+											question.setWorkflowDetailsId(reanswerWorkflowDetails.getId());
+											reanswerWorkflowDetails.setDepartmentAnswer(strReanswer);
+											reanswerWorkflowDetails.setPreviousWorkflowDetail(workflowDetails.getId());
+	
+											reanswerWorkflowDetails.merge();
+	
+										} catch (ELSException e) {
+											model.addAttribute("error", e.getParameter());
+											e.printStackTrace();
+										}				
+									}else if(boolResendRevisedQuestionText){
+										ProcessDefinition processDefinition =processService.
+												findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+										ProcessInstance processInstance = processService.
+												createProcessInstance(processDefinition, properties);
+										/**** Process Started and task created ****/
+										Task resendRevisedQuestionTextTask = processService.getCurrentTask(processInstance);
+										WorkflowDetails pendingWorkflow = WorkflowDetails.findCurrentWorkflowDetail(question);
+										WorkflowDetails resendRevisedQuestionTextWorkflowDetails;
+										try {
+											if(pendingWorkflow != null){
+												Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
+												processService.completeTask(prevTask, properties);
+												pendingWorkflow.setStatus("COMPLETED");
+												pendingWorkflow.setCompletionTime(new Date());
+												pendingWorkflow.merge();
+											}
+											resendRevisedQuestionTextWorkflowDetails = WorkflowDetails.
+													create(domain,resendRevisedQuestionTextTask,usergroupType,currentDeviceTypeWorkflowType,level);
+											question.setWorkflowDetailsId(resendRevisedQuestionTextWorkflowDetails.getId());
+											resendRevisedQuestionTextWorkflowDetails.setPreviousWorkflowDetail(workflowDetails.getId());
+											resendRevisedQuestionTextWorkflowDetails.merge();
+											
+										} catch (ELSException e) {
+											model.addAttribute("error", e.getParameter());
+											e.printStackTrace();
+										}				
+									}else if(boolClarificationStatus){
+										/**** Process Started and task created ****/
+										WorkflowDetails pendingWorkflow = WorkflowDetails.findCurrentWorkflowDetail(question);
+										if(pendingWorkflow != null){
+											Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
+											processService.completeTask(prevTask, properties);
+											pendingWorkflow.setStatus("TIMEOUT");
+											pendingWorkflow.setCompletionTime(new Date());
+											pendingWorkflow.merge();
+										}
+									}
+	
+	
+									if(!boolReanswering && !boolResendRevisedQuestionText && !boolClarificationStatus){
+										ProcessInstance processInstance = processService.findProcessInstanceById(
+												task.getProcessInstanceId());
+										Task newtask = processService.getCurrentTask(processInstance);
+										
+			
+										/**** Workflow Detail entry made only if its not the end of workflow ****/
+										WorkflowDetails newWFDetails = 
+												WorkflowDetails.create(question, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
+										
+										/**** FOr CLarificationFromMember and Department ****/
+										if(domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+												&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)){
+												
+												Map<String, String> parameters = new HashMap<String, String>();
+												User user = User.find(domain.getPrimaryMember());
+												Credential credential = user.getCredential();
+												parameters.put("pv_endflag", endflag);	
+												parameters.put("pv_user",credential.getUsername());
+												parameters.put("pv_deviceId", String.valueOf(question.getId()));
+												parameters.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
+	
+												ProcessDefinition processDefinition1 =processService.
+														findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+												ProcessInstance processInstance1 = processService.
+														createProcessInstance(processDefinition1, parameters);
+												Task newMembertask = processService.getCurrentTask(processInstance1);
+												WorkflowDetails.create(domain,newMembertask,currentDeviceTypeWorkflowType,level);
+																
+											}
+										
+										/**** Define the timer ****/
+										if (question.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)) {
+	
+											if (userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) {
+												if(workflowDetails.getSendBackBefore() != null){
+													newWFDetails.setSendBackBefore(workflowDetails.getSendBackBefore());
+												}else{
+													CustomParameter cstpSendBackTimeLimitMinutes = 
+															CustomParameter.findByName(CustomParameter.class,
+															ApplicationConstants.DEPARTMENT_SENDBACK_TIME_LIMIT,"");
+	
+													if (cstpSendBackTimeLimitMinutes != null
+															&& !cstpSendBackTimeLimitMinutes.getValue().isEmpty()) {
+	
+														int timeLimitMinutes = 
+																((int)Double.parseDouble(cstpSendBackTimeLimitMinutes.getValue())) * 60;
+														newWFDetails.setSendBackBefore(new Date(newWFDetails.getAssignmentTime().getTime()+ (timeLimitMinutes * 60 * 1000)));
+													}
+												}
+											} else if (userGroupType.equals(ApplicationConstants.DEPARTMENT)
+													|| userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+	
+												/**** save the reanswer by department ****/
+												newWFDetails.setDepartmentAnswer(strReanswer);
+												newWFDetails.setSendBackBefore(workflowDetails.getSendBackBefore());
+											}
+										}
+										newWFDetails.merge();
+									}
+								}
+											
+							}
+							if(domain.getChartAnsweringDate() != null) {
+								workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+							}
+							workflowDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
+							workflowDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
+							workflowDetails.setStatus("COMPLETED");
+							workflowDetails.setCompletionTime(new Date());
+							
+							workflowDetails.merge();		
+							/**** display message ****/
+							model.addAttribute("type","taskcompleted");
+							return "workflow/info";
+						}
+					}
+					model.addAttribute("type","success");
+					populateModel(domain, model, request, workflowDetails);
 				}
-				model.addAttribute("type","success");
-				populateModel(domain, model, request, workflowDetails);
+
 			}
 		}catch (ELSException e) {
 			model.addAttribute("error", e.getParameter());
