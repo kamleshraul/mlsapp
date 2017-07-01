@@ -1661,6 +1661,24 @@ public class QuestionWorkflowController  extends BaseController{
 						}
 					}
 					domain.setDateOfAnsweringByMinister(dateOfAnsweringByMinister);
+					
+					/** copy updated revised question text of parent to its all clubbed questions if any **/
+					if(domain.getParent()==null 
+							&& domain.getClubbedEntities()!=null 
+							&& !domain.getClubbedEntities().isEmpty()) {	
+						String updatedRevisedQuestionText = domain.getRevisedQuestionText();
+						if(updatedRevisedQuestionText!=null && !updatedRevisedQuestionText.isEmpty()) {
+							Question qt = Question.findById(Question.class, domain.getId());
+							if(qt.getRevisedQuestionText()==null || qt.getRevisedQuestionText().isEmpty() || !qt.getRevisedQuestionText().equals(updatedRevisedQuestionText)) {
+								for(ClubbedEntity ce: domain.getClubbedEntities()) {
+									Question clubbedQuestion = ce.getQuestion();
+									clubbedQuestion.setRevisedQuestionText(updatedRevisedQuestionText);
+									clubbedQuestion.simpleMerge();
+								}
+							}				
+						}			
+					}
+					
 					/**** updating submission date and creation date ****/
 					String strCreationDate = request.getParameter("setCreationDate");
 					String strSubmissionDate = request.getParameter("setSubmissionDate");
