@@ -1458,10 +1458,27 @@ public class QuestionWorkflowController  extends BaseController{
 					if(domain.getRevisedReason() != null && !domain.getRevisedReason().isEmpty()){
 						previousVersionQuestion.setRevisedReason(domain.getRevisedReason());
 					}
-					previousVersionQuestion.simpleMerge();
+					previousVersionQuestion.merge();
 					model.addAttribute("type","success");
-					//populateModel(domain, model, request, workflowDetails);
-					return "redirect:/workflow/myTasks/"+workflowDetails.getId()+"/process";
+					/**** Adding workflowdetails and task to model ****/
+					model.addAttribute("workflowdetails", workflowDetails.getId());
+					model.addAttribute("workflowstatus", workflowDetails.getStatus());
+					model.addAttribute("workflowSubType", workflowDetails.getWorkflowSubType());
+					
+					Set<Role> roles = this.getCurrentUser().getRoles();
+					for(Role r : roles){
+						if(r != null && (r.getType().startsWith("QIS_") || r.getType().startsWith("MEMBER_"))){
+							
+							model.addAttribute("role", r.getType());
+							break;
+							
+						}
+					}
+					populateModel(previousVersionQuestion, model, request, workflowDetails);
+					/**** Find Latest Remarks ****/
+					findLatestRemarksByUserGroup(previousVersionQuestion, model, request, workflowDetails);
+					//return "workflow/myTasks/"+workflowDetails.getId()+"/process";
+					return "workflow/question/"+userGroupType;
 				}else{
 					/**** Is reanswering ****/
 					boolean boolReanswering = false;
@@ -1574,7 +1591,6 @@ public class QuestionWorkflowController  extends BaseController{
 								}
 							}else if(operation.equals("workflowsendback")){
 								long currentTimeMillis = System.currentTimeMillis();
-	
 								if(currentTimeMillis > workflowDetails.getSendBackBefore().getTime()){
 									if(domain.getRemarks() == null){
 										result.rejectValue("answer", "AnswerEmpty");						
