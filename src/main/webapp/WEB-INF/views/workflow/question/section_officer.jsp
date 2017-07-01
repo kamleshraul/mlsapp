@@ -793,6 +793,38 @@
 				return false;
 			}					
 		});
+		
+		
+		/**** Put Up ****/
+		$("#save").click(function(e){
+			//removing <p><br></p>  from wysiwyg editor
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});		
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			$.post($('form').attr('action')+'?operation=save',  
+		            $("form").serialize(),  
+		            function(data){
+						$('.tabContent').html(data);
+	   					$('html').animate({scrollTop:0}, 'slow');
+	   				 	$('body').animate({scrollTop:0}, 'slow');
+	   					$.unblockUI();	
+		            }).fail(function(){
+		            	$.unblockUI();	
+		    			if($("#ErrorMsg").val()!=''){
+		    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+		    			}else{
+		    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+		    			}
+		    			scrollTop();
+		    			
+		    		});
+	        return false;			
+
+	    });
 		/**** On Bulk Edit ****/
 		$("#submitBulkEdit").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -1823,6 +1855,7 @@
 		<h2></h2>
 		<p class="tright">		
 		<c:if test="${bulkedit!='yes'}">
+			<input id="save" type="button" value="<spring:message code='generic.save' text='Save'/>" class="butDef">
 			<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 		</c:if>
 		<c:if test="${bulkedit=='yes'}">
@@ -1929,7 +1962,9 @@
 	<h1>Latest Revised Question text of clubbed questions</h1>
 </div>
 <div id="hideClubRQTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
-<input type="hidden" id="latestRevisedQuestionTextFromClubbedQuestions" value="${latestRevisedQuestionTextFromClubbedQuestions}"/>
+<c:set var="revisedQuestionTextFromClubbedQuestionsEscapingDoubleQuote" value="${fn:replace(latestRevisedQuestionTextFromClubbedQuestions, '\"', '&#34;')}" />
+<c:set var='revisedQuestionTextFromClubbedQuestionsEscapingSingleQuote' value='${fn:replace(revisedQuestionTextFromClubbedQuestionsEscapingDoubleQuote, "\'", "&#39;")}' />
+<input type="hidden" id="latestRevisedQuestionTextFromClubbedQuestions" value="${revisedQuestionTextFromClubbedQuestionsEscapingSingleQuote}"/>
 
 <div id="referencingresultDiv" style="display:none;">
 </div>
