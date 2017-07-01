@@ -23,6 +23,7 @@ import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -1063,6 +1064,15 @@ class ShortNoticeController {
 				List<Reference> clubEntityReferences = QuestionController.
 						getClubbedEntityReferences(domain, locale);
 				model.addAttribute("clubbedQuestions",clubEntityReferences);
+				
+				// Populate latest revised question text from clubbed questions
+				String latestRevisedQuestionTextFromClubbedQuestions = "";
+				List<ClubbedEntity> clubbedEntities=Question.findClubbedEntitiesByPosition(domain);
+				if(clubbedEntities!=null & !clubbedEntities.isEmpty()){
+					ClubbedEntity ce = clubbedEntities.get(0); //first position clubbed question
+					latestRevisedQuestionTextFromClubbedQuestions = ce.getQuestion().getRevisedQuestionText();					
+				}
+				model.addAttribute("latestRevisedQuestionTextFromClubbedQuestions",latestRevisedQuestionTextFromClubbedQuestions);
 			}
 		}
 	
@@ -1605,6 +1615,15 @@ class ShortNoticeController {
 				List<Reference> clubEntityReferences = QuestionController.
 						getClubbedEntityReferences(domain, locale);
 				model.addAttribute("clubbedQuestions",clubEntityReferences);
+				
+				// Populate latest revised question text from clubbed questions
+				String latestRevisedQuestionTextFromClubbedQuestions = "";
+				List<ClubbedEntity> clubbedEntities=Question.findClubbedEntitiesByPosition(domain);
+				if(clubbedEntities!=null & !clubbedEntities.isEmpty()){
+					ClubbedEntity ce = clubbedEntities.get(0); //first position clubbed question
+					latestRevisedQuestionTextFromClubbedQuestions = ce.getQuestion().getRevisedQuestionText();					
+				}
+				model.addAttribute("latestRevisedQuestionTextFromClubbedQuestions",latestRevisedQuestionTextFromClubbedQuestions);
 			}
 		}
 	
@@ -1908,6 +1927,22 @@ class ShortNoticeController {
 			}
 		}
 
+		/** copy updated revised question text of parent to its all clubbed questions if any **/
+		if(domain.getParent()==null 
+				&& domain.getClubbedEntities()!=null 
+				&& !domain.getClubbedEntities().isEmpty()) {	
+			String updatedRevisedQuestionText = domain.getRevisedQuestionText();
+			if(updatedRevisedQuestionText!=null && !updatedRevisedQuestionText.isEmpty()) {
+				Question qt = Question.findById(Question.class, domain.getId());
+				if(qt.getRevisedQuestionText()==null || qt.getRevisedQuestionText().isEmpty() || !qt.getRevisedQuestionText().equals(updatedRevisedQuestionText)) {
+					for(ClubbedEntity ce: domain.getClubbedEntities()) {
+						Question clubbedQuestion = ce.getQuestion();
+						clubbedQuestion.setRevisedQuestionText(updatedRevisedQuestionText);
+						clubbedQuestion.simpleMerge();
+					}
+				}				
+			}			
+		}
 			
 		/**** updating submission date and creation date ****/
 		String strCreationDate = request.getParameter("setCreationDate");
@@ -1975,6 +2010,7 @@ class ShortNoticeController {
 		request.getSession().setAttribute("bulkedit", request.getParameter("bulkedit"));
 		request.getSession().setAttribute("questionType", request.getParameter("questionType"));
 		/**** Parameters which are read from request in populate edit needs to be saved in session Starts ****/
+		Question question = Question.findById(Question.class, domain.getId());
 
 		/**** Supporting Member Workflow/Put Up Workflow ****/
 		String operation=request.getParameter("operation");
@@ -1991,7 +2027,7 @@ class ShortNoticeController {
 					List<Task> tasks = processService.getCurrentTasks(processInstance);					
 					List<WorkflowDetails> workflowDetails = WorkflowDetails.
 							create(domain,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"");
-					Question question = Question.findById(Question.class,domain.getId());
+					question = Question.findById(Question.class,domain.getId());
 					List<SupportingMember> supportingMembers = question.getSupportingMembers();
 					Status status=Status.
 							findByType(ApplicationConstants.SUPPORTING_MEMBER_PENDING, domain.getLocale());
@@ -2016,6 +2052,22 @@ class ShortNoticeController {
 						}
 					}
 				}else if(operation.equals("startworkflow")){
+					/** copy latest question text of child question to revised question text of its parent's other clubbed questions if any **/
+					if(question.getParent()!=null) {
+						/** fetch question's latest question text **/
+						String latestQuestionText = question.getRevisedQuestionText();
+						if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+							latestQuestionText = question.getQuestionText();
+						}						
+						for(ClubbedEntity ce: question.getParent().getClubbedEntities()) {
+							Question clubbedQuestion = ce.getQuestion();
+							if(!clubbedQuestion.getId().equals(question.getId())) {
+								clubbedQuestion.setRevisedQuestionText(latestQuestionText);
+								clubbedQuestion.simpleMerge();
+							}
+						}
+					}
+					
 					ProcessDefinition processDefinition = processService.
 							findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 					Map<String,String> properties = new HashMap<String, String>();					
@@ -2036,7 +2088,7 @@ class ShortNoticeController {
 					properties.put("pv_deviceTypeId", String.valueOf(domain.getType().getId()));
 					ProcessInstance processInstance = processService.
 							createProcessInstance(processDefinition, properties);
-					Question question = Question.findById(Question.class, domain.getId());
+					question = Question.findById(Question.class, domain.getId());
 					Task task = processService.getCurrentTask(processInstance);
 					if(endflag != null && !endflag.isEmpty()){
 						if(endflag.equals("continue")){
@@ -2060,7 +2112,7 @@ class ShortNoticeController {
 		
 		/**** Starred question,internal status=group changed ****/
 		if(internalStatus.getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_GROUPCHANGED)) {
-			Question question = Question.findById(Question.class, domain.getId());
+			question = Question.findById(Question.class, domain.getId());
 			QuestionDraft draft = question.findSecondPreviousDraft();
 			Group affectedGroup = draft.getGroup();
 //			try{

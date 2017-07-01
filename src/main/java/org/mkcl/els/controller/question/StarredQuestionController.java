@@ -1423,6 +1423,15 @@ class StarredQuestionController {
 				// Populate clubbed entities
 				List<Reference> clubEntityReferences = QuestionController.getClubbedEntityReferences(domain, locale);
 				model.addAttribute("clubbedQuestions",clubEntityReferences);
+				
+				// Populate latest revised question text from clubbed questions
+				String latestRevisedQuestionTextFromClubbedQuestions = "";
+				List<ClubbedEntity> clubbedEntities=Question.findClubbedEntitiesByPosition(domain);
+				if(clubbedEntities!=null & !clubbedEntities.isEmpty()){
+					ClubbedEntity ce = clubbedEntities.get(0); //first position clubbed question
+					latestRevisedQuestionTextFromClubbedQuestions = ce.getQuestion().getRevisedQuestionText();					
+				}
+				model.addAttribute("latestRevisedQuestionTextFromClubbedQuestions",latestRevisedQuestionTextFromClubbedQuestions);
 			}
 		}
 	
@@ -2156,6 +2165,15 @@ class StarredQuestionController {
 				// Populate clubbed entities
 				List<Reference> clubEntityReferences = QuestionController.getClubbedEntityReferences(domain, locale);
 				model.addAttribute("clubbedQuestions",clubEntityReferences);
+				
+				// Populate latest revised question text from clubbed questions
+				String latestRevisedQuestionTextFromClubbedQuestions = "";
+				List<ClubbedEntity> clubbedEntities=Question.findClubbedEntitiesByPosition(domain);
+				if(clubbedEntities!=null & !clubbedEntities.isEmpty()){
+					ClubbedEntity ce = clubbedEntities.get(0); //first position clubbed question
+					latestRevisedQuestionTextFromClubbedQuestions = ce.getQuestion().getRevisedQuestionText();					
+				}
+				model.addAttribute("latestRevisedQuestionTextFromClubbedQuestions",latestRevisedQuestionTextFromClubbedQuestions);
 			}
 		}
 	
@@ -2507,6 +2525,22 @@ class StarredQuestionController {
 			}
 		}
 
+		/** copy updated revised question text of parent to its all clubbed questions if any **/
+		if(domain.getParent()==null 
+				&& domain.getClubbedEntities()!=null 
+				&& !domain.getClubbedEntities().isEmpty()) {	
+			String updatedRevisedQuestionText = domain.getRevisedQuestionText();
+			if(updatedRevisedQuestionText!=null && !updatedRevisedQuestionText.isEmpty()) {
+				Question qt = Question.findById(Question.class, domain.getId());
+				if(qt.getRevisedQuestionText()==null || qt.getRevisedQuestionText().isEmpty() || !qt.getRevisedQuestionText().equals(updatedRevisedQuestionText)) {
+					for(ClubbedEntity ce: domain.getClubbedEntities()) {
+						Question clubbedQuestion = ce.getQuestion();
+						clubbedQuestion.setRevisedQuestionText(updatedRevisedQuestionText);
+						clubbedQuestion.simpleMerge();
+					}
+				}				
+			}			
+		}
 			
 		/**** updating submission date and creation date ****/
 		String strCreationDate = request.getParameter("setCreationDate");
@@ -2627,13 +2661,13 @@ class StarredQuestionController {
 						}
 					}
 				}else if(operation.equals("startworkflow")){
+						/** copy latest question text of child question to revised question text of its parent's other clubbed questions if any **/
 						if(question.getParent()!=null) {
 							/** fetch question's latest question text **/
 							String latestQuestionText = question.getRevisedQuestionText();
 							if(latestQuestionText==null || latestQuestionText.isEmpty()) {
 								latestQuestionText = question.getQuestionText();
-							}
-							/** copy latest question text of question to revised question text of its parent's other clubbed questions if any **/
+							}							
 							for(ClubbedEntity ce: question.getParent().getClubbedEntities()) {
 								Question clubbedQuestion = ce.getQuestion();
 								if(!clubbedQuestion.getId().equals(question.getId())) {
@@ -2642,6 +2676,7 @@ class StarredQuestionController {
 								}
 							}
 						}
+						
 						ProcessDefinition processDefinition = processService.
 								findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 						Map<String,String> properties = new HashMap<String, String>();					

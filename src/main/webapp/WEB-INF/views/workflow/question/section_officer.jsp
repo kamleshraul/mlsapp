@@ -598,9 +598,10 @@
 	}
 	
 	$(document).ready(function(){
-		/** Disable edit of revised question text of parent while its child pending for clubbing approval has some modifications in the same **/
+		/** Warn if revised question text of parent is changed while its child pending for clubbing approval has some modifications in the same **/
 		var isPendingClubbedQuestionSearched = false;
 	    var isPendingClubbedQuestionFound = false;
+	    var isRevisedQuestionTextDisallowedToEdit = false;
 	    var revisedQuestionTextOriginal = $('#revisedQuestionText').val();
 	    var clubbedQuestionNumbers = "";
 		$('#revisedQuestionText').wysiwyg({ //registered here for keypress event handling
@@ -631,22 +632,28 @@
 			events: {
 				keydown: function(event) {										
 					var idval = $('#revisedQuestionText').attr('id');
-			    	if(isPendingClubbedQuestionFound) {
+			    	if(isPendingClubbedQuestionFound && isRevisedQuestionTextDisallowedToEdit) {
 			    		if($('#'+idval).val()!=revisedQuestionTextOriginal) {
 		    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
 		    			}
-			    		$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Approval Flows");
+			    		$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Approval Flows and You chose not to edit the revised question text");
 			    		return false;
 			    	}
 			    	if($('#clubbedEntities option').length>0 && !isPendingClubbedQuestionSearched) {
 			    		$.get('ref/question/'+$('#id').val()+'/is_clubbedquestion_pendingwith_updatedquestiontext', function(data) {
 				    		if(data!=undefined && data.length>0) {
-				    			clubbedQuestionNumbers = data;
-				    			if($('#'+idval).val()!=revisedQuestionTextOriginal) {
-				    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
-				    			}
+				    			clubbedQuestionNumbers = data;				    			
 				    			isPendingClubbedQuestionFound = true;
-				    			$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Flows");
+				    			var promptMessage = "Questions " + clubbedQuestionNumbers + " Pending in Clubbing Flows..<br/>Do you still want to edit the revised question text?";
+				    			$.prompt(promptMessage,{
+									buttons: {Ok:true, Cancel:false}, callback: function(v){
+									if(!v){
+										isRevisedQuestionTextDisallowedToEdit = true;
+							        	if($('#'+idval).val()!=revisedQuestionTextOriginal) {
+						    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
+						    			}
+					    	        }
+								}});
 				    			return false;
 				    		}
 				    	});

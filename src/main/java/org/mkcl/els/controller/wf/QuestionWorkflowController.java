@@ -821,6 +821,15 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("parent", domain.getParent().getId());
 			}
 		}
+		
+		// Populate latest revised question text from clubbed questions
+		String latestRevisedQuestionTextFromClubbedQuestions = "";
+		if(clubbedEntities!=null & !clubbedEntities.isEmpty()){
+			ClubbedEntity ce = clubbedEntities.get(0); //first position clubbed question
+			latestRevisedQuestionTextFromClubbedQuestions = ce.getQuestion().getRevisedQuestionText();			
+		}
+		model.addAttribute("latestRevisedQuestionTextFromClubbedQuestions",latestRevisedQuestionTextFromClubbedQuestions);
+		
 		/**** level ****/
 		model.addAttribute("level", workflowDetails.getAssigneeLevel());
 
