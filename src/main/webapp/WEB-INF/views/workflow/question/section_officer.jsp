@@ -668,6 +668,32 @@
 			}
 		});
 		
+		if($('#clubbedEntities option').length>0) {
+			$('#viewLatestRevisedQuestionTextFromClubbedQuestionsDiv').show();
+		}
+		/**** To show/hide viewLatestRevisedQuestionTextFromClubbedQuestionsDiv to view latest revised question text of clubbed questions starts****/
+		$("#clubbedRevisedQuestionTextDiv").hide();
+		$("#hideClubRQTDiv").hide();
+		$("#viewLatestRevisedQuestionTextFromClubbedQuestionsDiv").click(function(){
+			if($("#clubbedRevisedQuestionTextDiv").css('display')=='none'){
+				$("#hideClubQTDiv").hide();
+				$("#clubbedQuestionTextsDiv").hide();
+				
+				$("#hideClubRQTDiv").show();
+				$('#clubbedRevisedQuestionTextDiv').empty();
+				$('#clubbedRevisedQuestionTextDiv').html("<p>"+$('#latestRevisedQuestionTextFromClubbedQuestions').val()+"</p>");
+				$("#clubbedRevisedQuestionTextDiv").show();
+			}else{
+				$("#clubbedRevisedQuestionTextDiv").hide();
+				$("#hideClubRQTDiv").hide();
+			}
+		});
+		$("#hideClubRQTDiv").click(function(){
+			$(this).hide();
+			$('#clubbedRevisedQuestionTextDiv').hide();
+		});
+		/**** To show/hide viewLatestRevisedQuestionTextFromClubbedQuestionsDiv to view latest revised question text of clubbed questions ends****/
+		
 		$('#mlsBranchNotifiedOfTransfer').val(null);
 		$('#transferToDepartmentAccepted').val(null);
 		
@@ -836,13 +862,15 @@
 		
 		$("#reviseQuestionText").click(function(){
 			$(".revise2").toggle();		
-			if($("#revisedQuestionTextDiv").css("display")=="none"){
-				$("#revisedQuestionText").wysiwyg("setContent","");
-			}else{
-				$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val());				
-			}				
+			if($('#revisedQuestionText').val()==$('#questionText').val()) {
+				if($("#revisedQuestionTextDiv").css("display")=="none"){
+					$("#revisedQuestionText").wysiwyg("setContent","");
+				}else{
+					$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val());				
+				}
+			}							
 			return false;			
-		});	
+		});
 		
 		/**** Revise reason and brief explanation****/
 		$("#reviseReason").click(function(){
@@ -1114,6 +1142,19 @@
             display:none;
             }
         }
+        
+        #clubbedRevisedQuestionTextDiv {
+        	background: none repeat-x scroll 0 0 #FFF;
+		    box-shadow: 0 2px 5px #888888;
+		    max-height: 260px;
+		    right: 0;
+		    position: fixed;
+		    top: 10px;
+		    width: 300px;
+		    z-index: 10000;
+		    overflow: auto;
+		    border-radius: 10px;
+	    }
     </style>
 </head> 
 
@@ -1456,6 +1497,7 @@
 	<p style="display:none;" class="revise2" id="revisedQuestionTextDiv">
 	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
+	<a href="javascript:void(0);" id="viewLatestRevisedQuestionTextFromClubbedQuestionsDiv" style="border: 1px solid #000000;background-color: #657A8F;border-radius: 5px;color: #FFFFFF;text-decoration: none;float: right;margin-top: -200px;margin-right: 200px;display:none;"><spring:message code="question.clubbed.revised_texts" text="RC"></spring:message></a>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
@@ -1881,6 +1923,13 @@
 
 <div id="clubbingResultDiv" style="display:none;">
 </div>
+
+<!--To show the latest revised questionText of the clubbed questions -->
+<div id="clubbedRevisedQuestionTextDiv">
+	<h1>Latest Revised Question text of clubbed questions</h1>
+</div>
+<div id="hideClubRQTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
+<input type="hidden" id="latestRevisedQuestionTextFromClubbedQuestions" value="${latestRevisedQuestionTextFromClubbedQuestions}"/>
 
 <div id="referencingresultDiv" style="display:none;">
 </div>
