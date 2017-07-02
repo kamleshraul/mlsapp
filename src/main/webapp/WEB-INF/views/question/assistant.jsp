@@ -362,69 +362,71 @@
 	    var isRevisedQuestionTextDisallowedToEdit = false;
 	    var revisedQuestionTextOriginal = $('#revisedQuestionText').val();
 	    var clubbedQuestionNumbers = "";
-		$('#revisedQuestionText').wysiwyg({ //registered here for keypress event handling
-			resizeOptions: {maxWidth: 600},
-			controls:{
-				fullscreen: {
-					visible: true,
-					hotkey:{
-						"ctrl":1|0,
-						"key":122
+		if($('#revisedQuestionText').val()!=undefined && $('#revisedQuestionText').val()!="" && $('#revisedQuestionText').val()!="<p></p>") {
+			$('#revisedQuestionText').wysiwyg({ //registered here for keypress event handling
+				resizeOptions: {maxWidth: 600},
+				controls:{
+					fullscreen: {
+						visible: true,
+						hotkey:{
+							"ctrl":1|0,
+							"key":122
+						},
+						exec: function () {
+							if ($.wysiwyg.fullscreen) {
+								$.wysiwyg.fullscreen.init(this);
+							}
+						},
+						tooltip: "Fullscreen"
 					},
-					exec: function () {
-						if ($.wysiwyg.fullscreen) {
-							$.wysiwyg.fullscreen.init(this);
-						}
-					},
-					tooltip: "Fullscreen"
+					strikeThrough: { visible: true },
+					underline: { visible: true },
+					subscript: { visible: true },
+					superscript: { visible: true },
+					insertOrderedList  : { visible : true},
+					increaseFontSize:{visible:true},
+					decreaseFontSize:{visible:true},
+					highlight: {visible:true}			
 				},
-				strikeThrough: { visible: true },
-				underline: { visible: true },
-				subscript: { visible: true },
-				superscript: { visible: true },
-				insertOrderedList  : { visible : true},
-				increaseFontSize:{visible:true},
-				decreaseFontSize:{visible:true},
-				highlight: {visible:true}			
-			},
-			events: {
-				keydown: function(event) {										
-					var idval = $('#revisedQuestionText').attr('id');
-			    	if(isPendingClubbedQuestionFound && isRevisedQuestionTextDisallowedToEdit) {
-			    		if($('#'+idval).val()!=revisedQuestionTextOriginal) {
-		    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
-		    			}
-			    		$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Approval Flows and You chose not to edit the revised question text");
-			    		return false;
-			    	}
-			    	if($('#clubbedEntities option').length>0 && !isPendingClubbedQuestionSearched) {
-			    		$.get('ref/question/'+$('#id').val()+'/is_clubbedquestion_pendingwith_updatedquestiontext', function(data) {
-				    		if(data!=undefined && data.length>0) {
-				    			clubbedQuestionNumbers = data;				    			
-				    			isPendingClubbedQuestionFound = true;
-				    			var promptMessage = "Questions " + clubbedQuestionNumbers + " Pending in Clubbing Flows..<br/>Do you still want to edit the revised question text?";
-				    			$.prompt(promptMessage,{
-									buttons: {Ok:true, Cancel:false}, callback: function(v){
-									if(!v){
-										isRevisedQuestionTextDisallowedToEdit = true;
-							        	if($('#'+idval).val()!=revisedQuestionTextOriginal) {
-						    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
-						    			}
-					    	        }
-								}});
-				    			return false;
-				    		}
-				    	});
-			    		isPendingClubbedQuestionSearched = true;
-			    	}
+				events: {
+					keydown: function(event) {										
+						var idval = $('#revisedQuestionText').attr('id');
+				    	if(isPendingClubbedQuestionFound && isRevisedQuestionTextDisallowedToEdit) {
+				    		if($('#'+idval).val()!=revisedQuestionTextOriginal) {
+			    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
+			    			}
+				    		$.prompt("Questions " + clubbedQuestionNumbers + " Pending in Clubbing Approval Flows and You chose not to edit the revised question text");
+				    		return false;
+				    	}
+				    	if($('#clubbedEntities option').length>0 && !isPendingClubbedQuestionSearched) {
+				    		$.get('ref/question/'+$('#id').val()+'/is_clubbedquestion_pendingwith_updatedquestiontext', function(data) {
+					    		if(data!=undefined && data.length>0) {
+					    			clubbedQuestionNumbers = data;				    			
+					    			isPendingClubbedQuestionFound = true;
+					    			var promptMessage = "Questions " + clubbedQuestionNumbers + " Pending in Clubbing Flows..<br/>Do you still want to edit the revised question text?";
+					    			$.prompt(promptMessage,{
+										buttons: {Ok:true, Cancel:false}, callback: function(v){
+										if(!v){
+											isRevisedQuestionTextDisallowedToEdit = true;
+								        	if($('#'+idval).val()!=revisedQuestionTextOriginal) {
+							    				$('#'+idval+'-wysiwyg-iframe').contents().find('html').html(revisedQuestionTextOriginal);
+							    			}
+						    	        }
+									}});
+					    			return false;
+					    		}
+					    	});
+				    		isPendingClubbedQuestionSearched = true;
+				    	}
+					}
+				},
+				plugins: {
+					autoload: true,
+					i18n: { lang: "mr" }
+					//rmFormat: {	rmMsWordMarkup: true }
 				}
-			},
-			plugins: {
-				autoload: true,
-				i18n: { lang: "mr" }
-				//rmFormat: {	rmMsWordMarkup: true }
-			}
-		});
+			});
+		}
 		
 		if($('#clubbedEntities option').length>0) {
 			$('#viewLatestRevisedQuestionTextFromClubbedQuestionsDiv').show();
@@ -514,13 +516,19 @@
 			}						
 			return false;			
 		});	
-		$("#reviseQuestionText").click(function(){
-			$(".revise2").toggle();		
-			if($("#revisedQuestionTextDiv").css("display")=="none"){
-				$("#revisedQuestionText").wysiwyg("setContent","");
-			}else{
-				$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val());				
-			}				
+		$("#reviseQuestionText").click(function(){		
+			//alert("reviseQuestionText clicked!");
+			if($('#revisedQuestionText').val()==undefined || $('#revisedQuestionText').val()=="" || $('#revisedQuestionText').val()=="<p></p>"
+					|| $('#revisedQuestionText').val()==$('#questionText').val()) {
+				$(".revise2").toggle();
+				if($("#revisedQuestionTextDiv").css("display")=="none"){
+					$("#revisedQuestionText").wysiwyg("setContent","");
+				}else{
+					$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val());
+				}
+			} else {
+				$.prompt("The revised question text is already set and its editor is open too!");
+			}			
 			return false;			
 		});	
 		

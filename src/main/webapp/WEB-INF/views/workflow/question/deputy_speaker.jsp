@@ -564,12 +564,18 @@
 			return false;			
 		});	
 		$("#reviseQuestionText").click(function(){
-			$(".revise2").toggle();		
-			if($("#revisedQuestionTextDiv").css("display")=="none"){
-				$("#revisedQuestionText").wysiwyg("setContent","");
-			}else{
-				$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val());				
-			}				
+			//alert("reviseQuestionText clicked!");
+			if($('#revisedQuestionText').val()==undefined || $('#revisedQuestionText').val()=="" || $('#revisedQuestionText').val()=="<p></p>"
+					|| $('#revisedQuestionText').val()==$('#questionText').val()) {
+				$(".revise2").toggle();
+				if($("#revisedQuestionTextDiv").css("display")=="none"){
+					$("#revisedQuestionText").wysiwyg("setContent","");
+				}else{
+					$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val());
+				}
+			} else {
+				$.prompt("The revised question text is already set and its editor is open too!");
+			}			
 			return false;			
 		});	
 		
