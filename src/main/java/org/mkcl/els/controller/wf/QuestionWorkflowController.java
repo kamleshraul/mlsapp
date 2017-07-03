@@ -838,7 +838,8 @@ public class QuestionWorkflowController  extends BaseController{
 		String userGroupId = workflowDetails.getAssigneeUserGroupId();
 		// String deviceTypeType = domain.getType().getType();
 		String internalStatusType = internalStatus.getType();
-		if(userGroupType.equals(ApplicationConstants.SECTION_OFFICER)){
+		if(userGroupType.equals(ApplicationConstants.SECTION_OFFICER) 
+				|| userGroupType.equals(ApplicationConstants.ASSISTANT)){
 			if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 				||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 				||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
@@ -1398,7 +1399,11 @@ public class QuestionWorkflowController  extends BaseController{
 			final Locale locale,
 			@Valid @ModelAttribute("domain") final Question domain,
 			final BindingResult result) {
-		
+		// Added the following code due to bug in Multselect plugin, When we select no entry , it sets the value as "," which gives exception
+		if(domain.getQuestionsAskedInFactualPosition() != null && !domain.getQuestionsAskedInFactualPosition().isEmpty() 
+				&& domain.getQuestionsAskedInFactualPosition().equals(",")){
+			domain.setQuestionsAskedInFactualPosition("");
+		}
 		/**** Workflowdetails ****/
 		String strWorkflowdetails = (String) request.getParameter("workflowdetails");
 		WorkflowDetails workflowDetails = 
