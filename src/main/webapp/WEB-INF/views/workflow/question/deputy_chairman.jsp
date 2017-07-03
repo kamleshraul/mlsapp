@@ -225,7 +225,8 @@
 		
 		var changedInternalStatus = $("#changeInternalStatus").val();
 		if(changedInternalStatus == admitDate || 
-				changedInternalStatus == resubmitDate) {			
+				changedInternalStatus == resubmitDate) {	
+			$("#endFlag").val("continue");
 			valueToSend = $("#internalStatus").val();			
 		} else if(value==clubbingApproved || value==clubbingRejected					
 				|| value==nameclubbingApproved || value == nameclubbingRejected
@@ -243,6 +244,7 @@
 			$("#actorDiv").hide();
 			return false;
 		} else {
+			$("#endFlag").val("continue");
 			valueToSend = value;
 		}
 		

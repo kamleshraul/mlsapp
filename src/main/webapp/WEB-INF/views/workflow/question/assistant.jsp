@@ -224,6 +224,7 @@
 		if(changedInternalStatus == putUpForDateApproval || 
 		   changedInternalStatus == sendToSectionOfficer ||
 		   changedInternalStatus == resendToSectionOfficer) {
+			$("#endFlag").val("continue");
 			valueToSend = $("#internalStatus").val();
 		} 
 		else if(value==clubbingApproved || value==clubbingRejected					
@@ -243,6 +244,7 @@
 			return false;
 		} 
 		else {
+			$("#endFlag").val("continue");
 			valueToSend = value;
 		}
 		var level = $("#originalLevel").val();
