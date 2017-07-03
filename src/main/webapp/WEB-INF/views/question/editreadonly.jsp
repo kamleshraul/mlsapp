@@ -7,29 +7,32 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
-		if($("#edit_departmentSelected").val()==null||$("#edit_departmentSelected").val()==''){
-		$("#departmentEdit").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
-		}else{
-		$("#departmentEdit").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-		}
-		if($("#edit_subDepartmentSelected").val()==null||$("#edit_subDepartmentSelected").val()==''){
-			$("#subDepartmentEdit").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
-		}else{
-			$("#subDepartmentEdit").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-		}		
-		if($("#edit_answeringDateSelected").val()==null||$("#edit_answeringDateSelected").val()==''){
-			$("#answeringDateEdit").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
-			}else{
-			$("#answeringDateEdit").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-		}
-		if($("#revisedSubjectEdit").val()!=''){
-			$("#revisedSubjectEditDiv").show();
-		}
-		if($("#revisedQuestionTextEdit").val()!=''){
-			$("#revisedQuestionTextEditDiv").show();
-		}
-					
-	});
+			if($("#edit_departmentSelected").val()==null||$("#edit_departmentSelected").val()==''){
+				$("#departmentEdit").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+			} else{
+				$("#departmentEdit").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+			}
+			
+			if($("#edit_subDepartmentSelected").val()==null||$("#edit_subDepartmentSelected").val()==''){
+				$("#subDepartmentEdit").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+			} else{
+				$("#subDepartmentEdit").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+			}
+			
+			if($("#edit_answeringDateSelected").val()==null||$("#edit_answeringDateSelected").val()==''){
+				$("#answeringDateEdit").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");
+			} else{
+				$("#answeringDateEdit").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+			}
+			
+			if($("#revisedSubjectEdit").val()!=''){
+				$("#revisedSubjectEditDiv").show();
+			}
+			
+			if($("#revisedQuestionTextEdit").val()!=''){
+				$("#revisedQuestionTextEditDiv").show();
+			}						
+		});
 	</script>
 	 <style type="text/css">
         @media print {
