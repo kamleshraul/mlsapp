@@ -191,6 +191,12 @@
 				generateExtendedGridReport();
 			});
 			
+			/**** Statistical Counts Report ****/
+			$("#statistical_counts_report").click(function(){
+				$("#selectionDiv1").hide();
+				generateStatisticalCountsReport();
+			});
+			
 			/**** Questions Bulletein Report ****/
 			$("#group_bulletein_report").click(function(){				
 				$(this).attr('href','#');
@@ -211,7 +217,11 @@
 			
 			/**** Unstarred Admitted Questions Departmentwise Report ****/
 			$("#unstarred_admitted_departmentwise_report").click(function(){
-				departmentwiseUnstarredAdmittedQuestionsReport();
+				if($('#selectedAnswerReceivedStatus').val()=='answerReceived') {
+					departmentwiseUnstarredAnsweredQuestionsReport();
+				} else {
+					departmentwiseUnstarredAdmittedQuestionsReport();
+				}				
 			});
 			
 			/**** Sankshipt Ahwal Report ****/
@@ -475,6 +485,9 @@
 				<a href="#" id="ahwal_report" class="butSim link">
 					<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
 				</a> |
+				<%-- <a href="#" id="statistical_counts_report" class="butSim link">
+					<spring:message code="question.statistical_counts_report" text="Statistical Counts Report"/>
+				</a> | --%>
 			</security:authorize>
 			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
 				<a href="#" id="memberwise_questions_report" class="butSim link">

@@ -13,11 +13,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,7 +35,6 @@ import org.mkcl.els.common.vo.RoundVO;
 import org.mkcl.els.common.vo.SessionVO;
 import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
-import org.mkcl.els.common.xmlvo.TestXmlVO;
 import org.mkcl.els.domain.ballot.Ballot;
 import org.mkcl.els.domain.ActivityLog;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -3020,6 +3019,13 @@ public class QuestionReportController extends BaseController{
 		}
 	}
 	
+	@RequestMapping(value="/departmentwise_unstarred_admitted_questions/init",method=RequestMethod.GET)
+	public String initDepartmentwiseUnstarredAdmittedQuestions(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
+		String answerReceivedStatus = request.getParameter("answerReceivedStatus");
+		model.addAttribute("answerReceivedStatus", answerReceivedStatus);
+		return "question/reports/departmentwise_unstarred_admitted_questions_report_init";
+	}
+	
 	@RequestMapping(value="/partywise_questions_count_report/init",method=RequestMethod.GET)
 	public String initPartywiseQuestionsCountReport(final HttpServletRequest request,final ModelMap model,final Locale locale) throws ELSException{
 		try{
@@ -4398,8 +4404,6 @@ public class QuestionReportController extends BaseController{
 				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);		
 				/** find group **/
 				Group group = Group.findById(Group.class, Long.parseLong(groupStr));
-				/** find subdepartment **/
-				SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(subDepartmentStr));
 				
 				/**** load report information ****/
 				/** load report headers **/
@@ -4408,63 +4412,241 @@ public class QuestionReportController extends BaseController{
 		    	parameterMap.put("locale", new String[]{locale.toString()});
 		    	parameterMap.put("houseTypeId", new String[]{houseType.getId().toString()});
 		    	parameterMap.put("sessionId", new String[]{session.getId().toString()});
+		    	parameterMap.put("groupId", new String[]{group.getId().toString()});
 		    	parameterMap.put("originalDeviceTypeId", new String[]{originalDeviceTypeStr});
 		    	parameterMap.put("answerReceivedStatus", new String[]{answerReceivedStatus});
 		    	reportHeaders = Query.findReport(reportQuery+"_HEADERS", parameterMap);
 		    	parameterMap = null;
+		    	
 		    	/** load report data **/
-				Map<List<String>, List<Object[]>> subDepartmentQuestionsMap = new HashMap<List<String>, List<Object[]>>();
-				List<String> subDepartmentKey = null;
-				List<Object[]> subDepartmentQuestionDetails = null;
-				if(subDepartment==null) { //all subdepartments of selected group will be treated as selected in this case
-					for(SubDepartment sd: group.getSubdepartments()) {
-						subDepartmentKey = new ArrayList<String>();
-						subDepartmentKey.add(sd.getName().trim());
-						subDepartmentKey.add(FormaterUtil.formatNumberNoGrouping(group.getNumber(), locale.toString()));
-						/** find details of all the required questions in the given subdepartment **/
-						parameterMap = new HashMap<String, String[]>();
-				    	parameterMap.put("locale", new String[]{locale.toString()});
-				    	parameterMap.put("sessionId", new String[]{session.getId().toString()});
-				    	parameterMap.put("groupId", new String[]{group.getId().toString()});
-				    	parameterMap.put("subDepartmentId", new String[]{sd.getId().toString()});
-				    	parameterMap.put("originalDeviceTypeId", new String[]{originalDeviceTypeStr});
-				    	parameterMap.put("answerReceivedStatus", new String[]{answerReceivedStatus});
-				    	parameterMap.put("serial", new String[]{"0"});
-				    	subDepartmentQuestionDetails = Query.findReport(reportQuery, parameterMap);
-						subDepartmentQuestionsMap.put(subDepartmentKey, subDepartmentQuestionDetails);
-						subDepartmentKey = null;
-						subDepartmentQuestionDetails = null;
-						parameterMap = null;
-					}
-				} else { //particular subdepartment is selected by user		
-					subDepartmentKey = new ArrayList<String>();
-					subDepartmentKey.add(subDepartment.getName().trim());
-					subDepartmentKey.add(FormaterUtil.formatNumberNoGrouping(group.getNumber(), locale.toString()));
-					/** find details of all the required questions in the given subdepartment **/
-					parameterMap = new HashMap<String, String[]>();
-			    	parameterMap.put("locale", new String[]{locale.toString()});
-			    	parameterMap.put("sessionId", new String[]{session.getId().toString()});
-			    	parameterMap.put("groupId", new String[]{group.getId().toString()});
-			    	parameterMap.put("subDepartmentId", new String[]{subDepartmentStr});
-			    	parameterMap.put("originalDeviceTypeId", new String[]{originalDeviceTypeStr});
-			    	parameterMap.put("answerReceivedStatus", new String[]{answerReceivedStatus});
-			    	parameterMap.put("serial", new String[]{"0"});
-			    	subDepartmentQuestionDetails = Query.findReport(reportQuery, parameterMap);
-					subDepartmentQuestionsMap.put(subDepartmentKey, subDepartmentQuestionDetails);
-					subDepartmentKey = null;
-					subDepartmentQuestionDetails = null;
-					parameterMap = null;
-				}				
-				
-				/**** generate fop report ****/
+				Map<String, List<Object[]>> reportDataMap = new TreeMap<String, List<Object[]>>();	    		
+	    		
+	    		parameterMap = new HashMap<String, String[]>();
+		    	parameterMap.put("locale", new String[]{locale.toString()});
+		    	parameterMap.put("sessionId", new String[]{session.getId().toString()});
+		    	parameterMap.put("groupId", new String[]{group.getId().toString()});
+		    	parameterMap.put("subDepartmentId", new String[]{subDepartmentStr});
+		    	parameterMap.put("originalDeviceTypeId", new String[]{originalDeviceTypeStr});
+		    	parameterMap.put("answerReceivedStatus", new String[]{answerReceivedStatus});
+		    	parameterMap.put("serial", new String[]{"0"});
+		    	List<Object[]> resultData = Query.findReport(reportQuery, parameterMap);
+		    	
+		    	if(resultData!=null && !resultData.isEmpty()) {
+		    		String groupingParameterKey = "";
+		    		List<Object[]> groupingParameterData = null;
+		    		int cnt = 1;
+		    		for(Object[] r: resultData) {
+		    			if(r[10]!=null && !r[10].toString().isEmpty() && !r[10].toString().equals(groupingParameterKey)) {
+		    				if(groupingParameterKey!="") {
+		    					reportDataMap.put(groupingParameterKey, groupingParameterData);
+		    				}
+		    				groupingParameterKey = r[10].toString();
+		    				groupingParameterData = new ArrayList<Object[]>();
+		    			}
+		    			groupingParameterData.add(r);
+		    			if(cnt==resultData.size()) {
+		    				reportDataMap.put(groupingParameterKey, groupingParameterData);
+		    			}
+		    			cnt++;
+		    		}		
+		    		groupingParameterData = null;
+		    	}
+		    	
+		    	/**** generate fop report ****/
 				/** create report in reportFile **/
-    			reportFile = generateReportUsingFOP(new Object[] {reportHeaders, subDepartmentQuestionsMap}, xsltFileName, outputFormat, reportFileName, locale.toString());
+    			reportFile = generateReportUsingFOP(new Object[] {reportHeaders, reportDataMap}, xsltFileName, outputFormat, reportFileName, locale.toString());
+    			parameterMap = null;
+				reportDataMap = null;
+				
 				/** open reportFile for view/download in browser **/
 	    		if(reportFile!=null) {
-	    			System.out.println("Report generated successfully in " + outputFormat + " format!");
-	    			subDepartmentQuestionsMap = null;
+	    			System.out.println("Report generated successfully in " + outputFormat + " format!");		    			
 	    			openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
-	    		}
+	    		}				
+				
+			} catch(Exception e) {
+				e.printStackTrace();
+				isError = true;					
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "generic.exception_occured", locale.toString());
+			}			
+		} else {
+			isError = true;
+			logger.error("**** Check request parameters houseType, sessionType, sessionYear for null values ****");
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "question.bulleteinReport.reqparam.null", locale.toString());
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {						
+				e.printStackTrace();
+			}
+		}	
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/departmentwise_unstarred_answered_questions", method=RequestMethod.GET)
+	public @ResponseBody void generateDepartmentwiseUnstarredAnsweredQuestionsReport(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		File reportFile = null;
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		
+		String houseTypeStr = request.getParameter("houseType");
+		String sessionYearStr = request.getParameter("sessionYear");
+		String sessionTypeStr = request.getParameter("sessionType");
+		String groupStr = request.getParameter("group");
+		String subDepartmentStr = request.getParameter("subDepartment");
+		String originalDeviceTypeStr = request.getParameter("originalDeviceType");
+		String answerReceivedStatus = request.getParameter("answerReceivedStatus");
+		String criteria = request.getParameter("criteria");
+		String fromDateStr = request.getParameter("fromDate");
+		String toDateStr = request.getParameter("toDate");
+		String forTodayStr = request.getParameter("forToday");
+		String includeYaadiQuestions = request.getParameter("includeYaadiQuestions");
+		String reportQuery = request.getParameter("reportQuery");
+		String xsltFileName = request.getParameter("xsltFileName");
+		String outputFormat = request.getParameter("outputFormat");
+		String reportFileName = request.getParameter("reportFileName");
+		
+		if(houseTypeStr!=null && !houseTypeStr.isEmpty()
+				&& sessionYearStr!=null && !sessionYearStr.isEmpty()
+				&& sessionTypeStr!=null && !sessionTypeStr.isEmpty()
+				&& groupStr!=null && !groupStr.isEmpty()
+				&& subDepartmentStr!=null && !subDepartmentStr.isEmpty()
+				&& originalDeviceTypeStr!=null && !originalDeviceTypeStr.isEmpty()				
+				&& answerReceivedStatus!=null && !answerReceivedStatus.isEmpty()
+				&& includeYaadiQuestions!=null && !includeYaadiQuestions.isEmpty()
+				&& criteria!=null && !criteria.isEmpty()
+				&& reportQuery!=null && !reportQuery.isEmpty()
+				&& xsltFileName!=null && !xsltFileName.isEmpty()
+				&& outputFormat!=null && !outputFormat.isEmpty()
+				&& reportFileName!=null && !reportFileName.isEmpty()) {
+			
+			try {		
+				/**** process request parameters ****/
+				/** find houseType **/
+				HouseType houseType = HouseType.findByType(houseTypeStr, locale.toString());
+				if(houseType==null) {
+					houseType = HouseType.findByName(houseTypeStr, locale.toString());
+				}
+				if(houseType==null) {
+					houseType = HouseType.findById(HouseType.class, Long.parseLong(houseTypeStr));
+				}
+				/** find sessionYear **/
+				Integer sessionYear = Integer.parseInt(sessionYearStr);
+				/** find sessionType **/
+				SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeStr));
+				/** find session **/
+				Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);		
+				/** find group **/
+				Group group = Group.findById(Group.class, Long.parseLong(groupStr));
+				/** find subdepartment **/
+				SubDepartment subDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(subDepartmentStr));
+				/**** set fromDate & toDate ****/
+				Date fromDate = null;
+				Date toDate = null;
+				Boolean forToday = Boolean.parseBoolean(forTodayStr);
+				if(forToday!=null && forToday.booleanValue()==true) {
+					Date currentDate = new Date();
+					//format fromDate & toDate for query
+					fromDateStr = FormaterUtil.formatDateToString(currentDate, ApplicationConstants.DB_DATEFORMAT);
+					toDateStr = FormaterUtil.formatDateToString(currentDate, ApplicationConstants.DB_DATEFORMAT);
+				}
+				
+				if(fromDateStr!=null && !fromDateStr.isEmpty() && toDateStr!=null && !toDateStr.isEmpty()) {
+					if(forToday==null || forToday.booleanValue()==false) {
+						//handle server encoding for fromDate & toDate parameters
+						CustomParameter csptServer = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+						if(csptServer != null && csptServer.getValue() != null && !csptServer.getValue().isEmpty()){
+							if(csptServer.getValue().equals("TOMCAT")){							
+								fromDateStr = new String(fromDateStr.getBytes("ISO-8859-1"), "UTF-8");
+								toDateStr = new String(toDateStr.getBytes("ISO-8859-1"), "UTF-8");						
+							}
+						}
+						//format fromDate for query
+						fromDate = FormaterUtil.formatStringToDate(fromDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+						fromDateStr = FormaterUtil.formatDateToString(fromDate, ApplicationConstants.DB_DATEFORMAT);
+						//format toDate for query
+						toDate = FormaterUtil.formatStringToDate(toDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+						toDateStr = FormaterUtil.formatDateToString(toDate, ApplicationConstants.DB_DATEFORMAT);
+					}
+					
+					/**** load report information ****/
+					/** load report headers **/
+					List<Object[]> reportHeaders = null; 
+					Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+			    	parameterMap.put("locale", new String[]{locale.toString()});
+			    	parameterMap.put("houseTypeId", new String[]{houseType.getId().toString()});
+			    	parameterMap.put("originalDeviceTypeId", new String[]{originalDeviceTypeStr});
+			    	parameterMap.put("criteria", new String[]{criteria});
+			    	parameterMap.put("forToday", new String[]{forToday.toString()});
+			    	parameterMap.put("fromDate", new String[]{fromDateStr});
+			    	parameterMap.put("toDate", new String[]{toDateStr});
+			    	parameterMap.put("includeYaadiQuestions", new String[]{includeYaadiQuestions});
+			    	
+			    	reportHeaders = Query.findReport(reportQuery+"_HEADERS", parameterMap);
+			    	parameterMap = null;
+			    	
+			    	/** load report data **/
+					Map<String, List<Object[]>> reportDataMap = new TreeMap<String, List<Object[]>>();	    		
+		    		
+		    		parameterMap = new HashMap<String, String[]>();
+			    	parameterMap.put("locale", new String[]{locale.toString()});
+			    	parameterMap.put("houseId", new String[]{session.getHouse().getId().toString()});
+			    	parameterMap.put("criteria", new String[]{criteria});
+			    	parameterMap.put("subDepartmentId", new String[]{subDepartmentStr});
+			    	parameterMap.put("fromDate", new String[]{fromDateStr});
+			    	parameterMap.put("toDate", new String[]{toDateStr});
+			    	parameterMap.put("originalDeviceTypeId", new String[]{originalDeviceTypeStr});
+			    	parameterMap.put("answerReceivedStatus", new String[]{answerReceivedStatus});
+			    	parameterMap.put("includeYaadiQuestions", new String[]{includeYaadiQuestions});
+			    	parameterMap.put("serial", new String[]{"0"});
+			    	List<Object[]> resultData = Query.findReport(reportQuery, parameterMap);
+			    	
+			    	if(resultData!=null && !resultData.isEmpty()) {
+			    		String groupingParameterKey = "";
+			    		List<Object[]> groupingParameterData = null;
+			    		int cnt = 1;
+			    		for(Object[] r: resultData) {
+			    			if(r[12]!=null && !r[12].toString().isEmpty() && !r[12].toString().equals(groupingParameterKey)) {
+			    				if(groupingParameterKey!="") {
+			    					reportDataMap.put(groupingParameterKey, groupingParameterData);
+			    				}
+			    				groupingParameterKey = r[12].toString();
+			    				groupingParameterData = new ArrayList<Object[]>();
+			    			}
+			    			groupingParameterData.add(r);
+			    			if(cnt==resultData.size()) {
+			    				reportDataMap.put(groupingParameterKey, groupingParameterData);
+			    			}
+			    			cnt++;
+			    		}		
+			    		groupingParameterData = null;
+			    	}
+			    	
+			    	/**** generate fop report ****/
+					/** create report in reportFile **/
+	    			reportFile = generateReportUsingFOP(new Object[] {reportHeaders, reportDataMap}, xsltFileName, outputFormat, reportFileName, locale.toString());
+	    			parameterMap = null;
+					reportDataMap = null;
+					
+					/** open reportFile for view/download in browser **/
+		    		if(reportFile!=null) {
+		    			System.out.println("Report generated successfully in " + outputFormat + " format!");		    			
+		    			openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
+		    		}
+				}				
+				
 			} catch(Exception e) {
 				e.printStackTrace();
 				isError = true;					

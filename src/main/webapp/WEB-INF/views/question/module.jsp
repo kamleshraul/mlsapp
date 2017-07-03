@@ -1085,19 +1085,6 @@
 	}
 	
 	function departmentwiseUnstarredAdmittedQuestionsReport(){
-		/* var parameters = "houseType=" + $("#selectedHouseType").val()
-		 + "&sessionYear=" + $("#selectedSessionYear").val()
-		 + "&sessionType=" + $("#selectedSessionType").val()
-		 + "&subDepartment=" + $("#selectedSubDepartment").val()
-		 + "&originalDeviceType=" + $("#selectedOriginalDeviceType").val()
-		 + "&answerReceivedStatus=" + $("#selectedAnswerReceivedStatus").val()		 
-		 + "&locale=" + $("#moduleLocale").val()
-		 + "&role=" + $("#srole").val()
-		 + "&report=" + "QIS_UNSTARRED_ADMITTED_DEPARTMENTWISE_QUESTIONS_" + $("#selectedHouseType").val().toUpperCase()
-		 + "&reportout=" + "departmentwise_unstarred_admitted_questions";
-		var resourceURL = 'question/report/departmentwise_unstarred_admitted_questions?'+ parameters;			
-		showTabByIdAndUrl('details_tab', resourceURL); */
-		
 		var parameters = {
 				houseType				: $("#selectedHouseType").val(),
 				sessionYear				: $('#selectedSessionYear').val(), 
@@ -1114,6 +1101,34 @@
 				reportFileName			: "departmentwise_unstarred_admitted_questions"/* + "_" + $("#selectedHouseType").val()*/
 		}
 		form_submit('question/report/departmentwise_unstarred_admitted_questions', parameters, 'GET');
+	}
+	
+	function departmentwiseUnstarredAnsweredQuestionsReport() {
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		 + "&sessionYear=" + $("#selectedSessionYear").val()
+		 + "&sessionType=" + $("#selectedSessionType").val()
+		 + "&group=" + $("#selectedGroup").val()	
+		 + "&subDepartment=" + $("#selectedSubDepartment").val()
+		 + "&originalDeviceType=" + $("#selectedOriginalDeviceType").val()
+		 + "&answerReceivedStatus=" + $("#selectedAnswerReceivedStatus").val()
+		 + "&locale=" + $("#moduleLocale").val()
+		 + "&role=" + $("#srole").val();		 	
+		var resourceURL = 'question/report/departmentwise_unstarred_admitted_questions/init?'+ parameters;
+		var fancyHeight = 200;
+		if($("#selectedAnswerReceivedStatus").val()=='answerReceived') {
+			fancyHeight = 250;
+		}
+		$.get(resourceURL,function(data) {
+			$.fancybox.open(data,{autoSize:false,width:400,height:fancyHeight});
+		},'html').fail(function(){				
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").
+				css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
 	}
 	
 	function ahwalHDQConditionReport(){
