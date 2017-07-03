@@ -787,6 +787,44 @@
 	    		});
 	        return false;  
 	    });
+		
+		/**** To show/hide viewClubbedQuestionTextsDiv to view clubbed questions text starts****/
+		$("#clubbedQuestionTextsDiv").hide();
+		$("#hideClubQTDiv").hide();
+		$("#viewClubbedQuestionTextsDiv").click(function(){
+			var parent = ($("#id").val()!=undefined && $("#id").val()!='')? $("#id").val():"";
+			
+			if(parent!=undefined && parent!=''){	
+				
+				if($("#clubbedQuestionTextsDiv").css('display')=='none'){
+					$("#clubbedRevisedQuestionTextDiv").hide();
+					$("#hideClubRQTDiv").hide();
+					
+					$("#clubbedQuestionTextsDiv").empty();
+					$.get('ref/'+parent+'/clubbedquestiontext',function(data){
+						
+						var text="";
+						
+						for(var i = 0; i < data.length; i++){
+							text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
+						}						
+						$("#clubbedQuestionTextsDiv").html(text);
+						
+					});
+					$("#hideClubQTDiv").show();
+					$("#clubbedQuestionTextsDiv").show();
+				}else{
+					$("#clubbedQuestionTextsDiv").hide();
+					$("#hideClubQTDiv").hide();
+				}
+			}
+		});
+		$("#hideClubQTDiv").click(function(){
+			$(this).hide();
+			$('#clubbedQuestionTextsDiv').hide();
+		});
+		/**** To show/hide viewClubbedQuestionTextsDiv to view clubbed questions text end****/
+		
 	    /**** Right Click Menu ****/
 		$(".clubbedRefQuestions").contextMenu({
 	        menu: 'contextMenuItems'
@@ -961,7 +999,7 @@
             }
         }
         
-         #clubbedRevisedQuestionTextDiv {
+        #clubbedQuestionTextsDiv {
         	background: none repeat-x scroll 0 0 #FFF;
 		    box-shadow: 0 2px 5px #888888;
 		    max-height: 260px;
@@ -1193,6 +1231,7 @@
 				<c:forEach items="${clubbedQuestions }" var="i">
 					<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 				</c:forEach>
+				<a href="javascript:void(0);" id="viewClubbedQuestionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;margin-left: 5px;font-size: 18px;"><spring:message code="question.clubbed.texts" text="C"></spring:message></a>
 			</c:when>
 			<c:otherwise>
 				<c:out value="-"></c:out>
@@ -1638,6 +1677,12 @@
 
 <div id="clubbingResultDiv" style="display:none;">
 </div>
+
+<!--To show the questionTexts of the clubbed questions -->
+<div id="clubbedQuestionTextsDiv">
+	<h1>Assistant Question texts of clubbed questions</h1>
+</div>
+<div id="hideClubQTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
 
 <!--To show the latest revised questionText of the clubbed questions -->
 <div id="clubbedRevisedQuestionTextDiv">
