@@ -55,6 +55,14 @@
 		<label class="wysiwyglabel"><spring:message code="question.details" text="Details"></spring:message></label>
 		<textarea readonly="readonly" class="wysiwyg">${report[0][2]}</textarea>
 	</p>
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.revisedSubject" text="Revised Subject"></spring:message></label>
+		<textarea rows="2" cols="50" readonly="readonly" class="wysiwyg">${report[0][15]}</textarea>
+	</p>
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"></spring:message></label>
+		<textarea readonly="readonly" class="wysiwyg">${report[0][16]}</textarea>
+	</p>
 	<c:if test="${referredQuestion.type.type=='questions_shortnotice'}">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="question.reason" text="Reason"></spring:message></label>
@@ -62,7 +70,7 @@
 	</p>
 	</c:if>
 	<p>
-		<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/>*</label>
+		<label class="wysiwyglabel"><spring:message code="question.reference" text="Reference Text"/></label>
 		<textarea readonly="readonly" class="wysiwyg">${report[0][14]}</textarea>
 	</p>
 	<p>
