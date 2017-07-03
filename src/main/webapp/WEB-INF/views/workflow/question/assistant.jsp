@@ -561,6 +561,8 @@
 		$('#mlsBranchNotifiedOfTransfer').val(null);
 		$('#transferToDepartmentAccepted').val(null);
 		
+		$('#questionsAskedInThisFactualPosition').multiSelect();
+		
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -759,6 +761,7 @@
 			}});			
 	        return false;  
 	    });
+	    
 	    
 		/**** On Bulk Edit ****/
 		$("#submitBulkEdit").click(function(e){
@@ -989,6 +992,44 @@
 					}
 				}
 			} 
+		});
+		
+		
+		/********Submit Click*********/
+		$('#submit').click(function(){
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});
+			
+			if($("#selectedQuestionType").val()=='questions_starred'){
+				//alert($("#questionsAskedInThisFactualPosition").val());
+				if($("#questionsAskedInThisFactualPosition").val() != null && $("#questionsAskedInThisFactualPosition").val()!=undefined) {
+					var questionsAskedInThisFactualPosition = $("#questionsAskedInThisFactualPosition").val();
+					questionsAskedInThisFactualPosition = questionsAskedInThisFactualPosition.join("##");
+					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
+				}
+			}
+
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+			$.post($('form').attr('action'), $("form").serialize(),
+    	            function(data){
+       					$('.tabContent').html(data);
+       					$('html').animate({scrollTop:0}, 'slow');
+       				 	$('body').animate({scrollTop:0}, 'slow');	
+       					 $.unblockUI();	
+    	            }).fail(function(){
+    	    			$.unblockUI();
+    	    			if($("#ErrorMsg").val()!=''){
+    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+    	    			}else{
+    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+    	    			}
+    	    			scrollTop();
+    	    		});
+								
 		});
 	});
 	</script>
@@ -1388,6 +1429,38 @@
 		</c:otherwise>
 	</c:choose>
 	
+	<c:if test="${(fn:endsWith(internalStatusType, 'final_clarificationNeededFromDepartment')
+		||
+		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMember')
+		||
+		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')	)}">
+		<p>
+			<label class="wysiwyglabel"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions To Be Asked In Factual Position"/></label>
+			<c:choose>
+				<c:when test="${houseTypeType == 'lowerhouse'}">
+					<form:textarea path="questionsAskedInFactualPosition" id="questionsAskedInFactualPosition" cssClass="wysiwyg"/>
+				</c:when>
+				<c:otherwise>
+					<select name="questionsAskedInThisFactualPosition" id="questionsAskedInThisFactualPosition" class="sSelectMultiple" size="5" multiple="multiple">
+						<c:forEach items="${questionsToBeAskedInFactualPosition}" var="i">
+							<c:choose>
+								<c:when test="${i.isSelected=='true'}">
+									<option value="${i.value}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.value}" >${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+					<form:hidden path="questionsAskedInFactualPosition"/>
+				</c:otherwise>
+			</c:choose>
+			<form:hidden path="questionsAskedInFactualPosition" id="questionsAskedInFactualPosition"/>
+			<form:errors path="questionsAskedInFactualPosition" cssClass="validationError"/>	
+		</p>	
+	</c:if>
+	
 	<p style="text-align: right; width: 720px;">
 		<a href="#" id="viewRevision"><spring:message code="question.viewrevisions" text="View Revisions"></spring:message></a>
 	</p>
@@ -1554,6 +1627,8 @@
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 	
+	
+	
 	<c:if test="${!(empty domain.factualPosition)}">
 		<p>
 		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
@@ -1576,7 +1651,7 @@
 				<h2></h2>
 				<p class="tright">		
 				<c:if test="${bulkedit!='yes'}">
-					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					
 				</c:if>
 				<c:if test="${bulkedit=='yes'}">
