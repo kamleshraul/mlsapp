@@ -1712,16 +1712,34 @@
 			 <a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
 		</p>
 	</c:if>		
-	<c:if test="${(
-		fn:endsWith(internalStatusType, 'final_clarificationNeededFromDepartment')
+	<c:if test="${(fn:endsWith(internalStatusType, 'final_clarificationNeededFromDepartment')
 		||
 		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMember')
 		||
-		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')
-	)}">
+		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')	)}">
 		<p>
 			<label class="small"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions To Be Asked In Factual Position"/></label>
-			<select name="questionsAskedInThisFactualPosition" id="questionsAskedInThisFactualPosition" class="sSelectMultiple" size="5" multiple="multiple">
+			<c:choose>
+				<c:when test="${houseTypeType == 'lowerhouse'}">
+					<form:textarea path="questionsAskedInFactualPosition" id="questionsAskedInFactualPosition" cssClass="wysiwyg"/>
+				</c:when>
+				<c:otherwise>
+					<select name="questionsAskedInThisFactualPosition" id="questionsAskedInThisFactualPosition" class="sSelectMultiple" size="5" multiple="multiple">
+						<c:forEach items="${questionsToBeAskedInFactualPosition}" var="i">
+							<c:choose>
+								<c:when test="${i.isSelected=='true'}">
+									<option value="${i.value}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.value}" >${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+					<form:hidden path="questionsAskedInFactualPosition"/>
+				</c:otherwise>
+			</c:choose>
+			<%-- <select name="questionsAskedInThisFactualPosition" id="questionsAskedInThisFactualPosition" class="sSelectMultiple" size="5" multiple="multiple">
 				<c:forEach items="${questionsToBeAskedInFactualPosition}" var="i">
 					<c:choose>
 						<c:when test="${i.isSelected=='true'}">
@@ -1732,8 +1750,9 @@
 						</c:otherwise>
 					</c:choose>
 				</c:forEach>
-			</select>
-			<form:hidden path="questionsAskedInFactualPosition" id="questionsAskedInFactualPosition"/>
+			</select> --%>
+			
+			
 			<form:errors path="questionsAskedInFactualPosition" cssClass="validationError"/>	
 		</p>		
 		
@@ -1986,6 +2005,7 @@
 <input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input type="hidden" id="srole" value="${role}" />
+<input type="hidden" id="houseTypeType" value="${houseTypeType}"/>
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
