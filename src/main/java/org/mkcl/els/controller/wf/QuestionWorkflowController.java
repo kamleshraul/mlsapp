@@ -885,15 +885,11 @@ public class QuestionWorkflowController  extends BaseController{
 				}				
 				model.addAttribute("questionsToBeAskedInFactualPosition", questionsToBeAskedInFactualPosition);
 			}else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-				||internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 				||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-				||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 				||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-				||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
-				||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-				||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)){
+				||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)){
 				/**** setting the questions to be asked in factual position. ****/
-				List<MasterVO> questionsToBeAskedInFactualPosition = new ArrayList<MasterVO>();
+				List<MasterVO> questionsToBeAskedInFactualPositionForMember = new ArrayList<MasterVO>();
 				String sessionParameter = null;
 				if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
 						||internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
@@ -918,6 +914,87 @@ public class QuestionWorkflowController  extends BaseController{
 						MasterVO questionToBeAskedInFactualPosition = new MasterVO();
 						questionToBeAskedInFactualPosition.setName(i);
 						questionToBeAskedInFactualPosition.setValue(i);
+						if(domain.getQuestionsAskedInFactualPositionForMember()!=null 
+								&& !domain.getQuestionsAskedInFactualPositionForMember().isEmpty()) {
+							for(String j : domain.getQuestionsAskedInFactualPositionForMember().split("##")) {
+								if(i.replaceAll("<[^>]+>", "").trim().substring(0, 3).
+										contains(j.replaceAll("<[^>]+>", "").trim().substring(0, 3))) {
+									questionToBeAskedInFactualPosition.setIsSelected(true);
+									break;
+								} else {
+									questionToBeAskedInFactualPosition.setIsSelected(false);
+								}
+							}
+						} else {
+							questionToBeAskedInFactualPosition.setIsSelected(false);
+						}
+						questionsToBeAskedInFactualPositionForMember.add(questionToBeAskedInFactualPosition);
+					}
+				}				
+				model.addAttribute("questionsToBeAskedInFactualPositionForMember", questionsToBeAskedInFactualPositionForMember);
+			}else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+					||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+					||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+					||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)){
+				/**** setting the questions to be asked in factual position for Members. ****/
+				List<MasterVO> questionsToBeAskedInFactualPositionForMember = new ArrayList<MasterVO>();
+				List<MasterVO> questionsToBeAskedInFactualPosition = new ArrayList<MasterVO>();
+				String sessionParameterForDepartment = null;
+				String sessionParameter = null;
+				if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
+					sessionParameter = selectedSession.
+							getParameter("questions_starred_clarificationFromMemberQuestions");
+					sessionParameterForDepartment = selectedSession.
+							getParameter("questions_starred_clarificationFromDepartmentQuestions");
+				}else if (internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
+					sessionParameter = selectedSession.
+							getParameter("questions_unstarred_clarificationFromMemberQuestions");
+					sessionParameterForDepartment = selectedSession.
+							getParameter("questions_unstarred_clarificationFromDepartmentQuestions");
+				}else if (internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)) {
+					sessionParameter = selectedSession.
+							getParameter("questions_shortnotice_clarificationFromMemberQuestions");
+					sessionParameterForDepartment = selectedSession.
+							getParameter("questions_shortnotice_clarificationFromDepartmentQuestions");
+				}else if(internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)){
+					sessionParameter = selectedSession.
+							getParameter("questions_halfHourFromQuestion_clarificationFromMemberQuestions");
+					sessionParameterForDepartment = selectedSession.
+							getParameter("questions_halfHourFromQuestion_clarificationFromDepartmentQuestions");
+				}
+			
+				if(sessionParameter != null && !sessionParameter.isEmpty()) {
+					for(String i : sessionParameter.split("##")) {	
+						MasterVO questionToBeAskedInFactualPosition = new MasterVO();
+						questionToBeAskedInFactualPosition.setName(i);
+						questionToBeAskedInFactualPosition.setValue(i);
+						if(domain.getQuestionsAskedInFactualPositionForMember()!=null 
+								&& !domain.getQuestionsAskedInFactualPositionForMember().isEmpty()) {
+							for(String j : domain.getQuestionsAskedInFactualPositionForMember().split("##")) {
+								if(i.replaceAll("<[^>]+>", "").trim().substring(0, 3).
+										contains(j.replaceAll("<[^>]+>", "").trim().substring(0, 3))) {
+									questionToBeAskedInFactualPosition.setIsSelected(true);
+									break;
+								} else {
+									questionToBeAskedInFactualPosition.setIsSelected(false);
+								}
+							}
+						} else {
+							questionToBeAskedInFactualPosition.setIsSelected(false);
+						}
+						questionsToBeAskedInFactualPositionForMember.add(questionToBeAskedInFactualPosition);
+					}
+				}				
+				model.addAttribute("questionsToBeAskedInFactualPositionForMember", questionsToBeAskedInFactualPositionForMember);
+				
+				
+				/**** setting the questions to be asked in factual position. ****/
+				
+				if(sessionParameterForDepartment != null && !sessionParameterForDepartment.isEmpty()) {
+					for(String i : sessionParameterForDepartment.split("##")) {	
+						MasterVO questionToBeAskedInFactualPosition = new MasterVO();
+						questionToBeAskedInFactualPosition.setName(i);
+						questionToBeAskedInFactualPosition.setValue(i);
 						if(domain.getQuestionsAskedInFactualPosition()!=null 
 								&& !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
 							for(String j : domain.getQuestionsAskedInFactualPosition().split("##")) {
@@ -936,16 +1013,17 @@ public class QuestionWorkflowController  extends BaseController{
 					}
 				}				
 				model.addAttribute("questionsToBeAskedInFactualPosition", questionsToBeAskedInFactualPosition);
-			}	
+			}
 		}
 		if(userGroupType.equals(ApplicationConstants.DEPARTMENT) || userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
 			if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-					||internalStatusType.
-						equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-					||internalStatusType.
-						equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-					||internalStatusType.
-						equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
+					||internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+					||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+					||internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+					||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+					||internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+					||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+					||internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)){
 				String questionsAskedInFactualPosition = "";
 				if(domain.getQuestionsAskedInFactualPosition() !=null 
 						&& !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
@@ -973,12 +1051,12 @@ public class QuestionWorkflowController  extends BaseController{
 					||internalStatusType.
 						equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)){
 				String questionsAskedInFactualPosition = "";
-				if(domain.getQuestionsAskedInFactualPosition() !=null 
-						&& !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
+				if(domain.getQuestionsAskedInFactualPositionForMember() !=null 
+						&& !domain.getQuestionsAskedInFactualPositionForMember().isEmpty()) {
 					questionsAskedInFactualPosition = 
-							domain.getQuestionsAskedInFactualPosition().replaceAll("##", "<br/>");
+							domain.getQuestionsAskedInFactualPositionForMember().replaceAll("##", "<br/>");
 				}
-				model.addAttribute("formattedQuestionsAskedInFactualPosition", questionsAskedInFactualPosition);
+				model.addAttribute("formattedQuestionsAskedInFactualPositionForMember", questionsAskedInFactualPosition);
 			}
 		}
 			
@@ -5370,10 +5448,15 @@ public class QuestionWorkflowController  extends BaseController{
 				break;
 			}
 		}
-		if(userGroupType == null 
+		if(userGroupType == null
 				|| (!userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
 				&& !userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
-			userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.ASSISTANT, domain.getLocale());
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR", "");
+			if(customParameter != null){
+				String strUsergroupType = customParameter.getValue();
+				userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+			}
+			
 		}
 		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
 		requestMap.put("questionId",new String[]{String.valueOf(domain.getId())});
