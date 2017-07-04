@@ -752,7 +752,12 @@ public class QuestionReportController extends BaseController{
 						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_MEMBER)
 						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
 					
-					String questionsAsked = question.getQuestionsAskedInFactualPosition();
+					String questionsAsked = null;
+					if(intimationLetterFilter!=null && intimationLetterFilter.equals(ApplicationConstants.DEPARTMENT)) {
+						questionsAsked = question.getQuestionsAskedInFactualPosition();
+					}else{
+						questionsAsked = question.getQuestionsAskedInFactualPositionForMember();
+					}
 					if(questionsAsked==null || questionsAsked.isEmpty()) {
 						if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
 								|| statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
