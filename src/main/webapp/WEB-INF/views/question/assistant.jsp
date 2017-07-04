@@ -1476,7 +1476,7 @@
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 		</p>
 		
-		<c:if test="${(internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing'
+		<c:if test="${((internalStatusType=='question_system_putup' ||internalStatusType=='question_putup_nameclubbing'
 						|| internalStatusType == 'question_putup_rejection' ||internalStatusType=='question_putup_convertToUnstarredAndAdmit'
 						|| internalStatusType == 'question_putup_clubbing' || internalStatusType == 'question_putup_nameclubbing' 
 						|| recommendationStatusType == 'question_putup_clubbingPostAdmission' || recommendationStatusType == 'question_putup_clubbingWithUnstarredFromPreviousSession'
@@ -1497,7 +1497,8 @@
 						&& recommendationStatusType ne 'question_unstarred_recommend_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_unstarred_final_clubbingWithUnstarredFromPreviousSession'
 						&& recommendationStatusType ne 'question_unstarred_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_unstarred_final_reject_clubbingWithUnstarredFromPreviousSession'
 						&& recommendationStatusType ne 'question_shortnotice_recommend_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_clubbingWithUnstarredFromPreviousSession'
-						&& recommendationStatusType ne 'question_shortnotice_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_reject_clubbingWithUnstarredFromPreviousSession')
+						&& recommendationStatusType ne 'question_shortnotice_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_reject_clubbingWithUnstarredFromPreviousSession'))
+				|| (internalStatusType=='question_final_admission' && recommendationStatusType=='question_final_admission' && parent ne '')
 		}">
 			<security:authorize access="hasAnyRole('QIS_ASSISTANT')">		
 			<p>
@@ -1711,6 +1712,7 @@
 		<form:hidden path="localizedActorName"/>
 		<form:hidden path="workflowDetailsId"/>
 		<form:hidden path="reasonForLateReply"/>
+		<form:hidden path="questionsAskedInFactualPositionForMember"/>
 		<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 		<input type="hidden" name="status" id="status" value="${status }">
 		<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
