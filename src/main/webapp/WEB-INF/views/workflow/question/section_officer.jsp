@@ -701,6 +701,7 @@
 		
 		
 		$('#questionsAskedInThisFactualPosition').multiSelect();
+		$("#questionsAskedInThisFactualPositionForMember").multiSelect();
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -729,6 +730,11 @@
 					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
 				}
 				
+				if($("#questionsAskedInThisFactualPositionForMember").val() != null && $("#questionsAskedInThisFactualPositionForMember").val()!=undefined) {
+					var questionsAskedInThisFactualPositionForMember = $("#questionsAskedInThisFactualPositionForMember").val();
+					questionsAskedInThisFactualPositionForMember = questionsAskedInThisFactualPositionForMember.join("##");
+					$('#questionsAskedInFactualPositionForMember').val(questionsAskedInThisFactualPositionForMember);
+				}
 				/* if($("#currenthousetype").val()=='lowerhouse'){
 					if($('#internalStatusType').val()=="question_final_clarificationNeededFromDepartment" ||
 							$('#internalStatusType').val()=="question_final_clarificationNeededFromMember" ||
@@ -1713,10 +1719,7 @@
 		</p>
 	</c:if>		
 	<c:if test="${(fn:endsWith(internalStatusType, 'final_clarificationNeededFromDepartment')
-		||
-		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMember')
-		||
-		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')	)}">
+		||fn:endsWith(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')	)}">
 		<p>
 			<label class="small"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions To Be Asked In Factual Position"/></label>
 			<c:choose>
@@ -1739,23 +1742,42 @@
 					<form:hidden path="questionsAskedInFactualPosition"/>
 				</c:otherwise>
 			</c:choose>
-			<%-- <select name="questionsAskedInThisFactualPosition" id="questionsAskedInThisFactualPosition" class="sSelectMultiple" size="5" multiple="multiple">
-				<c:forEach items="${questionsToBeAskedInFactualPosition}" var="i">
-					<c:choose>
-						<c:when test="${i.isSelected=='true'}">
-							<option value="${i.value}" selected="selected">${i.name}</option>
-						</c:when>
-						<c:otherwise>
-							<option value="${i.value}" >${i.name}</option>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-			</select> --%>
-			
-			
 			<form:errors path="questionsAskedInFactualPosition" cssClass="validationError"/>	
-		</p>		
-		
+		</p>
+	</c:if>
+	<c:if test="${(fn:endsWith(internalStatusType, 'final_clarificationNeededFromMember')
+		||fn:endsWith(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment'))}">
+		<p>
+			<c:choose>
+				<c:when test="${houseTypeType == 'lowerhouse'}">
+					<label class="wysiwyglabel"><spring:message code="hds.questionsAskedInFactualPositionForMember" text="Questions To Be Asked In Factual Position for Member"/></label>
+					<form:textarea path="questionsAskedInFactualPositionForMember" id="questionsAskedInFactualPositionForMember" cssClass="wysiwyg"/>
+				</c:when>
+				<c:otherwise>
+					<label class="small"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions To Be Asked In Factual Position for Member"/></label>
+					<select name="questionsAskedInThisFactualPositionForMember" id="questionsAskedInThisFactualPositionForMember" class="sSelectMultiple" size="5" multiple="multiple">
+						<c:forEach items="${questionsToBeAskedInFactualPositionForMember}" var="i">
+							<c:choose>
+								<c:when test="${i.isSelected=='true'}">
+									<option value="${i.value}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.value}" >${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+					<form:hidden path="questionsAskedInFactualPositionForMember"/>
+				</c:otherwise>
+			</c:choose>
+			<form:errors path="questionsAskedInFactualPositionForMember" cssClass="validationError"/>	
+		</p>	
+	</c:if>
+	<c:if test="${(fn:endsWith(internalStatusType, 'final_clarificationNeededFromDepartment')
+		||
+		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMember')
+		||
+		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')	)}">
 		<c:choose>
 			<c:when test="${empty domain.lastDateOfFactualPositionReceiving and selectedQuestionType != 'questions_starred'}">
 				<p>

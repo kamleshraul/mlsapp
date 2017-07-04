@@ -1510,6 +1510,7 @@
 			<label class="small"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
 			<textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${formattedQuestionsAskedInFactualPosition}</textarea>
 			<form:hidden path="questionsAskedInFactualPosition"/>
+			<form:hidden path="questionsAskedInFactualPositionForMember"/>
 		</p>
 		<p>
 		<label class="small"><spring:message code="question.lastDateOfFactualPositionReceiving" text="Last date of receiving Factual Position"/></label>

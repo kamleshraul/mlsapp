@@ -1491,6 +1491,7 @@
 	<form:hidden path="workflowDetailsId"/>
 	<form:hidden path="answer"/>
 	<form:hidden path="reasonForLateReply"/>
+	<form:hidden path="questionsAskedInFactualPositionForMember"/>
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		
 	</c:if>

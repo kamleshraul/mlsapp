@@ -1445,9 +1445,10 @@
 	<c:if test="${fn:contains(internalStatusType, 'final_clarificationNeededFromDepartment')
 					|| fn:contains(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')}">
 		<p>
-			<label class="small"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
+			<label class="wysiwyglabel"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
 			<textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${formattedQuestionsAskedInFactualPosition}</textarea>
 			<form:hidden path="questionsAskedInFactualPosition"/>
+			<form:hidden path="questionsAskedInFactualPositionForMember"/>
 		</p>
 		<p>
 		<label class="small"><spring:message code="question.lastDateOfFactualPositionReceiving" text="Last date of receiving Factual Position"/></label>

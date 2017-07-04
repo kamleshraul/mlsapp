@@ -1039,8 +1039,9 @@
 				&& (internalStatusType == 'question_final_clarificationNeededFromMember'
 				|| internalStatusType == 'question_final_clarificationNeededFromMemberAndDepartment')}">
 		<p>
-			<label class="small"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
-			<textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${formattedQuestionsAskedInFactualPosition}</textarea>
+			<label class="small"><spring:message code="question.questionsAskedInFactualPositionForMember" text="Questions Asked In Factual Position for Member"/></label>
+			<textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${formattedQuestionsAskedInFactualPositionForMember}</textarea>
+			<form:hidden path="questionsAskedInFactualPositionForMember"/>
 			<form:hidden path="questionsAskedInFactualPosition"/>
 		</p>
 		<p>

@@ -1537,6 +1537,7 @@
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="reasonForLateReply"/>
+	<form:hidden path="questionsAskedInFactualPositionForMember"/>
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		
 	</c:if>

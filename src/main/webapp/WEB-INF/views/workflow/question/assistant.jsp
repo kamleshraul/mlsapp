@@ -562,6 +562,7 @@
 		$('#transferToDepartmentAccepted').val(null);
 		
 		$('#questionsAskedInThisFactualPosition').multiSelect();
+		$("#questionsAskedInThisFactualPositionForMember").multiSelect();
 		
 		/*******Actor changes*************/
 		$("#actor").change(function(){
@@ -1011,6 +1012,12 @@
 					questionsAskedInThisFactualPosition = questionsAskedInThisFactualPosition.join("##");
 					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
 				}
+				
+				if($("#questionsAskedInThisFactualPositionForMember").val() != null && $("#questionsAskedInThisFactualPositionForMember").val()!=undefined) {
+					var questionsAskedInThisFactualPositionForMember = $("#questionsAskedInThisFactualPositionForMember").val();
+					questionsAskedInThisFactualPositionForMember = questionsAskedInThisFactualPositionForMember.join("##");
+					$('#questionsAskedInFactualPositionForMember').val(questionsAskedInThisFactualPositionForMember);
+				}
 			}
 
 			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -1430,17 +1437,15 @@
 	</c:choose>
 	
 	<c:if test="${(fn:endsWith(internalStatusType, 'final_clarificationNeededFromDepartment')
-		||
-		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMember')
-		||
-		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')	)}">
+		|| fn:endsWith(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment'))}">
 		<p>
-			<label class="wysiwyglabel"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions To Be Asked In Factual Position"/></label>
 			<c:choose>
 				<c:when test="${houseTypeType == 'lowerhouse'}">
+					<label class="wysiwyglabel"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions To Be Asked In Factual Position"/></label>
 					<form:textarea path="questionsAskedInFactualPosition" id="questionsAskedInFactualPosition" cssClass="wysiwyg"/>
 				</c:when>
 				<c:otherwise>
+					<label class="small"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions To Be Asked In Factual Position"/></label>
 					<select name="questionsAskedInThisFactualPosition" id="questionsAskedInThisFactualPosition" class="sSelectMultiple" size="5" multiple="multiple">
 						<c:forEach items="${questionsToBeAskedInFactualPosition}" var="i">
 							<c:choose>
@@ -1456,8 +1461,36 @@
 					<form:hidden path="questionsAskedInFactualPosition"/>
 				</c:otherwise>
 			</c:choose>
-			<form:hidden path="questionsAskedInFactualPosition" id="questionsAskedInFactualPosition"/>
 			<form:errors path="questionsAskedInFactualPosition" cssClass="validationError"/>	
+		</p>	
+	</c:if>
+	<c:if test="${(fn:endsWith(internalStatusType, 'final_clarificationNeededFromMember')
+		||
+		fn:endsWith(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment'))}">
+		<p>
+			<c:choose>
+				<c:when test="${houseTypeType == 'lowerhouse'}">
+					<label class="wysiwyglabel"><spring:message code="hds.questionsAskedInFactualPositionForMember" text="Questions To Be Asked In Factual Position for Member"/></label>
+					<form:textarea path="questionsAskedInFactualPositionForMember" id="questionsAskedInFactualPositionForMember" cssClass="wysiwyg"/>
+				</c:when>
+				<c:otherwise>
+					<label class="small"><spring:message code="hds.questionsAskedInFactualPosition" text="Questions To Be Asked In Factual Position for Member"/></label>
+					<select name="questionsAskedInThisFactualPositionForMember" id="questionsAskedInThisFactualPositionForMember" class="sSelectMultiple" size="5" multiple="multiple">
+						<c:forEach items="${questionsToBeAskedInFactualPositionForMember}" var="i">
+							<c:choose>
+								<c:when test="${i.isSelected=='true'}">
+									<option value="${i.value}" selected="selected">${i.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${i.value}" >${i.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+					<form:hidden path="questionsAskedInFactualPositionForMember"/>
+				</c:otherwise>
+			</c:choose>
+			<form:errors path="questionsAskedInFactualPositionForMember" cssClass="validationError"/>	
 		</p>	
 	</c:if>
 	
