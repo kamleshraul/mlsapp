@@ -359,6 +359,9 @@ public class Question extends Device implements Serializable {
     @Column(length=30000)
     private String questionsAskedInFactualPosition;
     
+    @Column(length=30000)
+    private String questionsAskedInFactualPositionForMember;
+    
     // for Clarification From Department 
     @Column(length=30000)
     private String factualPosition;
@@ -3655,6 +3658,15 @@ public class Question extends Device implements Serializable {
 
 	public void setReasonForLateReply(String reasonForLateReply) {
 		this.reasonForLateReply = reasonForLateReply;
+	}
+
+	public String getQuestionsAskedInFactualPositionForMember() {
+		return questionsAskedInFactualPositionForMember;
+	}
+
+
+	public void setQuestionsAskedInFactualPositionForMember(String questionsAskedInFactualPositionForMember) {
+		this.questionsAskedInFactualPositionForMember = questionsAskedInFactualPositionForMember;
 	}
 
 
