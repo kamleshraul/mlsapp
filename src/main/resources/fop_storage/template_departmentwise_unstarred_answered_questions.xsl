@@ -151,7 +151,7 @@
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
 						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
 						                        	    	<xsl:choose>									     						
-					                                        	<xsl:when test="element_2_2_14='datewise'">
+					                                        	<xsl:when test="element_2_2[1]/element_2_2_14='datewise'">
 					                                        		<xsl:value-of select="../element_1/element_1_11"/>          		                     		
 										     					</xsl:when>
 										     					<xsl:otherwise>
