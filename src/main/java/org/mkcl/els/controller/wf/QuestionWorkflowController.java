@@ -758,7 +758,10 @@ public class QuestionWorkflowController  extends BaseController{
 						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
 						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
 					populateInternalStatus(model,domain,domain.getRecommendationStatus(),domain.getLocale());
-				} else {
+				}else if (workflowDetails.getWorkflowType().equals(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW)){
+					populateInternalStatus(model, domain.getRecommendationStatus().getType(),
+							workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
+				}else {
 					populateInternalStatus(model,domain,domain.getInternalStatus(),domain.getLocale());
 				}				
 			}
@@ -5451,10 +5454,16 @@ public class QuestionWorkflowController  extends BaseController{
 		if(userGroupType == null
 				|| (!userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
 				&& !userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
-			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR", "");
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR_"+userGroupType.getType().toUpperCase(), "");
 			if(customParameter != null){
 				String strUsergroupType = customParameter.getValue();
 				userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+			}else{
+				CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+				if(defaultCustomParameter != null){
+					String strUsergroupType = defaultCustomParameter.getValue();
+					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+				}
 			}
 			
 		}
