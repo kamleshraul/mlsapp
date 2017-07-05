@@ -32,9 +32,9 @@
 			      	<fo:region-after extent="1.5cm"/>
   				</fo:simple-page-master>
 				<fo:simple-page-master master-name="others"
-	                  	page-height="29.7cm" page-width="21cm"
-	                  	margin-top="2cm" margin-bottom="2cm"
-	                  	margin-left="1.25cm" margin-right="1.25cm">
+	                  	page-height="21cm" page-width="29.7cm"
+	                  	margin-top="1.25cm" margin-bottom="1.25cm"
+	                  	margin-left="2cm" margin-right="2cm">
 			      	<fo:region-body margin-top="0cm"/>
 			      	<fo:region-before region-name="rb-common" extent="2cm"/>
 			      	<fo:region-after region-name="ra-common" extent="1.5cm"/>
@@ -82,8 +82,14 @@
 			       		<fo:block font-size="10px">&#160;</fo:block>
 			     		<xsl:for-each select="./element_2">
 			     			<fo:block text-align="center" font-weight="bold" font-size="12px">
-			     				<xsl:value-of select="element_2_1[1]"/>&#160;<xsl:value-of select="../element_1/element_1_3"/>
-			     				(<xsl:value-of select="../element_1/element_1_4"/><!-- &#160;<xsl:value-of select="element_2_1[2]"/> -->)
+			     				<xsl:choose>
+			     					<xsl:when test="element_2_2[1]/element_2_2_14='datewise'">
+			     						<xsl:value-of select="../element_1/element_1_17"/>&#160;<xsl:value-of select="element_2_2[1]/element_2_2_9"/>
+			     					</xsl:when>
+			     					<xsl:otherwise>
+			     						<xsl:value-of select="element_2_1[1]"/>
+			     					</xsl:otherwise>
+			     				</xsl:choose>			     				
 			     			</fo:block>
 			     			<fo:block font-size="9px">&#160;</fo:block>	
 			     			<xsl:choose>
@@ -91,17 +97,23 @@
 			     					<fo:block>
 					     				<fo:table table-layout="fixed" width="100%">
 					     					<fo:table-column column-number="1" column-width="1cm" />
-					                        <fo:table-column column-number="2" column-width="3cm" />
-					                        <fo:table-column column-number="3" column-width="3.5cm" />
-					                        <fo:table-column column-number="4" column-width="5cm" />
-					                        <!-- <fo:table-column column-number="5" column-width="6cm" /> -->
-					                        <fo:table-column column-number="5" column-width="3cm" />  
-					                        <fo:table-column column-number="6" column-width="3cm" />                     
+					     					<fo:table-column column-number="2" column-width="4cm" />
+					                        <fo:table-column column-number="3" column-width="3cm" />
+					                        <fo:table-column column-number="4" column-width="4cm" />
+					                        <fo:table-column column-number="5" column-width="6cm" />
+					                        <!-- <fo:table-column column-number="6" column-width="6cm" /> -->
+					                        <fo:table-column column-number="6" column-width="4cm" />
+					                        <fo:table-column column-number="7" column-width="4cm" />                  
 					                        <fo:table-header>
 					                        	<fo:table-row>
 					                        		<fo:table-cell border-width="0.5pt" border-style="solid">
 						                        	   	<fo:block text-align="center" font-weight="bold" font-size="10px">
 				                                        		<xsl:value-of select="../element_1/element_1_5"/>
+					                                    </fo:block>
+						                        	</fo:table-cell>
+						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
+						                        	   	<fo:block text-align="center" font-weight="bold" font-size="10px">
+				                                        		<xsl:value-of select="../element_1/element_1_18"/>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
@@ -126,12 +138,26 @@
 						                        	</fo:table-cell> -->
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
 						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
-				                                        		<xsl:apply-templates select="../element_1/element_1_11"/>
+						                        	    	<xsl:choose>									     						
+					                                        	<xsl:when test="element_2_2[1]/element_2_2_14='datewise'">
+					                                        		<xsl:value-of select="../element_1/element_1_3"/>                    		                     		
+										     					</xsl:when>
+										     					<xsl:otherwise>
+										     						<xsl:value-of select="../element_1/element_1_11"/>
+										     					</xsl:otherwise>
+									     					</xsl:choose>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
 						                        	    <fo:block text-align="center" font-weight="bold" font-size="10px">
-						                        	    		<xsl:apply-templates select="../element_1/element_1_13"/>
+						                        	    	<xsl:choose>									     						
+					                                        	<xsl:when test="element_2_2_14='datewise'">
+					                                        		<xsl:value-of select="../element_1/element_1_11"/>          		                     		
+										     					</xsl:when>
+										     					<xsl:otherwise>
+										     						<xsl:value-of select="../element_1/element_1_13"/>
+										     					</xsl:otherwise>
+									     					</xsl:choose>
 				                                        </fo:block>
 						                        	</fo:table-cell>				                        	
 					                        	</fo:table-row>
@@ -140,28 +166,64 @@
 					                        	<xsl:for-each select="./element_2_2">
 					                        	<fo:table-row page-break-inside="avoid">
 					                        		<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	   	<fo:block margin-left="0.2cm">
+					                        			<fo:block margin-left="0.2cm">
+					                        			<fo:inline-container dominant-baseline="'reset-size'">
+					                        			<fo:block>
 				                                        	<xsl:value-of select="element_2_2_1"/>
 					                                    </fo:block>
+					                                    </fo:inline-container>
+					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block text-align="center">
-				                                        	<xsl:apply-templates select="element_2_2_2"/>		                                        	
+						                        		<fo:block margin-left="0.2cm" margin-right="0.2cm">
+					                        			<fo:inline-container dominant-baseline="'reset-size'">
+						                        		<fo:block>
+				                                        	<fo:inline><xsl:value-of select="element_2_2_12"/></fo:inline>
 					                                    </fo:block>
+					                                    </fo:inline-container>
+					                                    </fo:block>
+						                        	</fo:table-cell>
+						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
+						                        		<fo:block text-align="center">
+					                        			<fo:inline-container dominant-baseline="'reset-size'">
+						                        		<fo:block>
+						                        			<!-- <xsl:apply-templates select="element_2_2_2"/>
+				                                        	<xsl:if test="element_2_2_15='ONLINE'">
+				                                        		<fo:inline baseline-shift="super" font-size="12pt">*</fo:inline>				                                        		                     		
+									     					</xsl:if> -->   
+									     					<xsl:choose>									     						
+					                                        	<xsl:when test="element_2_2_15='ONLINE'">
+					                                        		|| <xsl:apply-templates select="element_2_2_2"/> ||                             		                     		
+										     					</xsl:when>
+										     					<xsl:otherwise>
+										     						<xsl:apply-templates select="element_2_2_2"/>
+										     					</xsl:otherwise>
+									     					</xsl:choose>                               	
+					                                    </fo:block>					                                    
 					                                    <xsl:if test="boolean(element_2_2_5) and element_2_2_5!=''">
-					                                    <fo:block text-align="center">					                                    	
-				                                        	(<xsl:value-of select="element_2_2_5"/>)	                                        	
+					                                    <fo:block>					                                    	
+				                                        	<fo:inline>(<xsl:value-of select="element_2_2_5"/>)</fo:inline>                                      	
 					                                    </fo:block>
-					                                    </xsl:if>					                                    
+					                                    </xsl:if>  
+					                                    </fo:inline-container>   
+					                                    </fo:block>                               
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block margin-left="0.2cm" margin-right="0.2cm">
-				                                        	<xsl:value-of select="element_2_2_3"/>
+						                        		<fo:block margin-left="0.2cm" margin-right="0.2cm">
+					                        			<fo:inline-container dominant-baseline="'reset-size'">
+						                        		<fo:block>
+				                                        	<fo:inline><xsl:value-of select="element_2_2_3"/></fo:inline>
+					                                    </fo:block>
+					                                    </fo:inline-container>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block margin-left="0.2cm">
-				                                            <xsl:value-of select="element_2_2_4"/>
+						                        		<fo:block margin-left="0.2cm">
+					                        			<fo:inline-container dominant-baseline="'reset-size'">
+						                        		<fo:block>
+				                                            <fo:inline><xsl:value-of select="element_2_2_4"/></fo:inline>
+					                                    </fo:block>
+					                                    </fo:inline-container>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<!-- <fo:table-cell border-width="0.5pt" border-style="solid">
@@ -191,27 +253,63 @@
 					                                    </xsl:if>
 						                        	</fo:table-cell> -->	
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block margin-left="0.8cm">
-						                        	    	<xsl:choose>
-						                        	    		<xsl:when test="boolean(element_2_2_7) and element_2_2_7!=''">
-						                        	    			<xsl:value-of select="element_2_2_7"/>
-						                        	    		</xsl:when>
-						                        	    		<xsl:otherwise>
-						                        	    			-
-						                        	    		</xsl:otherwise>
-						                        	    	</xsl:choose>				                                            
+						                        		<fo:block margin-left="0.4cm">
+					                        			<fo:inline-container dominant-baseline="'reset-size'">
+						                        	    <fo:block>
+						                        	    	<xsl:choose>									     						
+					                                        	<xsl:when test="element_2_2_14='datewise'">
+					                                        		<xsl:choose>
+								                        	    		<xsl:when test="boolean(element_2_2_11) and element_2_2_11!=''">
+								                        	    			<xsl:value-of select="element_2_2_11"/>
+								                        	    		</xsl:when>
+								                        	    		<xsl:otherwise>
+								                        	    			-
+								                        	    		</xsl:otherwise>
+								                        	    	</xsl:choose>            		                     		
+										     					</xsl:when>
+										     					<xsl:otherwise>
+										     						<xsl:choose>
+								                        	    		<xsl:when test="boolean(element_2_2_7) and element_2_2_7!=''">
+								                        	    			<xsl:value-of select="element_2_2_7"/>
+								                        	    		</xsl:when>
+								                        	    		<xsl:otherwise>
+								                        	    			-
+								                        	    		</xsl:otherwise>
+								                        	    	</xsl:choose>
+										     					</xsl:otherwise>
+									     					</xsl:choose>			                                            
+					                                    </fo:block>
+					                                    </fo:inline-container>
 					                                    </fo:block>
 						                        	</fo:table-cell>
 						                        	<fo:table-cell border-width="0.5pt" border-style="solid">
-						                        	    <fo:block margin-left="0.7cm">
-				                                            <xsl:choose>
-						                        	    		<xsl:when test="boolean(element_2_2_9) and element_2_2_9!=''">
-						                        	    			<xsl:value-of select="element_2_2_9"/>
-						                        	    		</xsl:when>
-						                        	    		<xsl:otherwise>
-						                        	    			-
-						                        	    		</xsl:otherwise>
-						                        	    	</xsl:choose>
+						                        		<fo:block margin-left="0.4cm">
+					                        			<fo:inline-container dominant-baseline="'reset-size'">
+						                        	    <fo:block>
+				                                            <xsl:choose>									     						
+					                                        	<xsl:when test="element_2_2_14='datewise'">
+					                                        		<xsl:choose>
+								                        	    		<xsl:when test="boolean(element_2_2_7) and element_2_2_7!=''">
+								                        	    			<xsl:value-of select="element_2_2_7"/>
+								                        	    		</xsl:when>
+								                        	    		<xsl:otherwise>
+								                        	    			-
+								                        	    		</xsl:otherwise>
+								                        	    	</xsl:choose>            		                     		
+										     					</xsl:when>
+										     					<xsl:otherwise>
+										     						<xsl:choose>
+								                        	    		<xsl:when test="boolean(element_2_2_9) and element_2_2_9!=''">
+								                        	    			<xsl:value-of select="element_2_2_9"/>
+								                        	    		</xsl:when>
+								                        	    		<xsl:otherwise>
+								                        	    			-
+								                        	    		</xsl:otherwise>
+								                        	    	</xsl:choose>
+										     					</xsl:otherwise>
+									     					</xsl:choose>
+					                                    </fo:block>
+					                                    </fo:inline-container>
 					                                    </fo:block>
 						                        	</fo:table-cell>					                        	
 					                        	</fo:table-row>
