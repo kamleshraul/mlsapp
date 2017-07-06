@@ -938,39 +938,6 @@
 		}
 		
 		
-		/**** To show/hide viewClubbedQuestionTextsDiv to view clubbed questions text starts****/
-		$("#clubbedQuestionTextsDiv").hide();
-		$("#hideClubQTDiv").hide();
-		$("#viewClubbedQuestionTextsDiv").click(function(){
-			var parent = $("#id").val();
-			if(parent!=undefined && parent!=''){			
-				
-				if($("#clubbedQuestionTextsDiv").css('display')=='none'){
-					$("#clubbedQuestionTextsDiv").empty();
-					$.get('ref/'+parent+'/clubbedquestiontext',function(data){
-						
-						var text="";
-						
-						for(var i = 0; i < data.length; i++){
-							text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
-						}						
-						$("#clubbedQuestionTextsDiv").html(text);
-						
-					});	
-					$("#hideClubQTDiv").show();
-					$("#clubbedQuestionTextsDiv").show();
-				}else{
-					$("#clubbedQuestionTextsDiv").hide();
-					$("#hideClubQTDiv").hide();
-				}
-			}
-		});
-		$("#hideClubQTDiv").click(function(){
-			$(this).hide();
-			$('#clubbedQuestionTextsDiv').hide();
-		});
-		/**** To show/hide viewClubbedQuestionTextsDiv to view clubbed questions text end****/
-		
 		$("#remarks").change(function(){
 			var recommendRejection = '';
 			var finalRejection = '';
