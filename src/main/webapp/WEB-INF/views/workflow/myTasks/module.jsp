@@ -185,11 +185,11 @@
 			});
 			
 			$("#selectedDepartment").change(function(){
-				reloadMyTaskGrid()
+				reloadMyTaskGrid();
 			});
 			
 			$("#selectedReplyStatus").change(function(){
-				reloadMyTaskGrid()
+				reloadMyTaskGrid();
 			});
 			
 			/**** Keyboard Events ****/	
@@ -548,7 +548,7 @@
 		function isValidRow(ids, row){
 			var isValidRowFound = false;
 			var idsArray = ids.split(',');
-			for(i=0; i<idsArray.length && !isValidRowFound; i++) {
+			for(var i=0; i<idsArray.length && !isValidRowFound; i++) {
 				if(idsArray[i] == row) {
 					isValidRowFound = true;
 				}
@@ -584,7 +584,23 @@
 			if(workflowId==undefined || workflowId=='') {
 				$.prompt($('#selectRowFirstMessage').val());
 				return false;
-			} else {			
+			} else {	
+				var internalStatus = $("#grid").jqGrid('getCell', workflowId, 'internalStatus');
+				var clarificationNeededFromMemberAndDepartmentRecommendStatus = $("#selectedSubWorkflow option[value$='recommend_clarificationNeededFromMemberAndDepartment']").first().text();
+				var clarificationNeededFromMemberAndDepartmentFinalStatus = $("#selectedSubWorkflow option[value$='final_clarificationNeededFromMemberAndDepartment']").first().text();
+				if(internalStatus==clarificationNeededFromMemberAndDepartmentRecommendStatus
+						|| internalStatus==clarificationNeededFromMemberAndDepartmentFinalStatus) {
+					if($("#intimationLetterFilter").val()=='-') {
+						if($('#currentusergroupType').val()=='department' || $('#currentusergroupType').val()=='department_deskofficer') {
+							$("#intimationLetterFilter").val("department");
+						} else if($('#currentusergroupType').val()=='member') {
+							$("#intimationLetterFilter").val("member");
+						} else {
+							$.prompt("Please select intimation letter filter from dropdown near the link ");
+							return false;
+						}
+					}
+				}				
 				if(currentDevice.indexOf('questions_')==0){
 					$('#generateIntimationLetter').attr('href', 'question/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 				}else if(currentDevice.indexOf('motions_standalonemotion_')==0){
