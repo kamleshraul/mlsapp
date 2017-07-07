@@ -758,9 +758,6 @@ public class QuestionWorkflowController  extends BaseController{
 						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
 						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
 					populateInternalStatus(model,domain,domain.getRecommendationStatus(),domain.getLocale());
-				}else if (workflowDetails.getWorkflowType().equals(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW)){
-					populateInternalStatus(model, domain.getRecommendationStatus().getType(),
-							workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
 				}else {
 					populateInternalStatus(model,domain,domain.getInternalStatus(),domain.getLocale());
 				}				
@@ -822,6 +819,9 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("formattedParentNumber", FormaterUtil.
 						getNumberFormatterNoGrouping(locale).format(domain.getParent().getNumber()));
 				model.addAttribute("parent", domain.getParent().getId());
+				// Populate latest revised question text from parent question
+				String latestRevisedQuestionTextFromParentQuestion = domain.getParent().getRevisedQuestionText();
+				model.addAttribute("latestRevisedQuestionTextFromParentQuestion",latestRevisedQuestionTextFromParentQuestion);
 			}
 		}
 		
@@ -1800,16 +1800,16 @@ public class QuestionWorkflowController  extends BaseController{
 					if(dateTimeFormat != null){
 						SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
 						try {
-							if(strSubmissionDate!=null){
+							if(strSubmissionDate != null && !strSubmissionDate.isEmpty()){
 								domain.setSubmissionDate(format.parse(strSubmissionDate));
 							}
-							if(strCreationDate!=null){
+							if(strCreationDate != null && !strCreationDate.isEmpty()){
 								domain.setCreationDate(format.parse(strCreationDate));
 							}
-							if(strWorkflowStartedOnDate!=null && !strWorkflowStartedOnDate.isEmpty()){
+							if(strWorkflowStartedOnDate != null && !strWorkflowStartedOnDate.isEmpty()){
 								domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
 							}
-							if(strTaskReceivedOnDate!=null && !strTaskReceivedOnDate.isEmpty()){
+							if(strTaskReceivedOnDate != null && !strTaskReceivedOnDate.isEmpty()){
 								domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
 							}
 						}
