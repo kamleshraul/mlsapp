@@ -150,7 +150,7 @@
 						<option value="answeringDateForwarded"><spring:message code='question.intimationletter.answeringDateForwarded' text='answering date forwarded' /></option>
 				</select>				
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY','QIS_DEPUTY_SECRETARY','QIS_CHAIRMAN','QIS_SPEAKER','QIS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY','QIS_DEPUTY_SECRETARY','QIS_CHAIRMAN','QIS_SPEAKER','QIS_SECTION_OFFICER','ROIS_DEPUTYSECRETARY')">
 				|
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>
@@ -161,7 +161,7 @@
 					</a> |
 				</div>
 			 </security:authorize>
-			 <security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY','QIS_DEPUTY_SECRETARY','QIS_CHAIRMAN','QIS_SPEAKER','QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_JOINT_SECRETARY')">
+			 <security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY','QIS_DEPUTY_SECRETARY','QIS_CHAIRMAN','QIS_SPEAKER','QIS_ASSISTANT','QIS_SECTION_OFFICER','QIS_JOINT_SECRETARY','ROIS_DEPUTYSECRETARY')">
 				 <a href="javascript:void(0);" id="questionSummaryReport" class="butSim">
 					<spring:message code="question.summaryReport" text="Question Summary Report"/>
 				 </a>
