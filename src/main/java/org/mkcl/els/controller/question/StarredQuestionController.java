@@ -1470,6 +1470,9 @@ class StarredQuestionController {
 		if(domain.getParent()!=null){
 			model.addAttribute("formattedParentNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getParent().getNumber()));
 			model.addAttribute("parent",domain.getParent().getId());
+			// Populate latest revised question text from parent question
+			String latestRevisedQuestionTextFromParentQuestion = domain.getParent().getRevisedQuestionText();
+			model.addAttribute("latestRevisedQuestionTextFromParentQuestion",latestRevisedQuestionTextFromParentQuestion);
 		}
 		
 
@@ -2212,6 +2215,9 @@ class StarredQuestionController {
 		if(domain.getParent()!=null){
 			model.addAttribute("formattedParentNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getParent().getNumber()));
 			model.addAttribute("parent",domain.getParent().getId());
+			// Populate latest revised question text from parent question
+			String latestRevisedQuestionTextFromParentQuestion = domain.getParent().getRevisedQuestionText();
+			model.addAttribute("latestRevisedQuestionTextFromParentQuestion",latestRevisedQuestionTextFromParentQuestion);
 		}
 		
 
@@ -2551,16 +2557,16 @@ class StarredQuestionController {
 		if(dateTimeFormat != null){
 			SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
 			try {
-				if(strSubmissionDate != null){
+				if(strSubmissionDate != null && !strSubmissionDate.isEmpty()){
 					domain.setSubmissionDate(format.parse(strSubmissionDate));
 				}
-				if(strCreationDate != null){
+				if(strCreationDate != null && !strCreationDate.isEmpty()){
 					domain.setCreationDate(format.parse(strCreationDate));
 				}
 				if(strWorkflowStartedOnDate != null && !strWorkflowStartedOnDate.isEmpty()){
 					domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
 				}
-				if(strTaskReceivedOnDate != null&&!strTaskReceivedOnDate.isEmpty()){
+				if(strTaskReceivedOnDate != null && !strTaskReceivedOnDate.isEmpty()){
 					domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
 				}
 				/**** answer related dates ****/

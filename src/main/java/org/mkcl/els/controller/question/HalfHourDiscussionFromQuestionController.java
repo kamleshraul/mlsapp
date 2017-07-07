@@ -1492,6 +1492,9 @@ class HalfHourDiscussionFromQuestionController {
 		if(domain.getParent()!=null){
 			model.addAttribute("formattedParentNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getParent().getNumber()));
 			model.addAttribute("parent",domain.getParent().getId());
+			// Populate latest revised question text from parent question
+			String latestRevisedQuestionTextFromParentQuestion = domain.getParent().getRevisedQuestionText();
+			model.addAttribute("latestRevisedQuestionTextFromParentQuestion",latestRevisedQuestionTextFromParentQuestion);
 		}
 		
 
@@ -2157,6 +2160,9 @@ class HalfHourDiscussionFromQuestionController {
 		if(domain.getParent()!=null){
 			model.addAttribute("formattedParentNumber",FormaterUtil.getNumberFormatterNoGrouping(locale).format(domain.getParent().getNumber()));
 			model.addAttribute("parent",domain.getParent().getId());
+			// Populate latest revised question text from parent question
+			String latestRevisedQuestionTextFromParentQuestion = domain.getParent().getRevisedQuestionText();
+			model.addAttribute("latestRevisedQuestionTextFromParentQuestion",latestRevisedQuestionTextFromParentQuestion);
 		}
 		
 	
@@ -2564,19 +2570,19 @@ class HalfHourDiscussionFromQuestionController {
 		if(dateTimeFormat != null){
 			SimpleDateFormat format = FormaterUtil.getDateFormatter(dateTimeFormat.getValue(),"en_US");
 
-				if(strSubmissionDate != null){
-					domain.setSubmissionDate(format.parse(strSubmissionDate));
-				}
-				if(strCreationDate != null){
-					domain.setCreationDate(format.parse(strCreationDate));
-				}
-				if(strWorkflowStartedOnDate != null && !strWorkflowStartedOnDate.isEmpty()){
-					domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
-				}
-				if(strTaskReceivedOnDate != null&&!strTaskReceivedOnDate.isEmpty()){
-					domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
-				}
+			if(strSubmissionDate != null && !strSubmissionDate.isEmpty()){
+				domain.setSubmissionDate(format.parse(strSubmissionDate));
 			}
+			if(strCreationDate != null && !strCreationDate.isEmpty()){
+				domain.setCreationDate(format.parse(strCreationDate));
+			}
+			if(strWorkflowStartedOnDate != null && !strWorkflowStartedOnDate.isEmpty()){
+				domain.setWorkflowStartedOn(format.parse(strWorkflowStartedOnDate));
+			}
+			if(strTaskReceivedOnDate != null && !strTaskReceivedOnDate.isEmpty()){
+				domain.setTaskReceivedOn(format.parse(strTaskReceivedOnDate));
+			}
+		}
 
 			
 		Question refQuestion = null;
