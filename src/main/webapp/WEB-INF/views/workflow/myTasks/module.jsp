@@ -588,14 +588,18 @@
 				var internalStatus = $("#grid").jqGrid('getCell', workflowId, 'internalStatus');
 				var clarificationNeededFromMemberAndDepartmentRecommendStatus = $("#selectedSubWorkflow option[value$='recommend_clarificationNeededFromMemberAndDepartment']").first().text();
 				var clarificationNeededFromMemberAndDepartmentFinalStatus = $("#selectedSubWorkflow option[value$='final_clarificationNeededFromMemberAndDepartment']").first().text();
+				var isNeededToResetLetterFilter = false;
 				if(internalStatus==clarificationNeededFromMemberAndDepartmentRecommendStatus
 						|| internalStatus==clarificationNeededFromMemberAndDepartmentFinalStatus) {
 					if($("#intimationLetterFilter").val()=='-') {
 						if($('#currentusergroupType').val()=='department' || $('#currentusergroupType').val()=='department_deskofficer') {
 							$("#intimationLetterFilter").val("department");
+							isNeededToResetLetterFilter = true;
 						} else if($('#currentusergroupType').val()=='member') {
 							$("#intimationLetterFilter").val("member");
+							isNeededToResetLetterFilter = true;
 						} else {
+							isNeededToResetLetterFilter = false;
 							$.prompt("Please select intimation letter filter from dropdown near the link ");
 							return false;
 						}
@@ -607,6 +611,9 @@
 					$('#generateIntimationLetter').attr('href', 'standalonemotion/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 				}else if(currentDevice.indexOf('resolutions_')==0){
 					$('#generateIntimationLetter').attr('href', 'resolution/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+				}
+				if(isNeededToResetLetterFilter == true) {
+					$("#intimationLetterFilter").val("-");
 				}
 			}
 		}
