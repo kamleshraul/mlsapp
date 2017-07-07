@@ -537,6 +537,29 @@
 			}
 		});
 		
+		if($('#parent').val()!=undefined && $('#parent').val()!='') {
+			$('#viewLatestRevisedQuestionTextFromParentQuestionDiv').show();
+		}
+		/**** To show/hide viewLatestRevisedQuestionTextFromParentQuestionDiv to view latest revised question text of parent question starts****/
+		$("#parentRevisedQuestionTextDiv").hide();
+		$("#hideParentRQTDiv").hide();
+		$("#viewLatestRevisedQuestionTextFromParentQuestionDiv").click(function(){
+			if($("#parentRevisedQuestionTextDiv").css('display')=='none'){
+				$("#hideParentRQTDiv").show();
+				$('#parentRevisedQuestionTextDiv').empty();
+				$('#parentRevisedQuestionTextDiv').html("<p>"+$('#latestRevisedQuestionTextFromParentQuestion').val()+"</p>");
+				$("#parentRevisedQuestionTextDiv").show();
+			}else{
+				$("#parentRevisedQuestionTextDiv").hide();
+				$("#hideParentRQTDiv").hide();
+			}
+		});
+		$("#hideParentRQTDiv").click(function(){
+			$(this).hide();
+			$('#parentRevisedQuestionTextDiv').hide();
+		});
+		/**** To show/hide viewLatestRevisedQuestionTextFromParentQuestionDiv to view latest revised question text of parent question ends****/
+		
 		$('#mlsBranchNotifiedOfTransfer').val(null);
 		$('#transferToDepartmentAccepted').val(null);
 		
@@ -966,7 +989,7 @@
             }
         }
         
-        #clubbedQuestionTextsDiv {
+        #clubbedQuestionTextsDiv, #clubbedRevisedQuestionTextDiv, #parentRevisedQuestionTextDiv {
 			background: none repeat-x scroll 0 0 #FFF;
 		    box-shadow: 0 2px 5px #888888;
 		    max-height: 260px;
@@ -1330,6 +1353,8 @@
 	<p style="display:none;" class="revise2" id="revisedQuestionTextDiv">
 	<label class="wysiwyglabel"><spring:message code="question.revisedDetails" text="Revised Details"/></label>
 	<form:textarea path="revisedQuestionText" cssClass="wysiwyg"></form:textarea>
+	<a href="javascript:void(0);" id="viewLatestRevisedQuestionTextFromParentQuestionDiv" style="border: 1px solid #000000;background-color: #657A8F;border-radius: 5px;color: #FFFFFF;text-decoration: none;float: right;margin-top: -200px;margin-right: 200px;display:none;"><spring:message code="question.parent.revised_texts" text="RP"></spring:message></a>
+	<a href="javascript:void(0);" id="viewLatestRevisedQuestionTextFromClubbedQuestionsDiv" style="border: 1px solid #000000;background-color: #657A8F;border-radius: 5px;color: #FFFFFF;text-decoration: none;float: right;margin-top: -200px;margin-right: 200px;display:none;"><spring:message code="question.clubbed.revised_texts" text="RC"></spring:message></a>
 	<form:errors path="revisedQuestionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 	</p>
 	
@@ -1608,6 +1633,15 @@
 	<h1>Assistant Question texts of clubbed questions</h1>
 </div>
 <div id="hideClubQTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
+
+<!--To show the latest revised questionText of the parent question -->
+<div id="parentRevisedQuestionTextDiv">
+	<h1>Latest Revised Question text of parent question</h1>
+</div>
+<div id="hideParentRQTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
+<c:set var="revisedQuestionTextFromParentQuestionEscapingDoubleQuote" value="${fn:replace(latestRevisedQuestionTextFromParentQuestion, '\"', '&#34;')}" />
+<c:set var='revisedQuestionTextFromParentQuestionEscapingSingleQuote' value='${fn:replace(revisedQuestionTextFromParentQuestionEscapingDoubleQuote, "\'", "&#39;")}' />
+<input type="hidden" id="latestRevisedQuestionTextFromParentQuestion" value="${revisedQuestionTextFromParentQuestionEscapingSingleQuote}"/>
 
 <div id="referencingresultDiv" style="display:none;">
 </div>
