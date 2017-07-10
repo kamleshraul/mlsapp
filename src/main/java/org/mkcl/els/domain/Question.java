@@ -2347,7 +2347,7 @@ public class Question extends Device implements Serializable {
             	UserGroupType ugt = UserGroupType.findByName(UserGroupType.class, this.getEditedAs(), this.getLocale());
                 if(ugt!=null && (ugt.getType().equalsIgnoreCase(ApplicationConstants.MEMBER) 
                 		|| ugt.getType().equalsIgnoreCase(ApplicationConstants.TYPIST))) {
-                	if(this.getStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SUBMIT)) {
+                	if(this.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SUBMIT)) {
                 		Set<QuestionDraft> originalDrafts = new HashSet<QuestionDraft>();
                 		originalDrafts.add(draft);
                 		this.setDrafts(originalDrafts);
@@ -2436,7 +2436,7 @@ public class Question extends Device implements Serializable {
         	UserGroupType ugt = UserGroupType.findByName(UserGroupType.class, this.getEditedAs(), this.getLocale());
             if(ugt!=null && (ugt.getType().equalsIgnoreCase(ApplicationConstants.MEMBER) 
             		|| ugt.getType().equalsIgnoreCase(ApplicationConstants.TYPIST))) {
-            	if(this.getStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)) {
+            	if(this.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SUBMIT)) {
             		Set<QuestionDraft> originalDrafts = new HashSet<QuestionDraft>();
             		originalDrafts.add(draft);
             		this.setDrafts(originalDrafts);
