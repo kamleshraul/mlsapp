@@ -156,8 +156,30 @@
 		$("#" + idMinistry).multiSelect();
 		//$("#" + idDepartment).multiSelect();
 		$("#" + idSubdepartment).multiSelect();
+		
+		var multiSelectMaxHeight = $('.multiSelectSpan').css('max-height');
 				
-		$("select[multiple='multiple']").css("width","300px");		
+		$("select[multiple='multiple']").css("width","300px");
+		
+		$('.expansionMultiSelect').click(function() {
+			var selectedId = this.id;
+			if($(this).text()=='Expand') {
+				if(selectedId=='expandMinistry') {
+					$("#span_param_MINISTRY_mr_IN").attr('style', 'max-height: initial !important;');
+				} else if(selectedId=='expandSubDepartment') {
+					$("#span_param_SUBDEPARTMENT_mr_IN").attr('style', 'max-height: initial !important;');
+				}				
+				$(this).text('Collapse');
+			} else {
+				if(selectedId=='expandMinistry') {
+					$("#span_param_MINISTRY_mr_IN").attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
+				} else if(selectedId=='expandSubDepartment') {
+					$("#span_param_SUBDEPARTMENT_mr_IN").attr('style', 'max-height: ' + multiSelectMaxHeight + ' !important;');
+				}
+				
+				$(this).text('Expand');
+			}
+		});
 				
 		$("#param_MINISTRY_"+locale).change(function(event){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 		
@@ -251,6 +273,7 @@
 				<option value="${i.name}">${i.name}</option>
 			</c:forEach>
 		</select>
+		<a id="expandMinistry" class="expansionMultiSelect" href="javascript:void(0);" style="float: right;">Expand</a>
 	</p>
 	<%-- <input type="hidden" id="selectedDepartments" value="${selectedDepartment}" />
 	<p>
@@ -269,6 +292,7 @@
 				<option value="${i.name}">${i.name}</option>			
 			</c:forEach>
 		</select>
+		<a id="expandSubDepartment" class="expansionMultiSelect" href="javascript:void(0);" style="float: right;">Expand</a>
 	</p>	
 	<p>	
 	<label class="small"><spring:message code="usergroup.groupsAllowed" text="Groups Allowed" /></label>
