@@ -2594,24 +2594,24 @@ public class ApplicationConstants {
 	
 	public static String ANSWER_RECEIVED_MODE_OFFLINE = "OFFLINE";
 	
-	public static final String STATUS_INCOMPLETE="incomplete";
+	public static final String STATUS_INCOMPLETE="_incomplete";
 	
-	public static final String STATUS_COMPLETE="complete";
+	public static final String STATUS_COMPLETE="_complete";
 	
-	public static final String STATUS_SUBMIT="submit";
+	public static final String STATUS_SUBMIT="_submit";
 	
-	public static final String STATUS_SYSTEM_ASSISTANTPROCESSED="system_assistantprocessed";
+	public static final String STATUS_SYSTEM_ASSISTANTPROCESSED="_system_assistantprocessed";
 	
-	public static final String STATUS_SYSTEM_PUTUP="system_putup";
+	public static final String STATUS_SYSTEM_PUTUP="_system_putup";
 	
-	public static final String STATUS_SYSTEM_CLUBBED="system_clubbed";
+	public static final String STATUS_SYSTEM_CLUBBED="_system_clubbed";
 	
-	public static final String STATUS_RECOMMEND_ADMISSION="recommend_admission";
+	public static final String STATUS_RECOMMEND_ADMISSION="_recommend_admission";
 	
-	public static final String STATUS_RECOMMEND_REJECTION="recommend_rejection";
+	public static final String STATUS_RECOMMEND_REJECTION="_recommend_rejection";
 	
-	public static final String STATUS_FINAL_ADMISSION="final_admission";
+	public static final String STATUS_FINAL_ADMISSION="_final_admission";
 	
-	public static final String STATUS_FINAL_REJECTION="final_rejection";
+	public static final String STATUS_FINAL_REJECTION="_final_rejection";
 	
 }
