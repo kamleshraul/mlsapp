@@ -62,6 +62,9 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
 			Set<Parameter<?>> selectQueryParameters = persistenceQuery.getParameters();
 			for (Parameter i : selectQueryParameters) {
+				if(requestMap.get(i.getName())==null) {
+					System.out.println(i.getName());
+				}
 				String param=requestMap.get(i.getName())[0];
 				String decodedParam=param;
 				if(customParameter!=null&&customParameter.getValue().equals("TOMCAT")){							
@@ -105,17 +108,52 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 			if(requestMap!=null&&!requestMap.isEmpty()){
 				String locale=requestMap.get("locale")[0];
 				Query query = Query.findByFieldName(Query.class, "keyField", report, locale);
-				
+				String queryString = query.getQuery();
+				/**** in case selected fields of query need to be dynamically taken (e.g. in extended grid report) ****/
+				/** for fields **/
+				if(requestMap.get("field_select_query")!=null 
+						&& requestMap.get("field_select_query")[0]!=null
+						&& queryString.contains("field_select_query")) {
+					String field_select_query = requestMap.get("field_select_query")[0];
+//					CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+//					if(deploymentServerCP.getValue().equals("TOMCAT")){
+//						try {
+//							field_select_query = new String(field_select_query.getBytes("ISO-8859-1"),"UTF-8");
+//						} catch (UnsupportedEncodingException e) {
+//							e.printStackTrace();
+//						}		
+//					}
+					queryString = queryString.replace("field_select_query", field_select_query);
+				}
+				/** for headers **/
+				if(requestMap.get("field_header_select_query")!=null 
+						&& requestMap.get("field_header_select_query")[0]!=null
+						&& queryString.contains("field_header_select_query")) {
+					String field_header_select_query = requestMap.get("field_header_select_query")[0];
+//					CustomParameter deploymentServerCP = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+//					if(deploymentServerCP.getValue().equals("TOMCAT")){
+//						try {
+//							field_header_select_query = new String(field_header_select_query.getBytes("ISO-8859-1"),"UTF-8");
+//						} catch (UnsupportedEncodingException e) {
+//							e.printStackTrace();
+//						}		
+//					}
+					queryString = queryString.replace("field_header_select_query", field_header_select_query);
+				}
+				//====================================================================================================
 				//To handle the parameter setting in IN clause value
-				int indexOfIN = query.getQuery().indexOf(" IN "); 
-				int index = ((indexOfIN==-1)? ((query.getQuery().indexOf("in")==-1)? -1:query.getQuery().indexOf("in")): indexOfIN);
-				String inParameter = query.getQuery().substring(index+"IN".length()).trim();
+				int indexOfIN = queryString.indexOf(" IN "); 
+				int index = ((indexOfIN==-1)? ((queryString.indexOf("in")==-1)? -1:queryString.indexOf("in")): indexOfIN);
+				String inParameter = queryString.substring(index+"IN".length()).trim();
 				inParameter = inParameter.substring(inParameter.indexOf(":")+1,inParameter.indexOf(")"));
 				
-				javax.persistence.Query persistenceQuery=this.em().createNativeQuery(query.getQuery());
+				javax.persistence.Query persistenceQuery=this.em().createNativeQuery(queryString);
 				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
 				Set<Parameter<?>> selectQueryParameters = persistenceQuery.getParameters();
 				for (Parameter i : selectQueryParameters) {
+					if(requestMap.get(i.getName())==null) {
+						System.out.println(i.getName());
+					}
 					String param=requestMap.get(i.getName())[0];
 					String decodedParam=param;
 					if(customParameter!=null&&customParameter.getValue().equals("TOMCAT")){							
@@ -142,6 +180,21 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 					}
 				}
 				List results=persistenceQuery.getResultList();
+				
+				/** handling for serial number generation **/
+				if(results!=null && !results.isEmpty() && results.get(0)!=null && results.get(0).getClass().equals(Object[].class)) {
+					Object[] firstResult = (Object[]) results.get(0);
+					if(firstResult!=null && firstResult[0]!=null && firstResult[0].toString().contains("serialNumber")) {
+						int rowIndex=0;
+						for(Object r: results) {
+							Object[] row = (Object[]) r;
+							String serialNumber = FormaterUtil.formatNumberNoGrouping(rowIndex+1, locale);
+							row[0] = row[0].toString().replace("serialNumber", serialNumber);
+							rowIndex++;
+						}
+					}
+				}
+				
 				return results;
 			}
 		}else{

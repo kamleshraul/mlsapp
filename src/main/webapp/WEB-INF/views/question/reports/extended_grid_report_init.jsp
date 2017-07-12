@@ -4,6 +4,14 @@
 <title></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript">
+	//this is for autosuggest
+	function split( val ) {
+		return val.split( /,\s*/ );
+	}	
+	function extractLast( term ) {
+		return split( term ).pop();
+	}
+
 	$(document).ready(function() {
 		//****Disable 'default open filters if any' in Add Filter Dropdown****//
 		$('#addFilter option').each(function() {
@@ -66,12 +74,146 @@
 		$('.filter_operator > select').change(function() {			
 			var filterOperatorId = $(this).attr('id');
 			var filterValuesId = filterOperatorId.replace('operator', 'filter_values');
+			var filterValuesAutoSuggestId = filterValuesId.replace('filter_values', 'autosuggest');
+			var filterValuesAutoSuggestMultipleId = filterValuesId.replace('filter_values', 'autosuggestmultiple');
+			//default hide for autosuggest fields
+			$('#'+filterValuesAutoSuggestId).hide();
+			$('#'+filterValuesAutoSuggestMultipleId).hide();
 			if($('#'+filterOperatorId).val()=='eq') {				
 				$('#'+filterValuesId).removeAttr('hidden');
+				
+			} else if($('#'+filterOperatorId).val()=='in') {				
+				$('#'+filterValuesId).removeAttr('hidden');
+				
+			} else if($('#'+filterOperatorId).val()=='eq_autosuggest') {			
+				$('#'+filterValuesId).removeAttr('hidden');
+				$('#'+filterValuesAutoSuggestId).show();
+				
+			} else if($('#'+filterOperatorId).val()=='in_autosuggestmultiple') {	
+				$('#'+filterValuesId).removeAttr('hidden');
+				$('#'+filterValuesAutoSuggestMultipleId).show();
 			} else {
-				$('#'+filterValuesId).attr('hidden', 'true');
+				$('#'+filterValuesId).attr('hidden', 'true');			
 			}
 		});
+		
+		//===============================autosuggest script===============================//
+		var autosuggestValueElementId = "";
+		var autosuggestURL = "";
+		$('#primaryMember_autosuggest').focus(function() {
+			autosuggestValueElementId = "primaryMember";
+			autosuggestURL = "ref/member/supportingmembers?"+"session="+$('#session').val();
+		});
+		$('#primaryMember_autosuggestmultiple').focus(function() {
+			autosuggestValueElementId = "primaryMemberList";
+			autosuggestURL = "ref/member/supportingmembers?"+"session="+$('#session').val();
+		});		
+		//autocomplete for single value	
+		$('.autosuggest').autocomplete({
+			minLength: 3,
+			source: function( request, response ) {
+				$.getJSON(autosuggestURL,
+						{term: request.term},
+						response
+				).fail(function(){
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+			},
+			select: function(event,ui){			
+				$("#"+autosuggestValueElementId).val(ui.item.id);
+			}			
+		});
+		//autocomplete for multiple values
+		$('.autosuggestmultiple').autocomplete({
+			minLength: 3,
+			source: function( request, response ) {
+				$.getJSON(autosuggestURL,
+						{term: extractLast(request.term)},
+						response
+				).fail(function(){
+					if($("#ErrorMsg").val()!=''){
+						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+					}else{
+						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+					}
+					scrollTop();
+				});
+			},
+			search: function() {
+				var term = extractLast( this.value );
+				if ( term.length < 2 ) {
+					return false;
+				}
+			},
+			focus: function() {
+				return false;
+			},
+			select: function( event, ui ) {
+				//what happens when we are selecting a value from drop down
+				var terms = $(this).val().split(",");
+				//if select box is already present i.e atleast one option is already added
+				if($("select[name ='" + autosuggestValueElementId + "'] option").length>0){
+					if($("select[name ='" + autosuggestValueElementId + "'] option[value=0]").length > 0){
+						$("select[name='" + autosuggestValueElementId + "'] option[value=0]").remove();
+					}
+					if($("select[name ='" + autosuggestValueElementId + "'] option[value='" + ui.item.id + "']").length > 0){
+						//if option being selected is already present then do nothing
+						this.value = $(this).val();					
+						$("select[name ='" + autosuggestValueElementId + "']").hide();						
+					}else{
+						//if option is not present then add it in select box and autocompletebox
+						if(ui.item.id != undefined && ui.item.value != undefined){
+							var text ="<option value ='"+ ui.item.id +"' selected='selected' class = '"
+										+ ui.item.value + "'></option>";
+							$("select[name='" + autosuggestValueElementId + "']").append(text);
+							terms.pop();
+							terms.push( ui.item.value );
+							terms.push( "" );
+							this.value = terms.join( "," );
+						}							
+						$("select[name='" + autosuggestValueElementId + "']").hide();								
+					}
+				}else{
+					if(ui.item.id != undefined && ui.item.value != undefined){
+						text = "<select name='"+ autosuggestValueElementId + "'  multiple='multiple'>";
+						textoption = "<option value='" + ui.item.id + "' selected='selected'"+
+							" class='" + ui.item.value + "'></option>";				
+						text = text + textoption + "</select>";
+						$(this).after(text);
+						terms.pop();
+						terms.push( ui.item.value );
+						terms.push( "" );
+						this.value = terms.join( "," );
+					}	
+					$("select[name='" + autosuggestValueElementId + "']").hide();									
+				}		
+				return false;
+			}			
+		});
+		$( ".autosuggestmultiple" ).change(function(){
+			//if we are removing a value from autocomplete box then that value needs to be removed from the attached select box also.
+			//for this we iterate through the slect box selected value and check if that value is present in the 
+			//current value of autocomplete.if a value is found which is there in autocomplete but not in select box
+			//then that value will be removed from the select box.
+			var value=$(this).val();
+			$("select[name='" + autosuggestValueElementId + "'] option:selected").each(function(){
+				var optionClass = $(this).attr("class");
+				if(value.indexOf(optionClass) == -1){
+					$("select[name='" + autosuggestValueElementId + "'] option[class='" + optionClass + "']").remove();
+				}		
+			});	
+			if($("select[name ='" + autosuggestValueElementId + "'] option").length==0){
+				var text ="<option value='0' selected='selected'></option>";
+				$("select[name='" + autosuggestValueElementId + "']").append(text);
+			}
+			$("select[name='"+autosuggestValueElementId+"']").hide();				
+		});
+		//===================================autosuggest script ends=================================//
 		
 		//****Report Fields Selection Related Script (for Custom Multiselect)****//
 		/** Remove Default Selected Items From All Items Box **/
@@ -137,6 +279,8 @@
 		
 		//****Generate Extended Grid Report****//
 		$('#generateExtendedGridReport').click(function() {
+			$('#primaryMembers').val($('select[name="primaryMemberList"]').val()); //TODO:// make generic later
+			
 			//set report fields as per selected order by user
 			var fieldCount = 1;
 			$("#selectedItems option").each(function(){
@@ -415,6 +559,37 @@
 											<option value="convertToUnstarredAndAdmit"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.${questionTypeType}.convertToUnstarredAndAdmit" text="Unstarred Admitted"/></option>
 										</c:if>
 									</select>
+								</td>
+							</tr>
+							
+							<c:forEach items="${defaultFilters}" var="i">
+								<c:choose>
+									<c:when test="${fn:contains(i, 'primaryMember_filter')}">
+										<c:set var="primaryMember_filter_visible" value="yes"/>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+							<tr class="filter_row" id="primaryMember_filter" ${primaryMember_filter_visible!='yes' ? 'hidden="true"' : ''}>
+								<td class="filter_field" id="primaryMember_filter_field">
+									<input type="checkbox" id="primaryMember_filter_checkbox" class="sCheck filter_checkbox" ${primaryMember_filter_visible=='yes' ? 'checked="checked"' : ''}>
+									<label class="small" for="primaryMember"><spring:message code="extended_grid_report.primaryMember_filter.filter_field" text="Primary Member"/></label>
+									<input type="hidden" id="primaryMember_filter_applied" name="primaryMember_filter_applied" value="false"/>
+								</td>
+								<td class="filter_operator" id="primaryMember_filter_operator">
+									<select id="primaryMember_operator" name="primaryMember_operator" style="width: 100px; height: 25px;">
+										<option value="0" selected="selected"><spring:message code="extended_grid_report.filter_operator.any" text="Any"/></option>
+										<option value="eq_autosuggest"><spring:message code="extended_grid_report.filter_operator.eq" text="is"/></option>
+										<option value="in_autosuggestmultiple"><spring:message code="extended_grid_report.filter_operator.in" text="in"/></option>
+									</select>
+								</td>
+								<td class="filter_values" id="primaryMember_filter_values" hidden="true">
+									<input id="primaryMember_autosuggest" type="text" class="sText autosuggest" style="display: none;">
+									<textarea id="primaryMember_autosuggestmultiple" class="autosuggestmultiple" rows="7" cols="50" style="display: none;"></textarea>
+									<input name="primaryMember" id="primaryMember" type="hidden" value="0">
+									<select name="primaryMemberList" multiple="multiple" style="display: none;">
+										<option value="0" selected="selected"></option>
+									</select>
+									<input name="primaryMembers" id="primaryMembers" type="hidden" value="0">
 								</td>
 							</tr>
 							

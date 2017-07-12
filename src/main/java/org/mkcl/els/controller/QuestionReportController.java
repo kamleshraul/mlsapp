@@ -3326,7 +3326,7 @@ public class QuestionReportController extends BaseController{
 		reportHeaders = null;
 		/** Populate Data **/
 		@SuppressWarnings("rawtypes")
-		List reportData = Query.findReport(request.getParameter("reportQuery"), queryParameters);
+		List reportData = Query.findReport(request.getParameter("reportQuery"), queryParameters, true);
 		model.addAttribute("reportData", reportData);
 		reportData = null;
 		queryParameters = null;
