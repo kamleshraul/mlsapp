@@ -2484,7 +2484,9 @@ public class QuestionReportController extends BaseController{
 							String[] allMemberNamesArr = allMemberNames.split(",");
 							for(int i=0; i<allMemberNamesArr.length; i++) {
 								if(allMemberNamesArr[i].trim().equals(firstAddedQuestionMemberName.trim())) {
-									lastMemberNameBeforeAddedQuestions = allMemberNamesArr[i-1].trim();
+									if(i-1>=0){
+										lastMemberNameBeforeAddedQuestions = allMemberNamesArr[i-1].trim();
+									}
 									for(int j=0; j<i; j++) {
 										if(j!=i-1) {
 											previousQuestionsMemberNames.append(allMemberNamesArr[j].trim() + ", ");

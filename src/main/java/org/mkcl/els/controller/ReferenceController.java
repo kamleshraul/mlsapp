@@ -6004,6 +6004,8 @@ public class ReferenceController extends BaseController {
 			String strSessionType = request.getParameter("sessionType");
 			String strStatus = request.getParameter("status");
 			String strHouseType = request.getParameter("houseType");
+			String strWorkflowType = request.getParameter("workflowType");
+			String strWorkflowSubType = request.getParameter("workflowSubType");
 			
 			if(strSessionYear != null && !strSessionYear.isEmpty()
 					&& strSessionType != null && !strSessionType.isEmpty()
@@ -6029,6 +6031,12 @@ public class ReferenceController extends BaseController {
 				parameters.put("sessionType", strSessionType);
 				parameters.put("houseType", strHouseType);
 				parameters.put("status", strStatus);
+				if(strWorkflowType != null && !strWorkflowType.isEmpty()){
+					parameters.put("workflowType", strWorkflowType);
+				}
+				if(strWorkflowSubType != null && !strWorkflowSubType.isEmpty()){
+					parameters.put("workflowSubType", strWorkflowSubType);
+				}
 				
 				List<WorkflowDetails> workflows = WorkflowDetails.findPendingWorkflowOfCurrentUser(parameters, "assignmentTime", ApplicationConstants.ASC);
 				
