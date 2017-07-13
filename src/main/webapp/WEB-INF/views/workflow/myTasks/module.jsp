@@ -892,7 +892,47 @@
 			});
 		}
 		
+		function showSupplementaryWorkflow(){
+			var params = "houseType="+$("#selectedHouseType").val()
+			+"&sessionYear="+$("#selectedSessionYear").val()
+			+"&sessionType="+$("#selectedSessionType").val()
+			+"&deviceType="+(($("#selectedDeviceType").val()=='')?'0':$("#selectedDeviceType").val())
+			+"&status="+$("#selectedStatus").val()
+			+"&workflowSubType=question_processed_supplementaryClubbing";
+			//showTabByIdAndUrl('details_tab', 'workflow/question/supplementquestionworkflow?' + params);
+			$.get('workflow/question/supplementquestionworkflow?' + params,function(data){
+				$('#details_tab').addClass('selected');
+				$('.tabContent').html(data);
+		    },'html').fail(function(){
+    			if($("#ErrorMsg").val()!=''){
+    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+    			}else{
+    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+    			}
+    			scrollTop();
+    		});
+		    return false;
+		}
 		
+		//to get the new supplementary pending tasks
+		function pendingNewSupplementaryClubbingTasks(){
+			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
+				var url = "ref/newpendingtasks?sessionYear=" + $("#selectedSessionYear").val() +
+							"&sessionType=" + $("#selectedSessionType").val() + 
+							"&houseType=" + $("#selectedHouseType").val() +
+							"&workflowType=questionsupplementary_workflow"+
+							"&workflowSubType=question_processed_supplementaryClubbing"+
+							"&status=PENDING";
+				$.get(url, function(data){
+					if(data){
+						$("#supplementaryNotificationDiv").html(data.value);
+						$("#supplementaryNotificationDiv").css('display','inline-block');
+					}
+				}).fail(function(){
+					clearInterval(pendingTasksReference);
+				});
+			}			  
+		}
 		
 		
 	</script>

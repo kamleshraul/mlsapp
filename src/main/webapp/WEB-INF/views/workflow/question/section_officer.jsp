@@ -150,7 +150,8 @@
 		var admitDueToReverseClubbing = '';
 		var recommendRejection = '';
 		var finalRejection = '';
-		var resendRevisedQuestionText = ''
+		var resendRevisedQuestionText = '';
+		var questionSupplmenetarySendToSectionOfficer = '';
 		if(questionType == 'questions_starred') {
 			type = $("#internalStatusMaster option[value='question_processed_sendToDepartment']").text();
 			sendToMember = $("#internalStatusMaster option[value='question_processed_sendToMember']").text();
@@ -187,6 +188,7 @@
 			recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
 			finalRejection = $("#internalStatusMaster option[value='question_final_rejection']").text();
 			resendRevisedQuestionText = $("#internalStatusMaster option[value='question_processed_resendRevisedQuestionTextToDepartment']").text();
+			questionSupplmentarySendToSectionOfficer = $("#internalStatusMaster option[value='question_processed_sendSupplementaryQuestionToSectionOfficer']").text();
 		} else if(questionType == 'questions_unstarred') {
 			type = $("#internalStatusMaster option[value='question_unstarred_processed_sendToDepartment']").text();
 			sendToMember = $("#internalStatusMaster option[value='question_unstarred_processed_sendToMember']").text();
@@ -321,7 +323,7 @@
 		    valueToSend=$("#internalStatus").val();
 		    $("#recommendationStatus").val(value);
 		    $("#endFlag").val("continue");
-	    }else if(value == sendBack || value == discuss) {
+	    }else if(value == sendBack || value == discuss || value ==questionSupplmentarySendToSectionOfficer) {
 	    	 $("#endFlag").val("continue");
 	    	 $("#recommendationStatus").val(value);
 	    	 valueToSend=value;

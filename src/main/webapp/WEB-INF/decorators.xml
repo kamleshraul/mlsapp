@@ -276,6 +276,7 @@
 		<pattern>/workflow/billamendmentmotion/supportingmember</pattern>
 		<pattern>workflow/question</pattern>
 		<pattern>/workflow/question/advancedbulkapproval</pattern>
+		<pattern>/workflow/question/supplementquestionworkflow</pattern>
 		<pattern>workflow/resolution</pattern>
 		<pattern>/workflow/resolution/advancedbulkapproval</pattern>
 		<pattern>workflow/motion</pattern>	
