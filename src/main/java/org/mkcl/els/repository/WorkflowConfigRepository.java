@@ -525,6 +525,36 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
 				currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
 				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			}else if(status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTOSECTIONOFFICER)
+					||status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODEPARTMENT)
+					||status.equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODESKOFFICER)){
+				
+				Workflow processWorkflow = Workflow.findByType(ApplicationConstants.QUESTIONSUPPLEMENTARY_WORKFLOW, locale.toString());
+				workflowConfig = getLatest(question, processWorkflow, locale);
+				userGroupType = userGroup.getUserGroupType();
+				currentWorkflowActor = getWorkflowActor(workflowConfig,userGroupType,level);
+				CustomParameter userGroupTypeToBeExcluded =  CustomParameter.
+					findByName(CustomParameter.class, ApplicationConstants.USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_POSTFINAL_STATUS, "");
+				if(userGroupTypeToBeExcluded != null && 
+						(userGroupTypeToBeExcluded.getValue() != null  && !userGroupTypeToBeExcluded.getValue().isEmpty())){
+					String strUsergroupTypes = userGroupTypeToBeExcluded.getValue();
+					String[] arrUsergroupTypes = strUsergroupTypes.split(",");
+					List<Long> usergroupTypeIds = new ArrayList<Long>();
+					for(String s : arrUsergroupTypes){
+						UserGroupType ugt = UserGroupType.findByType(s, locale);
+						if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)){
+							if(!ugt.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+								usergroupTypeIds.add(ugt.getId());
+							}
+						}else{
+							usergroupTypeIds.add(ugt.getId());
+						}						
+					}
+					List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypeIds,level);
+					allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+				}else{
+					allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+				}
 			}else{
 				workflowConfig = getLatest(question,status,locale.toString());
 				userGroupType = userGroup.getUserGroupType();

@@ -1922,7 +1922,12 @@ public class QuestionWorkflowController  extends BaseController{
 					}
 	
 					String currentDeviceTypeWorkflowType = null;
-					Workflow workflowFromUpdatedStatus = domain.findWorkflowFromStatus();
+					Workflow workflowFromUpdatedStatus = null;
+					if(domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODEPARTMENT)){
+						 workflowFromUpdatedStatus = Workflow.findByType(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW, locale.toString());
+					}else{
+						 workflowFromUpdatedStatus = domain.findWorkflowFromStatus();
+					}
 					if(workflowFromUpdatedStatus!=null) {
 						currentDeviceTypeWorkflowType = workflowFromUpdatedStatus.getType();
 					}			
@@ -5988,4 +5993,380 @@ public class QuestionWorkflowController  extends BaseController{
         return returnUrl;
 //		getAdvancedBulkApproval(request, locale, model);
 	}
+	
+	
+	/**** Bulk Approval(By Any Authority) ****/
+	@RequestMapping(value="/supplementquestionworkflow",method=RequestMethod.GET)
+	public String getSupplementaryQuestions(final HttpServletRequest request,final Locale locale,
+			final ModelMap model){
+		try{
+			/**** Request Params ****/
+			String strHouseType = request.getParameter("houseType");
+			String strSessionType = request.getParameter("sessionType");
+			String strSessionYear = request.getParameter("sessionYear");
+			String strQuestionType = request.getParameter("deviceType");
+			String strStatus = request.getParameter("status");
+			String strWorkflowSubType = request.getParameter("workflowSubType");
+			String strLocale = locale.toString();
+			String assignee = this.getCurrentUser().getActualUsername();
+			String strItemsCount = null;
+			CustomParameter itemsCountParameter = CustomParameter.findByName(CustomParameter.class, "ADVANCED_BULKAPPROVAL_ITEM_COUNT", "");
+			if(itemsCountParameter != null){
+				strItemsCount = itemsCountParameter.getValue();
+			}
+			/**** usergroup,usergroupType,role *****/
+			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+			Credential credential = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), null);
+			String strUserGroupType = null;
+			String strUsergroup = null;
+			UserGroup usergroup = null;
+			if(userGroups != null && !userGroups.isEmpty()){
+				CustomParameter customParameter = CustomParameter.
+						findByName(CustomParameter.class,"QIS_ALLOWED_USERGROUPTYPES", "");
+				if(customParameter != null){
+					String allowedUserGroups = customParameter.getValue(); 
+					for(UserGroup i : userGroups){
+						UserGroup ug = UserGroup.findActive(credential, i.getUserGroupType(), new Date(), locale.toString());
+						if(ug != null){
+							if(allowedUserGroups.contains(i.getUserGroupType().getType())){
+								strUsergroup = String.valueOf(i.getId());
+								strUserGroupType = i.getUserGroupType().getType();
+								usergroup = UserGroup.findById(UserGroup.class, Long.parseLong(strUsergroup));
+								break;
+							}
+						}
+					}
+				}
+			}	
+			
+			if(request.getSession().getAttribute("type")==null){
+	            model.addAttribute("type","");
+	        }else{
+	        	model.addAttribute("type",request.getSession().getAttribute("type"));
+	            request.getSession().removeAttribute("type");
+	        }
+			
+			if(strHouseType!=null&&!(strHouseType.isEmpty())
+					&&strSessionType!=null&&!(strSessionType.isEmpty())
+					&&strSessionYear!=null&&!(strSessionYear.isEmpty())
+					&&strQuestionType!=null&&!(strQuestionType.isEmpty())){
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(customParameter!=null){
+					String server=customParameter.getValue();
+					if(server.equals("TOMCAT")){
+						try {
+							strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+							strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+							strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+							strQuestionType = new String(strQuestionType.getBytes("ISO-8859-1"),"UTF-8");
+						}
+						catch (UnsupportedEncodingException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}else{
+				strHouseType = request.getSession().getAttribute("houseType").toString();
+				strSessionType = request.getSession().getAttribute("sessionType").toString();
+				strSessionYear = request.getSession().getAttribute("sessionYear").toString();
+				strQuestionType = request.getSession().getAttribute("deviceType").toString();
+				strWorkflowSubType = request.getSession().getAttribute("workflowSubType").toString();
+				strStatus = request.getSession().getAttribute("status").toString();
+			}
+	
+			if(strHouseType!=null&&!(strHouseType.isEmpty())
+					&&strSessionType!=null&&!(strSessionType.isEmpty())
+					&&strSessionYear!=null&&!(strSessionYear.isEmpty())
+					&&strQuestionType!=null&&!(strQuestionType.isEmpty())
+					&&strUsergroup!=null&&!(strUsergroup.isEmpty())
+					&&strUserGroupType!=null&&!(strUserGroupType.isEmpty())
+					&&strWorkflowSubType!=null&&!(strWorkflowSubType.isEmpty())){
+					
+					model.addAttribute("status", strStatus);
+					model.addAttribute("usergroup", usergroup.getId());
+					// Populate Roles
+					/**
+					 * Rules:
+					 * a. QIS roles starts with QIS_, MEMBER_
+					 * b. Any user will have single role per device type
+					 * c. Any user can have multiple roles limited to one role per device type
+					 */
+					Set<Role> roles = this.getCurrentUser().getRoles();
+					for(Role i : roles) {
+						if(i.getType().startsWith("MEMBER_")) {
+							model.addAttribute("role", i.getType());
+							break;
+						}
+						else if(i.getType().startsWith("QIS_")) {
+							model.addAttribute("role", i.getType());
+							break;
+						}
+					}
+					/**** List of Statuses ****/
+					List<Status> internalStatuses = new ArrayList<Status>();
+					HouseType houseType = HouseType.
+							findByFieldName(HouseType.class,"name",strHouseType, strLocale);
+					DeviceType questionType = DeviceType.
+							findByFieldName(DeviceType.class,"name",strQuestionType,strLocale);
+					
+					CustomParameter finalApprovingAuthority = CustomParameter.
+							findByName(CustomParameter.class,questionType.getType().toUpperCase()+"_FINAL_AUTHORITY", "");
+					CustomParameter deviceTypeInternalStatusUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+ strWorkflowSubType.toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					CustomParameter deviceTypeHouseTypeInternalStatusUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+ houseType.getType().toUpperCase()+"_"+strWorkflowSubType.toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					CustomParameter deviceTypeHouseTypeUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					CustomParameter deviceTypeUsergroup = CustomParameter.
+							findByName(CustomParameter.class, "QUESTION_PUT_UP_OPTIONS_"+questionType.getType().toUpperCase()+"_"+strUserGroupType.toUpperCase(), "");
+					if(finalApprovingAuthority!=null 
+							&&finalApprovingAuthority.getValue().contains(strUserGroupType)){
+						CustomParameter finalApprovingAuthorityStatus = CustomParameter.
+								findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+strUserGroupType.toUpperCase(),"");
+						if(finalApprovingAuthorityStatus != null){
+							internalStatuses = Status.
+									findStatusContainedIn(finalApprovingAuthorityStatus.getValue(), strLocale);
+						}
+					}/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+INTERNALSTATUS_TYPE+USERGROUP(Post Final Status)****/
+					else if(deviceTypeInternalStatusUsergroup != null){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), strLocale);
+					}/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE + HOUSETYPE + INTERNALSTATUS_TYPE+USERGROUP(PRE Final Status)****/
+					else if(deviceTypeHouseTypeInternalStatusUsergroup !=null ){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeHouseTypeInternalStatusUsergroup.getValue(), strLocale);
+					}
+					/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+HOUSETYPE+USERGROUP(Pre Final Status-House Type Basis)****/
+					else if(deviceTypeHouseTypeUsergroup != null){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeHouseTypeUsergroup.getValue(), strLocale);
+					}	
+					/**** QUESTION_PUT_UP_OPTIONS_+DEVICETYPE_TYPE+USERGROUP(Pre Final Status)****/
+					else if(deviceTypeUsergroup != null){
+						internalStatuses = Status.
+								findStatusContainedIn(deviceTypeUsergroup.getValue(), strLocale);
+					}	
+					model.addAttribute("internalStatuses", internalStatuses);				
+					model.addAttribute("workflowSubType", strWorkflowSubType);
+					/**** Workflow Details ****/
+					List<WorkflowDetails> workflowDetails = WorkflowDetails.
+								findAllSupplementaryWorkflow(strHouseType, strSessionType, strSessionYear,
+										strQuestionType, strStatus, strWorkflowSubType,
+										assignee, strItemsCount, strLocale);
+					/**** Populating Bulk Approval VOs ****/
+					List<BulkApprovalVO> bulkapprovals = new ArrayList<BulkApprovalVO>();
+					int counter = 0;
+					for(int i=0; i<workflowDetails.size(); i++){
+						WorkflowDetails workflowDetail = workflowDetails.get(i);
+						BulkApprovalVO bulkApprovalVO=new BulkApprovalVO();				
+						Question question=Question.findById(Question.class,Long.parseLong(workflowDetail.getDeviceId()));
+						Question parent = question.getParent();
+						
+						//Device Id
+						StringBuffer deviceIds = new StringBuffer();
+						deviceIds.append(question.getId());
+						//Device Number
+						StringBuffer deviceNumber = new StringBuffer();
+						deviceNumber.append(workflowDetail.getDeviceNumber());
+						//Workflow Details 
+						StringBuffer workflowDeviceIds = new StringBuffer();
+						workflowDeviceIds.append(workflowDetail.getId());
+					
+						bulkApprovalVO.setFormattedParentNumber(FormaterUtil.formatNumberNoGrouping(parent.getNumber(), locale.toString()));
+						bulkApprovalVO.setDeviceType(question.getType().getName());
+						bulkApprovalVO.setParentId(parent.getId().toString());
+						if(question.getRevisedSubject() != null && !question.getRevisedSubject().equals("")){
+							bulkApprovalVO.setSubject(parent.getRevisedQuestionText());
+						}else{
+							bulkApprovalVO.setSubject(parent.getQuestionText());
+						}
+
+						bulkApprovalVO.setLastDecision(question.getRecommendationStatus().getName());
+						bulkApprovalVO.setLastRemarkBy(question.getEditedAs());	
+						bulkApprovalVO.setCurrentStatus(workflowDetail.getStatus());
+						for(int j=i+1;j<workflowDetails.size();j++){
+							WorkflowDetails nextWorkflowDetail = workflowDetails.get(j);
+							Question nextQuestion = Question.findById(Question.class, Long.parseLong(nextWorkflowDetail.getDeviceId()));
+							Question nextParent = nextQuestion.getParent();
+							if(nextParent.equals(parent)){
+								deviceIds.append("," + nextQuestion.getId());
+								deviceNumber.append("," + nextWorkflowDetail.getDeviceNumber());
+								workflowDeviceIds.append("," + nextWorkflowDetail.getId());
+								i=j;
+							}else{
+								break;
+							}
+							
+						}
+						bulkApprovalVO.setDeviceNumber(deviceNumber.toString());
+						bulkApprovalVO.setDeviceId(deviceIds.toString());
+						bulkApprovalVO.setId(workflowDeviceIds.toString());
+						bulkapprovals.add(bulkApprovalVO);
+						if(counter == 0){
+							model.addAttribute("level", question.getLevel());
+							counter++;
+						}
+					}
+					model.addAttribute("deviceType", questionType.getId());
+					model.addAttribute("bulkapprovals", bulkapprovals);
+					if(bulkapprovals!=null&&!bulkapprovals.isEmpty()){
+						model.addAttribute("questionId",bulkapprovals.get(0).getDeviceId());				
+					}
+			}
+			return "workflow/question/supplement/approval";	
+		}catch (ELSException ee) {
+			model.addAttribute("error", ee.getParameter());
+			model.addAttribute("type", "error");
+			return "workflow/info";
+		}catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("error", "Bulk approval is unavailable please try after some time.");
+			model.addAttribute("type", "error");
+			return "workflow/info";
+		}
+	}
+	
+	
+	
+	@RequestMapping(value="/supplementquestionworkflow",method=RequestMethod.POST)
+	public String postSupplementaryQuestions(final HttpServletRequest request,
+			final Locale locale,
+			final RedirectAttributes redirectAttributes,
+			final ModelMap model){
+		String listSize = request.getParameter("questionlistSize");
+		Question tempQuestion  = null;
+		if(listSize != null && !listSize.isEmpty()){
+			for(int i =0; i<Integer.parseInt(listSize);i++){
+				String actor = request.getParameter("actor"+i);
+				String internalStatus = request.getParameter("internalStatus"+i);
+				String remark = request.getParameter("remark"+i);
+				String workflowDetailsId = request.getParameter("workflowDetailsId"+i);
+				String[] workflowDetailsIds = workflowDetailsId.split(",");
+				String strChecked = request.getParameter("chk"+workflowDetailsId);
+				for(int j = 0; j<workflowDetailsIds.length; j++){
+					Long wrkflowId = Long.parseLong(workflowDetailsIds[j]);
+					WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class,wrkflowId);
+					if(strChecked != null && !strChecked.isEmpty() && Boolean.parseBoolean(strChecked)){
+						Question question = Question.findById(Question.class,Long.parseLong(wfDetails.getDeviceId()));
+						tempQuestion = question;
+						if(remark != null && !remark.isEmpty()){
+							question.setRemarks(remark);
+						}
+						if(actor == null || actor.isEmpty()){
+							actor = question.getActor();
+						}
+						String level = request.getParameter("questionLevel");
+						if(level == null || level.isEmpty()){
+							level = question.getLevel();
+						}
+
+						/**** Update Actor ****/
+						String[] temp = actor.split("#");
+						question.setActor(actor);
+						question.setLocalizedActorName(temp[3] + "(" + temp[4] + ")");
+						question.setLevel(temp[2]);
+						/**** Update Internal Status and Recommendation Status ****/
+						Status intStatus = Status.findById(Status.class, Long.parseLong(internalStatus));
+						if(internalStatus != null){
+							if(intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SUPPLEMENTARYCLUBBINGRECEIVED)){
+								Status supplementaryClubbingReceived = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_SUPPLEMENTARYCLUBBINGRECEIVED, locale.toString());
+								question.setRecommendationStatus(supplementaryClubbingReceived);
+								question.setEndFlag("end");
+								question.setActor(null);
+								question.setLevel(null);
+								question.setLocalizedActorName(null);
+							}else{
+								question.setRecommendationStatus(intStatus);
+								question.setEndFlag("continue");
+							}
+						}
+
+						/**** Complete Task ****/
+						Map<String,String> properties = new HashMap<String, String>();
+						properties.put("pv_deviceId", String.valueOf(question.getId()));
+						properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
+						properties.put("pv_user", temp[0]);
+						properties.put("pv_endflag", question.getEndFlag());
+						UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+						String strTaskId = wfDetails.getTaskId();
+						Task task = processService.findTaskById(strTaskId);
+						processService.completeTask(task, properties);	
+						if(question.getEndFlag() != null && !question.getEndFlag().isEmpty()
+								&& question.getEndFlag().equals("continue")){
+							/**** Create New Workflow Details ****/
+							ProcessInstance processInstance = 
+									processService.findProcessInstanceById(task.getProcessInstanceId());
+							Workflow workflow = Workflow.findByType(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW, locale.toString());
+							Task newtask = processService.getCurrentTask(processInstance);
+							WorkflowDetails workflowDetails2 = null;
+							try {
+								workflowDetails2 = WorkflowDetails.create(question,newtask,usergroupType,workflow.getType(),level);
+							} catch (ELSException e) {
+								e.printStackTrace();
+								model.addAttribute("error", e.getParameter());
+							}
+							question.setWorkflowDetailsId(workflowDetails2.getId());
+							question.setTaskReceivedOn(new Date());								
+						}
+						/**** Update Old Workflow Details ****/
+						wfDetails.setStatus("COMPLETED");
+						wfDetails.setInternalStatus(question.getInternalStatus().getName());
+						wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
+						wfDetails.setCompletionTime(new Date());
+						if(!question.getType().getType().startsWith("questions_halfhourdiscussion_") 
+						&& !question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+						&& !question.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+							wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+						}
+						wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
+						wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
+						wfDetails.merge();
+						/**** Update Motion ****/
+						question.setEditedOn(new Date());
+						question.setEditedBy(this.getCurrentUser().getActualUsername());
+						question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
+						try {
+							performAction(question);
+						} catch (ELSException e) {
+							e.printStackTrace();
+							logger.error(e.toString());
+							model.addAttribute("error", e.getParameter());
+						}
+						question.merge();
+					}
+				}
+			}
+		}
+		
+		if(tempQuestion != null){
+			request.getSession().setAttribute("houseType", tempQuestion.getHouseType().getName());
+			request.getSession().setAttribute("sessionType", tempQuestion.getSession().getType().getSessionType());
+			request.getSession().setAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(tempQuestion.getSession().getYear(), locale.toString()));
+			request.getSession().setAttribute("deviceType", tempQuestion.getType().getName());
+			request.getSession().setAttribute("workflowSubType", tempQuestion.getInternalStatus().getType());
+			
+		}
+		String group = request.getParameter("group");
+		if(group != null && !group.isEmpty()){
+			request.getSession().setAttribute("strGroup", group);
+		}
+		String answeringDate = request.getParameter("answeringDate");
+		if(answeringDate != null && !answeringDate.isEmpty()){
+			request.getSession().setAttribute("strAnsweringDate", answeringDate);
+		}
+		String status = request.getParameter("status");
+		if(status != null && !status.isEmpty()){
+			request.getSession().setAttribute("status", status);
+		}
+		redirectAttributes.addFlashAttribute("type", "success");
+        //this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh new/edit request i.e after creating/updating records if we click on
+        //new /edit then success message appears
+        request.getSession().setAttribute("type","success");
+        redirectAttributes.addFlashAttribute("msg", "create_success");
+        String returnUrl = "redirect:/workflow/question/supplementquestionworkflow";
+        return returnUrl;
+//		getAdvancedBulkApproval(request, locale, model);
+	}
+	
 }

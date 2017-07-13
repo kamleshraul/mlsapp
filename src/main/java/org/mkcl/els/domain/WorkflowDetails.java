@@ -540,6 +540,13 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String locale) throws ELSException {
 		return getRepository().startProcessAtGivenLevel(resolution, workflowHouseType, processDefinitionKey, status, usergroupType, level, locale);
 	}
+	
+	public static List<WorkflowDetails> findAllSupplementaryWorkflow(String strHouseType, String strSessionType,
+			String strSessionYear, String strQuestionType, String strStatus, String strWorkflowSubType,
+			String assignee, String strItemsCount, String strLocale) {
+		return getRepository().findAllSupplementaryWorkflow(strHouseType, strSessionType, strSessionYear, strQuestionType, strStatus, strWorkflowSubType, assignee, strItemsCount, strLocale);
+	}
+
 
 	/********************Motion*********************/
 	public static WorkflowDetails findCurrentWorkflowDetail(final Motion motion) throws ELSException {
@@ -1357,6 +1364,7 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public void setReply(String reply) {
 		this.reply = reply;
 	}
+
 
 	
 

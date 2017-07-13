@@ -365,6 +365,8 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 									|| workflowType.equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
 									|| workflowType.equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
 								workflowDetails.setWorkflowSubType(question.getRecommendationStatus().getType());
+							}else if( workflowType.equals(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW)){
+								workflowDetails.setWorkflowSubType(ApplicationConstants.QUESTION_PROCESSED_SUPPLEMENTARYCLUBBING);
 							} else {
 								workflowDetails.setWorkflowSubType(question.getInternalStatus().getType());
 							}
@@ -5232,6 +5234,33 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		}catch(Exception e){
 			return workflowDetailCount;
 		}
+	}
+
+	public List<WorkflowDetails> findAllSupplementaryWorkflow(String strHouseType, String strSessionType,
+			String strSessionYear, String strQuestionType, String strStatus, String strWorkflowSubType, String assignee,
+			String strItemsCount, String strLocale) {
+		List<WorkflowDetails> workflowDetails = new ArrayList<WorkflowDetails>();
+		String strQuery = "SELECT wd.* FROM workflow_details wd"
+				+ " WHERE wd.house_type=:houseType"
+				+ " AND wd.session_type=:sessionType"
+				+ " AND wd.session_year=:sessionYear"
+				+ " AND wd.device_type=:deviceType"
+				+ " AND wd.workflow_sub_type=:workflowSubType"
+				+ " AND wd.assignee=:assignee"
+				+ " AND wd.locale=:locale"
+				+ " AND wd.status=:status"
+				+ " ORDER BY wd.assignment_time ASC LIMIT " + strItemsCount;
+		Query query = this.em().createNativeQuery(strQuery, WorkflowDetails.class);
+		query.setParameter("houseType", strHouseType);
+		query.setParameter("sessionType", strSessionType);
+		query.setParameter("sessionYear", strSessionYear);
+		query.setParameter("deviceType", strQuestionType);
+		query.setParameter("workflowSubType", strWorkflowSubType);
+		query.setParameter("assignee", assignee);
+		query.setParameter("locale", strLocale);
+		query.setParameter("status", strStatus);
+		workflowDetails = query.getResultList();
+		return workflowDetails;		
 	}
 	
 }
