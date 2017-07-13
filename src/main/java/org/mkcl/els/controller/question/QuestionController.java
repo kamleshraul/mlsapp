@@ -1319,6 +1319,7 @@ public class QuestionController extends GenericController<Question> {
 			CustomParameter specificStatuses = CustomParameter.
 					findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_"+type.toUpperCase()
 							+"_"+userGroupType.toUpperCase(),"");
+			
 			if(specificDeviceStatusUserGroupStatuses != null) {
 				internalStatuses = Status.
 						findStatusContainedIn(specificDeviceStatusUserGroupStatuses.getValue(), locale);

@@ -1378,7 +1378,15 @@ class StarredQuestionController {
 							|| recommendationStatus.getType().equals(ApplicationConstants.QUESTION_PUTUP_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
 						QuestionController.
 						populateInternalStatus(model,recommendationStatus.getType(),usergroupType,locale,deviceType.getType());
-					} else {
+					} else if(internalStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+							&& recommendationStatus.getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)){
+						CustomParameter specificClubbedDeviceStatusUserGroupStatuses = CustomParameter.
+								findByName(CustomParameter.class,"QUESTION_PUT_UP_OPTIONS_CLUBBED_"+deviceType.getType().toUpperCase()
+										+"_"+internalStatus.getType().toUpperCase()+"_"+usergroupType.toUpperCase(),"");
+						List<Status> internalStatuses = Status.
+								findStatusContainedIn(specificClubbedDeviceStatusUserGroupStatuses.getValue(), locale);
+						model.addAttribute("internalStatuses", internalStatuses);
+					}else {
 						QuestionController.
 						populateInternalStatus(model,internalStatus.getType(),usergroupType,locale,deviceType.getType());
 					}					
@@ -2707,7 +2715,13 @@ class StarredQuestionController {
 						Task task= processService.getCurrentTask(processInstance);
 						if(endflag!=null && !endflag.isEmpty() ){
 							if(endflag.equals("continue")){
-								Workflow workflow = question.findWorkflowFromStatus();							
+								Workflow workflow = null;//question.findWorkflowFromStatus();	
+								if(domain.getParent() != null && domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTOSECTIONOFFICER)){
+									 workflow = Workflow.findByType(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW, domain.getLocale());	
+								}else{
+									 workflow = question.findWorkflowFromStatus();	
+								}
+														
 								WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,usergroupType,workflow.getType(),level);
 								question.setWorkflowDetailsId(workflowDetails.getId());
 							}
