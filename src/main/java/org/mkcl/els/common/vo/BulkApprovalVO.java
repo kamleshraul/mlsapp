@@ -32,9 +32,39 @@ public class BulkApprovalVO {
 	
 	private String formattedReferencedNumbers;
 	
+	private String formattedParentNumber;
+	
+	private String parentId;
+	
 	/**** PENDING<COMPLETED<TIMEOUT ****/
 	private String currentStatus;
 	
+	
+	/***** Constructor ***********/
+	
+	public BulkApprovalVO(final String deviceId, 
+			final String deviceNumber, 
+			final String member,
+			final String subject, 
+			final String lastRemark, 
+			final String lastRemarkBy,
+			final String lastDecision) {
+		super();
+		this.deviceId = deviceId;
+		this.deviceNumber = deviceNumber;
+		this.member = member;
+		this.subject = subject;
+		this.lastRemark = lastRemark;
+		this.lastRemarkBy = lastRemarkBy;
+		this.lastDecision = lastDecision;
+	}
+
+	public BulkApprovalVO() {
+		super();
+	}
+	
+	
+	/****Getters and Setters *****/
 
 	public String getSupportingMemberId() {
 		return supportingMemberId;
@@ -126,27 +156,6 @@ public class BulkApprovalVO {
 		this.briefExpanation = briefExpanation;
 	}
 
-	public BulkApprovalVO(final String deviceId, 
-			final String deviceNumber, 
-			final String member,
-			final String subject, 
-			final String lastRemark, 
-			final String lastRemarkBy,
-			final String lastDecision) {
-		super();
-		this.deviceId = deviceId;
-		this.deviceNumber = deviceNumber;
-		this.member = member;
-		this.subject = subject;
-		this.lastRemark = lastRemark;
-		this.lastRemarkBy = lastRemarkBy;
-		this.lastDecision = lastDecision;
-	}
-
-	public BulkApprovalVO() {
-		super();
-	}
-
 	public void setId(final String id) {
 		this.id = id;
 	}
@@ -186,7 +195,23 @@ public class BulkApprovalVO {
 	public void setFormattedReferencedNumbers(String formattedReferencedNumbers) {
 		this.formattedReferencedNumbers = formattedReferencedNumbers;
 	}
+
+	public String getFormattedParentNumber() {
+		return formattedParentNumber;
+	}
+
+	public void setFormattedParentNumber(String formattedParentNumber) {
+		this.formattedParentNumber = formattedParentNumber;
+	}
+
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
 	
 	
-			
+	
 }
