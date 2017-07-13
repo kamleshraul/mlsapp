@@ -279,7 +279,11 @@
 		
 		//****Generate Extended Grid Report****//
 		$('#generateExtendedGridReport').click(function() {
-			$('#primaryMembers').val($('select[name="primaryMemberList"]').val()); //TODO:// make generic later
+			$('.autosuggestmultiple').each(function() {
+				var selectBoxName = $(this).attr('id').split('_')[0]+"List"; //e.g. primaryMemberList for primaryMember_autosuggestmultiple
+				var relatedInputElementId = $(this).attr('id').split('_')[0]+"s"; //e.g. primaryMembers for primaryMember_autosuggestmultiple
+				$('#'+relatedInputElementId).val($('select[name="'+selectBoxName+'"]').val());
+			});
 			
 			//set report fields as per selected order by user
 			var fieldCount = 1;
