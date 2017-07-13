@@ -2614,4 +2614,19 @@ public class ApplicationConstants {
 	
 	public static final String STATUS_FINAL_REJECTION="_final_rejection";
 	
+	public static final String QUESTIONSUPPLEMENTARY_WORKFLOW = "questionsupplementary_workflow";
+	
+	public static final String QUESTION_PROCESSED_SUPPLEMENTARYCLUBBING = "question_processed_supplementaryClubbing";
+	
+	public static final String QUESTION_PROCESSED_SUPPLEMENTARYCLUBBINGRECEIVED = "question_processed_supplementaryClubbingReceived";
+	
+	public static String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTOSECTIONOFFICER = "question_processed_sendSupplementaryQuestionToSectionOfficer";
+	
+	public static String QUESTION_SUPPLEMENTARY_WORKFLOW = "questionsupplementary_workflow";
+	
+	public static String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODEPARTMENT = "question_processed_sendSupplementaryQuestionToDepartment";
+	
+	public static String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODESKOFFICER = "question_processed_sendSupplementaryQuestionToDeskOfficer";
+	
+	
 }
