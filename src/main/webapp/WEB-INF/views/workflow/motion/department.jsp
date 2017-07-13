@@ -220,6 +220,12 @@
 										actCount++;
 									}
 								}
+							}else{
+								text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+								if(actCount == 1){
+									actor1=data[i].id;
+									actCount++;
+								}
 							}
 						}					
 					}
@@ -234,7 +240,8 @@
 					/**** setting level,localizedActorName ****/
 					 //var actor1=data[0].id;
 					 var temp = actor1.split("#");
-					 $("#level").val(temp[2]);		    
+					 $("#level").val(temp[2]);	
+					 console.log(temp);
 					 $("#actorName").val(temp[3]+"("+temp[4]+")");					
 				}else{
 					$("#actor").empty();
