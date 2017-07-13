@@ -4,7 +4,8 @@
 	<title><spring:message code="workflow.myTasks.list" text="List of My Tasks"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){ 
+		$(document).ready(function(){
+			
 			$('.datetimemask').mask("99-99-9999,99:99:99");
 			/**** Initially we want to get only those tasks which belongs to current user and of selected status ****/
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
@@ -84,7 +85,7 @@
 				$("#sumRepDiv").hide();
 				questionSummaryReport();
 			});
-			
+			pendingNewSupplementaryClubbingTasks();
 			$("#resolutionWorkflowSummaryReport").click(function(e){
 				if($("#resolutionSumRepDiv").css('display')=='none'){
 					$("#resolutionSumRepDiv").show();
@@ -111,6 +112,9 @@
 				generateDepartmentStatementReport();
 			});
 			
+			$("#deviceSupplement").click(function(e){
+				showSupplementaryWorkflow();
+			});
 			/* if($("#currentusergroupType").val()=='department' 
 					||$("#currentusergroupType").val()=='department_deskofficer' ){
 				$("#intimationLetterFilter").css("display","none");
@@ -124,6 +128,16 @@
 		
 		#goSumRep{
 			cursor: default;
+		}
+		#supplementaryNotificationDiv{
+			background: #FF0000 scroll no-repeat;
+			max-width: 100px;
+			width: 50px;
+			max-height: 15px;
+			border-radius: 15px;
+			text-align: center;
+			border: 1px solid black;
+			cursor: pointer;
 		}
 	</style>
 </head>
@@ -187,7 +201,13 @@
 			 <security:authorize access="hasAnyRole('QIS_DEPARTMENT_USER')">
 				 <a href="javascript:void(0);" id="departmentStatementReport" class="butSim">
 					<spring:message code="resolution.departmentStatementReport" text="Department Statement"/>
+				 </a>|
+				 <a href="javascript:void(0);" id="deviceSupplement" class="butSim">
+					<spring:message code="device.deviceSupplement" text="Device Supplement"/>
 				 </a>
+				 <div id="supplementaryNotificationDiv" style="display:none;">
+					
+				 </div>
 			 </security:authorize>
 			 <br>
 			 <hr>
