@@ -126,6 +126,7 @@
 			var admitDueToReverseClubbing = '';
 			var recommendRejection = '';
 			var finalRejection = '';
+			var questionSupplmenetarySendToSectionOfficer = '';
 		    var deviceTypeType = $('#questionTypeType').val();
 		    
 		    if(deviceTypeType == 'questions_starred'){
@@ -137,6 +138,7 @@
 				admitDueToReverseClubbing = $("#internalStatusMaster option[value='question_recommend_admitDueToReverseClubbing']").text();
 				recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
 				finalRejection = $("#internalStatusMaster option[value='question_final_rejection']").text();
+				questionSupplmentarySendToSectionOfficer = $("#internalStatusMaster option[value='question_processed_sendSupplementaryQuestionToSectionOfficer']").text();
 			
 		    }else if(deviceTypeType == 'questions_unstarred') {
 				sendback = $("#internalStatusMaster option[value='question_unstarred_recommend_sendback']").text();			
@@ -193,7 +195,8 @@
 							&& value!=clubbingPostAdmission 
 							&& value!=clubbingWithUnstarredFromPreviousSession
 							&& value!=unclubbing
-							&& value!=admitDueToReverseClubbing){
+							&& value!=admitDueToReverseClubbing
+							&& value!=questionSupplmentarySendToSectionOfficer){
 						$("#internalStatus").val(value);
 					}
 					$("#recommendationStatus").val(value);			
@@ -211,7 +214,8 @@
 							&& value!=clubbingPostAdmission 
 							&& value!=clubbingWithUnstarredFromPreviousSession
 							&& value!=unclubbing
-							&& value!=admitDueToReverseClubbing){
+							&& value!=admitDueToReverseClubbing
+							&& value!=questionSupplmentarySendToSectionOfficer){
 						$("#internalStatus").val(value);
 					}
 					$("#recommendationStatus").val(value);
@@ -236,7 +240,8 @@
 					&& value!=clubbingPostAdmission 
 					&& value!=clubbingWithUnstarredFromPreviousSession
 					&& value!=unclubbing
-					&& value!=admitDueToReverseClubbing){
+					&& value!=admitDueToReverseClubbing
+					&& value!=questionSupplmentarySendToSectionOfficer){
 				valueType = value;
 			}else{
 				valueType = $("#internalStatus").val();
@@ -1655,7 +1660,7 @@
 			<p class="tright">
 			<c:choose>
 				<c:when test="${bulkedit!='yes'}">
-					<c:if test="${(internalStatusType=='question_submit' || internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_putup'
+					<c:if test="${((internalStatusType=='question_submit' || internalStatusType=='question_system_assistantprocessed' || internalStatusType=='question_system_putup'
 									|| internalStatusType =='question_system_groupchanged' || internalStatusType=='question_putup_rejection' || internalStatusType=='question_putup_convertToUnstarredAndAdmit'
 									|| internalStatusType == 'question_putup_clubbing' || internalStatusType == 'question_putup_nameclubbing' 
 									|| recommendationStatusType == 'question_putup_clubbingPostAdmission' || recommendationStatusType == 'question_putup_clubbingWithUnstarredFromPreviousSession'
@@ -1676,13 +1681,13 @@
 									&& recommendationStatusType ne 'question_unstarred_recommend_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_unstarred_final_clubbingWithUnstarredFromPreviousSession'
 									&& recommendationStatusType ne 'question_unstarred_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_unstarred_final_reject_clubbingWithUnstarredFromPreviousSession'
 									&& recommendationStatusType ne 'question_shortnotice_recommend_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_clubbingWithUnstarredFromPreviousSession'
-									&& recommendationStatusType ne 'question_shortnotice_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_reject_clubbingWithUnstarredFromPreviousSession')
-					}">
+									&& recommendationStatusType ne 'question_shortnotice_recommend_reject_clubbingWithUnstarredFromPreviousSession' && recommendationStatusType ne 'question_shortnotice_final_reject_clubbingWithUnstarredFromPreviousSession'))
+						}">
 						<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT')">
 							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 						</security:authorize>
 						<security:authorize access="hasAnyRole('QIS_ASSISTANT')">
-						<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
+							<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
 						</security:authorize>					
 					</c:if>
 					<%--- Remove the Following if conditions after session... Hack given for the council branch  --%>
@@ -1690,7 +1695,12 @@
 					<c:if test="${fn:contains(internalStatusType, 'question_final') || fn:contains(internalStatusType, 'question_unstarred_final') || fn:contains(internalStatusType, 'question_shortnotice_final') || fn:contains(internalStatusType, 'question_halfHourFromQuestion_final')}">
 						<security:authorize access="hasAnyRole('QIS_CLERK','QIS_ASSISTANT')">
 							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-						</security:authorize>					
+						</security:authorize>
+						<c:if test="${(internalStatusType=='question_final_admission' && recommendationStatusType=='question_final_admission' && parent ne '')}">
+							<security:authorize access="hasAnyRole('QIS_ASSISTANT')">
+								<input id="startworkflow" type="button" value="<spring:message code='question.putupquestion' text='Put Up Question'/>" class="butDef">
+							</security:authorize>
+						</c:if>					
 					</c:if>
 					
 				</c:when>
