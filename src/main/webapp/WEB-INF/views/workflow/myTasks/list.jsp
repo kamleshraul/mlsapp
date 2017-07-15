@@ -205,7 +205,7 @@
 				 <a href="javascript:void(0);" id="deviceSupplement" class="butSim">
 					<spring:message code="device.deviceSupplement" text="Device Supplement"/>
 				 </a>
-				 <div id="supplementaryNotificationDiv" style="display:none;">
+				 <div id="supplementaryNotificationDiv" style="display:none;" title="<spring:message code="device.deviceSupplementCount" text="Device Supplement Count"/>">
 					
 				 </div>
 			 </security:authorize>
