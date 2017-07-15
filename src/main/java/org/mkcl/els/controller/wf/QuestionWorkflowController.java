@@ -6272,9 +6272,14 @@ public class QuestionWorkflowController  extends BaseController{
 								Status supplementaryClubbingReceived = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_SUPPLEMENTARYCLUBBINGRECEIVED, locale.toString());
 								question.setRecommendationStatus(supplementaryClubbingReceived);
 								question.setEndFlag("end");
+								question.setLevel("1");
+								question.setTaskReceivedOn(null);
+								question.setWorkflowDetailsId(null);
+								question.setWorkflowStarted("NO");
+								question.setWorkflowStartedOn(null);
 								question.setActor(null);
-								question.setLevel(null);
-								question.setLocalizedActorName(null);
+								question.setLocalizedActorName("");	
+								
 							}else{
 								question.setRecommendationStatus(intStatus);
 								question.setEndFlag("continue");
