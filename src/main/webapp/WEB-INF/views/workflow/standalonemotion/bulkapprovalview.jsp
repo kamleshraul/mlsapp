@@ -109,7 +109,7 @@
 						<%-- <th style="min-width:130px;text-align:center;"><spring:message code="question.member" text="Member"></spring:message></th> --%>
 						<%-- <th style="min-width:150px;text-align:center;"><spring:message code="question.subject" text="Subject"></spring:message></th> --%>
 						<th style="min-width:200px;text-align:center;"><spring:message code="question.reason" text="Reason"></spring:message></th>
-						<th style="min-width:200px;text-align:center;"><spring:message code="question.briefExplanation" text="Brief Explanation"></spring:message></th>	
+						<%-- <th style="min-width:200px;text-align:center;"><spring:message code="question.briefExplanation" text="Brief Explanation"></spring:message></th> --%>	
 						<th style="min-width:70px;text-align:center;"><spring:message code="question.lastremark" text="Last Remark"></spring:message></th>
 						<th style="min-width:120px;text-align:center;"><spring:message code="question.lastdecision" text="Last Decision"></spring:message></th>
 					</c:if>									
@@ -149,8 +149,12 @@
 								<td style="min-width:130px;text-align:justify;">${i.deviceNumber} <br>  ${i.member}</td>
 								<%-- <td style="min-width:130px;">${i.member}</td> --%>
 								<%-- <td style="text-align:justify;min-width:150px;">${i.subject}</td> --%>
-								<td style="text-align:justify;min-width:200px;">${i.reason}</td>
-								<td style="text-align:justify;min-width:200px;">${i.briefExpanation}</td>
+								<td style="text-align:justify;min-width:200px;">
+									<spring:message code="question.reason" text="Reason"/> : ${i.reason} <br>
+									<spring:message code="question.briefExplanation" text="Brief Explanation"/> : ${i.briefExpanation} 
+									
+								</td>
+								<%-- <td style="text-align:justify;min-width:200px;">${i.briefExpanation}</td> --%>
 								<td style="min-width:70px;text-align:justify;">${i.lastDecision}</td>
 								<td style="text-align:justify;min-width:120px;">${i.lastRemarkBy} :${i.lastRemark} </td>
 						</c:otherwise>
