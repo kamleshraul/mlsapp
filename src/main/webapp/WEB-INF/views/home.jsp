@@ -20,6 +20,7 @@
 		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js?v=5"></script>
 		<script type="text/javascript" src="./resources/js/tinymce.min.js?v=5"></script>
 		<script type="text/javascript" src="./resources/js/themes/modern/theme.min.js?v=6"></script>
+		<script type="text/javascript" src="./resources/js/moment-with-locales.js?v=5"></script>
 		
 			
 		<!-- Multiselect -->				
@@ -90,21 +91,41 @@
 		
 		<!-- This is done to fire the assembly module when a user login to the system. -->
 		<script type="text/javascript">
-		$(document).ready(function(){
-			//triggering mis lowerhouse module on login
-			var locale=$('#authlocale').val();
-			var startURL=$("#startURL").val();
-			var resourceURL='member/module?houseType=lowerhouse';
-			if(startURL!=''){
-				resourceURL=startURL;
-			}
-			$('.content').load(resourceURL,function(data){
-			    var title = $(data).filter('title').text();
-				$('#module_title').html(title);
-				//$('#authhousetype').val("lowerhouse");				
-			});			
-		});
-		
+			var server_time = null;
+
+			var updateServerTime = function () {				
+				server_time.add(1, 'seconds').calendar();				
+				$('#server_time_display').html(server_time.format('DD/MM/YYYY h:mm:ss a'));
+			};
+			
+			$(document).ready(function(){
+				//triggering mis lowerhouse module on login
+				var locale=$('#authlocale').val();
+				var startURL=$("#startURL").val();
+				var resourceURL='member/module?houseType=lowerhouse';
+				if(startURL!=''){
+					resourceURL=startURL;
+				}
+				$('.content').load(resourceURL,function(data){
+				    var title = $(data).filter('title').text();
+					$('#module_title').html(title);
+					//$('#authhousetype').val("lowerhouse");				
+				});
+				
+				$.ajax({
+					url: 'ref/servertime',
+					type: 'GET',
+			        async: false,
+			        success: function(data) {
+			        	$('#logintime_server').val(data);
+			        	server_time = moment($('#logintime_server').val());
+						server_time.locale('mr');
+						$('#server_time_display').html(server_time.format('DD/MM/YYYY hh:mm:ss a'));
+			        }
+				});
+				
+			    setInterval(updateServerTime, 1000);
+			});		
 		</script>
 	</head>
 		
@@ -135,6 +156,8 @@
            	<input type="hidden" id="noMsOfficeContentPrompt" value="<spring:message code='generic.noMsOfficeContentPrompt' text='Microsoft Office Content is not allowed. Please paste from Notepad'/>"/>
         	<input type="hidden" id="noInvalidFormattingPrompt" value="<spring:message code='generic.noInvalidFormattingPrompt' text='Content is having invalid formatting tags which are not allowed. Please paste from Notepad'/>"/>
         	<input type="hidden" id="loginMessageFromSystem" value="${loginMessageFromSystem}"/>
+        	<input type="hidden" id="logintime_server" value="${logintime_server}"/>
+        	
         <div id="container" class="clearfix">
 			<div id="page">
 				<div class="menu clearfix">
