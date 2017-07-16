@@ -50,7 +50,7 @@ public class CredentialRepository extends BaseRepository<Credential, Serializabl
 	public List<String> findAllActiveUsernamesByUserGroupType(final String userGroupType, final Date onDate, final String locale) {
 		List<String> activeCredentialsByUserGroupType = new ArrayList<String>();
 		
-		String strQuery = "SELECT cr.username FROM usergroups ug" +
+		String strQuery = "SELECT DISTINCT cr.username FROM usergroups ug" +
 				" INNER JOIN credentials cr ON (cr.id=ug.credential)" +
 				" INNER JOIN usergroups_types ugt ON (ugt.id=ug.user_group_type)" +
 				" WHERE ugt.type=:userGroupType" +
