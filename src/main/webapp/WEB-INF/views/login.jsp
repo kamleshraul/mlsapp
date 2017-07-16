@@ -22,6 +22,7 @@
 			   location.search = "?lang="+$('#lang').val();
 		    });
 		    $('#j_username').change(function() {
+		    	$('#passwordSection').show();
 		    	if($('#login_disabled_notification_flag').val()=='ON') {
 		    		$('#login_disabled_notification_message_para').hide();
 		    		var isUserToBeNotified = "no";
@@ -31,6 +32,7 @@
 		    			}
 		    		});
 		    		if(isUserToBeNotified=="yes") {
+		    			$('#passwordSection').hide();
 		    			$('#saveForm').hide();
 		    			$.prompt($('#login_disabled_notification_message').val());
 		    			$('#login_disabled_notification_message_para').show();
@@ -231,7 +233,7 @@
 			<input type="text" id="j_username"   value="" name="j_username"/>
 		</p>
 		
-		<p>
+		<p id="passwordSection">
 			<label for="password"><spring:message code="user_lbl_password" text="Password" /></label>
 			<input type="password" id="j_password"  value="" name="j_password" autocomplete="false"/>
 		</p>
