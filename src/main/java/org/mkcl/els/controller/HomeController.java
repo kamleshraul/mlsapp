@@ -253,6 +253,7 @@ public class HomeController extends BaseController {
         model.addAttribute("menu_xml", menuXml);
         //adding login time
         model.addAttribute("logintime", FormaterUtil.getDateFormatter(timeFormat, locale.toString()).format(new Date()));
+        model.addAttribute("logintime_server", FormaterUtil.formatDateToString(new Date(), "yyyy-MM-dd HH:mm:ss"));
         //adding locale
         model.addAttribute("locale",locale.toString());
         //starting url that will be triggered

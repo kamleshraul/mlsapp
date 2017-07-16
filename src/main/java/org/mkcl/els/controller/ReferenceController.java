@@ -9544,4 +9544,9 @@ public class ReferenceController extends BaseController {
 		
 		return pendingClubbedQuestionNumbers.toString();
 	}
+	
+	@RequestMapping(value="/servertime", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	public @ResponseBody String getServerTime(final HttpServletRequest request, final Locale locale){		
+		return FormaterUtil.formatDateToString(new Date(), "yyyy-MM-dd HH:mm:ss");
+	}
 }
