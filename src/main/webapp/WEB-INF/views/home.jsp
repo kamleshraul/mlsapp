@@ -95,7 +95,7 @@
 
 			var updateServerTime = function () {				
 				server_time.add(1, 'seconds').calendar();				
-				$('#server_time_display').html(server_time.format('DD/MM/YYYY h:mm:ss a'));
+				$('#server_time_display').html(server_time.format('DD/MM/YYYY hh:mm:ss a'));
 			};
 			
 			$(document).ready(function(){
@@ -124,7 +124,9 @@
 			        }
 				});
 				
-			    setInterval(updateServerTime, 1000);
+				if($('#authusername').val()=='shrisanjaydutt') {
+					setInterval(updateServerTime, 1000);
+				}			    
 			});		
 		</script>
 	</head>
