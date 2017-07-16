@@ -14,10 +14,11 @@
 				<img width="27" height="27" src="./resources/images/template/user_icon.png" alt=" " />
 				<span><a id="support" href="${supportURL}" target="_blank"><spring:message code="support.text" text="Support"/></a></span>
 				<span>${authtitle}&nbsp;${authfirstname}&nbsp;${authmiddlename}&nbsp;${authlastname}</span>
-				<span style="width: 200px">${logintime}</span>
+				<span id="server_time_display" style="width: 200px"></span>
 			</div>
 		</div>
 	</div>
 </div>
 <script type="text/javascript">
+	
 </script>
