@@ -10091,7 +10091,7 @@ hooks.defineLocale('mr', {
         } else if (meridiem === 'सकाळी') {
             return hour;
         } else if (meridiem === 'दुपारी') {
-            return hour >= 10 ? hour : hour + 12;
+            return hour >= 12 ? hour : hour + 12;
         } else if (meridiem === 'सायंकाळी') {
             return hour + 12;
         }
@@ -10099,9 +10099,9 @@ hooks.defineLocale('mr', {
     meridiem: function (hour, minute, isLower) {
         if (hour < 4) {
             return 'रात्री';
-        } else if (hour < 10) {
+        } else if (hour < 12) {
             return 'सकाळी';
-        } else if (hour < 17) {
+        } else if (hour < 16) {
             return 'दुपारी';
         } else if (hour < 20) {
             return 'सायंकाळी';

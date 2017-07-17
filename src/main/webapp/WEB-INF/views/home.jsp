@@ -20,7 +20,7 @@
 		<script type="text/javascript" src="./resources/js/autoNumeric-1.5.4.js?v=5"></script>
 		<script type="text/javascript" src="./resources/js/tinymce.min.js?v=5"></script>
 		<script type="text/javascript" src="./resources/js/themes/modern/theme.min.js?v=6"></script>
-		<script type="text/javascript" src="./resources/js/moment-with-locales.js?v=5"></script>
+		<script type="text/javascript" src="./resources/js/moment-with-locales.js?v=6"></script>
 		
 			
 		<!-- Multiselect -->				
