@@ -758,6 +758,9 @@ public class QuestionWorkflowController  extends BaseController{
 						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.UNCLUBBING_WORKFLOW)
 						|| workflowDetails.getWorkflowType().equals(ApplicationConstants.ADMIT_DUE_TO_REVERSE_CLUBBING_WORKFLOW)) {
 					populateInternalStatus(model,domain,domain.getRecommendationStatus(),domain.getLocale());
+				}else if (workflowDetails.getWorkflowType().equals(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW)){
+					populateInternalStatus(model, domain.getRecommendationStatus().getType(),
+							workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
 				}else {
 					populateInternalStatus(model,domain,domain.getInternalStatus(),domain.getLocale());
 				}				
