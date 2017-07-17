@@ -194,7 +194,7 @@
 		<input type="hidden" id="prashnavaliQuestionMessage" name="prashnavaliQuestionMessage" value="<spring:message code='prashnavalinfo.question' text='Question'></spring:message>" disabled="disabled"/>
 		<input type="hidden" id="prashnavaliAnswerMessage" name="prashnavaliAnswerMessage" value="<spring:message code='prashnavalinfo.answer' text='Answer'></spring:message>" disabled="disabled"/>
 	</div>
-	
+	<%--
 	<c:if test="${internalStatus.type eq 'prashnavali_created'}">
 		<p>
 		<label class="small"><spring:message code="prashnavali.putUpFor" text="Put Up For" /></label>
@@ -219,7 +219,7 @@
 		</select>
 		</p>
 		
-		<p>
+	 	<p>
 		<label class="small"><spring:message code="prashnavali.nextactor" text="Next Actor"/></label>
 		<select id="actor" name="actor" class="sSelect">
 		<c:choose>
@@ -240,15 +240,15 @@
 			</c:otherwise>
 		</c:choose>
 		</select>
-		</p>
+		</p> --%>
 		
 		<%-- <p>
 			<label class="wysiwyglabel"><spring:message code="committee.remarks" text="Remarks"/></label>
 			<textarea id="remarks" name="remarks"  class="wysiwyg" rows="2" cols="50">${remarks}</textarea>	
-		</p> --%>	
-	</c:if>
+		</p> 	
+	</c:if>--%>
 
-	<c:if test="${internalStatus.type eq 'prashnavali_created'}">
+	<%--  <c:if test="${internalStatus.type eq 'prashnavali_created'}">	--%>
 		<div class="fields expand">
 			<h2></h2>
 			<p class="tright">
@@ -256,7 +256,7 @@
 			<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 			</p>
 		</div>
-	</c:if>	
+	<%--  </c:if>--%>	
 
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
