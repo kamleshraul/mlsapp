@@ -48,6 +48,7 @@
 						$("#selectedDeviceType").html(deviceTypeSelectHtmlText);
 					}).done(function() {
 						reloadMyTaskGrid();
+						pendingNewSupplementaryClubbingTasks();
 					}).fail(function() {
 						console.log("3.error");
 						if($("#ErrorMsg").val()!=''){
@@ -59,6 +60,7 @@
 						scrollTop();
 					});					
 				}	
+				
 			});	
 			/**** session year changes then reload grid****/			
 			$("#selectedSessionYear").change(function(){
