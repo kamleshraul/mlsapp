@@ -126,7 +126,7 @@
 			var admitDueToReverseClubbing = '';
 			var recommendRejection = '';
 			var finalRejection = '';
-			var questionSupplmenetarySendToSectionOfficer = '';
+			var questionSupplmentarySendToSectionOfficer = '';
 		    var deviceTypeType = $('#questionTypeType').val();
 		    
 		    if(deviceTypeType == 'questions_starred'){

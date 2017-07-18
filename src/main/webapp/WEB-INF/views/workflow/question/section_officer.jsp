@@ -151,7 +151,7 @@
 		var recommendRejection = '';
 		var finalRejection = '';
 		var resendRevisedQuestionText = '';
-		var questionSupplmenetarySendToSectionOfficer = '';
+		var questionSupplmentarySendToSectionOfficer = '';
 		if(questionType == 'questions_starred') {
 			type = $("#internalStatusMaster option[value='question_processed_sendToDepartment']").text();
 			sendToMember = $("#internalStatusMaster option[value='question_processed_sendToMember']").text();
