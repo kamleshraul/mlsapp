@@ -10,7 +10,7 @@
 		$(document).ready(function() {
 			if($("#selectedHouseType").val()=='upperhouse') {
 				if($("#category").val()=='question') {
-					if($("#srole").val()=='QIS_SECTION_OFFICER' ||$("#srole").val()=='QIS_PRINCIPAL_SECRETARY') {
+					if($("#srole").val()=='QIS_SECTION_OFFICER' || $("#srole").val()=='QIS_PRINCIPAL_SECRETARY') {
 						$('#yaadiDiv').show();
 					} else {
 						$('#yaadiDiv').hide();
@@ -789,16 +789,15 @@
 			<security:authorize access="hasAnyRole('QIS_ADMIN', 'QIS_UNDER_SECRETARY', 'QIS_DEPUTY_SECRETARY',  
 			'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_UNDER_SECRETARY_COMMITTEE',
 			'QIS_ADDITIONAL_SECRETARY', 'SMOIS_UNDER_SECRETARY_COMMITTEE', 'SMOIS_DEPUTY_SECRETARY',
-			'SMOIS_JOINT_SECRETARY', 'SMOIS_SECRETARY', 'BIS_ASSISTANT', 'BIS_PRINCIPAL_SECRETARY',
+			'SMOIS_JOINT_SECRETARY', 'SMOIS_SECRETARY', 'BIS_ASSISTANT', 
 			 'ROIS_UNDERSECRETARY', 'ROIS_SECRETARY', 'ROIS_SECTION_OFFICER','ROIS_DEPUTYSECRETARY')">
 			<a href="#" id="create_ballot" class="butSim">
 				<spring:message code="ballotinitial.createballot" text="Create Ballot"/>
 			</a> |
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_ADMIN','QIS_PRINCIPAL_SECRETARY', 'QIS_UNDER_SECRETARY', 'QIS_DEPUTY_SECRETARY',  'QIS_UNDER_SECRETARY_COMMITTEE', 'QIS_SECTION_OFFICER',
+			<security:authorize access="hasAnyRole('QIS_ADMIN', 'QIS_UNDER_SECRETARY', 'QIS_DEPUTY_SECRETARY',  'QIS_UNDER_SECRETARY_COMMITTEE', 'QIS_SECTION_OFFICER',
 			 'SMOIS_UNDER_SECRETARY_COMMITTEE', 'SMOIS_DEPUTY_SECRETARY','SMOIS_JOINT_SECRETARY', 'SMOIS_SECRETARY', 'SMOIS_OFFICER_ON_SPECIAL_DUTY', 
-			  'BIS_ASSISTANT', 'BIS_PRINCIPAL_SECRETARY',
-			  'ROIS_UNDERSECRETARY', 'ROIS_SECRETARY', 'ROIS_SECTION_OFFICER','ROIS_ASSISTANT','ROIS_DEPUTYSECRETARY')">
+			  'BIS_ASSISTANT', 'ROIS_UNDERSECRETARY', 'ROIS_SECRETARY', 'ROIS_SECTION_OFFICER','ROIS_ASSISTANT','ROIS_DEPUTYSECRETARY','QIS_PRINCIPAL_SECRETARY')">
 				<a href="#" id="view_ballot" class="butSim">
 					<spring:message code="ballotinitial.viewballot" text="View Ballot"/>
 				</a>
