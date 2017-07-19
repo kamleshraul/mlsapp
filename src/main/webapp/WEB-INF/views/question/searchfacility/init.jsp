@@ -617,7 +617,7 @@
 										deviceNumber = $('#billWithoutNumber').val();
 									}
 									textTemp=textTemp+"<tr>"+
-											"<td class='expand' style='width: 150px; max-width: 150px;'>"+
+											"<td class='expand' style='width: 120px; max-width: 120px;'>"+
 											"<span id='number"+data[i].id+"'>"+
 											"<a onclick='viewDetail("+data[i].id+");' style='margin:10px; text-decoration: underline;'>"+									
 											deviceNumber+"</a></span>"+
@@ -626,7 +626,25 @@
 									textTemp+="<span id='operation"+data[i].id+"'></span></td>";
 								
 									if($('#whichDevice').val()=='questions_') {
-										textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
+										if(data[i].revisions != null && data[i].revisions.length>0){
+											$("#qRevision").show();
+											textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'><table border='1'>";
+											var revisions = data[i].revisions;
+											for(var j=0;j<revisions.length;j++){
+											textTemp+=	"<tr>"+
+												" <td>"+data[i].revisions[j].name+"("+revisions[j].value+")" +
+												 "<br><b>"+data[i].revisions[j].displayName+"</b>" ;
+												 if(data[i].revisions[j].type != null){
+													 textTemp+= "<br>"+data[i].revisions[j].type;
+												 }
+												 textTemp+=	"</td></tr>";
+											}
+											textTemp+="</table></td>";
+										}else{
+											$("#qRevision").css("display","none");
+										}
+										
+										textTemp+="<td class='expand' style='width: 200px; max-width: 200px;'>"+data[i].subject+"</td>";
 									} 
 									
 									if($('#whichDevice').val()=='questions_') {
@@ -918,7 +936,7 @@ color:blue;
 font-weight: bold;
 text-decoration: underline;
 }
-td>table{
+td>.strippedTable{
 	width: 350px;
 }
 </style>
@@ -1086,6 +1104,7 @@ td>table{
 <th class="expand"><spring:message code="clubbing.number" text="Number"></spring:message></th>
 <c:choose>
 <c:when test="${whichDevice=='questions_'}">
+<th class="expand" id="qRevision" style="display:none;"><spring:message code="clubbing.revision" text="Revision"></spring:message></th>
 <th class="expand"><spring:message code="clubbing.subject" text="Subject"></spring:message></th>
 </c:when>
 <c:when test="${whichDevice=='motions_'}">
