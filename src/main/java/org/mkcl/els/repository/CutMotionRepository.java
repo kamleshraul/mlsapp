@@ -466,7 +466,7 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 		return tQuery.getResultList();
 	}
 
-	public Boolean isExist(final Integer number, final DeviceType deviceType,
+	public Boolean isExist(final Integer number, final Long id, final DeviceType deviceType,
 			final Session session, final String locale) {
 		try{
 			StringBuffer strQuery=new StringBuffer();
@@ -474,11 +474,17 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 					" WHERE cm.session.id=:sessionId" +
 					" AND cm.number=:number" +
 					" AND cm.deviceType.id=:deviceTypeId" +
+					" AND cm.id<>:cutMotionId" +
 					" AND cm.locale=:locale");
 			Query query = this.em().createQuery(strQuery.toString());
 			query.setParameter("deviceTypeId", deviceType.getId());
 			query.setParameter("sessionId", session.getId());
 			query.setParameter("number", number);
+			if(id!=null) {
+				query.setParameter("cutMotionId", id);
+			} else {
+				query.setParameter("cutMotionId", new Long("0"));
+			}
 			query.setParameter("locale", locale);
 			
 			CutMotion motion = (CutMotion) query.getSingleResult();

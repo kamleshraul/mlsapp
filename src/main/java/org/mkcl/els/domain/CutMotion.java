@@ -380,9 +380,13 @@ public class CutMotion extends Device implements Serializable {
 		}
 		return (CutMotion) super.persist();
 	}
+	
+	public static Boolean isExist(final Integer number, final DeviceType deviceType, final Session session, final String locale) {
+		 return getCutMotionRepository().isExist(number, null, deviceType, session, locale);
+	 }
 
-	 public static Boolean isExist(final Integer number, final DeviceType deviceType, final Session session, final String locale) {
-		 return getCutMotionRepository().isExist(number, deviceType, session, locale);
+	 public static Boolean isExist(final Integer number, final Long id, final DeviceType deviceType, final Session session, final String locale) {
+		 return getCutMotionRepository().isExist(number, id, deviceType, session, locale);
 	 }
 	
 	public static Integer assignCutMotionNo(final HouseType houseType,

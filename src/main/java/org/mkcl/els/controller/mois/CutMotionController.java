@@ -1048,6 +1048,22 @@ public class CutMotionController extends GenericController<CutMotion>{
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
 		}
+		if(role.equals("CMOIS_TYPIST")){							
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "CMOIS_TYPIST_AUTO_NUMBER_GENERATION_REQUIRED", "");
+			if(customParameter != null){
+				String value = customParameter.getValue();
+				if(!value.equals("yes")){
+					if(domain.getNumber()==null){
+						result.rejectValue("number","NumberEmpty");						
+					}
+					//check for duplicate motion
+					Boolean flag = CutMotion.isExist(domain.getNumber(),null,domain.getDeviceType(), domain.getSession(), domain.getLocale());
+					if(flag){
+						result.rejectValue("number", "NonUnique","Duplicate Parameter");
+					}
+				}
+			}
+		}
 		String operation = request.getParameter("operation");
 		if(operation != null){
 			if(!operation.isEmpty()){
@@ -1093,19 +1109,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 						}
 					}
 				}else /**** Submission ****/
-					if(operation.equals("submit")){
-						
-						if(role.equals("CMOIS_TYPIST")){
-							if(domain.getNumber()==null){
-								result.rejectValue("number","NumberEmpty");
-								//check for duplicate motion
-							}
-							Boolean flag = CutMotion.isExist(domain.getNumber(),domain.getDeviceType(), domain.getSession(), domain.getLocale());
-							if(flag){
-								result.rejectValue("number", "NonUnique","Duplicate Parameter");
-							}
-						}
-						/**** Submission ****/
+					if(operation.equals("submit")){					
 						if(domain.getHouseType() == null){
 							result.rejectValue("houseType","HousetypeEmpty");
 						}
@@ -1165,16 +1169,19 @@ public class CutMotionController extends GenericController<CutMotion>{
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
 		}
-		if(role.equals("CMOIS_TYPIST")){
-			if(domain.getNumber()==null){
-				result.rejectValue("number","NumberEmpty");
-				//check for duplicate motion
-			}
-			Boolean flag = CutMotion.isExist(domain.getNumber(),domain.getDeviceType(), domain.getSession(), domain.getLocale());
-			CutMotion cutMotion = CutMotion.findById(CutMotion.class, domain.getId());
-			if(!cutMotion.getNumber().equals(domain.getNumber())){
-				if(flag){
-					result.rejectValue("number", "NonUnique","Duplicate Parameter");
+		if(role.equals("CMOIS_TYPIST")){							
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "CMOIS_TYPIST_AUTO_NUMBER_GENERATION_REQUIRED", "");
+			if(customParameter != null){
+				String value = customParameter.getValue();
+				if(!value.equals("yes")){
+					if(domain.getNumber()==null){
+						result.rejectValue("number","NumberEmpty");						
+					}
+					//check for duplicate motion
+					Boolean flag = CutMotion.isExist(domain.getNumber(),domain.getId(),domain.getDeviceType(), domain.getSession(), domain.getLocale());
+					if(flag){
+						result.rejectValue("number", "NonUnique","Duplicate Parameter");
+					}
 				}
 			}
 		}
