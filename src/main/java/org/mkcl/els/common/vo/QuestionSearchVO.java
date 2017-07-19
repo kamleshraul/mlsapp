@@ -9,6 +9,8 @@
  */
 package org.mkcl.els.common.vo;
 
+import java.util.List;
+
 /**
  * The Class QuestionSearchVO.
  *
@@ -93,6 +95,8 @@ public class QuestionSearchVO {
 	private String ballotStatus;
 	
 	private String onlineStatus;
+	
+	private List<MasterVO> revisions; 
 	/**
 	 * Gets the id.
 	 *
@@ -447,6 +451,14 @@ public class QuestionSearchVO {
 
 	public void setOnlineStatus(String onlineStatus) {
 		this.onlineStatus = onlineStatus;
+	}
+
+	public List<MasterVO> getRevisions() {
+		return revisions;
+	}
+
+	public void setRevisions(List<MasterVO> revisions) {
+		this.revisions = revisions;
 	}	
 	
 	

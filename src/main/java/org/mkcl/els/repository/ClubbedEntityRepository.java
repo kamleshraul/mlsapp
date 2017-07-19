@@ -13,6 +13,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BillSearchVO;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MotionSearchVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
@@ -625,6 +626,29 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				QuestionSearchVO questionSearchVO=new QuestionSearchVO();
 				if(o[0]!=null){
 					questionSearchVO.setId(Long.parseLong(o[0].toString()));
+					if(requestMap.get("number") != null){
+						Map<String, String[]> parameters = new HashMap<String, String[]>();
+						parameters.put("locale", new String[]{locale.toString()});
+						parameters.put("questionId", new String[]{o[0].toString()});
+						List questionRevisions = org.mkcl.els.domain.Query.findReport("QIS_LATEST_REVISIONS", parameters);
+						List<MasterVO> revisions = new ArrayList<MasterVO>();
+						for(Object j : questionRevisions){
+							Object[] obj=(Object[]) j;
+							MasterVO masterVO = new MasterVO();
+							//UsergroupType
+							masterVO.setName(obj[0].toString());
+							//Users Name
+							masterVO.setValue(obj[1].toString());
+							//Internal Status
+							masterVO.setDisplayName(obj[2].toString());
+							//Remarks
+							if(obj[4] != null){
+								masterVO.setType(obj[4].toString());
+							}
+							revisions.add(masterVO);
+						}
+						questionSearchVO.setRevisions(revisions);
+					}
 				}
 				if(o[1]!=null){
 					questionSearchVO.setNumber(FormaterUtil.getNumberFormatterNoGrouping(locale).format(Integer.parseInt(o[1].toString())));
