@@ -52,7 +52,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Entity
 @Table(name="standalone_motions")
 @JsonIgnoreProperties(value={"houseType", "session", "type","creationDate",
-	"dataEnteredBy","editedOn","editedBy", "subject","revisedSubject",
+	"dataEnteredBy","editedOn","editedBy", "revisedSubject",
 	"questionText","revisedQuestionText","answer","priority",
 	"ballotStatus","remarks","rejectionReason", "supportingMembers",
 	"group","department", "drafts", "parent", "clubbedEntities", "referencedEntities",
