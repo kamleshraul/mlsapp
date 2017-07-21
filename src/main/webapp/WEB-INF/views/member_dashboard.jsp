@@ -23,6 +23,7 @@
     <script src="./resources/js/libs/jquery/jquery-migrate-1.2.1.min.js?v=1"></script>
     <script src="./resources/js/libs/moment/moment.min.js"></script>
     <script src="./resources/js/libs/fullcalendar/fullcalendar.js"></script>
+     <script src="./resources/js/libs/fullcalendar/lang/mr.js"></script>
     <!-- <script src="./resources/js/core/demo/DemoCalendar.js?v=3"></script> -->
      <script type="text/javascript" src="./resources/js/common.js?v=3051"></script>
      
@@ -37,6 +38,12 @@
 	   		/**** Calendar Initialization ****/
 	   		$('#calendar').fullCalendar({
 	   			height: 500,
+	   			locale: 'mr',
+	   			header :{
+	   			    left:'',
+	   			    center: 'title',
+	   			    right: 'today prev,next'
+	   			},
 	   		    eventClick: function(event) {
 	   		        if (event.url) {
 	   		            window.open(event.url);
@@ -68,7 +75,8 @@
 	   		var parameters = {
 	      			redirectedToHomePage	: 	'yes'
 	      		}
-	   		form_submit_with_target('home.htm', parameters, 'POST', '_blank');
+	   		form_submit_with_target('home.htm', parameters, 'POST', '_blank'); 
+
 	   	}
 	   	
 	   	function loadSessionEvents(){
@@ -350,7 +358,7 @@
                                 <div class="card-body no-padding">
                                     <div class="alert alert-callout alert-success no-margin">
                                        <!-- 	<h3 class="pull-right text-theme"><i class="md md-grade"></i></h3> -->
-                                        <strong class="text-xl deviceCount pull-right">
+                                        <strong class="text-xl deviceCount pull-right" id="questions_starred">
                                         	<c:choose>
                                         		<c:when test="${questions_starred_count != null  and questions_starred_count != ''}">
                                         			${questions_starred_count}
@@ -374,7 +382,7 @@
                                 <div class="card-body no-padding">
                                     <div class="alert alert-callout alert-success no-margin">
                                        <!--  <h3 class="pull-right text-theme"><i class="md md-question-answer"></i></h3> -->
-                                        <strong class="text-xl deviceCount pull-right">
+                                        <strong class="text-xl deviceCount pull-right" id="questions_unstarred">
                                         	<c:choose>
                                         		<c:when test="${questions_unstarred_count != null  and questions_unstarred_count != ''}">
                                         			${questions_unstarred_count}
@@ -401,7 +409,7 @@
                                 <div class="card-body no-padding">
                                     <div class="alert alert-callout alert-success no-margin">
                                       	<!-- <h3 class="pull-right text-theme"><i class="md md-schedule"></i></h3> -->
-                                        <strong class="text-xl deviceCount pull-right">
+                                        <strong class="text-xl deviceCount pull-right" id="questions_halfhourdiscussion_from_question">
                                         	<c:choose>
                                         		<c:when test="${questions_halfhourdiscussion_from_question_count != null  and questions_halfhourdiscussion_from_question_count != ''}">
                                         			${questions_halfhourdiscussion_from_question_count}
@@ -427,7 +435,7 @@
                                 <div class="card-body no-padding">
                                     <div class="alert alert-callout alert-success no-margin">
                                        <!-- <h3 class="pull-right text-theme"><i class="md md-visibility"></i></h3> -->
-                                        <strong class="text-xl deviceCount pull-right">
+                                        <strong class="text-xl deviceCount pull-right" id="motions_calling_attention">
                                         	<c:choose>
                                         		<c:when test="${motions_calling_attention_count != null  and motions_calling_attention_count != ''}">
                                         			${motions_calling_attention_count}
@@ -452,7 +460,7 @@
                                 <div class="card-body no-padding">
                                     <div class="alert alert-callout alert-success no-margin">
                                         <!-- <h3 class="pull-right text-theme"><i class="md md-speaker-notes"></i></h3> -->
-                                        <strong class="text-xl deviceCount pull-right">
+                                        <strong class="text-xl deviceCount pull-right" id="resolutions_nonofficial">
                                         	<c:choose>
                                         		<c:when test="${resolutions_nonofficial_count != null  and resolutions_nonofficial_count != ''}">
                                         			${resolutions_nonofficial_count}
@@ -480,7 +488,7 @@
                                 <div class="card-body no-padding">
                                     <div class="alert alert-callout alert-success no-margin">
                                         <!-- <h3 class="pull-right text-theme"><i class="md md-alarm"></i></h3> -->
-                                        <strong class="text-xl deviceCount pull-right">
+                                        <strong class="text-xl deviceCount pull-right" id="motions_standalonemotion_halfhourdiscussion">
                                         	<c:choose>
                                         		<c:when test="${motions_standalonemotion_halfhourdiscussion_count != null  and motions_standalonemotion_halfhourdiscussion_count != ''}">
                                         			${motions_standalonemotion_halfhourdiscussion_count}
@@ -502,13 +510,13 @@
                         </div>
                         <!--end .col -->
                         <!-- END ALERT - TIME ON SITE -->
-                        <div class="col-md-12 col-sm-12 card sessionBar" style="margin-left: 10px; margin-right: 10px; width: 1060px;">
+                        <div class="col-md-12 col-sm-12 card sessionBar">
                         	<div class="col-md-4 col-sm-4">
-                            	<div style="color: white; display:inline-block">
+                            	<div style="color: white;" class="align-middle col-md-4 col-sm-4 ">
                             	   <h4><strong><spring:message code="group.houseType" text="House Type"/></strong></h4>
                             	 </div>
-                          	   	<div style="margin-top:6px;display:inline-block">
-                          	   		<select id="houseType"  style="width: 150px;">
+                          	   	<div class="align-middle col-md-4 col-sm-4 " style="padding-top: 10px;">
+                          	   		<select id="houseType" style="width: 150px;">
 		                          		<option value=" "><spring:message code="please.select"/></option>
 		                          		<c:forEach items="${houseTypes}" var="i">
 		                          			<c:choose>
@@ -524,10 +532,10 @@
                               	</div>
                             </div>
                         	<div class="col-md-4 col-sm-4">
-                            	<div style="color: white;display:inline-block">
+                            	<div style="color: white;" class="align-middle col-md-4 col-sm-4">
                             	   <h4><strong><spring:message code="sessiontype.sessionType" text="Session Type"/></strong></h4>
                             	 </div>
-                          	   	<div style="margin-top:6px;display:inline-block">
+                          	   	<div class="align-middle col-md-4 col-sm-4" style="padding-top: 10px;">
                           	   		<select id="sessionType"  style="width: 150px;">
 		                          		<option value=" "><spring:message code="please.select"/></option>
 		                          		<c:forEach items="${sessionTypes}" var="i">
@@ -545,10 +553,10 @@
                               	</div>
                             </div>
                             <div class="col-md-4 col-sm-4">
-                           		<div  style="color: white;display:inline-block">
+                           		<div  style="color: white;" class="col-md-4 col-sm-4">
                             		 <h4><strong><spring:message code="resolution.sessionyear" text="Session Year"/></strong></h4>
                             	</div>
-                              	<div  style="margin-top:6px;display:inline-block"> 
+                              	<div class="align-middle col-md-4 col-sm-4" style="padding-top: 10px;"> 
                               		<select id="sessionYear"  style="width: 150px;">
                                			<option value=" "><spring:message code="please.select"/></option>
 	                              		<c:forEach items="${years}" var="i">

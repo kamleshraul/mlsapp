@@ -630,7 +630,7 @@
 											$("#qRevision").show();
 											textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'><table border='1'>";
 											var revisions = data[i].revisions;
-											for(var j=0;j<revisions.length;j++){
+											for(var j=1;j<revisions.length;j++){
 											textTemp+=	"<tr>"+
 												" <td>"+data[i].revisions[j].name+"("+revisions[j].value+")" +
 												 "<br><b>"+data[i].revisions[j].displayName+"</b>" ;
