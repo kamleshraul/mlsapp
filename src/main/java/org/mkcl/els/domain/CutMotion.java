@@ -15,7 +15,9 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -706,6 +708,35 @@ public class CutMotion extends Device implements Serializable {
 			final String locale) {
 		return getCutMotionRepository().findAllByStatus(session, cutMotionType, internalStatus, itemsCount, locale);
 	}	
+	
+	public static boolean isDepartmentwiseMaximumLimitForMemberReached(final Session session, final Member member, final Department department, final String locale) {
+		boolean isDepartmentwiseMaximumLimitForMemberReached = false;
+		
+		CustomParameter csptDepartmentwiseMaximumLimitForMember = CustomParameter.findByName(CustomParameter.class, "CMOIS_DEPARTMENTWISE_MAXIMUM_LIMIT_FOR_MEMBER", "");
+		if(csptDepartmentwiseMaximumLimitForMember!=null 
+				&& csptDepartmentwiseMaximumLimitForMember.getValue()!=null
+				&& !csptDepartmentwiseMaximumLimitForMember.getValue().isEmpty()) {
+			
+			int maximumLimitCount = Integer.parseInt(csptDepartmentwiseMaximumLimitForMember.getValue());
+			
+			Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+			queryParameters.put("locale", new String[] {locale});
+			queryParameters.put("sessionId", new String[] {session.getId().toString()});
+			queryParameters.put("memberId", new String[] {member.getId().toString()});
+			queryParameters.put("departmentId", new String[] {department.getId().toString()});
+			@SuppressWarnings("rawtypes")
+			List cutMotionsOfMemberForGivenDepartment = Query.findResultListOfGivenClass("CUTMOTIONS_OF_MEMBER_FOR_DEPARTMENT_IN_GIVEN_SESSION", queryParameters, CutMotion.class);
+			
+			if(cutMotionsOfMemberForGivenDepartment!=null 
+					&& !cutMotionsOfMemberForGivenDepartment.isEmpty()
+					&& cutMotionsOfMemberForGivenDepartment.size() > maximumLimitCount) {
+				
+				isDepartmentwiseMaximumLimitForMemberReached = true;
+			}
+		}		
+		
+		return isDepartmentwiseMaximumLimitForMemberReached;
+	}
 
 	public CutMotionDraft findLatestDraft() {
 		List<CutMotionDraft> drafts = this.getDrafts();

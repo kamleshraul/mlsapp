@@ -1039,63 +1039,114 @@ public class CutMotionController extends GenericController<CutMotion>{
 	}	
 
 	@Override
-	protected void customValidateCreate(final CutMotion domain, final BindingResult result,
-			final HttpServletRequest request) {
-		/**** Supporting Members and various Validations ****/
+	protected void preValidateCreate(CutMotion domain, BindingResult result,
+			HttpServletRequest request) {
+		/**** Populate Supporting Members ****/
 		populateSupportingMembers(domain,request);
+		
+		/**** Set Amount to be deducted ****/
+		String setAmountToBeDeducted = request.getParameter("setAmountToBeDeducted");
+		if(setAmountToBeDeducted!=null && !setAmountToBeDeducted.isEmpty()) {
+			BigDecimal amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setAmountToBeDeducted, domain.getLocale());
+			if(amountToBeDeducted==null) {
+				amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrency(setAmountToBeDeducted, domain.getLocale());
+			}
+			domain.setAmountToBeDeducted(amountToBeDeducted);
+			System.out.println("amountToBeDeducted: " + domain.getAmountToBeDeducted());
+		}
+		
+		/**** Set Total Amount demanded ****/
+		String setTotalAmoutDemanded = request.getParameter("setTotalAmoutDemanded");
+		if(setTotalAmoutDemanded!=null && !setTotalAmoutDemanded.isEmpty()) {
+			BigDecimal totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setTotalAmoutDemanded, domain.getLocale());
+			if(totalAmountDemanded==null) {
+				totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrency(setTotalAmoutDemanded, domain.getLocale());
+			}
+			domain.setTotalAmoutDemanded(totalAmountDemanded);
+			System.out.println("totalAmountDemanded: " + domain.getTotalAmoutDemanded());
+		}
+		
+		/**** Set department ****/
+		if(domain.getSubDepartment() != null){
+			domain.setDepartment(domain.getSubDepartment().getDepartment());
+		}
+	}
+
+	@Override
+	protected void customValidateCreate(final CutMotion domain, final BindingResult result,
+			final HttpServletRequest request) {		
 		String role = request.getParameter("role");
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
+			return;
 		}
+		/**** Minimum Field Validations to be filled or autofilled ****/
+		if(domain.getHouseType()==null){
+			result.rejectValue("houseType","HousetypeEmpty");
+			return;
+		}
+		if(domain.getDeviceType()==null){
+			result.rejectValue("type","MotionTypeEmpty");
+			return;
+		}
+		if(domain.getSession()==null){
+			result.rejectValue("session","SessionEmpty");
+			return;
+		}
+		if(domain.getPrimaryMember()==null){
+			result.rejectValue("primaryMember","PrimaryMemberEmpty");
+			return;
+		}
+		if(domain.getMainTitle().isEmpty()){
+			result.rejectValue("mainTitle", "CutMotion.MainTitleEmpty");
+			return;
+		}
+		if(domain.getNoticeContent().isEmpty()){
+			result.rejectValue("noticeContent","CutMotion.NoticeContentEmpty");
+			return;
+		}
+//		String usergroupType=request.getParameter("usergroupType");
+//		if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("assistant")){
+//			if(domain.getMinistry()==null){
+//				result.rejectValue("ministry","MinistryEmpty");
+//				return;
+//			}	
+//			if(domain.getSubDepartment()==null){
+//				result.rejectValue("subDepartment","SubDepartmentEmpty");
+//				return;
+//			}	
+//		}
+		/**** Number Validation ****/
 		if(role.equals("CMOIS_TYPIST")){							
 			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "CMOIS_TYPIST_AUTO_NUMBER_GENERATION_REQUIRED", "");
 			if(customParameter != null){
 				String value = customParameter.getValue();
 				if(!value.equals("yes")){
 					if(domain.getNumber()==null){
-						result.rejectValue("number","NumberEmpty");						
+						result.rejectValue("number","NumberEmpty");			
+						return;
 					}
 					//check for duplicate motion
 					Boolean flag = CutMotion.isExist(domain.getNumber(),null,domain.getDeviceType(), domain.getSession(), domain.getLocale());
 					if(flag){
 						result.rejectValue("number", "NonUnique","Duplicate Parameter");
+						return;
 					}
 				}
 			}
 		}
+		/**** Operation Based Validations ****/
 		String operation = request.getParameter("operation");
 		if(operation != null){
 			if(!operation.isEmpty()){
-				if(operation.equals("approval")){/**** Approval ****/
-					
-					/** Validation to allow user to submit cutmotion defined in config
-					 * 
-					 **/
-					
-					/**** Approval ****/
-					if(domain.getHouseType()==null){
-						result.rejectValue("houseType","HousetypeEmpty");
-					}
-					if(domain.getDeviceType()==null){
-						result.rejectValue("type","MotionTypeEmpty");
-					}
-					if(domain.getSession()==null){
-						result.rejectValue("session","SessionEmpty");
-					}
-					if(domain.getPrimaryMember()==null){
-						result.rejectValue("primaryMember","PrimaryMemberEmpty");
-					}
-					if(domain.getMainTitle().isEmpty()){
-						result.rejectValue("mainTitle", "CutMotion.MainTitleEmpty");
-					}
-					if(domain.getNoticeContent().isEmpty()){
-						result.rejectValue("noticeContent","CutMotion.NoticeContentEmpty");
-					}				
+				if(operation.equals("approval")) { /**** Supporting Member Approval Related Validations ****/							
 					if(domain.getSupportingMembers()==null){
 						result.rejectValue("supportingMembers","SupportingMembersEmpty");
+						return;
 					} else if(domain.getSupportingMembers().isEmpty()){
-						result.rejectValue("supportingMembers","SupportingMembersEmpty");						
+						result.rejectValue("supportingMembers","SupportingMembersEmpty");	
+						return;
 					} else {
 						//check if request is already sent for approval
 						int count=0;
@@ -1106,109 +1157,159 @@ public class CutMotionController extends GenericController<CutMotion>{
 						}
 						if(count==0){
 							result.rejectValue("supportingMembers","SupportingMembersRequestAlreadySent");
+							return;
 						}
 					}
-				}else /**** Submission ****/
-					if(operation.equals("submit")){					
-						if(domain.getHouseType() == null){
-							result.rejectValue("houseType","HousetypeEmpty");
-						}
-						if(domain.getDeviceType()==null){
-							result.rejectValue("type","MotionTypeEmpty");
-						}
-						if(domain.getSession()==null){
-							result.rejectValue("session","SessionEmpty");
-						}
-						if(domain.getPrimaryMember()==null){
-							result.rejectValue("primaryMember","PrimaryMemberEmpty");
-						}
-						if(domain.getMainTitle().isEmpty()){
-							result.rejectValue("mainTitle", "CutMotion.MainTitleEmpty");
-						}
-						if(domain.getNoticeContent().isEmpty()){
-							result.rejectValue("noticeContent","CutMotion.NoticeContentEmpty");
-						}
-						if(domain.getMinistry()==null){
-							result.rejectValue("ministry","MinistryEmpty");
-						}		
-						if(!isDateAdmitted(domain, domain.getLocale())){
-							result.rejectValue("version","CutMotion.DateExpired");
+				} else if(operation.equals("submit")) { /**** Submission Related Validations ****/	
+					if(domain.getAmountToBeDeducted()==null) {
+						result.rejectValue("amountToBeDeducted","amountToBeDeductedEmpty");
+						return;
+					}				
+					if(domain.getTotalAmoutDemanded()==null) {
+						result.rejectValue("totalAmoutDemanded","totalAmoutDemandedEmpty");
+						return;
+					}
+					if(domain.getDemandNumber()==null || domain.getDemandNumber().isEmpty()) {
+						result.rejectValue("demandNumber","demandNumberEmpty");
+						return;
+					}
+					if(domain.getDeviceType().getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {
+						if(domain.getItemNumber()==null) {
+							result.rejectValue("itemNumber","itemNumberEmpty");
+							return;
 						}
 					}
+					if(domain.getMinistry()==null){
+						result.rejectValue("ministry","MinistryEmpty");
+						return;
+					}		
+					if(domain.getSubDepartment()==null) {
+						result.rejectValue("subDepartment","SubDepartmentEmpty");
+						return;
+					}
+					if(CutMotion.isDepartmentwiseMaximumLimitForMemberReached(domain.getSession(), domain.getPrimaryMember(), domain.getDepartment(), domain.getLocale())) {
+						result.rejectValue("version","CutMotion.DepartmentwiseMaximumLimitForMemberReached");
+						return;
+					}
+					if(!isDateAdmitted(domain, domain.getLocale())){
+						result.rejectValue("version","CutMotion.DateExpired");
+						return;
+					}
+				}
 			}
-		}/**** Drafts ****/
-		else{
-			if(domain.getHouseType()==null){
-				result.rejectValue("houseType","HousetypeEmpty");
+		}
+	}
+	
+	@Override
+	protected void preValidateUpdate(CutMotion domain, BindingResult result,
+			HttpServletRequest request) {
+		/**** Populate Supporting Members ****/
+		populateSupportingMembers(domain,request);
+		
+		/**** Set Amount to be deducted ****/
+		String setAmountToBeDeducted = request.getParameter("setAmountToBeDeducted");
+		if(setAmountToBeDeducted!=null && !setAmountToBeDeducted.isEmpty()) {
+			BigDecimal amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setAmountToBeDeducted, domain.getLocale());
+			if(amountToBeDeducted==null) {
+				amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrency(setAmountToBeDeducted, domain.getLocale());
 			}
-			if(domain.getDeviceType()==null){
-				result.rejectValue("type","MotionTypeEmpty");
+			domain.setAmountToBeDeducted(amountToBeDeducted);
+			System.out.println("amountToBeDeducted: " + domain.getAmountToBeDeducted());
+		}
+		
+		/**** Set Total Amount demanded ****/
+		String setTotalAmoutDemanded = request.getParameter("setTotalAmoutDemanded");
+		if(setTotalAmoutDemanded!=null && !setTotalAmoutDemanded.isEmpty()) {
+			BigDecimal totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setTotalAmoutDemanded, domain.getLocale());
+			if(totalAmountDemanded==null) {
+				totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrency(setTotalAmoutDemanded, domain.getLocale());
 			}
-			if(domain.getSession()==null){
-				result.rejectValue("session","SessionEmpty");
-			}
-			if(domain.getPrimaryMember()==null){
-				result.rejectValue("primaryMember","PrimaryMemberEmpty");
-			}
-			if(domain.getMainTitle().isEmpty()){
-				result.rejectValue("mainTitle", "CutMotion.MainTitleEmpty");
-			}
-			if(domain.getNoticeContent().isEmpty()){
-				result.rejectValue("noticeContent","CutMotion.NoticeContentEmpty");
-			}
+			domain.setTotalAmoutDemanded(totalAmountDemanded);
+			System.out.println("totalAmountDemanded: " + domain.getTotalAmoutDemanded());
+		}
+		
+		/**** Set department ****/
+		if(domain.getSubDepartment() != null){
+			domain.setDepartment(domain.getSubDepartment().getDepartment());
 		}
 	}
 
 	@Override
 	protected void customValidateUpdate(final CutMotion domain, final BindingResult result,
 			final HttpServletRequest request) {		
-		/**** Supporting Members and various Validations ****/
-		populateSupportingMembers(domain,request);
 		String role = request.getParameter("role");
 		/**** Version Mismatch ****/
 		if (domain.isVersionMismatch()) {
 			result.rejectValue("version", "VersionMismatch");
+			return;
 		}
+		/**** Minimum Field Validations to be filled or autofilled ****/
+		if(domain.getHouseType()==null){
+			result.rejectValue("houseType","HousetypeEmpty");
+			return;
+		}
+		if(domain.getDeviceType()==null){
+			result.rejectValue("type","MotionTypeEmpty");
+			return;
+		}
+		if(domain.getSession()==null){
+			result.rejectValue("session","SessionEmpty");
+			return;
+		}
+		if(domain.getPrimaryMember()==null){
+			result.rejectValue("primaryMember","PrimaryMemberEmpty");
+			return;
+		}
+		if(domain.getMainTitle().isEmpty()){
+			result.rejectValue("mainTitle", "CutMotion.MainTitleEmpty");
+			return;
+		}
+		if(domain.getNoticeContent().isEmpty()){
+			result.rejectValue("noticeContent","CutMotion.NoticeContentEmpty");
+			return;
+		}
+//		String usergroupType=request.getParameter("usergroupType");
+//		if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("assistant")){
+//			if(domain.getMinistry()==null){
+//				result.rejectValue("ministry","MinistryEmpty");
+//				return;
+//			}	
+//			if(domain.getSubDepartment()==null){
+//				result.rejectValue("subDepartment","SubDepartmentEmpty");
+//				return;
+//			}	
+//		}
+		/**** Number Validation ****/
 		if(role.equals("CMOIS_TYPIST")){							
 			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "CMOIS_TYPIST_AUTO_NUMBER_GENERATION_REQUIRED", "");
 			if(customParameter != null){
 				String value = customParameter.getValue();
 				if(!value.equals("yes")){
 					if(domain.getNumber()==null){
-						result.rejectValue("number","NumberEmpty");						
+						result.rejectValue("number","NumberEmpty");		
+						return;
 					}
 					//check for duplicate motion
 					Boolean flag = CutMotion.isExist(domain.getNumber(),domain.getId(),domain.getDeviceType(), domain.getSession(), domain.getLocale());
 					if(flag){
 						result.rejectValue("number", "NonUnique","Duplicate Parameter");
+						return;
 					}
 				}
 			}
 		}
+		/**** Operation Based Validations ****/
 		String operation=request.getParameter("operation");
-		if(operation!=null&&!operation.isEmpty()){
-			/****Supporting Member Approval By Member ****/
-			if(operation.equals("approval")){/**** Approval ****/
-				if(domain.getHouseType()==null){
-					result.rejectValue("houseType","HousetypeEmpty");
-				}
-				if(domain.getDeviceType()==null){
-					result.rejectValue("type","MotionTypeEmpty");
-				}
-				if(domain.getSession()==null){
-					result.rejectValue("session","SessionEmpty");
-				}
-				if(domain.getPrimaryMember()==null){
-					result.rejectValue("primaryMember","PrimaryMemberEmpty");
-				}
-				if(domain.getNoticeContent().isEmpty()){
-					result.rejectValue("noticeContent","NoticeContentEmpty");
-				}					
+		if(operation!=null && !operation.isEmpty()) {
+			if(operation.equals("approval")) { /**** Supporting Member Approval Related Validations ****/							
 				if(domain.getSupportingMembers()==null){
 					result.rejectValue("supportingMembers","SupportingMembersEmpty");
+					return;
 				} else if(domain.getSupportingMembers().isEmpty()){
-					result.rejectValue("supportingMembers","SupportingMembersEmpty");						
+					result.rejectValue("supportingMembers","SupportingMembersEmpty");	
+					return;
 				} else {
+					//check if request is already sent for approval
 					int count=0;
 					for(SupportingMember i:domain.getSupportingMembers()){
 						if(i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
@@ -1217,94 +1318,57 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 					if(count==0){
 						result.rejectValue("supportingMembers","SupportingMembersRequestAlreadySent");
+						return;
 					}
 				}
-			}else /**** Submission By Member/Clerk****/
-				if(operation.equals("submit")){					
-					/**** Submission ****/
-					if(domain.getHouseType()==null){
-						result.rejectValue("houseType","HousetypeEmpty");
+			} else if(operation.equals("submit")) { /**** Submission Related Validations ****/			
+				if(domain.getAmountToBeDeducted()==null) {
+					result.rejectValue("amountToBeDeducted","amountToBeDeductedEmpty");
+					return;
+				}				
+				if(domain.getTotalAmoutDemanded()==null) {
+					result.rejectValue("totalAmoutDemanded","totalAmoutDemandedEmpty");
+					return;
+				}
+				if(domain.getDemandNumber()==null || domain.getDemandNumber().isEmpty()) {
+					result.rejectValue("demandNumber","demandNumberEmpty");
+					return;
+				}
+				if(domain.getDeviceType().getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {
+					if(domain.getItemNumber()==null) {
+						result.rejectValue("itemNumber","itemNumberEmpty");
+						return;
 					}
-					if(domain.getDeviceType()==null){
-						result.rejectValue("type","MotionTypeEmpty");
-					}
-					if(domain.getSession()==null){
-						result.rejectValue("session","SessionEmpty");
-					}
-					if(domain.getPrimaryMember()==null){
-						result.rejectValue("primaryMember","PrimaryMemberEmpty");
-					}
-					if(domain.getNoticeContent().isEmpty()){
-						result.rejectValue("noticeContent","NoticeContentEmpty");
-					}
-					if(domain.getMinistry()==null){
-						result.rejectValue("ministry","MinistryEmpty");
-					}
-					if(!isDateAdmitted(domain, domain.getLocale())){
-						result.rejectValue("version","CutMotion.DateExpired");
-					}
-				}else /**** Start Workflow By assistant ****/
-					if(operation.equals("startworkflow")){
-						if(domain.getHouseType()==null){
-							result.rejectValue("houseType","HousetypeEmpty");
-						}
-						if(domain.getDeviceType()==null){
-							result.rejectValue("type","MotionTypeEmpty");
-						}
-						if(domain.getSession()==null){
-							result.rejectValue("session","SessionEmpty");
-						}
-						if(domain.getPrimaryMember()==null){
-							result.rejectValue("primaryMember","PrimaryMemberEmpty");
-						}
-						if(domain.getNoticeContent().isEmpty()){
-							result.rejectValue("noticeContent","NoticeContentEmpty");
-						}
-						if(domain.getMinistry()==null){
-							result.rejectValue("ministry","MinistryEmpty");
-						}	
-						if(domain.getSubDepartment()==null){
-							result.rejectValue("subDepartment","SubDepartmentEmpty");
-						}	
-						String internalStatusType=domain.getInternalStatus().getType();
-						if(internalStatusType.equals(ApplicationConstants.CUTMOTION_SUBMIT)){
-							result.rejectValue("internalStatus","PutUpOptionEmpty");
-						}						
-						if(internalStatusType.equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED)){
-							result.rejectValue("internalStatus","PutUpOptionEmpty");
-						}
-						if(!(internalStatusType.equals(ApplicationConstants.CUTMOTION_SUBMIT))
-								&&!(internalStatusType.equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED))
-								&&(domain.getActor()==null||domain.getActor().isEmpty())){
-							result.rejectValue("internalStatus","ActorEmpty");
-						}
-					}			
-		}/**** Drafts Creation By Member/Proof Reading By Assistant ****/
-		else{
-			if(domain.getHouseType()==null){
-				result.rejectValue("houseType","HousetypeEmpty");
-			}
-			if(domain.getDeviceType()==null){
-				result.rejectValue("type","MotionTypeEmpty");
-			}
-			if(domain.getSession()==null){
-				result.rejectValue("session","SessionEmpty");
-			}
-			if(domain.getPrimaryMember()==null){
-				result.rejectValue("primaryMember","PrimaryMemberEmpty");
-			}
-			if(domain.getNoticeContent().isEmpty()){
-				result.rejectValue("noticeContent","NoticeContentEmpty");
-			}
-			String usergroupType=request.getParameter("usergroupType");
-			if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("assistant")){
+				}
 				if(domain.getMinistry()==null){
 					result.rejectValue("ministry","MinistryEmpty");
-				}	
-				if(domain.getSubDepartment()==null){
+					return;
+				}
+				if(domain.getSubDepartment()==null) {
 					result.rejectValue("subDepartment","SubDepartmentEmpty");
-				}	
-			}
+					return;
+				}
+				if(!isDateAdmitted(domain, domain.getLocale())){
+					result.rejectValue("version","CutMotion.DateExpired");
+					return;
+				}
+			} else if(operation.equals("startworkflow")) { /**** Start Workflow Related Validations ****/
+				String internalStatusType=domain.getInternalStatus().getType();
+				if(internalStatusType.equals(ApplicationConstants.CUTMOTION_SUBMIT)){
+					result.rejectValue("internalStatus","PutUpOptionEmpty");
+					return;
+				}						
+				if(internalStatusType.equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED)){
+					result.rejectValue("internalStatus","PutUpOptionEmpty");
+					return;
+				}
+				if(!(internalStatusType.equals(ApplicationConstants.CUTMOTION_SUBMIT))
+						&&!(internalStatusType.equals(ApplicationConstants.CUTMOTION_SYSTEM_ASSISTANT_PROCESSED))
+						&&(domain.getActor()==null||domain.getActor().isEmpty())){
+					result.rejectValue("internalStatus","ActorEmpty");
+					return;
+				}
+			}			
 		}
 	}
 
@@ -1405,33 +1469,6 @@ public class CutMotionController extends GenericController<CutMotion>{
 	@Override
 	protected void populateCreateIfNoErrors(final ModelMap model, CutMotion domain,
 			final HttpServletRequest request) {			
-		
-		/**** Set department ****/
-		if(domain.getSubDepartment() != null){
-			domain.setDepartment(domain.getSubDepartment().getDepartment());
-		}
-		
-		/**** Set Amount to be deducted ****/
-		String setAmountToBeDeducted = request.getParameter("setAmountToBeDeducted");
-		if(setAmountToBeDeducted!=null && !setAmountToBeDeducted.isEmpty()) {
-			BigDecimal amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setAmountToBeDeducted, domain.getLocale());
-			if(amountToBeDeducted==null) {
-				amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrency(setAmountToBeDeducted, domain.getLocale());
-			}
-			domain.setAmountToBeDeducted(amountToBeDeducted);
-			System.out.println("amountToBeDeducted: " + domain.getAmountToBeDeducted());
-		}
-		
-		/**** Set Total Amount demanded ****/
-		String setTotalAmoutDemanded = request.getParameter("setTotalAmoutDemanded");
-		if(setTotalAmoutDemanded!=null && !setTotalAmoutDemanded.isEmpty()) {
-			BigDecimal totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setTotalAmoutDemanded, domain.getLocale());
-			if(totalAmountDemanded==null) {
-				totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrency(setTotalAmoutDemanded, domain.getLocale());
-			}
-			domain.setTotalAmoutDemanded(totalAmountDemanded);
-			System.out.println("totalAmountDemanded: " + domain.getTotalAmoutDemanded());
-		}
 		
 		/**** Status ,Internal Status,Recommendation Status,submission date,creation date,created by,created as *****/		
 		/**** In case of submission ****/
@@ -1558,33 +1595,6 @@ public class CutMotionController extends GenericController<CutMotion>{
 	@Override
 	protected void populateUpdateIfNoErrors(final ModelMap model, CutMotion domain,
 			final HttpServletRequest request) {
-		
-		/**** Set department ****/
-		if(domain.getSubDepartment() != null){
-			domain.setDepartment(domain.getSubDepartment().getDepartment());
-		}
-		
-		/**** Set Amount to be deducted ****/
-		String setAmountToBeDeducted = request.getParameter("setAmountToBeDeducted");
-		if(setAmountToBeDeducted!=null && !setAmountToBeDeducted.isEmpty()) {
-			BigDecimal amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setAmountToBeDeducted, domain.getLocale());
-			if(amountToBeDeducted==null) {
-				amountToBeDeducted = FormaterUtil.parseNumberForIndianCurrency(setAmountToBeDeducted, domain.getLocale());
-			}
-			domain.setAmountToBeDeducted(amountToBeDeducted);
-			System.out.println("amountToBeDeducted: " + domain.getAmountToBeDeducted());
-		}
-		
-		/**** Set Total Amount demanded ****/
-		String setTotalAmoutDemanded = request.getParameter("setTotalAmoutDemanded");
-		if(setTotalAmoutDemanded!=null && !setTotalAmoutDemanded.isEmpty()) {
-			BigDecimal totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrencyWithSymbol(setTotalAmoutDemanded, domain.getLocale());
-			if(totalAmountDemanded==null) {
-				totalAmountDemanded = FormaterUtil.parseNumberForIndianCurrency(setTotalAmoutDemanded, domain.getLocale());
-			}
-			domain.setTotalAmoutDemanded(totalAmountDemanded);
-			System.out.println("totalAmountDemanded: " + domain.getTotalAmoutDemanded());
-		}
 		
 		/**** Checking if its submission request or normal update ****/
 		String operation=request.getParameter("operation");		
