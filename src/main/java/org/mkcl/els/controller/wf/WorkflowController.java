@@ -580,7 +580,8 @@ public class WorkflowController extends BaseController {
 				newUrlPattern=urlPattern+"?devicetype="+ApplicationConstants.ADJOURNMENT_MOTION;
 			}else {
 				if(strCurrentUserGroupType!=null && !strCurrentUserGroupType.isEmpty()) {
-					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)) {
+					if(strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT)
+							||strCurrentUserGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
 						newUrlPattern = urlPattern + "?usergroup="+ApplicationConstants.DEPARTMENT;
 					}
 				}				
