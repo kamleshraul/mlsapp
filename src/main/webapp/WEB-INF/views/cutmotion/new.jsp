@@ -363,7 +363,7 @@
 				</c:if>
 				
 				<p>
-					<label class="centerlabel"><spring:message code="cutmotion.subTitle" text="Sub Title"/>*</label>
+					<label class="centerlabel"><spring:message code="cutmotion.subTitle" text="Sub Title"/></label>
 					<form:textarea path="subTitle" rows="2" cols="50"></form:textarea>
 					<form:errors path="subTitle" cssClass="validationError" />	
 				</p>
@@ -388,7 +388,7 @@
 				
 				<br />
 				<p style="display: inline;">
-					<label class="small"><spring:message code="cutmotion.pageNumber" text="Page Number"/>*</label>
+					<label class="small"><spring:message code="cutmotion.pageNumber" text="Page Number"/></label>
 					<form:input path="pageNumber" cssClass="sText"/>
 					<form:errors path="pageNumber" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 				</p>
