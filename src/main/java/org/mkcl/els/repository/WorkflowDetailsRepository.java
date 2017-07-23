@@ -923,7 +923,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			buffer.append(" AND status=:status");
 			buffer.append(" AND workflowSubType=:workflowSubType");
 		}
-		buffer.append(" ORDER BY group_number");
+		buffer.append(" ORDER BY assignmentTime");
 		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
 		try{
 			Query query=this.em().createQuery(buffer.toString());
@@ -1019,7 +1019,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		if(answeringDate!=null){
 			buffer.append(" AND answeringDate=:answeringDate");
 		}
-		buffer.append(" ORDER BY device_number");
+		buffer.append(" ORDER BY assignmentTime");
 		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
 		try{
 			Query query=this.em().createQuery(buffer.toString());
