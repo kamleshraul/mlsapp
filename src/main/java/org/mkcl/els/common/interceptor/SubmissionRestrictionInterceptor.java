@@ -23,6 +23,9 @@ public class SubmissionRestrictionInterceptor extends HandlerInterceptorAdapter 
 			HttpServletResponse response, Object handler) throws Exception {
 		
 		String locale = request.getParameter("locale"); //(optional) in case needed anywhere for fetching locale specific objects in the code
+		if(locale==null || locale.isEmpty()) {
+			locale = ApplicationConstants.DEFAULT_LOCALE;
+		}
 		
 		CustomParameter csptRestURLs = CustomParameter.findByName(CustomParameter.class, "RESTRICTION_URLS", "");
 		CustomParameter csptRestRoles = CustomParameter.findByName(CustomParameter.class, "RESTRICTION_ROLES", "");
