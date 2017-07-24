@@ -1,9 +1,12 @@
 .text-uppercase {
   text-transform: uppercase; }
 
-.green-theme .text-primary {
+.green-theme .text-primary{
   color: #406b03; }
 
+.green-theme .sessionBar{
+	background: #406b03;
+}
 .green-theme #menubar.menubar-inverse:before {
   background: #406b03; }
 
@@ -33,10 +36,16 @@
 
 .green-theme .text-theme {
   color: #406b03; }
+  
+ .green-theme .deviceCount{
+ 	 color: #406b03;
+ }
 
-.red-theme .text-primary {
+.red-theme .text-primary{
   color: #ac031f; }
-
+.red-theme .sessionBar{
+	background: #ac031f;
+}
 .red-theme #menubar.menubar-inverse:before {
   background: #ac031f; }
 
@@ -66,13 +75,25 @@
 
 .red-theme .text-theme {
   color: #ac031f; }
+ 
+.red-theme .deviceCount{
+ 	 color: #406b03;
+ }
 
 .alert-callout.alert-success:before {
   background: #0aa89e; }
 
 .text-theme {
   color: #0aa89e; }
-
+  
+.deviceCount{
+ 	 color: #0aa89e;
+ }
+ 
+ .sessionBar{
+	background: #0aa89e;
+}
+ 
 .menubar-inverse .gui-controls li .title,
 .menubar-inverse .gui-icon {
   color: #fff; }
