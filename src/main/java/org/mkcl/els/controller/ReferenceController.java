@@ -13,6 +13,7 @@ package org.mkcl.els.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -3790,10 +3791,10 @@ public class ReferenceController extends BaseController {
 					}
 				}
 			}
-			return masterVOs;
+			
 		}
 
-		return null;
+		return masterVOs;
 	}
 		
 	
@@ -9548,5 +9549,101 @@ public class ReferenceController extends BaseController {
 	@RequestMapping(value="/servertime", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
 	public @ResponseBody String getServerTime(final HttpServletRequest request, final Locale locale){		
 		return FormaterUtil.formatDateToString(new Date(), "yyyy-MM-dd HH:mm:ss");
+	}
+	
+	@RequestMapping(value = "/newpendingmotionadvancecopy", method = RequestMethod.GET)
+	public @ResponseBody Long getPendingMotionAdvanceCopy(HttpServletRequest request, Locale locale){
+		Long retVal = (long) 0;
+		try{
+			String strSessionYear = request.getParameter("sessionYear");
+			String strSessionType = request.getParameter("sessionType");
+			String strHouseType = request.getParameter("houseType");
+			String strAssignee = request.getParameter("assignee");
+			if(strSessionYear != null && !strSessionYear.isEmpty()
+				&& strSessionType != null && !strSessionType.isEmpty()
+				&& strHouseType != null && !strHouseType.isEmpty()
+				&& strAssignee != null && !strAssignee.isEmpty()){
+				CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(csptDeployment!=null){
+					if(csptDeployment.getValue().equals("TOMCAT")){
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+					}
+					SessionType sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+					HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
+					Integer year = new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strSessionYear).intValue());
+					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+					Credential credential = Credential.findByFieldName(Credential.class, "username", strAssignee, null);
+					UserGroup userGroup = UserGroup.findActive(credential, new Date(), locale.toString());
+					UserGroupType userGroupType = userGroup.getUserGroupType();
+					Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+					parameterMap.put("locale", new String[]{locale.toString()});
+					parameterMap.put("sessionId", new String[]{session.getId().toString()});
+					if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)){
+						parameterMap.put("actor", new String[]{""});
+					}else{
+						parameterMap.put("actor", new String[]{credential.getUsername()});
+					}
+					if(userGroup != null){
+						Map<String, String> usergroupParameters = userGroup.getParameters();
+						String strSubdepartment = usergroupParameters.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_"+locale.toString());
+						String subdepartmentIds = new String();
+						if(strSubdepartment != null && !strSubdepartment.isEmpty()){
+							String subdepartments[] = strSubdepartment.split("##");
+							for(int i = 0;i<subdepartments.length;i++){
+								SubDepartment subdepartment = SubDepartment.findByName(SubDepartment.class, subdepartments[i], locale.toString());
+								if(subdepartment != null){
+									subdepartmentIds+=subdepartment.getId();
+									if(i+1<subdepartments.length){
+										subdepartmentIds+=",";
+									}
+								}
+							}
+							parameterMap.put("subdepartments", new String[]{subdepartmentIds});
+						}
+					}
+					List<BigInteger> report = Query.findReport("MOIS_PENDING_ADVANCE_COPY", parameterMap, true);
+					if(report != null){
+						return Long.parseLong(report.get(0).toString());
+					}
+				}
+			}
+
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return retVal;
+	}
+	
+	@RequestMapping(value = "/actorformotionadvancecopy", method = RequestMethod.GET)
+	public @ResponseBody List<MasterVO> findActorsForMotionAdvanceCopy(HttpServletRequest request, Locale locale){
+		List<MasterVO> actors = new ArrayList<MasterVO>();
+		try{
+			String strMotionId = request.getParameter("motionId");
+			if(strMotionId != null && !strMotionId.isEmpty()){
+				Motion motion = Motion.findById(Motion.class, Long.parseLong(strMotionId));
+				Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+				parameterMap.put("subdepartment", new String[]{"%"+motion.getSubDepartment().getName()+"%"});
+				parameterMap.put("ministry", new String[]{"%"+motion.getMinistry().getName()+"%"});
+				parameterMap.put("usergrouptype", new String[]{ApplicationConstants.DEPARTMENT_DESKOFFICER});
+				parameterMap.put("locale", new String[]{locale.toString()});
+				List report = Query.findReport("MOIS_FIND_ELIGIBLE_ACTORS", parameterMap);
+				if(report != null){
+					for(Object o : report){
+						MasterVO masterVO = new MasterVO();
+						Object[] objx = (Object[]) o;
+						masterVO.setValue(objx[0].toString());
+						masterVO.setName(objx[1].toString());
+						actors.add(masterVO);
+					}
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return actors;
 	}
 }
