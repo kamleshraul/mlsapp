@@ -14,6 +14,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -449,9 +450,6 @@ public class MasterWebService {
             index += bytesRead;
         }
         
-      
-        
-
         if (request.getCharacterEncoding() != null) {
                 xml = new String(xmlData, "UTF-8");
              
@@ -470,12 +468,16 @@ public class MasterWebService {
         {
         	part.setProceedingContent(xml);
         }
-       
+       	if(part.getEntryDate() == null){
+       		part.setEntryDate(new Date());
+       	}
+        if(part.getOrderNo() == null){
+        	part.setOrderNo(1);
+        }
+                
         part.merge();
-         String status="failed";
-       
-        
-        
+        String status="failed";
+               
         Reference reference=new Reference();
         if (status=="success")
         {
