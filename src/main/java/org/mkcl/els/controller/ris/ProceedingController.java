@@ -1083,6 +1083,17 @@ public class ProceedingController extends GenericController<Proceeding>{
 		String strSlot=request.getParameter("currentSlot");
 		String strPart=request.getParameter("currentPart");
 		String strCount=request.getParameter("count");
+		String strProceeding = request.getParameter("currentProceeding");
+		if(strProceeding != null && !strProceeding.isEmpty()){
+			Proceeding proceeding = Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
+			Slot slot = proceeding.getSlot();
+			Part part = Part.findByFieldName(Part.class, "proceeding", proceeding, locale.toString());
+			if(part != null){
+				strSlot = slot.getId().toString();
+				strPart = part.getId().toString();
+			}
+			
+		}
 		/****Language****/
 		Language language=null;
 		if(strLanguage!=null && !strLanguage.equals("")){
