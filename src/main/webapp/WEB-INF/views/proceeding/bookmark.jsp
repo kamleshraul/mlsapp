@@ -284,6 +284,21 @@
 					$("#languageReporter").html(data.displayName);
 					$("#previousReporter").html(data.formattedOrder);
 					$("#currenSlotStartTime").html(data.type);
+					
+					$("#selectionDiv1").hide();			
+					$("#cancelFn").val("rowDblClickHandler");			
+					$('#key').val($("#masterPart").val()); 
+					var params="proceeding="+$('#key').val()+
+					'&language=' + $("#selectedLanguage").val();
+					
+				
+					   
+					$.get('proceeding/getBookmarkProceedingris?'+params, 
+						    function(returnedData){
+			
+					//	+""+returnedData.name+""+""+formattedNumber+""+formattedOrder+""+displayName);
+						window.open('riscust://http://172.1.0.21:9090/els/???1.0.0???word???'+returnedData.id+'???'+returnedData.displayName+'???'+returnedData.formattedOrder +'???'+returnedData.name +'???'+returnedData.formattedNumber +'???'+returnedData.value +'???'+returnedData.type +'???',"_self");
+					});
 				
 			});
 		});

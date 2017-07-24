@@ -10,10 +10,14 @@
 
 package org.mkcl.els.webservices;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -32,6 +36,7 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
+import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.SubDepartment;
@@ -350,7 +355,7 @@ public class MasterWebService {
         String questionText = request.getParameter("questionText");
         String locale = request.getParameter("locale");
         
-          
+        byte[] by_new = questionText.getBytes();
         
         String c= CitizenQuestion.AddCitizenQuestion(citizenID,districtID,constituencyID,departmentID,questionText,memberID,locale);
         String status="failed";
@@ -413,7 +418,93 @@ public class MasterWebService {
 		}
     }
     
-    
+    @RequestMapping(value = "/AddPart",method = RequestMethod.POST)
+    public @ResponseBody
+    Reference addPart(HttpServletRequest request) throws ELSException {
+    	//Long partID = Long.parseLong("20600");
+    	Long partID = Long.parseLong(request.getParameter("partID"));
    
+        String byteArray=request.getParameter("byteArray");
+        
+        String xml = null;
+        byte[] xmlData = new byte[request.getContentLength()];
+        try {
+        //Start reading XML Request as a Stream of Bytes
+        
+        	
+        	
+        InputStream sis = request.getInputStream();
+        BufferedInputStream bis = new BufferedInputStream(sis);
 
+        //bis.read(xmlData, 0, xmlData.length);
+        
+        int index = 0;
+        while (index < xmlData.length)
+        {
+            int bytesRead = bis.read(xmlData, index, xmlData.length - index);
+            if (bytesRead == 0)
+            {
+                break;
+            }
+            index += bytesRead;
+        }
+        
+      
+        
+
+        if (request.getCharacterEncoding() != null) {
+                xml = new String(xmlData, "UTF-8");
+             
+        } else {
+                xml = new String(xmlData);
+                
+        }
+        } catch (IOException ioe) {
+            
+         }
+        Part part=Part.findById(Part.class,partID );
+       	if(part.getProceedingContent() != null && !part.getProceedingContent().isEmpty())
+        {
+       	 part.setRevisedContent(xml);
+        }else
+        {
+        	part.setProceedingContent(xml);
+        }
+       
+        part.merge();
+         String status="failed";
+       
+        
+        
+        Reference reference=new Reference();
+        if (status=="success")
+        {
+        reference.setNumber("1");
+        reference.setState(status);
+        }else
+        {
+        	reference.setState(status);
+        	reference.setRemark("2");
+        }
+        
+        return reference; 
+    }
+    
+    @RequestMapping(value = "/getPart/{partId}/{locale}" ,method = RequestMethod.GET, 
+    		produces = "text/plain; charset=utf-8")
+    public @ResponseBody
+   String getPart(@PathVariable final String locale,@PathVariable final Long partId,HttpServletResponse response) {
+    	Part part=Part.findById(Part.class,partId );
+		   
+        String str="";
+       if (part.getRevisedContent()!=null && !part.getRevisedContent().isEmpty())
+        	str=part.getRevisedContent();
+       else
+    	   str=part.getProceedingContent();
+       
+        
+        return str;
+    }
+
+    
 }

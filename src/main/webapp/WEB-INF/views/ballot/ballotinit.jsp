@@ -867,6 +867,7 @@
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 <input type="hidden" id="ballotConfirmationMsg" value="<spring:message code='ballot.confirmationMessage' text='This is an irreversible change.Are you sure you want to continue?'/>"/>
 <input type="hidden" id="balHouseType" value="${balHouseType}" />
+<input type="hidden" id="highSecurityPasswordEnabled" value="${highSecurityPasswordEnabled}" />
 
 </body>
 </html>

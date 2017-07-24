@@ -59,6 +59,7 @@ import org.mkcl.els.domain.Language;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
+import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Part;
@@ -754,6 +755,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 			String server=null;
 			Part part=null;
 			Session session=null;
+			
+			
 			/**** Part ****/
 			if(strPartId!=null && !strPartId.isEmpty()){
 				part=Part.findById(Part.class, Long.parseLong(strPartId));
@@ -3944,4 +3947,476 @@ public class ProceedingController extends GenericController<Proceeding>{
 		model.addAttribute("drafts",drafts);		
 		return "proceeding/revisions";
 	}
+	
+
+		
+	
+		@RequestMapping(value="/getProceedingris", method=RequestMethod.GET)
+		public  @ResponseBody MasterVO getProceedingris(final ModelMap model,
+				final HttpServletRequest request) {
+			HouseType houseType = null;
+			MasterVO masterVO1 = new MasterVO();
+			String strProceeding=request.getParameter("proceeding");
+		
+			if(strProceeding!=null && !strProceeding.isEmpty()){
+				Proceeding domain=Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
+			
+		//	if(domain.getSlot()!=null){
+				Slot slot=domain.getSlot();
+				Roster roster=slot.getRoster();
+				Session session=roster.getSession();
+				CommitteeMeeting committeeMeeting = roster.getCommitteeMeeting();
+				/****slot****/
+				model.addAttribute("slotId", domain.getSlot().getId());
+				model.addAttribute("slotName",domain.getSlot().getName());
+				masterVO1.setDisplayName(domain.getSlot().getName());
+				String startTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy HH:mm", domain.getLocale());
+				String endTime = FormaterUtil.formatDateToString(domain.getSlot().getEndTime(), "dd-MM-yyyy HH:mm", domain.getLocale());
+				request.setAttribute("slotDate", slot.getStartTime());
+				
+				model.addAttribute("slotStartTime", startTime);
+				model.addAttribute("slotEndTime", endTime);
+				String currentSlotStartDate = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy", domain.getLocale());
+				String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm", domain.getLocale());
+				model.addAttribute("currentSlotStartDate", currentSlotStartDate);
+				model.addAttribute("currenSlotStartTime", currentSlotStartTime);
+				masterVO1.setFormattedOrder(currentSlotStartDate);
+				masterVO1.setFormattedNumber(currentSlotStartTime);
+				List<User> users=Slot.findDifferentLanguageUsersBySlot(slot);
+				String languageReporter="";
+				for(int i=0;i<users.size();i++){
+					languageReporter=languageReporter+users.get(i).getFirstName();
+					if(i+1<users.size()){
+						languageReporter=languageReporter+"/";
+					}
+				}
+				
+				model.addAttribute("languageReporter", languageReporter);
+				masterVO1.setValue(languageReporter);
+				if(session!=null){
+					houseType = session.getHouse().getType();
+					model.addAttribute("session",session.getId());
+					
+					/**** Previous Slot ****/
+					Slot previousSlot = Slot.findPreviousSlot(slot);
+					List<Slot> slots = Slot.findSlotsByReporterAndRoster(slot.getRoster(), slot.getReporter());
+					List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+					for(Slot s : slots){
+						if(s.getStartTime().after(slot.getStartTime())){
+							MasterVO masterVO = new MasterVO();
+							masterVO.setName(s.getName());
+							masterVO.setType(FormaterUtil.formatDateToString(s.getStartTime(), "HH:mm", domain.getLocale()));
+							masterVO.setValue(FormaterUtil.formatDateToString(s.getEndTime(), "HH:mm", domain.getLocale()));
+							masterVOs.add(masterVO);
+						}
+					}
+					
+					model.addAttribute("nextSlots", masterVOs);
+					
+					if(previousSlot!=null){
+						Reporter previousReporter = previousSlot.getReporter();
+						User previousReporterUser = previousReporter.getUser();
+						model.addAttribute("previousReporter", previousReporterUser.getTitle() + " " +previousReporterUser.getLastName());
+						MessageResource previousReporterMessage = MessageResource.findByFieldName(MessageResource.class, "code", "part.previousReporterMessage", domain.getLocale());
+						
+						masterVO1.setName(previousReporterMessage.getValue()+previousReporterUser.getTitle() + previousReporterUser.getLastName());
+						Proceeding previousProceeding = Proceeding.findByFieldName(Proceeding.class, "slot", previousSlot, domain.getLocale());
+						if(previousProceeding != null){
+							List<Part> previousParts = previousProceeding.getParts();
+							if(!previousParts.isEmpty()){
+								/**** Last Part of previous part ****/
+								Part previousPart = previousParts.get(previousParts.size()-1);
+								model.addAttribute("previousPartMainHeading", previousPart.getMainHeading());
+								model.addAttribute("previousPartPageHeading", previousPart.getPageHeading());
+								model.addAttribute("previousPartSpecialHeading", previousPart.getSpecialHeading());
+								if(previousPart.getChairPersonRole()!=null){
+									model.addAttribute("previousPartChairPersonRole",previousPart.getChairPersonRole().getId());
+									//model.addAttribute("previousPartChairPerson", previousPart.getChairPerson());
+								}
+								if(previousPart.getDeviceType()!=null){
+									model.addAttribute("previousPartDeviceType",previousPart.getDeviceType().getId());
+									if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.QUESTION)){
+										Question question = Question.findById(Question.class, previousPart.getDeviceId());
+										model.addAttribute("previousPartDeviceId",question.getId());
+										model.addAttribute("previousPartDeviceNumber",question.getNumber());
+									}else if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.RESOLUTION)){
+										Resolution resolution = Resolution.findById(Resolution.class, previousPart.getDeviceId());
+										model.addAttribute("previousPartDeviceId",resolution.getId());
+										model.addAttribute("previousPartDeviceNumber",resolution.getNumber());
+									}
+								}
+							}
+						}
+					}
+					
+					Slot nextSlot = Slot.findNextSlot(slot);
+					if(nextSlot != null){
+						Reporter nextReporter = nextSlot.getReporter();
+						User nextReporterUser = nextReporter.getUser();
+						model.addAttribute("nextReporter", nextReporterUser.getTitle() + " " + nextReporterUser.getLastName());
+					}
+					/****Party****/
+					List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),domain.getLocale());
+					model.addAttribute("parties", parties);
+					
+					/****Ministries****/
+					List<Ministry> ministries;
+					try {
+						ministries = Ministry.findMinistriesAssignedToGroups(session.getHouse().getType(), session.getYear(), session.getType(), session.getLocale());
+						model.addAttribute("ministries", ministries);
+					} catch (ELSException e) {
+						logger.error("Ministries not assigned to Group");
+						e.printStackTrace();
+					}
+					
+					
+					
+					
+					/****Members****/
+					List<Member> members=Member.findAll(Member.class, "firstName", "asc", domain.getLocale());
+					model.addAttribute("members",members);
+					
+					/****MemberRoles****/
+					List<MemberRole> roles= new ArrayList<MemberRole>();
+					if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+						CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_LOWERHOUSE", "");
+						if(customParameter!=null){
+							String allowedMemberRoles = customParameter.getValue();
+							String strMemberRoles[] = allowedMemberRoles.split(",");
+							for(int i=0; i< strMemberRoles.length;i++){
+								MemberRole memberRole = MemberRole.findByFieldName(MemberRole.class, "type", strMemberRoles[i], domain.getLocale());
+								if(memberRole!=null){
+									roles.add(memberRole);
+								}
+							}
+						}else{
+							model.addAttribute("errorcode","allowedmemberrolesforrislowerhousenotset");
+							logger.error("Custom Parameter ALLOWED_MEMBERROLES_FOR_RIS_LOWERHOUSE not set");
+						}
+					}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+						CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE", "");
+						if(customParameter!=null){
+							String allowedMemberRoles = customParameter.getValue();
+							String strMemberRoles[] = allowedMemberRoles.split(",");
+							for(int i=0; i< strMemberRoles.length;i++){
+								MemberRole memberRole = MemberRole.findByFieldName(MemberRole.class, "type", strMemberRoles[i], domain.getLocale());
+								if(memberRole!=null){
+									roles.add(memberRole);
+								}
+							}
+						}else{
+							model.addAttribute("errorcode","allowedmemberrolesforrisupperhousenotset");
+							logger.error("Custom Parameter ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE not set");
+						}
+					}
+					
+					model.addAttribute("roles", roles);
+					
+					/****Designation****/
+					List<Designation> designations=Designation.findAll(Designation.class, "name", "asc", domain.getLocale());
+					model.addAttribute("designations",designations);
+					
+					
+					/****SubDepartments****/
+					List<SubDepartment> subDepartments=SubDepartment.findAll(SubDepartment.class, "name", "asc", domain.getLocale());
+					model.addAttribute("subDepartments",subDepartments);
+					
+					/****DeviceType****/
+					CustomParameter deviceTypesGoneLive = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_GONE_LIVE", "");
+					String strDevices = deviceTypesGoneLive.getValue();
+					String[] devTypes = strDevices.split(",");
+					List<DeviceType> deviceTypes = new ArrayList<DeviceType>();
+					for(String d : devTypes){
+						DeviceType deviceType = DeviceType.findByType(d, domain.getLocale());
+						deviceTypes.add(deviceType);
+					}
+					model.addAttribute("deviceTypes", deviceTypes);
+					
+				}else if(committeeMeeting!=null){
+					model.addAttribute("committeeMeeting",committeeMeeting.getId());
+					Committee committee = committeeMeeting.getCommittee();
+					CommitteeName committeeName = committee.getCommitteeName();
+					model.addAttribute("committeeName", committeeName.getDisplayName());
+					
+				}
+				
+			/****Parts****/
+				
+			Part part=Part.findByFieldName(Part.class,"proceeding",domain,domain.getLocale());
+			
+				
+			if(part==null){
+				part=new Part();
+				part.setProceeding(domain);
+				part.setLocale(domain.getLocale());
+				part.setReporter(domain.getSlot().getReporter());
+				part.persist();
+				masterVO1.setId(part.getId());
+			}else{
+				masterVO1.setId(part.getId());
+			}
+			
+
+			/****Proceeding Id****/
+			model.addAttribute("proceeding",domain.getId());
+					
+			/****Locale****/
+			model.addAttribute("locale",domain.getLocale());
+			
+			/***Reporter***/
+			model.addAttribute("reporter",domain.getSlot().getReporter().getId());
+			model.addAttribute("userName", this.getCurrentUser().getUsername());
+			
+			/****Undo Counts and RedoCount for Editing Functionality****/
+			model.addAttribute("undoCount", 0);
+			model.addAttribute("redoCount", 0);
+			
+			model.addAttribute("documentId",domain.getDocumentId());
+			MessageResource generalNotice = MessageResource.findByFieldName(MessageResource.class, "code", "part.generalNotice", domain.getLocale());
+			masterVO1.setType(generalNotice.getValue());
+		
+			String username = this.getCurrentUser().getActualUsername();
+			List<ProceedingAutofill> proceedingAutofills = ProceedingAutofill.
+					findAllByFieldName(ProceedingAutofill.class, "username", username, "id", "asc", domain.getLocale());
+			model.addAttribute("proceedingAutofills", proceedingAutofills);
+			
+			}
+			return masterVO1;
+
+		}
+		
+		@RequestMapping(value="/getBookmarkProceedingris", method=RequestMethod.GET)
+		public  @ResponseBody MasterVO getBookmarkProceedingris(final ModelMap model,
+				final HttpServletRequest request) {
+			HouseType houseType = null;
+			MasterVO masterVO1 = new MasterVO();
+			String strPart=request.getParameter("proceeding");
+			Part part1=Part.findById(Part.class,Long.parseLong(strPart));
+			String strProceeding=part1.getProceeding().getId().toString();
+			if(strProceeding!=null && !strProceeding.isEmpty()){
+				Proceeding domain=Proceeding.findById(Proceeding.class, Long.parseLong(strProceeding));
+			
+		//	if(domain.getSlot()!=null){
+				Slot slot=domain.getSlot();
+				Roster roster=slot.getRoster();
+				Session session=roster.getSession();
+				CommitteeMeeting committeeMeeting = roster.getCommitteeMeeting();
+				/****slot****/
+				model.addAttribute("slotId", domain.getSlot().getId());
+				model.addAttribute("slotName",domain.getSlot().getName());
+				masterVO1.setDisplayName(domain.getSlot().getName());
+				String startTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy HH:mm", domain.getLocale());
+				String endTime = FormaterUtil.formatDateToString(domain.getSlot().getEndTime(), "dd-MM-yyyy HH:mm", domain.getLocale());
+				request.setAttribute("slotDate", slot.getStartTime());
+				
+				model.addAttribute("slotStartTime", startTime);
+				model.addAttribute("slotEndTime", endTime);
+				String currentSlotStartDate = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy", domain.getLocale());
+				String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm", domain.getLocale());
+				model.addAttribute("currentSlotStartDate", currentSlotStartDate);
+				model.addAttribute("currenSlotStartTime", currentSlotStartTime);
+				masterVO1.setFormattedOrder(currentSlotStartDate);
+				masterVO1.setFormattedNumber(currentSlotStartTime);
+				List<User> users=Slot.findDifferentLanguageUsersBySlot(slot);
+				String languageReporter="";
+				for(int i=0;i<users.size();i++){
+					languageReporter=languageReporter+users.get(i).getFirstName();
+					if(i+1<users.size()){
+						languageReporter=languageReporter+"/";
+					}
+				}
+				
+				model.addAttribute("languageReporter", languageReporter);
+				masterVO1.setValue(languageReporter);
+				if(session!=null){
+					houseType = session.getHouse().getType();
+					model.addAttribute("session",session.getId());
+					
+					/**** Previous Slot ****/
+					Slot previousSlot = Slot.findPreviousSlot(slot);
+					List<Slot> slots = Slot.findSlotsByReporterAndRoster(slot.getRoster(), slot.getReporter());
+					List<MasterVO> masterVOs = new ArrayList<MasterVO>();
+					for(Slot s : slots){
+						if(s.getStartTime().after(slot.getStartTime())){
+							MasterVO masterVO = new MasterVO();
+							masterVO.setName(s.getName());
+							masterVO.setType(FormaterUtil.formatDateToString(s.getStartTime(), "HH:mm", domain.getLocale()));
+							masterVO.setValue(FormaterUtil.formatDateToString(s.getEndTime(), "HH:mm", domain.getLocale()));
+							masterVOs.add(masterVO);
+						}
+					}
+					
+					model.addAttribute("nextSlots", masterVOs);
+					
+					if(previousSlot!=null){
+						Reporter previousReporter = previousSlot.getReporter();
+						User previousReporterUser = previousReporter.getUser();
+						model.addAttribute("previousReporter", previousReporterUser.getTitle() + " " +previousReporterUser.getLastName());
+						MessageResource previousReporterMessage = MessageResource.findByFieldName(MessageResource.class, "code", "part.previousReporterMessage", domain.getLocale());
+						
+						masterVO1.setName(previousReporterMessage.getValue()+previousReporterUser.getTitle() + previousReporterUser.getLastName());
+						Proceeding previousProceeding = Proceeding.findByFieldName(Proceeding.class, "slot", previousSlot, domain.getLocale());
+						if(previousProceeding != null){
+							List<Part> previousParts = previousProceeding.getParts();
+							if(!previousParts.isEmpty()){
+								/**** Last Part of previous part ****/
+								Part previousPart = previousParts.get(previousParts.size()-1);
+								model.addAttribute("previousPartMainHeading", previousPart.getMainHeading());
+								model.addAttribute("previousPartPageHeading", previousPart.getPageHeading());
+								model.addAttribute("previousPartSpecialHeading", previousPart.getSpecialHeading());
+								if(previousPart.getChairPersonRole()!=null){
+									model.addAttribute("previousPartChairPersonRole",previousPart.getChairPersonRole().getId());
+									//model.addAttribute("previousPartChairPerson", previousPart.getChairPerson());
+								}
+								if(previousPart.getDeviceType()!=null){
+									model.addAttribute("previousPartDeviceType",previousPart.getDeviceType().getId());
+									if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.QUESTION)){
+										Question question = Question.findById(Question.class, previousPart.getDeviceId());
+										model.addAttribute("previousPartDeviceId",question.getId());
+										model.addAttribute("previousPartDeviceNumber",question.getNumber());
+									}else if(previousPart.getDeviceType().getDevice().equals(ApplicationConstants.RESOLUTION)){
+										Resolution resolution = Resolution.findById(Resolution.class, previousPart.getDeviceId());
+										model.addAttribute("previousPartDeviceId",resolution.getId());
+										model.addAttribute("previousPartDeviceNumber",resolution.getNumber());
+									}
+								}
+							}
+						}
+					}
+					
+					Slot nextSlot = Slot.findNextSlot(slot);
+					if(nextSlot != null){
+						Reporter nextReporter = nextSlot.getReporter();
+						User nextReporterUser = nextReporter.getUser();
+						model.addAttribute("nextReporter", nextReporterUser.getTitle() + " " + nextReporterUser.getLastName());
+					}
+					/****Party****/
+					List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),domain.getLocale());
+					model.addAttribute("parties", parties);
+					
+					/****Ministries****/
+					List<Ministry> ministries;
+					try {
+						ministries = Ministry.findMinistriesAssignedToGroups(session.getHouse().getType(), session.getYear(), session.getType(), session.getLocale());
+						model.addAttribute("ministries", ministries);
+					} catch (ELSException e) {
+						logger.error("Ministries not assigned to Group");
+						e.printStackTrace();
+					}
+					
+					
+					
+					
+					/****Members****/
+					List<Member> members=Member.findAll(Member.class, "firstName", "asc", domain.getLocale());
+					model.addAttribute("members",members);
+					
+					/****MemberRoles****/
+					List<MemberRole> roles= new ArrayList<MemberRole>();
+					if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+						CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_LOWERHOUSE", "");
+						if(customParameter!=null){
+							String allowedMemberRoles = customParameter.getValue();
+							String strMemberRoles[] = allowedMemberRoles.split(",");
+							for(int i=0; i< strMemberRoles.length;i++){
+								MemberRole memberRole = MemberRole.findByFieldName(MemberRole.class, "type", strMemberRoles[i], domain.getLocale());
+								if(memberRole!=null){
+									roles.add(memberRole);
+								}
+							}
+						}else{
+							model.addAttribute("errorcode","allowedmemberrolesforrislowerhousenotset");
+							logger.error("Custom Parameter ALLOWED_MEMBERROLES_FOR_RIS_LOWERHOUSE not set");
+						}
+					}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+						CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE", "");
+						if(customParameter!=null){
+							String allowedMemberRoles = customParameter.getValue();
+							String strMemberRoles[] = allowedMemberRoles.split(",");
+							for(int i=0; i< strMemberRoles.length;i++){
+								MemberRole memberRole = MemberRole.findByFieldName(MemberRole.class, "type", strMemberRoles[i], domain.getLocale());
+								if(memberRole!=null){
+									roles.add(memberRole);
+								}
+							}
+						}else{
+							model.addAttribute("errorcode","allowedmemberrolesforrisupperhousenotset");
+							logger.error("Custom Parameter ALLOWED_MEMBERROLES_FOR_RIS_UPPERHOUSE not set");
+						}
+					}
+					
+					model.addAttribute("roles", roles);
+					
+					/****Designation****/
+					List<Designation> designations=Designation.findAll(Designation.class, "name", "asc", domain.getLocale());
+					model.addAttribute("designations",designations);
+					
+					
+					/****SubDepartments****/
+					List<SubDepartment> subDepartments=SubDepartment.findAll(SubDepartment.class, "name", "asc", domain.getLocale());
+					model.addAttribute("subDepartments",subDepartments);
+					
+					/****DeviceType****/
+					CustomParameter deviceTypesGoneLive = CustomParameter.findByName(CustomParameter.class, "DEVICETYPES_GONE_LIVE", "");
+					String strDevices = deviceTypesGoneLive.getValue();
+					String[] devTypes = strDevices.split(",");
+					List<DeviceType> deviceTypes = new ArrayList<DeviceType>();
+					for(String d : devTypes){
+						DeviceType deviceType = DeviceType.findByType(d, domain.getLocale());
+						deviceTypes.add(deviceType);
+					}
+					model.addAttribute("deviceTypes", deviceTypes);
+					
+				}else if(committeeMeeting!=null){
+					model.addAttribute("committeeMeeting",committeeMeeting.getId());
+					Committee committee = committeeMeeting.getCommittee();
+					CommitteeName committeeName = committee.getCommitteeName();
+					model.addAttribute("committeeName", committeeName.getDisplayName());
+					
+				}
+				
+			/****Parts****/
+				
+			Part part=Part.findByFieldName(Part.class,"proceeding",domain,domain.getLocale());
+			
+				
+			if(part==null){
+				part=new Part();
+				part.setProceeding(domain);
+				part.setLocale(domain.getLocale());
+				part.setReporter(domain.getSlot().getReporter());
+				part.persist();
+				masterVO1.setId(part.getId());
+			}else{
+				masterVO1.setId(part.getId());
+			}
+			
+
+			/****Proceeding Id****/
+			model.addAttribute("proceeding",domain.getId());
+					
+			/****Locale****/
+			model.addAttribute("locale",domain.getLocale());
+			
+			/***Reporter***/
+			model.addAttribute("reporter",domain.getSlot().getReporter().getId());
+			model.addAttribute("userName", this.getCurrentUser().getUsername());
+			
+			/****Undo Counts and RedoCount for Editing Functionality****/
+			model.addAttribute("undoCount", 0);
+			model.addAttribute("redoCount", 0);
+			
+			model.addAttribute("documentId",domain.getDocumentId());
+			MessageResource generalNotice = MessageResource.findByFieldName(MessageResource.class, "code", "part.generalNotice", domain.getLocale());
+			masterVO1.setType(generalNotice.getValue());
+		
+			String username = this.getCurrentUser().getActualUsername();
+			List<ProceedingAutofill> proceedingAutofills = ProceedingAutofill.
+					findAllByFieldName(ProceedingAutofill.class, "username", username, "id", "asc", domain.getLocale());
+			model.addAttribute("proceedingAutofills", proceedingAutofills);
+			
+			}
+			return masterVO1;
+
+		}
 }

@@ -333,6 +333,15 @@ public class BallotController extends BaseController{
 				wordFormat.setValue("WORD");
 				outputFormats.add(wordFormat);									
 				model.addAttribute("outputFormats", outputFormats);
+				
+				CustomParameter csptHighSecurityPasswordEnabledFlag = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.HIGH_SECURITY_PASSWORD_ENABLED_FLAG, "");
+				if(csptHighSecurityPasswordEnabledFlag!=null
+						&& csptHighSecurityPasswordEnabledFlag.getValue()!=null
+						&& !csptHighSecurityPasswordEnabledFlag.getValue().isEmpty()) {
+					model.addAttribute("highSecurityPasswordEnabled", csptHighSecurityPasswordEnabledFlag.getValue());
+				} else {
+					model.addAttribute("highSecurityPasswordEnabled", "yes");
+				}
 
 				retVal = "ballot/ballotinit";
 			}

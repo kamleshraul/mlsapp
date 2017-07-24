@@ -183,12 +183,30 @@
 		}		
 		/**** double clicking record in grid handler ****/		
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
+			
+		
 			$("#selectionDiv1").hide();			
 			$("#cancelFn").val("rowDblClickHandler");			
 			$('#key').val(rowid);
 			//showTabByIdAndUrl('details_tab', 'proceeding/'+rowid+'/uploadproceeding?'+$("#gridURLParams").val());
-			showTabByIdAndUrl('details_tab', 'proceeding/' + rowid + '/edit?'
-					+ $("#gridURLParams").val());
+			showTabByIdAndUrl('details_tab', 'proceeding/'+rowid+'/edit?'+$("#gridURLParams").val());
+			
+							
+		 	 $("#selectionDiv1").hide();			
+			$("#cancelFn").val("rowDblClickHandler");			
+			$('#key').val(rowid); 
+			var params="proceeding="+$('#key').val()+
+			'&language=' + $("#selectedLanguage").val();
+			
+		
+			   
+			$.get('proceeding/getProceedingris?'+params, 
+				    function(returnedData){
+		
+			//	+""+returnedData.name+""+""+formattedNumber+""+formattedOrder+""+displayName);
+				window.open('riscust://http://172.1.0.21/els/???1.0.0???word???'+returnedData.id+'???'+returnedData.displayName+'???'+returnedData.formattedOrder +'???'+returnedData.name +'???'+returnedData.formattedNumber +'???'+returnedData.value +'???'+returnedData.type +'???',"_self");
+			}); 
+				
 		}			
 	</script>
 </head>
