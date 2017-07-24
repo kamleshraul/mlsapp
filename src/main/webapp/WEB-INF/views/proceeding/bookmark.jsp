@@ -9,6 +9,7 @@
 	var isCtrl = false;
 	var isShift = false;
 	var divCount='';
+	var countLines = 0;
 	
 	$(document).ready(function(){	
 		tinymce.remove();
@@ -18,10 +19,10 @@
 		 $("#partCount").val(1);
 		 var partCount = $("#partCount").val(); 
 		 var pCount = 22;
-		 if(countLines()>2){
+		/*  if(countLines()>2){
 			 pCount = countLines() + 20;
 			 
-		 }
+		 } */
 		 var pageCounter = parseInt("1");
 		tinyMCE.init({
 	    	  selector: 'div#bkproceedingReportDiv',
@@ -267,18 +268,23 @@
 		var size=parseInt($('#bookmarkSize').val());
 		var param="";
 		$('#slots option').each(function(){
-			if($(this).attr('selected')){
+			if($(this).attr('selected') && $(this).val()!=''){
 				var idval=$(this).val().split('##');
 				param=param+idval[0];
 				$('#masterSlot').val(param);
 			}
 		});
-		$.get('ref/bookmarktext?slot='+param,function(data){
-			$('#previousContent').val(data[0].name);
-			$("#masterPart").val(data[0].id);
-			$("#bkproceedingReportDiv").html(data[0].name);
-		}).done(function(){
-			$.get("ref/proceedingHeader?partId="+ $("#masterPart").val(),function(data){
+		var pData = '';
+ 		$.get('ref/bookmarktext?slot='+param,function(data){
+ 			if(data != null && data.length>0){
+ 				pData = data;
+ 				$('#previousContent').val(data[0].name);
+ 				$("#masterPart").val(data[0].id);
+ 			}
+			//$("#bkproceedingReportDiv").html(data[0].name);
+		}).done(function(){ 
+			if(pData != null && pData.length>0){
+				$.get("ref/proceedingHeader?partId="+ $("#masterPart").val(),function(data){
 					$("#currentSlotStartDate").html(data.value);
 					$("#slotName").html(data.name);
 					$("#languageReporter").html(data.displayName);
@@ -300,8 +306,10 @@
 						window.open('riscust://http://172.1.0.21:9090/els/???1.0.0???word???'+returnedData.id+'???'+returnedData.displayName+'???'+returnedData.formattedOrder +'???'+returnedData.name +'???'+returnedData.formattedNumber +'???'+returnedData.value +'???'+returnedData.type +'???',"_self");
 					});
 				
-			});
-		});
+				});
+			}
+
+	}); 
 	}
 	
 	function updatePart(){

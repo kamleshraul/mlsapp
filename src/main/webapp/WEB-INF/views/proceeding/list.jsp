@@ -18,6 +18,21 @@
 			border-radius: 5px;
 			height: 12px;
 		}
+		.imageLink{
+			width: 14px;
+			height: 14px;
+			box-shadow: 2px 2px 5px #000000;
+			border-radius: 5px;
+			padding: 2px;
+			border: 1px solid #000000; 
+		} 
+		
+		.imageLink:hover{
+			box-shadow: 2px 2px 5px #888888;
+			border-radius: 5px;
+			padding: 2px;
+			border: 1px solid #888888; 
+		}
 	</style>
 	<script type="text/javascript">	
 	var flagVal=0;
@@ -174,6 +189,17 @@
 				
 			 });
 			 
+			 $("#bookmark").click(function(){
+				 var  row1 = $('#key').val();
+					if (row1 == null || row1 == '') {
+						$.prompt($('#selectRowFirstMessage').val());
+						return false;
+					} else {
+						$("#selectionDiv1").hide();
+						showTabByIdAndUrl('bookmarks_tab', 'proceeding/part/bookmark?language='+$("#selectedLanguage").val()+'&currentProceeding='+ row1 +'&count=1');
+					}
+			 });
+			 
 			
 		});	
 		function rowSelectHandler(rowid,status){			
@@ -251,6 +277,7 @@
 					 	<a href="#" id="createMemberwiseReport" style="text-decoration: none;"><span id="goBtn"><spring:message code="part.memberwiseReport" text="Go" ></spring:message></span></a>
 				</div> |
 			</div>
+			<a href='javascript:void(0)'  id='bookmark' class='addBookmark'><img src='./resources/images/star_full.jpg' title='Bookmark' class='imageLink'/></a>|
 			<p>&nbsp;</p>
 		</div>
 		
