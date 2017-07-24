@@ -8,15 +8,22 @@
 			$("#error_msg").empty();
 		}		
 		$(document).ready(function() {
-			if($("#selectedHouseType").val()=='upperhouse') {
-				if($("#category").val()=='question') {
+			if($("#category").val()=='question') {			
+				if($("#selectedHouseType").val()=='lowerhouse') {
+					if($("#srole").val()=='QIS_SECTION_OFFICER' 
+							|| $("#srole").val()=='QIS_UNDER_SECRETARY'
+							|| $("#srole").val()=='QIS_UNDER_SECRETARY_COMMITTEE'
+							|| $("#srole").val()=='QIS_DEPUTY_SECRETARY') {
+						$('#yaadiDiv').show();
+					} else {
+						$('#yaadiDiv').hide();
+					}
+				} else if($("#selectedHouseType").val()=='upperhouse') {
 					if($("#srole").val()=='QIS_SECTION_OFFICER' || $("#srole").val()=='QIS_PRINCIPAL_SECRETARY') {
 						$('#yaadiDiv').show();
 					} else {
 						$('#yaadiDiv').hide();
 					}
-				} else {
-					$('#yaadiDiv').show();
 				}
 			} else {
 				$('#yaadiDiv').show();
