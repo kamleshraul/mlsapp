@@ -9646,4 +9646,26 @@ public class ReferenceController extends BaseController {
 		}
 		return actors;
 	}
+	
+	
+	@RequestMapping(value = "/isValidForNewRis", method = RequestMethod.GET)
+	public @ResponseBody Boolean isValidSlotForNewRIS(HttpServletRequest request, Locale locale){
+		Boolean valid = false;
+		String strProceedingId = request.getParameter("proceedingId");
+		if(strProceedingId != null && !strProceedingId.isEmpty()){
+			Proceeding proceeding = Proceeding.findById(Proceeding.class, Long.parseLong(strProceedingId));
+			Slot slot = proceeding.getSlot();
+			CustomParameter newRISStartDateParameter = CustomParameter.findByName(CustomParameter.class, "NEW_RIS_START_DATE", "");
+			if(newRISStartDateParameter != null){
+				String strNewRisStartDate = newRISStartDateParameter.getValue();
+				Date newRisStartDate = FormaterUtil.formatStringToDate(strNewRisStartDate, ApplicationConstants.SERVER_DATEFORMAT);
+				if(slot.getStartTime().after(newRisStartDate)){
+					valid = true;
+				}
+			}
+		}
+
+		return valid;
+	}
+
 }
