@@ -1109,11 +1109,11 @@ public class CutMotionController extends GenericController<CutMotion>{
 //		String usergroupType=request.getParameter("usergroupType");
 //		if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("assistant")){
 //			if(domain.getMinistry()==null){
-//				result.rejectValue("ministry","MinistryEmpty");
+//				result.rejectValue("ministry","CutMotion.MinistryEmpty");
 //				return;
 //			}	
 //			if(domain.getSubDepartment()==null){
-//				result.rejectValue("subDepartment","SubDepartmentEmpty");
+//				result.rejectValue("subDepartment","CutMotion.SubDepartmentEmpty");
 //				return;
 //			}	
 //		}
@@ -1162,29 +1162,29 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 				} else if(operation.equals("submit")) { /**** Submission Related Validations ****/	
 					if(domain.getAmountToBeDeducted()==null) {
-						result.rejectValue("amountToBeDeducted","amountToBeDeductedEmpty");
+						result.rejectValue("amountToBeDeducted","CutMotion.AmountToBeDeductedEmpty");
 						return;
 					}				
 					if(domain.getTotalAmoutDemanded()==null) {
-						result.rejectValue("totalAmoutDemanded","totalAmoutDemandedEmpty");
+						result.rejectValue("totalAmoutDemanded","CutMotion.TotalAmoutDemandedEmpty");
 						return;
 					}
 					if(domain.getDemandNumber()==null || domain.getDemandNumber().isEmpty()) {
-						result.rejectValue("demandNumber","demandNumberEmpty");
+						result.rejectValue("demandNumber","CutMotion.DemandNumberEmpty");
 						return;
 					}
 					if(domain.getDeviceType().getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {
 						if(domain.getItemNumber()==null) {
-							result.rejectValue("itemNumber","itemNumberEmpty");
+							result.rejectValue("itemNumber","CutMotion.ItemNumberEmpty");
 							return;
 						}
 					}
 					if(domain.getMinistry()==null){
-						result.rejectValue("ministry","MinistryEmpty");
+						result.rejectValue("ministry","CutMotion.MinistryEmpty");
 						return;
 					}		
 					if(domain.getSubDepartment()==null) {
-						result.rejectValue("subDepartment","SubDepartmentEmpty");
+						result.rejectValue("subDepartment","CutMotion.SubDepartmentEmpty");
 						return;
 					}
 					if(CutMotion.isDepartmentwiseMaximumLimitForMemberReached(domain.getSession(), domain.getPrimaryMember(), domain.getDepartment(), domain.getLocale())) {
@@ -1271,11 +1271,11 @@ public class CutMotionController extends GenericController<CutMotion>{
 //		String usergroupType=request.getParameter("usergroupType");
 //		if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("assistant")){
 //			if(domain.getMinistry()==null){
-//				result.rejectValue("ministry","MinistryEmpty");
+//				result.rejectValue("ministry","CutMotion.MinistryEmpty");
 //				return;
 //			}	
 //			if(domain.getSubDepartment()==null){
-//				result.rejectValue("subDepartment","SubDepartmentEmpty");
+//				result.rejectValue("subDepartment","CutMotion.SubDepartmentEmpty");
 //				return;
 //			}	
 //		}
@@ -1323,29 +1323,29 @@ public class CutMotionController extends GenericController<CutMotion>{
 				}
 			} else if(operation.equals("submit")) { /**** Submission Related Validations ****/			
 				if(domain.getAmountToBeDeducted()==null) {
-					result.rejectValue("amountToBeDeducted","amountToBeDeductedEmpty");
+					result.rejectValue("amountToBeDeducted","CutMotion.AmountToBeDeductedEmpty");
 					return;
 				}				
 				if(domain.getTotalAmoutDemanded()==null) {
-					result.rejectValue("totalAmoutDemanded","totalAmoutDemandedEmpty");
+					result.rejectValue("totalAmoutDemanded","CutMotion.TotalAmoutDemandedEmpty");
 					return;
 				}
 				if(domain.getDemandNumber()==null || domain.getDemandNumber().isEmpty()) {
-					result.rejectValue("demandNumber","demandNumberEmpty");
+					result.rejectValue("demandNumber","CutMotion.DemandNumberEmpty");
 					return;
 				}
 				if(domain.getDeviceType().getType().equals(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY)) {
 					if(domain.getItemNumber()==null) {
-						result.rejectValue("itemNumber","itemNumberEmpty");
+						result.rejectValue("itemNumber","CutMotion.ItemNumberEmpty");
 						return;
 					}
 				}
 				if(domain.getMinistry()==null){
-					result.rejectValue("ministry","MinistryEmpty");
+					result.rejectValue("ministry","CutMotion.MinistryEmpty");
 					return;
-				}
+				}		
 				if(domain.getSubDepartment()==null) {
-					result.rejectValue("subDepartment","SubDepartmentEmpty");
+					result.rejectValue("subDepartment","CutMotion.SubDepartmentEmpty");
 					return;
 				}
 				if(!isDateAdmitted(domain, domain.getLocale())){

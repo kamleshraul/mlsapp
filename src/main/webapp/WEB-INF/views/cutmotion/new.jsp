@@ -377,34 +377,34 @@
 				<p style="display: inline;">
 					<label class="small"><spring:message code="cutmotion.amountToBeDeducted" text="Deductible Amount"/>*</label>
 					<input name="setAmountToBeDeducted" value="${formattedAmountToBeDeducted}" type="text" class="sText"/>
-					<form:errors path="amountToBeDeducted" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+					<form:errors path="amountToBeDeducted" cssClass="validationError" />
 				</p>
 				
 				<p style="display: inline;">
 					<label class="small"><spring:message code="cutmotion.totalAmoutDemanded" text="Demanded Amount"/>*</label>
 					<input name="setTotalAmoutDemanded" type="text" class="sText" value="${formattedTotalAmoutDemanded}"/>
-					<form:errors path="totalAmoutDemanded" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+					<form:errors path="totalAmoutDemanded" cssClass="validationError" />
 				</p>
 				
 				<br />
 				<p style="display: inline;">
 					<label class="small"><spring:message code="cutmotion.pageNumber" text="Page Number"/></label>
 					<form:input path="pageNumber" cssClass="sText"/>
-					<form:errors path="pageNumber" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+					<form:errors path="pageNumber" cssClass="validationError" />
 				</p>
 
 				<c:if test="${selectedMotionType=='motions_cutmotion_supplementary'}">
 					<p style="display: inline;">
 						<label class="small"><spring:message code="cutmotion.itemNumber" text="Item Number"/>*</label>
 						<form:input path="itemNumber" cssClass="sText"/>
-						<form:errors path="itemNumber" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+						<form:errors path="itemNumber" cssClass="validationError" />
 					</p>
 				</c:if>
 				
 				<p>
 					<label class="small"><spring:message code="cutmotion.demandNumber" text="Demand Number"/>*</label>
 					<form:input path="demandNumber" cssClass="sText"/>
-					<form:errors path="demandNumber" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+					<form:errors path="demandNumber" cssClass="validationError" />
 				</p>
 				
 				<c:choose>
