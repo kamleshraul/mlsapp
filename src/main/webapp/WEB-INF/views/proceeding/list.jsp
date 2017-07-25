@@ -220,7 +220,7 @@
 						    function(returnedData){
 				
 					//	+""+returnedData.name+""+""+formattedNumber+""+formattedOrder+""+displayName);
-						window.open('riscust://http://localhost:8080/els/???1.0.0???word???'+returnedData.id+'???'+returnedData.displayName+'???'+returnedData.formattedOrder +'???'+returnedData.name +'???'+returnedData.formattedNumber +'???'+returnedData.value +'???'+returnedData.type +'???',"_self");
+						window.open('riscust://http://172.1.0.21/els/???1.0.0???word???'+returnedData.id+'???'+returnedData.displayName+'???'+returnedData.formattedOrder +'???'+returnedData.name +'???'+returnedData.formattedNumber +'???'+returnedData.value +'???'+returnedData.type +'???',"_self");
 					}); 
 				}else{
 					$("#selectionDiv1").hide();			
