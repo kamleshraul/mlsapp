@@ -173,7 +173,10 @@
 	    var params = '';
 		
 	    var valueToSend = value;
-	    if(value==sendback || value == discuss || value == sendToDepartment){
+	    if(value==sendback || value == discuss) {
+	    	$("#endFlag").val("continue");
+	    	 $("#recommendationStatus").val(value);
+	    } else if(value == sendToDepartment){
 	    	valueToSend = $("#oldInternalStatus").val();
 	    	$("#endFlag").val("continue");
 	    }else if(value == answerReceived || value == clarificationReceived || value == clarificationNotReceived) {
