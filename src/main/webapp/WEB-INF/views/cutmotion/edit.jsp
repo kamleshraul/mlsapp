@@ -421,7 +421,7 @@
 					<form:errors path="pageNumber" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 				</p>
 				
-				<c:if test="${selectedCutMotionType=='motions_cutmotion_supplementary'}">
+				<c:if test="${selectedMotionType=='motions_cutmotion_supplementary'}">
 					<p style="display: inline;">
 						<label class="small"><spring:message code="cutmotion.itemNumber" text="Item Number"/>*</label>
 						<form:input path="itemNumber" cssClass="sText"/>
