@@ -710,7 +710,7 @@ public class MotionWorkflowController extends BaseController{
 			boolean isSubDepartmentChanged = false;
 			if(!domain.getMinistry().equals(motion.getMinistry())){
 				isMinistryChanged = true;
-			}else if(!domain.getSubDepartment().equals(motion.getSubDepartment())){
+			}else if(domain.getSubDepartment()!=null && !domain.getSubDepartment().equals(motion.getSubDepartment())){
 				isSubDepartmentChanged = true;
 			}
 			
