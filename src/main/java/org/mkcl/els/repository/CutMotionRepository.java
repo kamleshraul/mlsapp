@@ -403,16 +403,25 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 			final SubDepartment subDepartment,
 			final Status status,
 			final String locale) {
-		StringBuffer strQuery = new StringBuffer("SELECT m FROM CutMotion m"
-				+ " WHERE m.session.id=:sessionId" 
-				+ " AND m.deviceType.id=:cutMotionTypeId" 
-				//+ " AND m.internalStatus.id=:internalStatusId"
-				+ " AND m.status.id=:statusId"
-				+ " AND m.subDepartment.id=:subDepartmentId"
-				+ " AND m.locale=:locale"
-				+ " ORDER BY m.internalNumber DESC");
+//		StringBuffer strQuery = new StringBuffer("SELECT m FROM CutMotion m"
+//				+ " WHERE m.session.id=:sessionId" 
+//				+ " AND m.deviceType.id=:cutMotionTypeId" 
+//				//+ " AND m.internalStatus.id=:internalStatusId"
+//				+ " AND m.status.id=:statusId"
+//				+ " AND m.department.id=(SELECT department:subDepartmentId)"
+//				+ " AND m.locale=:locale"
+//				+ " ORDER BY m.internalNumber DESC");
+				
+		StringBuffer strQuery = new StringBuffer("SELECT cm.* FROM cutmotions cm"
+				+ " WHERE cm.session_id=:sessionId" 
+				+ " AND cm.devicetype_id=:cutMotionTypeId"
+				+ " AND cm.status_id=:statusId"
+				+ " AND cm.department_id=(SELECT department_id FROM subdepartments WHERE id=:subDepartmentId)"
+				+ " AND cm.locale=:locale"
+				+ " ORDER BY cm.internal_number DESC");
 		
-		TypedQuery<CutMotion> tQuery = this.em().createQuery(strQuery.toString(), CutMotion.class);
+		@SuppressWarnings("unchecked")
+		TypedQuery<CutMotion> tQuery = (TypedQuery<CutMotion>) this.em().createNativeQuery(strQuery.toString(), CutMotion.class);
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("cutMotionTypeId", deviceType.getId());
 		tQuery.setParameter("subDepartmentId", subDepartment.getId());
@@ -442,20 +451,34 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 			final String sortOrder, 
 			final String locale) {
 		
-		StringBuffer strQuery = new StringBuffer("SELECT m FROM CutMotion m"
-				+ " WHERE m.session.id=:sessionId" 
-				+ " AND m.deviceType.id=:cutMotionTypeId" 
-				+ " AND m.locale=:locale"
-				//+ " AND m.internalStatus.id=:internalStatusId"
-				+ " AND m.status.id=:statusId"
-				+ " AND m.subDepartment.id=:subDepartmentId"
-				+ " ORDER BY m.demandNumber " + sortOrder
-				+ ", m.amountToBeDeducted " + sortOrder 
-				+ ", m.primaryMember.lastName " + sortOrder
+//		StringBuffer strQuery = new StringBuffer("SELECT m FROM CutMotion m"
+//				+ " WHERE m.session.id=:sessionId" 
+//				+ " AND m.deviceType.id=:cutMotionTypeId" 
+//				+ " AND m.locale=:locale"
+//				//+ " AND m.internalStatus.id=:internalStatusId"
+//				+ " AND m.status.id=:statusId"
+//				+ " AND m.subDepartment.id=:subDepartmentId"
+//				+ " ORDER BY m.demandNumber " + sortOrder
+//				+ ", m.amountToBeDeducted " + sortOrder 
+//				+ ", m.primaryMember.lastName " + sortOrder
+//				//+ ", m.submissionDate " + sortOrder
+//				);
+				
+		StringBuffer strQuery = new StringBuffer("SELECT cm.* FROM cutmotions cm"
+				+ " INNER JOIN members m ON (m.id=cm.member_id)" 
+				+ " WHERE cm.session_id=:sessionId" 
+				+ " AND cm.devicetype_id=:cutMotionTypeId"
+				+ " AND cm.status_id=:statusId"
+				+ " AND cm.department_id=(SELECT department_id FROM subdepartments WHERE id=:subDepartmentId)"
+				+ " AND cm.locale=:locale"
+				+ " ORDER BY cm.demand_number " + sortOrder
+				+ ", cm.amount_to_be_deducted " + sortOrder 
+				+ ", m.last_name " + sortOrder
 				//+ ", m.submissionDate " + sortOrder
 				);
 		
-		TypedQuery<CutMotion> tQuery = this.em().createQuery(strQuery.toString(), CutMotion.class);
+		@SuppressWarnings("unchecked")
+		TypedQuery<CutMotion> tQuery = (TypedQuery<CutMotion>) this.em().createNativeQuery(strQuery.toString(), CutMotion.class);
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("cutMotionTypeId", deviceType.getId());
 		tQuery.setParameter("subDepartmentId", subDepartment.getId());
