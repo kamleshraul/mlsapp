@@ -411,17 +411,24 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 //				+ " AND m.department.id=(SELECT department:subDepartmentId)"
 //				+ " AND m.locale=:locale"
 //				+ " ORDER BY m.internalNumber DESC");
-				
-		StringBuffer strQuery = new StringBuffer("SELECT cm.* FROM cutmotions cm"
-				+ " WHERE cm.session_id=:sessionId" 
-				+ " AND cm.devicetype_id=:cutMotionTypeId"
-				+ " AND cm.status_id=:statusId"
-				+ " AND cm.department_id=(SELECT department_id FROM subdepartments WHERE id=:subDepartmentId)"
-				+ " AND cm.locale=:locale"
-				+ " ORDER BY cm.internal_number DESC");
 		
+		String queryString = "";
+		org.mkcl.els.domain.Query queryDB = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "CMOIS_HIGHEST_NUMBER_BY_STATUS_DEPARTMENT_QUERY", locale);
+		if(queryDB!=null)	{
+			queryString = queryDB.getQuery();
+		} else {
+			StringBuffer strQuery = new StringBuffer("SELECT cm.* FROM cutmotions cm"
+					+ " WHERE cm.session_id=:sessionId" 
+					+ " AND cm.devicetype_id=:cutMotionTypeId"
+					+ " AND cm.status_id=:statusId"
+					+ " AND cm.department_id=(SELECT department_id FROM subdepartments WHERE id=:subDepartmentId)"
+					+ " AND cm.locale=:locale"
+					+ " ORDER BY cm.internal_number DESC");
+			
+			queryString = strQuery.toString();
+		}	
 		@SuppressWarnings("unchecked")
-		TypedQuery<CutMotion> tQuery = (TypedQuery<CutMotion>) this.em().createNativeQuery(strQuery.toString(), CutMotion.class);
+		TypedQuery<CutMotion> tQuery = (TypedQuery<CutMotion>) this.em().createNativeQuery(queryString, CutMotion.class);
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("cutMotionTypeId", deviceType.getId());
 		tQuery.setParameter("subDepartmentId", subDepartment.getId());
@@ -464,21 +471,28 @@ public class CutMotionRepository extends BaseRepository<CutMotion, Serializable>
 //				//+ ", m.submissionDate " + sortOrder
 //				);
 				
-		StringBuffer strQuery = new StringBuffer("SELECT cm.* FROM cutmotions cm"
-				+ " INNER JOIN members m ON (m.id=cm.member_id)" 
-				+ " WHERE cm.session_id=:sessionId" 
-				+ " AND cm.devicetype_id=:cutMotionTypeId"
-				+ " AND cm.status_id=:statusId"
-				+ " AND cm.department_id=(SELECT department_id FROM subdepartments WHERE id=:subDepartmentId)"
-				+ " AND cm.locale=:locale"
-				+ " ORDER BY cm.demand_number " + sortOrder
-				+ ", cm.amount_to_be_deducted " + sortOrder 
-				+ ", m.last_name " + sortOrder
-				//+ ", m.submissionDate " + sortOrder
-				);
-		
+		String queryString = "";
+		org.mkcl.els.domain.Query queryDB = org.mkcl.els.domain.Query.findByFieldName(org.mkcl.els.domain.Query.class, "keyField", "CMOIS_FINALIZED_CUTMOTIONS_BY_DEPARTMENT_QUERY", locale);
+		if(queryDB!=null)	{
+			queryString = queryDB.getQuery();
+		} else {
+			StringBuffer strQuery = new StringBuffer("SELECT cm.* FROM cutmotions cm"
+					+ " INNER JOIN members m ON (m.id=cm.member_id)" 
+					+ " WHERE cm.session_id=:sessionId" 
+					+ " AND cm.devicetype_id=:cutMotionTypeId"
+					+ " AND cm.status_id=:statusId"
+					+ " AND cm.department_id=(SELECT department_id FROM subdepartments WHERE id=:subDepartmentId)"
+					+ " AND cm.locale=:locale"
+					+ " ORDER BY cm.demand_number " + sortOrder
+					+ ", cm.amount_to_be_deducted " + sortOrder 
+					+ ", m.last_name " + sortOrder
+					//+ ", m.submissionDate " + sortOrder
+					);
+			
+			queryString = strQuery.toString();
+		}	
 		@SuppressWarnings("unchecked")
-		TypedQuery<CutMotion> tQuery = (TypedQuery<CutMotion>) this.em().createNativeQuery(strQuery.toString(), CutMotion.class);
+		TypedQuery<CutMotion> tQuery = (TypedQuery<CutMotion>) this.em().createNativeQuery(queryString, CutMotion.class);		
 		tQuery.setParameter("sessionId", session.getId());
 		tQuery.setParameter("cutMotionTypeId", deviceType.getId());
 		tQuery.setParameter("subDepartmentId", subDepartment.getId());
