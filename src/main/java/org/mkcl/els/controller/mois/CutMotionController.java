@@ -1191,10 +1191,22 @@ public class CutMotionController extends GenericController<CutMotion>{
 						result.rejectValue("version","CutMotion.DepartmentwiseMaximumLimitForMemberReached");
 						return;
 					}
-					if(!isDateAdmitted(domain, domain.getLocale())){
-						result.rejectValue("version","CutMotion.DateExpired");
-						return;
-					}
+					CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getDeviceType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG", "");
+					if(csptOfflineSubmissionAllowedFlag!=null 
+							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
+							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
+						if(!role.equals("CMOIS_TYPIST")){
+							if(!isDateAdmitted(domain, domain.getLocale())){
+								result.rejectValue("version","CutMotion.DateExpired");
+								return;
+							}
+						}
+					} else {
+						if(!isDateAdmitted(domain, domain.getLocale())){
+							result.rejectValue("version","CutMotion.DateExpired");
+							return;
+						}
+					}					
 				}
 			}
 		}
@@ -1348,9 +1360,21 @@ public class CutMotionController extends GenericController<CutMotion>{
 					result.rejectValue("subDepartment","CutMotion.SubDepartmentEmpty");
 					return;
 				}
-				if(!isDateAdmitted(domain, domain.getLocale())){
-					result.rejectValue("version","CutMotion.DateExpired");
-					return;
+				CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getDeviceType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG", "");
+				if(csptOfflineSubmissionAllowedFlag!=null 
+						&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
+						&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
+					if(!role.equals("CMOIS_TYPIST")){
+						if(!isDateAdmitted(domain, domain.getLocale())){
+							result.rejectValue("version","CutMotion.DateExpired");
+							return;
+						}
+					}
+				} else {
+					if(!isDateAdmitted(domain, domain.getLocale())){
+						result.rejectValue("version","CutMotion.DateExpired");
+						return;
+					}
 				}
 			} else if(operation.equals("startworkflow")) { /**** Start Workflow Related Validations ****/
 				String internalStatusType=domain.getInternalStatus().getType();
