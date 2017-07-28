@@ -1508,7 +1508,7 @@ public class QuestionReportController extends BaseController{
 				data.setTotalNumberOfDevices(FormaterUtil.formatNumberNoGrouping(ballotedDeviceVOs.size(), locale.toString()));
 				//generate report
 				try {
-					reportFile = generateReportUsingFOP(data, "template_questionYaadi_report", reportFormat, "starred_question_yaadi", locale.toString());
+					reportFile = generateReportUsingFOP(data, "template_questionYaadi_report_"+houseType.getType(), reportFormat, "starred_question_yaadi", locale.toString());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
