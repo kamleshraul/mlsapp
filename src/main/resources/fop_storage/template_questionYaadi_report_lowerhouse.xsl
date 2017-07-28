@@ -866,17 +866,19 @@
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                		</fo:block> -->
 			                	</fo:block>
-			                	<fo:block>_______________________________________________________________________</fo:block>
-			                	<fo:block text-align="center">
-			                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+			                	<fo:block>______________________________________________________</fo:block>
+			                	<fo:block font-size="10.5pt">
+			                		<fo:block text-align="center">
+				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+				                	</fo:block>
+				                	<fo:block></fo:block>
+					     			<fo:block text-align="center">
+					     				मुद्रण: शासकीय मध्यवर्ती मुद्रणालय, <xsl:value-of select="sessionPlace"/>.
+					     			</fo:block>
 			                	</fo:block>
-			                	<fo:block></fo:block>
-				     			<fo:block text-align="center">
-				     				मुद्रण: शासकीय मध्यवर्ती मुद्रणालय, <xsl:value-of select="sessionPlace"/>.
-				     			</fo:block>
 	                		</xsl:when>
 	                		<xsl:when test="$formatOut='WORD'">
-	                			<fo:block font-size="10pt" font-weight="bold" text-align="left">
+	                			<fo:block font-size="10.5pt" font-weight="bold" text-align="left">
 	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                					<fo:table-column column-number="1" column-width="3cm" />
 				                        <fo:table-column column-number="2" column-width="5cm" />
@@ -937,14 +939,16 @@
 			                			महाराष्ट्र&#160;<xsl:value-of select="houseType"/>
 			                		</fo:block> -->
 			                	</fo:block>
-			                	<fo:block>_______________________________________________________________________</fo:block>
-			                	<fo:block text-align="center">
-			                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
-			                	</fo:block>
-			                	<fo:block></fo:block>
-				     			<fo:block text-align="center">
-				     				मुद्रण: शासकीय मध्यवर्ती मुद्रणालय, <xsl:value-of select="sessionPlace"/>.
-				     			</fo:block>
+			                	<fo:block>______________________________________________________</fo:block>
+			                	<fo:block font-size="10.5pt">
+			                		<fo:block text-align="center">
+				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+				                	</fo:block>
+				                	<fo:block></fo:block>
+					     			<fo:block text-align="center">
+					     				मुद्रण: शासकीय मध्यवर्ती मुद्रणालय, <xsl:value-of select="sessionPlace"/>.
+					     			</fo:block>
+			                	</fo:block>			                	
 	                		</xsl:when>
 	                	</xsl:choose>	                	                		                	
 	                </fo:block>       
