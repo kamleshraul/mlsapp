@@ -628,11 +628,11 @@
 		    </fo:static-content> -->
 	
 	            <fo:flow flow-name="xsl-region-body">	
-	            	<fo:block font-family="Mangal" font-size="10.5pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
+	            	<fo:block font-family="Mangal" font-size="11pt" font-weight="normal" font-style="normal" space-after.optimum="3pt" text-align="justify">
 					    <fo:block font-size="16" font-weight="bold" text-align="center">
 							महाराष्ट्र <xsl:value-of select="houseType"/>												
 						</fo:block>
-						<fo:block font-size="12pt" font-weight="bold" text-align="center">
+						<fo:block font-size="13pt" font-weight="bold" text-align="center">
 							<xsl:choose>
 								<xsl:when test="sessionNumber = 1">
 									पहिले
@@ -741,13 +741,13 @@
 	                	<fo:block text-align="center" font-size="7pt" font-weight="bold">
 	                		-------------------------------------
 	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
-	                		<fo:block font-size="10.5pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
+	                		<fo:block font-size="11pt">प्रश्नांची एकूण संख्या - <xsl:value-of select="totalNumberOfDevices"/></fo:block>
 	                		<!-- <fo:block font-size="0pt">&#160;</fo:block> -->
 	                		-------------------------------------
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<xsl:for-each select="./deviceVOs/deviceVO" >
-	                		<fo:block text-align="center" font-size="10.5pt" font-weight="bold">
+	                		<fo:block text-align="center" font-size="11pt" font-weight="bold">
 	                			<xsl:value-of select="subject"/>
 	                		</fo:block>
 	                		<fo:block font-size="5pt">&#160;</fo:block>
@@ -805,7 +805,7 @@
 	                	<fo:block font-size="12pt">&#160;</fo:block>
 	                	<xsl:choose>
 	                		<xsl:when test="$formatOut='application/pdf'">
-	                			<fo:block font-size="10pt" font-weight="bold" text-align="left">
+	                			<fo:block font-size="10.5pt" font-weight="bold" text-align="left">
 	                				<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
 	                					<fo:table-column column-number="1" column-width="3cm" />
 				                        <fo:table-column column-number="2" column-width="5cm" />
