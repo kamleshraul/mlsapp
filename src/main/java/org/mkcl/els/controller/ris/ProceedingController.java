@@ -3987,8 +3987,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 				
 				model.addAttribute("slotStartTime", startTime);
 				model.addAttribute("slotEndTime", endTime);
-				String currentSlotStartDate = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy", domain.getLocale());
-				String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm", domain.getLocale());
+				String currentSlotStartDate = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy");
+				String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm");
 				model.addAttribute("currentSlotStartDate", currentSlotStartDate);
 				model.addAttribute("currenSlotStartTime", currentSlotStartTime);
 				masterVO1.setFormattedOrder(currentSlotStartDate);
@@ -4222,8 +4222,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 				
 				model.addAttribute("slotStartTime", startTime);
 				model.addAttribute("slotEndTime", endTime);
-				String currentSlotStartDate = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy", domain.getLocale());
-				String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm", domain.getLocale());
+				String currentSlotStartDate = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy");
+				String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm");
 				model.addAttribute("currentSlotStartDate", currentSlotStartDate);
 				model.addAttribute("currenSlotStartTime", currentSlotStartTime);
 				masterVO1.setFormattedOrder(currentSlotStartDate);
