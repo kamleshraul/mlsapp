@@ -52,6 +52,16 @@
 				 )
 			</td>
 		</tr>
+		#if($formatData.get(36)!='')
+		<tr style="font-weight: bold;">
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				संदर्भित प्रश्न 
+			</td>
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;" colspan="4";>
+				$formatData.get(38) यांचा $formatData.get(37) क्रमांक  $formatData.get(36)
+			</td>
+		</tr>
+		#end
 		#if($formatData.get(10)=='questions_starred')
 			#if($finalStatus!='अतारांकित स्वीकृत करावा' && $finalStatus!='अतारांकित करावा')
 				<tr style="font-weight: bold;">
