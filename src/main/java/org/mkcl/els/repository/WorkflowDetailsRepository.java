@@ -963,7 +963,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				" AND sessionYear=:sessionYear"+
 				" AND assignee=:assignee" +
 				" AND deviceType=:deviceType"+
-				" AND subdepartment=:subdepartment"+
+				" AND (:subdepartment='' OR :subdepartment='0' OR subdepartment=:subdepartment)"+
 				" AND locale=:locale");
 		if(file!=null&&!file.isEmpty()&&!file.equals("-")){
 			buffer.append(" AND file=:file");
