@@ -747,7 +747,7 @@
 	                	</fo:block>
 	                	<fo:block font-size="10pt">&#160;</fo:block>
 	                	<xsl:for-each select="./deviceVOs/deviceVO" >
-	                		<fo:block text-align="center" font-size="11pt" font-weight="bold">
+	                		<fo:block text-align="center" font-size="12pt" font-weight="bold">
 	                			<xsl:value-of select="subject"/>
 	                		</fo:block>
 	                		<fo:block font-size="5pt">&#160;</fo:block>
