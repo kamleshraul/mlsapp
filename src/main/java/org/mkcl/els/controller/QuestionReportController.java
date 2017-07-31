@@ -4955,9 +4955,40 @@ class QuestionReportHelper{
 			((Object[])o)[4] = FormaterUtil.formatNumbersInGivenText(details, locale);
 			((Object[])o)[5] = FormaterUtil.formatNumbersInGivenText(subject, locale);
 			((Object[])o)[6] = FormaterUtil.formatNumbersInGivenText(remarks, locale);
+			try{
+				if(question.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)){
+					Integer qNumber = new Integer(FormaterUtil.
+							getNumberFormatterNoGrouping(locale.toString()).parse(question.getHalfHourDiscusionFromQuestionReferenceNumber()).intValue());
+					Map<String, String[]> params = new HashMap<String, String[]>();
+					params.put("locale", new String[]{locale.toString()});
+					params.put("sessionId", new String[]{question.getSession().getId().toString()});
+					params.put("qNumber", new String[]{qNumber.toString()});
+					List data1 = Query.findReport("HDQ_REFER_QUESTION", params);
+					Question referredQuestion = null;
+					if(data1 != null && !data1.isEmpty()){
+						String strId = ((Object[])data1.get(0))[0].toString();
+						if(strId != null){
+							referredQuestion = Question.findById(Question.class, new Long(strId));
+						}
+					}
+					if(referredQuestion != null){
+						((Object[])o)[36] = question.getHalfHourDiscusionFromQuestionReferenceNumber();
+						((Object[])o)[37] = question.getReferenceDeviceType();
+						((Object[])o)[38] = referredQuestion.getPrimaryMember().findFirstLastName();
+						if(referredQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
+							((Object[])o)[39] = FormaterUtil.formatDateToString(referredQuestion.getDiscussionDate(), ApplicationConstants.SERVER_DATEFORMAT, locale);
+						}else{
+							((Object[])o)[41] = FormaterUtil.formatNumberNoGrouping(referredQuestion.getYaadiNumber(), locale);
+							((Object[])o)[40] = FormaterUtil.formatDateToString(referredQuestion.getYaadiLayingDate(), ApplicationConstants.SERVER_DATEFORMAT, locale);
+						}
+					}
+				}
+			}catch(Exception e){
+				logger.error("error", e);
+			}
+			
 			data = null;
 		}
-
 		return list;  
 	}
 	
