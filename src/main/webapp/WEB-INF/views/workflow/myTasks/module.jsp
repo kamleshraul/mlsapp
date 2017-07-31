@@ -485,6 +485,7 @@
 				deviceType:$("#selectedDeviceType").val(),
 				status:$("#selectedStatus").val(),
 				workflowSubType:$("#selectedSubWorkflow").val(),
+				subDepartment:$("#selectedDepartment").val(),	//departmentwise bulk for cutmotion and other department based devices
 				itemsCount:$("#selectedItemsCount").val(),
 				file:file,
 				group:$('#selectedGroup').val(),

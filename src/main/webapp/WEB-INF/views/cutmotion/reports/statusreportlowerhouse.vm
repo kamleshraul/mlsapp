@@ -47,32 +47,42 @@
 				#end				
 			</td>	
 		</tr>
-		
 		<tr style="font-weight: bold;">
-			<td style="font-size: 18px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				चर्चेचा दिनांक 
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				मागणी क्रमांक  
 			</td>
 			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				#if($formatData.get(18))
-					$formatData.get(18)
+				#if($formatData.get(28))
+					$formatData.get(28)
 				#else
 					-
-				#end
+				#end				
+			</td>	
+		</tr>	
+		<tr style="font-weight: bold;">
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				बाब क्रमांक  
+			</td>
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				#if($formatData.get(29))
+					$formatData.get(29)
+				#else
+					-
+				#end				
+			</td>	
+		</tr>	
+		<tr style="font-weight: bold;">
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				 कपात रक्कम
+			</td>
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				#if($formatData.get(30))
+					$formatData.get(30)
+				#else
+					-
+				#end				
 			</td>	
 		</tr>
-		
-		<!--<tr style="font-weight: bold;">
-			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				विभागाला पाठवण्याची दिनांक 
-			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				#if($formatData.get(19))
-					$formatData.get(19)
-				#else
-					-
-				#end
-			</td>	
-		</tr>-->
 		<tr>
 			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 				स्थिती 

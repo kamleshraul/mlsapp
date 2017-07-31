@@ -434,6 +434,21 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String strMotionType,
 			final String strStatus,
 			final String strWorkflowSubType,
+			final String strSubDepartment,
+			final String assignee,
+			final String strItemsCount,
+			final String strLocale,
+			final String file) throws ELSException {
+		return getRepository().findAll(strHouseType, strSessionType, strSessionYear, strMotionType,
+				strStatus, strWorkflowSubType, strSubDepartment, assignee, strItemsCount, strLocale, file);
+	}
+	
+	public static List<WorkflowDetails> findAll(final String strHouseType,
+			final String strSessionType,
+			final String strSessionYear,
+			final String strMotionType,
+			final String strStatus,
+			final String strWorkflowSubType,
 			final String assignee,
 			final String strItemsCount,
 			final String strLocale,

@@ -954,6 +954,55 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	@SuppressWarnings("unchecked")
 	public List<WorkflowDetails> findAll(final String strHouseType,
 			final String strSessionType,final String strSessionYear,final String strDeviceType,
+			final String strStatus,final String strWorkflowSubType,final String strSubDepartment,final String assignee,
+			final String strItemsCount,final String strLocale,final String file) throws ELSException {
+		StringBuffer buffer=new StringBuffer();
+		buffer.append("SELECT wd FROM WorkflowDetails wd" +
+				" WHERE houseType=:houseType"+
+				" AND sessionType=:sessionType" +
+				" AND sessionYear=:sessionYear"+
+				" AND assignee=:assignee" +
+				" AND deviceType=:deviceType"+
+				" AND subdepartment=:subdepartment"+
+				" AND locale=:locale");
+		if(file!=null&&!file.isEmpty()&&!file.equals("-")){
+			buffer.append(" AND file=:file");
+		}else{
+			buffer.append(" AND status=:status");
+			buffer.append(" AND workflowSubType=:workflowSubType");
+		}
+		buffer.append(" ORDER BY assignmentTime");
+		List<WorkflowDetails> workflowDetails=new ArrayList<WorkflowDetails>();
+		try{
+			Query query=this.em().createQuery(buffer.toString());
+			query.setParameter("houseType",strHouseType);
+			query.setParameter("sessionType",strSessionType);
+			query.setParameter("sessionYear",strSessionYear);
+			query.setParameter("assignee",assignee);
+			query.setParameter("deviceType",strDeviceType);
+			query.setParameter("subdepartment",strSubDepartment);
+			query.setParameter("locale",strLocale);
+			if(file!=null&&!file.isEmpty()&&!file.equals("-")){
+				query.setParameter("file",file);
+			}else{
+				query.setParameter("status",strStatus);
+				query.setParameter("workflowSubType",strWorkflowSubType);
+			}
+			query.setMaxResults(Integer.parseInt(strItemsCount));
+			workflowDetails=query.getResultList();
+			return workflowDetails;
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findAll", "WorkflowDetails Not found");
+			throw elsException;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<WorkflowDetails> findAll(final String strHouseType,
+			final String strSessionType,final String strSessionYear,final String strDeviceType,
 			final String strStatus,final String strWorkflowSubType,final String assignee,
 			final String strItemsCount,final String strLocale) throws ELSException {
 		StringBuffer buffer=new StringBuffer();

@@ -1240,6 +1240,7 @@ public class CutMotionWorkflowController extends BaseController {
 			String strMotionType = request.getParameter("deviceType");
 			String strStatus = request.getParameter("status");
 			String strWorkflowSubType = request.getParameter("workflowSubType");
+			String strSubDepartment = request.getParameter("subDepartment");
 			String strItemsCount = request.getParameter("itemsCount");
 			String strFile = request.getParameter("file");
 			String strLocale = locale.toString();
@@ -1344,7 +1345,12 @@ public class CutMotionWorkflowController extends BaseController {
 				model.addAttribute("usergroupType", strUserGroupType);
 				model.addAttribute("itemscount", strItemsCount);
 				model.addAttribute("file", strFile);
-				model.addAttribute("workflowSubType", strWorkflowSubType);
+				model.addAttribute("workflowSubType", strWorkflowSubType);	
+				if(strSubDepartment!=null && !strSubDepartment.isEmpty()) {
+					model.addAttribute("subDepartment", strSubDepartment);
+				} else {
+					model.addAttribute("subDepartment", "0");
+				}				
 			}
 			return "workflow/cutmotion/bulkapprovalinit";
 		} catch (ELSException ee) {
@@ -1581,6 +1587,8 @@ public class CutMotionWorkflowController extends BaseController {
 		String strItemsCount = request.getParameter("itemscount");
 		String strFile = request.getParameter("file");
 		String strWorkflowSubType = request.getParameter("workflowSubType");
+		String strSubDepartment = request.getParameter("subDepartment");
+		
 		String strLocale = locale.toString();
 		String assignee = this.getCurrentUser().getActualUsername();
 		if (strHouseType != null && !(strHouseType.isEmpty())
@@ -1594,13 +1602,14 @@ public class CutMotionWorkflowController extends BaseController {
 				&& strItemsCount != null && !(strItemsCount.isEmpty())
 				&& strFile != null && !(strFile.isEmpty())
 				&& strWorkflowSubType != null
-				&& !(strWorkflowSubType.isEmpty())) {
+				&& !(strWorkflowSubType.isEmpty())
+				&& strSubDepartment != null && !(strSubDepartment.isEmpty())) {
 			model.addAttribute("workflowSubType", strWorkflowSubType);
 			/**** Workflow Details ****/
 			List<WorkflowDetails> workflowDetails = new ArrayList<WorkflowDetails>();
 
 			try {
-				workflowDetails = WorkflowDetails.findAll(strHouseType, strSessionType, strSessionYear, strMotionType, strStatus, strWorkflowSubType, assignee, strItemsCount, strLocale, strFile);
+				workflowDetails = WorkflowDetails.findAll(strHouseType, strSessionType, strSessionYear, strMotionType, strStatus, strWorkflowSubType, strSubDepartment, assignee, strItemsCount, strLocale, strFile);
 			} catch (ELSException e) {
 				model.addAttribute("error", e.getParameter());
 			}

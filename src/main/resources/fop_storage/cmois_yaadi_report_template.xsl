@@ -168,7 +168,7 @@
 													</xsl:when>
 													<xsl:otherwise>
 														<xsl:choose>
-															<xsl:when test="../element_2[$rowCount -1]/element_2_5 != element_2_5">
+															<xsl:when test="../element_2[$rowCount -1]/element_2_10 != element_2_10">
 																<fo:table-row>
 																	<fo:table-cell>
 																		<fo:block>&#160;</fo:block>
@@ -177,14 +177,35 @@
 																		<fo:block>&#160;</fo:block>
 																	</fo:table-cell>
 																	<fo:table-cell margin-left="12px">
+																		<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_2"/></fo:block>
+																		<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_3"/></fo:block>
+																		<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_8"/></fo:block>
+																		<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_9"/>, रूपये:- <xsl:value-of select="element_2_4"/>/-</fo:block>
 																		<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_5"/></fo:block>																			
 																	</fo:table-cell>																				
 																</fo:table-row>
 															</xsl:when>
-															<!-- <xsl:otherwise>
-																-
-															</xsl:otherwise> -->
-														</xsl:choose>
+															<xsl:otherwise>
+																<xsl:choose>
+																	<xsl:when test="../element_2[$rowCount -1]/element_2_5 != element_2_5">
+																		<fo:table-row>
+																			<fo:table-cell>
+																				<fo:block>&#160;</fo:block>
+																			</fo:table-cell>
+																			<fo:table-cell>
+																				<fo:block>&#160;</fo:block>
+																			</fo:table-cell>
+																			<fo:table-cell margin-left="12px">
+																				<fo:block text-align="justify" font-weight="bold"><xsl:value-of select="element_2_5"/></fo:block>																			
+																			</fo:table-cell>																				
+																		</fo:table-row>
+																	</xsl:when>
+																	<!-- <xsl:otherwise>
+																		-
+																	</xsl:otherwise> -->
+																</xsl:choose>
+															</xsl:otherwise>
+														</xsl:choose>														
 													</xsl:otherwise>
 												</xsl:choose>
 												<fo:table-row>

@@ -42,6 +42,7 @@
 			 ,file:$("#apprfile").val()
 			 ,itemscount:$("#appritemscount").val()
 			 ,workflowSubType:$("#apprworkflowSubType").val()
+			 ,subDepartment:$("#apprsubDepartment").val()
 		 },function(data){
 			 $("#bulkResultDiv").empty();
 			 $("#bulkResultDiv").html(data);
@@ -217,6 +218,7 @@
 <input type="hidden" id="appritemscount" value="${itemscount }">
 <input type="hidden" id="apprfile" value="${file }">		
 <input id="apprworkflowSubType" value="${workflowSubType }" type="hidden">
+<input id="apprsubDepartment" value="${subDepartment }" type="hidden">
 <input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the motions.'></spring:message>" type="hidden">
 <input id="selectActorMsg" value="<spring:message code='client.prompt.selectactor' text='Please select the actor.'></spring:message>" type="hidden">
 <input id="pleaseSelectMessage" value="<spring:message code='client.prompt.pleaseselect' text='Please Select.'></spring:message>" type="hidden">		
