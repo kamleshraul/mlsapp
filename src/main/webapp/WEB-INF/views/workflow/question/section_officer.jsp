@@ -112,6 +112,7 @@
 	}
 	/**** load actors ****/
 	function loadActors(value){
+	
 		var valueToSend="";
 		if(value!='-'){		
 		var questionType = $("#selectedQuestionType").val();
@@ -152,6 +153,7 @@
 		var finalRejection = '';
 		var resendRevisedQuestionText = '';
 		var questionSupplmentarySendToSectionOfficer = '';
+		var clarificationNotReceivedByMember = '';
 		if(questionType == 'questions_starred') {
 			type = $("#internalStatusMaster option[value='question_processed_sendToDepartment']").text();
 			sendToMember = $("#internalStatusMaster option[value='question_processed_sendToMember']").text();
@@ -189,6 +191,7 @@
 			finalRejection = $("#internalStatusMaster option[value='question_final_rejection']").text();
 			resendRevisedQuestionText = $("#internalStatusMaster option[value='question_processed_resendRevisedQuestionTextToDepartment']").text();
 			questionSupplmentarySendToSectionOfficer = $("#internalStatusMaster option[value='question_processed_sendSupplementaryQuestionToSectionOfficer']").text();
+			clarificationNotReceivedByMember = $("#internalStatusMaster option[value='question_processed_clarificationNotReceivedFromMember']").text();
 		} else if(questionType == 'questions_unstarred') {
 			type = $("#internalStatusMaster option[value='question_unstarred_processed_sendToDepartment']").text();
 			sendToMember = $("#internalStatusMaster option[value='question_unstarred_processed_sendToMember']").text();
@@ -298,22 +301,23 @@
 			finalRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_rejection']").text();
 			resendRevisedQuestionText = $("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_resendRevisedQuestionTextToDepartment']").text();
 		}
-		
-		
+
 		if((questionType == 'questions_halfhourdiscussion_from_question') 
 				&& (value == sendBack || value == discuss)){
 			$("#endFlag").val("continue");
 		}
 		if(value == answerReceived || value == rejectedWithReason 
 			|| value == departmentIntimated ||value == clarificationReceived 
-			|| value == clarificationNotReceived) {
+			|| value == clarificationNotReceived 
+			|| value == clarificationNotReceivedByMember) {
 			$("#endFlag").val("end");
 			$("#recommendationStatus").val(value);
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			return false;
 		}else if(value == clarificationReceived 
-				|| value == clarificationNotReceived){
+				|| value == clarificationNotReceived
+				|| value == clarificationNotReceivedByMember){
 			$("#endFlag").val("end");
 			$("#recommendationStatus").val(value);
 			$("#actor").empty();
@@ -1201,8 +1205,11 @@
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load actors on page load ****/
 		if($('#workflowstatus').val()!='COMPLETED' || ($("#workflowstatus").val()=='COMPLETED' 
-				&& ($("#internalStatusType").val()=='question_final_admission' || $("#internalStatusType").val()=='question_unstarred_final_admission'
-				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromDepartment'))){
+				&& ($("#internalStatusType").val()=='question_final_admission' 
+				|| $("#internalStatusType").val()=='question_unstarred_final_admission'
+				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromDepartment'
+				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromMember'
+				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromMemberAndDepartment'))){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
@@ -1680,29 +1687,38 @@
 			</c:forEach>
 			<c:if test="${workflowstatus!='COMPLETED' or (workflowstatus=='COMPLETED' and (internalStatusType=='question_final_admission'
 					|| internalStatusType=='question_unstarred_final_admission'
-					|| internalStatusType=='question_final_clarificationNeededFromDepartment'))}">
+					|| internalStatusType=='question_final_clarificationNeededFromDepartment'
+					|| internalStatusType=='question_final_clarificationNeededFromMember'
+					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'))}">
 				<tr>
 					<td>
 						${userName}<br>
 						${userGroupName}
 					</td>
 					<td>
+						
 						<select id="changeInternalStatus" class="sSelect">
 							<c:forEach items="${internalStatuses}" var="i">
 								<c:choose>
 									<c:when test="${i.type=='question_system_groupchanged' }">
 										<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
 									</c:when>
+									<c:when test="${i.id==internalStatus }">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+<%-- 									<c:when test="${(empty domain.factualPosition || empty domain.answer) && (i.type=='question_processed_sendToDepartment' ||  i.type=='question_unstarred_processed_sendToDepartment')}">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:when test="${!(empty domain.answer) && (i.type=='question_processed_answerReceived' || i.type=='question_unstarred_processed_answerReceived')}">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:when test="${!(empty domain.factualPosition) && (i.type=='question_processed_clarificationReceived' || i.type=='question_unstarred_processed_clarificationReceived')}">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when> --%>
 									<c:otherwise>
-										<c:choose>
-											<c:when test="${i.id==internalStatus }">
-												<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-											</c:when>
-											<c:otherwise>
-												<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-											</c:otherwise>
-										</c:choose>
+										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	 
 									</c:otherwise>
+										
 								</c:choose>
 							</c:forEach>
 						</select>
@@ -1857,7 +1873,9 @@
 	
 	<c:if test="${workflowstatus!='COMPLETED' or (workflowstatus=='COMPLETED' and (internalStatusType=='question_final_admission'
 					|| internalStatusType=='question_unstarred_final_admission'
-					|| internalStatusType=='question_final_clarificationNeededFromDepartment'))}">	
+					|| internalStatusType=='question_final_clarificationNeededFromDepartment'
+					|| internalStatusType=='question_final_clarificationNeededFromMember'
+					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'))}">	
 	<p>
 	<select id="internalStatusMaster" style="display:none;">
 		<c:forEach items="${internalStatuses}" var="i">
@@ -1954,7 +1972,9 @@
 	
 	<c:if test="${workflowstatus=='COMPLETED' and (internalStatusType=='question_final_admission'
 					|| internalStatusType=='question_unstarred_final_admission'
-					|| internalStatusType=='question_final_clarificationNeededFromDepartment')}">
+					|| internalStatusType=='question_final_clarificationNeededFromDepartment'
+					|| internalStatusType=='question_final_clarificationNeededFromMember'
+					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment')}">
 		<div class="fields">
 			<h2></h2>
 			<p class="tright">		
