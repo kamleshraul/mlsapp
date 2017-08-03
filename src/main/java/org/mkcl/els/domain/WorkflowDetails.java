@@ -562,6 +562,10 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getRepository().findAllSupplementaryWorkflow(strHouseType, strSessionType, strSessionYear, strQuestionType, strStatus, strWorkflowSubType, assignee, strItemsCount, strLocale);
 	}
 
+	public static List<WorkflowDetails> findPendingWorkflowDetails(final Question question, 
+			final String workflowType) throws ELSException {
+		return getRepository().findPendingWorkflowDetails(question, workflowType);
+	}
 
 	/********************Motion*********************/
 	public static WorkflowDetails findCurrentWorkflowDetail(final Motion motion) throws ELSException {

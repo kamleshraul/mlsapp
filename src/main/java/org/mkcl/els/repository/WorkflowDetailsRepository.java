@@ -112,6 +112,34 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 		return workflowDetails;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<WorkflowDetails> findPendingWorkflowDetails(final Question question, final String workflowType) throws ELSException{
+		List<WorkflowDetails> details = new ArrayList<WorkflowDetails>();
+		try{
+			/**** To make the HDS to take the workflow with mailer task ****/
+			String strQuery="SELECT m FROM WorkflowDetails m" +
+					" WHERE m.deviceId=:deviceId"+
+					" AND m.workflowType=:workflowType" +
+					" AND m.status='PENDING'" +
+					" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("deviceId", question.getId().toString());
+			query.setParameter("workflowType",workflowType);
+			details = (List<WorkflowDetails>)query.getResultList();
+		}catch (NoResultException e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		}catch(Exception e){	
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_question", "WorkflowDetails Not Found");
+			throw elsException;
+		}		
+		
+		return details;
+	}
+	
 	public WorkflowDetails create(final Question question,final Task task,
 			final String workflowType,final String assigneeLevel) throws ELSException{
 		WorkflowDetails workflowDetails=new WorkflowDetails();
