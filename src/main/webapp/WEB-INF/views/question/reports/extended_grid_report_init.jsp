@@ -557,6 +557,7 @@
 								<td class="filter_values" id="effective_status_filter_values" hidden="true">
 									<select id="effective_status" name="effective_status" style="width: 250px; height: 25px;">
 										<option value="submit"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.${questionTypeType}.submit" text="Just Submitted"/></option>
+										<option value="assistant_processed"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.${questionTypeType}.assistant_processed" text="Assistant Processed"/></option>
 										<option value="final_admission"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.${questionTypeType}.final_admission" text="Admitted"/></option>
 										<option value="final_rejection"><spring:message code="extended_grid_report.effective_status_filter.effective_status_filter_values.${questionTypeType}.final_rejection" text="Rejected"/></option>
 										<c:if test="${questionTypeType=='questions_starred' || questionTypeType=='questions_shortnotice'}">
