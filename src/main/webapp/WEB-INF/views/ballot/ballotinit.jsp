@@ -404,6 +404,21 @@
 			});
 			
 			$("#view_yaadi").click(function(){
+				/* var isYaadiOfAnsweringDateRestrictedForBallotPrivacy = false;
+				if($('#deviceType').val()=='questions_starred') {
+					var restrictedAnsweringDateIds = "2620,2623,2626,2631,2634,2602,2606,2609,2613,2616".split(",");
+					for(var i=0; i<restrictedAnsweringDateIds.length; i++) {
+						if(isYaadiOfAnsweringDateRestrictedForBallotPrivacy!=true) {
+							if($('#selectedAnsweringDate').val()==restrictedAnsweringDateIds[i]) {
+								isYaadiOfAnsweringDateRestrictedForBallotPrivacy = true;
+							}
+						}						
+					}					
+				}
+				if(isYaadiOfAnsweringDateRestrictedForBallotPrivacy==true) {
+					$.prompt("Restricted for Today's Ballot Privacy!");
+					return false;
+				} */
 				var resourceURL="";
 				var parameters="";
 				if($("#category").val()=='question'){
@@ -446,6 +461,21 @@
 				}
 			});			
 			$("#view_suchi").click(function(){
+				/* var isYaadiOfAnsweringDateRestrictedForBallotPrivacy = false;
+				if($('#deviceType').val()=='questions_starred') {
+					var restrictedAnsweringDateIds = "2620,2623,2626,2631,2634,2602,2606,2609,2613,2616".split(",");
+					for(var i=0; i<restrictedAnsweringDateIds.length; i++) {
+						if(isYaadiOfAnsweringDateRestrictedForBallotPrivacy!=true) {
+							if($('#selectedAnsweringDate').val()==restrictedAnsweringDateIds[i]) {
+								isYaadiOfAnsweringDateRestrictedForBallotPrivacy = true;
+							}
+						}						
+					}					
+				}
+				if(isYaadiOfAnsweringDateRestrictedForBallotPrivacy==true) {
+					$.prompt("Restricted for Today's Ballot Privacy!");
+					return false;
+				} */
 				var resourceURL="";
 				var parameters="";
 				if($("#category").val()=='question'){
@@ -838,20 +868,20 @@
 				<a href="#" id="update_yaadi" class="butSim">
 					<spring:message code="ballotinitial.updateyaadi" text="Update Questions in Yaadi"/>
 				</a> |
-				<a href="#" id="view_yaadi" class="butSim">
+				<%-- <a href="#" id="view_yaadi" class="butSim">
 					<spring:message code="ballotinitial.viewyaadi" text="View Yaadi"/>
 				</a> | 
 				<a href="#" id="view_suchi" class="butSim">
 					<spring:message code="ballotinitial.viewsuchi" text="View Suchi"/>
-				</a>				
-				<c:if test="${not empty outputFormats}">				
+				</a> --%>				
+				<%-- <c:if test="${not empty outputFormats}">				
 					<select id="outputFormat" name="outputFormat">
 						<option value="" selected="selected">Please Select Output Format</option>
 						<c:forEach items="${outputFormats}" var="i">
 							<option value="${i.value}">${i.name}</option>
 						</c:forEach>
 					</select>				
-				</c:if>		
+				</c:if> --%>		
 				</span>		
 				<hr/>			
 			</c:if>
