@@ -314,7 +314,7 @@
 					$("#internalStatus").val($("#oldInternalStatus").val());
 				}
 				$("#recommendationStatus").val($("#changeInternalStatus").val());
-			}
+			}			
 		}).fail(function(){
 			if($("#actorDiv").css("display")=='block'){
 				$("#actorDiv").hide();
@@ -331,27 +331,7 @@
 			$("#actorDiv").hide();
 			$("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
-		}
-		
-		var valueType = '';
-		if(value != putUpForDateApproval && value != sendToSectionOfficer && value != resendToSectionOfficer
-				&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
-				&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
-				&& value != admitDueToReverseClubbingRecommendApprove){
-				valueType = value;
-			}else{
-				valueType = $("#internalStatus").val();
-		}
-		if(valueType == recommendRejection || (valueType!='' && valueType == finalRejection)){
-	    	if($("#copyOfRejectionReason").val()!=''){
-	    		$("#rejectionReason").val($("#copyOfRejectionReason").val());
-	    	}
-	    	$("#rejectionReasonP").css("display","block");
-	    }else{
-	    	$("#rejectionReasonP").css("display","none");
-	    	$("#copyOfRejectionReason").val($("#rejectionReason").val());
-	    	$("#rejectionReason").val("");
-	   }
+		}	
 	}
 	/**** group changed ****/
 	function groupChanged(){
@@ -563,6 +543,19 @@
 		
 		$('#questionsAskedInThisFactualPosition').multiSelect();
 		$("#questionsAskedInThisFactualPositionForMember").multiSelect();
+		
+		/** Show/Hide Rejection Reason for Rejected Question **/
+		if($('#internalStatusType').val()=='question_recommend_rejection'
+				|| $('#internalStatusType').val()=='question_final_rejection'){
+			/* if($("#copyOfRejectionReason").val()!=''){
+	    		$("#rejectionReason").val($("#copyOfRejectionReason").val());
+	    	} */
+	    	$("#rejectionReasonP").css("display","block");
+	    }else{
+	    	$("#rejectionReasonP").css("display","none");
+	    	/* $("#copyOfRejectionReason").val($("#rejectionReason").val());
+	    	$("#rejectionReason").val(""); */
+	   }
 		
 		/*******Actor changes*************/
 		$("#actor").change(function(){
@@ -1429,7 +1422,7 @@
 			</p>
 		</c:when>
 		<c:otherwise>
-			<p id="rejectionReasonP" style="display:none;">
+			<p id="rejectionReasonP">
 				<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
 				<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
 			</p>
