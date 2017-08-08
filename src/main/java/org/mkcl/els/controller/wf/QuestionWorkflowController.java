@@ -393,7 +393,11 @@ public class QuestionWorkflowController  extends BaseController{
 		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
 				&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)
 				&& (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-						|| (workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)))){
+						|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+						|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))){
 			boolClarificationNotReceived = true;
 		}
 		/**** In case of bulk edit we can update only few parameters ****/
@@ -2065,7 +2069,8 @@ public class QuestionWorkflowController  extends BaseController{
 											||workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT))){
 								endflag = "continue";
 							}else if(boolClarificationStatus && workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
-								endflag = "end";
+								endflag = "continue";
+								//Do Nothing
 							}else{
 								if(workflowDetails.getWorkflowType().equals(ApplicationConstants.NAMECLUBBING_WORKFLOW)) {
 									endflag = endFlagForCurrentWorkflow;
@@ -2240,13 +2245,13 @@ public class QuestionWorkflowController  extends BaseController{
 										}				
 									}else if(boolClarificationStatus){
 										/**** Process Started and task created ****/
-										WorkflowDetails pendingWorkflow = WorkflowDetails.findCurrentWorkflowDetail(question);
-										if(pendingWorkflow != null){
-											Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
+										List<WorkflowDetails> pendingWorkflows = WorkflowDetails.findPendingWorkflowDetails(domain, workflowDetails.getWorkflowType());
+										for(WorkflowDetails wd : pendingWorkflows){
+											Task prevTask = processService.findTaskById(wd.getTaskId());
 											processService.completeTask(prevTask, properties);
-											pendingWorkflow.setStatus("TIMEOUT");
-											pendingWorkflow.setCompletionTime(new Date());
-											pendingWorkflow.merge();
+											wd.setStatus("TIMEOUT");
+											wd.setCompletionTime(new Date());
+											wd.merge();
 										}
 									}
 	
@@ -2982,7 +2987,7 @@ public class QuestionWorkflowController  extends BaseController{
 		}
 		/**** Clarification not received From Member ****/
 		else if(internalStatus.startsWith(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+				&&recommendationStatus.startsWith(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER)){
 			performActionOnStarredClarificationNotReceived(domain);
 		}
 		/**** Clarification received FROM Member ****/
@@ -2999,6 +3004,11 @@ public class QuestionWorkflowController  extends BaseController{
 		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
 				&& recommendationStatus.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATIONRECEIVED)){
 			performActionOnStarredClarificationReceived(domain);
+		}
+		/**** Clarification received FROM Member & Department ****/
+		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
+				&& recommendationStatus.equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)){
+			performActionOnStarredClarificationNotReceived(domain);
 		}
 		/**** Clubbing is approved ****/
 		else if(internalStatus.equals(ApplicationConstants.QUESTION_FINAL_CLUBBING)&&
