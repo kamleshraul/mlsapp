@@ -2629,4 +2629,6 @@ public class ApplicationConstants {
 	public static String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODESKOFFICER = "question_processed_sendSupplementaryQuestionToDeskOfficer";
 	
 	public static final String HIGH_SECURITY_PASSWORD_ENABLED_FLAG="HIGH_SECURITY_PASSWORD_ENABLED_FLAG";
+	
+	public static final String QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER = "question_processed_clarificationNotReceivedFromMember";
 }
