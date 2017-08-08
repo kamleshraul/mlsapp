@@ -2547,8 +2547,8 @@ public class QuestionWorkflowController  extends BaseController{
 					wfDetails.setStatus("COMPLETED");
 					wfDetails.setCompletionTime(new Date());
 					/**** In case of Supporting Member Approval Status should reflect member's actions ****/
-					wfDetails.setInternalStatus(status.getName());
-					wfDetails.setRecommendationStatus(status.getName());
+					wfDetails.setDecisionInternalStatus(status.getName());
+					wfDetails.setDecisionRecommendStatus(status.getName());
 					wfDetails.merge();					
 				}else{
 					Long id = Long.parseLong(i);
@@ -2602,7 +2602,9 @@ public class QuestionWorkflowController  extends BaseController{
 								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
 								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
 								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)
-								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_RECIEVED)){
+								&& !status.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_RECIEVED)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+								&& !status.getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)){
 									question.setInternalStatus(status);
 									question.setRecommendationStatus(status);
 									question.setEndFlag("continue");
@@ -2615,6 +2617,14 @@ public class QuestionWorkflowController  extends BaseController{
 									question.setActor(null);
 									question.setLevel(null);
 									question.setLocalizedActorName(null);
+								}else if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+											|| status.getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+									Status unstarredAdmitStatus = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION, locale.toString());
+									DeviceType unstarredDeviceType = DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION, locale.toString());
+									question.setInternalStatus(unstarredAdmitStatus);
+									question.setType(unstarredDeviceType);
+									question.setRecommendationStatus(status);
+									question.setEndFlag("continue");
 								}else{
 									question.setRecommendationStatus(status);
 									question.setEndFlag("continue");
@@ -2742,8 +2752,8 @@ public class QuestionWorkflowController  extends BaseController{
 							}
 							/**** Update Old Workflow Details ****/
 							wfDetails.setStatus("COMPLETED");
-							wfDetails.setInternalStatus(question.getInternalStatus().getName());
-							wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
+//							wfDetails.setInternalStatus(question.getInternalStatus().getName());
+//							wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
 							wfDetails.setCompletionTime(new Date());
 							if(!question.getType().getType().startsWith("questions_halfhourdiscussion_") 
 							&& !question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
