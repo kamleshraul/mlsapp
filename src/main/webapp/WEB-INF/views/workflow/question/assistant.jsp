@@ -546,7 +546,13 @@
 		
 		/** Show/Hide Rejection Reason for Rejected Question **/
 		if($('#internalStatusType').val()=='question_recommend_rejection'
-				|| $('#internalStatusType').val()=='question_final_rejection'){
+				|| $('#internalStatusType').val()=='question_final_rejection'
+				|| $('#internalStatusType').val()=='question_unstarred_recommend_rejection'
+				|| $('#internalStatusType').val()=='question_unstarred_final_rejection'
+				|| $('#internalStatusType').val()=='question_shortnotice_recommend_rejection'
+				|| $('#internalStatusType').val()=='question_shortnotice_final_rejection'
+				|| $('#internalStatusType').val()=='question_halfHourFromQuestion_recommend_rejection'
+				|| $('#internalStatusType').val()=='question_halfHourFromQuestion_final_rejection'){
 			/* if($("#copyOfRejectionReason").val()!=''){
 	    		$("#rejectionReason").val($("#copyOfRejectionReason").val());
 	    	} */
