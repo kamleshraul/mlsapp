@@ -567,26 +567,27 @@ public class QuestionWorkflowController  extends BaseController{
 				}					
 			}
 			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+				/** Set Last Date of Answer Receiving from Department **/
 				Date lastDateOfAnswerReceiving = null;
-				if(domain.getLastDateOfAnswerReceiving()!=null) {
-					lastDateOfAnswerReceiving = domain.getLastDateOfAnswerReceiving();
+				if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+						&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+						&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTOSECTIONOFFICER)) {
+					
+					String daysCountForReceivingAnswerFromDepartment = "30";
+					CustomParameter csptDaysCountForReceivingAnswerFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
+					if(csptDaysCountForReceivingAnswerFromDepartment!=null
+							&& csptDaysCountForReceivingAnswerFromDepartment.getValue()!=null) {
+						daysCountForReceivingAnswerFromDepartment = csptDaysCountForReceivingAnswerFromDepartment.getValue();
+					}
+					if(domain.getAnswerRequestedDate()!=null) {
+						lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(domain.getAnswerRequestedDate(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale);
+					} else {
+						lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(new Date(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale);
+					}
+					domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
 				} else {
-					if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
-							&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
-							&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTOSECTIONOFFICER)) {
-						
-						String daysCountForReceivingAnswerFromDepartment = "30";
-						CustomParameter csptDaysCountForReceivingAnswerFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
-						if(csptDaysCountForReceivingAnswerFromDepartment!=null
-								&& csptDaysCountForReceivingAnswerFromDepartment.getValue()!=null) {
-							daysCountForReceivingAnswerFromDepartment = csptDaysCountForReceivingAnswerFromDepartment.getValue();
-						}
-						if(domain.getAnswerRequestedDate()!=null) {
-							lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(domain.getAnswerRequestedDate(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale);
-						} else {
-							lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(new Date(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale);
-						}
-						domain.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
+					if(domain.getLastDateOfAnswerReceiving()!=null) {
+						lastDateOfAnswerReceiving = domain.getLastDateOfAnswerReceiving();
 					}
 				}
 				if(lastDateOfAnswerReceiving!=null) {

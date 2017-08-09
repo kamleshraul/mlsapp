@@ -486,24 +486,32 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 					}
 				}
 
-				if(question.getMinistry() != null) {
-					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && params.get(ApplicationConstants.MINISTRY_KEY + "_" + locale).contains(
-							question.getMinistry().getName())) {
+				if(question.getMinistry()!=null){							
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).isEmpty()){
+						String[] allowedMinistries = params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).split("##");
+						for(int k=0; k<allowedMinistries.length; k++) {
+							if(allowedMinistries[k].equals(question.getMinistry().getName())) {										
+								noOfSuccess++;
+								break;
+							}
+						}
 						noOfComparisons++;
-						noOfSuccess++;
-					}
-					else {
+					}else{
 						noOfComparisons++;
 					}
 				}
-
-				if(question.getSubDepartment() != null) {
-					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale).contains(
-							question.getSubDepartment().getName())) {
+				
+				if(question.getSubDepartment()!=null){
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).isEmpty()){
+						String[] allowedSubdepartments = params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).split("##");
+						for(int k=0; k<allowedSubdepartments.length; k++) {
+							if(allowedSubdepartments[k].equals(question.getSubDepartment().getName())) {										
+								noOfSuccess++;
+								break;
+							}
+						}
 						noOfComparisons++;
-						noOfSuccess++;
-					}
-					else {
+					}else{
 						noOfComparisons++;
 					}
 				}
