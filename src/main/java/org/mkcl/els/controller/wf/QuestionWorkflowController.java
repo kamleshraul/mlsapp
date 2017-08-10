@@ -2622,6 +2622,7 @@ public class QuestionWorkflowController  extends BaseController{
 											|| status.getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
 									Status unstarredAdmitStatus = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION, locale.toString());
 									DeviceType unstarredDeviceType = DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION, locale.toString());
+									question.setStatus(unstarredAdmitStatus);
 									question.setInternalStatus(unstarredAdmitStatus);
 									question.setType(unstarredDeviceType);
 									question.setRecommendationStatus(status);
