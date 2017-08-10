@@ -86,6 +86,9 @@
 		$("#selectedHouseType").change(function() {
 			var value = $(this).val();
 			if (value != "") {
+				if($("#currentusergroupType").val()=='member') {
+					updateVisibilityForMemberQuestionsViewLinks();
+				}
 				if($("#currentusergroupType").val()!='member' && $("#currentusergroupType").val()!='typist'){
 					loadGroupsFromSessions();
 				}
@@ -102,6 +105,9 @@
 			/* $('#questionDepartment').hide();
 			$('#subDepartment').val(""); */
 			if (value != "") {
+				if($("#currentusergroupType").val()=='member') {
+					updateVisibilityForMemberQuestionsViewLinks();
+				}
 				if($("#currentusergroupType").val()!='member' && $("#currentusergroupType").val()!='typist'){
 					loadGroupsFromSessions();
 				}
@@ -115,6 +121,9 @@
 			/* $('#questionDepartment').hide();
 			$('#subDepartment').val(""); */
 			if (value != "") {
+				if($("#currentusergroupType").val()=='member') {
+					updateVisibilityForMemberQuestionsViewLinks();
+				}
 				if($("#currentusergroupType").val()!='member' && $("#currentusergroupType").val()!='typist'){
 					loadGroupsFromSessions();
 				}
@@ -414,6 +423,75 @@
 					});
 		}
 		reloadQuestionGrid();
+	}
+	
+	function updateVisibilityForMemberQuestionsViewLinks() {
+		//reset visibility related flags and links
+		$('#member_questions_view_status_flag').val("");
+		$('#member_admitted_questions_view_flag').val("");
+		$('#member_admitted_questions_view_span').hide();
+		$('#member_rejected_questions_view_flag').val("");
+		$('#member_rejected_questions_view_span').hide();
+		$('#member_unstarred_questions_view_flag').val("");	
+		$('#member_unstarred_questions_view_span').hide();
+		
+		params = "houseType=" + $('#selectedHouseType').val()
+		+ '&sessionYear=' + $("#selectedSessionYear").val()
+		+ '&sessionType=' + $("#selectedSessionType").val()
+		$.get('ref/loadVisibilityFlagsForMemberQuestionsView?' + params, function(data) {
+			if (data.length > 0) {
+				var text = "";
+				for ( var i = 0; i < data.length; i++) {
+					text += "<option value='"+data[i].id+"'>"
+							+ data[i].name + "</option>";
+					if(data[i].name=='member_questions_view_status_flag') {
+						if(data[i].value=='status_visible') {
+							$('#member_questions_view_status_flag').val('status_visible');
+						}
+						
+					} else if(data[i].name=='member_admitted_questions_view_flag') {
+						if(data[i].value=='admitted_visible') {
+							$('#member_admitted_questions_view_flag').val('admitted_visible');
+							$('#member_admitted_questions_view_span').show();
+						}
+						
+					} else if(data[i].name=='member_rejected_questions_view_flag') {
+						if(data[i].value=='rejected_visible') {
+							$('#member_rejected_questions_view_flag').val('rejected_visible');
+							$('#member_rejected_questions_view_span').show();
+						}
+						
+					} else if(data[i].name=='member_unstarred_questions_view_flag') {
+						if(data[i].value=='unstarred_visible') {
+							$('#member_unstarred_questions_view_flag').val('unstarred_visible');
+							$('#member_unstarred_questions_view_span').show();
+						}						
+					}
+				}
+			}
+		}).fail(function() {
+			//reset visibility related flags and links
+			$('#member_questions_view_status_flag').val("");
+			$('#member_admitted_questions_view_flag').val("");
+			$('#member_admitted_questions_view_span').hide();
+			$('#member_rejected_questions_view_flag').val("");
+			$('#member_rejected_questions_view_span').hide();
+			$('#member_unstarred_questions_view_flag').val("");	
+			$('#member_unstarred_questions_view_span').hide();
+			
+			if ($("#ErrorMsg").val() != '') {
+				$("#error_p").html($("#ErrorMsg").val()).css({
+					'color' : 'red',
+					'display' : 'block'
+				});
+			} else {
+				$("#error_p").html("Error occured contact for support.").css({
+					'color' : 'red',
+					'display' : 'block'
+				});
+			}
+			scrollTop();
+		});
 	}
 
 	/**** displaying grid ****/
