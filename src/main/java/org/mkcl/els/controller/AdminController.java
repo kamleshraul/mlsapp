@@ -25,6 +25,7 @@ import org.mkcl.els.domain.CutMotionDepartmentDatePriority;
 import org.mkcl.els.domain.CutMotionDraft;
 import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Query;
@@ -826,6 +827,44 @@ public class AdminController extends BaseController {
 			e.printStackTrace();
 			return "ERROR";
 		}		
+		return "SUCCESS";
+	}
+	
+	@Transactional
+	@RequestMapping(value="set_lastAnswerReceivingDateFromDepartment_for_unstarred_questions/id/{ids}", method=RequestMethod.GET)
+	public @ResponseBody String setLastAnswerReceivingDateFromDepartmentForUnstarredQuestions(@PathVariable("ids") final String deviceIds, final HttpServletRequest request, final Locale appLocale) {
+		
+		try {
+			String locale = appLocale.toString();
+			
+			String[] deviceIdArr = deviceIds.split(",");
+			
+			for(String deviceId: deviceIdArr) {
+				/** Set Last Date of Answer Receiving from Department **/				
+				Question question = Question.findById(Question.class, Long.parseLong(deviceId));
+				if(question!=null) {
+					Date lastDateOfAnswerReceiving = null;
+					String daysCountForReceivingAnswerFromDepartment = "30";
+					CustomParameter csptDaysCountForReceivingAnswerFromDepartment = CustomParameter.findByName(CustomParameter.class, question.getType().getType().toUpperCase()+"_"+question.getHouseType().getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
+					if(csptDaysCountForReceivingAnswerFromDepartment!=null
+							&& csptDaysCountForReceivingAnswerFromDepartment.getValue()!=null) {
+						daysCountForReceivingAnswerFromDepartment = csptDaysCountForReceivingAnswerFromDepartment.getValue();
+					}
+					if(question.getAnswerRequestedDate()!=null) {
+						lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(question.getAnswerRequestedDate(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale);
+					} else {
+						lastDateOfAnswerReceiving = Holiday.getNextWorkingDateFrom(new Date(), Integer.parseInt(daysCountForReceivingAnswerFromDepartment), locale);
+					}
+					question.setLastDateOfAnswerReceiving(lastDateOfAnswerReceiving);
+					question.simpleMerge();
+				}				
+			}		
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+		}
+		
 		return "SUCCESS";
 	}
 	

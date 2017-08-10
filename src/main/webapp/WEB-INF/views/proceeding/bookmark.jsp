@@ -301,12 +301,12 @@
 					   
 					$.get('proceeding/getBookmarkProceedingris?'+params, 
 						    function(returnedData){
-						  var loc = window.location;
-						    var pathName = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') );
-						    var MLSurl=loc.href.substring(0, loc.href.length - ((loc.pathname + loc.search + loc.hash).length - pathName.length))
+						//  var loc = window.location;
+						//    var pathName = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') );
+						//    var MLSurl=loc.href.substring(0, loc.href.length - ((loc.pathname + loc.search + loc.hash).length - pathName.length))
 
 					//	+""+returnedData.name+""+""+formattedNumber+""+formattedOrder+""+displayName);
-						window.open('riscust://'+MLSurl+'???1.0.0???word???'+returnedData.id+'???'+returnedData.displayName+'???'+returnedData.formattedOrder +'???'+returnedData.name +'???'+returnedData.formattedNumber +'???'+returnedData.value +'???'+returnedData.type +'???',"_self");
+						window.open('riscust://http://172.1.0.21/els/???1.0.0???word???'+returnedData.id+'???'+returnedData.displayName+'???'+returnedData.formattedOrder +'???'+returnedData.name +'???'+returnedData.formattedNumber +'???'+returnedData.value +'???'+returnedData.type +'???',"_self");
 					});
 				
 				});
