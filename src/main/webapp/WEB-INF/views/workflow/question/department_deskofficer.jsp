@@ -1467,10 +1467,10 @@
 	
 	<c:choose>
 		<c:when test="${workflowstatus=='COMPLETED' and 
-		(internalStatusType != 'question_final_clarificationNeededFromDepartment' and
-		 internalStatusType != 'question_unstarred_final_clarificationNeededFromDepartment' and
-		 internalStatusType != 'question_shortnotice_final_clarificationNeededFromDepartment' and
-		 internalStatusType != 'question_halfHourFromQuestion_final_clarificationNeededFromDepartment')}">
+		(workflowSubType != 'question_final_clarificationNeededFromDepartment' and
+		 workflowSubType != 'question_unstarred_final_clarificationNeededFromDepartment' and
+		 workflowSubType != 'question_shortnotice_final_clarificationNeededFromDepartment' and
+		 workflowSubType != 'question_halfHourFromQuestion_final_clarificationNeededFromDepartment')}">
 			<p id="answerP">
 				<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 				<form:textarea path="answer" cssClass="wysiwyg" readonly="true"></form:textarea>
@@ -1478,10 +1478,10 @@
 			</p>
 		</c:when>
 		<c:otherwise>
-			<c:if test="${internalStatusType != 'question_final_clarificationNeededFromDepartment' and
-						 internalStatusType != 'question_unstarred_final_clarificationNeededFromDepartment' and
-						 internalStatusType != 'question_shortnotice_final_clarificationNeededFromDepartment' and
-						 internalStatusType != 'question_halfHourFromQuestion_final_clarificationNeededFromDepartment'}">
+			<c:if test="${workflowSubType != 'question_final_clarificationNeededFromDepartment' and
+						 workflowSubType != 'question_unstarred_final_clarificationNeededFromDepartment' and
+						 workflowSubType != 'question_shortnotice_final_clarificationNeededFromDepartment' and
+						 workflowSubType != 'question_halfHourFromQuestion_final_clarificationNeededFromDepartment'}">
 				<p id="answerP">
 					<label class="wysiwyglabel"><spring:message code="question.answer" text="Answer"/></label>
 					<form:textarea path="answer" cssClass="wysiwyg"></form:textarea>
@@ -1524,8 +1524,9 @@
 			</p>
 		</c:when>
 		<c:otherwise>
-			<c:if test="${fn:contains(internalStatusType, 'final_clarificationNeededFromDepartment')
-						|| fn:contains(internalStatusType, 'final_clarificationNeededFromMemberAndDepartment')}">
+			<c:if test="${fn:contains(workflowSubType, 'final_clarificationNeededFromDepartment')
+						|| fn:contains(workflowSubType, 'final_clarificationNeededFromMemberAndDepartment')}">
+				<div id="factualP">
 				<p>
 					<label class="wysiwyglabel"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
 					<textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${formattedQuestionsAskedInFactualPosition}</textarea>
@@ -1542,6 +1543,7 @@
 				<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
 				<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 				</p>
+				</div>
 			</c:if>
 		</c:otherwise>
 	</c:choose>
