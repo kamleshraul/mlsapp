@@ -2620,11 +2620,13 @@ public class QuestionWorkflowController  extends BaseController{
 									question.setLocalizedActorName(null);
 								}else if(status.getType().equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
 											|| status.getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
-									Status unstarredAdmitStatus = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION, locale.toString());
 									DeviceType unstarredDeviceType = DeviceType.findByType(ApplicationConstants.UNSTARRED_QUESTION, locale.toString());
+									question.setType(unstarredDeviceType);
+									
+									Status unstarredAdmitStatus = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION, locale.toString());									
 									question.setStatus(unstarredAdmitStatus);
 									question.setInternalStatus(unstarredAdmitStatus);
-									question.setType(unstarredDeviceType);
+									
 									question.setRecommendationStatus(status);
 									question.setEndFlag("continue");
 								}else{
@@ -3624,7 +3626,8 @@ public class QuestionWorkflowController  extends BaseController{
 		String recommendationStatus = domain.getRecommendationStatus().getType();
 		/**** Admission ****/
 		if(internalStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
-				&& recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)){
+				&& (recommendationStatus.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+					|| recommendationStatus.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT))){
 			performActionOnUnstarredAdmission(domain);
 		}		
 		/**** Rejection ****/
