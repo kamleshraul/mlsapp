@@ -1583,12 +1583,12 @@
 				</p>
 			</c:when>
 			<c:otherwise>
-				<%-- <c:if test="${fn:endsWith(internalStatusType, '_final_rejection')}"> --%>
-				<p id="rejectionReasonP" style="display:none;">
+				<c:if test="${fn:endsWith(internalStatusType, '_final_rejection')}">
+				<p id="rejectionReasonP">
 					<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
 					<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
 				</p>
-				<%-- </c:if>	 --%>			
+				</c:if>	
 			</c:otherwise>
 		</c:choose>
 		
