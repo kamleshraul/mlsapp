@@ -5478,7 +5478,12 @@ public class QuestionWorkflowController  extends BaseController{
 		Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
 		List<UserGroup> ugroups = this.getCurrentUser().getUserGroups();
 		for(UserGroup ug : ugroups){
-			UserGroup usergroup = UserGroup.findActive(credential, ug.getUserGroupType(), domain.getSubmissionDate(), domain.getLocale());
+			UserGroup usergroup = null;
+			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+				usergroup = UserGroup.findActive(credential, ug.getUserGroupType(), new Date(), domain.getLocale());
+			} else {
+				usergroup = UserGroup.findActive(credential, ug.getUserGroupType(), domain.getSubmissionDate(), domain.getLocale());
+			}			
 			if(usergroup != null){
 				userGroupType = usergroup.getUserGroupType();
 				break;
@@ -5487,18 +5492,26 @@ public class QuestionWorkflowController  extends BaseController{
 		if(userGroupType == null
 				|| (!userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
 				&& !userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
-			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR_"+userGroupType.getType().toUpperCase(), "");
-			if(customParameter != null){
-				String strUsergroupType = customParameter.getValue();
-				userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
-			}else{
+			CustomParameter customParameter = null;
+			if(userGroupType!=null) {
+				customParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR_"+userGroupType.getType().toUpperCase(), "");
+				if(customParameter != null){
+					String strUsergroupType = customParameter.getValue();
+					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+				}else{
+					CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+					if(defaultCustomParameter != null){
+						String strUsergroupType = defaultCustomParameter.getValue();
+						userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+					}
+				}
+			} else {
 				CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "QIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
 				if(defaultCustomParameter != null){
 					String strUsergroupType = defaultCustomParameter.getValue();
 					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
 				}
-			}
-			
+			}			
 		}
 		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
 		requestMap.put("questionId",new String[]{String.valueOf(domain.getId())});

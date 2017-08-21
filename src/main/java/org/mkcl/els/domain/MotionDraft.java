@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "motion_drafts")
-public class MotionDraft extends Device implements Serializable{
+public class MotionDraft extends BaseDomain implements Serializable{
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;    

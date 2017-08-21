@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name = "billamendmentmotion_drafts")
-public class BillAmendmentMotionDraft extends Device implements Serializable{
+public class BillAmendmentMotionDraft extends BaseDomain implements Serializable{
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;    

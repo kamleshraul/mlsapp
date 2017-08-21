@@ -102,7 +102,7 @@ public class BaseRepository<T, ID extends Serializable> extends
     			" WHERE t.name=:name");
     	
     	if (locale == null) {
-    		strQuery.append(" AND locale=:locale");
+    		strQuery.append(" AND locale is NULL");
         }
     	else if (! locale.isEmpty()) {
     		strQuery.append(" AND locale=:locale");
@@ -111,10 +111,7 @@ public class BaseRepository<T, ID extends Serializable> extends
     	Query jpQuery = this.em().createQuery(strQuery.toString());
     	jpQuery.setParameter("name", fieldValue);
     	
-    	if (locale == null) {
-    		jpQuery.setParameter("locale", null);
-        }
-    	else if (! locale.isEmpty()) {
+    	if (locale != null && ! locale.isEmpty()) {
     		jpQuery.setParameter("locale", locale);
         }
     	
