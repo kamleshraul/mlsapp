@@ -44,6 +44,7 @@ import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionPlace;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -282,6 +283,56 @@ public class SessionController extends GenericController<Session> {
     }
     
     /* (non-Javadoc)
+	 * @see org.mkcl.els.controller.GenericController#populateCreateIfNoErrors(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+	 */
+	@Override
+	protected void populateCreateIfNoErrors(ModelMap model, Session domain,
+			HttpServletRequest request) throws Exception {
+		/** Edited By **/
+		domain.setEditedBy(this.getCurrentUser().getActualUsername());
+		/** Edited As **/
+		String strUserGroupType = request.getParameter("usergroupType");
+		if(strUserGroupType != null && !strUserGroupType.isEmpty()){
+			UserGroupType userGroupType = UserGroupType.findByType(strUserGroupType, domain.getLocale());
+			if(userGroupType!=null) {
+				domain.setEditedAs(userGroupType.getName());
+			}
+		} else { //default user is administrator with role 'SUPER_ADMIN'
+			Role role = Role.findByType(ApplicationConstants.ROLE_SUPER_ADMIN, domain.getLocale());
+			if(role!=null) {
+				domain.setEditedAs(role.getLocalizedName());
+			}
+		}
+		/** Edited ON **/
+		domain.setEditedOn(new Date());
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mkcl.els.controller.GenericController#populateUpdateIfNoErrors(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
+	 */
+	@Override
+	protected void populateUpdateIfNoErrors(ModelMap model, Session domain,
+			HttpServletRequest request) throws Exception {
+		/** Edited By **/
+		domain.setEditedBy(this.getCurrentUser().getActualUsername());
+		/** Edited As **/
+		String strUserGroupType = request.getParameter("usergroupType");
+		if(strUserGroupType != null && !strUserGroupType.isEmpty()){
+			UserGroupType userGroupType = UserGroupType.findByType(strUserGroupType, domain.getLocale());
+			if(userGroupType!=null) {
+				domain.setEditedAs(userGroupType.getName());
+			}
+		} else { //default user is administrator with role 'SUPER_ADMIN'
+			Role role = Role.findByType(ApplicationConstants.ROLE_SUPER_ADMIN, domain.getLocale());
+			if(role!=null) {
+				domain.setEditedAs(role.getLocalizedName());
+			}
+		}
+		/** Edited ON **/
+		domain.setEditedOn(new Date());
+	}
+
+	/* (non-Javadoc)
 	 * @see org.mkcl.els.controller.GenericController#populateAfterCreate(org.springframework.ui.ModelMap, org.mkcl.els.domain.BaseDomain, javax.servlet.http.HttpServletRequest)
 	 */
 	@Override

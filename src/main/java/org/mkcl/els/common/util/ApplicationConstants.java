@@ -818,6 +818,9 @@ public class ApplicationConstants {
 	public static final String MEMBER_LOWERHOUSE = "MEMBER_LOWERHOUSE";
 	
 	public static final String MEMBER_UPPERHOUSE = "MEMBER_UPPERHOUSE";
+	
+	public static final String ROLE_SUPER_ADMIN = "SUPER_ADMIN";
+	
 	/**** User Group Types    ****/
 	/**** Member			  ****/
 	public static final String MEMBER="member"; 

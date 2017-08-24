@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -29,6 +31,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -133,6 +136,24 @@ public class Session extends BaseDomain implements Serializable {
     @Column(name="parameter_value",length=10000)
     @CollectionTable(name="session_devicetype_config")
 	private Map<String,String> parameters;
+	
+	/** The edited on. */
+    @Temporal(TemporalType.TIMESTAMP)
+    @JoinColumn(name="editedon")
+    private Date editedOn; 
+    
+    /** The edited by. */
+    @Column(length=1000)
+    private String editedBy;
+
+    /** The edited as. */
+    @Column(length=1000)
+    private String editedAs;
+    
+    /** The drafts. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @JoinColumn(name="session_id", referencedColumnName="id")
+    private List<SessionDraft> drafts;
  
     /** The session repository. */
     @Autowired
@@ -716,6 +737,70 @@ public class Session extends BaseDomain implements Serializable {
 
 
 	/**
+	 * @return the editedOn
+	 */
+	public Date getEditedOn() {
+		return editedOn;
+	}
+
+
+	/**
+	 * @param editedOn the editedOn to set
+	 */
+	public void setEditedOn(Date editedOn) {
+		this.editedOn = editedOn;
+	}
+
+
+	/**
+	 * @return the editedBy
+	 */
+	public String getEditedBy() {
+		return editedBy;
+	}
+
+
+	/**
+	 * @param editedBy the editedBy to set
+	 */
+	public void setEditedBy(String editedBy) {
+		this.editedBy = editedBy;
+	}
+
+
+	/**
+	 * @return the editedAs
+	 */
+	public String getEditedAs() {
+		return editedAs;
+	}
+
+
+	/**
+	 * @param editedAs the editedAs to set
+	 */
+	public void setEditedAs(String editedAs) {
+		this.editedAs = editedAs;
+	}
+
+
+	/**
+	 * @return the drafts
+	 */
+	public List<SessionDraft> getDrafts() {
+		return drafts;
+	}
+
+
+	/**
+	 * @param drafts the drafts to set
+	 */
+	public void setDrafts(List<SessionDraft> drafts) {
+		this.drafts = drafts;
+	}
+
+
+	/**
 	 * Sets the session repository.
 	 *
 	 * @param sessionRepository the new session repository
@@ -986,4 +1071,76 @@ public class Session extends BaseDomain implements Serializable {
 		}
 		return null;
 	}	
- }
+	
+	@Override
+    public Session persist() {
+		this.addSessionDraft();
+		Session session = (Session) super.persist();
+        return session;
+	}
+	
+	public Session simpleMerge() {
+		if(this.getDrafts()==null || this.getDrafts().isEmpty()) {
+			Session dbSession = Session.findById(Session.class, this.getId());
+			this.setDrafts(dbSession.getDrafts());
+		}
+        Session q = (Session) super.merge();
+        return q;
+    }
+	
+	@Override
+    public Session merge() {		
+		if(this.getId()!=null && (this.getDrafts()==null || this.getDrafts().isEmpty())) {
+			Session dbSession = Session.findById(Session.class, this.getId());
+			this.setDrafts(dbSession.getDrafts());
+		}
+		this.addSessionDraft();
+		Session session = (Session) super.merge();
+        return session;
+	}
+	
+	/**
+     * Adds the session draft.
+     */
+    private void addSessionDraft() {
+    	SessionDraft draft = new SessionDraft();
+    	draft.setLocale(this.getLocale());
+    	
+    	draft.setEditedAs(this.getEditedAs());
+        draft.setEditedBy(this.getEditedBy());
+        draft.setEditedOn(this.getEditedOn());
+        
+        draft.setHouse(this.getHouse());
+        draft.setYear(this.getYear());
+        draft.setType(this.getType());
+        draft.setPlace(this.getPlace());
+        draft.setNumber(this.getNumber());
+        
+        draft.setTentativeStartDate(this.getTentativeStartDate());
+        draft.setTentativeEndDate(this.getTentativeEndDate());
+        draft.setStartDate(this.getStartDate());
+        draft.setEndDate(this.getEndDate());
+        
+        draft.setDeviceTypesEnabled(this.getDeviceTypesEnabled());
+        draft.setParameters(this.getParameters());
+        
+        if(this.getId() != null) {
+            Session session = Session.findById(Session.class, this.getId());
+            List<SessionDraft> originalDrafts = session.getDrafts();
+            if(originalDrafts != null){
+                originalDrafts.add(draft);
+            }
+            else{
+                originalDrafts = new ArrayList<SessionDraft>();
+                originalDrafts.add(draft);
+            }
+            this.setDrafts(originalDrafts);
+        }
+        else {
+            List<SessionDraft> originalDrafts = new ArrayList<SessionDraft>();
+            originalDrafts.add(draft);
+            this.setDrafts(originalDrafts);
+        }
+    }
+    
+}
