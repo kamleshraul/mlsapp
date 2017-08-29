@@ -1092,8 +1092,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 				strSlot = slot.getId().toString();
 				strPart = part.getId().toString();
 			}
-			
+			if(strSlot == null || strSlot.equals("")){
+				strSlot = slot.getId().toString();
+			}
 		}
+
 		/****Language****/
 		Language language=null;
 		if(strLanguage!=null && !strLanguage.equals("")){
