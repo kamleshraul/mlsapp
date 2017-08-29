@@ -282,37 +282,45 @@
  				$("#masterPart").val(data[0].id);
  			}
 			//$("#bkproceedingReportDiv").html(data[0].name);
-		}).done(function(){ 
-			if(pData != null && pData.length>0){
-				$.get("ref/proceedingHeader?partId="+ $("#masterPart").val(),function(data){
-					$("#currentSlotStartDate").html(data.value);
-					$("#slotName").html(data.name);
-					$("#languageReporter").html(data.displayName);
-					$("#previousReporter").html(data.formattedOrder);
-					$("#currenSlotStartTime").html(data.type);
-					
-					$("#selectionDiv1").hide();			
-					$("#cancelFn").val("rowDblClickHandler");			
-					$('#key').val($("#masterPart").val()); 
-					var params="proceeding="+$('#key').val()+
-					'&language=' + $("#selectedLanguage").val();
-					
-				
-					   
-					$.get('proceeding/getBookmarkProceedingris?'+params, 
-						    function(returnedData){
-						//  var loc = window.location;
-						//    var pathName = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') );
-						//    var MLSurl=loc.href.substring(0, loc.href.length - ((loc.pathname + loc.search + loc.hash).length - pathName.length))
+		}).done(function(){
+			$.get("ref/isValidForNewRis?proceedingId="+$('#key').val(),function(data){
+				if(data){
+					if(pData != null && pData.length>0){
+						$.get("ref/proceedingHeader?partId="+ $("#masterPart").val(),function(data){
+							$("#currentSlotStartDate").html(pData[0].value);
+							$("#slotName").html(pData[0].name);
+							$("#languageReporter").html(pData[0].displayName);
+							$("#previousReporter").html(pData[0].formattedOrder);
+							$("#currenSlotStartTime").html(pData[0].type);
+							
+							$("#selectionDiv1").hide();			
+							$("#cancelFn").val("rowDblClickHandler");			
+							$('#key').val($("#masterPart").val()); 
+							var params="proceeding="+$('#key').val()+
+							'&language=' + $("#selectedLanguage").val();
+							
+						
+							   
+							$.get('proceeding/getBookmarkProceedingris?'+params, 
+								    function(returnedData){
+								//  var loc = window.location;
+								//    var pathName = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') );
+								//    var MLSurl=loc.href.substring(0, loc.href.length - ((loc.pathname + loc.search + loc.hash).length - pathName.length))
 
-					//	+""+returnedData.name+""+""+formattedNumber+""+formattedOrder+""+displayName);
-						window.open('riscust://http://172.1.0.21/els/???1.0.0???word???'+returnedData.id+'???'+returnedData.displayName+'???'+returnedData.formattedOrder +'???'+returnedData.name +'???'+returnedData.formattedNumber +'???'+returnedData.value +'???'+returnedData.type +'???',"_self");
-					});
+							//	+""+returnedData.name+""+""+formattedNumber+""+formattedOrder+""+displayName);
+								window.open('riscust://http://172.1.0.21/els/???1.0.0???word???'+returnedData.id+'???'+returnedData.displayName+'???'+returnedData.formattedOrder +'???'+returnedData.name +'???'+returnedData.formattedNumber +'???'+returnedData.value +'???'+returnedData.type +'???',"_self");
+							});
+						
+						});
+					}
+				}else{
+					if(pData != null && pData.length>0){
+						$("#bkproceedingReportDiv").html(pData[0].name);
+					}
+				}
 				
-				});
-			}
-
-	}); 
+			});
+		}); 
 	}
 	
 	function updatePart(){
