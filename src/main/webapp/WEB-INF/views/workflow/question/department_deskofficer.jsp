@@ -843,7 +843,8 @@
 					return false;
 				}
 				if(deviceTypeType == 'questions_unstarred' && $("#workflowstatus").val()=='PENDING' 
-						&& $("#lastDateForAnswerReceiving").val()!='' && $('#reasonForLateReply').val()==""){
+						&& $("#lastDateForAnswerReceiving").val()!=''
+						&& new Date()> new Date($("#lastDateForAnswerReceiving").val()) && $('#reasonForLateReply').val()==""){
 					$.prompt($('#noLateReplyReasonProvidedMsg').val());
 					return false;
 				}

@@ -779,9 +779,27 @@ public class SessionController extends GenericController<Session> {
 						}
 					}
 				}
-			}
-	    	   	
+			}	    	   	
 	    	domain.setParameters(parameters);
+	    	
+	    	/** Edited By **/
+			domain.setEditedBy(this.getCurrentUser().getActualUsername());
+			/** Edited As **/
+			String strUserGroupType = request.getParameter("usergroupType");
+			if(strUserGroupType != null && !strUserGroupType.isEmpty()){
+				UserGroupType userGroupType = UserGroupType.findByType(strUserGroupType, domain.getLocale());
+				if(userGroupType!=null) {
+					domain.setEditedAs(userGroupType.getName());
+				}
+			} else { //default user is administrator with role 'SUPER_ADMIN'
+				Role role = Role.findByType(ApplicationConstants.ROLE_SUPER_ADMIN, domain.getLocale());
+				if(role!=null) {
+					domain.setEditedAs(role.getLocalizedName());
+				}
+			}
+			/** Edited ON **/
+			domain.setEditedOn(new Date());
+	    	
 	    	domain.merge();
 	    	
 	    	redirectAttributes.addFlashAttribute("type", "success");
