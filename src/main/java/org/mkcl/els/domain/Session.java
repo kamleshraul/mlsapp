@@ -809,6 +809,10 @@ public class Session extends BaseDomain implements Serializable {
 		this.sessionRepository = sessionRepository;
 	}
 	
+	public Map<String, String> getParametersWithoutFormatting(){ //return parameters as they are already saved in the database
+		return this.parameters;
+	}
+	
 	//---------------------Added by vikas & dhananjay--------------------------------
 	public Map<String, String> getParameters(){
 						
@@ -1122,7 +1126,7 @@ public class Session extends BaseDomain implements Serializable {
         draft.setEndDate(this.getEndDate());
         
         draft.setDeviceTypesEnabled(this.getDeviceTypesEnabled());
-        draft.setParameters(this.getParameters());
+        draft.setParameters(this.getParametersWithoutFormatting());
         
         if(this.getId() != null) {
             Session session = Session.findById(Session.class, this.getId());
