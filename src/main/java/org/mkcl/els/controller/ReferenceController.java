@@ -9663,6 +9663,10 @@ public class ReferenceController extends BaseController {
 					valid = true;
 				}
 			}
+			Roster roster=slot.getRoster();
+			if(roster.getCommitteeMeeting()!= null){
+				valid = false;
+			}
 		}
 
 		return valid;
