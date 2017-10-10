@@ -46,6 +46,9 @@
 							<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.subdepartment" text="Sub-Department"/></th>
 						</c:if>
 						<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.workstatus" text="Work Status"/></th>
+						<c:if test="${memberwiseQuestions[0][7]=='questions_starred' or memberwiseQuestions[0][7]=='questions_unstarred'}">
+							<th style="text-align: center;font-size: 15px;"><spring:message code="qis.memberwisequestions.yaadiDetails" text="Yaadi Details"/></th>
+						</c:if>
 					</tr>
 				</thead>
 				<tbody>
@@ -78,7 +81,12 @@
 									</c:when>
 									<c:otherwise>${question[3]}</c:otherwise>									
 								</c:choose>							
-							</td>							
+							</td>		
+							<c:if test="${question[7]=='questions_starred' or question[7]=='questions_unstarred'}">
+								<td style="padding-left: 15px; font-weight: bold;vertical-align: top;text-align: center;">
+									${question[14]}
+								</td>
+							</c:if>				
 						</tr>
 					</c:forEach>
 				</tbody>
