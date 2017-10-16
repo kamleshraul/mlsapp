@@ -2734,6 +2734,12 @@ public class QuestionReportController extends BaseController{
 					} else {
 						//error
 					}
+					List statisticalCountsList = Query.findReport("QIS_MEMBERWISE_QUESTIONS_STATISTICAL_COUNTS", queryParameters);
+					if(statisticalCountsList!=null && !statisticalCountsList.isEmpty()) {													
+						model.addAttribute("statisticalCountsList", statisticalCountsList);
+					} else {
+						//error
+					}
 				}else{
 					logger.error("**** Check request parameter 'member,session,questionType' for empty values ****");
 					model.addAttribute("type", "REQUEST_PARAMETER_EMPTY");
