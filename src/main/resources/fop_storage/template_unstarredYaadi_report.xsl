@@ -207,7 +207,7 @@
                 				(<xsl:value-of select="element_1_1"/>)                				
                 				&#160;<xsl:value-of select="element_1_4"/> (<xsl:value-of select="element_1_13"/>).
                 				&#160;&#160;<xsl:value-of select="element_1_5"/>&#160;:&#160;
-                				<xsl:if test="questionReferenceText!=''">
+                				<xsl:if test="element_1_12!=''">
 									<xsl:value-of select="element_1_12"/>: &#160;
 								</xsl:if>
                 				<fo:inline font-weight="normal">
