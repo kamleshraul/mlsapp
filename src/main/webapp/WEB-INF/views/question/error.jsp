@@ -258,4 +258,13 @@
 		<p></p>
 	</div>
 </c:when>
+<c:when test="${errorcode eq 'FIRST_BATCH_MAX_COUNT_OF_SUBMISSION_REACHED'}">
+	<div class="toolTip tpRed clearfix">
+		<p>
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="question.errorcode.first_batch_max_count_of_submission_reached" text="31 questions are already submitted by the member for the first batch"/>
+		</p>
+		<p></p>
+	</div>
+</c:when>
 </c:choose>

@@ -3482,4 +3482,46 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		}
 		return restoredQuestiontext;
 	}
+	
+	public boolean isQuestionAllowedInFirstBatchForMaxCountPerMember(final Question question) {
+		boolean allowedInFirstBatchForMaxCountPerMember = true;
+		
+		String strSubmissionFirstBatchStartDate =  question.getSession().getParameter(question.getType().getType() + "_" + "submissionFirstBatchStartDate");
+		String strSubmissionFirstBatchEndDate =  question.getSession().getParameter(question.getType().getType() + "_" + "submissionFirstBatchEndDate");
+		String strSubmissionFirstBatchMaxCountPerMember = question.getSession().getParameter(question.getType().getType() + "_" + "submissionFirstBatchMaxCountPerMember");
+		
+		if(strSubmissionFirstBatchStartDate!=null && !strSubmissionFirstBatchStartDate.isEmpty() 
+				&& strSubmissionFirstBatchEndDate!=null && !strSubmissionFirstBatchEndDate.isEmpty()) {
+			
+			Date submissionFirstBatchStartDate = FormaterUtil.formatStringToDate(strSubmissionFirstBatchStartDate, ApplicationConstants.DB_DATETIME_FORMAT);
+			Date submissionFirstBatchEndDate = FormaterUtil.formatStringToDate(strSubmissionFirstBatchEndDate, ApplicationConstants.DB_DATETIME_FORMAT);
+			
+			if(strSubmissionFirstBatchMaxCountPerMember==null || strSubmissionFirstBatchMaxCountPerMember.isEmpty()) {
+				strSubmissionFirstBatchMaxCountPerMember = "31";
+			}
+			Long submissionFirstBatchMaxCountPerMember = Long.parseLong(strSubmissionFirstBatchMaxCountPerMember);
+			
+			Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, question.getLocale());
+			
+			String queryString = "SELECT COUNT(q) FROM Question q "
+					+ "WHERE q.originalType.id=:deviceTypeId AND q.session.id=:sessionId AND q.primaryMember.id=:memberId AND q.status.priority>=:submitPriority "
+					+ "AND q.submissionDate>=:submissionFirstBatchStartDate AND q.submissionDate<=:submissionFirstBatchEndDate";
+			
+			Query query = this.em().createQuery(queryString);
+			query.setParameter("deviceTypeId", question.getOriginalType().getId());
+			query.setParameter("sessionId", question.getSession().getId());
+			query.setParameter("memberId", question.getPrimaryMember().getId());
+			query.setParameter("submitPriority", submitStatus.getPriority());
+			query.setParameter("submissionFirstBatchStartDate", submissionFirstBatchStartDate);
+			query.setParameter("submissionFirstBatchEndDate", submissionFirstBatchEndDate);
+			
+			Long submissionCountOfMemberInFirstBatch = (Long) query.getSingleResult();
+			
+			if(submissionCountOfMemberInFirstBatch!=null && submissionCountOfMemberInFirstBatch.equals(submissionFirstBatchMaxCountPerMember)) {
+				allowedInFirstBatchForMaxCountPerMember = false;
+			}
+		}				
+		
+    	return allowedInFirstBatchForMaxCountPerMember;
+	}
 }

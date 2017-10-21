@@ -709,6 +709,14 @@ class StarredQuestionController {
 											result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Question cannot be submitted before " + strSubDate);
 											break;
 										}
+										if(!Question.allowedInFirstBatchForMaxCountPerMember(domain)){
+											String strSubmissionFirstBatchMaxCountPerMember = domain.getSession().getParameter(domain.getType().getType() + "_" + "submissionFirstBatchMaxCountPerMember");
+											if(strSubmissionFirstBatchMaxCountPerMember==null || strSubmissionFirstBatchMaxCountPerMember.isEmpty()) {
+												strSubmissionFirstBatchMaxCountPerMember = "31";
+											}
+											result.rejectValue("version","SubmissionNotAllowedPostFirstBatchMaxCountPerMember","Question cannot be submitted as " + strSubmissionFirstBatchMaxCountPerMember + " questions are already submitted by the member for the first batch");
+											break;
+										}
 									}
 									
 									if(batch.equals(2)){
@@ -1758,6 +1766,14 @@ class StarredQuestionController {
 											result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate_before","Question cannot be submitted before " + strSubDate);
 											break;
 										}
+										if(!Question.allowedInFirstBatchForMaxCountPerMember(domain)){
+											String strSubmissionFirstBatchMaxCountPerMember = domain.getSession().getParameter(domain.getType().getType() + "_" + "submissionFirstBatchMaxCountPerMember");
+											if(strSubmissionFirstBatchMaxCountPerMember==null || strSubmissionFirstBatchMaxCountPerMember.isEmpty()) {
+												strSubmissionFirstBatchMaxCountPerMember = "31";
+											}
+											result.rejectValue("version","SubmissionNotAllowedPostFirstBatchMaxCountPerMember","Question cannot be submitted as " + strSubmissionFirstBatchMaxCountPerMember + " questions are already submitted by the member for the first batch");
+											break;
+										}
 									}
 									
 									if(batch.equals(2)){
@@ -2782,6 +2798,20 @@ class StarredQuestionController {
 
 		String userGroupType = request.getParameter("usergroupType");
 		model.addAttribute("usergroupType", userGroupType);
+		
+		if(questions!=null && !questions.isEmpty()) {			
+			Question question = questions.get(0);
+			if(question.getSession()!=null && question.getType()!=null 
+					&& question.getHouseType()!=null && question.getSession().getParameter(question.getType().getType()+"_processingMode").equals(ApplicationConstants.UPPER_HOUSE)) {
+				Integer batch = Question.findBatch(question, new Date());
+				if(batch.equals(1)){
+					if(!Question.allowedInFirstBatchForMaxCountPerMember(question)) {
+						model.addAttribute("errorcode", "FIRST_BATCH_MAX_COUNT_OF_SUBMISSION_REACHED");
+						return "question/error";
+					}
+				}				
+			}			
+		}
 		return "question/bulksubmission";
 	
 	}
@@ -3066,6 +3096,12 @@ class StarredQuestionController {
 					}
 				}
 				
+				Integer batch = null;
+				if(domain.getSession()!=null && domain.getType()!=null 
+						&& domain.getHouseType()!=null && domain.getSession().getParameter(domain.getType().getType()+"_processingMode").equals(ApplicationConstants.UPPER_HOUSE)) {
+					batch = Question.findBatch(domain, new Date());
+				}
+				
 				if((!validationBeforeStartDate 
 						&& !validationAfterEndDate 
 						&& domain.getSession().getParameter(domain.getType().getType()+"_processingMode").equals(ApplicationConstants.LOWER_HOUSE))
@@ -3074,7 +3110,13 @@ class StarredQuestionController {
 					for(String i : items) {
 						Long id = Long.parseLong(i);
 						Question question = Question.findById(Question.class, id);
-		
+						
+						//Check if individual validation is passed
+						if(batch!=null && batch.equals(1)){
+							if(!Question.allowedInFirstBatchForMaxCountPerMember(question)) {
+								break;
+							}
+						}
 						/**** Update Supporting Member ****/
 						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
 						Status timeoutStatus = Status.findByType(
