@@ -12936,6 +12936,12 @@ public class Question extends Device implements Serializable {
     	
     }
     
+    public static boolean allowedInFirstBatchForMaxCountPerMember(final Question question){
+    	
+    	return getQuestionRepository().isQuestionAllowedInFirstBatchForMaxCountPerMember(question);
+    	
+    }
+    
     public static boolean allowedInSecondBatch(final Question question, final Date date){
     	
     	Session session = question.getSession();
