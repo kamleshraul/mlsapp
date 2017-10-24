@@ -1547,14 +1547,14 @@
 		
 		<c:if test="${!(empty domain.factualPosition)}">
 			<p>
-				<label class="centerlabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+				<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
 				<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
 			</p>
 		</c:if>
 		
 		<c:if test="${!(empty domain.factualPositionFromMember)}">
 			<p>
-				<label class="centerlabel"><spring:message code="question.factualPositionFromMember" text="Factual Position from Member"/></label>
+				<label class="wysiwyglabel"><spring:message code="question.factualPositionFromMember" text="Factual Position from Member"/></label>
 				<form:textarea path="factualPositionFromMember" cssClass="wysiwyg"></form:textarea>
 			</p>
 		</c:if>
@@ -1583,12 +1583,10 @@
 				</p>
 			</c:when>
 			<c:otherwise>
-				<c:if test="${fn:endsWith(internalStatusType, '_final_rejection')}">
-				<p id="rejectionReasonP">
+				<p id="rejectionReasonP" style="display:none;">
 					<label class="centerlabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
 					<form:textarea path="rejectionReason" rows="2" cols="50"></form:textarea>
 				</p>
-				</c:if>	
 			</c:otherwise>
 		</c:choose>
 		
