@@ -3476,7 +3476,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 //						break;
 //					}
 //				}
-				restoredQuestiontext = (String) query.getSingleResult();
+//				restoredQuestiontext = (String) query.getSingleResult();
 			}
 			return restoredQuestiontext; //later try restoring drafts and query again
 		}
