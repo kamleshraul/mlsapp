@@ -1032,6 +1032,8 @@ class StarredQuestionChart {
 								question, maxNoOfQuestions);
 					if(isAddedToChart) {
 						return true;
+					}else{
+						break;
 					}
 				}
 			}
