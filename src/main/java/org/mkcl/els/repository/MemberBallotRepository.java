@@ -2389,8 +2389,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						jpQuery.setParameter("sessionId", session.getId());
 						jpQuery.setParameter("memberId", member.getId());
 						jpQuery.setParameter("locale", locale);
-						jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDate, ApplicationConstants.DB_DATEFORMAT));
-						jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDate, ApplicationConstants.DB_DATEFORMAT));
+						jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDate, ApplicationConstants.DB_DATETIME_FORMAT));
+						jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDate, ApplicationConstants.DB_DATETIME_FORMAT));
 						jpQuery.setParameter("questionTypeId", questionType.getId());
 
 						List countResults=jpQuery.getResultList();
@@ -2430,8 +2430,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 								jpQuery.setParameter("sessionId", session.getId());
 								jpQuery.setParameter("memberId", member.getId());
 								jpQuery.setParameter("locale", locale);
-								jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDate, ApplicationConstants.DB_DATEFORMAT));
-								jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDate, ApplicationConstants.DB_DATEFORMAT));
+								jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDate, ApplicationConstants.DB_DATETIME_FORMAT));
+								jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDate, ApplicationConstants.DB_DATETIME_FORMAT));
 								jpQuery.setParameter("questionTypeId", questionType.getId());
 
 								List questionResults=jpQuery.getResultList();
@@ -2567,8 +2567,8 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 								jpQuery.setParameter("sessionId", session.getId());
 								jpQuery.setParameter("memberId", i.getMemberId());
 								jpQuery.setParameter("locale", locale);
-								jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATEFORMAT));
-								jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDateParameter, ApplicationConstants.DB_DATEFORMAT));
+								jpQuery.setParameter("startDate", FormaterUtil.formatStringToDate(startDateParameter, ApplicationConstants.DB_DATETIME_FORMAT));
+								jpQuery.setParameter("endDate", FormaterUtil.formatStringToDate(endDateParameter, ApplicationConstants.DB_DATETIME_FORMAT));
 								jpQuery.setParameter("questionTypeId", questionType.getId());
 
 								List countResults = jpQuery.getResultList();
