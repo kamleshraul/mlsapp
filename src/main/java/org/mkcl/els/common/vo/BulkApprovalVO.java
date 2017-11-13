@@ -36,6 +36,20 @@ public class BulkApprovalVO {
 	
 	private String parentId;
 	
+	private Long subdepartmentId;
+	
+	private Long ministryId;
+	
+	private Boolean mlsBranchNotified;
+	
+	private Boolean transferDepartmentAccepted;
+	
+	private Boolean advanceCopySent;
+	
+	private Boolean advanceCopyPrinted;
+	
+	private String advanceCopyActor;
+	
 	/**** PENDING<COMPLETED<TIMEOUT ****/
 	private String currentStatus;
 	
@@ -210,6 +224,62 @@ public class BulkApprovalVO {
 
 	public void setParentId(String parentId) {
 		this.parentId = parentId;
+	}
+
+	public Long getSubdepartmentId() {
+		return subdepartmentId;
+	}
+
+	public void setSubdepartmentId(Long subdepartmentId) {
+		this.subdepartmentId = subdepartmentId;
+	}
+
+	public Long getMinistryId() {
+		return ministryId;
+	}
+
+	public void setMinistryId(Long ministryId) {
+		this.ministryId = ministryId;
+	}
+
+	public Boolean getMlsBranchNotified() {
+		return mlsBranchNotified;
+	}
+
+	public void setMlsBranchNotified(Boolean mlsBranchNotified) {
+		this.mlsBranchNotified = mlsBranchNotified;
+	}
+
+	public Boolean getTransferDepartmentAccepted() {
+		return transferDepartmentAccepted;
+	}
+
+	public void setTransferDepartmentAccepted(Boolean transferDepartmentAccepted) {
+		this.transferDepartmentAccepted = transferDepartmentAccepted;
+	}
+
+	public Boolean getAdvanceCopySent() {
+		return advanceCopySent;
+	}
+
+	public void setAdvanceCopySent(Boolean advanceCopySent) {
+		this.advanceCopySent = advanceCopySent;
+	}
+
+	public Boolean getAdvanceCopyPrinted() {
+		return advanceCopyPrinted;
+	}
+
+	public void setAdvanceCopyPrinted(Boolean advanceCopyPrinted) {
+		this.advanceCopyPrinted = advanceCopyPrinted;
+	}
+
+	public String getAdvanceCopyActor() {
+		return advanceCopyActor;
+	}
+
+	public void setAdvanceCopyActor(String advanceCopyActor) {
+		this.advanceCopyActor = advanceCopyActor;
 	}
 	
 	
