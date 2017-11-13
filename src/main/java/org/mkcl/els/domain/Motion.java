@@ -249,6 +249,13 @@ import org.springframework.transaction.annotation.Transactional;
     
     private Boolean mlsBranchNotifiedOfTransfer = false;
     
+    /**** Advance Copy for Department Related Field  ****/
+    private Boolean advanceCopySent = false;
+    
+    private Boolean advanceCopyPrinted = false;
+    
+	private String advanceCopyActor;
+    
 	/**** Synch variables for motion lower house****/
 	private transient volatile static Integer CALLING_ATTENTION_CUR_NUM_LOWER_HOUSE = 0;
 	
@@ -1093,6 +1100,30 @@ import org.springframework.transaction.annotation.Transactional;
 
 	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
 		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
+	}
+	
+	public Boolean getAdvanceCopySent() {
+		return advanceCopySent;
+	}
+
+	public void setAdvanceCopySent(Boolean advanceCopySent) {
+		this.advanceCopySent = advanceCopySent;
+	}
+
+	public Boolean getAdvanceCopyPrinted() {
+		return advanceCopyPrinted;
+	}
+
+	public void setAdvanceCopyPrinted(Boolean advanceCopyPrinted) {
+		this.advanceCopyPrinted = advanceCopyPrinted;
+	}
+	
+	public String getAdvanceCopyActor() {
+		return advanceCopyActor;
+	}
+
+	public void setAdvanceCopyActor(String advanceCopyActor) {
+		this.advanceCopyActor = advanceCopyActor;
 	}
 
 	//************************Clubbing**********************
