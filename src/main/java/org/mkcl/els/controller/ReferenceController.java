@@ -10,7 +10,12 @@
 
 package org.mkcl.els.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -31,6 +36,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
+import org.apache.poi.xwpf.usermodel.*;
+import org.apache.poi.wp.usermodel.*;
+import org.apache.xmlbeans.XmlException;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -46,7 +55,6 @@ import org.mkcl.els.common.vo.OrdinanceSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.SectionVO;
 import org.mkcl.els.common.vo.TemplateVO;
-import org.mkcl.els.controller.cis.CommitteeMeetingController;
 import org.mkcl.els.controller.mois.CutMotionDateControllerUtility;
 import org.mkcl.els.controller.wf.EditingWorkflowController;
 import org.mkcl.els.domain.Abbreviation;
@@ -92,7 +100,6 @@ import org.mkcl.els.domain.GovernmentScheme;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.Highway;
-import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.IdentificationKey;
@@ -109,7 +116,6 @@ import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.Proceeding;
-import org.mkcl.els.domain.ProceedingAutofill;
 import org.mkcl.els.domain.ProceedingCitation;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
@@ -121,7 +127,6 @@ import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.River;
-import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Sanctuary;
 import org.mkcl.els.domain.Section;
@@ -149,14 +154,21 @@ import org.mkcl.els.domain.YaadiDetails;
 import org.mkcl.els.domain.Zillaparishad;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.service.ISecurityService;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTEmpty;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHdrFtr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTText;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBrType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -5820,30 +5832,44 @@ public class ReferenceController extends BaseController {
 		try{
 			
 			Question parent = Question.findById(Question.class, id);
-			
+			String permission = "yes";
+			CustomParameter partiallyClubbedParameter = CustomParameter.findByName(CustomParameter.class, "PERMISSION_TO_DISPLAY_PARTIAL_CLUBBED_QUESTIONS", "");
+			if(partiallyClubbedParameter != null){
+				permission = partiallyClubbedParameter.getValue();
+			}
 			if(parent != null){
 				List<ClubbedEntity> clubbedQuestions = parent.getClubbedEntities();
-				
+				Boolean isAllowedForDisplay = false;
 				for(ClubbedEntity ce : clubbedQuestions){
 					Question cQuestion = ce.getQuestion();
 					if(cQuestion != null){
-						MasterVO mVO = new MasterVO();
-						mVO.setId(cQuestion.getId());
-						mVO.setName(FormaterUtil.formatNumberNoGrouping(cQuestion.getNumber(), locale.toString()));
-						if(cQuestion.getQuestionText()!= null && !cQuestion.getQuestionText().isEmpty()){
-							mVO.setValue(cQuestion.getQuestionText());
+						if(permission.equals("no")){
+							if(cQuestion.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+								|| cQuestion.getInternalStatus().getType().contains("FINAL")
+								|| cQuestion.getInternalStatus().getType().contains(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_CLUBBED)){
+								isAllowedForDisplay = true;
+							}
 						}else{
-							mVO.setValue(cQuestion.getRevisedQuestionText());
+							isAllowedForDisplay = true;
 						}
-						
-						clubbedQuestionsVO.add(mVO);
+						if(isAllowedForDisplay){
+							MasterVO mVO = new MasterVO();
+							mVO.setId(cQuestion.getId());
+							mVO.setName(FormaterUtil.formatNumberNoGrouping(cQuestion.getNumber(), locale.toString()));
+							if(cQuestion.getQuestionText()!= null && !cQuestion.getQuestionText().isEmpty()){
+								mVO.setValue(cQuestion.getQuestionText());
+							}else{
+								mVO.setValue(cQuestion.getRevisedQuestionText());
+							}
+							clubbedQuestionsVO.add(mVO);
+						}
+							
 					}
 				}
 			}
 		}catch(Exception e){
 			logger.error(e.toString());
 		}
-		
 		
 		return clubbedQuestionsVO;
 	}
@@ -9764,4 +9790,260 @@ public class ReferenceController extends BaseController {
 		return visibilityFlags;
 	}
 
+	@RequestMapping(value="/linkdocument",method=RequestMethod.GET)
+	public void getDocs(final Locale locale,
+			final ModelMap model,
+			final HttpServletRequest request,
+			final HttpServletResponse response){
+		try {
+			File inputFile = new File("C:\\Users\\anandku\\Desktop\\Requirement.docx");
+			FileInputStream fis = new FileInputStream(inputFile);
+			
+			XWPFDocument doc = new XWPFDocument(fis);
+			
+			
+			XWPFDocument newDoc = new XWPFDocument();
+			//XWPFHeaderFooterPolicy newPolicy = new XWPFHeaderFooterPolicy(newDoc);
+			//CTSectPr sectPr = newDoc.getDocument().getBody().addNewSectPr();
+			//write header content
+	        //CTSectPr sectPr = newDoc.getDocument().getBody().addNewSectPr();
+//			XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(newDoc);
+//				
+//			//write header content
+//			CTP ctpHeader = CTP.Factory.newInstance();
+//		    CTR ctrHeader = ctpHeader.addNewR();
+//			CTText ctHeader = ctrHeader.addNewT();
+//			String headerText = "This is header";
+//			ctHeader.setStringValue(headerText);	
+//			XWPFParagraph headerParagraph = new XWPFParagraph(ctpHeader, newDoc);
+//		    XWPFParagraph[] parsHeader = new XWPFParagraph[1];
+//		    parsHeader[0] = headerParagraph;
+//		    policy.createHeader(XWPFHeaderFooterPolicy.DEFAULT, parsHeader);
+			
+			
+			 // create default page header
+//			 XWPFHeader header = newDoc.createHea(); 
+//			 paragraph = header.createParagraph();
+//			 paragraph.setAlignment(ParagraphAlignment.LEFT);
+//
+//			  run = paragraph.createRun();  
+//			  run.setText("The default page header:");
+
+			 XWPFHeader header = newDoc.createHeader(HeaderFooterType.DEFAULT);
+			
+//			 XWPFParagraph headerPara = newDoc.createParagraph();
+//			 headerPara = header.createParagraph();
+//			 headerPara.setAlignment(ParagraphAlignment.LEFT);
+//			 XWPFRun run=headerPara.createRun();  
+//			 run.setText("The default page header:");
+          
+			for(IBodyElement element : doc.getBodyElements()) {
+			    if(element instanceof XWPFParagraph) {
+			         XWPFParagraph paragraph = (XWPFParagraph)element;
+			         XWPFParagraph newpara = newDoc.createParagraph();
+	                 copyAllRunsToAnotherParagraph(paragraph, newpara);
+			    }
+			    if(element instanceof XWPFTable) {
+			         XWPFTable table = (XWPFTable)element;
+			         XWPFTable newtable = newDoc.createTable();
+	                 copyAllRowsToAnotherTable(table, newtable);
+			    }
+			}
+        
+	        File inputFile1 = new File("C:\\Users\\anandku\\Desktop\\B.docx");
+			FileInputStream fis1 = new FileInputStream(inputFile1);
+			XWPFDocument doc1 = new XWPFDocument(fis1);
+//			for(IBodyElement element : doc1.getHeaderFooterPolicy().getDefaultHeader().getBodyElements()) {
+//			    if(element instanceof XWPFParagraph) {
+//			         XWPFParagraph para = (XWPFParagraph)element;
+//			         XWPFParagraph newpara = newDoc.createParagraph();
+//			         if(para.isPageBreak()){
+//			        	   para.setPageBreak(true);
+//			           }
+//			           if(para.isWordWrap()){
+//			        	   para.setWordWrap(true);
+//			           }
+//	                 copyAllRunsToAnotherParagraph(para, newpara);
+//			    }
+//			    if(element instanceof XWPFTable) {
+//			         XWPFTable table = (XWPFTable)element;
+//			         XWPFTable newtable = header.createTable(table.getRowBandSize(),table.getColBandSize());
+//	                 copyAllRowsToAnotherTable(table, newtable);
+//			    }
+//			   
+//			}
+			header.setHeaderFooter(doc1.getHeaderFooterPolicy().getDefaultHeader()._getHdrFtr());
+			//XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(doc1);
+			//String additionalXmlHeader = policy.getDefaultHeader()._getHdrFtr().xmlText();
+			//CTHdrFtr newHeader = CTHdrFtr.Factory.parse(additionalXmlHeader);
+			
+
+//			newpolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT).setHeaderFooter(destHeader);
+//			XWPFHeader head = newpolicy.createWatermark("HELELo");createHeader(XWPFHeaderFooterPolicy.DEFAULT);
+//			head.getParagraphArray(0).createRun().setText("Hello Header World!");
+			
+			for(IBodyElement element : doc1.getBodyElements()) {
+			    if(element instanceof XWPFParagraph) {
+			         XWPFParagraph para = (XWPFParagraph)element;
+			         XWPFParagraph newpara = newDoc.createParagraph();
+			         if(para.isPageBreak()){
+			        	   para.setPageBreak(true);
+			           }
+			           if(para.isWordWrap()){
+			        	   para.setWordWrap(true);
+			           }
+	                 copyAllRunsToAnotherParagraph(para, newpara);
+			    }
+			    if(element instanceof XWPFTable) {
+			         XWPFTable table = (XWPFTable)element;
+			         XWPFTable newtable = newDoc.createTable();
+	                 copyAllRowsToAnotherTable(table, newtable);
+			    }
+			}
+
+//		   CTSectPr sectPr = newDoc.getDocument().getBody().addNewSectPr();
+//           XWPFHeaderFooterPolicy newpolicy = new XWPFHeaderFooterPolicy(newDoc, sectPr);
+//           XWPFHeader destHeader = newpolicy.createHeader(XWPFHeaderFooterPolicy.FIRST);
+//           destHeader.getParagraphArray(0).createRun().setText("Hello Header World!");
+	       OutputStream out = new FileOutputStream(new File("C:\\Users\\anandku\\Desktop\\C.docx"));
+	       newDoc.write(out);
+		   out.flush();
+	       out.close();
+			}catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+	}
+	
+	
+	private static void copyAllRunsToAnotherParagraph(XWPFParagraph oldPar, XWPFParagraph newPar) {
+	    final int DEFAULT_FONT_SIZE = 10;
+	    boolean flag = false;
+	    List<XWPFRun> oldRuns = oldPar.getRuns();
+	    for(int i = 0;i<oldRuns.size();i++){
+	    	XWPFRun run = oldRuns.get(i);
+	    	String textInRun = run.getText(0);
+  	        int fontSize = run.getFontSize();
+		    System.out.println("run text = '" + textInRun + "' , fontSize = " + fontSize); 
+ 	        XWPFRun newRun = newPar.createRun();
+	        // Copy text
+	        newRun.setText(textInRun);
+
+	        // Apply the same style
+	        newRun.setFontSize( ( fontSize == -1) ? DEFAULT_FONT_SIZE : run.getFontSize() );    
+	        newRun.setFontFamily( run.getFontFamily() );
+	        newRun.setBold( run.isBold() );
+	        newRun.setItalic( run.isItalic() );
+	        newRun.setStrike( run.isStrike() );
+	        //newRun.setColor( run.getColor() );
+	      
+	        if(i+1<oldRuns.size()){
+		        for(int j = i+1;j<oldRuns.size();){
+		        	XWPFRun nextOldRun = oldRuns.get(j);
+		        	List<CTBr> brList = nextOldRun.getCTR().getBrList();
+		        	if (brList != null && !brList.isEmpty()) {
+		                for (CTBr br : brList) {
+		                    if (br.getType() == STBrType.PAGE) {
+		                    	flag=true;
+		                    }
+		                }
+		            }else{
+		                List<CTEmpty> lastRenderedPageBreakList = nextOldRun.getCTR().getLastRenderedPageBreakList();
+		                if (lastRenderedPageBreakList != null) {
+		                    for (CTEmpty lastRenderedPageBreak : lastRenderedPageBreakList) {
+		                    	 flag=true;
+		                    }
+		                }
+		            }
+		        	
+		        	if(flag){
+	    	        	newRun.addBreak(BreakType.PAGE);
+	    	        	flag = false;
+	    	        	
+	    	        }
+		        	break;
+		        }
+	        }else{
+	        	List<CTBr> brList = run.getCTR().getBrList();
+	        	if (brList != null && !brList.isEmpty()) {
+	                for (CTBr br : brList) {
+	                    if (br.getType() == STBrType.PAGE) {
+	                    	flag=true;
+	                    }
+	                }
+	            }else{
+	                List<CTEmpty> lastRenderedPageBreakList = run.getCTR().getLastRenderedPageBreakList();
+	                if (lastRenderedPageBreakList != null) {
+	                    for (CTEmpty lastRenderedPageBreak : lastRenderedPageBreakList) {
+	                    	 flag=true;
+	                    }
+	                }
+	            }
+	        	if(flag){
+    	        	newRun.addBreak(BreakType.PAGE);
+    	        	flag = false;
+    	        	
+    	        }
+	        }
+	    }
+	    
+	    newPar.setAlignment(oldPar.getAlignment());
+	    newPar.setBorderBetween(oldPar.getBorderBetween());
+	    newPar.setBorderBottom(oldPar.getBorderBottom());
+	    newPar.setBorderLeft(oldPar.getBorderLeft());
+	    newPar.setBorderRight(oldPar.getBorderRight());
+	    newPar.setBorderTop(oldPar.getBorderTop());
+	    newPar.setIndentationFirstLine(oldPar.getIndentationFirstLine());
+	    newPar.setIndentationHanging(oldPar.getIndentationHanging());
+	    newPar.setIndentationLeft(oldPar.getIndentationLeft());
+	    newPar.setIndentationRight(oldPar.getIndentationRight());
+	    newPar.setStyle(oldPar.getStyle());   
+	}
+	
+	
+	private static void copyAllRowsToAnotherTable(XWPFTable oldTable, XWPFTable newTable) {
+	    final int DEFAULT_FONT_SIZE = 10;
+	    List<XWPFTableRow> rows = oldTable.getRows();
+	    for(XWPFTableRow row1 : rows){
+	    	List<XWPFTableCell> cells = row1.getTableCells();
+	    	XWPFTableRow newRow = newTable.createRow();
+	    	for(XWPFTableCell cell : cells){
+	    		CTTcPr oldTcpr =cell.getCTTc().getTcPr();
+	    		XWPFTableCell newCell = newRow.createCell();
+	    		//newCell.setColor(cell.getColor());
+	    		newCell.setText(cell.getText());
+	    		CTTcPr tcpr = newCell.getCTTc().addNewTcPr();
+//	    		tcpr.setCellDel(oldTcpr.getCellDel());
+//	    		tcpr.setCellIns(oldTcpr.getCellIns());
+//	    		tcpr.setCellMerge(oldTcpr.getCellMerge());
+	    		tcpr.setCnfStyle(oldTcpr.getCnfStyle());
+	    		tcpr.setGridSpan(oldTcpr.getGridSpan());
+	    		tcpr.setHideMark(oldTcpr.getHideMark());
+	    		tcpr.setHMerge(oldTcpr.getHMerge());
+	    		tcpr.setNoWrap(oldTcpr.getNoWrap());
+	    		tcpr.setShd(oldTcpr.getShd());
+	    		//tcpr.setTcBorders(oldTcpr.getTcBorders());
+	    		//tcpr.setTcFitText(oldTcpr.getTcFitText());
+	    		tcpr.setTcMar(oldTcpr.getTcMar());
+	    		tcpr.setTcPrChange(oldTcpr.getTcPrChange());
+	    		tcpr.setTcW(oldTcpr.getTcW());
+	    		//tcpr.setTextDirection(oldTcpr.getTextDirection());
+	    		//tcpr.setVAlign(oldTcpr.getVAlign());
+	    		//tcpr.setVMerge(oldTcpr.getVMerge());
+	    	}
+	    	newRow.setCantSplitRow(row1.isCantSplitRow());
+	    	newRow.setHeight(row1.getHeight());
+	    	newRow.setRepeatHeader(row1.isRepeatHeader());
+	    	
+	    }
+	    newTable.setCellMargins(oldTable.getCellMarginTop(),oldTable.getCellMarginLeft(),oldTable.getCellMarginBottom(), oldTable.getCellMarginRight());
+	    newTable.setColBandSize(oldTable.getColBandSize());
+	    newTable.setRowBandSize(oldTable.getRowBandSize());
+	    newTable.setWidth(oldTable.getWidth());
+   
+	}
 }
