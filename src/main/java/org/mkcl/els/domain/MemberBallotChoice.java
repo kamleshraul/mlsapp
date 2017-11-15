@@ -12,11 +12,16 @@ package org.mkcl.els.domain;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.repository.MemberBallotChoiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +38,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 @Entity
 @Table(name="memberballot_choice")
+/*@JsonIgnoreProperties({"drafts"})*/
 public class MemberBallotChoice extends BaseDomain implements Serializable{
 
 	/** The Constant serialVersionUID. */
@@ -58,6 +64,13 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
     private Boolean autoFilled=false;
     
     private Boolean blankFormAutoFilled=false;
+    
+/*	*//** The drafts. *//*
+	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+	@JoinTable(name="memberballot_choices_drafts_association", 
+			joinColumns={@JoinColumn(name="memberballot_choice_id", referencedColumnName="id")}, 
+			inverseJoinColumns={@JoinColumn(name="memberballot_choice_draft_id", referencedColumnName="id")})
+	private List<MemberBallotChoiceDraft> drafts;  */
 
 
     /** The member ballot choice repository. */
@@ -225,6 +238,14 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
 		this.blankFormAutoFilled = blankFormAutoFilled;
 	}
 	
+/*	public List<MemberBallotChoiceDraft> getDrafts() {
+		return drafts;
+	}
+
+	public void setDrafts(List<MemberBallotChoiceDraft> drafts) {
+		this.drafts = drafts;
+	}*/
+
 	/**** find member ballot choice at a particular round and choice ****/
 	public static MemberBallotChoice findMemberBallotChoice(final Session session,final DeviceType deviceType,
 			final Member member,final int round,final int choice){
