@@ -66,6 +66,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberBallotAttendance;
 import org.mkcl.els.domain.MemberBallotChoice;
+import org.mkcl.els.domain.MemberBallotChoiceDraft;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.StandaloneMotion;
@@ -81,6 +82,7 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
+import org.mkcl.els.domain.UserGroupType;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -2793,6 +2795,27 @@ public class BallotController extends BaseController{
 						memberBallot.merge();
 						/**** remove all previous entries ****/
 						for(MemberBallotChoice c:choices){
+							/**** To Maintain Revision of the Member Choices following code is added ****/
+							MemberBallotChoiceDraft draft = new MemberBallotChoiceDraft();
+							draft.setAutoFilled(c.getAutoFilled());
+							draft.setBlankFormAutoFilled(c.getBlankFormAutoFilled());
+							draft.setChoice(c.getChoice());
+							draft.setClubbingUpdated(c.getClubbingUpdated());
+							draft.setNewAnsweringDate(c.getNewAnsweringDate());
+							draft.setProcessed(c.getProcessed());
+							draft.setLocale(c.getLocale());
+							draft.setQuestion(c.getQuestion());
+							draft.setMemberballotChoiceId(c.getId());
+							draft.setMemberballotId(memberBallot.getId());
+							String username = this.getCurrentUser().getActualUsername();
+							Credential credential = Credential.findByFieldName(Credential.class, "username", username, null);
+							draft.setEditedBy(username);
+							draft.setEditedOn(new Date());
+							UserGroup usergroup =  UserGroup.findActive(credential, new Date(), locale);
+							if(usergroup!= null){
+								draft.setEditedAs(usergroup.getUserGroupType().getType());
+							}
+							draft.persist();
 							c.remove();
 						}					
 					}
