@@ -1216,7 +1216,9 @@
 		<c:choose>
 			<c:when test="${!(empty clubbedQuestions) }">
 				<c:forEach items="${clubbedQuestions }" var="i">
-					<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+					<c:if test="${i.state=='yes'}">
+						<a href="#" id="cq${i.number}" class="clubbedRefQuestions" onclick="viewQuestionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+					</c:if>
 				</c:forEach>
 				<a href="javascript:void(0);" id="viewClubbedQuestionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;margin-left: 5px;font-size: 18px;"><spring:message code="question.clubbed.texts" text="C"></spring:message></a>
 			</c:when>
