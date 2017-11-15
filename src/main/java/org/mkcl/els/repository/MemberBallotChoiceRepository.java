@@ -118,8 +118,8 @@ public class MemberBallotChoiceRepository extends BaseRepository<MemberBallotCho
 						jpQuery.setParameter("deviceTypeId", questionType.getId());
 						jpQuery.setParameter("locale", locale);
 						jpQuery.setParameter("internalStatusType", ApplicationConstants.QUESTION_FINAL_ADMISSION);
-						jpQuery.setParameter("startTime", FormaterUtil.formatStringToDate(startTime, ApplicationConstants.DB_DATEFORMAT));
-						jpQuery.setParameter("endTime", FormaterUtil.formatStringToDate(endTime, ApplicationConstants.DB_DATEFORMAT));
+						jpQuery.setParameter("startTime", FormaterUtil.formatStringToDate(startTime, ApplicationConstants.DB_DATETIME_FORMAT));
+						jpQuery.setParameter("endTime", FormaterUtil.formatStringToDate(endTime, ApplicationConstants.DB_DATETIME_FORMAT));
 						
 						/*Set<Parameter<?>> parameters = jpQuery.getParameters();
 						for(Parameter<?> p : parameters){
