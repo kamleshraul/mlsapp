@@ -1023,7 +1023,8 @@ class StarredQuestionChart {
 		for(Date d : answeringDates) {
 			Date finalSubmissionDate = group.getFinalSubmissionDate(d);
 			int comparisonResult = finalSubmissionDate.compareTo(question.getSubmissionDate());
-			if(comparisonResult>=0){
+			int comparisonResult1 = finalSubmissionDate.compareTo(new Date());
+			if(comparisonResult>=0 && comparisonResult1>=0){
 				Chart chart = StarredQuestionChart.find(session, 
 						group, d, deviceType, locale);
 				if(chart != null) {
@@ -1032,8 +1033,6 @@ class StarredQuestionChart {
 								question, maxNoOfQuestions);
 					if(isAddedToChart) {
 						return true;
-					}else{
-						break;
 					}
 				}
 			}
