@@ -789,6 +789,11 @@ public class QuestionWorkflowController  extends BaseController{
 		model.addAttribute("referencedQuestions",refentities);
 
 		/**** Clubbed Questions are collected in references ****/
+		String permission = "no";
+		CustomParameter partiallyClubbedParameter = CustomParameter.findByName(CustomParameter.class, "PERMISSION_TO_DISPLAY_PARTIAL_CLUBBED_QUESTIONS", "");
+		if(partiallyClubbedParameter != null){
+			permission = partiallyClubbedParameter.getValue();
+		}
 		List<Reference> references = new ArrayList<Reference>();
 		List<ClubbedEntity> clubbedEntities = Question.findClubbedEntitiesByPosition(domain);
 		StringBuffer buffer1 = new StringBuffer();
@@ -799,6 +804,15 @@ public class QuestionWorkflowController  extends BaseController{
 			reference.setName(FormaterUtil.getNumberFormatterNoGrouping(locale).
 					format(ce.getQuestion().getNumber()));
 			reference.setNumber(String.valueOf(ce.getQuestion().getId()));
+			if(permission.equals("no")){
+				if(ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().contains("FINAL")
+						|| ce.getQuestion().getInternalStatus().getType().contains(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_CLUBBED)){
+					reference.setState("yes");
+				}
+			}else{
+				reference.setState("yes");
+			}
 			references.add(reference);
 			String tempPrimary = ce.getQuestion().getPrimaryMember().getFullname();
 			if(!buffer1.toString().contains(tempPrimary)){
