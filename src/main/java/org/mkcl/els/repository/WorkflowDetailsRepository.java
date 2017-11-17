@@ -34,6 +34,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.HouseType;
+import org.mkcl.els.domain.MemberBallotChoice;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.PrintRequisition;
@@ -48,6 +49,7 @@ import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.Workflow;
 import org.mkcl.els.domain.WorkflowConfig;
 import org.mkcl.els.domain.WorkflowDetails;
+import org.mkcl.els.domain.Question.PROCESSING_MODE;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -344,9 +346,29 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 								}
 								workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getSession().getYear()));
 							}
-							if(question.getChartAnsweringDate()!=null){
-								workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+							PROCESSING_MODE processingMode = Question.getProcessingMode(question.getSession());
+							if(processingMode.toString().equals(ApplicationConstants.UPPER_HOUSE.toUpperCase())){
+								if(Question.allowedInFirstBatch(question, question.getSubmissionDate())){
+									if(MemberBallotChoice.isQuestiongivenForChoice(question)){
+										if(question.getAnsweringDate()!=null){
+											workflowDetails.setAnsweringDate(question.getAnsweringDate().getAnsweringDate());
+										}
+									}else{
+										if(question.getChartAnsweringDate()!=null){
+											workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+										}
+									}
+								}else{
+									if(question.getChartAnsweringDate()!=null){
+										workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+									}
+								}
+							}else{
+								if(question.getChartAnsweringDate()!=null){
+									workflowDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+								}
 							}
+							
 							if(question.getRevisedSubject() != null && !question.getRevisedSubject().isEmpty()){
 								workflowDetails.setSubject(question.getRevisedSubject());
 							}else{

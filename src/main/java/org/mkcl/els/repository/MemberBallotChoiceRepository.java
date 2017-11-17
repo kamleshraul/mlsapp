@@ -168,4 +168,20 @@ public class MemberBallotChoiceRepository extends BaseRepository<MemberBallotCho
 		}
 	}
 
+	public Boolean isQuestiongivenForChoice(Question question) {
+		Boolean choiceFlag = false;
+		String strQuery="SELECT mbc FROM MemberBallot mb "
+				+ " JOIN mb.questionChoices mbc "
+				+ " WHERE mb.session.id=:sessionId"
+				+ " AND mbc.question.id=:questionId";
+		Query query=this.em().createQuery(strQuery);
+		query.setParameter("sessionId", question.getSession().getId());
+		query.setParameter("questionId", question.getId());
+		List<MemberBallotChoice> results=query.getResultList();
+		if(results!=null && ! results.isEmpty()){
+			choiceFlag = true;
+		}
+		return choiceFlag;
+	}
+
 }

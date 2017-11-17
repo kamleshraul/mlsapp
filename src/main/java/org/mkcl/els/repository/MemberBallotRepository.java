@@ -53,6 +53,8 @@ import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.SupportingMember;
+import org.mkcl.els.domain.UserGroupType;
+import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.springframework.stereotype.Repository;
 
@@ -2732,17 +2734,27 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 							q.merge();
 						}
 						newPrimaryclubbedEntities.add(oldPrimaryClubbedEntity);
-
+						
 						oldPrimaryQuestion.setParent(newPrimaryQuestion);
 						oldPrimaryQuestion.setClubbedEntities(null);
 						oldPrimaryQuestion.merge();
-
+						String actor = oldPrimaryQuestion.getActor();
+						UserGroupType usergroupType = null;
+						if(actor!= null && !actor.isEmpty()){
+							String  strUsergroupType = actor.split("#")[1];
+							usergroupType = UserGroupType.findByType(strUsergroupType, locale);
+						}
+						Question.endDeviceWorkflow(oldPrimaryQuestion.getType().getType(), oldPrimaryQuestion.getId(), oldPrimaryQuestion.getHouseType().getType(), locale);
+						
 						newPrimaryQuestion.setParent(null);
 						newPrimaryQuestion.setRevisedQuestionText(oldPrimaryQuestion.getRevisedQuestionText());
 						newPrimaryQuestion.setRevisedSubject(oldPrimaryQuestion.getRevisedSubject());
 						newPrimaryQuestion.setClubbedEntities(newPrimaryclubbedEntities);
 						newPrimaryQuestion.merge();
-
+						
+						Question.startDeviceWorkflow(newPrimaryQuestion.getType().getType(), newPrimaryQuestion.getId(), newPrimaryQuestion.getInternalStatus(), usergroupType, Integer.parseInt(oldPrimaryQuestion.getLevel()), oldPrimaryQuestion.getHouseType().getType(), false, locale);
+						
+						
 						//newPrimaryClubbedEntity.remove();
 
 						/**** Update Position of New Primary Question Clubbed Entities ****/
