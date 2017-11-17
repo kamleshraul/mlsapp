@@ -253,4 +253,7 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
 				member,round,choice);
 	}
 	
+	public static Boolean isQuestiongivenForChoice(final Question question){
+		return getMemberBallotChoiceRepository().isQuestiongivenForChoice(question);
+	}
 }
