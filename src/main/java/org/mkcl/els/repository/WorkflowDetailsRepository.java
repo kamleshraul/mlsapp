@@ -347,7 +347,8 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 								workflowDetails.setSessionYear(FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getSession().getYear()));
 							}
 							PROCESSING_MODE processingMode = Question.getProcessingMode(question.getSession());
-							if(processingMode.toString().equals(ApplicationConstants.UPPER_HOUSE.toUpperCase())){
+							if(processingMode.toString().equals(ApplicationConstants.UPPER_HOUSE.toUpperCase()) 
+									&& question.getOriginalType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
 								if(Question.allowedInFirstBatch(question, question.getSubmissionDate())){
 									if(MemberBallotChoice.isQuestiongivenForChoice(question)){
 										if(question.getAnsweringDate()!=null){
