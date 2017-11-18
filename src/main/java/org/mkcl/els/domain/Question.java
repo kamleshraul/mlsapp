@@ -12925,8 +12925,8 @@ public class Question extends Device implements Serializable {
     public static boolean allowedInFirstBatch(final Question question, final Date date){
     	    	
     	Session session = question.getSession();
-    	Date submissionFirstBatchStartDate = FormaterUtil.formatStringToDate(session.getParameter(question.getType().getType() + "_" + "submissionFirstBatchStartDate"), ApplicationConstants.DB_DATETIME_FORMAT);
-    	Date submissionFirstBatchEndDate = FormaterUtil.formatStringToDate(session.getParameter(question.getType().getType() + "_" + "submissionFirstBatchEndDate"), ApplicationConstants.DB_DATETIME_FORMAT);
+    	Date submissionFirstBatchStartDate = FormaterUtil.formatStringToDate(session.getParameter(question.getOriginalType().getType() + "_" + "submissionFirstBatchStartDate"), ApplicationConstants.DB_DATETIME_FORMAT);
+    	Date submissionFirstBatchEndDate = FormaterUtil.formatStringToDate(session.getParameter(question.getOriginalType().getType() + "_" + "submissionFirstBatchEndDate"), ApplicationConstants.DB_DATETIME_FORMAT);
     	if(submissionFirstBatchEndDate != null && submissionFirstBatchStartDate != null){
     		return findAllowedInBatch(question, date, submissionFirstBatchStartDate, submissionFirstBatchEndDate);
     	}else{
@@ -12945,8 +12945,8 @@ public class Question extends Device implements Serializable {
     public static boolean allowedInSecondBatch(final Question question, final Date date){
     	
     	Session session = question.getSession();
-    	Date submissionSecondBatchStartDate = FormaterUtil.formatStringToDate(session.getParameter(question.getType().getType() + "_" + "submissionSecondBatchStartDate"), ApplicationConstants.DB_DATETIME_FORMAT);
-    	Date submissionSecondBatchEndDate = FormaterUtil.formatStringToDate(session.getParameter(question.getType().getType() + "_" + "submissionSecondBatchEndDate"), ApplicationConstants.DB_DATETIME_FORMAT);;
+    	Date submissionSecondBatchStartDate = FormaterUtil.formatStringToDate(session.getParameter(question.getOriginalType().getType() + "_" + "submissionSecondBatchStartDate"), ApplicationConstants.DB_DATETIME_FORMAT);
+    	Date submissionSecondBatchEndDate = FormaterUtil.formatStringToDate(session.getParameter(question.getOriginalType().getType() + "_" + "submissionSecondBatchEndDate"), ApplicationConstants.DB_DATETIME_FORMAT);;
     	if(submissionSecondBatchStartDate != null && submissionSecondBatchEndDate != null){
     		return findAllowedInBatch(question, date, submissionSecondBatchStartDate, submissionSecondBatchEndDate);
     	}else{
@@ -12961,11 +12961,11 @@ public class Question extends Device implements Serializable {
     	
     	Session session = question.getSession();
     	
-    	Date submissionFirstBatchStartDate = FormaterUtil.formatStringToDate(session.getParameter(question.getType().getType() + "_" + "submissionFirstBatchStartDate"), ApplicationConstants.DB_DATETIME_FORMAT);
-    	Date submissionFirstBatchEndDate = FormaterUtil.formatStringToDate(session.getParameter(question.getType().getType() + "_" + "submissionFirstBatchEndDate"), ApplicationConstants.DB_DATETIME_FORMAT);
+    	Date submissionFirstBatchStartDate = FormaterUtil.formatStringToDate(session.getParameter(question.getOriginalType().getType() + "_" + "submissionFirstBatchStartDate"), ApplicationConstants.DB_DATETIME_FORMAT);
+    	Date submissionFirstBatchEndDate = FormaterUtil.formatStringToDate(session.getParameter(question.getOriginalType().getType() + "_" + "submissionFirstBatchEndDate"), ApplicationConstants.DB_DATETIME_FORMAT);
     	
-    	Date submissionSecondBatchStartDate = FormaterUtil.formatStringToDate(session.getParameter(question.getType().getType() + "_" + "submissionSecondBatchStartDate"), ApplicationConstants.DB_DATETIME_FORMAT);
-    	Date submissionSecondBatchEndDate = FormaterUtil.formatStringToDate(session.getParameter(question.getType().getType() + "_" + "submissionSecondBatchEndDate"), ApplicationConstants.DB_DATETIME_FORMAT);
+    	Date submissionSecondBatchStartDate = FormaterUtil.formatStringToDate(session.getParameter(question.getOriginalType().getType() + "_" + "submissionSecondBatchStartDate"), ApplicationConstants.DB_DATETIME_FORMAT);
+    	Date submissionSecondBatchEndDate = FormaterUtil.formatStringToDate(session.getParameter(question.getOriginalType().getType() + "_" + "submissionSecondBatchEndDate"), ApplicationConstants.DB_DATETIME_FORMAT);
     	
     	if((date.compareTo(submissionFirstBatchStartDate) > 0 || date.compareTo(submissionFirstBatchStartDate) == 0) && (date.compareTo(submissionFirstBatchEndDate) < 0 || date.compareTo(submissionFirstBatchEndDate) == 0)){
     		batch = 1;
