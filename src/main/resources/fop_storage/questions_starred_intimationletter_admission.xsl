@@ -198,6 +198,16 @@
 							</fo:block>															
 						</fo:block>
 						<fo:block font-size="6px">&#160;</fo:block>
+						<xsl:if test="houseType='upperhouse'">
+	            			<xsl:choose>
+								<xsl:when test="referredQuestionDeviceType='questions_starred'">
+									<fo:block><xsl:value-of select="referredQuestionDeviceName"/> क्रमांक <xsl:value-of select="referredQuestionNumber"/> ला दिनांक <xsl:value-of select="referredQuestionAnsweringDate"/> रोजी दिलेल्‍या उत्‍तराच्‍या संदर्भात</fo:block>
+								</xsl:when>
+								<xsl:when test="referredQuestionDeviceType='questions_unstarred'">
+									<fo:block>दिनांक <xsl:value-of select="referredQuestionYaadiLayingDate"/> रोजी सभागृहाच्या पटलावर ठेवण्यात आलेल्या अतारांकित यादी क्रमांक <xsl:value-of select="referredQuestionYaadiPosition"/> मधील प्रश्न क्रमांक <xsl:value-of select="referredQuestionNumber"/> ला दिलेल्या उत्तराच्या संदर्भात </fo:block>
+								</xsl:when>
+							</xsl:choose>
+	            		</xsl:if>
 						<!-- <xsl:if test="questionReferenceText!=''">
 							<xsl:value-of select="questionReferenceText"/>
 						</xsl:if> -->
