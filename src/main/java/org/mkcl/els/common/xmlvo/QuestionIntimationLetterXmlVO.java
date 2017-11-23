@@ -83,6 +83,8 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	
 	private String referredQuestionDeviceType;
 	
+	private String referredQuestionDeviceName;
+	
 	private String referredQuestionMemberName;
 	
 	private String referredQuestionAnsweringDate;
@@ -104,6 +106,8 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	private String remarksForClarification;
 	
 	private Boolean isRevisedQuestionTextWorkflow;
+	
+	private String referredQuestionYaadiPosition;
 
 	@XmlElement(name = "inwardLetterNumber")
 	public String getInwardLetterNumber() {
@@ -536,4 +540,25 @@ public class QuestionIntimationLetterXmlVO extends XmlVO {
 	public void setIsRevisedQuestionTextWorkflow(Boolean isRevisedQuestionTextWorkflow) {
 		this.isRevisedQuestionTextWorkflow = isRevisedQuestionTextWorkflow;
 	}
+
+	@XmlElement(name = "referredQuestionYaadiPosition")
+	public String getReferredQuestionYaadiPosition() {
+		return referredQuestionYaadiPosition;
+	}
+
+	public void setReferredQuestionYaadiPosition(String referredQuestionYaadiPosition) {
+		this.referredQuestionYaadiPosition = referredQuestionYaadiPosition;
+	}
+
+	@XmlElement(name = "referredQuestionDeviceName")
+	public String getReferredQuestionDeviceName() {
+		return referredQuestionDeviceName;
+	}
+
+	public void setReferredQuestionDeviceName(String referredQuestionDeviceName) {
+		this.referredQuestionDeviceName = referredQuestionDeviceName;
+	}
+	
+	
+	
 }
