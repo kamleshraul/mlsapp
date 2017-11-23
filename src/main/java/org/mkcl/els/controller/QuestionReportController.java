@@ -56,6 +56,7 @@ import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
+import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -536,7 +537,18 @@ public class QuestionReportController extends BaseController{
 						letterVO.setQuestionReferenceText("");
 					}
 				}
-				
+				List<ReferenceUnit> referenceUnits = question.getReferencedEntities();
+				if(!referenceUnits.isEmpty()){
+					for(ReferenceUnit ru :referenceUnits){
+						letterVO.setReferredQuestionDeviceType(ru.getDeviceType());
+						letterVO.setReferredQuestionDeviceName(ru.getDeviceName());
+						letterVO.setReferredQuestionAnsweringDate(ru.getYaadiDate());
+						letterVO.setReferredQuestionNumber(ru.formatNumber(ru.getNumber()));
+						letterVO.setReferredQuestionYaadiLayingDate(ru.getYaadiDate());
+						letterVO.setReferredQuestionYaadiNumber(ru.getYaadiNumber());
+						letterVO.setReferredQuestionYaadiPosition(ru.getPosition().toString());
+					}
+				}
 				
 				if(statusType.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION) || statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
 						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_REJECTION) || statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
