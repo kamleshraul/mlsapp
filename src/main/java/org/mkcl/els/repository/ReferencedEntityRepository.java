@@ -1606,12 +1606,17 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		String houseType = question.getHouseType().getType();
 		Status statusAdmitted = Status.findByType(ApplicationConstants.STANDALONE_FINAL_ADMISSION,question.getLocale());
 		Status statusRejected = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REJECTION,question.getLocale());
+		Status statusRepeatAdmitted = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATADMISSION,question.getLocale());
+		Status statusRepeatRejected = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATREJECTION,question.getLocale());
 		String admittedStatusId = null;
 		String rejectedStatusId = null;
-
+		String repeatAdmittedStatusId = null;
+		String repeatRejectedStatusId = null;
 		if (statusAdmitted != null && statusRejected != null) {
 			admittedStatusId = statusAdmitted.getId().toString();
 			rejectedStatusId = statusRejected.getId().toString();
+			repeatAdmittedStatusId = statusRepeatAdmitted.getId().toString();
+			repeatRejectedStatusId = statusRepeatRejected.getId().toString();
 		}
 
 		String selectQuery = "SELECT m.id as id,m.number as number,"
@@ -1635,7 +1640,9 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				+ "LEFT JOIN subdepartments as sd ON(m.subdepartment_id=sd.id) "
 				+ "WHERE m.id<>" + question.getId() 
 				+ " AND (m.internalstatus_id=" + admittedStatusId
-				+ " OR m.internalstatus_id=" + rejectedStatusId + ")"
+				+ " OR m.internalstatus_id=" + rejectedStatusId  
+				+ " OR m.internalstatus_id=" + repeatAdmittedStatusId
+				+ " OR m.internalstatus_id=" + repeatRejectedStatusId + ")"
 				+ " AND ht.type='" + houseType +"'"
 				+ " AND m.parent IS NULL"
 				+ " AND s.id IN (" + session.getId() + ")";
