@@ -771,11 +771,15 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 			String username=task.getAssignee();			
 			if(username!=null){
 				if(!username.isEmpty()){
-					Credential credential = Credential.findByFieldName(Credential.class,"username",username,"");
-					UserGroup userGroup = UserGroup.findActive(credential, new Date(), resolution.getLocale());
-					userGroupId=String.valueOf(userGroup.getId());
-					userGroupType=userGroup.getUserGroupType().getType();
-					userGroupName=userGroup.getUserGroupType().getName();
+					//Credential credential = Credential.findByFieldName(Credential.class,"username",username,"");
+					//UserGroup userGroup = UserGroup.findActive(credential, new Date(), resolution.getLocale());
+					List<UserGroup> usergroups = UserGroup.findActiveUserGroupsOfGivenUser(username, resolution.getHouseType().getName(), resolution.getType().getName());
+					for(UserGroup ug : usergroups){
+						userGroupId = String.valueOf(ug.getId());
+						userGroupType = ug.getUserGroupType().getType();
+						userGroupName = ug.getUserGroupType().getName();
+						break;
+					}
 					workflowDetails.setAssignee(task.getAssignee());
 					workflowDetails.setAssigneeUserGroupId(userGroupId);
 					workflowDetails.setAssigneeUserGroupType(userGroupType);
