@@ -1413,8 +1413,12 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 			String houseType = motion.getHouseType().getType();
 			Status statusAdmitted = Status.findByType(ApplicationConstants.STANDALONE_FINAL_ADMISSION, motion.getLocale());
 			Status statusRejected = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REJECTION, motion.getLocale());
+			Status statusRepeatAdmitted = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATADMISSION,motion.getLocale());
+			Status statusRepeatRejected = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATREJECTION,motion.getLocale());
 			String admittedStatusId = null;
 			String rejectedStatusId = null;
+			String repeatAdmittedStatusId = null;
+			String repeatRejectedStatusId = null;
 			
 			/**** Configurable session count for searching from current to previous ****/
 			CustomParameter sessionsToBeSearched_CP = CustomParameter.findByFieldName(CustomParameter.class, "name", ApplicationConstants.MOTION_SESSIONS_TOBE_SEARCHED_COUNT, "");
@@ -1453,6 +1457,8 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 			if (statusAdmitted != null && statusRejected != null) {
 				admittedStatusId = statusAdmitted.getId().toString();
 				rejectedStatusId = statusRejected.getId().toString();
+				repeatAdmittedStatusId = statusRepeatAdmitted.getId().toString();
+				repeatRejectedStatusId = statusRepeatRejected.getId().toString();
 			}
 	
 			String selectQuery = "SELECT m.id as id,m.number as number,"
@@ -1476,7 +1482,9 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					+ "LEFT JOIN subdepartments as sd ON(m.subdepartment_id=sd.id) "
 					+ "WHERE m.id<>" + motion.getId() 
 					+ " AND (m.internalstatus_id=" + admittedStatusId
-					+ " OR m.internalstatus_id=" + rejectedStatusId + ")"
+					+ " OR m.internalstatus_id=" + rejectedStatusId  
+					+ " OR m.internalstatus_id=" + repeatAdmittedStatusId
+					+ " OR m.internalstatus_id=" + repeatRejectedStatusId + ")"
 					+ " AND ht.type='" + houseType +"'"
 					+ " AND m.parent IS NULL"
 					+ " AND s.id IN (" + sb + ")";
@@ -1769,9 +1777,12 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		String houseType = question.getHouseType().getType();
 		Status statusAdmitted = Status.findByType(ApplicationConstants.STANDALONE_FINAL_ADMISSION,question.getLocale());
 		Status statusRejected = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REJECTION,question.getLocale());
+		Status statusRepeatAdmitted = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATADMISSION,question.getLocale());
+		Status statusRepeatRejected = Status.findByType(ApplicationConstants.STANDALONE_FINAL_REPEATREJECTION,question.getLocale());
 		String admittedStatusId = null;
 		String rejectedStatusId = null;
-		
+		String repeatAdmittedStatusId = null;
+		String repeatRejectedStatusId = null;
 		
 		// to find the session to be searched
 		List<Session> totalSessions = new ArrayList<Session>();
@@ -1807,6 +1818,8 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		if (statusAdmitted != null && statusRejected != null) {
 			admittedStatusId = statusAdmitted.getId().toString();
 			rejectedStatusId = statusRejected.getId().toString();
+			repeatAdmittedStatusId = statusRepeatAdmitted.getId().toString();
+			repeatRejectedStatusId = statusRepeatRejected.getId().toString();
 		}
 
 		String selectQuery = "SELECT q.id as id,q.number as number,"
@@ -1823,7 +1836,9 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				+ "LEFT JOIN subdepartments as sd ON(q.subdepartment_id=sd.id) "
 				+ "WHERE q.id<>" + question.getId() 
 				+ " AND (q.internalstatus_id=" + admittedStatusId
-				+ " OR q.internalstatus_id=" + rejectedStatusId + ")"
+				+ " OR q.internalstatus_id=" + rejectedStatusId  
+				+ " OR q.internalstatus_id=" + repeatAdmittedStatusId
+				+ " OR q.internalstatus_id=" + repeatRejectedStatusId + ")"
 				+ " AND ht.type='" + houseType +"'"
 				+ "AND s.id IN (" + sb + ")";
 		
