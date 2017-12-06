@@ -581,18 +581,21 @@ public class MotionReportController extends BaseController{
 			
 			String strId = request.getParameter("motionId");
 			String strReportFormat = request.getParameter("outputFormat");	
-			
+			String strIsAdvanceCopy = request.getParameter("isAdvanceCopy");
+			String isAdvanceCopy = "no";
 			if(strId != null && !strId.isEmpty()){
 				Map<String, String[]> parameters = new HashMap<String, String[]>();
 				parameters.put("locale", new String[]{locale.toString()});
 				parameters.put("motionId", new String[]{strId});
-				
+				if(strIsAdvanceCopy != null && !strIsAdvanceCopy.isEmpty()){
+					isAdvanceCopy = strIsAdvanceCopy;
+				}
 				@SuppressWarnings("rawtypes")
 				List reportData = Query.findReport("MOTION_NIVEDAN_TARIKH", parameters);	
 				String templateName = "motion_nivedan_tarikh";
 				File reportFile = null;				
 				
-				reportFile = generateReportUsingFOP(new Object[] {reportData}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
+				reportFile = generateReportUsingFOP(new Object[] {reportData, isAdvanceCopy}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
 				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
 				
 				model.addAttribute("info", "general_info");;

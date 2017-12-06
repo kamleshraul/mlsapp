@@ -4990,8 +4990,8 @@ class QuestionReportHelper{
 						}
 					}
 					if(referredQuestion != null){
-						((Object[])o)[36] = question.getHalfHourDiscusionFromQuestionReferenceNumber();
-						((Object[])o)[37] = question.getReferenceDeviceType();
+						((Object[])o)[36] = FormaterUtil.formatNumberNoGrouping(referredQuestion.getNumber(), locale);
+						((Object[])o)[37] = referredQuestion.getType().getName();
 						((Object[])o)[38] = referredQuestion.getPrimaryMember().findFirstLastName();
 						if(referredQuestion.getType().getType().equals(ApplicationConstants.STARRED_QUESTION)){
 							((Object[])o)[39] = FormaterUtil.formatDateToString(referredQuestion.getDiscussionDate(), ApplicationConstants.SERVER_DATEFORMAT, locale);
