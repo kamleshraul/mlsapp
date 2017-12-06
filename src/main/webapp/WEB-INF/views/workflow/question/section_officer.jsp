@@ -367,7 +367,7 @@
 		
 		//hack SectionOfficer
 		var params = '';
-		if(type == value || value == sendToMember || value == resendRevisedQuestionText){
+		if(type == value || value == sendToMember || value == resendRevisedQuestionText || value == sendBack || value == discuss){
 			 params="question=" + $("#id").val() + "&status=" + valueToSend +
 			"&usergroup=" + $("#usergroup").val() + "&level=8";
 		}else{
