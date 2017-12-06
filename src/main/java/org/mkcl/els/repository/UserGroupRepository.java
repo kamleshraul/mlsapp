@@ -428,7 +428,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 					reference.setId(j.getCredential().getUsername()
 							+"#"+j.getUserGroupType().getType()
 							+"#"+level
-							+"#"+userGroupTypeTemp.getName()
+							+"#"+userGroupTypeTemp.getDisplayName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
 					reference.setName(userGroupTypeTemp.getName());
 				}				
@@ -532,7 +532,7 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 					reference.setId(j.getCredential().getUsername()
 							+ "#" + j.getUserGroupType().getType()
 							+ "#" + level
-							+ "#" + userGroupType.getName()
+							+ "#" + userGroupType.getDisplayName()
 							+ "#" + user.getTitle() + " " + user.getFirstName() + " "
 							+ user.getMiddleName() + " " +user.getLastName());
 					reference.setName(userGroupType.getName());
