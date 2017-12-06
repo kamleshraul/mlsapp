@@ -938,6 +938,44 @@
 		}
 		
 		
+		//to show new advance copy count for motion
+		function displayNewAdvanceCopyForMotion(){
+			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
+				var url = "ref/newpendingmotionadvancecopy?sessionYear=" + $("#selectedSessionYear").val() +
+							"&sessionType=" + $("#selectedSessionType").val() + 
+							"&houseType=" + $("#selectedHouseType").val() +
+							"&assignee="+ $("#assignee").val()
+				$.get(url, function(data){
+					if(data){
+						$("#advanceCopyNotificationDiv").html(data);
+						$("#advanceCopyNotificationDiv").css('display','inline-block');
+					}
+				}).fail(function(){
+					
+				});
+			}			  
+		}
+		
+		function showAdvanceMotionCopy(){
+			var params = "houseType="+$("#selectedHouseType").val()
+			+"&sessionYear="+$("#selectedSessionYear").val()
+			+"&sessionType="+$("#selectedSessionType").val()
+			+"&assignee="+ $("#assignee").val()
+			showTabByIdAndUrl('details_tab', 'motion/advancecopy?' + params);
+			/* $.get('motion/advancecopy?' + params,function(data){
+				$('#details_tab').addClass('selected');
+				$('.tabContent').html(data);
+		    },'html').fail(function(){
+    			if($("#ErrorMsg").val()!=''){
+    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+    			}else{
+    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+    			}
+    			scrollTop();
+    		}); */
+		    return false;
+		}
+		
 	</script>
 	
 	<style type="text/css">

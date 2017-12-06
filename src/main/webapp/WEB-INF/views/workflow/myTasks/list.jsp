@@ -5,7 +5,12 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		$(document).ready(function(){
-			
+			if($("#deviceTypeType").val() == 'motions_calling_attention'){
+				displayNewAdvanceCopyForMotion();
+				$("#advanceCopyDiv").css("display","inline");
+			}else{
+				$("#advanceCopyDiv").hide();
+			}
 			$('.datetimemask').mask("99-99-9999,99:99:99");
 			/**** Initially we want to get only those tasks which belongs to current user and of selected status ****/
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
@@ -115,6 +120,10 @@
 			$("#deviceSupplement").click(function(e){
 				showSupplementaryWorkflow();
 			});
+			
+			$("#advanceCopy").click(function(e){
+				showAdvanceMotionCopy();
+			});
 			/* if($("#currentusergroupType").val()=='department' 
 					||$("#currentusergroupType").val()=='department_deskofficer' ){
 				$("#intimationLetterFilter").css("display","none");
@@ -129,7 +138,7 @@
 		#goSumRep{
 			cursor: default;
 		}
-		#supplementaryNotificationDiv{
+		#supplementaryNotificationDiv, #advanceCopyNotificationDiv{
 			background: #FF0000 scroll no-repeat;
 			max-width: 100px;
 			width: 50px;
@@ -208,7 +217,17 @@
 				 <div id="supplementaryNotificationDiv" style="display:none;" title="<spring:message code="device.deviceSupplementCount" text="Device Supplement Count"/>">
 					
 				 </div>
-			 </security:authorize>
+			 </security:authorize>|
+			
+			<div id="advanceCopyDiv" style="display:none;">
+				<a href="javascript:void(0);" id="advanceCopy" class="butSim">
+					<spring:message code="device.advanceCopy" text="Advance Copy"/>
+				</a>
+				<div id="advanceCopyNotificationDiv" style="display:none;" title="<spring:message code="device.advanceCopyCount" text="Advance Copy Count"/>">
+					
+				</div>
+			</div>
+			
 			 <br>
 			 <hr>
 			 <a href="#" id="process_record" class="butSim">
