@@ -1,5 +1,7 @@
 package org.mkcl.els.controller.mois;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.BulkApprovalVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberContactVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
@@ -40,6 +43,8 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Party;
+import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferenceUnit;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
@@ -64,6 +69,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("motion")
@@ -3717,5 +3723,232 @@ public class MotionController extends GenericController<Motion>{
 		}
 		
 		return retVal;
+	}
+	
+	@RequestMapping(value = "advancecopy", method = RequestMethod.GET)
+	public String getAdvanceCopyMotions(final ModelMap model,
+	final HttpServletRequest request, 
+	final Locale locale) {
+		/**** Request Params ****/
+		String strHouseType = request.getParameter("houseType");
+		String strSessionType = request.getParameter("sessionType");
+		String strSessionYear = request.getParameter("sessionYear");
+		String strAssignee = request.getParameter("assignee");	
+		try {
+			CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+			if(strHouseType == null || strHouseType.isEmpty()
+				|| strSessionType == null ||strSessionType.isEmpty()
+				|| strSessionYear == null || strSessionYear.isEmpty()
+				|| strAssignee == null || strAssignee.isEmpty()){
+				strHouseType = request.getSession().getAttribute("houseType").toString();
+				strSessionType = request.getSession().getAttribute("sessionType").toString();
+				strSessionYear = request.getSession().getAttribute("sessionYear").toString();
+				strAssignee = request.getSession().getAttribute("assignee").toString();
+			}else{
+				if(csptDeployment!=null){
+					if(csptDeployment.getValue().equals("TOMCAT")){
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+					}
+				}
+			}
+			if(strHouseType != null && !(strHouseType.isEmpty())
+					&& strSessionType != null && !(strSessionType.isEmpty())
+					&& strSessionYear != null && !(strSessionYear.isEmpty())) {
+					SessionType sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+					HouseType houseType = HouseType.findByName(strHouseType, locale.toString());
+					Integer year = new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strSessionYear).intValue());
+					Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+					model.addAttribute("session",session.getId());
+					List<Ministry> ministries = Ministry.findAssignedMinistriesInSession(session.getStartDate(), locale.toString());
+					model.addAttribute("ministries", ministries);
+					List<SubDepartment> subdepartmentList = SubDepartment.findAllSubDepartments(locale.toString());
+					model.addAttribute("subdepartments", subdepartmentList);
+					Credential credential = Credential.findByFieldName(Credential.class, "username", strAssignee, null);
+					UserGroup userGroup = UserGroup.findActive(credential, new Date(), locale.toString());
+					Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+					parameterMap.put("locale", new String[]{locale.toString()});
+					parameterMap.put("sessionId", new String[]{session.getId().toString()});
+					UserGroupType ugt = null;
+					if(userGroup != null){
+						model.addAttribute("usergroup", userGroup.getId());
+						ugt =  userGroup.getUserGroupType();
+						if(ugt.getType().equals(ApplicationConstants.DEPARTMENT)){
+							parameterMap.put("actor", new String[]{""});
+							Status admissionStatus = Status.findByType(ApplicationConstants.MOTION_FINAL_ADMISSION, locale.toString());
+							model.addAttribute("admissionStatus",admissionStatus.getId());
+						}else{
+							parameterMap.put("actor", new String[]{credential.getUsername()});
+							Status admissionStatus = Status.findByType(ApplicationConstants.MOTION_PROCESSED_SENDTODESKOFFICER, locale.toString());
+							model.addAttribute("admissionStatus",admissionStatus.getId());
+						}
+						
+						//Statuses to populate
+						CustomParameter deviceTypeInternalStatusUsergroup = CustomParameter.
+								findByName(CustomParameter.class, "MOTION_PUT_UP_OPTIONS_ADVANCE_COPY_"+ugt.getType().toUpperCase(), "");
+						List<Status> internalStatuses = Status.
+								findStatusContainedIn(deviceTypeInternalStatusUsergroup.getValue(), locale.toString());
+						model.addAttribute("internalStatuses", internalStatuses);
+						
+						
+						
+						model.addAttribute("level", 10);
+						
+						Map<String, String> usergroupParameters = userGroup.getParameters();
+						String strSubdepartment = usergroupParameters.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_"+locale.toString());
+						String subdepartmentIds = new String();
+						if(strSubdepartment != null && !strSubdepartment.isEmpty()){
+							String subdepartments[] = strSubdepartment.split("##");
+							for(int i = 0;i<subdepartments.length;i++){
+								SubDepartment subdepartment = SubDepartment.findByName(SubDepartment.class, subdepartments[i], locale.toString());
+								if(subdepartment != null){
+									subdepartmentIds+=subdepartment.getId();
+									if(i+1<subdepartments.length){
+										subdepartmentIds+=",";
+									}
+								}
+							}
+							parameterMap.put("subdepartments", new String[]{subdepartmentIds});
+						}
+					}
+					List<Object[]> result = Query.findReport("MOIS_ADVANCE_COPY_MOTIONS", parameterMap, true);
+					/**** Populating Bulk Approval VOs ****/
+					List<BulkApprovalVO> bulkapprovals = new ArrayList<BulkApprovalVO>();
+					if(result != null){
+						for(Object[] o: result) {
+							BulkApprovalVO bulkApprovalVO = new BulkApprovalVO();
+							if(o[0] != null){
+								bulkApprovalVO.setDeviceId(o[0].toString());
+							}
+							if(o[1]!= null){
+								bulkApprovalVO.setDeviceNumber(o[1].toString());
+							}
+							if(o[2]!= null){
+								bulkApprovalVO.setSubject(o[2].toString());
+							}
+							if(o[3]!= null){
+								bulkApprovalVO.setSubdepartmentId(Long.parseLong(o[3].toString()));
+							}
+							if(o[4]!= null){
+								bulkApprovalVO.setMinistryId(Long.parseLong(o[4].toString()));
+							}
+							if(o[5] != null){
+								bulkApprovalVO.setMlsBranchNotified(Boolean.parseBoolean(o[5].toString()));
+							}
+							if(o[6] != null){
+								bulkApprovalVO.setTransferDepartmentAccepted(Boolean.parseBoolean(o[6].toString()));
+							}
+							if(o[7] != null){
+								bulkApprovalVO.setAdvanceCopySent(Boolean.parseBoolean(o[7].toString()));
+							}
+							if(o[8] != null){
+								bulkApprovalVO.setAdvanceCopyPrinted(Boolean.parseBoolean(o[8].toString()));
+							}
+							if(ugt.getType().equals(ApplicationConstants.DEPARTMENT)){
+								if(o[9] != null){
+									bulkApprovalVO.setAdvanceCopyActor(o[9].toString());
+								}
+							}else{
+								if(o[9] != null && o[8] != null){
+									bulkApprovalVO.setAdvanceCopyActor(o[9].toString());
+								}else{
+									bulkApprovalVO.setAdvanceCopyActor("");
+								}
+							}
+							bulkapprovals.add(bulkApprovalVO);
+						}
+						
+					}
+					model.addAttribute("bulkapprovals",bulkapprovals);
+				
+			} 
+		
+		}catch (ELSException e) {
+			model.addAttribute("error", e.getParameter());
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException ex) {
+			ex.printStackTrace();
+		} catch (ParseException ex2) {
+			ex2.printStackTrace();
+		}
+		return "motion/approval";
+	}
+	
+	
+	
+	@RequestMapping(value = "advancecopy", method = RequestMethod.POST)
+	public String saveAdvanceCopyMotions(final ModelMap model,
+	final HttpServletRequest request, 
+	final RedirectAttributes redirectAttributes,
+	final Locale locale) {
+		String listSize = request.getParameter("motionlistSize");
+		Motion tempMotion  = null;
+		if(listSize != null && !listSize.isEmpty()){
+			for(int i =0; i<Integer.parseInt(listSize);i++){
+				String strMotionId = request.getParameter("motionId"+i);
+				String actor = request.getParameter("actor"+i);
+				String remark = request.getParameter("remark"+i);
+				String strChecked = request.getParameter("chk"+i);
+				String strUsergroup = request.getParameter("usergroup");
+				String strMinistry = request.getParameter("ministry"+i);
+				String strSubdepartment = request.getParameter("subdepartment"+i);
+				String strTransferAccepted = request.getParameter("transferToDepartmentAccepted"+i);
+				String strMlsNotified = request.getParameter("mlsBranchNotifiedOfTransfer"+i);
+				
+				if(strChecked != null && !strChecked.isEmpty() && Boolean.parseBoolean(strChecked)){
+					Motion motion = Motion.findById(Motion.class,Long.parseLong(strMotionId));
+					tempMotion = motion;
+					if(remark != null && !remark.isEmpty()){
+						motion.setRemarks(remark);
+					}
+					/**** Update Advance Copy Actor ****/
+					if(actor != null && !actor.isEmpty()){
+						motion.setAdvanceCopyActor(actor);	
+					}
+					/***Ministry and Subdepartment ****/
+					if(strMinistry != null && !strMinistry.isEmpty()){
+						Ministry ministry = Ministry.findById(Ministry.class, Long.parseLong(strMinistry));
+						motion.setMinistry(ministry);
+						if(strSubdepartment != null && !strSubdepartment.isEmpty()){
+							SubDepartment subdepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubdepartment));
+							motion.setSubDepartment(subdepartment);
+						}
+					}
+					if(strTransferAccepted != null && !strTransferAccepted.isEmpty()){
+						motion.setTransferToDepartmentAccepted(true);
+					}
+					if(strMlsNotified != null && !strMlsNotified.isEmpty()){
+						motion.setMlsBranchNotifiedOfTransfer(true);
+						motion.setAdvanceCopyActor(null);
+						motion.setAdvanceCopyPrinted(false);
+					}
+					
+					/**** Update Motion ****/
+					motion.setEditedOn(new Date());
+					motion.setEditedBy(this.getCurrentUser().getActualUsername());
+					UserGroup usergroup = UserGroup.findById(UserGroup.class, Long.parseLong(strUsergroup));
+					motion.setEditedAs(usergroup.getUserGroupType().getType());				
+
+					motion.merge();
+				}
+
+			}
+		}
+		
+		if(tempMotion != null){
+			request.getSession().setAttribute("houseType", tempMotion.getHouseType().getName());
+			request.getSession().setAttribute("sessionType", tempMotion.getSession().getType().getSessionType());
+			request.getSession().setAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(tempMotion.getSession().getYear(), locale.toString()));
+			request.getSession().setAttribute("assignee", this.getCurrentUser().getActualUsername());
+		}
+		redirectAttributes.addFlashAttribute("type", "success");
+        //this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh new/edit request i.e after creating/updating records if we click on
+        //new /edit then success message appears
+        request.getSession().setAttribute("type","success");
+        redirectAttributes.addFlashAttribute("msg", "create_success");
+        String returnUrl = "redirect:/motion/advancecopy";
+        return returnUrl;
 	}
 }
