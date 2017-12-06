@@ -308,6 +308,7 @@
 		<pattern>/motion/bulksubmission/assistant/view</pattern>		
 		<pattern>/motion/bulksubmission/assistant/update</pattern>
 		<pattern>/workflow/motion</pattern>
+		<pattern>/motion/advancecopy</pattern>
 		
 		<pattern>/cutmotion/new</pattern>
 		<pattern>/cutmotion/*/edit</pattern>
