@@ -6,7 +6,7 @@
 	<script type="text/javascript">				
 		$(document).ready(function() {
 			/* show publish button for unpublished suchi on default answering date populated */
-			if($("#deviceType").val()=='questions_starred') {
+			if($("#deviceType").val()=='questions_stared') {
 				if($('#selectedAnsweringDate').val()!=undefined && $('#selectedAnsweringDate').val()!=""
 						&& $('#selectedAnsweringDate').val()>0) {					
 					populatePublishButtonForSelectedAnsweringDate();					
