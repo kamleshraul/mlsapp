@@ -60,6 +60,15 @@
 		}	
 		
 		/**** For yaadi details tab to be visible ****/
+		if(currentDeviceType == 'questions_starred') {
+			if($("#currentusergroupType").val()=='deputy_secretary') {
+				$("#yaadi_details_tab").show();
+			} else {
+				$("#yaadi_details_tab").hide();
+			}
+		} else {
+			$("#yaadi_details_tab").show();
+		}
 		if($("#currentusergroupType").val()=='clerk' || $("#currentusergroupType").val()=='assistant') {
 			if(currentDeviceType == 'questions_unstarred') {
 				$("#yaadi_details_tab").show();
@@ -178,6 +187,16 @@
 				$("#ballot_tab").hide();
 			}
 			
+			/**** For yaadi details tab to be visible ****/
+			if(text == 'questions_starred') {
+				if($("#currentusergroupType").val()=='deputy_secretary') {
+					$("#yaadi_details_tab").show();
+				} else {
+					$("#yaadi_details_tab").hide();
+				}
+			} else {
+				$("#yaadi_details_tab").show();
+			}			
 			if($("#currentusergroupType").val()=='clerk' || $("#currentusergroupType").val()=='assistant') {
 				if(text == 'questions_unstarred') {
 					$("#yaadi_details_tab").show();
@@ -1630,12 +1649,24 @@
 			<%-- <security:authorize
 				access="hasAnyRole('QIS_DEPUTY_SECRETARY', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
 				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')"> --%>
-			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
+			<%-- <security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
 			<li>
 				<a id="yaadi_details_tab" href="#" class="tab"> 
 					<spring:message code="generic.yaadi_details_tab" text="Yaadi Details"></spring:message>
 				</a>
 			</li>
+			</security:authorize> --%>
+			<security:authorize
+				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY','QIS_CLERK',
+				'QIS_DEPUTY_SECRETARY','QIS_PRINCIPAL_SECRETARY','QIS_SPEAKER', 'QIS_JOINT_SECRETARY',
+				'QIS_SECRETARY', 'QIS_OFFICER_ON_SPECIAL_DUTY', 'QIS_DEPUTY_SPEAKER', 'QIS_CHAIRMAN',
+				'QIS_DEPUTY_CHAIRMAN', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
+				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')">			
+				<li>
+					<a id="yaadi_details_tab" href="#" class="tab">
+						<spring:message code="generic.yaadi_details_tab" text="Yaadi Details"></spring:message>
+					</a>
+				</li>
 			</security:authorize>
 			<security:authorize
 				access="hasAnyRole('QIS_ASSISTANT', 'QIS_UNDER_SECRETARY',
