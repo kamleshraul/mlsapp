@@ -49,7 +49,10 @@ public class CustomPasswordEncoder extends BCryptPasswordEncoder {
 			encodedPassword = "";
 		}		
 		/** decrypt client side encrypted value of raw password **/
-		rawPassword = this.decryptClientSidePassword(rawPassword.toString());
+		CustomParameter csptClientSideEncryptionRequired = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CLIENTSIDE_PASSWORD_ENCRYTPTION_REQUIRED, "");
+		if(csptClientSideEncryptionRequired!=null && csptClientSideEncryptionRequired.getValue()!=null && csptClientSideEncryptionRequired.getValue().equals(ApplicationConstants.CLIENTSIDE_PASSWORD_ENCRYTPTION_REQUIRED_VALUE)) {
+			rawPassword = this.decryptClientSidePassword(rawPassword.toString());
+		}		
 		
 		CustomParameter csptEncryptionRequired = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PASSWORD_ENCRYTPTION_REQUIRED, "");
 		if(csptEncryptionRequired!=null && csptEncryptionRequired.getValue()!=null && csptEncryptionRequired.getValue().equals(ApplicationConstants.PASSWORD_ENCRYTPTION_REQUIRED_VALUE)) {
