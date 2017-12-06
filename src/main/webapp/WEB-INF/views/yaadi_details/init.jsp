@@ -75,9 +75,9 @@
 			});
 			
 			$("#view_yaadi").click(function(){
-				/* var isYaadiOfAnsweringDateRestrictedForBallotPrivacy = false;
+				var isYaadiOfAnsweringDateRestrictedForBallotPrivacy = false;
 				if($('#deviceType').val()=='questions_starred') {
-					var restrictedAnsweringDateIds = "2620,2623,2626,2631,2634,2602,2606,2609,2613,2616".split(",");
+					var restrictedAnsweringDateIds = "2651,2654,2657,2660,2663,2701,2703,2705,2707,2709".split(",");
 					for(var i=0; i<restrictedAnsweringDateIds.length; i++) {
 						if(isYaadiOfAnsweringDateRestrictedForBallotPrivacy!=true) {
 							if($('#selectedAnsweringDate').val()==restrictedAnsweringDateIds[i]) {
@@ -89,7 +89,7 @@
 				if(isYaadiOfAnsweringDateRestrictedForBallotPrivacy==true) {
 					$.prompt("Restricted for Today's Ballot Privacy!");
 					return false;
-				} */
+				}
 				$("#resultDiv").empty();				
 				var resourceURL="";
 				var parameters="";

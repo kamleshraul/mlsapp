@@ -867,9 +867,9 @@
 			                		</fo:block> -->
 			                	</fo:block>
 			                	<fo:block>______________________________________________________</fo:block>
-			                	<fo:block font-size="10.5pt">
+			                	<fo:block font-size="8.5pt">
 			                		<fo:block text-align="center">
-				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर करण्यात आली आहे.
 				                	</fo:block>
 				                	<fo:block></fo:block>
 					     			<fo:block text-align="center">
@@ -940,9 +940,9 @@
 			                		</fo:block> -->
 			                	</fo:block>
 			                	<fo:block>______________________________________________________</fo:block>
-			                	<fo:block font-size="10.5pt">
+			                	<fo:block font-size="8.5pt">
 			                		<fo:block text-align="center">
-				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर करण्यात आली आहे.
 				                	</fo:block>
 				                	<fo:block></fo:block>
 					     			<fo:block text-align="center">
