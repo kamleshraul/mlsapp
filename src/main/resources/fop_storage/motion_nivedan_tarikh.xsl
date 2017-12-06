@@ -76,6 +76,13 @@
 	            	
 	            		<xsl:choose>
 	            			<xsl:when test="./element_1/element_1_10='upperhouse'">
+	            				
+	            				<xsl:if test="./element_2='yes'">
+	            					<fo:block text-align="center" font-weight="bold" font-size="14pt">
+	            						अग्रिम प्रत
+	            					</fo:block>
+	            					<fo:block font-size="12px">&#160;</fo:block>
+	            				</xsl:if>
 		            			<fo:block text-align="center" font-weight="bold" font-size="14pt">
 			            			<xsl:value-of select="./element_1/element_1_2"></xsl:value-of>						
 			            		</fo:block>  
@@ -106,7 +113,7 @@
 								
 								<fo:block font-size="12px">&#160;</fo:block>						
 								
-								<fo:block>
+								<fo:block text-align="justify">
 									&#160;&#160;&#160;&#160;&#160;"<xsl:value-of select="./element_1/element_1_5"></xsl:value-of>"
 								</fo:block>
 								
@@ -190,17 +197,18 @@
 								</fo:block>
 								
 								<fo:block>&#160;</fo:block>
-																	
-								<fo:block>
-								
-								&#160;&#160;&#160;&#160;&#160;&#160;&#160;निदेशानुसार आपणास कळविण्यात येते की महाराष्ट्र विधानपरिषदेच्या सद्य: सत्रासाठी मा. सभापतींनी
-									उपरोक्त <fo:inline font-weight="bold">लक्षवेधी सूचना क्रमांक <xsl:value-of select="./element_1/element_1_4"></xsl:value-of></fo:inline>
-									वरील स्वरुपात <fo:inline font-weight="bold">स्वीकृत</fo:inline> केली असून  ती दिनांक <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_11"></xsl:value-of></fo:inline> रोजीच्या दिवसाच्या
-									कामकाजाच्या क्रमात दाखविण्यात आली आहे. या लक्षवेधी सूचनेवर संबंधित मंत्री महोदयांनी करावयाच्या निवेदनाच्या <fo:inline font-weight="bold">४५०</fo:inline> 
-									प्रती उशिरात उशिरा दिनांक <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_11"></xsl:value-of></fo:inline> रोजी &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; वाजेपर्यंत या सचिवालयास पाठवाव्यात.
+							
+								<xsl:if test="./element_2!='yes'">										
+									<fo:block>
 									
-								</fo:block>
-								
+									&#160;&#160;&#160;&#160;&#160;&#160;&#160;निदेशानुसार आपणास कळविण्यात येते की महाराष्ट्र विधानपरिषदेच्या सद्य: सत्रासाठी मा. सभापतींनी
+										उपरोक्त <fo:inline font-weight="bold">लक्षवेधी सूचना क्रमांक <xsl:value-of select="./element_1/element_1_4"></xsl:value-of></fo:inline>
+										वरील स्वरुपात <fo:inline font-weight="bold">स्वीकृत</fo:inline> केली असून  ती दिनांक <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_11"></xsl:value-of></fo:inline> रोजीच्या दिवसाच्या
+										कामकाजाच्या क्रमात दाखविण्यात आली आहे. या लक्षवेधी सूचनेवर संबंधित मंत्री महोदयांनी करावयाच्या निवेदनाच्या <fo:inline font-weight="bold">४५०</fo:inline> 
+										प्रती उशिरात उशिरा दिनांक <fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_11"></xsl:value-of></fo:inline> रोजी &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; वाजेपर्यंत या सचिवालयास पाठवाव्यात.
+										
+									</fo:block>
+								</xsl:if>
 								<fo:block>&#160;</fo:block>
 								
 								<fo:block font-weight="bold">
