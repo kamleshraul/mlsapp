@@ -685,7 +685,11 @@
 			<input id="number" name="number" value="${domain.number}" type="hidden">
 		</c:otherwise>
 	</c:choose>
-	<form:errors path="number" cssClass="validationError"/>		
+	<form:errors path="number" cssClass="validationError"/>	
+		<c:if test="${internalStatusType =='motion_recommend_admission' || internalStatusType == 'motion_final_admision'}">
+			<label class="small" style="margin-left: 150px;"><spring:message code="motion.sendAdvanceCopy" text="Send Advance Copy"/></label>
+			<form:checkbox path="advanceCopySent" cssClass="sCheck"/>
+		</c:if>	
 	</p>
 		
 	<p>		
@@ -962,7 +966,7 @@
 		<p class="tright">
 			<c:choose>
 				
-				<c:when test="${fn:contains(internalStatusType,'motion_final')}">
+				<c:when test="${internalStatusType=='motion_recommend_admission' || fn:contains(internalStatusType,'motion_final')}">
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 				</c:when>
 								
