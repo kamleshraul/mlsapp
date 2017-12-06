@@ -40,6 +40,9 @@ public class UserGroupType extends BaseDomain implements Serializable{
     /** The type. */
     @Column(length=1000)
     private String type;
+    
+    @Column(length=3000)
+    private String displayName;
 
     /**
      * Instantiates a new user group type.
@@ -104,4 +107,14 @@ public class UserGroupType extends BaseDomain implements Serializable{
     public void setType(final String type) {
         this.type = type;
     }
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+    
+    
 }
