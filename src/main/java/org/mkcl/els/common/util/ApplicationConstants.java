@@ -2547,6 +2547,10 @@ public class ApplicationConstants {
 	
 	public static final String PASSWORD_ENCRYTPTION_REQUIRED_VALUE = "1";
 	
+	public static final String CLIENTSIDE_PASSWORD_ENCRYTPTION_REQUIRED = "CLIENTSIDE_PASSWORD_ENCRYTPTION_REQUIRED";
+	
+	public static final String CLIENTSIDE_PASSWORD_ENCRYTPTION_REQUIRED_VALUE = "1";
+	
 	public static final String INTIMATION_LETTER_FILTER_REMINDERTODEPARTMENTFORANSWER = "reminderToDepartmentForAnswer";
 	
 	public static final String RIS_CHIEF_REPORTER = "RIS_CHIEF_REPORTER";
