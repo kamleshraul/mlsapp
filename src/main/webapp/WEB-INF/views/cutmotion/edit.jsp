@@ -214,7 +214,16 @@
 					if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 						$(this).val("");
 					}
-				});			
+				});
+				/*if($('#usergroupType').val()=='member') {
+					var restrictedSubDepartmentIds = "8,9,10,56,3100,3101,11,12,13,46,2756,2757,19,2801,3050,16,17,3200,14,15".split(",");
+					for(var i=0; i<restrictedSubDepartmentIds.length; i++) {
+						if($('#subDepartment').val()==restrictedSubDepartmentIds[i]) {
+							$.prompt($('#submissionTimeForDepartmentOverMsg').val());
+							return false;
+						}
+					}
+				}*/
 				$.prompt($('#submissionMsg').val(),{
 					buttons: {Ok:true, Cancel:false}, callback: function(v){
 			        if(v){
@@ -545,6 +554,7 @@
 		<input id="pleaseSelectMsg" value="<spring:message code='client.prompt.select' text='Please Select'/>" type="hidden">
 		<input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the motion.'></spring:message>" type="hidden">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+		<input id="submissionTimeForDepartmentOverMsg" value="<spring:message code='cutmotion.submissionTimeForDepartmentOverMsg' text='Submission Time for This Department is over now!'/>" type="hidden">
 	</div>
 </body>
 </html>
