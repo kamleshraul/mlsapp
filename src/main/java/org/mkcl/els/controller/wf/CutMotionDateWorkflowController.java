@@ -429,35 +429,35 @@ public class CutMotionDateWorkflowController extends BaseController {
 	private void performActionOnAdmission(final CutMotionDate domain) {
 		try{
 			Status finalStatus = Status.findByType(ApplicationConstants.CUTMOTIONDATE_FINAL_DATE_ADMISSION, domain.getLocale());
-			
-			String strBudgetLayDate = domain.getSession().getParameter(domain.getDeviceType().getType() + "_budgetLayDate");
-			String strSubmissionendDateFactor = domain.getSession().getParameter(domain.getDeviceType().getType() + "_submissionEndDateFactor");
-			Date budgetLayDate = null;
-			Integer submissionEndDateFactor = null;
-			
-			if(strBudgetLayDate != null && !strBudgetLayDate.isEmpty()){
-				budgetLayDate = FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, ApplicationConstants.SYSTEM_LOCALE).parse(strBudgetLayDate);
-			}
-			
-			if(strSubmissionendDateFactor != null && !strSubmissionendDateFactor.isEmpty()){
-				submissionEndDateFactor = new Integer(strSubmissionendDateFactor);
-			}
-			
 			domain.setStatus(finalStatus);
-			List<CutMotionDepartmentDatePriority> oldDates = domain.getDepartmentDates();
-			List<CutMotionDepartmentDatePriority> newDates = new ArrayList<CutMotionDepartmentDatePriority>();
-						
-			for(CutMotionDepartmentDatePriority dd : oldDates){
-				Date discussionDate = dd.getDiscussionDate();
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(discussionDate);
-				cal.add(Calendar.DATE, submissionEndDateFactor * (-1));
-				Date submissionEndDate = cal.getTime();			
-				dd.setSubmissionEndDate(submissionEndDate);
-				newDates.add(dd);
-			}
 			
-			domain.setDepartmentDates(newDates);
+//			String strBudgetLayDate = domain.getSession().getParameter(domain.getDeviceType().getType() + "_budgetLayDate");
+//			String strSubmissionendDateFactor = domain.getSession().getParameter(domain.getDeviceType().getType() + "_submissionEndDateFactor");
+//			Date budgetLayDate = null;
+//			Integer submissionEndDateFactor = null;
+//			
+//			if(strBudgetLayDate != null && !strBudgetLayDate.isEmpty()){
+//				budgetLayDate = FormaterUtil.getDateFormatter(ApplicationConstants.DB_DATETIME_FORMAT, ApplicationConstants.SYSTEM_LOCALE).parse(strBudgetLayDate);
+//			}
+//			
+//			if(strSubmissionendDateFactor != null && !strSubmissionendDateFactor.isEmpty()){
+//				submissionEndDateFactor = new Integer(strSubmissionendDateFactor);
+//			}		
+//			
+//			List<CutMotionDepartmentDatePriority> oldDates = domain.getDepartmentDates();
+//			List<CutMotionDepartmentDatePriority> newDates = new ArrayList<CutMotionDepartmentDatePriority>();
+//						
+//			for(CutMotionDepartmentDatePriority dd : oldDates){
+//				Date discussionDate = dd.getDiscussionDate();
+//				Calendar cal = Calendar.getInstance();
+//				cal.setTime(discussionDate);
+//				cal.add(Calendar.DATE, submissionEndDateFactor * (-1));
+//				Date submissionEndDate = cal.getTime();			
+//				dd.setSubmissionEndDate(submissionEndDate);
+//				newDates.add(dd);
+//			}
+//			
+//			domain.setDepartmentDates(newDates);
 		}catch(Exception e){
 			logger.error("error", e);
 		}			
