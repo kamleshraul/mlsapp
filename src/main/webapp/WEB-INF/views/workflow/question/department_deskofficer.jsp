@@ -903,10 +903,24 @@
 		
 		$('#isTransferable').change(function() {
 	        if ($(this).is(':checked')) {
-	        	$("#ministry option[selected!='selected']").show();
-	    		$("#subDepartment option[selected!='selected']").show(); 
-	    		$("#transferP").css("display","inline-block");
-	    		$("#submit").css("display","none");
+	        	if($("#houseTypeType").val()=='lowerhouse'){
+		        	var currentDate = new Date();
+		        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
+		        	if(currentDate <= lastDepartmentChangeDate){
+		        		$("#ministry option[selected!='selected']").show();
+			    		$("#subDepartment option[selected!='selected']").show(); 
+			    		$("#transferP").css("display","inline-block");
+			    		$("#submit").css("display","none");
+		        	}else{
+		        		$.prompt($("#lateDepartmentChangeMessage").val());
+		        		$("#submit").css("display","none");
+		        	}
+	        	}else{
+	        		$("#ministry option[selected!='selected']").show();
+		    		$("#subDepartment option[selected!='selected']").show(); 
+		    		$("#transferP").css("display","inline-block");
+		    		$("#submit").css("display","none");
+	        	}
 	        }else{
 	        	$("#ministry option[selected!='selected']").hide();
 	    		$("#subDepartment option[selected!='selected']").hide(); 
@@ -1682,5 +1696,6 @@
 <input type="hidden" id="upperhouseMessage" value="<spring:message code='generic.upperhouseMessage' text='Upper House'/>"/>
 <input type="hidden" id="lastDateForAnswerReceiving" value="${lastDateOfAnswerReceiving}"/>
 <input id="noLateReplyReasonProvidedMsg" value='<spring:message code="client.error.nolatereplyreason" text="Please provide reason for Late Reply"></spring:message>' type="hidden" />
+ <input type="hidden" id="lateDepartmentChangeMessage" value="<spring:message code='question.lateDepartmentChangeMessage' text='You cannot transfer the question as ballot date is been closed, kindly contact with Question branch.'/>"/>
 </body>
 </html>
