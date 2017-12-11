@@ -1196,6 +1196,8 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("formattedLastDateForChangingDepartment", 
 						FormaterUtil.getDateFormatter(locale).format(domain.getChartAnsweringDate().
 								getLastDateForChangingDepartment()));
+				model.addAttribute("lastDateForChangingDepartment", domain.getChartAnsweringDate().
+						getLastDateForChangingDepartment());
 			}
 		}
 		
