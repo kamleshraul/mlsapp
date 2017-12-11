@@ -75,8 +75,23 @@
 				questionDistribution();
 			});	
 			/**** Level 3 Links ****/
-			$("#view_yaadi").click(function(){
-				var parameters = "houseType="+$("#selectedHouseType").val()
+			$("#view_yaadi").click(function(event, isHighSecurityValidationRequired) {
+				//check output format set or not
+				if($("#outputFormat").val() == "") {
+					$.prompt($('#outputFormatNotSetPrompt').val());
+					return false;
+				} else if($("#mbAnsweringDate").val() == "-") {
+					$.prompt($('#answeringDateNotSetPrompt').val());
+					return false;
+				}
+				
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
+				
+				/* var parameters = "houseType="+$("#selectedHouseType").val()
 								 +"&sessionYear="+$("#selectedSessionYear").val()
 								 +"&sessionType="+$("#selectedSessionType").val()
 								 +"&questionType="+$("#selectedQuestionType").val()
@@ -84,29 +99,24 @@
 								 +"&status="+$("#selectedStatus").val()
 								 +"&role="+$("#srole").val() 
 								 +"&answeringDate="+$("#mbAnsweringDate").val()							 
-								 +"&outputFormat=" + $("#outputFormat").val();		
+								 +"&outputFormat=" + $("#outputFormat").val(); */
 				
-				$(this).attr('href', 'question/report/viewYaadi?' + parameters);			
-				//check output format set or not
-				if($("#outputFormat").val() == "") {
-					$.prompt($('#outputFormatNotSetPrompt').val());
-					return false;
-				} else if($("#mbAnsweringDate").val() == "-") {
-					$.prompt($('#answeringDateNotSetPrompt').val());
-					return false;
-				}
+				var parameters = {
+									houseType: $("#selectedHouseType").val(),
+				 					sessionYear: $("#selectedSessionYear").val(),
+				 					sessionType: $("#selectedSessionType").val(),
+									questionType: $("#selectedQuestionType").val(),
+									group: $("#mbGroup").val(),
+									status: $("#selectedStatus").val(),
+									role: $("#srole").val(), 
+									answeringDate: $("#mbAnsweringDate").val(),							 
+									outputFormat: $("#outputFormat").val()
+								 };
+				
+				//$(this).attr('href', 'question/report/viewYaadi?' + parameters);		
+				form_submit('question/report/viewYaadi', parameters, 'GET');				
 			});
-			$("#view_suchi").click(function(){
-				var parameters = "houseType="+$("#selectedHouseType").val()
-								 +"&sessionYear="+$("#selectedSessionYear").val()
-								 +"&sessionType="+$("#selectedSessionType").val()
-								 +"&questionType="+$("#selectedQuestionType").val()
-								 +"&group="+$("#mbGroup").val()
-								 +"&status="+$("#selectedStatus").val()
-								 +"&role="+$("#srole").val() 
-								 +"&answeringDate=" + $("#mbAnsweringDate").val()								 
-								 + "&outputFormat=" + $("#outputFormat").val();
-				$(this).attr('href', 'question/report/viewSuchi?' + parameters);
+			$("#view_suchi").click(function(event, isHighSecurityValidationRequired) {
 				//check output format set or not
 				if($("#outputFormat").val() == "") {
 					$.prompt($('#outputFormatNotSetPrompt').val());
@@ -115,6 +125,37 @@
 					$.prompt($('#answeringDateNotSetPrompt').val());
 					return false;
 				}
+				
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
+				
+				/* var parameters = "houseType="+$("#selectedHouseType").val()
+				 +"&sessionYear="+$("#selectedSessionYear").val()
+				 +"&sessionType="+$("#selectedSessionType").val()
+				 +"&questionType="+$("#selectedQuestionType").val()
+				 +"&group="+$("#mbGroup").val()
+				 +"&status="+$("#selectedStatus").val()
+				 +"&role="+$("#srole").val() 
+				 +"&answeringDate="+$("#mbAnsweringDate").val()							 
+				 +"&outputFormat=" + $("#outputFormat").val(); */
+
+				var parameters = {
+									houseType: $("#selectedHouseType").val(),
+									sessionYear: $("#selectedSessionYear").val(),
+									sessionType: $("#selectedSessionType").val(),
+									questionType: $("#selectedQuestionType").val(),
+									group: $("#mbGroup").val(),
+									status: $("#selectedStatus").val(),
+									role: $("#srole").val(), 
+									answeringDate: $("#mbAnsweringDate").val(),							 
+									outputFormat: $("#outputFormat").val()
+								 };
+				
+				//$(this).attr('href', 'question/report/viewSuchi?' + parameters);
+				form_submit('question/report/viewSuchi', parameters, 'GET');
 			});
 			/**** on page load ****/
 			attendance();											
