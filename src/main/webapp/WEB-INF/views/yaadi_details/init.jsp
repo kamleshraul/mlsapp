@@ -74,7 +74,7 @@
 				});					
 			});
 			
-			$("#view_yaadi").click(function(){
+			$("#view_yaadi").click(function(event, isHighSecurityValidationRequired) {
 				var isYaadiOfAnsweringDateRestrictedForBallotPrivacy = false;
 				if($('#deviceType').val()=='questions_starred') {
 					var restrictedAnsweringDateIds = "2651,2654,2657,2660,2663,2701,2703,2705,2707,2709".split(",");
@@ -87,7 +87,7 @@
 					}					
 				}
 				if(isYaadiOfAnsweringDateRestrictedForBallotPrivacy==true) {
-					$.prompt("Restricted for Today's Ballot Privacy!");
+					$.prompt("Restricted for Ballot Privacy!");
 					return false;
 				}
 				$("#resultDiv").empty();				
@@ -99,7 +99,12 @@
 						$.prompt($('#outputFormatNotSetPrompt').val());
 						return false;
 					}
-					parameters = "houseType="+$("#selectedHouseType").val()
+					//isHighSecurityValidationRequired = false;
+					if(isHighSecurityValidationRequired!=false) {
+						validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+						return false;
+					}
+					/* parameters = "houseType="+$("#selectedHouseType").val()
 									 +"&sessionYear="+$("#selectedSessionYear").val()
 									 +"&sessionType="+$("#selectedSessionType").val()
 									 +"&questionType="+$("#selectedQuestionType").val()
@@ -108,10 +113,23 @@
 									 +"&role="+$("#srole").val() 
 									 + "&answeringDate=" + $("#selectedAnsweringDate").val()
 									 +"&category=" + $("#category").val()
-									 + "&outputFormat=" + $("#outputFormat").val();	
+									 + "&outputFormat=" + $("#outputFormat").val(); */	
+					 parameters = {
+					 				 houseType: $("#selectedHouseType").val(),
+									 sessionYear: $("#selectedSessionYear").val(),
+									 sessionType: $("#selectedSessionType").val(),
+									 questionType: $("#selectedQuestionType").val(),
+									 group: $("#selectedGroup").val(),
+									 status: $("#selectedStatus").val(),
+									 role: $("#srole").val(), 
+									 answeringDate: $("#selectedAnsweringDate").val(),
+									 category: $("#category").val(),
+									 outputFormat: $("#outputFormat").val()
+					 			 };
 					
-					resourceURL = 'question/report/viewYaadi?' + parameters;
-					$(this).attr('href', resourceURL);
+					/* resourceURL = 'question/report/viewYaadi?' + parameters;
+					$(this).attr('href', resourceURL); */
+					form_submit('question/report/viewYaadi', parameters, 'GET');
 					
 				} else if($("#deviceType").val()=='questions_unstarred') {
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
@@ -139,7 +157,7 @@
 				}			
 			});		
 			
-			$("#view_suchi").click(function(){
+			$("#view_suchi").click(function(event, isHighSecurityValidationRequired) {
 				/* var isYaadiOfAnsweringDateRestrictedForBallotPrivacy = false;
 				if($('#deviceType').val()=='questions_starred') {
 					var restrictedAnsweringDateIds = "2620,2623,2626,2631,2634,2602,2606,2609,2613,2616".split(",");
@@ -152,7 +170,7 @@
 					}					
 				}
 				if(isYaadiOfAnsweringDateRestrictedForBallotPrivacy==true) {
-					$.prompt("Restricted for Today's Ballot Privacy!");
+					$.prompt("Restricted for Ballot Privacy!");
 					return false;
 				} */
 				$("#resultDiv").empty();
@@ -164,7 +182,12 @@
 						$.prompt($('#outputFormatNotSetPrompt').val());
 						return false;
 					}
-					parameters = "houseType="+$("#selectedHouseType").val()
+					//isHighSecurityValidationRequired = false;
+					if(isHighSecurityValidationRequired!=false) {
+						validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+						return false;
+					}
+					/* parameters = "houseType="+$("#selectedHouseType").val()
 									 +"&sessionYear="+$("#selectedSessionYear").val()
 									 +"&sessionType="+$("#selectedSessionType").val()
 									 +"&questionType="+$("#selectedQuestionType").val()
@@ -173,10 +196,23 @@
 									 +"&role="+$("#srole").val() 
 									 + "&answeringDate=" + $("#selectedAnsweringDate").val()
 									 +"&category=" + $("#category").val()
-									 + "&outputFormat=" + $("#outputFormat").val();	
+									 + "&outputFormat=" + $("#outputFormat").val(); */	
+					 parameters = {
+					 				 houseType: $("#selectedHouseType").val(),
+									 sessionYear: $("#selectedSessionYear").val(),
+									 sessionType: $("#selectedSessionType").val(),
+									 questionType: $("#selectedQuestionType").val(),
+									 group: $("#selectedGroup").val(),
+									 status: $("#selectedStatus").val(),
+									 role: $("#srole").val(), 
+									 answeringDate: $("#selectedAnsweringDate").val(),
+									 category: $("#category").val(),
+									 outputFormat: $("#outputFormat").val()
+					 			 };
 					
-					resourceURL = 'question/report/viewSuchi?' + parameters;
-					$(this).attr('href', resourceURL);
+					/* resourceURL = 'question/report/viewSuchi?' + parameters;
+					$(this).attr('href', resourceURL); */
+					form_submit('question/report/viewSuchi', parameters, 'GET');
 					
 				} else if($("#deviceType").val()=='questions_unstarred') {
 					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
