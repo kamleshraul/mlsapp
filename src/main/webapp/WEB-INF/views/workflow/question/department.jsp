@@ -836,10 +836,24 @@
 		
 		$('#isTransferable').change(function() {
 	        if ($(this).is(':checked')) {
-	        	$("#ministry option[selected!='selected']").show();
-	    		$("#subDepartment option[selected!='selected']").show(); 
-	    		$("#transferP").css("display","inline-block");
-	    		$("#submit").css("display","none");
+	        	if($("#houseTypeType").val()=='lowerhouse'){
+		        	var currentDate = new Date();
+		        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
+		        	if(currentDate <= lastDepartmentChangeDate){
+		        		$("#ministry option[selected!='selected']").show();
+			    		$("#subDepartment option[selected!='selected']").show(); 
+			    		$("#transferP").css("display","inline-block");
+			    		$("#submit").css("display","none");
+		        	}else{
+		        		$.prompt($("#lateDepartmentChangeMessage").val());
+		        		$("#submit").css("display","none");
+		        	}
+	        	}else{
+	        		$("#ministry option[selected!='selected']").show();
+		    		$("#subDepartment option[selected!='selected']").show(); 
+		    		$("#transferP").css("display","inline-block");
+		    		$("#submit").css("display","none");
+	        	}
 	        }else{
 	        	$("#ministry option[selected!='selected']").hide();
 	    		$("#subDepartment option[selected!='selected']").hide(); 
@@ -997,6 +1011,7 @@
 	<p>
 		<label class="small"><spring:message code="question.lastDateForChangingDepartment" text="Last Date For Changing Department"/></label>
 		<input id="lastDateForChangingDepartment" class="datemask sText" value="${formattedLastDateForChangingDepartment}" readonly="readonly"/>
+		<input type="hidden" id="lastDateForDepartmentChange" name="lastDateForDepartmentChange" value="${lastDateForChangingDepartment}"/>
 	</p>
 	</c:if>
 	
@@ -1593,7 +1608,7 @@
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input type="hidden" id="selectedQuestionType" value="${selectedQuestionType}" />
 <input type="hidden" id="srole" value="${role}" />
-
+<input type="hidden" id="houseTypeType" value="${houseTypeType}" />
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>
@@ -1623,6 +1638,6 @@
 		<input type="hidden" id="defaultAnswerMessage" value="<spring:message code='question.defaultAnswer' text='Please Enter your Answer here.'/>"/>
 	</c:otherwise>
 </c:choose>
- 
+ <input type="hidden" id="lateDepartmentChangeMessage" value="<spring:message code='question.lateDepartmentChangeMessage' text='You cannot transfer the question as ballot date is been closed, kindly contact with Question branch.'/>"/>
 </body>
 </html>
