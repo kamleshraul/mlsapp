@@ -61,7 +61,9 @@
 		
 		/**** For yaadi details tab to be visible ****/
 		if(currentDeviceType == 'questions_starred') {
-			if($("#currentusergroupType").val()=='deputy_secretary') {
+			if(($("#currentusergroupType").val()=='section_officer' && $("#selectedHouseType").val() == 'upperhouse')
+					|| $("#currentusergroupType").val()=='deputy_secretary'
+					|| $("#currentusergroupType").val()=='principal_secretary') {
 				$("#yaadi_details_tab").show();
 			} else {
 				$("#yaadi_details_tab").hide();
@@ -189,7 +191,9 @@
 			
 			/**** For yaadi details tab to be visible ****/
 			if(text == 'questions_starred') {
-				if($("#currentusergroupType").val()=='deputy_secretary') {
+				if(($("#currentusergroupType").val()=='section_officer' && $("#selectedHouseType").val() == 'upperhouse')
+					|| $("#currentusergroupType").val()=='deputy_secretary'
+					|| $("#currentusergroupType").val()=='principal_secretary') {
 					$("#yaadi_details_tab").show();
 				} else {
 					$("#yaadi_details_tab").hide();
