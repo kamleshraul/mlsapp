@@ -2632,11 +2632,13 @@ class StarredQuestionChart {
 			final Group sourceGroup) throws ELSException {
 		Chart chart = Chart.find(question);
 		if(chart != null) {
+			String locale = chart.getLocale();
 			Member member = question.getPrimaryMember();
 			Session session = question.getSession();
+			String submissionEndDate = session.getParameter("questions_starred_submissionEndDate");
+			Date lastSubmissionDate = FormaterUtil.formatStringToDate(submissionEndDate, ApplicationConstants.DB_DATETIME_FORMAT, locale);
 			Group group = chart.getGroup();
 			Date answeringDate = chart.getAnsweringDate();
-			String locale = chart.getLocale();
 			Chart latestChart = findLatestChart(session, group, question.getOriginalType(), locale);
 			Date latestChartAnsweringDate = latestChart.getAnsweringDate();
 			ChartEntry ce = 
@@ -2675,7 +2677,7 @@ class StarredQuestionChart {
 				}
 			}
 			
-			if(dateComparator>=0){
+			if(dateComparator>=0 && lastSubmissionDate.compareTo(new Date())>=0){
 				Question q = StarredQuestionChart.onGroupChangeAddQuestionLH(
 						session, member, sourceGroup, answeringDate,
 						devices.toArray(new Question[0]), locale);
