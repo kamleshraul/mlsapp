@@ -858,13 +858,13 @@
 			<c:forEach items="${latestRevisions}" var="i">
 				<tr>
 					<td style="text-align: left">
-					${i[0]}<br>(${i[2]})
+					${i[1]}<br>(${i[7]})
+					</td>
+					<td style="text-align: center">
+					${i[3]}
 					</td>
 					<td style="text-align: center">
 					${i[6]}
-					</td>
-					<td style="text-align: center">
-					${i[7]}
 					</td>
 				</tr>
 			</c:forEach>	

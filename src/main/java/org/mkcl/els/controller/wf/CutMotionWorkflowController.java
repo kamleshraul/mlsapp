@@ -431,6 +431,8 @@ public class CutMotionWorkflowController extends BaseController {
 		String userGroupId = workflowDetails.getAssigneeUserGroupId();
 		model.addAttribute("usergroup", workflowDetails.getAssigneeUserGroupId());
 		model.addAttribute("usergroupType", workflowDetails.getAssigneeUserGroupType());
+		model.addAttribute("userGroupName", workflowDetails.getAssigneeUserGroupName());
+		model.addAttribute("userName", this.getCurrentUser().getActualUsername());
 
 		/**** Status,Internal Status and recommendation Status ****/
 		Status status = domain.getStatus();
@@ -1718,7 +1720,7 @@ public class CutMotionWorkflowController extends BaseController {
 		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
 		requestMap.put("cutMotionId",new String[]{String.valueOf(domain.getId())});
 		requestMap.put("locale",new String[]{domain.getLocale()});
-		List result=Query.findReport("CUTMOTION_GET_REVISION", requestMap);
+		List result=Query.findReport("CMOIS_GET_REVISION", requestMap);
 		model.addAttribute("latestRevisions",result);
 	}
 }

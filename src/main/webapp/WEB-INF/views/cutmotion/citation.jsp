@@ -6,7 +6,13 @@
 <script type="text/javascript">
 $(document).ready(function(){	
 	//first split specific for jwysiwyg plugin
-	var existingCitations = $("#remarks").wysiwyg("getContent").split("<p></p>")[1].split(",");
+	var existingCitations="";
+	if($("#remarks").wysiwyg("getContent")!=undefined){
+		 existingCitations=$("#remarks").wysiwyg("getContent").split("<p></p>")[1].split(",");
+
+	}else{
+		 existingCitations=$("#remarks").val().split(",");
+	}
 	$('#Citations').val(existingCitations);
 	
 	$('#citations option').each(function(){
@@ -28,7 +34,11 @@ $(document).ready(function(){
 			}
 		}
 		$('#Citations').val(updatedCitations);
-		$("#remarks").wysiwyg("setContent","<p></p>" + $('#Citations').val());
+		if($("#remarks").wysiwyg("getContent")!=undefined){
+			$("#remarks").wysiwyg("setContent","<p></p>" + $('#Citations').val());
+		}else{
+			$("#remarks").val($('#Citations').val());
+		}
 	    $.fancybox.close();	    	
 	});
 	
