@@ -503,9 +503,11 @@
 				<spring:message code="memberballot.memberballotstatus" text="Member Ballot Status"/>
 			</a> |		
 			<hr>
+			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
 			<a href="#" id="memberballotchoice" class="butSim link">
 				<spring:message code="memberballot.memberballotchoice" text="Question Choices"/>
 			</a> |
+			</security:authorize>
 			<a href="#" id="updateclubbing" class="butSim link">
 				<spring:message code="memberballot.updateclubbing" text="Update Clubbing"/>
 			</a> |

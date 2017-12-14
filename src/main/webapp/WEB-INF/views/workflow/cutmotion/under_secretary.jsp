@@ -60,8 +60,8 @@
 			scrollTop();
 		});	
 	}	
-	/**** to view the referred resolution ****/
-	function viewResolutionDetail(id){
+	/**** to view the referred cutmotion ****/
+	function viewCutMotionDetail(id){
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
 		var parameters="houseType="+$("#selectedHouseType").val()
 		+"&deviceType="+$("#deviceType").val()
@@ -71,7 +71,7 @@
 		+"&usergroup="+$("#currentusergroup").val()
 		+"&usergroupType="+$("#currentusergroupType").val()
 		+"&edit=false";
-		var resourceURL='resolution/'+id+'/edit?'+parameters;
+		var resourceURL='cutmotion/'+id+'/edit?'+parameters;
 		$.get(resourceURL,function(data){
 			$.unblockUI();
 			$.fancybox.open(data,{autoSize:false,width:750,height:700});
@@ -751,13 +751,13 @@
 		</p>
 	</c:if>
 		
-	<c:if test="${!(empty referencedResolutions) }">
+	<c:if test="${!(empty referencedCutMotions) }">
 		<p>
-			<label class="small"><spring:message code="motion.referencedmotions" text="Referenced Resolutions"></spring:message></label>
+			<label class="small"><spring:message code="motion.referencedmotions" text="Referenced CutMotions"></spring:message></label>
 			<c:choose>
-				<c:when test="${!(empty referencedResolutions) }">
-					<c:forEach items="${referencedResolutions }" var="i">
-						<a href="#" id="rq${i.number}" class="clubbedRefMotions" onclick="viewResolutionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+				<c:when test="${!(empty referencedCutMotions) }">
+					<c:forEach items="${referencedCutMotions }" var="i">
+						<a href="#" id="rq${i.number}" class="clubbedRefMotions" onclick="viewCutMotionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
@@ -840,40 +840,76 @@
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<p>	
-		<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
-		<select id="changeInternalStatus" class="sSelect">
-			<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-			<c:forEach items="${internalStatuses}" var="i">
-				<c:choose>
-					<c:when test="${i.id==internalStatusSelected }">
-						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</select>
-		
+	<table class="uiTable" style="margin-left:165px;width:600px;">
+		<thead>
+		<tr>
+		<th style="text-align: center">
+		<spring:message code="cmois.latestrevisions.user" text="Usergroup"></spring:message>
+		</th>
+		<th style="text-align: center">
+		<spring:message code="cmois.latestrevisions.decision" text="Decision"></spring:message>
+		</th>
+		<th style="text-align: center">
+		<spring:message code="cmois.latestrevisions.remarks" text="Remarks"></spring:message>
+		</th>
+		</tr>
+		</thead>
+		<tbody>	
+			<c:forEach items="${latestRevisions}" var="i">
+				<tr>
+					<td style="text-align: left">
+					${i[0]}<br>(${i[2]})
+					</td>
+					<td style="text-align: center">
+					${i[6]}
+					</td>
+					<td style="text-align: center">
+					${i[7]}
+					</td>
+				</tr>
+			</c:forEach>	
+			<c:if test="${workflowstatus != 'COMPLETED'}">
+				<tr>
+					<td style="text-align: left">
+						${userName}<br>
+						(${userGroupName})
+					</td>
+					<td style="text-align: center">
+						<select id="changeInternalStatus" class="sSelect">
+							<c:forEach items="${internalStatuses}" var="i">
+									<c:choose>
+										<c:when test="${i.id==internalStatusSelected }">
+											<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+										</c:when>
+										<c:otherwise>
+											<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+										</c:otherwise>
+									</c:choose>
+							</c:forEach>
+						</select>
+						<form:errors path="internalStatus" cssClass="validationError"/>
+					</td>
+					<td>
+						<a href="#" id="viewCitation" style="margin-left: 210px;margin-top: 30px;"><spring:message code="cutmotion.viewcitation" text="View Citations"></spring:message></a>
+						<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+					</td>
+				</tr>
+			</c:if>	
+		</tbody>
+	</table>
+	
+	<c:if test="${workflowstatus!='COMPLETED' }">	
 		<select id="internalStatusMaster" style="display:none;">
-			<c:forEach items="${internalStatuses}" var="i">
-				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-			</c:forEach>
+		<c:forEach items="${internalStatuses}" var="i">
+		<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+		</c:forEach>
 		</select>	
-		<form:errors path="internalStatus" cssClass="validationError"/>	
-	</p>
 	
-	<p id="actorDiv">
-		<label class="small"><spring:message code="generic.nextactor" text="Next Users"/></label>
-		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-	</p>
-	
-	<p>
-		<label class="wysiwyglabel"><spring:message code="generic.remarks" text="Remarks"/></label>
-		<a href="#" id="viewCitation" style="display: inline; margin-left: 530px;"><spring:message code="cutmotion.viewcitation" text="View Citations"></spring:message></a>
-		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>	
+		<p id="actorDiv" style="display:none;">
+			<label class="small"><spring:message code="cutmotion.nextactor" text="Next Users"/></label>
+			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>	
+		</p>		
+	</c:if>	
 	
 	<div class="fields">
 		<h2></h2>

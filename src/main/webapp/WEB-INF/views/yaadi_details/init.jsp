@@ -5,6 +5,13 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">				
 		$(document).ready(function() {
+			if($("#selectedHouseType").val()=='lowerhouse' 
+					&& $("#deviceType").val()=='questions_starred'
+					&& $("#currentusergroupType").val()=='section_officer') {
+				$("#view_yaadi").hide();
+				$("#view_suchi").hide();
+			}
+			
 			/* show publish button for unpublished suchi on default answering date populated */
 			if($("#deviceType").val()=='questions_stared') {
 				if($('#selectedAnsweringDate').val()!=undefined && $('#selectedAnsweringDate').val()!=""

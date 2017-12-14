@@ -5397,6 +5397,13 @@ public class BallotController extends BaseController{
 						findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}
+			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
+					deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)) {
+				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
+			else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION) || deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)){
+				answeringDate = FormaterUtil.formatStringToDate(strAnsweringDate, dbDateFormat.getValue());
+			}
 						
 			model.addAttribute("strAnsweringDate", strAnsweringDate);
 			if(answeringDate!=null) {

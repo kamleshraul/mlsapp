@@ -36,11 +36,8 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.Motion;
-import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.ReferenceUnit;
-import org.mkcl.els.domain.ReferencedEntity;
-import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -267,6 +264,12 @@ public class CutMotionWorkflowController extends BaseController {
 		CutMotion domain = CutMotion.findById(CutMotion.class, Long.parseLong(workflowDetails.getDeviceId()));
 		/**** Populate Model ****/
 		populateModel(domain, model, request, workflowDetails);
+		try {
+			findLatestRemarksByUserGroup(domain, model, request);
+		} catch (ELSException e) {
+			e.printStackTrace();
+			model.addAttribute("error", e.getParameter());
+		}
 		return workflowDetails.getForm();
 	}
 
@@ -1707,5 +1710,15 @@ public class CutMotionWorkflowController extends BaseController {
 				model.addAttribute("motionId", bulkapprovals.get(0).getDeviceId());
 			}
 		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private void findLatestRemarksByUserGroup(final CutMotion domain, final ModelMap model,
+			final HttpServletRequest request)throws ELSException {
+		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+		requestMap.put("cutMotionId",new String[]{String.valueOf(domain.getId())});
+		requestMap.put("locale",new String[]{domain.getLocale()});
+		List result=Query.findReport("CUTMOTION_GET_REVISION", requestMap);
+		model.addAttribute("latestRevisions",result);
 	}
 }

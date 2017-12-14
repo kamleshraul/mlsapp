@@ -877,17 +877,17 @@
 									<option value="">---<spring:message code='please.select' text='Please Select'/>---</option>
 									<c:forEach items="${discussionDates}" var="i">
 										<c:choose>
-											<c:when  test="${i.id==discussionDateSelected}">
-												<option value="${i.id}" selected="selected">${i.name}</option>
+											<c:when  test="${i.value==discussionDateSelected}">
+												<option value="${i.value}" selected="selected">${i.name}</option>
 											</c:when>
 											<c:otherwise>
-												<option value="${i.id}">${i.name}</option>
+												<option value="${i.value}">${i.name}</option>
 											</c:otherwise>					
 										</c:choose>
 									</c:forEach>					
 								</form:select>
 								<form:errors path="discussionDate" cssClass="validationError"/>
-							</c:if>		
+							</c:if>			
 						</p>	
 					</td>
 					<td style="vertical-align: top;">

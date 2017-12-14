@@ -542,7 +542,14 @@ class HalfHourDiscussionChart {
 				session, deviceType, new Status[]{ REJECTED }, 
 				locale);
 		
-		if(memberQuestions - rejected < maxNoOfQuestions) {
+		Status REPEAT_REJECTED = Status.findByType(
+				ApplicationConstants.STANDALONE_FINAL_REPEATREJECTION, 
+				locale);
+		Integer repeat_rejected = Chart.getChartRepository().findStandalonesCount(member, 
+				session, deviceType, new Status[]{ REPEAT_REJECTED }, 
+				locale);
+		
+		if(memberQuestions - rejected - repeat_rejected < maxNoOfQuestions) {
 			// The HDS taken on the Chart should have status "TO_BE_PUT_UP"
 			Status TO_BE_PUT_UP = 
 				Status.findByType(
