@@ -647,13 +647,7 @@ class HalfHourDiscussionFromQuestionController {
 				int numberOFSupportingMembersToCheck = Integer.parseInt(noOFSupportingMembersToCheck);
 				int numberOFSupportingMembersReceived = 0;
 				if(domain.getSupportingMembers()!=null) {
-					int approvedSupportingMembersCount = 0;
-					for(SupportingMember sm: domain.getSupportingMembers()) {
-						if(sm.getDecisionStatus()!=null && sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
-							approvedSupportingMembersCount++;
-						}
-					}
-					numberOFSupportingMembersReceived = approvedSupportingMembersCount;
+					numberOFSupportingMembersReceived = domain.getSupportingMembers().size();
 				}
 				if(noOFSupportingMembersComparator.equalsIgnoreCase("eq")) {
 					if(!(numberOFSupportingMembersReceived == numberOFSupportingMembersToCheck)) {
@@ -1747,13 +1741,7 @@ class HalfHourDiscussionFromQuestionController {
 				int numberOFSupportingMembersToCheck = Integer.parseInt(noOFSupportingMembersToCheck);
 				int numberOFSupportingMembersReceived = 0;
 				if(domain.getSupportingMembers()!=null) {
-					int approvedSupportingMembersCount = 0;
-					for(SupportingMember sm: domain.getSupportingMembers()) {
-						if(sm.getDecisionStatus()!=null && sm.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
-							approvedSupportingMembersCount++;
-						}
-					}
-					numberOFSupportingMembersReceived = approvedSupportingMembersCount;
+					numberOFSupportingMembersReceived = domain.getSupportingMembers().size();
 				}
 				if(noOFSupportingMembersComparator.equalsIgnoreCase("eq")) {
 					if(!(numberOFSupportingMembersReceived == numberOFSupportingMembersToCheck)) {
