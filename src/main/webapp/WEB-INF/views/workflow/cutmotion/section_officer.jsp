@@ -853,40 +853,76 @@
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<p>	
-		<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
-		<select id="changeInternalStatus" class="sSelect">
-			<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-			<c:forEach items="${internalStatuses}" var="i">
-				<c:choose>
-					<c:when test="${i.id==internalStatusSelected }">
-						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</select>
-		
+	<table class="uiTable" style="margin-left:165px;width:600px;">
+		<thead>
+		<tr>
+		<th style="text-align: center">
+		<spring:message code="cmois.latestrevisions.user" text="Usergroup"></spring:message>
+		</th>
+		<th style="text-align: center">
+		<spring:message code="cmois.latestrevisions.decision" text="Decision"></spring:message>
+		</th>
+		<th style="text-align: center">
+		<spring:message code="cmois.latestrevisions.remarks" text="Remarks"></spring:message>
+		</th>
+		</tr>
+		</thead>
+		<tbody>	
+			<c:forEach items="${latestRevisions}" var="i">
+				<tr>
+					<td style="text-align: left">
+					${i[1]}<br>(${i[7]})
+					</td>
+					<td style="text-align: center">
+					${i[3]}
+					</td>
+					<td style="text-align: center">
+					${i[6]}
+					</td>
+				</tr>
+			</c:forEach>	
+			<c:if test="${workflowstatus != 'COMPLETED'}">
+				<tr>
+					<td style="text-align: left">
+						${userName}<br>
+						(${userGroupName})
+					</td>
+					<td style="text-align: center">
+						<select id="changeInternalStatus" class="sSelect">
+							<c:forEach items="${internalStatuses}" var="i">
+									<c:choose>
+										<c:when test="${i.id==internalStatusSelected }">
+											<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+										</c:when>
+										<c:otherwise>
+											<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+										</c:otherwise>
+									</c:choose>
+							</c:forEach>
+						</select>
+						<form:errors path="internalStatus" cssClass="validationError"/>
+					</td>
+					<td>
+						<a href="#" id="viewCitation" style="margin-left: 210px;margin-top: 30px;"><spring:message code="cutmotion.viewcitation" text="View Citations"></spring:message></a>
+						<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+					</td>
+				</tr>
+			</c:if>	
+		</tbody>
+	</table>
+	
+	<c:if test="${workflowstatus!='COMPLETED' }">	
 		<select id="internalStatusMaster" style="display:none;">
-			<c:forEach items="${internalStatuses}" var="i">
-				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-			</c:forEach>
+		<c:forEach items="${internalStatuses}" var="i">
+		<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+		</c:forEach>
 		</select>	
-		<form:errors path="internalStatus" cssClass="validationError"/>	
-	</p>
 	
-	<p id="actorDiv">
-		<label class="small"><spring:message code="generic.nextactor" text="Next Users"/></label>
-		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-	</p>
-	
-	<p>
-		<label class="wysiwyglabel"><spring:message code="generic.remarks" text="Remarks"/></label>
-		<a href="#" id="viewCitation" style="display: inline; margin-left: 530px;"><spring:message code="cutmotion.viewcitation" text="View Citations"></spring:message></a>
-		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>	
+		<p id="actorDiv" style="display:none;">
+			<label class="small"><spring:message code="cutmotion.nextactor" text="Next Users"/></label>
+			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>	
+		</p>		
+	</c:if>	
 	
 	<div class="fields">
 		<h2></h2>
