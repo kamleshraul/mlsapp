@@ -123,14 +123,23 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 	
 	public List<Slot> findSlotsByLanguageContainingSlotTime(final Language language,final Slot slot) {
 		String strQuery="SELECT s FROM Slot s JOIN s.reporter r JOIN r.user u" +
-				" WHERE s.startTime<:endTime AND s.endTime>:startTime" +
-				" AND u.language=:language AND s.blnDeleted=false"+
-				" AND s.roster.session.id=:sessionId";
+				" WHERE s.startTime<=:endTime AND s.endTime>=:startTime" +
+				" AND u.language=:language AND s.blnDeleted=false";
+		if(slot.getRoster().getSession() != null){
+			strQuery= strQuery + " AND s.roster.session.id=:sessionId";
+		}else if(slot.getRoster().getCommitteeMeeting() != null){
+			strQuery= strQuery + " AND s.roster.committeeMeeting.id=:committeeMeetingId";
+		}
+				
 		Query query=this.em().createQuery(strQuery);
 		query.setParameter("endTime", slot.getEndTime());
 		query.setParameter("startTime", slot.getStartTime());
 		query.setParameter("language", language.getName());
-		query.setParameter("sessionId", slot.getRoster().getSession().getId());
+		if(slot.getRoster().getSession() != null){
+			query.setParameter("sessionId", slot.getRoster().getSession().getId());
+		}else if(slot.getRoster().getCommitteeMeeting() != null){
+			query.setParameter("committeeMeetingId", slot.getRoster().getCommitteeMeeting().getId());
+		}
 		List<Slot> result=query.getResultList();
 		return result;
 	}
