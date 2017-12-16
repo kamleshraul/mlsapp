@@ -1360,6 +1360,10 @@ public class CutMotionController extends GenericController<CutMotion>{
 					result.rejectValue("subDepartment","CutMotion.SubDepartmentEmpty");
 					return;
 				}
+				if(CutMotion.isDepartmentwiseMaximumLimitForMemberReached(domain.getSession(), domain.getPrimaryMember(), domain.getDepartment(), domain.getLocale())) {
+					result.rejectValue("version","CutMotion.DepartmentwiseMaximumLimitForMemberReached");
+					return;
+				}
 				CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getDeviceType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG", "");
 				if(csptOfflineSubmissionAllowedFlag!=null 
 						&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
