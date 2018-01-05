@@ -196,11 +196,9 @@
 						$("#actorDiv").show();
 					}
 					/**** in case of sendback and discuss only recommendation status is changed ****/
-					/**** in case of sendback and discuss only recommendation status is changed ****/
 					if(value != sendback && value != discuss && value != sendToSectionOfficer){
 						$("#internalStatus").val(value);
-					}
-					if(value==sendback||value==discuss){
+					} else {
 						$("#internalStatus").val($("#oldInternalStatus").val());
 					}
 					$("#recommendationStatus").val(value);	
@@ -213,7 +211,9 @@
 					$("#actor").empty();
 					$("#actorDiv").hide();
 					/**** in case of sendback and discuss only recommendation status is changed ****/
-					if(value!=sendback&&value!=discuss){
+					if(value==sendback || value==discuss) {
+						$("#internalStatus").val($("#oldInternalStatus").val());
+					} else {
 						$("#internalStatus").val(value);
 					}
 				    $("#recommendationStatus").val(value);

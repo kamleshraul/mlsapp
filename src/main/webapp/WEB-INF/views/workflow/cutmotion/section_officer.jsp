@@ -197,6 +197,8 @@
 					/**** in case of sendback and discuss only recommendation status is changed ****/
 					if(value!=sendback && value!=discuss && value!=departmentIntimated){
 						$("#internalStatus").val(value);
+					} else {
+						$("#internalStatus").val($("#oldInternalStatus").val());
 					}
 					$("#recommendationStatus").val(value);	
 					/**** setting level,localizedActorName ****/
@@ -208,8 +210,10 @@
 					$("#actor").empty();
 					$("#actorDiv").hide();
 					/**** in case of sendback and discuss only recommendation status is changed ****/
-					if(value!=sendback&&value!=discuss){
-					$("#internalStatus").val(value);
+					if(value==sendback || value==discuss) {
+						$("#internalStatus").val($("#oldInternalStatus").val());
+					} else {
+						$("#internalStatus").val(value);
 					}
 				    $("#recommendationStatus").val(value);
 				}
