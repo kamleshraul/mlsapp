@@ -35,15 +35,24 @@
 				$formatData.get(7)
 			</td>
 		</tr>
+		<tr style="font-weight: bold;">													
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				विषय
+			</td>
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				$formatData.get(5)
+			</td>
+		</tr>
 		<tr style="font-weight: bold;">
-			
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				विभाग
+			</td>
 			<td colspan="3" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
 				#if($formatData.get(17))
 					$formatData.get(17)
 				#else
 					-
-				#end  
-				 )
+				#end
 			</td>	
 		</tr>
 		<tr>
