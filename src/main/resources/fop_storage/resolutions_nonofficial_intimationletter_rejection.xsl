@@ -133,7 +133,7 @@
 							<fo:block>
 											
 							<fo:inline font-weight="bold">विषय :-</fo:inline>
-							आपली प्रत सलंग्न
+							<xsl:value-of select="subject"/>
 							</fo:block>
 							<fo:block margin-left="1.5cm" >
 							<xsl:choose>
@@ -153,7 +153,7 @@
 										१०२
 									</xsl:when>
 							</xsl:choose>
-							अन्वये अनुसार सूचना अशासकीय ठराव. 
+							अन्वये अनुसार सूचना क्रमांक <xsl:value-of select="number"/> अशासकीय ठराव. 
 							</fo:block>
 						</fo:block>
 						</fo:block>		
