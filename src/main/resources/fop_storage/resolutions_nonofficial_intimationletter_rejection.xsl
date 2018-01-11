@@ -138,10 +138,10 @@
 							<fo:block margin-left="1.5cm" >
 							<xsl:choose>
 									<xsl:when test="houseType='lowerhouse'">
-										वि.स.स. 
+										म.वि.स. 
 									</xsl:when>
 									<xsl:when test="houseType='upperhouse'">
-										वि.प.स
+										म.वि.प.
 									</xsl:when>
 							</xsl:choose>
 							नियम
@@ -153,7 +153,7 @@
 										१०२
 									</xsl:when>
 							</xsl:choose>
-							अन्वये अनुसार सूचना क्रमांक <xsl:value-of select="number"/> अशासकीय ठराव. 
+							अन्वये प्राप्त अशासकीय ठराव क्रमांक <xsl:value-of select="number"/>.
 							</fo:block>
 						</fo:block>
 						</fo:block>		
@@ -166,7 +166,7 @@
 						
 						<fo:block margin-left="1cm">							
 							आपणांस असे कळविण्यात येत आहे की,<xsl:value-of select="rejectionReason"/>
-							आपली वरील सूचना मा.
+							आपली वरील अशासकीय ठरावाची सूचना मा.
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">अध्यक्षांनी</xsl:when>
 								<xsl:when test="houseType='upperhouse'">सभापतींनी</xsl:when>
