@@ -836,7 +836,7 @@
 		
 		$('#isTransferable').change(function() {
 	        if ($(this).is(':checked')) {
-	        	if($("#houseTypeType").val()=='lowerhouse'){
+	        	if($("#houseTypeType").val()=='lowerhouse' && $('#selectedQuestionType').val()=='questions_starred'){
 		        	var currentDate = new Date();
 		        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
 		        	if(currentDate <= lastDepartmentChangeDate){
