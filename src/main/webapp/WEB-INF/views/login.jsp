@@ -45,6 +45,30 @@
 		    $('#saveForm').click(function() {
 		    	encryptPassword();
 		    });
+		    
+		    $(document).keypress(function(e) {
+		        if(e.which == 13) {
+		        	if($('#login_disabled_notification_flag').val()=='ON') {
+			    		$('#login_disabled_notification_message_para').hide();
+			    		var isUserToBeNotified = "no";
+			    		$('#login_disabled_usernames option').each(function() {
+			    			if($(this).val()==$('#j_username').val()) {
+			    				isUserToBeNotified = "yes";		    				
+			    			}
+			    		});
+			    		if(isUserToBeNotified=="yes") {
+			    			$('#passwordSection').hide();
+			    			$('#saveForm').hide();
+			    			$.prompt($('#login_disabled_notification_message').val());
+			    			$('#login_disabled_notification_message_para').show();
+			    			return false;
+		    			} else {
+			    			$('#saveForm').show();
+			    			$('#login_disabled_notification_message').hide();
+			    		}
+			    	}
+		        }
+		    });
 		});	
 		
 		function encryptPassword() {
