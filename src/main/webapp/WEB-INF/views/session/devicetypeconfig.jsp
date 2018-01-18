@@ -456,8 +456,8 @@
 					}					
 				});
 				
-				//set submission start date for resolutions_nonofficial such that it is same as that for questions_starred
-				if(deviceTypeSeleted == 'resolutions_nonofficial' || deviceTypeSeleted == 'bills_nonofficial') {
+				//set submission start date for bills_nonofficial such that it is same as that for questions_starred
+				if(deviceTypeSeleted == 'bills_nonofficial') {
 					var questionSubmissionStartDate = $('#questions_starred_submissionStartDate').val();
 					if(questionSubmissionStartDate != "") {
 						$('#'+deviceTypeSeleted+'_submissionStartDate').val(questionSubmissionStartDate);
@@ -1137,7 +1137,12 @@
 		</c:if>
 		
 		<c:if test="${i.type eq 'resolutions_nonofficial'}">					
-			<div id="resolutions_nonofficial" class="formDiv">						
+			<div id="resolutions_nonofficial" class="formDiv">	
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartDate" text="Submission Start Date" /></label>
+					<input type="text" class="datetimemask sText" name="resolutions_nonofficial_submissionStartDate" id="resolutions_nonofficial_submissionStartDate" value="${resolutions_nonofficial_submissionstartdate}" />
+				</p>
+								
 				<p>
 					<label class="small"><spring:message code="session.deviceType.daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession" text="Days between submission end date & last discussion date" /></label>
 					<input type="text" class="sInteger" name="resolutions_nonofficial_daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession" id="resolutions_nonofficial_daysBetweenSubmissionEndDateAndLastDiscussionDateOfSession" value="${resolutions_nonofficial_daysbetweensubmissionenddateandlastdiscussiondateofsession}" />
@@ -1147,7 +1152,6 @@
 					<label class="small"><spring:message code="session.deviceType.submissionEndTime" text="Submission End Time" /></label>					
 					<input type="text" class="timemask sText" id="resolutions_nonofficial_submissionEndTime" />
 					<input type="hidden" class="datetimemask sText" name="resolutions_nonofficial_submissionEndDate" id="resolutions_nonofficial_submissionEndDate" value="${resolutions_nonofficial_submissionenddate}" />
-					<input type="hidden" class="datetimemask sText" name="resolutions_nonofficial_submissionStartDate" id="resolutions_nonofficial_submissionStartDate" value="${resolutions_nonofficial_submissionstartdate}" />
 				</p>
 				
 				<p>
