@@ -788,6 +788,11 @@ public class Question extends Device implements Serializable {
 				if (this.getClubbedEntities() == null) {
 					this.setClubbedEntities(oldQuestion.getClubbedEntities());
 				}
+				/** update parent's fields to its final children, post parent's final decision excluding group change case **/
+				if(this.getClubbedEntities()!=null && !this.getClubbedEntities().isEmpty()
+						&& this.getGroup()!=null && this.getGroup().equals(oldQuestion.getGroup())) {
+					this.updateChildrenPostFinalDecision();
+				}
 				if (this.getReferencedEntities() == null) {
 					this.setReferencedEntities(oldQuestion
 							.getReferencedEntities());
@@ -797,7 +802,7 @@ public class Question extends Device implements Serializable {
 			}
 		}
 	}
-
+	
 
 	private Question mergeUnstarredQuestion() {
 		Question question = null;
@@ -883,6 +888,11 @@ public class Question extends Device implements Serializable {
             	if(this.getClubbedEntities() == null){
             		this.setClubbedEntities(oldQuestion.getClubbedEntities());
             	}
+            	/** update parent's fields to its final children, post parent's final decision excluding group change case **/
+            	if(this.getClubbedEntities()!=null && !this.getClubbedEntities().isEmpty()
+						&& this.getGroup()!=null && this.getGroup().equals(oldQuestion.getGroup())) {
+					this.updateChildrenPostFinalDecision();
+				}
             	if(this.getReferencedEntities() == null){
             		this.setReferencedEntities(oldQuestion.getReferencedEntities());
             	}
@@ -977,6 +987,11 @@ public class Question extends Device implements Serializable {
             	if(this.getClubbedEntities() == null){
             		this.setClubbedEntities(oldQuestion.getClubbedEntities());
             	}
+            	/** update parent's fields to its final children, post parent's final decision excluding group change case **/
+            	if(this.getClubbedEntities()!=null && !this.getClubbedEntities().isEmpty()
+						&& this.getGroup()!=null && this.getGroup().equals(oldQuestion.getGroup())) {
+					this.updateChildrenPostFinalDecision();
+				}
             	if(this.getReferencedEntities() == null){
             		this.setReferencedEntities(oldQuestion.getReferencedEntities());
             	}
@@ -1076,6 +1091,11 @@ public class Question extends Device implements Serializable {
             	if(this.getClubbedEntities() == null){
             		this.setClubbedEntities(oldQuestion.getClubbedEntities());
             	}
+            	/** update parent's fields to its final children, post parent's final decision excluding group change case **/
+            	if(this.getClubbedEntities()!=null && !this.getClubbedEntities().isEmpty()
+						&& this.getGroup()!=null && this.getGroup().equals(oldQuestion.getGroup())) {
+					this.updateChildrenPostFinalDecision();
+				}
             	if(this.getReferencedEntities() == null){
             		this.setReferencedEntities(oldQuestion.getReferencedEntities());
             	}
@@ -1083,6 +1103,28 @@ public class Question extends Device implements Serializable {
                 return (Question) super.merge();
             }
         }
+	}
+
+	
+	private void updateChildrenPostFinalDecision() {
+		Status finalAdmissionStatus = Status.findByType(ApplicationConstants.QUESTION_FINAL_ADMISSION, this.getLocale());
+		if(this.getStatus().getPriority().intValue()>=finalAdmissionStatus.getPriority().intValue()) {
+			for(ClubbedEntity ce: this.getClubbedEntities()) {
+				Question child = ce.getQuestion();
+				if(child.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_ADMISSION)
+						|| child.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_REJECTION)) {
+													
+					child.setRevisedSubject(this.getRevisedSubject());
+					child.setRevisedQuestionText(this.getRevisedQuestionText());
+					child.setRevisedReason(this.getRevisedReason());
+					child.setRevisedBriefExplanation(this.getRevisedBriefExplanation());
+					child.setAnswer(this.getAnswer());
+					child.setRejectionReason(this.getRejectionReason());								
+					
+					child.simpleMerge();
+				}
+			}
+		}
 	}
 
 
@@ -9874,7 +9916,7 @@ public class Question extends Device implements Serializable {
     			 * Start the workflow at Assistant (after Speaker) level.
     			 */
     			WorkflowDetails.startProcessAtGivenLevel(question, 
-    					workflowType, internalStatus, 
+    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
     					ApplicationConstants.ASSISTANT, assigneeLevel, 
     					locale);
     		}
@@ -9914,7 +9956,7 @@ public class Question extends Device implements Serializable {
     			 * Start the workflow at Assistant (after Speaker) level.
     			 */
 //    			WorkflowDetails.startProcessAtGivenLevel(question, 
-//    					workflowType, internalStatus, 
+//    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
 //    					ApplicationConstants.ASSISTANT, assigneeLevel, 
 //    					locale);
 //    			Ballot ballot = Ballot.find(question);
@@ -10069,7 +10111,7 @@ public class Question extends Device implements Serializable {
         			 * Start the workflow at Assistant (after Speaker) level.
         			 */
         			WorkflowDetails.startProcessAtGivenLevel(question, 
-        					workflowType, internalStatus, 
+        					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
         					ApplicationConstants.ASSISTANT, assigneeLevel, 
         					locale);
         		}
@@ -10381,7 +10423,7 @@ public class Question extends Device implements Serializable {
     				 * Start the workflow at Assistant (after Speaker) level.
     				 */
         			WorkflowDetails.startProcessAtGivenLevel(question, 
-        					workflowType, internalStatus, 
+        					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
         					userGroupType, assigneeLevel, 
         					locale);
         		}
@@ -10489,7 +10531,7 @@ public class Question extends Device implements Serializable {
     			 * Start the workflow at Assistant (after Speaker) level.
     			 */
     			WorkflowDetails.startProcessAtGivenLevel(question, 
-    					workflowType, internalStatus, 
+    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
     					ApplicationConstants.ASSISTANT, assigneeLevel, 
     					locale);
     		}
@@ -10603,7 +10645,7 @@ public class Question extends Device implements Serializable {
     				 * Start the workflow at Assistant (after Speaker) level.
     				 */
         			WorkflowDetails.startProcessAtGivenLevel(question, 
-        					workflowType, internalStatus, 
+        					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
         					ApplicationConstants.ASSISTANT, assigneeLevel, 
         					locale);
         		}
@@ -10713,7 +10755,7 @@ public class Question extends Device implements Serializable {
 	    			 * Start the workflow at Assistant (after Speaker) level.
 	    			 */
 	    			WorkflowDetails.startProcessAtGivenLevel(question, 
-	    					workflowType, internalStatus, 
+	    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
 	    					ApplicationConstants.ASSISTANT, assigneeLevel, 
 	    					locale);
     			}
@@ -10828,7 +10870,7 @@ public class Question extends Device implements Serializable {
 	    				 * Start the workflow at Assistant (after Speaker) level.
 	    				 */
 	        			WorkflowDetails.startProcessAtGivenLevel(question, 
-	        					workflowType, internalStatus, 
+	        					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
 	        					ApplicationConstants.ASSISTANT, assigneeLevel, 
 	        					locale);
         			}
@@ -11485,7 +11527,7 @@ public class Question extends Device implements Serializable {
 				 */
 				if(wfDetails != null) {
 					WorkflowDetails.startProcessAtGivenLevel(newParent, 
-							workflowType, internalStatus, assignee, assigneeLevel, locale);
+							ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, assignee, assigneeLevel, locale);
 				}
 			}
 			else if(qnState == STARRED_STATE.POST_FINAL_AND_PRE_BALLOT) {
@@ -11560,7 +11602,7 @@ public class Question extends Device implements Serializable {
 				 */
 				if(wfDetails != null) {
 					WorkflowDetails.startProcessAtGivenLevel(newParent, 
-							workflowType, internalStatus, assignee, assigneeLevel, locale);
+							ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, assignee, assigneeLevel, locale);
 				}
 			}
 			else if(qnState == STARRED_STATE.POST_BALLOT_AND_PRE_YAADI_LAID) {
@@ -11625,7 +11667,7 @@ public class Question extends Device implements Serializable {
 					Status internalStatus = q.getInternalStatus();
 					if(wfDetails != null) {
 						WorkflowDetails.startProcessAtGivenLevel(q, 
-								workflowType, internalStatus, assignee, assigneeLevel, locale);
+								ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, assignee, assigneeLevel, locale);
 					}
 				}
 				else {
@@ -11779,7 +11821,7 @@ public class Question extends Device implements Serializable {
 				Status internalStatus = q.getInternalStatus();
 				if(wfDetails != null) {
 					WorkflowDetails.startProcessAtGivenLevel(q, 
-							workflowType, internalStatus, assignee, assigneeLevel, locale);
+							ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, assignee, assigneeLevel, locale);
 				}
 			}
 			else if(qnState == STARRED_STATE.POST_FINAL_AND_PRE_BALLOT) {
@@ -11840,7 +11882,7 @@ public class Question extends Device implements Serializable {
 				Status internalStatus = q.getInternalStatus();
 				if(wfDetails != null) {
 					WorkflowDetails.startProcessAtGivenLevel(q, 
-							workflowType, internalStatus, assignee, assigneeLevel, locale);
+							ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, assignee, assigneeLevel, locale);
 				}
 			}
 			else if(qnState == STARRED_STATE.POST_BALLOT_AND_PRE_YAADI_LAID) {
@@ -11911,7 +11953,7 @@ public class Question extends Device implements Serializable {
 					Status internalStatus = q.getInternalStatus();
 					if(wfDetails != null) {
 						WorkflowDetails.startProcessAtGivenLevel(q, 
-								workflowType, internalStatus, assignee, assigneeLevel, locale);
+								ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, assignee, assigneeLevel, locale);
 					}
 				}
 				else {
@@ -12030,7 +12072,7 @@ public class Question extends Device implements Serializable {
 				Status internalStatus = q.getInternalStatus();
 				if(wfDetails != null) {
 					WorkflowDetails.startProcessAtGivenLevel(q, 
-						workflowType, internalStatus, assignee, assigneeLevel, locale);
+							ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, assignee, assigneeLevel, locale);
 				}
 			}
 			else if(qnState == STARRED_STATE.POST_FINAL_AND_PRE_BALLOT) {
@@ -12091,7 +12133,7 @@ public class Question extends Device implements Serializable {
 				Status internalStatus = q.getInternalStatus();
 				if(wfDetails != null) {
 					WorkflowDetails.startProcessAtGivenLevel(q, 
-						workflowType, internalStatus, assignee, assigneeLevel, locale);
+							ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, assignee, assigneeLevel, locale);
 				}
 			}
 			else if(qnState == STARRED_STATE.POST_BALLOT_AND_PRE_YAADI_LAID) {
@@ -12162,7 +12204,7 @@ public class Question extends Device implements Serializable {
 					Status internalStatus = q.getInternalStatus();
 					if(wfDetails != null) {
 						WorkflowDetails.startProcessAtGivenLevel(q, 
-								workflowType, internalStatus, assignee, assigneeLevel, locale);
+								ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, assignee, assigneeLevel, locale);
 					}
 				}
 				else {
@@ -13271,7 +13313,7 @@ public class Question extends Device implements Serializable {
         				 * Start the workflow at Assistant (after Speaker) level.
         				 */
             			WorkflowDetails.startProcessAtGivenLevel(question, 
-            					workflowType, internalStatus, 
+            					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
             					userGroupType, assigneeLevel, 
             					locale);
             		}
@@ -13737,7 +13779,7 @@ public class Question extends Device implements Serializable {
         				 * Start the workflow at Assistant (after Speaker) level.
         				 */
             			WorkflowDetails.startProcessAtGivenLevel(question, 
-            					workflowType, internalStatus, 
+            					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
             					userGroupType, assigneeLevel, 
             					locale);
             		}

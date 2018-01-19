@@ -1393,7 +1393,7 @@
 				currentSession = data[0].id;
 				prevSession = data[1].id;
 				
-				var url = "question/report/generalreport?houseType="+$("#selectedHouseType").val()
+				var url = "question/report/dept_sessionwise_report?houseType="+$("#selectedHouseType").val()
 				+ "&sessionYear=" + $("#selectedSessionYear").val()
 				+ "&sessionType=" + $("#selectedSessionType").val()
 				+ "&deviceTypeId=" + $("#selectedQuestionType").val()

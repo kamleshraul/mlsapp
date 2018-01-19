@@ -41,30 +41,22 @@
 <div id="reportDiv" >
 	<div style="text-align: center; max-width: 800px; width: 800px; margin-left: 25px;">
 		<h3 style="color: black; font-family: 'Times New Roman';">
-			${report[0][8]}<br><br>
-			${report[0][9]}
+			${report[0][2]}<br><br>
+			${report[0][3]}
 		</h3>
 	</div>
 	<br />
 	<c:set var="columns" value="3" />
-	<c:set var="yearColSpan" value="${report[0][1]}" />
+	<c:set var="sessionsCount" value="${report[0][4]}" />
 	<table class="strippedTable" border="1" style="margin-left: 25px; font-size: 15px;">
 		<thead>
 			<tr>				
 				<th rowspan="2">${topHeader[0]}</th>
 				<th rowspan="2">${topHeader[1]}</th>
-				<c:set var="foundYear" value="no" />
-				<c:forEach items="${report}" var="rr">
-					<c:if test="${foundYear=='no'}">
-						<c:if test="${rr[4]!=0}">
-							<th colspan="${yearColSpan}">${formater.formatNumberNoGrouping(rr[4], locale)}</th>
-							<c:set var="foundYear" value="yes" />		
-						</c:if>						
-					</c:if>
-				</c:forEach>				
+				<th colspan="${sessionsCount}">${report[0][1]}</th>
 			</tr>
 			<tr>
-				<c:set var="sessionUniqueName" value="${fn:split(report[0][10],',')}" />
+				<c:set var="sessionUniqueName" value="${fn:split(report[0][5],',')}" />
 				<c:forEach items="${sessionUniqueName}" var="s">
 					<c:set var="curSession" value="${fn:split(s,';')}" />
 					<th><a id="session${curSession[1]}" href="javascript:void(0);" class="session ${curSession[1]}" style="color: black; text-decoration: none; text-shadow: 1px 1px grey;">${curSession[0]}</a></th>
@@ -72,76 +64,16 @@
 			</tr>			
 		</thead>
 		<tbody>
-			<c:set var="deptName" value="-"></c:set>
-			<c:set var="nextRow" value="1" />
-			<c:set var="reachedTotalSessions" value="0" />
 			<c:forEach items="${report}" var="r" varStatus="counter">
-				<c:choose>
-					<c:when test="${deptName!=r[2]}">
-						<c:if test="${deptName!='-'}">
-							<c:if test="${reachedTotalSessions<yearColSpan}">
-								<c:forEach begin="${reachedTotalSessions}" end="${yearColSpan-1}">
-									<td>-</td>
-								</c:forEach>
-							</c:if>
-							</tr>
-							<c:set var="reachedTotalSessions" value="0" />
-							<c:set var="nextRow" value="${nextRow + 1}" />
-						</c:if>
-						<tr>
-							<td>${nextRow}</td>
-							<td>${r[2]}</td>
-							<c:choose>
-								<c:when test="${(r[5]!=1) and (r[5] > 0)}">
-									<%-- <c:if test="${r[5]>1}">
-										<c:forEach begin="1" end="${r[5]-1}" var="v">
-											<td>-</td>
-											<c:set var="reachedTotalSessions" value="${reachedTotalSessions + 1}" />
-										</c:forEach>
-									</c:if> --%>
-									<td>${r[6]}</td>
-									<c:set var="reachedTotalSessions" value="${reachedTotalSessions + 1}" />
-								</c:when>
-								<c:otherwise>
-									<c:choose>
-										<c:when test="${r[5]==0}">
-											<c:forEach begin="1" end="${yearColSpan}" var="t">
-												<td>-</td>
-											</c:forEach>
-											<c:set var="reachedTotalSessions" value="${yearColSpan}" />
-										</c:when>
-										<c:otherwise>
-											<td>${r[6]}</td>
-											<c:set var="reachedTotalSessions" value="${reachedTotalSessions + 1}" />
-										</c:otherwise>
-									</c:choose>
-								</c:otherwise>
-							</c:choose>
-					</c:when>
-					<c:otherwise>
-							<c:choose>
-								<c:when test="${r[5]==0}">
-									<c:forEach begin="1" end="${yearColSpan}" var="t">
-										<td>-</td>
-									</c:forEach>
-									<c:set var="reachedTotalSessions" value="${yearColSpan}" />
-								</c:when>
-								<c:otherwise>
-									<td>${r[6]}</td>
-									<c:set var="reachedTotalSessions" value="${reachedTotalSessions + 1}" />
-								</c:otherwise>
-							</c:choose>
-					</c:otherwise>					
-				</c:choose>
-				<c:set var="deptName" value="${r[2]}"></c:set>
-			</c:forEach>
-			
-			<c:if test="${reachedTotalSessions<yearColSpan}">
-				<c:forEach begin="${reachedTotalSessions}" end="${yearColSpan-1}">
-					<td>-</td>
-				</c:forEach>
-			</c:if>
-			</tr>
+				<tr>
+					<td>${serialNumbers[counter.count-1]}</td>
+					<td>${r[6]}</td>
+					<c:forEach begin="1" end="${sessionsCount}" var="sessionCounter">						
+						<%-- <td>${r[6+sessionCounter]}</td> --%>
+						<td>${formater.formatNumberNoGrouping(r[6+sessionCounter], locale)}</td>
+					</c:forEach>
+				</tr>
+			</c:forEach>		
 		</tbody>
 	</table>	
 	<%-- <table class="strippedTable" border="1">

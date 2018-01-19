@@ -101,4 +101,8 @@ public class Query extends BaseDomain{
 	public static List findReportWithIn(final String report,final Map<String, String[]> parameterMap) {
 		return getQueryRepository().findReportWithIn(report, parameterMap);
 	}
+	
+	public static String generateDynamicInnerQueryText(final String innerQuery,final Map<String, String[]> requestMap) {
+		return getQueryRepository().generateDynamicInnerQueryText(innerQuery, requestMap);
+	}
 }

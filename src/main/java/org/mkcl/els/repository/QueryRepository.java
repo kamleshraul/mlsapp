@@ -424,4 +424,44 @@ public class QueryRepository extends BaseRepository<Query, Serializable>{
 		}
 		return null;
 	}
+	
+	@SuppressWarnings("rawtypes")
+	public String generateDynamicInnerQueryText(final String innerQuery,final Map<String, String[]> requestMap) {
+		if(requestMap!=null&&!requestMap.isEmpty()){
+			String locale=requestMap.get("locale")[0];
+			Query query = Query.findByFieldName(Query.class, "keyField", innerQuery, locale);
+			String queryString = query.getQuery();
+			javax.persistence.Query persistenceQuery=this.em().createNativeQuery(queryString);
+			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+			Set<Parameter<?>> selectQueryParameters = persistenceQuery.getParameters();
+			for (Parameter i : selectQueryParameters) {
+				if(requestMap.get(i.getName())==null) {
+					System.out.println(i.getName());
+				}
+				String param=requestMap.get(i.getName())[0];
+				String decodedParam=param;
+				if(customParameter!=null&&customParameter.getValue().equals("TOMCAT")){							
+					try {
+						decodedParam = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+					}
+					catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				}            	
+				if(decodedParam.equals("true") || decodedParam.equals("false")){
+					persistenceQuery.setParameter(i.getName(),((decodedParam.equals("true"))? true: false));
+				}else{
+					persistenceQuery.setParameter(i.getName(),decodedParam);
+				}
+			}
+			List results=persistenceQuery.getResultList();
+			
+			if(results!=null && !results.isEmpty() && results.get(0)!=null && results.get(0).getClass().equals(String.class)) {
+				return results.get(0).toString();
+			} else {		
+				return "";
+			}
+		}		
+		return "";
+	}
 }

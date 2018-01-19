@@ -4718,6 +4718,31 @@ public class QuestionReportController extends BaseController{
 		requestMap = null;
 		return "question/reports/"+request.getParameter("reportFileName");
 	}
+	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@RequestMapping(value="/dept_sessionwise_report", method=RequestMethod.GET)
+	public String getDepartmentSessionwiseReport(HttpServletRequest request, Model model, Locale locale){
+		
+		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		requestMap.putAll(request.getParameterMap());		
+		String dynamicInnerQueryText = Query.generateDynamicInnerQueryText("DEPARTMENT_SESSION_REPORT_INNER_QUERY", requestMap);
+		requestMap.put("field_select_query", new String[]{dynamicInnerQueryText});
+		List report = Query.findReport(request.getParameter("report"), requestMap);
+		if(report != null && !report.isEmpty()){
+			Object[] obj = (Object[])report.get(0);
+			if(obj != null){
+				
+				model.addAttribute("topHeader", obj[0].toString().split(";"));
+			}
+			List<String> serialNumbers = populateSerialNumbers(report, locale);
+			model.addAttribute("serialNumbers", serialNumbers);
+		}
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale.toString());
+		model.addAttribute("report", report);
+		
+		return "question/reports/"+request.getParameter("reportout");		
+	}
 }
 
 /**** Helper for producing reports ****/
