@@ -867,63 +867,61 @@ public class QuestionReportController extends BaseController{
 				
 				/**** inward letter details ****/
 				/** inward letter date **/
-				if(question.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)) {
-					Date inwardDate = null;				
-					String inwardDateQueryName = null;
-					if(statusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
-							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
-							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
-							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
-						
-						inwardDateQueryName = "ADMISSION_INWARD_DATE";
-						
-					} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
-							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
-							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
-							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)) {
-						
-						inwardDateQueryName = "REJECTION_INWARD_DATE";
-						
-					} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
-							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
-							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
-							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
-						
-						inwardDateQueryName = "CONVERT_TO_UNSTARRED_AND_ADMIT_INWARD_DATE";
-						
-					} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
-							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
-						
-						inwardDateQueryName = "CLARIFICATION_FROM_DEPARTMENT_INWARD_DATE";
-						
-					} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-							|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-							|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
-							|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
-						
-						inwardDateQueryName = "CLARIFICATION_FROM_MEMBER_INWARD_DATE";
-						
-					}
-					if(inwardDateQueryName!=null) {
-						Map<String, String[]> parametersMap = new HashMap<String, String[]>();
-						parametersMap.put("locale", new String[]{locale.toString()});
-						parametersMap.put("deviceId", new String[]{question.getId().toString()});
-						if(letterReceivedOn!=null) {
-							parametersMap.put("taskReceivedOn", new String[]{FormaterUtil.formatDateToString(letterReceivedOn, ApplicationConstants.DB_DATEFORMAT)});
-						} else {
-							parametersMap.put("taskReceivedOn", new String[]{""});
-						}					
-						@SuppressWarnings("rawtypes")
-						List inwardDateList = org.mkcl.els.domain.Query.findReport(inwardDateQueryName, parametersMap);
-						if(inwardDateList!=null && !inwardDateList.isEmpty()) {
-							if(inwardDateList.get(0)!=null) {
-								inwardDate = FormaterUtil.formatStringToDate(inwardDateList.get(0).toString(), ApplicationConstants.DB_DATEFORMAT);
-								letterVO.setInwardLetterDate(FormaterUtil.formatDateToString(inwardDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2, locale.toString()));
-							}
-						}					
-					}
+				Date inwardDate = null;				
+				String inwardDateQueryName = null;
+				if(statusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
+					
+					inwardDateQueryName = "ADMISSION_INWARD_DATE";
+					
+				} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)) {
+					
+					inwardDateQueryName = "REJECTION_INWARD_DATE";
+					
+				} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CONVERT_TO_UNSTARRED_AND_ADMIT)) {
+					
+					inwardDateQueryName = "CONVERT_TO_UNSTARRED_AND_ADMIT_INWARD_DATE";
+					
+				} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)) {
+					
+					inwardDateQueryName = "CLARIFICATION_FROM_DEPARTMENT_INWARD_DATE";
+					
+				} else if(statusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)
+						|| statusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER)) {
+					
+					inwardDateQueryName = "CLARIFICATION_FROM_MEMBER_INWARD_DATE";
+					
+				}
+				if(inwardDateQueryName!=null) {
+					Map<String, String[]> parametersMap = new HashMap<String, String[]>();
+					parametersMap.put("locale", new String[]{locale.toString()});
+					parametersMap.put("deviceId", new String[]{question.getId().toString()});
+					if(letterReceivedOn!=null) {
+						parametersMap.put("taskReceivedOn", new String[]{FormaterUtil.formatDateToString(letterReceivedOn, ApplicationConstants.DB_DATEFORMAT)});
+					} else {
+						parametersMap.put("taskReceivedOn", new String[]{""});
+					}					
+					@SuppressWarnings("rawtypes")
+					List inwardDateList = org.mkcl.els.domain.Query.findReport(inwardDateQueryName, parametersMap);
+					if(inwardDateList!=null && !inwardDateList.isEmpty()) {
+						if(inwardDateList.get(0)!=null) {
+							inwardDate = FormaterUtil.formatStringToDate(inwardDateList.get(0).toString(), ApplicationConstants.DB_DATEFORMAT);
+							letterVO.setInwardLetterDate(FormaterUtil.formatDateToString(inwardDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2, locale.toString()));
+						}
+					}					
 				}		
 				
 				/**** remarks for clarification ****/
