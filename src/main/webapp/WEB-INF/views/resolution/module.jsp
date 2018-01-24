@@ -112,14 +112,14 @@
 			$.get('ref/requiredStatus?'+ params,function(data){
 				$("#selectedStatus").empty();
 				if(data.length>0){
-				var selectedStatusText="<option value='' selected='selected'>----"+$("#pleaseSelect").val()+"----</option>";
+				var selectedStatusText="<option value='0' selected='selected'>----"+$("#pleaseSelect").val()+"----</option>";
 				for(var i=0;i<data.length;i++){
 					selectedStatusText+="<option value='"+data[i].id+"'>"+data[i].name;
 				}
 				$("#selectedStatus").html(selectedStatusText);			
 				}else{
 					$("#selectedStatus").empty();
-					var selectedStatusText="<option value='' selected='selected'>----"+$("#pleaseSelect").val()+"----</option>";				
+					var selectedStatusText="<option value='0' selected='selected'>----"+$("#pleaseSelect").val()+"----</option>";				
 					$("#selectedStatus").html(selectedStatusText);				
 				}
 			});
