@@ -1022,8 +1022,10 @@ class StarredQuestionChart {
 		
 		for(Date d : answeringDates) {
 			Date finalSubmissionDate = group.getFinalSubmissionDate(d);
+			Date endTime = StarredQuestionChart.getSecondBatchSubmissionEndTime(
+							session, locale);
 			int comparisonResult = finalSubmissionDate.compareTo(question.getSubmissionDate());
-			int comparisonResult1 = finalSubmissionDate.compareTo(new Date());
+			int comparisonResult1 = endTime.compareTo(new Date());
 			if(comparisonResult>=0 && comparisonResult1>=0){
 				Chart chart = StarredQuestionChart.find(session, 
 						group, d, deviceType, locale);
