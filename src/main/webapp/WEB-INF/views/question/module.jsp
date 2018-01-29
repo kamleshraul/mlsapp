@@ -1585,7 +1585,7 @@
 				</a></li>
 			</security:authorize>
 			<security:authorize
-				access="hasAnyRole('QIS_ASSISTANT','QIS_CLERK')">
+				access="hasAnyRole('QIS_CLERK')">
 				<li><a id="bulkputupassistant_tab" href="#" class="tab"> <spring:message
 							code="generic.bulkputup" text="Bulk Putup">
 						</spring:message>
