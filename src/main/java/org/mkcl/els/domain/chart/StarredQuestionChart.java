@@ -1367,7 +1367,7 @@ class StarredQuestionChart {
 			StarredQuestionChart.isFirstBatchQuestionUH(question);
 		if(isFirstBatchQuestion) { // First Batch Question
 			sourceChart = 
-				StarredQuestionChart.processSourceGroupChartFirstBatchUH(
+				StarredQuestionChart.processSourceGroupChartSecondBatchUH(
 						question, sourceGroup);
 		}
 		else { // Second Batch Question
@@ -1400,7 +1400,7 @@ class StarredQuestionChart {
 				StarredQuestionChart.isFirstBatchQuestionUH(question);
 			if(isFirstBatchQuestion) { // First Batch Question
 				sourceChart = 
-					StarredQuestionChart.processSourceGroupChartFirstBatchUH(
+					StarredQuestionChart.processSourceGroupChartSecondBatchUH(
 							question, sourceGroup);
 			}
 			else { // Second Batch Question
@@ -1414,11 +1414,11 @@ class StarredQuestionChart {
 				boolean isKidFirstBatchQuestion =
 					StarredQuestionChart.isFirstBatchQuestionUH(kid);
 				if(isKidFirstBatchQuestion) { // First Batch Question
-					StarredQuestionChart.processSourceGroupChartFirstBatchUH(
+					StarredQuestionChart.processSourceGroupChartSecondBatchUH(
 							kid, sourceGroup);
 				}
 				else { // Second Batch Question
-					StarredQuestionChart.processSourceGroupChart(kid, 
+					StarredQuestionChart.processSourceGroupChartSecondBatchUH(kid, 
 							sourceGroup);
 				}
 			}
