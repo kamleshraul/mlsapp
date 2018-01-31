@@ -230,6 +230,8 @@ public class ApplicationConstants {
 	
 	public static final String QUESTION_SYSTEM_LAPSED="question_system_lapsed";
 	
+	public static final String QUESTION_PROCESSED_LAPSED="question_processed_lapsed";
+	
 	/**** Put Up ****/
 	public static final String QUESTION_PUTUP_NAMECLUBBING="question_putup_nameclubbing";
 	

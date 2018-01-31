@@ -1466,4 +1466,42 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 		return devices;
 		
 	}
+	
+	public String findNextEligibleChartQuestionDetailsOnGroupChangeUH(final Chart chart, final Member member) {
+		String strQuery = "SELECT CONCAT(c.id, '~', q.id) AS chart_question_details FROM charts c"
+				+ " INNER JOIN charts_chart_entries cce ON (cce.chart_id = c.id)"
+				+ " INNER JOIN chart_entries ce ON (cce.chart_entry_id = ce.id)"
+				+ " INNER JOIN chart_entries_devices ced ON (ced.chart_entry_id=ce.id)"
+				+ " INNER JOIN questions q ON (q.id=ced.device_id)"
+				+ " INNER JOIN status ista ON (ista.id=q.internalstatus_id)"
+				+ " LEFT JOIN question_dates qad ON (qad.id=q.answering_date)"
+				+ " WHERE c.session_id=:sessionId"
+				+ " AND c.device_type=:deviceTypeId"
+				+ " AND c.group_id=:groupId"
+				+ " AND c.answering_date>:answeringDate"
+				+ " AND ce.member_id=:memberId"
+				+ " AND DATE(q.submission_date)<=(SELECT final_submission_date FROM question_dates WHERE group_id=:groupId AND answering_date=:answeringDate)"
+				+ " AND q.parent IS NULL"
+				+ " AND ista.type LIKE :readyToBePutUp"
+				+ " ORDER BY q.number ASC LIMIT 1";
+		
+		Query query = this.em().createNativeQuery(strQuery);
+		query.setParameter("sessionId", chart.getSession().getId());
+		query.setParameter("deviceTypeId", chart.getDeviceType().getId());
+		query.setParameter("groupId", chart.getGroup().getId());
+		query.setParameter("answeringDate", chart.getAnsweringDate());		
+		query.setParameter("memberId", member.getId());
+//		Status putupStatus = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, chart.getLocale());
+//		query.setParameter("readyToBePutUp", putupStatus.getId());
+		query.setParameter("readyToBePutUp", "%" + ApplicationConstants.STATUS_SYSTEM_PUTUP);
+		
+		@SuppressWarnings("unchecked")
+		List<String> resultList = query.getResultList();
+		if(resultList!=null && !resultList.isEmpty()) {
+			String result = resultList.get(0);
+			return result;
+		} else {
+			return null;
+		}
+	}
 }

@@ -3356,12 +3356,11 @@ class StarredQuestionController {
 							Group fromGroup = Question.isGroupChanged(question);
 							if(fromGroup != null) {
 								Question.onGroupChange(question, fromGroup);
-							}
-							
-							// Add to Chart
-							Chart.addToChart(question);
-							clerkProcessed.append(question.formatNumber() + ",");
+							}							
 						}
+						// Add to Chart
+						Chart.addToChart(question);
+						clerkProcessed.append(question.formatNumber() + ",");
 						
 						
 					}else if(!question.getInternalStatus().getType().

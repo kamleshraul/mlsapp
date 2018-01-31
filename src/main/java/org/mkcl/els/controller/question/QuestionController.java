@@ -1407,9 +1407,12 @@ public class QuestionController extends GenericController<Question> {
 										String ballotInformation = Device.findBallotInformationText(q.getType().getType(), q.getId(), locale);
 										if(ballotInformation != null && !ballotInformation.isEmpty()){
 											detail.append(ballotInformation);
-											/** discussion information **/
+											/** discussion/lapsed information **/
 											detail.append(", ");
-											if(q.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_DISCUSSED)) {
+											if(q.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_LAPSED)
+													|| q.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_LAPSED)) {
+												detail.append(q.getRecommendationStatus().getName());
+											} else if(q.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_DISCUSSED)) {
 												detail.append(q.getRecommendationStatus().getName());
 											} else {
 												MessageResource notDiscussedMsg = MessageResource.findByFieldName(MessageResource.class, "code", "question.not_discussed", locale);

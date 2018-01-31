@@ -1372,7 +1372,7 @@ class StarredQuestionChart {
 		}
 		else { // Second Batch Question
 			sourceChart = 
-				StarredQuestionChart.processSourceGroupChart(question, 
+				StarredQuestionChart.processSourceGroupChartSecondBatchUH(question, 
 						sourceGroup);
 		}
 		
@@ -1405,7 +1405,7 @@ class StarredQuestionChart {
 			}
 			else { // Second Batch Question
 				sourceChart = 
-					StarredQuestionChart.processSourceGroupChart(question, 
+					StarredQuestionChart.processSourceGroupChartSecondBatchUH(question, 
 							sourceGroup);
 			}
 			
@@ -1490,6 +1490,180 @@ class StarredQuestionChart {
 			 */
 			question.setChartAnsweringDate(null);
 			question.simpleMerge();
+		}
+		
+		return chart;
+	}
+	
+	private static void shiftChartQuestionsRecursive(final Question question, final Chart chart, boolean isRemovalFromChartNeeded, final String locale) throws ELSException {
+		//Date answeringDate = chart.getAnsweringDate();			
+		ChartEntry ce = 
+			StarredQuestionChart.find(chart.getChartEntries(), question.getPrimaryMember());
+		List<Device> devices = StarredQuestionChart.findDevices(ce);//ce.getDevices();
+		
+		if(isRemovalFromChartNeeded) {
+			/*
+			 * 1. Remove @param question from the Chart
+			 */
+			int index = -1;
+			for(Device d : devices) {
+				++index;
+				if(d.getId().equals(question.getId())) {
+					break;
+				}
+			}
+			devices.remove(index);
+			
+			/*
+			 * 2. Set chartAnsweringDate attribute of @param question as null
+			 */
+			question.setChartAnsweringDate(null);
+			question.simpleMerge();
+		}
+		
+		String chartQuestionDetails = Chart.findNextEligibleChartQuestionDetailsOnGroupChangeUH(chart, question.getPrimaryMember());
+		if(chartQuestionDetails!=null && !chartQuestionDetails.isEmpty()) {
+			Chart eligibleChart = Chart.findById(Chart.class, new Long(chartQuestionDetails.split("~")[0]));
+			Question eligibleQuestion = Question.findById(Question.class, new Long(chartQuestionDetails.split("~")[1]));
+			ChartEntry eligibleChartEntry = 
+					StarredQuestionChart.find(eligibleChart.getChartEntries(), question.getPrimaryMember());
+			List<Device> eligibleChartDevices = StarredQuestionChart.findDevices(eligibleChartEntry);//ce.getDevices();
+			
+			/*
+			 * 1. Remove @param question from the Chart
+			 */
+			int index = -1;
+			for(Device d : eligibleChartDevices) {
+				++index;
+				if(d.getId().equals(eligibleQuestion.getId())) {
+					break;
+				}
+			}
+			eligibleChartDevices.remove(index);
+			
+			/*
+			 * 2. Set chartAnsweringDate attribute of @param question as null
+			 */
+			eligibleQuestion.setChartAnsweringDate(null);
+			
+			/*
+			 * 3. Reorder the devices and then add them to the Chart
+			 */
+			List<Question> eligibleChartQuestions = 
+				StarredQuestionChart.marshallDevices(eligibleChartDevices);
+			List<Question> eligibleChartReorderedQuestions = 
+				StarredQuestionChart.reorderQuestions(eligibleChartQuestions, eligibleChart.getAnsweringDate());
+			List<Device> eligibleChartReorderedDevices =
+				StarredQuestionChart.marshallQuestions(eligibleChartReorderedQuestions);
+			eligibleChartEntry.setDevices(eligibleChartReorderedDevices);
+			eligibleChartEntry.merge();
+			
+			/*
+			 * 4. add the question
+			 * to the required previous Chart.
+			 */
+			// The Questions taken on the Chart should have status 
+			// "TO_BE_PUT_UP"
+			Status TO_BE_PUT_UP = Status.findByType(
+					ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, 
+					locale);
+			QuestionDates chartAnsweringDate = 
+				chart.getGroup().findQuestionDatesByGroupAndAnsweringDate(
+						chart.getAnsweringDate());
+			
+			eligibleQuestion.setInternalStatus(TO_BE_PUT_UP);
+			eligibleQuestion.setRecommendationStatus(TO_BE_PUT_UP);
+			eligibleQuestion.setChartAnsweringDate(chartAnsweringDate);
+			eligibleQuestion.simpleMerge();
+			
+			devices.add(eligibleQuestion);
+			
+			/*
+			 * 4. Reorder the devices and then add them to the Chart
+			 */
+			List<Question> questions = 
+				StarredQuestionChart.marshallDevices(devices);
+			List<Question> reorderedQuestions = 
+				StarredQuestionChart.reorderQuestions(questions, chart.getAnsweringDate());
+			List<Device> reorderedDevices =
+				StarredQuestionChart.marshallQuestions(reorderedQuestions);
+			ce.setDevices(reorderedDevices);
+			ce.merge();
+			
+			shiftChartQuestionsRecursive(question, eligibleChart, false, locale);
+			
+		} else { //add fresh newly assistant processed question if found
+			Session session = question.getSession();
+			String submissionEndDate = session.getParameter("questions_starred_submissionEndDate");
+			Date lastSubmissionDate = FormaterUtil.formatStringToDate(submissionEndDate, ApplicationConstants.DB_DATETIME_FORMAT, locale);
+			
+			int dateComparator = -1;
+			Date finalSubmissionDate = chart.getGroup().getFinalSubmissionDate(chart.getAnsweringDate());
+			if(question.getSubmissionDate() != null){
+				dateComparator = finalSubmissionDate.compareTo(question.getSubmissionDate());
+			}else{
+				dateComparator = finalSubmissionDate.compareTo(new Date());
+			}			
+			if(dateComparator>=0 && lastSubmissionDate.compareTo(new Date())>=0){
+				Question q = StarredQuestionChart.onGroupChangeAddQuestionLH(
+						session, question.getPrimaryMember(), chart.getGroup(), chart.getAnsweringDate(),
+						devices.toArray(new Question[0]), locale);
+				if(q != null) {
+					// The Questions taken on the Chart should have status 
+					// "TO_BE_PUT_UP"
+					Status TO_BE_PUT_UP = Status.findByType(
+							ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, 
+							locale);
+					QuestionDates chartAnsweringDate = 
+						chart.getGroup().findQuestionDatesByGroupAndAnsweringDate(
+								chart.getAnsweringDate());
+					
+					q.setInternalStatus(TO_BE_PUT_UP);
+					q.setRecommendationStatus(TO_BE_PUT_UP);
+					q.setChartAnsweringDate(chartAnsweringDate);
+					q.simpleMerge();
+					
+					devices.add(q);
+				}
+			}
+			
+			
+			/*
+			 * Reorder the devices and then add them to the Chart
+			 */
+			List<Question> questions = 
+				StarredQuestionChart.marshallDevices(devices);
+			List<Question> reorderedQuestions = 
+				StarredQuestionChart.reorderQuestions(questions, chart.getAnsweringDate());
+			List<Device> reorderedDevices =
+				StarredQuestionChart.marshallQuestions(reorderedQuestions);
+			ce.setDevices(reorderedDevices);
+			ce.merge();
+		}
+	}
+	
+	/**
+	 * 1. Remove @param question from its Chart.
+	 * 2. Whenever a Question leaves the Chart its chartAnsweringDate 
+	 * attribute is set as null.
+	 * 3. Since 1 question has left the Chart, find an eligible question
+	 * and add it to the Chart.
+	 * 4. Reorder the devices in the ChartEntry.
+	 * 
+	 * Returns the processed source group Chart.
+	 */
+	private static Chart processSourceGroupChartSecondBatchUH(final Question question,
+			final Group sourceGroup) throws ELSException {
+		Chart chart = Chart.find(question);
+		if(chart != null) {
+			String locale = chart.getLocale();
+			Session session = question.getSession();
+			String submissionEndDate = session.getParameter("questions_starred_submissionEndDate");
+			Date lastSubmissionDate = FormaterUtil.formatStringToDate(submissionEndDate, ApplicationConstants.DB_DATETIME_FORMAT, locale);
+			
+			if(lastSubmissionDate.compareTo(new Date())>=0){
+				shiftChartQuestionsRecursive(question, chart, true, locale);
+			}			
 		}
 		
 		return chart;
