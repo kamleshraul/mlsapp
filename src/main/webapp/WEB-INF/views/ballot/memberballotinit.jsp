@@ -37,17 +37,32 @@
 				viewMemberBallotStatus();
 			});	
 			/**** Level 2 Links ****/				
-			$('#memberballotchoice').click(function(){
+			$('#memberballotchoice').click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
 				$(".link").css("color","#8D8B8B");
 				$(this).css("color","blue");
 				memberballotchoice();
 			});			
-			$("#updateclubbing").click(function(){
+			$("#updateclubbing").click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
 				$(".link").css("color","#8D8B8B");
 				$(this).css("color","blue");
 				updateClubbing();
 			});	
-			$("#finalballot").click(function(){
+			$("#finalballot").click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
 				$(".link").css("color","#8D8B8B");
 				$(this).css("color","blue");
 				$.prompt($('#ballotConfirmationMsg').val(),{
