@@ -136,7 +136,7 @@
 							<!-- <fo:block>&#160;</fo:block> -->	
 							<fo:block>प्रश्नाचा गट क्रमांक: <fo:inline font-weight="bold"><xsl:value-of select="groupNumber"/></fo:inline></fo:block>
 							<fo:block>प्रश्नाच्या उत्तराचा दिनांक: <fo:inline font-weight="bold"><xsl:value-of select="answeringDate"/></fo:inline></fo:block>
-							<fo:block>प्रश्नोत्तराच्या दहा प्रती या सचिवालयाला मिळण्याचा शेवटचा दिनांक: <fo:inline font-weight="bold"><xsl:value-of select="lastSendingDateToDepartment"/></fo:inline></fo:block>
+							<fo:block>प्रश्नोत्तराच्या तीन प्रती या सचिवालयाला मिळण्याचा शेवटचा दिनांक: <fo:inline font-weight="bold"><xsl:value-of select="lastSendingDateToDepartment"/></fo:inline></fo:block>
 								
 						</fo:block>	
 						<fo:block font-size="4px">&#160;</fo:block>				
