@@ -1481,6 +1481,7 @@ public class ChartRepository extends BaseRepository<Chart, Long> {
 				+ " AND c.answering_date>:answeringDate"
 				+ " AND ce.member_id=:memberId"
 				+ " AND DATE(q.submission_date)<=(SELECT final_submission_date FROM question_dates WHERE group_id=:groupId AND answering_date=:answeringDate)"
+				+ " AND (q.answering_date IS NULL OR (q.answering_date IS NOT NULL AND qad.answering_date<=:answeringDate))"
 				+ " AND q.parent IS NULL"
 				+ " AND ista.type LIKE :readyToBePutUp"
 				+ " ORDER BY q.number ASC LIMIT 1";
