@@ -261,13 +261,25 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<c:if test="${domain.houseType.type=='upperhouse'}">
-		<c:if test="${not empty domain.rejectionReason}">
-		<p>
-			<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
-			<textarea id="rejectionReason" class="wysiwyg" readonly="readonly">${domain.rejectionReason}</textarea>
-		</p>
-		</c:if>
+	<c:if test="${not empty domain.rejectionReason}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.rejectionReason" text="Rejection reason"/></label>
+		<textarea id="rejectionReasonEdit" class="wysiwyg" readonly="readonly">${domain.rejectionReason}</textarea>
+	</p>
+	</c:if>
+	
+	<c:if test="${not empty domain.factualPosition}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Postion"/></label>
+		<textarea id="factualPositionEdit" class="wysiwyg" readonly="readonly">${domain.factualPosition}</textarea>
+	</p>
+	</c:if>
+	
+	<c:if test="${not empty domain.factualPositionFromMember}">
+	<p>
+		<label class="wysiwyglabel"><spring:message code="question.factualPositionFromMember" text="Factual Postion From Member"/></label>
+		<textarea id="factualPositionFromMemberEdit" class="wysiwyg" readonly="readonly">${domain.factualPositionFromMember}</textarea>
+	</p>
 	</c:if>
 		
 	<p>

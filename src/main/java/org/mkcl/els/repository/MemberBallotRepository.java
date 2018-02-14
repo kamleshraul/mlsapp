@@ -2744,7 +2744,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 							String  strUsergroupType = actor.split("#")[1];
 							usergroupType = UserGroupType.findByType(strUsergroupType, locale);
 						}
-						Question.endDeviceWorkflow(oldPrimaryQuestion.getType().getType(), oldPrimaryQuestion.getId(), oldPrimaryQuestion.getHouseType().getType(), locale);
+						Question.endDeviceWorkflow(oldPrimaryQuestion.getType().getDevice(), oldPrimaryQuestion.getId(), oldPrimaryQuestion.getHouseType().getType(), locale);
 						
 						newPrimaryQuestion.setParent(null);
 						newPrimaryQuestion.setRevisedQuestionText(oldPrimaryQuestion.getRevisedQuestionText());
@@ -2752,7 +2752,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 						newPrimaryQuestion.setClubbedEntities(newPrimaryclubbedEntities);
 						newPrimaryQuestion.merge();
 						
-						Question.startDeviceWorkflow(newPrimaryQuestion.getType().getType(), newPrimaryQuestion.getId(), newPrimaryQuestion.getInternalStatus(), usergroupType, Integer.parseInt(oldPrimaryQuestion.getLevel()), oldPrimaryQuestion.getHouseType().getType(), false, locale);
+						Question.startDeviceWorkflow(newPrimaryQuestion.getType().getType(), newPrimaryQuestion.getId(), oldPrimaryQuestion.getInternalStatus(), usergroupType, Integer.parseInt(oldPrimaryQuestion.getLevel()), oldPrimaryQuestion.getHouseType().getType(), false, locale);
 						
 						
 						//newPrimaryClubbedEntity.remove();
