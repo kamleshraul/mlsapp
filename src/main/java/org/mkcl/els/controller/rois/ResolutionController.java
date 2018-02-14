@@ -2111,7 +2111,12 @@ public class ResolutionController extends GenericController<Resolution> {
 							 * not existing for that actors.
 							 */
 							try{
-								String strNextuser = request.getParameter("actor");
+								String strNextuser = "";
+								if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+									strNextuser=request.getParameter("actorLowerHouse");
+								}else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+									strNextuser=request.getParameter("actorUpperHouse");
+								}
 								String[] nextuser = null;
 								int nextUserLevel = 0;
 								if(strNextuser != null && !strNextuser.isEmpty()){
@@ -2149,13 +2154,14 @@ public class ResolutionController extends GenericController<Resolution> {
 									UserGroup assistant = UserGroup.findActive(cr, new Date(), domain.getLocale().toString());
 									List<Reference> refs = null;
 									if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-										
+										refs = WorkflowConfig.
+												findResolutionActorsVO(q,domain.getInternalStatusLowerHouse(),
+														assistant,1,domain.getHouseType().getName(),q.getLocale());
 									} else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
-										
-									}
-									refs = WorkflowConfig.
-											findResolutionActorsVO(q,domain.getInternalStatusLowerHouse(),
-													assistant,1,domain.getHouseType().getName(),q.getLocale());
+										refs = WorkflowConfig.
+												findResolutionActorsVO(q,domain.getInternalStatusUpperHouse(),
+														assistant,1,domain.getHouseType().getName(),q.getLocale());
+									}									
 									
 									List<ResolutionDraft> ogDrafts = q.getDrafts();
 									List<ResolutionDraft> drafts = new ArrayList<ResolutionDraft>();
