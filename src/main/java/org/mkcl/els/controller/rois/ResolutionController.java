@@ -48,7 +48,9 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.Query;
+import org.mkcl.els.domain.Resolution;
+import org.mkcl.els.domain.ResolutionDraft;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.ResolutionDraft;
@@ -2103,6 +2105,99 @@ public class ResolutionController extends GenericController<Resolution> {
 								}
 							}	
 						}
+					}else if(operation.trim().equals("startworkflow")){
+						{
+							/* Find if next actors are not active then create a draft for them if draft is 
+							 * not existing for that actors.
+							 */
+							try{
+								String strNextuser = request.getParameter("actor");
+								String[] nextuser = null;
+								int nextUserLevel = 0;
+								if(strNextuser != null && !strNextuser.isEmpty()){
+										nextuser = strNextuser.split("#");
+										nextUserLevel = Integer.parseInt(nextuser[2]);
+								} 
+														
+								Resolution q = null;
+								
+								if(domain.getId() != null){
+									q = Resolution.findById(Resolution.class, domain.getId());
+								}else{
+									q = domain.copyResolution();
+								}
+								
+								
+								Map<String, String[]> params = new HashMap<String, String[]>();
+								params.put("locale", new String[]{domain.getLocale().toString()});
+								params.put("sessionId", new String[]{domain.getSession().getId().toString()});
+								params.put("ugType", new String[]{ApplicationConstants.ASSISTANT});
+								params.put("qId", new String[]{domain.getId().toString()});
+								List data = Query.findReport("ACTIVE_USER", params);
+								String strUsername = null;
+								if(data != null && !data.isEmpty()){
+									Object[] obj = (Object[])data.get(0);
+									strUsername = obj[1].toString();
+								}
+							
+								Credential cr = null;
+								if(strUsername != null){
+									cr = Credential.findByFieldName(Credential.class, "username", strUsername, null);
+								}
+								
+								if(cr != null){
+									UserGroup assistant = UserGroup.findActive(cr, new Date(), domain.getLocale().toString());
+									List<Reference> refs = null;
+									if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+										
+									} else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+										
+									}
+									refs = WorkflowConfig.
+											findResolutionActorsVO(q,domain.getInternalStatusLowerHouse(),
+													assistant,1,domain.getHouseType().getName(),q.getLocale());
+									
+									List<ResolutionDraft> ogDrafts = q.getDrafts();
+									List<ResolutionDraft> drafts = new ArrayList<ResolutionDraft>();
+								
+								
+									for(Reference ref : refs){
+										
+										String[] user = ref.getId().split("#");
+										
+										if(!user[1].equals(ApplicationConstants.MEMBER) && !user[1].equals(ApplicationConstants.DEPARTMENT) && !user[1].equals(ApplicationConstants.DEPARTMENT_DESKOFFICER) && !ref.getState().equals(ApplicationConstants.ACTOR_ACTIVE)){
+											
+											int refLevel = Integer.parseInt(user[2]);
+											
+											if(refLevel < nextUserLevel){
+												boolean foundUsersDraft = false;
+												if(ogDrafts != null && !ogDrafts.isEmpty()){
+													for(ResolutionDraft qd : ogDrafts){
+														if(qd.getEditedAs().equals(user[3]) 
+																&& qd.getEditedBy().equals(user[0])){
+															foundUsersDraft = true;
+															break;
+														}
+													}
+													
+													if(!foundUsersDraft){
+														ResolutionDraft qdn = Resolution.addDraft(q, user[0], user[3], ref.getRemark());
+														drafts.add(qdn);
+													}
+												}
+											}
+										}
+									}
+									if(drafts != null && !drafts.isEmpty()){
+										domain.setDrafts(drafts);
+									}
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+								//return "redirect:question/"+domain.getId()+"/edit";
+							}
+						}
+						
 					}else{
 						Status status=Status.findByFieldName(Status.class, "type", ApplicationConstants.RESOLUTION_COMPLETE, domain.getLocale());
 						if(usergroupType!=null&&!(usergroupType.isEmpty())&&usergroupType.equals("member")||usergroupType.equals("typist")){

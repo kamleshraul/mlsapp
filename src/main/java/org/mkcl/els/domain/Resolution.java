@@ -1715,6 +1715,91 @@ public class Resolution extends Device implements Serializable{
 	public static Resolution findReferencedResolution(Resolution referencedResolution) {
 		return getResolutionRepository().findReferencedResolution(referencedResolution);
 	}
+	
+	public Resolution copyResolution(){
+		Resolution q = new Resolution();
+		
+		q.setId(q.getId());
+		q.setLocale(this.getLocale());
+		q.setNumber(this.getNumber());
+		q.setLevelLowerHouse(this.getLevelLowerHouse());
+		q.setLevelUpperHouse(this.getLevelUpperHouse());
+		
+		q.setType(this.getType());
+		
+		q.setMember(this.getMember());
+		
+		q.setSubject(this.getSubject());
+		q.setNoticeContent(this.getNoticeContent());
+		q.setRevisedSubject(this.getRevisedSubject());
+		q.setRevisedNoticeContent(this.getRevisedNoticeContent());
+		
+		q.setSubDepartment(this.getSubDepartment());
+		q.setMinistry(this.getMinistry());
+		
+		q.setCreatedBy(this.getCreatedBy());
+		q.setCreationDate(this.getCreationDate());
+		
+		q.setDataEnteredBy(this.getDataEnteredBy());
+		q.setDrafts(this.getDrafts());
+		
+		q.setInternalStatusLowerHouse(this.getInternalStatusLowerHouse());
+		q.setInternalStatusUpperHouse(this.getInternalStatusUpperHouse());
+		
+		q.setRecommendationStatusLowerHouse(this.getRecommendationStatusLowerHouse());
+		q.setRecommendationStatusUpperHouse(this.getRecommendationStatusUpperHouse());
+		
+		q.setStatusLowerHouse(this.getStatusLowerHouse());
+		q.setStatusUpperHouse(this.getStatusUpperHouse());
+		
+		return q;
+	}
+	
+	public static ResolutionDraft addDraft(Resolution q, String editedBy, String editedAs, String remark) {
+
+		ResolutionDraft draft = new ResolutionDraft();
+		//draft.setResolutionId(q.getId());
+		draft.setLocale(q.getLocale());
+		//draft.setType(q.getType());
+		draft.setRemarks(remark);
+
+		draft.setEditedAs(editedAs);
+		draft.setEditedBy(editedBy);
+		draft.setEditedOn(new Date());
+
+		draft.setMinistry(q.getMinistry());
+		draft.setSubDepartment(q.getSubDepartment());
+
+		if(!q.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
+			if(q.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
+				draft.setStatus(q.getStatusLowerHouse());
+	            draft.setInternalStatus(q.getInternalStatusLowerHouse());
+	            draft.setRecommendationStatus(q.getRecommendationStatusLowerHouse());
+	            
+			} else if(q.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
+				draft.setStatus(q.getStatusUpperHouse());
+	            draft.setInternalStatus(q.getInternalStatusUpperHouse());
+	            draft.setRecommendationStatus(q.getRecommendationStatusUpperHouse());
+			}        	
+        }
+
+		if (q.getRevisedNoticeContent() != null
+				&& q.getRevisedSubject() != null) {
+			draft.setNoticeContent(q.getRevisedNoticeContent());
+			draft.setSubject(q.getRevisedSubject());
+		} else if (q.getRevisedNoticeContent() != null) {
+			draft.setNoticeContent(q.getRevisedNoticeContent());
+			draft.setSubject(q.getSubject());
+		} else if (q.getRevisedSubject() != null) {
+			draft.setNoticeContent(q.getNoticeContent());
+			draft.setSubject(q.getRevisedSubject());
+		} else {
+			draft.setNoticeContent(q.getNoticeContent());
+			draft.setSubject(q.getSubject());
+		}		
+		
+		return draft;
+	}
     
 	/**** Getters and Setters ****/
 	/**
