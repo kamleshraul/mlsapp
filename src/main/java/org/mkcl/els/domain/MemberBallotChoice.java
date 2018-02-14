@@ -10,9 +10,11 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -20,6 +22,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
@@ -71,6 +75,19 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
 			joinColumns={@JoinColumn(name="memberballot_choice_id", referencedColumnName="id")}, 
 			inverseJoinColumns={@JoinColumn(name="memberballot_choice_draft_id", referencedColumnName="id")})
 	private List<MemberBallotChoiceDraft> drafts;  */
+    
+    /** The edited on. */
+    @Temporal(TemporalType.TIMESTAMP)
+    @JoinColumn(name="editedon")
+    private Date editedOn; 
+    
+    /** The edited by. */
+    @Column(length=1000)
+    private String editedBy;
+
+    /** The edited as. */
+    @Column(length=1000)
+    private String editedAs;
 
 
     /** The member ballot choice repository. */
@@ -245,6 +262,30 @@ public class MemberBallotChoice extends BaseDomain implements Serializable{
 	public void setDrafts(List<MemberBallotChoiceDraft> drafts) {
 		this.drafts = drafts;
 	}*/
+
+	public Date getEditedOn() {
+		return editedOn;
+	}
+
+	public void setEditedOn(Date editedOn) {
+		this.editedOn = editedOn;
+	}
+
+	public String getEditedBy() {
+		return editedBy;
+	}
+
+	public void setEditedBy(String editedBy) {
+		this.editedBy = editedBy;
+	}
+
+	public String getEditedAs() {
+		return editedAs;
+	}
+
+	public void setEditedAs(String editedAs) {
+		this.editedAs = editedAs;
+	}
 
 	/**** find member ballot choice at a particular round and choice ****/
 	public static MemberBallotChoice findMemberBallotChoice(final Session session,final DeviceType deviceType,

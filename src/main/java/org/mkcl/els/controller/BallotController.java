@@ -70,6 +70,7 @@ import org.mkcl.els.domain.MemberBallotChoiceDraft;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.StandaloneMotion;
+import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.domain.ballot.PreBallot;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
@@ -2807,14 +2808,17 @@ public class BallotController extends BaseController{
 							draft.setQuestion(c.getQuestion());
 							draft.setMemberballotChoiceId(c.getId());
 							draft.setMemberballotId(memberBallot.getId());
-							String username = this.getCurrentUser().getActualUsername();
-							Credential credential = Credential.findByFieldName(Credential.class, "username", username, null);
-							draft.setEditedBy(username);
-							draft.setEditedOn(new Date());
-							UserGroup usergroup =  UserGroup.findActive(credential, new Date(), locale);
-							if(usergroup!= null){
-								draft.setEditedAs(usergroup.getUserGroupType().getType());
-							}
+//							String username = this.getCurrentUser().getActualUsername();
+//							Credential credential = Credential.findByFieldName(Credential.class, "username", username, null);
+//							draft.setEditedBy(username);
+//							draft.setEditedOn(new Date());
+//							UserGroup usergroup =  UserGroup.findActive(credential, new Date(), locale);
+//							if(usergroup!= null){
+//								draft.setEditedAs(usergroup.getUserGroupType().getType());
+//							}
+							draft.setEditedBy(c.getEditedAs());
+							draft.setEditedOn(c.getEditedOn());
+							draft.setEditedAs(c.getEditedAs());
 							draft.persist();
 							c.remove();
 						}					
@@ -2850,10 +2854,30 @@ public class BallotController extends BaseController{
 									memberBallotChoice.setNewAnsweringDate(questionDates);
 									question.setAnsweringDate(questionDates);
 									question.merge();
+									Map<String, String> parameters = new HashMap<String, String>();
+									parameters.put("deviceId", question.getId().toString());
+									parameters.put("status", ApplicationConstants.MYTASK_PENDING);
+									List<WorkflowDetails> workflowTasksOfQuestion =  WorkflowDetails.findAllByFieldNames(WorkflowDetails.class, parameters, "id", ApplicationConstants.ASC, locale);
+									if(workflowTasksOfQuestion!=null && !workflowTasksOfQuestion.isEmpty()) {
+										for(WorkflowDetails wd: workflowTasksOfQuestion) {
+											wd.setAnsweringDate(question.getAnsweringDate().getAnsweringDate());
+											wd.merge();
+										}
+									}
 								}else{
 									memberBallotChoice.setNewAnsweringDate(question.getChartAnsweringDate());
 									question.setAnsweringDate(question.getChartAnsweringDate());
 									question.merge();
+									Map<String, String> parameters = new HashMap<String, String>();
+									parameters.put("deviceId", question.getId().toString());
+									parameters.put("status", ApplicationConstants.MYTASK_PENDING);
+									List<WorkflowDetails> workflowTasksOfQuestion =  WorkflowDetails.findAllByFieldNames(WorkflowDetails.class, parameters, "id", ApplicationConstants.ASC, locale);
+									if(workflowTasksOfQuestion!=null && !workflowTasksOfQuestion.isEmpty()) {
+										for(WorkflowDetails wd: workflowTasksOfQuestion) {
+											wd.setAnsweringDate(question.getAnsweringDate().getAnsweringDate());
+											wd.merge();
+										}
+									}
 								}
 								memberBallotChoice.setQuestion(question);
 							}
@@ -2862,6 +2886,16 @@ public class BallotController extends BaseController{
 							memberBallotChoice.setProcessed(false);
 							memberBallotChoice.setAutoFilled(false);
 							memberBallotChoice.setBlankFormAutoFilled(false);
+							
+							String username = this.getCurrentUser().getActualUsername();
+							Credential credential = Credential.findByFieldName(Credential.class, "username", username, null);
+							memberBallotChoice.setEditedBy(username);
+							memberBallotChoice.setEditedOn(new Date());
+							UserGroup usergroup =  UserGroup.findActive(credential, new Date(), locale);
+							if(usergroup!= null){
+								memberBallotChoice.setEditedAs(usergroup.getUserGroupType().getType());
+							}
+							
 							if(memberBallotChoice.getId()==null){
 								memberBallotChoice.persist();
 							}else{
@@ -3045,11 +3079,31 @@ public class BallotController extends BaseController{
 							memberBallotChoice.setQuestion(question);
 							memberBallotChoice.setNewAnsweringDate(question.getChartAnsweringDate());
 							memberBallotChoice.setAutoFilled(true);
+							
+							String username = this.getCurrentUser().getActualUsername();
+							Credential credential = Credential.findByFieldName(Credential.class, "username", username, null);
+							memberBallotChoice.setEditedBy(username);
+							memberBallotChoice.setEditedOn(new Date());
+							UserGroup usergroup =  UserGroup.findActive(credential, new Date(), locale);
+							if(usergroup!= null){
+								memberBallotChoice.setEditedAs(usergroup.getUserGroupType().getType());
+							}
+							
 							memberBallotChoice.persist();
 							memberBallotChoices.add(memberBallotChoice);
 							count++;
 							question.setAnsweringDate(question.getChartAnsweringDate());
 							question.merge();
+							Map<String, String> parameters = new HashMap<String, String>();
+							parameters.put("deviceId", question.getId().toString());
+							parameters.put("status", ApplicationConstants.MYTASK_PENDING);
+							List<WorkflowDetails> workflowTasksOfQuestion =  WorkflowDetails.findAllByFieldNames(WorkflowDetails.class, parameters, "id", ApplicationConstants.ASC, locale);
+							if(workflowTasksOfQuestion!=null && !workflowTasksOfQuestion.isEmpty()) {
+								for(WorkflowDetails wd: workflowTasksOfQuestion) {
+									wd.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
+									wd.merge();
+								}
+							}
 						}
 					}
 					//}					
