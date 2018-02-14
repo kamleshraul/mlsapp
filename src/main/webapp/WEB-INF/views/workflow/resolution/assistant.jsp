@@ -108,14 +108,25 @@
 		$.post(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
-				 if($('#houseTypeType').val()=='lowerhouse'){
+				if($('#houseTypeType').val()=='lowerhouse'){
 					 $("#actorLowerHouse").empty();
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").empty();
 				}
+				var actor1="";
+				var actCount = 1;
 				var text="";
-				for(var i=0;i<length;i++){
-				text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+				for(var i=0;i<length;i++){		
+					var ugt = data[i].id.split("#")[1];
+					if(ugt!='member' && data[i].state!='active'){
+						text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name + "</option>";
+					} else {
+						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						if(actCount == 1){
+							actor1=data[i].id;
+							actCount++;
+						}
+					}
 				}
 				if($('#houseTypeType').val()=='lowerhouse'){
 					 $("#actorLowerHouse").html(text);
@@ -136,8 +147,8 @@
 					$("#actorDiv").show();
 				}
 				/**** setting level,localizedActorName ****/
-				console.log(data[0].id);
-				 var actor1=data[0].id;
+				//console.log(data[0].id);
+				 //var actor1=data[0].id;
 				 var temp=actor1.split("#");
 				 if($('#houseTypeType').val()=='lowerhouse'){
 					 $("#levelLowerHouse").val(temp[2]);		    
@@ -452,6 +463,7 @@
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
+			//$("#changeInternalStatus").change();
 			/* loadActors($("#changeInternalStatus").val()); */
 		}
 	});

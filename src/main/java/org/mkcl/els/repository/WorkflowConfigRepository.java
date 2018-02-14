@@ -1122,9 +1122,9 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 			for(UserGroup j:userGroups){
 				int noOfComparisons=0;
 				int noOfSuccess=0;
+				Map<String,String> params=j.getParameters();
 				/**The Parameters doesnot need to check in case of MEMBER***/
-				if(!j.getUserGroupType().getType().equals(ApplicationConstants.MEMBER)){
-					Map<String,String> params=j.getParameters();
+				if(!j.getUserGroupType().getType().equals(ApplicationConstants.MEMBER)){					
 					if(houseType!=null){
 						HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
 						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
@@ -1210,7 +1210,8 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 							+"#"+userGroupTypeTemp.getName()
 							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
 					reference.setName(userGroupTypeTemp.getName());
-					//reference.setState(j.get)
+					reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
+					reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
 					references.add(reference);
 					break;
 				}				
