@@ -934,10 +934,10 @@ public class ResolutionWorkflowController extends BaseController{
 					
 					Map<String, String[]> params = new HashMap<String, String[]>();
 					params.put("locale", new String[]{domain.getLocale().toString()});
-					params.put("sessionId", new String[]{domain.getSession().getId().toString()});
+					params.put("houseTypeId", new String[]{domain.getHouseType().getId().toString()});
+					//params.put("deviceTypeName", new String[]{domain.getType().getName()});
 					params.put("ugType", new String[]{ApplicationConstants.ASSISTANT});
-					params.put("qId", new String[]{domain.getId().toString()});
-					List data = Query.findReport("ACTIVE_USER", params);
+					List data = Query.findReport(domain.getType().getType().toUpperCase()+"_ACTIVE_USER", params);
 					String strUsername = null;
 					if(data != null && !data.isEmpty()){
 						Object[] obj = (Object[])data.get(0);
@@ -962,9 +962,7 @@ public class ResolutionWorkflowController extends BaseController{
 											assistant,1,domain.getHouseType().getName(),q.getLocale());
 						}
 						
-						List<ResolutionDraft> ogDrafts = q.getDrafts();
-						List<ResolutionDraft> drafts = new ArrayList<ResolutionDraft>();
-					
+						List<ResolutionDraft> ogDrafts = q.getDrafts();					
 					
 						for(Reference ref : refs){
 							
@@ -987,14 +985,11 @@ public class ResolutionWorkflowController extends BaseController{
 										
 										if(!foundUsersDraft){
 											ResolutionDraft qdn = Resolution.addDraft(q, user[0], user[3], ref.getRemark());
-											drafts.add(qdn);
+											ogDrafts.add(qdn);
 										}
 									}
 								}
 							}
-						}
-						if(drafts != null && !drafts.isEmpty()){
-							domain.setDrafts(drafts);
 						}
 					}
 				} catch (Exception e) {
