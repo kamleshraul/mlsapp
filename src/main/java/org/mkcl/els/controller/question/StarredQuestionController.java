@@ -1575,6 +1575,28 @@ class StarredQuestionController {
 		/** populate discussion details text if question is discussed **/
 		String discussionDetailsText = domain.findDiscussionDetailsText();
 		model.addAttribute("discussionDetailsText", discussionDetailsText);
+		
+		/**** Populate flag for department change allowed for given actor ****/
+		String processingMode = "";
+		String sessionProcessingMode = domain.getSession().getParameter(domain.getType().getType()+"_processingMode");
+		if(sessionProcessingMode!=null && !sessionProcessingMode.isEmpty()) {
+			processingMode = sessionProcessingMode;
+		} else {
+			processingMode = domain.getHouseType().getType();
+		}
+		CustomParameter csptDepartmentChangeRestricted = CustomParameter.findByName(CustomParameter.class, domain.getOriginalType().getType().toUpperCase()+"_"+processingMode.toUpperCase()+"_"+userGroupType.getType().toUpperCase()+"_DEPARTMENT_CHANGE_RESTRICTED", locale);
+		if(csptDepartmentChangeRestricted!=null && csptDepartmentChangeRestricted.getValue()!=null && csptDepartmentChangeRestricted.getValue().equals("YES")) {
+			
+			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION) //allowed for questions converted to unstarred in previous sessions
+					&& new Date().after(domain.getSession().getEndDate())) {
+				
+				model.addAttribute("departmentChangeRestricted", "NO");
+			} else {
+				model.addAttribute("departmentChangeRestricted", "YES");
+			}			
+		} else {
+			model.addAttribute("departmentChangeRestricted", "NO");
+		}
 	}
 
 
@@ -2328,6 +2350,28 @@ class StarredQuestionController {
 		/** populate discussion details text if question is discussed **/
 		String discussionDetailsText = domain.findDiscussionDetailsText();
 		model.addAttribute("discussionDetailsText", discussionDetailsText);
+		
+		/**** Populate flag for department change allowed for given actor ****/
+		String processingMode = "";
+		String sessionProcessingMode = domain.getSession().getParameter(domain.getType().getType()+"_processingMode");
+		if(sessionProcessingMode!=null && !sessionProcessingMode.isEmpty()) {
+			processingMode = sessionProcessingMode;
+		} else {
+			processingMode = domain.getHouseType().getType();
+		}
+		CustomParameter csptDepartmentChangeRestricted = CustomParameter.findByName(CustomParameter.class, domain.getOriginalType().getType().toUpperCase()+"_"+processingMode.toUpperCase()+"_"+userGroupType.getType().toUpperCase()+"_DEPARTMENT_CHANGE_RESTRICTED", locale);
+		if(csptDepartmentChangeRestricted!=null && csptDepartmentChangeRestricted.getValue()!=null && csptDepartmentChangeRestricted.getValue().equals("YES")) {
+			
+			if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION) //allowed for questions converted to unstarred in previous sessions
+					&& new Date().after(domain.getSession().getEndDate())) {
+				
+				model.addAttribute("departmentChangeRestricted", "NO");
+			} else {
+				model.addAttribute("departmentChangeRestricted", "YES");
+			}			
+		} else {
+			model.addAttribute("departmentChangeRestricted", "NO");
+		}
 	}
 
 

@@ -836,6 +836,14 @@
 		
 		$('#isTransferable').change(function() {
 	        if ($(this).is(':checked')) {
+	        	if($('#departmentChangeRestricted').val()=='YES') {
+	        		$.prompt($('#departmentChangeRestrictedMessage').val());
+	        		$("#ministry option[selected!='selected']").hide();
+		    		$("#subDepartment option[selected!='selected']").hide(); 
+		    		$("#transferP").css("display","none");		    		
+		    		$('#isTransferable').removeAttr('checked');
+		    		return false;
+	        	}
 	        	if($("#houseTypeType").val()=='lowerhouse' && $('#selectedQuestionType').val()=='questions_starred'){
 		        	var currentDate = new Date();
 		        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
@@ -1609,6 +1617,8 @@
 <input type="hidden" id="selectedQuestionType" value="${selectedQuestionType}" />
 <input type="hidden" id="srole" value="${role}" />
 <input type="hidden" id="houseTypeType" value="${houseTypeType}" />
+<input type="hidden" id="departmentChangeRestricted" value="${departmentChangeRestricted}" />
+<input id="departmentChangeRestrictedMessage" value="<spring:message code='question.departmentChangeRestrictedMessage' text='Department change not allowed at the moment!'/>" type="hidden">
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>

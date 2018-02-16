@@ -9775,4 +9775,39 @@ public class ReferenceController extends BaseController {
 		}
 		return visibilityFlags;
 	}
+	
+	@RequestMapping(value = "/isDepartmentChangeRestricted", method = RequestMethod.GET)
+	public @ResponseBody String isDepartmentChangeRestricted(final ModelMap model, 
+			final HttpServletRequest request, 
+			final Locale locale) {
+		String isDepartmentChangeRestricted = "NO";
+		String deviceId = request.getParameter("deviceId");
+		String usergroupType = request.getParameter("usergroupType");
+		if(deviceId!=null && !deviceId.isEmpty()
+				&& usergroupType!=null && !usergroupType.isEmpty()) {
+			Question domain = Question.findById(Question.class, Long.parseLong(deviceId));
+			if(domain!=null) {
+				String processingMode = "";
+				String sessionProcessingMode = domain.getSession().getParameter(domain.getType().getType()+"_processingMode");
+				if(sessionProcessingMode!=null && !sessionProcessingMode.isEmpty()) {
+					processingMode = sessionProcessingMode;
+				} else {
+					processingMode = domain.getHouseType().getType();
+				}
+				CustomParameter csptDepartmentChangeRestricted = CustomParameter.findByName(CustomParameter.class, domain.getOriginalType().getType().toUpperCase()+"_"+processingMode.toUpperCase()+"_"+usergroupType.toUpperCase()+"_DEPARTMENT_CHANGE_RESTRICTED", locale.toString());
+				if(csptDepartmentChangeRestricted!=null && csptDepartmentChangeRestricted.getValue()!=null && csptDepartmentChangeRestricted.getValue().equals("YES")) {
+					
+					if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION) //allowed for questions converted to unstarred in previous sessions
+							&& new Date().after(domain.getSession().getEndDate())) {
+						//allow department change in this case
+						return "NO";
+					} else {
+						//restrict department change in this case
+						isDepartmentChangeRestricted = "YES";
+					}			
+				}
+			}
+		}	
+		return isDepartmentChangeRestricted;
+	}
 }

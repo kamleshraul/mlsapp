@@ -903,6 +903,14 @@
 		
 		$('#isTransferable').change(function() {
 	        if ($(this).is(':checked')) {
+	        	if($('#departmentChangeRestricted').val()=='YES') {
+	        		$.prompt("Department change not allowed at the moment!");
+	        		$("#ministry option[selected!='selected']").hide();
+		    		$("#subDepartment option[selected!='selected']").hide(); 
+		    		$("#transferP").css("display","none");		    		
+		    		$('#isTransferable').removeAttr('checked');
+		    		return false;
+	        	}
 	        	if($("#houseTypeType").val()=='lowerhouse' && $('#selectedQuestionType').val()=='questions_starred'){
 		        	var currentDate = new Date();
 		        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
@@ -1695,6 +1703,7 @@
 <input type="hidden" id="lowerhouseMessage" value="<spring:message code='generic.lowerhouseMessage' text='Lower House'/>"/>
 <input type="hidden" id="upperhouseMessage" value="<spring:message code='generic.upperhouseMessage' text='Upper House'/>"/>
 <input type="hidden" id="lastDateForAnswerReceiving" value="${lastDateOfAnswerReceiving}"/>
+<input type="hidden" id="departmentChangeRestricted" value="${departmentChangeRestricted}" />
 <input id="noLateReplyReasonProvidedMsg" value='<spring:message code="client.error.nolatereplyreason" text="Please provide reason for Late Reply"></spring:message>' type="hidden" />
  <input type="hidden" id="lateDepartmentChangeMessage" value="<spring:message code='question.lateDepartmentChangeMessage' text='You cannot transfer the question as ballot date is been closed, kindly contact with Question branch.'/>"/>
 </body>

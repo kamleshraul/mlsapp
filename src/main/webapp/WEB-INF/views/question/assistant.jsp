@@ -479,21 +479,35 @@
 		});
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
-			if($(this).val()!=''){
-				$("#formattedGroup").val("");
-				$("#group").val("");
-				loadSubDepartments($(this).val());
-			}else{
-				$("#formattedGroup").val("");
-				$("#group").val("");				
-				$("#department").empty();				
-				$("#subDepartment").empty();				
-				$("#answeringDate").empty();		
-				$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
-				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
-				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-				//groupChanged();					
-			}
+			$.ajax({
+				method: "GET",
+				url: "ref/isDepartmentChangeRestricted",
+				data: { deviceId: $('#id').val(), usergroupType: $("#currentusergroupType").val() },
+				async: false
+			}).done(function( isDepartmentChangeRestricted ) {
+			    if(isDepartmentChangeRestricted!=undefined && isDepartmentChangeRestricted=="YES") {
+			    	$.prompt($('#departmentChangeRestrictedMessage').val());
+		    		$('#ministry').val($('#ministrySelected').val());
+		    		$('#subDepartment').val($('#subDepartmentSelected').val());
+		    		return false;
+			    } else {
+			    	if($(this).val()!=''){
+						$("#formattedGroup").val("");
+						$("#group").val("");
+						loadSubDepartments($(this).val());
+					}else{
+						$("#formattedGroup").val("");
+						$("#group").val("");				
+						$("#department").empty();				
+						$("#subDepartment").empty();				
+						$("#answeringDate").empty();		
+						$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+						$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+						$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+						//groupChanged();					
+					}
+			    }
+			});			
 		});
 		
 		/**** Citations ****/
@@ -995,7 +1009,21 @@
 		});	  
 		
 		$('#subDepartment').change(function(){
-			loadGroup($(this).val());
+			$.ajax({
+				method: "GET",
+				url: "ref/isDepartmentChangeRestricted",
+				data: { deviceId: $('#id').val(), usergroupType: $("#currentusergroupType").val() },
+				async: false
+			}).done(function( isDepartmentChangeRestricted ) {
+			    if(isDepartmentChangeRestricted!=undefined && isDepartmentChangeRestricted=="YES") {
+			    	$.prompt($('#departmentChangeRestrictedMessage').val());
+		    		$('#ministry').val($('#ministrySelected').val());
+		    		$('#subDepartment').val($('#subDepartmentSelected').val());
+		    		return false;
+			    } else {
+			    	loadGroup($(this).val());
+			    }
+			});			
 		});
 		
 		$('#isAllowedInYaadi').click(function() {
@@ -1767,7 +1795,8 @@
 	<input id="oldRecommendationStatus" value="${ recommendationStatus}" type="hidden">
 	<input id="questionTypeType" value="${selectedQuestionType}" type="hidden"/>
 	<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
-	
+	<input type="hidden" id="departmentChangeRestricted" value="${departmentChangeRestricted}" />
+	<input id="departmentChangeRestrictedMessage" value="<spring:message code='question.departmentChangeRestrictedMessage' text='Department change not allowed at the moment!'/>" type="hidden">
 
 	
 	<ul id="contextMenuItems" >
