@@ -47,12 +47,7 @@
 				$(this).css("color","blue");
 				memberballotchoice();
 			});			
-			$("#updateclubbing").click(function(event, isHighSecurityValidationRequired) {
-				//isHighSecurityValidationRequired = false;
-				if(isHighSecurityValidationRequired!=false) {
-					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
-					return false;
-				}
+			$("#updateclubbing").click(function() {
 				$(".link").css("color","#8D8B8B");
 				$(this).css("color","blue");
 				updateClubbing();
