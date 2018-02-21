@@ -74,7 +74,12 @@
 				});
 			});
 			
-			$("#viewfinalballot").click(function(){
+			$("#viewfinalballot").click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
 				$(this).css("color","blue");
 				viewfinalballot();
 			});
@@ -522,12 +527,12 @@
 			<a href="#" id="memberballotchoice" class="butSim link">
 				<spring:message code="memberballot.memberballotchoice" text="Question Choices"/>
 			</a> |
-			</security:authorize>
 			<a href="#" id="updateclubbing" class="butSim link">
 				<spring:message code="memberballot.updateclubbing" text="Update Clubbing"/>
 			</a> |
+			</security:authorize>
 			<!-- <div style="display:none;"> -->
-			<security:authorize access="hasAnyRole('QIS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
 				<a href="#" id="finalballot" class="butSim link">
 					<spring:message code="memberballot.finalballot" text="Final Ballot"/>
 				</a> |
