@@ -490,11 +490,11 @@
 		    		$('#ministry').val($('#ministrySelected').val());
 		    		$('#subDepartment').val($('#subDepartmentSelected').val());
 		    		return false;
-			    } else {
-			    	if($(this).val()!=''){
+			    } else {			    	
+			    	if($('#ministry').val()!=''){
 						$("#formattedGroup").val("");
 						$("#group").val("");
-						loadSubDepartments($(this).val());
+						loadSubDepartments($('#ministry').val());
 					}else{
 						$("#formattedGroup").val("");
 						$("#group").val("");				
@@ -1021,7 +1021,7 @@
 		    		$('#subDepartment').val($('#subDepartmentSelected').val());
 		    		return false;
 			    } else {
-			    	loadGroup($(this).val());
+			    	loadGroup($('#subDepartment').val());
 			    }
 			});			
 		});

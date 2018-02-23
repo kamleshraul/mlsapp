@@ -583,25 +583,54 @@
 		});
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
-			if($(this).val()!=''){
-				$("#formattedGroup").val("");
-				$("#group").val("");
-				loadSubDepartments($(this).val());
-			}else{
-				$("#formattedGroup").val("");
-				$("#group").val("");				
-				$("#department").empty();				
-				$("#subDepartment").empty();				
-				$("#answeringDate").empty();		
-				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
-				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-				//groupChanged();					
-			}
+			$.ajax({
+				method: "GET",
+				url: "ref/isDepartmentChangeRestricted",
+				data: { deviceId: $('#id').val(), usergroupType: $("#currentusergroupType").val() },
+				async: false
+			}).done(function( isDepartmentChangeRestricted ) {
+			    if(isDepartmentChangeRestricted!=undefined && isDepartmentChangeRestricted=="YES") {
+			    	$.prompt($('#departmentChangeRestrictedMessage').val());
+		    		$('#ministry').val($('#ministrySelected').val());
+		    		$('#subDepartment').val($('#subDepartmentSelected').val());
+		    		return false;
+			    } else {
+			    	if($('#ministry').val()!=''){
+						$("#formattedGroup").val("");
+						$("#group").val("");
+						loadSubDepartments($('#ministry').val());
+					}else{
+						$("#formattedGroup").val("");
+						$("#group").val("");				
+						$("#department").empty();				
+						$("#subDepartment").empty();				
+						$("#answeringDate").empty();		
+						$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+						$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+						//groupChanged();					
+					}
+			    }
+			});			
 		});
 		
 		$('#subDepartment').change(function(){
-			loadGroup($(this).val());
+			$.ajax({
+				method: "GET",
+				url: "ref/isDepartmentChangeRestricted",
+				data: { deviceId: $('#id').val(), usergroupType: $("#currentusergroupType").val() },
+				async: false
+			}).done(function( isDepartmentChangeRestricted ) {
+			    if(isDepartmentChangeRestricted!=undefined && isDepartmentChangeRestricted=="YES") {
+			    	$.prompt($('#departmentChangeRestrictedMessage').val());
+		    		$('#ministry').val($('#ministrySelected').val());
+		    		$('#subDepartment').val($('#subDepartmentSelected').val());
+		    		return false;
+			    } else {
+			    	loadGroup($('#subDepartment').val());
+			    }
+			});			
 		});
+		
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
 			$.get('question/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
@@ -1769,6 +1798,7 @@
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input type="hidden" id="srole" value="${role}" />
+<input id="departmentChangeRestrictedMessage" value="<spring:message code='question.departmentChangeRestrictedMessage' text='Department change not allowed at the moment!'/>" type="hidden">
 
 <ul id="contextMenuItems" >
 	<li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>

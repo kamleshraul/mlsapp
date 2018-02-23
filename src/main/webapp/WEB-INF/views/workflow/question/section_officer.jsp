@@ -875,17 +875,31 @@
 		});
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
-			if($(this).val()!=''){
-			loadGroup($(this).val());
-			}else{
-				$("#formattedGroup").val("");
-				$("#group").val("");				
-				$("#subDepartment").empty();				
-				$("#answeringDate").empty();		
-				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
-				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-				groupChanged();					
-			}
+			$.ajax({
+				method: "GET",
+				url: "ref/isDepartmentChangeRestricted",
+				data: { deviceId: $('#id').val(), usergroupType: $("#currentusergroupType").val() },
+				async: false
+			}).done(function( isDepartmentChangeRestricted ) {
+			    if(isDepartmentChangeRestricted!=undefined && isDepartmentChangeRestricted=="YES") {
+			    	$.prompt($('#departmentChangeRestrictedMessage').val());
+		    		$('#ministry').val($('#ministrySelected').val());
+		    		$('#subDepartment').val($('#subDepartmentSelected').val());
+		    		return false;
+			    } else {
+			    	if($('#ministry').val()!=''){
+						loadGroup($('#ministry').val());
+						}else{
+							$("#formattedGroup").val("");
+							$("#group").val("");				
+							$("#subDepartment").empty();				
+							$("#answeringDate").empty();		
+							$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+							$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
+							groupChanged();					
+						}
+			    }
+			});			
 		});
 		
 		/**** Citations ****/
@@ -2050,6 +2064,7 @@
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input type="hidden" id="srole" value="${role}" />
 <input type="hidden" id="houseTypeType" value="${houseTypeType}"/>
+<input id="departmentChangeRestrictedMessage" value="<spring:message code='question.departmentChangeRestrictedMessage' text='Department change not allowed at the moment!'/>" type="hidden">
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>

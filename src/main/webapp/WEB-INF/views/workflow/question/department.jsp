@@ -836,32 +836,40 @@
 		
 		$('#isTransferable').change(function() {
 	        if ($(this).is(':checked')) {
-	        	if($('#departmentChangeRestricted').val()=='YES') {
-	        		$.prompt($('#departmentChangeRestrictedMessage').val());
-	        		$("#ministry option[selected!='selected']").hide();
-		    		$("#subDepartment option[selected!='selected']").hide(); 
-		    		$("#transferP").css("display","none");		    		
-		    		$('#isTransferable').removeAttr('checked');
-		    		return false;
-	        	}
-	        	if($("#houseTypeType").val()=='lowerhouse' && $('#selectedQuestionType').val()=='questions_starred'){
-		        	var currentDate = new Date();
-		        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
-		        	if(currentDate <= lastDepartmentChangeDate){
-		        		$("#ministry option[selected!='selected']").show();
-			    		$("#subDepartment option[selected!='selected']").show(); 
-			    		$("#transferP").css("display","inline-block");
-			    		$("#submit").css("display","none");
-		        	}else{
-		        		$.prompt($("#lateDepartmentChangeMessage").val());
-		        		$("#submit").css("display","none");
-		        	}
-	        	}else{
-	        		$("#ministry option[selected!='selected']").show();
-		    		$("#subDepartment option[selected!='selected']").show(); 
-		    		$("#transferP").css("display","inline-block");
-		    		$("#submit").css("display","none");
-	        	}
+	        	$.ajax({
+					method: "GET",
+					url: "ref/isDepartmentChangeRestricted",
+					data: { deviceId: $('#id').val(), usergroupType: $("#currentusergroupType").val() },
+					async: false
+				}).done(function( isDepartmentChangeRestricted ) {
+				    if(isDepartmentChangeRestricted!=undefined && isDepartmentChangeRestricted=="YES") {
+				    	$.prompt($('#departmentChangeRestrictedMessage').val());
+		        		$("#ministry option[selected!='selected']").hide();
+			    		$("#subDepartment option[selected!='selected']").hide(); 
+			    		$("#transferP").css("display","none");		    		
+			    		$('#isTransferable').removeAttr('checked');
+			    		return false;
+				    } else {
+				    	if($("#houseTypeType").val()=='lowerhouse' && $('#selectedQuestionType').val()=='questions_starred'){
+				        	var currentDate = new Date();
+				        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
+				        	if(currentDate <= lastDepartmentChangeDate){
+				        		$("#ministry option[selected!='selected']").show();
+					    		$("#subDepartment option[selected!='selected']").show(); 
+					    		$("#transferP").css("display","inline-block");
+					    		$("#submit").css("display","none");
+				        	}else{
+				        		$.prompt($("#lateDepartmentChangeMessage").val());
+				        		$("#submit").css("display","none");
+				        	}
+			        	}else{
+			        		$("#ministry option[selected!='selected']").show();
+				    		$("#subDepartment option[selected!='selected']").show(); 
+				    		$("#transferP").css("display","inline-block");
+				    		$("#submit").css("display","none");
+			        	}
+				    }
+				});
 	        }else{
 	        	$("#ministry option[selected!='selected']").hide();
 	    		$("#subDepartment option[selected!='selected']").hide(); 
