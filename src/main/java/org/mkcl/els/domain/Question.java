@@ -9888,6 +9888,7 @@ public class Question extends Device implements Serializable {
     				WorkflowDetails.findCurrentWorkflowDetail(question);
     			String workflowType = null;
     			Integer assigneeLevel = null;
+    			Status internalStatus = question.getInternalStatus();
     			
     			if(wfDetails != null){
 	    			// Before ending wfDetails process collect information
@@ -9897,14 +9898,16 @@ public class Question extends Device implements Serializable {
 	    				Integer.parseInt(wfDetails.getAssigneeLevel());
 	    			
 	    			WorkflowDetails.endProcess(wfDetails);
+	    			
+	    			if(!wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+	    					&& !wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+	    				/*
+	        			 * Change recommendation status to final (internal) status.    			 
+	        			 */	        			
+	        			question.setRecommendationStatus(internalStatus);
+	    			}
     			}
-    			question.removeExistingWorkflowAttributes();
-    			
-    			/*
-    			 * Change recommendation status to final (internal) status.
-    			 */
-    			Status internalStatus = question.getInternalStatus();
-    			question.setRecommendationStatus(internalStatus);
+    			question.removeExistingWorkflowAttributes();    			
     			question.merge();
     			
     			/*
@@ -9913,12 +9916,20 @@ public class Question extends Device implements Serializable {
     			Chart.groupChange(question, fromGroup, true);
     			
     			/*
-    			 * Start the workflow at Assistant (after Speaker) level.
+    			 * Start the workflow at Appropriate Level (after Speaker) level.
     			 */
-    			WorkflowDetails.startProcessAtGivenLevel(question, 
-    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
-    					ApplicationConstants.ASSISTANT, assigneeLevel, 
-    					locale);
+    			if(question.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTODEPARTMENT)
+    					|| question.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTODESKOFFICER)) {
+    				WorkflowDetails.startProcessAtGivenLevel(question, 
+        					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+        					ApplicationConstants.DEPARTMENT, assigneeLevel, 
+        					locale);
+    			} else {
+    				WorkflowDetails.startProcessAtGivenLevel(question, 
+        					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+        					ApplicationConstants.ASSISTANT, assigneeLevel, 
+        					locale);
+    			}   			
     		}
     		else if(qnState == STARRED_STATE.POST_BALLOT_AND_PRE_YAADI_LAID) {
     			/*
@@ -9927,8 +9938,9 @@ public class Question extends Device implements Serializable {
     			WorkflowDetails wfDetails = 
     				WorkflowDetails.findCurrentWorkflowDetail(question);
     			String workflowType = null;
-    			Integer assigneeLevel = null;
-    					
+    			Integer assigneeLevel = null;    					
+    			Status internalStatus = question.getInternalStatus();
+    			
     			if(wfDetails != null){
 	    			// Before ending wfDetails process collect information
 	    			// which will be useful for creating a new process later.
@@ -9937,20 +9949,38 @@ public class Question extends Device implements Serializable {
 	    				Integer.parseInt(wfDetails.getAssigneeLevel());
 	    			
 	    			WorkflowDetails.endProcess(wfDetails);
+	    			
+	    			if(!wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+	    					&& !wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+	    				/*
+	        			 * Change recommendation status to final (internal) status.    			 
+	        			 */	        			
+	        			question.setRecommendationStatus(internalStatus);
+	    			}
     			}
-    			question.removeExistingWorkflowAttributes();
-    			
-    			/*
-    			 * Change recommendation status to final (internal) status.
-    			 */
-    			Status internalStatus = question.getInternalStatus();
-    			question.setRecommendationStatus(internalStatus);
+    			question.removeExistingWorkflowAttributes();    			
     			question.merge();
     			
     			/*
     			 * Invoke Chart.groupChange/3
     			 */
     			Chart.groupChange(question, fromGroup, true);
+    			
+    			/*
+    			 * Start the workflow at Appropriate Level (after Speaker) level.
+    			 */
+    			if(question.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTODEPARTMENT)
+    					|| question.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTODESKOFFICER)) {
+    				WorkflowDetails.startProcessAtGivenLevel(question, 
+        					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+        					ApplicationConstants.DEPARTMENT, assigneeLevel, 
+        					locale);
+    			} else {
+    				WorkflowDetails.startProcessAtGivenLevel(question, 
+        					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+        					ApplicationConstants.ASSISTANT, assigneeLevel, 
+        					locale);
+    			}
     			
     			/*
     			 * Start the workflow at Assistant (after Speaker) level.
@@ -10066,28 +10096,27 @@ public class Question extends Device implements Serializable {
         			WorkflowDetails wfDetails = 
         				WorkflowDetails.findCurrentWorkflowDetail(question);
         			String workflowType = null;
-        			Integer assigneeLevel = null;
+        			Integer assigneeLevel = null;        			
+        			Status internalStatus = question.getInternalStatus();
         			
         			if(wfDetails != null){
-	        			// Before ending wfDetails process collect information
-	        			// which will be useful for creating a new process later.
-	        			workflowType = wfDetails.getWorkflowType();
-	        			assigneeLevel = 
-	        				Integer.parseInt(wfDetails.getAssigneeLevel());
-	
-	        			WorkflowDetails.endProcess(wfDetails);
+    	    			// Before ending wfDetails process collect information
+    	    			// which will be useful for creating a new process later.
+    	    			workflowType = wfDetails.getWorkflowType();
+    	    			assigneeLevel = 
+    	    				Integer.parseInt(wfDetails.getAssigneeLevel());
+    	    			
+    	    			WorkflowDetails.endProcess(wfDetails);
+    	    			
+    	    			if(!wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+    	    					&& !wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+    	    				/*
+    	        			 * Change recommendation status to final (internal) status.    			 
+    	        			 */	        			
+    	        			question.setRecommendationStatus(internalStatus);
+    	    			}
         			}
-        			question.removeExistingWorkflowAttributes();
-        			
-        			/*
-        			 * Change everyone's (parent as well as kids) 
-        			 * recommendation status to final (internal) status.
-        			 * Additionally, Parent's group & related 
-        			 * information has already changed. Perform the same on 
-        			 * Kids.
-        			 */
-        			Status internalStatus = question.getInternalStatus();
-        			question.setRecommendationStatus(internalStatus);
+        			question.removeExistingWorkflowAttributes();    			
         			question.merge();
 
         			Group group = question.getGroup();
@@ -10108,15 +10137,52 @@ public class Question extends Device implements Serializable {
         			Chart.groupChange(question, fromGroup, true);
 
         			/*
-        			 * Start the workflow at Assistant (after Speaker) level.
+        			 * Start the workflow at Appropriate Level (after Speaker) level.
         			 */
-        			WorkflowDetails.startProcessAtGivenLevel(question, 
-        					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
-        					ApplicationConstants.ASSISTANT, assigneeLevel, 
-        					locale);
+        			if(question.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTODEPARTMENT)
+        					|| question.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTODESKOFFICER)) {
+        				WorkflowDetails.startProcessAtGivenLevel(question, 
+            					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+            					ApplicationConstants.DEPARTMENT, assigneeLevel, 
+            					locale);
+        			} else {
+        				WorkflowDetails.startProcessAtGivenLevel(question, 
+            					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+            					ApplicationConstants.ASSISTANT, assigneeLevel, 
+            					locale);
+        			}
         		}
         		else if(qnState == 
         			STARRED_STATE.POST_BALLOT_AND_PRE_YAADI_LAID) {
+        			/*
+        			 * Stop the question's workflow
+        			 */
+        			WorkflowDetails wfDetails = 
+        				WorkflowDetails.findCurrentWorkflowDetail(question);
+        			String workflowType = null;
+        			Integer assigneeLevel = null;        			
+        			Status internalStatus = question.getInternalStatus();
+        			
+        			if(wfDetails != null){
+    	    			// Before ending wfDetails process collect information
+    	    			// which will be useful for creating a new process later.
+    	    			workflowType = wfDetails.getWorkflowType();
+    	    			assigneeLevel = 
+    	    				Integer.parseInt(wfDetails.getAssigneeLevel());
+    	    			
+    	    			WorkflowDetails.endProcess(wfDetails);
+    	    			
+    	    			if(!wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+    	    					&& !wfDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+    	    				/*
+    	        			 * Change recommendation status to final (internal) status.    			 
+    	        			 */	        			
+    	        			question.setRecommendationStatus(internalStatus);
+    	    			}
+        			}
+        			question.removeExistingWorkflowAttributes();    			
+        			question.merge();
+        			
         			// Parent's group & related information has already
         			// changed. Perform the same on Kids.
         			Group group = question.getGroup();
@@ -10131,9 +10197,30 @@ public class Question extends Device implements Serializable {
         				kid.merge();
         			}
         			
-        			// Regenerate the Ballot
-        			Ballot ballot = Ballot.find(question);
-        			Ballot.regenerate(ballot);
+        			/*
+        			 * Invoke Chart.groupChange/3
+        			 */
+        			Chart.groupChange(question, fromGroup, true);
+        			
+        			/*
+        			 * Start the workflow at Appropriate Level (after Speaker) level.
+        			 */
+        			if(question.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTODEPARTMENT)
+        					|| question.getRecommendationStatus().getType().endsWith(ApplicationConstants.STATUS_PROCESSED_SENDTODESKOFFICER)) {
+        				WorkflowDetails.startProcessAtGivenLevel(question, 
+            					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+            					ApplicationConstants.DEPARTMENT, assigneeLevel, 
+            					locale);
+        			} else {
+        				WorkflowDetails.startProcessAtGivenLevel(question, 
+            					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+            					ApplicationConstants.ASSISTANT, assigneeLevel, 
+            					locale);
+        			}
+        			
+//        			// Regenerate the Ballot
+//        			Ballot ballot = Ballot.find(question);
+//        			Ballot.regenerate(ballot);
         		}
     		}
     	}
