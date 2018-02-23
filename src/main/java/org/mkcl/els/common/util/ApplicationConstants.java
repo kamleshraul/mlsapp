@@ -2621,6 +2621,10 @@ public class ApplicationConstants {
 	
 	public static final String STATUS_FINAL_ADMISSION="_final_admission";
 	
+	public static String STATUS_PROCESSED_SENDTODEPARTMENT="_processed_sendToDepartment";
+	
+	public static final String STATUS_PROCESSED_SENDTODESKOFFICER = "_processed_sendToDeskOfficer";
+	
 	public static final String STATUS_FINAL_REJECTION="_final_rejection";
 	
 	public static final String QUESTIONSUPPLEMENTARY_WORKFLOW = "questionsupplementary_workflow";
