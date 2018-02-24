@@ -26,6 +26,10 @@
 		var currentDeviceType = $("#currentDeviceType").val();
 		var currentHouseType = $("#currentHouseType").val();
 		
+		if (currentDeviceType == 'questions_halfhourdiscussion_from_question') {
+			$('#bulkputup_tab').hide();
+		}
+		
 		if(currentDeviceType == 'questions_unstarred' || currentDeviceType == 'questions_starred') {
 			if(currentDeviceType == 'questions_unstarred'){
 				$('#originalDeviceTypeSpan').show();
@@ -168,6 +172,12 @@
 				$("#hdReportsDiv").hide();
 			}else{
 				$("#hdReportsDiv").show();
+			}
+			
+			if (text == 'questions_halfhourdiscussion_from_question') {
+				$('#bulkputup_tab').hide();
+			} else {
+				$('#bulkputup_tab').show();
 			}
 			
 			if (text == 'questions_starred') {
@@ -316,7 +326,12 @@
 		});
 		
 		/**** Yaadi Update ****/
-		$("#yaadiupdate_tab").click(function() {
+		$("#yaadiupdate_tab").click(function(event, isHighSecurityValidationRequired) {
+			//isHighSecurityValidationRequired = false;
+			if(isHighSecurityValidationRequired!=false) {
+				validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+				return false;
+			}
 			$("#selectionDiv1").hide();
 			yaadiUpdate();
 		});	

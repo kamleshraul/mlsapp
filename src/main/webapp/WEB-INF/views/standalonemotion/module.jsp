@@ -17,12 +17,12 @@
 		} else {
 			$("#chart_tab").hide();
 		}
-		$("#bulkputup_tab").show();
-		if (currentDeviceType == 'motions_standalonemotion_halfhourdiscussion') {
+		$('#bulkputup_tab').hide();
+		/* if (currentDeviceType == 'motions_standalonemotion_halfhourdiscussion') {
 			$("#ballot_tab").show();
 		} else {
 			$("#ballot_tab").hide();
-		}		
+		} */	
 		/*Tooltip*/
 		$(".toolTip").hide();
 		/**** here we are trying to add date mask in grid search when field names ends with date ****/

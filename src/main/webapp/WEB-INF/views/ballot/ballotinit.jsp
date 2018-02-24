@@ -385,7 +385,12 @@
 					
 			});			
 			
-			$("#update_yaadi").click(function(){
+			$("#update_yaadi").click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
 				var parameters = "houseType="+$("#selectedHouseType").val()
 				 +"&sessionYear="+$("#selectedSessionYear").val()
 				 +"&sessionType="+$("#selectedSessionType").val()
