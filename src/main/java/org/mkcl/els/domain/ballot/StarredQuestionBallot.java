@@ -457,7 +457,13 @@ class StarredQuestionBallot {
 				if(answeringMember != null){
 					deviceVO.setAnsweredBy(answeringMember.findNameInGivenFormat(memberNameFormat));
 				}
-				deviceVO.setMinistryName(q.getSubDepartment().getName());
+				/** Ministry name as per subdepartment name **/
+				if(q.getSubDepartment().getMinistryDisplayName()!=null 
+						&& !q.getSubDepartment().getMinistryDisplayName().isEmpty()) {
+					deviceVO.setMinistryName(q.getSubDepartment().getMinistryDisplayName());
+				} else {
+					deviceVO.setMinistryName(q.getSubDepartment().getName());
+				}
 				try {
 					MemberMinister memberMinister = Question.findMemberMinisterIfExists(q);
 					if(memberMinister!=null) {

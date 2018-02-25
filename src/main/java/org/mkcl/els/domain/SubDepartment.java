@@ -59,6 +59,10 @@ public class SubDepartment extends BaseDomain implements Serializable{
     @Column
     private Boolean isExpired;
     
+    /** The ministry display name.(optional used for reports like yaadi) */
+    @Column(length = 600)
+    private String ministryDisplayName;
+    
 	/** The SubDepartment repository. */
 	@Autowired
 	private transient SubDepartmentRepository subDepartmentRepository;
@@ -160,6 +164,14 @@ public class SubDepartment extends BaseDomain implements Serializable{
 		this.isExpired = isExpired;
 	}
 	
+    public String getMinistryDisplayName() {
+		return ministryDisplayName;
+	}
+
+	public void setMinistryDisplayName(String ministryDisplayName) {
+		this.ministryDisplayName = ministryDisplayName;
+	}
+
     public static SubDepartmentRepository getSubDepartmentRepository() {
     	SubDepartmentRepository subDepartmentRepository = new SubDepartment().subDepartmentRepository;
 		if (subDepartmentRepository == null) {
