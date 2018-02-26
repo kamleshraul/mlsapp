@@ -340,6 +340,10 @@
 			$("#generateVivranReport").click(function(){
 				generateVivranReport();
 			});
+			
+			$("#memberMotionStatisticReport").click(function(){
+				generateMemberMotionStatisticalReport();
+			});
 		});
 		
 		function loadSession(){
@@ -880,6 +884,12 @@
 					+"&reportFormat=" + $("#defaultReportFormat").val()
 					+"&currUser="+$("#ugparam").val());			
 		}
+		
+		function generateMemberMotionStatisticalReport(){
+			showTabByIdAndUrl("details_tab","motion/report/motion/genreport?sessionId="+$("#loadedSession").val()
+					+"&locale=mr_IN&report=MOIS_MEMBERWISE_MOTION_STATISTICAL_REPORT" 
+					+"&reportout=memberMotionStatisticReport");			
+		}
 	</script>
 </head>
 <body>
@@ -1196,6 +1206,9 @@
 						<a href="javascript:void(0);" id="generateVivranReport" class="butSim">
 							<spring:message code="motion.generateVivranReport" text="Vivran Report"/>
 						</a> |
+						<a href="javascript:void(0);" id="memberMotionStatisticReport" class="butSim">
+							<spring:message code="motion.memberMotionStatisticReport" text="Member Motion Statistical Report"/>
+						</a>|
 						<hr>
 						<div style="display: inline;">
 							<a href="javascript:void(0);" id="motionDiscStatus" class="butSim">
