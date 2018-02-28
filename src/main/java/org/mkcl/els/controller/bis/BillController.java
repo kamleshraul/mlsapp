@@ -33,6 +33,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.Act;
+import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Bill;
 import org.mkcl.els.domain.BillDraft;
 import org.mkcl.els.domain.BillKind;
@@ -51,6 +52,7 @@ import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Ordinance;
 import org.mkcl.els.domain.PrintRequisition;
 import org.mkcl.els.domain.Query;
@@ -5860,5 +5862,22 @@ public class BillController extends GenericController<Bill> {
 			logger.error("/**** Check Request Parameters for null or empty values ****/");				
 			return "bill/error";
 		}				
+	}
+	
+	@Transactional
+	@Override
+	protected Boolean preDelete(final ModelMap model, final BaseDomain domain,
+			final HttpServletRequest request,final Long id) {
+		Bill bill=Bill.findById(Bill.class, id);
+		if(bill!=null){
+			Status status=bill.getStatus();
+			if(status.getType().equals(ApplicationConstants.BILL_INCOMPLETE)||status.getType().equals(ApplicationConstants.BILL_COMPLETE)){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
 	}
 }
