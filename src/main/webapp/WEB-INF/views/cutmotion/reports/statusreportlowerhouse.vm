@@ -70,6 +70,30 @@
 					-
 				#end				
 			</td>	
+		</tr>
+		<tr style="font-weight: bold;">
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				मागणीचा पृष्ठ क्रमांक
+			</td>
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				#if($formatData.get(32))
+					$formatData.get(32)
+				#else
+					-
+				#end				
+			</td>	
+		</tr>
+		<tr style="font-weight: bold;">
+			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
+				 एकूण मागणी
+			</td>
+			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
+				#if($formatData.get(31))
+					$formatData.get(31)
+				#else
+					-
+				#end				
+			</td>	
 		</tr>	
 		<tr style="font-weight: bold;">
 			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
@@ -87,9 +111,13 @@
 			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 				स्थिती 
 			</td>
-			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">				
-				#if($currentStatusReportAllowedBeforeApproval!='YES')
-					$formatData.get(25)
+			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+				#if($formatData.get(34))
+					#if($formatData.get(34)!='cutmotion_submit' && $formatData.get(34)!='cutmotion_system_assistantprocessed')
+						$formatData.get(25)
+					#else
+						
+					#end
 				#else
 					
 				#end
@@ -128,8 +156,12 @@
 					#end
 				</td>
 				<td style="width: 100px; padding: 2px; text-align: center;">
-					#if($currentStatusReportAllowedBeforeApproval!='YES')
-						$r.get(24)
+					#if($formatData.get(33))
+						#if($formatData.get(33)!='cutmotion_submit' && $formatData.get(33)!='cutmotion_system_assistantprocessed')
+							$r.get(24)
+						#else
+							
+						#end
 					#else
 						
 					#end
