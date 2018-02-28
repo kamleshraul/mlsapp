@@ -6074,7 +6074,7 @@ public class ReferenceController extends BaseController {
 			DeviceType deviceType=DeviceType.findById(DeviceType.class, Long.parseLong(strDeviceType));
 			if(deviceType!=null){
 				try {
-					List<Status> statuses=Status.findStartingWith(deviceType.getDevice(), "name", "desc", locale.toString());
+					List<Status> statuses=Status.findStartingWith(deviceType.getDevice()+"_", "name", "desc", locale.toString());
 					for(Status s:statuses){
 						MasterVO masterVO=new MasterVO();
 						masterVO.setValue(s.getType());
