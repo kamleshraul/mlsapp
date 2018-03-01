@@ -1383,7 +1383,7 @@
 								<c:otherwise>${i[2]}</c:otherwise>
 							</c:choose>							
 							</td>
-							<td>
+							<td style="max-width:400px;">
 							${i[4]}
 							</td>
 						</tr>
