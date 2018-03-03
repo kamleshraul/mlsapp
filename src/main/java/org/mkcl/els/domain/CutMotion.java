@@ -446,6 +446,12 @@ public class CutMotion extends Device implements Serializable {
 				draft.setSubTitle(this.getSubTitle());
 			}
 			
+			draft.setTotalAmoutDemanded(this.getTotalAmoutDemanded());
+			draft.setAmountToBeDeducted(this.getAmountToBeDeducted());
+			draft.setDemandNumber(this.getDemandNumber());
+			draft.setItemNumber(this.getItemNumber());
+			draft.setPageNumber(this.getPageNumber());
+			
 			if(this.getId() != null) {
 				CutMotion motion = CutMotion.findById(CutMotion.class, this.getId());
 				List<CutMotionDraft> originalDrafts = motion.getDrafts();

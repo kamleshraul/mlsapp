@@ -163,7 +163,7 @@
 	function loadActors(value){
 		if(value!='-'){
 		var params="cutmotion="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#originallLevel").val();
+		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 		var resourceURL='ref/cutmotion/actors?'+params;
 	    var sendback=$("#internalStatusMaster option[value='cutmotion_recommend_sendback']").text();			
 	    var discuss=$("#internalStatusMaster option[value='cutmotion_recommend_discuss']").text();		

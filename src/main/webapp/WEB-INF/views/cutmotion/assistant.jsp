@@ -373,15 +373,15 @@
 		    if(value!='-'){
 			    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();			    
 			    loadActors(value);	
-			  //  $("#submit").attr("disabled","disabled");
-			    //$("#startworkflow").removeAttr("disabled");		    
+			  	$("#submit").attr("disabled","disabled");
+			    $("#startworkflow").removeAttr("disabled");  
 		    }else{
 			    $("#actor").empty();
 			    $("#actorDiv").hide();
 			    $("#internalStatus").val($("#oldInternalStatus").val());
 			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
-			    //$("#startworkflow").attr("disabled","disabled");
-			   // $("#submit").removeAttr("disabled");
+			    $("#startworkflow").attr("disabled","disabled");
+			   	$("#submit").removeAttr("disabled");
 			}		    
 	    });
 	    $("#actor").change(function(){
@@ -391,8 +391,8 @@
 		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
 	    });
 	    /**** On page Load ****/
-	    //$("#startworkflow").attr("disabled","disabled");
-		//$("#submit").removeAttr("disabled");
+	    $("#startworkflow").attr("disabled","disabled");
+		$("#submit").removeAttr("disabled");
 	    /**** Put Up ****/
 		$("#startworkflow").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -889,9 +889,16 @@
 		<h2></h2>
 		<p class="tright">		
 			<c:if test="${bulkedit!='yes'}">
-				<c:if test="${internalStatusType=='cutmotion_submit' || internalStatusType=='cutmotion_system_assistantprocessed'}">
-					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<input id="startworkflow" type="button" value="<spring:message code='cutmotion.putupmotion' text='Put Up Motion'/>" class="butDef">
+				<c:if test="${internalStatusType=='cutmotion_submit' || internalStatusType=='cutmotion_system_assistantprocessed' || fn:contains(internalStatusType, 'cutmotion_final')}">
+					<security:authorize access="hasAnyRole('CMOIS_CLERK','CMOIS_ASSISTANT')">
+						<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					</security:authorize>
+					
+				</c:if>
+				<c:if test="${internalStatusType=='cutmotion_system_assistantprocessed' || fn:contains(internalStatusType, 'cutmotion_putup')}">
+					<security:authorize access="hasAnyRole('CMOIS_ASSISTANT')">
+						<input id="startworkflow" type="button" value="<spring:message code='cutmotion.putupmotion' text='Put Up Motion'/>" class="butDef">
+					</security:authorize>
 				</c:if>
 			</c:if>
 			<c:if test="${bulkedit=='yes'}">
@@ -932,7 +939,7 @@
 <input id="ministrySelected" value="${ministrySelected }" type="hidden">
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
-<input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="oldRecommendationStatus" value="${ recommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
 

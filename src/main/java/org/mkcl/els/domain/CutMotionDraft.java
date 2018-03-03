@@ -11,6 +11,7 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -73,8 +74,25 @@ public class CutMotionDraft extends BaseDomain implements Serializable{
     /** The answer. */
     @Column(length=30000)
     private String reply;
+    
+    /**amount to be deducted **/
+	@Column(precision=20, scale=2)
+	private BigDecimal amountToBeDeducted;
 
-    /** The status. */
+	/** Total Amount **/
+	@Column(precision=20, scale=2)
+	private BigDecimal totalAmoutDemanded;
+	
+	/**demandNumber **/
+	private String demandNumber;
+
+	/** itemNumber **/
+	private Integer itemNumber; // ---- for supplementary
+
+	/** pageNumber **/
+	private String pageNumber;
+
+	/** The status. */
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="status_id")
     private Status status;
@@ -221,6 +239,46 @@ public class CutMotionDraft extends BaseDomain implements Serializable{
 
 	public void setReply(String reply) {
 		this.reply = reply;
+	}
+
+	public BigDecimal getAmountToBeDeducted() {
+		return amountToBeDeducted;
+	}
+
+	public void setAmountToBeDeducted(BigDecimal amountToBeDeducted) {
+		this.amountToBeDeducted = amountToBeDeducted;
+	}
+
+	public BigDecimal getTotalAmoutDemanded() {
+		return totalAmoutDemanded;
+	}
+
+	public void setTotalAmoutDemanded(BigDecimal totalAmoutDemanded) {
+		this.totalAmoutDemanded = totalAmoutDemanded;
+	}
+
+	public String getDemandNumber() {
+		return demandNumber;
+	}
+
+	public void setDemandNumber(String demandNumber) {
+		this.demandNumber = demandNumber;
+	}
+
+	public Integer getItemNumber() {
+		return itemNumber;
+	}
+
+	public void setItemNumber(Integer itemNumber) {
+		this.itemNumber = itemNumber;
+	}
+
+	public String getPageNumber() {
+		return pageNumber;
+	}
+
+	public void setPageNumber(String pageNumber) {
+		this.pageNumber = pageNumber;
 	}
 
 	public Status getStatus() {

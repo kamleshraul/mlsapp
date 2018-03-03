@@ -1395,107 +1395,96 @@ public class CutMotionWorkflowController extends BaseController {
 				status = Status.findById(Status.class, Long.parseLong(strStatus));
 			}
 			for (String i : selectedItems) {
-				if (strWorkflowSubType.equals("request_to_supporting_member")) {
-					String[] temp = i.split("#");
-					Long id = Long.parseLong(temp[0]);
-					WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class, id);
-					/**** Updating Supporting Member ****/
-					SupportingMember supportingMember = SupportingMember.findById(SupportingMember.class, Long.parseLong(temp[1]));
-					supportingMember.setApprovalDate(new Date());
-					supportingMember.setApprovedSubject(wfDetails.getSubject());
-					supportingMember.setApprovedText(wfDetails.getText());
-					supportingMember.setDecisionStatus(status);
-					/**** Remarks Need To Be Added ****/
-					supportingMember.merge();
-					/**** complete the task ****/
-					String strTaskId = wfDetails.getTaskId();
-					Task task = processService.findTaskById(strTaskId);
-					processService.completeTask(task);
-					/**** Update Workflow Details ****/
-					wfDetails.setStatus("COMPLETED");
-					wfDetails.setCompletionTime(new Date());
-					/****
-					 * In case of Supporting Member Approval Status should
-					 * reflect member's actions
-					 ****/
-					wfDetails.setInternalStatus(status.getName());
-					wfDetails.setRecommendationStatus(status.getName());
-					wfDetails.merge();
-				} else {
-					Long id = Long.parseLong(i);
-					WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class, id);
-					CutMotion motion = CutMotion.findById(CutMotion.class, Long.parseLong(wfDetails.getDeviceId()));
-					String actor = request.getParameter("actor");
-					if (actor == null || actor.isEmpty()) {
-						actor = motion.getActor();
-						String[] temp = actor.split("#");
-						actor = temp[1];
-					}
-					String level = request.getParameter("level");
-					if (level == null || level.isEmpty()) {
-						level = motion.getLevel();
-
-					}
-
-					if (actor != null && !actor.isEmpty() && level != null
-							&& !level.isEmpty()) {
-						Reference reference = null;
-						try {
-							reference = UserGroup.findCutMotionActor(motion, actor, level, locale.toString());
-						} catch (ELSException e) {
-							e.printStackTrace();
-							model.addAttribute("error", e.getParameter());
+				try {
+					if (strWorkflowSubType.equals("request_to_supporting_member")) {
+						String[] temp = i.split("#");
+						Long id = Long.parseLong(temp[0]);
+						WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class, id);
+						/**** Updating Supporting Member ****/
+						SupportingMember supportingMember = SupportingMember.findById(SupportingMember.class, Long.parseLong(temp[1]));
+						supportingMember.setApprovalDate(new Date());
+						supportingMember.setApprovedSubject(wfDetails.getSubject());
+						supportingMember.setApprovedText(wfDetails.getText());
+						supportingMember.setDecisionStatus(status);
+						/**** Remarks Need To Be Added ****/
+						supportingMember.merge();
+						/**** complete the task ****/
+						String strTaskId = wfDetails.getTaskId();
+						Task task = processService.findTaskById(strTaskId);
+						processService.completeTask(task);
+						/**** Update Workflow Details ****/
+						wfDetails.setStatus("COMPLETED");
+						wfDetails.setCompletionTime(new Date());
+						/****
+						 * In case of Supporting Member Approval Status should
+						 * reflect member's actions
+						 ****/
+						wfDetails.setInternalStatus(status.getName());
+						wfDetails.setRecommendationStatus(status.getName());
+						wfDetails.merge();
+					} else {
+						Long id = Long.parseLong(i);
+						WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class, id);
+						CutMotion motion = CutMotion.findById(CutMotion.class, Long.parseLong(wfDetails.getDeviceId()));
+						String actor = request.getParameter("actor");
+						if (actor == null || actor.isEmpty()) {
+							actor = motion.getActor();
+							String[] temp = actor.split("#");
+							actor = temp[1];
 						}
-						if (reference != null && reference.getId() != null
-								&& !reference.getId().isEmpty()
-								&& reference.getName() != null
-								&& !reference.getName().isEmpty()) {
-							/**** Update Actor ****/
-							String[] temp = reference.getId().split("#");
-							motion.setActor(reference.getId());
-							motion.setLocalizedActorName(temp[3] + "(" + temp[4] + ")");
-							motion.setLevel(temp[2]);
-							/**** Update Internal Status and Recommendation Status ****/
-							if(status != null){
-								if(!status.getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_DISCUSS) 
-								&& !status.getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_SENDBACK)
-								&& !status.getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SEND_TO_DEPARTMENT)
-								&& !status.getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SEND_TO_SECTIONOFFICER)){
-									motion.setInternalStatus(status);
+						String level = request.getParameter("level");
+						if (level == null || level.isEmpty()) {
+							level = motion.getLevel();
+	
+						}
+	
+						if (actor != null && !actor.isEmpty() && level != null
+								&& !level.isEmpty()) {
+							Reference reference = null;
+//							try {
+//								reference = UserGroup.findCutMotionActor(motion, actor, level, locale.toString());
+//							} catch (ELSException e) {
+//								e.printStackTrace();
+//								model.addAttribute("error", e.getParameter());
+//							}
+							reference = UserGroup.findCutMotionActor(motion, actor, level, locale.toString());
+							if (reference != null && reference.getId() != null
+									&& !reference.getId().isEmpty()
+									&& reference.getName() != null
+									&& !reference.getName().isEmpty()) {
+								/**** Update Actor ****/
+								String[] temp = reference.getId().split("#");
+								motion.setActor(reference.getId());
+								motion.setLocalizedActorName(temp[3] + "(" + temp[4] + ")");
+								motion.setLevel(temp[2]);
+								/**** Update Internal Status and Recommendation Status ****/
+								if(status != null){
+									if(!status.getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_DISCUSS) 
+									&& !status.getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_SENDBACK)
+									&& !status.getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SEND_TO_DEPARTMENT)
+									&& !status.getType().equals(ApplicationConstants.CUTMOTION_PROCESSED_SEND_TO_SECTIONOFFICER)){
+										motion.setInternalStatus(status);
+									}
+									motion.setRecommendationStatus(status);	
+									motion.setEndFlag("continue");
 								}
-								motion.setRecommendationStatus(status);	
-								motion.setEndFlag("continue");
-							}
-							/**** Complete Task ****/
-							Map<String, String> properties = new HashMap<String, String>();
-							properties.put("pv_deviceId", String.valueOf(motion.getId()));
-							properties.put("pv_deviceTypeId", String.valueOf(motion.getDeviceType().getId()));
-							properties.put("pv_user", temp[0]);
-							properties.put("pv_endflag", motion.getEndFlag());
-							UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
-							String strTaskId = wfDetails.getTaskId();
-							Task task = processService.findTaskById(strTaskId);
-							processService.completeTask(task, properties);
-							if (motion.getEndFlag() != null
-									&& !motion.getEndFlag().isEmpty()
-									&& motion.getEndFlag().equals("continue")) {
-								/**** Create New Workflow Details ****/
-								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-								
-								Workflow workflowFromUpdatedStatus = null;
-								try {
+								/**** Complete Task ****/
+								Map<String, String> properties = new HashMap<String, String>();
+								properties.put("pv_deviceId", String.valueOf(motion.getId()));
+								properties.put("pv_deviceTypeId", String.valueOf(motion.getDeviceType().getId()));
+								properties.put("pv_user", temp[0]);
+								properties.put("pv_endflag", motion.getEndFlag());
+								UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+								String strTaskId = wfDetails.getTaskId();
+								Task task = processService.findTaskById(strTaskId);
+								processService.completeTask(task, properties);
+								if (motion.getEndFlag() != null
+										&& !motion.getEndFlag().isEmpty()
+										&& motion.getEndFlag().equals("continue")) {
+									/**** Create New Workflow Details ****/
+									ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
 									
-									/*
-									 * Added by Amit Desai 2 Dec 2014
-									 * START...
-									 */
-									/*if(question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_CLUBBING_POST_ADMISSION)
-												|| question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_UNCLUBBING)
-												|| question.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING)) {
-											workflowFromUpdatedStatus = Workflow.findByStatus(question.getRecommendationStatus(), question.getLocale());
-										} else {
-											workflowFromUpdatedStatus = Workflow.findByStatus(question.getInternalStatus(), question.getLocale());
-									}*/
+									Workflow workflowFromUpdatedStatus = null;
 									Status internalStatus = motion.getInternalStatus();
 									String internalStatusType = internalStatus.getType();
 									Status recommendationStatus = motion.getRecommendationStatus();
@@ -1521,52 +1510,47 @@ public class CutMotionWorkflowController extends BaseController {
 									else {
 										workflowFromUpdatedStatus = Workflow.findByStatus(internalStatus, locale.toString());
 									}
-									/*
-									 * Added by Amit Desai 2 Dec 2014
-									 * ... END
-									 */
 									
-								} catch(ELSException e) {
-									e.printStackTrace();
-									model.addAttribute("error", "Bulk approval is unavailable please try after some time.");
-									model.addAttribute("type", "error");
-									return "workflow/info";
-								}
-								
-								Task newtask = processService.getCurrentTask(processInstance);
-								WorkflowDetails workflowDetails2 = null;
-								try {
+									Task newtask = processService.getCurrentTask(processInstance);
+									WorkflowDetails workflowDetails2 = null;
 									workflowDetails2 = WorkflowDetails.create(motion,newtask,usergroupType,workflowFromUpdatedStatus.getType(),level);
-								} catch (ELSException e) {
-									e.printStackTrace();
-									model.addAttribute("error", e.getParameter());
+									motion.setWorkflowDetailsId(workflowDetails2.getId());
+									motion.setTaskReceivedOn(new Date());
 								}
-								motion.setWorkflowDetailsId(workflowDetails2.getId());
-								motion.setTaskReceivedOn(new Date());
-							}
-							/**** Update Old Workflow Details ****/
-							wfDetails.setStatus("COMPLETED");
-							wfDetails.setInternalStatus(motion.getInternalStatus().getName());
-							wfDetails.setRecommendationStatus(motion.getRecommendationStatus().getName());
-							wfDetails.setCompletionTime(new Date());
-							wfDetails.merge();
-							/**** Update Motion ****/
-							motion.setEditedOn(new Date());
-							motion.setEditedBy(this.getCurrentUser().getActualUsername());
-							motion.setEditedAs(wfDetails.getAssigneeUserGroupName());
-							performAction(motion);
-							motion.merge();
-							if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_ADMISSION)) {
-								recommendAdmissionMsg.append(motion.formatNumber() + ",");
-							} else if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_REJECTION)) {
-								recommendRejectionMsg.append(motion.formatNumber() + ",");
-							} else if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)) {
-								admittedMsg.append(motion.formatNumber() + ",");
-							} else if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_REJECTION)) {
-								rejectedMsg.append(motion.formatNumber() + ",");
+								/**** Update Old Workflow Details ****/
+								wfDetails.setStatus("COMPLETED");
+								wfDetails.setInternalStatus(motion.getInternalStatus().getName());
+								wfDetails.setRecommendationStatus(motion.getRecommendationStatus().getName());
+								wfDetails.setCompletionTime(new Date());
+								wfDetails.merge();
+								/**** Update Motion ****/
+								motion.setEditedOn(new Date());
+								motion.setEditedBy(this.getCurrentUser().getActualUsername());
+								motion.setEditedAs(wfDetails.getAssigneeUserGroupName());
+								performAction(motion);
+								motion.merge();
+								if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_ADMISSION)) {
+									recommendAdmissionMsg.append(motion.formatNumber() + ",");
+								} else if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_RECOMMEND_REJECTION)) {
+									recommendRejectionMsg.append(motion.formatNumber() + ",");
+								} else if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_ADMISSION)) {
+									admittedMsg.append(motion.formatNumber() + ",");
+								} else if (motion.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_REJECTION)) {
+									rejectedMsg.append(motion.formatNumber() + ",");
+								}
 							}
 						}
 					}
+				} catch(ELSException e) {
+					e.printStackTrace();
+					logger.error(e.getParameter());
+					logger.error("Problem in bulk update of workflow details task with ID = "+i);
+					continue;
+				} catch(Exception e) {
+					e.printStackTrace();
+					logger.error(e.getMessage());
+					logger.error("Problem in bulk update of workflow details task with ID = "+i);
+					continue;
 				}
 			}
 		}
