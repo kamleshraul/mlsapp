@@ -769,7 +769,7 @@ public class CutMotionWorkflowController extends BaseController {
 							ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
 							Task newtask = processService.getCurrentTask(processInstance);
 	
-							WorkflowDetails workflowDetails2 = WorkflowDetails.create(motion, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
+							WorkflowDetails workflowDetails2 = WorkflowDetails.create(domain, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
 							
 							/**** FOr CLarificationFromMember and Department ****/
 							if(domain.getInternalStatus().getType().equals(ApplicationConstants.CUTMOTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)
@@ -780,8 +780,8 @@ public class CutMotionWorkflowController extends BaseController {
 								Credential credential = user.getCredential();
 								parameters.put("pv_endflag", endflag);	
 								parameters.put("pv_user",credential.getUsername());
-								parameters.put("pv_deviceId", String.valueOf(motion.getId()));
-								parameters.put("pv_deviceTypeId", String.valueOf(motion.getDeviceType().getId()));
+								parameters.put("pv_deviceId", String.valueOf(domain.getId()));
+								parameters.put("pv_deviceTypeId", String.valueOf(domain.getDeviceType().getId()));
 	
 								ProcessDefinition processDefinition1 =processService.findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
 								ProcessInstance processInstance1 = processService.createProcessInstance(processDefinition1, parameters);
@@ -1519,8 +1519,8 @@ public class CutMotionWorkflowController extends BaseController {
 								}
 								/**** Update Old Workflow Details ****/
 								wfDetails.setStatus("COMPLETED");
-								wfDetails.setInternalStatus(motion.getInternalStatus().getName());
-								wfDetails.setRecommendationStatus(motion.getRecommendationStatus().getName());
+								wfDetails.setDecisionInternalStatus(motion.getInternalStatus().getName());
+								wfDetails.setDecisionRecommendStatus(motion.getRecommendationStatus().getName());
 								wfDetails.setCompletionTime(new Date());
 								wfDetails.merge();
 								/**** Update Motion ****/

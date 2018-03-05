@@ -162,56 +162,69 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
-		var params="cutmotion="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
-		var resourceURL='ref/cutmotion/actors?'+params;
-	    var sendback=$("#internalStatusMaster option[value='cutmotion_recommend_sendback']").text();			
-	    var discuss=$("#internalStatusMaster option[value='cutmotion_recommend_discuss']").text();		
-		$.get(resourceURL,function(data){
-			if(data!=undefined||data!=null||data!=''){
-				var length=data.length;
-				$("#actor").empty();
-				var text="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
-				for(var i=0;i<data.length;i++){
-					if(i!=0){
-						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
-					}else{
-						text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
-					}
-				}
-				$("#actor").html(text);
-				$("#actorDiv").show();				
-				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value==sendback || value==discuss) {
-					$("#internalStatus").val($("#oldInternalStatus").val());
-				} else {
-					$("#internalStatus").val(value);
-				}
-				$("#recommendationStatus").val(value);	
-				/**** setting level,localizedActorName ****/
-				 var actor1=data[0].id;
-				 var temp=actor1.split("#");
-				 $("#level").val(temp[2]);		    
-				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");					
-			}else{
+		
+		    var sendback=$("#internalStatusMaster option[value='cutmotion_recommend_sendback']").text();			
+		    var discuss=$("#internalStatusMaster option[value='cutmotion_recommend_discuss']").text();
+		    var departmentIntimated=$("#internalStatusMaster option[value='cutmotion_processed_departmentIntimated']").text();
+		    
+		    
+		    var params="cutmotion="+$("#id").val()+"&status="+value+
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
+		    var resourceURL='ref/cutmotion/actors?'+params;
+		    
+		    if(value==departmentIntimated){
+				$("#endFlag").val("end");
+				$("#recommendationStatus").val(value);
 				$("#actor").empty();
 				$("#actorDiv").hide();
-				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value==sendback || value==discuss) {
-					$("#internalStatus").val($("#oldInternalStatus").val());
-				} else {
-					$("#internalStatus").val(value);
+				return false;
+		    }
+		    
+			$.get(resourceURL,function(data){
+				if(data!=undefined||data!=null||data!=''){
+					var length=data.length;
+					$("#actor").empty();
+					var text="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
+					for(var i=0;i<data.length;i++){
+						if(i!=0){
+							text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						}else{
+							text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+						}
+					}
+					$("#actor").html(text);
+					$("#actorDiv").show();				
+					/**** in case of sendback and discuss only recommendation status is changed ****/
+					if(value!=sendback && value!=discuss && value!=departmentIntimated){
+						$("#internalStatus").val(value);
+					} else {
+						$("#internalStatus").val($("#oldInternalStatus").val());
+					}
+					$("#recommendationStatus").val(value);	
+					/**** setting level,localizedActorName ****/
+					 var actor1=data[0].id;
+					 var temp=actor1.split("#");
+					 $("#level").val(temp[2]);		    
+					 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");					
+				}else{
+					$("#actor").empty();
+					$("#actorDiv").hide();
+					/**** in case of sendback and discuss only recommendation status is changed ****/
+					if(value==sendback || value==discuss) {
+						$("#internalStatus").val($("#oldInternalStatus").val());
+					} else {
+						$("#internalStatus").val(value);
+					}
+				    $("#recommendationStatus").val(value);
 				}
-			    $("#recommendationStatus").val(value);
-			}
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
 		}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
@@ -281,7 +294,7 @@
 		});
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
-			console.log($("#subDepartment").val());
+			//console.log($("#subDepartment").val());
 			if($(this).val()!=''){
 				loadSubDepartments($(this).val());
 			}else{
@@ -300,7 +313,7 @@
 		/**** Revise mainTitle and text****/
 		$("#reviseMainTitle").click(function(){
 			$(".revise1").toggle();
-			console.log("revise1: " + $("#revisedMainTitleDiv").css("display") + ": "+$("#mainTitle").val());
+			//console.log("revise1: " + $("#revisedMainTitleDiv").css("display") + ": "+$("#mainTitle").val());
 			if($("#revisedMainTitleDiv").css("display")=="none"){
 				$("#revisedMainTitle").val("");	
 			}else{
@@ -311,7 +324,7 @@
 		
 		$("#reviseSecondaryTitle").click(function(){
 			$(".revise2").toggle();
-			console.log("revise2: " + $("#revisedSecondaryTitleDiv").css("display") + ": "+$("#secondaryTitle").val());
+			//console.log("revise2: " + $("#revisedSecondaryTitleDiv").css("display") + ": "+$("#secondaryTitle").val());
 			if($("#revisedSecondaryTitleDiv").css("display")=="none"){
 				$("#revisedSecondaryTitle").val("");	
 			}else{
@@ -322,7 +335,7 @@
 		
 		$("#reviseSubTitle").click(function(){
 			$(".revise3").toggle();
-			console.log("revise3: " + $("#revisedSubTitleDiv").css("display")  + ": "+$("#subTitle").val());
+			//console.log("revise3: " + $("#revisedSubTitleDiv").css("display")  + ": "+$("#subTitle").val());
 			if($("#revisedSubTitleDiv").css("display")=="none"){
 				$("#revisedSubTitle").val("");	
 			}else{
@@ -333,7 +346,7 @@
 		
 		$("#reviseNoticeContent").click(function(){
 			$(".revise4").toggle();		
-			console.log("revise4: " + $("#revisedNoticeContentDiv").css("display") + ": "+$("#noticeContent").val());
+			//console.log("revise4: " + $("#revisedNoticeContentDiv").css("display") + ": "+$("#noticeContent").val());
 			if($("#revisedNoticeContentDiv").css("display")=="none"){
 				$("#revisedNoticeContent").wysiwyg("setContent","");
 			}else{
@@ -844,40 +857,76 @@
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<p>	
-		<label class="small"><spring:message code="generic.putupfor" text="Put up for"/></label>	
-		<select id="changeInternalStatus" class="sSelect">
-			<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-			<c:forEach items="${internalStatuses}" var="i">
-				<c:choose>
-					<c:when test="${i.id==internalStatusSelected }">
-						<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</select>
-		
+	<table class="uiTable" style="margin-left:165px;width:600px;">
+		<thead>
+		<tr>
+		<th style="text-align: center">
+		<spring:message code="cmois.latestrevisions.user" text="Usergroup"></spring:message>
+		</th>
+		<th style="text-align: center">
+		<spring:message code="cmois.latestrevisions.decision" text="Decision"></spring:message>
+		</th>
+		<th style="text-align: center">
+		<spring:message code="cmois.latestrevisions.remarks" text="Remarks"></spring:message>
+		</th>
+		</tr>
+		</thead>
+		<tbody>	
+			<c:forEach items="${latestRevisions}" var="i">
+				<tr>
+					<td style="text-align: left">
+					${i[1]}<br>(${i[7]})
+					</td>
+					<td style="text-align: center">
+					${i[3]}
+					</td>
+					<td style="text-align: center">
+					${i[6]}
+					</td>
+				</tr>
+			</c:forEach>	
+			<c:if test="${workflowstatus != 'COMPLETED'}">
+				<tr>
+					<td style="text-align: left">
+						${userName}<br>
+						(${userGroupName})
+					</td>
+					<td style="text-align: center">
+						<select id="changeInternalStatus" class="sSelect">
+							<c:forEach items="${internalStatuses}" var="i">
+									<c:choose>
+										<c:when test="${i.id==internalStatusSelected }">
+											<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+										</c:when>
+										<c:otherwise>
+											<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+										</c:otherwise>
+									</c:choose>
+							</c:forEach>
+						</select>
+						<form:errors path="internalStatus" cssClass="validationError"/>
+					</td>
+					<td>
+						<a href="#" id="viewCitation" style="margin-left: 210px;margin-top: 30px;"><spring:message code="cutmotion.viewcitation" text="View Citations"></spring:message></a>
+						<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+					</td>
+				</tr>
+			</c:if>	
+		</tbody>
+	</table>
+	
+	<c:if test="${workflowstatus!='COMPLETED' }">	
 		<select id="internalStatusMaster" style="display:none;">
-			<c:forEach items="${internalStatuses}" var="i">
-				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-			</c:forEach>
+		<c:forEach items="${internalStatuses}" var="i">
+		<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+		</c:forEach>
 		</select>	
-		<form:errors path="internalStatus" cssClass="validationError"/>	
-	</p>
 	
-	<p id="actorDiv">
-		<label class="small"><spring:message code="generic.nextactor" text="Next Users"/></label>
-		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-	</p>
-	
-	<p>
-		<label class="wysiwyglabel"><spring:message code="generic.remarks" text="Remarks"/></label>
-		<a href="#" id="viewCitation" style="display: inline; margin-left: 530px;"><spring:message code="cutmotion.viewcitation" text="View Citations"></spring:message></a>
-		<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-	</p>	
+		<p id="actorDiv" style="display:none;">
+			<label class="small"><spring:message code="cutmotion.nextactor" text="Next Users"/></label>
+			<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>	
+		</p>		
+	</c:if>	
 	
 	<div class="fields">
 		<h2></h2>
@@ -916,17 +965,18 @@
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 </form:form>
+<input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 <input id="confirmMotionSubmission" value="<spring:message code='confirm.cutmotionsubmission.message' text='Do you want to submit the motion.'></spring:message>" type="hidden">
 <input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='motion.startworkflowmessage' text='Do You Want To Put Up motion'></spring:message>" type="hidden">
 <input id="ministrySelected" value="${ministrySelected }" type="hidden">
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-<input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
-<input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
+<input id="oldInternalStatus" value="${internalStatus}" type="hidden">
+<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
-<input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input type="hidden" id="originalLevel" value="${level}" />
 

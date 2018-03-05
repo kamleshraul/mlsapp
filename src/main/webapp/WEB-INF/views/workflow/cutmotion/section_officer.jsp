@@ -974,7 +974,7 @@
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 <input id="oldInternalStatus" value="${internalStatus}" type="hidden">
-<input id="oldRecommendationStatus" value="${ RecommendationStatus}" type="hidden">
+<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="motionType" type="hidden" value="${selectedMotionType}" />
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
