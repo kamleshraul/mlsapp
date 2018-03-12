@@ -492,50 +492,81 @@
 						'&strSessionId=' + sessionId + 
 						'&deviceTypeId=' + deviceTypeTemp + 
 						'&locale=' + locale +
-						'&view=view';
-				$("#halfHourDiscusionFromQuestionReferenceNumber").val(questionNumber);
+						'&view=view';				
 				$.get(url, function(data) {
-						if(data.id!=0 && data.id!=-1){
-							$('#halfHourDiscussionReference_questionId_H').val(data.id);
-							$('#halfHourDiscusionFromQuestionReference').val(data.id);
+						if(data.id!=0 && data.id!=-1){							
 							$.get('question/getsubject?qid=' + data.id + '&text=1' + '&questionType=' + deviceTypeTemp ,function(data1){
 								if(data1.length>0){
-									$('#subject').val(data1[0][1]);
-									if($('#questionText').is('[readonly]')){
-										$('#questionText-wysiwyg-iframe').contents().find('html').html(data1[0][2]);
-										$('#copyOfquestionText').val(data1[0][2]);
-									}else{
-										$('#questionText').wysiwyg('setContent',data1[0][2]);
-									}
-									
-									if($('#answer').is('[readonly]')){
-										$('#answer-wysiwyg-iframe').contents().find('html').html(data1[0][6]);
-										$('#copyOfanswer').val(data1[0][6]);
-									}else{
-										$('#answer').wysiwyg('setContent',data1[0][6]);
-									}
-									
-									/*$("#formattedMinistry").val(data.formattedMinistry);
-									$("#ministry").val(data.ministry);
-									
-									$("#formattedGroup").val(data.formattedGroup);
-									$("#group").val(data.group);
-									
-									var subDepartmentText = "<option value=''>--" + $("#pleaseSelectMsg").val() + "--</option>";
-									subDepartmentText += "<option value='" + data.subDepartment + "' selected='selected'>" + data.formattedSubDepartment + "</option>";
-									$("#subDepartment").empty();
-									$("#subDepartment").html(subDepartmentText);*/
-								}
-								
-							});
-							$("#referenceDeviceType").val(data.formattedNumber);
+									if(data1[0][17]!='YES') { //validation check for yaadi laid status of the referred question
+										$('#subject').val('');
+										$('#questionText').wysiwyg('setContent', '');
+										$('#answer').wysiwyg('setContent', '');
+										$("#referenceDeviceType option").each(function() {
+											$(this).removeAttr('selected', 'selected');
+										});
+										$("#referenceDeviceType option[value='-']").attr('selected', 'selected');
+										$('#halfHourDiscussionReference_questionNumber').val('');
+										
+										$.prompt($('#referredQuestionNotLaidInYaadiMsg').val());									
+										return false;
+									} else {
+										$("#halfHourDiscusionFromQuestionReferenceNumber").val(questionNumber);
+										$('#halfHourDiscussionReference_questionId_H').val(data.id);
+										$('#halfHourDiscusionFromQuestionReference').val(data.id);
+										
+										$('#subject').val(data1[0][1]);
+										if($('#questionText').is('[readonly]')){
+											$('#questionText-wysiwyg-iframe').contents().find('html').html(data1[0][2]);
+											$('#copyOfquestionText').val(data1[0][2]);
+										}else{
+											$('#questionText').wysiwyg('setContent',data1[0][2]);
+										}
+										
+										if($('#answer').is('[readonly]')){
+											$('#answer-wysiwyg-iframe').contents().find('html').html(data1[0][6]);
+											$('#copyOfanswer').val(data1[0][6]);
+										}else{
+											$('#answer').wysiwyg('setContent',data1[0][6]);
+										}
+										
+										/*$("#formattedMinistry").val(data.formattedMinistry);
+										$("#ministry").val(data.ministry);
+										
+										$("#formattedGroup").val(data.formattedGroup);
+										$("#group").val(data.group);
+										
+										var subDepartmentText = "<option value=''>--" + $("#pleaseSelectMsg").val() + "--</option>";
+										subDepartmentText += "<option value='" + data.subDepartment + "' selected='selected'>" + data.formattedSubDepartment + "</option>";
+										$("#subDepartment").empty();
+										$("#subDepartment").html(subDepartmentText);*/
+										
+										$("#referenceDeviceType option").each(function() {
+											$(this).removeAttr('selected', 'selected');
+										});
+										$("#referenceDeviceType option[value='"+data1[0][18]+"']").attr('selected', 'selected');
+									}									
+								}								
+							});							
 						}else{
 							$('#subject').val('');
 							$('#questionText').wysiwyg('setContent', '');
-							$("#referenceDeviceType").val('');
+							$('#answer').wysiwyg('setContent', '');
+							$("#referenceDeviceType option").each(function() {
+								$(this).removeAttr('selected', 'selected');
+							});
+							$("#referenceDeviceType option[value='-']").attr('selected', 'selected');
+							$('#halfHourDiscussionReference_questionNumber').val('');
 						}
 					//}
 				}).fail(function(){
+					$('#subject').val('');
+					$('#questionText').wysiwyg('setContent', '');
+					$('#answer').wysiwyg('setContent', '');
+					$("#referenceDeviceType option").each(function() {
+						$(this).removeAttr('selected', 'selected');
+					});
+					$("#referenceDeviceType option[value='-']").attr('selected', 'selected');
+					$('#halfHourDiscussionReference_questionNumber').val('');
 					if($("#ErrorMsg").val()!=''){
 						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 					}else{
@@ -810,7 +841,7 @@
 		<p>
 			<label class="small"><spring:message code="question.halfhour.questionrefdevicetype" text="Reference Question Device Type: "/>*</label>
 			<%-- <form:input path="referenceDeviceType" cssClass="sText" / --%>
-			<select name="referenceDeviceType" class="sSelect">
+			<select id="referenceDeviceType" name="referenceDeviceType" class="sSelect">
 				<option value="-"><spring:message code="please.select" /></option>
 				<c:forEach items="${hdqRefDevices}" var="d">
 					<option value="${d}">${d}</option>
@@ -1017,6 +1048,7 @@
 <input id="submissionMsg" value="<spring:message code='client.prompt.submit' text='Do you want to submit the question.'></spring:message>" type="hidden">
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 <!-- <input type="hidden" id="copyOfquestionText" value="" /> -->
+<input type="hidden" id="referredQuestionNotLaidInYaadiMsg" value="<spring:message code='question.referredQuestionNotLaidInYaadiMsg' text='Referred question is NOT yet laid in the yaadi.. Hence cannot be referred now!!'/>"/>
 </div>
 </body>
 </html>

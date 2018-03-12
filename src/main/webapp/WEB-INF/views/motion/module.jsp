@@ -1141,7 +1141,7 @@
 				</select>
 			</security:authorize>	
 			
-				<security:authorize access="hasAnyRole('MOIS_CLERK','MOIS_ASSISTANT','MOIS_SECTION_OFFICER')">
+				<security:authorize access="hasAnyRole('MOIS_CLERK','MOIS_ASSISTANT','MOIS_SECTION_OFFICER','MOIS_CHAIRMAN')">
 					<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">
 						<spring:message code="motion.reports" text="Reports"/>
 					</a>

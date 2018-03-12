@@ -1666,7 +1666,7 @@ public class QuestionController extends GenericController<Question> {
 						if(strRemark != null && !strRemark.isEmpty()){
 							question.setRemarks(strRemark);
 						}
-						question.simpleMerge();
+						question.merge();
 						updated = true;
 						success.append(FormaterUtil.formatNumberNoGrouping(question.getNumber(), question.getLocale())+",");
 					}

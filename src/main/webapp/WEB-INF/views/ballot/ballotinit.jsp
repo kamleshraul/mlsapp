@@ -84,7 +84,7 @@
 					resourceURL = 'ballot/preballot?' + parameters;
 				}
 				$.get(resourceURL,function(data){
-					var dt = $("#selectedQuestionType").val();
+					/* var dt = $("#selectedQuestionType").val();
 					var deviceType = $("#deviceTypeMaster option[value='"+ dt + "']").text().trim();
 					
 					if((deviceType=='questions_halfhourdiscussion_from_question' && $("#selectedHouseType").val()=='upperhouse')
@@ -104,7 +104,11 @@
 					}else{
 						$("#ballotResultDiv").empty();
 						$("#ballotResultDiv").html(data);
-					}
+					} */
+					
+					$("#ballotResultDiv").empty();
+					$("#ballotResultDiv").html(data);
+					
 					$.unblockUI();					
 				},'html').fail(function(data){
 					$.unblockUI();
