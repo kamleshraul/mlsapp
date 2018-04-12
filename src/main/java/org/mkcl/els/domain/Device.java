@@ -186,6 +186,11 @@ public abstract class Device extends BaseDomain {
 		} else if(deviceName.split("_")[0].toUpperCase().equals("RESOLUTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			Resolution resolution = Resolution.findById(Resolution.class, deviceId);
 			resolution.startWorkflow(resolution, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+		
+		} else if(deviceName.split("_")[0].toUpperCase().equals("CUTMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			CutMotion cutMotion = CutMotion.findById(CutMotion.class, deviceId);
+			cutMotion.startWorkflow(cutMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+		
 		}
 		
 	}
@@ -207,6 +212,11 @@ public abstract class Device extends BaseDomain {
 		} else if(deviceName.split("_")[0].toUpperCase().equals("RESOLUTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			Resolution resolution = Resolution.findById(Resolution.class, deviceId);
 			resolution.endWorkflow(resolution, workflowHouseType, locale);
+			
+		} else if(deviceName.split("_")[0].toUpperCase().equals("CUTMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			CutMotion cutMotion = CutMotion.findById(CutMotion.class, deviceId);
+			cutMotion.endWorkflow(cutMotion, workflowHouseType, locale);
+		
 		}
 		
 	}

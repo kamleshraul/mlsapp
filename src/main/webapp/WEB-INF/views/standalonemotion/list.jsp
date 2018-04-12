@@ -43,10 +43,32 @@
 				searchRecord();
 			});
 			
-			/****Member's Standalone Motions View ****/
-			$("#member_standalone_motions_view").click(function() {
+			if($('#member_admitted_standalonemotions_view_flag').val()=="admitted_visible") {
+				$('#member_admitted_standalonemotions_view_span').show();
+			}
+			if($('#member_rejected_standalonemotions_view_flag').val()=="rejected_visible") {
+				$('#member_rejected_standalonemotions_view_span').show();
+			}
+			if($('#member_unstarred_standalonemotions_view_flag').val()=="unstarred_visible") {
+				$('#member_unstarred_standalonemotions_view_span').show();
+			}
+			
+			/****Member's StandaloneMotions View ****/
+			$("#member_standalonemotions_view").click(function() {
 				$("#selectionDiv1").hide();
-				memberStandaloneMotionsView();
+				memberStandaloneMotionsView("all");
+			});
+			
+			/****Member's Rejected StandaloneMotions View ****/
+			$("#member_rejected_standalonemotions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberStandaloneMotionsView("rejected");
+			});
+			
+			/****Member's Admitted StandaloneMotions View ****/
+			$("#member_admitted_standalonemotions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberStandaloneMotionsView("admitted");
 			});
 						
 			$("#statreport").click(function(){
@@ -247,16 +269,27 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="question.search" text="Search"/>
 			</a> |
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
-				<a href="#" id="member_standalone_motions_view" class="butSim">
-					<spring:message code="standalonemotion.member_standalone_motions_view" text="Member's Standalone Motions View"/>
-				</a> |
-			</security:authorize>
-			<security:authorize access="!hasAnyRole('SMOIS_TYPIST','SMOIS_CLERK')">	 
+			<%-- <security:authorize access="!hasAnyRole('SMOIS_TYPIST','SMOIS_CLERK')">	 
 				<a href="#" id="send_message" class="butSim">
 					<spring:message code="question.sendMessage" text="Send Message"/>
 				</a> |
-			</security:authorize>	
+			</security:authorize> --%>
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<hr/>
+				<a href="#" id="member_standalonemotions_view" class="butSim">
+					<spring:message code="standalonemotion.member_standalonemotions_view" text="Member's Standalone Motions View"/>
+				</a> |
+				<span id="member_admitted_standalonemotions_view_span" style="display: none;">
+				<a href="#" id="member_admitted_standalonemotions_view" class="butSim">
+					<spring:message code="standalonemotion.member_admitted_standalonemotions_view" text="Member's Admitted Questions Detail View"/>
+				</a> |
+				</span>
+				<span id="member_rejected_standalonemotions_view_span" style="display: none;">
+				<a href="#" id="member_rejected_standalonemotions_view" class="butSim">
+					<spring:message code="standalonemotion.member_rejected_standalonemotions_view" text="Member's Rejected Questions Detail View"/>
+				</a> |		
+				</span>				
+			</security:authorize>
 			<security:authorize access="hasAnyRole('SMOIS_SECTION_OFFICER')">
 				<a href="#" id="statreport" class="butSim">
 					<spring:message code="question.statreport" text="Generate Statistics Report"/>

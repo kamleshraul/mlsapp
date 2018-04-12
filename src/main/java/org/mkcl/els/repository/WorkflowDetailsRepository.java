@@ -3345,21 +3345,10 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	public WorkflowDetails findCurrentWorkflowDetail(final CutMotion motion) throws ELSException{
 		WorkflowDetails workflowDetails = null;
 		try{
-			/**** To make the HDS to take the workflow with mailer task ****/
-			String currentDeviceTypeWorkflowType = ApplicationConstants.APPROVAL_WORKFLOW;
-			
-			String strQuery="SELECT m FROM WorkflowDetails m" +
-					" WHERE m.deviceId=:deviceId"+
-					" AND m.workflowType=:workflowType" +
-					" AND m.status='PENDING'" +
-					" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
-			Query query=this.em().createQuery(strQuery);
-			query.setParameter("deviceId", motion.getId().toString());
-			query.setParameter("workflowType",currentDeviceTypeWorkflowType);
-			List<WorkflowDetails> details = (List<WorkflowDetails>)query.getResultList();
-			if(details != null && !details.isEmpty()){
-				workflowDetails = details.get(0);
-			}
+			Workflow workflow = Workflow.findByStatus(motion.getInternalStatus(), motion.getLocale());
+			if(workflow!=null) {
+				workflowDetails = findCurrentWorkflowDetail(motion, workflow.getType());
+			}			
 		}catch (NoResultException e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());

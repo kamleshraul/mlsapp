@@ -751,12 +751,14 @@ public class StandaloneReportController extends BaseController{
 				
 				model.addAttribute("topHeader", obj[0].toString().split(";"));
 			}
+			List<String> serialNumbers = populateSerialNumbers(report, locale);
+			model.addAttribute("serialNumbers", serialNumbers);
 		}
 		model.addAttribute("formater", new FormaterUtil());
 		model.addAttribute("locale", locale.toString());
 		model.addAttribute("report", report);
 		
-		return "question/reports/"+request.getParameter("reportout");		
+		return "standalonemotion/reports/"+request.getParameter("reportout");		
 	}
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@RequestMapping(value="/smois/generalreport", method=RequestMethod.GET)

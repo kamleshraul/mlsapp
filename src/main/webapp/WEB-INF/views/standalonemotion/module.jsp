@@ -41,6 +41,9 @@
 		$("#selectedHouseType").change(function() {
 			var value = $(this).val();
 			if (value != "") {
+				if($("#currentusergroupType").val()=='member') {
+					updateVisibilityForMemberStandaloneMotionsViewLinks();
+				}
 				loadGroupsFromSessions();				
 			}
 		});
@@ -50,6 +53,9 @@
 			/* $('#questionDepartment').hide();
 			$('#subDepartment').val(""); */
 			if (value != "") {
+				if($("#currentusergroupType").val()=='member') {
+					updateVisibilityForMemberStandaloneMotionsViewLinks();
+				}
 				loadGroupsFromSessions();
 			}
 		});
@@ -59,6 +65,9 @@
 			/* $('#questionDepartment').hide();
 			$('#subDepartment').val(""); */
 			if (value != "") {
+				if($("#currentusergroupType").val()=='member') {
+					updateVisibilityForMemberStandaloneMotionsViewLinks();
+				}
 				loadGroupsFromSessions();
 			}
 		});
@@ -235,16 +244,81 @@
 				+ $("#selectedSubDepartment").val());
 	}
 	
-	function memberStandaloneMotionsView() {
+	function memberStandaloneMotionsView(status_filter) {
+		var viewMode = "";
+		if(status_filter=='rejected' && $('#member_standalonemotions_view_status_flag').val()=='status_visible') { //in case to show statuses for lowerhouse
+			viewMode = "_with_status";
+		}
 		var parameters = "houseType=" + $("#selectedHouseType").val()
 		+ "&sessionYear=" + $("#selectedSessionYear").val()
 		+ "&sessionType=" + $("#selectedSessionType").val()
 		+ "&motionType=" + $("#selectedQuestionType").val()
+		+ "&statusFilter=" + status_filter
 		+ "&createdBy=" + $("#ugparam").val()
 		+"&locale="+$("#moduleLocale").val()
 		+ "&report=MEMBER_STANDALONEMOTIONS_VIEW"
-		+ "&reportout=member_standalonemotion_view";
-		showTabByIdAndUrl('details_tab','standalonemotion/report/smois/generalreport?'+parameters);
+		+ "&reportout=member_standalonemotion_view"+viewMode;
+		showTabByIdAndUrl('details_tab','standalonemotion/report/generalreport?'+parameters);
+	}
+	
+	function updateVisibilityForMemberStandaloneMotionsViewLinks() {
+		//reset visibility related flags and links
+		$('#member_standalonemotions_view_status_flag').val("");
+		$('#member_admitted_standalonemotions_view_flag').val("");
+		$('#member_admitted_standalonemotions_view_span').hide();
+		$('#member_rejected_standalonemotions_view_flag').val("");
+		$('#member_rejected_standalonemotions_view_span').hide();
+		
+		params = "houseType=" + $('#selectedHouseType').val()
+		+ '&sessionYear=' + $("#selectedSessionYear").val()
+		+ '&sessionType=' + $("#selectedSessionType").val()
+		$.get('ref/loadVisibilityFlagsForMemberStandaloneMotionsView?' + params, function(data) {
+			if (data.length > 0) {
+				var text = "";
+				for ( var i = 0; i < data.length; i++) {
+					text += "<option value='"+data[i].id+"'>"
+							+ data[i].name + "</option>";
+					if(data[i].name=='member_standalonemotions_view_status_flag') {
+						if(data[i].value=='status_visible') {
+							$('#member_standalonemotions_view_status_flag').val('status_visible');
+						}
+						
+					} else if(data[i].name=='member_admitted_standalonemotions_view_flag') {
+						if(data[i].value=='admitted_visible') {
+							$('#member_admitted_standalonemotions_view_flag').val('admitted_visible');
+							$('#member_admitted_standalonemotions_view_span').show();
+						}
+						
+					} else if(data[i].name=='member_rejected_standalonemotions_view_flag') {
+						if(data[i].value=='rejected_visible') {
+							$('#member_rejected_standalonemotions_view_flag').val('rejected_visible');
+							$('#member_rejected_standalonemotions_view_span').show();
+						}
+						
+					}
+				}
+			}
+		}).fail(function() {
+			//reset visibility related flags and links
+			$('#member_standalonemotions_view_status_flag').val("");
+			$('#member_admitted_standalonemotions_view_flag').val("");
+			$('#member_admitted_standalonemotions_view_span').hide();
+			$('#member_rejected_standalonemotions_view_flag').val("");
+			$('#member_rejected_standalonemotions_view_span').hide();
+			
+			if ($("#ErrorMsg").val() != '') {
+				$("#error_p").html($("#ErrorMsg").val()).css({
+					'color' : 'red',
+					'display' : 'block'
+				});
+			} else {
+				$("#error_p").html("Error occured contact for support.").css({
+					'color' : 'red',
+					'display' : 'block'
+				});
+			}
+			scrollTop();
+		});
 	}
 
 	/**** new question ****/
@@ -1139,6 +1213,9 @@
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>" />
 		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
+		<input type="hidden" id="member_standalonemotions_view_status_flag" value="${member_standalonemotions_view_status_flag}" />
+		<input type="hidden" id="member_admitted_standalonemotions_view_flag" value="${member_admitted_standalonemotions_view_flag}" />
+		<input type="hidden" id="member_rejected_standalonemotions_view_flag" value="${member_rejected_standalonemotions_view_flag}" />
 	</div>
 </body>
 </html>

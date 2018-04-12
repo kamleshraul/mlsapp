@@ -213,10 +213,12 @@ public class UserGroup extends BaseDomain implements Serializable {
 	public static boolean isActiveInSession(final Session session,
 			final UserGroup userGroup,
 			final String locale) throws ELSException {
-		boolean retVal = false;
+		boolean retVal = false;		
 		
-		if(userGroup.getActiveFrom().before(session.getStartDate())
-				&& userGroup.getActiveTo().after(session.getEndDate())){
+//		if(userGroup.getActiveFrom().before(session.getEndDate())
+//				&& userGroup.getActiveTo().after(session.getEndDate())){
+		if(userGroup.getActiveFrom().compareTo(session.getEndDate())<=0
+				&& userGroup.getActiveTo().compareTo(session.getEndDate())>=0) {
 			
 			retVal = true;
 			

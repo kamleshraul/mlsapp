@@ -2752,14 +2752,6 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 						noOfComparisons++;
 					}
 				}
-				if(department!=null){
-					if(params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEPARTMENT_KEY+"_"+locale).contains(department.getName())){
-						noOfComparisons++;
-						noOfSuccess++;
-					}else{
-						noOfComparisons++;
-					}
-				}
 				if(subDepartment!=null){
 					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).isEmpty()){
 						String[] allowedSubdepartments = params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).split("##");

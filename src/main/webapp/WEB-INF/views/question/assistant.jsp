@@ -871,7 +871,12 @@
 	    	if($(this).val()!=''){
 	    		var recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
 			   	if(recommendRejection == $("#internalStatus").val()){
+			   		//temporary remove found tags.. later to be replaced with method that removes entire html formatting
 			   		var rejectionReason = $(this).val().replace("<br><p></p>","");
+			   		rejectionReason = rejectionReason.replace("<p></p>","");
+			   		rejectionReason = rejectionReason.replace('<div align="justify">',"");
+			   		rejectionReason = rejectionReason.replace('<div align="left">',"");
+			   		rejectionReason = rejectionReason.replace("</div>","");			   		
 			   		$("#rejectionReason").val(rejectionReason.trim());
 			    }
 	    	}

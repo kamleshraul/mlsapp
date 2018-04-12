@@ -876,5 +876,18 @@ public class FormaterUtil {
         Date formatDate = df.parse(strDate);
         return formatDate;
     }
+	
+	public static String formatValueForIndianCurrency(String value, String locale) {
+		String formattedCurrencyValue = value;
+		BigDecimal currencyValue = FormaterUtil.parseNumberForIndianCurrency(value.split(":")[1], locale);
+		if(currencyValue!=null) {
+			if(value.split(":")[0].equals("currencyWithSymbol")) {
+				formattedCurrencyValue = FormaterUtil.formatNumberForIndianCurrencyWithSymbol(currencyValue, locale);
+			} else if(value.split(":")[0].equals("currency")) {
+				formattedCurrencyValue = FormaterUtil.formatNumberForIndianCurrency(currencyValue, locale);
+			}			
+		}
+		return formattedCurrencyValue;
+	}
 
 }

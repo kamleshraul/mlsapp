@@ -41,10 +41,7 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.Motion;
-import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferenceUnit;
-import org.mkcl.els.domain.ReferencedEntity;
-import org.mkcl.els.domain.Resolution;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
@@ -154,78 +151,125 @@ public class CutMotionController extends GenericController<CutMotion>{
 				model.addAttribute("years", years);
 				model.addAttribute("sessionYear", year);
 
-				/****
-				 * Custom Parameter To Determine The Usergroup and usergrouptype
-				 * of mois users . here we are determining what status will be
-				 * shown to a particular user.
-				 ****/
-				List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-				String userGroupType = null;
-				if (userGroups != null) {
-					if (!userGroups.isEmpty()) {
-						CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"CMOIS_ALLOWED_USERGROUPTYPES", "");
-						if (customParameter != null) {
-							String allowedUserGroups = customParameter.getValue();
-							for (UserGroup i : userGroups) {
-								if (allowedUserGroups.contains(i.getUserGroupType().getType())) {
-									/****
-									 * Authenticated User's usergroup and
-									 * usergroupType
-									 ****/
-									model.addAttribute("usergroup", i.getId());
-									userGroupType = i.getUserGroupType().getType();
-									model.addAttribute("usergroupType",userGroupType);
-									
-									Map<String,String> parameters = UserGroup.findParametersByUserGroup(i);
-
-									/**** Sub department Filter Starts ****/
-									CustomParameter subDepartmentFilterAllowedFor = CustomParameter.findByName(CustomParameter.class,"CMOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR", "");
-									if(subDepartmentFilterAllowedFor != null && subDepartmentFilterAllowedFor.getValue().contains(userGroupType)){
-										if(parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).equals(" ")){
-											String strSubDepartments = parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale);
-											String subDepartments[] = strSubDepartments.split("##");
-											List<SubDepartment> subDepts = new ArrayList<SubDepartment>();
-											for(int j = 0; j < subDepartments.length; j++){
-												SubDepartment subDepartment = SubDepartment.findByName(SubDepartment.class, subDepartments[j], locale);
-												subDepts.add(subDepartment);
-											}
-											model.addAttribute("subDepartments", subDepts);
-										}
-									}
-									/**** Sub department Filter Ends ****/
-									
-									CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class, "CUTMOTION_GRID_STATUS_ALLOWED_"+ userGroupType.toUpperCase(),"");
-									List<Status> status = new ArrayList<Status>();
-									if (allowedStatus != null) {
-										status = Status.findStatusContainedIn(allowedStatus.getValue(),locale);
-									} else {
-										CustomParameter defaultAllowedStatus = CustomParameter.findByName(CustomParameter.class, "CUTMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT","");
-										if (defaultAllowedStatus != null) {
-											status = Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
-										} else {
-											model.addAttribute("errorcode","motion_status_allowed_by_default_not_set");
-										}
-									}
-									model.addAttribute("status", status);
-									break;
-								}
-							}
-						} else {
-							model.addAttribute("errorcode","cmois_allowed_usergroups_notset");
-						}
-					} else {
-						model.addAttribute("errorcode","current_user_has_no_usergroups");
+				// Populate User group & User Group type
+				/**
+				 * Rules:
+				 * a. Any user can have only one user group per device type.
+				 * b. Any user can have multiple user groups limited to one user group per device type.
+				 * c. Custom parameter "CMOIS_ALLOWED_USERGROUPTYPES" control which user groups can access CMOIS.
+				 * d. Custom parameter "CMOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR" controls which user group can see 
+				 * Sub department filter.
+				 * e. Custom parameter "CUTMOTION_GRID_STATUS_ALLOWED_USERGROUPTYPE" controls which status will 
+				 * be seen in status filter
+				 * f. Custom parameter "CUTMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT" controls which status 
+				 * will be seen by default if above filter is not set.
+				 */
+				UserGroup userGroup = null;
+				UserGroupType userGroupType = null;
+				List<UserGroup> userGroups = currentUser.getUserGroups();
+				if(userGroups != null && ! userGroups.isEmpty()) {
+					CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "CMOIS_ALLOWED_USERGROUPTYPES", "");
+					if(cp != null) {
+						List<UserGroupType> configuredUserGroupTypes = 
+								CutMotionController.delimitedStringToUGTList(cp.getValue(), ",", locale);
+						
+						userGroup = CutMotionController.getUserGroup(userGroups, configuredUserGroupTypes, lastSessionCreated, locale);
+						userGroupType = userGroup.getUserGroupType();
+						
+						model.addAttribute("usergroup", userGroup.getId());
+						model.addAttribute("usergroupType", userGroupType.getType());
 					}
-				} else {
+					else {
+						throw new ELSException("CutMotionController.populateModule/4", 
+								"CMOIS_ALLOWED_USERGROUPTYPES key is not set as CustomParameter");
+					}
+				}
+				if(userGroup == null || userGroupType == null) {
+//					throw new ELSException("CutMotionController.populateModule/4", 
+//							"User group or User group type is not set for Username: " + currentUser.getUsername());
+					
 					model.addAttribute("errorcode","current_user_has_no_usergroups");
-				}									
+				}
 				
-				/****
-				 * Roles and ugparam.Role will be used to decide who can create
-				 * new motions(member and clerk).for member and clerk only those
-				 * motions will be visible which are created by them.For other
-				 * mois users all motions will be visible.
-				 ****/
+				// Populate Sub Departments configured for this User's user group type
+				Map<String, String> parameters = UserGroup.findParametersByUserGroup(userGroup);
+				CustomParameter subDepartmentFilterAllowedFor = 
+						CustomParameter.findByName(CustomParameter.class, "CMOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR", "");
+				if(subDepartmentFilterAllowedFor != null) {
+					List<UserGroupType> ugtConfiguredForSubdepartments = 
+							CutMotionController.delimitedStringToUGTList(
+									subDepartmentFilterAllowedFor.getValue(), ",", locale);
+					boolean isUGTConfiguredForSubdepartments = 
+							CutMotionController.isUserGroupTypeExists(ugtConfiguredForSubdepartments, userGroupType);
+					if(isUGTConfiguredForSubdepartments) {
+						String subDepartmentParam = parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale);
+						if(subDepartmentParam != null && ! subDepartmentParam.equals("")) {
+							List<SubDepartment> subDepartments =
+									CutMotionController.getSubDepartments(subDepartmentParam, "##", locale);
+							model.addAttribute("subDepartments", subDepartments);
+						}
+						else {
+							throw new ELSException("CutMotionController.populateModule/4", 
+									"SUBDEPARTMENT parameter is not set for Username: " + currentUser.getUsername());
+						}
+					}
+				}
+				else {
+					throw new ELSException("CutMotionController.populateModule/4", 
+							"CMOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR key is not set as CustomParameter");
+				}
+				
+				// Populate Statuses configured for this User's user group type
+				/**
+				 * Rules:
+				 * Search for the Custom parameters in following order in order to get the statuses configured
+				 * for this User's user group type
+				 * a. CustomParameter "CUTMOTION_GRID_STATUS_ALLOWED_" + deviceTypeType + userGroupTypeType
+				 * b. CustomParameter "CUTMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT" + deviceTypeType
+				 * c. CustomParameter "CUTMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT"
+				 */
+				String strAllowedStatus = null;
+				CustomParameter allowedStatusParam = 
+						CustomParameter.findByName(CustomParameter.class, 
+								"CUTMOTION_GRID_STATUS_ALLOWED_" + deviceType.getType().toUpperCase() + "_" + 
+										userGroupType.getType().toUpperCase(), "");
+				if(allowedStatusParam != null) {
+					strAllowedStatus = allowedStatusParam.getValue();
+				}
+				else {
+					CustomParameter defaultAllowedStatusParamDeviceType =
+							CustomParameter.findByName(CustomParameter.class,
+									"CUTMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT" + deviceType.getType().toUpperCase(), "");
+					if(defaultAllowedStatusParamDeviceType != null) {
+						strAllowedStatus = defaultAllowedStatusParamDeviceType.getValue();
+					}
+					else {
+						CustomParameter defaultAllowedStatusParam =
+								CustomParameter.findByName(CustomParameter.class,
+										"CUTMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT", "");
+						if(defaultAllowedStatusParam != null) {
+							strAllowedStatus = defaultAllowedStatusParam.getValue();
+						}
+						else {							
+							throw new ELSException("CutMotionController.populateModule/4", 
+									"CUTMOTION_GRID_STATUS_ALLOWED_BY_DEFAULT_ + deviceTypeType " +
+									"key is not set as CustomParameter");
+						}
+					}
+				}
+				
+				if(strAllowedStatus != null) {
+					List<Status> statuses = Status.findStatusContainedIn(strAllowedStatus, locale);
+					model.addAttribute("status", statuses);
+				}
+				
+				// Populate Roles
+				/**
+				 * Rules:
+				 * a. CMOIS roles starts with CMOIS_, MEMBER_
+				 * b. Any user will have single role per device type
+				 * c. Any user can have multiple roles limited to one role per device type
+				 */
 				Set<Role> roles = this.getCurrentUser().getRoles();
 				for (Role i : roles) {
 					if (i.getType().startsWith("MEMBER_")) {
@@ -243,8 +287,8 @@ public class CutMotionController extends GenericController<CutMotion>{
 					}
 				}
 				/**** File Options(Obtain Dynamically) ****/
-				if (userGroupType != null && !userGroupType.isEmpty()
-						&& userGroupType.equals("assistant")) {
+				if (userGroupType != null
+						&& userGroupType.getType().equals("assistant")) {
 					int highestFileNo = CutMotion.findHighestFileNo(lastSessionCreated, deviceType, locale);
 					model.addAttribute("highestFileNo", highestFileNo);
 				}
@@ -1188,7 +1232,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 						result.rejectValue("subDepartment","CutMotion.SubDepartmentEmpty");
 						return;
 					}
-					if(CutMotion.isDepartmentwiseMaximumLimitForMemberReached(domain.getSession(), domain.getPrimaryMember(), domain.getDepartment(), domain.getLocale())) {
+					if(CutMotion.isDepartmentwiseMaximumLimitForMemberReached(domain.getDeviceType(), domain.getSession(), domain.getPrimaryMember(), domain.getDepartment(), domain.getLocale())) {
 						result.rejectValue("version","CutMotion.DepartmentwiseMaximumLimitForMemberReached");
 						return;
 					}
@@ -1361,7 +1405,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 					result.rejectValue("subDepartment","CutMotion.SubDepartmentEmpty");
 					return;
 				}
-				if(CutMotion.isDepartmentwiseMaximumLimitForMemberReached(domain.getSession(), domain.getPrimaryMember(), domain.getDepartment(), domain.getLocale())) {
+				if(CutMotion.isDepartmentwiseMaximumLimitForMemberReached(domain.getDeviceType(), domain.getSession(), domain.getPrimaryMember(), domain.getDepartment(), domain.getLocale())) {
 					result.rejectValue("version","CutMotion.DepartmentwiseMaximumLimitForMemberReached");
 					return;
 				}
@@ -2676,5 +2720,76 @@ public class CutMotionController extends GenericController<CutMotion>{
 		
 		DeviceType deviceType = DeviceType.findByType(deviceTypeType, locale);
 		return deviceType;
+	}
+	
+	public static List<UserGroupType> delimitedStringToUGTList(final String delimitedUserGroups,
+			final String delimiter,
+			final String locale) {
+		List<UserGroupType> userGroupTypes = new ArrayList<UserGroupType>();
+		
+		String[] strUserGroupTypes = delimitedUserGroups.split(delimiter);
+		for(String strUserGroupType : strUserGroupTypes) {
+			UserGroupType ugt = UserGroupType.findByType(strUserGroupType, locale);
+			userGroupTypes.add(ugt);
+		}
+		
+		return userGroupTypes;
+	}
+	
+	/**
+	 * Return a userGroup from @param userGroups whose userGroupType is 
+	 * same as one of the @param userGroupTypes.
+	 * 
+	 * Return null if no match is found.
+	 * @throws ELSException 
+	 */
+	public static UserGroup getUserGroup(final List<UserGroup> userGroups,
+			final List<UserGroupType> userGroupTypes, 
+			final Session session,
+			final String locale) throws ELSException {		
+		for(UserGroup ug : userGroups) {
+			if(UserGroup.isActiveInSession(session,ug,locale)){
+				for(UserGroupType ugt : userGroupTypes) {
+					UserGroupType userGroupType = ug.getUserGroupType();
+					if(ugt.getId().equals(userGroupType.getId())) {
+						return ug;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Return true if @param userGroupType is present in the collection
+	 * @param userGroupTypes 
+	 */
+	public static boolean isUserGroupTypeExists(final List<UserGroupType> userGroupTypes,
+			final UserGroupType userGroupType) {
+		if(userGroupType != null){
+			for(UserGroupType ugt : userGroupTypes) {
+				if(ugt != null){
+					if(ugt.getId().equals(userGroupType.getId())) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	public static List<SubDepartment> getSubDepartments(final String delimitedSubDepartmentNames,
+			final String delimiter,
+			final String locale) {
+		List<SubDepartment> subDepartments = new ArrayList<SubDepartment>();
+		
+		String subDepartmentNames[] = delimitedSubDepartmentNames.split(delimiter);
+		for(String subDepartmentName : subDepartmentNames){
+			SubDepartment subDepartment = 
+					SubDepartment.findByName(SubDepartment.class, subDepartmentName, locale);
+			subDepartments.add(subDepartment);
+		}
+		
+		return subDepartments;
 	}
 }

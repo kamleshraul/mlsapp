@@ -296,6 +296,51 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 				model.addAttribute("ugparam",this.getCurrentUser().getActualUsername());
 			}
 			/*** ugparam Filter Ends ****/	
+			
+			/****Member's Standalone Motions Views Visibility Parameters****/
+			Boolean sessionEndDateFlag = false;
+			Date sessionEndDate = lastSessionCreated.getEndDate();
+			if(sessionEndDate!=null) {
+				String sessionEndDateTimeStr = FormaterUtil.formatDateToString(sessionEndDate, ApplicationConstants.DB_DATEFORMAT);
+				CustomParameter visibilityStartTimeCP = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_START_TIME_FOR_MEMBER_STANDALONEMOTIONS_VIEW_"+houseType.toUpperCase(), "");
+				if(visibilityStartTimeCP!=null && visibilityStartTimeCP.getValue()!=null) {
+					sessionEndDateTimeStr = sessionEndDateTimeStr + " " + visibilityStartTimeCP.getValue();
+					Date sessionEndDateTime = FormaterUtil.formatStringToDate(sessionEndDateTimeStr, ApplicationConstants.DB_DATETIME_FORMAT);
+					if(new Date().compareTo(sessionEndDateTime)>=0) {
+						sessionEndDateFlag = true;
+					}
+				}
+			}
+			
+			Boolean statusFlag = false;		
+			CustomParameter statusFlagForMemberStandaloneMotionsView = CustomParameter.findByName(CustomParameter.class, "STATUS_FLAG_FOR_MEMBER_STANDALONEMOTIONS_VIEW_"+houseType.toUpperCase(), "");
+			if(statusFlagForMemberStandaloneMotionsView!=null && statusFlagForMemberStandaloneMotionsView.getValue()!=null
+					&& statusFlagForMemberStandaloneMotionsView.getValue().equals("visible")) {
+				statusFlag = true; 
+			}
+			if(statusFlag.equals(true) && sessionEndDateFlag.equals(true)) {
+				model.addAttribute("member_standalonemotions_view_status_flag", "status_visible");
+			}
+			
+			Boolean visibilityFlagForAdmitted = false;
+			CustomParameter visibilityFlagForMemberAdmittedStandaloneMotionsView = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_FLAG_FOR_MEMBER_ADMITTED_STANDALONEMOTIONS_VIEW_"+houseType.toUpperCase(), "");
+			if(visibilityFlagForMemberAdmittedStandaloneMotionsView!=null && visibilityFlagForMemberAdmittedStandaloneMotionsView.getValue()!=null
+					&& visibilityFlagForMemberAdmittedStandaloneMotionsView.getValue().equals("visible")) {
+				visibilityFlagForAdmitted = true; 
+			}
+			if(visibilityFlagForAdmitted.equals(true) && sessionEndDateFlag.equals(true)) {
+				model.addAttribute("member_admitted_standalonemotions_view_flag", "admitted_visible");
+			}
+			
+			Boolean visibilityFlagForRejected = false;
+			CustomParameter visibilityFlagForMemberRejectedStandaloneMotionsView = CustomParameter.findByName(CustomParameter.class, "VISIBILITY_FLAG_FOR_MEMBER_REJECTED_STANDALONEMOTIONS_VIEW_"+houseType.toUpperCase(), "");
+			if(visibilityFlagForMemberRejectedStandaloneMotionsView!=null && visibilityFlagForMemberRejectedStandaloneMotionsView.getValue()!=null
+					&& visibilityFlagForMemberRejectedStandaloneMotionsView.getValue().equals("visible")) {
+				visibilityFlagForRejected = true; 
+			}
+			if(visibilityFlagForRejected.equals(true) && sessionEndDateFlag.equals(true)) {
+				model.addAttribute("member_rejected_standalonemotions_view_flag", "rejected_visible");
+			}
 		}else{
 			model.addAttribute("errorcode","workunderprogress");
 		}		
