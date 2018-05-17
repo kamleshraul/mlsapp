@@ -3071,10 +3071,10 @@ class StarredQuestionController {
 												&& submissionStartLimitDate.after(new Date()))) {
 											validationBeforeStartDate = true;
 										}else if(submissionStartLimitDate == null){
-											validationBeforeStartDate = false;
+											validationBeforeStartDate = true;
 										}
 									}else{
-										validationBeforeStartDate = false;
+										validationBeforeStartDate = true;
 									}
 									break;
 								}
@@ -3096,10 +3096,10 @@ class StarredQuestionController {
 												&& submissionEndLimitDate.before(new Date())) {
 											validationAfterEndDate = true;
 										}else if(submissionEndLimitDate == null){
-											validationAfterEndDate = false;
+											validationAfterEndDate = true;
 										}
 									}else{
-										validationAfterEndDate = false;
+										validationAfterEndDate = true;
 									}
 									break;
 								}

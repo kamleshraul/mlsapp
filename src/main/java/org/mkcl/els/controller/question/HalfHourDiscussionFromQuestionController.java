@@ -2841,7 +2841,11 @@ class HalfHourDiscussionFromQuestionController {
 								if(submissionStartLimitDate!=null
 										&& submissionStartLimitDate.after(new Date())) {
 									validationForSubmissionDate = true;
+								}else if(submissionStartLimitDate == null){
+									validationForSubmissionDate = true;
 								}
+							}else{
+								validationForSubmissionDate = true;
 							}
 							break;
 						}
@@ -2862,7 +2866,11 @@ class HalfHourDiscussionFromQuestionController {
 								if(submissionEndLimitDate!=null
 										&& submissionEndLimitDate.before(new Date())) {
 									validationForSubmissionDate = true;
-								}
+								}else if(submissionEndLimitDate == null){
+										validationForSubmissionDate = true;
+									}
+							}else{
+								validationForSubmissionDate = true;
 							}
 							break;
 						}
