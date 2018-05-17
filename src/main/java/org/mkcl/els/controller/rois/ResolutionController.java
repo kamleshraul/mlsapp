@@ -3054,6 +3054,7 @@ public class ResolutionController extends GenericController<Resolution> {
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
 			String[] items = selectedItems.split(",");
 			Resolution domain = Resolution.findById(Resolution.class, new Long(items[0]));
+			Session session = domain.getSession();
 			boolean validationForSubmissionDate = false;
 			//submission date limit validations
 			if(domain.getSession()!=null && domain.getType()!=null) {
@@ -3065,10 +3066,18 @@ public class ResolutionController extends GenericController<Resolution> {
 						
 						for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
 							if(dt.trim().equals(domain.getType().getType().trim())) {
-								if(!Resolution.isAllowedForSubmission(domain, new Date())) {
-									String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_submissionStartDate");
+								
+								if(session.getParameter(domain.getType().getType() + "_" + "submissionStartDate")!=null && !session.getParameter(domain.getType().getType() + "_" + "submissionStartDate").isEmpty()
+										&& session.getParameter(domain.getType().getType() + "_" + "submissionEndDate")!=null && !session.getParameter(domain.getType().getType() + "_" + "submissionEndDate").isEmpty()) {
+									
+									if(!Resolution.isAllowedForSubmission(domain, new Date())) {
+										//String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_submissionStartDate");
+										validationForSubmissionDate = true;
+									}
+								} else {
 									validationForSubmissionDate = true;
 								}
+								
 								break;
 							}
 						}

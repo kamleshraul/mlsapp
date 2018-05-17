@@ -2486,6 +2486,7 @@ public class MotionController extends GenericController<Motion>{
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
 			String[] items = selectedItems.split(",");
 			Motion domain = Motion.findById(Motion.class, new Long(items[0]));
+			Session session = domain.getSession();
 			boolean validationForSubmissionDate = false;
 			//submission date limit validations (configurable through custom parameters)
 			if(domain.getSession()!=null && domain.getType()!=null) {						
@@ -2497,28 +2498,45 @@ public class MotionController extends GenericController<Motion>{
 						for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
 							if(dt.trim().equals(domain.getType().getType().trim())) {
 								if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-									Integer batch = Motion.findBatch(domain, new Date());	
 									
-									if(batch.equals(1)){
-										if(!Motion.allowedInFirstBatch(domain, new Date())){
-											validationForSubmissionDate = true;
+									if(session.getParameter(domain.getType().getType() + "_" + "firstBatchStartTime")!=null && !session.getParameter(domain.getType().getType() + "_" + "firstBatchStartTime").isEmpty()
+											&& session.getParameter(domain.getType().getType() + "_" + "firstBatchEndTime")!=null && !session.getParameter(domain.getType().getType() + "_" + "firstBatchEndTime").isEmpty()
+											&& session.getParameter(domain.getType().getType() + "_" + "secondBatchStartTime")!=null && !session.getParameter(domain.getType().getType() + "_" + "secondBatchStartTime").isEmpty()
+											&& session.getParameter(domain.getType().getType() + "_" + "secondBatchEndTime")!=null && !session.getParameter(domain.getType().getType() + "_" + "secondBatchEndTime").isEmpty()) {
+										
+										Integer batch = Motion.findBatch(domain, new Date());	
+										
+										if(batch.equals(1)){
+											if(!Motion.allowedInFirstBatch(domain, new Date())){
+												validationForSubmissionDate = true;
+											}
 										}
-									}
-									
-									if(batch.equals(2)){
-										if(!Motion.allowedInSecondBatch(domain, new Date())){
-											validationForSubmissionDate = true;
+										
+										else if(batch.equals(2)){
+											if(!Motion.allowedInSecondBatch(domain, new Date())){
+												validationForSubmissionDate = true;
+											}
 										}
-									}
+										
+										else if(batch.equals(0)){
+											validationForSubmissionDate = true;												
+										}
+									} else {
+										validationForSubmissionDate = true; //submission limit dates not set for the session
+									}	
 									
-									if(batch.equals(0)){
-										validationForSubmissionDate = true;												
-									}
 								}else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){												
 									
-									if(!Motion.isAllowedForSubmission(domain, new Date(), "")){
-										validationForSubmissionDate = true;
+									if(session.getParameter(domain.getType().getType() + "_" + "submissionStartTime")!=null && !session.getParameter(domain.getType().getType() + "_" + "submissionStartTime").isEmpty()
+											&& session.getParameter(domain.getType().getType() + "_" + "submissionEndTime")!=null && !session.getParameter(domain.getType().getType() + "_" + "submissionEndTime").isEmpty()) {
+										
+										if(!Motion.isAllowedForSubmission(domain, new Date(), "")){
+											validationForSubmissionDate = true;
+										}
+									} else {
+										validationForSubmissionDate = true; //submission limit dates not set for the session
 									}
+									
 								}
 								break;
 							}

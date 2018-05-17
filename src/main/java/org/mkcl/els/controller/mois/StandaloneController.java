@@ -2956,6 +2956,7 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 		if(selectedItems != null && ! selectedItems.isEmpty()) {
 			String[] items = selectedItems.split(",");			
 			StandaloneMotion domain = StandaloneMotion.findById(StandaloneMotion.class, new Long(items[0]));
+			Session session = domain.getSession();
 			boolean validationForSubmissionDate = false;
 			//submission date limit validation
 			CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
@@ -2965,9 +2966,18 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 					String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
 					for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
 						if(dt.trim().equals(domain.getType().getType().trim())) {
-							if(!StandaloneMotion.isAllowedForSubmission(domain, new Date())){
-								validationForSubmissionDate = true;								
+							
+							if(session.getParameter(domain.getType().getType() + "_" + "submissionStartDate")!=null && !session.getParameter(domain.getType().getType() + "_" + "submissionStartDate").isEmpty()
+									&& session.getParameter(domain.getType().getType() + "_" + "submissionEndDate")!=null && !session.getParameter(domain.getType().getType() + "_" + "submissionEndDate").isEmpty()) {
+								
+								if(!StandaloneMotion.isAllowedForSubmission(domain, new Date())) {
+									//String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_submissionStartDate");
+									validationForSubmissionDate = true;
+								}
+							} else {
+								validationForSubmissionDate = true;
 							}
+							
 							break;
 						}
 					}
