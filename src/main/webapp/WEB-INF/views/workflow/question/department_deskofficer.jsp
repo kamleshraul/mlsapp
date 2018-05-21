@@ -282,7 +282,7 @@
 	}
 	/**** sub departments ****/
 	function loadSubDepartments(ministry){
-		
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
 				function(data){
 			$("#subDepartment").empty();
@@ -305,24 +305,27 @@
 			}
 			scrollTop();
 		});
+		$.unblockUI();
 	}
 	
     /**** groups ****/
 	function loadGroup(subdepartment){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		if(subdepartment!=''){
 			$.get('ref/subdepartment/' + subdepartment + '/group?'+
 					'session=' + $("#session").val(),function(data){
 				$("#formattedGroup").val(data.name);
 				$("#group").val(data.id);			
 			}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
 		}
+		$.unblockUI();
 	}		
 	/**** Load Clarifications ****/
 	function loadClarifications(){
