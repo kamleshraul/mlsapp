@@ -3922,6 +3922,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			Proceeding proceeding = Proceeding.findById(Proceeding.class, id);
 			Slot slot = proceeding.getSlot();
 			slot.setCompleted(true);
+			slot.setCompletedDate(new Date());
 			slot.merge();
 			returnValue = true;
 					

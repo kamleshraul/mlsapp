@@ -51,6 +51,8 @@ public class Slot extends BaseDomain implements Serializable{
 	
 	private Boolean completed;
 	
+	private Date completedDate;
+	
 	@Autowired
 	private transient SlotRepository slotRepository;
 
@@ -139,6 +141,14 @@ public class Slot extends BaseDomain implements Serializable{
 	
 	public static Slot findNextSlot(Slot slot) {
 		return getSlotRepository().findNextSlot(slot);
+	}
+	
+	public Date getCompletedDate() {
+		return completedDate;
+	}
+	
+	public void setCompletedDate(Date completedDate) {
+		this.completedDate = completedDate;
 	}
 	/*********** Setters and Getters ************/	
 	
