@@ -618,7 +618,8 @@ public class ReportServiceImpl implements IReportService {
 	    
         //Setup XSLT
 	    //xalan transformer factory
-        TransformerFactory factory = TransformerFactory.newInstance("org.apache.xalan.processor.TransformerFactoryImpl", null);
+        //TransformerFactory factory = TransformerFactory.newInstance("org.apache.xalan.processor.TransformerFactoryImpl", null); //before upgrade to java EE 7
+        TransformerFactory factory = TransformerFactory.newInstance(); //after upgrade to java EE 7
 	    
 	    Transformer transformer = factory.newTransformer(new StreamSource(this.xsltFile));
 
