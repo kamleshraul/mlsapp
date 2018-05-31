@@ -291,6 +291,8 @@
 	}
 	/**** sub departments ****/
 	function loadSubDepartments(ministry){
+		
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
 				function(data){
 			$("#subDepartment").empty();
@@ -313,10 +315,12 @@
 			}
 			scrollTop();
 		});
+		$.unblockUI();
 	}
 	
     /**** groups ****/
 	function loadGroup(subdepartment){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		if(subdepartment!=''){
 			$.get('ref/subdepartment/' + subdepartment + '/group?'+
 					'session=' + $("#session").val(),function(data){
@@ -335,6 +339,7 @@
 			$("#formattedGroup").val("");
 			$("#group").val("");
 		}
+		$.unblockUI();
 	}		
 	/**** Load Clarifications ****/
 	function loadClarifications(){
