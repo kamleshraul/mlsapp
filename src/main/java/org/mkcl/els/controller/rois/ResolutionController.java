@@ -1251,7 +1251,8 @@ public class ResolutionController extends GenericController<Resolution> {
 			/**** if its a non official resolution ****/
 			if(resolutionType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
 				/**** in case of assistant and other approving ROIS actors ****/
-				if(usergroupType.equals(ApplicationConstants.ASSISTANT)){
+				if(usergroupType.equals(ApplicationConstants.CLERK)
+						|| usergroupType.equals(ApplicationConstants.ASSISTANT)){
 				
 					/**** Referenced Resolution are collected in refentities****/
 					List<Reference> refentities=new ArrayList<Reference>();
