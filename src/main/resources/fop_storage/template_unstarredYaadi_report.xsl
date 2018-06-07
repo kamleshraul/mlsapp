@@ -338,10 +338,20 @@
 			                		</fo:block> -->
 			                	</fo:block>	
 			                	<fo:block font-size="16px">&#160;</fo:block>		                	
-			                	<fo:block text-align="center">
+			                	<!-- <fo:block text-align="center">
 			                		<fo:block>_________________________</fo:block>
 			                		<fo:block>शासकीय मध्यवर्ती मुद्रणालय, <xsl:value-of select="element_7"/>.</fo:block>				     				
-				     			</fo:block>
+				     			</fo:block> -->
+				     			<fo:block>__________________________________________________________________</fo:block>
+			                	<fo:block font-size="9pt">
+			                		<fo:block text-align="center">
+				                		मुद्रणपूर्व सर्व प्रक्रिया महाराष्ट्र विधानमंडळ सचिवालयाच्या संगणक यंत्रणेवर 
+				                	</fo:block>
+				                	<fo:block></fo:block>
+					     			<fo:block text-align="center">
+					     				मुद्रण: शासकीय मध्यवर्ती मुद्रणालय, <xsl:value-of select="element_7"/>.
+					     			</fo:block>
+			                	</fo:block>
 	                		</xsl:when>
 	                	</xsl:choose>	                	                		                	
 	                </fo:block>       
