@@ -35,6 +35,7 @@ import org.mkcl.els.common.vo.ChildVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ParentVO;
 import org.mkcl.els.common.vo.PartDraftVO;
+import org.mkcl.els.common.vo.ProceedingVO;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.xmlvo.ProceedingXMLVO;
 import org.mkcl.els.controller.GenericController;
@@ -3967,10 +3968,10 @@ public class ProceedingController extends GenericController<Proceeding>{
 		
 	
 		@RequestMapping(value="/getProceedingris", method=RequestMethod.GET)
-		public  @ResponseBody MasterVO getProceedingris(final ModelMap model,
+		public  @ResponseBody ProceedingVO getProceedingris(final ModelMap model,
 				final HttpServletRequest request) {
 			HouseType houseType = null;
-			MasterVO masterVO1 = new MasterVO();
+			ProceedingVO proceedingVO = new ProceedingVO();
 			String strProceeding=request.getParameter("proceeding");
 		
 			if(strProceeding!=null && !strProceeding.isEmpty()){
@@ -3984,7 +3985,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 				/****slot****/
 				model.addAttribute("slotId", domain.getSlot().getId());
 				model.addAttribute("slotName",domain.getSlot().getName());
-				masterVO1.setDisplayName(domain.getSlot().getName());
+				proceedingVO.setSlotName(domain.getSlot().getName());
+	
 				String startTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy HH:mm", domain.getLocale());
 				String endTime = FormaterUtil.formatDateToString(domain.getSlot().getEndTime(), "dd-MM-yyyy HH:mm", domain.getLocale());
 				request.setAttribute("slotDate", slot.getStartTime());
@@ -3995,8 +3997,8 @@ public class ProceedingController extends GenericController<Proceeding>{
 				String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm");
 				model.addAttribute("currentSlotStartDate", currentSlotStartDate);
 				model.addAttribute("currenSlotStartTime", currentSlotStartTime);
-				masterVO1.setFormattedOrder(currentSlotStartDate);
-				masterVO1.setFormattedNumber(currentSlotStartTime);
+				proceedingVO.setCurrentSlotStartDate(currentSlotStartDate);
+				proceedingVO.setCurrenSlotStartTime(currentSlotStartTime);
 				List<User> users=Slot.findDifferentLanguageUsersBySlot(slot);
 				String languageReporter="";
 				for(int i=0;i<users.size();i++){
@@ -4007,7 +4009,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				}
 				
 				model.addAttribute("languageReporter", languageReporter);
-				masterVO1.setValue(languageReporter);
+				proceedingVO.setLanguageReporter(languageReporter);
 				if(session!=null){
 					houseType = session.getHouse().getType();
 					model.addAttribute("session",session.getId());
@@ -4034,7 +4036,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 						model.addAttribute("previousReporter", previousReporterUser.getTitle() + " " +previousReporterUser.getLastName());
 						MessageResource previousReporterMessage = MessageResource.findByFieldName(MessageResource.class, "code", "part.previousReporterMessage", domain.getLocale());
 						
-						masterVO1.setName(previousReporterMessage.getValue()+previousReporterUser.getTitle() + previousReporterUser.getLastName());
+						proceedingVO.setPreviousReporter(previousReporterMessage.getValue()+previousReporterUser.getTitle() + previousReporterUser.getLastName());
 						Proceeding previousProceeding = Proceeding.findByFieldName(Proceeding.class, "slot", previousSlot, domain.getLocale());
 						if(previousProceeding != null){
 							List<Part> previousParts = previousProceeding.getParts();
@@ -4166,9 +4168,11 @@ public class ProceedingController extends GenericController<Proceeding>{
 				part.setLocale(domain.getLocale());
 				part.setReporter(domain.getSlot().getReporter());
 				part.persist();
-				masterVO1.setId(part.getId());
+				proceedingVO.setPartid(part.getId());
+				proceedingVO.setVersion(part.getVersion());
 			}else{
-				masterVO1.setId(part.getId());
+				proceedingVO.setPartid(part.getId());
+				proceedingVO.setVersion(part.getVersion());
 			}
 			
 
@@ -4188,15 +4192,17 @@ public class ProceedingController extends GenericController<Proceeding>{
 			
 			model.addAttribute("documentId",domain.getDocumentId());
 			MessageResource generalNotice = MessageResource.findByFieldName(MessageResource.class, "code", "part.generalNotice", domain.getLocale());
-			masterVO1.setType(generalNotice.getValue());
-		
+			proceedingVO.setGeneralNotice(generalNotice.getValue());
+			MessageResource mlsURL = MessageResource.findByFieldName(MessageResource.class, "code", "part.mlsUrl", domain.getLocale());
+			proceedingVO.setMlsUrl(mlsURL.getValue());
+			
 			String username = this.getCurrentUser().getActualUsername();
 			List<ProceedingAutofill> proceedingAutofills = ProceedingAutofill.
 					findAllByFieldName(ProceedingAutofill.class, "username", username, "id", "asc", domain.getLocale());
 			model.addAttribute("proceedingAutofills", proceedingAutofills);
 			
 			}
-			return masterVO1;
+			return proceedingVO;
 
 		}
 		
