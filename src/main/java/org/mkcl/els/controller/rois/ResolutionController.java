@@ -1882,20 +1882,23 @@ public class ResolutionController extends GenericController<Resolution> {
 			
 		/**** add creation date and created by ****/
 		domain.setCreationDate(new Date());
-		if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("member")){
-			Member member=domain.getMember();
-			User user;
-			try {
-				user = User.findbyNameBirthDate(member.getFirstName(),member.getMiddleName(),member.getLastName(),member.getBirthDate());
-				domain.setCreatedBy(user.getCredential().getUsername());
-			} catch (ELSException e) {
-				model.addAttribute("error", e.getParameter());
-				e.printStackTrace();
-			}
-			
-		}else{
-			domain.setCreatedBy(this.getCurrentUser().getActualUsername());
-		}
+		
+//		if(strUserGroupType!=null&&!(strUserGroupType.isEmpty())&&strUserGroupType.equals("member")){
+//			Member member=domain.getMember();
+//			User user;
+//			try {
+//				user = User.findbyNameBirthDate(member.getFirstName(),member.getMiddleName(),member.getLastName(),member.getBirthDate());
+//				domain.setCreatedBy(user.getCredential().getUsername());
+//			} catch (ELSException e) {
+//				model.addAttribute("error", e.getParameter());
+//				e.printStackTrace();
+//			}
+//			
+//		}else{
+//			domain.setCreatedBy(this.getCurrentUser().getActualUsername());
+//		}		
+		domain.setCreatedBy(this.getCurrentUser().getActualUsername());
+		
 		domain.setDataEnteredBy(this.getCurrentUser().getActualUsername());
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());
