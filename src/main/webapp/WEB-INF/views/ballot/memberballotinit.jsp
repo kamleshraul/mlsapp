@@ -26,7 +26,12 @@
 				$(this).css("color","blue");
 				preballot();
 			});				
-			$('#memberballot').click(function(){
+			$('#memberballot').click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
 				$(".link").css("color","#8D8B8B");
 				$(this).css("color","blue");
 				memberballot();
