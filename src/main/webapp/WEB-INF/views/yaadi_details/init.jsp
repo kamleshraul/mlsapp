@@ -247,11 +247,24 @@
 				}			
 			});
 			
-			$(".update_devices_status").click(function() {
+			$(".update_devices_status").click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
 				$("#resultDiv").empty();
 				var resourceURL="";
 				var parameters="";
 				if($("#deviceType").val()=='questions_starred'){
+					var selectedAnsweringDateId = $('#selectedAnsweringDate').val();
+					var selectedAnsweringDate = $("#answeringDateMaster option[value='"+selectedAnsweringDateId+"']").text();
+					//console.log("selectedAnsweringDate: " + selectedAnsweringDate);
+					//console.log("currentDate: " + new Date());
+					if(new Date() < new Date(selectedAnsweringDate)) {
+						alert("Selected yaadi date is yet to come...");
+						return false;
+					}					
 					parameters =  "houseType=" + $("#selectedHouseType").val()
 										+ "&sessionYear=" + $("#selectedSessionYear").val()
 										+ "&sessionType=" + $("#selectedSessionType").val()
@@ -282,7 +295,12 @@
 				}
 			});
 			
-			$("#bulk_yaadi_update").click(function() {
+			$("#bulk_yaadi_update").click(function(event, isHighSecurityValidationRequired) {
+				//isHighSecurityValidationRequired = false;
+				if(isHighSecurityValidationRequired!=false) {
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+					return false;
+				}
 				$("#resultDiv").empty();
 				var selectedDeviceType = $("#selectedDeviceType").val();
 				if($("#selectedDeviceType").val()==undefined || $("#selectedDeviceType").val()==''){
@@ -501,6 +519,11 @@
 			</c:forEach>
 		</select>
 		<hr/>
+		<select id="answeringDateMaster" style="display:none;">
+			<c:forEach items="${answeringDates}" var="i">
+				<option value="${i.id}"><c:out value="${i.value}"></c:out></option>
+			</c:forEach>
+		</select>
 		</c:if>
 		<%-- <security:authorize access="hasAnyRole('QIS_ADMIN', 'QIS_CLERK','QIS_ASSISTANT','QIS_SECTION_OFFICER','SMOIS_CLERK','SMOIS_ASSISTANT')"> --%>
 		<c:if test="${deviceTypeType=='questions_unstarred'}">
