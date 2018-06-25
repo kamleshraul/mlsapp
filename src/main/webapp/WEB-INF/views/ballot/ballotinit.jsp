@@ -851,7 +851,7 @@
 				<spring:message code="ballotinitial.createballot" text="Create Ballot"/>
 			</a> |
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_ADMIN', 'QIS_UNDER_SECRETARY', 'QIS_DEPUTY_SECRETARY',  'QIS_UNDER_SECRETARY_COMMITTEE', 'QIS_SECTION_OFFICER',
+			<security:authorize access="hasAnyRole('QIS_ADMIN', 'QIS_UNDER_SECRETARY', 'QIS_DEPUTY_SECRETARY',  'QIS_UNDER_SECRETARY_COMMITTEE',
 			 'SMOIS_UNDER_SECRETARY_COMMITTEE', 'SMOIS_DEPUTY_SECRETARY','SMOIS_JOINT_SECRETARY', 'SMOIS_SECRETARY', 'SMOIS_OFFICER_ON_SPECIAL_DUTY', 
 			  'BIS_ASSISTANT', 'ROIS_UNDERSECRETARY', 'ROIS_SECRETARY', 'ROIS_SECTION_OFFICER','ROIS_ASSISTANT','ROIS_DEPUTYSECRETARY','QIS_PRINCIPAL_SECRETARY')">
 				<a href="#" id="view_ballot" class="butSim">
