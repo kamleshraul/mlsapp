@@ -845,14 +845,14 @@
 					data: { deviceId: $('#id').val(), usergroupType: $("#currentusergroupType").val() },
 					async: false
 				}).done(function( isDepartmentChangeRestricted ) {
-				    if(isDepartmentChangeRestricted!=undefined && isDepartmentChangeRestricted=="YES") {
+					if(isDepartmentChangeRestricted!=undefined && isDepartmentChangeRestricted=="YES") {
 				    	$.prompt($('#departmentChangeRestrictedMessage').val());
 		        		$("#ministry option[selected!='selected']").hide();
 			    		$("#subDepartment option[selected!='selected']").hide(); 
 			    		$("#transferP").css("display","none");		    		
 			    		$('#isTransferable').removeAttr('checked');
 			    		return false;
-				    } else {
+				    } else { 
 				    	if($("#houseTypeType").val()=='lowerhouse' && $('#selectedQuestionType').val()=='questions_starred'){
 				        	var currentDate = new Date();
 				        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
