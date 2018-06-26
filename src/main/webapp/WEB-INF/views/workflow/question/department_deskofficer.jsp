@@ -919,7 +919,7 @@
 			    		$("#transferP").css("display","none");		    		
 			    		$('#isTransferable').removeAttr('checked');
 			    		return false;
-				    } else {
+				    } else { 
 				    	if($("#houseTypeType").val()=='lowerhouse' && $('#selectedQuestionType').val()=='questions_starred'){
 				        	var currentDate = new Date();
 				        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
@@ -1639,6 +1639,7 @@
 	<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">	
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
+	<input type="hidden" name="houseTypeType" id="houseTypeType" value="${houseTypeType}">
 	<input type="hidden" name="halfHourDiscusionFromQuestionReference" id="halfHourDiscusionFromQuestionReference" value="${refQuestionId}" />
 	<c:if test="${not empty formattedAnswerRequestedDate}">
 		<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
