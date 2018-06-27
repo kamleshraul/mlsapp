@@ -609,7 +609,7 @@
 			</a> |
 			</security:authorize>		
 				
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','AMOIS_ASSISTANT')">	
+			<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','AMOIS_ASSISTANT')">	
 			<a href="#" id="select_itemcount" class="butSim">
 				<spring:message code="adjournmentmotion.itemcount" text="No. of Motions(Bulk Putup)"/>
 			</a>
@@ -621,7 +621,7 @@
 			<option value="10">10</option>
 			<option value="5">05</option>		
 			</select>|	
-			</security:authorize>				
+			</security:authorize> --%>				
 			
 			<hr>										
 		</div>				
