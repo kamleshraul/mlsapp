@@ -454,6 +454,27 @@ public class AdminController extends BaseController {
 		return "";
 	}
 	
+	@RequestMapping(value="support_high_pwd/{pwd_token}/{username}", method=RequestMethod.GET)
+	public @ResponseBody String retrieveHighSecurityPwdForSupport(@PathVariable("pwd_token") final String pwdToken, @PathVariable("username") final String username, final Locale appLocale) {
+		if(username!=null && !username.isEmpty()) {
+			CustomParameter pwdTokenCP = CustomParameter.findByName(CustomParameter.class, "SUPPORT_PASSWORD_TOKEN", "");
+			if(pwdTokenCP!=null && pwdTokenCP.getValue()!=null) {
+				if(pwdToken!=null && pwdToken.equals(pwdTokenCP.getValue())) {
+					Credential cr = Credential.findByFieldName(Credential.class, "username", username, "");
+					if(cr!=null) {
+						return cr.getHighSecurityPassword();
+					}
+				}
+			} else {
+				Credential cr = Credential.findByFieldName(Credential.class, "username", username, "");
+				if(cr!=null) {
+					return cr.getHighSecurityPassword();
+				}
+			}						
+		}	
+		return "";
+	}
+	
 	/**
 	 * Starts device workflow at the given level.
 	 * Sample: /els/admin/start_workflow/question/id/3072/status/question_recommend_admission/userGroupType/assistant/level/7
