@@ -92,11 +92,12 @@
 								<th style="text-align: center; font-size: 12px; width: 160px;">${topHeader[1]}</th>
 								<th style="text-align: center; font-size: 12px; width: 40px;">${topHeader[2]}</th>
 								<th style="text-align: center; font-size: 12px; width: 90px;">${topHeader[3]}</th>
-								<th style="text-align: center; font-size: 12px; width: 420">${topHeader[4]}</th>					
+								<th style="text-align: center; font-size: 12px; width: 120px;">${topHeader[4]}</th>
+								<th style="text-align: center; font-size: 12px; width: 350px;">${topHeader[5]}</th>					
 							</tr>
 						
 							<tr>
-								<td colspan="5">&nbsp;</td>
+								<td colspan="6">&nbsp;</td>
 							</tr>
 						</thead>
 						<tbody>
@@ -110,7 +111,8 @@
 													<td style="text-align: left; font-size: 12px; width: 160px;">${r[5]}</td>
 													<td style="text-align: center; font-size: 12px; width: 40px;">${r[4]}</td>
 													<td style="text-align: center; font-size: 12px; width: 90px;">${r[8]}</td>
-													<td style="text-align: left; font-size: 12px; width: 420;">${r[7]}</td>						
+													<td style="text-align: left; font-size: 12px; width: 120px;">${r[6]}</td>
+													<td style="text-align: left; font-size: 12px; width: 350px;">${r[7]}</td>						
 												</tr>
 											</c:when>
 											<c:otherwise>
@@ -119,7 +121,8 @@
 													<td style="text-align: left; font-size: 12px; width: 160px;">${r[5]}</td>
 													<td style="text-align: center; font-size: 12px; width: 40px;">${r[4]}</td>
 													<td style="text-align: center; font-size: 12px; width: 90px;">${r[8]}</td>
-													<td style="text-align: left; font-size: 12px; width: 420;">${r[7]}</td>						
+													<td style="text-align: left; font-size: 12px; width: 120px;">${r[6]}</td>
+													<td style="text-align: left; font-size: 12px; width: 350px;">${r[7]}</td>						
 												</tr>
 											</c:otherwise>
 										</c:choose>	
@@ -128,9 +131,10 @@
 										<tr>
 											<td style="text-align: center; font-size: 12px; width: 40px;">${formater.formatNumberNoGrouping(counter.count, locale)}</td>
 											<td style="text-align: left; font-size: 12px; width: 160px;">${r[5]}</td>
-													<td style="text-align: center; font-size: 12px; width: 40px;">${r[4]}</td>
-													<td style="text-align: center; font-size: 12px; width: 90px;">${r[8]}</td>
-													<td style="text-align: left; font-size: 12px; width: 420;">${r[7]}</td>											
+											<td style="text-align: center; font-size: 12px; width: 40px;">${r[4]}</td>
+											<td style="text-align: center; font-size: 12px; width: 90px;">${r[8]}</td>
+											<td style="text-align: left; font-size: 12px; width: 120px;">${r[6]}</td>
+											<td style="text-align: left; font-size: 12px; width: 350px;">${r[7]}</td>											
 										</tr>
 									</c:otherwise>
 								</c:choose>			
