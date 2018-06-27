@@ -399,6 +399,14 @@
 					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
 					return false;
 				}
+				var selectedAnsweringDateId = $('#selectedAnsweringDate').val();
+				var selectedAnsweringDate = $("#answeringDateMaster option[value='"+selectedAnsweringDateId+"']").text();
+				//console.log("selectedAnsweringDate: " + selectedAnsweringDate);
+				//console.log("currentDate: " + new Date());
+				if(new Date() < new Date(selectedAnsweringDate)) {
+					alert("Selected yaadi date is yet to come...");
+					return false;
+				}
 				var parameters = "houseType="+$("#selectedHouseType").val()
 				 +"&sessionYear="+$("#selectedSessionYear").val()
 				 +"&sessionType="+$("#selectedSessionType").val()
@@ -878,7 +886,7 @@
 			</a>
 			<c:if test="${deviceTypeType != 'bills_nonofficial' and not(fn:contains(deviceTypeType, 'resolutions_')) and not(fn:contains(deviceTypeType, 'halfhour'))}"> |
 				<span id="yaadiDiv">
-				<a href="#" id="update_yaadi" class="butSim">
+				<a href="#" id="update_yaadi" class="butSim" style="display: none;">
 					<spring:message code="ballotinitial.updateyaadi" text="Update Questions in Yaadi"/>
 				</a> |
 				<%-- <a href="#" id="view_yaadi" class="butSim">

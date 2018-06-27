@@ -148,6 +148,7 @@ public class BallotController extends BaseController{
 							String strAnsweringDate = 
 									FormaterUtil.getDateFormatter(locale.toString()).format(i.getAnsweringDate());
 							MasterVO masterVO = new MasterVO(i.getId(), strAnsweringDate);
+							masterVO.setValue(FormaterUtil.formatDateToString(i.getAnsweringDate(), ApplicationConstants.DB_DATEFORMAT));
 							masterVOs.add(masterVO);
 						}
 						model.addAttribute("answeringDates", masterVOs);
