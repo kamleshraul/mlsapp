@@ -1078,7 +1078,7 @@
 	<c:if test="${selectedQuestionType == 'questions_starred'}">
 	<p>
 		<label class="small"><spring:message code="question.lastDateForChangingDepartment" text="Last Date For Changing Department"/></label>
-		<input id="lastDateForChangingDepartment" class="datemask sText" value="${formattedLastDateForChangingDepartment}" readonly="readonly"/>
+		<input id="lastDateForDepartmentChange" class="datemask sText" value="${formattedLastDateForChangingDepartment}" readonly="readonly"/>
 	</p>
 	</c:if>
 	
