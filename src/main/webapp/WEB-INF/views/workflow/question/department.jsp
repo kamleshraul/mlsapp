@@ -853,7 +853,9 @@
 			    		$('#isTransferable').removeAttr('checked');
 			    		return false;
 				    } else { 
-				    	if($("#houseTypeType").val()=='lowerhouse' && $('#selectedQuestionType').val()=='questions_starred'){
+				    	if($("#houseTypeType").val()=='lowerhouse' 
+				    			&& $('#selectedQuestionType').val()=='questions_starred'
+				    			&& $("#internalStatusType").val() == 'question_final_admission'){
 				        	var currentDate = new Date();
 				        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
 				        	if(currentDate <= lastDepartmentChangeDate){
