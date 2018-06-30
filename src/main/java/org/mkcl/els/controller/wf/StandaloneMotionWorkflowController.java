@@ -552,22 +552,31 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 		List<String> refentitiesSessionDevice = new ArrayList<String>();
 		if(domain.getType().getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)
 				&& domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
-			if(domain.getReferencedHDS() != null){
-
-				List<ReferenceUnit> refs = domain.getReferencedEntities();
-				ReferenceUnit refU = null;
-				if(refs != null && !refs.isEmpty()){
-					refU = refs.get(0);
-					
-					refentitiesSessionDevice.add("[" + refU.getSessionTypeName()+", "+
-							FormaterUtil.formatNumberNoGrouping(refU.getSessionYear(), locale) + "], " + 
-							refU.getDeviceName());
-
-					model.addAttribute("referencedQuestions",refentities);
-					model.addAttribute("referencedHDS", refU.getId());
-					model.addAttribute("referencedQuestionsSessionAndDevice", refentitiesSessionDevice);
-				}
+			CustomParameter clubbedReferencedEntitiesVisibleUserGroups = 
+					CustomParameter.findByName(CustomParameter.class, "SMOIS_ALLOWED_USERGROUP_TO_DO_VIEW_CLUBBING_REFERENCING", "");
+			
+			if(clubbedReferencedEntitiesVisibleUserGroups != null 
+					&& clubbedReferencedEntitiesVisibleUserGroups.getValue().contains(workflowDetails.getAssigneeUserGroupType())){
+				
+				refentities = StandaloneController.getReferencedEntityReferences(domain, locale);
+				model.addAttribute("referencedQuestions",refentities);
 			}
+//			if(domain.getReferencedHDS() != null){
+//				
+//				List<ReferenceUnit> refs = domain.getReferencedEntities();
+//				ReferenceUnit refU = null;
+//				if(refs != null && !refs.isEmpty()){
+//					refU = refs.get(0);
+//					
+//					refentitiesSessionDevice.add("[" + refU.getSessionTypeName()+", "+
+//							FormaterUtil.formatNumberNoGrouping(refU.getSessionYear(), locale) + "], " + 
+//							refU.getDeviceName());
+//
+//					model.addAttribute("referencedQuestions",refentities);
+//					model.addAttribute("referencedHDS", refU.getId());
+//					model.addAttribute("referencedQuestionsSessionAndDevice", refentitiesSessionDevice);
+//				}
+//			}
 		}else{
 			refentities = StandaloneController.getReferencedEntityReferences(domain, locale); 
 			model.addAttribute("referencedQuestions", refentities);			
