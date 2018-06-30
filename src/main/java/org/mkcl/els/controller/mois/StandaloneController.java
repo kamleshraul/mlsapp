@@ -156,81 +156,110 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 			 * h.Custom parameter=STANDALONE_GRID_STATUS_ALLOWED_BY_DEFAULT controls which status 
 			 * will be seen by default if above filter is not set.
 			 * ****/
-			List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
-			String userGroupType = null;
-			if(userGroups != null){
-				if(!userGroups.isEmpty()){
-					CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, 
-							"SMOIS_ALLOWED_USERGROUPTYPES", "");
-					if(customParameter!=null){
-						String allowedUserGroups = customParameter.getValue(); 
-						for(UserGroup i:userGroups){
-							if(allowedUserGroups.contains(i.getUserGroupType().getType())){
-								model.addAttribute("usergroup",i.getId());
-								userGroupType = i.getUserGroupType().getType();
-								model.addAttribute("usergroupType",userGroupType);
-								Map<String,String> parameters = UserGroup.findParametersByUserGroup(i);
-
-								/**** Sub department Filter Starts ****/
-								CustomParameter subDepartmentFilterAllowedFor = 
-										CustomParameter.findByName(CustomParameter.class, 
-												"SMOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR", "");
-								if(subDepartmentFilterAllowedFor!=null 
-										&& subDepartmentFilterAllowedFor.getValue().contains(userGroupType)){
-									if(parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY +"_"+locale) != null 
-											&& !parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).equals(" ")){
-										String strSubDepartments = parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale);
-										String subDepartments[] = strSubDepartments.split("##");
-										List<SubDepartment> subDepts=new ArrayList<SubDepartment>();
-										for(int j=0;j<subDepartments.length;j++){
-											SubDepartment subDepartment=SubDepartment.findByName(SubDepartment.class, subDepartments[j], locale);
-											subDepts.add(subDepartment);
-										}
-										model.addAttribute("subDepartments", subDepts);
-									}
-								}
-								/**** Sub department Filter Ends ****/
-
-								/**** StandaloneMotion Status Filter Starts ****/
-								CustomParameter allowedStatus = 
-										CustomParameter.findByName(CustomParameter.class,"STANDALONE_GRID_STATUS_ALLOWED_"+userGroupType.toUpperCase(), "");
-								List<Status> status=new ArrayList<Status>();
-								if(allowedStatus!=null){
-									try {
-										status=Status.findStatusContainedIn(allowedStatus.getValue(),locale);
-									} catch (ELSException e) {
-										model.addAttribute("error", e.getParameter());
-										e.printStackTrace();
-									}
-								}else{
-									CustomParameter defaultAllowedStatus = 
-											CustomParameter.findByName(CustomParameter.class,"STANDALONE_GRID_STATUS_ALLOWED_BY_DEFAULT", "");
-									if(defaultAllowedStatus!=null){
-										try {
-											status=Status.findStatusContainedIn(defaultAllowedStatus.getValue(),locale);
-										} catch (ELSException e) {
-											model.addAttribute("error", e.getParameter());
-											e.printStackTrace();
-										}
-									}else{
-										model.addAttribute("errorcode","standalone_status_allowed_by_default_not_set");
-									}
-								}
-								model.addAttribute("status",status);
-								/**** Question Status Filter Ends ****/
-								break;
-							}
-						}
-					}else{
-						model.addAttribute("errorcode","smois_allowed_usergroups_notset");
+			UserGroup userGroup = null;
+			UserGroupType userGroupType = null;
+			List<UserGroup> userGroups = currentUser.getUserGroups();
+			if(userGroups != null && ! userGroups.isEmpty()) {
+				CustomParameter cp = CustomParameter.findByName(CustomParameter.class, "SMOIS_ALLOWED_USERGROUPTYPES", "");
+				if(cp != null) {
+					List<UserGroupType> configuredUserGroupTypes = 
+							StandaloneController.delimitedStringToUGTList(cp.getValue(), ",", locale);
+					
+					try {
+						userGroup = StandaloneController.getUserGroup(userGroups, configuredUserGroupTypes, lastSessionCreated, locale);
+					} catch (ELSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				}else{
-					model.addAttribute("errorcode","current_user_has_no_usergroups");
+					userGroupType = userGroup.getUserGroupType();
+					
+					model.addAttribute("usergroup", userGroup.getId());
+					model.addAttribute("usergroupType", userGroupType.getType());
 				}
-			}else{
+				else {
+//					throw new ELSException("StandaloneController.populateModule/4", 
+//							"SMOIS_ALLOWED_USERGROUPTYPES key is not set as CustomParameter");
+					logger.error("SMOIS_ALLOWED_USERGROUPTYPES key is not set as CustomParameter");
+				}
+			}
+			if(userGroup == null || userGroupType == null) {
+//				throw new ELSException("StandaloneController.populateModule/4", 
+//						"User group or User group type is not set for Username: " + currentUser.getUsername());
+				
 				model.addAttribute("errorcode","current_user_has_no_usergroups");
 			}
-			/**** User group Filter Ends ****/
+			
+			// Populate Sub Departments configured for this User's user group type
+			Map<String, String> parameters = UserGroup.findParametersByUserGroup(userGroup);
+			CustomParameter subDepartmentFilterAllowedFor = 
+					CustomParameter.findByName(CustomParameter.class, "SMOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR", "");
+			if(subDepartmentFilterAllowedFor != null) {
+				List<UserGroupType> ugtConfiguredForSubdepartments = 
+						StandaloneController.delimitedStringToUGTList(
+								subDepartmentFilterAllowedFor.getValue(), ",", locale);
+				boolean isUGTConfiguredForSubdepartments = 
+						StandaloneController.isUserGroupTypeExists(ugtConfiguredForSubdepartments, userGroupType);
+				if(isUGTConfiguredForSubdepartments) {
+					String subDepartmentParam = parameters.get(ApplicationConstants.SUBDEPARTMENT_KEY + "_" + locale);
+					if(subDepartmentParam != null && ! subDepartmentParam.equals("")) {
+						List<SubDepartment> subDepartments =
+								StandaloneController.getSubDepartments(subDepartmentParam, "##", locale);
+						model.addAttribute("subDepartments", subDepartments);
+					}
+					else {
+//						throw new ELSException("StandaloneController.populateModule/4", 
+//								"SUBDEPARTMENT parameter is not set for Username: " + currentUser.getUsername());
+						logger.error("SUBDEPARTMENT parameter is not set for Username: " + currentUser.getUsername());
+					}
+				}
+			}
+			else {
+//				throw new ELSException("StandaloneController.populateModule/4", 
+//						"SMOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR key is not set as CustomParameter");
+				logger.error("SMOIS_SUBDEPARTMENT_FILTER_ALLOWED_FOR key is not set as CustomParameter");
+			}
+			
+			// Populate Statuses configured for this User's user group type
+			/**
+			 * Rules:
+			 * Search for the Custom parameters in following order in order to get the statuses configured
+			 * for this User's user group type
+			 * a. CustomParameter "STANDALONE_GRID_STATUS_ALLOWED_" + deviceTypeType + userGroupTypeType
+			 * b. CustomParameter "STANDALONE_GRID_STATUS_ALLOWED_BY_DEFAULT" + deviceTypeType
+			 */
+			String strAllowedStatus = null;
+			CustomParameter allowedStatusParam = 
+					CustomParameter.findByName(CustomParameter.class, 
+							"STANDALONE_GRID_STATUS_ALLOWED_" + userGroupType.getType().toUpperCase(), "");
+			if(allowedStatusParam != null) {
+				strAllowedStatus = allowedStatusParam.getValue();
+			}
+			else {
+				CustomParameter defaultAllowedStatusParam =
+						CustomParameter.findByName(CustomParameter.class,
+								"STANDALONE_GRID_STATUS_ALLOWED_BY_DEFAULT", "");
+				if(defaultAllowedStatusParam != null) {
+					strAllowedStatus = defaultAllowedStatusParam.getValue();
+				}
+				else {
+//					throw new ELSException("StandaloneController.populateModule/4", 
+//							"STANDALONE_GRID_STATUS_ALLOWED_BY_DEFAULT_ + deviceTypeType " +
+//							"key is not set as CustomParameter");
+					logger.error("STANDALONE_GRID_STATUS_ALLOWED_BY_DEFAULT_ + deviceTypeType " +
+							"key is not set as CustomParameter");
+				}
+			}
+			
+			if(strAllowedStatus != null) {
+				List<Status> statuses = null;
+				try {
+					statuses = Status.findStatusContainedIn(strAllowedStatus, locale);
+				} catch (ELSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				model.addAttribute("status", statuses);
+			}
 
 			/**** Roles Filter Starts 
 			 * a.SMOIS roles starts with SMOIS_,MEMBER_,
@@ -249,8 +278,8 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 			}
 			
 			/**** File Options(Obtain Dynamically) ****/
-			if (userGroupType != null && !userGroupType.isEmpty()
-					&& userGroupType.equals("assistant")) {
+			if (userGroupType != null && !userGroupType.getType().isEmpty()
+					&& userGroupType.getType().equals("assistant")) {
 				int highestFileNo = StandaloneMotion.findHighestFileNo(lastSessionCreated, deviceType, locale);
 				model.addAttribute("highestFileNo", highestFileNo);
 			}
@@ -4109,6 +4138,90 @@ public class StandaloneController extends GenericController<StandaloneMotion>{
 		}
 		
 		return retVal;
+	}
+	
+	public static List<UserGroupType> delimitedStringToUGTList(final String delimitedUserGroups,
+			final String delimiter,
+			final String locale) {
+		List<UserGroupType> userGroupTypes = new ArrayList<UserGroupType>();
+		
+		String[] strUserGroupTypes = delimitedUserGroups.split(delimiter);
+		for(String strUserGroupType : strUserGroupTypes) {
+			UserGroupType ugt = UserGroupType.findByType(strUserGroupType, locale);
+			userGroupTypes.add(ugt);
+		}
+		
+		return userGroupTypes;
+	}
+	
+	/**
+	 * Return a userGroup from @param userGroups whose userGroupType is 
+	 * same as one of the @param userGroupTypes.
+	 * 
+	 * Return null if no match is found.
+	 * @throws ELSException 
+	 */
+	public static UserGroup getUserGroup(final List<UserGroup> userGroups,
+			final List<UserGroupType> userGroupTypes, 
+			final Session session,
+			final String locale) throws ELSException {		
+		for(UserGroup ug : userGroups) {
+			if(UserGroup.isActiveInSession(session,ug,locale)){
+				for(UserGroupType ugt : userGroupTypes) {
+					UserGroupType userGroupType = ug.getUserGroupType();
+					if(ugt.getId().equals(userGroupType.getId())) {
+						return ug;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Return true if @param userGroupType is present in the collection
+	 * @param userGroupTypes 
+	 */
+	public static boolean isUserGroupTypeExists(final List<UserGroupType> userGroupTypes,
+			final UserGroupType userGroupType) {
+		if(userGroupType != null){
+			for(UserGroupType ugt : userGroupTypes) {
+				if(ugt != null){
+					if(ugt.getId().equals(userGroupType.getId())) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	public static List<SubDepartment> getSubDepartments(final String delimitedSubDepartmentNames,
+			final String delimiter,
+			final String locale) {
+		List<SubDepartment> subDepartments = new ArrayList<SubDepartment>();
+		
+		String subDepartmentNames[] = delimitedSubDepartmentNames.split(delimiter);
+		for(String subDepartmentName : subDepartmentNames){
+			SubDepartment subDepartment = 
+					SubDepartment.findByName(SubDepartment.class, subDepartmentName, locale);
+			subDepartments.add(subDepartment);
+		}
+		
+		return subDepartments;
+	}
+	
+	public static List<Integer> delimitedStringToIntegerList(final String delimitedInts,
+			final String delimiter) {
+		List<Integer> ints = new ArrayList<Integer>();
+		
+		String[] strInts = delimitedInts.split(delimiter);
+		for(String strInt : strInts) {
+			Integer i = Integer.parseInt(strInt);
+			ints.add(i);
+		}
+		
+		return ints;
 	}
 
 }
