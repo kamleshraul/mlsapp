@@ -924,6 +924,7 @@
 				    			&& $('#selectedQuestionType').val()=='questions_starred' 
 				    			&& $("#internalStatusType").val() == 'question_final_admission'){
 				        	var currentDate = new Date();
+				        	currentDate.setHours(0,0,0,0);
 				        	var lastDepartmentChangeDate = new Date($("#lastDateForDepartmentChange").val());
 				        	if(currentDate <= lastDepartmentChangeDate){
 				        		$("#ministry option[selected!='selected']").show();
