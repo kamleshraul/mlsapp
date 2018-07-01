@@ -1,5 +1,6 @@
 package org.mkcl.els.domain;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ public abstract class Device extends BaseDomain {
             	DeviceType standaloneMotionDeviceType = DeviceType.findByType(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType budgetaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType supplementaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY, ApplicationConstants.DEFAULT_LOCALE);
+            	DeviceType adjournmentMotionDeviceType = DeviceType.findByType(ApplicationConstants.ADJOURNMENT_MOTION, ApplicationConstants.DEFAULT_LOCALE);
             	
             	Integer number = null;
             	
@@ -159,6 +161,24 @@ public abstract class Device extends BaseDomain {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, supplementaryCutMotionDeviceType);
             		number = CutMotion.assignCutMotionNo(upperHouseType, latestUpperHouseSession, supplementaryCutMotionDeviceType, ApplicationConstants.DEFAULT_LOCALE);
             		CutMotion.updateSupplementaryCutMotionCurrentNumberUpperHouse(number);
+        		}
+            	
+            	/** update lowerhouse static current number for adjournment motions **/
+            	if (AdjournmentMotion.getCurrentNumberLowerHouse() == 0) {
+            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, adjournmentMotionDeviceType);
+            		Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(latestLowerHouseSession);
+            		number = AdjournmentMotion.assignMotionNo(lowerHouseType, defaultAdjourningDate, ApplicationConstants.DEFAULT_LOCALE);
+					AdjournmentMotion.updateCurrentNumberLowerHouse(number);
+					AdjournmentMotion.updateCurrentAdjourningDateLowerHouse(defaultAdjourningDate);
+        		}
+            	
+            	/** update upperhouse static current number for adjournment motions **/
+            	if (AdjournmentMotion.getCurrentNumberUpperHouse() == 0) {
+            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, adjournmentMotionDeviceType);
+            		Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(latestUpperHouseSession);
+            		number = AdjournmentMotion.assignMotionNo(upperHouseType, defaultAdjourningDate, ApplicationConstants.DEFAULT_LOCALE);
+					AdjournmentMotion.updateCurrentNumberUpperHouse(number);
+					AdjournmentMotion.updateCurrentAdjourningDateUpperHouse(defaultAdjourningDate);
         		}
             	
             	Device.isCurrentNumberForDevicesUpdateRequired(false);
