@@ -619,9 +619,9 @@
 				<c:if test="${memberStatusType=='adjournmentmotion_complete' or memberStatusType=='adjournmentmotion_incomplete'}">
 				<p class="tright">
 					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-					<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">	
-					<input id="sendforapproval" type="button" value="<spring:message code='adjournmentmotion.sendforapproval' text='Send For Approval'/>" class="butDef">
-					</security:authorize> --%>
+					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">	
+						<input id="sendforapproval" type="button" value="<spring:message code='adjournmentmotion.sendforapproval' text='Send For Approval'/>" class="butDef">
+					</security:authorize>
 					<input id="submitmotion" type="button" value="<spring:message code='adjournmentmotion.submitmotion' text='Submit Motion'/>" class="butDef">
 					<input id="cancel" type="button" value="<spring:message code='generic.cancel' text='Cancel'/>" class="butDef">
 				</p>

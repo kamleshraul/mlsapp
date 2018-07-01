@@ -454,7 +454,7 @@ public class AdjournmentMotion extends Device implements Serializable {
         return adjournmentMotion;
     }
 	
-	private static Integer assignMotionNo(final HouseType houseType, final Date adjourningDate, final String locale) {
+	public static Integer assignMotionNo(final HouseType houseType, final Date adjourningDate, final String locale) {
 		return getAdjournmentMotionRepository().assignMotionNo(houseType, adjourningDate, locale);		
 	}
 	

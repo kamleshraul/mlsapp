@@ -1003,6 +1003,7 @@ public class QuestionController extends GenericController<Question> {
 		
 		String[] strUserGroupTypes = delimitedUserGroups.split(delimiter);
 		for(String strUserGroupType : strUserGroupTypes) {
+			strUserGroupType = strUserGroupType.trim();
 			UserGroupType ugt = UserGroupType.findByType(strUserGroupType, locale);
 			userGroupTypes.add(ugt);
 		}

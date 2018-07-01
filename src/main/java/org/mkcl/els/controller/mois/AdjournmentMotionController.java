@@ -205,6 +205,7 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 						model.addAttribute("defaultAdjourningDate", FormaterUtil.formatDateToString(defaultAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT));
 					}
 					//AdjournmentMotion.assignMotionNo(houseType, (Date)model.get("defaultAdjourningDate"), locale);
+					session = lastSessionCreated;
 				}
 				
 				/**** Device Types. ****/
@@ -244,21 +245,14 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 				if (userGroups != null && !userGroups.isEmpty()) {
 					CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"AMOIS_ALLOWED_USERGROUPTYPES", "");
 					if (customParameter != null) {
-						String allowedUserGroups = customParameter.getValue();
-						for (UserGroup i : userGroups) {
-							if (UserGroup.isActiveInSession(session,i,locale)
-									&& allowedUserGroups.contains(i.getUserGroupType().getType())) {
-								/****
-								 * Authenticated User's usergroup and
-								 * usergroupType
-								 ****/
-								userGroup = i;
-								model.addAttribute("usergroup", i.getId());
-								userGroupType = i.getUserGroupType();
-								model.addAttribute("usergroupType",userGroupType.getType());								
-								break;
-							}
-						}
+						List<UserGroupType> configuredUserGroupTypes = 
+								QuestionController.delimitedStringToUGTList(customParameter.getValue(), ",", locale);
+						
+						userGroup = QuestionController.getUserGroup(userGroups, configuredUserGroupTypes, session, locale);
+						userGroupType = userGroup.getUserGroupType();
+						
+						model.addAttribute("usergroup", userGroup.getId());
+						model.addAttribute("usergroupType", userGroupType.getType());
 					} else {
 						model.addAttribute("errorcode","amois_allowed_usergroups_notset");
 					}
