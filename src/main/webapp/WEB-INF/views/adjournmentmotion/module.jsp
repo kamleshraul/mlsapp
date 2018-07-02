@@ -399,8 +399,10 @@
 			}			
 		}
 		/**** Current Status Report Generation ****/
-		function generateCurrentStatusReport() {
-			alert("current status report in progress...");
+		function showCurrentStatusReport(val, moId){
+			$("#selectionDiv1").hide();
+			var device = $("#deviceTypeMaster option[value='"+$("#selectedMotionType").val()+"']").text().split("_")[0];
+			showTabByIdAndUrl('details_tab', "adjournmentmotion/report/currentstatusreport?device="+ device +"&reportType="+val+"&moId="+moId);
 		}
 		/**** Bhag 1 Report Generation ****/
 		function generateBhag1Report() {

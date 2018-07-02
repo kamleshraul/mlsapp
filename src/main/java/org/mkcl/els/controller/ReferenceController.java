@@ -6144,7 +6144,7 @@ public class ReferenceController extends BaseController {
 			}
 			Date adjourningDate = FormaterUtil.formatStringToDate(strAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT);
 			Integer adjournmentMotionNumber=FormaterUtil.getDeciamlFormatterWithGrouping(0, locale.toString()).parse(strNumber).intValue();
-			flag=AdjournmentMotion.isDuplicateNumberExist(adjourningDate, adjournmentMotionNumber,locale.toString());
+			flag=AdjournmentMotion.isDuplicateNumberExist(adjourningDate, adjournmentMotionNumber, null, locale.toString());
 		}
 		return flag;
 	}
@@ -9391,6 +9391,99 @@ public class ReferenceController extends BaseController {
 				parameters.put("subdepartment", new String[]{strSubdepartment});
 				parameters.put("locale", new String[]{locale.toString()});
 				data = Query.findReport("CMOIS_STATUS_REPORT_DEVICES_DV", parameters);
+			}
+			
+			if(data != null){
+				for(Object o : data){
+					Object[] objx = (Object[]) o;
+					MasterVO vo = new MasterVO();
+					if(objx[0] != null){
+						vo.setValue(objx[0].toString());
+						vos.add(vo);
+					}
+				}
+			}
+			
+		} catch (ELSException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return vos;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/pendingtasksdevicesamois", method=RequestMethod.GET)
+	public @ResponseBody List<MasterVO> getPendingTasksDevicesAMOIS(HttpServletRequest request, Locale locale){
+		String strSessionYear = request.getParameter("sessionYear");
+		String strSessionType = request.getParameter("sessionType");
+		String strHouseType = request.getParameter("houseType");
+		String strDeviceType = request.getParameter("deviceType");
+		String strStatus = request.getParameter("status");
+		String strWfSubType = request.getParameter("wfSubType");
+		String strGrid = request.getParameter("grid");
+		String strSubdepartment = request.getParameter("subdepartment");
+		String strAdjourningDate = request.getParameter("adjourningDate");
+		
+		CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		List<MasterVO> vos = new ArrayList<MasterVO>();
+				
+		try {
+			String server=csptDeployment.getValue();
+			SessionType sessionType = null;
+			HouseType houseType = null;
+			Integer year = null;
+			Session session = null;					
+			DeviceType deviceType = null;
+			
+			Map<String, String[]> parameters = new HashMap<String, String[]>();
+			List data = null;
+			
+			if(strGrid.equals("workflow")){
+				if(csptDeployment!=null){
+					if(server.equals("TOMCAT")){
+						strSessionYear = new String(strSessionYear.getBytes("ISO-8859-1"),"UTF-8");
+						strSessionType = new String(strSessionType.getBytes("ISO-8859-1"),"UTF-8");
+						strHouseType = new String(strHouseType.getBytes("ISO-8859-1"),"UTF-8");
+						strDeviceType = new String(strDeviceType.getBytes("ISO-8859-1"),"UTF-8");
+						strStatus = new String(strStatus.getBytes("ISO-8859-1"),"UTF-8");
+						strWfSubType = new String(strWfSubType.getBytes("ISO-8859-1"),"UTF-8");
+					}
+				}
+				
+				sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", strSessionType, locale.toString());
+				houseType = HouseType.findByName(strHouseType, locale.toString());
+				year = new Integer(FormaterUtil.getNumberFormatterNoGrouping(locale.toString()).parse(strSessionYear).intValue());
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+				deviceType = DeviceType.findByName(DeviceType.class, strDeviceType, locale.toString());
+				
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("status", new String[]{strStatus});
+				parameters.put("workflowSubType", new String[]{strWfSubType});
+				parameters.put("assignee", new String[]{this.getCurrentUser().getActualUsername()});
+				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("adjourningDate", new String[]{strAdjourningDate});
+				
+				data = Query.findReport("AMOIS_STATUS_REPORT_DEVICES_WF", parameters);
+				
+			}else if(strGrid.equals("device")){
+				sessionType = SessionType.findById(SessionType.class, new Long(strSessionType));
+				houseType = HouseType.findByType(strHouseType, locale.toString());
+				year = new Integer(Integer.parseInt(strSessionYear));
+				session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, year);					
+				deviceType = DeviceType.findById(DeviceType.class, new Long(strDeviceType));
+				
+				parameters.put("sessionId", new String[]{session.getId().toString()});
+				parameters.put("deviceTypeId", new String[]{deviceType.getId().toString()});
+				parameters.put("status", new String[]{strStatus});
+				parameters.put("subdepartment", new String[]{strSubdepartment});
+				parameters.put("locale", new String[]{locale.toString()});
+				data = Query.findReport("AMOIS_STATUS_REPORT_DEVICES_DV", parameters);
 			}
 			
 			if(data != null){

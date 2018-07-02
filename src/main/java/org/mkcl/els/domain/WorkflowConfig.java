@@ -445,6 +445,10 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	public static WorkflowConfig getLatest(CutMotion cutmotion, String internalStatus, String locale) {
 		return getWorkflowConfigRepository().getLatest(cutmotion, internalStatus, locale);
 	}
+	
+	public static WorkflowConfig getLatest(AdjournmentMotion adjmotion, String internalStatus, String locale) {
+		return getWorkflowConfigRepository().getLatest(adjmotion, internalStatus, locale);
+	}
 	/***************************CutMotion********************************/
 	
 	/***************************DiscussionMotion*************************/

@@ -78,17 +78,24 @@ public class AdjournmentMotionRepository extends BaseRepository<AdjournmentMotio
 
 	public Boolean isDuplicateNumberExist(final Date adjourningDate, 
 			final Integer number,
+			final Long id,
 			final String locale) {
 		// TODO Auto-generated method stub
 		String strQuery = "SELECT m FROM AdjournmentMotion m" +
 				" WHERE" +
 				" m.adjourningDate=:adjourningDate" +
 				" AND m.number=:number" +
+				" AND m.id<>:motionId" +
 				" AND m.locale=:locale";
 		TypedQuery<AdjournmentMotion> query = this.em().createQuery(strQuery, AdjournmentMotion.class);
 		query.setParameter("adjourningDate", adjourningDate);
 		query.setParameter("number", number);
 		query.setParameter("locale", locale);
+		if(id!=null) {
+			query.setParameter("motionId", id);
+		} else {
+			query.setParameter("motionId", new Long("0"));
+		}
 		List<AdjournmentMotion> adjournmentMotions = query.getResultList();
 		if(adjournmentMotions!=null && !adjournmentMotions.isEmpty()) {
 			return true;

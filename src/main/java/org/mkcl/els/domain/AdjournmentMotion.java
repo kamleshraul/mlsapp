@@ -485,8 +485,8 @@ public class AdjournmentMotion extends Device implements Serializable {
 		return getAdjournmentMotionRepository().findAllReadyForSubmissionByMember(session, primaryMember, motionType, itemsCount, locale);
 	}
 	
-	public static Boolean isDuplicateNumberExist(Date adjourningDate, Integer number, String locale) {
-		return getAdjournmentMotionRepository().isDuplicateNumberExist(adjourningDate, number, locale);
+	public static Boolean isDuplicateNumberExist(Date adjourningDate, Integer number, Long id, String locale) {
+		return getAdjournmentMotionRepository().isDuplicateNumberExist(adjourningDate, number, id, locale);
 	}
 	
 	public AdjournmentMotionDraft findPreviousDraft() {
@@ -1410,6 +1410,105 @@ public class AdjournmentMotion extends Device implements Serializable {
     	String submissionEndTime = submissionEndDatePart + " " + submissionEndTimePart;
     	return FormaterUtil.formatStringToDate(submissionEndTime, ApplicationConstants.SERVER_DATETIMEFORMAT);
     }
+    
+    public String findAllMemberNames(String nameFormat) {
+		StringBuffer allMemberNamesBuffer = new StringBuffer("");
+		Member member = null;
+		String memberName = "";				
+		/** primary member **/
+		member = this.getPrimaryMember();		
+		if(member==null) {
+			return allMemberNamesBuffer.toString();
+		}		
+		memberName = member.findNameInGivenFormat(nameFormat);
+		if(memberName!=null && !memberName.isEmpty()) {
+			if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+				allMemberNamesBuffer.append(memberName);
+			}						
+		} else {
+			return allMemberNamesBuffer.toString();
+		}						
+		/** supporting members **/
+		List<SupportingMember> supportingMembers = this.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				member = sm.getMember();
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+					memberName = member.findNameInGivenFormat(nameFormat);
+					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {				
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+							if(allMemberNamesBuffer.length()>0) {
+								allMemberNamesBuffer.append(", " + memberName);
+							} else {
+								allMemberNamesBuffer.append(memberName);
+							}
+						}																		
+					}									
+				}				
+			}
+		}		
+		/** clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = AdjournmentMotion.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				/**
+				 * show only those clubbed questions which are not in state of
+				 * (processed to be putup for nameclubbing, putup for
+				 * nameclubbing, pending for nameclubbing approval)
+				 **/
+				if (ce.getAdjournmentMotion().getInternalStatus().getType().equals(ApplicationConstants.ADJOURNMENTMOTION_SYSTEM_CLUBBED)
+						|| ce.getAdjournmentMotion().getInternalStatus().getType().equals(ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION)) {
+					member = ce.getAdjournmentMotion().getPrimaryMember();
+					if(member!=null) {
+						memberName = member.findNameInGivenFormat(nameFormat);
+						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+								if(allMemberNamesBuffer.length()>0) {
+									allMemberNamesBuffer.append(", " + memberName);
+								} else {
+									allMemberNamesBuffer.append(memberName);
+								}
+							}							
+						}												
+					}
+					List<SupportingMember> clubbedSupportingMembers = ce.getAdjournmentMotion().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+								memberName = member.findNameInGivenFormat(nameFormat);
+								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+										if(allMemberNamesBuffer.length()>0) {
+											allMemberNamesBuffer.append(", " + memberName);
+										} else {
+											allMemberNamesBuffer.append(memberName);
+										}
+									}									
+								}								
+							}
+						}
+					}
+				}
+			}
+		}		
+		return allMemberNamesBuffer.toString();
+	}
+    
+    public Status findMemberStatus() {	
+		Status memberStatus = null;
+		if(this.getStatus()!=null) {
+			Status submitStatus = Status.findByType(ApplicationConstants.ADJOURNMENTMOTION_SUBMIT, this.getLocale());
+			if(this.getStatus().getPriority()>=submitStatus.getPriority()) {
+				memberStatus = submitStatus;
+			} else {
+				memberStatus = this.getStatus();
+			}
+		}		
+		return memberStatus;
+	}
     
 	/**** Getters and Setters ****/
 	/**

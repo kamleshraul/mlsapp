@@ -46,8 +46,15 @@
 			});				
 			/**** Current Status Report Generation ****/
 			$("#amois_current_status_report").click(function() {
-				$(this).attr('href','#');
-				generateCurrentStatusReport();
+				/* $(this).attr('href','#');
+				generateCurrentStatusReport(); */
+				var selectedMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				
+				if(selectedMotionId.length>=1){
+					showCurrentStatusReport('multiple',selectedMotionId);
+				}else{
+					showCurrentStatusReport('all','');
+				}
 			});
 			/**** Bhag 1 Report Generation ****/
 			$("#amois_bhag_1_report").click(function() {
@@ -100,7 +107,7 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="motion.search" text="Search"/>
 			</a> |				
-			<security:authorize access="hasAnyRole('AMOIS_ASSISTANT')">
+			<security:authorize access="hasAnyRole('AMOIS_ASSISTANT', 'AMOIS_SECTION_OFFICER')">
 			<a href="#" id="amois_current_status_report" class="butSim">
 				<spring:message code="amois.current_status_report" text="Current Status Report"/>
 			</a> |

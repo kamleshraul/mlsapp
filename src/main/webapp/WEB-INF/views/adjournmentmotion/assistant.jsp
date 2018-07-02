@@ -754,7 +754,7 @@
 				|| recommendationStatusType == 'adjournmentmotion_putup_clubbingPostAdmission' || recommendationStatusType == 'adjournmentmotion_putup_clubbingWithUnstarredFromPreviousSession'
 				|| recommendationStatusType == 'adjournmentmotion_putup_unclubbing' || recommendationStatusType == 'adjournmentmotion_putup_admitDueToReverseClubbing'
 			}">
-				<security:authorize access="hasAnyRole('AMOIS_ASSISTANT')">
+				<security:authorize access="hasAnyRole('AMOIS_SECTION_OFFICER')">
 				<p>	
 					<label class="small"><spring:message code="adjournmentmotion.putupfor" text="Put up for"/></label>	
 					<select id="changeInternalStatus" class="sSelect">
@@ -838,7 +838,7 @@
 								|| recommendationStatusType == 'adjournmentmotion_putup_clubbingPostAdmission' || recommendationStatusType == 'adjournmentmotion_putup_unclubbing' 
 								|| recommendationStatusType == 'adjournmentmotion_putup_admitDueToReverseClubbing'}">
 								<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-								<security:authorize access="hasAnyRole('AMOIS_ASSISTANT')">
+								<security:authorize access="hasAnyRole('AMOIS_SECTION_OFFICER')">
 									<input id="startworkflow" type="button" value="<spring:message code='adjournmentmotion.putupadjournmentmotion' text='Put Up Motion'/>" class="butDef">
 								</security:authorize>					
 							</c:if>							

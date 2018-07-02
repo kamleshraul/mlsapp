@@ -173,7 +173,7 @@
 						<option value="answeringDateForwarded"><spring:message code='question.intimationletter.answeringDateForwarded' text='answering date forwarded' /></option>
 				</select>				
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY','QIS_DEPUTY_SECRETARY','QIS_CHAIRMAN','QIS_SPEAKER','QIS_SECTION_OFFICER','ROIS_DEPUTYSECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_PRINCIPAL_SECRETARY','QIS_UNDER_SECRETARY','QIS_UNDER_SECRETARY_COMMITTEE','QIS_SECRETARY','QIS_DEPUTY_SECRETARY','QIS_CHAIRMAN','QIS_SPEAKER','QIS_SECTION_OFFICER','ROIS_DEPUTYSECRETARY', 'AMOIS_SECTION_OFFICER', 'AMOIS_DEPUTY_SECRETARY')">
 				|
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="question.generateCurrentStatusReport" text="Generate Current Status Report"/>

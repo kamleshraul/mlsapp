@@ -3804,7 +3804,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		return references;
 	}
 	
-	private WorkflowConfig getLatest(final AdjournmentMotion adjournmentMotion,final String internalStatus,final String locale) {
+	public WorkflowConfig getLatest(final AdjournmentMotion adjournmentMotion,final String internalStatus,final String locale) {
 		HouseType houseTypeForWorkflow = adjournmentMotion.getHouseType();
 		/**** Latest Workflow Configurations ****/
 		String[] temp=internalStatus.split("_");

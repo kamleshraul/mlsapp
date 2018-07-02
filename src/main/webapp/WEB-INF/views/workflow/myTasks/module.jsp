@@ -637,6 +637,8 @@
 					} else {
 						showTabByIdAndUrl('details_tab', "cutmotion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 					}					
+				}else if(deviceType.indexOf('motions_adjournment')==0){
+					showTabByIdAndUrl('details_tab', "adjournmentmotion/report/currentstatusreport?device="+device+"&reportType="+val+"&wfdId="+wfdId);
 				}else if(deviceType.indexOf('motions_discussionmotion_')==0){
 					
 				}else{

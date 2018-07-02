@@ -35,6 +35,7 @@ import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
@@ -858,6 +859,13 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 					model.addAttribute("clubbedMotions",clubEntityReferences);
 				}
 			}
+			//populate member status name and devicetype
+			if(userGroupType!=null && userGroupType.getType().equals("member")){
+				Status memberStatus = domain.findMemberStatus();
+				if(memberStatus!=null){				
+					model.addAttribute("formattedMemberStatus", memberStatus.getName());
+				}
+			}
 			/**** Status,Internal Status and recommendation Status ****/
 			Status status=domain.getStatus();
 			Status internalStatus=domain.getInternalStatus();
@@ -906,7 +914,7 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 				model.addAttribute("taskReceivedOnDate", FormaterUtil.formatDateToString(domain.getTaskReceivedOn(), ApplicationConstants.SERVER_DATETIMEFORMAT));
 			}
 			// set End Flag and Level in case of assistant
-			if(userGroupType !=null && userGroupType.getType().equals("assistant")){
+			if(userGroupType !=null && userGroupType.getType().equals("section_officer")){
 				if(domain.getWorkflowStarted()==null || domain.getWorkflowStarted().isEmpty()){
 					domain.setWorkflowStarted("NO");
 				}
@@ -1099,7 +1107,7 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 		if(domain.getNoticeContent()==null || domain.getNoticeContent().isEmpty()){
 			result.rejectValue("noticeContent","AdjournmentMotion.NoticeContentEmpty");
 		}		
-		if(role.equals("AMOIS_TYPIST")){
+		/*if(role.equals("AMOIS_TYPIST")){
 //			//Empty check for number
 //			if(domain.getNumber()==null){
 //				result.rejectValue("number","NumberEmpty");
@@ -1112,6 +1120,25 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 					result.rejectValue("number", "NonUnique","Duplicate Number");
 				}
 			}			
+		}*/
+		/**** Number Validation ****/
+		if(role.equals("AMOIS_TYPIST")){							
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_TYPIST_AUTO_NUMBER_GENERATION_REQUIRED", "");
+			if(customParameter != null){
+				String value = customParameter.getValue();
+				if(!value.equals("yes")){
+					if(domain.getNumber()==null){
+						result.rejectValue("number","NumberEmpty");			
+						return;
+					}
+					//check for duplicate motion
+					Boolean flag=AdjournmentMotion.isDuplicateNumberExist(domain.getAdjourningDate(), domain.getNumber(), domain.getId(), domain.getLocale());
+					if(flag){
+						result.rejectValue("number", "NonUnique","Duplicate Parameter");
+						return;
+					}
+				}
+			}
 		}
 		String operation=request.getParameter("operation");
 		if(operation!=null && !operation.isEmpty()){			
@@ -1158,12 +1185,22 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 						result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
 						return;
 					}
-					if(role.equals(ApplicationConstants.MEMBER_LOWERHOUSE) || role.equals(ApplicationConstants.MEMBER_LOWERHOUSE)) {
+					CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG", "");
+					if(csptOfflineSubmissionAllowedFlag!=null 
+							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
+							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
+						if(!role.equals("AMOIS_TYPIST")){
+							if(!domain.validateSubmissionTime()) {
+								result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
+								return;
+							}
+						}
+					} else {
 						if(!domain.validateSubmissionTime()) {
 							result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
 							return;
 						}
-					}
+					}					
 				}
 			}
 		}
@@ -1479,6 +1516,39 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 		if(domain.getNoticeContent()==null || domain.getNoticeContent().isEmpty()){
 			result.rejectValue("noticeContent","AdjournmentMotion.NoticeContentEmpty");
 		}		
+		/*if(role.equals("AMOIS_TYPIST")){
+//		//Empty check for number
+//		if(domain.getNumber()==null){
+//			result.rejectValue("number","NumberEmpty");
+//			return;
+//		}
+		//check for duplicate motions if number is entered
+		if(domain.getNumber()!=null){
+			Boolean flag=AdjournmentMotion.isDuplicateNumberExist(domain.getAdjourningDate(), domain.getNumber(), domain.getLocale());
+			if(flag){
+				result.rejectValue("number", "NonUnique","Duplicate Number");
+			}
+		}			
+		}*/
+		/**** Number Validation ****/
+		if(role.equals("AMOIS_TYPIST")){							
+			CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_TYPIST_AUTO_NUMBER_GENERATION_REQUIRED", "");
+			if(customParameter != null){
+				String value = customParameter.getValue();
+				if(!value.equals("yes")){
+					if(domain.getNumber()==null){
+						result.rejectValue("number","NumberEmpty");			
+						return;
+					}
+					//check for duplicate motion
+					Boolean flag=AdjournmentMotion.isDuplicateNumberExist(domain.getAdjourningDate(), domain.getNumber(), domain.getId(), domain.getLocale());
+					if(flag){
+						result.rejectValue("number", "NonUnique","Duplicate Parameter");
+						return;
+					}
+				}
+			}
+		}
 		String operation=request.getParameter("operation");
 		if(operation!=null && !operation.isEmpty()){			
 			if(operation.equals("approval")){
@@ -1515,29 +1585,22 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 						result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
 						return;
 					}
-					if(role.equals(ApplicationConstants.MEMBER_LOWERHOUSE) || role.equals(ApplicationConstants.MEMBER_LOWERHOUSE)) {
+					CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG", "");
+					if(csptOfflineSubmissionAllowedFlag!=null 
+							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
+							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
+						if(!role.equals("AMOIS_TYPIST")){
+							if(!domain.validateSubmissionTime()) {
+								result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
+								return;
+							}
+						}
+					} else {
 						if(!domain.validateSubmissionTime()) {
 							result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
 							return;
 						}
 					}
-				}
-				if(role.equals("AMOIS_TYPIST")){
-//					//Empty check for number
-//					if(domain.getNumber()==null){
-//						result.rejectValue("number","NumberEmpty");
-//						return;
-//					}
-					//check for duplicate motions
-					if(domain.getNumber()!=null) {
-						Boolean flag = AdjournmentMotion.isDuplicateNumberExist(domain.getAdjourningDate(), domain.getNumber(), domain.getLocale());
-						AdjournmentMotion adjournmentMotion = AdjournmentMotion.findById(AdjournmentMotion.class, domain.getId());
-						if(!adjournmentMotion.getNumber().equals(domain.getNumber())){
-							if(flag){
-								result.rejectValue("number", "NonUnique","Duplicate Parameter");
-							}
-						}
-					}									
 				}
 				// Empty check for Ministry
 //				if(domain.getMinistry()==null){
@@ -1556,24 +1619,6 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 //				if(domain.getSubDepartment()==null){
 //					result.rejectValue("subDepartment","SubDepartmentEmpty");
 //				}				
-			}
-		} else {
-			if(role.equals("AMOIS_TYPIST")){
-//				//Empty check for number
-//				if(domain.getNumber()==null){
-//					result.rejectValue("number","NumberEmpty");
-//					return;
-//				}
-				//check for duplicate motions
-				if(domain.getNumber()!=null) {
-					Boolean flag = AdjournmentMotion.isDuplicateNumberExist(domain.getAdjourningDate(), domain.getNumber(), domain.getLocale());
-					AdjournmentMotion adjournmentMotion = AdjournmentMotion.findById(AdjournmentMotion.class, domain.getId());
-					if(!adjournmentMotion.getNumber().equals(domain.getNumber())){
-						if(flag){
-							result.rejectValue("number", "NonUnique","Duplicate Parameter");
-						}
-					}
-				}									
 			}
 		}
     }

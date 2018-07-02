@@ -159,6 +159,10 @@ public class UserGroup extends BaseDomain implements Serializable {
 		return getUserGroupRepository().findCutMotionActor(motion, userGroupType, level, locale);
 	} 
 	
+	public static Reference findAdjournmentMotionActor(final AdjournmentMotion motion,final String userGroupType,final String level,final String locale) throws ELSException {
+		return getUserGroupRepository().findAdjournmentMotionActor(motion, userGroupType, level, locale);
+	}
+	
 	public static Reference findEventMotionActor(final EventMotion motion,final String userGroupType,final String level,final String locale) throws ELSException {
 		return getUserGroupRepository().findEventMotionActor(motion, userGroupType, level, locale);
 	} 
