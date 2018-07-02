@@ -506,7 +506,7 @@
 				<label class="small"><spring:message code="adjournmentmotion.selectadjourningdate" text="Adjourning Date"/></label>
 				<select name="adjourningDate" id="adjourningDate" style="width:130px;height: 25px;" disabled="disabled">
 				<c:forEach items="${sessionDates}" var="i">
-					<option value="${i[0]}" ${i[0]==selectedAdjourningDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
+					<option value="${i[0]}" ${i[0]==defaultAdjourningDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
 				</c:forEach>
 				</select>
 				<a href="#" id="changeAdjourningDate" style="margin-left: 10px;"><spring:message code="adjournmentmotion.changeAdjourningDate" text="Change Adjourning Date"/></a>
