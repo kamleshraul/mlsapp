@@ -135,7 +135,19 @@
 							${data[0][10]}
 						</td>
 					</tr>
-					
+					<c:if test="${not empty data[0][20]}">
+					<tr>
+						<td colspan="3">&nbsp;</td>
+					</tr>
+					<tr>
+						<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+							${labels[13]}
+						</td>
+						<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+							${data[0][20]}
+						</td>
+					</tr>
+					</c:if>
 					<tr>
 						<td colspan="3">&nbsp;</td>
 					</tr>
