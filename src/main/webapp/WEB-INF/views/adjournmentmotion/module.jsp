@@ -30,7 +30,7 @@
 				var value=$(this).val();
 				if(value!=""){	
 					$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
-							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val(), function(data) {
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 						if(data.length>1) {
 							var defaultAdjourningDate = data[data.length-1][0];
 							$('#selectedAdjourningDate').empty();
@@ -85,7 +85,7 @@
 				var value=$(this).val();
 				if(value!=""){	
 					$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
-							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val(), function(data) {
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 						if(data.length>1) {
 							var defaultAdjourningDate = data[data.length-1][0];
 							$('#selectedAdjourningDate').empty();
@@ -121,7 +121,7 @@
 				var value=$(this).val();
 				if(value!=""){			
 					$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
-							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val(), function(data) {
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 						if(data.length>1) {
 							var defaultAdjourningDate = data[data.length-1][0];
 							$('#selectedAdjourningDate').empty();

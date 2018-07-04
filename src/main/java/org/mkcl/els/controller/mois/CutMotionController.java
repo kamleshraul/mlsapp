@@ -173,7 +173,7 @@ public class CutMotionController extends GenericController<CutMotion>{
 						List<UserGroupType> configuredUserGroupTypes = 
 								CutMotionController.delimitedStringToUGTList(cp.getValue(), ",", locale);
 						
-						userGroup = CutMotionController.getUserGroup(userGroups, configuredUserGroupTypes, lastSessionCreated, locale);
+						userGroup = CutMotionController.getUserGroup(userGroups, configuredUserGroupTypes, lastSessionCreated, deviceType, locale);
 						userGroupType = userGroup.getUserGroupType();
 						
 						model.addAttribute("usergroup", userGroup.getId());
@@ -2746,13 +2746,23 @@ public class CutMotionController extends GenericController<CutMotion>{
 	public static UserGroup getUserGroup(final List<UserGroup> userGroups,
 			final List<UserGroupType> userGroupTypes, 
 			final Session session,
+			final DeviceType deviceType,
 			final String locale) throws ELSException {		
 		for(UserGroup ug : userGroups) {
 			if(UserGroup.isActiveInSession(session,ug,locale)){
 				for(UserGroupType ugt : userGroupTypes) {
 					UserGroupType userGroupType = ug.getUserGroupType();
 					if(ugt.getId().equals(userGroupType.getId())) {
-						return ug;
+						Map<String, String> parameters = UserGroup.findParametersByUserGroup(ug);
+						String deviceTypesEnabled = parameters.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale);
+						//String deviceTypesEnabled = ug.getParameterValue(ApplicationConstants.DEVICETYPE_KEY);
+						if(deviceTypesEnabled!=null && !deviceTypesEnabled.isEmpty()) {
+							for(String deviceTypeEnabled: deviceTypesEnabled.split("##")) {
+								if(deviceTypeEnabled!=null && deviceTypeEnabled.trim().equals(deviceType.getName().trim())) {
+									return ug;
+								}
+							}
+						}												
 					}
 				}
 			}

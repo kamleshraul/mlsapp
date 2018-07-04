@@ -134,9 +134,6 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 					if(session!=null && session.getId()!=null) {
 						List<Date> sessionDates = session.findAllSessionDatesHavingNoHoliday();
 						model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "ADJOURNMENTMOTION_ADJOURNINGDATEFORMAT", locale));
-						
-						Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(session);
-						model.addAttribute("defaultAdjourningDate", FormaterUtil.formatDateToString(defaultAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT));
 					} else {
 						model.addAttribute("errorcode", "nosessionentriesfound");
 					}
@@ -197,14 +194,6 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 					model.addAttribute("years", years);
 					model.addAttribute("sessionYear", year);		
 					
-					/** populate session dates as possible adjourning dates **/
-					if(lastSessionCreated!=null && lastSessionCreated.getId()!=null) {
-						List<Date> sessionDates = session.findAllSessionDatesHavingNoHoliday();
-						model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "ADJOURNMENTMOTION_ADJOURNINGDATEFORMAT", locale));
-						
-						Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(lastSessionCreated);
-						model.addAttribute("defaultAdjourningDate", FormaterUtil.formatDateToString(defaultAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT));
-					}
 					//AdjournmentMotion.assignMotionNo(houseType, (Date)model.get("defaultAdjourningDate"), locale);
 					session = lastSessionCreated;
 				}
@@ -260,6 +249,15 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 				} else {
 					model.addAttribute("errorcode","current_user_has_no_usergroups");
 				}
+				List<Date> sessionDates = session.findAllSessionDatesHavingNoHoliday();
+				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "ADJOURNMENTMOTION_ADJOURNINGDATEFORMAT", locale));				
+				Date defaultAdjourningDate = null;
+				if(userGroupType.getType().equals(ApplicationConstants.MEMBER)) {
+					defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(session, true);
+				} else {
+					defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(session, false);
+				}
+				model.addAttribute("defaultAdjourningDate", FormaterUtil.formatDateToString(defaultAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT));
 				/**** Motion Status Allowed ****/
 				CustomParameter allowedStatus = CustomParameter.findByName(CustomParameter.class,
 								"ADJOURNMENTMOTION_GRID_STATUS_ALLOWED_"+ userGroupType.getType().toUpperCase(),"");
@@ -633,9 +631,13 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 			/** populate session dates as possible adjourning dates **/
 			if(selectedSession!=null && selectedSession.getId()!=null) {
 				List<Date> sessionDates = selectedSession.findAllSessionDatesHavingNoHoliday();
-				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "ADJOURNMENTMOTION_ADJOURNINGDATEFORMAT", locale));
-				
-				Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(selectedSession);
+				model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "ADJOURNMENTMOTION_ADJOURNINGDATEFORMAT", locale));				
+				Date defaultAdjourningDate = null;
+				if(usergroupType.equals(ApplicationConstants.MEMBER)) {
+					defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(selectedSession, true);
+				} else {
+					defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(selectedSession, false);
+				}
 				model.addAttribute("defaultAdjourningDate", FormaterUtil.formatDateToString(defaultAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT));
 			}
 		} catch(ELSException elsx) {
@@ -1190,13 +1192,13 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
 						if(!role.equals("AMOIS_TYPIST")){
-							if(!domain.validateSubmissionTime()) {
+							if(!AdjournmentMotion.validateSubmissionTime(domain.getSession(), domain.getAdjourningDate())) {
 								result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
 								return;
 							}
 						}
 					} else {
-						if(!domain.validateSubmissionTime()) {
+						if(!AdjournmentMotion.validateSubmissionTime(domain.getSession(), domain.getAdjourningDate())) {
 							result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
 							return;
 						}
@@ -1590,13 +1592,13 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
 						if(!role.equals("AMOIS_TYPIST")){
-							if(!domain.validateSubmissionTime()) {
+							if(!AdjournmentMotion.validateSubmissionTime(domain.getSession(), domain.getAdjourningDate())) {
 								result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
 								return;
 							}
 						}
 					} else {
-						if(!domain.validateSubmissionTime()) {
+						if(!AdjournmentMotion.validateSubmissionTime(domain.getSession(), domain.getAdjourningDate())) {
 							result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
 							return;
 						}

@@ -7610,7 +7610,8 @@ public class ReferenceController extends BaseController {
 		String houseTypeStr = request.getParameter("houseType");
 		String sessionTypeId= request.getParameter("sessionType");
 		String sessionYearStr= request.getParameter("sessionYear");
-		if(houseTypeStr==null||houseTypeStr.isEmpty()||sessionTypeId==null||sessionTypeId.isEmpty()||sessionYearStr==null||sessionYearStr.isEmpty()) {
+		String usergroupType = request.getParameter("usergroupType");
+		if(houseTypeStr==null||houseTypeStr.isEmpty()||sessionTypeId==null||sessionTypeId.isEmpty()||sessionYearStr==null||sessionYearStr.isEmpty()||usergroupType==null||usergroupType.isEmpty()) {
 			throw new ELSException();
 		}
 		SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeId));
@@ -7624,7 +7625,12 @@ public class ReferenceController extends BaseController {
 		List<Object[]> adjourningDates = this.populateDateListUsingCustomParameterFormat(sessionDates, "ADJOURNMENTMOTION_ADJOURNINGDATEFORMAT", locale.toString());
 		
 		/** populate default adjourning session date for the session **/
-		Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(session);
+		Date defaultAdjourningDate = null;
+		if(usergroupType.equals(ApplicationConstants.MEMBER)) {
+			defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(session, true);
+		} else {
+			defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(session, false);
+		}		
 		adjourningDates.add(new Object[]{FormaterUtil.formatDateToString(defaultAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT)});
 		
 		return adjourningDates;

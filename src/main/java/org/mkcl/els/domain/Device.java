@@ -166,7 +166,7 @@ public abstract class Device extends BaseDomain {
             	/** update lowerhouse static current number for adjournment motions **/
             	if (AdjournmentMotion.getCurrentNumberLowerHouse() == 0) {
             		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, adjournmentMotionDeviceType);
-            		Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(latestLowerHouseSession);
+            		Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(latestLowerHouseSession, true);
             		number = AdjournmentMotion.assignMotionNo(lowerHouseType, defaultAdjourningDate, ApplicationConstants.DEFAULT_LOCALE);
 					AdjournmentMotion.updateCurrentNumberLowerHouse(number);
 					AdjournmentMotion.updateCurrentAdjourningDateLowerHouse(defaultAdjourningDate);
@@ -175,7 +175,7 @@ public abstract class Device extends BaseDomain {
             	/** update upperhouse static current number for adjournment motions **/
             	if (AdjournmentMotion.getCurrentNumberUpperHouse() == 0) {
             		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, adjournmentMotionDeviceType);
-            		Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(latestUpperHouseSession);
+            		Date defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(latestUpperHouseSession, true);
             		number = AdjournmentMotion.assignMotionNo(upperHouseType, defaultAdjourningDate, ApplicationConstants.DEFAULT_LOCALE);
 					AdjournmentMotion.updateCurrentNumberUpperHouse(number);
 					AdjournmentMotion.updateCurrentAdjourningDateUpperHouse(defaultAdjourningDate);

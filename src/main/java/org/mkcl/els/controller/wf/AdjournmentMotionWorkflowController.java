@@ -138,7 +138,7 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 					if(approvedAdjourningDate==null) {
 						approvedAdjourningDate = adjournmentMotion.getAdjourningDate();
 						if(approvedAdjourningDate==null) {
-							approvedAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(adjournmentMotion.getSession());
+							approvedAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(adjournmentMotion.getSession(), true);
 						}
 					}
 					if(approvedAdjourningDate!=null) {

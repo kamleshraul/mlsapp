@@ -466,12 +466,21 @@ public class AdjournmentMotion extends Device implements Serializable {
 		}
 	}
 
-	public static Date findDefaultAdjourningDateForSession(final Session session) throws ELSException {
+	public static Date findDefaultAdjourningDateForSession(final Session session, final Boolean isForMemberLogin) throws ELSException {
 		if(session==null || session.getId()==null) {
 			throw new ELSException();
 		}
 		if(Session.isCurrentDateInSession(session)) {
-			return new Date();			
+			if(!isForMemberLogin || AdjournmentMotion.validateSubmissionTime(session, new Date())) {
+				return new Date();
+			} else {
+				Date nextSessionWorkingDay = session.getNextSessionDate(new Date(), 1, session.getLocale());
+				if(nextSessionWorkingDay!=null) {
+					return nextSessionWorkingDay;
+				} else {
+					return session.getEndDate();
+				}
+			}						
 		} else {
 			return session.getStartDate();
 		}
@@ -1334,41 +1343,40 @@ public class AdjournmentMotion extends Device implements Serializable {
     	}
     }
     
-    public Boolean validateSubmissionTime() {
-    	Date currentSubmissionTime = new Date();
-    	Date submissionStartTime = this.findSubmissionStartTime();
-    	Date submissionEndTime = this.findSubmissionEndTime();    	
-    	if(currentSubmissionTime.compareTo(submissionStartTime)>=0 && currentSubmissionTime.compareTo(submissionEndTime)<=0) {
+    public static Boolean validateSubmissionTime(final Session motionSession, Date adjourningDate) {
+    	Date currentSubmissionTime = new Date();    	
+    	//Date submissionStartTime = AdjournmentMotion.findSubmissionStartTime(motionSession, adjourningDate);
+    	Date submissionEndTime = AdjournmentMotion.findSubmissionEndTime(motionSession, adjourningDate);    	
+    	if(currentSubmissionTime.compareTo(submissionEndTime)<=0) {
     		return true;
     	} else {
     		return false;
     	}    	
     }
     
-    public Date findSubmissionStartTime() {
+    public static Date findSubmissionStartTime(final Session motionSession, Date adjourningDate) {
     	//find submission start date part
-    	String strAdjourningDate = FormaterUtil.formatDateToString(this.getAdjourningDate(), ApplicationConstants.SERVER_DATEFORMAT);
+    	String strAdjourningDate = FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.SERVER_DATEFORMAT);
     	String submissionStartDatePart = strAdjourningDate;
     	//find submission start time part
     	String submissionStartTimePart = "00:00:00";
-    	Session motionSession = this.getSession();
     	if(motionSession!=null) {
-    		String submissionStartTimeParameter = session.getParameter(this.getType().getType()+"_submissionStartTime_"+strAdjourningDate);
+    		String submissionStartTimeParameter = motionSession.getParameter(ApplicationConstants.ADJOURNMENT_MOTION+"_submissionStartTime_"+strAdjourningDate);
     		if(submissionStartTimeParameter!=null && !submissionStartTimeParameter.isEmpty()) {
     			submissionStartTimePart = submissionStartTimeParameter + ":00";
     		} else {
-    			String submissionStartTimeDefaultSessionParameter = session.getParameter(this.getType().getType()+"_submissionStartTime");
+    			String submissionStartTimeDefaultSessionParameter = motionSession.getParameter(ApplicationConstants.ADJOURNMENT_MOTION+"_submissionStartTime");
         		if(submissionStartTimeDefaultSessionParameter!=null && !submissionStartTimeDefaultSessionParameter.isEmpty()) {
         			submissionStartTimePart = submissionStartTimeDefaultSessionParameter + ":00";
         		} else {
-        			CustomParameter csptsubmissionStartTime = CustomParameter.findByName(CustomParameter.class, this.getType().getType().toUpperCase()+"_SUBMISSIONSTARTTIME_"+this.getHouseType().getType().toUpperCase(), "");
+        			CustomParameter csptsubmissionStartTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ADJOURNMENT_MOTION.toUpperCase()+"_SUBMISSIONSTARTTIME_"+motionSession.getHouse().getType().getType().toUpperCase(), "");
             		if(csptsubmissionStartTime!=null && csptsubmissionStartTime.getValue()!=null && !csptsubmissionStartTime.getValue().isEmpty()) {
             			submissionStartTimePart = csptsubmissionStartTime.getValue() + ":00";
             		}
         		}
     		}
     	} else {
-    		CustomParameter csptsubmissionStartTime = CustomParameter.findByName(CustomParameter.class, this.getType().getType().toUpperCase()+"_SUBMISSIONSTARTTIME_"+this.getHouseType().getType().toUpperCase(), "");
+    		CustomParameter csptsubmissionStartTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ADJOURNMENT_MOTION.toUpperCase()+"_SUBMISSIONSTARTTIME_"+motionSession.getHouse().getType().getType().toUpperCase(), "");
     		if(csptsubmissionStartTime!=null && csptsubmissionStartTime.getValue()!=null && !csptsubmissionStartTime.getValue().isEmpty()) {
     			submissionStartTimePart = csptsubmissionStartTime.getValue() + ":00";
     		}
@@ -1378,35 +1386,34 @@ public class AdjournmentMotion extends Device implements Serializable {
     	return FormaterUtil.formatStringToDate(submissionStartTime, ApplicationConstants.SERVER_DATETIMEFORMAT);
     }
     
-    public Date findSubmissionEndTime() {
+    public static Date findSubmissionEndTime(final Session motionSession, Date adjourningDate) {
     	//find submission end date part
-    	String strAdjourningDate = FormaterUtil.formatDateToString(this.getAdjourningDate(), ApplicationConstants.SERVER_DATEFORMAT);
+    	String strAdjourningDate = FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.SERVER_DATEFORMAT);
     	String submissionEndDatePart = strAdjourningDate;
     	//find submission end time part
     	String submissionEndTimePart = "00:00:00";
-    	Session motionSession = this.getSession();
     	if(motionSession!=null) {
-    		String submissionEndTimeParameter = session.getParameter(this.getType().getType()+"_submissionEndTime_"+strAdjourningDate);
+    		String submissionEndTimeParameter = motionSession.getParameter(ApplicationConstants.ADJOURNMENT_MOTION+"_submissionEndTime_"+strAdjourningDate);
     		if(submissionEndTimeParameter!=null && !submissionEndTimeParameter.isEmpty()) {
     			submissionEndTimePart = submissionEndTimeParameter + ":00";
     		} else {
-    			String submissionEndTimeDefaultSessionParameter = session.getParameter(this.getType().getType()+"_submissionEndTime");
+    			String submissionEndTimeDefaultSessionParameter = motionSession.getParameter(ApplicationConstants.ADJOURNMENT_MOTION+"_submissionEndTime");
         		if(submissionEndTimeDefaultSessionParameter!=null && !submissionEndTimeDefaultSessionParameter.isEmpty()) {
         			submissionEndTimePart = submissionEndTimeDefaultSessionParameter + ":00";
         		} else {
-        			CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, this.getType().getType().toUpperCase()+"_SUBMISSIONENDTIME_"+this.getHouseType().getType().toUpperCase(), "");
+        			CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ADJOURNMENT_MOTION.toUpperCase()+"_SUBMISSIONSTARTTIME_"+motionSession.getHouse().getType().getType().toUpperCase(), "");
             		if(csptsubmissionEndTime!=null && csptsubmissionEndTime.getValue()!=null && !csptsubmissionEndTime.getValue().isEmpty()) {
             			submissionEndTimePart = csptsubmissionEndTime.getValue() + ":00";
             		}
         		}
     		}
     	} else {
-    		CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, this.getType().getType().toUpperCase()+"_SUBMISSIONENDTIME_"+this.getHouseType().getType().toUpperCase(), "");
+    		CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ADJOURNMENT_MOTION.toUpperCase()+"_SUBMISSIONSTARTTIME_"+motionSession.getHouse().getType().getType().toUpperCase(), "");
     		if(csptsubmissionEndTime!=null && csptsubmissionEndTime.getValue()!=null && !csptsubmissionEndTime.getValue().isEmpty()) {
     			submissionEndTimePart = csptsubmissionEndTime.getValue() + ":00";
     		}
     	}
-    	//find submission start time
+    	//find submission end time
     	String submissionEndTime = submissionEndDatePart + " " + submissionEndTimePart;
     	return FormaterUtil.formatStringToDate(submissionEndTime, ApplicationConstants.SERVER_DATETIMEFORMAT);
     }
