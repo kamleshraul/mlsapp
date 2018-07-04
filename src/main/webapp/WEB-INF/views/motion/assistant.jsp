@@ -903,8 +903,12 @@
 		<label class="small"><spring:message code="motion.currentStatus" text="Current Status"/></label>
 		<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
+	<c:if test="${usergroupType == 'assistant' || usergroupType == 'clerk'}">
 	
-	<c:if test="${internalStatusType == 'motion_system_assistantprocessed' || internalStatusType == 'motion_system_putup'}">
+	</c:if>
+	<c:if test="${internalStatusType == 'motion_system_assistantprocessed' 
+					|| internalStatusType == 'motion_system_putup'
+					|| (internalStatusType == 'motion_final_admission' && (usergroupType == 'assistant' || usergroupType == 'clerk'))}">
 		<p>	
 			<label class="small"><spring:message code="motion.putupfor" text="Put up for"/></label>	
 			<select id="changeInternalStatus" class="sSelect">
@@ -945,11 +949,16 @@
 		<form:errors path="internalStatus" cssClass="validationError"/>	
 	</p>
 	
-	<c:if test="${domain.reply!=null}">
+	<c:if test="${domain.reply!=null || internalStatusType == 'motion_final_admission'}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="motion.nivedan" text="Nivedan"/></label>
-			<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
+			<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 		</p>
+		
+		<%-- <p>
+			<label class="small"><spring:message code="motion.replyReceivedDate" text="Nivedan Received Date"/></label>
+			<form:input path="replyReceivedDate" cssClass="sText datemask"/>
+		</p> --%>
 	</c:if>
 	
 	<p>
@@ -1008,6 +1017,7 @@
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
+	<form:hidden path="replyReceivedDate"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">		
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">	
 	<input type="hidden" name="status" id="status" value="${status }">
