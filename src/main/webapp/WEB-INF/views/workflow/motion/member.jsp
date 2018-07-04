@@ -843,6 +843,7 @@
 	<form:hidden path="endFlag"/>
 	<form:hidden path="level"/>
 	<form:hidden path="localizedActorName"/>
+	<form:hidden path="replyReceivedDate"/>
 	<input type="hidden" id="workflowDetailsId" name="workflowDetailsId" value="${workflowdetails}" />	
 	<form:hidden path="file"/>
 	<form:hidden path="fileIndex"/>	
