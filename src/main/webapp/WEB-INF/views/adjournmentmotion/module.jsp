@@ -24,7 +24,7 @@
 			$('#list_tab').click(function(){
 				$("#selectionDiv1").show();								
 				showAdjournmentMotionList();				
-			});			
+			});				
 			/**** house type changes then reload grid****/			
 			$("#selectedHouseType").change(function(){
 				var value=$(this).val();
@@ -233,7 +233,18 @@
 					+"&adjourningDate="+selectedAdjourningDate
 					+"&subDepartment="+$("#selectedSubDepartment").val()
 			);
-		}		
+		}	
+		function memberAdjournmentMotionsView() {
+			var parameters = "houseType=" + $("#selectedHouseType").val()
+			+ "&sessionYear=" + $("#selectedSessionYear").val()
+			+ "&sessionType=" + $("#selectedSessionType").val()
+			+ "&motionType=" + $("#selectedMotionType").val()
+			+ "&createdBy=" + $("#ugparam").val()
+			+"&locale="+$("#moduleLocale").val()
+			+ "&report=MEMBER_ADJOURNMENTMOTIONS_VIEW"
+			+ "&reportout=member_adjournmentmotions_view";
+			showTabByIdAndUrl('details_tab','adjournmentmotion/report/generalreport?'+parameters);
+		}
 		/**** new adjournmentmotion ****/
 		function newAdjournmentMotion() {		
 			$("#cancelFn").val("newAdjournmentMotion");
@@ -650,5 +661,6 @@
 		<input type="hidden" id="no" value="<spring:message code='generic.no' text='No'/>"/>
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
+		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
 </body>
 </html>

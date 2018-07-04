@@ -599,9 +599,16 @@
 				<label class="wysiwyglabel"><spring:message code="adjournmentmotion.noticeContent" text="Notice Content"/>*</label>
 				<form:textarea path="noticeContent" cssClass="wysiwyg invalidFormattingAllowed"></form:textarea>
 				<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
-			</p>	
+			</p>
 			
-			<c:if test="${not empty sectionofficer_remark and internalStatusType=='adjournmentmotion_final_rejection'}">
+			<c:if test="${not empty formattedMemberStatus}">
+				<p id="mainStatusDiv">
+					<label class="small"><spring:message code="adjournmentmotion.currentStatus" text="Current Status"/></label>
+					<input id="formattedMemberStatus" name="formattedMemberStatus" value="${formattedMemberStatus }" type="text" readonly="readonly" class="sText">
+				</p>
+			</c:if>	
+			
+			<%-- <c:if test="${not empty sectionofficer_remark and internalStatusType=='adjournmentmotion_final_rejection'}">
 			<p>
 				<label class="wysiwyglabel"><spring:message code="bill.remarks" text="Remarks"/></label>
 				<form:textarea path="remarks" cssClass="wysiwyg invalidFormattingAllowed" readonly="true"></form:textarea>
@@ -612,7 +619,7 @@
 				<label class="wysiwyglabel"><spring:message code="bill.rejectionReason" text="Rejection reason"/></label>
 				<form:textarea path="rejectionReason" cssClass="wysiwyg invalidFormattingAllowed" readonly="true"></form:textarea>
 			</p>
-			</c:if>
+			</c:if> --%>
 			</div>	
 			 <div class="fields">
 				<h2></h2>

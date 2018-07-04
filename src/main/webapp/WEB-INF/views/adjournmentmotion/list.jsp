@@ -43,7 +43,12 @@
 			/****Searching motion****/
 			$("#search").click(function() {
 				searchRecord();
-			});				
+			});	
+			/****Member's Adjournment Motions View ****/
+			$("#member_adjournmentmotions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberAdjournmentMotionsView();
+			});
 			/**** Current Status Report Generation ****/
 			$("#amois_current_status_report").click(function() {
 				/* $(this).attr('href','#');
@@ -106,7 +111,13 @@
 			</security:authorize>			
 			<a href="#" id="search" class="butSim">
 				<spring:message code="motion.search" text="Search"/>
-			</a> |				
+			</a> |	
+			<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<hr/>
+				<a href="#" id="member_adjournmentmotions_view" class="butSim">
+					<spring:message code="question.member_adjournmentmotions_view" text="Member's Adjournment Motions View"/>
+				</a> |
+			</security:authorize> --%>	
 			<security:authorize access="hasAnyRole('AMOIS_ASSISTANT', 'AMOIS_SECTION_OFFICER')">
 			<a href="#" id="amois_current_status_report" class="butSim">
 				<spring:message code="amois.current_status_report" text="Current Status Report"/>

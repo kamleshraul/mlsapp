@@ -77,6 +77,8 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 	@Override
 	protected void populateModule(final ModelMap model,final HttpServletRequest request,
 			final String locale,final AuthUser currentUser) {
+		// Populate locale
+		model.addAttribute("moduleLocale", locale);
 
 		/**** Selected Motion Type ****/
 		DeviceType deviceType=DeviceType.findByFieldName(DeviceType.class, "type",request.getParameter("type"), locale);
@@ -873,12 +875,13 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 			Status internalStatus=domain.getInternalStatus();
 			Status recommendationStatus=domain.getRecommendationStatus();
 			if(status==null) {
-				logger.error("status is not set for this bill having id="+domain.getId()+".");
+				logger.error("status is not set for this motion having id="+domain.getId()+".");
 				model.addAttribute("errorcode", "status_null");
 				return;
 			}
 			model.addAttribute("status",status.getId());
 			model.addAttribute("memberStatusType",status.getType());
+			model.addAttribute("formattedStatus", status.getName());
 			if(internalStatus==null) {
 				logger.error("internal status is not set for this bill having id="+domain.getId()+".");
 				model.addAttribute("errorcode", "internalStatus_null");
