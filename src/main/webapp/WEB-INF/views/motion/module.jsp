@@ -940,7 +940,7 @@
 			</security:authorize>
 			
 			<security:authorize
-				access="hasAnyRole('MOIS_SECTION_OFFICER', 'MOIS_ASSISTANT')">
+				access="hasAnyRole('MOIS_SECTION_OFFICER', 'MOIS_ASSISTANT','MOIS_CLERK')">
 				<li><a id="statusupdate_tab" href="#" class="tab"> <spring:message
 							code="generic.motion.statusupdate" text="Update Motion">
 						</spring:message>
