@@ -3646,11 +3646,19 @@ public class MotionController extends GenericController<Motion>{
 						Long id = Long.parseLong(i);
 						Motion motion = Motion.findById(Motion.class, id);
 						Status status = Status.findById(Status.class, new Long(strDecisionStatus));
-						motion.setRecommendationStatus(status);
-						if(strDate!= null && !strDate.isEmpty()){
-							Date discussionDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
-							motion.setAnsweringDate(discussionDate);
+						if(status.getType().equals(ApplicationConstants.MOTION_PROCESSED_ANSWER_RECEIVED)){
+							if(strDate!= null && !strDate.isEmpty()){
+								Date replyReceivedDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+								motion.setReplyReceivedDate(replyReceivedDate);
+							}
+						}else{
+							if(strDate!= null && !strDate.isEmpty()){
+								Date discussionDate = FormaterUtil.formatStringToDate(strDate, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+								motion.setAnsweringDate(discussionDate);
+							}
 						}
+						motion.setRecommendationStatus(status);
+						
 						motion.simpleMerge();
 						updated = true;
 						success.append(FormaterUtil.formatNumberNoGrouping(motion.getNumber(), motion.getLocale())+",");

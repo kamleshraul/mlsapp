@@ -244,6 +244,9 @@ import org.springframework.transaction.annotation.Transactional;
 	@Column(length = 3000)	
 	private String refText;
 	
+	/**** Motion Reply(Nivedan) Date ****/
+	private Date replyReceivedDate;
+	
     /**** Fields for storing the confirmation of Group change ****/
     private Boolean transferToDepartmentAccepted = false;
     
@@ -1124,6 +1127,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 	public void setAdvanceCopyActor(String advanceCopyActor) {
 		this.advanceCopyActor = advanceCopyActor;
+	}
+
+	
+	public Date getReplyReceivedDate() {
+		return replyReceivedDate;
+	}
+
+	public void setReplyReceivedDate(Date replyReceivedDate) {
+		this.replyReceivedDate = replyReceivedDate;
 	}
 
 	//************************Clubbing**********************
