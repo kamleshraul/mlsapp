@@ -112,6 +112,7 @@
 	/**** load actors ****/
 	function loadActors(value){
 		//var valueToSend="";
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		if(value!='-'){	
 			//console.log(value);
 			var deviceTypeType = $('#selectedQuestionType').val();
@@ -232,13 +233,16 @@
 				}
 			    $("#recommendationStatus").val(value);
 			}
+			$.unblockUI();
 			});
 		}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			//$("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
+		    $.unblockUI();
 		}
+		
 	}
 	/**** group changed ****/
 	function groupChanged(){

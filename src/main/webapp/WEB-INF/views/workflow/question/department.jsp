@@ -112,6 +112,7 @@
 	/**** load actors ****/
 	function loadActors(value){
 		//var valueToSend="";
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		if(value!='-'){	
 			//console.log(value);
 			var deviceTypeType = $('#selectedQuestionType').val();
@@ -155,6 +156,7 @@
 			+ "&usergroup=" + $("#usergroup").val()
 			+ "&level=" + $("#originalLevel").val();
 			var resourceURL='ref/question/actors?'+params;
+			
 			$.post(resourceURL,function(data){
 			if(data!=undefined||data!=null||data!=''){
 				
@@ -205,6 +207,7 @@
 				 var temp = actor1.split("#");
 				 $("#level").val(temp[2]);		    
 				 $("#localizedActorName").val(temp[3] + "(" + temp[4] + ")");
+				
 			}else{
 				$("#actor").empty();
 				$("#actorDiv").hide();
@@ -213,14 +216,20 @@
 					$("#internalStatus").val(value);
 				}
 			    $("#recommendationStatus").val(value);
-			}
+			   
+				}
+			 $.unblockUI();
+			
 			});
+			
 		}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			//$("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
+		    $.unblockUI();
 		}
+		
 	}
 	/**** group changed ****/
 	function groupChanged(){
