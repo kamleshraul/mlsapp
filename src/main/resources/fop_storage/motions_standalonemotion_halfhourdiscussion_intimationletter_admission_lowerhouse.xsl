@@ -86,11 +86,9 @@
 	            		</fo:block>  
 	            		<fo:block>सूचना (क्रमांक: <fo:inline font-weight="bold"><xsl:value-of select="number"/></fo:inline>) पुढीलप्रमाणे आहे :-</fo:block>
 	            		<fo:block font-size="6px">&#160;</fo:block>    
-	            		<fo:block>	            			
-	            			<xsl:choose>
-	            				<xsl:when test="reason!='' and reason!='-' and reason!='--' and reason!='---' and reason!='----' and reason!='-----'">&#160;&#160;&#160;&#160;&#160;&#160;"<xsl:apply-templates select="reason"/>"</xsl:when>
-	            				<xsl:when test="bExplanation!=''">&#160;&#160;&#160;&#160;&#160;&#160;"<xsl:apply-templates select="bExplanation"/>"</xsl:when>
-	            			</xsl:choose>          			
+	            		<fo:block>
+	            			&#160;&#160;&#160;&#160;&#160;&#160;<xsl:apply-templates select="bExplanation"/>	            			
+	            			        			
 	            		</fo:block> 
 	            		<fo:block font-size="12px">&#160;</fo:block>
 	            		<fo:block text-align="right">
