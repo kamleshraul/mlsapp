@@ -2697,103 +2697,115 @@ class StarredQuestionController {
 		
 		/**** Supporting Member Workflow/Put Up Workflow ****/
 		String operation=request.getParameter("operation");
-		if(operation!=null){
-			if(!operation.isEmpty()){
-				if(operation.equals("approval")){
-					ProcessDefinition processDefinition = processService.
-							findProcessDefinitionByKey(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW);
-					Map<String,String> properties = new HashMap<String, String>();
-					properties.put("pv_deviceId", String.valueOf(question.getId()));
-					properties.put("pv_deviceTypeId", question.getType().getType());
-					ProcessInstance processInstance = processService.
-							createProcessInstance(processDefinition, properties);
-					List<Task> tasks = processService.getCurrentTasks(processInstance);					
-					List<WorkflowDetails> workflowDetails = WorkflowDetails.
-							create(question,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"");
-					//Question question = Question.findById(Question.class,domain.getId());
-					List<SupportingMember> supportingMembers = question.getSupportingMembers();
-					Status status=Status.
-							findByType(ApplicationConstants.SUPPORTING_MEMBER_PENDING, domain.getLocale());
-					for(SupportingMember i:supportingMembers){
-						String decisionStatusType = i.getDecisionStatus().getType();
-						if(decisionStatusType.equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
-							i.setDecisionStatus(status);
-							i.setRequestReceivedOn(new Date());
-							i.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
-							User user = User.
-									findbyNameBirthDate(i.getMember().getFirstName(),
-											i.getMember().getMiddleName(),i.getMember().getLastName(),
-											i.getMember().getBirthDate());
-							Credential credential=user.getCredential();
-							for(WorkflowDetails j:workflowDetails){
-								if(j.getAssignee().equals(credential.getUsername())){
-									i.setWorkflowDetailsId(String.valueOf(j.getId()));
-									break;
-								}
+		if(operation!=null && !operation.isEmpty()){
+			if(operation.equals("approval")){
+				ProcessDefinition processDefinition = processService.
+						findProcessDefinitionByKey(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW);
+				Map<String,String> properties = new HashMap<String, String>();
+				properties.put("pv_deviceId", String.valueOf(question.getId()));
+				properties.put("pv_deviceTypeId", question.getType().getType());
+				ProcessInstance processInstance = processService.
+						createProcessInstance(processDefinition, properties);
+				List<Task> tasks = processService.getCurrentTasks(processInstance);					
+				List<WorkflowDetails> workflowDetails = WorkflowDetails.
+						create(question,tasks,ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW,"");
+				//Question question = Question.findById(Question.class,domain.getId());
+				List<SupportingMember> supportingMembers = question.getSupportingMembers();
+				Status status=Status.
+						findByType(ApplicationConstants.SUPPORTING_MEMBER_PENDING, domain.getLocale());
+				for(SupportingMember i:supportingMembers){
+					String decisionStatusType = i.getDecisionStatus().getType();
+					if(decisionStatusType.equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
+						i.setDecisionStatus(status);
+						i.setRequestReceivedOn(new Date());
+						i.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
+						User user = User.
+								findbyNameBirthDate(i.getMember().getFirstName(),
+										i.getMember().getMiddleName(),i.getMember().getLastName(),
+										i.getMember().getBirthDate());
+						Credential credential=user.getCredential();
+						for(WorkflowDetails j:workflowDetails){
+							if(j.getAssignee().equals(credential.getUsername())){
+								i.setWorkflowDetailsId(String.valueOf(j.getId()));
+								break;
 							}
-							i.merge();
+						}
+						i.merge();
+					}
+				}
+			}else if(operation.equals("startworkflow")){
+					/** copy latest question text of child question to revised question text of its parent's other clubbed questions if any **/
+					if(question.getParent()!=null) {
+						/** fetch question's latest question text **/
+						String latestQuestionText = question.getRevisedQuestionText();
+						if(latestQuestionText==null || latestQuestionText.isEmpty()) {
+							latestQuestionText = question.getQuestionText();
+						}							
+						for(ClubbedEntity ce: question.getParent().getClubbedEntities()) {
+							Question clubbedQuestion = ce.getQuestion();
+							if(!clubbedQuestion.getId().equals(question.getId())) {
+								clubbedQuestion.setRevisedQuestionText(latestQuestionText);
+								clubbedQuestion.simpleMerge();
+							}
 						}
 					}
-				}else if(operation.equals("startworkflow")){
-						/** copy latest question text of child question to revised question text of its parent's other clubbed questions if any **/
-						if(question.getParent()!=null) {
-							/** fetch question's latest question text **/
-							String latestQuestionText = question.getRevisedQuestionText();
-							if(latestQuestionText==null || latestQuestionText.isEmpty()) {
-								latestQuestionText = question.getQuestionText();
-							}							
-							for(ClubbedEntity ce: question.getParent().getClubbedEntities()) {
-								Question clubbedQuestion = ce.getQuestion();
-								if(!clubbedQuestion.getId().equals(question.getId())) {
-									clubbedQuestion.setRevisedQuestionText(latestQuestionText);
-									clubbedQuestion.simpleMerge();
-								}
-							}
+					
+					ProcessDefinition processDefinition = processService.
+							findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+					Map<String,String> properties = new HashMap<String, String>();					
+					String nextuser = request.getParameter("actor");
+					String level = "";
+					UserGroupType usergroupType = null;
+					if(nextuser != null){
+						if(!nextuser.isEmpty()){
+							String[] temp = nextuser.split("#");
+							properties.put("pv_user",temp[0]);
+							level = temp[2];
+							usergroupType = UserGroupType.findByType(temp[1], domain.getLocale());
 						}
-						
-						ProcessDefinition processDefinition = processService.
-								findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
-						Map<String,String> properties = new HashMap<String, String>();					
-						String nextuser = request.getParameter("actor");
-						String level = "";
-						UserGroupType usergroupType = null;
-						if(nextuser != null){
-							if(!nextuser.isEmpty()){
-								String[] temp = nextuser.split("#");
-								properties.put("pv_user",temp[0]);
-								level = temp[2];
-								usergroupType = UserGroupType.findByType(temp[1], domain.getLocale());
+					}
+					String endflag = domain.getEndFlag();
+					properties.put("pv_endflag", endflag);	
+					properties.put("pv_deviceId", String.valueOf(question.getId()));
+					properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
+					ProcessInstance processInstance= processService.
+							createProcessInstance(processDefinition, properties);
+					//Question question=Question.findById(Question.class,domain.getId());
+					Task task= processService.getCurrentTask(processInstance);
+					if(endflag!=null && !endflag.isEmpty() ){
+						if(endflag.equals("continue")){
+							Workflow workflow = null;//question.findWorkflowFromStatus();	
+							if(domain.getParent() != null && domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTOSECTIONOFFICER)){
+								 workflow = Workflow.findByType(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW, domain.getLocale());	
+							}else{
+								 workflow = question.findWorkflowFromStatus();	
 							}
+													
+							WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,usergroupType,workflow.getType(),level);
+							question.setWorkflowDetailsId(workflowDetails.getId());
 						}
-						String endflag = domain.getEndFlag();
-						properties.put("pv_endflag", endflag);	
-						properties.put("pv_deviceId", String.valueOf(question.getId()));
-						properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
-						ProcessInstance processInstance= processService.
-								createProcessInstance(processDefinition, properties);
-						//Question question=Question.findById(Question.class,domain.getId());
-						Task task= processService.getCurrentTask(processInstance);
-						if(endflag!=null && !endflag.isEmpty() ){
-							if(endflag.equals("continue")){
-								Workflow workflow = null;//question.findWorkflowFromStatus();	
-								if(domain.getParent() != null && domain.getRecommendationStatus().getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTOSECTIONOFFICER)){
-									 workflow = Workflow.findByType(ApplicationConstants.QUESTION_SUPPLEMENTARY_WORKFLOW, domain.getLocale());	
-								}else{
-									 workflow = question.findWorkflowFromStatus();	
-								}
-														
-								WorkflowDetails workflowDetails = WorkflowDetails.create(domain,task,usergroupType,workflow.getType(),level);
-								question.setWorkflowDetailsId(workflowDetails.getId());
-							}
-						}
-						question.setWorkflowStarted("YES");
-						question.setWorkflowStartedOn(new Date());
-						question.setTaskReceivedOn(new Date());
-						question.simpleMerge();
+					}
+					question.setWorkflowStarted("YES");
+					question.setWorkflowStartedOn(new Date());
+					question.setTaskReceivedOn(new Date());
+					question.simpleMerge();
+			}
+		}else{
+			// If branch users add the answer from their end instead of from department, then the workflow will end of the department side
+			if(domain.getAnswer() != null && !domain.getAnswer().isEmpty()){
+				WorkflowDetails wd = WorkflowDetails.findCurrentWorkflowDetail(domain);
+				if(wd != null){
+					if(wd.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+							||wd.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+						WorkflowDetails.endProcess(wd);
+						Status answerAcceptanceStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_ANSWER_RECEIVED, domain.getLocale());
+						question.setRecommendationStatus(answerAcceptanceStatus);
+						question.removeExistingWorkflowAttributes();
+					}
 				}
 			}
 		}
-}	
+	}	
 
 
 	public static Boolean preDelete(final Question question,
