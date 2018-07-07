@@ -75,54 +75,55 @@
 	            	<fo:block font-family="Mangal" font-size="10.5px">
 	            		<xsl:choose>
 	            			<xsl:when test="element_1">
-	            				<xsl:for-each select="element_1">
-	            					<xsl:if test="position()!=1">
-	            						<fo:block break-before="page"/>
-	            					</xsl:if>
-	            					<fo:block margin-top="2cm" text-align="center" font-size="16px" font-weight="bold">
-				            			<xsl:value-of select="element_1_1"></xsl:value-of>
-				            		</fo:block>
-				            		<fo:block text-align="center" font-size="14px" font-weight="bold">
-				            			<xsl:value-of select="element_1_4"/> - भाग २
-				            		</fo:block>
-				            		<fo:block text-align="center" font-size="14px" font-weight="bold">
-				            			दिनांक : <xsl:value-of select="element_1_2"></xsl:value-of>
-				            		</fo:block>	
-				            		<fo:block font-size="14px">&#160;</fo:block>	
-				            		<fo:block>
-				            			<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
-				            				<fo:table-column column-number="1" column-width="2cm" />
-					                        <fo:table-column column-number="2" column-width="5cm" />
-					                        <fo:table-column column-number="3" column-width="5.5cm" />
-					                        <fo:table-column column-number="4" column-width="4.5cm" />
-					                        <fo:table-header>
-					                        	<fo:table-row>
-					                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-						                        	   	<fo:block text-align="center" font-weight="bold">
-				                                        	सूचना
-					                                    </fo:block>
-					                                    <fo:block text-align="center" font-weight="bold">
-				                                        	क्रमांक
-					                                    </fo:block>
-						                        	</fo:table-cell>
-						                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-						                        	    <fo:block text-align="center" font-weight="bold">
-				                                        	सूचना देणाऱ्या सदस्यांची नावे
-					                                    </fo:block>
-						                        	</fo:table-cell>
-						                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-						                        	    <fo:block text-align="center" font-weight="bold">
-				                                        	विषय
-					                                    </fo:block>
-						                        	</fo:table-cell>
-						                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
-						                        	    <fo:block text-align="center" font-weight="bold">
-				                                    		निर्णय
-					                                    </fo:block>
-						                        	</fo:table-cell>
-					                        	</fo:table-row>
-					                        </fo:table-header>
-					                        <fo:table-body>
+	            				<fo:block margin-top="2cm" text-align="center" font-size="16px" font-weight="bold">
+			            			<xsl:value-of select="element_1[1]/element_1_1"></xsl:value-of>
+			            		</fo:block>
+			            		<fo:block text-align="center" font-size="14px" font-weight="bold">
+			            			<xsl:value-of select="element_1[1]/element_1_4"/> - भाग २
+			            		</fo:block>
+			            		<fo:block text-align="center" font-size="14px" font-weight="bold">
+			            			दिनांक : <xsl:value-of select="element_1[1]/element_1_2"></xsl:value-of>
+			            		</fo:block>	
+			            		<fo:block font-size="14px">&#160;</fo:block>
+	            				
+            					<!-- <xsl:if test="position()!=1">
+            						<fo:block break-before="page"/>
+            					</xsl:if> -->	            						
+			            		<fo:block>
+			            			<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
+			            				<fo:table-column column-number="1" column-width="2cm" />
+				                        <fo:table-column column-number="2" column-width="5cm" />
+				                        <fo:table-column column-number="3" column-width="5.5cm" />
+				                        <fo:table-column column-number="4" column-width="4.5cm" />
+				                        <fo:table-header>
+				                        	<fo:table-row>
+				                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+					                        	   	<fo:block text-align="center" font-weight="bold">
+			                                        	सूचना
+				                                    </fo:block>
+				                                    <fo:block text-align="center" font-weight="bold">
+			                                        	क्रमांक
+				                                    </fo:block>
+					                        	</fo:table-cell>
+					                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+					                        	    <fo:block text-align="center" font-weight="bold">
+			                                        	सूचना देणाऱ्या सदस्यांची नावे
+				                                    </fo:block>
+					                        	</fo:table-cell>
+					                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+					                        	    <fo:block text-align="center" font-weight="bold">
+			                                        	विषय
+				                                    </fo:block>
+					                        	</fo:table-cell>
+					                        	<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
+					                        	    <fo:block text-align="center" font-weight="bold">
+			                                    		निर्णय
+				                                    </fo:block>
+					                        	</fo:table-cell>
+				                        	</fo:table-row>
+				                        </fo:table-header>
+				                        <fo:table-body>
+				                        	<xsl:for-each select="element_1">
 					                        	<fo:table-row border="solid 0.1mm black">	                                	
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
 				                                        <fo:block  text-align="center">
@@ -149,10 +150,10 @@
 				                                        </fo:block>
 				                                    </fo:table-cell>                                   	
 				                                </fo:table-row>
-					                        </fo:table-body>
-				            			</fo:table>
-				            		</fo:block>		            		
-	            				</xsl:for-each>
+			                                </xsl:for-each>
+				                        </fo:table-body>
+			            			</fo:table>
+			            		</fo:block>            				
 	            			</xsl:when>
 	            			<xsl:otherwise>
 	            				<fo:block text-align="center" font-size="14px" font-weight="bold">

@@ -1410,22 +1410,7 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 		
 		/**** add creation date and created by ****/
 		domain.setCreationDate(new Date());
-		if(userGroupType.getType()!=null&&!(userGroupType.getType().isEmpty())
-				&&userGroupType.getType().equals("typist")){
-			Member member=domain.getPrimaryMember();
-			User user = null;
-			try {
-				user = User.findbyNameBirthDate(member.getFirstName(),member.getMiddleName(),member.getLastName(),member.getBirthDate());
-			} catch (ELSException e) {
-				// TODO Auto-generated catch block
-				logger.debug("populateNew", e);
-				model.addAttribute("error",e.getParameter());
-				e.printStackTrace();
-			}
-			domain.setCreatedBy(user.getCredential().getUsername());
-		}else{
-			domain.setCreatedBy(this.getCurrentUser().getActualUsername());
-		}
+		domain.setCreatedBy(this.getCurrentUser().getActualUsername());
 		domain.setDataEnteredBy(this.getCurrentUser().getActualUsername());
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(this.getCurrentUser().getActualUsername());

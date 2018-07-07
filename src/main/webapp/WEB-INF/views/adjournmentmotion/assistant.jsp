@@ -832,6 +832,9 @@
 				<h2></h2>
 				<p class="tright">
 					<c:choose>
+						<c:when test="${(internalStatusType eq'adjournmentmotion_final_admission' || internalStatusType eq 'adjournmentmotion_final_rejection') && empty parent}">
+							<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						</c:when>
 						<c:when test="${bulkedit!='yes'}">
 							<c:if test="${internalStatusType=='adjournmentmotion_submit' || internalStatusType=='adjournmentmotion_system_assistantprocessed' || internalStatusType=='adjournmentmotion_system_putup'
 								|| internalStatusType=='adjournmentmotion_putup_rejection' || internalStatusType == 'adjournmentmotion_putup_clubbing' || internalStatusType == 'adjournmentmotion_putup_nameclubbing' 
@@ -842,7 +845,7 @@
 									<input id="startworkflow" type="button" value="<spring:message code='adjournmentmotion.putupadjournmentmotion' text='Put Up Motion'/>" class="butDef">
 								</security:authorize>					
 							</c:if>							
-						</c:when>
+						</c:when>						
 						<c:otherwise>
 							<c:if test="${bulkedit=='yes'}">
 								<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	

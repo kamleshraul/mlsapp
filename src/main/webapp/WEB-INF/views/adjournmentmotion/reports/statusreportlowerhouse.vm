@@ -24,7 +24,7 @@
 				सदस्यांचे नाव
 			</td>
 			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				<!--$memberName<br />--> $formatData.get(15)
+				$formatData.get(15)
 			</td>
 		</tr>
 		<tr style="font-weight: bold;">
@@ -61,6 +61,31 @@
 			</td>	
 		</tr>
 		*#		
+		<tr style="font-weight: bold;">
+			#if($formatData.get(32)=='yes')
+				<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
+					ह्या प्रस्तावाशी जोडलेला आहे
+				</td>
+				<td colspan="2" style="font-weight: bold; font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
+					#if($formatData.get(33))
+						$formatData.get(33)
+					#else
+						-
+					#end
+				</td>
+			#else
+				<td style="font-weight: bold; font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
+					जोडलेल्या प्रस्तावांचे क्रमांक
+				</td>
+				<td colspan="" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
+					#if($formatData.get(31))
+						$formatData.get(31)
+					#else
+						-
+					#end
+				</td>
+			#end						
+		</tr>
 		<tr>
 			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 				स्थिती 
@@ -91,7 +116,7 @@
 		<br>
 		
 		<tr>
-			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+			<td colspan="3" style="width: 750px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align:justify;">
 				$formatData.get(4)
 			</td>
 		</tr>	

@@ -12,7 +12,9 @@ package org.mkcl.els.repository;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
@@ -147,42 +149,157 @@ public class UserRepository extends BaseRepository<User,Long>{
 		
 	}
 	
-	
 	public User findbyNameBirthDate(final String firstName,final String middleName,final String lastName,
 			final Date birthDate) throws ELSException {
-		String strQuery="SELECT u FROM User u "
-				+ "WHERE ("
-				+ "(u.firstName=:firstName AND u.middleName=:middleName AND u.lastName=:lastName) "
-				+ " OR "
-				+ "(u.firstName=:firstName AND u.lastName=:lastName) "
-				+ " OR "
-				+ "(u.middleName=:middleName AND u.lastName=:lastName) "
-				+ " OR "
-				+ "(u.firstName=:firstName AND u.middleName=:middleName) "
-				+ ")"
-				+ "AND u.birthDate=:birthDate";
-		Query query=this.em().createQuery(strQuery);
-		query.setParameter("firstName", firstName);
-		query.setParameter("middleName",middleName);
-		query.setParameter("lastName",lastName);
-		query.setParameter("birthDate",birthDate);
-		try{
-			User user= (User) query.getSingleResult();
-			if(user!=null){			
-				return user;
-			}else{
-				return new User();
+		return this.findByNameBirthDate(firstName, middleName, lastName, birthDate, ApplicationConstants.DEFAULT_LOCALE);
+	}
+	
+	public User findByNameBirthDate(final String firstName,final String middleName,final String lastName,
+			final Date birthDate, final String locale) throws ELSException {
+		
+		/**** Previous Code ****/
+//		String strQuery="SELECT u FROM User u "
+//				+ "WHERE ("
+//				+ "(u.firstName=:firstName AND u.middleName=:middleName AND u.lastName=:lastName) "
+//				+ " OR "
+//				+ "(u.firstName=:firstName AND u.lastName=:lastName) "
+//				+ " OR "
+//				+ "(u.middleName=:middleName AND u.lastName=:lastName) "
+//				+ " OR "
+//				+ "(u.firstName=:firstName AND u.middleName=:middleName) "
+//				+ ")"
+//				+ "AND u.birthDate=:birthDate";
+//		Query query=this.em().createQuery(strQuery);
+//		query.setParameter("firstName", firstName);
+//		query.setParameter("middleName",middleName);
+//		query.setParameter("lastName",lastName);
+//		query.setParameter("birthDate",birthDate);
+//		try{
+//			User user= (User) query.getSingleResult();
+//			if(user!=null){			
+//				return user;
+//			}else{
+//				return new User();
+//			}
+//		}catch(EntityNotFoundException ex){
+//			logger.error(ex.getMessage());
+//			return new User();
+//		}catch(Exception e){
+//			e.printStackTrace();
+//			logger.error(e.getMessage());
+//			ELSException elsException=new ELSException();
+//			elsException.setParameter("UserRepository_User_findbyNameBirthDate", "User Not found");
+//			throw elsException;
+//		}
+		
+		/**** Updated Code ****/
+		User user = null;
+		List<User> possibleUsers = null;
+		Map<String, String> userNameParameters = new HashMap<String, String>();
+		
+		//Combo 1: firstName + middleName + lastName + birthDate
+		try {
+			userNameParameters.put("firstName", firstName);
+			userNameParameters.put("middleName", middleName);
+			userNameParameters.put("lastName", lastName);
+//			System.out.println("combo 1:");
+//			for (Map.Entry<String, String> entry : userNameParameters.entrySet()) {
+//			    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//			}
+			possibleUsers = User.findAllByFieldNames(User.class, userNameParameters, "id", ApplicationConstants.ASC, locale);
+			if(possibleUsers!=null && !possibleUsers.isEmpty()) {
+				for(User m: possibleUsers) {
+					if(m.getBirthDate().equals(birthDate)) {
+						user = m;
+						possibleUsers = null;
+						userNameParameters = null;
+						return user;
+					} else {
+						throw new ELSException("user_not_found", "user_not_found");
+					}
+				}
+			} else {
+				throw new ELSException("user_not_found", "user_not_found");
 			}
-		}catch(EntityNotFoundException ex){
-			logger.error(ex.getMessage());
-			return new User();
-		}catch(Exception e){
-			e.printStackTrace();
-			logger.error(e.getMessage());
-			ELSException elsException=new ELSException();
-			elsException.setParameter("UserRepository_User_findbyNameBirthDate", "User Not found");
-			throw elsException;
+		} catch(ELSException eCombo1) {
+			if(eCombo1.getParameter()!=null && eCombo1.getParameter().equals("user_not_found")) {
+				//Combo 2: firstName + lastName + birthDate
+				try {
+					userNameParameters.remove("middleName");	
+//					System.out.println("combo 2:");
+//					for (Map.Entry<String, String> entry : userNameParameters.entrySet()) {
+//					    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//					}
+					possibleUsers = User.findAllByFieldNames(User.class, userNameParameters, "id", ApplicationConstants.ASC, locale);
+					if(possibleUsers!=null && !possibleUsers.isEmpty()) {
+						for(User m: possibleUsers) {
+							if(m.getBirthDate().equals(birthDate)) {
+								user = m;
+								possibleUsers = null;
+								userNameParameters = null;
+								return user;
+							} else {
+								throw new ELSException("user_not_found", "user_not_found");
+							}
+						}
+					} else {
+						throw new ELSException("user_not_found", "user_not_found");
+					}
+				} catch(ELSException eCombo2) {
+					if(eCombo2.getParameter()!=null && eCombo2.getParameter().equals("user_not_found")) {
+						//Combo 3: middleName + lastName + birthDate
+						try {
+							userNameParameters.remove("firstName");
+							userNameParameters.put("middleName", middleName);			
+//							System.out.println("combo 3:");
+//							for (Map.Entry<String, String> entry : userNameParameters.entrySet()) {
+//							    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//							}
+							possibleUsers = User.findAllByFieldNames(User.class, userNameParameters, "id", ApplicationConstants.ASC, locale);
+							if(possibleUsers!=null && !possibleUsers.isEmpty()) {
+								for(User m: possibleUsers) {
+									if(m.getBirthDate().equals(birthDate)) {
+										user = m;
+										possibleUsers = null;
+										userNameParameters = null;
+										return user;
+									} else {
+										throw new ELSException("user_not_found", "user_not_found");
+									}
+								}
+							} else {
+								throw new ELSException("user_not_found", "user_not_found");
+							}
+						} catch(ELSException eCombo3) {
+							if(eCombo3.getParameter()!=null && eCombo3.getParameter().equals("user_not_found")) {
+								//Combo 4: firstName + middleName + birthDate
+								userNameParameters.remove("lastName");
+								userNameParameters.put("firstName", firstName);
+//								System.out.println("combo 4:");
+//								for (Map.Entry<String, String> entry : userNameParameters.entrySet()) {
+//								    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//								}
+								possibleUsers = User.findAllByFieldNames(User.class, userNameParameters, "id", ApplicationConstants.ASC, locale);
+								if(possibleUsers!=null && !possibleUsers.isEmpty()) {
+									for(User m: possibleUsers) {
+										if(m.getBirthDate().equals(birthDate)) {
+											user = m;
+											possibleUsers = null;
+											userNameParameters = null;
+											return user;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
+		//if user is not found, return blank instance
+		possibleUsers = null;
+		userNameParameters = null;
+		return new User();
 	}
 	
 	public List<User> findByRole(final boolean roleStartingWith,
