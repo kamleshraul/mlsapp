@@ -26,12 +26,14 @@ import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.ReferencedEntity;
 import org.mkcl.els.domain.Role;
@@ -281,7 +283,9 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 			model.addAttribute("workflowsubtype", workflowDetails.getWorkflowSubType());
 			AdjournmentMotion domain=AdjournmentMotion.findById(AdjournmentMotion.class,Long.parseLong(workflowDetails.getDeviceId()));
 			/**** Populate Model ****/
-			populateModel(domain,model,request,workflowDetails);			
+			populateModel(domain,model,request,workflowDetails);	
+			/**** Find Latest Remarks ****/
+			findLatestRemarksByUserGroup(domain, model, request, workflowDetails);
 			return workflowDetails.getForm();
 		} catch (ELSException e1) {
 			model.addAttribute("error", e1.getParameter());
@@ -547,6 +551,48 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 		model.addAttribute("pv_mailflag", "off");
 		model.addAttribute("pv_reminderflag", "off");
 		model.addAttribute("pv_timerflag", "off");
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private void findLatestRemarksByUserGroup(final AdjournmentMotion domain, final ModelMap model,
+			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {
+		UserGroupType userGroupType = null;
+		String username = this.getCurrentUser().getUsername();
+		Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
+		List<UserGroup> ugroups = this.getCurrentUser().getUserGroups();
+		for(UserGroup ug : ugroups){
+			UserGroup usergroup = UserGroup.findActive(credential, ug.getUserGroupType(), domain.getSubmissionDate(), domain.getLocale());
+			if(usergroup != null){
+				userGroupType = usergroup.getUserGroupType();
+				break;
+			}
+		}
+		CustomParameter customParameter = null;
+		if(userGroupType!=null) {
+			customParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_LATESTREVISION_STARTINGACTOR_"+userGroupType.getType().toUpperCase(), "");
+			if(customParameter != null){
+				String strUsergroupType = customParameter.getValue();
+				userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+			}else{
+				CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+				if(defaultCustomParameter != null){
+					String strUsergroupType = defaultCustomParameter.getValue();
+					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+				}
+			}
+		} else {
+			CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+			if(defaultCustomParameter != null){
+				String strUsergroupType = defaultCustomParameter.getValue();
+				userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+			}
+		}
+		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+		requestMap.put("adjournmentMotionId",new String[]{String.valueOf(domain.getId())});
+		requestMap.put("locale",new String[]{domain.getLocale()});
+		List result=Query.findReport("AMOIS_LATEST_REVISIONS", requestMap);
+		model.addAttribute("latestRevisions",result);
+		model.addAttribute("startingActor", userGroupType.getName());
 	}
 	
 	@Transactional
