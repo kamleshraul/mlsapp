@@ -393,12 +393,7 @@
 					
 			});			
 			
-			$("#update_yaadi").click(function(event, isHighSecurityValidationRequired) {
-				//isHighSecurityValidationRequired = false;
-				if(isHighSecurityValidationRequired!=false) {
-					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
-					return false;
-				}
+			$("#update_yaadi").click(function(){
 				var selectedAnsweringDateId = $('#selectedAnsweringDate').val();
 				var selectedAnsweringDate = $("#answeringDateMaster option[value='"+selectedAnsweringDateId+"']").text();
 				//console.log("selectedAnsweringDate: " + selectedAnsweringDate);
@@ -818,6 +813,11 @@
 						<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
 					</c:forEach> 
 					</select>
+					<select id="answeringDateMaster" style="display:none;">
+						<c:forEach items="${answeringDates}" var="i">
+							<option value="${i.id}"><c:out value="${i.value}"></c:out></option>
+						</c:forEach>
+					</select>
 				</c:when>
 				<c:when test="${deviceTypeType == 'questions_halfhourdiscussion_from_question' 
 								or deviceTypeType == 'motions_standalonemotion_halfhourdiscussion' 
@@ -886,7 +886,7 @@
 			</a>
 			<c:if test="${deviceTypeType != 'bills_nonofficial' and not(fn:contains(deviceTypeType, 'resolutions_')) and not(fn:contains(deviceTypeType, 'halfhour'))}"> |
 				<span id="yaadiDiv">
-				<a href="#" id="update_yaadi" class="butSim" style="display: none;">
+				<a href="#" id="update_yaadi" class="butSim">
 					<spring:message code="ballotinitial.updateyaadi" text="Update Questions in Yaadi"/>
 				</a> |
 				<%-- <a href="#" id="view_yaadi" class="butSim">
