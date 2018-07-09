@@ -532,27 +532,33 @@
 									textTemp+="<td class='expand' style='width: 300px; max-width: 300px;'>"+data[i].subject+"</td>";
 																		
 									textTemp+="<td class='expand' style='width: 420px; max-width: 420px;'>"+data[i].formattedPrimaryMember+" : "+data[i].noticeContent
-										+"<br/>"
-										+data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
-										if($("#strDeviceType").val().startsWith("questions_")){
-											+"<strong>"+data[i].formattedGroup+"</span>,"	
-										}
-										+ data[i].ministry;
-										if(data[i].subDepartment==null||data[i].subdepartment==""){
-											textTemp+=","+data[i].status+"<br>";
-										   
-									    }else{						     
-									    	textTemp+=","+data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].status;
-									    }
-										if(data[i].chartAnsweringDate!=null && data[i].chartAnsweringDate!=''){
-											textTemp+=" ,"+data[i].chartAnsweringDate;
-										} 
+										+"<br/>";
+									if(data[i].revisedContent!=null && data[i].revisedContent!=''){
+										textTemp+=" ,"+data[i].revisedContent
+										+"<br/>";
+									} 
 										
-										if(data[i].actor==null||data[i].actor==''){
-											textTemp+="</td>";
-										}else{
-											textTemp+=" ,<br>"+data[i].actor+"</td>";
-										} 
+										
+									textTemp += data[i].sessionYear+","+data[i].sessionType+","+data[i].deviceType+"<br>"
+									if($("#strDeviceType").val().startsWith("questions_")){
+										+"<strong>"+data[i].formattedGroup+"</span>,"	
+									}
+									+ data[i].ministry;
+									if(data[i].subDepartment==null||data[i].subdepartment==""){
+										textTemp+=","+data[i].status+"<br>";
+									   
+								    }else{						     
+								    	textTemp+=","+data[i].subDepartment+" "+$('#subdepartmentValue').val()+"<br>"+ data[i].status;
+								    }
+									if(data[i].chartAnsweringDate!=null && data[i].chartAnsweringDate!=''){
+										textTemp+=" ,"+data[i].chartAnsweringDate;
+									} 
+									
+									if(data[i].actor==null||data[i].actor==''){
+										textTemp+="</td>";
+									}else{
+										textTemp+=" ,<br>"+data[i].actor+"</td>";
+									} 
 									 
 									
 									textTemp+="</tr>";								
