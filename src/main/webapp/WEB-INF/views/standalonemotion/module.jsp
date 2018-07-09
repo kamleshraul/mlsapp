@@ -843,11 +843,12 @@
 	/**** Search Facility ****/
 	function searchInt(id){
 		//$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		var params="searchfacility=yes&usergroup="+$("#currentusergroup").val()
-			        +"&usergroupType="+$("#currentusergroupType").val()+
-			        "&houseType="+$("#selectedHouseType").val()+
-			        "&sessionType="+$("#selectedSessionType").val()+
-			        "&sessionYear="+$("#selectedSessionYear").val();		
+		var params="searchfacility=yes&usergroup="+$("#currentusergroup").val() +
+			        "&usergroupType="+$("#currentusergroupType").val() +
+			        "&houseType="+$("#selectedHouseType").val() +
+			        "&sessionType="+$("#selectedSessionType").val() +
+			        "&sessionYear="+$("#selectedSessionYear").val() +
+			        "&deviceType="+$("#selectedQuestionType").val();		
 		/* $.get('clubentity/init?'+params,function(data){
 			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
 			if(data){
@@ -867,7 +868,7 @@
 			}
 			scrollTop();
 		}); */
-		showTabByIdAndUrl('search_tab','clubentity/init?'+params);
+		showTabByIdAndUrl('search_tab','devicesearch/init?'+params);
 	}
 	
 	function likeSubmission(){
@@ -971,7 +972,11 @@
 				</a></li>
 
 			</security:authorize>
-			<security:authorize access="hasAnyRole('xyz')">
+			<security:authorize access="hasAnyRole('SMOIS_CLERK','SMOIS_ASSISTANT', 'SMOIS_UNDER_SECRETARY',
+				'SMOIS_DEPUTY_SECRETARY','SMOIS_PRINCIPAL_SECRETARY','SMOIS_SPEAKER', 'SMOIS_JOINT_SECRETARY',
+				'SMOIS_SECRETARY', 'SMOIS_OFFICER_ON_SPECIAL_DUTY', 'SMOIS_DEPUTY_SPEAKER', 'SMOIS_CHAIRMAN',
+				'SMOIS_DEPUTY_CHAIRMAN', 'SMOIS_SECTION_OFFICER', 'SMOIS_UNDER_SECRETARY_COMMITTEE',
+				'SUPER_ADMIN','SMOIS_ADDITIONAL_SECRETARY')">
 				<li>
 					<a id="search_tab" href="#" class="tab"><spring:message code="question.searchT" text="Search"></spring:message></a>
 				</li>
