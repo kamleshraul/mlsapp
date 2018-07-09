@@ -92,7 +92,7 @@
 			</td>
 			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 				#if($formatData.get(30))
-					#if($formatData.get(30)!='cutmotion_submit' && $formatData.get(30)!='cutmotion_system_assistantprocessed')
+					#if($formatData.get(30)!='adjournmentmotion_submit' && $formatData.get(30)!='adjournmentmotion_system_assistantprocessed')
 						$formatData.get(25)
 					#else
 						
@@ -122,7 +122,9 @@
 		</tr>	
 	</table>
 </div>
+<br/>
 <div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>
+#**
 <div style="width: 750px;">	
 	<table style="width: 750px; font-weight: bold; border: 2px solid black; font-size: 16px;" class="uiTable">
 		#foreach($r in $data)
@@ -136,7 +138,7 @@
 				</td>
 				<td style="width: 100px; padding: 2px; text-align: center;">
 					#if($formatData.get(29))
-						#if($formatData.get(29)!='cutmotion_submit' && $formatData.get(29)!='cutmotion_system_assistantprocessed')
+						#if($formatData.get(29)!='adjournmentmotion_submit' && $formatData.get(29)!='adjournmentmotion_system_assistantprocessed')
 							$r.get(24)
 						#else
 							
@@ -169,5 +171,6 @@
 		</tr>
 	</table>
 </div>
+*#
 <span class='page-break-before-forced'>&nbsp;</span>
 <hr>

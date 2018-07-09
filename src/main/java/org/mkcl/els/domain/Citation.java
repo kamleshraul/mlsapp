@@ -41,11 +41,14 @@ public class Citation extends BaseDomain implements Serializable{
 
     /** The status. */
     @Column(length=10000)
-    private String status;
-    
+    private String status;    
    
     @Column(length=10000)
     private String type;
+    
+    /** The flag for setting citation for all the devices under the given status. */
+    private Boolean isCommonForDevices=false;
+    
     /**
      * Instantiates a new citation.
      */
@@ -132,6 +135,18 @@ public class Citation extends BaseDomain implements Serializable{
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public Boolean getIsCommonForDevices() {
+		return isCommonForDevices;
+	}
+	
+	public Boolean isCommonForDevices() {
+		return isCommonForDevices;
+	}
+
+	public void setIsCommonForDevices(Boolean isCommonForDevices) {
+		this.isCommonForDevices = isCommonForDevices;
 	}
 	
 	

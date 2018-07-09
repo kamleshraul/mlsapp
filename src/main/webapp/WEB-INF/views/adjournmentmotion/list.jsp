@@ -112,12 +112,12 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="motion.search" text="Search"/>
 			</a> |	
-			<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 				<hr/>
 				<a href="#" id="member_adjournmentmotions_view" class="butSim">
 					<spring:message code="question.member_adjournmentmotions_view" text="Member's Adjournment Motions View"/>
 				</a> |
-			</security:authorize> --%>	
+			</security:authorize>	
 			<security:authorize access="hasAnyRole('AMOIS_ASSISTANT', 'AMOIS_SECTION_OFFICER')">
 			<a href="#" id="amois_current_status_report" class="butSim">
 				<spring:message code="amois.current_status_report" text="Current Status Report"/>
