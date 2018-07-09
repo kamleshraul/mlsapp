@@ -37,6 +37,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.repository.StandaloneMotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -3876,5 +3877,11 @@ public class StandaloneMotion extends Device implements Serializable {
     		this.simpleMerge();
     	}		
     }
+
+
+	public static List<SearchVO> fullTextSearchForSearching(String param, int start, int noOfRecords, String locale,
+			Map<String, String[]> requestMap) {
+		return getStandaloneMotionRepository().fullTextSearchForSearching(param,start,noOfRecords, locale, requestMap);
+	}
 	
 }

@@ -259,6 +259,11 @@ import org.springframework.transaction.annotation.Transactional;
     
 	private String advanceCopyActor;
     
+	/****Factual Position****/
+	private String factualPositionFromDepartment;
+	
+	private String factualPositionFromMember;
+	
 	/**** Synch variables for motion lower house****/
 	private transient volatile static Integer CALLING_ATTENTION_CUR_NUM_LOWER_HOUSE = 0;
 	
@@ -1136,6 +1141,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 	public void setReplyReceivedDate(Date replyReceivedDate) {
 		this.replyReceivedDate = replyReceivedDate;
+	}
+	
+	
+	public String getFactualPositionFromDepartment() {
+		return factualPositionFromDepartment;
+	}
+
+	public void setFactualPositionFromDepartment(String factualPositionFromDepartment) {
+		this.factualPositionFromDepartment = factualPositionFromDepartment;
+	}
+
+	public String getFactualPositionFromMember() {
+		return factualPositionFromMember;
+	}
+
+	public void setFactualPositionFromMember(String factualPositionFromMember) {
+		this.factualPositionFromMember = factualPositionFromMember;
 	}
 
 	//************************Clubbing**********************
