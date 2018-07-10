@@ -68,12 +68,11 @@
 									} else {
 										$.prompt("some error..please contact administrator");
 									}
-								}).done(function() {							
-									reloadMyTaskGrid();
-									pendingNewSupplementaryClubbingTasks();
 								});
 							}
-						}												
+						}
+						reloadMyTaskGrid();
+						pendingNewSupplementaryClubbingTasks();
 					}).fail(function() {
 						console.log("3.error");
 						if($("#ErrorMsg").val()!=''){
@@ -112,9 +111,6 @@
 								} else {
 									$.prompt("some error..please contact administrator");
 								}
-							}).done(function() {							
-								reloadMyTaskGrid();
-								pendingNewSupplementaryClubbingTasks();
 							});
 						}
 					}
@@ -147,9 +143,6 @@
 								} else {
 									$.prompt("some error..please contact administrator");
 								}
-							}).done(function() {							
-								reloadMyTaskGrid();
-								pendingNewSupplementaryClubbingTasks();
 							});
 						}
 					}
