@@ -960,13 +960,13 @@
 			<form:input path="replyReceivedDate" cssClass="sText datemask"/>
 		</p> --%>
 	</c:if>
-	<c:if test="${domain.factualPositionFromDepartment!=null || (internalStatusType == 'motion_final_clarificationNeededFromDepartment' || internalStatusType == 'motion_final_clarificationNeededFromMemberAndDepartment'}">
+	<c:if test="${domain.factualPositionFromDepartment!=null || (internalStatusType == 'motion_final_clarificationNeededFromDepartment' || internalStatusType == 'motion_final_clarificationNeededFromMemberAndDepartment')}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="motion.factualPositionFromDepartment" text="Factual Position from Department"/></label>
 			<form:textarea path="factualPositionFromDepartment" cssClass="wysiwyg"></form:textarea>
 		</p>
 	</c:if>
-	<c:if test="${domain.factualPositionFromMember!=null || (internalStatusType == 'motion_final_clarificationNeededFromMember' || internalStatusType == 'motion_final_clarificationNeededFromMemberAndDepartment'}">
+	<c:if test="${domain.factualPositionFromMember!=null || (internalStatusType == 'motion_final_clarificationNeededFromMember' || internalStatusType == 'motion_final_clarificationNeededFromMemberAndDepartment')}">
 		<p>
 			<label class="wysiwyglabel"><spring:message code="motion.factualPositionFromMember" text="Factual Position from Member"/></label>
 			<form:textarea path="factualPositionFromMember" cssClass="wysiwyg"></form:textarea>
