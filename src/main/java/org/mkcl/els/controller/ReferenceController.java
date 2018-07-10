@@ -7608,15 +7608,32 @@ public class ReferenceController extends BaseController {
 	@RequestMapping(value = "/adjournmentmotion/adjourningdatesforsession", method = RequestMethod.GET)	
 	public @ResponseBody List<Object[]> findAdjourningDatesForSession(HttpServletRequest request, Locale locale) throws Exception{
 		String houseTypeStr = request.getParameter("houseType");
-		String sessionTypeId= request.getParameter("sessionType");
+		String sessionTypeStr= request.getParameter("sessionType");
 		String sessionYearStr= request.getParameter("sessionYear");
 		String usergroupType = request.getParameter("usergroupType");
-		if(houseTypeStr==null||houseTypeStr.isEmpty()||sessionTypeId==null||sessionTypeId.isEmpty()||sessionYearStr==null||sessionYearStr.isEmpty()||usergroupType==null||usergroupType.isEmpty()) {
+		if(houseTypeStr==null||houseTypeStr.isEmpty()||sessionTypeStr==null||sessionTypeStr.isEmpty()||sessionYearStr==null||sessionYearStr.isEmpty()||usergroupType==null||usergroupType.isEmpty()) {
 			throw new ELSException();
 		}
-		SessionType sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeId));
+		CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+		if(csptDeployment!=null && csptDeployment.getValue()!=null){
+			if(csptDeployment.getValue().equals("TOMCAT")){
+				houseTypeStr = new String(houseTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+				sessionTypeStr = new String(sessionTypeStr.getBytes("ISO-8859-1"),"UTF-8");
+				sessionYearStr = new String(sessionYearStr.getBytes("ISO-8859-1"),"UTF-8");
+			}
+		}
+		HouseType houseType = HouseType.findByType(houseTypeStr, locale.toString());		
+		if(houseType==null) {
+			houseType = HouseType.findByName(HouseType.class, houseTypeStr, locale.toString());
+		}
+		SessionType sessionType = null;
+		try {
+			sessionType = SessionType.findById(SessionType.class, Long.parseLong(sessionTypeStr));
+		} catch(NumberFormatException ne) {
+			sessionType = SessionType.findByFieldName(SessionType.class, "sessionType", sessionTypeStr, locale.toString());
+		}
 		Integer sessionYear = Integer.parseInt(sessionYearStr);
-		Session session = Session.find(sessionYear, sessionType.getType(), houseTypeStr);
+		Session session = Session.find(sessionYear, sessionType.getType(), houseType.getType());
 		if(session==null || session.getId()==null) {
 			throw new ELSException();
 		}

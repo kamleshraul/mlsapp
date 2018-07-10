@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +32,7 @@ import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
@@ -215,11 +217,12 @@ public class WorkflowController extends BaseController {
 	 * @param request the request
 	 * @param locale the locale
 	 * @return the string
+	 * @throws ELSException 
 	 */
 	@RequestMapping(value="myTasks/module", method=RequestMethod.GET)
 	public String myTasksModule(final ModelMap model,
 			final HttpServletRequest request,
-			final Locale applocale) {
+			final Locale applocale) throws ELSException {
 		String errorpage=this.getResourcePath(request).replace("module","error");
 		String locale=applocale.toString();
 		/**** This is for getting only the tasks of current user ****/
@@ -324,7 +327,15 @@ public class WorkflowController extends BaseController {
 		model.addAttribute("deviceTypeVOs", deviceTypeVOs);
 		/**** Default Value ****/	
 		DeviceType selectedDeviceType=deviceTypes.get(0);
-		model.addAttribute("selectedDeviceType", selectedDeviceType.getType());		
+		model.addAttribute("selectedDeviceType", selectedDeviceType.getType());
+		
+		/**** Session Dates for Devices like AdjournmentMotions. ****/
+		List<Date> sessionDates = lastSessionCreated.findAllSessionDatesHavingNoHoliday();
+		model.addAttribute("sessionDates", this.populateDateListUsingCustomParameterFormat(sessionDates, "ADJOURNMENTMOTION_ADJOURNINGDATEFORMAT", locale));		
+		/**** Default Value ****/
+		Date defaultAdjourningDate = null;
+		defaultAdjourningDate = AdjournmentMotion.findDefaultAdjourningDateForSession(lastSessionCreated, false);
+		model.addAttribute("defaultAdjourningDate", FormaterUtil.formatDateToString(defaultAdjourningDate, ApplicationConstants.SERVER_DATEFORMAT));
 		
 
 		

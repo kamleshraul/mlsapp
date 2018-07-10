@@ -11,7 +11,11 @@
 			}else{
 				$("#advanceCopyDiv").hide();
 			}
-			$('.datetimemask').mask("99-99-9999,99:99:99");
+			$('.datetimemask').mask("99-99-9999,99:99:99");			
+			if($("#deviceTypeType").val() != 'motions_adjournment'){
+				$("#selectedAdjourningDate").val("");				
+			}
+			var selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
 			/**** Initially we want to get only those tasks which belongs to current user and of selected status ****/
 			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
 						+"&sessionYear="+$("#selectedSessionYear").val()
@@ -24,6 +28,7 @@
 						+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
 						+"&answeringDate="+$("#selectedAnsweringDate").val()
 						+"&subdepartment="+$("#selectedDepartment").val()
+						+"&adjourningDate="+selectedAdjourningDate
 						+"&replyReceivedStatus="+$("#selectedReplyStatus").val()
 						);
 			$('#process_record').click(function(){

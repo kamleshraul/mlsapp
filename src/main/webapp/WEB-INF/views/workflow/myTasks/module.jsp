@@ -46,9 +46,34 @@
 							}							
 						}
 						$("#selectedDeviceType").html(deviceTypeSelectHtmlText);
-					}).done(function() {
-						reloadMyTaskGrid();
-						pendingNewSupplementaryClubbingTasks();
+					}).done(function() {						
+						if($("#selectedDeviceType").val()!=undefined && $("#selectedDeviceType").val()!=null) {
+							var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+							if(device=='motions_adjournment') {
+								$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
+										+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+									if(data.length>1) {
+										var defaultAdjourningDate = data[data.length-1][0];
+										$('#selectedAdjourningDate').empty();
+										var htmlText = "";
+										for(var i=0; i<data.length-1; i++) {
+											htmlText += "<option value='"+data[i][0]+"'";
+											if(data[i][0]==defaultAdjourningDate) {
+												htmlText += "selected='selected'";
+											}
+											htmlText += ">"+data[i][1]+"</option>";									
+										}	
+										$('#selectedAdjourningDate').html(htmlText);
+										prependOptionToSelectedAdjourningDate();
+									} else {
+										$.prompt("some error..please contact administrator");
+									}
+								}).done(function() {							
+									reloadMyTaskGrid();
+									pendingNewSupplementaryClubbingTasks();
+								});
+							}
+						}												
 					}).fail(function() {
 						console.log("3.error");
 						if($("#ErrorMsg").val()!=''){
@@ -65,7 +90,34 @@
 			/**** session year changes then reload grid****/			
 			$("#selectedSessionYear").change(function(){
 				var value=$(this).val();
-				if(value!=""){		
+				if(value!=""){
+					if($("#selectedDeviceType").val()!=undefined && $("#selectedDeviceType").val()!=null) {
+						var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+						if(device=='motions_adjournment') {
+							$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
+									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+								if(data.length>1) {
+									var defaultAdjourningDate = data[data.length-1][0];
+									$('#selectedAdjourningDate').empty();
+									var htmlText = "";
+									for(var i=0; i<data.length-1; i++) {
+										htmlText += "<option value='"+data[i][0]+"'";
+										if(data[i][0]==defaultAdjourningDate) {
+											htmlText += "selected='selected'";
+										}
+										htmlText += ">"+data[i][1]+"</option>";									
+									}	
+									$('#selectedAdjourningDate').html(htmlText);
+									prependOptionToSelectedAdjourningDate();
+								} else {
+									$.prompt("some error..please contact administrator");
+								}
+							}).done(function() {							
+								reloadMyTaskGrid();
+								pendingNewSupplementaryClubbingTasks();
+							});
+						}
+					}
 					reloadMyTaskGrid();
 				}			
 			});
@@ -74,6 +126,33 @@
 				var value=$(this).val();
 				if(value!=""){	
 					loadAssignedGroupsInSession();
+					if($("#selectedDeviceType").val()!=undefined && $("#selectedDeviceType").val()!=null) {
+						var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+						if(device=='motions_adjournment') {
+							$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
+									+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+								if(data.length>1) {
+									var defaultAdjourningDate = data[data.length-1][0];
+									$('#selectedAdjourningDate').empty();
+									var htmlText = "";
+									for(var i=0; i<data.length-1; i++) {
+										htmlText += "<option value='"+data[i][0]+"'";
+										if(data[i][0]==defaultAdjourningDate) {
+											htmlText += "selected='selected'";
+										}
+										htmlText += ">"+data[i][1]+"</option>";									
+									}	
+									$('#selectedAdjourningDate').html(htmlText);
+									prependOptionToSelectedAdjourningDate();
+								} else {
+									$.prompt("some error..please contact administrator");
+								}
+							}).done(function() {							
+								reloadMyTaskGrid();
+								pendingNewSupplementaryClubbingTasks();
+							});
+						}
+					}
 					reloadMyTaskGrid();
 				}			
 			});
@@ -110,6 +189,34 @@
 					if($('#currentusergroupType').val()!='department'){
 						$("#groupDiv").show();
 					}
+				}
+				if(device.indexOf('motions_adjournment')==0){
+					$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
+							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
+						if(data.length>1) {
+							var defaultAdjourningDate = data[data.length-1][0];
+							$('#selectedAdjourningDate').empty();
+							var htmlText = "";
+							for(var i=0; i<data.length-1; i++) {
+								htmlText += "<option value='"+data[i][0]+"'";
+								if(data[i][0]==defaultAdjourningDate) {
+									htmlText += "selected='selected'";
+								}
+								htmlText += ">"+data[i][1]+"</option>";									
+							}	
+							$('#selectedAdjourningDate').html(htmlText);
+							prependOptionToSelectedAdjourningDate();
+						} else {
+							$.prompt("some error..please contact administrator");
+						}
+					}).done(function() {
+						$("#adjourningDateDiv").show();
+						$("#departmentDiv").hide();
+					});												
+				}else{
+					$("#selectedAdjourningDate").val("");
+					$("#adjourningDateDiv").hide();
+					$("#departmentDiv").show();
 				}
 				//console.log($('#deviceTypeType').val());
 			
@@ -187,6 +294,10 @@
 			});
 			
 			$("#selectedDepartment").change(function(){
+				reloadMyTaskGrid();
+			});
+			
+			$("#selectedAdjourningDate").change(function(){
 				reloadMyTaskGrid();
 			});
 			
@@ -379,26 +490,41 @@
 		function showUneditedCopy(){
 			
 		}
+		
+		function convertToDbFormat(date){
+			if(date!=undefined && date!=null && date!="") {
+				var splitResult=date.split("/");
+				if(splitResult.length==3){
+					return splitResult[2]+"-"+splitResult[1]+"-"+splitResult[0];
+				}else{
+					return "Invalid Date";
+				}
+			} else {
+				return "";
+			}		
+		}
 		/**** reload grid ****/
-		function reloadMyTaskGrid(){
-				$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
-						+"&sessionYear="+$("#selectedSessionYear").val()
-						+"&sessionType="+$("#selectedSessionType").val()
-						+"&deviceType="+$("#selectedDeviceType").val()
-						+"&module="+$("#selectedModule").val()
-						+"&status="+$("#selectedStatus").val()
-						+"&workflowSubType="+$("#selectedSubWorkflow").val()
-						+"&assignee="+$("#assignee").val()
-						+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
-						+"&answeringDate="+$("#selectedAnsweringDate").val()
-						+"&subdepartment="+$("#selectedDepartment").val()
-						+"&replyReceivedStatus="+$("#selectedReplyStatus").val()
-						);
-				var oldURL=$("#grid").getGridParam("url");
-				var baseURL=oldURL.split("?")[0];
-				newURL=baseURL+"?"+$("#gridURLParams").val();
-				$("#grid").setGridParam({"url":newURL});
-				$("#grid").trigger("reloadGrid");	
+		function reloadMyTaskGrid(){	
+			var selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
+			$("#gridURLParams").val("houseType="+$("#selectedHouseType").val()
+					+"&sessionYear="+$("#selectedSessionYear").val()
+					+"&sessionType="+$("#selectedSessionType").val()
+					+"&deviceType="+$("#selectedDeviceType").val()
+					+"&module="+$("#selectedModule").val()
+					+"&status="+$("#selectedStatus").val()
+					+"&workflowSubType="+$("#selectedSubWorkflow").val()
+					+"&assignee="+$("#assignee").val()
+					+"&group="+(($("#selectedGroup").val()==undefined)?"":$("#selectedGroup").val())
+					+"&answeringDate="+$("#selectedAnsweringDate").val()
+					+"&subdepartment="+$("#selectedDepartment").val()
+					+"&adjourningDate="+selectedAdjourningDate
+					+"&replyReceivedStatus="+$("#selectedReplyStatus").val()
+					);
+			var oldURL=$("#grid").getGridParam("url");
+			var baseURL=oldURL.split("?")[0];
+			newURL=baseURL+"?"+$("#gridURLParams").val();
+			$("#grid").setGridParam({"url":newURL});
+			$("#grid").trigger("reloadGrid");	
 				
 		}	
 		
@@ -573,6 +699,12 @@
 			var optionValue = $('#pleaseSelectOption').val();
 			var option = "<option value='' selected>" + optionValue + "</option>";
 			$('#selectedModule').prepend(option);
+		}
+		
+		function prependOptionToSelectedAdjourningDate() {
+			var optionValue = $('#pleaseSelectOption').val();
+			var option = "<option value=''>" + optionValue + "</option>";
+			$('#selectedAdjourningDate').prepend(option);
 		}
 		
 		/****Provide introduction date ****/
@@ -1202,8 +1334,19 @@
 						<option value="${i.name}">${i.name}</option>
 					</c:forEach>
 				</select>|
-			</div>	
-			
+			</div>
+			<div id='adjourningDateDiv' style='display: none;'>
+				<a href="#" id="workflowLabel" class="butSim" >
+					<spring:message code="mytask.adjourningDate" text="Adjourning Date"/>
+				</a>
+				<!-- <input class="sCheck" type="checkbox" id="isAdjourningDateSelected" name="isAdjourningDateSelected" checked="checked"/> -->
+				<select name="selectedAdjourningDate" id="selectedAdjourningDate" style="width:130px;height: 25px;">	
+				<option value=""><spring:message code='client.prompt.selectForDropdown' text='----Please Select----'></spring:message></option>
+				<c:forEach items="${sessionDates}" var="i">
+					<option value="${i[0]}" ${i[0]==defaultAdjourningDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
+				</c:forEach>
+				</select>|
+			</div>
 			<hr>									
 			<a href="#" id="workflowLabel" class="butSim">
 				<spring:message code="mytask.workflow" text="Workflow"/>
