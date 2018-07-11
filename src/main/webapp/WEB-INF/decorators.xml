@@ -283,6 +283,7 @@
 		<pattern>/workflow/motion/advancedbulkapproval</pattern>
 		<pattern>workflow/bill</pattern>
 		<pattern>workflow/billamendmentmotion</pattern>
+		<pattern>/workflow/adjournmentmotion/advancedbulkapproval</pattern>
 		<pattern>/workflow/myTasks/*/process</pattern>	
 		
 		<pattern>/holiday</pattern>
