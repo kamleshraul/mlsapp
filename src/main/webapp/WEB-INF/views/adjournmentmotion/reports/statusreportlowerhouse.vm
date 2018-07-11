@@ -86,6 +86,7 @@
 				</td>
 			#end						
 		</tr>
+		#**
 		<tr>
 			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 				स्थिती 
@@ -102,6 +103,7 @@
 				#end
 			</td>
 		</tr>
+		*#
 		<tr>
 			<td colspan="3">&nbsp;</td>
 		</tr>		

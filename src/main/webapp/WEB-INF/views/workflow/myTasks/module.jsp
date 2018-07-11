@@ -635,6 +635,8 @@
 					resourceURL="workflow/eventmotion/advancedbulkapproval";					
 				}else if($('#deviceTypeType').val().indexOf("motions_standalonemotion_")==0){
 					resourceURL="workflow/standalonemotion/advancedbulkapproval";					
+				}else if($('#deviceTypeType').val().indexOf("motions_adjournment")==0){
+					resourceURL="workflow/adjournmentmotion/advancedbulkapproval";
 				}else{
 					resourceURL="workflow/motion/advancedbulkapproval";
 				}				
@@ -642,6 +644,7 @@
 				resourceURL="workflow/question/advancedbulkapproval";
 			}
 			$("#selectionDiv").hide();
+			var selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
 			$.get(resourceURL,{houseType:$("#selectedHouseType").val(),
 				sessionYear:$("#selectedSessionYear").val(),
 				sessionType:$("#selectedSessionType").val(),
@@ -651,7 +654,8 @@
 				answeringDate:$('#selectedAnsweringDate').val(),
 				status:$("#selectedStatus").val(),
 				workflowSubType:$("#selectedSubWorkflow").val(),
-				subdepartment: $("#selectedDepartment").val()
+				subdepartment: $("#selectedDepartment").val(),
+				adjourningDate: selectedAdjourningDate
 				},function(data){
 					$('a').removeClass('selected');
 					$('#advance_bulkputup_tab').addClass('selected');

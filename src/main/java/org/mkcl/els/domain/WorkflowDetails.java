@@ -476,6 +476,20 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 				strStatus, strWorkflowSubType, assignee, strItemsCount, strLocale, file, group, subdepartment, answeringDate);
 	}
 	
+	public static List<WorkflowDetails> findAllForAdjournmentMotions(final String strHouseType,
+			final String strSessionType,
+			final String strSessionYear,
+			final String strMotionType,
+			final String strStatus,
+			final String strWorkflowSubType,
+			final Date adjourningDate,
+			final String assignee,
+			final String strItemsCount,
+			final String strLocale) throws ELSException {
+		return getRepository().findAllForAdjournmentMotions(strHouseType, strSessionType, strSessionYear, strMotionType,
+				strStatus, strWorkflowSubType, adjourningDate, assignee, strItemsCount, strLocale);
+	}
+	
 	public static List<WorkflowDetails> findPendingWorkflowOfCurrentUser(final Map<String, String> parameters, 
 			final String orderBy,
 			final String sortOrder) {

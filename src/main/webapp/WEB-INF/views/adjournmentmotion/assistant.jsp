@@ -734,7 +734,7 @@
 			
 			<p style="display:none;" class="revise1" id="revisedSubjectDiv">
 				<label class="centerlabel"><spring:message code="adjournmentmotion.revisedSubject" text="Revised Subject"/></label>
-				<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
+				<form:textarea path="revisedSubject" rows="4" cols="50"></form:textarea>
 				<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			</p>
 			

@@ -50,6 +50,8 @@ public class BulkApprovalVO {
 	
 	private String advanceCopyActor;
 	
+	private String formattedAdjourningDate;
+	
 	/**** PENDING<COMPLETED<TIMEOUT ****/
 	private String currentStatus;
 	
@@ -281,7 +283,13 @@ public class BulkApprovalVO {
 	public void setAdvanceCopyActor(String advanceCopyActor) {
 		this.advanceCopyActor = advanceCopyActor;
 	}
-	
-	
+
+	public String getFormattedAdjourningDate() {
+		return formattedAdjourningDate;
+	}
+
+	public void setFormattedAdjourningDate(String formattedAdjourningDate) {
+		this.formattedAdjourningDate = formattedAdjourningDate;
+	}	
 	
 }
