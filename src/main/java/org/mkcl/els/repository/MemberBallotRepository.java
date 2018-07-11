@@ -840,7 +840,7 @@ public class MemberBallotRepository extends BaseRepository<MemberBallot, Seriali
 				if(customParameter!=null && customParameter.getValue().toLowerCase().equals("horizontal")){
 					position=firstBatchCurrentAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
 					lastMemberFirstBatch=lastMember(memberPositionMap);
-					position=firstBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
+					//position=firstBatchPreviousAnsweringDate(requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap);
 					membersWithQuestionsOnlyInLastRoundPresent=membersWithFIrstBatchLastRoundQuestionsPresent(session, deviceType, requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInLastRoundPresent,
 							membersWithQuestionsOnlyInLastRoundAbsent, lastMemberFirstBatch, totalRoundsInMemberBallot, locale);
 					membersWithQuestionsOnlyInLastRoundAbsent=membersWithFIrstBatchLastRoundQuestionsAbsent(session, deviceType, requestMap, position, totalRounds, memberPositionMap, memberRoundBallotEntryVOMap, membersWithQuestionsOnlyInLastRoundPresent,
