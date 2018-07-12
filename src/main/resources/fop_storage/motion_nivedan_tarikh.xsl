@@ -78,7 +78,7 @@
 	            			<xsl:when test="./element_1/element_1_10='upperhouse'">
 	            				
 	            				<xsl:if test="./element_2='yes'">
-	            					<fo:block text-align="center" font-weight="bold" font-size="14pt">
+	            					<fo:block text-align="right" font-weight="bold" font-size="14pt">
 	            						अग्रिम प्रत
 	            					</fo:block>
 	            					<fo:block font-size="12px">&#160;</fo:block>
@@ -180,24 +180,42 @@
 								<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;(2) सचिव, महाराष्ट्र शासन, विभाग यांचे सूचना हस्तांतरणाबाबतचे पत्र           दिनांकित  </fo:block>
 								
 								<fo:block>&#160;</fo:block>
+								<xsl:choose>
+									<xsl:when test="./element_2='yes'">
+										<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;सचिव, महाराष्ट्र शासन,  <xsl:value-of select="./element_1/element_1_8"></xsl:value-of>, यांच्याकडे पुढील आवश्यक कार्यवाहीसाठी अग्रेषित.</fo:block>
+									</xsl:when>
+									<xsl:otherwise>
+										<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;सचिव, महाराष्ट्र शासन,  <xsl:value-of select="./element_1/element_1_8"></xsl:value-of>, यांच्याकडे आवश्यक कारवाईसाठी अग्रेषित.</fo:block>
+									</xsl:otherwise>
+								</xsl:choose>
 								
-								<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;सचिव, महाराष्ट्र शासन,  <xsl:value-of select="./element_1/element_1_8"></xsl:value-of>, यांच्याकडे आवश्यक कारवाईसाठी अग्रेषित.</fo:block>
 								
-								<fo:block>&#160;</fo:block>
 								
-								<fo:block>							
-									&#160;&#160;&#160;&#160;&#160;&#160;&#160;निदेशानुसार आपणास कळविण्यात येते की, महाराष्ट्र
-									<xsl:if test="./element_1/element_1_10='lowerhouse'">
-										विधानसभेच्या 
-									</xsl:if> 
-									<xsl:if test="./element_1/element_1_10='upperhouse'">
-										विधानपरिषदेच्या 
-									</xsl:if>
-									 सद्य:सत्रासाठी मा.सभापतींनी उपरोक्त लक्षवेधी सूचना वरील स्वरुपात स्वीकृत केली असून, या सूचनेवरील मा.मंत्री महोदयांच्या निवेदनाच्या 250 प्रती तात्काळ या सचिवालयाकडे पाठविण्यात याव्यात.
-								</fo:block>
+								<xsl:choose>
+									<xsl:when test="./element_2='yes'">
+										<xsl:if test="./element_1/element_1_10='lowerhouse'">
+												मा. अध्यक्ष,महाराष्ट्र विधानसभा यांच्या निदेशानुसार आपणास कळविण्यात येते की, महाराष्ट्र विधानसभेच्या विद्यमान सत्रासाठी 
+											</xsl:if> 
+											<xsl:if test="./element_1/element_1_10='upperhouse'">
+												मा.सभापती,महाराष्ट्र विधानपरिषद यांच्या निदेशानुसार आपणास कळविण्यात येते की, महाराष्ट्र विधानपरिषदेच्या विद्यमान सत्रासाठी
+											</xsl:if>
+											  उपरोक्त लक्षवेधी सूचनेचे असुधारित प्रारूप प्रस्तावित केलेले असून, या सूचनेच्या पुढील कार्यवाहीसाठी मा. मंत्री महोदयांच्या माहितीस्तव अग्रेषित करण्यात येत आहे.
+									</xsl:when>
+									<xsl:otherwise>
+										<fo:block>							
+											&#160;&#160;&#160;&#160;&#160;&#160;&#160;निदेशानुसार आपणास कळविण्यात येते की, महाराष्ट्र
+											<xsl:if test="./element_1/element_1_10='lowerhouse'">
+												विधानसभेच्या 
+											</xsl:if> 
+											<xsl:if test="./element_1/element_1_10='upperhouse'">
+												विधानपरिषदेच्या 
+											</xsl:if>
+											 सद्य:सत्रासाठी मा.सभापतींनी उपरोक्त लक्षवेधी सूचना वरील स्वरुपात स्वीकृत केली असून, या सूचनेवरील मा.मंत्री महोदयांच्या निवेदनाच्या 250 प्रती तात्काळ या सचिवालयाकडे पाठविण्यात याव्यात.
+										</fo:block>
+									</xsl:otherwise>
+								</xsl:choose>
 								
-								<fo:block>&#160;</fo:block>
-							
+														
 								<xsl:if test="./element_2!='yes'">										
 									<fo:block>
 									
@@ -272,19 +290,25 @@
 									&#160;&#160;&#160;&#160;&#160;&#160;&#160;(1) 
 									<fo:inline font-weight="bold">मा. <xsl:value-of select="./element_1/element_1_7"></xsl:value-of></fo:inline>
 								</fo:block>
-								
-								<fo:block>
-									&#160;&#160;&#160;&#160;&#160;&#160;&#160;(2) 
-									<fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_9"></xsl:value-of></fo:inline>
-									<fo:inline>
-									 	वि.प.स. यांना माहितीसाठी सादर अग्रेषित.
-									 </fo:inline>								
-								</fo:block>
-								
-								<fo:block font-size="6px">
-									&#160;&#160;&#160;&#160;&#160;&#160;&#160;													
-								</fo:block>
-								
+								<xsl:choose>
+									<xsl:when test="./element_2!='yes'">
+										<fo:block>
+											&#160;&#160;&#160;&#160;&#160;&#160;&#160;(2) 
+											<fo:inline font-weight="bold"><xsl:value-of select="./element_1/element_1_9"></xsl:value-of></fo:inline>
+											<fo:inline>
+											 	वि.प.स. यांना माहितीसाठी सादर अग्रेषित.
+											 </fo:inline>								
+										</fo:block>
+										<fo:block font-size="6px">
+											&#160;&#160;&#160;&#160;&#160;&#160;&#160;													
+										</fo:block>
+									</xsl:when>
+									<xsl:otherwise>
+										<fo:block font-size="6px">
+											&#160;&#160;&#160;&#160;&#160;&#160;&#160;													
+										</fo:block>
+									</xsl:otherwise>
+								</xsl:choose>						
 								<fo:block>
 									&#160;&#160;&#160;&#160;&#160;&#160;&#160;टिप :-
 									<fo:inline font-weight="bold">लक्षवेधी सूचनेच्या निवेदनांच्या प्रतींवर लक्षवेधी सूचना क्रमांक निवेदनाच्या उजव्या बाजुला ठळक व मोठया अक्षरात घालावा.</fo:inline>													
