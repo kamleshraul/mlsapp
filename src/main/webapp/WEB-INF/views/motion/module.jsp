@@ -200,6 +200,13 @@
 				}
 			});
 			
+			$("#preAdmissionIntimationReport").click(function(){
+				var selectedId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				if(selectedId!=undefined && selectedId.length>=1){
+					showPreIntimationAdmissionReport(selectedId[0]);
+				}
+			});
+			
 			
 			$("#jodPatra").click(function(){
 				if($("#jodPatraDiv").css('display')!='none'){
@@ -732,6 +739,10 @@
 			$("#admission_report").attr('href','motion/report/commonadmissionreport?motionId=' + id + '&locale=' + $("#moduleLocale").val() + '&outputFormat=' + $("#defaultReportFormat").val());
 		}
 		
+		function showPreIntimationAdmissionReport(id){
+			$("#preAdmissionIntimationReport").attr('href','motion/report/commonadmissionreport?motionId=' + id + '&locale=' + $("#moduleLocale").val() + '&outputFormat=' + $("#defaultReportFormat").val() + '&isAdvanceCopy=yes');
+		}
+		
 		/**** Bulk statusupdate(Assistant)****/
 		function statusUpdate() {
 			var parameters =  "houseType=" + $("#selectedHouseType").val()
@@ -1158,9 +1169,9 @@
 						<select id="members" class="sSelect" style="display: inline; width:100px;">
 						</select>|
 						
- 							<a href="javascript:void(0);" id="department_report" class="butSim" >
+						<a href="javascript:void(0);" id="department_report" class="butSim" >
 							<spring:message code="generic.departmentWiseReport" text="Department-wise Report"/>
-							</a>|
+						</a>|
 						
 					
 						<a href="javascript:void(0);" id="party_report" class="butSim" >
@@ -1172,6 +1183,13 @@
 						<a href="javascript:void(0);" id="entry_register" class="butSim" >
 							<spring:message code="generic.register" text="Register"/>
 						</a>|
+						
+						<c:if test="${houseType=='upperhouse'}">
+							<a href="javascript:void(0);" id="preAdmissionIntimationReport" class="butSim" >
+								<spring:message code="generic.preAdmissionIntimationLetter" text="Pre Admission Intimation Letter"/>
+							</a>|
+						</c:if>
+						
 						<a href="javascript:void(0);" id="admission_report" class="butSim" >
 							<c:choose>
 								<c:when test="${houseType=='lowerhouse'}">
