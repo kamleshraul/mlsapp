@@ -7751,6 +7751,30 @@ public class ReferenceController extends BaseController {
 		return actors;
 	}
 	
+	/**** To get the adjournment motion's notice content text ****/
+	@RequestMapping(value="/adjournmentmotion/{id}/notice_content_text", method=RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+	public @ResponseBody String getAdjournmentMotionNoticeContentText(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
+		
+		String noticeContentText = "";
+		
+		AdjournmentMotion adjournmentMotion = AdjournmentMotion.findById(AdjournmentMotion.class, id);
+		if(adjournmentMotion!=null) {
+			if(adjournmentMotion.getNoticeContent()!=null) {
+				if(adjournmentMotion.getRevisedNoticeContent()!=null && adjournmentMotion.getRevisedNoticeContent().length()>adjournmentMotion.getNoticeContent().length()) {
+					noticeContentText = adjournmentMotion.getRevisedNoticeContent();
+				} else {
+					noticeContentText = adjournmentMotion.getNoticeContent();
+				}
+			} else {
+				if(adjournmentMotion.getRevisedNoticeContent()!=null) {
+					noticeContentText = adjournmentMotion.getRevisedNoticeContent();
+				}
+			}
+		}
+		
+		return noticeContentText;
+	}
+	
 	/**** To get the clubbed adjournment motion's text ****/
 	@RequestMapping(value="/adjournmentmotion/{id}/clubbedmotiontext", method=RequestMethod.GET)
 	public @ResponseBody List<MasterVO> getClubbedAdjournmentMotionTexts(@PathVariable("id") Long id, final HttpServletRequest request, final Locale locale){
