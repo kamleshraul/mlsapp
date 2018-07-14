@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -1516,6 +1518,60 @@ public class AdjournmentMotion extends Device implements Serializable {
 		}		
 		return memberStatus;
 	}
+    
+    public void startWorkflow(final AdjournmentMotion adjournmentMotion, final Status status, final UserGroupType userGroupType, final Integer level, final String workflowHouseType, final Boolean isFlowOnRecomStatusAfterFinalDecision, final String locale) throws ELSException {
+    	//end current workflow if exists
+		adjournmentMotion.endWorkflow(adjournmentMotion, workflowHouseType, locale);
+    	//update motion statuses as per the workflow status
+		adjournmentMotion.updateForInitFlow(status, userGroupType, isFlowOnRecomStatusAfterFinalDecision, locale);
+    	//find required workflow from the status
+    	Workflow workflow = Workflow.findByStatus(status, locale);
+    	//start required workflow
+		WorkflowDetails.startProcessAtGivenLevel(adjournmentMotion, ApplicationConstants.APPROVAL_WORKFLOW, workflow, userGroupType, level, locale);
+    }
+	
+	public void endWorkflow(final AdjournmentMotion adjournmentMotion, final String workflowHouseType, final String locale) throws ELSException {
+    	WorkflowDetails wfDetails = WorkflowDetails.findCurrentWorkflowDetail(adjournmentMotion);
+		if(wfDetails != null && wfDetails.getId() != null) {
+			try {
+				WorkflowDetails.endProcess(wfDetails);
+			} catch(Exception e) {
+				wfDetails.setStatus(ApplicationConstants.MYTASK_COMPLETED);
+				wfDetails.setCompletionTime(new Date());
+				wfDetails.merge();
+			} finally {
+				adjournmentMotion.removeExistingWorkflowAttributes();
+			}
+		} else {
+			adjournmentMotion.removeExistingWorkflowAttributes();
+		}
+	}
+    
+    public void updateForInitFlow(final Status status, final UserGroupType userGroupType, final Boolean isFlowOnRecomStatusAfterFinalDecision, final String locale) {
+    	/** update statuses for the required flow **/
+    	Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+    	parameterMap.put("locale", new String[]{locale});
+    	parameterMap.put("flowStatusType", new String[]{status.getType()});
+    	parameterMap.put("isAfterFinalDecision", new String[]{isFlowOnRecomStatusAfterFinalDecision.toString()});
+    	parameterMap.put("userGroupType", new String[]{userGroupType.getType()});
+    	List statusRecommendations = Query.findReport(ApplicationConstants.QUERYNAME_STATUS_RECOMMENDATIONS_FOR_INIT_FLOW, parameterMap);
+    	if(statusRecommendations!=null && !statusRecommendations.isEmpty()) {
+    		Object[] statuses = (Object[]) statusRecommendations.get(0);
+    		if(statuses[0]!=null && !statuses[0].toString().isEmpty()) {
+    			Status mainStatus = Status.findByType(statuses[0].toString(), locale);
+    			this.setStatus(mainStatus);
+    		}
+    		if(statuses[1]!=null && !statuses[1].toString().isEmpty()) {
+    			Status internalStatus = Status.findByType(statuses[1].toString(), locale);
+    			this.setInternalStatus(internalStatus);
+    		}
+    		if(statuses[2]!=null && !statuses[2].toString().isEmpty()) {
+    			Status recommendationStatus = Status.findByType(statuses[2].toString(), locale);
+    			this.setRecommendationStatus(recommendationStatus);
+    		}   
+    		this.simpleMerge();
+    	}		
+    }
     
 	/**** Getters and Setters ****/
 	/**

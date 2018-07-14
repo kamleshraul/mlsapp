@@ -947,7 +947,7 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 					/**** Workflow Details ****/
 					List<WorkflowDetails> workflowDetails = WorkflowDetails.
 								findAllForAdjournmentMotions(strHouseType, strSessionType, strSessionYear,
-										strMotionType, strStatus, strWorkflowSubType,
+										strMotionType, ApplicationConstants.MYTASK_PENDING, strWorkflowSubType,
 										adjourningDate, assignee, strItemsCount, strLocale);
 					/**** Populating Bulk Approval VOs ****/
 					List<BulkApprovalVO> bulkapprovals = new ArrayList<BulkApprovalVO>();

@@ -66,7 +66,7 @@
 						var motionId = $("#motionId"+parent).val();
 						if($("#clubbedMotionTextsDiv").css('display')=='none'){
 							$("#clubbedMotionTextsDiv").empty();
-							$.get('ref/'+motionId+'/clubbedmotiontext',function(data){
+							$.get('ref/adjournmentmotion/'+motionId+'/clubbedmotiontext',function(data){
 								
 								var text="";
 								
@@ -93,7 +93,7 @@
 						var motionId = $("#motionId"+parent).val();
 						if($("#clubbedMotionTextsDiv").css('display')=='none'){
 							$("#clubbedMotionTextsDiv").empty();
-							$.get('ref/'+motionId+'/referencedmotiontext',function(data){
+							$.get('ref/adjournmentmotion/'+motionId+'/referencedmotiontext',function(data){
 								
 								var text="";
 								
