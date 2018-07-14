@@ -80,8 +80,8 @@ public class NotifyingExceptionResolver extends  SimpleMappingExceptionResolver{
      */
     private void sendNotification(
             final String username ,
-            //final Map<String, String> requestParams,  //before upgrade to java EE 7
-            final Map<String, String[]> requestParams,  //after upgrade to java EE 7
+            final Map<String, String> requestParams,  //before upgrade to java EE 7
+            //final Map<String, String[]> requestParams,  //after upgrade to java EE 7
             final Exception ex) {
         String message = " Exception Occured";
         if (notificationService != null) {

@@ -43,7 +43,7 @@ public interface IErrorNotificationService {
      */
     public void sendNotification(String message,
                                  String AuthUser,
-                                 //Map<String, String> requestParams,  //before upgrade to java EE 7
-                                 Map<String, String[]> requestParams,  //after upgrade to java EE 7
+                                 Map<String, String> requestParams,  //before upgrade to java EE 7
+                                 //Map<String, String[]> requestParams,  //after upgrade to java EE 7
                                  Exception exception);
 }
