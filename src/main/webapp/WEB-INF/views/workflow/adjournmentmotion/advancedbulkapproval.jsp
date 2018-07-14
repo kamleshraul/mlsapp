@@ -56,7 +56,34 @@
 				  toolbar: 'bold italic | alignleft aligncenter alignright alignjustify'
 				});
 			 
-			 /**** To show/hide viewClubbedMotionTextsDiv to view clubbed motions text starts****/
+			 	/**** To show/hide viewNoticeContentTextDiv to view notice content text starts****/
+				$("#noticeContentTextDiv").hide();
+				$("#hideClubQTDiv").hide();
+				$(".viewNoticeContentTextDiv").click(function(){
+				 	var controlId = this.id;				 	
+				 	var motionIndex = controlId.split("viewNoticeContentTextDiv")[1];
+				 	if(motionIndex!=undefined && motionIndex!=''){			
+						var motionId = $("#motionId"+motionIndex).val();
+						console.log("motionId: " + motionId);
+						if($("#noticeContentTextDiv").css('display')=='none'){
+							$("#noticeContentTextDiv").empty();
+							$.get('ref/adjournmentmotion/'+motionId+'/notice_content_text',function(data){
+								
+								var text="<p style='margin-top: 10px;'>"+data+"</p>";
+								
+								$("#noticeContentTextDiv").html(text);
+								
+							});	
+							$("#hideNoticeContentDiv").show();
+							$("#noticeContentTextDiv").show();
+						}else{
+							$("#noticeContentTextDiv").hide();
+							$("#hideNoticeContentDiv").hide();
+						}
+					}
+				});
+				
+				/**** To show/hide viewClubbedMotionTextsDiv to view clubbed motions text starts****/
 				$("#clubbedMotionTextsDiv").hide();
 				$("#hideClubQTDiv").hide();
 				$(".viewClubbedMotionTextsDiv").click(function(){
@@ -111,6 +138,12 @@
 						}
 					}
 				});
+				
+				$("#hideNoticeContentDiv").click(function(){
+					$(this).hide();
+					$('#noticeContentTextDiv').hide();
+				});
+				/**** To show/hide viewNoticeContentTextDiv to view notice content text end****/
 				
 				$("#hideClubQTDiv").click(function(){
 					$(this).hide();
@@ -199,18 +232,18 @@
 		}		
 	</script>
 	<style type="text/css">
-		  #clubbedMotionTextsDiv {
-			background: none repeat-x scroll 0 0 #FFF;
-			box-shadow: 0 2px 5px #888888;
-			max-height: 260px;
-			right: 0;
-			position: fixed;
-			top: 10px;
-			width: 300px;
-			z-index: 10000;
-			overflow: auto;
-			border-radius: 10px;
-		}
+		  #noticeContentTextDiv, #clubbedMotionTextsDiv {
+				background: none repeat-x scroll 0 0 #FFF;
+				box-shadow: 0 2px 5px #888888;
+				max-height: 260px;
+				right: 0;
+				position: fixed;
+				top: 10px;
+				width: 300px;
+				z-index: 10000;
+				overflow: auto;
+				border-radius: 10px;
+		  }
 	</style>
 </head>
 	<body>	
@@ -289,6 +322,9 @@
 											${i.subject}
 										</div>
 										<br>
+										<b><spring:message code="adjournmentmotion.noticeContent" text="Notice Content" /> </b> : 
+										<a href="javascript:void(0);" id="viewNoticeContentTextDiv${j.index}" class="viewNoticeContentTextDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="motion.noticecontent.text" text="N"></spring:message></a>
+										<br/><br/>
 										<b><spring:message code="adjournmentmotion.clubbingTitle" /> </b> : ${i.formattedClubbedNumbers}
 										<a href="javascript:void(0);" id="viewClubbedMotionTextsDiv${j.index}" class="viewClubbedMotionTextsDiv" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="motion.clubbed.texts" text="C"></spring:message></a>
 										<br/><br/>
@@ -346,9 +382,13 @@
 		<input id="pleaseSelectMessage" value="<spring:message code='client.prompt.pleaseselect' text='Please Select.'></spring:message>" type="hidden">		
 		<input id="selectItemsMsg" value="<spring:message code='client.prompt.selectitems' text='Please select atleast 1 item to continue..'></spring:message>" type="hidden">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>	
+		<div id="noticeContentTextDiv">
+			<h1>Notice Content of the Motion</h1>
+		</div>
 		<div id="clubbedMotionTextsDiv">
 			<h1>Assistant Notice Contents of clubbed motions</h1>
 		</div>
-		<div id="hideClubQTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
+		<div id="hideNoticeContentDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>
+		<div id="hideClubQTDiv" style="background: #FF0000; color: #FFF; position: fixed; bottom: 0; right: 10px; width: 15px; border-radius: 10px; cursor: pointer;">&nbsp;X&nbsp;</div>		
 </body>
 </html>
