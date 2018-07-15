@@ -1141,8 +1141,82 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 						wfDetails.setDecisionInternalStatus(motion.getInternalStatus().getName());
 						wfDetails.setDecisionRecommendStatus(motion.getRecommendationStatus().getName());
 						wfDetails.merge();																
-						performAction(motion, request);						
+						performAction(motion, request);		
+						
+					} else if(request.getParameter("preserveDecisions")!=null 
+								&& Boolean.parseBoolean(request.getParameter("preserveDecisions"))) { //decision is preserved meaning that statuses and flow should be preserved accordingly
+						
+						motion.setEndFlag("continue");
+						/**** Find next actor for the preserved decision ****/
+						String strUserGroup = request.getParameter("usergroup");
+						if(strUserGroup!=null) {
+							UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+							List<Reference> actors = WorkflowConfig.findAdjournmentMotionActorsVO(motion,motion.getInternalStatus(),userGroup,Integer.parseInt(motion.getLevel()),locale.toString());
+							if(actors!=null && !actors.isEmpty()) {
+								actor = actors.get(0).getId();
+								if(actor==null || actor.isEmpty()) {
+									actor = motion.getActor();
+									motion.setEndFlag("end"); //as further no actor is available
+								}
+							}
+						}					
+						/**** Update Actor ****/
+						String[] temp = actor.split("#");
+						motion.setActor(actor);
+						motion.setLocalizedActorName(temp[3] + "(" + temp[4] + ")");
+						String level = temp[2];
+						motion.setLevel(level);						
+						motion.setLocalizedActorName(temp[3] + "(" + temp[4] + ")");
+						
+						/**** Complete Task ****/
+						Map<String,String> properties = new HashMap<String, String>();
+						properties.put("pv_deviceId", String.valueOf(motion.getId()));
+						properties.put("pv_deviceTypeId", String.valueOf(motion.getType().getId()));
+						properties.put("pv_user", temp[0]);
+						properties.put("pv_endflag", motion.getEndFlag());
+						UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+						String strTaskId = wfDetails.getTaskId();
+						Task task = processService.findTaskById(strTaskId);
+						processService.completeTask(task, properties);	
+						if(motion.getEndFlag() != null && !motion.getEndFlag().isEmpty()
+								&& motion.getEndFlag().equals("continue")){
+							/**** Create New Workflow Details ****/
+							ProcessInstance processInstance = 
+									processService.findProcessInstanceById(task.getProcessInstanceId());
+							Workflow workflowFromUpdatedStatus = null;
+							try {
+								Status iStatus = motion.getInternalStatus();								
+								workflowFromUpdatedStatus = Workflow.findByStatus(iStatus, locale.toString());
+					
+							} catch(ELSException e) {
+								e.printStackTrace();
+								model.addAttribute("error", "Bulk approval is unavailable please try after some time.");
+								model.addAttribute("type", "error");
+								
+							}
+							Task newtask = processService.getCurrentTask(processInstance);
+							WorkflowDetails workflowDetails2 = null;
+							try {
+								workflowDetails2 = WorkflowDetails.create(motion,newtask,usergroupType,workflowFromUpdatedStatus.getType(),level);
+							} catch (ELSException e) {
+								e.printStackTrace();
+								model.addAttribute("error", e.getParameter());
+							}
+							motion.setWorkflowDetailsId(workflowDetails2.getId());
+							motion.setTaskReceivedOn(new Date());								
+						}
+						/**** Update Old Workflow Details ****/
+						wfDetails.setStatus("COMPLETED");
+						wfDetails.setInternalStatus(motion.getInternalStatus().getName());
+						wfDetails.setRecommendationStatus(motion.getRecommendationStatus().getName());
+						wfDetails.setCompletionTime(new Date());
+						wfDetails.setAdjourningDate(motion.getAdjourningDate());
+						wfDetails.setDecisionInternalStatus(motion.getInternalStatus().getName());
+						wfDetails.setDecisionRecommendStatus(motion.getRecommendationStatus().getName());
+						wfDetails.merge();																
+						performAction(motion, request);
 					}
+						
 					/**** Update Motion ****/
 					motion.setEditedOn(new Date());
 					motion.setEditedBy(this.getCurrentUser().getActualUsername());

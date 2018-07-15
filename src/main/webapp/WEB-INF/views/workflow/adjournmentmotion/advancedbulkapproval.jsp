@@ -30,6 +30,15 @@
 				}
 			});	
 			
+			/**** Preserve Decisions of Previous Actor ****/		
+			$("#preserveDecisions").change(function(){
+				if($(this).is(":checked")){
+					$(this).attr("value", true);
+				}else{
+					$(this).attr("value", false);
+				}
+			});
+			
 			$("#actorDiv").hide();
 			/**** Bulk Put Up ****/
 			$("#bulksubmit").click(function(){
@@ -283,7 +292,10 @@
 								<%-- <th style="text-align:justify;min-width:150px;vertical-align: top;"><spring:message code="motion.member" text="Member"></spring:message></th> --%>
 								<th style="text-align:justify;min-width:350px;vertical-align: top;"><spring:message code="generic.subject" text="Subject"></spring:message></th>
 								<%-- <th style="text-align:justify;min-width:200px;vertical-align: top;"><spring:message code="motion.motiontext" text="Motion Text"></spring:message></th> --%>
-								<th style="min-width:200px;text-align:justify;vertical-align: top;"><spring:message code="generic.decision" text="Decision"></spring:message></th>
+								<th style="min-width:200px;text-align:justify;vertical-align: top;">
+									<spring:message code="generic.decision" text="Decision"></spring:message>
+									<input type="checkbox" id="preserveDecisions" name="preserveDecisions" class="sCheck">
+								</th>
 								<%-- <th style="min-width:70px;text-align:justify;">
 									<spring:message code="motion.lastdecision" text="Last Decision"/>
 									<spring:message code="motion.lastremarkby" text="Last Remark By"/>

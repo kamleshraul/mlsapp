@@ -362,7 +362,11 @@
 				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
 					$(this).val("");
 				}
-			});			
+			});		
+			if($('#remarks').val()==undefined || $('#remarks').val()=="") {
+				$.prompt("Please enter the remarks about the decision to be putup");
+				return false;
+			}
 			$.prompt($('#startWorkflowMessage').val(),{
 				buttons: {Ok:true, Cancel:false}, callback: function(v){
 		        if(v){
@@ -734,7 +738,7 @@
 			
 			<p style="display:none;" class="revise1" id="revisedSubjectDiv">
 				<label class="centerlabel"><spring:message code="adjournmentmotion.revisedSubject" text="Revised Subject"/></label>
-				<form:textarea path="revisedSubject" rows="4" cols="50"></form:textarea>
+				<form:textarea path="revisedSubject" rows="4" cols="70"></form:textarea>
 				<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			</p>
 			
@@ -822,8 +826,8 @@
 			</p>
 			
 			<p>
-			<label class="wysiwyglabel"><spring:message code="adjournmentmotion.remarks" text="Remarks"/></label>
-			<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
+			<label class="centerlabel"><spring:message code="adjournmentmotion.remarks" text="Remarks"/></label>
+			<form:textarea path="remarks" rows="4" cols="70"></form:textarea>
 			<form:hidden path="remarksAboutDecision"/>
 			</p>	
 			</div>
