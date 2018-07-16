@@ -225,7 +225,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			String currentSlotStartDate = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy", domain.getLocale());
 			String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm", domain.getLocale());
 			model.addAttribute("currentSlotStartDate", currentSlotStartDate);
-			model.addAttribute("currenSlotStartTime", currentSlotStartTime);
+			model.addAttribute("currentSlotStartTime", currentSlotStartTime);
 			
 			List<User> users=Slot.findDifferentLanguageUsersBySlot(slot);
 			String languageReporter="";
@@ -3996,9 +3996,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 				String currentSlotStartDate = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy");
 				String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm");
 				model.addAttribute("currentSlotStartDate", currentSlotStartDate);
-				model.addAttribute("currenSlotStartTime", currentSlotStartTime);
+				model.addAttribute("currentSlotStartTime", currentSlotStartTime);
 				proceedingVO.setCurrentSlotStartDate(currentSlotStartDate);
-				proceedingVO.setCurrenSlotStartTime(currentSlotStartTime);
+				proceedingVO.setCurrentSlotStartTime(currentSlotStartTime);
 				List<User> users=Slot.findDifferentLanguageUsersBySlot(slot);
 				String languageReporter="";
 				for(int i=0;i<users.size();i++){
@@ -4235,7 +4235,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				String currentSlotStartDate = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "dd-MM-yyyy");
 				String currentSlotStartTime = FormaterUtil.formatDateToString(domain.getSlot().getStartTime(), "HH:mm");
 				model.addAttribute("currentSlotStartDate", currentSlotStartDate);
-				model.addAttribute("currenSlotStartTime", currentSlotStartTime);
+				model.addAttribute("currentSlotStartTime", currentSlotStartTime);
 				masterVO1.setFormattedOrder(currentSlotStartDate);
 				masterVO1.setFormattedNumber(currentSlotStartTime);
 				List<User> users=Slot.findDifferentLanguageUsersBySlot(slot);

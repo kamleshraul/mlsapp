@@ -16,7 +16,7 @@ public class ProceedingVO {
     
     private String previousReporter;
     
-    private String currenSlotStartTime;
+    private String currentSlotStartTime;
     
     private String languageReporter;
     
@@ -76,12 +76,12 @@ public class ProceedingVO {
 		this.previousReporter = previousReporter;
 	}
 
-	public String getCurrenSlotStartTime() {
-		return currenSlotStartTime;
+	public String getCurrentSlotStartTime() {
+		return currentSlotStartTime;
 	}
 
-	public void setCurrenSlotStartTime(String currenSlotStartTime) {
-		this.currenSlotStartTime = currenSlotStartTime;
+	public void setCurrentSlotStartTime(String currenSlotStartTime) {
+		this.currentSlotStartTime = currenSlotStartTime;
 	}
 
 	public String getLanguageReporter() {
