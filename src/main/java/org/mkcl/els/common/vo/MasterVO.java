@@ -198,4 +198,30 @@ public class MasterVO {
 		return retVal;
 	}
 	
+	public static List<MasterVO> sort(final List<MasterVO> deviceVOs, final String sortField, final String sortOrder) {
+		List<MasterVO> sortedMasterVOs = null;
+		if(deviceVOs!=null) {
+			sortedMasterVOs = new ArrayList<MasterVO>();
+			if(!deviceVOs.isEmpty()) {
+				sortedMasterVOs.addAll(deviceVOs);
+				if(sortField!=null && !sortField.isEmpty()) {
+					if(sortField.equals("number")) {
+						Comparator<MasterVO> c = new Comparator<MasterVO>() {
+							@Override
+							public int compare(final MasterVO dv1, final MasterVO dv2) {
+								if(sortOrder.equals(ApplicationConstants.DESC)) {
+									return dv2.getNumber().compareTo(dv1.getNumber());
+								} else {
+									return dv1.getNumber().compareTo(dv2.getNumber());
+								}
+							}
+						};
+						Collections.sort(sortedMasterVOs, c);					
+					}
+				}
+			}			
+		}			
+		return sortedMasterVOs;
+	}
+	
 }

@@ -48,42 +48,58 @@
 			
 			var strLocation = (($("#selectedDeviceType").val()==undefined)?"device":"workflow"); 
 			var device = "";
+			var selectedAdjourningDate = "";
 			if(strLocation=='workflow'){
 				device = $("#selectedDeviceType").val();
+				selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
 			}else if(strLocation=='device'){
 				device = $("#selectedMotionType").val();
+				if($("#isAdjourningDateSelected").is(":checked")) {
+					selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
+				}
 			}
 			
 			var paramVar = '?deviceType='+device+
 			'&sessionYear='+$("#selectedSessionYear").val()+
 			'&sessionType='+$("#selectedSessionType").val()+
 			'&houseType='+$("#selectedHouseType").val()+
-			'&status='+$("#selectedStatus").val()+
+			//'&status='+$("#selectedStatus").val()+
+			'&status='+(($("#reportType").val()=='all' && strLocation=='device')?'0':$("#selectedStatus").val())+
 			'&wfSubType='+$("#selectedSubWorkflow").val()+
 			'&subdepartment='+$("#selectedSubDepartment").val()+ 
 			'&grid='+ strLocation + 
-			'&adjourningDate='+(($("#selectedAdjourningDate").val()=='' || $("#selectedAdjourningDate").val()==undefined)?'0':$("#selectedAdjourningDate").val());
-
-			$.get('ref/pendingtasksdevicesamois'+paramVar,function(data){
+			'&adjourningDate='+((selectedAdjourningDate=='' || selectedAdjourningDate==undefined)?'0':selectedAdjourningDate);
 			
-				if(data){					
-					ids = new Array();
-					if(data.length > 0){
-						dataSize = data.length;
-						for(var i = 0; i < data.length; i++){
-							ids.push(data[i].value);
-						}
-						counter = 0;
-						limit = 10;
-						if(ids.length > 0){
-							addRemarkReport();
+			$.ajax({
+				url: 'ref/pendingtasksdevicesamois'+paramVar,
+		         async:   false,
+		         success: function(data) {
+		        	 if(data){					
+						ids = new Array();
+						if(data.length > 0){
+							dataSize = data.length;
+							for(var i = 0; i < data.length; i++){
+								ids.push(data[i].value);
+							}
+							counter = 0;
+							limit = 10;
+							if(ids.length > 0){
+								addRemarkReport();
+							}
+						}else{
+							$('#reportWindow1').html("<h3>No data found</h3>");
 						}
 					}else{
 						$('#reportWindow1').html("<h3>No data found</h3>");
 					}
+		         }
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
 				}else{
-					$('#reportWindow1').html("<h3>No data found</h3>");
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 				}
+				scrollTop();
 			});	
 		}
 		

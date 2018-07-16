@@ -9530,6 +9530,8 @@ public class ReferenceController extends BaseController {
 				parameters.put("status", new String[]{strStatus});
 				parameters.put("subdepartment", new String[]{strSubdepartment});
 				parameters.put("locale", new String[]{locale.toString()});
+				parameters.put("adjourningDate", new String[]{strAdjourningDate});
+				
 				data = Query.findReport("AMOIS_STATUS_REPORT_DEVICES_DV", parameters);
 			}
 			
@@ -9539,6 +9541,7 @@ public class ReferenceController extends BaseController {
 					MasterVO vo = new MasterVO();
 					if(objx[0] != null){
 						vo.setValue(objx[0].toString());
+						vo.setNumber(Integer.parseInt(objx[2].toString()));
 						vos.add(vo);
 					}
 				}
@@ -9553,6 +9556,11 @@ public class ReferenceController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		if(vos!=null && !vos.isEmpty() && vos.size()>1) {
+			vos = MasterVO.sort(vos, "number", ApplicationConstants.ASC); //order by number
+		}
+		
 		return vos;
 	}
 	
