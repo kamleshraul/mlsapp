@@ -38,6 +38,7 @@ import org.mkcl.els.domain.MaritalStatus;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.Part;
+//import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.State;
 import org.mkcl.els.domain.SubDepartment;
@@ -474,7 +475,23 @@ public class MasterWebService {
         if(part.getOrderNo() == null){
         	part.setOrderNo(1);
         }
-                
+           
+/*        if(part.getId() != null){
+        	List<PartDraft> partDrafts = part.getPartDrafts();
+        	PartDraft partDraft = new PartDraft();
+        	partDraft.setEditedOn(new Date());
+        	partDraft.setLocale(part.getLocale());
+        	partDraft.setEditedBy(part.getReporter().getUser().findFirstLastName());
+        	partDraft.setOriginalText(part.getProceedingContent());
+        	partDraft.setRevisedContent(part.getRevisedContent());
+        	if(partDrafts != null){
+        		partDrafts.add(partDraft);
+        	}else{
+        		partDrafts = new ArrayList<PartDraft>();
+        		partDrafts.add(partDraft);
+        	}
+        	part.setPartDrafts(partDrafts);
+        }*/
         part.merge();
         String status="failed";
                
