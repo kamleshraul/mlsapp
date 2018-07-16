@@ -91,10 +91,10 @@
             					</xsl:if> -->	            						
 			            		<fo:block>
 			            			<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
-			            				<fo:table-column column-number="1" column-width="2cm" />
-				                        <fo:table-column column-number="2" column-width="5cm" />
-				                        <fo:table-column column-number="3" column-width="5.5cm" />
-				                        <fo:table-column column-number="4" column-width="4.5cm" />
+			            				<fo:table-column column-number="1" column-width="1.5cm" />
+				                        <fo:table-column column-number="2" column-width="3.5cm" />
+				                        <fo:table-column column-number="3" column-width="6cm" />
+				                        <fo:table-column column-number="4" column-width="6cm" />
 				                        <fo:table-header>
 				                        	<fo:table-row>
 				                        		<fo:table-cell display-align="center" border-width="0.5pt" border-style="solid">
@@ -126,12 +126,12 @@
 				                        	<xsl:for-each select="element_1">
 					                        	<fo:table-row border="solid 0.1mm black">	                                	
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-				                                        <fo:block  text-align="center">
+				                                        <fo:block text-align="center">
 				                                        	<xsl:value-of select="element_1_6" />
 				                                        </fo:block> 
 				                                    </fo:table-cell>		                                    
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-				                                        <fo:block  text-align="left">
+				                                        <fo:block text-align="left">
 				                                        	<xsl:value-of select="element_1_8" />,
 				                                        	<xsl:choose>
 				                                        		<xsl:when test="element_1_3='lowerhouse'">वि.स.स.</xsl:when>
@@ -140,12 +140,12 @@
 				                                        </fo:block> 
 				                                    </fo:table-cell>		                                    
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-				                                        <fo:block  text-align="left">
+				                                        <fo:block text-align="justify">
 				                                        	<xsl:value-of select="element_1_9" />
 				                                        </fo:block> 
 				                                    </fo:table-cell>		                                    
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-				                                        <fo:block  text-align="left" font-weight="bold">
+				                                        <fo:block text-align="justify" font-weight="bold">
 				                                        	<xsl:value-of select="element_1_10" />
 				                                        </fo:block>
 				                                    </fo:table-cell>                                   	
