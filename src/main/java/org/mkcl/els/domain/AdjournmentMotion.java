@@ -1351,9 +1351,9 @@ public class AdjournmentMotion extends Device implements Serializable {
     
     public static Boolean validateSubmissionTime(final Session motionSession, Date adjourningDate) {
     	Date currentSubmissionTime = new Date();    	
-    	//Date submissionStartTime = AdjournmentMotion.findSubmissionStartTime(motionSession, adjourningDate);
+    	Date submissionStartTime = AdjournmentMotion.findSubmissionStartTime(motionSession, adjourningDate);
     	Date submissionEndTime = AdjournmentMotion.findSubmissionEndTime(motionSession, adjourningDate);    	
-    	if(currentSubmissionTime.compareTo(submissionEndTime)<=0) {
+    	if(currentSubmissionTime.compareTo(submissionStartTime)>=0 && currentSubmissionTime.compareTo(submissionEndTime)<=0) {
     		return true;
     	} else {
     		return false;
@@ -1407,14 +1407,14 @@ public class AdjournmentMotion extends Device implements Serializable {
         		if(submissionEndTimeDefaultSessionParameter!=null && !submissionEndTimeDefaultSessionParameter.isEmpty()) {
         			submissionEndTimePart = submissionEndTimeDefaultSessionParameter + ":00";
         		} else {
-        			CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ADJOURNMENT_MOTION.toUpperCase()+"_SUBMISSIONSTARTTIME_"+motionSession.getHouse().getType().getType().toUpperCase(), "");
+        			CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ADJOURNMENT_MOTION.toUpperCase()+"_SUBMISSIONENDTIME_"+motionSession.getHouse().getType().getType().toUpperCase(), "");
             		if(csptsubmissionEndTime!=null && csptsubmissionEndTime.getValue()!=null && !csptsubmissionEndTime.getValue().isEmpty()) {
             			submissionEndTimePart = csptsubmissionEndTime.getValue() + ":00";
             		}
         		}
     		}
     	} else {
-    		CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ADJOURNMENT_MOTION.toUpperCase()+"_SUBMISSIONSTARTTIME_"+motionSession.getHouse().getType().getType().toUpperCase(), "");
+    		CustomParameter csptsubmissionEndTime = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.ADJOURNMENT_MOTION.toUpperCase()+"_SUBMISSIONENDTIME_"+motionSession.getHouse().getType().getType().toUpperCase(), "");
     		if(csptsubmissionEndTime!=null && csptsubmissionEndTime.getValue()!=null && !csptsubmissionEndTime.getValue().isEmpty()) {
     			submissionEndTimePart = csptsubmissionEndTime.getValue() + ":00";
     		}
