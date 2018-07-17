@@ -1002,14 +1002,17 @@ public class AdjournmentMotion extends Device implements Serializable {
 		child.setInternalStatus(newInternalStatus);
 		child.setRecommendationStatus(newRecommendationStatus);
 		Status approvalStatus = Status.findByType(ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION, locale);
-		if(newStatus.getPriority().compareTo(approvalStatus.getPriority()) >= 0) {
-			updateDomainFieldsOnClubbingFinalisation(parent, child);
-		}		
+//		if(newStatus.getPriority().compareTo(approvalStatus.getPriority()) >= 0) {
+//			updateDomainFieldsOnClubbingFinalisation(parent, child);
+//		}	
+		updateDomainFieldsOnClubbingFinalisation(parent, child);
+		
 //			if(child.getFile()!=null){
 //				child.setFile(null);
 //				child.setFileIndex(null);
 //				child.setFileSent(false);
 //			}
+		
 		child.merge();
 
 		ClubbedEntity clubbedEntity=new ClubbedEntity();
@@ -1030,9 +1033,10 @@ public class AdjournmentMotion extends Device implements Serializable {
 				adjournmentMotion.setStatus(newStatus);
 				adjournmentMotion.setInternalStatus(newInternalStatus);
 				adjournmentMotion.setRecommendationStatus(newRecommendationStatus);
-				if(newStatus.getPriority().compareTo(approvalStatus.getPriority()) >= 0) {
-					updateDomainFieldsOnClubbingFinalisation(parent, adjournmentMotion);
-				}
+//				if(newStatus.getPriority().compareTo(approvalStatus.getPriority()) >= 0) {
+//					updateDomainFieldsOnClubbingFinalisation(parent, adjournmentMotion);
+//				}
+				updateDomainFieldsOnClubbingFinalisation(parent, adjournmentMotion);
 				adjournmentMotion.setEditedAs(child.getEditedAs());
 				adjournmentMotion.setEditedBy(child.getEditedBy());
 				adjournmentMotion.setEditedOn(child.getEditedOn());
