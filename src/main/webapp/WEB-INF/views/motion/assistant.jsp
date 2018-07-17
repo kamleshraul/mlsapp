@@ -987,7 +987,11 @@
 		<p class="tright">
 			<c:choose>
 				
-				<c:when test="${internalStatusType=='motion_recommend_admission' || fn:contains(internalStatusType,'motion_final')}">
+				<c:when test="${internalStatusType=='motion_recommend_admission'
+				|| internalStatusType=='motion_recommend_rejection'
+				|| internalStatusType=='motion_recommend_clarificationNeededFromDepartment'
+				|| internalStatusType=='motion_recommend_clarificationNeededFromMemberAndDepartment' 
+				|| fn:contains(internalStatusType,'motion_final')}">
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 				</c:when>
 								
