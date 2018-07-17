@@ -75,7 +75,7 @@
 	            	<fo:block font-family="Mangal" font-size="10.5px">
 	            		<xsl:choose>
 	            			<xsl:when test="element_1">
-	            				<fo:block margin-top="2cm" text-align="center" font-size="16px" font-weight="bold">
+	            				<fo:block text-align="center" font-size="16px" font-weight="bold">
 			            			<xsl:value-of select="element_1[1]/element_1_1"></xsl:value-of>
 			            		</fo:block>
 			            		<fo:block text-align="center" font-size="14px" font-weight="bold">

@@ -184,6 +184,7 @@
 					}
 				}
 				if(device.indexOf('motions_adjournment')==0){
+					$('#bulkapproval_tab').hide();
 					$.get('ref/adjournmentmotion/adjourningdatesforsession?houseType='+$('#selectedHouseType').val()
 							+'&sessionYear='+$("#selectedSessionYear").val()+'&sessionType='+$("#selectedSessionType").val()+'&usergroupType='+$("#currentusergroupType").val(), function(data) {
 						if(data.length>1) {
@@ -207,6 +208,7 @@
 						$("#departmentDiv").hide();
 					});												
 				}else{
+					$('#bulkapproval_tab').show();
 					$("#selectedAdjourningDate").val("");
 					$("#adjourningDateDiv").hide();
 					$("#departmentDiv").show();
@@ -236,7 +238,10 @@
 						$('#selectedItemsCount').hide();
 						//$('#selectedFileCount').hide();
 					}else{
-						$('#bulkapproval_tab').show();
+						var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text();
+						if(!device.indexOf('motions_adjournment')==0){
+							$('#bulkapproval_tab').show();
+						}						
 						$('#selectedItemsCount').show();
 						//$('#selectedFileCount').show();
 					} 
