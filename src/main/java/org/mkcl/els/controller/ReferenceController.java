@@ -9832,6 +9832,25 @@ public class ReferenceController extends BaseController {
 		return valid;
 	}
 	
+	
+	@RequestMapping(value = "/isValidToOpen", method = RequestMethod.GET)
+	public @ResponseBody Boolean isisValidToOpen(HttpServletRequest request, Locale locale){
+		Boolean valid = true;
+		String strProceedingId = request.getParameter("proceedingId");
+		if(strProceedingId != null && !strProceedingId.isEmpty()){
+			Proceeding proceeding = Proceeding.findById(Proceeding.class, Long.parseLong(strProceedingId));
+			Slot slot = proceeding.getSlot();
+			
+				Date currentDate = FormaterUtil.getCurrentDate();
+				if(slot.getStartTime().after(currentDate)){
+					valid = false;
+			
+			}
+		}
+
+		return valid;
+	}
+	
 	@RequestMapping(value = "/loadVisibilityFlagsForMemberQuestionsView", method = RequestMethod.GET)
 	public @ResponseBody List<MasterVO> populateVisibilityFlagsForMemberQuestionsView(HttpServletRequest request, Locale locale){
 		List<MasterVO> visibilityFlags = new ArrayList<MasterVO>();
