@@ -46,6 +46,11 @@
 				viewRoster();
 			});
 			
+			/****To see the roster of the day****/
+			$("#view_totalWorkRep").click(function() {
+				viewTotalWorkRep();
+			});
+			
 			/****Publish the roster proceeding for Committees & Editing****/
 			$("#publish").click(function(){
 				currentSelectedRow=$('#key').val();
@@ -88,6 +93,9 @@
 			</a> |
 			<a href="#" id="view_roster" class="butSim">
 				<spring:message code="roster.roster" text="Roster"/>
+			</a> |
+			<a href="#" id="view_totalWorkRep" class="butSim">
+				<spring:message code="roster.totalWorkRep" text="Total Work Report"/>
 			</a> |
 			<a href="#" id="publish" class="butSim">
 				<spring:message code="roster.publish" text="Publish"/>
