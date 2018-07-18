@@ -218,12 +218,21 @@
 					'&language=' + $("#selectedLanguage").val();
 					$.get('proceeding/getProceedingris?'+params, 
 						    function(returnedData){
-						 // var loc = window.location;
-						 //   var pathName = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') );
-						 //   var MLSurl=loc.href.substring(0, loc.href.length - ((loc.pathname + loc.search + loc.hash).length - pathName.length))
-
-					//	+""+returnedData.name+""+""+formattedNumber+""+formattedOrder+""+displayName);
-						window.open('riscust://'+returnedData.mlsUrl+'???1.0.0???word???'+returnedData.partid+'???'+returnedData.slotName+'???'+returnedData.currentSlotStartDate +'???'+returnedData.previousReporter +'???'+returnedData.currentSlotStartTime +'???'+returnedData.languageReporter +'???'+returnedData.generalNotice +'???'+returnedData.version +'???',"_self");
+						
+						
+						$.get("ref/isValidToOpen?proceedingId="+rowid,function(data){
+							if(data){
+								window.open('riscust://'+returnedData.mlsUrl+'???1.0.0???word???'+returnedData.partid+'???'+returnedData.slotName+'???'+returnedData.currentSlotStartDate +'???'+returnedData.previousReporter +'???'+returnedData.currentSlotStartTime +'???'+returnedData.languageReporter +'???'+returnedData.generalNotice +'???'+returnedData.version +'???',"_self");
+								
+								
+							}else{
+								$.prompt("Not Allowed to open ");
+								$.unblockUI();
+							}
+							
+						});
+			
+						
 					}); 
 				}else{
 					$("#selectionDiv1").hide();			
