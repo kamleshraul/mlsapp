@@ -473,7 +473,7 @@ public class AdjournmentMotion extends Device implements Serializable {
 			throw new ELSException();
 		}
 		if(Session.isCurrentDateInSession(session)) {
-			if(!isForMemberLogin || AdjournmentMotion.validateSubmissionTime(session, new Date())) {
+			if(!isForMemberLogin || AdjournmentMotion.validateSubmissionEndTime(session, new Date())) {
 				return new Date();
 			} else {
 				Date nextSessionWorkingDay = session.getNextSessionDate(new Date(), 1, session.getLocale());
@@ -1354,6 +1354,16 @@ public class AdjournmentMotion extends Device implements Serializable {
     	Date submissionStartTime = AdjournmentMotion.findSubmissionStartTime(motionSession, adjourningDate);
     	Date submissionEndTime = AdjournmentMotion.findSubmissionEndTime(motionSession, adjourningDate);    	
     	if(currentSubmissionTime.compareTo(submissionStartTime)>=0 && currentSubmissionTime.compareTo(submissionEndTime)<=0) {
+    		return true;
+    	} else {
+    		return false;
+    	}    	
+    }
+    
+    public static Boolean validateSubmissionEndTime(final Session motionSession, Date adjourningDate) {
+    	Date currentSubmissionTime = new Date();    	
+    	Date submissionEndTime = AdjournmentMotion.findSubmissionEndTime(motionSession, adjourningDate);    	
+    	if(currentSubmissionTime.compareTo(submissionEndTime)<=0) {
     		return true;
     	} else {
     		return false;

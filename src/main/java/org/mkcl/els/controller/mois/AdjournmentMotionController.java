@@ -1196,13 +1196,13 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
 						if(!role.equals("AMOIS_TYPIST")){
 							if(!AdjournmentMotion.validateSubmissionTime(domain.getSession(), domain.getAdjourningDate())) {
-								result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
+								result.rejectValue("version","adjournmentmotion.submissionWindowTimeClosed","submission time window is closed for this adjourning date motions!");
 								return;
 							}
 						}
 					} else {
 						if(!AdjournmentMotion.validateSubmissionTime(domain.getSession(), domain.getAdjourningDate())) {
-							result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
+							result.rejectValue("version","adjournmentmotion.submissionWindowTimeClosed","submission time window is closed for this adjourning date motions!");
 							return;
 						}
 					}					
@@ -1581,13 +1581,13 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
 						if(!role.equals("AMOIS_TYPIST")){
 							if(!AdjournmentMotion.validateSubmissionTime(domain.getSession(), domain.getAdjourningDate())) {
-								result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
+								result.rejectValue("version","adjournmentmotion.submissionWindowTimeClosed","submission time window is closed for this adjourning date motions!");
 								return;
 							}
 						}
 					} else {
 						if(!AdjournmentMotion.validateSubmissionTime(domain.getSession(), domain.getAdjourningDate())) {
-							result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
+							result.rejectValue("version","adjournmentmotion.submissionWindowTimeClosed","submission time window is closed for this adjourning date motions!");
 							return;
 						}
 					}
