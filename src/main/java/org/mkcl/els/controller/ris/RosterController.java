@@ -25,6 +25,7 @@ import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
+import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Reporter;
 import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
@@ -914,6 +915,96 @@ public class RosterController extends GenericController<Roster>{
 			//generate report
 			generateReportUsingFOP(new Object[]{reportFields}, "template_roster", "PDF", "roster slots report", locale.toString());
 			returnValue = "roster/rosterreport";
+					
+		}catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		return returnValue;
+	}
+	
+	
+	@RequestMapping(value="/roster_totalWorkRep", method=RequestMethod.GET)
+	public String viewTotalWorkRep( final HttpServletRequest request, final ModelMap model, final Locale locale){
+		String returnValue = "roster/error"; 
+		try{
+
+			/**** Locale ****/
+	
+
+			/**** House Type ****/
+			String selectedHouseType=request.getParameter("houseType");
+			HouseType houseType=null;
+			if(selectedHouseType!=null&&!selectedHouseType.isEmpty()){
+				try {
+					Long houseTypeId=Long.parseLong(selectedHouseType);
+					houseType=HouseType.findById(HouseType.class,houseTypeId);
+				} catch (NumberFormatException e) {
+					houseType=HouseType.findByFieldName(HouseType.class,"type",selectedHouseType, locale.toString());
+				}			
+			}else{
+				logger.error("**** Check request parameter 'houseType' for null value ****");
+				model.addAttribute("errorcode","selectedHouseTypeIsNull");
+			}
+			
+				
+				/**** Session Year ****/
+				String selectedYear=request.getParameter("sessionYear");
+				Integer sessionYear=0;
+				if(selectedYear!=null&&!selectedYear.isEmpty()){			
+					sessionYear=Integer.parseInt(selectedYear);		
+				}else{
+					logger.error("**** Check request parameter 'sessionYear' for null value ****");
+					model.addAttribute("errorcode","selectedSessionYearIsNull");
+				}  
+
+				/**** Session Type ****/
+				String selectedSessionType=request.getParameter("sessionType");
+				SessionType sessionType=null;
+				if(selectedSessionType!=null&&!selectedSessionType.isEmpty()){
+					sessionType=SessionType.findById(SessionType.class,Long.parseLong(selectedSessionType));				
+				}else{
+					logger.error("**** Check request parameter 'sessionType' for null value ****");
+					model.addAttribute("errorcode","selectedSessionTypeIsNull");
+				}
+				
+				/**** Language ****/
+				String selectedLanguage=request.getParameter("language");
+				Language language=null;
+				if(selectedLanguage!=null&&!selectedLanguage.isEmpty()){
+					language=Language.findById(Language.class,Long.parseLong(selectedLanguage));
+					model.addAttribute("language",language.getId());
+				}else{
+					logger.error("**** Check request parameter 'sessionType' for null value ****");
+					model.addAttribute("errorcode","selectedSessionTypeIsNull");
+				}
+						
+				Session selectedSession=null;
+				if(houseType!=null&&selectedYear!=null&&sessionType!=null){
+					try {
+						selectedSession=Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+					} catch (ELSException e1) {
+						model.addAttribute("error", e1.getParameter());
+						e1.printStackTrace();
+					}
+				}
+			/**** find report data ****/
+			Map<String, String[]> queryParameters = new HashMap<String, String[]>();
+			queryParameters.put("locale", new String[]{locale.toString()});
+			queryParameters.put("sessionId", new String[]{selectedSession.getId().toString()});
+			queryParameters.put("languageId", new String[]{selectedLanguage});
+			
+	
+			List<Object[]> reportData = Query.findReport("RIS_ROSTER_TOTALWORK_REPORT_ROSTER", queryParameters);
+			
+			model.addAttribute("report", reportData);
+			List<Object[]> reportData1 = Query.findReport("RIS_ROSTER_AVGTOTALWORK_REPORT_ROSTER", queryParameters);
+			model.addAttribute("report1", reportData1);
+			
+			model.addAttribute("sessionId", selectedSession.getId().toString());
+			//generate report
+			//generateReportUsingFOP(new Object[]{reportData}, "template_ris_totalwork", "PDF", "Total Work Report", locale.toString());
+			returnValue = "roster/totalworkreport";
 					
 		}catch (Exception e) {
 			
