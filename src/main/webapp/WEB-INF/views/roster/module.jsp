@@ -251,6 +251,16 @@
 			}
 		}	
 		
+		function viewTotalWorkRep() {
+
+				showTabByIdAndUrl('totalWorkRep_tab','roster/roster_totalWorkRep?houseType='+$('#selectedHouseType').val()
+						+"&sessionYear="+$("#selectedSessionYear").val()
+						+"&sessionType="+$("#selectedSessionType").val()
+						+"&language="+$("#selectedLanguage").val()
+						+"&committeeMeeting=0");
+
+		}
+		
 		function viewRoster() {
 			
 			$("#selectionDiv1").hide();					
