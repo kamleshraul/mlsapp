@@ -1350,14 +1350,19 @@ public class AdjournmentMotion extends Device implements Serializable {
     }
     
     public static Boolean validateSubmissionTime(final Session motionSession, Date adjourningDate) {
-    	Date currentSubmissionTime = new Date();    	
-    	Date submissionStartTime = AdjournmentMotion.findSubmissionStartTime(motionSession, adjourningDate);
-    	Date submissionEndTime = AdjournmentMotion.findSubmissionEndTime(motionSession, adjourningDate);    	
-    	if(currentSubmissionTime.compareTo(submissionStartTime)>=0 && currentSubmissionTime.compareTo(submissionEndTime)<=0) {
-    		return true;
+    	CustomParameter csptSubmissionStartTimeValidationRequired = CustomParameter.findByName(CustomParameter.class, "AMOIS_SUBMISSION_START_TIME_VALIDATION_REQUIRED", "");
+    	if(csptSubmissionStartTimeValidationRequired!=null && csptSubmissionStartTimeValidationRequired.getValue().equals("YES")) {
+    		Date currentSubmissionTime = new Date();    	
+        	Date submissionStartTime = AdjournmentMotion.findSubmissionStartTime(motionSession, adjourningDate);
+        	Date submissionEndTime = AdjournmentMotion.findSubmissionEndTime(motionSession, adjourningDate);    	
+        	if(currentSubmissionTime.compareTo(submissionStartTime)>=0 && currentSubmissionTime.compareTo(submissionEndTime)<=0) {
+        		return true;
+        	} else {
+        		return false;
+        	}
     	} else {
-    		return false;
-    	}    	
+    		return AdjournmentMotion.validateSubmissionEndTime(motionSession, adjourningDate);
+    	}    	    	
     }
     
     public static Boolean validateSubmissionEndTime(final Session motionSession, Date adjourningDate) {
