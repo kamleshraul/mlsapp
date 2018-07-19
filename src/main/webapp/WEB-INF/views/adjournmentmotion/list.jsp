@@ -118,7 +118,7 @@
 					<spring:message code="question.member_adjournmentmotions_view" text="Member's Adjournment Motions View"/>
 				</a> |
 			</security:authorize>	
-			<security:authorize access="hasAnyRole('AMOIS_ASSISTANT', 'AMOIS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('AMOIS_CLERK', 'AMOIS_ASSISTANT', 'AMOIS_SECTION_OFFICER')">
 			<a href="#" id="amois_current_status_report" class="butSim">
 				<spring:message code="amois.current_status_report" text="Current Status Report"/>
 			</a> |

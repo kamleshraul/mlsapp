@@ -2806,18 +2806,11 @@ public class QuestionWorkflowController  extends BaseController{
 								wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
 								wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
 								wfDetails.merge();
-								/**** Update Motion ****/
+								/**** Update Question ****/
 								question.setEditedOn(new Date());
 								question.setEditedBy(this.getCurrentUser().getActualUsername());
 								question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
-								try {
-									performAction(question);
-								} catch (ELSException e) {
-									e.printStackTrace();
-									logger.error(e.toString());
-									model.addAttribute("error", e.getParameter());
-								}
-								
+								performAction(question);								
 								question.merge();
 								String internalStatusType = question.getInternalStatus().getType();
 								if(internalStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION)
@@ -2844,12 +2837,12 @@ public class QuestionWorkflowController  extends BaseController{
 							}
 						}					
 					}
-				} /*catch(ELSException e) {
+				} catch(ELSException e) {
 					e.printStackTrace();
 					logger.error(e.getParameter());
 					logger.error("Problem in bulk update of workflow details task with ID = "+i);
 					continue;
-				} */ catch(Exception e) {
+				} catch(Exception e) {
 					e.printStackTrace();
 					logger.error(e.getMessage());
 					logger.error("Problem in bulk update of workflow details task with ID = "+i);
