@@ -40,6 +40,7 @@ import javax.persistence.TemporalType;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.SessionVO;
 import org.mkcl.els.repository.SessionRepository;
@@ -422,8 +423,9 @@ public class Session extends BaseDomain implements Serializable {
 			throw new ELSException();
 		}
 		Boolean isCurrentDateInSession = null;
-		Date currentDate = new Date();
-		if(currentDate.compareTo(session.getStartDate())>=0 && currentDate.compareTo(session.getEndDate())<=0) {
+		Date currentDate = new Date();		
+		//if(currentDate.compareTo(session.getStartDate())>=0 && currentDate.compareTo(session.getEndDate())<=0) {
+		if(DateUtil.compareDatePartOnly(currentDate, session.getStartDate())>=0 && DateUtil.compareDatePartOnly(currentDate, session.getEndDate())<=0) {
 			isCurrentDateInSession = true;
 		} else {
 			isCurrentDateInSession = false;
