@@ -216,24 +216,29 @@
 					$('#key').val(rowid); 
 					var params="proceeding="+$('#key').val()+
 					'&language=' + $("#selectedLanguage").val();
-					$.get('proceeding/getProceedingris?'+params, 
-						    function(returnedData){
+				
 						
-						
-						$.get("ref/isValidToOpen?proceedingId="+rowid,function(data){
-							if(data){
-								window.open('riscust://'+returnedData.mlsUrl+'???1.0.0???word???'+returnedData.partid+'???'+returnedData.slotName+'???'+returnedData.currentSlotStartDate +'???'+returnedData.previousReporter +'???'+returnedData.currentSlotStartTime +'???'+returnedData.languageReporter +'???'+returnedData.generalNotice +'???'+returnedData.version +'???',"_self");
-								
-								
-							}else{
-								$.prompt("Not Allowed to open ");
-								$.unblockUI();
-							}
-							
+						$.ajax({url: 'ref/isValidToOpen', data: "proceedingId="+rowid, 
+							type: 'GET',
+					        async: false,
+					        success: function(data) {
+					        	if(data){
+					        		$.get('proceeding/getProceedingris?'+params, 
+										    function(returnedData){
+									window.open('riscust://'+returnedData.mlsUrl+'???1.0.0???word???'+returnedData.partid+'???'+returnedData.slotName+'???'+returnedData.currentSlotStartDate +'???'+returnedData.previousReporter +'???'+returnedData.currentSlotStartTime +'???'+returnedData.languageReporter +'???'+returnedData.generalNotice +'???'+returnedData.version +'???',"_self");
+					        		}); 
+									
+								}else{
+									$.prompt("Not Allowed to open ");
+									$.unblockUI();
+								}
+					        }
 						});
+						
+					
 			
 						
-					}); 
+				
 				}else{
 					$("#selectionDiv1").hide();			
 					$("#cancelFn").val("rowDblClickHandler");			
