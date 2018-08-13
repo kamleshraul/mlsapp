@@ -119,7 +119,7 @@ public class ApplicationConstants {
 	
 	/*************** SECURITY PARAMETERS ***************/
 	/** The Constant DEFAULT_PASSWORD. */
-	public static final String DEFAULT_PASSWORD = "Mls#1234";
+	public static final String DEFAULT_PASSWORD = "Mls@4321";
 	
 	public static final String DEFAULT_PASSWORD_LENGTH = "8";
 	//====================================================
