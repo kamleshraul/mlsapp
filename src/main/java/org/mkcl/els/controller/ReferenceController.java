@@ -7948,9 +7948,21 @@ public class ReferenceController extends BaseController {
 				List<CommitteeMeeting> committeeMeetings = CommitteeMeeting.find(committeeName, locale.toString(),ApplicationConstants.DESC);
 				//Collections.sort(committeeMeetings, Collections.reverseOrder());
 				for(CommitteeMeeting c: committeeMeetings){
+					String titile="";
 					MasterVO masterVO = new MasterVO();
 					masterVO.setId(c.getId());
-					masterVO.setName(FormaterUtil.formatDateToString(c.getMeetingDate(), ApplicationConstants.SERVER_DATEFORMAT)+' '+c.getStartTime()+' '+c.getCreatedBy()+' '+c.getCommitteeSubject().getName());
+					masterVO.setName(FormaterUtil.formatDateToString(c.getMeetingDate(), ApplicationConstants.SERVER_DATEFORMAT)+' '+c.getStartTime());
+				
+						if(c.getCreatedBy() != null && !c.getCreatedBy().isEmpty()){
+							titile="Created By:"+c.getCreatedBy();
+							
+						}
+						
+						if(c.getCommitteeSubject() != null){
+							titile=titile+' '+"Subject:"+c.getCommitteeSubject().getName();
+						}					
+						masterVO.setValue(titile);
+
 					committeeMeetingVOs.add(masterVO);
 				}
 			}
