@@ -190,7 +190,26 @@ public class MasterVO {
 		boolean retVal = false;
 		if(mv instanceof MasterVO){
 			MasterVO m = (MasterVO) mv;
-			return (this.getName().equals(m.getName()) && this.getValue().equals(m.getValue()));
+//			return (this.getName().equals(m.getName()) && this.getValue().equals(m.getValue()));
+			String thisName = this.getName();
+			String mName = m.getName();
+			String thisValue = this.getValue();
+			String mValue = m.getValue();
+			
+			if(this.getName()==null) {
+				thisName = "";
+			}
+			if(m.getName()==null) {
+				mName = "";
+			}
+			if(this.getValue()==null) {
+				thisValue = "";
+			}
+			if(m.getValue()==null) {
+				mValue = "";
+			}
+			
+			return (thisName.equals(mName) && thisValue.equals(mValue));
 		}else{
 			retVal = super.equals(mv);
 		}
