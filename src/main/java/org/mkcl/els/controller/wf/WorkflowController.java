@@ -12,20 +12,19 @@ package org.mkcl.els.controller.wf;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.activiti.engine.impl.cmd.FindActiveActivityIdsCmd;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
@@ -40,7 +39,6 @@ import org.mkcl.els.domain.Document;
 import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
-import org.mkcl.els.domain.MemberDepartment;
 import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
@@ -305,9 +303,42 @@ public class WorkflowController extends BaseController {
 		}
 		model.addAttribute("years",years);
 		model.addAttribute("sessionYear",year);
-		
+
 		/**** Device Types. ****/
-		List<DeviceType> deviceTypes = DeviceType.findAll(DeviceType.class,"priority",ApplicationConstants.ASC, locale.toString());
+		//List<DeviceType> allDeviceTypes = DeviceType.findAll(DeviceType.class,"priority",ApplicationConstants.ASC, locale.toString());
+		
+		Credential cr = Credential.findByFieldName(Credential.class, "username", this.getCurrentUser().getActualUsername(), "");
+		
+		List<UserGroup> userGroups = this.getCurrentUser().getUserGroups();
+		//UserGroupType userGroupType = null;
+		List<DeviceType> deviceTypes=null;
+		String alldeviceTypeNameParam="";
+		for(UserGroup ug : userGroups){
+			UserGroup userGroup = UserGroup.findActive(cr, ug.getUserGroupType(), new Date(), locale.toString());
+			if(userGroup != null){
+				Map<String, String> parameters = UserGroup.findParametersByUserGroup(ug);
+				String deviceTypeNameParam= parameters.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale);
+				if(deviceTypeNameParam != null && ! deviceTypeNameParam.equals("")) {
+					//alldeviceTypeNameParam.concat(deviceTypeNameParam);
+					alldeviceTypeNameParam=alldeviceTypeNameParam+deviceTypeNameParam;
+					//deviceTypes=DeviceType.findAllowedTypesForUser(deviceTypeNameParam, "##", locale);
+				}
+			
+			}
+		}
+		deviceTypes=DeviceType.findAllowedTypesForUser(alldeviceTypeNameParam, "##", locale);
+		
+		if(deviceTypes == null)
+		{
+				deviceTypes=DeviceType.findAll(DeviceType.class,"priority",ApplicationConstants.ASC, locale.toString());
+		}
+		//UserGroup ug = UserGroup.findActive(cr, new Date(), locale);
+		
+		
+		
+		
+		//List<DeviceType> deviceTypes = allDeviceTypes;//DeviceType.findAllowedTypesForUser(ug,allDeviceTypes,locale.toString());
+		
 		model.addAttribute("deviceTypes", deviceTypes);
 		List<MasterVO> deviceTypeVOs = new ArrayList<MasterVO>();
 		for(DeviceType deviceType: deviceTypes) {
@@ -343,7 +374,7 @@ public class WorkflowController extends BaseController {
 		/**** added by sandeep singh(jan 29 2013) ****/
 		/**** Custom Parameter To Determine The Usergroup and usergrouptype of qis users ****/
 		String strUserGroup = request.getParameter("usergroup");
-		List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
+		//List<UserGroup> userGroups=this.getCurrentUser().getUserGroups();
 		List<Status> workflowTypes=new ArrayList<Status>();
 		List<SubDepartment> subdepartments = new ArrayList<SubDepartment>();
  		/**** Workflows for a particular device type will be visible 
