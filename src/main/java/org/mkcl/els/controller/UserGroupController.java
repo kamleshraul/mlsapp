@@ -123,7 +123,9 @@ public class UserGroupController extends GenericController<UserGroup>{
 				model.addAttribute("selectedHouseType",strHouseType);
 			}
 			/**** Device Types ****/
-			List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "type",ApplicationConstants.ASC, locale);
+			//List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class, "type",ApplicationConstants.ASC, locale);
+			List<DeviceType> deviceTypes=DeviceType.findAll(DeviceType.class,"priority",ApplicationConstants.ASC, locale.toString());
+				
 			model.addAttribute("deviceTypes", deviceTypes);
 			model.addAttribute("selectedDeviceType",domain.getParameterValue("DEVICETYPE_"+locale).trim());
 			/**** Ministries ****/
