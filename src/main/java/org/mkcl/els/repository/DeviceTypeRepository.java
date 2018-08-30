@@ -4,16 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
-import org.mkcl.els.domain.Device;
 import org.mkcl.els.domain.DeviceType;
 import org.springframework.stereotype.Repository;
-
-import com.trg.search.Search;
 
 @Repository
 public class DeviceTypeRepository extends BaseRepository<DeviceType, Serializable>{
@@ -40,7 +36,22 @@ public class DeviceTypeRepository extends BaseRepository<DeviceType, Serializabl
 		}
         return deviceTypes;
     }
+	public List<DeviceType> getAllowedTypesForUser(String deviceTypeNameParam, String delimiter, final String locale) throws ELSException {
+	
+		List<DeviceType> deviceTypes = new ArrayList<DeviceType>();
 
+		String pNames[] = deviceTypeNameParam.split(delimiter);
+		for(String pName : pNames){
+			DeviceType devicetypeName = 
+					DeviceType.findByFieldName(DeviceType.class, "name", pName, locale);
+			if(devicetypeName != null){
+				if(!deviceTypes.contains(devicetypeName)){
+				deviceTypes.add(devicetypeName);
+				}
+			}
+		}
+			return deviceTypes;
+	}
 	
 	public List<DeviceType> getAllowedTypesInStarredClubbing(final String locale) throws ELSException {
 		String starred = ApplicationConstants.STARRED_QUESTION;
