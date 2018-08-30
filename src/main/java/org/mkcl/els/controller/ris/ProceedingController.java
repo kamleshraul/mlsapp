@@ -2,11 +2,8 @@ package org.mkcl.els.controller.ris;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,7 +21,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 import org.apache.commons.io.FileUtils;
 import org.mkcl.els.common.exception.ELSException;
@@ -40,12 +36,9 @@ import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.xmlvo.ProceedingXMLVO;
 import org.mkcl.els.controller.GenericController;
 import org.mkcl.els.domain.BaseDomain;
-import org.mkcl.els.domain.Bill;
-import org.mkcl.els.domain.Bookmark;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.Committee;
 import org.mkcl.els.domain.CommitteeMeeting;
-import org.mkcl.els.domain.CommitteeMember;
 import org.mkcl.els.domain.CommitteeName;
 import org.mkcl.els.domain.CommitteeType;
 import org.mkcl.els.domain.Constituency;
@@ -53,7 +46,6 @@ import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.Designation;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.Document;
-import org.mkcl.els.domain.Grid;
 import org.mkcl.els.domain.House;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
@@ -62,7 +54,6 @@ import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MessageResource;
 import org.mkcl.els.domain.Ministry;
-import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Part;
 import org.mkcl.els.domain.PartDraft;
 import org.mkcl.els.domain.Party;
@@ -79,15 +70,9 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.User;
-import org.mkcl.els.domain.UserGroup;
-import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,7 +80,6 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -118,7 +102,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			final String locale,final AuthUser currentUser) {	
 		/**** House Types ****/
 		List<HouseType> houseTypes = new ArrayList<HouseType>();
-		String houseType=this.getCurrentUser().getHouseType();
+		String houseType=this.getCurrentUser().getHouseType(); 
 		if(houseType.equals("lowerhouse")){
 			houseTypes=HouseType.findAllByFieldName(HouseType.class, "type",houseType,"name",ApplicationConstants.ASC, locale);
 		}else if(houseType.equals("upperhouse")){
