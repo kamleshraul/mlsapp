@@ -63,7 +63,7 @@
 					if(data.length>0){
 						var text="<option value=''>"+$("#pleaseSelect").val()+"</option>";
 						for( var i=0;i<data.length;i++){
-							text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+							text+="<option title='"+data[i].value+"' value='"+data[i].id+"'>"+data[i].name+"</option>";
 						}
 						$("#selectedCommitteeMeeting").empty();
 						$("#selectedCommitteeMeeting").html(text);
