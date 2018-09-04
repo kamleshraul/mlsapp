@@ -481,26 +481,26 @@
 					<c:when test="${empty (nonSelectedUserPositions[counter.count-1])}">
 						<c:choose>
 							<c:when test="${i.houseType.type=='lowerhouse'}">
-								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="green"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="green"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:when>
 							<c:when test="${i.houseType.type=='upperhouse'}">
-								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="red"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="red"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:when>
 							<c:otherwise>
-								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="blue"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="blue"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:otherwise>
 						</c:choose>
 					</c:when>
 					<c:otherwise>
 						<c:choose>
 							<c:when test="${i.houseType.type=='lowerhouse'}">
-								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="green rep${nonSelectedUserPositions[counter.count-1]}"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="green rep${nonSelectedUserPositions[counter.count-1]}"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:when>
 							<c:when test="${i.houseType.type=='upperhouse'}">
-								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="red rep${nonSelectedUserPositions[counter.count-1]}"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="red rep${nonSelectedUserPositions[counter.count-1]}"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:when>
 							<c:otherwise>
-								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="blue rep${nonSelectedUserPositions[counter.count-1]}"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${nonSelectedUserPositions[counter.count-1]}" value="${i.id}" class="blue rep${nonSelectedUserPositions[counter.count-1]}"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:otherwise>
 						</c:choose>
 					</c:otherwise>
@@ -523,13 +523,13 @@
 			<c:if test="${!(empty i.houseType) }">
 				<c:choose>
 					<c:when test="${i.houseType.type=='lowerhouse'}">
-						<option id="${i.id}ooo${selectedUserPositions[counter.count-1]}" value="${i.id}" class="green rep${selectedUserPositions[counter.count-1]}"><c:out value="${i.findFullName()}"></c:out></option>
+						<option id="${i.id}ooo${selectedUserPositions[counter.count-1]}" value="${i.id}" class="green rep${selectedUserPositions[counter.count-1]}"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 					</c:when>
 					<c:when test="${i.houseType.type=='upperhouse'}">
-						<option id="${i.id}ooo${selectedUserPositions[counter.count-1]}" value="${i.id}" class="red rep${selectedUserPositions[counter.count-1]}"><c:out value="${i.findFullName()}"></c:out></option>
+						<option id="${i.id}ooo${selectedUserPositions[counter.count-1]}" value="${i.id}" class="red rep${selectedUserPositions[counter.count-1]}"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 					</c:when>
 					<c:otherwise>
-						<option id="${i.id}ooo${selectedUserPositions[counter.count-1]}" value="${i.id}" class="blue rep${selectedUserPositions[counter.count-1]}"><c:out value="${i.findFullName()}"></c:out></option>
+						<option id="${i.id}ooo${selectedUserPositions[counter.count-1]}" value="${i.id}" class="blue rep${selectedUserPositions[counter.count-1]}"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 					</c:otherwise>
 				</c:choose>
 			</c:if>	
@@ -557,26 +557,26 @@
 					<c:when test="${ empty (allRisUserPositions[counter.count-1])}">
 						<c:choose>
 							<c:when test="${i.houseType.type=='lowerhouse'}">
-								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="green"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="green"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:when>
 							<c:when test="${i.houseType.type=='upperhouse'}">
-								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="red"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="red"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:when>
 							<c:otherwise>
-								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="blue"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="blue"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:otherwise>
 						</c:choose>
 					</c:when>
 					<c:otherwise>
 						<c:choose>
 							<c:when test="${i.houseType.type=='lowerhouse'}">
-								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="green rep${allRisUserPositions[counter.count-1]}"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="green rep${allRisUserPositions[counter.count-1]}"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:when>
 							<c:when test="${i.houseType.type=='upperhouse'}">
-								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="red rep${allRisUserPositions[counter.count-1]} "><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="red rep${allRisUserPositions[counter.count-1]} "><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:when>
 							<c:otherwise>
-								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="blue rep${allRisUserPositions[counter.count-1]}"><c:out value="${i.findFullName()}"></c:out></option>
+								<option id="${i.id}ooo${allRisUserPositions[counter.count-1]}" value="${i.id}" class="blue rep${allRisUserPositions[counter.count-1]}"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 							</c:otherwise>
 						</c:choose>
 					</c:otherwise>

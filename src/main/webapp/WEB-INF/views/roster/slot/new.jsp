@@ -55,10 +55,10 @@
 		<c:forEach items="${users}"  var="i">
 		<c:choose>
 		<c:when test="${domain.reporter.user.id==i.id }">
-		<option selected="selected" value="${i.id}">${i.credential.username }(${i.findFullName()})</option>
+		<option selected="selected" value="${i.id}">${i.credential.username }(${i.findFullNameForRis()})</option>
 		</c:when>
 		<c:otherwise>
-		<option  value="${i.id}">${i.credential.username }(${i.findFullName()})</option>		
+		<option  value="${i.id}">${i.credential.username }(${i.findFullNameForRis()})</option>		
 		</c:otherwise>		
 		</c:choose>
 		</c:forEach>

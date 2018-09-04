@@ -236,13 +236,13 @@
 	<c:if test="${!(empty i.houseType) }">
 	<c:choose>
 	<c:when test="${i.houseType.type=='lowerhouse'}">
-	<option value="${i.id}" class="green"><c:out value="${i.findFullName()}"></c:out></option>
+	<option value="${i.id}" class="green"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 	</c:when>
 	<c:when test="${i.houseType.type=='upperhouse'}">
-	<option value="${i.id}" class="red"><c:out value="${i.findFullName()}"></c:out></option>
+	<option value="${i.id}" class="red"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 	</c:when>
 	<c:otherwise>
-	<option value="${i.id}" class="blue"><c:out value="${i.findFullName()}"></c:out></option>
+	<option value="${i.id}" class="blue"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 	</c:otherwise>
 	</c:choose>
 	</c:if>
@@ -262,13 +262,13 @@
 	<c:if test="${!(empty i.houseType) }">
 	<c:choose>
 	<c:when test="${i.houseType.type=='lowerhouse'}">
-	<option value="${i.id}" class="green"><c:out value="${i.findFullName()}"></c:out></option>
+	<option value="${i.id}" class="green"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 	</c:when>
 	<c:when test="${i.houseType.type=='upperhouse'}">
-	<option value="${i.id}" class="red"><c:out value="${i.findFullName()}"></c:out></option>
+	<option value="${i.id}" class="red"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 	</c:when>
 	<c:otherwise>
-	<option value="${i.id}" class="blue"><c:out value="${i.findFullName()}"></c:out></option>
+	<option value="${i.id}" class="blue"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 	</c:otherwise>
 	</c:choose>
 	</c:if>
@@ -290,13 +290,13 @@
 	<c:if test="${!(empty i.houseType) }">
 	<c:choose>
 	<c:when test="${i.houseType.type=='lowerhouse'}">
-	<option value="${i.id}" class="green"><c:out value="${i.findFullName()}"></c:out></option>
+	<option value="${i.id}" class="green"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 	</c:when>
 	<c:when test="${i.houseType.type=='upperhouse'}">
-	<option value="${i.id}" class="red"><c:out value="${i.findFullName()}"></c:out></option>
+	<option value="${i.id}" class="red"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 	</c:when>
 	<c:otherwise>
-	<option value="${i.id}" class="blue"><c:out value="${i.findFullName()}"></c:out></option>
+	<option value="${i.id}" class="blue"><c:out value="${i.findFullNameForRis()}"></c:out></option>
 	</c:otherwise>
 	</c:choose>
 	</c:if>
