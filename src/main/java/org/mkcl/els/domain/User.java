@@ -283,6 +283,10 @@ public class User extends BaseDomain implements Serializable {
 		return this.getTitle()+" "+this.getFirstName()+" "+this.getMiddleName()+" "+this.getLastName();
 	}
 	
+	public String findFullNameForRis(){
+		return this.getTitle()+" "+this.getMiddleName()+" "+this.getLastName()+" "+this.getFirstName();
+	}
+	
 	public void setLanguage(String language) {
 		this.language = language;
 	}
