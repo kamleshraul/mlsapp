@@ -121,6 +121,19 @@
 	function refreshList(){
 		showCutMotionList();
 	}
+	
+	function memberCutMotionsView() {
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&cutMotionType=" + $("#selectedCutMotionType").val()
+		+ "&createdBy=" + $("#ugparam").val()
+		+"&locale="+$("#moduleLocale").val()
+		+ "&report=MEMBER_CUTMOTIONS_VIEW"
+		+ "&reportout=member_cutmotions_view";
+		showTabByIdAndUrl('details_tab','cutmotion/report/genreport?'+parameters);
+	}
+	
 	/**** new question ****/
 	function newCutMotion() {
 		$("#cancelFn").val("newCutMotion");

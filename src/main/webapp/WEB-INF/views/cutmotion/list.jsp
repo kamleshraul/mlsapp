@@ -43,6 +43,12 @@
 				refreshList();
 			});
 			
+			/****Member's CutMotions View ****/
+			$("#member_cutmotions_view").click(function() {
+				$("#selectionDiv1").hide();
+				memberCutMotionsView();
+			});
+			
 			$("#generateCurrentStatusReport").click(function(){
 				var selectedMotionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 				
@@ -128,6 +134,11 @@
 			<a href="#" id="refreshList" class="butSim">
 				<spring:message code="generic.refresh" text="Refresh"/>
 			</a> |	
+			<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<a href="#" id="member_cutmotions_view" class="butSim">
+					<spring:message code="cutmotion.member_cutmotions_view" text="Member's CutMotions View"/>
+				</a> |
+			</security:authorize> --%>
 			<security:authorize access="!hasAnyRole('CMOIS_TYPIST','MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 				<a href="#" id="generateCurrentStatusReport" class="butSim">
 					<spring:message code="cutmotion.generateCurrentStatusReport" text="Generate Current Status Report"/>
