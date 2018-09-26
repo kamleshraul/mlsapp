@@ -67,7 +67,12 @@ public class WorkflowService implements IWorkflowService{
         for(SupportingMember i:supportingMembers){
         	if(i.getDecisionStatus().getType().trim().equals(ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)){
             try {
-				supportingMembersNames.add(User.find(i.getMember()).getCredential().getUsername());
+            	User user = User.findbyNameBirthDate(i.getMember().getFirstName(),
+										i.getMember().getMiddleName(),
+										i.getMember().getLastName(),
+										i.getMember().getBirthDate());
+            	
+				supportingMembersNames.add(user.getCredential().getUsername());
 			} catch (ELSException e) {
 				e.printStackTrace();
 			}
