@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 
 @Configurable
-@Entity
+@Entity(name = "org.mkcl.els.domain.pushmessage")
 @Table(name="pushmessages")
 @JsonIgnoreProperties({"senderUserGroupType","senderUserGroup",
 	"recepientUserGroupType","recepientUserGroup","sessionType","houseType","sessionYear","device","deviceType",

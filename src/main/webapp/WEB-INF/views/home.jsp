@@ -21,7 +21,9 @@
 		<script type="text/javascript" src="./resources/js/tinymce.min.js?v=5"></script>
 		<script type="text/javascript" src="./resources/js/themes/modern/theme.min.js?v=6"></script>
 		<script type="text/javascript" src="./resources/js/moment-with-locales.js?v=6"></script>
-		
+		<!-- <script type="text/javascript" src="./resources/js/vue-2.4.0.dev.js?v=7"></script> -->
+		<script type="text/javascript" src="./resources/js/vue-2.4.0.prod.min.js?v=7"></script>
+		<script type="text/javascript" src="./resources/js/jquery.toastmessage.js?v=1"></script>
 			
 		<!-- Multiselect -->				
 
@@ -75,6 +77,12 @@
 		<!-- Context Menu -->
 		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.contextMenu.css?v=3" />
 		
+		<!-- Toast Messages CSS -->
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/jquery.toastmessage.css?v=1" />
+		
+		<!-- Notification CSS -->
+		<link rel="stylesheet" type="text/css" media="screen" href="./resources/css/vue_notifications.css?v=1" />
+		
 		<!-- Printer Friendly CSS -->
 		<link rel="stylesheet" type="text/css" media="print" href="./resources/css/printerfriendly.css?v=4" />
 		
@@ -86,10 +94,7 @@
 				DD_belatedPNG.fix('img, .info a');
 			</script>
 		<![endif]-->
-
-		<!--   <script type="text/javascript"></script>    -->
 		
-		<!-- This is done to fire the assembly module when a user login to the system. -->
 		<script type="text/javascript">
 			var server_time = null;
 
@@ -99,6 +104,7 @@
 			};
 			
 			$(document).ready(function(){
+				<!-- This is done to fire the assembly module when a user login to the system. -->
 				//triggering mis lowerhouse module on login
 				var locale=$('#authlocale').val();
 				var startURL=$("#startURL").val();
@@ -126,12 +132,40 @@
 				
 				if($('#authusername').val()=='shrisanjaydutt') {
 					setInterval(updateServerTime, 1000);
-				}			    
+				}
+				
+				if($('#pushNotificationsEnabled').val()=="YES") {
+					$.getScript("./resources/js/atmosphere.js?v=1", function() {
+						$.getScript("./resources/js/atmosphere_notifications.js?v=1", function() {
+							//console.log("atmosphere push notifications loaded..");
+						});
+					});
+				} else {
+					$.getScript("./resources/js/vue_notifications.js?v=1", function() {
+						//console.log("notifications widget loaded..");
+					});
+				}
+				
+				//comment out below code if we need to close notifications box UI after clicking on the page outside the UI box
+				/* $('body').click(function(evt){    
+				       if(evt.target.id == "notifications" || evt.target.id == "notificationViewerPopUpDiv" || evt.target.class == "fancybox-close")
+				          return;
+				       //For descendants of notifications being clicked, remove this check if you do not want to put constraint on descendants.
+				       if($(evt.target).closest('#notifications').length)
+				          return; 
+				       //For descendants of notificationViewerPopUp being clicked, remove this check if you do not want to put constraint on descendants.
+				       if($(evt.target).closest('#notificationViewerPopUpDiv').length)
+				          return;
+
+				      //Do processing of click event here for every element except with id menu_content
+				      $('#notifications').fadeOut('slow');
+				}); */				
+				
 			});		
 		</script>
 	</head>
 		
-	<body>
+	<body id="vue_root">
 		<c:if test="${(error!='') && (error!=null)}">
 			<h4 style="color: #FF0000;">${error}</h4>
 		</c:if>
@@ -159,6 +193,9 @@
         	<input type="hidden" id="noInvalidFormattingPrompt" value="<spring:message code='generic.noInvalidFormattingPrompt' text='Content is having invalid formatting tags which are not allowed. Please paste from Notepad'/>"/>
         	<input type="hidden" id="loginMessageFromSystem" value="${loginMessageFromSystem}"/>
         	<input type="hidden" id="logintime_server" value="${logintime_server}"/>
+        	<input type="hidden" id="pushNotificationsEnabled" value="${pushNotificationsEnabled}"/>
+        	<input type="hidden" id="notification_alert" value="${notification_alert}"/>
+        	<input type="hidden" id="notifications_visibleMaxCount" value="${notifications_visibleMaxCount}"/>
         	
         <div id="container" class="clearfix">
 			<div id="page">

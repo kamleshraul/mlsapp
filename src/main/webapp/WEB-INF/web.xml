@@ -42,6 +42,42 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	
+	<servlet>
+	    <description>AtmosphereServlet</description>
+	    <servlet-name>AtmosphereServlet</servlet-name>
+	    <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
+	    <!-- <init-param>
+	      <param-name>org.atmosphere.useNative</param-name>
+	      <param-value>true</param-value>
+	    </init-param>
+	    <init-param>
+	      <param-name>org.atmosphere.useWebSocketAndServlet3</param-name>
+	      <param-value>true</param-value>
+	    </init-param> -->
+	    <!-- <init-param>
+	      <param-name>org.atmosphere.cpr.asyncSupport</param-name>
+	      <param-value>org.atmosphere.container.JSR356AsyncSupport</param-value>
+	    </init-param> -->
+	    <init-param>
+	      <param-name>org.atmosphere.cpr.packages</param-name>
+	      <param-value>org.mkcl.els.atmosphere</param-value>
+	    </init-param>
+	    <init-param>
+	      <param-name>org.atmosphere.interceptor.HeartbeatInterceptor.clientHeartbeatFrequencyInSeconds</param-name>
+	      <param-value>10</param-value>
+	    </init-param>
+	    <load-on-startup>1</load-on-startup>
+	    <!-- <async-supported>true</async-supported> -->
+	</servlet>
+	<servlet-mapping>
+	  <servlet-name>AtmosphereServlet</servlet-name>
+	  <url-pattern>/push_message/*</url-pattern>
+	</servlet-mapping>
+	<!-- <servlet-mapping>
+	  <servlet-name>AtmosphereServlet</servlet-name>
+	  <url-pattern>/chat/*</url-pattern>
+	</servlet-mapping> -->
 
 	<servlet>
 		<servlet-name>default</servlet-name>

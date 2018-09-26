@@ -24,7 +24,6 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
-import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -33,7 +32,6 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DocumentLink;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MenuItem;
 import org.mkcl.els.domain.Party;
@@ -265,8 +263,18 @@ public class HomeController extends BaseController {
         String supportURL = supportURLParam.getValue();
         model.addAttribute("supportURL", supportURL);
         
+        model.addAttribute("notifications_visibleMaxCount", ApplicationConstants.NOTIFICATIONS_VISIBLE_MAXIMUM_COUNT);
+        
         //update static current numbers for all devices on first successful login post deployment
         Device.updateCurrentNumberForDevices();
+        
+        //enable/disable push notifications
+        CustomParameter csptPushNotificationsEnabled = CustomParameter.findByName(CustomParameter.class, "PUSH_NOTIFICATIONS_ENABLED", "");
+        if(csptPushNotificationsEnabled!=null && csptPushNotificationsEnabled.getValue().equals("YES")) {
+        	model.addAttribute("pushNotificationsEnabled", "YES");
+        } else {
+        	model.addAttribute("pushNotificationsEnabled", "NO");
+        }
         
         //flag for checking if this request is redirection to home page
         String redirectedToHomePage = request.getParameter("redirectedToHomePage");

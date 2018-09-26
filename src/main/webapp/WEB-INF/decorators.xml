@@ -60,6 +60,7 @@
 		<pattern>/title/new</pattern>
 		<pattern>/title/*/edit</pattern>
 		<pattern>/title/*/delete</pattern>
+		<pattern>/title/testpage</pattern>
 
 		<pattern>/base/*/new</pattern>
 		<pattern>/base/*/edit</pattern>

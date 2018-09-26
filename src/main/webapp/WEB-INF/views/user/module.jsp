@@ -161,6 +161,28 @@
 				});
 			}
 		}
+		function sendNotification() {
+			var selectedUserIds = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+			if(selectedUserIds==null||selectedUserIds==""){								
+				$.prompt($('#selectAllUsersPromptMsg').val(),{
+					buttons: {Ok:true, Cancel:false}, callback: function(v){
+				        if(v){				        	
+				        	showTabByIdAndUrl('details_tab','user/sendNotification?usernames=');
+				        } else {
+				        	$.prompt($('#selectRowFirstMessage').val());
+							return false;
+				        }
+					}
+				});
+			}else{
+				var usernames = "";
+				for(var i=0; i<selectedUserIds.length; i++) {
+					usernames += $('#grid').jqGrid('getCell', selectedUserIds[i], 'credential.username');
+					usernames += ',';
+				}				
+				showTabByIdAndUrl('details_tab','user/sendNotification?usernames='+usernames);
+			}
+		}
 	</script>
 </head>
 <body>
@@ -190,10 +212,11 @@
 		</div>
 		<input type="hidden" id="key" name="key">
 		<input type="hidden" id="urlPattern" name="urlPattern" value="${urlPattern}">
-		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired row first'></spring:message>" disabled="disabled">
+		<input type="hidden" id="selectRowFirstMessage" name="selectRowFirstMessage" value="<spring:message code='generic.selectRowFirstMessage' text='Please select the desired user first'></spring:message>" disabled="disabled">
 		<input type="hidden" id="confirmDeleteMessage" name="confirmDeleteMessage" value="<spring:message code='generic.confirmDeleteMessage' text='Do you want to delete the row with Id: '></spring:message>" disabled="disabled">
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 		<input type="hidden" id="currentPage" value="list">
+		<input type="hidden" id="selectAllUsersPromptMsg" name="selectAllUsersPromptMsg" value="<spring:message code='user.selectAllUsersPromptMsg' text='Do you want to send notification to all users?'></spring:message>" disabled="disabled">
 	</div> 
 </body>
 </html>

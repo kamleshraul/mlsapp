@@ -27,6 +27,9 @@
 			$("#loginForSupport").click(function() {
 				loginForSupport();
 			});
+			$("#sendNotification").click(function() {
+				sendNotification();
+			});
 		});
 		function rowSelectHandler(rowid,status){
 			//on row select key will be set
@@ -70,6 +73,9 @@
 			</a> |
 			<a href="#" id="loginForSupport" class="butSim">
 				<spring:message code="user.loginForSupport" text="Login for Support"/>
+			</a> |
+			<a href="#" id="sendNotification" class="butSim">
+				<spring:message code="user.sendNotification" text="Send Notification"/>
 			</a> |
 			</security:authorize>
 			</span>  

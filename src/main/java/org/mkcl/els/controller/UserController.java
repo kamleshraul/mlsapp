@@ -423,4 +423,104 @@ javax.servlet.http.HttpServletRequest)
 		}
 		return updateStatus;
 	}
+	
+	@RequestMapping(value = "/sendNotification", method = RequestMethod.GET)
+    public String sendNotificationInit(final ModelMap model, 
+    		final HttpServletRequest request,
+            final Locale locale) {
+        final String servletPath = request.getServletPath().replaceFirst("\\/","");
+        
+        /** usernames **/
+        String usernames = request.getParameter("usernames");
+        if(usernames!=null && !usernames.isEmpty()) {
+        	model.addAttribute("usernames", usernames);
+        } else if(request.getSession().getAttribute("usernames")!=null){
+        	model.addAttribute("usernames",request.getSession().getAttribute("usernames"));
+            request.getSession().removeAttribute("usernames");
+        } else {
+        	model.addAttribute("usernames", "");
+        }        
+        
+        /** is volatile notification **/
+        if(request.getSession().getAttribute("isVolatile")!=null){
+        	model.addAttribute("isVolatile",request.getSession().getAttribute("isVolatile"));
+            request.getSession().removeAttribute("isVolatile");
+        }else{        	
+            if(usernames!=null && !usernames.isEmpty()) {
+            	model.addAttribute("isVolatile", false);
+            } else {
+            	model.addAttribute("isVolatile", true);
+            }
+        }
+        
+        /** notification title **/
+        if(request.getSession().getAttribute("notificationTitle")!=null){
+        	model.addAttribute("notificationTitle",request.getSession().getAttribute("notificationTitle"));
+            request.getSession().removeAttribute("notificationTitle");
+        }
+        
+        /** notification message **/
+        if(request.getSession().getAttribute("notificationMessage")!=null){
+        	model.addAttribute("notificationMessage",request.getSession().getAttribute("notificationMessage"));
+            request.getSession().removeAttribute("notificationMessage");
+        }
+        
+        //this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh request
+        if(request.getSession().getAttribute("type")==null){
+            model.addAttribute("type","");
+        }else{
+        	model.addAttribute("type",request.getSession().getAttribute("type"));
+            request.getSession().removeAttribute("type");
+        }
+        
+        //here making provisions for displaying error pages
+        if(model.containsAttribute("errorcode")){
+            return servletPath.replace("sendNotification","error");
+        }else{
+            return servletPath;
+        }
+    }
+	
+	@RequestMapping(value = "/sendNotification", method = RequestMethod.POST)
+    public String sendNotification(final ModelMap model, 
+    		final HttpServletRequest request,
+    		final RedirectAttributes redirectAttributes,
+            final Locale locale) {
+		String usernames = request.getParameter("usernames");
+		String notificationTitle = request.getParameter("notificationTitle");
+		String notificationMessage = request.getParameter("notificationMessage");
+		String isVolatile = request.getParameter("isVolatile");
+		if(usernames==null) {
+			usernames = "";
+		}
+		if(notificationTitle!=null && !notificationTitle.isEmpty()
+				&& isVolatile!=null && !isVolatile.isEmpty()) {
+			try {
+				NotificationController.sendNotificationFromAdminPage(notificationTitle, notificationMessage, Boolean.parseBoolean(isVolatile), usernames, locale.toString());
+				
+		        //this is done so as to remove the bug due to which update message appears even though there
+		        //is a fresh request
+		        request.getSession().setAttribute("type","success");
+		        redirectAttributes.addFlashAttribute("msg", "update_success");
+			} catch (Exception e) {
+				e.printStackTrace();
+				//error
+				redirectAttributes.addFlashAttribute("type", "error");
+				request.getSession().setAttribute("type","error");
+		        redirectAttributes.addFlashAttribute("msg", "update_error");	
+			}
+		} else {
+			//error
+			redirectAttributes.addFlashAttribute("type", "error");
+			request.getSession().setAttribute("type","error");
+	        redirectAttributes.addFlashAttribute("msg", "update_error");
+		} 
+		request.getSession().setAttribute("usernames", usernames);
+		request.getSession().setAttribute("isVolatile", isVolatile);
+		request.getSession().setAttribute("notificationTitle", notificationTitle);	
+		request.getSession().setAttribute("notificationMessage", notificationMessage);
+        String returnUrl = "redirect:/" + request.getServletPath().replaceFirst("\\/","");
+        return returnUrl;
+    }
 }

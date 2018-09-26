@@ -37,6 +37,7 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.BaseController;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.controller.question.QuestionController;
 import org.mkcl.els.domain.ClarificationNeededFrom;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -2304,6 +2305,13 @@ public class QuestionWorkflowController  extends BaseController{
 										/**** Workflow Detail entry made only if its not the end of workflow ****/
 										WorkflowDetails newWFDetails = 
 												WorkflowDetails.create(question, newtask, usergroupType, currentDeviceTypeWorkflowType,level);
+										
+										/**** SEND NOTIFICATION TO DEPARTMENT USER IF DEVICE IS UNSTARRED QUESTION ****/
+										if(domain.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+												&& (usergroupType.getType().equals(ApplicationConstants.DEPARTMENT) || usergroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))) {
+											
+											NotificationController.sendDepartmentProcessNotificationForUnstarredQuestion(domain, newWFDetails.getAssignee(), domain.getLocale());
+										}
 										
 										/**** FOr CLarificationFromMember and Department ****/
 										if(domain.getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER_DEPARTMENT)

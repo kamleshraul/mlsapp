@@ -66,4 +66,25 @@ public class CredentialRepository extends BaseRepository<Credential, Serializabl
 		return activeCredentialsByUserGroupType;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public String findAllActiveUsernamesAsCommaSeparatedString(final String locale) {
+		String activeUsernames = "";
+		
+		List<String> activeCredentials= new ArrayList<String>();		
+		String strQuery = "SELECT DISTINCT cr.username FROM credentials cr WHERE cr.enabled";		
+		Query query = this.em().createNativeQuery(strQuery.toString());
+		activeCredentials = query.getResultList();
+		
+		if(activeCredentials!=null && !activeCredentials.isEmpty()) {
+			StringBuffer activeUsernamesBuffer = new StringBuffer(activeUsernames);
+			for(String activeCredential: activeCredentials) {
+				activeUsernamesBuffer.append(activeCredential);
+				activeUsernamesBuffer.append(",");
+			}
+			activeUsernames = activeUsernamesBuffer.toString();
+		}
+		
+		return activeUsernames;
+	}
+	
 }

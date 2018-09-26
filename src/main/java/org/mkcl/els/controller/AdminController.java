@@ -37,6 +37,7 @@ import org.mkcl.els.domain.SupportingMember;
 import org.mkcl.els.domain.UserGroupType;
 import org.mkcl.els.domain.chart.Chart;
 import org.mkcl.els.domain.chart.ChartEntry;
+import org.mkcl.els.service.INotificationService;
 import org.mkcl.els.service.ISecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,6 +57,9 @@ public class AdminController extends BaseController {
 	
 	@Autowired 
 	private ISecurityService securityService;
+	
+	@Autowired 
+	private INotificationService notificationService;
 
 //	/**
 //	 * Starts question workflow at the given level.
@@ -886,6 +890,37 @@ public class AdminController extends BaseController {
 			return "ERROR";
 		}
 		
+		return "SUCCESS";
+	}
+	
+	@RequestMapping(value="broadcast_downtime", method=RequestMethod.POST)
+	public @ResponseBody String broadcastDowntime(final HttpServletRequest request, final Locale appLocale) {
+		try {			
+			notificationService.sendVolatileNotificationToAllActiveUsers("Please save your work and logout the system for 10 mins!", appLocale.toString());
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+		}		
+		return "SUCCESS";
+	}
+	
+	@RequestMapping(value="test_broadcast", method=RequestMethod.POST)
+	public @ResponseBody String testBroadcast(final HttpServletRequest request, final Locale appLocale) {
+		try {
+			String receivers = request.getParameter("receivers");
+//			if(receivers!=null && !receivers.isEmpty()) {
+//				NotificationHandler.broadcastMessage("broadcaster", receivers);
+//			} else {			
+//				return "MISSING_RECEIVERS";
+//			}
+			//NotificationHandler.broadcastMessage("Here is the broadcast for all!");
+			notificationService.sendNotification("broadcaster", "Here is the broadcast!", receivers, appLocale.toString());
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+		}		
 		return "SUCCESS";
 	}
 	

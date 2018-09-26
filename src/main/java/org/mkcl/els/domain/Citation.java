@@ -36,7 +36,7 @@ public class Citation extends BaseDomain implements Serializable{
     private DeviceType deviceType;
 
     /** The text. */
-    @Column(length=10000)
+    @Column(length=30000)
     private String text;
 
     /** The status. */
