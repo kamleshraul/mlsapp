@@ -127,6 +127,7 @@ $(function () {
 			        success: function(marked) {
 			        	if(marked) {
 			        		self.notificationsList[notificationIndex].markedAsReadByReceiver = true;
+			        		self.notificationsCount = self.notificationsCount - 1;
 			        		self.selectedNotification = self.notificationsList[notificationIndex];
 							$('.fbox').fancybox({
 								autoSize: false,
