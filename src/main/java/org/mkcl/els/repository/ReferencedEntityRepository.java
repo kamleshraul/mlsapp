@@ -270,16 +270,16 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 			
 			String searchQuery=null;
 			if(!param.contains("+")&&!param.contains("-")){
-				searchQuery=" AND (( match(m.subject,m.question_text,m.revised_subject,m.revised_question_text) "+
+				searchQuery=" AND (( match(m.subject,m.question_text,m.revised_subject,m.revised_question_text,m.answer) "+
 				"against('"+param+"' in natural language mode)"+
-				")||m.subject LIKE '"+param+"%'||m.question_text LIKE '"+param+"%'|| m.revised_subject LIKE '"+param+"%'|| m.revised_question_text LIKE '"+param+"%')";
+				")||m.subject LIKE '"+param+"%'||m.question_text LIKE '"+param+"%'|| m.revised_subject LIKE '"+param+"%'|| m.revised_question_text LIKE '"+param+"%'|| m.answer LIKE '"+param+"%')";
 			}else if(param.contains("+")&&!param.contains("-")){
 				String[] parameters=param.split("\\+");
 				StringBuffer buffer=new StringBuffer();
 				for(String i:parameters){
 					buffer.append("+"+i+" ");
 				}
-				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text) "+
+				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text,m.answer) "+
 				"against('"+buffer.toString()+"' in boolean  mode)";
 			}else if(!param.contains("+")&&param.contains("-")){
 				String[] parameters=param.split("-");
@@ -288,10 +288,10 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					buffer.append(i+" "+"-");
 				}
 				buffer.deleteCharAt(buffer.length()-1);
-				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text) "+
+				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text,m.answer) "+
 				"against('"+buffer.toString()+"' in boolean  mode)";
 			}else if(param.contains("+")||param.contains("-")){
-				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text) "+
+				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text,m.answer) "+
 				"against('"+param+"' in boolean  mode)";
 			}
 			
@@ -603,16 +603,16 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 			
 			String searchQuery=null;
 			if(!param.contains("+")&&!param.contains("-")){
-				searchQuery=" AND (( match(m.subject,m.question_text,m.revised_subject,m.revised_question_text) "+
+				searchQuery=" AND (( match(m.subject,m.question_text,m.revised_subject,m.revised_question_text,m.answer) "+
 				"against('"+param+"' in natural language mode)"+
-				")||m.subject LIKE '"+param+"%'||m.question_text LIKE '"+param+"%'|| m.revised_subject LIKE '"+param+"%'|| m.revised_question_text LIKE '"+param+"%')";
+				")||m.subject LIKE '"+param+"%'||m.question_text LIKE '"+param+"%'|| m.revised_subject LIKE '"+param+"%'|| m.revised_question_text LIKE '"+param+"%' || m.answer LIKE '%"+param+"%')";
 			}else if(param.contains("+")&&!param.contains("-")){
 				String[] parameters=param.split("\\+");
 				StringBuffer buffer=new StringBuffer();
 				for(String i:parameters){
 					buffer.append("+"+i+" ");
 				}
-				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text) "+
+				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text,m.answer) "+
 				"against('"+buffer.toString()+"' in boolean  mode)";
 			}else if(!param.contains("+")&&param.contains("-")){
 				String[] parameters=param.split("-");
@@ -621,10 +621,10 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 					buffer.append(i+" "+"-");
 				}
 				buffer.deleteCharAt(buffer.length()-1);
-				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text) "+
+				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text,m.answer) "+
 				"against('"+buffer.toString()+"' in boolean  mode)";
 			}else if(param.contains("+")||param.contains("-")){
-				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text) "+
+				searchQuery=" AND match(m.subject,m.question_text,m.revised_subject,m.revised_question_text,m.answer) "+
 				"against('"+param+"' in boolean  mode)";
 			}
 			

@@ -157,7 +157,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		if(!param.contains("+")&&!param.contains("-")){
 			searchQuery=" AND (( match(q.subject,q.question_text,q.revised_subject,q.revised_question_text,q.answer) "+
 					"against('"+param+"' in natural language mode)"+
-					")||q.subject LIKE '%"+param+"%'||q.question_text LIKE '%"+param+"%'||q.revised_subject LIKE '%"+param+"%'||q.revised_subject LIKE '%"+param+"%' ||q.answer LIKE '%"+param+"%')";
+					")||q.subject LIKE '%"+param+"%'||q.question_text LIKE '%"+param+"%'||q.revised_subject LIKE '%"+param+"%'||q.revised_question_text LIKE '%"+param+"%' ||q.answer LIKE '%"+param+"%')";
 		}else if(param.contains("+")&&!param.contains("-")){
 			String[] parameters=param.split("\\+");
 			StringBuffer buffer=new StringBuffer();
