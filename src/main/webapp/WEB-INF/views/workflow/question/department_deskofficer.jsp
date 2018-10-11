@@ -1633,6 +1633,7 @@
 	<form:hidden path="level" value="${level}"/>
 	<form:hidden path="localizedActorName"/>
 	<form:hidden path="workflowDetailsId"/>
+	<form:hidden path="processed"/>
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		
 	</c:if>

@@ -1256,8 +1256,11 @@
 			</c:forEach>
 		</select>		
 		<form:errors path="subDepartment" cssClass="validationError"/>	
-	</p>			
-	
+	</p>	
+	<p>		
+		<label class="small"><spring:message code="question.processed" text="Processed By Clerk?"/></label>
+		<form:checkbox path="processed"/>
+	</p>
 	<p>
 	<label class="centerlabel"><spring:message code="question.members" text="Members"/></label>
 	<textarea id="members" class="sTextarea" readonly="readonly" rows="2" cols="50">${memberNames}</textarea>

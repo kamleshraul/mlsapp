@@ -2015,6 +2015,7 @@
 	<form:hidden path="workflowDetailsId"/>
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
+	<form:hidden path="processed"/>
 	<input type="hidden" id="resendQuestionTextStatus" name="resendQuestionTextStatus" value="${resendQuestionTextStatus}"/>
 	<input type="hidden" id="clarificationStatus" name="clarificationStatus" value="${clarificationStatus}"/>
 	<c:if test="${domain.ballotStatus!=null}">
