@@ -5292,11 +5292,18 @@ class QuestionReportHelper{
 				yaadiQuestion[13] = answerRelatedDateFormat.format(q.getAnswerReceivedDate());
 			} else {
 				yaadiQuestion[13] = "";
-			}
-			if(q.getMinistry()!=null) {
-				yaadiQuestion[14] = q.getMinistry().getName();
+			}			
+//			if(q.getMinistry()!=null) {
+//				yaadiQuestion[14] = q.getMinistry().getName();
+//			} else {
+//				yaadiQuestion[14] = "";
+//			}
+			/** Ministry name as per subdepartment name **/
+			if(q.getSubDepartment().getMinistryDisplayName()!=null 
+					&& !q.getSubDepartment().getMinistryDisplayName().isEmpty()) {
+				yaadiQuestion[14] = q.getSubDepartment().getMinistryDisplayName();
 			} else {
-				yaadiQuestion[14] = "";
+				yaadiQuestion[14] = q.getSubDepartment().getName();
 			}
 			if(yaadiNumber==null) {
 				if(q.getYaadiNumber()!=null) {

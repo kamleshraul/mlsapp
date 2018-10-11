@@ -221,7 +221,7 @@
 										<xsl:value-of select="element_1_11"/>
 									</xsl:when> -->
 									<xsl:otherwise>
-										<xsl:value-of select="element_1_10"/> मंत्री <fo:inline font-weight="normal">पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
+										<xsl:value-of select="element_1_15"/> मंत्री <fo:inline font-weight="normal">पुढील गोष्टींचा खुलासा करतील काय :-</fo:inline>
 									</xsl:otherwise>
 								</xsl:choose>   				
                 			</fo:block>
