@@ -1290,7 +1290,17 @@
 					</c:choose>
 				</c:forEach>
 			</select>		
-			<form:errors path="subDepartment" cssClass="validationError"/>	
+			<form:errors path="subDepartment" cssClass="validationError"/>
+			<c:choose>
+				<c:when test="${usergroupType =='clerk' || usergroupType =='assistant'}">
+					<label class="small"><spring:message code="question.processed" text="Processed By Clerk?"/></label>
+					<form:checkbox path="processed"/>
+				</c:when>
+				<c:otherwise>
+					<form:hidden path="processed"/>
+				</c:otherwise>
+			</c:choose>
+			<form:errors path="processed" cssClass="validationError"/>	
 		</p>	
 			
 		
