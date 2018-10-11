@@ -81,46 +81,77 @@
 	}
 	/**** load actors ****/
 	function loadActors(value){
-		console.log(value);
-		//var valueToSend="";
+		var valueToSend="";
+		var sendToDeskOfficer = $("#internalStatusMaster option[value='resolution_processed_sendToDeskOfficer']").text();
+		var sendback=$("#internalStatusMaster option[value='resolution_recommend_sendback']").text();			
+		var discuss=$("#internalStatusMaster option[value='resolution_recommend_discuss']").text();	
 		if(value!='-'){		
-		//var type=$("#internalStatusMaster option[value='"+value+"']").text();			
-	   // if(type=='resolution_processed_sendToDepartment'){
-		 //   valueToSend=$("#internalStatus").val();
-	   // }else{
-		//    valueToSend=value;
-	   // }				
+						
+			if(value == sendToDeskOfficer){
+			    valueToSend = $("#internalStatus").val();
+		    }else{
+			    valueToSend = value;
+		    }				
 			var params='';
 			if($('#houseTypeType').val()=='lowerhouse'){
-				 params="resolution="+$("#id").val()+"&status="+value+
+				 params="resolution="+$("#id").val()+"&status="+valueToSend+
 				"&usergroup="+$("#usergroup").val()+"&level="+$("#levelLowerHouse").val()+"&workflowHouseType="+$("#workflowHouseType").val();
 			}else if($('#houseTypeType').val()=='upperhouse'){
-				 params="resolution="+$("#id").val()+"&status="+value+
+				 params="resolution="+$("#id").val()+"&status="+valueToSend+
 				"&usergroup="+$("#usergroup").val()+"&level="+$("#levelUpperHouse").val()+"&workflowHouseType="+$("#workflowHouseType").val();
 			}
 		var resourceURL='ref/resolution/actors?'+params;
 		$.post(resourceURL,function(data){
+			 var actor1="";
+			 var actCount = 1;
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
-				 if($('#houseTypeType').val()=='lowerhouse'){
+				if($('#houseTypeType').val()=='lowerhouse'){
 					 $("#actorLowerHouse").empty();
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").empty();
 				}
 				var text="";
 				for(var i=0;i<length;i++){
-				text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+					var act = data[i].id;
+					if(value != sendToDeskOfficer){
+						var ugtActor = data[i].id.split("#")
+						var ugt = ugtActor[1];
+						if(ugt!='member' && data[i].state!='active'){
+							text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+						}else{
+							text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+							if(actCount == 1){
+								actor1=data[i].id;
+								actCount++;
+							}
+						}
+					}else{
+						if(act.indexOf("section_officer") < 0){
+							var ugtActor = data[i].id.split("#")
+							var ugt = ugtActor[1];
+							if(ugt!='member' && data[i].state!='active'){
+								text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+							}else{
+								text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+								if(actCount == 1){
+									actor1=data[i].id;
+									actCount++;
+								}
+							}
+						}
+					}	
 				}
 				if($('#houseTypeType').val()=='lowerhouse'){
 					 $("#actorLowerHouse").html(text);
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").html(text);
 				}
-				$("#actorDiv").hide();				
+				$("#actorDiv").show();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				//if(value!=sendback&&value!=discuss){
-				//$("#internalStatus").val(value);
-				//}
+				if(value != sendback && value != discuss && value != sendToDeskOfficer){
+					$("#internalStatus").val(value);
+				}
 				$("#recommendationStatus").val(value);	
 				/**** setting level,localizedActorName ****/
 				 var actor1=data[0].id;
@@ -138,12 +169,12 @@
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").empty();
 				}
-			$("#actorDiv").hide();
-			/**** in case of sendback and discuss only recommendation status is changed ****/
-			//if(value!=sendback&&value!=discuss){
-			//$("#internalStatus").val(value);
-			//}
-		    $("#recommendationStatus").val(value);
+				$("#actorDiv").hide();
+				/**** in case of sendback and discuss only recommendation status is changed ****/
+				if(value!=sendback && value!=discuss && value!=sendToDeskOfficer){
+					$("#internalStatus").val(value);
+				}
+			    $("#recommendationStatus").val(value);
 			}
 		}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
@@ -433,6 +464,7 @@
 	    	$("#revisedNoticeContentDiv").show();
 	    }    
 	    
+	   
 	  
 		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
 		$("#ministry option[selected!='selected']").hide();
@@ -443,7 +475,7 @@
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
-			/* loadActors($("#changeInternalStatus").val()); */
+			loadActors($("#changeInternalStatus").val()); 
 		} 
 		
 		
@@ -641,7 +673,7 @@
 		<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="resolution.refresh" text="Refresh"></spring:message></a>	
 	</p> --%>	
 	<c:if test="${selectedDeviceType=='resolutions_nonofficial'}" >	
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="resolution.referredresolution" text="Referred Resolution"></spring:message></label>
 		<c:choose>
 			<c:when test="${!(empty referencedResolutions) }">
@@ -674,7 +706,7 @@
 	<form:errors path="noticeContent" cssClass="validationError"/>	
 	</p>
 	
-	<p>
+	<p style="display:none;">
 	<c:if test="${selectedDeviceType == 'resolutions_nonofficial'}">
 	<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="resolution.reviseSubject" text="Revise Subject"></spring:message></a>
 	<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="resolution.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
@@ -722,7 +754,7 @@
 	</c:if>
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">	
-	<p style="display: none;">
+	<p>
 	<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
 	<select id="changeInternalStatus" class="sSelect">
 	<c:forEach items="${internalStatuses}" var="i">
@@ -790,11 +822,13 @@
 				<input type="hidden" id="internalStatus"  name="internalStatusLowerHouse" value="${internalStatus }">
 				<input type="hidden" id="recommendationStatus"  name="recommendationStatusLowerHouse" value="${recommendationStatus}">
 				<input type="hidden" name="statusLowerHouse" id="status" value="${status}">
+				<input type="hidden" id="workflowHouseType" name="workflowHouseType" value="${workflowHouseType}">
 			</c:if>	
 			<c:if test="${houseTypeForStatus=='upperhouse'}">
 				<input type="hidden" id="internalStatus"  name="internalStatusUpperHouse" value="${internalStatus }">
 				<input type="hidden" id="recommendationStatus"  name="recommendationStatusUpperHouse" value="${recommendationStatus}">
 				<input type="hidden" name="statusUpperHouse" id="status" value="${status}">
+				<input type="hidden" id="workflowHouseType" name="workflowHouseType" value="${workflowHouseType}">
 			</c:if>
 		</c:otherwise>
 	</c:choose>

@@ -14,6 +14,7 @@
         +"&usergroupType="+$("#currentusergroupType").val()
         +"&deviceType="+$("#deviceType").val();
 		+"&usergroupType="+$("#usergroupType").val();
+		
 		$.get('refentity/init?'+params,function(data){
 			$.unblockUI();			
 			//$.fancybox.open(data,{autoSize:false,width:750,height:700});
@@ -80,44 +81,47 @@
 	}
 	/**** load actors ****/
 	function loadActors(value){
-		if(value!='-'){
-		var valueToSend = "";
-		var clarificationReceived=$("#internalStatusMaster option[value='resolution_processed_clarificationReceived']").text();
-		var clarificationNotReceived=$("#internalStatusMaster option[value='resolution_processed_clarificationNotReceived']").text();
-		var type=$("#internalStatusMaster option[value='resolution_processed_sendToDepartment']").text();
-		var sendToMember=$("#internalStatusMaster option[value='resolution_processed_sendToMember']").text();
-		var sendback=$("#internalStatusMaster option[value='resolution_recommend_sendback']").text();			
-		var discuss=$("#internalStatusMaster option[value='resolution_recommend_discuss']").text();		
-		var departmentIntimated = $("#internalStatusMaster option[value='resolution_processed_departmentIntimated']").text();
-		var rejected = $("#internalStatusMaster option[value='resolution_processed_rejectionWithReason']").text();
-		if(value==departmentIntimated|| value==rejected || value==clarificationReceived || value==clarificationNotReceived){
-			
+		var valueToSend="";
+		sendback = $("#internalStatusMaster option[value='resolution_recommend_sendback']").text();			
+	    discuss =  $("#internalStatusMaster option[value='resolution_recommend_discuss']").text();	
+	    departmentIntimated = $("#internalStatusMaster option[value='resolution_processed_departmentIntimated']").text();
+	    sendToDeskOfficer = $("#internalStatusMaster option[value='resolution_processed_sendToDeskOfficer']").text();
+		if(value!='-'){		
 			$("#recommendationStatus").val(value);
-			 if($('#houseTypeType').val()=='lowerhouse'){
-				 $("#actorLowerHouse").empty();
-				 $("#endFlagLowerHouse").val("end");
+			if(value == sendToDeskOfficer){
+			    valueToSend = value
+			    if($('#houseTypeType').val()=='lowerhouse'){
+					 $("#actorLowerHouse").empty();
+					 $("#endFlagLowerHouse").val("continue");
+				}else if($('#houseTypeType').val()=='upperhouse'){
+					$("#actorUpperHouse").empty();
+					$("#endFlagUpperHouse").val("continue");
+				}
+		    }else if(value ==departmentIntimated){
+				if($('#houseTypeType').val()=='lowerhouse'){
+					 $("#actorLowerHouse").empty();
+					 $("#endFlagLowerHouse").val("end");
+				}else if($('#houseTypeType').val()=='upperhouse'){
+					$("#actorUpperHouse").empty();
+					$("#endFlagUpperHouse").val("end");
+				}
+				$("#actorDiv").hide();
+				return false;
+			}else{
+			    valueToSend = value;
+		    }
+			var params='';
+			if($('#houseTypeType').val()=='lowerhouse'){
+				 params="resolution="+$("#id").val()+"&status="+valueToSend+
+				"&usergroup="+$("#usergroup").val()+"&level="+$("#levelLowerHouse").val()+"&workflowHouseType="+$("#workflowHouseType").val();
 			}else if($('#houseTypeType').val()=='upperhouse'){
-				$("#actorUpperHouse").empty();
-				$("#endFlagUpperHouse").val("end");
+				 params="resolution="+$("#id").val()+"&status="+valueToSend+
+				"&usergroup="+$("#usergroup").val()+"&level="+$("#levelUpperHouse").val()+"&workflowHouseType="+$("#workflowHouseType").val();
 			}
-			$("#actorDiv").hide();
-			return false;
-		}else if(type==value || sendToMember==value){
-			valueToSend=$("#internalStatus").val();
-			//$("#actorDiv").hide();
-	    }else{
-		    valueToSend=value;
-	    }		
-		var params='';
-		if($('#houseTypeType').val()=='lowerhouse'){
-			 params="resolution="+$("#id").val()+"&status="+valueToSend+
-			"&usergroup="+$("#usergroup").val()+"&level="+$("#levelLowerHouse").val()+"&workflowHouseType="+$("#workflowHouseType").val();
-		}else if($('#houseTypeType').val()=='upperhouse'){
-			 params="resolution="+$("#id").val()+"&status="+valueToSend+
-			"&usergroup="+$("#usergroup").val()+"&level="+$("#levelUpperHouse").val()+"&workflowHouseType="+$("#workflowHouseType").val();
-		}
-		var resourceURL='ref/resolution/actors?'+params;	
+		var resourceURL='ref/resolution/actors?'+params;
 		$.post(resourceURL,function(data){
+			 var actor1="";
+			 var actCount = 1;
 			if(data!=undefined||data!=null||data!=''){
 				var length=data.length;
 				if($('#houseTypeType').val()=='lowerhouse'){
@@ -125,43 +129,55 @@
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").empty();
 				}
-				var actor1="";
-				var actCount = 1;
 				var text="";
-				for(var i=0;i<length;i++){		
-					var ugt = data[i].id.split("#")[1];
-					if(ugt!='member' && data[i].state!='active'){
-						text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name + "</option>";
-					} else {
-						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
-						if(actCount == 1){
-							actor1=data[i].id;
-							actCount++;
+				for(var i=0;i<length;i++){
+					var act = data[i].id;
+					if(value != sendToDeskOfficer){
+						var ugtActor = data[i].id.split("#")
+						var ugt = ugtActor[1];
+						if(ugt!='member' && data[i].state!='active'){
+							text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+						}else{
+							text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+							if(actCount == 1){
+								actor1=data[i].id;
+								actCount++;
+							}
 						}
-					}
+					}else{
+						if(act.indexOf("section_officer") < 0){
+							var ugtActor = data[i].id.split("#")
+							var ugt = ugtActor[1];
+							if(ugt!='member' && data[i].state!='active'){
+								text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+							}else{
+								text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+								if(actCount == 1){
+									actor1=data[i].id;
+									actCount++;
+								}
+							}
+						}
+					}	
 				}
 				if($('#houseTypeType').val()=='lowerhouse'){
 					 $("#actorLowerHouse").html(text);
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").html(text);
 				}
-				//$("#actorDiv").hide();				
+				$("#actorDiv").show();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				 if(value != sendback && value != discuss && $('#internalStatusType').val()!="resolution_final_clarificationNeededFromDepartment"
-					 && $('#internalStatusType').val()!="resolution_final_clarificationNeededFromMember" && value !=  type){
+				if(value != sendback && value != discuss && value != sendToDeskOfficer){
 					$("#internalStatus").val(value);
-					$("#actorDiv").show();
-				}else if (value == sendback && value == discuss){
-					$("#actorDiv").show();
 				}
 				$("#recommendationStatus").val(value);	
 				/**** setting level,localizedActorName ****/
-				 //var actor1=data[0].id;
+				 var actor1=data[0].id;
 				 var temp=actor1.split("#");
 				 if($('#houseTypeType').val()=='lowerhouse'){
 					 $("#levelLowerHouse").val(temp[2]);		    
 					 $("#localizedActorNameLowerHouse").val(temp[3]+"("+temp[4]+")");
-				 }else if($('#houseTypeType').val()=='upperhouse'){
+				}else if($('#houseTypeType').val()=='upperhouse'){
 					 $("#levelUpperHouse").val(temp[2]);		    
 					 $("#localizedActorNameUpperHouse").val(temp[3]+"("+temp[4]+")");
 				}
@@ -171,9 +187,9 @@
 				}else if($('#houseTypeType').val()=='upperhouse'){
 					$("#actorUpperHouse").empty();
 				}
-				//$("#actorDiv").hide();
+				$("#actorDiv").hide();
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value != sendback && value != discuss){
+				if(value!=sendback && value!=discuss && value!=sendToDeskOfficer){
 					$("#internalStatus").val(value);
 				}
 			    $("#recommendationStatus").val(value);
@@ -193,10 +209,47 @@
 				$("#actorUpperHouse").empty();
 			}
 			$("#actorDiv").hide();
-			$("#internalStatus").val($("#oldInternalStatus").val());
+			//$("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 		}
 	}
+	
+	/**** sub departments ****/
+	/* function loadSubDepartments(ministry,department){
+		$.get('ref/subdepartments/'+ministry+'/'+department,function(data){
+			$("#subDepartment").empty();
+			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+			if(data.length>0){
+			for(var i=0;i<data.length;i++){
+				subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+			}
+			$("#subDepartment").html(subDepartmentText);
+			}else{
+				$("#subDepartment").empty();
+				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
+				$("#subDepartment").html(subDepartmentText);
+			}
+		});
+	} */
+	/**** departments ****/
+	/* function loadDepartments(ministry){
+		$.get('ref/departments/'+ministry,function(data){
+			$("#department").empty();
+			var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+			if(data.length>0){
+			for(var i=0;i<data.length;i++){
+				departmentText+="<option value='"+data[i].id+"'>"+data[i].name;
+			}
+			$("#department").html(departmentText);
+			loadSubDepartments(ministry,data[0].id);
+			}else{
+				$("#department").empty();
+				var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
+				$("#department").html(departmentText);				
+				$("#subDepartment").empty();
+			}
+		});
+	} */
 	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
@@ -223,18 +276,12 @@
 			scrollTop();
 		});
 	}
-   	
+    
 	$(document).ready(function(){
-		
-		
-		if($('#internalStatusType').val()=="resolution_final_clarificationNeededFromDepartment"
-			 || $('#internalStatusType').val()=="resolution_final_clarificationNeededFromMember"){
-			$("#questionsAskedInThisFactualPosition").multiSelect();
-		}
-			
 		$("#actorLowerHouse").change(function(){
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
+		    console.log(temp);
 		    $("#levelLowerHouse").val(temp[2]);		    
 		    $("#localizedActorNameLowerHouse").val(temp[3]+"("+temp[4]+")");
 	    });
@@ -242,91 +289,19 @@
 	 $("#actorUpperHouse").change(function(){
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
+		    console.log(temp);
 		    $("#levelUpperHouse").val(temp[2]);		    
 		    $("#localizedActorNameUpperHouse").val(temp[3]+"("+temp[4]+")");
 	    });
-		/********Submit Click*********/
-		$('#submit').click(function(){
-			$(".wysiwyg").each(function(){
-				var wysiwygVal=$(this).val().trim();
-				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
-					$(this).val("");
-				}
-			});	
-			if($("isRepeatWorkFlow").val()=='yes'){
-				
-			}
-			if($('#internalStatusType').val()=="resolution_final_rejection"){
-				 
-					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-					$.post($('form').attr('action')+'?operation=workflowsubmit',  
-		    	            $("form").serialize(),
-		    	            function(data){
-		       					$('.tabContent').html(data);
-		       					$('html').animate({scrollTop:0}, 'slow');
-		       				 	$('body').animate({scrollTop:0}, 'slow');	
-		       					 $.unblockUI();	
-		    	            }).fail(function(){
-		    	    			$.unblockUI();
-		    	    			if($("#ErrorMsg").val()!=''){
-		    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-		    	    			}else{
-		    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-		    	    			}
-		    	    			scrollTop();
-		    	    		});
-				
-				return false;
-			}
 			
-			
-			var questionsAskedInThisFactualPosition = $("#questionsAskedInThisFactualPosition").val();
-			if($('#internalStatusType').val()=="resolution_final_clarificationNeededFromDepartment" ||
-					$('#internalStatusType').val()=="resolution_final_clarificationNeededFromMember"){
-					if(questionsAskedInThisFactualPosition == undefined) {
-							$.prompt($('#pleaseSelectQuestionsForFactualPosition').val());
-							return false;
-					} else {
-						questionsAskedInThisFactualPosition = questionsAskedInThisFactualPosition.join("##");					
-					$('#questionsAskedInFactualPosition').val(questionsAskedInThisFactualPosition);
-				}
-			}
-			if($('#timerflag').val()=="set") {
-				if(
-						$('#internalStatusType').val()=="resolution_final_clarificationNeededFromDepartment"
-																||
-						$('#internalStatusType').val()=="resolution_final_clarificationNeededFromMember"
-				  ) {
-					var timerDifference=0;
-					$(".remaindermailDifference").each(function(){
-						var value=$(this).val();
-						timerDifference=timerDifference+parseInt(value,10);
-					});
-					var timerduration = "PT" + $('#numberOfDaysForFactualPositionReceiving').val() + "M";
-					$('#timerduration').val(timerduration);
-					
-					var totalTimerDuration = parseInt($('#numberOfDaysForFactualPositionReceiving').val(), 10) 
-											 +
-											 timerDifference
-											 +
-											 parseInt($('#lasttimerduration').val(), 10);
-					
-					var lasttimerduration = "PT" + totalTimerDuration + "M";
-					$('#lasttimerduration').val(lasttimerduration);
-					
-					//alert("timerduration: " + $('#timerduration').val());
-					//alert("lasttimerduration: " + $('#lasttimerduration').val());
-				}
-			} 
-		});
-		
 		/**** Ministry Changes ****/
 		/* $("#ministry").change(function(){
 			if($(this).val()!=''){
-			loadDepartments($(this).val());
+			loadDepartment($(this).val());
 			}else{
 				$("#department").empty();				
 				$("#subDepartment").empty();				
+				$("#answeringDate").empty();		
 				$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 			}
@@ -338,6 +313,7 @@
 		
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
+			console.log($("#subDepartment").val());
 			if($(this).val()!=''){
 				loadSubDepartments($(this).val());
 			}else{
@@ -346,17 +322,17 @@
 			}
 		});
 		/**** Citations ****/
-		 $("#viewCitation").click(function(){
+		$("#viewCitation").click(function(){
 			$.get('resolution/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html').fail(function(){
-				if($("#ErrorMsg").val()!=''){
-					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-				}else{
-					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-				}
-				scrollTop();
-			});
+    			if($("#ErrorMsg").val()!=''){
+    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+    			}else{
+    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+    			}
+    			scrollTop();
+    		});
 		    return false;
 		});								
 		/**** Revise subject and text****/
@@ -389,35 +365,28 @@
 	    	$.get(urlForRevisions,function(data){
 			    $.fancybox.open(data);
 		    }).fail(function(){
-				if($("#ErrorMsg").val()!=''){
-					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-				}else{
-					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-				}
-				scrollTop();
-			});
+    			if($("#ErrorMsg").val()!=''){
+    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+    			}else{
+    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+    			}
+    			scrollTop();
+    		});
 		    return false;
 	    });
 	    /**** Contact Details ****/
 	    $("#viewContacts").click(function(){
-		    var member=$("#member").val();
-		    $.get('resolution/members/contacts?member='+member,function(data){
-			    $.fancybox.open(data);
-		    }).fail(function(){
-				if($("#ErrorMsg").val()!=''){
-					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-				}else{
-					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-				}
-				scrollTop();
-			});
-		    return false;
-	    });	    
+	    	 var member=$("#member").val();
+			    $.get('resolution/members/contacts?member='+member,function(data){
+				    $.fancybox.open(data);
+			    });
+			    return false;
+		});	    
 	    /**** Internal Status Changes ****/   
 	    $("#changeInternalStatus").change(function(){
 		    var value=$(this).val();
 		    if(value!='-'){
-			    //var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
+			   // var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
 			    loadActors(value);			    
 		    }else{
 		    	 if($('#houseTypeType').val()=='lowerhouse'){
@@ -463,7 +432,7 @@
 			}});			
 	        return false;  
 	    });
-	   		
+	    
 		/**** On Bulk Edit ****/
 		$("#submitBulkEdit").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -489,40 +458,86 @@
 	    		});
 	        return false;  
 	    });
-	    /**** On Page Load ****/
+	   	/**** On Page Load ****/
 	    if($("#ministrySelected").val()==''){
 			$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 		}else{
 			$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
 		}
-		/* if($("#departmentSelected").val()==''){
+		if($("#departmentSelected").val()==''){
 			$("#department").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 		}else{
 			$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
-		} */
+		}
 		if($("#subDepartmentSelected").val()==''){
 			$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 		}else{
 			$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
 		}
+		
 		if($("#revisedSubject").val()!=''){
 		    $("#revisedSubjectDiv").show();
-		}
-		if($("#revisedNoticeContent").val()!=''){
-		   	$("#revisedNoticeContentDiv").show();
-		 }	 
-		   
-	  //************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
-		/* $("#ministry option[selected!='selected']").hide();
+	    }
+	    if($("#revisedNoticeContent").val()!=''){
+	    	$("#revisedNoticeContentDiv").show();
+	    }    
+	    
+	   
+	  
+		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
+		$("#ministry option[selected!='selected']").hide();
 		$("#department option[selected!='selected']").hide();
-		$("#subDepartment option[selected!='selected']").hide(); */
-		//**** Load actors on page load ****/
+		$("#subDepartment option[selected!='selected']").hide();
+		//**** Load Actors On page Load ****/
 		if($('#bulkedit').val()!='yes'&& $('#workflowstatus').val()!='COMPLETED'){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
-			 loadActors($("#changeInternalStatus").val()); 
+			loadActors($("#changeInternalStatus").val()); 
 		} 
+		
+		
+		$('#sendBack').click(function(){
+			$.post($('form').attr('action')+'?operation=workflowsendback',  
+    	            $("form").serialize(),
+    	            function(data){
+       					$('.tabContent').html(data);
+       					$('html').animate({scrollTop:0}, 'slow');
+       				 	$('body').animate({scrollTop:0}, 'slow');	   				 	   				
+    	            }).fail(function(){
+    	    			if($("#ErrorMsg").val()!=''){
+    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+    	    			}else{
+    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+    	    			}
+    	    			scrollTop();
+    	    		});
+		});
+		
+		$('#submit').click(function(){
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});
+			
+			$.post($('form').attr('action')+'?operation=workflowsubmit',  
+    	            $("form").serialize(),
+    	            function(data){
+       					$('.tabContent').html(data);
+       					$('html').animate({scrollTop:0}, 'slow');
+       				 	$('body').animate({scrollTop:0}, 'slow');	   				 	   				
+    	            }).fail(function(){
+    	    			if($("#ErrorMsg").val()!=''){
+    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+    	    			}else{
+    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+    	    			}
+    	    			scrollTop();
+    	    		});
+		return false;
+		});
 	});
 	</script>
 	 <style type="text/css">
@@ -588,56 +603,39 @@
 	</p>	
 	
 	<p>
-		<label class="small"><spring:message code="resolution.number" text="Resolution Number"/>*</label>
-		<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
-		<input id="number" name="number" value="${domain.number}" type="hidden">
-		<form:errors path="number" cssClass="validationError"/>
-		<label class="small"  style="margin-left:30px;"><spring:message code="resolution.submissionDate" text="Submitted On"/></label>
-		<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
-		<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
+	<label class="small"><spring:message code="resolution.number" text="resolution Number"/>*</label>
+	<input id="formattedNumber" name="formattedNumber" value="${formattedNumber}" class="sText" readonly="readonly">		
+	<input id="number" name="number" value="${domain.number}" type="hidden">
+	<form:errors path="number" cssClass="validationError"/>
+	</p>
+	
+	
+	<p>		
+	<label class="small"><spring:message code="resolution.submissionDate" text="Submitted On"/></label>
+	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
+	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	</p>
 	
 	<p>
-	<label class="small"><spring:message code="resolution.members" text="Members"/></label>
-	<input id="members" class="sTextarea" readonly="readonly" value="${formattedMember}">
-	<c:if test="${!(empty member)}">
-		<input id="member" name="member" value="${member}" type="hidden">
+	<label class="small"><spring:message code="resolution.ministry" text="Ministry"/>*</label>
+	<select name="ministry" id="ministry" class="sSelect" >
+	<c:forEach items="${ministries }" var="i">
+	<c:choose>
+	<c:when test="${i.id==ministrySelected }">
+	<option value="${i.id }" selected="selected">${i.name}</option>
+	</c:when>
+	<c:otherwise>
+	<option value="${i.id }" >${i.name}</option>
+	</c:otherwise>
+	</c:choose>
+	</c:forEach>
+	</select>		
+	<form:errors path="ministry" cssClass="validationError"/>
+	<c:if test="${selectedDeviceType == 'resolutions_government'}">
+		<label class="small"><spring:message code="resolution.discussionDate" text="Discussion Date"/></label>
+		<form:input path="discussionDate" cssClass="datemask sText" readonly="${isDiscussionDateReadOnly}"/>
+		<form:errors path="discussionDate" cssClass="validationError"/>
 	</c:if>
-	<label class="small"  style="margin-left:30px;"><spring:message code="resolution.memberConstituency" text="Constituency"/>*</label>
-		<input type="text" readonly="readonly" value="${constituency}" class="sText">
-		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>
-	</p>
-
-	<p>
-		<label class="small"><spring:message code="resolution.ministry" text="Ministry"/>*</label>
-			<select name="ministry" id="ministry" class="sSelect" >
-				<c:forEach items="${ministries }" var="i">
-					<c:choose>
-						<c:when test="${i.id==ministrySelected }">
-							<option value="${i.id }" selected="selected">${i.name}</option>
-						</c:when>
-						<c:otherwise>
-							<option value="${i.id }" >${i.name}</option>
-						</c:otherwise>
-					</c:choose>
-			</c:forEach>
-			</select>		
-		<form:errors path="ministry" cssClass="validationError"/>
-		<label class="small" style="margin-left:30px;"><spring:message code="resolution.subdepartment" text="Sub Department"/></label>
-		<select name="subDepartment" id="subDepartment" class="sSelect" >
-			<c:forEach items="${subDepartments }" var="i">
-				<c:choose>
-					<c:when test="${i.id==subDepartmentSelected }">
-						<option value="${i.id }" selected="selected">${i.name}</option>
-					</c:when>
-					<c:otherwise>
-						<option value="${i.id }" >${i.name}</option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</select>		
-		<form:errors path="subDepartment" cssClass="validationError"/>		
-	
 	</p>	
 	
 	<p>
@@ -655,28 +653,50 @@
 	</c:forEach>
 	</select>
 	<form:errors path="department" cssClass="validationError"/>	 --%>
-	<c:if test="${selectedDeviceType == 'resolutions_government'}">
-		<label class="small"><spring:message code="resolution.discussionDate" text="Discussion Date"/></label>
-		<form:input path="discussionDate" cssClass="datemask sText" readonly="${isDiscussionDateReadOnly}"/>
-		<form:errors path="discussionDate" cssClass="validationError"/>
-	</c:if>
 	
+	<label class="small"><spring:message code="resolution.subdepartment" text="Sub Department"/></label>
+	<select name="subDepartment" id="subDepartment" class="sSelect" >
+	<c:forEach items="${subDepartments }" var="i">
+	<c:choose>
+	<c:when test="${i.id==subDepartmentSelected }">
+	<option value="${i.id }" selected="selected">${i.name}</option>
+	</c:when>
+	<c:otherwise>
+	<option value="${i.id }" >${i.name}</option>
+	</c:otherwise>
+	</c:choose>
+	</c:forEach>
+	</select>		
+	<form:errors path="subDepartment" cssClass="validationError"/>	
 	</p>	
 		
-		<%-- <p style="display:none;">
+	
+	<p>
+	<label class="centerlabel"><spring:message code="resolution.members" text="Members"/></label>
+	<textarea id="members" class="sTextarea" readonly="readonly" rows="2" cols="50">${formattedMember}</textarea>
+	<c:if test="${!(empty member)}">
+		<input id="member" name="member" value="${member}" type="hidden">
+	</c:if>
+	</p>
+	
+	<p>
+		<label class="small"><spring:message code="resolution.memberConstituency" text="Constituency"/>*</label>
+		<input type="text" readonly="readonly" value="${constituency}" class="sText">
+		<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
+	</p>			
+	
+	<%-- <p style="display:none;">
 		<a href="#" id="clubbing" onclick="clubbingInt(${domain.id});" style="margin-left: 162px;margin-right: 20px;margin-bottom: 20px;margin-top: 20px;"><spring:message code="resolution.clubbing" text="Clubbing"></spring:message></a>
 		<a href="#" id="referencing" onclick="referencingInt(${domain.id});" style="margin: 20px;"><spring:message code="resolution.referencing" text="Referencing"></spring:message></a>
 		<a href="#" id="refresh" onclick="refreshEdit(${domain.id});" style="margin: 20px;"><spring:message code="resolution.refresh" text="Refresh"></spring:message></a>	
-	</p>	 --%>
-	
+	</p> --%>	
 	<c:if test="${selectedDeviceType=='resolutions_nonofficial'}" >	
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="resolution.referredresolution" text="Referred Resolution"></spring:message></label>
 		<c:choose>
 			<c:when test="${!(empty referencedResolutions) }">
-				<c:forEach items="${referencedResolutions }" var="i" varStatus="index">
+				<c:forEach items="${referencedResolutions }" var="i">
 					<a href="#" id="rr${i.number}" class="referencedResolution" onclick="viewResolutionDetail(${i.number});" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-					&nbsp;(${referencedResolutionsSessionAndDevice[index.count-1]})	
 					<input id="refResolution" name="refResolution" type="hidden" value="${i.number}" />
 				</c:forEach>
 			</c:when>
@@ -692,23 +712,26 @@
 	</p>
 	</c:if>
 	
-	<p>	
+	<p style="display:none;">
 	<label class="centerlabel"><spring:message code="resolution.subject" text="Subject"/></label>
 	<form:textarea path="subject" readonly="true" rows="2" cols="50"></form:textarea>
 	<form:errors path="subject" cssClass="validationError"/>	
 	</p>
 	
-	<p>
-	<label class="wysiwyglabel"><spring:message code="resolution.noticeContent" text="Details"/></label>
+	<p style="display:none;">
+	<label class="wysiwyglabel"><spring:message code="resolution.noticeContent" text="Notice"/></label>
 	<form:textarea path="noticeContent" readonly="true" cssClass="wysiwyg"></form:textarea>
 	<form:errors path="noticeContent" cssClass="validationError"/>	
 	</p>
 	
-	
-	<p>
+	<p style="display:none;">
 	<c:if test="${selectedDeviceType == 'resolutions_nonofficial'}">
 	<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="resolution.reviseSubject" text="Revise Subject"></spring:message></a>
 	<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="resolution.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
+	<a href="#" id="viewRevision"><spring:message code="resolution.viewrevisions" text="View Revisions"></spring:message></a>
+	</c:if>
+	<c:if test="${selectedDeviceType == 'resolutions_government'}">
+	<a href="#" id="viewRevision" style="margin-left: 162px;margin-right: 20px;"><spring:message code="resolution.viewrevisions" text="View Revisions"></spring:message></a>
 	</c:if>
 	</p>
 	
@@ -726,167 +749,68 @@
 	</p>
 	</c:if>
 	
-	<c:if test="${selectedDeviceType == 'resolutions_nonofficial'}">
-		<p>
-		<label class="small"><spring:message code="resolution.referencedResolutionText" text="Referenced Resolution Text"/></label>
-		<form:textarea path="referencedResolutionText" cssClass="sTextarea" cols="50"></form:textarea>
-		<form:errors path="referencedResolutionText" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-		</p>
-	</c:if>
-	
 	<p id="internalStatusDiv">
 	<label class="small"><spring:message code="resolution.currentStatus" text="Current Status"/></label>
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<c:if test="${(selectedDeviceType == 'resolutions_nonofficial') && (internalStatusType == 'resolution_final_clarificationNeededFromDepartment' || internalStatusType == 'resolution_final_clarificationNeededFromMember')}">
+	<c:if test="${(selectedDeviceType == 'resolutions_nonofficial') && internalStatusType == 'resolution_final_clarificationNeededFromDepartment' }">
 		<p>
-			<label class="small"><spring:message code="resolution.questionsAskedInFactualPosition" text="Questions To Be Asked In Factual Position"/></label>
-			<select name="questionsAskedInThisFactualPosition" id="questionsAskedInThisFactualPosition" class="sSelectMultiple" size="5" multiple="multiple">
-				<c:forEach items="${questionsToBeAskedInFactualPosition}" var="i">
-					<c:choose>
-						<c:when test="${i.isSelected=='true'}">
-							<option value="${i.value}" selected="selected">${i.name}</option>
-						</c:when>
-						<c:otherwise>
-							<option value="${i.value}" >${i.name}</option>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-			</select>
-			<form:hidden path="questionsAskedInFactualPosition" id="questionsAskedInFactualPosition"/>
-			<form:errors path="questionsAskedInFactualPosition" cssClass="validationError"/>	
-		</p>		
-		
-		<c:choose>
-			<c:when test="${empty domain.lastDateOfFactualPositionReceiving}">
-				<p>
-					<label class="small"><spring:message code="resolution.numberOfDaysForFactualPositionReceiving" text="Number Of Days For FactualPosition Receiving"/></label>
-					<select name="numberOfDaysForFactualPositionReceiving" id="numberOfDaysForFactualPositionReceiving" class="sSelect" >
-						<c:forEach items="${numberOfDaysForFactualPositionReceiving}" var="i">
-							<c:choose>
-								<c:when test="${i.number == 1}">
-									<option value="${i.number}"><spring:message code="immediate" text="Immediate"/></option>	
-								</c:when>
-								<c:otherwise>
-									<option value="${i.number}" >${i.name}</option>	
-								</c:otherwise>
-							</c:choose>													
-						</c:forEach>
-					</select>
-					<form:errors path="numberOfDaysForFactualPositionReceiving" cssClass="validationError"/>	
-				</p>
-			</c:when>
-			<c:otherwise>
-				<p>
-					<label class="small"><spring:message code="resolution.lastDateOfFactualPositionReceiving" text="Last Date Of Factual Position Receiving"/></label>
-					<form:input path="lastDateOfFactualPositionReceiving" readonly="true"/>
-				</p>
-			</c:otherwise>
-		</c:choose>
-		
-		<c:forEach begin="1" end="${numberOfReminderMailForFactualPosition}" var="i">
-			<p>
-				<label class="small"><spring:message code="resolution.remaindermailDifference" text="Difference Between reminder"></spring:message>&nbsp;${i}</label>
-				<input type="text" class="sText Integer remaindermailDifference" id="remainderMailDifference${i}" name="remainderMailDifference${i}"/>
-			</p>
-		</c:forEach>
-		
-	</c:if>
-	<c:if test="${!(empty domain.factualPosition) }">
+			<label class="small"><spring:message code="resolution.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
+			<textarea class="wysiwyg" rows="5" cols="50">${questionsAskedInFactualPosition}</textarea>
+		</p>
+		<p>
+		<label class="small"><spring:message code="resolution.lastDateOfFactualPositionReceiving" text="Last date of receiving Factual Position"/></label>
+		<form:input path="lastDateOfFactualPositionReceiving" cssClass="datemask sText"/>
+		<form:errors path="lastDateOfFactualPositionReceiving" cssClass="validationError"/>
+		</p>
 		<p>
 		<label class="wysiwyglabel"><spring:message code="resolution.factualPosition" text="Factual Position"/></label>
-		<form:textarea path="factualPosition" cssClass="wysiwyg" readonly="true"></form:textarea>
+		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
 	</c:if>
-	<p>
-		<a href="#" id="viewRevision" style="margin-left:650px;"><spring:message code="resolution.viewrevisions" text="View Revisions"></spring:message></a>
-	</p>
-	<table class="uiTable" style="margin-left:165px;width:600px;">
-		<thead>
-		<tr>
-		<th style="text-align: center">
-		<spring:message code="rois.latestrevisions.user" text="Usergroup"></spring:message>
-		</th>
-		<th style="text-align: center">
-		<spring:message code="rois.latestrevisions.decision" text="Decision"></spring:message>
-		</th>
-		<th style="text-align: center">
-		<spring:message code="rois.latestrevisions.remarks" text="Remarks"></spring:message>
-		</th>
-		</tr>
-		</thead>
-		<tbody>	
-			<c:forEach items="${latestRevisions}" var="i">
-				<tr>
-					<td style="text-align: left">
-					${i[0]}<br>(${i[2]})
-					</td>
-					<td style="text-align: center">
-					${i[6]}
-					</td>
-					<td style="text-align: center">
-					${i[7]}
-					</td>
-				</tr>
-			</c:forEach>	
-			<c:if test="${workflowstatus != 'COMPLETED'}">
-				<tr>
-					<td style="text-align: left">
-						${userName}<br>
-						(${userGroupName})
-					</td>
-					<td style="text-align: center">
-						<select id="changeInternalStatus" class="sSelect">
-							<c:forEach items="${internalStatuses}" var="i">
-									<c:choose>
-										<c:when test="${i.id==internalStatus }">
-											<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-										</c:when>
-										<c:otherwise>
-											<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
-										</c:otherwise>
-									</c:choose>
-							</c:forEach>
-						</select>
-						<c:if test="${houseTypeForStatus=='lowerhouse'}">
-						 <form:errors path="internalStatusLowerHouse" cssClass="validationError"/>	 
-						</c:if>
-						<c:if test="${houseTypeForStatus=='upperhouse'}">
-						 <form:errors path="internalStatusUpperHouse" cssClass="validationError"/>	 
-						</c:if>
-					</td>
-					<td>
-						<a href="#" id="viewCitation" style="margin-left: 210px;margin-top: 30px;"><spring:message code="resolution.viewcitation" text="View Citations"></spring:message></a>
-						<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
-					</td>
-				</tr>
-			</c:if>	
-		</tbody>
-	</table>
-	
-	
-	
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">	
-		<select id="internalStatusMaster" style="display:none;">
-		<c:forEach items="${internalStatuses}" var="i">
-		<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-		</c:forEach>
-		</select>	
+	<p>
+	<label class="small"><spring:message code="resolution.putupfor" text="Put up for"/></label>
+	<select id="changeInternalStatus" class="sSelect">
+	<c:forEach items="${internalStatuses}" var="i">
+		<c:choose>
+		<c:when test="${i.id==internalStatus }">
+			<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+		</c:when>
+		<c:otherwise>
+			<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+		</c:otherwise>
+	</c:choose>
+	</c:forEach>
+	</select>
 	
-		<p id="actorDiv" style="display:none;">
-		<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
-		<c:if test="${houseTypeForStatus=='lowerhouse'}">
-			<form:select path="actorLowerHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-			<form:hidden path="actorUpperHouse"/>
-		</c:if>	
-		<c:if test="${houseTypeForStatus=='upperhouse'}">
-			<form:select path="actorUpperHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-			<form:hidden path="actorLowerHouse"/>				
-		</c:if>
-		</p>		
+	<select id="internalStatusMaster" style="display:none;">
+	<c:forEach items="${internalStatuses}" var="i">
+	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+	</c:forEach>
+	</select>	
+	<c:if test="${houseTypeForStatus=='lowerhouse'}">
+	 <form:errors path="internalStatusLowerHouse" cssClass="validationError"/>	 
+	</c:if>
+	<c:if test="${houseTypeForStatus=='upperhouse'}">
+	 <form:errors path="internalStatusUpperHouse" cssClass="validationError"/>	 
+	</c:if>
+	</p>
+	
+	<p id="actorDiv">
+	<label class="small"><spring:message code="resolution.nextactor" text="Next Users"/></label>
+	<c:if test="${houseTypeForStatus=='lowerhouse'}">
+		<form:select path="actorLowerHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+		<form:hidden path="actorUpperHouse"/>
+	</c:if>	
+	<c:if test="${houseTypeForStatus=='upperhouse'}">
+		<form:select path="actorUpperHouse" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+		<form:hidden path="actorLowerHouse"/>				
+	</c:if>
+	</p>	
 	</c:if>
 		
 	<c:choose>
@@ -916,11 +840,13 @@
 				<input type="hidden" id="internalStatus"  name="internalStatusLowerHouse" value="${internalStatus }">
 				<input type="hidden" id="recommendationStatus"  name="recommendationStatusLowerHouse" value="${recommendationStatus}">
 				<input type="hidden" name="statusLowerHouse" id="status" value="${status}">
+				<input type="hidden" id="workflowHouseType" name="workflowHouseType" value="${workflowHouseType}">
 			</c:if>	
 			<c:if test="${houseTypeForStatus=='upperhouse'}">
 				<input type="hidden" id="internalStatus"  name="internalStatusUpperHouse" value="${internalStatus }">
 				<input type="hidden" id="recommendationStatus"  name="recommendationStatusUpperHouse" value="${recommendationStatus}">
 				<input type="hidden" name="statusUpperHouse" id="status" value="${status}">
+				<input type="hidden" id="workflowHouseType" name="workflowHouseType" value="${workflowHouseType}">
 			</c:if>
 		</c:otherwise>
 	</c:choose>
@@ -952,13 +878,14 @@
 			</c:if>
 		</c:otherwise>
 	</c:choose>	
-	
-	<c:if test="${internalStatusType == 'resolution_final_rejection' || internalStatusType == 'resolution_final_repeatrejection'}">
+	<p style="display:none;">
+	<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="resolution.viewcitation" text="View Citations"></spring:message></a>	
+	</p>	
+
 	<p>
-	<label class="wysiwyglabel"><spring:message code="resolution.rejectionReason" text="Rejection reason"/></label>
-	<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>
+	<label class="wysiwyglabel"><spring:message code="resolution.remarks" text="Remarks"/></label>
+	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
 	</p>
-	</c:if>
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">
 	<div class="fields">
@@ -966,14 +893,14 @@
 		<p class="tright">		
 		<c:if test="${bulkedit!='yes'}">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+			<input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef">
 		</c:if>
 		<c:if test="${bulkedit=='yes'}">
 			<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
 		</c:if>
-	</p>
+		</p>
 	</div>
 	</c:if>
-	
 	<form:hidden path="file"/>
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
@@ -994,12 +921,13 @@
 	<form:hidden path="fileIndexUpperHouse"/>	
 	<form:hidden path="fileSentLowerHouse"/>
 	<form:hidden path="fileSentUpperHouse"/>
+	<form:hidden path="numberOfDaysForFactualPositionReceiving"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
-	<input type="hidden" name="numberOfReminderMailForFactualPosition" id="numberOfReminderMailForFactualPosition" value="${numberOfReminderMailForFactualPosition }">
-		
+	
 	<!-- --------------------------PROCESS VARIABLES -------------------------------- -->
+	
 	
 	<input id="mailflag" name="mailflag" value="${pv_mailflag}" type="hidden">
 	<input id="timerflag" name="timerflag" value="${pv_timerflag}" type="hidden">
@@ -1019,37 +947,37 @@
 	<input id="reminderto" name="reminderto" value="${pv_reminderto}" type="hidden">
 	<input id="reminderfrom" name="reminderfrom" value="${pv_reminderfrom}" type="hidden">
 	<input id="remindersubject" name="remindersubject" value="${pv_remindersubject}" type="hidden">
-	<textarea hidden="hidden" id="remindercontent" name="remindercontent">${pv_remindercontent}</textarea>
-		
+	<input id="remindercontent" name="remindercontent" value="${pv_remindercontent}" type="hidden">
+	
 	<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">	
-	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden"/>
+	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">
-		
+			
+	<form:hidden path="questionsAskedInFactualPosition"/>
 	<c:if test="${selectedDeviceType == 'resolutions_government'}">
 		<form:hidden path="ruleForDiscussionDate" value="${ruleForDiscussionDateSelected}"/>
 	</c:if>
 </form:form>
+
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 <input id="confirmResolutionSubmission" value="<spring:message code='confirm.resolutionsubmission.message' text='Do you want to submit the resolution.'></spring:message>" type="hidden">
-<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='resolution.startworkflowmessage' text='Do You Want To Put Up Resolution?'></spring:message>" type="hidden">
+<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='resolution.startworkflowmessage' text='Do You Want To Put Up resolution?'></spring:message>" type="hidden">
 <input id="ministrySelected" value="${ministrySelected }" type="hidden">
 <input id="departmentSelected" value="${ departmentSelected}" type="hidden">
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-<input id="oldInternalStatus" value="${internalStatus}" type="hidden">
+
+<input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${oldRecommendationStatus}" type="hidden">
 <input id="selectedDeviceType" value="${selectedDeviceType}" type="hidden">
 <input id="typeOfSelectedDeviceType" value="${selectedDeviceType}" type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
-<input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
+<input id="noAnswerProvidedMsg" value='<spring:message code="client.error.noanswer" text="Please provide answer."></spring:message>' type="hidden" />
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input id="isRepeatWorkFlow" type="hidden" value="${isRepeatWorkFlow}" />
-<input id="workflowHouseType" type="hidden" value="${workflowHouseType}" />
 <input id="houseTypeType" type="hidden" value="${houseTypeForStatus}"/>
 <input id="internalStatusType" type="hidden" value="${internalStatusType}"/>
-<input id="pleaseSelectQuestionsForFactualPosition" value="<spring:message code='please.select.questionsForFactualPosition' text='Please select questions to be asked in this factual position'/>" type="hidden">
 <input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 </div>
-
 </div>
 </body>
 </html>
