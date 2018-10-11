@@ -95,6 +95,8 @@
 	    		hide: 'mouseout'
 	    	});
 			
+			$("#departmentWiseCount").hide();
+			
 			
 	    	$(".scrollable").scrollLeft();		
 	    	
@@ -107,6 +109,10 @@
 					$(this).html("<b>&#9668;</b>");
 				}
 				$("#groupChangedDiv").toggle();
+	    	});
+	    	
+	    	$("#departmentDivViewer").click(function(){
+	    		$("#departmentWiseCount").toggle();
 	    	});
 		});	
 		
@@ -167,6 +173,17 @@
 			cursor: pointer;
 		}
 		
+		#departmentDivViewer{
+			
+			width: 25px;
+			height: 25px;
+			z-index: 5000;
+			bottom: 50px;
+			right: 5px;			
+			position: fixed;
+			cursor: pointer;
+		}
+		
 		#groupChangedDiv{
 			background: #D4F4FF scroll no-repeat;
 			width: 300px;
@@ -201,7 +218,7 @@
 	<c:if test="${deviceType!='motions_standalonemotion_halfhourdiscussion'}">
 		<label class="small"><spring:message code="question.chart.answeringDate" text="Answering Date"/>: ${answeringDate}</label>
 	</c:if>
-<table class="uiTable" border="1" style="width:700px;">
+<table class="uiTable" border="1" style="width:900px;">
 	<thead>
 		<tr>
 		<th><spring:message code="chart.serialNumber" text="Sr No"/></th>
@@ -252,6 +269,7 @@
 						<td>${indexNo} <c:set var="indexNo" value="${indexNo + 1}"/></td>
 						<td>${r[1]}</td>
 						<td align="center">
+							
 							<c:choose>		
 								<c:when test="${r[3] == null or r[3]==0}">
 									-
@@ -277,6 +295,7 @@
 													</c:if>
 												</c:if>
 											</a>
+											
 											<br>
 											<c:if test="${deviceType == 'questions_starred'}">
 												<c:choose>
@@ -434,7 +453,15 @@
 								</c:otherwise>
 							</c:choose>
 							<br>
-							${r[22]}
+							<div>
+								<span style="font-size: 10px;">${r[22]}</span>
+								<c:if test="${deviceType == 'questions_starred'}">
+									<c:if test="${r[28]==true}">
+										<img width="20px" height="20px" src="./resources/images/VerifyIcon.png" align="right" style="display:inline-block" title="<spring:message code='question.processedByClerk' text='Processed By Clerk'/>">
+									</c:if>
+								</c:if>
+								
+							</div>
 						</td>
 						<c:set var="counter" value="${counter + 1}"/>
 						<c:set var="rejectedNotices" value="${r[12]}" />
@@ -474,36 +501,37 @@
 										</a>
 										<br>
 										<c:if test="${deviceType == 'questions_starred'}">
-											<c:choose>
-												<c:when test="${(r[5]=='question_recommend_convertToUnstarredAndAdmit' or r[5]=='question_unstarred_final_admission') and r[7]!='y'}">
-													<spring:message code="question.shortUnstarredAdmission" text="US"/>
-												</c:when>
-												<c:when test="${(r[5]=='question_recommend_convertToUnstarredAndAdmit' or r[5]=='question_unstarred_final_admission') and r[7] == 'y'}">
-													<spring:message code="question.shortUnstarredClubbedAdmission" text="US"/>
-												</c:when>
-												<c:when test="${(r[5]=='question_recommend_admission' or r[5]=='question_final_admission') and r[7] == 'y'}">
-													<spring:message code="question.shortStarredClubbedAdmission" text="SA"/>
-												</c:when>
-												<c:when test="${(r[5]=='question_recommend_admission' or r[5]=='question_final_admission') and r[7] != 'y'}">
-													<spring:message code="question.shortStarredAdmission" text="SA"/>
-												</c:when>
-												<c:when test="${r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection'}">
-													<spring:message code="question.shortStarredRejection" text="R"/>
-												</c:when>
-												<c:when test="${(r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection') and r[7] != 'y'}">
-													<spring:message code="question.shortStarredClubbedRejection" text="RC"/>
-												</c:when>
-												<c:when test="${r[5]=='question_recommend_clarificationNeededFromMember' or r[5]=='question_final_clarificationNeededFromMember'}">
-													<spring:message code="question.shortStarredClarificationFromMember" text="CM"/>
-												</c:when>
-												<c:when test="${r[5]=='question_recommend_clarificationNeededFromDepartment' or r[5]=='question_final_clarificationNeededFromDepartment'}">
-													<spring:message code="question.shortStarredClarificationFromDepartment" text="CD"/>
-												</c:when>
-												<c:when test="${r[5]=='question_recommend_clarificationNeededFromMemberAndDepartment' or r[5]=='question_final_clarificationNeededFromMemberAndDepartment'}">
-													<spring:message code="question.shortStarredClarificationFromMemberAndDepartment" text="CMD"/>
-												</c:when>
-											</c:choose>
-											
+											<div style="font-size: 10px;">
+												<c:choose>
+													<c:when test="${(r[5]=='question_recommend_convertToUnstarredAndAdmit' or r[5]=='question_unstarred_final_admission') and r[7]!='y'}">
+														<spring:message code="question.shortUnstarredAdmission" text="US"/>
+													</c:when>
+													<c:when test="${(r[5]=='question_recommend_convertToUnstarredAndAdmit' or r[5]=='question_unstarred_final_admission') and r[7] == 'y'}">
+														<spring:message code="question.shortUnstarredClubbedAdmission" text="US"/>
+													</c:when>
+													<c:when test="${(r[5]=='question_recommend_admission' or r[5]=='question_final_admission') and r[7] == 'y'}">
+														<spring:message code="question.shortStarredClubbedAdmission" text="SA"/>
+													</c:when>
+													<c:when test="${(r[5]=='question_recommend_admission' or r[5]=='question_final_admission') and r[7] != 'y'}">
+														<spring:message code="question.shortStarredAdmission" text="SA"/>
+													</c:when>
+													<c:when test="${r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection'}">
+														<spring:message code="question.shortStarredRejection" text="R"/>
+													</c:when>
+													<c:when test="${(r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection') and r[7] != 'y'}">
+														<spring:message code="question.shortStarredClubbedRejection" text="RC"/>
+													</c:when>
+													<c:when test="${r[5]=='question_recommend_clarificationNeededFromMember' or r[5]=='question_final_clarificationNeededFromMember'}">
+														<spring:message code="question.shortStarredClarificationFromMember" text="CM"/>
+													</c:when>
+													<c:when test="${r[5]=='question_recommend_clarificationNeededFromDepartment' or r[5]=='question_final_clarificationNeededFromDepartment'}">
+														<spring:message code="question.shortStarredClarificationFromDepartment" text="CD"/>
+													</c:when>
+													<c:when test="${r[5]=='question_recommend_clarificationNeededFromMemberAndDepartment' or r[5]=='question_final_clarificationNeededFromMemberAndDepartment'}">
+														<spring:message code="question.shortStarredClarificationFromMemberAndDepartment" text="CMD"/>
+													</c:when>
+												</c:choose>
+											</div>
 										</c:if>
 										<div style="font-weight: bold; font-size: 12px; display: none;" class="divDetail" id="divDetail${r[3]}">
 											<c:if test="${deviceType == 'resolutions_nonofficial'}">
@@ -555,36 +583,37 @@
 											</a>
 											<br>
 											<c:if test="${deviceType == 'questions_starred'}">
-												<c:choose>
-													<c:when test="${(r[5]=='question_recommend_convertToUnstarredAndAdmit' or r[5]=='question_unstarred_final_admission') and r[7]!='y'}">
-														<spring:message code="question.shortUnstarredAdmission" text="US"/>
-													</c:when>
-													<c:when test="${(r[5]=='question_recommend_convertToUnstarredAndAdmit' or r[5]=='question_unstarred_final_admission') and r[7] == 'y'}">
-														<spring:message code="question.shortUnstarredClubbedAdmission" text="US"/>
-													</c:when>
-													<c:when test="${(r[5]=='question_recommend_admission' or r[5]=='question_final_admission') and r[7] == 'y'}">
-														<spring:message code="question.shortStarredClubbedAdmission" text="SA"/>
-													</c:when>
-													<c:when test="${(r[5]=='question_recommend_admission' or r[5]=='question_final_admission') and r[7] != 'y'}">
-														<spring:message code="question.shortStarredAdmission" text="SA"/>
-													</c:when>
-													<c:when test="${r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection'}">
-														<spring:message code="question.shortStarredRejection" text="R"/>
-													</c:when>
-													<c:when test="${(r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection') and r[7] != 'y'}">
-														<spring:message code="question.shortStarredClubbedRejection" text="RC"/>
-													</c:when>
-													<c:when test="${r[5]=='question_recommend_clarificationNeededFromMember' or r[5]=='question_final_clarificationNeededFromMember'}">
-														<spring:message code="question.shortStarredClarificationFromMember" text="CM"/>
-													</c:when>
-													<c:when test="${r[5]=='question_recommend_clarificationNeededFromDepartment' or r[5]=='question_final_clarificationNeededFromDepartment'}">
-														<spring:message code="question.shortStarredClarificationFromDepartment" text="CD"/>
-													</c:when>
-													<c:when test="${r[5]=='question_recommend_clarificationNeededFromMemberAndDepartment' or r[5]=='question_final_clarificationNeededFromMemberAndDepartment'}">
-														<spring:message code="question.shortStarredClarificationFromMemberAndDepartment" text="CMD"/>
-													</c:when>
-												</c:choose>
-												
+												<div style="font-size: 10px;">
+													<c:choose>
+														<c:when test="${(r[5]=='question_recommend_convertToUnstarredAndAdmit' or r[5]=='question_unstarred_final_admission') and r[7]!='y'}">
+															<spring:message code="question.shortUnstarredAdmission" text="US"/>
+														</c:when>
+														<c:when test="${(r[5]=='question_recommend_convertToUnstarredAndAdmit' or r[5]=='question_unstarred_final_admission') and r[7] == 'y'}">
+															<spring:message code="question.shortUnstarredClubbedAdmission" text="US"/>
+														</c:when>
+														<c:when test="${(r[5]=='question_recommend_admission' or r[5]=='question_final_admission') and r[7] == 'y'}">
+															<spring:message code="question.shortStarredClubbedAdmission" text="SA"/>
+														</c:when>
+														<c:when test="${(r[5]=='question_recommend_admission' or r[5]=='question_final_admission') and r[7] != 'y'}">
+															<spring:message code="question.shortStarredAdmission" text="SA"/>
+														</c:when>
+														<c:when test="${r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection'}">
+															<spring:message code="question.shortStarredRejection" text="R"/>
+														</c:when>
+														<c:when test="${(r[5]=='question_recommend_rejection' or  r[5]=='question_final_rejection') and r[7] != 'y'}">
+															<spring:message code="question.shortStarredClubbedRejection" text="RC"/>
+														</c:when>
+														<c:when test="${r[5]=='question_recommend_clarificationNeededFromMember' or r[5]=='question_final_clarificationNeededFromMember'}">
+															<spring:message code="question.shortStarredClarificationFromMember" text="CM"/>
+														</c:when>
+														<c:when test="${r[5]=='question_recommend_clarificationNeededFromDepartment' or r[5]=='question_final_clarificationNeededFromDepartment'}">
+															<spring:message code="question.shortStarredClarificationFromDepartment" text="CD"/>
+														</c:when>
+														<c:when test="${r[5]=='question_recommend_clarificationNeededFromMemberAndDepartment' or r[5]=='question_final_clarificationNeededFromMemberAndDepartment'}">
+															<spring:message code="question.shortStarredClarificationFromMemberAndDepartment" text="CMD"/>
+														</c:when>
+													</c:choose>
+												</div>
 											</c:if>
 											<div style="font-weight: bold; font-size: 12px; display: none;" class="divDetail" id="divDetail${r[3]}">
 												<c:if test="${deviceType == 'questions_starred'}">
@@ -631,7 +660,14 @@
 							</c:otherwise>
 						</c:choose>
 						<br>
-						${r[22]}
+						<div>
+							<span style="font-size: 10px;">${r[22]}</span>
+							<c:if test="${deviceType == 'questions_starred'}">
+								<c:if test="${r[28]==true}">
+									<img width="20px" height="20px" src="./resources/images/VerifyIcon.png" align="right" style="display:inline-block" title="<spring:message code='question.processedByClerk' text='Processed By Clerk'/>">
+								</c:if>
+							</c:if>
+						</div>
 					</td>
 					<c:set var="counter" value="${counter + 1}"/>
 					
@@ -664,6 +700,9 @@
 </c:choose>
 </div>
 <c:if test="${deviceType=='questions_starred'}">
+	<div id="departmentDivViewer" title="View Departmentwise Count">
+			<b><img src="./resources/images/information.png"  width="25" height="25"></b>
+	</div>
 	<div id="newMessageDivViewer">
 			<b>&#9668;</b>
 	</div>
@@ -676,12 +715,12 @@
 		<div style="color: #000; border: 1px solid black; background: #rgb(175,175,175); width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.rejectCount' text='Rejected Count'/>">${rejectCount}</a></div>
 		<div style="color: #000; border: 1px solid black; background: #FF9980; width: 25px; height: 17px; padding: 2px; text-align: center; font-weight: bold; vertical-align: middle; display: inline-block;" class="legends"><a href="javascript.void(0)" title="<spring:message code='question.chart.UnstarredCount' text='Unstarred Count'/>" >${unstarredCount}</a></div>
 	</div>
-	<div  style="position: fixed; z-index: 999; background: scroll; right: 25px; bottom: 70px;width: 300px;overflow: auto; height:480px;">
+	<div id="departmentWiseCount" style="position: fixed; z-index: 999; background: scroll; right: 25px; bottom: 70px;width: 300px;overflow: auto; height:480px;">
 		<c:forEach items="${departmentwiseCounts}" var="i">
-			<div style="color: black; border: 1px solid black; background:#80dfff; width: 200px; height: 30px; padding: 2px; font-weight: bold; vertical-align: middle; display: inline-block;font-size:14px;">
+			<div style="color: black; border: 1px solid black; background:#80dfff; width: 200px; height: 30px; padding: 2px; font-weight: bold; vertical-align: middle; display: inline-block;font-size:12px;">
 				${i.name} 
 			</div>
-			<div style="color: black; border: 1px solid black; background:#80dfff; width: 50px; height: 30px; padding: 2px; font-weight: bold; vertical-align: middle; display: inline-block;text-align: center;font-size:14px;">
+			<div style="color: black; border: 1px solid black; background:#80dfff; width: 50px; height: 30px; padding: 2px; font-weight: bold; vertical-align: middle; display: inline-block;text-align: center;font-size:12px;">
 				${i.formattedNumber}
 			</div>
 			<div style="height:1px;"></div>
