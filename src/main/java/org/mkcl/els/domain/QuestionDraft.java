@@ -166,6 +166,8 @@ public class QuestionDraft extends BaseDomain implements Serializable{
     @Column(name="rejection_reason",length=30000)
     private String rejectionReason;
     
+    private Boolean processed;
+    
     /**** Constructors ****/
 
 	/**
@@ -567,6 +569,17 @@ public String getRejectionReason() {
 public void setRejectionReason(String rejectionReason) {
 	this.rejectionReason = rejectionReason;
 }
+
+
+public Boolean getProcessed() {
+	return processed;
+}
+
+
+public void setProcessed(Boolean processed) {
+	this.processed = processed;
+}
 	
+
 	
 }

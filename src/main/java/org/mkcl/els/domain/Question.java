@@ -1,5 +1,5 @@
 /**
- * See the file LICENSE for redistribution information.
+l * See the file LICENSE for redistribution information.
  *
  * Copyright (c) 2012 MKCL.  All rights reserved.
  *
@@ -396,6 +396,9 @@ public class Question extends Device implements Serializable {
     /**** Reason for Late Reply ****/
     @Column(name="reason_for_late_reply",length=30000)
     private String reasonForLateReply;
+    
+    /**** Processed by Authorities ****/
+    private Boolean processed = false;
     	       
     private static transient volatile Integer STARRED_CUR_NUM_LOWER_HOUSE = 0;
     private static transient volatile Integer STARRED_CUR_NUM_UPPER_HOUSE = 0;
@@ -3812,6 +3815,15 @@ public class Question extends Device implements Serializable {
 
 	public void setFactualPositionFromMember(String factualPositionFromMember) {
 		this.factualPositionFromMember = factualPositionFromMember;
+	}
+
+	public Boolean getProcessed() {
+		return processed;
+	}
+
+
+	public void setProcessed(Boolean processed) {
+		this.processed = processed;
 	}
 
 
@@ -13037,6 +13049,9 @@ public class Question extends Device implements Serializable {
 			draft.setSubject(q.getSubject());
 		}		
 		
+		if(q.getProcessed() != null){
+			draft.setProcessed(q.getProcessed());
+		}
 		return draft;
 	}
 	
