@@ -1092,8 +1092,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		/**** Note :Here this can be configured so that list of workflows which
 		 * goes back is read  dynamically ****/
 		if(status.equals(ApplicationConstants.RESOLUTION_RECOMMEND_SENDBACK)
-				||status.equals(ApplicationConstants.RESOLUTION_RECOMMEND_DISCUSS)
-		){
+				||status.equals(ApplicationConstants.RESOLUTION_RECOMMEND_DISCUSS)){
 
 			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
 				workflowConfig=getLatest(resolution,houseType,resolution.getInternalStatusLowerHouse().getType(),locale.toString());
@@ -1101,14 +1100,51 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				workflowConfig=getLatest(resolution,houseType,resolution.getInternalStatusUpperHouse().getType(),locale.toString());
 			}
 
-			userGroupType=userGroup.getUserGroupType();
-			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
-			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
+			userGroupType = userGroup.getUserGroupType();
+			currentWorkflowActor = getWorkflowActor(workflowConfig,userGroupType,level);
+			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
+		}else if((status.equals(ApplicationConstants.RESOLUTION_PROCESSED_SENDTODESKOFFICER))
+				&& userGroup.getUserGroupType().getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+				workflowConfig = getLatest(resolution,houseType,resolution.getInternalStatusLowerHouse().getType(),locale.toString());
+			}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+				workflowConfig = getLatest(resolution,houseType,resolution.getInternalStatusUpperHouse().getType(),locale.toString());
+			}
+			UserGroupType ugt = UserGroupType.findByType(ApplicationConstants.DEPARTMENT, locale);
+			currentWorkflowActor = getWorkflowActor(workflowConfig,ugt,(level-1));
+			allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
 		}else{
-			workflowConfig=getLatest(resolution,houseType,status,locale.toString());
-			userGroupType=userGroup.getUserGroupType();
-			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
-			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			workflowConfig = getLatest(resolution,houseType,status,locale.toString());
+			userGroupType = userGroup.getUserGroupType();
+			currentWorkflowActor = getWorkflowActor(workflowConfig,userGroupType,level);
+			CustomParameter userGroupTypeToBeExcluded = null;
+			if(status.toUpperCase().contains("FINAL")){
+				userGroupTypeToBeExcluded = CustomParameter.
+				findByName(CustomParameter.class, ApplicationConstants.USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_POSTFINAL_STATUS, "");
+			}else{
+				userGroupTypeToBeExcluded = CustomParameter.
+				findByName(CustomParameter.class, ApplicationConstants.USERGROUPTYPE_TO_BE_EXCLUDED_FROM_WORKFLOWCONFIG_PREFINAL_STATUS, "");
+			}
+			if(userGroupTypeToBeExcluded != null && 
+					(userGroupTypeToBeExcluded.getValue() != null  && !userGroupTypeToBeExcluded.getValue().isEmpty())){
+				String strUsergroupTypes = userGroupTypeToBeExcluded.getValue();
+				String[] arrUsergroupTypes = strUsergroupTypes.split(",");
+				List<Long> usergroupTypeIds = new ArrayList<Long>();
+				for(String s : arrUsergroupTypes){
+					UserGroupType ugt = UserGroupType.findByType(s, locale);
+					if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)){
+						if(!ugt.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+							usergroupTypeIds.add(ugt.getId());
+						}
+					}else{
+						usergroupTypeIds.add(ugt.getId());
+					}						
+				}
+				List<WorkflowActor> workflowActorsToBeExcluded = getWorkflowActors(workflowConfig,usergroupTypeIds,level);
+				allEligibleActors = getWorkflowActorsExcludingGivenActorList(workflowConfig, workflowActorsToBeExcluded, currentWorkflowActor, ApplicationConstants.ASC);
+			}else{
+				allEligibleActors = getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+			}
 		}
 
 		DeviceType deviceType=resolution.getType();
@@ -1123,6 +1159,7 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 				int noOfComparisons=0;
 				int noOfSuccess=0;
 				Map<String,String> params=j.getParameters();
+				
 				/**The Parameters doesnot need to check in case of MEMBER***/
 				if(!j.getUserGroupType().getType().equals(ApplicationConstants.MEMBER)){					
 					if(houseType!=null){
@@ -1212,8 +1249,21 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 					reference.setName(userGroupTypeTemp.getName());
 					reference.setState(params.get(ApplicationConstants.ACTORSTATE_KEY+"_"+locale));
 					reference.setRemark(params.get(ApplicationConstants.ACTORREMARK_KEY+"_"+locale));
-					references.add(reference);
-					break;
+					if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+						if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+							if(!reference.getId().equals(resolution.getActorLowerHouse())){
+									references.add(reference);
+								}
+						}else{
+							if(!reference.getId().equals(resolution.getActorUpperHouse())){
+									references.add(reference);
+							}
+						}
+						
+					}else{
+						references.add(reference);
+						break;
+					}
 				}				
 			}
 		}		

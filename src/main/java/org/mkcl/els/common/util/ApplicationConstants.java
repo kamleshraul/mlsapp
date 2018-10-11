@@ -2650,4 +2650,6 @@ public class ApplicationConstants {
 	public static final String QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED_FROM_MEMBER = "question_processed_clarificationNotReceivedFromMember";
 	
 	public static final int NOTIFICATIONS_VISIBLE_MAXIMUM_COUNT = 50;
+	
+	public static final Object RESOLUTION_PROCESSED_SENDTODESKOFFICER = "resolution_processed_sendToDeskOfficer";
 }

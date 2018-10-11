@@ -412,7 +412,8 @@ public class UserGroupRepository extends BaseRepository<UserGroup, Serializable>
 	public List<UserGroup> findActiveUserGroupsOfGivenUser(final String userName,final String houseType,final String deviceType) throws ELSException {
 		Date currentDate=new Date();  
 		String queryString = "SELECT u FROM UserGroup u JOIN u.credential cr" +
-				" WHERE cr.username=:userName AND u.parameters['HOUSETYPE_mr_IN'] LIKE:houseType"+
+				" WHERE cr.username=:userName "+
+				" AND (u.parameters['HOUSETYPE_mr_IN'] LIKE:houseType OR u.parameters['HOUSETYPE_mr_IN'] LIKE '%दोन्ही सभागृह%')"+
 				" AND u.parameters['DEVICETYPE_mr_IN'] LIKE:deviceType"+
 				" AND (u.activeTo>=:currentDate OR u.activeTo IS NULL)";
 

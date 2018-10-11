@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -739,21 +740,31 @@ public class ResolutionReportController extends BaseController{
 						reportFileName += "_" + statusTypeSplit;
 					}					
 					
+					String outputFormat = "WORD";
+					Set<Role> roles = this.getCurrentUser().getRoles();
+					Role departmentRole = Role.findByType("ROIS_DEPARTMENT_USER", locale.toString());
+					for(Role r :roles){
+						if(r.getId().equals(departmentRole.getId())){
+							outputFormat = "PDF";
+							break;
+						}
+					}
+					
 					if(intimationLetterFilter!=null && !intimationLetterFilter.isEmpty() && !intimationLetterFilter.equals("-")) {
 						try {
-							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit, "WORD", reportFileName, locale.toString());
+							reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit, outputFormat, reportFileName, locale.toString());
 						} catch(FileNotFoundException e) {
 							if(e.getMessage().equals(ApplicationConstants.XSLT_FILE_NOT_FOUND)) {
-								reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter, "WORD", reportFileName, locale.toString());
+								reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter, outputFormat, reportFileName, locale.toString());
 							}
 						}
 						
 					}else {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, "WORD", reportFileName, locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit, outputFormat, reportFileName, locale.toString());
 					}					
 					System.out.println("Intimation Letter generated successfully in WORD format!");
 
-					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+					openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
 				} catch (Exception e) {
 					e.printStackTrace();
 					isError = true;
