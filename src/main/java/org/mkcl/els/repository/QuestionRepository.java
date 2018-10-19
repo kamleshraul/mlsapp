@@ -3457,7 +3457,8 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 						+ "INNER JOIN questions_drafts_association qda ON (qda.question_id=q.id) "
 						+ "INNER JOIN question_drafts qd ON (qd.id=qda.question_draft_id) "
 						+ "WHERE q.id=:questionId "
-						+ "AND (qd.parent<>:parentId OR qd.parent IS NULL) "
+						+ "AND (qd.question_text IS NOT NULL AND qd.question_text<>'') "
+						+ "AND qd.parent IS NULL "
 						+ "ORDER BY qd.edited_on DESC LIMIT 1";
 		
 		Query query = this.em().createNativeQuery(strQuery);
