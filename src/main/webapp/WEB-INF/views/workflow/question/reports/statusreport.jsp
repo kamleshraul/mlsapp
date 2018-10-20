@@ -103,6 +103,7 @@
 	        	border: 1px solid;
 	        	width: 800px;
 	        	padding: 10px;
+	        	margin-left:50px !important;
 	        }	        
         }
         @media print{
@@ -110,6 +111,7 @@
 	        	width: 750px;
 	        	padding: 5px;
 	        	margin-top: 0px !important;
+	        	margin-left: 50px !important;
 	        }
 	        
 	        .page-break-before-forced{
@@ -118,7 +120,7 @@
 	        
 	        @page{
 	        	size: 210mm 297mm !important;   /* auto is the initial value */
-  				margin: 0px 0px 0px 15px !important;
+  				margin: 0px 0px 0px 50px !important;
 	        }  
 	        
 	        hr{
@@ -158,7 +160,8 @@
 <body>
 
 <div id="reportDiv">
-	<div id="statusReportDiv">				
+	<div id="statusReportDiv">	
+		<div id="hello" style="width:50px">&nbsp;</div>			
 		<div id="reportWindow" style="size: 750px;">
 			<div id="reportWindow1" style="word-wrap: break-word;">
 				v
