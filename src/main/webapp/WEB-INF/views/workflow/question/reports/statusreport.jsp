@@ -120,7 +120,7 @@
 	        
 	        @page{
 	        	size: 210mm 297mm !important;   /* auto is the initial value */
-  				margin: 0px 0px 0px 50px !important;
+  				margin: 0px 0px 0px 60px !important;
 	        }  
 	        
 	        hr{
