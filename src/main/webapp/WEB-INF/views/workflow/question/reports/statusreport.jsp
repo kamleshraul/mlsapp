@@ -161,7 +161,6 @@
 
 <div id="reportDiv">
 	<div id="statusReportDiv">	
-		<div id="hello" style="width:50px">&nbsp;</div>			
 		<div id="reportWindow" style="size: 750px;">
 			<div id="reportWindow1" style="word-wrap: break-word;">
 				v
