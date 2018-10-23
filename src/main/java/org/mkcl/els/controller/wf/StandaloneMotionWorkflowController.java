@@ -733,12 +733,6 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 			model.addAttribute("internalStatusSelected",internalStatus.getId());
 			model.addAttribute("actors",actors);
 			model.addAttribute("currentUserLevel", domain.getLevel());
-//			if(actors!=null&&!actors.isEmpty()){
-//				String nextActor=actors.get(0).getId();
-//				String[] actorArr=nextActor.split("#");
-//				domain.setLevel(actorArr[2]);
-//				domain.setLocalizedActorName(actorArr[3]+"("+actorArr[4]+")");
-//			}
 		}
 		/**** add domain to model ****/
 		model.addAttribute("domain",domain);
@@ -1108,8 +1102,10 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 					if(domain.getLastDateOfFactualPositionReceiving() == null) {
 						Calendar calendar = Calendar.getInstance();
 						calendar.setTime(new Date());
-						calendar.add(Calendar.DATE, domain.getNumberOfDaysForFactualPositionReceiving());
-						domain.setLastDateOfFactualPositionReceiving(calendar.getTime());
+						if(domain.getNumberOfDaysForFactualPositionReceiving() != null && !domain.getNumberOfDaysForFactualPositionReceiving().equals("")){
+							calendar.add(Calendar.DATE, domain.getNumberOfDaysForFactualPositionReceiving());
+							domain.setLastDateOfFactualPositionReceiving(calendar.getTime());
+						}
 					}
 				}
 			}			
@@ -1161,13 +1157,32 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 			StandaloneMotion motion = StandaloneMotion.findById(StandaloneMotion.class, domain.getId());
 			// On Group Change
 			boolean isGroupChanged = false;
+			boolean isMinistryChanged = false;
+			boolean isSubDepartmentChanged = false;
 			Group fromGroup = StandaloneMotion.isGroupChanged(motion);
+			Ministry prevMinistry = null;
+			SubDepartment prevSubDepartment = null;
+			String ministrySelected = request.getParameter("ministrySelected");
+			if(ministrySelected != null && !ministrySelected.equals("")){
+				prevMinistry = Ministry.findById(Ministry.class, Long.parseLong(ministrySelected));
+			}
+			
+			String subdepartmentSelected =request.getParameter("subDepartmentSelected");
+			if(subdepartmentSelected != null && !subdepartmentSelected.equals("")){
+				prevSubDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(subdepartmentSelected));
+			}
 			if(fromGroup != null) {
 				isGroupChanged = true;
 				StandaloneMotion.onGroupChange(motion, fromGroup);
+			}else if(prevMinistry != null && !prevMinistry.equals(domain.getMinistry())){
+				isMinistryChanged = true;
+				StandaloneMotion.onMinistryChange(motion, prevMinistry);
+			}else if(prevSubDepartment != null && !prevSubDepartment.equals(domain.getSubDepartment())){
+				isSubDepartmentChanged = true;
+				StandaloneMotion.onSubDepartmentChange(motion, prevSubDepartment);
 			}
 			
-			if(isGroupChanged) {
+			if(isGroupChanged || isMinistryChanged || isSubDepartmentChanged) {
 				/**** display message ****/
 				model.addAttribute("type","taskcompleted");
 				return "workflow/info";
@@ -2509,12 +2524,46 @@ public class StandaloneMotionWorkflowController  extends BaseController{
 	@SuppressWarnings("rawtypes")
 	private void findLatestRemarksByUserGroup(final StandaloneMotion domain, final ModelMap model,
 			final HttpServletRequest request,final WorkflowDetails workflowDetails)throws ELSException {
+		
+		String username = this.getCurrentUser().getUsername();
+		Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
+		UserGroup userGroup = UserGroup.findActive(credential, domain.getSubmissionDate(), domain.getLocale());
+		UserGroupType userGroupType = userGroup.getUserGroupType();
+		if(userGroupType == null
+				|| (!userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+				&& !userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
+			CustomParameter customParameter = null;
+			if(userGroupType!=null) {
+				customParameter = CustomParameter.findByName(CustomParameter.class, "SMOIS_LATESTREVISION_STARTINGACTOR_"+userGroupType.getType().toUpperCase(), "");
+				if(customParameter != null){
+					String strUsergroupType = customParameter.getValue();
+					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+				}else{
+					CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "SMOIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+					if(defaultCustomParameter != null){
+						String strUsergroupType = defaultCustomParameter.getValue();
+						userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+					}
+				}
+			} else {
+				CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "SMOIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+				if(defaultCustomParameter != null){
+					String strUsergroupType = defaultCustomParameter.getValue();
+					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+				}
+			}			
+		}
 		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
 		requestMap.put("questionId",new String[]{String.valueOf(domain.getId())});
 		requestMap.put("locale",new String[]{domain.getLocale()});
-		List result=Query.findReport("SMOIS_LATEST_REVISIONS", requestMap);
-		model.addAttribute("latestRevisions",result);
-		UserGroupType userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", ApplicationConstants.ASSISTANT, domain.getLocale());
+		if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+				|| userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			List result=Query.findReport("SMOIS_LATEST_REVISION_FOR_DESKOFFICER", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}else{
+			List result=Query.findReport("SMOIS_LATEST_REVISIONS", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}
 		model.addAttribute("startingActor", userGroupType.getName());
 	}	
 }

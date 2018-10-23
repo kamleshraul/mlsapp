@@ -818,17 +818,22 @@ public class ResolutionWorkflowController extends BaseController{
 			/**** Workflowdetails ****/
 			String strWorkflowdetails=(String) request.getParameter("workflowdetails");
 			WorkflowDetails workflowDetails=WorkflowDetails.findById(WorkflowDetails.class,Long.parseLong(strWorkflowdetails));
-	
+			Resolution resolution = null;
 			/**** Updating domain ****/
 			domain.setEditedOn(new Date());
 			domain.setEditedBy(this.getCurrentUser().getActualUsername());
 			domain.setEditedAs(workflowDetails.getAssigneeUserGroupName());
-				
-	
 			String strDiscussionDate = request.getParameter("discussionDate");
 			
 			if(request.getParameter("bulkedit")!=null&&!request.getParameter("bulkedit").isEmpty()){
 				request.getSession().setAttribute("bulkedit",request.getParameter("bulkedit"));
+			}
+			
+			/**** Is Clarification of Question Received or not *************/
+			boolean boolClarificationStatus = false;
+			String clarificationStatus = request.getParameter("clarificationStatus");
+			if(clarificationStatus != null && !clarificationStatus.isEmpty()){
+				boolClarificationStatus = true;
 			}
 			/**** updating submission date and creation date ****/
 			String strCreationDate=request.getParameter("setCreationDate");
@@ -923,12 +928,11 @@ public class ResolutionWorkflowController extends BaseController{
 							nextUserLevel = Integer.parseInt(nextuser[2]);
 					} 
 											
-					Resolution q = null;
-					
+										
 					if(domain.getId() != null){
-						q = Resolution.findById(Resolution.class, domain.getId());
+						resolution = Resolution.findById(Resolution.class, domain.getId());
 					}else{
-						q = domain.copyResolution();
+						resolution = domain.copyResolution();
 					}
 					
 					
@@ -954,15 +958,15 @@ public class ResolutionWorkflowController extends BaseController{
 						List<Reference> refs = null;
 						if(domain.getHouseType().getType().equals(ApplicationConstants.LOWER_HOUSE)){
 							refs = WorkflowConfig.
-									findResolutionActorsVO(q,domain.getInternalStatusLowerHouse(),
-											assistant,1,domain.getHouseType().getName(),q.getLocale());
+									findResolutionActorsVO(resolution,domain.getInternalStatusLowerHouse(),
+											assistant,1,domain.getHouseType().getName(),locale.toString());
 						} else if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
 							refs = WorkflowConfig.
-									findResolutionActorsVO(q,domain.getInternalStatusUpperHouse(),
-											assistant,1,domain.getHouseType().getName(),q.getLocale());
+									findResolutionActorsVO(resolution,domain.getInternalStatusUpperHouse(),
+											assistant,1,domain.getHouseType().getName(),locale.toString());
 						}
 						
-						List<ResolutionDraft> ogDrafts = q.getDrafts();					
+						List<ResolutionDraft> ogDrafts = resolution.getDrafts();					
 					
 						for(Reference ref : refs){
 							
@@ -984,7 +988,7 @@ public class ResolutionWorkflowController extends BaseController{
 										}
 										
 										if(!foundUsersDraft){
-											ResolutionDraft qdn = Resolution.addDraft(q, user[0], user[3], ref.getRemark());
+											ResolutionDraft qdn = Resolution.addDraft(resolution, user[0], user[3], ref.getRemark());
 											ogDrafts.add(qdn);
 										}
 									}
@@ -1062,214 +1066,260 @@ public class ResolutionWorkflowController extends BaseController{
 				}
 			}
 			
+			boolean isMinistryChanged = false;
+			boolean isSubdepartmentChanged =false;
+			String strPreviousMinistrySelected = request.getParameter("ministrySelected");
+			String strPreviousSubDepartmentSelected = request.getParameter("subDepartmentSelected");
+			Ministry prevMinistry = null;
+			if(strPreviousMinistrySelected != null && !strPreviousMinistrySelected.equals("")){
+				prevMinistry = Ministry.findById(Ministry.class, Long.parseLong(strPreviousMinistrySelected));
+			}else{
+				prevMinistry = domain.getMinistry();
+			}
+			
+			SubDepartment prevSubdepartment = null;
+			if(strPreviousSubDepartmentSelected != null && !strPreviousSubDepartmentSelected.equals("")){
+				prevSubdepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strPreviousSubDepartmentSelected));
+			}else{
+				prevSubdepartment = domain.getSubDepartment();
+			}
 			
 			
-				
-				/**** Complete Task ****/	
-			String nextuser=null;
-			String level=null;
-			String endflag=null;
-			if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-				 nextuser=domain.getActorLowerHouse();
-				 level=domain.getLevelLowerHouse();
-				 endflag=domain.getEndFlagLowerHouse();
-			}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-				 nextuser=domain.getActorUpperHouse();
-				 level=domain.getLevelUpperHouse();
-				 endflag=domain.getEndFlagUpperHouse();
+			if(prevMinistry!=null && !prevMinistry.equals(domain.getMinistry())){
+				Resolution.onMinistryChange(resolution, prevMinistry);
+				isMinistryChanged = true;
 			}
-				
-			Map<String,String> properties=new HashMap<String, String>();
-			properties.put("pv_deviceId",String.valueOf(domain.getId()));
-			properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
-			String username = "";
-			if(nextuser!=null){
-				if(!nextuser.isEmpty()){
-					String[] temp=nextuser.split("#");
-					username = temp[0];
-					properties.put("pv_user",username);				
-				}
-			}	
-			properties.put("pv_endflag", endflag);
-			CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "SERVERCONFIGURED", "");
-			String isServerConfigured=customParameter.getValue();
-			if(isServerConfigured!=null && !isServerConfigured.equals("")){
-				if(isServerConfigured.equals("yes")){
-					String mailflag=request.getParameter("mailflag");				
-					properties.put("pv_mailflag", mailflag);
-					
-					if(mailflag!=null) {
-						if(mailflag.equals("set")) {
-							String mailfrom=request.getParameter("mailfrom");
-							properties.put("pv_mailfrom", mailfrom);
-							
-							String mailto=request.getParameter("mailto");
-							properties.put("pv_mailto", mailto);
-							
-							String mailsubject=request.getParameter("mailsubject");
-							properties.put("pv_mailsubject", mailsubject);
-							
-							String mailcontent=request.getParameter("mailcontent");
-							properties.put("pv_mailcontent", mailcontent);
-						}
-					}
-					
-					String timerflag=request.getParameter("timerflag");
-					properties.put("pv_timerflag", timerflag);
-					
-					if(timerflag!=null) {
-						if(timerflag.equals("set")) {
-							String timerduration=request.getParameter("timerduration");
-							properties.put("pv_timerduration", timerduration);
-							
-							String lasttimerduration=request.getParameter("lasttimerduration");
-							properties.put("pv_lasttimerduration", lasttimerduration);
-							
-							String reminderflag=request.getParameter("reminderflag");
-							properties.put("pv_reminderflag", reminderflag);
-							
-							if(reminderflag!=null) {
-								if(reminderflag.equals("set")) {
-									String reminderfrom=request.getParameter("reminderfrom");
-									properties.put("pv_reminderfrom", reminderfrom);
-									
-									String reminderto = "";
-									if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-										if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
-												domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
-											Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
-											reminderto = recepient.getEmail();								
-										} else {
-											reminderto=request.getParameter("reminderto");								
-										}
-									}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-										if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
-												domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
-											Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
-											reminderto = recepient.getEmail();
-										} else {
-											reminderto=request.getParameter("reminderto");
-										}
-									}						
-									properties.put("pv_reminderto", reminderto);
-									
-									String remindersubject=request.getParameter("remindersubject");						
-									properties.put("pv_remindersubject", remindersubject);
-									
-									String remindercontent = "";
-									if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-										if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
-												domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
-											remindercontent += domain.getRevisedNoticeContent() + "\n\n";
-											if(domain.getQuestionsAskedInFactualPosition() !=null && !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
-												int count = 1;
-												for(String i: domain.getQuestionsAskedInFactualPosition().split("##")) {
-													remindercontent += FormaterUtil.formatNumberNoGrouping(count, domain.getLocale()) + ". " + i + "\n\n";
-													count++;
-												}
-											}								
-										} else {
-											remindercontent=request.getParameter("remindercontent");								
-										}
-									}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-										if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
-												domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
-											
-										} else {
-											remindercontent=request.getParameter("remindercontent");
-										}
-									}						
-									properties.put("pv_remindercontent", remindercontent);						
-								}
-								
-								String noOfReminderMail=request.getParameter("numberOfReminderMailForFactualPosition");
-								String timeDuration="";
-								if(noOfReminderMail!=null && !noOfReminderMail.isEmpty()){
-									int numberOfReminderMail=Integer.parseInt(noOfReminderMail);
-									properties.put("pv_numberOfReminderMailForFactualPosition",noOfReminderMail);
-									for(int i=1;i<=numberOfReminderMail;i++){
-										String timeDurationForReminderMail=request.getParameter("remainderMailDifference"+i);
-										timeDuration=timeDuration+"PT"+timeDurationForReminderMail+"M";
-										if(i+1<=numberOfReminderMail){
-											timeDuration=timeDuration+",";
-										}
-										
-									}
-									properties.put("pv_remaindermailduration",timeDuration);
-								}
-							}
-							
-							
-						}
-					}
-				}else{
-				properties.put("pv_mailflag", "off");
-				properties.put("pv_timerflag", "off");
-				}
+			if(prevSubdepartment!=null && !prevSubdepartment.equals(domain.getSubDepartment())){
+				Resolution.onSubdepartmentChange(resolution, prevSubdepartment);
+				isSubdepartmentChanged = true;
 			}
-			if(domain.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
-				properties.put("pv_houseType", houseType.getType());
-			}
-			if(!bulkEdit.equals("yes")){
-				String strTaskId=workflowDetails.getTaskId();
-				Task task=processService.findTaskById(strTaskId);
-				processService.completeTask(task,properties);
-				
-				/**** Workflow Detail entry made only if its not the end of workflow ****/
-				if(endflag!=null){
-					if(!endflag.isEmpty()){
-						if(endflag.equals("continue")){
-							ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
-							Task newtask=processService.getCurrentTask(processInstance);
-	
-							//houseType for workflow as GR has workflows for both houseTypes
-							HouseType houseTypeForWorkflow = null;
-							String workflowHouseType = request.getParameter("workflowHouseType");
-							if(domain.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
-								if(workflowHouseType != null) {
-									if(!workflowHouseType.isEmpty()) {
-										//houseType of current workflow
-										houseTypeForWorkflow = HouseType.findByFieldName(HouseType.class, "name", workflowHouseType, domain.getLocale());
-									} else {
-										logger.error("request parameter workflowHouseType is empty");
-									}
-								} else {
-									logger.error("request parameter workflowHouseType is null");
-								}
-							} else {
-								//same as that of domain resolution
-								houseTypeForWorkflow = domain.getHouseType(); 
-							}
-							WorkflowDetails workflowDetails2;
-							try {
-								workflowDetails2 = WorkflowDetails.create(domain,newtask,ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW,level,houseTypeForWorkflow);
-								if(houseTypeForWorkflow.getType().equals(ApplicationConstants.LOWER_HOUSE)){
-									domain.setWorkflowDetailsIdLowerHouse(workflowDetails2.getId());
-									domain.setTaskReceivedOnLowerHouse(new Date());
-								}else if(houseTypeForWorkflow.getType().equals(ApplicationConstants.UPPER_HOUSE)){
-									
-									domain.setWorkflowDetailsIdUpperHouse(workflowDetails2.getId());
-									domain.setTaskReceivedOnUpperHouse(new Date());
-								}
-							} catch (ELSException e) {							
-								e.printStackTrace();
-								model.addAttribute("error", e.getParameter());
-								model.addAttribute("type", "error");
-							}						
-						}
-					}
-				}
-				workflowDetails.setStatus("COMPLETED");
-				workflowDetails.setCompletionTime(new Date());
-				workflowDetails.merge();
-				
+			
+			if(isMinistryChanged || isSubdepartmentChanged) {
 				/**** display message ****/
 				model.addAttribute("type","taskcompleted");
 				return "workflow/info";
 			}
+			else {
+				
+				/**** Complete Task ****/	
+				String nextuser=null;
+				String level=null;
+				String endflag=null;
+				if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+					 nextuser=domain.getActorLowerHouse();
+					 level=domain.getLevelLowerHouse();
+					 endflag=domain.getEndFlagLowerHouse();
+				}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+					 nextuser=domain.getActorUpperHouse();
+					 level=domain.getLevelUpperHouse();
+					 endflag=domain.getEndFlagUpperHouse();
+				}
+				if(boolClarificationStatus && workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+					endflag = "continue";
+				}
+				
+				Map<String,String> properties=new HashMap<String, String>();
+				properties.put("pv_deviceId",String.valueOf(domain.getId()));
+				properties.put("pv_deviceTypeId",String.valueOf(domain.getType().getId()));
+				String username = "";
+				if(nextuser!=null){
+					if(!nextuser.isEmpty()){
+						String[] temp=nextuser.split("#");
+						username = temp[0];
+						properties.put("pv_user",username);				
+					}
+				}	
+				properties.put("pv_endflag", endflag);
+				CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class, "SERVERCONFIGURED", "");
+				String isServerConfigured=customParameter.getValue();
+				if(isServerConfigured!=null && !isServerConfigured.equals("")){
+					if(isServerConfigured.equals("yes")){
+						String mailflag=request.getParameter("mailflag");				
+						properties.put("pv_mailflag", mailflag);
+						
+						if(mailflag!=null) {
+							if(mailflag.equals("set")) {
+								String mailfrom=request.getParameter("mailfrom");
+								properties.put("pv_mailfrom", mailfrom);
+								
+								String mailto=request.getParameter("mailto");
+								properties.put("pv_mailto", mailto);
+								
+								String mailsubject=request.getParameter("mailsubject");
+								properties.put("pv_mailsubject", mailsubject);
+								
+								String mailcontent=request.getParameter("mailcontent");
+								properties.put("pv_mailcontent", mailcontent);
+							}
+						}
+						
+						String timerflag=request.getParameter("timerflag");
+						properties.put("pv_timerflag", timerflag);
+						
+						if(timerflag!=null) {
+							if(timerflag.equals("set")) {
+								String timerduration=request.getParameter("timerduration");
+								properties.put("pv_timerduration", timerduration);
+								
+								String lasttimerduration=request.getParameter("lasttimerduration");
+								properties.put("pv_lasttimerduration", lasttimerduration);
+								
+								String reminderflag=request.getParameter("reminderflag");
+								properties.put("pv_reminderflag", reminderflag);
+								
+								if(reminderflag!=null) {
+									if(reminderflag.equals("set")) {
+										String reminderfrom=request.getParameter("reminderfrom");
+										properties.put("pv_reminderfrom", reminderfrom);
+										
+										String reminderto = "";
+										if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+											if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
+													domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
+												Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
+												reminderto = recepient.getEmail();								
+											} else {
+												reminderto=request.getParameter("reminderto");								
+											}
+										}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+											if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
+													domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
+												Credential recepient = Credential.findByFieldName(Credential.class, "username", username, "");
+												reminderto = recepient.getEmail();
+											} else {
+												reminderto=request.getParameter("reminderto");
+											}
+										}						
+										properties.put("pv_reminderto", reminderto);
+										
+										String remindersubject=request.getParameter("remindersubject");						
+										properties.put("pv_remindersubject", remindersubject);
+										
+										String remindercontent = "";
+										if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+											if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
+													domain.getInternalStatusLowerHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
+												remindercontent += domain.getRevisedNoticeContent() + "\n\n";
+												if(domain.getQuestionsAskedInFactualPosition() !=null && !domain.getQuestionsAskedInFactualPosition().isEmpty()) {
+													int count = 1;
+													for(String i: domain.getQuestionsAskedInFactualPosition().split("##")) {
+														remindercontent += FormaterUtil.formatNumberNoGrouping(count, domain.getLocale()) + ". " + i + "\n\n";
+														count++;
+													}
+												}								
+											} else {
+												remindercontent=request.getParameter("remindercontent");								
+											}
+										}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+											if((userGroupType.equals(ApplicationConstants.SECTION_OFFICER)) && (domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT) ||
+													domain.getInternalStatusUpperHouse().getType().equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER))) {
+												
+											} else {
+												remindercontent=request.getParameter("remindercontent");
+											}
+										}						
+										properties.put("pv_remindercontent", remindercontent);						
+									}
+									
+									String noOfReminderMail=request.getParameter("numberOfReminderMailForFactualPosition");
+									String timeDuration="";
+									if(noOfReminderMail!=null && !noOfReminderMail.isEmpty()){
+										int numberOfReminderMail=Integer.parseInt(noOfReminderMail);
+										properties.put("pv_numberOfReminderMailForFactualPosition",noOfReminderMail);
+										for(int i=1;i<=numberOfReminderMail;i++){
+											String timeDurationForReminderMail=request.getParameter("remainderMailDifference"+i);
+											timeDuration=timeDuration+"PT"+timeDurationForReminderMail+"M";
+											if(i+1<=numberOfReminderMail){
+												timeDuration=timeDuration+",";
+											}
+											
+										}
+										properties.put("pv_remaindermailduration",timeDuration);
+									}
+								}
+								
+								
+							}
+						}
+					}else{
+					properties.put("pv_mailflag", "off");
+					properties.put("pv_timerflag", "off");
+					}
+				}
+				if(domain.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
+					properties.put("pv_houseType", houseType.getType());
+				}
+				if(!bulkEdit.equals("yes")){
+					if(boolClarificationStatus){
+						/**** Process Started and task created ****/
+						List<WorkflowDetails> pendingWorkflows = WorkflowDetails.findPendingWorkflowDetails(domain, workflowDetails.getWorkflowType());
+						for(WorkflowDetails wd : pendingWorkflows){
+							Task prevTask = processService.findTaskById(wd.getTaskId());
+							processService.completeTask(prevTask, properties);
+							wd.setStatus("TIMEOUT");
+							wd.setCompletionTime(new Date());
+							wd.merge();
+						}
+					}else{
+						String strTaskId=workflowDetails.getTaskId();
+						Task task=processService.findTaskById(strTaskId);
+						processService.completeTask(task,properties);
+						
+						/**** Workflow Detail entry made only if its not the end of workflow ****/
+						if(endflag!=null && !endflag.isEmpty()){
+							if(endflag.equals("continue")){
+								ProcessInstance processInstance = processService.findProcessInstanceById(task.getProcessInstanceId());
+								Task newtask=processService.getCurrentTask(processInstance);
+		
+								//houseType for workflow as GR has workflows for both houseTypes
+								HouseType houseTypeForWorkflow = null;
+								String workflowHouseType = request.getParameter("workflowHouseType");
+								if(domain.getType().getType().trim().equals(ApplicationConstants.GOVERNMENT_RESOLUTION)) {
+									if(workflowHouseType != null) {
+										if(!workflowHouseType.isEmpty()) {
+											//houseType of current workflow
+											houseTypeForWorkflow = HouseType.findByFieldName(HouseType.class, "name", workflowHouseType, domain.getLocale());
+										} else {
+											logger.error("request parameter workflowHouseType is empty");
+										}
+									} else {
+										logger.error("request parameter workflowHouseType is null");
+									}
+								} else {
+									//same as that of domain resolution
+									houseTypeForWorkflow = domain.getHouseType(); 
+								}
+								WorkflowDetails workflowDetails2;
+								try {
+									workflowDetails2 = WorkflowDetails.create(domain,newtask,ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW,level,houseTypeForWorkflow);
+									if(houseTypeForWorkflow.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+										domain.setWorkflowDetailsIdLowerHouse(workflowDetails2.getId());
+										domain.setTaskReceivedOnLowerHouse(new Date());
+									}else if(houseTypeForWorkflow.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+										
+										domain.setWorkflowDetailsIdUpperHouse(workflowDetails2.getId());
+										domain.setTaskReceivedOnUpperHouse(new Date());
+									}
+								} catch (ELSException e) {							
+									e.printStackTrace();
+									model.addAttribute("error", e.getParameter());
+									model.addAttribute("type", "error");
+								}						
+							}
+						}
+						workflowDetails.setStatus("COMPLETED");
+						workflowDetails.setCompletionTime(new Date());
+						workflowDetails.merge();
+					}
+					/**** display message ****/
+					model.addAttribute("type","taskcompleted");
+					return "workflow/info";
+					
+				}
 			domain.merge();
 			model.addAttribute("type","success");
 			populateModel(domain, model, request, workflowDetails);
+			}
 		}catch(ELSException e){
 			model.addAttribute("error", e.getParameter());
 		}catch (Exception e) {
@@ -1281,6 +1331,7 @@ public class ResolutionWorkflowController extends BaseController{
 			model.addAttribute("error", message);
 		}
 		return "workflow/resolution/"+userGroupType;
+		
 	}
 	
 	/**** Bulk Approval(By Any Authority) ****/
@@ -2546,10 +2597,48 @@ public class ResolutionWorkflowController extends BaseController{
 	@SuppressWarnings("rawtypes")
 	private void findLatestRemarksByUserGroup(final Resolution domain, final ModelMap model,
 			final HttpServletRequest request)throws ELSException {
+		
+		String username = this.getCurrentUser().getUsername();
+		Credential credential = Credential.findByFieldName(Credential.class, "username", username, "");
+		UserGroup usergroup = UserGroup.findActive(credential, domain.getSubmissionDate(), domain.getLocale());
+		UserGroupType userGroupType = usergroup.getUserGroupType();
+		if(userGroupType == null
+				|| (!userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+				&& !userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER))){
+			CustomParameter customParameter = null;
+			if(userGroupType!=null) {
+				customParameter = CustomParameter.findByName(CustomParameter.class, "ROIS_LATESTREVISION_STARTINGACTOR_"+userGroupType.getType().toUpperCase(), "");
+				if(customParameter != null){
+					String strUsergroupType = customParameter.getValue();
+					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+				}else{
+					CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "ROIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+					if(defaultCustomParameter != null){
+						String strUsergroupType = defaultCustomParameter.getValue();
+						userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+					}
+				}
+			} else {
+				CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "ROIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+				if(defaultCustomParameter != null){
+					String strUsergroupType = defaultCustomParameter.getValue();
+					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
+				}
+			}			
+		}
+		
+		
 		Map<String, String[]> requestMap=new HashMap<String, String[]>();			
 		requestMap.put("resolutionId",new String[]{String.valueOf(domain.getId())});
 		requestMap.put("locale",new String[]{domain.getLocale()});
-		List result=Query.findReport("ROIS_GET_REVISION", requestMap);
-		model.addAttribute("latestRevisions",result);
+		if(userGroupType.getType().equals(ApplicationConstants.DEPARTMENT)
+				|| userGroupType.getType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			List result=Query.findReport("ROIS_GET_REVISION_FOR_DESKOFFICER", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}else{
+			List result=Query.findReport("ROIS_GET_REVISION", requestMap);
+			model.addAttribute("latestRevisions",result);
+		}
+		model.addAttribute("startingActor", userGroupType.getName());
 	}
 }
