@@ -196,43 +196,6 @@
 		}
 	}
 	
-	/**** sub departments ****/
-	/* function loadSubDepartments(ministry,department){
-		$.get('ref/subdepartments/'+ministry+'/'+department,function(data){
-			$("#subDepartment").empty();
-			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-				subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
-			}
-			$("#subDepartment").html(subDepartmentText);
-			}else{
-				$("#subDepartment").empty();
-				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
-				$("#subDepartment").html(subDepartmentText);
-			}
-		});
-	} */
-	/**** departments ****/
-	/* function loadDepartments(ministry){
-		$.get('ref/departments/'+ministry,function(data){
-			$("#department").empty();
-			var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-				departmentText+="<option value='"+data[i].id+"'>"+data[i].name;
-			}
-			$("#department").html(departmentText);
-			loadSubDepartments(ministry,data[0].id);
-			}else{
-				$("#department").empty();
-				var departmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-				$("#department").html(departmentText);				
-				$("#subDepartment").empty();
-			}
-		});
-	} */
-	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
 		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
@@ -263,7 +226,6 @@
 		$("#actorLowerHouse").change(function(){
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
-		    console.log(temp);
 		    $("#levelLowerHouse").val(temp[2]);		    
 		    $("#localizedActorNameLowerHouse").val(temp[3]+"("+temp[4]+")");
 	    });
@@ -271,31 +233,12 @@
 	 $("#actorUpperHouse").change(function(){
 		    var actor=$(this).val();
 		    var temp=actor.split("#");
-		    console.log(temp);
 		    $("#levelUpperHouse").val(temp[2]);		    
 		    $("#localizedActorNameUpperHouse").val(temp[3]+"("+temp[4]+")");
 	    });
 			
 		/**** Ministry Changes ****/
-		/* $("#ministry").change(function(){
-			if($(this).val()!=''){
-			loadDepartment($(this).val());
-			}else{
-				$("#department").empty();				
-				$("#subDepartment").empty();				
-				$("#answeringDate").empty();		
-				$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
-				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
-			}
-		}); */
-		/**** Department Changes ****/
-		/* $("#department").change(function(){
-			loadSubDepartments($("#ministry").val(),$(this).val());
-		}); */
-		
-		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
-			console.log($("#subDepartment").val());
 			if($(this).val()!=''){
 				loadSubDepartments($(this).val());
 			}else{
@@ -503,13 +446,14 @@
 					$(this).val("");
 				}
 			});
-			
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$.post($('form').attr('action')+'?operation=workflowsubmit',  
     	            $("form").serialize(),
     	            function(data){
        					$('.tabContent').html(data);
        					$('html').animate({scrollTop:0}, 'slow');
-       				 	$('body').animate({scrollTop:0}, 'slow');	   				 	   				
+       				 	$('body').animate({scrollTop:0}, 'slow');
+       					 $.unblockUI();
     	            }).fail(function(){
     	    			if($("#ErrorMsg").val()!=''){
     	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -517,9 +461,33 @@
     	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
     	    			}
     	    			scrollTop();
+    	    			$.unblockUI();
     	    		});
-		return false;
+			return false;
 		});
+		
+		
+		$('#isTransferable').change(function() {
+	        if ($(this).is(':checked')) {
+	        	$("#ministry option[selected!='selected']").show();
+	    		$("#subDepartment option[selected!='selected']").show(); 
+	    		$("#transferP").css("display","inline-block");
+	    		$("#submit").css("display","none");
+	        }else{
+	        	$("#ministry option[selected!='selected']").hide();
+	    		$("#subDepartment option[selected!='selected']").hide(); 
+	    		$("#transferP").css("display","none");
+	    		$("#submit").css("display","inline-block");
+	        }
+	    });
+		
+		$('#mlsBranchNotifiedOfTransfer').change(function() {
+	        if ($(this).is(':checked') && $("#isTransferable").is(':checked')) {
+	        	$("#submit").css("display","inline-block");
+	        }else{
+	        	$("#submit").css("display","none");
+	        }
+	    });
 	});
 	</script>
 	 <style type="text/css">
@@ -597,7 +565,10 @@
 	<input id="formattedSubmissionDate" name="formattedSubmissionDate" value="${formattedSubmissionDate }" class="sText" readonly="readonly">
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 	</p>
-	
+	<p>
+		<label class="small"><spring:message code="resolution.isTransferable" text="is resolution to be transfered?"/></label>
+		<input type="checkbox" name="isTransferable" id="isTransferable" class="sCheck">
+	</p>
 	<p>
 	<label class="small"><spring:message code="resolution.ministry" text="Ministry"/>*</label>
 	<select name="ministry" id="ministry" class="sSelect" >
@@ -621,21 +592,7 @@
 	</p>	
 	
 	<p>
-	<%-- <label class="small"><spring:message code="resolution.department" text="Department"/></label>
-	<select name="department" id="department" class="sSelect" >
-	<c:forEach items="${departments }" var="i">
-	<c:choose>
-	<c:when test="${i.id==departmentSelected }">
-	<option value="${i.id }" selected="selected">${i.name}</option>
-	</c:when>
-	<c:otherwise>
-	<option value="${i.id }" >${i.name}</option>
-	</c:otherwise>
-	</c:choose>
-	</c:forEach>
-	</select>
-	<form:errors path="department" cssClass="validationError"/>	 --%>
-	
+		
 	<label class="small"><spring:message code="resolution.subdepartment" text="Sub Department"/></label>
 	<select name="subDepartment" id="subDepartment" class="sSelect" >
 	<c:forEach items="${subDepartments }" var="i">
@@ -652,6 +609,13 @@
 	<form:errors path="subDepartment" cssClass="validationError"/>	
 	</p>	
 		
+	<p id="transferP" style="display:none;">
+		<label class="small" id="subdepartmentValue"><spring:message code="resolution.transferToDepartmentAccepted" text="Is the Transfer to Department Accepted"/></label>
+		<input type="checkbox" id="transferToDepartmentAccepted" name="transferToDepartmentAccepted" class="sCheck"/>
+		
+		<label class="small" style="margin-left: 175px;"><spring:message code="resolution.mlsBranchNotified" text="Is the Respective Resolution Branch Notified"/></label>
+		<input type="checkbox" id="mlsBranchNotifiedOfTransfer" name="mlsBranchNotifiedOfTransfer" class="sCheck"/>
+	</p>
 	
 	<p>
 	<label class="centerlabel"><spring:message code="resolution.members" text="Members"/></label>
@@ -738,7 +702,7 @@
 	
 	<c:if test="${(selectedDeviceType == 'resolutions_nonofficial') && internalStatusType == 'resolution_final_clarificationNeededFromDepartment' }">
 		<p>
-			<label class="small"><spring:message code="resolution.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
+			<label class="wysiwyglabel"><spring:message code="resolution.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
 			<textarea class="wysiwyg" rows="5" cols="50">${questionsAskedInFactualPosition}</textarea>
 		</p>
 		<p>
@@ -746,12 +710,45 @@
 		<form:input path="lastDateOfFactualPositionReceiving" cssClass="datemask sText"/>
 		<form:errors path="lastDateOfFactualPositionReceiving" cssClass="validationError"/>
 		</p>
-		<p>
+		<c:if test="${not empty domain.factualPosition }">
+		<p >
 		<label class="wysiwyglabel"><spring:message code="resolution.factualPosition" text="Factual Position"/></label>
 		<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 		</p>
+		</c:if>
 	</c:if>
+	
+	<table class="uiTable" style="margin-left:165px;width:600px;">
+		<thead>
+		<tr>
+		<th style="text-align: center">
+		<spring:message code="rois.latestrevisions.user" text="Usergroup"></spring:message>
+		</th>
+		<th style="text-align: center">
+		<spring:message code="rois.latestrevisions.decision" text="Decision"></spring:message>
+		</th>
+		<th style="text-align: center">
+		<spring:message code="rois.latestrevisions.remarks" text="Remarks"></spring:message>
+		</th>
+		</tr>
+		</thead>
+		<tbody>	
+			<c:forEach items="${latestRevisions}" var="i">
+				<tr>
+					<td style="text-align: left">
+					${i[0]}<br>(${i[2]})
+					</td>
+					<td style="text-align: center">
+					${i[6]}
+					</td>
+					<td style="text-align: center">
+					${i[7]}
+					</td>
+				</tr>
+			</c:forEach>	
+		</tbody>
+	</table>
 	
 	<c:if test="${workflowstatus!='COMPLETED' }">	
 	<p>
@@ -875,7 +872,6 @@
 		<p class="tright">		
 		<c:if test="${bulkedit!='yes'}">
 			<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-			<input id="sendBack" type="button" value="<spring:message code='generic.sendback' text='Send Back'/>" class="butDef">
 		</c:if>
 		<c:if test="${bulkedit=='yes'}">
 			<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
@@ -939,15 +935,13 @@
 	<c:if test="${selectedDeviceType == 'resolutions_government'}">
 		<form:hidden path="ruleForDiscussionDate" value="${ruleForDiscussionDateSelected}"/>
 	</c:if>
+	<input id="ministrySelected" name="ministrySelected" value="${ministrySelected}" type="hidden">
+	<input id="subDepartmentSelected" name="subDepartmentSelected" value="${subDepartmentSelected}" type="hidden">
 </form:form>
 
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 <input id="confirmResolutionSubmission" value="<spring:message code='confirm.resolutionsubmission.message' text='Do you want to submit the resolution.'></spring:message>" type="hidden">
 <input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='resolution.startworkflowmessage' text='Do You Want To Put Up resolution?'></spring:message>" type="hidden">
-<input id="ministrySelected" value="${ministrySelected }" type="hidden">
-<input id="departmentSelected" value="${ departmentSelected}" type="hidden">
-<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${oldRecommendationStatus}" type="hidden">
 <input id="selectedDeviceType" value="${selectedDeviceType}" type="hidden">

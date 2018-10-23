@@ -104,7 +104,7 @@
 			return false;
 		}else if(type==value || sendToMember==value){
 			valueToSend=$("#internalStatus").val();
-			//$("#actorDiv").hide();
+			$("#actorDiv").show();
 	    }else{
 		    valueToSend=value;
 	    }		
