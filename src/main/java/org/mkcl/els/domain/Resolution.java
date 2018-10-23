@@ -45,6 +45,8 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.ResolutionRevisionVO;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.SearchVO;
+import org.mkcl.els.domain.Question.CLUBBING_STATE;
+import org.mkcl.els.domain.Question.STARRED_STATE;
 import org.mkcl.els.repository.ResolutionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -348,6 +350,11 @@ public class Resolution extends Device implements Serializable{
     @Temporal(TemporalType.DATE)
     private Date KaryavaliGenerationDate;
     
+    /**** Fields for storing the confirmation of Group change ****/
+    private Boolean transferToDepartmentAccepted = false;
+    
+    private Boolean mlsBranchNotifiedOfTransfer = false;
+    
     /****For sequenced number generation ****/ 
     private transient volatile static Integer RESOLUTION_NON_CUR_NUM_LOWER_HOUSE = 0;
     
@@ -356,6 +363,15 @@ public class Resolution extends Device implements Serializable{
     private transient volatile static Integer RESOLUTION_GOV_CUR_NUM_LOWER_HOUSE = 0;
     
     private transient volatile static Integer RESOLUTION_GOV_CUR_NUM_UPPER_HOUSE = 0;
+    
+    public static enum RESOLUTION_STATE {
+    	PRE_CHART, 
+    	ON_CHART, 
+    	IN_WORKFLOW_AND_PRE_FINAL,
+    	POST_FINAL_AND_PRE_BALLOT,
+    	POST_BALLOT,
+    	PASSED
+    }
     
     /** The resolution repository. */
     @Autowired
@@ -1503,6 +1519,155 @@ public class Resolution extends Device implements Serializable{
 		return  getResolutionRepository().findDiscussedResolution( session, deviceType, locale);
 	}
 	
+	public static void onMinistryChange(Resolution resolution, Ministry prevMinistry) throws ELSException {
+		String locale = resolution.getLocale();
+		RESOLUTION_STATE rnState = Resolution.findResolutionState(resolution);
+		HouseType houseType = resolution.getHouseType();
+		String strHouseType = houseType.getType();
+   		if(rnState == RESOLUTION_STATE.PRE_CHART || rnState == RESOLUTION_STATE.ON_CHART) {
+   			if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+				resolution.setRecommendationStatusLowerHouse(resolution.getInternalStatusLowerHouse());
+			}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+				resolution.setRecommendationStatusUpperHouse(resolution.getInternalStatusUpperHouse());
+			}
+   			resolution.merge();
+		}else if(rnState == RESOLUTION_STATE.IN_WORKFLOW_AND_PRE_FINAL 
+				|| rnState == RESOLUTION_STATE.POST_FINAL_AND_PRE_BALLOT
+				|| rnState == RESOLUTION_STATE.POST_BALLOT) {
+			WorkflowDetails wfDetails = 
+				WorkflowDetails.findCurrentWorkflowDetail(resolution, houseType.getName());
+			resolution.removeExistingWorkflowAttributes(strHouseType);
+			if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+				resolution.setRecommendationStatusLowerHouse(resolution.getInternalStatusLowerHouse());
+			}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+				resolution.setRecommendationStatusUpperHouse(resolution.getInternalStatusUpperHouse());
+			}
+			resolution.merge();
+			if(wfDetails != null){
+    			// Before ending wfDetails process collect information
+    			// which will be useful for creating a new process later.
+    			String workflowType = wfDetails.getWorkflowType();
+    			Integer assigneeLevel = 
+    				Integer.parseInt(wfDetails.getAssigneeLevel());
+    			String userGroupType = wfDetails.getAssigneeUserGroupType();
+    			WorkflowDetails.endProcess(wfDetails);
+    			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+    				userGroupType = ApplicationConstants.DEPARTMENT;
+    				assigneeLevel = assigneeLevel - 1;
+    			}
+    			Status internalStatus = null;
+    			if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+    				internalStatus = resolution.getInternalStatusLowerHouse();
+    			}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+    				internalStatus = resolution.getInternalStatusUpperHouse();
+    			}
+    			WorkflowDetails.startProcessAtGivenLevel(resolution, strHouseType, ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW, 
+    					internalStatus, userGroupType, assigneeLevel, locale);
+			}
+		}
+	}
+	
+	public static void onSubdepartmentChange(Resolution resolution, SubDepartment prevSubdepartment) throws ELSException {
+		String locale = resolution.getLocale();
+    	RESOLUTION_STATE rnState = Resolution.findResolutionState(resolution);
+    	HouseType houseType = resolution.getHouseType();
+    	String strHouseType = houseType.getType();
+   		if(rnState == RESOLUTION_STATE.PRE_CHART || rnState == RESOLUTION_STATE.ON_CHART) {
+   				if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+   					resolution.setRecommendationStatusLowerHouse(resolution.getInternalStatusLowerHouse());
+   				}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+   					resolution.setRecommendationStatusUpperHouse(resolution.getInternalStatusUpperHouse());
+   				}
+    			resolution.merge();
+		}else if(rnState == RESOLUTION_STATE.IN_WORKFLOW_AND_PRE_FINAL 
+				|| rnState == RESOLUTION_STATE.POST_FINAL_AND_PRE_BALLOT 
+				|| rnState == RESOLUTION_STATE.POST_BALLOT) {
+			WorkflowDetails wfDetails = 
+				WorkflowDetails.findCurrentWorkflowDetail(resolution, houseType.getName());
+			if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+				resolution.setRecommendationStatusLowerHouse(resolution.getInternalStatusLowerHouse());
+			}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+				resolution.setRecommendationStatusUpperHouse(resolution.getInternalStatusUpperHouse());
+			}
+			resolution.merge();
+			if(wfDetails != null){
+    			// Before ending wfDetails process collect information
+    			// which will be useful for creating a new process later.
+    			String workflowType = wfDetails.getWorkflowType();
+    			Integer assigneeLevel = 
+    				Integer.parseInt(wfDetails.getAssigneeLevel());
+    			String userGroupType = wfDetails.getAssigneeUserGroupType();
+    			
+    			resolution.endWorkflow(resolution, strHouseType, locale);
+    			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+    				userGroupType = ApplicationConstants.DEPARTMENT;
+    				assigneeLevel = assigneeLevel - 1;
+    			}
+    			  		
+    			Status internalStatus = null;
+    			if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
+    				internalStatus = resolution.getInternalStatusLowerHouse();
+    			}else if(strHouseType.equals(ApplicationConstants.UPPER_HOUSE)){
+    				internalStatus = resolution.getInternalStatusUpperHouse();
+    			}
+    			//Resolution in Post final status and pre ballot state can be group changed by Department 
+    			//as well as assistant of Secretariat
+    			WorkflowDetails.startProcessAtGivenLevel(resolution, strHouseType, ApplicationConstants.RESOLUTION_APPROVAL_WORKFLOW, 
+    					internalStatus, userGroupType, assigneeLevel, locale);
+			}
+		}    		
+	}
+	
+	private static RESOLUTION_STATE findResolutionState(Resolution resolution) throws ELSException {
+		HouseType houseType = resolution.getHouseType();
+		Status internalStatus = null;
+		if(houseType.getType().equals(ApplicationConstants.LOWER_HOUSE)){
+			internalStatus = resolution.getInternalStatusLowerHouse();
+		}else if (houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
+			internalStatus = resolution.getInternalStatusUpperHouse();
+		}
+		 
+    	String internalStatusType = internalStatus.getType();
+     	Status ballotStatus = resolution.getBallotStatus();
+    	
+    	if(internalStatusType.equals(ApplicationConstants.RESOLUTION_SUBMIT) 
+    			|| internalStatusType.equals(ApplicationConstants.RESOLUTION_SYSTEM_ASSISTANT_PROCESSED)) {
+    		return RESOLUTION_STATE.PRE_CHART;
+    	}else if(internalStatusType.equals(ApplicationConstants.RESOLUTION_SYSTEM_TO_BE_PUTUP)) {
+    		return RESOLUTION_STATE.ON_CHART;
+    	}
+    	else if(internalStatusType.equals(ApplicationConstants.RESOLUTION_RECOMMEND_ADMISSION)
+    			|| internalStatusType.equals(ApplicationConstants.RESOLUTION_RECOMMEND_REJECTION)
+    			|| internalStatusType.equals(ApplicationConstants.RESOLUTION_RECOMMEND_REPEATADMISSION)
+    			|| internalStatusType.equals(ApplicationConstants.RESOLUTION_RECOMMEND_REPEATREJECTION)
+    	    	|| internalStatusType.equals(ApplicationConstants.RESOLUTION_RECOMMEND_CLARIFICATION_FROM_MEMBER)
+    	    	|| internalStatusType.equals(ApplicationConstants.RESOLUTION_RECOMMEND_CLARIFICATION_FROM_DEPARTMENT)
+    	    	|| internalStatusType.equals(ApplicationConstants.RESOLUTION_RECOMMEND_CLARIFICATION_FROM_MEMBER_AND_DEPARTMENT)) {
+    		return RESOLUTION_STATE.IN_WORKFLOW_AND_PRE_FINAL;
+    	}
+    	else if(ballotStatus == null && (internalStatusType.equals(ApplicationConstants.RESOLUTION_FINAL_ADMISSION)
+    					|| internalStatusType.equals(ApplicationConstants.RESOLUTION_FINAL_REPEATADMISSION)
+    					|| internalStatusType.equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBER)
+    					|| internalStatusType.equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT)
+    					|| internalStatusType.equals(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBERANDDEPARTMENT)
+    					|| internalStatusType.equals(ApplicationConstants.RESOLUTION_FINAL_REJECTION)
+    					|| internalStatusType.equals(ApplicationConstants.RESOLUTION_FINAL_REPEATREJECTION))) {
+    		return RESOLUTION_STATE.POST_FINAL_AND_PRE_BALLOT;
+
+    	}else if(ballotStatus != null) {
+    		String ballotStatusType = ballotStatus.getType();
+    		if(ballotStatusType.equals(
+    				ApplicationConstants.RESOLUTION_PROCESSED_BALLOTED)) {
+    			return RESOLUTION_STATE.POST_BALLOT;
+    		}else{
+    			return RESOLUTION_STATE.PASSED;
+    		}
+       	}else {
+    		throw new ELSException("Resolution.findResolutionState/1", 
+				"Unhandled status type.");
+    	}
+    }
+
 	/****Calling attention atomic value ****/
 	public static void updateResolutionNonGovCurrentNumberLowerHouse(Integer num){
 		synchronized (Resolution.RESOLUTION_NON_CUR_NUM_LOWER_HOUSE) {
@@ -1798,6 +1963,12 @@ public class Resolution extends Device implements Serializable{
 			draft.setSubject(q.getSubject());
 		}		
 		
+		if(q.getMlsBranchNotifiedOfTransfer() != null){
+			draft.setMlsBranchNotifiedOfTransfer(q.getMlsBranchNotifiedOfTransfer());
+		}
+		if(q.getTransferToDepartmentAccepted() != null){
+			draft.setTransferToDepartmentAccepted(q.getTransferToDepartmentAccepted());
+		}
 		return draft;
 	}
     
@@ -3023,7 +3194,20 @@ public class Resolution extends Device implements Serializable{
 		this.file = file;
 	}
 
-	
+	public Boolean getTransferToDepartmentAccepted() {
+		return transferToDepartmentAccepted;
+	}
 
-	
+	public void setTransferToDepartmentAccepted(Boolean transferToDepartmentAccepted) {
+		this.transferToDepartmentAccepted = transferToDepartmentAccepted;
+	}
+
+	public Boolean getMlsBranchNotifiedOfTransfer() {
+		return mlsBranchNotifiedOfTransfer;
+	}
+
+	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
+		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
+	}
+
 }

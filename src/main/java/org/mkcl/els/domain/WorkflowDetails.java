@@ -580,6 +580,11 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final String workflowType) throws ELSException {
 		return getRepository().findPendingWorkflowDetails(question, workflowType);
 	}
+	
+	public static List<WorkflowDetails> findPendingWorkflowDetails(final Resolution resolution, 
+			final String workflowType) throws ELSException {
+		return getRepository().findPendingWorkflowDetails(resolution, workflowType);
+	}
 
 	/********************Motion*********************/
 	public static WorkflowDetails findCurrentWorkflowDetail(final Motion motion) throws ELSException {

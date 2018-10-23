@@ -94,6 +94,11 @@ public class ResolutionDraft extends BaseDomain implements Serializable{
     /** The discussion date. */
     @Temporal(TemporalType.DATE)
     private Date discussionDate;
+    
+    /**** Fields for storing the confirmation of Group change ****/
+    private Boolean transferToDepartmentAccepted = false;
+    
+    private Boolean mlsBranchNotifiedOfTransfer = false;
 
 	public ResolutionDraft() {
 		super();
@@ -227,5 +232,22 @@ public class ResolutionDraft extends BaseDomain implements Serializable{
 	public void setDiscussionDate(Date discussionDate) {
 		this.discussionDate = discussionDate;
 	}
+
+	public Boolean getTransferToDepartmentAccepted() {
+		return transferToDepartmentAccepted;
+	}
+
+	public void setTransferToDepartmentAccepted(Boolean transferToDepartmentAccepted) {
+		this.transferToDepartmentAccepted = transferToDepartmentAccepted;
+	}
+
+	public Boolean getMlsBranchNotifiedOfTransfer() {
+		return mlsBranchNotifiedOfTransfer;
+	}
+
+	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
+		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
+	}
     
+	
 }
