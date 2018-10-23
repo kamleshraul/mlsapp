@@ -109,15 +109,26 @@
 	}
 	/**** load actors ****/
 	function loadActors(value){
-		//var valueToSend="";
+		var valueToSend="";
 		if(value!='-'){	
-			var sendback=$("#internalStatusMaster option[value='standalonemotion_recommend_sendback']").text();
-			var discuss=$("#internalStatusMaster option[value='standalonemotion_recommend_discuss']").text();
 			var sendToDeskOfficer=$("#internalStatusMaster option[value='standalonemotion_processed_sendToDeskOfficer']").text();
+			var sendToSectionOfficer=$("#internalStatusMaster option[value='standalonemotion_processed_sendToSectionOfficer']").text();
+			var departmentIntimated = $("#internalStatusMaster option[value='standalonemotion_processed_departmentIntimated']").text();
 			if(value == sendToDeskOfficer){
-			    valueToSend = $("#internalStatus").val();
+			    valueToSend = value
+			    $("#endFlag").val("continue");
+		    }else if(value == sendToSectionOfficer){
+		    	valueToSend = $("#internalStatus").val();
+			    $("#endFlag").val("continue");
+		    }else if(value == departmentIntimated){
+			    $("#recommendationStatus").val(value);	
+			    $("#endFlag").val("end");
+			    $("#actor").empty();
+				$("#actorDiv").hide();
+				return false;
 		    }else{
 			    valueToSend = value;
+			    $("#endFlag").val("continue");
 		    }			
 		var params="question="+$("#id").val()+"&status="+valueToSend+
 		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
@@ -136,6 +147,12 @@
 						var ugt = ugtActor[1];
 						if(ugt!='member' && data[i].state!='active'){
 							text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+						}else if(ugt == 'section_officer'){
+							text += "<option value='" + data[i].id +"'>" + data[i].name  + " ( "+$("#formattedHouseType").val() + " )" + "</option>";
+							if(actCount == 1){
+								actor1=data[i].id;
+								actCount++;
+							}
 						}else{
 							text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
 							if(actCount == 1){
@@ -162,7 +179,7 @@
 				$("#actor").html(text);
 				$("#actorDiv").show();				
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback && value!=discuss && value!=sendToDeskOfficer){
+				if(value!=sendToDeskOfficer && value != sendToSectionOfficer){
 					$("#internalStatus").val(value);
 				}
 				$("#recommendationStatus").val(value);	
@@ -175,7 +192,7 @@
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			/**** in case of sendback and discuss only recommendation status is changed ****/
-			if(value!=sendback && value!=discuss && value!=sendToDeskOfficer){
+			if(value!=sendToDeskOfficer && value != sendToSectionOfficer){
 				$("#internalStatus").val(value);
 			}
 		    $("#recommendationStatus").val(value);
@@ -220,7 +237,7 @@
 		    return false;  
 	}
 	/**** sub departments ****/
-	function loadSubDepartments(ministry){
+	function loadSubDepartments(ministry,department){
 		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
 				function(data){
 			$("#subDepartment").empty();
@@ -273,22 +290,20 @@
 		});
 	}
     /**** groups ****/
-	function loadGroup(subdepartment){
-		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-		if(subdepartment!=''){
-			$.get('ref/subdepartment/' + subdepartment + '/group?'+
-					'session=' + $("#session").val(),function(data){
-				$("#formattedGroup").val(data.name);
-				$("#group").val(data.id);			
-			}).fail(function(){
-				if($("#ErrorMsg").val()!=''){
-					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-				}else{
-					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-				}
-				scrollTop();
-			});
-			$.unblockUI();
+	function loadGroup(ministry){
+		if(ministry!=''){
+		$.get('ref/ministry/'+ministry+'/group?houseType='+$("#houseType").val()+'&sessionYear='+$("#sessionYear").val()+'&sessionType='+$("#sessionType").val(),function(data){
+			$("#formattedGroup").val(data.name);
+			$("#group").val(data.id);
+			loadDepartments(ministry);			
+		}).fail(function(){
+			if($("#ErrorMsg").val()!=''){
+				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+			}else{
+				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+			}
+			scrollTop();
+		});
 		}
 	}		
 	/**** Load Clarifications ****/
@@ -316,10 +331,7 @@
 		});
 	}
 	$(document).ready(function(){
-		
-		$('#mlsBranchNotifiedOfTransfer').val(null);
-		$('#transferToDepartmentAccepted').val(null);
-				
+			
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -340,28 +352,22 @@
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
 			if($(this).val()!=''){
-				loadSubDepartments($(this).val());
+			loadGroup($(this).val());
 			}else{
 				$("#formattedGroup").val("");
 				$("#group").val("");				
-				//$("#department").empty();				
+				$("#department").empty();				
 				$("#subDepartment").empty();				
 				$("#answeringDate").empty();		
-				//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+				$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-				//groupChanged();					
+				groupChanged();					
 			}
 		});
 		/**** Department Changes ****/
-		/* $("#department").change(function(){
+		$("#department").change(function(){
 			loadSubDepartments($("#ministry").val(),$(this).val());
-		}); */
-		
-		$('#subDepartment').change(function(){
-			if($("#houseTypeType").val()=='upperhouse'){
-				loadGroup($(this).val());
-			}
 		});
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
@@ -460,7 +466,7 @@
 	    });	    
 	    /**** Internal Status Changes ****/   
 	    $("#changeInternalStatus").change(function(){
-		    var value=$(this).val();
+	    	var value=$(this).val();
 		    if(value!='-'){
 			   // var statusType=$("#internalStatusMaster option[value='"+value+"']").text();
 			    loadActors(value);			    
@@ -609,7 +615,7 @@
 		
 		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
 		$("#ministry option[selected!='selected']").hide();
-		//$("#department option[selected!='selected']").hide();
+		$("#department option[selected!='selected']").hide();
 		$("#subDepartment option[selected!='selected']").hide();
 		//**** Load Actors On page Load ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
@@ -869,14 +875,14 @@
 		</select>		
 		<form:errors path="subDepartment" cssClass="validationError"/>	
 	</p>	
-		
+	
 	<p id="transferP" style="display:none;">
 		<label class="small" id="subdepartmentValue"><spring:message code="standalonemotion.transferToDepartmentAccepted" text="Is the Transfer to Department Accepted"/></label>
 		<input type="checkbox" id="transferToDepartmentAccepted" name="transferToDepartmentAccepted" class="sCheck"/>
 		
 		<label class="small" style="margin-left: 175px;"><spring:message code="standalonemotion.mlsBranchNotified" text="Is the Respective Standalone Motion Branch Notified"/></label>
 		<input type="checkbox" id="mlsBranchNotifiedOfTransfer" name="mlsBranchNotifiedOfTransfer" class="sCheck"/>
-	</p>
+	</p>	
 	
 	<p>
 		<label class="centerlabel"><spring:message code="question.members" text="Members"/></label>
@@ -1045,45 +1051,22 @@
 			</tr>
 		</thead>
 		<tbody>	
-			<c:set var="startingActor" value="${startingActor}"></c:set>
-			<c:set var="count" value="0"></c:set>
-			<c:set var="startingActorCount" value="0"></c:set>
-			<c:forEach items="${latestRevisions}" var="i">	
-				<c:choose>
-					<c:when test="${i[0]==startingActor}">	
-						<c:set var="startingActorCount" value="${count}"></c:set>
-						<c:set var="count" value="${count+1 }"></c:set>
-					</c:when>
-					<c:otherwise>
-						<c:set var="count" value="${count+1 }"></c:set>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-			
-			<c:set var="count" value="0"></c:set>
 			<c:forEach items="${latestRevisions}" var="i">
-				<c:choose>
-					<c:when test="${count>= startingActorCount}">
-						<tr>
-							<td>
-								${i[0]}<br>${i[1]}
-							</td>
-							<td>
-								${i[2]}
-							</td>
-							<td>
-								${i[4]}
-							</td>
-						</tr>
-						<c:set var="count" value="${count+1 }"></c:set>
-					</c:when>
-				<c:otherwise>
-					<c:set var="count" value="${count+1 }"></c:set>
-				</c:otherwise>
-				</c:choose>
+				<tr>
+					<td>
+						${i[0]}<br>${i[1]}
+					</td>
+					<td>
+						${i[2]}
+					</td>
+					<td>
+						${i[4]}
+					</td>
+				</tr>
 			</c:forEach>
 		</tbody>
 	</table>
+	
 	<c:if test="${workflowstatus!='COMPLETED'}">	
 		<p>
 			<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
@@ -1127,10 +1110,9 @@
 	<p style="display:none;">
 		<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
 	</p>	
-		
-	<c:if test="${internalStatusType == 'standalonemotion_final_clarificationNeededFromDepartment' or internalStatusType == 'standalonemotion_final_clarificationNeededFromMemberAndDepartment'}">
+	<c:if test="${internalStatusType == 'standalonemotion_final_clarificationNeededFromDepartment' or internalStatusType == 'standalonemotion_final_clarificationNeededFromMemberAndDepartment'}">	
 		<p>
-			<label class="small"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
+			<label class="wysiwyglabel"><spring:message code="question.questionsAskedInFactualPosition" text="Questions Asked In Factual Position"/></label>
 			<textarea class="wysiwyg" rows="5" cols="50" readonly="readonly">${formattedQuestionsAskedInFactualPosition}</textarea>
 			<form:hidden path="questionsAskedInFactualPosition"/>
 		</p>
@@ -1141,13 +1123,22 @@
 			<form:errors path="lastDateOfFactualPositionReceiving" cssClass="validationError"/>
 		</p>
 	</c:if>
-	<c:if test="${not empty domain.factualPosition}">
-		<p>
-			<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
-			<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
-			<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-		</p>
-	</c:if>
+	<c:choose>
+		<c:when test="${not empty domain.factualPosition}">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+				<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+		</c:when>
+		<c:when test="${internalStatusType == 'standalonemotion_final_clarificationNeededFromDepartment' or internalStatusType == 'standalonemotion_final_clarificationNeededFromMemberAndDepartment'}">
+			<p>
+				<label class="wysiwyglabel"><spring:message code="question.factualPosition" text="Factual Position"/></label>
+				<form:textarea path="factualPosition" cssClass="wysiwyg"></form:textarea>
+				<form:errors path="factualPosition" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
+			</p>
+		</c:when>
+	</c:choose>
 	
 	<c:if test="${houseTypeType=='upperhouse'}">
 		<c:if test="${internalStatusType == 'standalonemotion_recommend_rejection' or internalStatusType == 'standalonemotion_final_rejection'}">
@@ -1238,7 +1229,6 @@
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 <input id="confirmQuestionSubmission" value="<spring:message code='confirm.questionsubmission.message' text='Do you want to submit the question.'></spring:message>" type="hidden">
 <input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='question.startworkflowmessage' text='Do You Want To Put Up Question?'></spring:message>" type="hidden">
-
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
@@ -1249,7 +1239,7 @@
 <input id="workflowstatus" type="hidden" value="${workflowstatus}"/>
 <input id="originalLevel" name="originalLevel" value="${domain.level}" type="hidden">
 <input type="hidden" id="selectedQuestionType" value="${selectedQuestionType}" />
-<input type="hidden" id="houseTypeType" value="${houseTypeType}"/>
+
 <ul id="contextMenuItems" >
 <li><a href="#unclubbing" class="edit"><spring:message code="generic.unclubbing" text="Unclubbing"></spring:message></a></li>
 <li><a href="#dereferencing" class="edit"><spring:message code="generic.dereferencing" text="Dereferencing"></spring:message></a></li>

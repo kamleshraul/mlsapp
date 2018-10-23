@@ -140,7 +140,6 @@
 			}else{
 				level=$('#level').val();
 			}
-			
 			var params="question="+$("#id").val()+"&status="+valueToSend+
 			"&usergroup="+$("#usergroup").val()+"&level="+$('#currentUserLevel').val();
 			var resourceURL='ref/standalonemotion/actors?'+params;
@@ -248,22 +247,6 @@
 	}
 	/**** sub departments ****/
 	function loadSubDepartments(ministry,department){
-		/* $.get('ref/subdepartments/'+ministry+'/'+department,function(data){
-			$("#subDepartment").empty();
-			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
-			if(data.length>0){
-			for(var i=0;i<data.length;i++){
-				subDepartmentText+="<option value='"+data[i].id+"'>"+data[i].name;
-			}
-			$("#subDepartment").html(subDepartmentText);
-			}else{
-				$("#subDepartment").empty();
-				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
-				$("#subDepartment").html(subDepartmentText);
-			}
-			groupChanged();
-		}); */
-		
 		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
 				function(data){
 			$("#subDepartment").empty();
@@ -649,9 +632,8 @@
 	  
 		//***** On Page Load Internal Status Actors Will be Loaded ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
-			
 			var statusType = $("#internalStatusType").val().split("_");
-			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			var id = $("#internalStatusMaster option[value='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
 			$("#changeInternalStatus").change();
 		}
