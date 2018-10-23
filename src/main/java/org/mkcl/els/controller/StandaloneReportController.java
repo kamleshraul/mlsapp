@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -458,6 +459,15 @@ public class StandaloneReportController extends BaseController{
 				//as principal secretary for starred question is only one, so user is obviously first element of the list.
 				letterVO.setUserName(users.get(0).findFirstLastName());
 
+				String outputFormat = "WORD";
+				Set<Role> roles = this.getCurrentUser().getRoles();
+				Role departmentRole = Role.findByType("ROIS_DEPARTMENT_USER", locale.toString());
+				for(Role r :roles){
+					if(r.getId().equals(departmentRole.getId())){
+						outputFormat = "PDF";
+						break;
+					}
+				}
 				/**** generate report ****/				
 				try {
 					String reportFileName = "intimationletter";
@@ -485,13 +495,13 @@ public class StandaloneReportController extends BaseController{
 						reportFileName += "_" + statusTypeSplit;
 					}
 					if(intimationLetterFilter!=null && !intimationLetterFilter.isEmpty() && !intimationLetterFilter.equals("-")) {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit + "_" + question.getHouseType().getType(), "WORD", reportFileName, locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+intimationLetterFilter+"_"+statusTypeSplit + "_" + question.getHouseType().getType(), outputFormat, reportFileName, locale.toString());
 					}else {
-						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit + "_" + question.getHouseType().getType(), "WORD", reportFileName, locale.toString());
+						reportFile = generateReportUsingFOP(letterVO, deviceType.getType()+"_intimationletter_"+statusTypeSplit + "_" + question.getHouseType().getType(),outputFormat, reportFileName, locale.toString());
 					}					
 					System.out.println("Intimation Letter generated successfully in WORD format!");
 
-					openOrSaveReportFileFromBrowser(response, reportFile, "WORD");
+					openOrSaveReportFileFromBrowser(response, reportFile, outputFormat);
 				} catch (Exception e) {
 					e.printStackTrace();
 					isError = true;
