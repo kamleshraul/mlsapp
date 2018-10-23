@@ -516,7 +516,7 @@
 			<a href="#" id="preballot" class="butSim link">
 				<spring:message code="memberballot.preballot" text="Pre Ballot"/>
 			</a> |
-			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECRETARY')">
 				<a href="#" id="memberballot" class="butSim link">
 					<spring:message code="memberballot.memberballot" text="Member Ballot"/>
 				</a> |	
