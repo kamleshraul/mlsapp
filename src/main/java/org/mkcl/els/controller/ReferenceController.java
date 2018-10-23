@@ -7377,10 +7377,10 @@ public class ReferenceController extends BaseController {
 		if(strQuestion!=null&&strInternalStatus!=null&&strUserGroup!=null&&strLevel!=null){
 			if((!strQuestion.isEmpty())&&(!strInternalStatus.isEmpty())&&
 					(!strUserGroup.isEmpty())&&(!strLevel.isEmpty())){
-				Status internalStatus=Status.findById(Status.class,Long.parseLong(strInternalStatus));
-				StandaloneMotion question=StandaloneMotion.findById(StandaloneMotion.class,Long.parseLong(strQuestion));
-				UserGroup userGroup=UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
-				actors=WorkflowConfig.findStandaloneMotionActorsVO(question,internalStatus,userGroup,Integer.parseInt(strLevel),locale.toString());
+				Status internalStatus = Status.findById(Status.class,Long.parseLong(strInternalStatus));
+				StandaloneMotion standaloneMotion = StandaloneMotion.findById(StandaloneMotion.class,Long.parseLong(strQuestion));
+				UserGroup userGroup = UserGroup.findById(UserGroup.class,Long.parseLong(strUserGroup));
+				actors = WorkflowConfig.findStandaloneMotionActorsVO(standaloneMotion, internalStatus, userGroup, Integer.parseInt(strLevel), locale.toString());
 			}
 		}
 		return actors;
