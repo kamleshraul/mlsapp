@@ -1003,10 +1003,14 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 		Status statusRejected = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REJECTION,resolution.getLocale());
 		Status statusRepeatAdmitted = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REPEATADMISSION,resolution.getLocale());
 		Status statusRepeatRejected = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_REPEATREJECTION,resolution.getLocale());
+		Status statusClarificationFromDepartment = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMDEPARTMENT,resolution.getLocale());
+		Status statusClarificationFromMemberAndDepartment = Status.findByType(ApplicationConstants.RESOLUTION_FINAL_CLARIFICATIONNEEDEDFROMMEMBERANDDEPARTMENT,resolution.getLocale());
 		String admittedStatusId = null;
 		String rejectedStatusId = null;
 		String repeatAdmittedStatusId = null;
 		String repeatRejectedStatusId = null;
+		String clarificationFromDepartment = null;
+		String clarificationFromMemberAndDepartment= null;
 		
 		CustomParameter sessionsToBeSearched_CP = CustomParameter.findByFieldName(CustomParameter.class, "name", ApplicationConstants.RESOLUTION_NONOFFICIAL_SESSIONS_TOBE_SEARCHED_COUNT, "");
 		int sessionsToBeSearched = 0;
@@ -1047,6 +1051,8 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 			rejectedStatusId = statusRejected.getId().toString();
 			repeatRejectedStatusId = statusRepeatRejected.getId().toString();
 			repeatAdmittedStatusId = statusRepeatAdmitted.getId().toString();
+			clarificationFromDepartment = statusClarificationFromDepartment.getId().toString();
+			clarificationFromMemberAndDepartment= statusClarificationFromMemberAndDepartment.getId().toString();
 		}
 
 		String selectQuery = "SELECT r.id as id,r.number as number,"
@@ -1066,7 +1072,9 @@ public class ReferencedEntityRepository extends BaseRepository<ReferencedEntity,
 				+ " AND (r." + houseType + "_internalstatus_id=" + admittedStatusId
 				+ " OR r." + houseType + "_internalstatus_id=" + rejectedStatusId  
 				+ " OR r." + houseType + "_internalstatus_id=" + repeatAdmittedStatusId
-				+ " OR r." + houseType + "_internalstatus_id=" + repeatRejectedStatusId + ")"
+				+ " OR r." + houseType + "_internalstatus_id=" + repeatRejectedStatusId
+				+ " OR r." + houseType + "_internalstatus_id=" + clarificationFromDepartment
+				+ " OR r." + houseType + "_internalstatus_id=" + clarificationFromMemberAndDepartment + ")"
 				+ " AND ht.type='" + houseType +"'"
 				+ " AND s.id IN (" + sb + ")";
 		

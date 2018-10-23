@@ -142,6 +142,34 @@ public class WorkflowDetailsRepository extends BaseRepository<WorkflowDetails, S
 		return details;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<WorkflowDetails> findPendingWorkflowDetails(final Resolution resolution, final String workflowType) throws ELSException{
+		List<WorkflowDetails> details = new ArrayList<WorkflowDetails>();
+		try{
+			/**** To make the HDS to take the workflow with mailer task ****/
+			String strQuery="SELECT m FROM WorkflowDetails m" +
+					" WHERE m.deviceId=:deviceId"+
+					" AND m.workflowType=:workflowType" +
+					" AND m.status='PENDING'" +
+					" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
+			Query query=this.em().createQuery(strQuery);
+			query.setParameter("deviceId", resolution.getId().toString());
+			query.setParameter("workflowType",workflowType);
+			details = (List<WorkflowDetails>)query.getResultList();
+		}catch (NoResultException e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		}catch(Exception e){	
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException=new ELSException();
+			elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findCurrentWorkflowDetail_question", "WorkflowDetails Not Found");
+			throw elsException;
+		}		
+		
+		return details;
+	}
+	
 	public WorkflowDetails create(final Question question,final Task task,
 			final String workflowType,final String assigneeLevel) throws ELSException{
 		WorkflowDetails workflowDetails=new WorkflowDetails();
@@ -3201,18 +3229,17 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						}
 					}
 					
-					if(workflowType.equals(currentDeviceTypeWorkflowType)){
-						workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_STANDALONE);
-						workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
-						workflowDetails.setWorkflowSubType(motion.getInternalStatus().getType());					
-						/**** Different types of workflow sub types ****/
-					}else if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
+					if(workflowType.equals(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW)){
 						workflowDetails.setUrlPattern(ApplicationConstants.SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_STANDALONE);
 						workflowDetails.setForm(workflowDetails.getUrlPattern());
 						Status requestStatus=Status.findByType(ApplicationConstants.REQUEST_TO_SUPPORTING_MEMBER, motion.getLocale());
 						if(requestStatus!=null){
 						workflowDetails.setWorkflowSubType(requestStatus.getType());
 						}
+					}else{
+						workflowDetails.setUrlPattern(ApplicationConstants.APPROVAL_WORKFLOW_URLPATTERN_STANDALONE);
+						workflowDetails.setForm(workflowDetails.getUrlPattern()+"/"+userGroupType);
+						workflowDetails.setWorkflowSubType(motion.getInternalStatus().getType());				
 					}
 					workflowDetails.persist();
 				}				
