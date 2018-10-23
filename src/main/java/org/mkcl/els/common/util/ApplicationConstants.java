@@ -2651,5 +2651,7 @@ public class ApplicationConstants {
 	
 	public static final int NOTIFICATIONS_VISIBLE_MAXIMUM_COUNT = 50;
 	
-	public static final Object RESOLUTION_PROCESSED_SENDTODESKOFFICER = "resolution_processed_sendToDeskOfficer";
+	public static final String RESOLUTION_PROCESSED_SENDTODESKOFFICER = "resolution_processed_sendToDeskOfficer";
+	
+	public static final String STANDALONEMOTION_PROCESSED_SENDTODESKOFFICER = "standalonemotion_processed_sendToDeskOfficer";
 }
