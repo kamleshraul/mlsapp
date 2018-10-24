@@ -3463,7 +3463,7 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		
 		Query query = this.em().createNativeQuery(strQuery);
 		query.setParameter("questionId", question.getId());
-		query.setParameter("parentId", question.getParent().getId());
+		//query.setParameter("parentId", question.getParent().getId());
 		try {
 			restoredQuestiontext = (String) query.getSingleResult();
 		} catch(NoResultException e) {
