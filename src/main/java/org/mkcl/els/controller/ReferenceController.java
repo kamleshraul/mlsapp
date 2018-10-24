@@ -2647,8 +2647,12 @@ public class ReferenceController extends BaseController {
 		Long sessionId = Long.parseLong(strSessionId);
 		Session session = Session.findById(Session.class, sessionId);
 		
+		Date onDate = session.getEndDate();
+		if(onDate.before(new Date())) {
+			onDate = new Date();
+		}
 		List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry,
-				session.getEndDate(),
+				onDate,
 				locale.toString());
 		List<MasterVO> masterVOs=new ArrayList<MasterVO>();
 		for(SubDepartment i:subDepartments){
@@ -5667,8 +5671,12 @@ public class ReferenceController extends BaseController {
 									
 								for(Ministry m : ministries){
 									if(strministries.contains(m.getName())){
+										Date onDate = session.getEndDate();
+										if(onDate.before(new Date())) {
+											onDate = new Date();
+										}
 										List<SubDepartment> subDepartments = 
-												MemberMinister.findAssignedSubDepartments(m, session.getEndDate(), locale.toString());
+												MemberMinister.findAssignedSubDepartments(m, onDate, locale.toString());
 										for(SubDepartment s : subDepartments){
 											MasterVO masterVo = new MasterVO();
 											masterVo.setId(s.getId());
@@ -5703,8 +5711,12 @@ public class ReferenceController extends BaseController {
 										get(ApplicationConstants.MINISTRY_KEY+"_"+locale.toString());
 								for(Ministry m:ministries){
 									if(strministries.contains(m.getName())){
+										Date onDate = group.getSession().getStartDate();
+										if(onDate.before(new Date())) {
+											onDate = new Date();
+										}
 										List<SubDepartment> subDepartments = MemberMinister.
-												findAssignedSubDepartments(m, group.getSession().getStartDate(), locale.toString());
+												findAssignedSubDepartments(m, onDate, locale.toString());
 										String subDepartmentParameters = parameters.
 												get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale.toString());
 										List<SubDepartment> subDepartmentList = 
@@ -5723,8 +5735,12 @@ public class ReferenceController extends BaseController {
 							}
 						}else{
 							for(Ministry m : ministries){
+								Date onDate = session.getEndDate();
+								if(onDate.before(new Date())) {
+									onDate = new Date();
+								}
 								List<SubDepartment> subDepartments = 
-										MemberMinister.findAssignedSubDepartments(m, session.getEndDate(), locale.toString());
+										MemberMinister.findAssignedSubDepartments(m, onDate, locale.toString());
 								for(SubDepartment s : subDepartments){
 									MasterVO masterVo = new MasterVO();
 									masterVo.setId(s.getId());
@@ -6914,7 +6930,11 @@ public class ReferenceController extends BaseController {
 			Session session = Session.findById(Session.class, Long.parseLong(strSession));
 			for(int i = 0;i < ministries.length;i++){
 				Ministry ministry = Ministry.findById(Ministry.class, Long.parseLong(ministries[i]));
-				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, session.getEndDate(), locale.toString());
+				Date onDate = session.getEndDate();
+				if(onDate.before(new Date())) {
+					onDate = new Date();
+				}
+				List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministry, onDate, locale.toString());
 				for(SubDepartment sd:subDepartments){
 					MasterVO masterVO=new MasterVO();
 					masterVO.setId(sd.getId());

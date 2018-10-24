@@ -421,7 +421,11 @@ javax.servlet.http.HttpServletRequest)
 			if(domain.getMinistries()!=null && !domain.getMinistries().isEmpty()){
 				List<Ministry> ministryList = domain.getMinistries();
 				for(Ministry m : ministryList){
-					List<SubDepartment> selectedSubdepartments = MemberMinister.findAssignedSubDepartments(m, session.getEndDate(), locale);
+					Date onDate = session.getEndDate();
+					if(onDate.before(new Date())) {
+						onDate = new Date();
+					}
+					List<SubDepartment> selectedSubdepartments = MemberMinister.findAssignedSubDepartments(m, onDate, locale);
 					subdepartments.addAll(selectedSubdepartments);
 				}
 			}

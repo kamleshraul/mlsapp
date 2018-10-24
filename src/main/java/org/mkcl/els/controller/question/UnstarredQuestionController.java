@@ -667,8 +667,12 @@ class UnstarredQuestionController {
 		
 		//Populate SubDepartments
 		if(ministry != null) {
+			Date onDate = selectedSession.getEndDate();
+			if(onDate.before(new Date())) {
+				onDate = new Date();
+			}
 			List<SubDepartment> subDepartments = MemberMinister.
-					findAssignedSubDepartments(ministry, selectedSession.getEndDate(), domain.getLocale());
+					findAssignedSubDepartments(ministry, onDate, domain.getLocale());
 			model.addAttribute("subDepartments",subDepartments);
 		}
 		
