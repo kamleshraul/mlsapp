@@ -2694,9 +2694,17 @@ class StarredQuestionController {
 		Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
 		if(domain.getInternalStatus().getPriority()>submitStatus.getPriority()) {
 			// On Group Change
-			Group fromGroup = Question.isGroupChanged(question);
-			if(fromGroup != null) {
-				Question.onGroupChange(question, fromGroup);
+			String strGroupId = request.getParameter("oldgroup");
+			Group oldGroup = null;
+			if(strGroupId != null && !strGroupId.isEmpty()){
+				oldGroup = Group.findById(Group.class, Long.parseLong(strGroupId));
+			}
+//			Group fromGroup = Question.isGroupChanged(question);
+//			if(fromGroup != null) {
+//				Question.onGroupChange(question, fromGroup);
+//			}
+			if(oldGroup != null && !oldGroup.equals(domain.getGroup())){
+				Question.onGroupChange(question, oldGroup);
 			}
 			
 			// Add to Chart

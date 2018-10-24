@@ -1799,16 +1799,17 @@
 		<input type="hidden" id="yaadiNumber" name="yaadiNumber" value="${domain.yaadiNumber}"/>
 		<input type="hidden" id="yaadiLayingDate" name="yaadiLayingDate" value="${yaadiLayingDate}"/>
 		<input type="hidden" id="answerReceivedMode" name="answerReceivedMode" value="${domain.answerReceivedMode}"/>
+		<input id="ministrySelected" name="ministrySelected" value="${ministrySelected }" type="hidden">
+		<input id="subDepartmentSelected" name="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
+		<input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 	</form:form>
-	<input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
+	
 	<input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
 	
 	<input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 	<input id="confirmQuestionSubmission" value="<spring:message code='confirm.questionsubmission.message' text='Do you want to submit the question.'></spring:message>" type="hidden">
 	<input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='question.startworkflowmessage' text='Do You Want To Put Up Question?'></spring:message>" type="hidden">
-	<input id="ministrySelected" value="${ministrySelected }" type="hidden">
-	<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 	<input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
 	<input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 	<input id="originalLevel" value="${ domain.level}" type="hidden">
