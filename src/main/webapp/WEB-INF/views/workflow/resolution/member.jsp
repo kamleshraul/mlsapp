@@ -867,6 +867,8 @@
 	<form:hidden path="fileIndexLowerHouse"/>	
 	<form:hidden path="fileIndexUpperHouse"/>	
 	<form:hidden path="fileSentLowerHouse"/>
+	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
+	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="fileSentUpperHouse"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">

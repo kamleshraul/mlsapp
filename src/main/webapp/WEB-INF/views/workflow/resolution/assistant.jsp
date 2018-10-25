@@ -873,6 +873,8 @@
 	<form:hidden path="fileIndexUpperHouse"/>	
 	<form:hidden path="fileSentLowerHouse"/>
 	<form:hidden path="fileSentUpperHouse"/>
+	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
+	<form:hidden path="transferToDepartmentAccepted"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="setCreationDate" id="setCreationDate" value="${creationDate }">
@@ -906,13 +908,14 @@
 	<c:if test="${selectedDeviceType == 'resolutions_government'}">
 		<form:hidden path="ruleForDiscussionDate" value="${ruleForDiscussionDateSelected}"/>
 	</c:if>
+	<input id="ministrySelected" value="${ministrySelected }" type="hidden">
+	<input id="departmentSelected" value="${ departmentSelected}" type="hidden">
+	<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 </form:form>
 <input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
 <input id="confirmResolutionSubmission" value="<spring:message code='confirm.resolutionsubmission.message' text='Do you want to submit the resolution.'></spring:message>" type="hidden">
 <input id="startWorkflowMessage" name="startWorkflowMessage" value="<spring:message code='resolution.startworkflowmessage' text='Do You Want To Put Up Resolution?'></spring:message>" type="hidden">
-<input id="ministrySelected" value="${ministrySelected }" type="hidden">
-<input id="departmentSelected" value="${ departmentSelected}" type="hidden">
-<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
+
 <input id="oldInternalStatus" value="${ internalStatus}" type="hidden">
 <input id="oldRecommendationStatus" value="${ oldRecommendationStatus}" type="hidden">
 <input id="selectedDeviceType" value="${selectedDeviceType}" type="hidden">
