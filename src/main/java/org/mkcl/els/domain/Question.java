@@ -10615,7 +10615,11 @@ public class Question extends Device implements Serializable {
     			String workflowType = wfDetails.getWorkflowType();
     			Integer assigneeLevel = 
     				Integer.parseInt(wfDetails.getAssigneeLevel());
-    			
+    			String userGroupType = wfDetails.getAssigneeUserGroupType();
+    			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+    				userGroupType = ApplicationConstants.DEPARTMENT;
+    				assigneeLevel = assigneeLevel - 1;
+    			}
     			WorkflowDetails.endProcess(wfDetails);
     			question.removeExistingWorkflowAttributes();
     			
@@ -10631,7 +10635,7 @@ public class Question extends Device implements Serializable {
     			 */
     			WorkflowDetails.startProcessAtGivenLevel(question, 
     					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
-    					ApplicationConstants.ASSISTANT, assigneeLevel, 
+    					userGroupType, assigneeLevel, 
     					locale);
     		}
     	}
@@ -10838,7 +10842,11 @@ public class Question extends Device implements Serializable {
     			String workflowType = wfDetails.getWorkflowType();
     			Integer assigneeLevel = 
     				Integer.parseInt(wfDetails.getAssigneeLevel());
-    			
+    			String userGroupType = wfDetails.getAssigneeUserGroupType();
+    			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+    				userGroupType = ApplicationConstants.DEPARTMENT;
+    				assigneeLevel = assigneeLevel - 1;
+    			}
     			WorkflowDetails.endProcess(wfDetails);
     			question.removeExistingWorkflowAttributes();
     			
@@ -10855,7 +10863,7 @@ public class Question extends Device implements Serializable {
 	    			 */
 	    			WorkflowDetails.startProcessAtGivenLevel(question, 
 	    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
-	    					ApplicationConstants.ASSISTANT, assigneeLevel, 
+	    					userGroupType, assigneeLevel, 
 	    					locale);
     			}
     		}
@@ -10938,7 +10946,11 @@ public class Question extends Device implements Serializable {
         			String workflowType = wfDetails.getWorkflowType();
         			Integer assigneeLevel = 
         				Integer.parseInt(wfDetails.getAssigneeLevel());
-        			
+        			String userGroupType = wfDetails.getAssigneeUserGroupType();
+        			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+        				userGroupType = ApplicationConstants.DEPARTMENT;
+        				assigneeLevel = assigneeLevel - 1;
+        			}
         			WorkflowDetails.endProcess(wfDetails);
         			question.removeExistingWorkflowAttributes();
         			
@@ -10970,7 +10982,7 @@ public class Question extends Device implements Serializable {
 	    				 */
 	        			WorkflowDetails.startProcessAtGivenLevel(question, 
 	        					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
-	        					ApplicationConstants.ASSISTANT, assigneeLevel, 
+	        					userGroupType, assigneeLevel, 
 	        					locale);
         			}
         		}
