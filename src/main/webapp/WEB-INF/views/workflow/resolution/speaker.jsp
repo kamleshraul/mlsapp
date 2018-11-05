@@ -491,9 +491,22 @@
 		//**** Load Actors On Start Up ****/
 		if($('#bulkedit').val()!='yes'&& $('#workflowstatus').val()!='COMPLETED'){
 			var statusType = $("#internalStatusType").val().split("_");
-			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
-			$("#changeInternalStatus").val(id);
-			/* loadActors($("#changeInternalStatus").val()); */
+			var isStatusLoaded = "no";
+			$("#internalStatusMaster option").each(function() {
+				var optionValue = $(this).val();
+				var optionValueArr = optionValue.split("_");
+				if(optionValueArr[optionValueArr.length-1]==statusType[statusType.length-1]) {
+					var id= $("#internalStatusMaster option[value="+optionValue+"]").text().trim();
+					$("#changeInternalStatus").val(id);
+					isStatusLoaded = "yes";						
+				} else {
+					
+				}
+			});			
+			if(isStatusLoaded=="yes") {
+				$("#changeInternalStatus").change();
+			}
+			loadActors($("#changeInternalStatus").val());
 		} 
 	});
 	</script>
