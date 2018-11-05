@@ -120,6 +120,7 @@
 			var discuss = '';
 			var sendToSectionOfficer = '';
 			var sendToDeskOfficer = '';
+			var departmentIntimated = ''
 			if(deviceTypeType == 'questions_starred') {
 				sendback = 
 					$("#internalStatusMaster option[value='question_recommend_sendback']").text();			
@@ -143,22 +144,42 @@
 				sendback = 
 					$("#internalStatusMaster option[value='question_shortnotice_recommend_sendback']").text();			
 			    discuss = 
-			    	$("#internalStatusMaster option[value='question_shortnotice_recommend_discuss']").text();		
+			    	$("#internalStatusMaster option[value='question_shortnotice_recommend_discuss']").text();	
+			    sendToSectionOfficer = 
+			    	$("#internalStatusMaster option[value='question_shortnotice_processed_sendToSectionOfficer']").text();
+			    sendToDeskOfficer = 
+			    	$("#internalStatusMaster option[value='question_shortnotice_processed_sendToDeskOfficer']").text();
 			} else if(deviceTypeType == 'questions_halfhourdiscussion_from_question') {
 				sendback = 
 					$("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_sendback']").text();			
 			    discuss = 
-			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_discuss']").text();		
+			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_discuss']").text();	
+			    sendToSectionOfficer = 
+			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_sendToSectionOfficer']").text();
+			    sendToDeskOfficer = 
+			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_sendToDeskOfficer']").text();
+			    departmentIntimated = 
+			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_departmentIntimated']").text();
 			}
 			var valueToSend = "";
 			var changedInternalStatus = $("#changeInternalStatus").val();
 			if(changedInternalStatus == sendToSectionOfficer) {
+				$("#endFlag").val("continue");
 				valueToSend = $("#internalStatus").val();
 				if(($("#lastDateForAnswerReceiving").val()!='') && (new Date()> new Date($("#lastDateForAnswerReceiving").val()))){
 					$("#lateReplyReasonDiv").css("display","block");
 				}
+			}if(changedInternalStatus == departmentIntimated) {
+				valueToSend = $("#internalStatus").val();
+				$("#endFlag").val("end");
+			    $("#actor").empty();
+			    $("#actorDiv").hide();
+			    $("#recommendationStatus").val(value);
+			    $.unblockUI();
+			    return false;
 			}else{
 				valueToSend = value;
+				$("#endFlag").val("continue");
 				$("#lateReplyReasonDiv").css("display","none");
 			}
 			/* hide submit for sending answer in case of late answer filling validation */
@@ -213,6 +234,7 @@
 				if(value ==sendToDeskOfficer){
 					$("#answerP").css("display","none");
 					$("#factualP").css("display","none");
+					 $("#actorDiv").show();
 				}else{
 					$("#answerP").css("display","inline-block");
 					$("#factualP").css("display","inline-block");
@@ -228,7 +250,8 @@
 				$("#actor").empty();
 				$("#actorDiv").hide();
 				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value != sendback && value != discuss && value != sendToSectionOfficer){
+				if(value != sendback && value != discuss && value != sendToSectionOfficer
+						&& value != departmentIntimated){
 					$("#internalStatus").val(value);
 				}
 			    $("#recommendationStatus").val(value);
@@ -1052,10 +1075,10 @@
 	<form:errors path="number" cssClass="validationError"/>
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">		
-		<label class="small"><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
+		<label class="small" ><spring:message code="question.halfhour.questionref" text="Reference Question Number: "/>*</label>
 		<input class="sText" readonly="readonly" type="text" name="halfHourDiscussionReference_questionNumber" value="${referredQuestionNumber}" id="halfHourDiscussionReference_questionNumber" />
 		<form:errors path="halfHourDiscusionFromQuestionReference" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
-		<label class="small"><a id="halfhourdiscussion_referred_question" href="#" ><spring:message code="question.halfhour.questionrefview" text="See Referred Question"/></a></label>	
+		<label class="small" style="display:none;"><a id="halfhourdiscussion_referred_question" href="#" ><spring:message code="question.halfhour.questionrefview" text="See Referred Question"/></a></label>	
 		
 	</c:if>
 	
@@ -1297,7 +1320,7 @@
 	
 	
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' }">
-	<p>
+	<p style="display:none;">
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
 				<label class="wysiwyglabel"><spring:message code="question.shortnoticeReason" text="Reason"/>*</label>
@@ -1313,7 +1336,7 @@
 	</c:if>		
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-		<p>
+		<p style="display:none;">
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
 			<form:textarea path="briefExplanation" cssClass="wysiwyg" readonly="true"></form:textarea>
 			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
@@ -1451,9 +1474,12 @@
 	</table>
 	</p>
 	<c:if test="${(workflowstatus!='COMPLETED' and (internalStatusType == 'question_final_admission' or internalStatusType =='question_unstarred_final_admission'
+												or internalStatusType =='question_halfHourFromQuestion_final_admission'
 												or internalStatusType == 'question_final_clarificationNeededFromDepartment'
 												or internalStatusType =='question_unstarred_final_clarificationNeededFromDepartment'
-												or internalStatusType =='question_final_clarificationNeededFromMemberAndDepartment')) 
+												or internalStatusType =='question_halfHourFromQuestion_final_clarificationNeededFromDepartment'
+												or internalStatusType =='question_final_clarificationNeededFromMemberAndDepartment'
+												or internalStatusType =='question_halfHourFromQuestion_final_clarificationNeededFromMemberAndDepartment')) 
 		or ((answeringAttempts <= maxAnsweringAttempts) and workflowstatus=='COMPLETED')}">
 	<%-- <c:if test="${workflowstatus!='COMPLETED'}"> --%>	
 		<p>
