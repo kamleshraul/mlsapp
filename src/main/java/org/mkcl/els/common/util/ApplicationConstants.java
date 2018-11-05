@@ -2621,7 +2621,7 @@ public class ApplicationConstants {
 	
 	public static final String STATUS_FINAL_ADMISSION="_final_admission";
 	
-	public static String STATUS_PROCESSED_SENDTODEPARTMENT="_processed_sendToDepartment";
+	public static final String STATUS_PROCESSED_SENDTODEPARTMENT="_processed_sendToDepartment";
 	
 	public static final String STATUS_PROCESSED_SENDTODESKOFFICER = "_processed_sendToDeskOfficer";
 	
@@ -2633,17 +2633,19 @@ public class ApplicationConstants {
 	
 	public static final String QUESTION_PROCESSED_SUPPLEMENTARYCLUBBINGRECEIVED = "question_processed_supplementaryClubbingReceived";
 	
-	public static String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTOSECTIONOFFICER = "question_processed_sendSupplementaryQuestionToSectionOfficer";
+	public static final String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTOSECTIONOFFICER = "question_processed_sendSupplementaryQuestionToSectionOfficer";
 	
-	public static String QUESTION_SUPPLEMENTARY_WORKFLOW = "questionsupplementary_workflow";
+	public static final String QUESTION_SUPPLEMENTARY_WORKFLOW = "questionsupplementary_workflow";
 	
-	public static String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODEPARTMENT = "question_processed_sendSupplementaryQuestionToDepartment";
+	public static final String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODEPARTMENT = "question_processed_sendSupplementaryQuestionToDepartment";
 	
-	public static String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODESKOFFICER = "question_processed_sendSupplementaryQuestionToDeskOfficer";
+	public static final String QUESTION_PROCESSED_SENDSUPPLEMENTARYQUESTIONTODESKOFFICER = "question_processed_sendSupplementaryQuestionToDeskOfficer";
 	
-	public static String DEPUTY_SECRETARY1 = "deputy_secretary1";
+	public static final String DEPUTY_SECRETARY1 = "deputy_secretary1";
 	
-	public static String DEPUTY_SECRETARY2 = "deputy_secretary2";
+	public static final String DEPUTY_SECRETARY2 = "deputy_secretary2";
+	
+	public static final String QUESTION_HALFHOURDISCUSSION_FROMQUESTION_PROCESSED_SENDTODESKOFFICER = "question_halfHourFromQuestion_processed_sendToDeskOfficer";
 	
 	public static final String HIGH_SECURITY_PASSWORD_ENABLED_FLAG="HIGH_SECURITY_PASSWORD_ENABLED_FLAG";
 	
