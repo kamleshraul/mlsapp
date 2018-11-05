@@ -240,7 +240,7 @@ public class QuestionReportController extends BaseController{
 				}else if(deviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)){
 					resendRevisedQuestionText = Status.findByType(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_RESENDREVISEDQUESTIONTEXTTODEPARTMENT, locale.toString());
 				}
-				if(workflowDetails != null){
+				if(workflowDetails != null && resendRevisedQuestionText != null){
 					workflowDetailCount = WorkflowDetails.findRevisedQuestionTextWorkflowCount(question, resendRevisedQuestionText, workflowDetails);
 					if(workflowDetails.getRecommendationStatus().equals(resendRevisedQuestionText.getName())
 						|| workflowDetailCount > 0){
