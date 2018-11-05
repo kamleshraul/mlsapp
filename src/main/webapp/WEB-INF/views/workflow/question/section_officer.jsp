@@ -114,7 +114,8 @@
 	function loadActors(value){
 	
 		var valueToSend="";
-		if(value!='-'){		
+		if(value!='-'){	
+		$("#actorDiv").show();
 		var questionType = $("#selectedQuestionType").val();
 		var type = '';
 		var sendback = '';
@@ -331,6 +332,7 @@
 	    	 $("#endFlag").val("continue");
 	    	 $("#recommendationStatus").val(value);
 	    	 valueToSend=value;
+	    	 $("#actorDiv").show();
 	    }
 	    else if(value == dateAndAnswerReceived) {
 	    	$("#endFlag").val("end");
@@ -363,7 +365,7 @@
 	    else {
 	    	$("#endFlag").val("continue");
 		    valueToSend=value;
-	    }	
+		}	
 		
 		//hack SectionOfficer
 		var params = '';
@@ -417,12 +419,12 @@
 					}
 				}
 				$("#actor").html(text);
-				if((questionType == 'questions_shortnotice' && value == dateAndAnswerReceived)) {
+/* 				if((questionType == 'questions_shortnotice' && value == dateAndAnswerReceived)) {
 					$("#actorDiv").show();
 				}
 				else {
 					$("#actorDiv").hide();
-				}	
+				}	 */
 				if(value == clubbingRecommendApprove || value == clubbingRecommendReject
 						|| value == nameclubbingRecommendApprove || value == nameclubbingRecommendReject){
 					$("#internalStatus").val(value);
