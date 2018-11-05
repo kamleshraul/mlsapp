@@ -45,7 +45,10 @@
 	        
 	        hr{
 	        	display: none !important;
-	        }    
+	        }  
+	       	td{
+	       		 font-size:14px !important;; 
+	    	}  
         }
         
         pre{
@@ -69,6 +72,10 @@
 			right: 50px;			
 			position: fixed;
 			cursor: pointer;
+        }
+        
+        td{
+        	font-size:14px !important;
         }
                 
     </style>

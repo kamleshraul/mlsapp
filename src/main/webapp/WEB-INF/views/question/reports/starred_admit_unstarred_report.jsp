@@ -50,7 +50,11 @@
 	        
 	        hr{
 	        	display: none !important;
-	        }    
+	        } 
+	        
+	        td{
+	        	font-size:14px !important; 
+	        }   
         }
         
         pre{
@@ -61,6 +65,9 @@
         	text-align: justify;
         }
         
+        td{
+	        font-size:14px !important; 
+	     } 
         #loadMore{
         	background: #00FF00 scroll no-repeat;
 			max-width: 100px;
