@@ -137,12 +137,16 @@
 				sendback = 
 					$("#internalStatusMaster option[value='question_shortnotice_recommend_sendback']").text();			
 			    discuss = 
-			    	$("#internalStatusMaster option[value='question_shortnotice_recommend_discuss']").text();		
+			    	$("#internalStatusMaster option[value='question_shortnotice_recommend_discuss']").text();
+			    sendToDeskOfficer = 
+			    	$("#internalStatusMaster option[value='question_shortnotice_processed_sendToDeskOfficer']").text();
 			} else if(deviceTypeType == 'questions_halfhourdiscussion_from_question') {
 				sendback = 
 					$("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_sendback']").text();			
 			    discuss = 
-			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_discuss']").text();		
+			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_discuss']").text();
+			    sendToDeskOfficer = 
+			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_sendToDeskOfficer']").text();
 			}
 			var valueToSend = "";
 			var changedInternalStatus = $("#changeInternalStatus").val();
@@ -1249,7 +1253,7 @@
 	
 	
 	<c:if test="${selectedQuestionType=='questions_shortnotice' or selectedQuestionType=='questions_halfhourdiscussion_from_question' }">
-	<p>
+	<p style="display:none;">
 		<c:choose>
 			<c:when test="${selectedQuestionType=='questions_shortnotice'}">
 				<label class="wysiwyglabel"><spring:message code="question.shortnoticeReason" text="Reason"/>*</label>
@@ -1265,7 +1269,7 @@
 	</c:if>		
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-		<p>
+		<p style="display:none;">
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
 			<form:textarea path="briefExplanation" cssClass="wysiwyg" readonly="true"></form:textarea>
 			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
@@ -1307,7 +1311,7 @@
 	</p>
 	
 	<c:if test="${selectedQuestionType=='questions_halfhourdiscussion_from_question'}">
-		<p>
+		<p style="display:none;">
 			<label class="wysiwyglabel"><spring:message code="question.briefExplanation" text="Brief Explanation"/>*</label>
 			<form:textarea path="briefExplanation" cssClass="wysiwyg" readonly="true"></form:textarea>
 			<form:errors path="briefExplanation" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
