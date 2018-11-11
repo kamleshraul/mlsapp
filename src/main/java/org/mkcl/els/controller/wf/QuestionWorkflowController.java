@@ -2090,6 +2090,16 @@ public class QuestionWorkflowController  extends BaseController{
 					}
 					
 					if(isGroupChanged || isMinistryChanged || isSubdepartmentChanged) {
+						//SEND NOTIFICATION FOR DEPARTMENT CHANGE
+						String usergroupTypes = "";
+						if(userGroupType.equals(ApplicationConstants.DEPARTMENT)
+								|| userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
+							usergroupTypes = "section_officer,department";
+						} else {
+							usergroupTypes = "assistant,clerk";
+						}
+						NotificationController.sendDepartmentChangeNotification(domain.getNumber().toString(), domain.getType(), domain.getHouseType(), prevSubdepartment.getName(), domain.getSubDepartment().getName(), usergroupTypes, domain.getLocale());
+						
 						/**** display message ****/
 						model.addAttribute("type","taskcompleted");
 						return "workflow/info";

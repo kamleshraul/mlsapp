@@ -20,8 +20,11 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.NotificationVO;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.notification.PushMessage;
 import org.mkcl.els.domain.notification.Notification;
 import org.mkcl.els.service.INotificationService;
@@ -223,6 +226,29 @@ public class NotificationController extends GenericController<Notification> {
 		templateParameters.put("primaryMemberId", new String[]{primaryMember.getId().toString()});		
 		templateParameters.put("supportingMembersUserNames", new String[]{supportingMembersUserNames});		
 		getNotificationService().sendNotificationWithTitleUsingTemplate("REQUEST_FOR_SUPPORTING_MEMBER_APPROVAL", templateParameters, locale);
+	}
+	
+	public static void sendDepartmentChangeNotification(final String deviceNumber, 
+								final DeviceType deviceType,
+								final HouseType houseType,
+								final String prevSubDepartment,
+								final String currentSubDepartment,
+								final String usergroupTypes,
+								final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("deviceNumber", new String[]{deviceNumber});
+		templateParameters.put("deviceTypeType", new String[]{deviceType.getType()});
+		templateParameters.put("deviceTypeName", new String[]{deviceType.getName()});
+		templateParameters.put("deviceTypeNameLike", new String[]{"%"+deviceType.getName()+"%"});
+		templateParameters.put("houseTypeType", new String[]{houseType.getType()});
+		templateParameters.put("houseTypeName", new String[]{houseType.getName()});
+		templateParameters.put("houseTypeNameLike", new String[]{"%"+houseType.getName()+"%"});
+		templateParameters.put("prevSubDepartment", new String[]{prevSubDepartment});
+		templateParameters.put("currentSubDepartment", new String[]{currentSubDepartment});
+		templateParameters.put("currentSubDepartmentLike", new String[]{"%"+currentSubDepartment+"%"});
+		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});		
+		getNotificationService().sendNotificationWithTitleUsingTemplate("DEPARTMENT_CHANGE_INTIMATION", templateParameters, locale);
 	}
 	
 	public static void sendDepartmentProcessNotificationForUnstarredQuestion(final Question question, final String departmentUserName, final String locale) {

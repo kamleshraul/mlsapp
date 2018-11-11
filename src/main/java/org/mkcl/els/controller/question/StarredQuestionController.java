@@ -2705,6 +2705,17 @@ class StarredQuestionController {
 //			}
 			if(oldGroup != null && !oldGroup.equals(domain.getGroup())){
 				Question.onGroupChange(question, oldGroup);
+				//SEND NOTIFICATION FOR DEPARTMENT CHANGE ACROSS GROUPS
+				String prevDeptId = request.getParameter("subDepartmentSelected");
+				if(prevDeptId!=null) {
+					SubDepartment prevDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(prevDeptId));
+					SubDepartment currentDepartment = question.getSubDepartment();
+					if(prevDepartment!=null	&& currentDepartment!=null
+							&& !prevDepartment.getId().equals(currentDepartment.getId())) {
+						String usergroupTypes = "assistant,clerk";						
+						NotificationController.sendDepartmentChangeNotification(question.getNumber().toString(), question.getType(), question.getHouseType(), prevDepartment.getName(), currentDepartment.getName(), usergroupTypes, question.getLocale());
+					}
+				}				
 			}
 			
 			// Add to Chart
