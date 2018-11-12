@@ -8,6 +8,8 @@
 			$("#error_msg").empty();
 		}		
 		$(document).ready(function() {
+			var highSecurityPasswordEntered = false;
+			
 			if($("#category").val()=='question') {			
 				if($("#selectedHouseType").val()=='lowerhouse') {
 					if($("#srole").val()=='QIS_SECTION_OFFICER' 
@@ -32,11 +34,16 @@
 			$("#pre_ballot").click(function(event, isHighSecurityValidationRequired){	
 				if($('#highSecurityPasswordEnabled').val()=='no') {
 					isHighSecurityValidationRequired = false;
+				} else {
+					if(highSecurityPasswordEntered) {
+						isHighSecurityValidationRequired = false;
+					}
 				}
-				if(isHighSecurityValidationRequired!=false) {
-					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+				if(isHighSecurityValidationRequired!=false) {					
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");					
 					return false;
 				}
+				//highSecurityPasswordEntered = true;
 				clearErrorMsg();
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				var resourceURL="";
@@ -122,8 +129,19 @@
 					
 			});	
 				
-			$('#view_preballot').click(function(){
-				clearErrorMsg();
+			$('#view_preballot').click(function(event, isHighSecurityValidationRequired){	
+				if($('#highSecurityPasswordEnabled').val()=='no') {
+					isHighSecurityValidationRequired = false;
+				} else {
+					if(highSecurityPasswordEntered) {
+						isHighSecurityValidationRequired = false;
+					}
+				}
+				if(isHighSecurityValidationRequired!=false) {					
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");					
+					return false;
+				}
+				//highSecurityPasswordEntered = true;
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				var resourceURL;
 				if($("#category").val()=='question'){
@@ -219,11 +237,16 @@
 			$("#create_ballot").click(function(event, isHighSecurityValidationRequired){	
 				if($('#highSecurityPasswordEnabled').val()=='no') {
 					isHighSecurityValidationRequired = false;
+				} else {
+					if(highSecurityPasswordEntered) {
+						isHighSecurityValidationRequired = false;
+					}
 				}
 				if(isHighSecurityValidationRequired!=false) {
 					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
 					return false;
 				}
+				//highSecurityPasswordEntered = true;
 				var resourceURL='';
 				if($("#category").val()=='question'){
 					var parameters = "houseType="+$("#selectedHouseType").val()
@@ -315,16 +338,20 @@
 				return false;
 			});
 			
-			
 			$("#view_ballot").click(function(event, isHighSecurityValidationRequired){	
 				if($('#highSecurityPasswordEnabled').val()=='no') {
 					isHighSecurityValidationRequired = false;
+				} else {
+					if(highSecurityPasswordEntered) {
+						isHighSecurityValidationRequired = false;
+					}
 				}
-				if(isHighSecurityValidationRequired!=false) {
-					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
+				if(isHighSecurityValidationRequired!=false) {					
+					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");					
 					return false;
 				}
 				clearErrorMsg();
+				//highSecurityPasswordEntered = true;
 				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				var resourceURL;
 				var parameters;
