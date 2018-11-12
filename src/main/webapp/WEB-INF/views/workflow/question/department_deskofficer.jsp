@@ -162,6 +162,7 @@
 			    	$("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_departmentIntimated']").text();
 			}
 			var valueToSend = "";
+			
 			var changedInternalStatus = $("#changeInternalStatus").val();
 			if(changedInternalStatus == sendToSectionOfficer) {
 				$("#endFlag").val("continue");
@@ -169,7 +170,7 @@
 				if(($("#lastDateForAnswerReceiving").val()!='') && (new Date()> new Date($("#lastDateForAnswerReceiving").val()))){
 					$("#lateReplyReasonDiv").css("display","block");
 				}
-			}if(changedInternalStatus == departmentIntimated) {
+			}else if(changedInternalStatus == departmentIntimated) {
 				valueToSend = $("#internalStatus").val();
 				$("#endFlag").val("end");
 			    $("#actor").empty();
