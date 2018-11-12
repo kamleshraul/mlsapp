@@ -1,6 +1,7 @@
 /*Common javascript functions to be used across jsp files */
 currentGridPage=1;
 currentSelectedRow=1;
+var highSecurityPasswordEntered = false;
 
 function _ajax_request(url, data, callback, type, method) {
     if (jQuery.isFunction(data)) {
