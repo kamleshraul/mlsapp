@@ -1075,7 +1075,7 @@
 		
 		
 		//to show new advance copy count for motion
-		function displayNewAdvanceCopyForMotion(){
+		/* function displayNewAdvanceCopyForMotion(){
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
 				var url = "ref/newpendingmotionadvancecopy?sessionYear=" + $("#selectedSessionYear").val() +
 							"&sessionType=" + $("#selectedSessionType").val() + 
@@ -1090,7 +1090,7 @@
 					
 				});
 			}			  
-		}
+		} */
 		
 		function showAdvanceMotionCopy(){
 			var params = "houseType="+$("#selectedHouseType").val()
