@@ -9786,6 +9786,30 @@ public class Question extends Device implements Serializable {
         				kid.setSubDepartment(subDepartment);
         				kid.merge();
         			}
+        			
+        			WorkflowDetails wfDetails = 
+            				WorkflowDetails.findCurrentWorkflowDetail(question);
+        			Integer assigneeLevel = null;
+        			String userGroupType = null;
+            		if(wfDetails != null){
+	        			// Before ending wfDetails process collect information
+	        			// which will be useful for creating a new process later.
+	        			assigneeLevel = 
+	        				Integer.parseInt(wfDetails.getAssigneeLevel());
+	        			userGroupType = wfDetails.getAssigneeUserGroupType();
+	        			
+	        			WorkflowDetails.endProcess(wfDetails);
+    				}
+            			question.removeExistingWorkflowAttributes();
+        			if(userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+	    				userGroupType = ApplicationConstants.DEPARTMENT;
+	    				assigneeLevel = assigneeLevel - 1;
+	    			}
+        			Status internalStatus = question.getInternalStatus();
+	    			WorkflowDetails.startProcessAtGivenLevel(question, 
+	    					ApplicationConstants.APPROVAL_WORKFLOW, internalStatus, 
+	    					userGroupType, assigneeLevel, 
+	    					locale);
     			}
     		}
     	}
