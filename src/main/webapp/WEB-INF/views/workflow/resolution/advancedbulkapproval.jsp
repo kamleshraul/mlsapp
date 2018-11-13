@@ -187,9 +187,9 @@
 					<form action="workflow/resolution/advancedbulkapproval" method="POST">
 						<table class="uiTable">
 							<tr>					
-								<th style="min-width:75px;text-align:center;"><spring:message code="resolution.submitall" text="Submit All"></spring:message>
+								<th style="min-width:60px;text-align:center;"><spring:message code="resolution.submitall" text="Submit All"></spring:message>
 								<input type="checkbox" id="chkall" name="chkall" class="sCheck" value="true"></th>					
-								<th style="min-width:140px;text-align:justify;"><spring:message code="resolution.number" text="Number"></spring:message></th>
+								<th style="min-width:155px;text-align:justify;"><spring:message code="resolution.number" text="Number"></spring:message></th>
 								<th style="text-align:justify;min-width:400px;"><spring:message code="resolution.noticeContent" text="Notice Content"></spring:message></th>
 								<th style="min-width:70px;text-align:justify;"><spring:message code="resolution.decision" text="Decision"></spring:message></th>
 							</tr>			
@@ -198,14 +198,14 @@
 								<tr>
 									<c:choose>
 										<c:when test="${i.currentStatus=='PENDING'}">
-											<td style="min-width:75px;text-align:center;"> <input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
+											<td style="min-width:60px;text-align:center;"> <input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"  style="margin-right: 10px;">						
 										</c:when>							
 										<c:otherwise>
-											<td style="min-width:75px;text-align:center;"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
+											<td style="min-width:60px;text-align:center;"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true" disabled="disabled" style="margin-right: 10px;">			
 										</c:otherwise>
 									</c:choose>
 											<%-- <td>${i.deviceType}</td> --%>							
-									<td style="min-width:140px;text-align:justify;">
+									<td style="min-width:155px;text-align:justify;">
 										<span>
 											${i.deviceNumber} 
 										</span>
@@ -215,9 +215,15 @@
 										<br/> 
 										${i.member}
 										<br><br>
-										<spring:message code="resolution.lastdecision" text="Last Decision"/> : ${i.lastDecision}
+										<%-- <spring:message code="resolution.lastdecision" text="Last Decision"/> : ${i.lastDecision}
 										<br>
-										<spring:message code="resolution.lastremarkby" text="Last Remark By"/> ${i.lastRemarkBy} : ${i.lastRemark}
+										<spring:message code="resolution.lastremarkby" text="Last Remark By"/> ${i.lastRemarkBy} : ${i.lastRemark} --%>
+										<c:forEach items="${i.revisions}" var="j">
+											<c:if test="${not empty j[7]}">
+												<b>${j[0]} : ${j[6]} </b> <spring:message code="resolution.remarks" text="Remark"/>: ${j[7]}
+												<br>
+											</c:if>
+										</c:forEach>
 										
 									</td>
 									<td style="text-align:justify;min-width:300px;">
