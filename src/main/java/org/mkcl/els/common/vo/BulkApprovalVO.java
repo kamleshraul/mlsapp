@@ -1,5 +1,7 @@
 package org.mkcl.els.common.vo;
 
+import java.util.List;
+
 public class BulkApprovalVO {
 	
 	private String id;
@@ -51,6 +53,8 @@ public class BulkApprovalVO {
 	private String advanceCopyActor;
 	
 	private String formattedAdjourningDate;
+	
+	private List revisions;
 	
 	/**** PENDING<COMPLETED<TIMEOUT ****/
 	private String currentStatus;
@@ -290,6 +294,15 @@ public class BulkApprovalVO {
 
 	public void setFormattedAdjourningDate(String formattedAdjourningDate) {
 		this.formattedAdjourningDate = formattedAdjourningDate;
+	}
+
+	public List getRevisions() {
+		return revisions;
+	}
+
+	public void setRevisions(List revisions) {
+		this.revisions = revisions;
 	}	
+	
 	
 }
