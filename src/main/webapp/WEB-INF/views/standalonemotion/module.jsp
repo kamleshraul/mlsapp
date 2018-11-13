@@ -756,7 +756,7 @@
 		
 		$.get(url,function(data){
 			if(data){
-				showTabByIdAndUrl('details_tab','standalonemotion/report/generalreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+"&report=SMOIS_HD_CONDITION_REPORT&reportout=hdconditionreport");
+				showTabByIdAndUrl('details_tab','standalonemotion/report/generalreport?sessionId='+data.id+"&deviceTypeId="+$("#selectedQuestionType").val()+"&locale="+$("#moduleLocale").val()+"&statusId="+$("#selectedStatus").val()+"&report=SMOIS_HD_CONDITION_REPORT&reportout=hdconditionreport");
 			}
 		});
 	}
