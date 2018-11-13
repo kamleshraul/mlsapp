@@ -1495,6 +1495,42 @@ class StarredQuestionChart {
 		return chart;
 	}
 	
+	private static Chart processSourceGroupChartUH(
+			final Question question,
+			final Group sourceGroup) throws ELSException {
+		Chart chart = Chart.find(question);
+		
+		if(chart != null) {
+			Member member = question.getPrimaryMember();
+			ChartEntry ce = 
+				StarredQuestionChart.find(chart.getChartEntries(), member);
+			List<Device> devices = StarredQuestionChart.findDevices(ce);//ce.getDevices();
+			
+			/*
+			 * 1. Remove @param question from the Chart
+			 */
+			int index = -1;
+			for(Device d : devices) {
+				++index;
+				if(d.getId().equals(question.getId())) {
+					break;
+				}
+			}
+			devices.remove(index);
+
+			ce.setDevices(devices);
+			ce.merge();
+			
+			/*
+			 * 2. Set @param question's chartAnsweringDate as null
+			 */
+			question.setChartAnsweringDate(null);
+			question.simpleMerge();
+		}
+		
+		return chart;
+	}
+	
 	private static void shiftChartQuestionsRecursive(final Question question, final Chart chart, boolean isRemovalFromChartNeeded, final String locale) throws ELSException {
 		//Date answeringDate = chart.getAnsweringDate();			
 		ChartEntry ce = 
@@ -1660,10 +1696,13 @@ class StarredQuestionChart {
 			Session session = question.getSession();
 			String submissionEndDate = session.getParameter("questions_starred_submissionEndDate");
 			Date lastSubmissionDate = FormaterUtil.formatStringToDate(submissionEndDate, ApplicationConstants.DB_DATETIME_FORMAT, locale);
-			
+			// As the shifting of chart questions can be done only till the last submission date, post group change
+			// only the device will be removed from the chart without shifting.
 			if(lastSubmissionDate.compareTo(new Date())>=0){
 				shiftChartQuestionsRecursive(question, chart, true, locale);
-			}			
+			}else{
+				processSourceGroupChartUH(question, sourceGroup);
+			}
 		}
 		
 		return chart;
