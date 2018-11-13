@@ -1972,7 +1972,13 @@ public class ResolutionWorkflowController extends BaseController{
 						}else if(resolution.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)){
 							bulkApprovalVO.setLastDecision(resolution.getInternalStatusUpperHouse().getName());
 						
-						}	
+						}
+						
+						Map<String, String[]> requestMap=new HashMap<String, String[]>();			
+						requestMap.put("resolutionId",new String[]{String.valueOf(resolution.getId())});
+						requestMap.put("locale",new String[]{resolution.getLocale()});
+						List result=Query.findReport("ROIS_GET_REVISION", requestMap);
+						bulkApprovalVO.setRevisions(result);
 						bulkApprovalVO.setLastRemarkBy(resolution.getEditedAs());	
 						bulkApprovalVO.setCurrentStatus(i.getStatus());
 						bulkapprovals.add(bulkApprovalVO);
