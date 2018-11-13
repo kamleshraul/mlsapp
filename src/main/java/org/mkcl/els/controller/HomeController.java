@@ -10,7 +10,9 @@
 package org.mkcl.els.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +26,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
@@ -32,14 +35,18 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DocumentLink;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
+import org.mkcl.els.domain.MemberDepartment;
+import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MenuItem;
+import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartySymbol;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
+import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.slf4j.Logger;
@@ -175,15 +182,27 @@ public class HomeController extends BaseController {
         //right now all menus are visible to all.
         Set<Role> roles=this.getCurrentUser().getRoles();
         StringBuffer buffer=new StringBuffer();
-        Boolean isUserAllowedForDashboardView = false; //for showing dashboard post login to allowed users only
-        CustomParameter rolesAllowedForDashBoardViewCP = CustomParameter.findByName(CustomParameter.class, "ROLES_ALLOWED_FOR_DASHBOARD_VIEW", "");
+        Boolean isUserAllowedForMemberDashboardView = false; //for showing dashboard post login to allowed users only
+        Boolean isUserAllowedForDeptSecretaryDashboardView = false; //for showing dashboard post login to allowed users only
+        CustomParameter rolesAllowedForMemberDashBoardViewCP = CustomParameter.findByName(CustomParameter.class, "ROLES_ALLOWED_FOR_MEMBERDASHBOARD_VIEW", "");
+        CustomParameter rolesAllowedForDeptSecretaryDashBoardViewCP = CustomParameter.findByName(CustomParameter.class, "ROLES_ALLOWED_FOR_DEPARTMENT_SECRETARY_DASHBOARD_VIEW", "");
         for(Role i:roles){
-        	if(rolesAllowedForDashBoardViewCP!=null 
-        			&& rolesAllowedForDashBoardViewCP.getValue()!=null
-        			&& !rolesAllowedForDashBoardViewCP.getValue().isEmpty()) {
-        		for(String allowedRole: rolesAllowedForDashBoardViewCP.getValue().split(",")) {
+        	if(rolesAllowedForMemberDashBoardViewCP!=null 
+        			&& rolesAllowedForMemberDashBoardViewCP.getValue()!=null
+        			&& !rolesAllowedForMemberDashBoardViewCP.getValue().isEmpty()) {
+        		for(String allowedRole: rolesAllowedForMemberDashBoardViewCP.getValue().split(",")) {
         			if(i.getType().trim().equalsIgnoreCase(allowedRole.trim())) {
-        				isUserAllowedForDashboardView = true;
+        				isUserAllowedForMemberDashboardView = true;
+        				break;
+        			}
+        		}
+        	}
+        	if(rolesAllowedForDeptSecretaryDashBoardViewCP!=null 
+        			&& rolesAllowedForDeptSecretaryDashBoardViewCP.getValue()!=null
+        			&& !rolesAllowedForDeptSecretaryDashBoardViewCP.getValue().isEmpty()) {
+        		for(String allowedRole: rolesAllowedForDeptSecretaryDashBoardViewCP.getValue().split(",")) {
+        			if(i.getType().trim().equalsIgnoreCase(allowedRole.trim())) {
+        				isUserAllowedForDeptSecretaryDashboardView = true;
         				break;
         			}
         		}
@@ -279,17 +298,20 @@ public class HomeController extends BaseController {
         //flag for checking if this request is redirection to home page
         String redirectedToHomePage = request.getParameter("redirectedToHomePage");
         if(redirectedToHomePage==null || !redirectedToHomePage.equals("yes")) {
-             if(isUserAllowedForDashboardView) {
+             if(isUserAllowedForMemberDashboardView) {
             	populateMemberProfile(model, request, locale);
              	return "member_dashboard";
-             } else {
+             }else if(isUserAllowedForDeptSecretaryDashboardView){
+            	populateDeptSecretaryDashboard(model, request, locale);
+              	return "departmentsecretary_dashboard"; 
+             }else {
              	return "home";
              }
         } 
         return "home";
     }
     
-
+	
 	//redirect to home page using POST (taken for hiding the flag of request parameter 'redirectedToHomePage')
     @RequestMapping(value = "/home", method = RequestMethod.POST)
     public String redirectToHome(final ModelMap model, 
@@ -486,5 +508,81 @@ public class HomeController extends BaseController {
 			}
 		}
 		
+	}
+    
+    private void populateDeptSecretaryDashboard(ModelMap model, HttpServletRequest request, Locale locale) {
+    	 List<HouseType> houseTypes = HomeController.getHouseTypes(locale.toString());
+    	 model.addAttribute("houseTypes", houseTypes);
+    	 
+    	 List<SessionType> sessionTypes = HomeController.getSessionTypes(locale.toString());
+    	 model.addAttribute("sessionTypes", sessionTypes);
+    	 
+ 		Integer latestYear = new GregorianCalendar().get(Calendar.YEAR);
+		List<String> years = HomeController.getSessionYears(latestYear);
+    	 model.addAttribute("years", years);
+    	 
+    	List<DeviceType> deviceTypes = DeviceType.findAll(DeviceType.class, "name", ASC, DEFAULT_LOCALE);
+    	model.addAttribute("deviceTypes", deviceTypes);
+    	 try {
+			List<SubDepartment> subDepartments = SubDepartment.findAllSubDepartments(locale.toString());
+			 model.addAttribute("subDepartments", subDepartments);
+    	 } catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	 List<MasterVO> departmentDeviceCounts = new ArrayList<MasterVO>();
+    	 Map<String, String[]> parameters = new HashMap<String, String[]>();
+         parameters.put("locale", new String[]{locale.toString()});
+         parameters.put("sessionType", new String[]{""});
+         parameters.put("sessionYear", new String[]{""});
+         parameters.put("houseType", new String[]{""});
+         parameters.put("deviceType", new String[]{""});
+         parameters.put("subdepartment", new String[]{""});
+         List result = Query.findReport("DEPARTMENT_DEVICES_COUNT", parameters);
+         for(int i=0;i<result.size();i++){
+        	 Object[] row = (Object[])result.get(i);
+        	 MasterVO departmentDeviceCount = new MasterVO();
+        	 departmentDeviceCount.setName(row[0].toString());
+        	 //Pending Count
+        	 departmentDeviceCount.setNumber(Integer.parseInt(row[1].toString()));
+        	 //Completed Count
+        	 departmentDeviceCount.setOrder(Integer.parseInt(row[2].toString()));
+        	 //Timeout Count
+        	 departmentDeviceCount.setFormattedNumber(row[3].toString());
+        	 //Total Count
+        	 departmentDeviceCount.setFormattedOrder(row[4].toString());
+        	 
+        	 departmentDeviceCounts.add(departmentDeviceCount);
+        }
+         model.addAttribute("result", departmentDeviceCounts);
+		
+	}
+    
+    public static List<HouseType> getHouseTypes(final String locale) {
+		List<HouseType> houseTypes = HouseType.findAll(HouseType.class, "type", ApplicationConstants.ASC, locale);
+		
+		return houseTypes;
+	}
+    
+    public static List<SessionType> getSessionTypes(final String locale) {
+		List<SessionType> sessionTypes = 
+				SessionType.findAll(SessionType.class, "sessionType", ApplicationConstants.ASC, locale);
+		return sessionTypes;
+	}
+    
+	public static List<String> getSessionYears(final Integer latestYear)  {
+		List<String> years = new ArrayList<String>();
+		
+		CustomParameter houseFormationYear = 
+				CustomParameter.findByName(CustomParameter.class, "HOUSE_FORMATION_YEAR", "");
+		if(houseFormationYear != null) {
+			Integer formationYear = Integer.parseInt(houseFormationYear.getValue());
+			for(int i = latestYear; i >= formationYear; i--) {
+				years.add(FormaterUtil.formatNumberNoGrouping(i, ApplicationConstants.DEFAULT_LOCALE));
+			}
+		}
+		
+		return years;
 	}
 }
