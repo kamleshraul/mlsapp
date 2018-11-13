@@ -8,8 +8,6 @@
 			$("#error_msg").empty();
 		}		
 		$(document).ready(function() {
-			var highSecurityPasswordEntered = false;
-			
 			if($("#category").val()=='question') {			
 				if($("#selectedHouseType").val()=='lowerhouse') {
 					if($("#srole").val()=='QIS_SECTION_OFFICER' 
