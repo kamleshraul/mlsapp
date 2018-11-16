@@ -415,9 +415,9 @@ public class BallotController extends BaseController{
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
+			QuestionDates questionDates = null;
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-				QuestionDates questionDates = 
-						QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
@@ -443,7 +443,14 @@ public class BallotController extends BaseController{
 			Ballot ballot = Ballot.find(session, deviceType, answeringDate, locale.toString());
 			if(ballot == null) {
 				Ballot newBallot = new Ballot(session, deviceType, answeringDate, new Date(), locale.toString());
-				newBallot.create();				
+				newBallot.create();	
+				//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+				String groupNumber = "";
+				if(questionDates!=null) {					
+					Group group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);	
+					groupNumber = group.getNumber().toString();
+				}
+				NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, locale.toString());
 				retVal = "CREATED";
 			}
 			else {
@@ -3221,6 +3228,8 @@ public class BallotController extends BaseController{
 								ballots=MemberBallot.viewFinalBallot(session, deviceType,ansDate, locale.toString());
 								model.addAttribute("ballots",ballots);
 								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
+								//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+								NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), questionDates.getAnsweringDate(), group.getNumber().toString(), locale.toString());
 							}else{
 								model.addAttribute("type","FINALBALLOT_FAILED");
 								return errorpage;	

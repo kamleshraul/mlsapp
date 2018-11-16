@@ -458,6 +458,10 @@ public class Group extends BaseDomain implements Serializable {
 		return Group.getRepository().find(subdepartment, session, locale.toString());
 	}
 	
+	public static Group findByAnsweringDateInHouseType(final Date answeringDate, final HouseType houseType) throws ELSException {
+		return Group.getRepository().findByAnsweringDateInHouseType(answeringDate, houseType);
+	}
+	
 	
 	//===============================================
 	//

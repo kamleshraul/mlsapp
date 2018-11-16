@@ -712,4 +712,31 @@ public class GroupRepository extends BaseRepository<Group, Long> {
 				
 		return group;
 	}
+	
+	public Group findByAnsweringDateInHouseType(final Date answeringDate, final HouseType houseType) throws ELSException {
+		Group group = null;
+		
+		String strQuery = "SELECT * FROM groups g" +
+							" INNER JOIN question_dates qd ON (qd.group_id=g.id)" +
+							" WHERE qd.answering_date=:answeringDate" +
+							" AND g.housetype_id=:houseTypeId";
+		
+		try{
+			Query jpQuery = this.em().createNativeQuery(strQuery, Group.class);
+			jpQuery.setParameter("houseTypeId", houseType.getId());
+			jpQuery.setParameter("answeringDate", answeringDate);
+			@SuppressWarnings("unchecked")
+			List<Group> gX = jpQuery.getResultList();
+			if(gX != null && gX.size()>0){
+				group = gX.get(0);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			ELSException elsException = new ELSException();
+			elsException.setParameter("GroupRepository_Group_findByHouseTypeAnsweringDate", "Group is unavailable.");
+			throw elsException;
+		}
+		return group;
+	}
 }

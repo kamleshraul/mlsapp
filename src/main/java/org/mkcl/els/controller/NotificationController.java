@@ -10,6 +10,7 @@
 package org.mkcl.els.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.NotificationVO;
+import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
@@ -266,6 +268,33 @@ public class NotificationController extends GenericController<Notification> {
 		templateParameters.put("requestedField", new String[]{requestedField});
 		templateParameters.put("departmentUserName", new String[]{departmentUserName});
 		getNotificationService().sendNotificationWithTitleUsingTemplate(question.getType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
+	}
+	
+	public static void sendBallotCreationNotification(final DeviceType deviceType,
+								final HouseType houseType,
+								final Date ballotDate,
+								final String groupNumber,
+								final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("deviceTypeType", new String[]{deviceType.getType()});
+		templateParameters.put("deviceTypeName", new String[]{deviceType.getName()});
+		templateParameters.put("deviceTypeNameLike", new String[]{"%"+deviceType.getName()+"%"});
+		templateParameters.put("houseTypeType", new String[]{houseType.getType()});
+		templateParameters.put("houseTypeName", new String[]{houseType.getName()});
+		templateParameters.put("houseTypeNameLike", new String[]{"%"+houseType.getName()+"%"});
+		templateParameters.put("ballotDate", new String[]{FormaterUtil.formatDateToString(ballotDate, ApplicationConstants.DB_DATEFORMAT)});
+		templateParameters.put("groupNumber", new String[]{groupNumber});
+		String usergroupTypes = "";
+		CustomParameter csptUserGroupTypesForBallotCreationNotification = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_USERGROUPTYPES_FOR_BALLOT_CREATION_NOTIFICATION", locale);
+		if(csptUserGroupTypesForBallotCreationNotification!=null 
+				&& csptUserGroupTypesForBallotCreationNotification.getValue()!=null) {
+			usergroupTypes = csptUserGroupTypesForBallotCreationNotification.getValue();
+		} else {
+			usergroupTypes = "principal_secretary,secretary,deputy_secretary,under_secretary,under_secretary_committee,section_officer";
+		}
+		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});		
+		getNotificationService().sendNotificationWithTitleUsingTemplate("BALLOT_CREATION_NOTIFICATION", templateParameters, locale);
 	}
 	
 	public static void sendNotificationFromAdminPage(final String notificationTitle, final String notificationMessage, final boolean isVolatile, final String receivers, final String locale) {
