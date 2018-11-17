@@ -94,8 +94,8 @@
 										<fo:block text-align="right" font-weight="bold">
 											<fo:block margin-right="1.8cm">क्रमांक - _____/
 											<xsl:choose>
-												<xsl:when test="houseType='lowerhouse'">ब-१,</xsl:when>
-												<xsl:when test="houseType='upperhouse'">ई-१,</xsl:when>
+												<xsl:when test="houseType='lowerhouse'">फ़,</xsl:when>
+												<xsl:when test="houseType='upperhouse'">ई-२,</xsl:when>
 											</xsl:choose>
 											</fo:block>						
 											<fo:block margin-right="0.38cm">महाराष्ट्र विधानमंडळ सचिवालय,</fo:block>
