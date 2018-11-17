@@ -274,6 +274,7 @@ public class NotificationController extends GenericController<Notification> {
 								final HouseType houseType,
 								final Date ballotDate,
 								final String groupNumber,
+								final String ballotUserName,
 								final String locale) {
 		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
 		templateParameters.put("locale", new String[]{locale});
@@ -285,6 +286,7 @@ public class NotificationController extends GenericController<Notification> {
 		templateParameters.put("houseTypeNameLike", new String[]{"%"+houseType.getName()+"%"});
 		templateParameters.put("ballotDate", new String[]{FormaterUtil.formatDateToString(ballotDate, ApplicationConstants.DB_DATEFORMAT)});
 		templateParameters.put("groupNumber", new String[]{groupNumber});
+		templateParameters.put("ballotUserName", new String[]{ballotUserName});
 		String usergroupTypes = "";
 		CustomParameter csptUserGroupTypesForBallotCreationNotification = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_USERGROUPTYPES_FOR_BALLOT_CREATION_NOTIFICATION", locale);
 		if(csptUserGroupTypesForBallotCreationNotification!=null 

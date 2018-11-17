@@ -445,12 +445,13 @@ public class BallotController extends BaseController{
 				Ballot newBallot = new Ballot(session, deviceType, answeringDate, new Date(), locale.toString());
 				newBallot.create();	
 				//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
-				String groupNumber = "";
-				if(questionDates!=null) {					
-					Group group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);	
-					groupNumber = group.getNumber().toString();
-				}
-				NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, locale.toString());
+//				String groupNumber = "";
+//				if(questionDates!=null) {					
+//					Group group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);	
+//					groupNumber = group.getNumber().toString();
+//				}
+//				String ballotUserName = this.getCurrentUser().getActualUsername();
+//				NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 				retVal = "CREATED";
 			}
 			else {
@@ -541,8 +542,9 @@ public class BallotController extends BaseController{
 			/** Create answeringDate */
 			String strAnsweringDate = request.getParameter("answeringDate");
 			Date answeringDate = null;
+			QuestionDates questionDates = null;
 			if(deviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-				QuestionDates questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
+				questionDates = QuestionDates.findById(QuestionDates.class, Long.parseLong(strAnsweringDate));
 				answeringDate = questionDates.getAnsweringDate();
 			}
 			else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION) ||
@@ -583,6 +585,14 @@ public class BallotController extends BaseController{
 						}
 					}
 					model.addAttribute("ballotVOs", ballotVOs);
+					//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+					String groupNumber = "";
+					if(questionDates!=null) {					
+						group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
+						groupNumber = group.getNumber().toString();
+					}
+					String ballotUserName = this.getCurrentUser().getActualUsername();
+					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 					retVal = "ballot/halfhour_member_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 
@@ -619,6 +629,14 @@ public class BallotController extends BaseController{
 					}
 					
 					serialNumber = null;
+					//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+					String groupNumber = "";
+					if(questionDates!=null) {					
+						group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
+						groupNumber = group.getNumber().toString();
+					}
+					String ballotUserName = this.getCurrentUser().getActualUsername();
+					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 					retVal = "ballot/hds_membersubjectcombo_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){
 					if(strHouseType.equals(ApplicationConstants.LOWER_HOUSE)){
@@ -659,6 +677,14 @@ public class BallotController extends BaseController{
 
 						model.addAttribute("ids",voIds.toString());
 						model.addAttribute("ballotVOs", report);
+						//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+						String groupNumber = "";
+						if(questionDates!=null) {					
+							group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
+							groupNumber = group.getNumber().toString();
+						}
+						String ballotUserName = this.getCurrentUser().getActualUsername();
+						NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 						retVal = "ballot/nonofficial_membersubjectcombo_ballot";
 					}
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
@@ -673,6 +699,14 @@ public class BallotController extends BaseController{
 					model.addAttribute("ids",voIds.toString());
 					model.addAttribute("ballotVOs", ballotVOs);
 
+					//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+					String groupNumber = "";
+					if(questionDates!=null) {					
+						group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
+						groupNumber = group.getNumber().toString();
+					}
+					String ballotUserName = this.getCurrentUser().getActualUsername();
+					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 					retVal = "ballot/nonofficial_bill_membersubjectcombo_ballot";
 				}
 			}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)) {
@@ -700,6 +734,14 @@ public class BallotController extends BaseController{
 					
 					model.addAttribute("ballotVOs", ballotVOs);
 
+					//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+					String groupNumber = "";
+					if(questionDates!=null) {					
+						group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
+						groupNumber = group.getNumber().toString();
+					}
+					String ballotUserName = this.getCurrentUser().getActualUsername();
+					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 					retVal = "ballot/halfhour_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_STANDALONE)){
 					/*List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
@@ -722,11 +764,27 @@ public class BallotController extends BaseController{
 					}
 					model.addAttribute("ballotVOs", ballotVOs);
 
+					//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+					String groupNumber = "";
+					if(questionDates!=null) {					
+						group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
+						groupNumber = group.getNumber().toString();
+					}
+					String ballotUserName = this.getCurrentUser().getActualUsername();
+					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 					retVal = "ballot/halfhour_ballot";
 
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_RESOLUTION)){					
 					List<BallotMemberVO> ballotVOs = Ballot.findBallotedMemberVO(session, deviceType, answeringDate, locale.toString());
 					model.addAttribute("ballotVOs", ballotVOs);
+					//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+					String groupNumber = "";
+					if(questionDates!=null) {					
+						group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
+						groupNumber = group.getNumber().toString();
+					}
+					String ballotUserName = this.getCurrentUser().getActualUsername();
+					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 					retVal = "ballot/nonofficial_member_ballot";
 				}else if(deviceType.getType().equals(ApplicationConstants.NONOFFICIAL_BILL)) {
 					List<BillBallotVO> ballotVOs = Ballot.findBillMemberSubjectBallotVO(session, deviceType, answeringDate, locale.toString());
@@ -740,6 +798,14 @@ public class BallotController extends BaseController{
 					model.addAttribute("ids",voIds.toString());
 					model.addAttribute("ballotVOs", ballotVOs);
 
+					//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+					String groupNumber = "";
+					if(questionDates!=null) {					
+						group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
+						groupNumber = group.getNumber().toString();
+					}
+					String ballotUserName = this.getCurrentUser().getActualUsername();
+					NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 					retVal = "ballot/nonofficial_bill_membersubjectcombo_ballot";
 				}
 			}
@@ -816,6 +882,14 @@ public class BallotController extends BaseController{
 				model.addAttribute("groupNo", 
 						FormaterUtil.formatNumberNoGrouping(qnGroup.getNumber(), locale.toString()));
 				
+				//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+				String groupNumber = "";
+				if(questionDates!=null) {					
+					group = Group.findByAnsweringDateInHouseType(answeringDate, houseType);
+					groupNumber = group.getNumber().toString();
+				}
+				String ballotUserName = this.getCurrentUser().getActualUsername();
+				NotificationController.sendBallotCreationNotification(deviceType, houseType, answeringDate, groupNumber, ballotUserName, locale.toString());
 				retVal = "ballot/ballot";
 			}
 			
@@ -3229,7 +3303,8 @@ public class BallotController extends BaseController{
 								model.addAttribute("ballots",ballots);
 								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
 								//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
-								NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), questionDates.getAnsweringDate(), group.getNumber().toString(), locale.toString());
+								String ballotUserName = this.getCurrentUser().getActualUsername();
+								NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), questionDates.getAnsweringDate(), group.getNumber().toString(), ballotUserName, locale.toString());
 							}else{
 								model.addAttribute("type","FINALBALLOT_FAILED");
 								return errorpage;	
@@ -3312,6 +3387,9 @@ public class BallotController extends BaseController{
 								ballots=MemberBallot.viewFinalBallot(session, deviceType,ansDate, locale.toString());
 								model.addAttribute("ballots",ballots);
 								model.addAttribute("answeringDate",FormaterUtil.getDateFormatter(locale.toString()).format(questionDates.getAnsweringDate()));
+								//SEND NOTIFICATION OF SUCCESSFUL BALLOT CREATION
+								String ballotUserName = this.getCurrentUser().getActualUsername();
+								NotificationController.sendBallotCreationNotification(deviceType, session.getHouse().getType(), questionDates.getAnsweringDate(), group.getNumber().toString(), ballotUserName, locale.toString());
 							}else{
 								model.addAttribute("type","FINAL_BALLOT_NOT_CREATED");
 								return errorpage;	
