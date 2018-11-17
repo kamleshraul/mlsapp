@@ -288,12 +288,12 @@ public class NotificationController extends GenericController<Notification> {
 		templateParameters.put("groupNumber", new String[]{groupNumber});
 		templateParameters.put("ballotUserName", new String[]{ballotUserName});
 		String usergroupTypes = "";
-		CustomParameter csptUserGroupTypesForBallotCreationNotification = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_USERGROUPTYPES_FOR_BALLOT_CREATION_NOTIFICATION", locale);
+		CustomParameter csptUserGroupTypesForBallotCreationNotification = CustomParameter.findByName(CustomParameter.class, deviceType.getType().toUpperCase()+"_USERGROUPTYPES_FOR_BALLOT_CREATION_NOTIFICATION", "");
 		if(csptUserGroupTypesForBallotCreationNotification!=null 
 				&& csptUserGroupTypesForBallotCreationNotification.getValue()!=null) {
 			usergroupTypes = csptUserGroupTypesForBallotCreationNotification.getValue();
 		} else {
-			usergroupTypes = "principal_secretary,secretary,deputy_secretary,under_secretary,under_secretary_committee,section_officer";
+			usergroupTypes = "deputy_secretary";
 		}
 		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});		
 		getNotificationService().sendNotificationWithTitleUsingTemplate("BALLOT_CREATION_NOTIFICATION", templateParameters, locale);
