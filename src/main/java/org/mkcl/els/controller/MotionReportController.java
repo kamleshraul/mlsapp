@@ -552,10 +552,11 @@ public class MotionReportController extends BaseController{
 				Map<String, String[]> parameters = request.getParameterMap();
 				
 				List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
+				List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_CLUBBED_DETAILS", parameters);	
 				String templateName = request.getParameter("templateName");
 				File reportFile = null;				
 				
-				reportFile = generateReportUsingFOP(new Object[] {((Object[])reportData.get(0))[0], reportData}, templateName, strReportFormat, request.getParameter("reportName"), locale.toString());
+				reportFile = generateReportUsingFOP(new Object[] {((Object[])reportData.get(0))[0], reportData,reportData1}, templateName, strReportFormat, request.getParameter("reportName"), locale.toString());
 				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
 				
 				model.addAttribute("info", "general_info");;
