@@ -634,22 +634,52 @@ public class QuestionReportController extends BaseController{
 				/**** populating fields for half-hour discussion from questions ****/
 				if(deviceType.getType().equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
 					Question referredQuestion = question.getHalfHourDiscusionFromQuestionReference();
+					if(referredQuestion == null){
+						Integer qNumber = null;
+						try {
+							qNumber = new Integer(FormaterUtil.
+									getNumberFormatterNoGrouping(locale.toString()).parse(question.getHalfHourDiscusionFromQuestionReferenceNumber()).intValue());
+						} catch (ParseException e) {
+							logger.error("Number parse exception.");
+						}
+						Map<String, String[]> params = new HashMap<String, String[]>();
+						params.put("locale", new String[]{locale.toString()});
+						params.put("sessionId", new String[]{question.getSession().getId().toString()});
+						params.put("qNumber", new String[]{qNumber.toString()});
+						List data = Query.findReport("HDQ_REFER_QUESTION", params);
+						
+						if(data != null && !data.isEmpty()){
+							String strId = null;
+							try{
+								strId = ((Object[])data.get(0))[0].toString();
+								
+								if(strId != null){
+									referredQuestion = Question.findById(Question.class, new Long(strId));
+								}
+							}catch(Exception e){
+								logger.error("error", e);
+							}
+						}
+					}
 					if(referredQuestion!=null) {
 						if(referredQuestion.getNumber()!=null) {
 							letterVO.setReferredQuestionNumber(FormaterUtil.formatNumberNoGrouping(referredQuestion.getNumber(), locale.toString()));
 						}						
 						DeviceType referredQuestionDeviceType = referredQuestion.getType();
 						if(referredQuestionDeviceType!=null) {
-							letterVO.setReferredQuestionDeviceType(referredQuestionDeviceType.getType());
+							letterVO.setReferredQuestionDeviceType(referredQuestionDeviceType.getName());
 						}
 						Member referredQuestionMember = referredQuestion.getPrimaryMember();
 						if(referredQuestionMember!=null) {
 							letterVO.setReferredQuestionMemberName(referredQuestionMember.findNameInGivenFormat(memberNameFormat));
 						}						
 						if(referredQuestionDeviceType.getType().equals(ApplicationConstants.STARRED_QUESTION)) {
-							QuestionDates answeringQuestionDate = referredQuestion.getAnsweringDate();
-							if(answeringQuestionDate!=null && answeringQuestionDate.getAnsweringDate()!=null) {
-								letterVO.setReferredQuestionAnsweringDate(FormaterUtil.formatDateToString(answeringQuestionDate.getAnsweringDate(), ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString()));
+							Map<String, String[]> parameters = new HashMap<String, String[]>();
+							parameters.put("locale", new String[]{locale.toString()});
+							parameters.put("questionId", new String[]{referredQuestion.getId().toString()});
+							List ballotDate = org.mkcl.els.domain.Query.findReport("QIS_GET_BALLOTDATE", parameters);
+							if(ballotDate != null && !ballotDate.isEmpty()){
+								letterVO.setReferredQuestionAnsweringDate(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(ballotDate.get(0).toString(), ApplicationConstants.DB_DATEFORMAT), ApplicationConstants.ROTATIONORDER_DATEFORMAT, locale.toString()));
 							}
 						} else if(referredQuestionDeviceType.getType().equals(ApplicationConstants.UNSTARRED_QUESTION)) {
 							if(referredQuestion.getYaadiNumber()!=null) {
