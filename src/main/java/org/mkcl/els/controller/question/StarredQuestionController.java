@@ -2690,14 +2690,26 @@ class StarredQuestionController {
 		request.getSession().setAttribute("questionType", request.getParameter("questionType"));
 		/**** Parameters which are read from request in populate edit needs to be saved in session Starts ****/
 		Question question = Question.findById(Question.class, domain.getId());
-		
+		Boolean isGroupChanged = false;
+		Boolean isMinistryChanged =false;
+		Boolean isSubDepartmentChanged = false;
 		Status submitStatus = Status.findByType(ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
 		if(domain.getInternalStatus().getPriority()>submitStatus.getPriority()) {
 			// On Group Change
 			String strGroupId = request.getParameter("oldgroup");
+			String strMinistrySelected = request.getParameter("ministrySelected");
+			String strSubDepartmentSelected = request.getParameter("subDepartmentSelected");
 			Group oldGroup = null;
+			Ministry oldMinistry = null;
+			SubDepartment oldSubDepartment = null;
 			if(strGroupId != null && !strGroupId.isEmpty()){
 				oldGroup = Group.findById(Group.class, Long.parseLong(strGroupId));
+			}
+			if(strMinistrySelected != null & !strMinistrySelected.isEmpty()){
+				oldMinistry = Ministry.findById(Ministry.class, Long.parseLong(strMinistrySelected));
+			}
+			if(strSubDepartmentSelected != null && !strSubDepartmentSelected.isEmpty()){
+				oldSubDepartment = SubDepartment.findById(SubDepartment.class, Long.parseLong(strSubDepartmentSelected));
 			}
 //			Group fromGroup = Question.isGroupChanged(question);
 //			if(fromGroup != null) {
@@ -2705,6 +2717,7 @@ class StarredQuestionController {
 //			}
 			if(oldGroup != null && !oldGroup.equals(domain.getGroup())){
 				Question.onGroupChange(question, oldGroup);
+				isGroupChanged = true;
 				//SEND NOTIFICATION FOR DEPARTMENT CHANGE ACROSS GROUPS
 				String prevDeptId = request.getParameter("subDepartmentSelected");
 				if(prevDeptId!=null) {
@@ -2716,6 +2729,12 @@ class StarredQuestionController {
 						NotificationController.sendDepartmentChangeNotification(question.getNumber().toString(), question.getType(), question.getHouseType(), prevDepartment.getName(), currentDepartment.getName(), usergroupTypes, question.getLocale());
 					}
 				}				
+			}else if(oldMinistry != null && !oldMinistry.equals(domain.getMinistry())){
+				Question.onMinistryChange(question, oldMinistry);
+				isMinistryChanged = true;
+			}else if(oldSubDepartment != null && !oldSubDepartment.equals(domain.getSubDepartment())){
+				Question.onSubdepartmentChange(question, oldSubDepartment);
+				isSubDepartmentChanged = true;
 			}
 			
 			// Add to Chart
@@ -2827,16 +2846,18 @@ class StarredQuestionController {
 					question.simpleMerge();
 			}
 		}else{
-			// If branch users add the answer from their end instead of from department, then the workflow will end of the department side
-			if(domain.getAnswer() != null && !domain.getAnswer().isEmpty()){
-				WorkflowDetails wd = WorkflowDetails.findCurrentWorkflowDetail(domain);
-				if(wd != null){
-					if(wd.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
-							||wd.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
-						WorkflowDetails.endProcess(wd);
-						Status answerAcceptanceStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_ANSWER_RECEIVED, domain.getLocale());
-						question.setRecommendationStatus(answerAcceptanceStatus);
-						question.removeExistingWorkflowAttributes();
+			if(!isGroupChanged && !isSubDepartmentChanged && !isMinistryChanged){
+				// If branch users add the answer from their end instead of from department, then the workflow will end of the department side
+				if(domain.getAnswer() != null && !domain.getAnswer().isEmpty()){
+					WorkflowDetails wd = WorkflowDetails.findCurrentWorkflowDetail(domain);
+					if(wd != null){
+						if(wd.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+								||wd.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+							WorkflowDetails.endProcess(wd);
+							Status answerAcceptanceStatus = Status.findByType(ApplicationConstants.QUESTION_PROCESSED_ANSWER_RECEIVED, domain.getLocale());
+							question.setRecommendationStatus(answerAcceptanceStatus);
+							question.removeExistingWorkflowAttributes();
+						}
 					}
 				}
 			}
