@@ -6025,7 +6025,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 		/**** full text query ****/
 		String searchQuery = null;
 		if(!param.contains("+")&&!param.contains("-")){
-			searchQuery = " AND (( match(q.notice_content,q.revised_notice_content) "+
+			searchQuery = " AND (( match(q.subject,q.notice_content,q.revised_subject,q.revised_notice_content) "+
 					"against('"+param+"' in natural language mode)"+
 					")||q.subject LIKE '"+param+"%'||q.notice_content LIKE '"+param+"%'||q.revised_notice_content LIKE '"+param+"%'||q.revised_subject LIKE '"+param+"%')";
 		}else if(param.contains("+")&&!param.contains("-")){
@@ -6034,7 +6034,7 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 			for(String i:parameters){
 				buffer.append("+"+i+" ");
 			}
-			searchQuery=" AND match(q.notice_content,q.revised_notice_content) "+
+			searchQuery=" AND match(q.subject,q.notice_content,q.revised_subject,q.revised_notice_content) "+
 					"against('"+buffer.toString()+"' in boolean  mode)";
 		}else if(!param.contains("+")&&param.contains("-")){
 			String[] parameters = param.split("-");
@@ -6043,10 +6043,10 @@ public class ClubbedEntityRepository extends BaseRepository<ClubbedEntity, Seria
 				buffer.append(i+" "+"-");
 			}
 			buffer.deleteCharAt(buffer.length()-1);
-			searchQuery=" AND match(q.notice_content,q.revised_notice_content) "+
+			searchQuery=" AND match(q.subject,q.notice_content,q.revised_subject,q.revised_notice_content) "+
 					"against('"+buffer.toString()+"' in boolean  mode)";
 		}else if(param.contains("+")||param.contains("-")){
-			searchQuery=" AND match(q.notice_content,q.revised_notice_content) "+
+			searchQuery=" AND match(q.subject,q.notice_content,q.revised_subject,q.revised_notice_content) "+
 					"against('"+param+"' in boolean  mode)";
 		}		
 		/**** Final Query ****/

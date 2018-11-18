@@ -1216,7 +1216,7 @@
 					</a>
 				</li>
 			</c:if>
-			<c:if test="${usergroupType=='deputy_secretary' or usergroupType=='under_secretary'}">
+			<c:if test="${usergroupType=='deputy_secretary' or usergroupType=='deputy_secretary1' or usergroupType=='deputy_secretary2' or usergroupType=='under_secretary' or usergroupType=='secretary'}">
 				<li>
 					<a id="advanced_bulkapproval_tab" href="#" class="tab">
 					   <spring:message code="generic.advancedbulkputup" text="Advance Bulk Putup"></spring:message>

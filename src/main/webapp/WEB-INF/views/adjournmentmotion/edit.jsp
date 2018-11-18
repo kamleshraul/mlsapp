@@ -530,38 +530,6 @@
 			</p>	
 			</security:authorize>
 			
-			<p style="display: none;">
-				<label class="small"><spring:message code="adjournmentmotion.ministry" text="Ministry"/></label>
-				<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
-				<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
-				<%-- <form:select path="ministry" id="ministry" class="sSelect">
-				<c:forEach items="${ministries}" var="i">
-					<c:choose>
-						<c:when test="${i.id==ministrySelected }">
-							<option value="${i.id}" selected="selected">${i.name}</option>
-						</c:when>
-						<c:otherwise>
-							<option value="${i.id}" >${i.name}</option>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-				</form:select> --%>
-				<form:errors path="ministry" cssClass="validationError"/>			
-				<label class="small"><spring:message code="adjournmentmotion.subdepartment" text="Sub Department"/></label>
-				<select name="subDepartment" id="subDepartment" class="sSelect">
-				<c:forEach items="${subDepartments}" var="i">
-					<c:choose>
-						<c:when test="${i.id==subDepartmentSelected}">
-							<option value="${i.id}" selected="selected">${i.name}</option>
-						</c:when>
-						<c:otherwise>
-							<option value="${i.id}">${i.name}</option>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-				</select>						
-			</p>
-			
 			<p>
 				<label class="centerlabel"><spring:message code="adjournmentmotion.supportingMembers" text="Supporting Members"/></label>
 				<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
@@ -620,6 +588,38 @@
 				<form:textarea path="rejectionReason" cssClass="wysiwyg invalidFormattingAllowed" readonly="true"></form:textarea>
 			</p>
 			</c:if> --%>
+			
+			<p>
+				<label class="small"><spring:message code="adjournmentmotion.ministry" text="Ministry"/></label>
+				<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
+				<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
+				<%-- <form:select path="ministry" id="ministry" class="sSelect">
+				<c:forEach items="${ministries}" var="i">
+					<c:choose>
+						<c:when test="${i.id==ministrySelected }">
+							<option value="${i.id}" selected="selected">${i.name}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${i.id}" >${i.name}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+				</form:select> --%>
+				<form:errors path="ministry" cssClass="validationError"/>			
+				<label class="small"><spring:message code="adjournmentmotion.subdepartment" text="Sub Department"/></label>
+				<select name="subDepartment" id="subDepartment" class="sSelect">
+				<c:forEach items="${subDepartments}" var="i">
+					<c:choose>
+						<c:when test="${i.id==subDepartmentSelected}">
+							<option value="${i.id}" selected="selected">${i.name}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${i.id}">${i.name}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+				</select>						
+			</p>
 			</div>	
 			 <div class="fields">
 				<h2></h2>
