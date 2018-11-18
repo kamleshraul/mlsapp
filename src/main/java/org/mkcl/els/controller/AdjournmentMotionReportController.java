@@ -367,7 +367,9 @@ class AdjournmentMotionReportHelper{
 											Object[] actor = new Object[32];
 											if(ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY_COMMITTEE) 
 													|| ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)
-													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY)){
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY)
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY1)
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY2)){
 												actor[0] = new String(ref.getId().split("#")[3]);
 												actor[1] = new String(ref.getId().split("#")[4]);
 											}else{

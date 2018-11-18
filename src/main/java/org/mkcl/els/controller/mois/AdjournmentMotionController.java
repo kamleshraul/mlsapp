@@ -591,11 +591,27 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 					logger.error("**** Authenticated user is not a member ****");
 					model.addAttribute("errorcode","member_isnull");
 				}				
+//				/**** Constituency ****/
+//				Constituency constituency = Member.findConstituency(member, new Date());
+//				if(constituency != null){
+//					model.addAttribute("constituency", constituency.getDisplayName());
+//				}	
 				/**** Constituency ****/
-				Constituency constituency = Member.findConstituency(member, new Date());
-				if(constituency != null){
-					model.addAttribute("constituency", constituency.getDisplayName());
-				}						
+				Long houseId=selectedSession.getHouse().getId();
+				MasterVO constituency=null;
+				if(houseType.getType().equals("lowerhouse")){
+					if(member != null){
+						constituency=Member.findConstituencyByAssemblyId(member.getId(), houseId);
+						model.addAttribute("constituency",constituency.getName());
+					}
+				}else if(houseType.getType().equals("upperhouse")){
+					Date currentDate=new Date();
+					String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
+					if(member != null){
+						constituency=Member.findConstituencyByCouncilDates(member.getId(), houseId, "DATE", date, date);
+						model.addAttribute("constituency",constituency.getName());
+					}
+				}
 			}
 			/**** Ministries ****/
 			Date rotationOrderPubDate=null;
@@ -794,9 +810,20 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 			if(primaryMember != null) {
 				model.addAttribute("formattedPrimaryMember", primaryMember.getFullname());
 				model.addAttribute("primaryMember", primaryMember.getId());
-				Constituency constituency = Member.findConstituency(primaryMember, new Date());
-				if(constituency != null){
-					model.addAttribute("constituency", constituency.getDisplayName());
+//				Constituency constituency = Member.findConstituency(primaryMember, new Date());
+//				if(constituency != null){
+//					model.addAttribute("constituency", constituency.getDisplayName());
+//				}
+				/**** Constituency ****/
+				Long houseId=selectedSession.getHouse().getId();
+				MasterVO constituency=null;
+				if(houseType.getType().equals("lowerhouse")){
+					constituency=Member.findConstituencyByAssemblyId(primaryMember.getId(), houseId);
+					model.addAttribute("constituency",constituency.getName());
+				}else if(houseType.getType().equals("upperhouse")){
+					String date=FormaterUtil.getDateFormatter("en_US").format(currentDate);
+					constituency=Member.findConstituencyByCouncilDates(primaryMember.getId(), houseId, "DATE", date, date);
+					model.addAttribute("constituency",constituency.getName());
 				}
 			}
 			/**** Supporting Members ****/
@@ -918,8 +945,11 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 			if(domain.getTaskReceivedOn()!=null){
 				model.addAttribute("taskReceivedOnDate", FormaterUtil.formatDateToString(domain.getTaskReceivedOn(), ApplicationConstants.SERVER_DATETIMEFORMAT));
 			}
-			// set End Flag and Level in case of assistant
-			if(userGroupType !=null && userGroupType.getType().equals("section_officer")){
+			
+			// set End Flag and Level in case of assistant/section officer
+			if(userGroupType !=null 
+					&& (userGroupType.getType().equals("assistant") || userGroupType.getType().equals("section_officer"))
+			){
 				if(domain.getWorkflowStarted()==null || domain.getWorkflowStarted().isEmpty()){
 					domain.setWorkflowStarted("NO");
 				}
@@ -1096,6 +1126,7 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 		/** Basic Fields Validation **/
 		if(domain.getHouseType()==null){
 			result.rejectValue("houseType","HousetypeEmpty");
+			return;
 		}
 		if(domain.getType()==null){
 			result.rejectValue("type","MotionTypeEmpty");
@@ -1172,25 +1203,27 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 					}
 				}
 			} else if(operation.equals("submit")){
-				/**** Submission ****/			
-//				// Empty check for Ministry
-//				if(domain.getMinistry()==null){
-//					result.rejectValue("ministry","MinistryEmpty");
-//				}
-//				// Empty check for Subdepartment
-//				if(domain.getSubDepartment()==null){
-//					result.rejectValue("subDepartment","SubDepartmentEmpty");
-//				}
+				/**** Submission ****/	
+				if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					// Empty check for Ministry
+					if(domain.getMinistry()==null){
+						result.rejectValue("ministry","MinistryEmpty");
+					}
+					// Empty check for Subdepartment
+					if(domain.getSubDepartment()==null){
+						result.rejectValue("subDepartment","SubDepartmentEmpty");
+					}
+				}
 				
 				//submission window validations
-				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "ADJOURNMENTMOTION_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED", "");
+				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "ADJOURNMENTMOTION_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
 				if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
 						|| !submissionWindowValidationSkippedCP.getValue().equals("TRUE")) {
 					if(!domain.validateSubmissionDate()) {
 						result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
 						return;
 					}
-					CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG", "");
+					CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG"+"_"+domain.getHouseType().getType().toUpperCase(), "");
 					if(csptOfflineSubmissionAllowedFlag!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
@@ -1568,14 +1601,14 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 			} else if(operation.equals("submit")){
 				/**** Submission ****/	
 				//submission window validations
-				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "ADJOURNMENTMOTION_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED", "");
+				CustomParameter submissionWindowValidationSkippedCP = CustomParameter.findByName(CustomParameter.class, "ADJOURNMENTMOTION_SUBMISSION_WINDOW_VALIDATIONS_SKIPPED"+"_"+domain.getHouseType().getType().toUpperCase(), "");
 				if(submissionWindowValidationSkippedCP==null || submissionWindowValidationSkippedCP.getValue()==null
 						|| !submissionWindowValidationSkippedCP.getValue().equals("TRUE")) {
 					if(!domain.validateSubmissionDate()) {
 						result.rejectValue("version","submissionWindowClosed","submission time window is closed for this adjourning date motions!");
 						return;
 					}
-					CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG", "");
+					CustomParameter csptOfflineSubmissionAllowedFlag = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_OFFLINE_SUBMISSION_ALLOWED_FLAG"+"_"+domain.getHouseType().getType().toUpperCase(), "");
 					if(csptOfflineSubmissionAllowedFlag!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue()!=null 
 							&& csptOfflineSubmissionAllowedFlag.getValue().equals("YES")) {
@@ -1592,14 +1625,16 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 						}
 					}
 				}
-				// Empty check for Ministry
-//				if(domain.getMinistry()==null){
-//					result.rejectValue("ministry","MinistryEmpty");
-//				}
-//				// Empty check for SubDepartment
-//				if(domain.getSubDepartment()==null){
-//					result.rejectValue("subDepartment","SubDepartmentEmpty");
-//				}
+				if(domain.getHouseType().getType().equals(ApplicationConstants.UPPER_HOUSE)) {
+					// Empty check for Ministry
+					if(domain.getMinistry()==null){
+						result.rejectValue("ministry","MinistryEmpty");
+					}
+					// Empty check for Subdepartment
+					if(domain.getSubDepartment()==null){
+						result.rejectValue("subDepartment","SubDepartmentEmpty");
+					}
+				}
 			} else if(operation.equals("startworkflow")){
 				// Empty check for Ministry
 //				if(domain.getMinistry()==null){
@@ -1822,8 +1857,10 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 			model.addAttribute("recommendationStatusPriority", recommendationStatus.getPriority());
 			model.addAttribute("formattedRecommendationStatus", recommendationStatus.getName());
 			/**** Start workflow related things ****/
-			// set End Flag and Level in case of assistant
-			if(usergroupType !=null && !(usergroupType.isEmpty()) && usergroupType.equals("assistant")){
+			// set End Flag and Level in case of assistant/section officer
+			if(userGroupType !=null 
+					&& (userGroupType.getType().equals("assistant") || userGroupType.getType().equals("section_officer"))
+			){
 				if(domain.getWorkflowStarted()==null || domain.getWorkflowStarted().isEmpty()){
 					domain.setWorkflowStarted("NO");
 				}

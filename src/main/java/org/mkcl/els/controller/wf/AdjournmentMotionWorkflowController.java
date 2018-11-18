@@ -570,21 +570,22 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 				break;
 			}
 		}
+		HouseType houseType = domain.getHouseType();
 		CustomParameter customParameter = null;
 		if(userGroupType!=null) {
-			customParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_LATESTREVISION_STARTINGACTOR_"+userGroupType.getType().toUpperCase(), "");
+			customParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_LATESTREVISION_STARTINGACTOR_"+userGroupType.getType().toUpperCase()+"_"+houseType.getType().toUpperCase(), "");
 			if(customParameter != null){
 				String strUsergroupType = customParameter.getValue();
 				userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
 			}else{
-				CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+				CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_LATESTREVISION_STARTINGACTOR_DEFAULT"+"_"+houseType.getType().toUpperCase(), "");
 				if(defaultCustomParameter != null){
 					String strUsergroupType = defaultCustomParameter.getValue();
 					userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
 				}
 			}
 		} else {
-			CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_LATESTREVISION_STARTINGACTOR_DEFAULT", "");
+			CustomParameter defaultCustomParameter = CustomParameter.findByName(CustomParameter.class, "AMOIS_LATESTREVISION_STARTINGACTOR_DEFAULT"+"_"+houseType.getType().toUpperCase(), "");
 			if(defaultCustomParameter != null){
 				String strUsergroupType = defaultCustomParameter.getValue();
 				userGroupType=UserGroupType.findByFieldName(UserGroupType.class, "type", strUsergroupType, domain.getLocale());
