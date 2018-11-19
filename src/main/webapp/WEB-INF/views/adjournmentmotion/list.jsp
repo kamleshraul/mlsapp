@@ -71,6 +71,26 @@
 				$(this).attr('href','#');
 				generateBhag2Report();
 			});
+			/**** Submitted Motions Report Generation ****/
+			$("#amois_submitted_report").click(function() {
+				$(this).attr('href','#');
+				generateSubmittedMotionsReport();
+			});
+			/**** Admitted Motions Report Generation ****/
+			$("#amois_admitted_report").click(function() {
+				$(this).attr('href','#');
+				generateAdmittedMotionsReport();
+			});
+			/**** Rejected Motions Report Generation ****/
+			$("#amois_rejected_report").click(function() {
+				$(this).attr('href','#');
+				generateRejectedMotionsReport();
+			});
+			/**** Register Report Generation ****/
+			$("#amois_register_report").click(function() {
+				$(this).attr('href','#');
+				generateRegisterReport();
+			});
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -121,13 +141,31 @@
 			<security:authorize access="hasAnyRole('AMOIS_CLERK', 'AMOIS_ASSISTANT', 'AMOIS_SECTION_OFFICER')">
 			<a href="#" id="amois_current_status_report" class="butSim">
 				<spring:message code="amois.current_status_report" text="Current Status Report"/>
-			</a> |
-			<a href="#" id="amois_bhag_1_report" class="butSim">
-				<spring:message code="amois.bhag_1_report" text="Bhag 1 Report"/>
-			</a> |
-			<a href="#" id="amois_bhag_2_report" class="butSim">
-				<spring:message code="amois.bhag_2_report" text="Bhag 2 Report"/>
-			</a> |
+			</a> |		
+			<c:choose>
+				<c:when test="${houseType=='lowerhouse'}">
+					<a href="#" id="amois_bhag_1_report" class="butSim">
+						<spring:message code="amois.bhag_1_report" text="Bhag 1 Report"/>
+					</a> |
+					<a href="#" id="amois_bhag_2_report" class="butSim">
+						<spring:message code="amois.bhag_2_report" text="Bhag 2 Report"/>
+					</a> |
+				</c:when>
+				<c:when test="${houseType=='upperhouse'}">
+					<a href="#" id="amois_submitted_report" class="butSim">
+						<spring:message code="amois.submitted_report" text="Submitted Motions Report"/>
+					</a> |
+					<a href="#" id="amois_admitted_report" class="butSim">
+						<spring:message code="amois.admitted_report" text="Admitted Motions Report"/>
+					</a> |
+					<a href="#" id="amois_rejected_report" class="butSim">
+						<spring:message code="amois.rejected_report" text="Rejected Motions Report"/>
+					</a> |
+					<a href="#" id="amois_register_report" class="butSim">
+						<spring:message code="amois.rejected_report" text="Register Report"/>
+					</a> |
+				</c:when>
+			</c:choose>				
 			</security:authorize>		
 			<p>&nbsp;</p>
 		</div>

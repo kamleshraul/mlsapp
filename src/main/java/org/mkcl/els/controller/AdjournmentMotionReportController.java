@@ -214,6 +214,208 @@ public class AdjournmentMotionReportController extends BaseController{
 		}		
 	}
 	
+	@RequestMapping(value="/submittedmotions" ,method=RequestMethod.GET)
+	public @ResponseBody void generateSubmittedMotionsReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		String adjourningDateStr = request.getParameter("adjourningDate");
+		String reportQueryName = request.getParameter("reportQueryName");
+		if(adjourningDateStr==null || adjourningDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+			logger.error("**** One of the request parameters is not set ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.submitted_motions_report.parameterNotSet", locale.toString());						
+		} else {
+			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("locale", new String[]{locale.toString()});
+			@SuppressWarnings("rawtypes")
+			List submittedMotions = Query.findReport(reportQueryName, requestMap, true);
+			try {
+				reportFile = generateReportUsingFOP(new Object[] {submittedMotions}, "amois_submitted_motions_template", "WORD", "amois_submitted_motions", locale.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("**** Some error occurred ****");
+				isError = true;
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.submitted_motions_report.someErrorOccurred", locale.toString());
+			}
+			System.out.println("AMOIS Submitted Motions Report generated successfully in WORD format!");
+
+			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");			
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {				
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	@RequestMapping(value="/admittedmotions" ,method=RequestMethod.GET)
+	public @ResponseBody void generateAdmittedMotionsReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		String adjourningDateStr = request.getParameter("adjourningDate");
+		String reportQueryName = request.getParameter("reportQueryName");
+		if(adjourningDateStr==null || adjourningDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+			logger.error("**** One of the request parameters is not set ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.admitted_motions_report.parameterNotSet", locale.toString());						
+		} else {
+			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("locale", new String[]{locale.toString()});
+			@SuppressWarnings("rawtypes")
+			List admittedMotions = Query.findReport(reportQueryName, requestMap, true);
+			try {
+				reportFile = generateReportUsingFOP(new Object[] {admittedMotions}, "amois_admitted_motions_template", "WORD", "amois_admitted_motions", locale.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("**** Some error occurred ****");
+				isError = true;
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.admitted_motions_report.someErrorOccurred", locale.toString());
+			}
+			System.out.println("AMOIS Admitted Motions Report generated successfully in WORD format!");
+
+			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");			
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {				
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	@RequestMapping(value="/rejectedmotions" ,method=RequestMethod.GET)
+	public @ResponseBody void generateRejectedMotionsReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		String adjourningDateStr = request.getParameter("adjourningDate");
+		String reportQueryName = request.getParameter("reportQueryName");
+		if(adjourningDateStr==null || adjourningDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+			logger.error("**** One of the request parameters is not set ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.rejected_motions_report.parameterNotSet", locale.toString());						
+		} else {
+			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("locale", new String[]{locale.toString()});
+			@SuppressWarnings("rawtypes")
+			List rejectedMotions = Query.findReport(reportQueryName, requestMap, true);
+			try {
+				reportFile = generateReportUsingFOP(new Object[] {rejectedMotions}, "amois_rejected_motions_template", "WORD", "amois_rejected_motions", locale.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("**** Some error occurred ****");
+				isError = true;
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.rejected_motions_report.someErrorOccurred", locale.toString());
+			}
+			System.out.println("AMOIS Rejected Motions Report generated successfully in WORD format!");
+
+			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");			
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {				
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	@RequestMapping(value="/register" ,method=RequestMethod.GET)
+	public @ResponseBody void generateRegisterReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		String adjourningDateStr = request.getParameter("adjourningDate");
+		String reportQueryName = request.getParameter("reportQueryName");
+		if(reportQueryName==null || reportQueryName.isEmpty()) {
+			logger.error("**** One of the request parameters is not set ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.register_report.parameterNotSet", locale.toString());						
+		} else {
+			Date adjourningDate = null;
+			if(adjourningDateStr!=null && !adjourningDateStr.isEmpty()) {
+				adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+				requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			}			
+			requestMap.put("locale", new String[]{locale.toString()});
+			@SuppressWarnings("rawtypes")
+			List registerMotions = Query.findReport(reportQueryName, requestMap, true);
+			try {
+				reportFile = generateReportUsingFOP(new Object[] {registerMotions}, "amois_register_template", "WORD", "amois_register", locale.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("**** Some error occurred ****");
+				isError = true;
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.register_report.someErrorOccurred", locale.toString());
+			}
+			System.out.println("AMOIS Register Report generated successfully in WORD format!");
+
+			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");			
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {				
+				e.printStackTrace();
+			}
+		}		
+	}
 }
 
 class AdjournmentMotionReportHelper{

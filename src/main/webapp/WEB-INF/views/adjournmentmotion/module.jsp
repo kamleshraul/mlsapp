@@ -441,6 +441,53 @@
 						+'&reportQueryName=AMOIS_BHAG2_REPORT');
 			}
 		}
+		/**** Submitted Motions Report Generation ****/
+		function generateSubmittedMotionsReport() {
+			var selectedAdjourningDate = $('#selectedAdjourningDate').val();
+			if(selectedAdjourningDate==undefined || selectedAdjourningDate=="") {
+				$.prompt("Please select adjourning date of submitted motions");
+				return false;
+			} else {
+				$("#amois_submitted_report").attr('href',
+						'adjournmentmotion/report/submittedmotions?'
+						+'adjourningDate=' + selectedAdjourningDate
+						+'&reportQueryName=AMOIS_SUBMITTED_MOTIONS_REPORT');
+			}			
+		}
+		/**** Admitted Motions Report Generation ****/
+		function generateAdmittedMotionsReport() {
+			var selectedAdjourningDate = $('#selectedAdjourningDate').val();
+			if(selectedAdjourningDate==undefined || selectedAdjourningDate=="") {
+				$.prompt("Please select adjourning date of admitted motions");
+				return false;
+			} else {
+				$("#amois_admitted_report").attr('href',
+						'adjournmentmotion/report/admittedmotions?'
+						+'adjourningDate=' + selectedAdjourningDate
+						+'&reportQueryName=AMOIS_ADMITTED_MOTIONS_REPORT');
+			}			
+		}
+		/**** Rejected Motions Report Generation ****/
+		function generateRejectedMotionsReport() {
+			var selectedAdjourningDate = $('#selectedAdjourningDate').val();
+			if(selectedAdjourningDate==undefined || selectedAdjourningDate=="") {
+				$.prompt("Please select adjourning date of rejected motions");
+				return false;
+			} else {
+				$("#amois_rejected_report").attr('href',
+						'adjournmentmotion/report/rejectedmotions?'
+						+'adjourningDate=' + selectedAdjourningDate
+						+'&reportQueryName=AMOIS_REJECTED_MOTIONS_REPORT');
+			}			
+		}
+		/**** Register Report Generation ****/
+		function generateRegisterReport() {
+			var selectedAdjourningDate = $('#selectedAdjourningDate').val();
+			$("#amois_register_report").attr('href',
+					'adjournmentmotion/report/register?'
+					+'adjourningDate=' + selectedAdjourningDate
+					+'&reportQueryName=AMOIS_REGISTER_REPORT');
+		}
 	</script>
 </head>
 <body>
@@ -616,7 +663,7 @@
 				<option value="${i[0]}" ${i[0]==defaultAdjourningDate?'selected=selected':''}><c:out value="${i[1]}"></c:out></option>		
 			</c:forEach>
 			</select>	
-			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','AMOIS_SECTION_OFFICER')">
+			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','AMOIS_ASSISTANT','AMOIS_SECTION_OFFICER')">
 			<a href="#" id="submission_time_window" class="butSim">
 				<spring:message code="amois.submission_time_window" text="Submission Time Window"/>
 			</a> |
