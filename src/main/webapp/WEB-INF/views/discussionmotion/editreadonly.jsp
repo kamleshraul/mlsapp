@@ -69,7 +69,7 @@
 	</select>		
 	
 	<label class="labeltop"><spring:message code="discussionmotion.subdepartment" text="Sub Department"/></label>
-	<select name="subDepartmentEdit" id="subDepartmentEdit" class="sSelectMultiple" size="5" multiple="multiple" disabled="disabled">
+	<select name="subDepartmentEdit" id="subDepartmentEdit" multiple="multiple" size="5" class="sSelectMultiple" style="max-width: 188px !important;" disabled="disabled">
 		<c:forEach items="${subDepartments}" var="i">
 			<c:set var="selectedSubDepartment" value="no"></c:set>
 			<c:forEach items="${selectedSubDepartments}" var="j">

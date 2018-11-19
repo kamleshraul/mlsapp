@@ -42,7 +42,7 @@
 					if(flag){
 						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
 					}else{
-						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
 					}
 				}
 				$('#subDepartments').empty();
@@ -365,7 +365,7 @@
 						<td style="vertical-align: top;">
 							<p>
 								<label class="centerlabel"><spring:message code="discussionmotion.ministry" text="Ministry"/>*</label>
-								<select class="sSelectMultiple" name="ministries" id="ministries" multiple="multiple" size="5" style="width:200px;">
+								<select class="sSelectMultiple" name="ministries" id="ministries" multiple="multiple" size="5" style="width:250px;">
 									<c:forEach items="${ministries}" var="i">
 										<c:set var="selectedMinistry" value="no"></c:set>
 										<c:forEach items="${selectedministries}" var="j">
@@ -389,7 +389,7 @@
 						<td>
 							<p>
 								<label class="centerlabel" style="margin-left: 10px;"><spring:message code="discussionmotion.department" text="Department"/></label>
-								<select name="subDepartments" id="subDepartments" multiple="multiple" size="5" class="sSelectMultiple" style="max-width: 188px !important;">
+								<select name="subDepartments" id="subDepartments" multiple="multiple" size="5" class="sSelectMultiple" style="max-width: 200px !important;">
 									<c:forEach items="${subDepartments}" var="i">
 										<c:set var="selectedSubDepartment" value="no"></c:set>
 										<c:forEach items="${selectedSubDepartments}" var="j">

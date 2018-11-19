@@ -67,6 +67,9 @@
 			  ||(deviceTypeSelected=="questions_starred")
 			  ||(deviceTypeSelected=="questions_unstarred")
 			  ||(deviceTypeSelected=="questions_shortnotice")
+			  ||(deviceTypeSelected=="motions_discussionmotion_lastweek")
+			  ||(deviceTypeSelected=="motions_discussionmotion_publicimportance")
+			  	  
 			) 
 			{
 				var comparator=$("#"+deviceTypeSelected+"_numberOfSupportingMembersComparator_hidden").attr('title');	    
@@ -1061,6 +1064,72 @@
 				</p>
 				<p style="display: inline;">		
 					<input type="text" class="sText" name="questions_shortnotice_numberOfSupportingMembers" id="questions_shortnotice_numberOfSupportingMembers" value="${questions_shortnotice_numberofsupportingmembers}" style="width: 62px" />
+				</p>				
+			</div>
+		</c:if>
+		
+				<c:if test="${i.type eq 'motions_discussionmotion_lastweek'}">					
+			<div id="motions_discussionmotion_lastweek" class="formDiv">
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
+							text="Submission Start Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussionmotion_lastweek_submissionStartDate" id="motions_discussionmotion_lastweek_submissionStartDate"
+						value="${motions_discussionmotion_lastweek_submissionstartdate}" />
+				</p>
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussionmotion_lastweek_submissionEndDate" id="motions_discussionmotion_lastweek_submissionEndDate" value="${motions_discussionmotion_lastweek_submissionenddate}" />
+				</p>
+				
+				<p style="display: inline;">
+					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
+					<select class="sSelect" name="motions_discussionmotion_lastweek_numberOfSupportingMembersComparator" id="motions_discussionmotion_lastweek_numberOfSupportingMembersComparator" style="width: 100px; height: 22px; border: solid 1px #8d8e8d;">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<option value="eq">&#61;</option>
+						<option value="lt">&lt;</option>
+						<option value="gt">&gt;</option>
+						<option value="le">&le;</option>
+						<option value="ge">&ge;</option>
+					</select>
+					<label id="motions_discussionmotion_lastweek_numberOfSupportingMembersComparator_hidden" title="${motions_discussionmotion_lastweek_numberofsupportingmemberscomparator}"></label>
+				</p>
+				<p style="display: inline;">		
+					<input type="text" class="sText" name="motions_discussionmotion_lastweek_numberOfSupportingMembers" id="motions_discussionmotion_lastweek_numberOfSupportingMembers" value="${motions_discussionmotion_lastweek_numberofsupportingmembers}" style="width: 62px" />
+				</p>				
+			</div>
+		</c:if>
+		
+				<c:if test="${i.type eq 'motions_discussionmotion_publicimportance'}">					
+			<div id="motions_discussionmotion_publicimportance" class="formDiv">
+				<p >
+					<label class="small"><spring:message code="session.deviceType.submissionStartDate"
+							text="Submission Start Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussionmotion_publicimportance_submissionStartDate" id="motions_discussionmotion_publicimportance_submissionStartDate"
+						value="${motions_discussionmotion_publicimportance_submissionstartdate}" />
+				</p>
+
+				<p>
+					<label class="small"><spring:message code="session.deviceType.submissionEndDate" text="Submission End Date" /></label>
+					<input type="text" class="datetimemask sText" name="motions_discussionmotion_publicimportance_submissionEndDate" id="motions_discussionmotion_publicimportance_submissionEndDate" value="${motions_discussionmotion_publicimportance_submissionenddate}" />
+				</p>
+				
+				<p style="display: inline;">
+					<%-- <label class="small"><spring:message code="session.deviceType.numberOfSupportingMembersComparator" text="Number of Supporting Members Comparator" /></label> --%>
+					<label class="small"><spring:message code="session.deviceType.numberOfSupportingMembers" text="Number of Supporting Members" /></label>
+					<select class="sSelect" name="motions_discussionmotion_publicimportance_numberOfSupportingMembersComparator" id="motions_discussionmotion_publicimportance_numberOfSupportingMembersComparator" style="width: 100px; height: 22px; border: solid 1px #8d8e8d;">
+						<option value="">---<spring:message code='client.prompt.select' text='Please Select'/>---</option>
+						<option value="eq">&#61;</option>
+						<option value="lt">&lt;</option>
+						<option value="gt">&gt;</option>
+						<option value="le">&le;</option>
+						<option value="ge">&ge;</option>
+					</select>
+					<label id="motions_discussionmotion_publicimportance_numberOfSupportingMembersComparator_hidden" title="${motions_discussionmotion_publicimportance_numberofsupportingmemberscomparator}"></label>
+				</p>
+				<p style="display: inline;">		
+					<input type="text" class="sText" name="motions_discussionmotion_publicimportance_numberOfSupportingMembers" id="motions_discussionmotion_publicimportance_numberOfSupportingMembers" value="${motions_discussionmotion_publicimportance_numberofsupportingmembers}" style="width: 62px" />
 				</p>				
 			</div>
 		</c:if>

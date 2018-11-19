@@ -78,8 +78,29 @@
 		/**** show question list method is called by default.****/
 		showDiscussionMotionList();
 		
+		
+		
 	});
-	
+	/**** To Generate Intimation Letter ****/
+	function generateIntimationLetter() {		 
+		if($("#intimationLetterFilter").val()=='reminderToDepartmentForAnswer') { //for reminder letter
+			generateReminderLetter();
+		} else {
+			var selectedQuestionId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+			if(selectedQuestionId.length<1) {
+				$.prompt($('#selectRowFirstMessage').val());
+				return false;
+			} else if(selectedQuestionId.length>1) {
+				$.prompt("Please select only one question!");
+				return false;
+			} else {			
+				$('#generateIntimationLetter').attr('href', 
+						'discussionmotion/report/generateIntimationLetter?'
+								+'questionId=' + selectedQuestionId
+								+ '&intimationLetterFilter=' + $("#intimationLetterFilter").val());
+			}
+		}		 		
+	}
 	/**** displaying grid ****/
 	function showDiscussionMotionList() {
 		$("#key").val('');
@@ -403,6 +424,7 @@
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>" />
 		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
+				<input type="hidden" id="defaultReportFormat" value="<spring:message code='motion.report.defaultFormat' text='PDF' />" />
 	</div>
 </body>
 </html>

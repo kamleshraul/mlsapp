@@ -101,8 +101,9 @@
 		
 		/**** Ministry Changes ****/
 		$("#ministries").change(function(){
+		
 			if($(this).val()!=''){
-				loadSubDepartments($(this).val());
+				loadSubDepartment($(this).val());
 			}
 		});
 		
@@ -374,7 +375,7 @@
 					if(flag){
 						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
 					}else{
-						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
 					}
 				}
 				$('#subDepartments').html(subDepartmentText);
@@ -478,9 +479,9 @@
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 		
 	
-	<c:if test="${discussionDateSelected != null}">
+		<c:if test="${(internalStatusType=='discussionmotion_final_admission')}">
 		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
-		<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="sText" readonly="readonly" />
+		<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="datemask sText" />
 		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
 		<form:errors path="discussionDate" cssClass="validationError"/>
 	</c:if>
@@ -706,7 +707,8 @@
 			<c:when test="${bulkedit!='yes'}">
 				<c:if test="${internalStatusType=='discussionmotion_submit'
 							||internalStatusType=='discussionmotion_system_assistantprocessed'
-							||(internalStatusType=='discussionmotion_system_putup')}">
+							||(internalStatusType=='discussionmotion_system_putup')
+							||(internalStatusType=='discussionmotion_final_admission')}">
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					<security:authorize access="hasAnyRole('DMOIS_ASSISTANT')">
 					<input id="startworkflow" type="button" value="<spring:message code='discussionmotion.putupmotion' text='Put Up Motion'/>" class="butDef">

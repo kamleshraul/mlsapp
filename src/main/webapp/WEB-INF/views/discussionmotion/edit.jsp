@@ -34,9 +34,14 @@
 	
 	$(document).ready(function(){		
 		
-		$('#ministries').blur(function(){
+$('#ministries').change(function(){
+			
 			if($(this).val()!=''){
-				loadSubDepartment($(this).val());
+				if($(this).val() != null){
+					loadSubDepartment($(this).val());
+				}else{
+					$("#subDepartments").empty();					
+				}
 			}
 		});
 			
@@ -235,7 +240,7 @@
 	
 	
 	function loadSubDepartment(ministry){
-		$.get('ref/getSubDeparmentsByMinistries?ministries='+ministry+'&session='+$('#session').val(),
+		$.get('ref/getSubDeparmentsByMinistries?ministries='+ ministry +'&session=' + $('#session').val(),
 				function(data){
 			if(data.length>0){
 				var selectedSubDepartments = $('#subDepartments').val();
@@ -253,10 +258,12 @@
 					if(flag){
 						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
 					}else{
-						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"'selected='selected'>"+data[i].name+"</option>";
 					}
 				}
+				$('#subDepartments').empty();
 				$('#subDepartments').html(subDepartmentText);
+				//$('#subDepartments').multiSelect();
 			}
 		});
 	}
@@ -355,19 +362,19 @@
 		<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 	</p>	
 	
-	<p id="internalStatusDiv">
-	<label class="small"><spring:message code="discussionmotion.currentStatus" text="Current Status"/></label>
-	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly" class="sText">
-	</p>
-	
+
+	<p>
 	<table>
 		<c:choose>
 			<c:when test="${! empty ministries}">
 				<tr>
+				<td>		
+				<label class="centerlabel"><spring:message code="discussionmotion.ministry" text="Ministry"/>*</label>
+				
+				</td>
 					<td style="vertical-align: top;">
-						<p>
-							<label class="labeltop"><spring:message code="discussionmotion.ministry" text="Ministry"/>*</label>
-							<select name="ministries" id="ministries" multiple="multiple" size="5" style="width:200px;">
+					
+								<select name="ministries" id="ministries" multiple="multiple" size="5" style="width:200px;">
 								<c:forEach items="${ministries}" var="i">
 									<c:set var="selectedMinistry" value="no"></c:set>
 									<c:forEach items="${selectedministries}" var="j">
@@ -386,12 +393,16 @@
 								</c:forEach>
 							</select> 	 
 							<form:errors path="ministries" cssClass="validationError"/>
-						</p>
+						
 					</td>
 					<td>
-						<p>
-							<label class="labeltop" style="margin-left: 10px;"><spring:message code="discussionmotion.department" text="Department"/></label>
-							<select name="subDepartments" id="subDepartments" multiple="multiple" size="5">
+						<label class="centerlabel" style="margin-left: 10px;"><spring:message code="discussionmotion.department" text="Department"/></label>
+					
+					</td>
+						
+					<td>
+					
+							<select name="subDepartments" id="subDepartments" multiple="multiple" size="5" class="sSelectMultiple" style="max-width: 188px !important;">
 								<c:forEach items="${subDepartments}" var="i">
 									<c:set var="selectedSubDepartment" value="no"></c:set>
 									<c:forEach items="${selectedSubDepartments}" var="j">
@@ -410,7 +421,7 @@
 								</c:forEach>
 							</select>	
 							<form:errors path="subDepartments" cssClass="validationError"/>						
-						</p>	
+							
 					</td>				
 				</tr>	
 			</c:when>	
@@ -424,7 +435,12 @@
 			</div>			
 			</c:otherwise>
 		</c:choose>	
-	</table>	
+	</table>
+	</p>
+		<p id="internalStatusDiv">
+	<label class="small"><spring:message code="discussionmotion.currentStatus" text="Current Status"/></label>
+	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly" class="sText">
+	</p>		
 	</div>
 	 <div class="fields">
 		<h2></h2>

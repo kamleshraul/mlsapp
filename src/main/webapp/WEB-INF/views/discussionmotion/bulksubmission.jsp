@@ -101,7 +101,7 @@
 				<c:set var="index" value="1"></c:set>	
 				<c:forEach items="${motions}" var="i">
 					<tr id="row${index}">
-						<td class="chk"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"> ${i.formatNumber()}</td>
+						<td class="chk"><input type="checkbox" id="chk${i.id}" name="chk${i.id}" class="sCheck action" value="true"></td>
 						<td class="subject">${i.subject}</td>
 						<security:authorize access="hasAnyRole('DMOIS_TYPIST')">														
 							<td class="member">

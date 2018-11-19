@@ -41,6 +41,18 @@
 				searchRecord();
 			});
 			
+			/**** Generate Intimation Letter ****/			
+			$("#generateIntimationLetter").click(function(){
+				$(this).attr('href','#');
+				generateIntimationLetter();				
+			});
+			
+			$("#admission_report").click(function(){
+				var selectedId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				if(selectedId!=undefined && selectedId.length>=1){
+					showAdmissionReport(selectedId[0]);
+				}
+			});
 						
 			//---ADDED BY ANAND------------------
 			
@@ -74,7 +86,28 @@
 			if($('#key')){
 				$('#key').val(rowid);
 			}
-		}			
+		}	
+		$("#admission_report").click(function(){
+			
+			var selectedId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+			if(selectedId!=undefined && selectedId.length>=1){
+				showAdmissionReport(selectedId[0]);
+			}
+		});
+		
+		function showAdmissionReport(id){
+			
+			
+			$("#admission_report").attr('href',
+					'discussionmotion/report/commonadmissionreport?motionId=' + id 
+							+ '&locale=' + $("#moduleLocale").val()
+							+ '&outputFormat=' + $("#defaultReportFormat").val()
+							+ '&reportQuery=DISCUSSIONMOTION_ADMISSION_LETTER'
+							+ '&templateName=discussionmotion_admission_report'
+							+ '&houseType=' + $("#selectedHouseType").val()
+							+ '&reportName=admissionLetter');
+		
+}
 	</script>
 </head>
 <body>
@@ -101,7 +134,57 @@
 			<a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
 			</a> 			
-			<p>&nbsp;</p>
+		
+			<security:authorize access="hasAnyRole('DMOIS_ASSISTANT','DMOIS_SECTION_OFFICER','DMOIS_CLERK')">
+				<hr>
+							
+								<a href="javascript:void(0);" id="admission_report" class="butSim" >
+							<c:choose>
+								<c:when test="${houseType=='lowerhouse'}">
+									<spring:message code="generic.admissionLetter" text="Admission Letter"/>
+								</c:when>
+								<c:when test="${houseType=='upperhouse'}">
+									<spring:message code="generic.admissionLetter" text="Admission Letter"/>
+								</c:when>
+							</c:choose>
+						</a>
+				<hr> 
+				<security:authorize access="hasAnyRole('DMOIS_SECTION_OFFICER')">
+				<a href="#" id="memberwise_questions_report" class="butSim link">
+					<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
+				</a> |		
+				<a href="#" id="online_offline_submission_count_report" class="butSim link">
+					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
+				</a> |
+				<a href="#" id="partywise_questions_count_report" class="butSim link">
+					<spring:message code="question.partywise_questions_count_report" text="Partywise Questions Count Report"/>
+				</a> |
+				<a href="#" id="extended_grid_report" class="butSim link">
+					<spring:message code="question.extended_grid_report" text="Extended Grid Report"/>
+				</a> |
+				<hr> 
+				</security:authorize>
+				<security:authorize access="hasAnyRole('DMOIS_CLERK')">
+				<a href="#" id="online_offline_submission_count_report" class="butSim link">
+					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
+				</a> |
+				</security:authorize>
+				<a href="#" id="group_bulletein_report" class="butSim link">
+					<spring:message code="question.group_bulletein_report" text="Group Bulletein Report"/>
+				</a> |
+				<a href="#" id="bulletein_report" class="butSim link">
+					<spring:message code="question.bulletein_report" text="Bulletein Report"/>
+				</a> |
+				<a href="#" id="departmentwise_report" class="butSim link">
+					<spring:message code="question.departmentwise_report" text="Department's Questions Report"/>
+				</a> |
+				<a href="#" id="ahwal_report" class="butSim link">
+					<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
+				</a> |
+				<%-- <a href="#" id="statistical_counts_report" class="butSim link">
+					<spring:message code="question.statistical_counts_report" text="Statistical Counts Report"/>
+				</a> | --%>
+			</security:authorize>
 		</div>
 	</div>
 	<%@ include file="/common/gridview.jsp" %>
