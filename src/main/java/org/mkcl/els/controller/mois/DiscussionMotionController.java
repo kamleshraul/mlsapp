@@ -1068,6 +1068,62 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 						if(domain.getNoticeContent().isEmpty()){
 							result.rejectValue("details","DetailsEmpty");
 						}
+						
+						//submission date limit validations (configurable through custom parameters)
+						if(domain.getSession()!=null && domain.getType()!=null) {
+							//submission start date limit validation
+							CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+							if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+								String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+								if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+									String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+									for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+										if(dt.trim().equals(domain.getType().getType().trim())) {
+											String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_"+ApplicationConstants.SUBMISSION_START_DATE_SESSION_PARAMETER_KEY);
+											if(submissionStartLimitDateStr!=null && !submissionStartLimitDateStr.isEmpty()) {
+												Date submissionStartLimitDate = FormaterUtil.formatStringToDate(submissionStartLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
+												if(submissionStartLimitDate!=null
+														&& submissionStartLimitDate.after(new Date())) {
+													submissionStartLimitDateStr = FormaterUtil.formatDateToString(submissionStartLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
+													result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Motion cannot be submitted before " + submissionStartLimitDateStr);
+												}else if(submissionStartLimitDate == null){
+													result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
+												}
+											}else{
+												result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
+											}
+											break;
+										}
+									}								
+								}
+							}
+							//submission end date limit validation
+							CustomParameter deviceTypesHavingSubmissionEndDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_END_DATE_VALIDATION, "");
+							if(deviceTypesHavingSubmissionEndDateValidationCP!=null) {
+								String deviceTypesHavingSubmissionEndDateValidationValue = deviceTypesHavingSubmissionEndDateValidationCP.getValue();
+								if(deviceTypesHavingSubmissionEndDateValidationValue!=null) {
+									String[] deviceTypesHavingSubmissionEndDateValidation = deviceTypesHavingSubmissionEndDateValidationValue.split(",");
+									for(String dt: deviceTypesHavingSubmissionEndDateValidation) {
+										if(dt.trim().equals(domain.getType().getType().trim())) {
+											String submissionEndLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_"+ApplicationConstants.SUBMISSION_END_DATE_SESSION_PARAMETER_KEY);
+											if(submissionEndLimitDateStr!=null && !submissionEndLimitDateStr.isEmpty()) {
+												Date submissionEndLimitDate = FormaterUtil.formatStringToDate(submissionEndLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
+												if(submissionEndLimitDate!=null
+														&& submissionEndLimitDate.before(new Date())) {
+													submissionEndLimitDateStr = FormaterUtil.formatDateToString(submissionEndLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
+													result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Motion cannot be submitted after " + submissionEndLimitDateStr);
+												}else if(submissionEndLimitDate == null){
+													result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
+												}
+											}else{
+												result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
+											}
+											break;
+										}
+									}								
+								}
+							}
+						}
 					}
 			}
 		}/**** Drafts ****/
@@ -1101,6 +1157,12 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 		if(domain.getDepartments()!=null && !domain.getDepartments().isEmpty()){
 			domain.setDepartments(discussionMotion.getDepartments());
 		}
+		String strDiscussionDate = request.getParameter("formattedDiscussionDate");
+		
+		if(strDiscussionDate != null && !strDiscussionDate.isEmpty()){
+			domain.setDiscussionDate(FormaterUtil.formatStringToDate(strDiscussionDate, ApplicationConstants.SERVER_DATEFORMAT));
+		}
+
 
 	 }
 	
@@ -1170,6 +1232,62 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 					}
 					if(domain.getNoticeContent().isEmpty()){
 						result.rejectValue("noticeContent","NoticeContentEmpty");
+					}
+					
+					//submission date limit validations (configurable through custom parameters)
+					if(domain.getSession()!=null && domain.getType()!=null) {
+						//submission start date limit validation
+						CustomParameter deviceTypesHavingSubmissionStartDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_START_DATE_VALIDATION, "");
+						if(deviceTypesHavingSubmissionStartDateValidationCP!=null) {
+							String deviceTypesHavingSubmissionStartDateValidationValue = deviceTypesHavingSubmissionStartDateValidationCP.getValue();
+							if(deviceTypesHavingSubmissionStartDateValidationValue!=null) {
+								String[] deviceTypesHavingSubmissionStartDateValidation = deviceTypesHavingSubmissionStartDateValidationValue.split(",");
+								for(String dt: deviceTypesHavingSubmissionStartDateValidation) {
+									if(dt.trim().equals(domain.getType().getType().trim())) {
+										String submissionStartLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_"+ApplicationConstants.SUBMISSION_START_DATE_SESSION_PARAMETER_KEY);
+										if(submissionStartLimitDateStr!=null && !submissionStartLimitDateStr.isEmpty()) {
+											Date submissionStartLimitDate = FormaterUtil.formatStringToDate(submissionStartLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
+											if(submissionStartLimitDate!=null
+													&& submissionStartLimitDate.after(new Date())) {
+												submissionStartLimitDateStr = FormaterUtil.formatDateToString(submissionStartLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
+												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Motion cannot be submitted before " + submissionStartLimitDateStr);
+											}else if(submissionStartLimitDate == null){
+												result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
+											}
+										}else{
+											result.rejectValue("version","SubmissionStartDateNotConfigured","Submission Start Date not Configured by the branch for this session");
+										}
+										break;
+									}
+								}								
+							}
+						}
+						//submission end date limit validation
+						CustomParameter deviceTypesHavingSubmissionEndDateValidationCP = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.DEVICETYPES_HAVING_SUBMISSION_END_DATE_VALIDATION, "");
+						if(deviceTypesHavingSubmissionEndDateValidationCP!=null) {
+							String deviceTypesHavingSubmissionEndDateValidationValue = deviceTypesHavingSubmissionEndDateValidationCP.getValue();
+							if(deviceTypesHavingSubmissionEndDateValidationValue!=null) {
+								String[] deviceTypesHavingSubmissionEndDateValidation = deviceTypesHavingSubmissionEndDateValidationValue.split(",");
+								for(String dt: deviceTypesHavingSubmissionEndDateValidation) {
+									if(dt.trim().equals(domain.getType().getType().trim())) {
+										String submissionEndLimitDateStr = domain.getSession().getParameter(domain.getType().getType()+"_"+ApplicationConstants.SUBMISSION_END_DATE_SESSION_PARAMETER_KEY);
+										if(submissionEndLimitDateStr!=null && !submissionEndLimitDateStr.isEmpty()) {
+											Date submissionEndLimitDate = FormaterUtil.formatStringToDate(submissionEndLimitDateStr, ApplicationConstants.DB_DATETIME_FORMAT);
+											if(submissionEndLimitDate!=null
+													&& submissionEndLimitDate.before(new Date())) {
+												submissionEndLimitDateStr = FormaterUtil.formatDateToString(submissionEndLimitDate, ApplicationConstants.SERVER_DATETIMEFORMAT);
+												result.rejectValue("version","SubmissionNotAllowedBeforeConfiguredDate","Motion cannot be submitted after " + submissionEndLimitDateStr);
+											}else if(submissionEndLimitDate == null){
+												result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
+											}
+										}else{
+											result.rejectValue("version","SubmissionEndDateNotConfigured","Submission End Date not Configured by the branch for this session");
+										}
+										break;
+									}
+								}								
+							}
+						}
 					}
 											
 				}else /**** Start Workflow By assistant ****/
@@ -1421,7 +1539,7 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 		String usergroupType=request.getParameter("usergroupType");
 		/**** Question status will be complete if all mandatory fields have been filled ****/
 		if(domain.getHouseType()!=null&&domain.getType()!=null&&domain.getSession()!=null
-				&& domain.getPrimaryMember()!=null && domain.getMinistries()!=null &&
+				&& domain.getPrimaryMember()!=null &&
 				(!domain.getSubject().isEmpty())
 				&&(!domain.getNoticeContent().isEmpty())){			
 			if(operation!=null){
@@ -1905,8 +2023,8 @@ public class DiscussionMotionController extends GenericController<DiscussionMoti
 				
 				model.addAttribute("motions",motions);
 				model.addAttribute("size",motions.size());
-				String userGroupType = request.getParameter("usergroupType");
-				model.addAttribute("usergroupType", userGroupType);
+				//String userGroupType = request.getParameter("usergroupType");
+				model.addAttribute("usergroupType", strUserGroupType);
 			}			
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
