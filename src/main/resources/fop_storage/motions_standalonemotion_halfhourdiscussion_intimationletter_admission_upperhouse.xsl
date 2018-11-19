@@ -76,22 +76,38 @@
 						<xsl:value-of select="substring(subDepartment,(string-length(subDepartment)-4))"/>
 					</xsl:variable>
 	            	<fo:block font-family="Mangal" font-size="10.5px">
+	            		<fo:block text-align="center" font-weight="bold" font-size="12px">
+	            			
+	            			<xsl:choose>
+								<!-- <xsl:when test="houseType='lowerhouse'">वि.स.स. यांनी महाराष्ट्र विधानसभा नियम ९२ (१) अन्वयेर</xsl:when> -->
+				<!-- 				<xsl:when test="houseType='upperhouse'">सर्वसाधारण अर्धा-तास चर्चा </xsl:when> -->
+							</xsl:choose>
+											
+	            		</fo:block>
+	            			<fo:block font-size="6px">&#160;</fo:block>   
 	            		<fo:block>
 	            			&#160;&#160;&#160;&#160;&#160;&#160;<xsl:value-of select="primaryMemberName"/>, 
 	            			<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">वि.स.स. यांनी महाराष्ट्र विधानसभा नियम ९२ (१) अन्वयेर</xsl:when>
-								<xsl:when test="houseType='upperhouse'">वि.प.स. यांनी महाराष्ट्र विधानपरिषद नियम ९२, अनुसार</xsl:when>
+								<xsl:when test="houseType='upperhouse'">वि.प.स. यांनी महाराष्ट्र विधानपरिषद नियम ९२(२)(अ), अनुसार</xsl:when>
 							</xsl:choose>
 							दिलेली सूचना (अर्धा-तास चर्चेची सूचना <xsl:value-of select="number"/>) पुढीलप्रमाणे आहे :-							
 	            		</fo:block>  
-	            		<fo:block font-size="6px">&#160;</fo:block>    
+	            		<fo:block font-size="6px">&#160;</fo:block>   
+	            	
 	            		<fo:block>
 	            			&#160;&#160;&#160;&#160;
+	            			
 	            			<xsl:choose>
-	            				<xsl:when test="bExplanation!=''"><xsl:apply-templates select="bExplanation"/></xsl:when>
-	            				<xsl:when test="reason!='' and reason!='-' and reason!='--' and reason!='---' and reason!='----' and reason!='-----'">
-	            					<xsl:apply-templates select="reason"/>
-	            				</xsl:when>	            				
+
+	            				<xsl:when test="bExplanation!=''">
+	            				<xsl:apply-templates select="bExplanation"/>
+	            				</xsl:when>
+	            				
+	            				//	<xsl:when test="reason!='' and reason!='-' and reason!='--' and reason!='---' and reason!='----' and reason!='-----'">
+	            				//	<xsl:apply-templates select="reason"/>
+	            				//</xsl:when>	
+	            			
 	            			</xsl:choose>	            			
 	            		</fo:block> 
 	            		<fo:block font-size="12px">&#160;</fo:block>
@@ -116,10 +132,9 @@
 							<fo:block margin-right="1.82cm">दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block>
 						</fo:block>			
 						
-						<!-- <fo:block font-size="8px">&#160;</fo:block> -->					
+						<fo:block font-size="6px">&#160;</fo:block> 					
 						
-						<fo:block font-size="6px">&#160;</fo:block>
-						
+											
 						<fo:block>							
 							&#160;&#160;&#160;&#160;&#160;&#160;सचिव, महाराष्ट्र शासन,
 							<xsl:choose>
@@ -145,6 +160,7 @@
 							</xsl:choose>
 							, यांच्याकडे माहितीसाठी सादर अग्रेषित.
 						</fo:block>		
+						<fo:block font-size="6px">&#160;</fo:block>
 						<fo:block>
 							&#160;&#160;&#160;&#160;&#160;&#160;चालू अधिवेशनासाठी मा.
 							<xsl:choose>
@@ -161,7 +177,7 @@
 							<fo:block margin-right="0.3cm">महाराष्ट्र विधानमंडळ सचिवालय.</fo:block>
 						</fo:block>
 						<fo:block font-size="12px">&#160;</fo:block>
-						<fo:block>
+<!-- 						<fo:block>
 							(१)
 							<xsl:choose>
 								<xsl:when test="primaryMemberDesignation='मुख्यमंत्री' or primaryMemberDesignation='उप मुख्यमंत्री'">
@@ -178,15 +194,15 @@
 									</xsl:choose>
 								</xsl:otherwise>
 							</xsl:choose>
-						</fo:block>	
+						</fo:block>	 -->
 						<fo:block>
-							(२)
+							(१)
 							<xsl:value-of select="primaryMemberName"/>,
 							<xsl:choose>
 								<xsl:when test="houseType='lowerhouse'">वि.स.स.</xsl:when>
 								<xsl:when test="houseType='upperhouse'">वि.प.स.</xsl:when>
 							</xsl:choose>
-							यांना माहितीसाठी सादर अग्रेषित.		
+								
 						</fo:block>							
 					</fo:block>							          
 	            </fo:flow>
