@@ -42,6 +42,7 @@ public class DiscussionMotion extends Device implements Serializable{
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
     
+    
     /**** Attributes ****/ 
     
     /*** The house type. ***/
@@ -1171,6 +1172,213 @@ public class DiscussionMotion extends Device implements Serializable{
 		}
 	}
     
+    public String findAllMemberNames(String nameFormat) {
+		StringBuffer allMemberNamesBuffer = new StringBuffer("");
+		Member member = null;
+		String memberName = "";				
+		/** primary member **/
+		member = this.getPrimaryMember();		
+		if(member==null) {
+			return allMemberNamesBuffer.toString();
+		}		
+		memberName = member.findNameInGivenFormat(nameFormat);
+		if(memberName!=null && !memberName.isEmpty()) {
+			if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+				allMemberNamesBuffer.append(memberName);
+			}						
+		} else {
+			return allMemberNamesBuffer.toString();
+		}						
+		/** supporting members **/
+		List<SupportingMember> supportingMembers = this.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				member = sm.getMember();
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+					memberName = member.findNameInGivenFormat(nameFormat);
+					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {				
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+							if(allMemberNamesBuffer.length()>0) {
+								allMemberNamesBuffer.append(", " + memberName);
+							} else {
+								allMemberNamesBuffer.append(memberName);
+							}
+						}																		
+					}									
+				}				
+			}
+		}		
+		/** clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				/**
+				 * show only those clubbed questions which are not in state of
+				 * (processed to be putup for nameclubbing, putup for
+				 * nameclubbing, pending for nameclubbing approval)
+				 **/
+				if (ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
+					member = ce.getQuestion().getPrimaryMember();
+					if(member!=null) {
+						memberName = member.findNameInGivenFormat(nameFormat);
+						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+								if(allMemberNamesBuffer.length()>0) {
+									allMemberNamesBuffer.append(", " + memberName);
+								} else {
+									allMemberNamesBuffer.append(memberName);
+								}
+							}							
+						}												
+					}
+					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+								memberName = member.findNameInGivenFormat(nameFormat);
+								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+										if(allMemberNamesBuffer.length()>0) {
+											allMemberNamesBuffer.append(", " + memberName);
+										} else {
+											allMemberNamesBuffer.append(memberName);
+										}
+									}									
+								}								
+							}
+						}
+					}
+				}
+			}
+		}		
+		return allMemberNamesBuffer.toString();
+	}
+	
+	public String findAllMemberNamesWithConstituencies(String nameFormat) {
+		Session session = this.getSession();
+		House questionHouse = session.getHouse();
+		Date currentDate = new Date();
+		StringBuffer allMemberNamesBuffer = new StringBuffer("");
+		Member member = null;
+		String memberName = "";
+		String constituencyName = "";
+		
+		/** primary member **/
+		member = this.getPrimaryMember();		
+		if(member==null) {
+			return allMemberNamesBuffer.toString();
+		}		
+		memberName = member.findNameInGivenFormat(nameFormat);
+		if(memberName!=null && !memberName.isEmpty()) {
+			if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+				allMemberNamesBuffer.append(memberName);
+				constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+				if(!constituencyName.isEmpty()) {
+					allMemberNamesBuffer.append(" (" + constituencyName + ")");			
+				}
+			}			
+		} else {
+			return allMemberNamesBuffer.toString();
+		}				
+		
+		/** supporting members **/
+		List<SupportingMember> supportingMembers = this.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				member = sm.getMember();
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+					memberName = member.findNameInGivenFormat(nameFormat);
+					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+						if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+							if(allMemberNamesBuffer.length()>0) {
+								allMemberNamesBuffer.append(", " + memberName);
+							} else {
+								allMemberNamesBuffer.append(memberName);
+							}
+							constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+							if(!constituencyName.isEmpty()) {
+								allMemberNamesBuffer.append(" (" + constituencyName + ")");						
+							}
+						}						
+					}									
+				}				
+			}
+		}
+		
+		/** clubbed questions members **/
+		List<ClubbedEntity> clubbedEntities = DiscussionMotion.findClubbedEntitiesByPosition(this);
+		if (clubbedEntities != null) {
+			for (ClubbedEntity ce : clubbedEntities) {
+				/**
+				 * show only those clubbed questions which are not in state of
+				 * (processed to be putup for nameclubbing, putup for
+				 * nameclubbing, pending for nameclubbing approval)
+				 **/
+				if (ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_SYSTEM_CLUBBED)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+						|| ce.getQuestion().getInternalStatus().getType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)) {
+					member = ce.getQuestion().getPrimaryMember();
+					if(member!=null) {
+						memberName = member.findNameInGivenFormat(nameFormat);
+						if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+							if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+								if(allMemberNamesBuffer.length()>0) {
+									allMemberNamesBuffer.append(", " + memberName);
+								} else {
+									allMemberNamesBuffer.append(memberName);
+								}
+								constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+								if(!constituencyName.isEmpty()) {
+									allMemberNamesBuffer.append(" (" + constituencyName + ")");							
+								}
+							}							
+						}												
+					}
+					List<SupportingMember> clubbedSupportingMembers = ce.getQuestion().getSupportingMembers();
+					if (clubbedSupportingMembers != null) {
+						for (SupportingMember csm : clubbedSupportingMembers) {
+							member = csm.getMember();
+							Status approvalStatus = csm.getDecisionStatus();
+							if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+								memberName = member.findNameInGivenFormat(nameFormat);
+								if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+									if(member.isSupportingOrClubbedMemberToBeAddedForDevice(this)) {
+										if(allMemberNamesBuffer.length()>0) {
+											allMemberNamesBuffer.append(", " + memberName);
+										} else {
+											allMemberNamesBuffer.append(memberName);
+										}
+										constituencyName = member.findConstituencyNameForYadiReport(questionHouse, "DATE", currentDate, currentDate);
+										if(!constituencyName.isEmpty()) {
+											allMemberNamesBuffer.append(" (" + constituencyName + ")");							
+										}
+									}									
+								}								
+							}
+						}
+					}
+				}
+			}
+		}		
+		return allMemberNamesBuffer.toString();
+	}
+	
     public void removeExistingWorkflowAttributes() {
 		// Update question so as to remove existing workflow
 		// based attributes
@@ -2030,4 +2238,12 @@ public class DiscussionMotion extends Device implements Serializable{
 			Integer numberOfDaysForClarificationReceiving) {
 		this.numberOfDaysForClarificationReceiving = numberOfDaysForClarificationReceiving;
 	}
+	 public static MemberMinister findMemberMinisterIfExists(final DiscussionMotion discussionmotion) throws ELSException {
+		 return getDiscussionMotionRepository().findMemberMinisterIfExists(discussionmotion);		 
+	 }
+	 
+	 public static MemberMinister findMemberMinisterIfExists(final DiscussionMotion discussionmotion, final Ministry ministry) throws ELSException {
+		 return getDiscussionMotionRepository().findMemberMinisterIfExists(discussionmotion, ministry);		 
+	 }
+	 
 }
