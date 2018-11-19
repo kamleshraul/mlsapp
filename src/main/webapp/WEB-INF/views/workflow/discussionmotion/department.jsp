@@ -1209,10 +1209,11 @@
 		<form:errors path="internalStatus" cssClass="validationError"/>	
 		</p>
 		
-		<p id="actorDiv" style="display:none;">
+	<p id="actorDiv" >
 		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
 		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
-		</p>	
+		<input type="text" id="actorName" class="sText" readonly="readonly" value="-" style="display: none;" />
+	</p>	
 	</c:if>
 		
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">

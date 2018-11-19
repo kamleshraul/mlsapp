@@ -32,61 +32,88 @@
 			scrollTop();
 		});	
 	}
-	
 	/**** load actors ****/
 	function loadActors(value){
-		if(value!='-'){
-		var params="discussionmotion="+$("#id").val()+"&status="+value+
-		"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
-		var resourceURL='ref/discussionmotion/actors?'+params;
-	    var sendback=$("#internalStatusMaster option[value='discussionmotion_recommend_sendback']").text();			
-	    var discuss=$("#internalStatusMaster option[value='discussionmotion_recommend_discuss']").text();		
-		$.get(resourceURL,function(data){
-			if(data!=undefined||data!=null||data!=''){
-				var length=data.length;
+		var valueToSend="";
+		if(value!='-'){		
+			var sendToDepartment=$("#internalStatusMaster option[value='discussionmotion_processed_sendToDepartment']").text();
+			var sendToMember=$("#internalStatusMaster option[value='discussionmotion_processed_sendToMember']").text();
+			var rejectedWithReason = $("#internalStatusMaster option[value='discussionmotion_processed_rejectionWithReason']").text();
+			var clarificationReceived = $("#internalStatusMaster option[value='discussionmotion_processed_clarificationReceived']").text();
+			var clarificationFromMemberAndDepartment=$("#internalStatusMaster option[value='discussionmotion_recommend_clarificationNeededFromMemberAndDepartment']").text();		
+			var departmentIntimated = $("#internalStatusMaster option[value='discussionmotion_processed_departmentIntimated']").text();
+			var discussionMotionType = $("#selectedDiscussionMotionType").val();
+			var sendback = $("#internalStatusMaster option[value='discussionmotion_recommend_sendback']").text();
+			var discuss = $("#internalStatusMaster option[value='discussionmotion_recommend_discuss']").text();
+			
+			if( value==rejectedWithReason || value==departmentIntimated||value==clarificationReceived){
+				$("#endFlag").val("end");
+				$("#recommendationStatus").val(value);
 				$("#actor").empty();
-				var text="<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>";
-				for(var i=0;i<data.length;i++){
-					if(i!=0){
-					text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
-					}else{
-						text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
+				$("#actorDiv").hide();
+				return false;
+			}else if(value==clarificationReceived){
+				$("#endFlag").val("end");
+				$("#recommendationStatus").val(value);
+				$("#actor").empty();
+				$("#actorDiv").hide();
+				return false;
+			}else if(value==sendToDepartment || value==sendToMember){			
+			    valueToSend=$("#internalStatus").val();
+			    $("#endFlag").val("continue");
+		    }else {
+			    valueToSend=value;
+		    }	
+			
+			if(value==sendback || value==discuss){
+				$("#endFlag").val("continue");
+			}
+			var params="discussionmotion="+$("#id").val()+"&status="+valueToSend+
+			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
+			var resourceURL='ref/discussionmotion/actors?'+params;
+			$.get(resourceURL,function(data){
+				if(data!=undefined||data!=null||data!=''){
+					$("#actor").empty();
+					var text="";
+					for(var i=0;i<data.length;i++){
+						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 					}
+					$("#actor").html(text);
+					
+					/**** in case of sendback and discuss and departmentIntimated only recommendation status is changed ****/
+					if(value!=sendback && value!=discuss){
+						$("#internalStatus").val(value);
+					}					
+					$("#recommendationStatus").val(value);	
+					
+					/**** setting level,localizedActorName ****/
+					 var actor1=data[0].id;
+					 var temp=actor1.split("#");
+					 $("#level").val(temp[2]);
+					 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+					 $("#actorName").val(temp[4]);
+					 $("#actorName").css('display','inline');
+				}else{
+					$("#actor").empty();
+					$("#actorDiv").hide();
+					/**** in case of sendback and discuss only recommendation status is changed ****/
+					if(value!=sendback && value!=discuss){
+						$("#internalStatus").val(value);
+					}
+				    $("#recommendationStatus").val(value);
 				}
-				$("#actor").html(text);
-				//$("#actorDiv").show();				
-				/**** in case of sendback and discuss only recommendation status is changed ****/
-				if(value!=sendback&&value!=discuss){
-					$("#internalStatus").val(value);
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 				}
-				$("#recommendationStatus").val(value);	
-				/**** setting level,localizedActorName ****/
-				 var actor1=data[0].id;
-				 var temp=actor1.split("#");
-				 $("#level").val(temp[2]);		    
-				 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");					
-			}else{
-			$("#actor").empty();
-			$("#actorDiv").hide();
-			/**** in case of sendback and discuss only recommendation status is changed ****/
-			if(value!=sendback&&value!=discuss){
-			$("#internalStatus").val(value);
-			}
-		    $("#recommendationStatus").val(value);
-			}
-		}).fail(function(){
-			$.unblockUI();
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});
+				scrollTop();
+			});
 		}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
-			$("#internalStatus").val($("#oldInternalStatus").val());
+			//$("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 		}
 	}
@@ -117,7 +144,7 @@
 			}
 		});
 	}
-				
+			
 	$(document).ready(function(){
 		/*******Actor changes*************/
 		$("#actor").change(function(){
@@ -128,7 +155,41 @@
 		    $("#actorName").val(temp[4]);
 		    $("#actorName").css('display','inline');
 	    });
+		/********Submit Click*********/
+		$('#submit').click(function(){
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});
 		
+			if($('#internalStatusType').val()=="discussionmotion_final_rejection"){
+				if($('#rejectionReason').val()==""){
+					$.prompt($('#noRejectionReasonProvidedMsg').val());
+				}else{ 
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+					$.post($('form').attr('action')+'?operation=workflowsubmit',  
+		    	            $("form").serialize(),
+		    	            function(data){
+		       					$('.tabContent').html(data);
+		       					$('html').animate({scrollTop:0}, 'slow');
+		       				 	$('body').animate({scrollTop:0}, 'slow');	
+		       					 $.unblockUI();	
+		    	            }).fail(function(){
+		    	    			$.unblockUI();
+		    	    			if($("#ErrorMsg").val()!=''){
+		    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+		    	    			}else{
+		    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+		    	    			}
+		    	    			scrollTop();
+		    	    		});
+				}			
+				return false;
+			}
+			
+		});
 		/**** On Bulk Edit ****/
 		$("#submitBulkEdit").click(function(e){
 			//removing <p><br></p>  from wysiwyg editor
@@ -273,13 +334,21 @@
 			$("#changeInternalStatus").change();
 		}
 		
-		
 		if($("#revisedSubject").val()!=''){
 		    $("#revisedSubjectDiv").show();
 	    }
 		if($("#revisedNoticeContent").val()!=''){
-		    $("#revisedNoticeContentDiv").show();
+		    	$("#revisedNoticeContentDiv").show();
 		 }
+		
+		if($('#workflowstatus').val()!='COMPLETED'){
+			var statusType = $("#internalStatusType").val().split("_");
+			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
+			$("#changeInternalStatus").val(id);
+			$("#changeInternalStatus").change();
+			//loadActors($("#changeInternalStatus").val());
+		}
+		
 	});
 	</script>
 	 <style type="text/css">
@@ -497,7 +566,7 @@
 	</p>
 
 	<p>
-		<label class="wysiwyglabel"><spring:message code="discussionmotion.details" text="Details"/></label>
+		<label class="wysiwyglabel"><spring:message code="discussionmotion.details" text="Notice Content"/></label>
 		<form:textarea path="noticeContent" readonly="true" cssClass="wysiwyg"></form:textarea>
 		<form:errors path="noticeContent" cssClass="validationError"/>	
 	</p>
@@ -528,29 +597,29 @@
 	</p>
 		
 	<p>
-	<label class="small"><spring:message code="discussionmotion.putupfor" text="Put up for"/></label>	
-	<select id="changeInternalStatus" class="sSelect">
-	<c:forEach items="${internalStatuses}" var="i">
-		<c:choose>
-				<c:when test="${i.id==internalStatusSelected }">
-				<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
-				</c:when>
-				<c:otherwise>
-				<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
-				</c:otherwise>
-		</c:choose>
-	</c:forEach>
-	</select>
-	
-	<select id="internalStatusMaster" style="display:none;">
-	<c:forEach items="${internalStatuses}" var="i">
-	<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-	</c:forEach>
-	</select>	
-	<form:errors path="internalStatus" cssClass="validationError"/>	
+		<label class="small"><spring:message code="discussionmotion.putupfor" text="Put up for"/></label>	
+		<select id="changeInternalStatus" class="sSelect">
+		<c:forEach items="${internalStatuses}" var="i">
+			<c:choose>
+					<c:when test="${i.id==internalStatusSelected }">
+					<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+					</c:when>
+					<c:otherwise>
+					<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+					</c:otherwise>
+			</c:choose>
+		</c:forEach>
+		</select>
+				
+		<select id="internalStatusMaster" style="display:none;">
+			<c:forEach items="${internalStatuses}" var="i">
+				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+			</c:forEach>
+		</select>	
+		<form:errors path="internalStatus" cssClass="validationError"/>	
 	</p>
 	
-<p id="actorDiv" >
+	<p id="actorDiv" >
 		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
 		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
 		<input type="text" id="actorName" class="sText" readonly="readonly" value="-" style="display: none;" />
@@ -563,7 +632,7 @@
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 		
-	<c:if test="${internalStatusType == 'question_recommend_rejection' or internalStatusType == 'question_final_rejection'}">
+	<c:if test="${internalStatusType == 'discussionmotion_final_rejection'}">
 	<p>
 		<label class="wysiwyglabel"><spring:message code="discussionmotion.rejectionReason" text="Rejection reason"/></label>
 		<form:textarea path="rejectionReason" cssClass="wysiwyg"></form:textarea>

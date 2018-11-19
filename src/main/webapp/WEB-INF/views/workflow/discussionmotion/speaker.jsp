@@ -525,9 +525,10 @@
 	<form:errors path="internalStatus" cssClass="validationError"/>	
 	</p>
 	
-	<p id="actorDiv" style="display:none;">
-	<label class="small"><spring:message code="discussionmotion.nextactor" text="Next Users"/></label>
-	<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
+<p id="actorDiv" >
+		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
+		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
+		<input type="text" id="actorName" class="sText" readonly="readonly" value="-" style="display: none;" />
 	</p>	
 		
 	<p>

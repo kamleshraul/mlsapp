@@ -291,7 +291,7 @@
 					if(flag){
 						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
 					}else{
-						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						subDepartmentText = subDepartmentText+ "<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
 					}
 				}
 				$('#subDepartments').html(subDepartmentText);
@@ -382,9 +382,9 @@
 	<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">
 		
 	
-	<c:if test="${discussionDateSelected != null}">
+		<c:if test="${(internalStatusType =='discussionmotion_final_admission')}">
 		<label class="small"><spring:message code="discussionmotion.discussionDate" text="Discussion Date"/></label>
-		<input id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="sText" readonly="readonly" />
+		<input name="formattedDiscussionDate" id="formattedDiscussionDate" value="${formattedDiscussionDateSelected}" class="datemask sText" />
 		<input id="discussionDate" name="discussionDate" value="${discussionDateSelected}" class="sText" type="hidden" />
 		<form:errors path="discussionDate" cssClass="validationError"/>
 	</c:if>
@@ -566,8 +566,9 @@
 	</p>
 	
 	<p id="actorDiv" >
-	<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
-	<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
+		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
+		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
+		<input type="text" id="actorName" class="sText" readonly="readonly" value="-" style="display: none;" />
 	</p>	
 		
 	<p>

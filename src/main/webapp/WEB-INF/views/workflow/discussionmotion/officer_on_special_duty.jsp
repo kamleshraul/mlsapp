@@ -552,10 +552,11 @@
 	<form:errors path="internalStatus" cssClass="validationError"/>	
 	</p>
 	
-	<p id="actorDiv" >
-	<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
-	<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
-	</p>	
+<p id="actorDiv" >
+		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
+		<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors }"/>
+		<input type="text" id="actorName" class="sText" readonly="readonly" value="-" style="display: none;" />
+	</p>
 		
 	<p>
 		<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="motion.viewcitation" text="View Citations"></spring:message></a>	
