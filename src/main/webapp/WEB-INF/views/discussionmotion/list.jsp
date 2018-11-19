@@ -92,6 +92,7 @@
 			var selectedId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 			if(selectedId!=undefined && selectedId.length>=1){
 				showAdmissionReport(selectedId[0]);
+				
 			}
 		});
 		
@@ -99,7 +100,31 @@
 			
 			
 			$("#admission_report").attr('href',
-					'discussionmotion/report/commonadmissionreport?motionId=' + id 
+					'discussionmotion/report/commonadmissionreport?discussionmotionId=' + id 
+							+ '&locale=' + $("#moduleLocale").val()
+							+ '&locale=' + $("#selectedMotionType").val()
+							+ '&outputFormat=' + $("#defaultReportFormat").val()
+							+ '&reportQuery=DISCUSSIONMOTION_ADMISSION_LETTER'
+							+ '&templateName=discussionmotion_admission_report'
+							+ '&houseType=' + $("#selectedHouseType").val()
+							+ '&reportName=admissionLetter');
+		
+}
+		
+$("#memberofoppositionreport").click(function(){
+			
+			var selectedId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+			if(selectedId!=undefined && selectedId.length>=1){
+				showmemberofoppositionreportReport(selectedId[0]);
+				
+			}
+		});
+		
+		function showmemberofoppositionreportReport(id){
+			
+			
+			$("#admission_report").attr('href',
+					'discussionmotion/report/memberofoppositionreport?discussionmotionId=' + id 
 							+ '&locale=' + $("#moduleLocale").val()
 							+ '&outputFormat=' + $("#defaultReportFormat").val()
 							+ '&reportQuery=DISCUSSIONMOTION_ADMISSION_LETTER'
@@ -145,6 +170,45 @@
 								</c:when>
 								<c:when test="${houseType=='upperhouse'}">
 									<spring:message code="generic.admissionLetter" text="Admission Letter"/>
+								</c:when>
+							</c:choose>
+						</a>
+				|
+						
+							
+								<a href="javascript:void(0);" id="memberofoppositionreport" class="butSim" >
+							<c:choose>
+								<c:when test="${houseType=='lowerhouse'}">
+									<spring:message code="generic.admissionLetter" text="Letter to Opposition"/>
+								</c:when>
+								<c:when test="${houseType=='upperhouse'}">
+									<spring:message code="generic.admissionLetter" text="Letter to Opposition"/>
+								</c:when>
+							</c:choose>
+						</a>
+							|
+						
+							
+								<a href="javascript:void(0);" id="partyreport" class="butSim" >
+							<c:choose>
+								<c:when test="${houseType=='lowerhouse'}">
+									<spring:message code="generic.admissionLetter" text="Letter to Parties"/>
+								</c:when>
+								<c:when test="${houseType=='upperhouse'}">
+									<spring:message code="generic.admissionLetter" text="Letter to Parties"/>
+								</c:when>
+							</c:choose>
+						</a>
+							|
+						
+							
+								<a href="javascript:void(0);" id="departmentreport" class="butSim" >
+							<c:choose>
+								<c:when test="${houseType=='lowerhouse'}">
+									<spring:message code="generic.admissionLetter" text="Letter to Department"/>
+								</c:when>
+								<c:when test="${houseType=='upperhouse'}">
+									<spring:message code="generic.admissionLetter" text="Letter to Department"/>
 								</c:when>
 							</c:choose>
 						</a>
