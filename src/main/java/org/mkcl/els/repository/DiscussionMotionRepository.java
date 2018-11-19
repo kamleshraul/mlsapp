@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Diff;
 
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
@@ -21,7 +23,9 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.MemberMinister;
+import org.mkcl.els.domain.Ministry;
+
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.Status;
 import org.mkcl.els.domain.UserGroupType;
@@ -368,4 +372,81 @@ public class DiscussionMotionRepository extends BaseRepository<DiscussionMotion,
 		
 		return motions;
 	}
+	public MemberMinister findMemberMinisterIfExists(final DiscussionMotion discussionmotion) throws ELSException {
+		MemberMinister  memberMinister = null;
+		Session session = discussionmotion.getSession();
+		if(session==null) {
+			logger.error("This discussionmotion has no session.");
+			throw new ELSException("discussionmotion_session_null", "This discussionmotion has no session.");
+		}
+		try{			
+			String queryString = "SELECT mm FROM MemberMinister mm JOIN mm.ministry mi JOIN mm.member m " +
+					"WHERE mi.id IN " +
+					"(SELECT gm.id FROM Group g join g.ministries gm " +
+					"WHERE g.houseType.id=:houseTypeId AND g.sessionType.id=:sessionTypeId"+
+					" AND g.year=:sessionYear AND g.locale=:locale) " +
+					//" AND mi.id=:ministryId " +
+					" AND mm.ministryFromDate<=:discussionmotionDate AND (mm.ministryToDate>=:discussionmotionDate  OR mm.ministryToDate IS NULL) " +
+//					" AND mm.ministryFromDate<=:discussionmotionSubmissionDate AND (mm.ministryToDate>=:discussionmotionSubmissionDate  OR mm.ministryToDate IS NULL) " +
+					" AND mm.locale=:locale";
+			
+			TypedQuery<MemberMinister> query = this.em().createQuery(queryString, MemberMinister.class);
+			query.setParameter("houseTypeId", session.getHouse().getType().getId());
+			query.setParameter("sessionTypeId", session.getType().getId());
+			query.setParameter("sessionYear", session.getYear());
+			query.setParameter("locale", discussionmotion.getLocale());
+			//query.setParameter("houseId", session.getHouse().getId());
+			//query.setParameter("ministryId", discussionmotion.getMinistry().getId());
+		
+				query.setParameter("discussionmotion", discussionmotion.getSubmissionDate());
+						
+			//query.setParameter("discussionmotionSubmissionDate", discussionmotion.getSubmissionDate());
+			memberMinister = query.getSingleResult();
+		}catch (NoResultException  e) {
+			return null;
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return null;
+		}
+		return memberMinister;
+	}
+	
+	public MemberMinister findMemberMinisterIfExists(final DiscussionMotion discussionmotion, final Ministry ministry) throws ELSException {
+		MemberMinister  memberMinister = null;
+		Session session = discussionmotion.getSession();
+		if(session==null) {
+			logger.error("This discussionmotion has no session.");
+			throw new ELSException("discussionmotion_session_null", "This discussionmotion has no session.");
+		}
+		try{			
+			String queryString = "SELECT mm FROM MemberMinister mm JOIN mm.ministry mi JOIN mm.member m " +
+					"WHERE mi.id IN " +
+					"(SELECT gm.id FROM Group g join g.ministries gm " +
+					"WHERE g.houseType.id=:houseTypeId AND g.sessionType.id=:sessionTypeId"+
+					" AND g.year=:sessionYear AND g.locale=:locale) " +
+					" AND mi.id=:ministryId AND " +
+					"(mm.ministryFromDate <=:discussionmotionSubmissionDate AND (mm.ministryToDate >:discussionmotionSubmissionDate  OR mm.ministryToDate IS NULL)) AND " +
+					"mm.locale=:locale";
+			
+			TypedQuery<MemberMinister> query = this.em().createQuery(queryString, MemberMinister.class);
+			query.setParameter("houseTypeId", session.getHouse().getType().getId());
+			query.setParameter("sessionTypeId", session.getType().getId());
+			query.setParameter("sessionYear", session.getYear());
+			query.setParameter("locale", discussionmotion.getLocale());
+			//query.setParameter("houseId", session.getHouse().getId());
+			query.setParameter("ministryId", ministry.getId());
+			query.setParameter("discussionmotionSubmissionDate", discussionmotion.getSubmissionDate());
+			memberMinister = query.getSingleResult();
+		}catch (NoResultException  e) {
+			//As this is normal case because discussionmotion may not be submitted by minister
+			return null;
+		}catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return null;
+		}
+		return memberMinister;
+	}
+	
 }
