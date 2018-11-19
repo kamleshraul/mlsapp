@@ -2603,6 +2603,8 @@ public class ApplicationConstants {
 	
 	public static String ANSWER_RECEIVED_MODE_OFFLINE = "OFFLINE";
 	
+	public static final String QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_PROCESSED_SENDDISCUSSIONDATEINTIMATION = "question_halfHourFromQuestion_processed_sendDiscussionDateIntimation";
+	
 	public static final String STATUS_INCOMPLETE="_incomplete";
 	
 	public static final String STATUS_COMPLETE="_complete";
