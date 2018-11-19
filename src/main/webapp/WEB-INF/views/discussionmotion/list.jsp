@@ -102,7 +102,7 @@
 			$("#admission_report").attr('href',
 					'discussionmotion/report/commonadmissionreport?discussionmotionId=' + id 
 							+ '&locale=' + $("#moduleLocale").val()
-							+ '&locale=' + $("#selectedMotionType").val()
+							+ '&motionType=' + $("#selectedDiscussionMotionType").val()
 							+ '&outputFormat=' + $("#defaultReportFormat").val()
 							+ '&reportQuery=DISCUSSIONMOTION_ADMISSION_LETTER'
 							+ '&templateName=discussionmotion_admission_report'
@@ -209,6 +209,32 @@ $("#memberofoppositionreport").click(function(){
 								</c:when>
 								<c:when test="${houseType=='upperhouse'}">
 									<spring:message code="generic.admissionLetter" text="Letter to Department"/>
+								</c:when>
+							</c:choose>
+						</a>
+								|
+						
+							
+								<a href="javascript:void(0);" id="houseitemreport" class="butSim" >
+							<c:choose>
+								<c:when test="${houseType=='lowerhouse'}">
+									<spring:message code="generic.admissionLetter" text="House Item"/>
+								</c:when>
+								<c:when test="${houseType=='upperhouse'}">
+									<spring:message code="generic.admissionLetter" text="House Item"/>
+								</c:when>
+							</c:choose>
+						</a>
+								|
+						
+							
+								<a href="javascript:void(0);" id="citationreport" class="butSim" >
+							<c:choose>
+								<c:when test="${houseType=='lowerhouse'}">
+									<spring:message code="generic.admissionLetter" text="citation"/>
+								</c:when>
+								<c:when test="${houseType=='upperhouse'}">
+									<spring:message code="generic.admissionLetter" text="citation"/>
 								</c:when>
 							</c:choose>
 						</a>

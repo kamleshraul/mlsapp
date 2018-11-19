@@ -274,6 +274,67 @@ public class DiscussionMotionReportController extends BaseController{
 		
 		//return retVal;
 	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@RequestMapping(value="/houseitemreport", method = RequestMethod.GET)
+	public void houseitemreport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		
+		//String retVal = "motion/report";
+		try{
+			
+			String strId = request.getParameter("discussionmotionId");
+			String strReportFormat = request.getParameter("outputFormat");	
+			
+			if(strId != null && !strId.isEmpty()){
+				Map<String, String[]> parameters = request.getParameterMap();
+				
+				List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
+				List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_CLUBBED_DETAILS", parameters);	
+				String templateName = request.getParameter("templateName");
+				File reportFile = null;				
+				
+				reportFile = generateReportUsingFOP(new Object[] {((Object[])reportData.get(0))[0], reportData,reportData1}, templateName, strReportFormat, request.getParameter("reportName"), locale.toString());
+				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+				
+				model.addAttribute("info", "general_info");;
+				//retVal = "motion/info";
+			}			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		//return retVal;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@RequestMapping(value="/citationreport", method = RequestMethod.GET)
+	public void citationreport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+		
+		//String retVal = "motion/report";
+		try{
+			
+			String strId = request.getParameter("discussionmotionId");
+			String strReportFormat = request.getParameter("outputFormat");	
+			
+			if(strId != null && !strId.isEmpty()){
+				Map<String, String[]> parameters = request.getParameterMap();
+				
+				List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
+				List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_CLUBBED_DETAILS", parameters);	
+				String templateName = request.getParameter("templateName");
+				File reportFile = null;				
+				
+				reportFile = generateReportUsingFOP(new Object[] {((Object[])reportData.get(0))[0], reportData,reportData1}, templateName, strReportFormat, request.getParameter("reportName"), locale.toString());
+				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+				
+				model.addAttribute("info", "general_info");;
+				//retVal = "motion/info";
+			}			
+		}catch(Exception e){
+			logger.error("error", e);
+		}
+		
+		//return retVal;
+	}
 	
 /*	@RequestMapping(value ="/commonadmissionreport", method = RequestMethod.GET)
 	public void commonAdmissionReport(Model model,HttpServletRequest request,HttpServletResponse response, Locale locale){
