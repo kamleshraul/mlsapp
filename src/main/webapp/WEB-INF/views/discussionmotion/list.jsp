@@ -213,41 +213,8 @@ $("#memberofoppositionreport").click(function(){
 							</c:choose>
 						</a>
 				<hr> 
-				<security:authorize access="hasAnyRole('DMOIS_SECTION_OFFICER')">
-				<a href="#" id="memberwise_questions_report" class="butSim link">
-					<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
-				</a> |		
-				<a href="#" id="online_offline_submission_count_report" class="butSim link">
-					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
-				</a> |
-				<a href="#" id="partywise_questions_count_report" class="butSim link">
-					<spring:message code="question.partywise_questions_count_report" text="Partywise Questions Count Report"/>
-				</a> |
-				<a href="#" id="extended_grid_report" class="butSim link">
-					<spring:message code="question.extended_grid_report" text="Extended Grid Report"/>
-				</a> |
-				<hr> 
-				</security:authorize>
-				<security:authorize access="hasAnyRole('DMOIS_CLERK')">
-				<a href="#" id="online_offline_submission_count_report" class="butSim link">
-					<spring:message code="question.online_offline_submission_count_report" text="Online-Offline Submission Count Report"/>
-				</a> |
-				</security:authorize>
-				<a href="#" id="group_bulletein_report" class="butSim link">
-					<spring:message code="question.group_bulletein_report" text="Group Bulletein Report"/>
-				</a> |
-				<a href="#" id="bulletein_report" class="butSim link">
-					<spring:message code="question.bulletein_report" text="Bulletein Report"/>
-				</a> |
-				<a href="#" id="departmentwise_report" class="butSim link">
-					<spring:message code="question.departmentwise_report" text="Department's Questions Report"/>
-				</a> |
-				<a href="#" id="ahwal_report" class="butSim link">
-					<spring:message code="question.ahwal_report" text="Sankshipt Ahwal Report"/>
-				</a> |
-				<%-- <a href="#" id="statistical_counts_report" class="butSim link">
-					<spring:message code="question.statistical_counts_report" text="Statistical Counts Report"/>
-				</a> | --%>
+		
+			
 			</security:authorize>
 		</div>
 	</div>
