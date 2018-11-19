@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.xmlvo.TestXmlVO;
+import org.mkcl.els.domain.AdjournmentMotion;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.CutMotion;
@@ -922,6 +923,32 @@ public class AdminController extends BaseController {
 			return "ERROR";
 		}		
 		return "SUCCESS";
+	}
+	
+	@Transactional	
+	@RequestMapping(value="/club/adjournmentmotion/parent/{parentId}/child/{childID}", method=RequestMethod.GET)
+	public @ResponseBody String clubAdjournmentMotions(@PathVariable("parentId") final Long parentId,
+			@PathVariable("childId") final Long childId,
+			final HttpServletRequest request,
+			final Locale appLocale) {	
+		try {
+			String locale = appLocale.toString();
+			AdjournmentMotion parent =  AdjournmentMotion.findById(AdjournmentMotion.class, parentId);
+			AdjournmentMotion child =  AdjournmentMotion.findById(AdjournmentMotion.class, childId);
+			
+			Boolean result = AdjournmentMotion.club(parent, child, locale);
+			if(result){
+				return "SUCCESS";
+			}
+			else{
+				return "FAILURE";
+			}
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+		}
 	}
 	
 }
