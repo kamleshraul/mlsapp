@@ -262,7 +262,14 @@
 																<fo:table-row>
 																	<fo:table-cell text-align="center">
 																	<fo:block font-weight="bold">
+																		<xsl:choose>
+																		<xsl:when test="./element_1/element_1_10='lowerhouse'">
 																			आपला/आपली
+																		</xsl:when>
+																		<xsl:otherwise>
+																			आपली
+																		</xsl:otherwise>
+																		</xsl:choose>
 																		</fo:block>
 																		<fo:block>&#160;</fo:block>
 																		<fo:block>&#160;</fo:block>
