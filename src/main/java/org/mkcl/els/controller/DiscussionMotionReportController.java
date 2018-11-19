@@ -165,7 +165,7 @@ public class DiscussionMotionReportController extends BaseController{
 				Map<String, String[]> parameters = request.getParameterMap();
 				
 				List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
-				List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_CLUBBED_DETAILS", parameters);	
+				List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_EXTRA_DETAILS", parameters);	
 				String templateName = request.getParameter("templateName");
 				File reportFile = null;				
 				
