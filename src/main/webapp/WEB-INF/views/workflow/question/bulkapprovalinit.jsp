@@ -209,12 +209,13 @@
 			<label class="small"><spring:message code="question.nextactor" text="Next Users"/></label>
 			<select id="appractor" class="sSelect"></select>
 		</span>	
-		<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>		
+				
 	</c:otherwise>
 	</c:choose>		
 </p>
 <div id="bulkResultDiv">	
-</div>	
+</div>
+<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>	
 <input type="hidden" id="apprhouseType" value="${houseType }">
 <input type="hidden" id="apprsessionType" value="${sessionType }">
 <input type="hidden" id="apprsessionYear" value="${sessionYear }">
