@@ -81,6 +81,15 @@
 				}
 			});
 
+			$("#houseitem_report").click(function(){
+			
+				var selectedId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				if(selectedId!=undefined && selectedId.length>=1){
+					showHouseItemReport(selectedId[0]);
+					
+				}
+			});
+
 		});
 		/**** double clicking record in grid handler ****/
 		function rowDblClickHandler(rowid, iRow, iCol, e) {
@@ -135,6 +144,20 @@
 							+ '&reportName=departmentintimationletter');
 		
 			}
+		
+		function showHouseItemReport(id){
+			$("#houseitem_report").attr('href',
+					'discussionmotion/report/houseitemreport?discussionmotionId=' + id 
+							+ '&locale=' + $("#moduleLocale").val()
+							+ '&motionType=' + $("#selectedMotionType").val()
+							+ '&outputFormat=' + $("#defaultReportFormat").val()
+							+ '&reportQuery=DISCUSSIONMOTION_HOUSEITEM_LETTER'
+							+ '&templateName=discussionmotion_houseitem_letter'
+							+ '&houseType=' + $("#selectedHouseType").val()
+							+ '&reportName=departmentintimationletter');
+		
+			}
+		
 		$("#memberofoppositionreport").click(function(){
 			
 			var selectedId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
@@ -207,7 +230,20 @@
 							<spring:message code="generic.departmentIntimation_report" text="Admission Letter"/>
 						</c:when>
 					</c:choose>
-				</a>|
+				</a>
+				|
+						
+							
+								<a href="javascript:void(0);" id="houseitem_report" class="butSim" >
+							<c:choose>
+								<c:when test="${houseType=='lowerhouse'}">
+									<spring:message code="generic.houseitem_report" text="House Item"/>
+								</c:when>
+								<c:when test="${houseType=='upperhouse'}">
+									<spring:message code="generic.houseitem_report" text="House Item"/>
+								</c:when>
+							</c:choose>
+						</a>
 						
 							
 				<a href="javascript:void(0);" id="memberofoppositionreport" class="butSim" >
@@ -246,19 +282,7 @@
 						</c:when>
 					</c:choose>
 				</a>
-								|
-						
-							
-								<a href="javascript:void(0);" id="houseitemreport" class="butSim" >
-							<c:choose>
-								<c:when test="${houseType=='lowerhouse'}">
-									<spring:message code="generic.admissionLetter" text="House Item"/>
-								</c:when>
-								<c:when test="${houseType=='upperhouse'}">
-									<spring:message code="generic.admissionLetter" text="House Item"/>
-								</c:when>
-							</c:choose>
-						</a>
+								
 								|
 						
 							

@@ -159,7 +159,7 @@
 						<fo:block>&#160;</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block>
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;विद्यमान अधिवेशनासाठी मा. अध्यक्षांनी ही सूचना मान्य केली आहे. उपरोक्त विषयावरील चर्चा सभागृहात दिनांक  <xsl:value-of select="./element_2/element_2_6"></xsl:value-of>  रोजी घेण्यात येईल					
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;विद्यमान अधिवेशनासाठी मा. अध्यक्षांनी ही सूचना मान्य केली आहे. उपरोक्त विषयावरील चर्चा सभागृहात दिनांक <fo:inline font-weight="bold" text-decoration="underline"> <xsl:value-of select="./element_2/element_2_6"></xsl:value-of></fo:inline>  रोजी घेण्यात येईल					
 						</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block>&#160;</fo:block>
@@ -210,8 +210,8 @@
 							</fo:table>
 						</fo:block>
 						<fo:block>&#160;</fo:block>
-						<fo:block font-weight="bold">
-							मा.<xsl:value-of select="./element_2/element_2_5"></xsl:value-of>
+						<fo:block >
+							मा.<fo:inline font-weight="bold"><xsl:value-of select="./element_2/element_2_5"></xsl:value-of></fo:inline> यांना माहितीसाठी सादर अग्रेषित.
 						</fo:block>	            			
 					
 					</fo:block>							          
