@@ -71,6 +71,15 @@
 						);
 				$('#gridURLParams_ForNew').val($('#gridURLParams').val());				
 			});
+			
+			$("#departmentIntimation_report").click(function(){
+				
+				var selectedId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
+				if(selectedId!=undefined && selectedId.length>=1){
+					showDepartmentIntimationReport(selectedId[0]);
+					
+				}
+			});
 
 		});
 		/**** double clicking record in grid handler ****/
@@ -96,6 +105,8 @@
 			}
 		});
 		
+
+		
 		function showAdmissionReport(id){
 			
 			
@@ -109,9 +120,22 @@
 							+ '&houseType=' + $("#selectedHouseType").val()
 							+ '&reportName=admissionLetter');
 		
-}
+		}
 		
-$("#memberofoppositionreport").click(function(){
+		
+		function showDepartmentIntimationReport(id){
+			$("#departmentIntimation_report").attr('href',
+					'discussionmotion/report/commonadmissionreport?discussionmotionId=' + id 
+							+ '&locale=' + $("#moduleLocale").val()
+							+ '&motionType=' + $("#selectedMotionType").val()
+							+ '&outputFormat=' + $("#defaultReportFormat").val()
+							+ '&reportQuery=DISCUSSIONMOTION_DEPARTMENTINTIMATION_LETTER'
+							+ '&templateName=discussionmotion_publicimportance_department_intimationletter'
+							+ '&houseType=' + $("#selectedHouseType").val()
+							+ '&reportName=departmentintimationletter');
+		
+			}
+		$("#memberofoppositionreport").click(function(){
 			
 			var selectedId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
 			if(selectedId!=undefined && selectedId.length>=1){
@@ -163,55 +187,65 @@ $("#memberofoppositionreport").click(function(){
 			<security:authorize access="hasAnyRole('DMOIS_ASSISTANT','DMOIS_SECTION_OFFICER','DMOIS_CLERK')">
 				<hr>
 							
-								<a href="javascript:void(0);" id="admission_report" class="butSim" >
-							<c:choose>
-								<c:when test="${houseType=='lowerhouse'}">
-									<spring:message code="generic.admissionLetter" text="Admission Letter"/>
-								</c:when>
-								<c:when test="${houseType=='upperhouse'}">
-									<spring:message code="generic.admissionLetter" text="Admission Letter"/>
-								</c:when>
-							</c:choose>
-						</a>
+				<a href="javascript:void(0);" id="admission_report" class="butSim" >
+					<c:choose>
+						<c:when test="${houseType=='lowerhouse'}">
+							<spring:message code="generic.admissionLetter" text="Admission Letter"/>
+						</c:when>
+						<c:when test="${houseType=='upperhouse'}">
+							<spring:message code="generic.admissionLetter" text="Admission Letter"/>
+						</c:when>
+					</c:choose>
+				</a>
 				|
+				<a href="javascript:void(0);" id="departmentIntimation_report" class="butSim" >
+					<c:choose>
+						<c:when test="${houseType=='lowerhouse'}">
+							<spring:message code="generic.departmentIntimation_report" text="Department Intimation Letter"/>
+						</c:when>
+						<c:when test="${houseType=='upperhouse'}">
+							<spring:message code="generic.departmentIntimation_report" text="Admission Letter"/>
+						</c:when>
+					</c:choose>
+				</a>|
 						
 							
-								<a href="javascript:void(0);" id="memberofoppositionreport" class="butSim" >
-							<c:choose>
-								<c:when test="${houseType=='lowerhouse'}">
-									<spring:message code="generic.admissionLetter" text="Letter to Opposition"/>
-								</c:when>
-								<c:when test="${houseType=='upperhouse'}">
-									<spring:message code="generic.admissionLetter" text="Letter to Opposition"/>
-								</c:when>
-							</c:choose>
-						</a>
-							|
+				<a href="javascript:void(0);" id="memberofoppositionreport" class="butSim" >
+					<c:choose>
+						<c:when test="${houseType=='lowerhouse'}">
+							<spring:message code="generic.admissionLetter" text="Letter to Opposition"/>
+						</c:when>
+						<c:when test="${houseType=='upperhouse'}">
+							<spring:message code="generic.admissionLetter" text="Letter to Opposition"/>
+						</c:when>
+					</c:choose>
+				</a>
+					|
 						
 							
-								<a href="javascript:void(0);" id="partyreport" class="butSim" >
-							<c:choose>
-								<c:when test="${houseType=='lowerhouse'}">
-									<spring:message code="generic.admissionLetter" text="Letter to Parties"/>
-								</c:when>
-								<c:when test="${houseType=='upperhouse'}">
-									<spring:message code="generic.admissionLetter" text="Letter to Parties"/>
-								</c:when>
-							</c:choose>
-						</a>
-							|
+				<a href="javascript:void(0);" id="partyreport" class="butSim" >
+					<c:choose>
+						<c:when test="${houseType=='lowerhouse'}">
+							<spring:message code="generic.admissionLetter" text="Letter to Parties"/>
+						</c:when>
+						<c:when test="${houseType=='upperhouse'}">
+							<spring:message code="generic.admissionLetter" text="Letter to Parties"/>
+						</c:when>
+					</c:choose>
+				</a>
+					|
 						
 							
-								<a href="javascript:void(0);" id="departmentreport" class="butSim" >
-							<c:choose>
-								<c:when test="${houseType=='lowerhouse'}">
-									<spring:message code="generic.admissionLetter" text="Letter to Department"/>
-								</c:when>
-								<c:when test="${houseType=='upperhouse'}">
-									<spring:message code="generic.admissionLetter" text="Letter to Department"/>
-								</c:when>
-							</c:choose>
-						</a>
+				<a href="javascript:void(0);" id="departmentreport" class="butSim" >
+					<c:choose>
+						<c:when test="${houseType=='lowerhouse'}">
+							<spring:message code="generic.admissionLetter" text="Letter to Department"/>
+						</c:when>
+						<c:when test="${houseType=='upperhouse'}">
+							<spring:message code="generic.admissionLetter" text="Letter to Department"/>
+						</c:when>
+					</c:choose>
+				</a>
 								|
 						
 							
