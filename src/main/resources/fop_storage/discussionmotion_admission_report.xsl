@@ -72,222 +72,158 @@
 	
 				<!-- body -->
 	            <fo:flow flow-name="xsl-region-body">		            	
-	            	<fo:block font-family="Mangal" font-size="10.5px">	       
-            			<fo:block text-align="center" font-weight="bold" font-size="14pt">
-	            			महाराष्ट्र विधानमंडळ सचिवालय					
-	            		</fo:block>  
+	            	<fo:block font-family="Mangal" font-size="10.5px">		
+	            	
+	            			<fo:table>
+										<fo:table-body>								
+											<fo:table-row>
+												<fo:table-cell  width="50px" text-align="right">
+													<fo:block>
+														
+													</fo:block>
+												</fo:table-cell>
+												<fo:table-cell  width="450px" text-align="left">
+													<xsl:choose>
 	            		
-	            		<xsl:choose>
-	            		
-	            			<xsl:when test="./element_2/element_2_5='upperhouse'">
-	            				<fo:block text-align="left" font-weight="bold" text-decoration="underline">
-	            				अति तात्काळ
+	            			<xsl:when test="./element_2/element_2_2='lowerhouse'">
+	            				<fo:block text-align="right" font-weight="bold" text-decoration="underline">
+	            				म.वि.स./फ
 	            				</fo:block>
-			            		<fo:block font-size="6px">&#160;</fo:block>    
+	            				<fo:block text-align="left" >
+	            				&#160;&#160;&#160;<fo:inline text-decoration="underline">सादर :</fo:inline>
+	            				</fo:block>
+	            				
+	            				 <xsl:if test="./element_2/element_2_14='motions_discussionmotion_lastweek'">
+										  <fo:block text-align="left">
+	            				&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;सर्वश्री<xsl:value-of select="./element_2/element_2_13"></xsl:value-of> व इतर वि.स.स. यांनी म.वि.स. नियम २९२ अन्वये दिलेली पृष्ठ क्र. १ वरील प्रस्तावाची सूचना कृपया पहावी.  
+	            			
+	            				</fo:block>	
+								</xsl:if>
+	            					 <xsl:if test="./element_2/element_2_14='motions_discussionmotion_publicimportance'">
+	            					          					   <fo:block text-align="left">
+	            				&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;सर्वश्री<xsl:value-of select="./element_2/element_2_13"></xsl:value-of> व इतर वि.स.स. यांनी म.वि.स. नियम २९३ अन्वये दिलेली पृष्ठ क्र. १ वरील प्रस्तावाची सूचना कृपया पहावी.  
+	            			
+	            				</fo:block>
+	            					</xsl:if>
+	            			
+	            			
+			            	  
 			            		<fo:block>&#160;</fo:block>
 										
 								<fo:block>
 									<fo:table>
 										<fo:table-body>								
 											<fo:table-row>
-												<fo:table-cell>
+												<fo:table-cell  width="100px" text-align="right">
 													<fo:block>
-														&#160;
+														प्रस्तावाचा विषय :-
 													</fo:block>
 												</fo:table-cell>
-												<fo:table-cell>
-													<fo:block>
-														&#160;
+												<fo:table-cell  width="350px" text-align="left">
+													<fo:block font-weight="bold" text-align="justify">
+														 <xsl:value-of select="./element_2/element_2_6"></xsl:value-of>
 													</fo:block>
 												</fo:table-cell>
-												<fo:table-cell>
-													<fo:block>
-														<fo:table>
-															<fo:table-body>
-																<fo:table-row>
-																	<fo:table-cell width="200px" text-align="justify">
-																		<fo:block>
-																			क्रमांक :
-																			<fo:inline font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;/ई-2,</fo:inline>
-																		</fo:block>
-																	</fo:table-cell>										
-																</fo:table-row>
-																
-																<fo:table-row>
-																	<fo:table-cell width="200px" text-align="justify">
-																		<fo:block font-weight="bold">महाराष्ट्र विधानमंडळ सचिवालय</fo:block>
-																	</fo:table-cell>
-																</fo:table-row>
-																
-																<fo:table-row>
-																	<fo:table-cell width="200px" text-align="justify">
-																		<fo:block font-weight="bold">विधान भवन मुंबई / नागपूर</fo:block>
-																	</fo:table-cell>
-																</fo:table-row>
-																
-																<fo:table-row>
-																	<fo:table-cell width="200px" text-align="justify"><fo:block>दिनांक : &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</fo:block></fo:table-cell>
-																</fo:table-row>
-															</fo:table-body>
-														</fo:table>
-													</fo:block>
-												</fo:table-cell>
+											
 											</fo:table-row>
 										</fo:table-body>
 									</fo:table>
 								</fo:block>
+								<fo:block>&#160;</fo:block>    
+			            		
+			            		
+			            					
+	           <xsl:if test="./element_2/element_2_14='motions_discussionmotion_lastweek'">
+	            			
+	            					  <fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानसभा "बैठकीची दिनदर्शिका" यामध्ये दर्शविल्याप्रमाणे <xsl:value-of select="./element_2/element_2_10"></xsl:value-of> रोजी <fo:inline font-weight="bold">"
+										<xsl:if test="./element_2/element_2_15='ruling_party'">सत्तारूढ</xsl:if>
+										<xsl:if test="./element_2/element_2_15='opposition_party'">विरोधी</xsl:if>
+										<xsl:if test="./element_2/element_2_15='independent'">अपक्ष</xsl:if>
+	            					  पक्षामार्फत अंतिम आठवडा प्रस्ताव"</fo:inline> चर्चेस घेण्यात येणार आहे. त्यानुसार
+										<xsl:if test="./element_2/element_2_15='ruling_party'">सत्तारूढ</xsl:if>
+										<xsl:if test="./element_2/element_2_15='opposition_party'">विरोधी</xsl:if>
+										<xsl:if test="./element_2/element_2_15='independent'">अपक्ष</xsl:if>
+									 पक्षाकडून अंतिम आठवडा प्रस्तावाची सूचना प्राप्त झाली आहे.</fo:block>
+	            					</xsl:if>
+	            					 <xsl:if test="./element_2/element_2_14='motions_discussionmotion_publicimportance'">
+		            					<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानसभा "बैठकीची दिनदर्शिका" यामध्ये दर्शविल्याप्रमाणे <xsl:value-of select="./element_2/element_2_10"></xsl:value-of> रोजी <fo:inline font-weight="bold">"
+		            						 <xsl:if test="./element_2/element_2_15='ruling_party'">सत्तारूढ</xsl:if>
+										<xsl:if test="./element_2/element_2_15='opposition_party'">विरोधी</xsl:if>
+										<xsl:if test="./element_2/element_2_15='independent'">अपक्ष</xsl:if>
+										 पक्षाचा प्रस्ताव"</fo:inline> घेण्यात येणार आहे. त्यानुसार
+									 <xsl:if test="./element_2/element_2_15='ruling_party'">सत्तारूढ</xsl:if>
+										<xsl:if test="./element_2/element_2_15='opposition_party'">विरोधी</xsl:if>
+										<xsl:if test="./element_2/element_2_15='independent'">अपक्ष</xsl:if> पक्षातर्फे प्रस्तावाची सूचना प्राप्त झाली आहे.</fo:block> 
+	            					</xsl:if>
+	            				
+			            		<fo:block>&#160;</fo:block>
+			            						
+	            		
+	            					 <xsl:if test="./element_2/element_2_14='motions_discussionmotion_lastweek'">
+	            					  <fo:block font-weight="bold">
+									प्रस्तावासंदर्भात म.वि.स. नियम २३ मध्ये खालीलप्रमाणे तरतुदी आहेत.
+								</fo:block>
+	            					</xsl:if>
+	            					 <xsl:if test="./element_2/element_2_14='motions_discussionmotion_publicimportance'">
+		            					 <fo:block font-weight="bold">
+									म.वि.स. नियम २३ च्या तरतुदी खालीलप्रमाणे आहेत.
+								</fo:block>
+	            					</xsl:if>
 								
-								<fo:block>&#160;</fo:block>
-								<fo:block font-weight="bold">
-									प्रेषक,
-								</fo:block>
-								<fo:block>
-									&#160;&#160;&#160;&#160;&#160;&#160;प्रधान सचिव,									
-								</fo:block>
-								<fo:block>
-									&#160;&#160;&#160;&#160;&#160;&#160;महाराष्ट्र विधानमंडळ सचिवालय.								
-								</fo:block>
 								
-								<fo:block font-weight="bold">
-									प्रति,
-								</fo:block>
-								<fo:block>
-									&#160;&#160;&#160;&#160;&#160;&#160;सचिव,									
-								</fo:block>
-								<fo:block>
-									&#160;&#160;&#160;&#160;&#160;&#160;<xsl:value-of select="./element_2/element_2_4"></xsl:value-of>&#160;विभाग,							
-								</fo:block>
-								<fo:block>
-									&#160;&#160;&#160;&#160;&#160;&#160;मंत्रालय, मुंबई/नागपूर.								
-								</fo:block>
-								
-								<fo:block>&#160;</fo:block>
-								<fo:block>
-									&#160;&#160;&#160;&#160;&#160;&#160;श्री./श्रीमती/सर्वश्री. <xsl:value-of select="./element_2/element_2_6"></xsl:value-of> व इतर वि.प.स.								
-								</fo:block>
-								<fo:block>&#160;</fo:block>
-								<fo:block font-weight="bold">
-									&#160;&#160;&#160;&#160;&#160;&#160;विषय:  प्रत संलग्न								
-								</fo:block>
-								<fo:block>&#160;</fo:block>
-								<fo:block font-weight="bold">
-									&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;म.वि.प., नियम १०१ अन्वये लक्षवेधी सूचना क्रमांक <xsl:value-of select="./element_2/element_2_3"></xsl:value-of>
-								<xsl:choose>
-											<xsl:when test="./element_2/element_2_7!=''">
-	            									<fo:inline>
-	            									व इतर जोडलेल्या <xsl:value-of select="translate(./element_2/element_2_7,'','')"></xsl:value-of> 		
-	            									</fo:inline>
-	            							</xsl:when>
-	            				</xsl:choose>
-															
-								</fo:block>
-								
-								<fo:block>									
-									<fo:inline font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;संदर्भ: </fo:inline>या सचिवालयाचे पत्र क्रमांक:&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;/ई-२, दिनांकित __________________						
-								</fo:block>
-								
-								<fo:block>&#160;</fo:block>
-								
-								<fo:block>
-									&#160;&#160;&#160;&#160;&#160;&#160;उपरोल्लिखित सूचनाधीन विषयाबाबत खाली नमूद केलेल्या क्रमांक (&#160;&#160;&#160;&#160;&#160;&#160;&#160;) येथील माहिती या सचिवालयास					
-								</fo:block>
-								
-								<fo:block>
-									त्वरित कळवावी अशी विनंती आहे:-					
-								</fo:block>
-								<fo:block>
-									&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45; 				
-								</fo:block>
-						
-								<fo:block>
-									&#160;&#160;&#160;(१)सुचानाधीन विषयीनेमकी वस्तुस्थितीकाय आहे?									
-								</fo:block>
-								<fo:block>
-									&#160;&#160;&#160;(२)सुचानाधीन बाब वस्तुस्थितीवर आधारलेली आहे काय?									
-								</fo:block>
-								<fo:block>
-									&#160;&#160;&#160;(३)सुचानाधीन विषयाबाबत राज्यशासन प्रामुख्याने जबाबदारआहे काय, नसल्यास, त्याबाबतची थोडक्यात करणे काय									
-								</fo:block>
-								<fo:block>
-									&#160;&#160;&#160;आहेत?								
-								</fo:block>								 
-								<fo:block>
-									&#160;&#160;&#160;(४)सुचानाधीन प्रकरणाचा निर्णय केव्हा घेण्यात आला आहे?									
-								</fo:block>
-								
-								<fo:block>
-									&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45; 				
-								</fo:block>
-								
-								<fo:block>&#160;</fo:block>
-								
-								<fo:block font-weight="bold">सूचना क्रमांक:<xsl:value-of select="./element_2/element_2_3"></xsl:value-of> </fo:block>
-								<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;श्री./श्रीमती/सर्वश्री. <xsl:value-of select="./element_2/element_2_6"></xsl:value-of> व इतर वि.प.स.</fo:block>
-								<fo:block><xsl:value-of select="./element_2/element_2_8"></xsl:value-of> </fo:block>
-								
-							 <xsl:for-each select="./element_3" >	
-							 <fo:block>&#160;</fo:block>
-							 <fo:block font-weight="bold">सूचना क्रमांक:<xsl:value-of select="./element_3_5"></xsl:value-of> </fo:block>
-							 <fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;श्री./श्रीमती/सर्वश्री. <xsl:value-of select="./element_3_3"></xsl:value-of> व इतर वि.प.स.</fo:block>
-							   <fo:block><xsl:value-of select="./element_3_4"></xsl:value-of> </fo:block>
-							 </xsl:for-each>
-							 <fo:block>&#160;</fo:block>
-								<fo:block font-weight="bold">									
-									&#160;&#160;&#160;&#160;&#160;&#160;वरील माहिती सूचनेच्या मान्यतेसाठी मा. सभापतींना पाहिजे असल्याने ती या सचिवालयाकडे						
-								</fo:block>
-								
-								<fo:block font-weight="bold">									
-									दिनांक ____________________ पर्यंत त्वरित पाठवावी. आपणाकडून माहिती देण्यास विलंब झाल्यास सुचना वस्तुस्थितीचा	 आधार/शासन जबाबदार आहे असे गृहीत धरून मान्य केली जाण्याची शक्यता आहे.					
-								</fo:block>
-								<fo:block>&#160;</fo:block>
-										
-								<fo:block>
+									<fo:block>
 									<fo:table>
 										<fo:table-body>								
 											<fo:table-row>
-												<fo:table-cell>
-													<fo:block>
-														&#160;
-													</fo:block>
+												<fo:table-cell  width="50px" text-align="center">
+														<fo:block>२३.</fo:block>
 												</fo:table-cell>
-												<fo:table-cell>
-													<fo:block>
-														&#160;
-													</fo:block>
+												<fo:table-cell  width="400px" text-align="left">
+												<fo:block>(१) ज्याबाबतीत विधानसभेच्या निर्णयाची आवश्यकता असते अशा बाबींचा निर्णय,अध्यक्ष एखादया सदस्याने मांडलेला प्रस्ताव मतास टाकून करतील.</fo:block>
+											<fo:block>
+									(२) पुढील शर्तींची पूर्तता करीत नसेल असा कोणताही प्रस्ताव स्वीकार्य असणार नाही.-								
+								</fo:block>
+								<fo:block>
+									(अ) तो स्पष्टपणे व नेमकेपणाने व्यक्त करण्यात येईल व त्यात एक निश्चित मुद्दा उपस्थित करण्यात येईल.							
+								</fo:block>
+									<fo:block>
+									(ब) त्यात युक्तीवाद,अनुमाने,वाक्रोतिपूर्ण शब्दप्रयोग किंवा मानहानीकारक विधाने समाविष्ट असणार नाहीत.							
+								</fo:block>
+								<fo:block>(क)	पदीय किंवा सार्वजनिक नात्याने असेल त्या व्यतिरिक्त इतर बाबतीत कोणत्याही व्यक्तीच्या आचरणाचा किंवा वर्तणुकीचा त्यात उल्लेख असणार नाही, आणि</fo:block> 
+								<fo:block>(ड)    तो नियम ३४, पोट-नियम (२) खंड (१),  (४)  व  (५) यात निर्दिष्ट केल्याप्रमाणे असलेल्या कोणत्याही बाबीसंबंधी असणार नाही,</fo:block>
 												</fo:table-cell>
-												<fo:table-cell>
-													<fo:block>
-														<fo:table>
-															<fo:table-body>
-																<fo:table-row>
-																	<fo:table-cell width="200px" text-align="center">
-																		<fo:block>																			
-																			आपली,
-																			<fo:block>&#160;</fo:block>
-																		</fo:block>
-																	</fo:table-cell>										
-																</fo:table-row>
-																
-																<fo:table-row>
-																	<fo:table-cell width="200px" text-align="center">
-																		<fo:block font-weight="bold">कक्ष अधिकारी</fo:block>
-																	</fo:table-cell>
-																</fo:table-row>
-																
-																<fo:table-row>
-																	<fo:table-cell width="200px" text-align="center">
-																		<fo:block >महाराष्ट्र विधानमंडळ सचिवालय.</fo:block>
-																	</fo:table-cell>
-																</fo:table-row>
-																
-															</fo:table-body>
-														</fo:table>
-													</fo:block>
-												</fo:table-cell>
+											
 											</fo:table-row>
 										</fo:table-body>
 									</fo:table>
 								</fo:block>
+							
+	   
+	<fo:block>&#160;</fo:block>								
+<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;म.वि.स  नियम २३ (२)  (अ) मधील तरतुदी विचारात घेता या प्रस्तावाच्या सूचनेतील विषय मुख्यत्वे <fo:inline font-weight="bold"><xsl:value-of select="./element_2/element_2_11"></xsl:value-of></fo:inline> या विभागांचा संबंध येत असून प्रस्तावातील विषय सार्वजनिक महत्वाचा असल्याने मान्य करण्यास हरकत नसावी.</fo:block>
+<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;सबब, प्रस्तावाची सूचना पृष्ठ क्रमांक १ वरील प्रारुपात मान्य करण्यात यावी.</fo:block>
+<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;मान्य झालेल्या, प्रस्तावाची बाब <xsl:value-of select="./element_2/element_2_10"></xsl:value-of> रोजीच्या दिवसाच्या कामकाजाच्या क्रमात दाखविण्यात यावी व सदर प्रस्तावास प्रथेप्रमाणे २ तास ३० मिनिटे वेळ देण्यात यावा.</fo:block>
+<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;प्रस्तावावरील चर्चेत सहभागी होणाऱ्या सदस्यांची नावे कळविण्याबाबत सत्ताधारी पक्ष्याच्या व विरोधी पक्ष्याचा प्रतोदांना पत्राद्वारे कळविण्यात यावे </fo:block>
+<fo:block>&#160;&#160;&#160;&#160;&#160;&#160;&#160;मान्यतेसाठी सादर.</fo:block>
+<fo:block>&#160;</fo:block>    
+<fo:block>&#160;</fo:block>
+<fo:block font-weight="bold">कक्ष अधिकारी (श्री. परब) :</fo:block>
+<fo:block>&#160;</fo:block>    
+<fo:block>&#160;</fo:block>
+<fo:block font-weight="bold">उप सचिव (श्री.थिटे ) :</fo:block>
+<fo:block>&#160;</fo:block>    
+<fo:block>&#160;</fo:block>
+<fo:block font-weight="bold">सह सचिव (से.) (श्री.मोहिते ) :</fo:block>
+<fo:block>&#160;</fo:block>    
+<fo:block>&#160;</fo:block>
+<fo:block font-weight="bold" >प्रधान सचिव : </fo:block>
+<fo:block>&#160;</fo:block>    
+<fo:block>&#160;</fo:block>
+<fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;मा. अध्यक्ष :</fo:block>
+								
+						
+							
+							
 	            			</xsl:when>
 	            			<xsl:when test="./elelment_2/element_2_5='lowerhouse'">
 	            				<fo:block>
@@ -295,6 +231,13 @@
 	            				</fo:block>
 	            			</xsl:when>
 	            		</xsl:choose>
+												</fo:table-cell>
+											
+											</fo:table-row>
+										</fo:table-body>
+									</fo:table>
+	            	
+	            		
 					
 					</fo:block>							          
 	            </fo:flow>
