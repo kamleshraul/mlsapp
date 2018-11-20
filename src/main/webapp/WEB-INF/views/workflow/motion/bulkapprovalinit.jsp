@@ -207,7 +207,7 @@
 		<label class="small"><spring:message code="motion.nextactor" text="Next Users"/></label>
 		<select id="appractor" class="sSelect"></select>
 	</span>	
-	<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>
+	<%-- <input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/> --%>
 	<div>
 		<p style="display: inline;">
 			<label class="centerlabel"><spring:message code="question.remarks" text="Remarks"/></label>
@@ -223,7 +223,15 @@
 	</c:choose>		
 </p>
 <div id="bulkResultDiv">	
-</div>	
+</div>
+<c:choose>
+	<c:when test="workflowSubType=='request_to_supporting_member'">
+		
+	</c:when>
+	<c:otherwise>
+		<input type="button" id="bulksubmit" value="<spring:message code='generic.submit' text='Submit'/>"  style="width: 100px;margin: 10px;"/>
+	</c:otherwise>
+</c:choose>	
 <input type="hidden" id="apprhouseType" value="${houseType }">
 <input type="hidden" id="apprsessionType" value="${sessionType }">
 <input type="hidden" id="apprsessionYear" value="${sessionYear }">
