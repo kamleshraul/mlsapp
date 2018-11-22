@@ -237,7 +237,7 @@
 		    return false;  
 	}
 	/**** sub departments ****/
-	function loadSubDepartments(ministry,department){
+function loadSubDepartments(ministry){
 		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
 				function(data){
 			$("#subDepartment").empty();
@@ -290,20 +290,22 @@
 		});
 	}
     /**** groups ****/
-	function loadGroup(ministry){
-		if(ministry!=''){
-		$.get('ref/ministry/'+ministry+'/group?houseType='+$("#houseType").val()+'&sessionYear='+$("#sessionYear").val()+'&sessionType='+$("#sessionType").val(),function(data){
-			$("#formattedGroup").val(data.name);
-			$("#group").val(data.id);
-			loadDepartments(ministry);			
-		}).fail(function(){
-			if($("#ErrorMsg").val()!=''){
-				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-			}else{
-				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-			}
-			scrollTop();
-		});
+	function loadGroup(subdepartment){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+		if(subdepartment!=''){
+			$.get('ref/subdepartment/' + subdepartment + '/group?'+
+					'session=' + $("#session").val(),function(data){
+				$("#formattedGroup").val(data.name);
+				$("#group").val(data.id);			
+			}).fail(function(){
+				if($("#ErrorMsg").val()!=''){
+					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+				}else{
+					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+				}
+				scrollTop();
+			});
+			$.unblockUI();
 		}
 	}		
 	/**** Load Clarifications ****/
@@ -331,7 +333,9 @@
 		});
 	}
 	$(document).ready(function(){
-			
+		$('#mlsBranchNotifiedOfTransfer').val(null);
+		$('#transferToDepartmentAccepted').val(null);
+		
 		/*******Actor changes*************/
 		$("#actor").change(function(){
 		    var actor=$(this).val();
@@ -352,22 +356,28 @@
 		/**** Ministry Changes ****/
 		$("#ministry").change(function(){
 			if($(this).val()!=''){
-			loadGroup($(this).val());
+				loadSubDepartments($(this).val());
 			}else{
 				$("#formattedGroup").val("");
 				$("#group").val("");				
-				$("#department").empty();				
+				//$("#department").empty();				
 				$("#subDepartment").empty();				
 				$("#answeringDate").empty();		
-				$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
+				//$("#department").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");				
 				$("#answeringDate").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");
-				groupChanged();					
+				//groupChanged();					
 			}
 		});
 		/**** Department Changes ****/
-		$("#department").change(function(){
+		/* $("#department").change(function(){
 			loadSubDepartments($("#ministry").val(),$(this).val());
+		}); */
+		
+		$('#subDepartment').change(function(){
+			if($("#houseTypeType").val()=='upperhouse'){
+				loadGroup($(this).val());
+			}
 		});
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
