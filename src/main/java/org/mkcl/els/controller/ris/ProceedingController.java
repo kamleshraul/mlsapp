@@ -221,9 +221,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 			}
 			
 			model.addAttribute("languageReporter", languageReporter);
-			if(session!=null){
-				houseType = session.getHouse().getType();
-				model.addAttribute("session",session.getId());
+
 				
 				/**** Previous Slot ****/
 				Slot previousSlot = Slot.findPreviousSlot(slot);
@@ -280,6 +278,9 @@ public class ProceedingController extends GenericController<Proceeding>{
 					User nextReporterUser = nextReporter.getUser();
 					model.addAttribute("nextReporter", nextReporterUser.getTitle() + " " + nextReporterUser.getLastName());
 				}
+				if(session!=null){
+					houseType = session.getHouse().getType();
+					model.addAttribute("session",session.getId());
 				/****Party****/
 				List<Party> parties=MemberPartyAssociation.findActivePartiesHavingMemberInHouse(session.getHouse(),domain.getLocale());
 				model.addAttribute("parties", parties);
