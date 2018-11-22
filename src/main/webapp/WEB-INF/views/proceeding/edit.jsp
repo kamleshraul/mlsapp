@@ -7,7 +7,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>	
 	<script type="text/javascript">
 	$(document).ready(function(){
-		
+
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
 		    $.get('proceeding/revisions/'+$("#partId1").val(),function(data){
@@ -689,7 +689,7 @@
 		<input type="hidden" id="currentSlotStartDateTitle" value="${currentSlotStartDate}"/>
 		<input type="hidden" id="slotNameTitle" value="${slotName}"/>
 		<input type="hidden" id="languageReporterTitle" value="${languageReporter}"/>
-		<input type="hidden" id="currenSlotStartTimeTitle" value="${currenSlotStartTime}"/>
+		<input type="hidden" id="currenSlotStartTimeTitle" value="${currentSlotStartTime}"/>
 		<input type="hidden" id="previousReporterTitle" value="${previousReporter}"/>
 		<input type="hidden" id="pageCounter" />
 		<input type="hidden" id="nextReporterTitle" value="${nextReporter}"/>
