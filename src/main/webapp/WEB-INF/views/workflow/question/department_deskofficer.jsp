@@ -873,6 +873,12 @@
 					$.prompt($('#noAnswerProvidedMsg').val());
 					return false;
 				}
+				if($('#houseTypeType').val()=='upperhouse' && deviceTypeType == 'questions_starred' && $("#workflowstatus").val()=='PENDING' 
+						&& $("#lastDateForAnswerReceiving").val()!=''
+						&& new Date()> new Date($("#lastDateForAnswerReceiving").val())){
+					$.prompt($('#noLateReplyReasonProvidedMsg').val());
+					return false;
+				}
 				if(deviceTypeType == 'questions_unstarred' && $("#workflowstatus").val()=='PENDING' 
 						&& $("#lastDateForAnswerReceiving").val()!=''
 						&& new Date()> new Date($("#lastDateForAnswerReceiving").val()) && $('#reasonForLateReply').val()==""){
@@ -1038,6 +1044,7 @@
 		<label class="small"><spring:message code="question.houseType" text="House Type"/>*</label>
 		<input id="formattedHouseType" name="formattedHouseType" value="${formattedHouseType}" class="sText" readonly="readonly">
 		<input id="houseType" name="houseType" value="${houseType}" type="hidden">
+		<input id="houseTypeType" name="houseTypeType" value="${houseTypeType}" type="hidden">
 		<form:errors path="houseType" cssClass="validationError"/>			
 	</p>	
 	
