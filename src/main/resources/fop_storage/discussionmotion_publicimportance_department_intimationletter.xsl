@@ -77,10 +77,18 @@
            					तात्काळ
            				</fo:block>
 	            		<fo:block font-size="6px">&#160;</fo:block>    
-	            		
-						<fo:block font-weight="bold" text-align="justify">
+	            			 <xsl:if test="./element_2/element_2_10='motions_discussionmotion_lastweek'">
+																<fo:block font-weight="bold" text-align="justify">
+							सर्वश्री <xsl:value-of select="./element_2/element_2_8"></xsl:value-of> वि.स.स यांचा म.वि.स. नियम २९२ अन्वये प्रस्तराव :
+						</fo:block>	
+								</xsl:if>
+	            					 <xsl:if test="./element_2/element_2_10='motions_discussionmotion_publicimportance'">
+	            					         						<fo:block font-weight="bold" text-align="justify">
 							सर्वश्री <xsl:value-of select="./element_2/element_2_8"></xsl:value-of> वि.स.स यांचा म.वि.स. नियम २९३ अन्वये प्रस्तराव :
-						</fo:block>		
+						</fo:block>	 					 
+	            					</xsl:if>
+	            		
+	
 						<fo:block text-align="justify">
 							"<xsl:value-of select="./element_2/element_2_4"></xsl:value-of>"
 						</fo:block>
@@ -159,7 +167,7 @@
 						<fo:block>&#160;</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block>
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;विद्यमान अधिवेशनासाठी मा. अध्यक्षांनी ही सूचना मान्य केली आहे. उपरोक्त विषयावरील चर्चा सभागृहात दिनांक <fo:inline font-weight="bold" text-decoration="underline"> <xsl:value-of select="./element_2/element_2_6"></xsl:value-of></fo:inline>  रोजी घेण्यात येईल					
+							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;विद्यमान अधिवेशनासाठी मा. अध्यक्षांनी ही सूचना मान्य केली आहे. उपरोक्त विषयावरील चर्चा सभागृहात  <fo:inline font-weight="bold" text-decoration="underline"> <xsl:value-of select="./element_2/element_2_6"></xsl:value-of></fo:inline>  रोजी घेण्यात येईल					
 						</fo:block>
 						<fo:block>&#160;</fo:block>
 						<fo:block>&#160;</fo:block>

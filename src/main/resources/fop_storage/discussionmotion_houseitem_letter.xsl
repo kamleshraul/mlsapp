@@ -85,9 +85,17 @@
 													<fo:block>&#160;</fo:block>   
 												</fo:table-cell>
 													<fo:table-cell  width="450px" text-align="right">
-													<fo:block font-weight="bold" text-align="justify">
+														 <xsl:if test="./element_2/element_2_11='motions_discussionmotion_lastweek'">
+										 <fo:block font-weight="bold" text-align="justify">
+															सर्वश्री <xsl:value-of select="./element_2/element_2_8"></xsl:value-of> वि.स.स यांचा म.वि.स. नियम २९२ अन्वये प्रस्ताव :
+													</fo:block>	
+								</xsl:if>
+	            					 <xsl:if test="./element_2/element_2_11='motions_discussionmotion_publicimportance'">
+	            					          	<fo:block font-weight="bold" text-align="justify">
 															सर्वश्री <xsl:value-of select="./element_2/element_2_8"></xsl:value-of> वि.स.स यांचा म.वि.स. नियम २९३ अन्वये प्रस्ताव :
-													</fo:block>		
+													</fo:block>					  
+	            					</xsl:if>
+														
 													<fo:block text-align="justify">
 															"<xsl:value-of select="./element_2/element_2_4"></xsl:value-of>"
 													</fo:block>
