@@ -401,6 +401,15 @@ public class QuestionWorkflowController  extends BaseController{
 						|| workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_MEMBER))){
 			boolClarificationNotReceived = true;
 		}
+		
+		/********Set resendRevisedQuestionText **********/
+		boolean  boolResendHalfHourForDiscussionDate = false;
+		if((workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT)
+				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER))
+				&& workflowDetails.getStatus().equals(ApplicationConstants.MYTASK_COMPLETED)
+				&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)){
+			boolResendHalfHourForDiscussionDate = true;
+		}
 		/**** In case of bulk edit we can update only few parameters ****/
 		model.addAttribute("bulkedit", request.getParameter("bulkedit"));
 		/**** clear remarks ****/
@@ -757,6 +766,12 @@ public class QuestionWorkflowController  extends BaseController{
 				model.addAttribute("clarificationStatus", clarificationStatus.getType());
 				domain.setRecommendationStatus(clarificationStatus);
 				populateInternalStatus(model, clarificationStatus.getType(),
+						workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
+			}else if(boolResendHalfHourForDiscussionDate){
+				Status sendHalfHourForDiscussionDate = Status.findByType(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROM_QUESTION_PROCESSED_SENDDISCUSSIONDATEINTIMATION, locale);
+				model.addAttribute("sendHalfHourForDiscussionDate", sendHalfHourForDiscussionDate.getType());
+				domain.setRecommendationStatus(sendHalfHourForDiscussionDate);
+				populateInternalStatus(model, sendHalfHourForDiscussionDate.getType(),
 						workflowDetails.getAssigneeUserGroupType(), locale, domain.getType().getType());
 			}else{
 				if(workflowDetails.getWorkflowType().equals(ApplicationConstants.CLUBBING_POST_ADMISSION_WORKFLOW)
@@ -1634,27 +1649,11 @@ public class QuestionWorkflowController  extends BaseController{
 						boolClarificationStatus = true;
 					}
 					
-	//				if (isReanswering != null) {
-	//					if(!isReanswering.isEmpty()){
-	//						if(isReanswering.equals("reanswer")){
-	//							boolReanswering = true;
-	//							Status reanswerStatus = Status.
-	//									findByType(ApplicationConstants.QUESTION_PROCESSED_REANSWER, locale.toString());
-	//
-	//							
-	//							List<Reference> actors = new ArrayList<Reference>();
-	//							UserGroup userGroup = UserGroup.
-	//								findById(UserGroup.class, Long.valueOf(workflowDetails.getAssigneeUserGroupId()));
-	//							actors = WorkflowConfig.
-	//									findQuestionActorsVO(domain,reanswerStatus , userGroup, 1, locale.toString());
-	//							if(!actors.isEmpty()){
-	//								domain.setActor(actors.get(0).getId());
-	//								domain.setRecommendationStatus(reanswerStatus);
-	//							}
-	//						}
-	//					}
-	//				}
-	
+					boolean boolSendDiscussionDateToDepartment = false;
+					String sendDiscussionDateStatus = request.getParameter("sendHalfHourForDiscussionDate");
+					if(sendDiscussionDateStatus != null && !sendDiscussionDateStatus.isEmpty()){
+						boolSendDiscussionDateToDepartment = true;
+					}
 					/**** Binding Supporting Members ****/
 					String[] strSupportingMembers = request.getParameterValues("supportingMembers");
 					if(strSupportingMembers != null){
@@ -2118,6 +2117,9 @@ public class QuestionWorkflowController  extends BaseController{
 									&& (workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
 											||workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.ASSISTANT))){
 								endflag = "continue";
+							}else if(boolSendDiscussionDateToDepartment && workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
+								endflag = "continue";
+								//Do Nothing
 							}else if(boolClarificationStatus && workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)){
 								endflag = "continue";
 								//Do Nothing
@@ -2164,7 +2166,7 @@ public class QuestionWorkflowController  extends BaseController{
 	
 							String strTaskId = workflowDetails.getTaskId();
 							Task task = null;
-							if (!boolReanswering && !boolResendRevisedQuestionText && !boolClarificationStatus){
+							if (!boolReanswering && !boolResendRevisedQuestionText && !boolClarificationStatus && !boolSendDiscussionDateToDepartment){
 								task = processService.findTaskById(strTaskId);
 								processService.completeTask(task,properties);
 	
@@ -2303,10 +2305,37 @@ public class QuestionWorkflowController  extends BaseController{
 											wd.setCompletionTime(new Date());
 											wd.merge();
 										}
+									}else if(boolSendDiscussionDateToDepartment){
+										ProcessDefinition processDefinition =processService.
+												findProcessDefinitionByKey(ApplicationConstants.APPROVAL_WORKFLOW);
+										ProcessInstance processInstance = processService.
+												createProcessInstance(processDefinition, properties);
+										/**** Process Started and task created ****/
+										Task sendDiscussionDateToDepartmentTask = processService.getCurrentTask(processInstance);
+										WorkflowDetails pendingWorkflow = WorkflowDetails.findCurrentWorkflowDetail(question);
+										WorkflowDetails sendDiscussionDateToDepartmentWorkflowDetails;
+										try {
+											if(pendingWorkflow != null){
+												Task prevTask = processService.findTaskById(pendingWorkflow.getTaskId());
+												processService.completeTask(prevTask, properties);
+												pendingWorkflow.setStatus("COMPLETED");
+												pendingWorkflow.setCompletionTime(new Date());
+												pendingWorkflow.merge();
+											}
+											sendDiscussionDateToDepartmentWorkflowDetails = WorkflowDetails.
+													create(domain,sendDiscussionDateToDepartmentTask,usergroupType,currentDeviceTypeWorkflowType,level);
+											question.setWorkflowDetailsId(sendDiscussionDateToDepartmentWorkflowDetails.getId());
+											sendDiscussionDateToDepartmentWorkflowDetails.setPreviousWorkflowDetail(workflowDetails.getId());
+											sendDiscussionDateToDepartmentWorkflowDetails.merge();
+											
+										} catch (ELSException e) {
+											model.addAttribute("error", e.getParameter());
+											e.printStackTrace();
+										}
 									}
 	
 	
-									if(!boolReanswering && !boolResendRevisedQuestionText && !boolClarificationStatus){
+									if(!boolReanswering && !boolResendRevisedQuestionText && !boolClarificationStatus && !boolSendDiscussionDateToDepartment){
 										ProcessInstance processInstance = processService.findProcessInstanceById(
 												task.getProcessInstanceId());
 										Task newtask = processService.getCurrentTask(processInstance);
