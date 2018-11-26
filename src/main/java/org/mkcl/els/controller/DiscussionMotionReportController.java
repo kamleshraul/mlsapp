@@ -2777,7 +2777,8 @@ class DiscussionMotionReportHelper{
 							
 							//Following block is added for solving the issue of question drafts where in if there exist a draft and later the question is pending
 							// at the specific actor, the last remark is displayed
-							WorkflowConfig wfConfig = WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+							WorkflowConfig wfConfig = null;//WorkflowConfig.getLatest(qt, qt.getInternalStatus().getType(), locale.toString());
+							
 							List<WorkflowActor> wfActors = wfConfig.getWorkflowactors();
 							List<WorkflowActor> distinctActors = new ArrayList<WorkflowActor>();
 							for(WorkflowActor wf : wfActors){
