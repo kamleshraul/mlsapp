@@ -71,6 +71,11 @@
 				$(this).attr('href','#');
 				generateBhag2Report();
 			});
+			/**** Statement Report Generation ****/
+			$("#amois_statement_report").click(function() {
+				$(this).attr('href','#');
+				generateStatementReport();
+			});
 			/**** Submitted Motions Report Generation ****/
 			$("#amois_submitted_report").click(function() {
 				$(this).attr('href','#');
@@ -149,6 +154,9 @@
 					</a> |
 					<a href="#" id="amois_bhag_2_report" class="butSim">
 						<spring:message code="amois.bhag_2_report" text="Bhag 2 Report"/>
+					</a> |
+					<a href="#" id="amois_statement_report" class="butSim">
+						<spring:message code="amois.statement_report" text="Statement Report"/>
 					</a> |
 				</c:when>
 				<c:when test="${houseType=='upperhouse'}">

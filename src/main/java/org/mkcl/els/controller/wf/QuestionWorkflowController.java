@@ -2094,7 +2094,7 @@ public class QuestionWorkflowController  extends BaseController{
 						String usergroupTypes = "";
 						if(userGroupType.equals(ApplicationConstants.DEPARTMENT)
 								|| userGroupType.equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)) {
-							usergroupTypes = "section_officer,department";
+							usergroupTypes = "assistant,section_officer,department";
 						} else {
 							usergroupTypes = "assistant,clerk";
 						}

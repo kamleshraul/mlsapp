@@ -88,100 +88,119 @@
 	            				
             					<!-- <xsl:if test="position()!=1">
             						<fo:block break-before="page"/>
-            					</xsl:if> -->	            						
-			            		<fo:block>
-			            			<fo:table border-collapse="collapse" table-layout="fixed" width="100%">
-			            				<fo:table-column column-number="1" column-width="1.5cm" />
-				                        <fo:table-column column-number="2" column-width="7.3cm" />
-				                        <fo:table-column column-number="3" column-width="2.8cm" />
-				                        <fo:table-column column-number="4" column-width="2.4cm" />
-				                        <fo:table-column column-number="5" column-width="2.4cm" />
-				                        <fo:table-column column-number="6" column-width="2.4cm" />
-				                        <fo:table-header>
-				                        	<fo:table-row>
-				                        		<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
-					                        	   	<fo:block text-align="center" font-weight="bold">
-			                                        	अ.क्र.
-				                                    </fo:block>
-					                        	</fo:table-cell>
-					                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
-					                        	    <fo:block text-align="center" font-weight="bold">
-			                                        	सदस्यांचे नाव व विषय
-				                                    </fo:block>
-					                        	</fo:table-cell>
-					                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
-					                        	    <fo:block text-align="center" font-weight="bold">
-			                                    		मा.सभापतींनी शासनाने निवेदन करावे असे निदेश दिल्याचा दिनांक,
-				                                    </fo:block>
-				                                    <fo:block text-align="center" font-weight="bold">
-			                                    		विभागाला पाठविल्याचा जावक क्र./
-				                                    </fo:block>
-				                                    <fo:block text-align="center" font-weight="bold">
-			                                    		दिनांक व विभाग
-				                                    </fo:block>
-					                        	</fo:table-cell>
-					                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
-					                        	    <fo:block text-align="center" font-weight="bold">
-			                                    		सभागृहात निवेदन करावयाचा दिनांक
-				                                    </fo:block>
-					                        	</fo:table-cell>
-					                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
-					                        	    <fo:block text-align="center" font-weight="bold">
-			                                    		निवेदन प्राप्त झाल्याचा दिनांक
-				                                    </fo:block>
-					                        	</fo:table-cell>
-					                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
-					                        	    <fo:block text-align="center" font-weight="bold">
-			                                    		शेरा
-				                                    </fo:block>
-					                        	</fo:table-cell>
-				                        	</fo:table-row>
-				                        </fo:table-header>
-				                        <fo:table-body>
-				                        	<xsl:for-each select="element_1">
-					                        	<fo:table-row border="solid 0.1mm black">	                                	
-				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-				                                        <fo:block text-align="center">
-				                                        	<xsl:value-of select="element_1_1" />
-				                                        </fo:block> 
-				                                    </fo:table-cell>		                                    
-				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-				                                        <fo:block text-align="left" font-weight="bold">
-				                                        	<xsl:value-of select="element_1_8" />,
-				                                        	<xsl:choose>
-				                                        		<xsl:when test="element_1_3='lowerhouse'">वि.स.स.</xsl:when>
-				                                        		<xsl:when test="element_1_3='upperhouse'">वि.प.स.</xsl:when>
-				                                        	</xsl:choose>
-				                                        </fo:block> 
-				                                        <fo:block text-align="justify">
-				                                        	&#160;&#160;&#160;&#160;<xsl:value-of select="element_1_9" />
-				                                        </fo:block>
-				                                    </fo:table-cell>		                                    
-				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-				                                        <fo:block text-align="justify" font-weight="bold">
-				                                        	&#160;
-				                                        </fo:block>
-				                                    </fo:table-cell>   
-				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-				                                        <fo:block text-align="justify" font-weight="bold">
-				                                        	&#160;
-				                                        </fo:block>
-				                                    </fo:table-cell>
-				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-				                                        <fo:block text-align="justify" font-weight="bold">
-				                                        	&#160;
-				                                        </fo:block>
-				                                    </fo:table-cell>
-				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
-				                                        <fo:block text-align="justify" font-weight="bold">
-				                                        	&#160;
-				                                        </fo:block>
-				                                    </fo:table-cell>                                	
-				                                </fo:table-row>
-			                                </xsl:for-each>
-				                        </fo:table-body>
-			            			</fo:table>
-			            		</fo:block>            				
+            					</xsl:if> -->	      
+            					<fo:block>
+								<fo:table table-layout="fixed" width="100%">
+									<fo:table-column column-width="proportional-column-width(1)"/>
+									<fo:table-column column-width="18.8cm"/>
+									<fo:table-column column-width="proportional-column-width(1)"/>
+									<fo:table-body>
+										<fo:table-row>
+											<fo:table-cell column-number="1">
+												<fo:block>&#160;</fo:block>
+											</fo:table-cell>
+											<fo:table-cell column-number="2" border-left="0.5pt solid black" border-right="0.5pt solid black">
+												<fo:block>
+													<fo:table table-layout="fixed" width="100%">
+							            				<fo:table-column column-number="1" column-width="1.5cm" />
+								                        <fo:table-column column-number="2" column-width="7.3cm" />
+								                        <fo:table-column column-number="3" column-width="2.8cm" />
+								                        <fo:table-column column-number="4" column-width="2.4cm" />
+								                        <fo:table-column column-number="5" column-width="2.4cm" />
+								                        <fo:table-column column-number="6" column-width="2.4cm" />
+								                        <fo:table-header>
+								                        	<fo:table-row>
+								                        		<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
+									                        	   	<fo:block text-align="center" font-weight="bold">
+							                                        	अ.क्र.
+								                                    </fo:block>
+									                        	</fo:table-cell>
+									                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
+									                        	    <fo:block text-align="center" font-weight="bold">
+							                                        	सदस्यांचे नाव व विषय
+								                                    </fo:block>
+									                        	</fo:table-cell>
+									                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
+									                        	    <fo:block text-align="center" font-weight="bold">
+							                                    		मा.सभापतींनी शासनाने निवेदन करावे असे निदेश दिल्याचा दिनांक,
+								                                    </fo:block>
+								                                    <fo:block text-align="center" font-weight="bold">
+							                                    		विभागाला पाठविल्याचा जावक क्र./
+								                                    </fo:block>
+								                                    <fo:block text-align="center" font-weight="bold">
+							                                    		दिनांक व विभाग
+								                                    </fo:block>
+									                        	</fo:table-cell>
+									                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
+									                        	    <fo:block text-align="center" font-weight="bold">
+							                                    		सभागृहात निवेदन करावयाचा दिनांक
+								                                    </fo:block>
+									                        	</fo:table-cell>
+									                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
+									                        	    <fo:block text-align="center" font-weight="bold">
+							                                    		निवेदन प्राप्त झाल्याचा दिनांक
+								                                    </fo:block>
+									                        	</fo:table-cell>
+									                        	<fo:table-cell display-align="before" border-width="0.5pt" border-style="solid">
+									                        	    <fo:block text-align="center" font-weight="bold">
+							                                    		शेरा
+								                                    </fo:block>
+									                        	</fo:table-cell>
+								                        	</fo:table-row>
+								                        </fo:table-header>
+								                        <fo:table-body>
+								                        	<xsl:for-each select="element_1">
+									                        	<fo:table-row border="solid 0.1mm black">	                                	
+								                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
+								                                        <fo:block text-align="center">
+								                                        	<xsl:value-of select="element_1_1" />
+								                                        </fo:block> 
+								                                    </fo:table-cell>		                                    
+								                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
+								                                        <fo:block text-align="left" font-weight="bold">
+								                                        	<xsl:value-of select="element_1_8" />,
+								                                        	<xsl:choose>
+								                                        		<xsl:when test="element_1_3='lowerhouse'">वि.स.स.</xsl:when>
+								                                        		<xsl:when test="element_1_3='upperhouse'">वि.प.स.</xsl:when>
+								                                        	</xsl:choose>
+								                                        </fo:block> 
+								                                        <fo:block text-align="justify">
+								                                        	&#160;&#160;&#160;&#160;<xsl:value-of select="element_1_9" />
+								                                        </fo:block>
+								                                    </fo:table-cell>		                                    
+								                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
+								                                        <fo:block text-align="justify" font-weight="bold">
+								                                        	&#160;
+								                                        </fo:block>
+								                                    </fo:table-cell>   
+								                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
+								                                        <fo:block text-align="justify" font-weight="bold">
+								                                        	&#160;
+								                                        </fo:block>
+								                                    </fo:table-cell>
+								                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
+								                                        <fo:block text-align="justify" font-weight="bold">
+								                                        	&#160;
+								                                        </fo:block>
+								                                    </fo:table-cell>
+								                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
+								                                        <fo:block text-align="justify" font-weight="bold">
+								                                        	&#160;
+								                                        </fo:block>
+								                                    </fo:table-cell>                                	
+								                                </fo:table-row>
+							                                </xsl:for-each>
+								                        </fo:table-body>
+							            			</fo:table>
+												</fo:block>
+											</fo:table-cell>
+											<fo:table-cell column-number="3">
+												<fo:block>&#160;</fo:block>
+											</fo:table-cell>
+										</fo:table-row>
+									</fo:table-body>
+								</fo:table>
+								</fo:block>           				
 	            			</xsl:when>
 	            			<xsl:otherwise>
 	            				<fo:block text-align="center" font-size="14px" font-weight="bold">

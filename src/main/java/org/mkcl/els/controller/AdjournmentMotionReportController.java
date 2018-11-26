@@ -214,6 +214,76 @@ public class AdjournmentMotionReportController extends BaseController{
 		}		
 	}
 	
+	@RequestMapping(value="/statement" ,method=RequestMethod.GET)
+	public @ResponseBody void generateStatementReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
+		File reportFile = null; 
+		Boolean isError = false;
+		MessageResource errorMessage = null;
+		Map<String, String[]> requestMap = new HashMap<String, String[]>();
+		String adjourningDateStr = request.getParameter("adjourningDate");
+		if(adjourningDateStr==null || adjourningDateStr.isEmpty()) {
+			logger.error("**** One of the request parameters is not set ****");
+			isError = true;
+			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.statement.parameterNotSet", locale.toString());						
+		} else {
+			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			/**** Bhag 1 list ****/
+			CustomParameter bhag1StatusAllowedCP = CustomParameter.findByName(CustomParameter.class, "AMOIS_BHAG_1_ALLOWED_STATUS_TYPES", "");
+			String allowedStatusTypesForBhag1 = "";
+			if(bhag1StatusAllowedCP!=null && bhag1StatusAllowedCP.getValue()!=null && !bhag1StatusAllowedCP.getValue().isEmpty()) {
+				allowedStatusTypesForBhag1 = bhag1StatusAllowedCP.getValue();
+			} else {
+				allowedStatusTypesForBhag1 = ApplicationConstants.ADJOURNMENTMOTION_RECOMMEND_ADMISSION + "," + ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION;
+			}
+			requestMap.put("allowedStatusTypesForBhag1", new String[]{allowedStatusTypesForBhag1});
+			requestMap.put("locale", new String[]{locale.toString()});
+			@SuppressWarnings("rawtypes")
+			List bhag1Motions = Query.findReport("AMOIS_BHAG1_REPORT", requestMap, true);
+			/**** Bhag 2 list ****/
+			CustomParameter bhag2StatusAllowedCP = CustomParameter.findByName(CustomParameter.class, "AMOIS_BHAG_2_ALLOWED_STATUS_TYPES", "");
+			String allowedStatusTypesForBhag2 = "";
+			if(bhag2StatusAllowedCP!=null && bhag2StatusAllowedCP.getValue()!=null && !bhag2StatusAllowedCP.getValue().isEmpty()) {
+				allowedStatusTypesForBhag2 = bhag2StatusAllowedCP.getValue();
+			} else {
+				allowedStatusTypesForBhag2 = ApplicationConstants.ADJOURNMENTMOTION_RECOMMEND_REJECTION + "," + ApplicationConstants.ADJOURNMENTMOTION_FINAL_REJECTION;
+			}
+			requestMap.put("allowedStatusTypesForBhag2", new String[]{allowedStatusTypesForBhag2});
+			requestMap.put("locale", new String[]{locale.toString()});
+			@SuppressWarnings("rawtypes")
+			List bhag2Motions = Query.findReport("AMOIS_BHAG2_REPORT", requestMap, true);
+			try {
+				reportFile = generateReportUsingFOP(new Object[] {bhag1Motions, bhag2Motions}, "amois_statement_template", "WORD", "amois_bhag2", locale.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error("**** Some error occurred ****");
+				isError = true;
+				errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.statement.someErrorOccurred", locale.toString());
+			}
+			System.out.println("AMOIS Bhag 2 Report generated successfully in WORD format!");
+
+			openOrSaveReportFileFromBrowser(response, reportFile, "WORD");			
+		}
+		if(isError) {
+			try {
+				//response.sendError(404, "Report cannot be generated at this stage.");
+				if(errorMessage != null) {
+					if(!errorMessage.getValue().isEmpty()) {
+						response.getWriter().println("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'/></head><body><h3>" + errorMessage.getValue() + "</h3></body></html>");
+					} else {
+						response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+					}
+				} else {
+					response.getWriter().println("<h3>Some Error In Report Generation. Please Contact Administrator.</h3>");
+				}
+
+				return;
+			} catch (IOException e) {				
+				e.printStackTrace();
+			}
+		}		
+	}
+	
 	@RequestMapping(value="/submittedmotions" ,method=RequestMethod.GET)
 	public @ResponseBody void generateSubmittedMotionsReport(final HttpServletRequest request, HttpServletResponse response, final Locale locale, final ModelMap model){
 		File reportFile = null; 

@@ -82,7 +82,7 @@
 			            			<xsl:value-of select="element_1[1]/element_1_2"/>
 			            		</fo:block>
 			            		<fo:block text-align="center" font-size="12px" font-weight="bold">
-			            			<xsl:value-of select="element_1[1]/element_1_1"></xsl:value-of>
+			            			<xsl:value-of select="element_1[1]/element_1_6"></xsl:value-of>
 			            		</fo:block>	
 			            		<fo:block font-size="12px">&#160;</fo:block>
 	            				
@@ -118,7 +118,7 @@
 					                        	<fo:table-row border="solid 0.1mm black">	                                	
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">
 				                                        <fo:block text-align="center">
-				                                        	<xsl:value-of select="element_1_6" />
+				                                        	<xsl:value-of select="element_1_1" />
 				                                        </fo:block> 
 				                                    </fo:table-cell>		                                    
 				                                    <fo:table-cell display-align="before" border-width="0.5pt" border-style="solid" padding-left="5" padding-right="5">

@@ -441,6 +441,13 @@
 						+'&reportQueryName=AMOIS_BHAG2_REPORT');
 			}
 		}
+		/**** Statement Report Generation ****/
+		function generateStatementReport() {
+			var selectedAdjourningDate = $('#selectedAdjourningDate').val();
+			$("#amois_statement_report").attr('href',
+					'adjournmentmotion/report/statement?'
+					+'adjourningDate=' + selectedAdjourningDate);
+		}
 		/**** Submitted Motions Report Generation ****/
 		function generateSubmittedMotionsReport() {
 			var selectedAdjourningDate = $('#selectedAdjourningDate').val();
