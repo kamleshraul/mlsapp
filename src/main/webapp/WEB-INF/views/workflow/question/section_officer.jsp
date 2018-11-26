@@ -155,6 +155,7 @@
 		var resendRevisedQuestionText = '';
 		var questionSupplmentarySendToSectionOfficer = '';
 		var clarificationNotReceivedByMember = '';
+		var sendDiscussionDateToDepartment = '';
 		if(questionType == 'questions_starred') {
 			type = $("#internalStatusMaster option[value='question_processed_sendToDepartment']").text();
 			sendToMember = $("#internalStatusMaster option[value='question_processed_sendToMember']").text();
@@ -301,6 +302,7 @@
 			recommendRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_rejection']").text();
 			finalRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_rejection']").text();
 			resendRevisedQuestionText = $("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_resendRevisedQuestionTextToDepartment']").text();
+			sendDiscussionDateToDepartment = $("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_sendDiscussionDateIntimationToDepartment']").text();
 		}
 
 		if((questionType == 'questions_halfhourdiscussion_from_question') 
@@ -324,7 +326,9 @@
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			return false;
-		}else if(type == value || value == sendToMember || value == resendRevisedQuestionText){			
+		}else if(type == value || value == sendToMember 
+				|| value == resendRevisedQuestionText
+				|| value == sendDiscussionDateToDepartment){			
 		    valueToSend=$("#internalStatus").val();
 		    $("#recommendationStatus").val(value);
 		    $("#endFlag").val("continue");
@@ -369,7 +373,8 @@
 		
 		//hack SectionOfficer
 		var params = '';
-		if(type == value || value == sendToMember || value == resendRevisedQuestionText || value == sendBack || value == discuss){
+		if(type == value || value == sendToMember || value == resendRevisedQuestionText || value == sendBack || value == discuss
+				|| value == sendDiscussionDateToDepartment){
 			 params="question=" + $("#id").val() + "&status=" + valueToSend +
 			"&usergroup=" + $("#usergroup").val() + "&level=8";
 		}else{
@@ -446,6 +451,7 @@
 				 $("#localizedActorName").val(temp[3] + "(" + temp[4] + ")");
 				 $("#actorName").val(temp[4]);
 				 $("#actorName").css('display','inline');
+				 $("#actorDiv").show();
 			}else {
 				$("#actor").empty();
 				$("#actorDiv").hide();
@@ -1225,7 +1231,8 @@
 				|| $("#internalStatusType").val()=='question_unstarred_final_admission'
 				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromDepartment'
 				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromMember'
-				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromMemberAndDepartment'))){
+				|| $("#internalStatusType").val()=='question_final_clarificationNeededFromMemberAndDepartment'
+				|| $("#internalStatusType").val()=='question_halfHourFromQuestion_final_admission'))){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
@@ -1705,7 +1712,8 @@
 					|| internalStatusType=='question_unstarred_final_admission'
 					|| internalStatusType=='question_final_clarificationNeededFromDepartment'
 					|| internalStatusType=='question_final_clarificationNeededFromMember'
-					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'))}">
+					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'
+					|| internalStatusType=='question_halfHourFromQuestion_final_admission'))}">
 				<tr>
 					<td>
 						${userName}<br>
@@ -1747,7 +1755,8 @@
 		</tbody>
 	</table>
 		<c:if test="${workflowstatus!='COMPLETED' or (workflowstatus=='COMPLETED' and (internalStatusType=='question_final_admission'
-					|| internalStatusType=='question_unstarred_final_admission'))}">
+					|| internalStatusType=='question_unstarred_final_admission'
+					|| internalStatusType=='question_halfHourFromQuestion_final_admission'))}">
 		<p>
 			 <a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="question.viewcitation" text="View Citations"></spring:message></a>	
 		</p>
@@ -1891,7 +1900,8 @@
 					|| internalStatusType=='question_unstarred_final_admission'
 					|| internalStatusType=='question_final_clarificationNeededFromDepartment'
 					|| internalStatusType=='question_final_clarificationNeededFromMember'
-					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'))}">	
+					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'
+					|| internalStatusType=='question_halfHourFromQuestion_final_admission'))}">	
 	<p>
 	<select id="internalStatusMaster" style="display:none;">
 		<c:forEach items="${internalStatuses}" var="i">
@@ -1990,7 +2000,8 @@
 					|| internalStatusType=='question_unstarred_final_admission'
 					|| internalStatusType=='question_final_clarificationNeededFromDepartment'
 					|| internalStatusType=='question_final_clarificationNeededFromMember'
-					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment')}">
+					|| internalStatusType=='question_final_clarificationNeededFromMemberAndDepartment'
+					|| internalStatusType=='question_halfHourFromQuestion_final_admission')}">
 		<div class="fields">
 			<h2></h2>
 			<p class="tright">		
@@ -2019,6 +2030,7 @@
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="processed"/>
 	<input type="hidden" id="resendQuestionTextStatus" name="resendQuestionTextStatus" value="${resendQuestionTextStatus}"/>
+	<input type="hidden" id="sendHalfHourForDiscussionDate" name="sendHalfHourForDiscussionDate" value="${sendHalfHourForDiscussionDate}" />
 	<input type="hidden" id="clarificationStatus" name="clarificationStatus" value="${clarificationStatus}"/>
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		

@@ -135,6 +135,7 @@
 		var recommendRejection = '';
 		var finalRejection = '';
 		var resendToSectionOfficer = '';
+		var sendDiscussionDateToSectionOfficer = '';
 		var deviceTypeType = $('#selectedQuestionType').val();
 		if(deviceTypeType == 'questions_starred') {
 			putUpForDateApproval = $("#internalStatusMaster option[value='question_processed_putUpForDateApproval']").text();
@@ -156,6 +157,7 @@
 			recommendRejection = $("#internalStatusMaster option[value='question_recommend_rejection']").text();
 			finalRejection = $("#internalStatusMaster option[value='question_final_rejection']").text();
 			resendToSectionOfficer = $("#internalStatusMaster option[value='question_processed_resendRevisedQuestionTextToSectionOfficer']").text();
+			
 		}else if(deviceTypeType == 'questions_unstarred') {
 			putUpForDateApproval = $("#internalStatusMaster option[value='question_unstarred_processed_putUpForDateApproval']").text();
 			sendToSectionOfficer = $("#internalStatusMaster option[value='question_unstarred_processed_sendToSectionOfficer']").text();
@@ -216,6 +218,7 @@
 			recommendRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_recommend_rejection']").text();
 			finalRejection = $("#internalStatusMaster option[value='question_halfHourFromQuestion_final_rejection']").text();
 			resendToSectionOfficer = $("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_resendRevisedQuestionTextToSectionOfficer']").text();
+			sendDiscussionDateToSectionOfficer = $("#internalStatusMaster option[value='question_halfHourFromQuestion_processed_sendDiscussionDateIntimationToSectionOfficer']").text();
 		}
 		var currentRecommendationStatus = $("#recommendationStatus").val();
 		
@@ -223,7 +226,8 @@
 		var changedInternalStatus = $("#changeInternalStatus").val();
 		if(changedInternalStatus == putUpForDateApproval || 
 		   changedInternalStatus == sendToSectionOfficer ||
-		   changedInternalStatus == resendToSectionOfficer) {
+		   changedInternalStatus == resendToSectionOfficer ||
+		   changedInternalStatus == sendDiscussionDateToSectionOfficer) {
 			$("#endFlag").val("continue");
 			valueToSend = $("#internalStatus").val();
 		} 
@@ -248,7 +252,6 @@
 			valueToSend = value;
 		}
 		var level = $("#originalLevel").val();
-
 		var params="question=" + $("#id").val() + "&status=" + valueToSend + 
 		"&usergroup=" + $("#usergroup").val() + "&level=" + level;
 		var resourceURL='ref/question/actors?' + params;
@@ -274,7 +277,8 @@
 					}
 				}
 				$("#actor").html(text);
-				if($("#changeInternalStatus").val() == putUpForDateApproval){
+				if($("#changeInternalStatus").val() == putUpForDateApproval
+						|| $("#changeInternalStatus").val() == sendDiscussionDateToSectionOfficer){
 					$("#actorDiv").show();	
 				}else{
 					$("#actorDiv").hide();
@@ -284,7 +288,8 @@
 						&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
 						&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
 						&& value != admitDueToReverseClubbingRecommendApprove
-						&& value != resendToSectionOfficer){
+						&& value != resendToSectionOfficer
+						&& value != sendDiscussionDateToSectionOfficer){
 					$("#internalStatus").val(value);
 					$("#actorDiv").show();
 				} else {
@@ -308,7 +313,8 @@
 				if(value != putUpForDateApproval && value != sendToSectionOfficer && value != resendToSectionOfficer
 						&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
 						&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
-						&& value != admitDueToReverseClubbingRecommendApprove){
+						&& value != admitDueToReverseClubbingRecommendApprove
+						&& value != sendDiscussionDateToSectionOfficer){
 					$("#internalStatus").val(value);
 				} else {
 					$("#internalStatus").val($("#oldInternalStatus").val());
@@ -976,7 +982,9 @@
 		});
 		//***** On Page Load Internal Status Actors Will be Loaded ****/
 		if($('#workflowstatus').val()!='COMPLETED' || ($("#workflowstatus").val()=='COMPLETED' 
-				&& ($("#internalStatusType").val()=='question_final_admission' || $("#internalStatusType").val()=='question_unstarred_final_admission'))){
+				&& ($("#internalStatusType").val()=='question_final_admission' 
+					|| $("#internalStatusType").val()=='question_unstarred_final_admission'
+					|| $("#internalStatusType").val()=='question_halfHourFromQuestion_final_admission'))){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			$("#changeInternalStatus").val(id);
@@ -1588,7 +1596,7 @@
 			</c:forEach>	
 			<c:if test="${workflowstatus != 'COMPLETED' 
 						or (workflowstatus == 'COMPLETED' 
-						and (internalStatusType=='question_final_admission' or internalStatusType=='question_unstarred_final_admission'))}">
+						and (internalStatusType=='question_final_admission' or internalStatusType=='question_unstarred_final_admission'  or internalStatusType=='question_halfHourFromQuestion_final_admission'))}">
 				<tr>
 					<td>
 						${userName}<br>
@@ -1630,7 +1638,9 @@
 	
 	<c:if test="${workflowstatus != 'COMPLETED' 
 						or (workflowstatus == 'COMPLETED' 
-						and (internalStatusType=='question_final_admission' or internalStatusType=='question_unstarred_final_admission'))}">
+						and (internalStatusType=='question_final_admission' 
+							or internalStatusType=='question_unstarred_final_admission'
+							or internalStatusType=='question_halfHourFromQuestion_final_admission'))}">
 	<p>
 	<c:if test="${selectedQuestionType == 'questions_shortnotice' and domain.dateOfAnsweringByMinister != null}">
 		<p>
@@ -1726,7 +1736,8 @@
 		</c:when>
 		<c:otherwise>
 			<c:if test="${internalStatusType=='question_final_admission'
-					|| internalStatusType=='question_unstarred_final_admission'}">
+					|| internalStatusType=='question_unstarred_final_admission'
+					|| internalStatusType=='question_halfHourFromQuestion_final_admission'}">
 					<div class="fields">
 				<h2></h2>
 				<p class="tright">		
@@ -1755,6 +1766,7 @@
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="reasonForLateReply"/>
 	<input type="hidden" id="resendQuestionTextStatus" name="resendQuestionTextStatus" value="${resendQuestionTextStatus}" />
+	<input type="hidden" id="sendHalfHourForDiscussionDate" name="sendHalfHourForDiscussionDate" value="${sendHalfHourForDiscussionDate}" />
 	<c:if test="${domain.ballotStatus!=null}">
 		<input type="hidden" name="ballotStatus" id="ballotStatusId" value="${ballotStatusId}"/>		
 	</c:if>
