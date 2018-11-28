@@ -491,8 +491,8 @@ javax.servlet.http.HttpServletRequest)
 		String notificationTitle = request.getParameter("notificationTitle");
 		String notificationMessage = request.getParameter("notificationMessage");
 		String isVolatile = request.getParameter("isVolatile");
-		if(usernames==null) {
-			usernames = "";
+		if(usernames==null || usernames.isEmpty()) {
+			usernames = "all";
 		}
 		if(notificationTitle!=null && !notificationTitle.isEmpty()
 				&& isVolatile!=null && !isVolatile.isEmpty()) {

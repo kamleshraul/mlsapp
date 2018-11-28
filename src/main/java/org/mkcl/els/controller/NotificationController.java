@@ -293,7 +293,7 @@ public class NotificationController extends GenericController<Notification> {
 				&& csptUserGroupTypesForBallotCreationNotification.getValue()!=null) {
 			usergroupTypes = csptUserGroupTypesForBallotCreationNotification.getValue();
 		} else {
-			usergroupTypes = "deputy_secretary";
+			usergroupTypes = "deputy_secretary,deputy_secretary1,deputy_secretary2";
 		}
 		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});		
 		getNotificationService().sendNotificationWithTitleUsingTemplate("BALLOT_CREATION_NOTIFICATION", templateParameters, locale);

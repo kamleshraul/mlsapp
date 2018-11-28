@@ -6,6 +6,32 @@
 	<title><spring:message code="adjournmentmotion_${houseType}.list" text="List Of Adjournment Motions"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
+		/**** Load Session ****/
+		function loadSession(){
+			$.get("ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+				+ "/" + $("#selectedSessionYear").val() + "/" + $("#selectedSessionType").val(),
+				function(data){
+					if(data){
+						$("#loadedSession").val(data.id);
+						loadMembers();
+						//loadParties();
+					}
+				});
+		}
+		function loadMembers(){
+			memberArray = [];
+			$.get('ref/alleligiblemembers?session='+$("#loadedSession").val(), function(data){
+				if(data.length>0){
+					var text="<option value='-'>"+$("#pleaseSelect").val()+"</option>";
+					for(var i = 0; i < data.length; i++){
+						memberArray.push(data[i].name);
+						text+="<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+					}
+					$("#members").empty();
+					$("#members").html(text);
+				}
+			});
+		}
 		$(document).ready(function(){	
 			/**** On Page Load ****/
 			var currentDeviceType = $("#currentDeviceType").val();
@@ -202,7 +228,7 @@
 				}
 				$(this).attr('href','#');
 				setSubmissionTimeWindow();
-			});
+			});			
 			/**** Bulk Putup ****/
 			$("#bulkputup_tab").click(function(){
 				$("#selectionDiv1").hide();
@@ -214,7 +240,17 @@
 				bulkPutupAssistant();
 			});		
 			/**** show adjournmentmotion list method is called by default.****/
-			showAdjournmentMotionList();			
+			showAdjournmentMotionList();		
+			/**** Toggle Reports Div ****/
+			$("#reports_link").click(function(e){
+				$("#assistantReportDiv").toggle("slow");
+			});
+			$("#members").change(function(){
+				var val = $(this).val();
+				if(val!="" && val!='-'){
+					memberWiseReport($(this).val());
+				}
+			});
 		});
 		/**** displaying grid ****/					
 		function showAdjournmentMotionList() {
@@ -233,6 +269,8 @@
 					+"&adjourningDate="+selectedAdjourningDate
 					+"&subDepartment="+$("#selectedSubDepartment").val()
 			);
+			
+			loadSession();
 		}	
 		function memberAdjournmentMotionsView() {
 			var parameters = "houseType=" + $("#selectedHouseType").val()
@@ -340,6 +378,8 @@
 				$("#grid").jqGrid('showCol', 'formattedAdjourningDate');					
 			}			
 			$("#grid").jqGrid('setGridWidth', gridWidth, true);
+			
+			loadSession();
 		}
 		/**** Bulk putup(Member)****/
 		function bulkPutup(){
@@ -495,6 +535,27 @@
 					+'adjourningDate=' + selectedAdjourningDate
 					+'&reportQueryName=AMOIS_REGISTER_REPORT');
 		}
+		/**** Memberwise Devices Report Generation ****/
+		function memberWiseReport(memberId){
+			var url = "ref/sessionbyhousetype/" + $("#selectedHouseType").val()
+			+ "/" + $("#selectedSessionYear").val()
+			+ "/" + $("#selectedSessionType").val();
+			$.get(url,function(data){
+				if(data){
+					
+					var selectedStatus = $("#selectedStatus").val();
+					var statusType = $("#statusMaster option[value='" + selectedStatus + "']").text().trim();
+					
+					showTabByIdAndUrl("details_tab","adjournmentmotion/report/generalreport?"
+							+"sessionId="+data.id
+							+"&deviceTypeId="+$("#selectedMotionType").val()
+							+"&memberId="+memberId 
+							+"&locale="+$("#moduleLocale").val()
+							+"&statusId="+selectedStatus
+							+"&report=AMOIS_MEMBER_WISE_REPORT&reportout=adjournmentMotionMemberReport");
+				}
+			});
+		}
 	</script>
 </head>
 <body>
@@ -614,7 +675,8 @@
 			<a href="#" id="select_status" class="butSim">
 				<spring:message code="adjournmentmotion.status" text="Status"/>
 			</a>
-			<select name="selectedStatus" id="selectedStatus" style="width:250px;height: 25px;">			
+			<select name="selectedStatus" id="selectedStatus" style="width:250px;height: 25px;">		
+			<option value="0" selected="selected">--<spring:message code="please.select" text="Please Select"/>--</option>	
 			<c:forEach items="${status}" var="i">
 			<c:choose>
 			<c:when test="${selectedStatusId==i.id}">
@@ -674,7 +736,26 @@
 			<a href="#" id="submission_time_window" class="butSim">
 				<spring:message code="amois.submission_time_window" text="Submission Time Window"/>
 			</a> |
-			</security:authorize>		
+			</security:authorize>	
+			
+			<security:authorize access="hasAnyRole('AMOIS_CLERK', 'AMOIS_ASSISTANT', 'AMOIS_SECTION_OFFICER', 'AMOIS_SECRETARY')">					
+				<a href="javascript:void(0);" id="reports_link" class="butSim" style="float: right;">
+					<spring:message code="adjournmentmotion.reports" text="Reports"/>
+				</a>
+				<div id="assistantReportDiv" style="display: none; border: 1px solid green; border-radius: 6px; margin: 10px 0px 10px 0px; padding: 5px;">
+					<a href="javascript:void(0);" id="member_report" class="butSim" >
+						<spring:message code="generic.memberWiseReport" text="Member-wise Report"/>
+					</a>						
+					<select id="members" class="sSelect" style="display: inline; width:100px;">
+					</select>|
+					<%-- <a href="javascript:void(0);" id="party_report" class="butSim" >
+						<spring:message code="generic.partyWiseReport" text="Party-wise Report"/>
+					</a>						
+					<select id="parties" class="sSelect" style="display: inline; width:100px;">
+					</select>|<br> --%>
+					<hr>
+				</div>
+			</security:authorize>	
 				
 			<%-- <security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE','AMOIS_ASSISTANT')">	
 			<a href="#" id="select_itemcount" class="butSim">
@@ -716,5 +797,6 @@
 		<input type="hidden" id="gridURLParams_ForNew" name="gridURLParams_ForNew" />
 		<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 		<input type="hidden" id="moduleLocale" value="${moduleLocale}" />
+		<input type="hidden" id="loadedSession" value="" />
 </body>
 </html>

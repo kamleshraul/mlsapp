@@ -46,9 +46,9 @@ public class NotificationHandler {
             	filterAdded = b.getBroadcasterConfig().addFilter(filter);
         	}        	
         	//b.setBroadcasterLifeCyclePolicy(BroadcasterLifeCyclePolicy.IDLE); //for performance optimization if needed
-            System.out.println("Braodcaster ID for " + userName + ": " + b.getID());
-            System.out.println("Braodcaster ID for " + userName + ": " + b.getClass());
-            System.out.println("Braodcaster Scope for " + userName + ": " + b.getScope());
+            System.out.println("Broadcaster ID for " + userName + ": " + b.getID());
+            System.out.println("Broadcaster ID for " + userName + ": " + b.getClass());
+            System.out.println("Broadcaster Scope for " + userName + ": " + b.getScope());
         }        
         //logger.info("BroadcasterFactory used {}", broadcasterFactory.getClass().getName());
     }

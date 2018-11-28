@@ -34,12 +34,12 @@ public class NotificationServiceImpl implements INotificationService {
 
 	@Override
 	public boolean sendNotificationToAllActiveUsers(String message, String locale) {
-		return this.sendNotification("", "", message, "", false, locale);
+		return this.sendNotification("", "", message, "all", false, locale);
 	}
 	
 	@Override
 	public boolean sendNotificationToAllActiveUsers(String sender, String message, String locale) {
-		return this.sendNotification(sender, "", message, "", false, locale);
+		return this.sendNotification(sender, "", message, "all", false, locale);
 	}
 
 	@Override
@@ -54,12 +54,12 @@ public class NotificationServiceImpl implements INotificationService {
 
 	@Override
 	public boolean sendVolatileNotificationToAllActiveUsers(String message, String locale) {
-		return this.sendNotification("", "", message, "", true, locale);
+		return this.sendNotification("", "", message, "all", true, locale);
 	}
 	
 	@Override
 	public boolean sendVolatileNotificationToAllActiveUsers(String sender, String message, String locale) {
-		return this.sendNotification(sender, "", message, "", true, locale);
+		return this.sendNotification(sender, "", message, "all", true, locale);
 	}
 
 	@Override
@@ -74,12 +74,12 @@ public class NotificationServiceImpl implements INotificationService {
 
 	@Override
 	public boolean sendNotificationWithTitleToAllActiveUsers(String title, String message, String locale) {
-		return this.sendNotification("", title, message, "", false, locale);
+		return this.sendNotification("", title, message, "all", false, locale);
 	}
 	
 	@Override
 	public boolean sendNotificationWithTitleToAllActiveUsers(String sender, String title, String message, String locale) {
-		return this.sendNotification(sender, title, message, "", false, locale);
+		return this.sendNotification(sender, title, message, "all", false, locale);
 	}
 
 	@Override
@@ -94,12 +94,12 @@ public class NotificationServiceImpl implements INotificationService {
 
 	@Override
 	public boolean sendVolatileNotificationWithTitleToAllActiveUsers(String title, String message, String locale) {
-		return this.sendNotification("", title, message, "", true, locale);
+		return this.sendNotification("", title, message, "all", true, locale);
 	}
 	
 	@Override
 	public boolean sendVolatileNotificationWithTitleToAllActiveUsers(String sender, String title, String message, String locale) {
-		return this.sendNotification(sender, title, message, "", true, locale);
+		return this.sendNotification(sender, title, message, "all", true, locale);
 	}
 	
 	@Override
@@ -141,6 +141,9 @@ public class NotificationServiceImpl implements INotificationService {
 				StringBuffer receiversBuffer = new StringBuffer(receivers);
 				receiversBuffer.deleteCharAt(receiversBuffer.length()-1);
 				receivers = receiversBuffer.toString();
+			} else if(receivers==null || receivers=="") { //receivers either not set or not found
+				receivers = "admin";
+				pushMessage.setTitle("Not Sent: " + pushMessage.getTitle());
 			}
 			pushMessage.setReceivers(receivers);
 			pushMessage.setIsVolatile(isVolatile);	
@@ -149,7 +152,9 @@ public class NotificationServiceImpl implements INotificationService {
 			Long pushMessageId = pushMessage.getId(); //for fetching fresh copy later
 			/**** create and save notifications for non volatile pushmessages ****/
 			if(!isVolatile) {
-				if(receivers==null || receivers.isEmpty()) {
+				if(receivers==null || receivers.isEmpty()) { //receivers either not set or not found
+					receivers = "admin";					
+				} else if(receivers=="all") {
 					receivers = Credential.findAllActiveUsernamesAsCommaSeparatedString(locale);
 				}				
 				Notification notification = null;
