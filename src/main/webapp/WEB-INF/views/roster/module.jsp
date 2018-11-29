@@ -261,6 +261,21 @@
 
 		}
 		
+		function viewAdhawa() {
+
+			$("#adhawa").attr('href','roster/viewAdhawa?houseType='+$('#selectedHouseType').val()
+					+"&sessionYear="+$("#selectedSessionYear").val()
+					+"&sessionType="+$("#selectedSessionType").val()
+					+"&languageId="+$("#selectedLanguage").val()
+					+ '&outputFormat=' + $("#defaultReportFormat").val()
+					+ '&reportQuery=RIS_ADHAWA_REPORT'
+						+ '&templateName=template_ris_adhawa_'+$('#selectedHouseType').val()
+						+ '&reportName=adhawaReport'
+						+ '&locale=mr_IN'
+					+"&committeeMeeting=0");
+
+	}
+		
 		function viewRoster() {
 			
 			$("#selectionDiv1").hide();					
@@ -449,6 +464,8 @@
 		<input type="hidden" id="sendForPublishMsg" name="sendForPublishMsg" value="<spring:message code='generic.confirmPublishMessage' text='Do you want to publish proceedings for selected Roster '></spring:message>" disabled="disabled">
 		<input type="hidden" id="successMessage" name="successMessage" value="<spring:message code='roster.publishSuccessMessage' text='The Proceeding is Successfully published '></spring:message>" disabled="disabled">	<input type="hidden" id="ErrorMsg" value="<spring:message code='generic.error' text='Error Occured Contact For Support.'/>"/>
 		<input type="hidden" id="failureMessage" name="failureMessage" value="<spring:message code='roster.publishFailureMessage' text='There is some problem in publishing, kindly try after sometime '></spring:message>" disabled="disabled">
+		<input type="hidden" id="defaultReportFormat" value="<spring:message code='motion.report.defaultFormat' text='PDF' />" />
+		
 		</div> 		
 </body>
 </html>

@@ -56,6 +56,12 @@
 				currentSelectedRow=$('#key').val();
 				publishRoster(currentSelectedRow);
 			});
+			
+			/****Publish the roster proceeding for Committees & Editing****/
+			$("#adhawa").click(function(){
+				
+				viewAdhawa();
+			});
 		});	
 		function rowSelectHandler(rowid,status){			
 			if($('#key')){
@@ -99,7 +105,10 @@
 			</a> |
 			<a href="#" id="publish" class="butSim">
 				<spring:message code="roster.publish" text="Publish"/>
-			</a> |					
+			</a> |		
+			<a href="#" id="adhawa" class="butSim">
+				<spring:message code="roster.Adhawa" text="Adhawa"/>
+			</a> |				
 			<p>&nbsp;</p>
 		</div>
 	</div>
