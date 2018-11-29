@@ -43,11 +43,14 @@ public class NotificationTemplateRepository extends BaseRepository<NotificationT
 	
 	@SuppressWarnings("rawtypes")
 	private String generateTextFromQuery(final String queryString, final Map<String, String[]> templateParameters) {
-		//To handle the parameter setting in IN clause value
+		//To handle the parameter setting of IN clause value
 		int indexOfIN = queryString.indexOf(" IN "); 
-		int index = ((indexOfIN==-1)? ((queryString.indexOf("in")==-1)? -1:queryString.indexOf("in")): indexOfIN);
-		String inParameter = queryString.substring(index+"IN".length()).trim();
-		inParameter = inParameter.substring(inParameter.indexOf(":")+1,inParameter.indexOf(")"));
+		//int index = ((indexOfIN==-1)? ((queryString.indexOf(" IN ")==-1)? -1:queryString.indexOf(" IN ")): indexOfIN);
+		String inParameter = "";
+		if(indexOfIN != -1) {
+			inParameter = queryString.substring(indexOfIN+" IN ".length()).trim();
+			inParameter = inParameter.substring(inParameter.indexOf(":")+1,inParameter.indexOf(")"));
+		}
 		Query persistenceQuery=this.em().createNativeQuery(queryString);
 		CustomParameter customParameter=CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
 		Set<Parameter<?>> selectQueryParameters = persistenceQuery.getParameters();
@@ -70,7 +73,7 @@ public class NotificationTemplateRepository extends BaseRepository<NotificationT
 			if(decodedParam.equals("true") || decodedParam.equals("false")){
 				persistenceQuery.setParameter(i.getName(),((decodedParam.equals("true"))? true: false));
 			}else{
-				if(i.getName().equals(inParameter)){
+				if(!inParameter.isEmpty() && i.getName().equals(inParameter)){
 					List<String> values = new ArrayList<String>();
 					
 					for(String val : decodedParam.split(",")){
