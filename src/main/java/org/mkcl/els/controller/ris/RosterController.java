@@ -1,5 +1,6 @@
 package org.mkcl.els.controller.ris;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
@@ -33,6 +35,7 @@ import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.Slot;
 import org.mkcl.els.domain.User;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -1013,6 +1016,38 @@ public class RosterController extends GenericController<Roster>{
 		return returnValue;
 	}
 	
+	
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@RequestMapping(value="/viewAdhawa", method = RequestMethod.GET)
+		public void houseitemreport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
+			
+			//String retVal = "motion/report";
+			try{
+				
+	
+				String strReportFormat = request.getParameter("outputFormat");	
+				
+				
+					Map<String, String[]> parameters = request.getParameterMap();
+					
+					List reportData = Query.findReport(request.getParameter("reportQuery"), parameters);	
+					List reportData1 = Query.findReport(request.getParameter("reportQuery")+"_EXTRA_DETAILS", parameters);	
+					String templateName = request.getParameter("templateName");
+					File reportFile = null;				
+					
+					reportFile = generateReportUsingFOP(new Object[] {((Object[])reportData.get(0))[0], reportData,reportData1}, templateName, strReportFormat, request.getParameter("reportName"), locale.toString());
+					openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
+					
+					model.addAttribute("info", "general_info");;
+					//retVal = "motion/info";
+						
+			}catch(Exception e){
+				logger.error("error", e);
+			}
+			
+			//return retVal;
+		}
 	private Map simplifyRosterSlotReport(final List report){
 		Map<String, List> rosterData = new LinkedHashMap<String, List>();
 		String repName = "";
