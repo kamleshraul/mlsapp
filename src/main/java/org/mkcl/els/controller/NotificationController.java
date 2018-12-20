@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.NotificationVO;
+import org.mkcl.els.domain.CommitteeMeeting;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
@@ -297,6 +298,15 @@ public class NotificationController extends GenericController<Notification> {
 		}
 		templateParameters.put("usergroupTypes", new String[]{usergroupTypes});		
 		getNotificationService().sendNotificationWithTitleUsingTemplate("BALLOT_CREATION_NOTIFICATION", templateParameters, locale);
+	}
+	
+	public static void sendCommitteeMeetingEntryNotification(final CommitteeMeeting committeeMeeting, final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("committeeMeetingId", new String[]{committeeMeeting.getId().toString()});
+//		templateParameters.put("committeeName", new String[]{committeeMeeting.getCommittee().getCommitteeName().getDisplayName()});
+//		templateParameters.put("meetingDate", new String[]{FormaterUtil.formatDateToString(committeeMeeting.getMeetingDate(), ApplicationConstants.DB_DATEFORMAT)});
+		getNotificationService().sendNotificationWithTitleUsingTemplate("COMMITTEE_MEETING_ENTRY_INTIMATION", templateParameters, locale);
 	}
 	
 	public static void sendNotificationFromAdminPage(final String notificationTitle, final String notificationMessage, final boolean isVolatile, final String receivers, final String locale) {

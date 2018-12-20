@@ -17,6 +17,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.domain.Committee;
 import org.mkcl.els.domain.CommitteeMeeting;
 import org.mkcl.els.domain.CommitteeMeetingType;
@@ -218,6 +219,18 @@ public class CommitteeMeetingController extends
 		
 		
 		}
+	}
+
+	@Override
+	protected void populateAfterCreate(ModelMap model, CommitteeMeeting domain, HttpServletRequest request) throws Exception {
+		// TODO Auto-generated method stub
+		NotificationController.sendCommitteeMeetingEntryNotification(domain, domain.getLocale());
+	}
+	
+	@Override
+	protected void populateAfterUpdate(ModelMap model, CommitteeMeeting domain, HttpServletRequest request) throws Exception {
+		// TODO Auto-generated method stub
+		NotificationController.sendCommitteeMeetingEntryNotification(domain, domain.getLocale());
 	}
 
 	@RequestMapping(value = "{id}/view", method = RequestMethod.GET)
