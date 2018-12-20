@@ -259,7 +259,7 @@ $(function () {
         contentType : "application/json",
         logLevel : 'debug',
         transport : transport ,
-        shared : true, //for sharing connection across tabs/windows of single client browser
+        shared : false, //for sharing connection across tabs/windows of single client browser
         trackMessageLength : true,
         reconnectInterval : 5000 
     };
