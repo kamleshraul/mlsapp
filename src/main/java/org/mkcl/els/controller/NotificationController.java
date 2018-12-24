@@ -26,6 +26,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Question;
+import org.mkcl.els.domain.Roster;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.notification.PushMessage;
@@ -307,6 +308,14 @@ public class NotificationController extends GenericController<Notification> {
 //		templateParameters.put("committeeName", new String[]{committeeMeeting.getCommittee().getCommitteeName().getDisplayName()});
 //		templateParameters.put("meetingDate", new String[]{FormaterUtil.formatDateToString(committeeMeeting.getMeetingDate(), ApplicationConstants.DB_DATEFORMAT)});
 		getNotificationService().sendNotificationWithTitleUsingTemplate("COMMITTEE_MEETING_ENTRY_INTIMATION", templateParameters, locale);
+	}
+	
+	public static void sendCommitteeMeetingRosterEntryNotification(final Roster roster, final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("rosterId", new String[]{roster.getId().toString()});
+		templateParameters.put("committeeMeetingId", new String[]{roster.getCommitteeMeeting().getId().toString()});
+		getNotificationService().sendNotificationWithTitleUsingTemplate("COMMITTEE_MEETING_ROSTER_ENTRY_INTIMATION", templateParameters, locale);
 	}
 	
 	public static void sendNotificationFromAdminPage(final String notificationTitle, final String notificationMessage, final boolean isVolatile, final String receivers, final String locale) {

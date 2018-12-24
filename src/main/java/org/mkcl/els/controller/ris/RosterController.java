@@ -21,6 +21,7 @@ import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.CommitteeMeeting;
 import org.mkcl.els.domain.CommitteeType;
@@ -880,6 +881,12 @@ public class RosterController extends GenericController<Roster>{
 		if(!domain.getAction().equals("save_without_creating_slots")){
 			String reporterAction=request.getParameter("reporterAction");
 			Boolean status=domain.generateSlot(reporterAction);		
+			CommitteeMeeting committeeMeeting = domain.getCommitteeMeeting();
+			if(committeeMeeting!=null) {
+				if(committeeMeeting.getId()!=null) {
+					NotificationController.sendCommitteeMeetingRosterEntryNotification(domain, domain.getLocale());
+				}
+			}
 		}
 	}
 
