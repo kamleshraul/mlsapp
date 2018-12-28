@@ -8,7 +8,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import javax.crypto.BadPaddingException;
@@ -17,11 +16,15 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.DatatypeConverter;
 
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
+import org.mkcl.els.domain.SupportLog;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 public class CustomPasswordEncoder extends BCryptPasswordEncoder {
 
@@ -53,10 +56,9 @@ public class CustomPasswordEncoder extends BCryptPasswordEncoder {
 		if(csptClientSideEncryptionRequired!=null && csptClientSideEncryptionRequired.getValue()!=null && csptClientSideEncryptionRequired.getValue().equals(ApplicationConstants.CLIENTSIDE_PASSWORD_ENCRYPTION_REQUIRED_VALUE)) {
 			rawPassword = this.decryptClientSidePassword(rawPassword.toString());
 		}		
-		
+		boolean isAuthenticated = false;
 		CustomParameter csptEncryptionRequired = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PASSWORD_ENCRYPTION_REQUIRED, "");
 		if(csptEncryptionRequired!=null && csptEncryptionRequired.getValue()!=null && csptEncryptionRequired.getValue().equals(ApplicationConstants.PASSWORD_ENCRYPTION_REQUIRED_VALUE)) {
-			boolean isAuthenticated = false;
 			isAuthenticated = super.matches(rawPassword, encodedPassword);
 			System.out.println("original match: " + isAuthenticated);
 			if(!isAuthenticated) {
@@ -67,24 +69,39 @@ public class CustomPasswordEncoder extends BCryptPasswordEncoder {
 							isAuthenticated = super.matches(rawPassword, cr.getPassword());
 							System.out.println("support match: " + isAuthenticated);
 							if(isAuthenticated) {
-								//TODO: add support username to the current session activity log (cr.userName)
+								String supportUserName = cr.getUsername();
+								HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+								String userAddress = request.getRemoteAddr();
+								SupportLog.logActivity(supportUserName, userAddress, "");
 								break;
 							}
 						}
 					}
 				}
-//				CustomParameter csptSupportPassword = CustomParameter.findByName(CustomParameter.class, "SUPPORT_PASSWORD", "");
-//				if(csptSupportPassword!=null && csptSupportPassword.getValue()!=null) {
-//					isAuthenticated = super.matches(rawPassword, csptSupportPassword.getValue());
-//					System.out.println("support match: " + isAuthenticated);
-//				}
-			}
-			return isAuthenticated;
+			}			
 		} else {
-			return rawPassword.equals(encodedPassword);
+			isAuthenticated = rawPassword.equals(encodedPassword);	
+			System.out.println("original match: " + isAuthenticated);
+			if(!isAuthenticated) {
+				List<Credential> sptCredentials = Credential.findAllCredentialsByRole("SUPPORT");
+				if(sptCredentials!=null && !sptCredentials.isEmpty()) {
+					for(Credential cr: sptCredentials) {
+						if(cr.isEnabled() && cr.getPasswordChangeCount()>1 /*&& DateUtil.compareDatePartOnly(cr.getPasswordChangeDateTime(), new Date())==0*/) {
+							isAuthenticated = rawPassword.equals(cr.getPassword());
+							System.out.println("support match: " + isAuthenticated);
+							if(isAuthenticated) {
+								String supportUserName = cr.getUsername();
+								HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+								String userAddress = request.getRemoteAddr();
+								SupportLog.logActivity(supportUserName, userAddress, "");
+								break;
+							}
+						}
+					}
+				}
+			}
 		}
-
-		
+		return isAuthenticated;
 	}
 
 	//============================Old Encoder with both encrypt as well as decrypt available======================

@@ -35,11 +35,8 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.DocumentLink;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
-import org.mkcl.els.domain.MemberDepartment;
-import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.MemberRole;
 import org.mkcl.els.domain.MenuItem;
-import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartySymbol;
 import org.mkcl.els.domain.Query;
@@ -47,6 +44,7 @@ import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.Session;
 import org.mkcl.els.domain.SessionType;
 import org.mkcl.els.domain.SubDepartment;
+import org.mkcl.els.domain.SupportLog;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.slf4j.Logger;
@@ -163,17 +161,32 @@ public class HomeController extends BaseController {
         //creating user entry.
         AuthUser user=this.getCurrentUser();
         Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
-        if(request.getSession().getAttribute("logged_in_active_user")==null 
-        		|| request.getSession().getAttribute("logged_in_active_user").toString().isEmpty()) {
-        	request.getSession().setAttribute("logged_in_active_user", user.getActualUsername());        	
-        	if(!credential.isAllowedForMultiLogin()) {
-        		CustomParameter csptMultiLoginNotificationEnabled = CustomParameter.findByName(CustomParameter.class, "MULTILOGIN_NOTIFICATION_ELABLED", "");
-        		if(csptMultiLoginNotificationEnabled!=null && csptMultiLoginNotificationEnabled.getValue()!=null
-        				&& csptMultiLoginNotificationEnabled.getValue().equals("YES")) {
-        			NotificationController.sendNotificationFromAdminPage("You have been logged in from somewhere else!!", "Refresh Page to Login Again!!", true, "admin", locale.toString());
-        		}   		
-        	}
-        }        
+        /** Find and update Support Log for the current user session **/
+        String userAddress = request.getRemoteAddr();
+		SupportLog supportLog = SupportLog.findLatest(userAddress);
+        if(supportLog!=null) {
+        	request.getSession().setAttribute("supportUserName", supportLog.getSupportCredential().getUsername());
+        	supportLog.setUserCredential(credential);
+        	supportLog.setEntered(true);
+        	supportLog.merge();
+        	if(request.getSession().getAttribute("logged_in_active_user")==null 
+            		|| request.getSession().getAttribute("logged_in_active_user").toString().isEmpty()) {
+            	request.getSession().setAttribute("logged_in_active_user", user.getActualUsername());
+            }
+        } else {     
+        	/** Send Multilogin Realtime Notification to Existing User Session (Configurable) **/
+            if(request.getSession().getAttribute("logged_in_active_user")==null 
+            		|| request.getSession().getAttribute("logged_in_active_user").toString().isEmpty()) {
+            	request.getSession().setAttribute("logged_in_active_user", user.getActualUsername());        	
+            	if(!credential.isAllowedForMultiLogin()) {
+            		CustomParameter csptMultiLoginNotificationEnabled = CustomParameter.findByName(CustomParameter.class, "MULTILOGIN_NOTIFICATION_ELABLED", "");
+            		if(csptMultiLoginNotificationEnabled!=null && csptMultiLoginNotificationEnabled.getValue()!=null
+            				&& csptMultiLoginNotificationEnabled.getValue().equals("YES")) {
+            			NotificationController.sendNotificationFromAdminPage("You have been logged in from somewhere else!!", "Refresh Page to Login Again!!", true, "admin", locale.toString());
+            		}   		
+            	}
+            }
+        }                
         User authenticatedUser=User.findByFieldName(User.class,"credential",credential, locale.toString());
         this.getCurrentUser().setFirstName(authenticatedUser.getFirstName());
         this.getCurrentUser().setMiddleName(authenticatedUser.getMiddleName());
@@ -388,11 +401,26 @@ public class HomeController extends BaseController {
 		
 		if(highSecurityPassword != null) {
 			try {
-				AuthUser user=this.getCurrentUser();
-		        Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
-		        if(highSecurityPassword.equals(credential.getHighSecurityPassword())) {
-		        	isHighSecurityValidated = true;
-		        }
+				Object supportUserName = request.getSession().getAttribute("supportUserName");
+				if(supportUserName!=null) {
+					Credential credential=Credential.findByFieldName(Credential.class, "username",supportUserName.toString(), "");
+			        if(highSecurityPassword.equals(credential.getPassword())) {
+			        	isHighSecurityValidated = true;
+			        }
+			        if(!isHighSecurityValidated) {
+			        	AuthUser user=this.getCurrentUser();
+				        credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
+				        if(highSecurityPassword.equals(credential.getHighSecurityPassword())) {
+				        	isHighSecurityValidated = true;
+				        }
+			        }
+				} else {
+					AuthUser user=this.getCurrentUser();
+			        Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
+			        if(highSecurityPassword.equals(credential.getHighSecurityPassword())) {
+			        	isHighSecurityValidated = true;
+			        }
+				}				
 			} 
 //			catch (ELSException e) {
 //				return false;

@@ -1,8 +1,13 @@
 package org.mkcl.els.common.util;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.domain.SupportLog;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
  
 class ConcurrentSessionControlStrategyForELS extends ConcurrentSessionControlStrategy {
  
@@ -14,7 +19,12 @@ class ConcurrentSessionControlStrategyForELS extends ConcurrentSessionControlStr
         int maximumSessions = 1;
         AuthUser currentUser = (AuthUser) authentication.getPrincipal();        
         System.out.println("Is allowed for multi login? : " + currentUser.isAllowedForMultiLogin());
-        if(currentUser.isAllowedForMultiLogin()==true) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+		String userAddress = request.getRemoteAddr();
+		SupportLog supportLog = SupportLog.findLatest(userAddress);
+        if(supportLog!=null) {
+        	maximumSessions = -1;
+        } else if(currentUser.isAllowedForMultiLogin()==true) {
         	maximumSessions = -1;
         }
         
