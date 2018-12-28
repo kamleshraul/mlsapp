@@ -99,8 +99,8 @@ public class SecurityServiceImpl implements UserDetailsService, ISecurityService
     
     @Override
 	public String getEncodedPassword(final String password) {
-    	CustomParameter csptEncryptionRequired = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PASSWORD_ENCRYTPTION_REQUIRED, "");
-		if(csptEncryptionRequired!=null && csptEncryptionRequired.getValue()!=null && csptEncryptionRequired.getValue().equals(ApplicationConstants.PASSWORD_ENCRYTPTION_REQUIRED_VALUE)) {
+    	CustomParameter csptEncryptionRequired = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PASSWORD_ENCRYPTION_REQUIRED, "");
+		if(csptEncryptionRequired!=null && csptEncryptionRequired.getValue()!=null && csptEncryptionRequired.getValue().equals(ApplicationConstants.PASSWORD_ENCRYPTION_REQUIRED_VALUE)) {
 			String encodedPassword = encoder.encode(password);
 			return encodedPassword;
 		} else {

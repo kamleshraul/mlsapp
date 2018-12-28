@@ -107,7 +107,7 @@ public class HomeController extends BaseController {
         if(cpSecretKey != null){
         	model.addAttribute("secret_key", cpSecretKey.getValue());
         }
-        CustomParameter cpEncryptionRequired = CustomParameter.findByName(CustomParameter.class, "PASSWORD_ENCRYTPTION_REQUIRED", "");
+        CustomParameter cpEncryptionRequired = CustomParameter.findByName(CustomParameter.class, "PASSWORD_ENCRYPTION_REQUIRED", "");
         if(cpEncryptionRequired != null){
         	model.addAttribute("passwordEncryptionReq", cpEncryptionRequired.getValue());
         }
@@ -136,6 +136,12 @@ public class HomeController extends BaseController {
         	}
         }
         model.addAttribute("locales", supportedLocales);
+        Object loggedInUser = request.getSession().getAttribute("logged_in_active_user");
+        if(loggedInUser!=null) {
+        	model.addAttribute("loggedInUser", loggedInUser.toString());    
+        	response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+        	response.setHeader("Location", "home.htm");
+        }
         return "login";
     }
 
@@ -157,6 +163,17 @@ public class HomeController extends BaseController {
         //creating user entry.
         AuthUser user=this.getCurrentUser();
         Credential credential=Credential.findByFieldName(Credential.class, "username",user.getUsername(), "");
+        if(request.getSession().getAttribute("logged_in_active_user")==null 
+        		|| request.getSession().getAttribute("logged_in_active_user").toString().isEmpty()) {
+        	request.getSession().setAttribute("logged_in_active_user", user.getActualUsername());        	
+        	if(!credential.isAllowedForMultiLogin()) {
+        		CustomParameter csptMultiLoginNotificationEnabled = CustomParameter.findByName(CustomParameter.class, "MULTILOGIN_NOTIFICATION_ELABLED", "");
+        		if(csptMultiLoginNotificationEnabled!=null && csptMultiLoginNotificationEnabled.getValue()!=null
+        				&& csptMultiLoginNotificationEnabled.getValue().equals("YES")) {
+        			NotificationController.sendNotificationFromAdminPage("You have been logged in from somewhere else!!", "Refresh Page to Login Again!!", true, "admin", locale.toString());
+        		}   		
+        	}
+        }        
         User authenticatedUser=User.findByFieldName(User.class,"credential",credential, locale.toString());
         this.getCurrentUser().setFirstName(authenticatedUser.getFirstName());
         this.getCurrentUser().setMiddleName(authenticatedUser.getMiddleName());

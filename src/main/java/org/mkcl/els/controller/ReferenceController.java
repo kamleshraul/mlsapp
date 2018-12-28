@@ -10088,4 +10088,24 @@ public class ReferenceController extends BaseController {
 		}	
 		return isDepartmentChangeRestricted;
 	}
+	
+	@RequestMapping(value = "/isUserSessionActive", method = RequestMethod.GET)
+	public @ResponseBody boolean isUserSessionActive(HttpServletRequest request, Locale locale){
+		boolean isUserSessionActive = false;
+		Object loggedInUser = request.getSession().getAttribute("logged_in_active_user");
+        if(loggedInUser!=null && !loggedInUser.toString().isEmpty()) {
+        	isUserSessionActive = true;
+        }
+        ApplicationConstants.isUserSessionActive_URL_HIT_COUNT++; //temporary code
+		return isUserSessionActive;
+	}
+	
+	//temporary method
+	@RequestMapping(value = "/viewUserSessionActiveHitCount", method = RequestMethod.GET)
+	public @ResponseBody long viewUserSessionActiveHitCount(HttpServletRequest request, Locale locale){
+		long userSessionActiveHitCount = ApplicationConstants.isUserSessionActive_URL_HIT_COUNT;
+		ApplicationConstants.isUserSessionActive_URL_HIT_COUNT = 0;
+		return userSessionActiveHitCount;
+	}
+	//====================temporary method ends========================
 }

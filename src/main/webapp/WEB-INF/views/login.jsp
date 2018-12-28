@@ -9,6 +9,7 @@
 	<script type="text/javascript" src="./resources/js/jquery-1.6.2.min.js"></script>
 	<script type="text/javascript" src="./resources/js/crypto-js.js"></script>
 	<script type="text/javascript" src="./resources/js/jquery/jquery-impromptu.3.2.min.js"></script>
+	<script type="text/javascript" src="./resources/js/crosstab_handling_loginpage.js"></script>
 	<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css"  />
 	
 	<script type="text/javascript"> 

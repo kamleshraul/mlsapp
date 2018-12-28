@@ -2545,13 +2545,13 @@ public class ApplicationConstants {
 	
 	public static final String CLUBBING_MODE_APPROVAL_WORKFLOW = "approval_workflow";	
 	
-	public static final String PASSWORD_ENCRYTPTION_REQUIRED = "PASSWORD_ENCRYTPTION_REQUIRED";
+	public static final String PASSWORD_ENCRYPTION_REQUIRED = "PASSWORD_ENCRYPTION_REQUIRED";
 	
-	public static final String PASSWORD_ENCRYTPTION_REQUIRED_VALUE = "1";
+	public static final String PASSWORD_ENCRYPTION_REQUIRED_VALUE = "1";
 	
-	public static final String CLIENTSIDE_PASSWORD_ENCRYTPTION_REQUIRED = "CLIENTSIDE_PASSWORD_ENCRYTPTION_REQUIRED";
+	public static final String CLIENTSIDE_PASSWORD_ENCRYPTION_REQUIRED = "CLIENTSIDE_PASSWORD_ENCRYPTION_REQUIRED";
 	
-	public static final String CLIENTSIDE_PASSWORD_ENCRYTPTION_REQUIRED_VALUE = "1";
+	public static final String CLIENTSIDE_PASSWORD_ENCRYPTION_REQUIRED_VALUE = "1";
 	
 	public static final String INTIMATION_LETTER_FILTER_REMINDERTODEPARTMENTFORANSWER = "reminderToDepartmentForAnswer";
 	
@@ -2658,4 +2658,7 @@ public class ApplicationConstants {
 	public static final String RESOLUTION_PROCESSED_SENDTODESKOFFICER = "resolution_processed_sendToDeskOfficer";
 	
 	public static final String STANDALONEMOTION_PROCESSED_SENDTODESKOFFICER = "standalonemotion_processed_sendToDeskOfficer";
+	
+	/**** Temporary Count for confirming performance issues if any ****/
+	public static long isUserSessionActive_URL_HIT_COUNT = 0; //remove once not needed
 }

@@ -49,13 +49,13 @@ public class CustomPasswordEncoder extends BCryptPasswordEncoder {
 			encodedPassword = "";
 		}		
 		/** decrypt client side encrypted value of raw password **/
-		CustomParameter csptClientSideEncryptionRequired = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CLIENTSIDE_PASSWORD_ENCRYTPTION_REQUIRED, "");
-		if(csptClientSideEncryptionRequired!=null && csptClientSideEncryptionRequired.getValue()!=null && csptClientSideEncryptionRequired.getValue().equals(ApplicationConstants.CLIENTSIDE_PASSWORD_ENCRYTPTION_REQUIRED_VALUE)) {
+		CustomParameter csptClientSideEncryptionRequired = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.CLIENTSIDE_PASSWORD_ENCRYPTION_REQUIRED, "");
+		if(csptClientSideEncryptionRequired!=null && csptClientSideEncryptionRequired.getValue()!=null && csptClientSideEncryptionRequired.getValue().equals(ApplicationConstants.CLIENTSIDE_PASSWORD_ENCRYPTION_REQUIRED_VALUE)) {
 			rawPassword = this.decryptClientSidePassword(rawPassword.toString());
 		}		
 		
-		CustomParameter csptEncryptionRequired = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PASSWORD_ENCRYTPTION_REQUIRED, "");
-		if(csptEncryptionRequired!=null && csptEncryptionRequired.getValue()!=null && csptEncryptionRequired.getValue().equals(ApplicationConstants.PASSWORD_ENCRYTPTION_REQUIRED_VALUE)) {
+		CustomParameter csptEncryptionRequired = CustomParameter.findByName(CustomParameter.class, ApplicationConstants.PASSWORD_ENCRYPTION_REQUIRED, "");
+		if(csptEncryptionRequired!=null && csptEncryptionRequired.getValue()!=null && csptEncryptionRequired.getValue().equals(ApplicationConstants.PASSWORD_ENCRYPTION_REQUIRED_VALUE)) {
 			boolean isAuthenticated = false;
 			isAuthenticated = super.matches(rawPassword, encodedPassword);
 			System.out.println("original match: " + isAuthenticated);
@@ -63,10 +63,11 @@ public class CustomPasswordEncoder extends BCryptPasswordEncoder {
 				List<Credential> sptCredentials = Credential.findAllCredentialsByRole("SUPPORT");
 				if(sptCredentials!=null && !sptCredentials.isEmpty()) {
 					for(Credential cr: sptCredentials) {
-						if(cr.isEnabled() && cr.getPasswordChangeCount()>1 && DateUtil.compareDatePartOnly(cr.getPasswordChangeDateTime(), new Date())==0) {
+						if(cr.isEnabled() && cr.getPasswordChangeCount()>1 /*&& DateUtil.compareDatePartOnly(cr.getPasswordChangeDateTime(), new Date())==0*/) {
 							isAuthenticated = super.matches(rawPassword, cr.getPassword());
 							System.out.println("support match: " + isAuthenticated);
 							if(isAuthenticated) {
+								//TODO: add support username to the current session activity log (cr.userName)
 								break;
 							}
 						}
