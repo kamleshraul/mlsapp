@@ -32,6 +32,17 @@ function onVisible() {
 	// change flag value
 	isVisible = true;
 	console.log('visible');
+	// following if-else if is written as workaround for support users login
+	if($('#j_username').val()!='' && $('#j_username').val()!=undefined) {
+		if($('#j_password').val()=='' || $('#j_password').val()==undefined) {
+			return;
+		}		
+	} else if($('#j_password').val()!='' && $('#j_password').val()!=undefined) {
+		if($('#j_username').val()=='' || $('#j_username').val()==undefined) {
+			return;
+		}		
+	}
+	// end of workaround reached
 	location.reload(true);
 }
 function onHidden() {
