@@ -19,14 +19,15 @@
 	<!-- Creates the Spring Container shared by all Servlets and Filters -->
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	
+	<listener>
 		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
 	</listener>
 	
-	 <listener>
-	    <listener-class>
-	      org.springframework.security.web.session.HttpSessionEventPublisher
-	    </listener-class>
-	  </listener>
+	<listener>
+		<listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
+	</listener>
 
 	<!-- Sets the session timeout in minutes. Set it to -1 if the session should never expire. -->
 	<session-config>
