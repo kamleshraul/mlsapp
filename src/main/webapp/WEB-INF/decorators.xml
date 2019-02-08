@@ -284,6 +284,7 @@
 		<pattern>workflow/bill</pattern>
 		<pattern>workflow/billamendmentmotion</pattern>
 		<pattern>/workflow/adjournmentmotion/advancedbulkapproval</pattern>
+		<pattern>/workflow/proprietypoint/advancedbulkapproval</pattern>
 		<pattern>/workflow/myTasks/*/process</pattern>	
 		
 		<pattern>/holiday</pattern>
@@ -342,6 +343,15 @@
 		<pattern>/adjournmentmotion/bulksubmission/assistant/view</pattern>		
 		<pattern>/adjournmentmotion/bulksubmission/assistant/update</pattern>
 		<pattern>/workflow/adjournmentmotion</pattern>
+		
+		<pattern>/proprietypoint/new</pattern>
+		<pattern>/proprietypoint/*/edit</pattern>
+		<pattern>/proprietypoint/*/delete</pattern>
+		<pattern>/proprietypoint</pattern>
+		<pattern>/proprietypoint/bulksubmission/assistant/int</pattern>	
+		<pattern>/proprietypoint/bulksubmission/assistant/view</pattern>		
+		<pattern>/proprietypoint/bulksubmission/assistant/update</pattern>
+		<pattern>/workflow/proprietypoint</pattern>
 		
 		<pattern>/bill/new</pattern>
 		<pattern>/bill/*/edit</pattern>

@@ -12,6 +12,7 @@ import org.mkcl.els.domain.CutMotion;
 import org.mkcl.els.domain.DiscussionMotion;
 import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.StandaloneMotion;
 import org.mkcl.els.domain.SupportingMember;
@@ -62,6 +63,9 @@ public class WorkflowService implements IWorkflowService{
         }else if(strDeviceType.startsWith("bills")){
 	        Bill bill=Bill.findById(Bill.class,Long.parseLong(strDeviceId));
 	        supportingMembers=bill.getSupportingMembers();
+        }else if(strDeviceType.startsWith("proprietypoint")){
+	        ProprietyPoint proprietyPoint=ProprietyPoint.findById(ProprietyPoint.class,Long.parseLong(strDeviceId));
+	        supportingMembers=proprietyPoint.getSupportingMembers();
         }
         //we will send approval to members whose status is still request not send.this is ok incase a new member has been added
         for(SupportingMember i:supportingMembers){

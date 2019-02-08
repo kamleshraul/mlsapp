@@ -46,6 +46,7 @@ public abstract class Device extends BaseDomain {
             	DeviceType budgetaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_BUDGETARY, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType supplementaryCutMotionDeviceType = DeviceType.findByType(ApplicationConstants.MOTIONS_CUTMOTION_SUPPLEMENTARY, ApplicationConstants.DEFAULT_LOCALE);
             	DeviceType adjournmentMotionDeviceType = DeviceType.findByType(ApplicationConstants.ADJOURNMENT_MOTION, ApplicationConstants.DEFAULT_LOCALE);
+            	DeviceType proprietyPointDeviceType = DeviceType.findByType(ApplicationConstants.PROPRIETY_POINT, ApplicationConstants.DEFAULT_LOCALE);
             	
             	Integer number = null;
             	
@@ -181,6 +182,20 @@ public abstract class Device extends BaseDomain {
 					AdjournmentMotion.updateCurrentAdjourningDateUpperHouse(defaultAdjourningDate);
         		}
             	
+            	/** update lowerhouse static current number for propriety points **/
+            	if (ProprietyPoint.getCurrentNumberLowerHouse() == 0) {
+            		latestLowerHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(lowerHouseType, proprietyPointDeviceType);
+            		number = ProprietyPoint.assignNumber(lowerHouseType, latestLowerHouseSession, proprietyPointDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+					ProprietyPoint.updateCurrentNumberLowerHouse(number);
+        		}
+            	
+            	/** update upperhouse static current number for propriety points **/
+            	if (ProprietyPoint.getCurrentNumberUpperHouse() == 0) {
+            		latestUpperHouseSession = Session.findLatestSessionHavingGivenDeviceTypeEnabled(upperHouseType, proprietyPointDeviceType);
+            		number = ProprietyPoint.assignNumber(upperHouseType, latestUpperHouseSession, proprietyPointDeviceType, ApplicationConstants.DEFAULT_LOCALE);
+					ProprietyPoint.updateCurrentNumberUpperHouse(number);
+        		}
+            	
             	Device.isCurrentNumberForDevicesUpdateRequired(false);
         	} catch (ELSException e) {
     			// TODO Auto-generated catch block
@@ -215,6 +230,10 @@ public abstract class Device extends BaseDomain {
 			AdjournmentMotion aMotion = AdjournmentMotion.findById(AdjournmentMotion.class, deviceId);
 			aMotion.startWorkflow(aMotion, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
 		
+		} else if(deviceName.split("_")[0].toUpperCase().equals("PROPRIETYPOINT")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			ProprietyPoint proprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, deviceId);
+			proprietyPoint.startWorkflow(proprietyPoint, status, userGroupType, level, workflowHouseType, isFlowOnRecomStatusAfterFinalDecision, locale);
+		
 		}
 		
 	}
@@ -244,6 +263,10 @@ public abstract class Device extends BaseDomain {
 		} else if(deviceName.split("_")[0].toUpperCase().equals("ADJOURNMENTMOTION")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
 			AdjournmentMotion aMotion = AdjournmentMotion.findById(AdjournmentMotion.class, deviceId);
 			aMotion.endWorkflow(aMotion, workflowHouseType, locale);
+		
+		} else if(deviceName.split("_")[0].toUpperCase().equals("PROPRIETYPOINT")) { //conventionally it is same as 'device field value till first underscore in uppercase' in corresponding devicetype of given device
+			ProprietyPoint proprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, deviceId);
+			proprietyPoint.endWorkflow(proprietyPoint, workflowHouseType, locale);
 		
 		}
 		

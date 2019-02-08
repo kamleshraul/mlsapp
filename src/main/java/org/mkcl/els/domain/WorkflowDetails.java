@@ -331,6 +331,23 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getRepository().create(motion, tasks, workflowType, assigneeLevel);
 	}
 	
+	public static WorkflowDetails create(final ProprietyPoint proprietyPoint, 
+				 final Task newtask,
+				 final UserGroupType usergroupType, 
+				 final String currentDeviceTypeWorkflowType,
+				 final String level) 
+				 throws ELSException {
+	return getRepository().create(proprietyPoint, newtask, usergroupType, currentDeviceTypeWorkflowType, level);
+	}
+	
+	public static List<WorkflowDetails> create(final ProprietyPoint proprietyPoint,
+					   final List<Task> tasks,
+					   final String workflowType,
+					   final String assigneeLevel) 
+					   throws ELSException, ParseException {
+	return getRepository().create(proprietyPoint, tasks, workflowType, assigneeLevel);
+	}
+	
 	// Start Process
 	public static WorkflowDetails startProcess(final Question question, 
 			final String processDefinitionKey, 
@@ -922,6 +939,32 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 			final int level, 
 			final String locale) throws ELSException {
 		return getRepository().startProcessAtGivenLevel(billAmendmentMotion, processDefinitionKey, processWorkflow, userGroupType, level, locale);
+	}
+	
+	/********************Propriety Point*********************/
+	public static WorkflowDetails findCurrentWorkflowDetail(final ProprietyPoint proprietyPoint) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(proprietyPoint);
+	}
+	
+	public static WorkflowDetails findCurrentWorkflowDetail(final ProprietyPoint proprietyPoint, 
+			final String workflowType) throws ELSException {
+		return getRepository().findCurrentWorkflowDetail(proprietyPoint, workflowType);
+	}
+	
+	public static WorkflowDetails startProcess(final ProprietyPoint proprietyPoint, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final String locale) throws ELSException {
+		return getRepository().startProcess(proprietyPoint, processDefinitionKey, processWorkflow, locale);
+	}
+	
+	public static WorkflowDetails startProcessAtGivenLevel(final ProprietyPoint proprietyPoint, 
+			final String processDefinitionKey, 
+			final Workflow processWorkflow, 
+			final UserGroupType userGroupType, 
+			final int level, 
+			final String locale) throws ELSException {
+		return getRepository().startProcessAtGivenLevel(proprietyPoint, processDefinitionKey, processWorkflow, userGroupType, level, locale);
 	}
 	
 	// TODO: Incomplete

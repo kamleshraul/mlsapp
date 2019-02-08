@@ -484,6 +484,22 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	}
 	/****************************** Adjournment Motion *********************/
 	
+	/****************************** Propriety Point *********************/
+	public static List<Reference> findProprietyPointActorsVO(
+			ProprietyPoint proprietyPoint, Status internalStatus,
+			UserGroup userGroup, int level, String locale) {
+		return getWorkflowConfigRepository().findProprietyPointActors(proprietyPoint, internalStatus, userGroup, level, locale);
+	}
+	
+	public static Reference findActorVOAtFirstLevel(final ProprietyPoint proprietyPoint, final Workflow processWorkflow, final String locale) throws ELSException {
+		return getWorkflowConfigRepository().findActorVOAtFirstLevel(proprietyPoint, processWorkflow, locale);
+	}
+	
+	public static Reference findActorVOAtGivenLevel(final ProprietyPoint proprietyPoint, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String locale) throws ELSException {
+		return getWorkflowConfigRepository().findActorVOAtGivenLevel(proprietyPoint, processWorkflow, userGroupType, level, locale);
+	}
+	/****************************** Propriety Point *********************/
+	
 	/****************************** Prashnavali ***************************/
 	public static List<WorkflowActor> findPrashnavaliActors(
 			final HouseType houseType,

@@ -939,6 +939,10 @@ public class ApplicationConstants {
 	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_ADJOURNMENTMOTION="workflow/adjournmentmotion/supportingmember";
 	
 	public static final String APPROVAL_WORKFLOW_URLPATTERN_ADJOURNMENTMOTION="workflow/adjournmentmotion";
+	
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_PROPRIETYPOINT="workflow/proprietypoint/supportingmember";
+	
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_PROPRIETYPOINT="workflow/proprietypoint";
 
 	/**** Advanced Search Status Filter ****/
 	public static final String UNPROCESSED_FILTER="UNPROCESSED";
@@ -2658,6 +2662,43 @@ public class ApplicationConstants {
 	public static final String RESOLUTION_PROCESSED_SENDTODESKOFFICER = "resolution_processed_sendToDeskOfficer";
 	
 	public static final String STANDALONEMOTION_PROCESSED_SENDTODESKOFFICER = "standalonemotion_processed_sendToDeskOfficer";
+	
+	/**************** Propriety Point ********************/
+	public static final String PROPRIETY_POINT = "proprietypoint";
+	/**** member status  ****/	
+	public static final String PROPRIETYPOINT_INCOMPLETE="proprietypoint_incomplete";
+
+	public static final String PROPRIETYPOINT_COMPLETE="proprietypoint_complete";
+
+	public static final String PROPRIETYPOINT_SUBMIT="proprietypoint_submit";
+
+	public static final String PROPRIETYPOINT_SYSTEM_ASSISTANT_PROCESSED="proprietypoint_system_assistantprocessed";
+	
+	/**** Recommendation status ****/	
+	public static final String PROPRIETYPOINT_RECOMMEND_ADMISSION="proprietypoint_recommend_admission";
+
+	public static final String PROPRIETYPOINT_RECOMMEND_REJECTION="proprietypoint_recommend_rejection";
+
+	public static final String PROPRIETYPOINT_RECOMMEND_SENDBACK="proprietypoint_recommend_sendback";	
+
+	public static final String PROPRIETYPOINT_RECOMMEND_DISCUSS="proprietypoint_recommend_discuss";
+
+	/**** Final status ****/ 
+	public static final String PROPRIETYPOINT_FINAL_ADMISSION="proprietypoint_final_admission";    
+
+	public static final String PROPRIETYPOINT_FINAL_REJECTION="proprietypoint_final_rejection";
+	
+	/**** Processed status ****/ 
+	public static final String PROPRIETYPOINT_PROCESSED_REJECTIONWITHREASON = "proprietypoint_processed_rejectionWithReason";
+	
+	public static final String PROPRIETYPOINT_PROCESSED_REPLY_RECEIVED = "proprietypoint_processed_replyReceived";
+	
+	/**** Put Up ****/
+	public static final String PROPRIETYPOINT_PUTUP_REJECTION="proprietypoint_putup_rejection";
+	
+	/**** Other constants ****/
+	public static final String PROPRIETYPOINT_GET_REVISION = "PROPRIETYPOINT_GET_REVISION";
+	/**************** Propriety Point Completed ********************/
 	
 	/**** Temporary Count for confirming performance issues if any ****/
 	public static long isUserSessionActive_URL_HIT_COUNT = 0; //remove once not needed

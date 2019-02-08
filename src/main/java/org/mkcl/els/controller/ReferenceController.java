@@ -10,12 +10,7 @@
 
 package org.mkcl.els.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -112,6 +107,7 @@ import org.mkcl.els.domain.Party;
 import org.mkcl.els.domain.PartyType;
 import org.mkcl.els.domain.Proceeding;
 import org.mkcl.els.domain.ProceedingCitation;
+import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDates;
@@ -10087,6 +10083,29 @@ public class ReferenceController extends BaseController {
 			}
 		}	
 		return isDepartmentChangeRestricted;
+	}
+	
+	@RequestMapping(value="/proprietypoint/actors", method=RequestMethod.GET)
+	public @ResponseBody List<Reference> findProprietyPointActors(final HttpServletRequest request,
+			final ModelMap model,
+			final Locale locale){
+		
+		List<Reference> actors = new ArrayList<Reference>();
+		String strProprietyPoint = request.getParameter("proprietypoint");
+		String strInternalStatus = request.getParameter("status");
+		String strUserGroup = request.getParameter("usergroup");
+		String strLevel = request.getParameter("level");
+		if (strProprietyPoint != null && strInternalStatus != null
+				&& strUserGroup != null && strLevel != null) {
+			if ((!strProprietyPoint.isEmpty()) && (!strInternalStatus.isEmpty())
+					&& (!strUserGroup.isEmpty()) && (!strLevel.isEmpty())) {
+				Status internalStatus = Status.findById(Status.class, Long.parseLong(strInternalStatus));
+				ProprietyPoint proprietyPoint = ProprietyPoint.findById(ProprietyPoint.class, Long.parseLong(strProprietyPoint));
+				UserGroup userGroup = UserGroup.findById(UserGroup.class, Long.parseLong(strUserGroup));
+				actors = WorkflowConfig.findProprietyPointActorsVO(proprietyPoint, internalStatus, userGroup, Integer.parseInt(strLevel), locale.toString());
+			}
+		}
+		return actors;
 	}
 	
 	@RequestMapping(value = "/isUserSessionActive", method = RequestMethod.GET)

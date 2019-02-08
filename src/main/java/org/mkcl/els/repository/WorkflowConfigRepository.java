@@ -30,6 +30,7 @@ import org.mkcl.els.domain.EventMotion;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
+import org.mkcl.els.domain.ProprietyPoint;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
 import org.mkcl.els.domain.QuestionDraft;
@@ -4069,6 +4070,269 @@ public class WorkflowConfigRepository extends BaseRepository<WorkflowConfig, Ser
 		return actorAtGivenLevel;
 	}	
 	/****************************** Adjournment Motion *********************/
+	
+	/****************************** Propriety Point *********************/
+	public List<Reference> findProprietyPointActors(final ProprietyPoint proprietyPoint,
+			final Status internalStatus,final UserGroup userGroup,final int level,final String locale) {
+		String status=internalStatus.getType();
+		WorkflowConfig workflowConfig=null;
+		UserGroupType userGroupType=null;
+		WorkflowActor currentWorkflowActor=null;
+		List<Reference> references=new ArrayList<Reference>();
+		List<WorkflowActor> allEligibleActors=new ArrayList<WorkflowActor>();
+		/**** Note :Here this can be configured so that list of workflows which
+			 * goes back is read  dynamically ****/
+		if(status.equals(ApplicationConstants.PROPRIETYPOINT_RECOMMEND_SENDBACK)				
+				||status.equals(ApplicationConstants.PROPRIETYPOINT_RECOMMEND_DISCUSS)								
+		){
+			workflowConfig=getLatest(proprietyPoint,proprietyPoint.getInternalStatus().getType(),locale.toString());
+			userGroupType=userGroup.getUserGroupType();
+			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
+			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.DESC);
+		} else{
+			workflowConfig=getLatest(proprietyPoint,status,locale.toString());
+			userGroupType=userGroup.getUserGroupType();
+			currentWorkflowActor=getWorkflowActor(workflowConfig,userGroupType,level);
+			allEligibleActors=getWorkflowActorsExcludingCurrent(workflowConfig,currentWorkflowActor,ApplicationConstants.ASC);
+		}
+		HouseType houseType=proprietyPoint.getHouseType();
+		DeviceType deviceType=proprietyPoint.getDeviceType();
+		for(WorkflowActor i:allEligibleActors){
+			UserGroupType userGroupTypeTemp=i.getUserGroupType();
+			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
+					userGroupTypeTemp, "activeFrom",ApplicationConstants.DESC, locale);
+			for(UserGroup j:userGroups){
+				int noOfComparisons=0;
+				int noOfSuccess=0;
+				Map<String,String> params=j.getParameters();
+				if(houseType!=null){
+					HouseType bothHouse=HouseType.findByFieldName(HouseType.class, "type","bothhouse", locale);
+					if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
+							noOfComparisons++;
+							noOfSuccess++;
+						}else{
+							noOfComparisons++;
+						}
+					}
+				}
+				if(deviceType!=null){
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}					
+				Date fromDate=j.getActiveFrom();
+				Date toDate=j.getActiveTo();
+				Date currentDate=new Date();
+				noOfComparisons++;
+				if(((fromDate==null||currentDate.after(fromDate)||currentDate.equals(fromDate))
+						&&(toDate==null||currentDate.before(toDate)||currentDate.equals(toDate)))
+				){
+					noOfSuccess++;
+				}
+				/**** Include Leave Module ****/
+				if(noOfComparisons==noOfSuccess){
+					Reference reference=new Reference();
+					User user=User.findByFieldName(User.class,"credential",j.getCredential(), locale);
+					reference.setId(j.getCredential().getUsername()
+							+"#"+j.getUserGroupType().getType()
+							+"#"+i.getLevel()
+							+"#"+userGroupTypeTemp.getName()
+							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+					reference.setName(userGroupTypeTemp.getName());
+					references.add(reference);
+					break;
+				}				
+			}
+		}				
+		return references;
+	}
+	
+	public WorkflowConfig getLatest(final ProprietyPoint proprietyPoint,final String internalStatus,final String locale) {
+		HouseType houseTypeForWorkflow = proprietyPoint.getHouseType();
+		/**** Latest Workflow Configurations ****/
+		String[] temp=internalStatus.split("_");
+		String workflowName=temp[temp.length-1]+"_workflow";				
+		String query="SELECT wc FROM WorkflowConfig wc JOIN wc.workflow wf JOIN wc.deviceType d " +
+		" JOIN wc.houseType ht "+
+		" WHERE d.id="+proprietyPoint.getDeviceType().getId()+
+		" AND wf.type='"+workflowName+"' "+
+		" AND ht.id="+houseTypeForWorkflow.getId()+
+		" AND wc.isLocked=true ORDER BY wc.id "+ApplicationConstants.DESC ;				
+		try{
+			return (WorkflowConfig) this.em().createQuery(query).getResultList().get(0);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return new WorkflowConfig();
+		}	
+	}
+	
+	public Reference findActorVOAtFirstLevel(final ProprietyPoint proprietyPoint, final Workflow processWorkflow, final String locale) throws ELSException {
+		Reference actorAtGivenLevel = null;
+		WorkflowActor workflowActorAtFirstLevel = findFirstActor(proprietyPoint, processWorkflow, locale);
+		actorAtGivenLevel = findActorDetails(proprietyPoint, workflowActorAtFirstLevel, locale);
+		return actorAtGivenLevel;		
+	}
+	
+	public Reference findActorVOAtGivenLevel(final ProprietyPoint proprietyPoint, final Workflow processWorkflow,
+			final UserGroupType userGroupType, final int level, final String locale) throws ELSException {
+		Reference actorAtGivenLevel = null;
+		WorkflowConfig workflowConfig = getLatest(proprietyPoint, processWorkflow, locale);
+		WorkflowActor workflowActorAtGivenLevel = getWorkflowActor(workflowConfig,userGroupType,level);
+		actorAtGivenLevel = findActorDetails(proprietyPoint, workflowActorAtGivenLevel, locale);
+		return actorAtGivenLevel;		
+	}
+	
+	private WorkflowActor findFirstActor(final ProprietyPoint proprietyPoint, final Workflow processWorkflow, final String locale) {
+		/**** Latest Workflow Configurations ****/
+		WorkflowConfig latestWorkflowConfig = getLatest(proprietyPoint, processWorkflow, locale);
+		String query = "SELECT wa" +
+				" FROM WorkflowConfig wc join wc.workflowactors wa" +
+				" WHERE wc.id=:wcid" +
+				" AND wa.level=1" +				
+				" ORDER BY wa.id DESC";
+		TypedQuery<WorkflowActor> tQuery = 
+			this.em().createQuery(query, WorkflowActor.class);
+		tQuery.setParameter("wcid", latestWorkflowConfig.getId());		
+		tQuery.setMaxResults(1);
+		WorkflowActor firstActor = tQuery.getSingleResult();
+		return firstActor;		
+	}
+	
+	private WorkflowConfig getLatest(final ProprietyPoint proprietyPoint, final Workflow processWorkflow, final String locale) {
+		/**** Latest Workflow Configurations ****/
+		String strQuery="SELECT wc FROM WorkflowConfig wc" +
+				" JOIN wc.workflow wf" +
+				" JOIN wc.deviceType d " +
+				" JOIN wc.houseType ht" +
+				" WHERE d.id=:deviceTypeId" +
+				" AND wf.type=:workflowName" +
+				" AND ht.id=:houseTypeId"+
+				" AND wc.isLocked=true ORDER BY wc.id "+ApplicationConstants.DESC ;				
+		javax.persistence.Query query=this.em().createQuery(strQuery);
+		query.setParameter("deviceTypeId", proprietyPoint.getDeviceType().getId());
+		query.setParameter("workflowName",processWorkflow.getType());
+		query.setParameter("houseTypeId", proprietyPoint.getHouseType().getId());
+		try{
+			return (WorkflowConfig) query.getResultList().get(0);
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return new WorkflowConfig();
+		}	
+	}
+	
+	private Reference findActorDetails(final ProprietyPoint proprietyPoint,
+			final WorkflowActor workflowActor, 
+			final String locale) throws ELSException {
+		Reference actorAtGivenLevel = null;
+		HouseType houseType = proprietyPoint.getHouseType();
+		DeviceType deviceType = proprietyPoint.getDeviceType();
+		Ministry ministry = proprietyPoint.getMinistry();
+		SubDepartment subDepartment = proprietyPoint.getSubDepartment();	
+		
+		UserGroupType userGroupTypeTemp = workflowActor.getUserGroupType();
+		if(userGroupTypeTemp.getType().equals(ApplicationConstants.MEMBER)){
+			try {
+				User user = User.find(proprietyPoint.getPrimaryMember());
+				actorAtGivenLevel = new Reference();
+				actorAtGivenLevel.setId(user.getCredential().getUsername()
+						+"#"+userGroupTypeTemp.getType()
+						+"#"+workflowActor.getLevel()
+						+"#"+userGroupTypeTemp.getName()
+						+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+				actorAtGivenLevel.setName(userGroupTypeTemp.getName());	
+				return actorAtGivenLevel;
+			} catch (ELSException e) {
+				e.printStackTrace();
+			}
+		}else{
+			List<UserGroup> userGroups=UserGroup.findAllByFieldName(UserGroup.class,"userGroupType",
+					userGroupTypeTemp, "activeFrom",ApplicationConstants.DESC, locale);
+			if(userGroupTypeTemp.getType().equals(ApplicationConstants.DEPARTMENT)){
+				ministry = proprietyPoint.getMinistry();
+				subDepartment = proprietyPoint.getSubDepartment();
+			}
+			for(UserGroup j : userGroups){
+				int noOfComparisons = 0;
+				int noOfSuccess = 0;
+				Map<String,String> params = j.getParameters();
+				if(houseType != null){
+					HouseType bothHouse = HouseType.
+							findByFieldName(HouseType.class, "type","bothhouse", locale);
+					if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(bothHouse.getName())){
+						if(params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.HOUSETYPE_KEY+"_"+locale).contains(houseType.getName())){
+							noOfComparisons++;
+							noOfSuccess++;
+						}else{
+							noOfComparisons++;
+						}
+					}
+				}
+				if(deviceType!=null){
+					if(params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale)!=null && params.get(ApplicationConstants.DEVICETYPE_KEY+"_"+locale).contains(deviceType.getName())){
+						noOfComparisons++;
+						noOfSuccess++;
+					}else{
+						noOfComparisons++;
+					}
+				}
+				if(ministry!=null){
+					if(params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).isEmpty()){
+						String[] allowedMinistries = params.get(ApplicationConstants.MINISTRY_KEY+"_"+locale).split("##");
+						for(int k=0; k<allowedMinistries.length; k++) {
+							if(allowedMinistries[k].equals(ministry.getName())) {										
+								noOfSuccess++;
+								break;
+							}
+						}
+						noOfComparisons++;
+					}else{
+						noOfComparisons++;
+					}
+				}
+				if(subDepartment!=null){
+					if(params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale)!=null && !params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).isEmpty()){
+						String[] allowedSubdepartments = params.get(ApplicationConstants.SUBDEPARTMENT_KEY+"_"+locale).split("##");
+						for(int k=0; k<allowedSubdepartments.length; k++) {
+							if(allowedSubdepartments[k].equals(subDepartment.getName())) {										
+								noOfSuccess++;
+								break;
+							}
+						}
+						noOfComparisons++;
+					}else{
+						noOfComparisons++;
+					}
+				}	
+				Date fromDate=j.getActiveFrom();
+				Date toDate=j.getActiveTo();
+				Date currentDate=new Date();
+				noOfComparisons++;
+				if(((fromDate==null||currentDate.after(fromDate)||currentDate.equals(fromDate))
+						&&(toDate==null||currentDate.before(toDate)||currentDate.equals(toDate)))
+				){
+					noOfSuccess++;
+				}
+				/**** Include Leave Module ****/
+				if(noOfComparisons==noOfSuccess){
+					User user=User.findByFieldName(User.class,"credential",j.getCredential(), locale);
+					actorAtGivenLevel = new Reference();
+					actorAtGivenLevel.setId(j.getCredential().getUsername()
+							+"#"+j.getUserGroupType().getType()
+							+"#"+workflowActor.getLevel()
+							+"#"+userGroupTypeTemp.getName()
+							+"#"+user.getTitle()+" "+user.getFirstName()+" "+user.getMiddleName()+" "+user.getLastName());
+					actorAtGivenLevel.setName(userGroupTypeTemp.getName());		
+					return actorAtGivenLevel;
+				}				
+			}
+		}
+		return actorAtGivenLevel;
+	}	
+	/****************************** Propriety Point *********************/
 	
 	/****************************** BillAmendment Motion ****************************/
 	public Reference findActorVOAtFirstLevel(final BillAmendmentMotion billAmendmentMotion, final Workflow processWorkflow, final String locale) throws ELSException {
