@@ -340,7 +340,7 @@
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;
-			                		प्रधान सचिव,
+			                		सचिव (का.),
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<fo:block text-align="right">
 			                			महाराष्ट्र&#160;<xsl:value-of select="element_3"/>
@@ -384,7 +384,7 @@
 				     							</fo:table-cell>
 				     							<fo:table-cell>
 				     								<fo:block text-align="center">
-				     									प्रधान सचिव,
+				     									सचिव (का.),
 				     								</fo:block>
 				     							</fo:table-cell>
 				                        	</fo:table-row>
@@ -416,7 +416,7 @@
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<xsl:value-of select="element_7"/>.
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;			                		
-			                		प्रधान सचिव,
+			                		सचिव (का.),
 			                		<fo:block font-size="0pt">&#160;</fo:block>
 			                		<fo:block text-align="right">
 			                			महाराष्ट्र&#160;<xsl:value-of select="element_3"/>

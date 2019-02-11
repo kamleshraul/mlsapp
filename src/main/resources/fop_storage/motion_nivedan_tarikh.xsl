@@ -396,7 +396,7 @@
 																						<fo:table-row>
 																							<fo:table-cell text-align="justify">
 																								<fo:block font-weight="bold">
-																									प्रधान सचिव
+																									सचिव (का.)
 																								</fo:block>
 																							</fo:table-cell>										
 																						</fo:table-row>
