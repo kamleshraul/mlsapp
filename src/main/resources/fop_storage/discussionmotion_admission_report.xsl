@@ -216,7 +216,7 @@
 <fo:block font-weight="bold">सह सचिव (से.) (श्री.मोहिते ) :</fo:block>
 <fo:block>&#160;</fo:block>    
 <fo:block>&#160;</fo:block>
-<fo:block font-weight="bold" >सचिव (का.) : </fo:block>
+<fo:block font-weight="bold" >सचिव (कार्यभार) : </fo:block>
 <fo:block>&#160;</fo:block>    
 <fo:block>&#160;</fo:block>
 <fo:block font-weight="bold">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;मा. अध्यक्ष :</fo:block>
