@@ -736,7 +736,7 @@ public class CutMotion extends Device implements Serializable {
 			
 			if(cutMotionsOfMemberForGivenDepartment!=null 
 					&& !cutMotionsOfMemberForGivenDepartment.isEmpty()
-					&& cutMotionsOfMemberForGivenDepartment.size() > maximumLimitCount) {
+					&& cutMotionsOfMemberForGivenDepartment.size() >= maximumLimitCount) {
 				
 				isDepartmentwiseMaximumLimitForMemberReached = true;
 			}
