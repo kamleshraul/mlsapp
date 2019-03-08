@@ -16,6 +16,7 @@ import javax.persistence.Transient;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.DepartmentDashboardVo;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.repository.WorkflowDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -971,6 +972,21 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	// kept to hide errors only method needs to be replaced with actual code
 	public static WorkflowDetails findCurrentWorkflowDetail(final Device device, final String houseTypeName){
 		return null;
+	}
+	
+	//DepartmentDashboard 
+	public static List<DepartmentDashboardVo> findDepartmentDeviceCountFromWorkflowDetails(String strSessionType, String strSessionYear,
+			String strHouseType,String strDeviceType,String strSubdepartment,String strLocale){
+			return getRepository().findDepartmentDeviceCountFromWorkflowDetails(strSessionType,strSessionYear,strHouseType,strDeviceType,strSubdepartment,strLocale );
+	}
+	
+	public static List<DepartmentDashboardVo> findDepartmentDeviceCountsByHouseTypeFromWorkflowDetails(String strSessionType, String strSessionYear,
+			String strHouseType,String strDeviceType,String strSubdepartment,String strStatus,String strLocale){
+				return getRepository().findDepartmentDeviceCountsByHouseTypeFromWorkflowDetails(strSessionType,strSessionYear,strHouseType,strDeviceType,strSubdepartment,strStatus,strLocale );
+	}
+	
+	public static List<DepartmentDashboardVo> findDepartmentAssemblyDeviceCountsByDeviceTypeFromWorkflowDetails(String strHouseType, String strSessionType,  String strSessionYear, String strDeviceType, String strSubdeartment, String strStatus, String strLocale){
+		return getRepository().findDepartmentAssemblyDeviceCountsByDeviceTypeFromWorkflowDetails(strHouseType, strSessionType, strSessionYear, strDeviceType, strSubdeartment, strStatus, strLocale);
 	}
 	
 	// Getters and Setters

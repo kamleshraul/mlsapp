@@ -26,6 +26,7 @@ import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.AuthUser;
+import org.mkcl.els.common.vo.DepartmentDashboardVo;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.domain.ApplicationLocale;
 import org.mkcl.els.domain.Credential;
@@ -576,7 +577,7 @@ public class HomeController extends BaseController {
 			e.printStackTrace();
 		}
     	
-    	 List<MasterVO> departmentDeviceCounts = new ArrayList<MasterVO>();
+    	 List<DepartmentDashboardVo> departmentDeviceCounts = new ArrayList<DepartmentDashboardVo>();
     	 Map<String, String[]> parameters = new HashMap<String, String[]>();
          parameters.put("locale", new String[]{locale.toString()});
          parameters.put("sessionType", new String[]{""});
@@ -587,18 +588,26 @@ public class HomeController extends BaseController {
          List result = Query.findReport("DEPARTMENT_DEVICES_COUNT", parameters);
          for(int i=0;i<result.size();i++){
         	 Object[] row = (Object[])result.get(i);
-        	 MasterVO departmentDeviceCount = new MasterVO();
-        	 departmentDeviceCount.setName(row[0].toString());
-        	 //Pending Count
-        	 departmentDeviceCount.setNumber(Integer.parseInt(row[1].toString()));
-        	 //Completed Count
-        	 departmentDeviceCount.setOrder(Integer.parseInt(row[2].toString()));
-        	 //Timeout Count
-        	 departmentDeviceCount.setFormattedNumber(row[3].toString());
-        	 //Total Count
-        	 departmentDeviceCount.setFormattedOrder(row[4].toString());
-        	 
-        	 departmentDeviceCounts.add(departmentDeviceCount);
+        		DepartmentDashboardVo departmentDeviceCount = new DepartmentDashboardVo();
+              	 departmentDeviceCount.setSubdepartment(row[0].toString());
+              	 //Pending Count
+              	 departmentDeviceCount.setPendingCount(Integer.parseInt(row[1].toString()));
+              	 //Completed Count
+              	 departmentDeviceCount.setCompletedCount(Integer.parseInt(row[2].toString()));
+              	 //Timeout Count
+              	 departmentDeviceCount.setTimeoutCount(Integer.parseInt(row[3].toString()));
+              	 //Total Count
+              	 departmentDeviceCount.setTotalCount(Integer.parseInt(row[4].toString()));
+              	//House Type
+               	 departmentDeviceCount.setHouseType(row[5].toString());
+               	 //Session Type
+               	 departmentDeviceCount.setSessionType(row[6].toString());
+               	 //Session Year
+               	 departmentDeviceCount.setSessionYear(row[7].toString());
+               	 //Device Type
+               	departmentDeviceCount.setDeviceType(row[8].toString());
+              	 
+              	 departmentDeviceCounts.add(departmentDeviceCount);
         }
          model.addAttribute("result", departmentDeviceCounts);
 		

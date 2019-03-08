@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.persistence.TypedQuery;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.DepartmentDashboardVo;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
@@ -5791,4 +5793,177 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		return workflowDetails;		
 	}
 	
+	//DepartmentDashboard
+	public List<DepartmentDashboardVo> findDepartmentDeviceCountFromWorkflowDetails(String strSessionType, String strSessionYear,
+				String strHouseType,String strDeviceType,String strSubdepartment,String strLocale){
+		List<DepartmentDashboardVo> departmentDeviceCounts = new ArrayList<DepartmentDashboardVo>();
+		String strQuery = "SELECT wd.SUBDEPARTMENT,"
+				+ " SUM(IF(STATUS= 'PENDING',1,0)) AS PENDINGSTATUS,"
+				+ " SUM(IF(STATUS= 'COMPLETED',1,0)) AS COMPLETEDSTATUS,"
+				+ " SUM(IF(STATUS= 'TIMEOUT',1,0)) AS TIMEOUTSTATUS,"
+				+ " COUNT(subdepartment),"
+				+ " wd.house_type,"
+				+ " wd.session_type,"
+				+ " wd.session_year,"
+				+ " wd.device_type"
+				+ " FROM workflow_details wd"
+				+ " WHERE (subdepartment IS NOT NULL)"
+				+ " AND ('' IN (:sessionType) OR wd.session_type IN (:sessionType))"
+				+ " AND ('' IN (:sessionYear) OR wd.session_year IN (:sessionYear))"
+				+ " AND ('' IN (:houseType) OR wd.house_type IN (:houseType))"
+				+ " AND ('' IN (:deviceType) OR wd.device_type IN (:deviceType))"
+				+ " AND ('' IN (:subdepartment) OR wd.subdepartment IN (:subdepartment))"
+				+ " AND wd.locale=:locale"
+				+ " GROUP BY SUBDEPARTMENT"
+				+ " ORDER BY SUBDEPARTMENT";		
+	
+		Query query = this.em().createNativeQuery(strQuery);
+		List<String> sessionTypes = Arrays.asList(strSessionType.split(","));
+		query.setParameter("sessionType", sessionTypes);
+		List<String> sessionYears = Arrays.asList(strSessionYear.split(","));
+		query.setParameter("sessionYear", sessionYears);
+		List<String> houseTypes = Arrays.asList(strHouseType.split(","));
+		query.setParameter("houseType", houseTypes);
+		List<String> deviceTypes = Arrays.asList(strDeviceType.split(","));
+		query.setParameter("deviceType", deviceTypes);
+		List<String> subdepartments = Arrays.asList(strSubdepartment.split(","));
+		query.setParameter("subdepartment", subdepartments);
+		query.setParameter("locale", strLocale);
+		List result =  query.getResultList();	
+		 for(int i=0;i<result.size();i++){
+	       	 Object[] row = (Object[])result.get(i);
+	       	DepartmentDashboardVo departmentDeviceCount = new DepartmentDashboardVo();
+	       	 departmentDeviceCount.setSubdepartment(row[0].toString());
+	       	 //Pending Count
+	       	 departmentDeviceCount.setPendingCount(Integer.parseInt(row[1].toString()));
+	       	 //Completed Count
+	       	 departmentDeviceCount.setCompletedCount(Integer.parseInt(row[2].toString()));
+	       	 //Timeout Count
+	       	 departmentDeviceCount.setTimeoutCount(Integer.parseInt(row[3].toString()));
+	       	 //Total Count
+	       	 departmentDeviceCount.setTotalCount(Integer.parseInt(row[4].toString()));
+	       	 //House Type
+	       	 departmentDeviceCount.setHouseType(row[5].toString());
+	       	 //Session Type
+	       	 departmentDeviceCount.setSessionType(row[6].toString());
+	       	 //Session Year
+	       	 departmentDeviceCount.setSessionYear(row[7].toString());
+	       	 //Device Type
+	       	departmentDeviceCount.setDeviceType(row[8].toString());
+	       	 departmentDeviceCounts.add(departmentDeviceCount);
+	       }
+		return departmentDeviceCounts;
+					
+		}
+	
+		public List<DepartmentDashboardVo> findDepartmentDeviceCountsByHouseTypeFromWorkflowDetails(String strSessionType, String strSessionYear,
+				String strHouseType,String strDeviceType,String strSubdepartment,String strStatus,String strLocale){
+			List<DepartmentDashboardVo> departmentDeviceCountsByHouseType = new ArrayList<DepartmentDashboardVo>();
+			String strQuery = "SELECT wd.subdepartment,"
+					+" wd.session_year AS Sessionyear,"
+					+" wd.session_type AS Sessiontype,"
+					+" SUM(IF(house_type='विधानसभा',1,0)) AS Assemblycount,"
+					+" SUM(IF(house_type='विधानपरिषद',1,0)) AS Councilcount"
+					+" FROM workflow_details wd"
+					+" WHERE(STATUS =:status)" 
+					+" AND(assignee_user_group_type='department' OR assignee_user_group_type='department_deskofficer')"
+					+ " AND ('' IN (:sessionType) OR wd.session_type IN (:sessionType))"
+					+ " AND ('' IN (:sessionYear) OR wd.session_year IN (:sessionYear))"
+					+ " AND ('' IN (:houseType) OR wd.house_type IN (:houseType))"
+					+ " AND ('' IN (:deviceType) OR wd.device_type IN (:deviceType))"
+					+ " AND ('' IN (:subdepartment) OR wd.subdepartment IN (:subdepartment))"
+					+" AND wd.locale=:locale"
+					+" GROUP BY session_type,session_year"
+					+" ORDER BY session_year";
+			
+			Query query = this.em().createNativeQuery(strQuery);		
+			List<String> sessionTypes = Arrays.asList(strSessionType.split(","));
+			query.setParameter("sessionType", sessionTypes);
+			List<String> sessionYears = Arrays.asList(strSessionYear.split(","));
+			query.setParameter("sessionYear", sessionYears);
+			List<String> houseTypes = Arrays.asList(strHouseType.split(","));
+			query.setParameter("houseType", houseTypes);
+			List<String> deviceTypes = Arrays.asList(strDeviceType.split(","));
+			query.setParameter("deviceType", deviceTypes);
+			List<String> subdepartments = Arrays.asList(strSubdepartment.split(","));
+			query.setParameter("subdepartment", subdepartments);
+			query.setParameter("status", strStatus);
+			query.setParameter("locale", strLocale);
+			
+			List result = query.getResultList();	
+	         for(int i=0;i<result.size();i++){
+	        	 Object[] row = (Object[])result.get(i);
+	        	 if(row[0] == null){
+	        		 return departmentDeviceCountsByHouseType;
+	        	 }
+	        	 DepartmentDashboardVo departmentHouseWiseCounts = new DepartmentDashboardVo();
+	        	 //name of respective subdepartment
+	        	 departmentHouseWiseCounts.setSubdepartment(row[0].toString());
+	        	 //sessionyear
+	        	 departmentHouseWiseCounts.setSessionYear(FormaterUtil.formatNumberNoGrouping(Integer.parseInt(row[1].toString()), strLocale));
+	        	 //sessiontype
+	        	 departmentHouseWiseCounts.setSessionType(row[2].toString());
+	        	 //Assembly Count
+	        	 departmentHouseWiseCounts.setAssemblyCount(Integer.parseInt(row[3].toString()));
+	        	 //council count
+	        	 departmentHouseWiseCounts.setCouncilCount(Integer.parseInt(row[4].toString()));
+	        	 
+	        	 departmentDeviceCountsByHouseType.add(departmentHouseWiseCounts);
+	        }
+			
+			return departmentDeviceCountsByHouseType;
+		}
+		
+		public List<DepartmentDashboardVo> findDepartmentAssemblyDeviceCountsByDeviceTypeFromWorkflowDetails(String strHouseType, String strSessionType, String strSessionYear,String strDeviceType, String strSubdepartment, String strStatus, String strLocale){
+			List<DepartmentDashboardVo> departmentAssemblyDeviceCountsByDeviceType = new ArrayList<DepartmentDashboardVo>();
+			String strQuery = "SELECT wd.device_number,"
+					+" wd.device_type,"
+					+" wd.assignee,"
+					+" wd.assignment_time,"
+					+" wd.subject"
+					+" FROM workflow_details wd"
+					+" WHERE (status=:status)"
+					+" AND ('' IN (:sessionType) OR wd.session_type IN (:sessionType))"
+					+" AND ('' IN (:sessionYear) OR wd.session_year IN (:sessionYear))"
+					+" AND ('' IN (:houseType) OR wd.house_type IN (:houseType))"
+					+" AND ('' IN (:deviceType) OR wd.device_type IN (:deviceType))"
+					+" AND ('' IN (:subdepartment) OR wd.subdepartment IN (:subdepartment))"
+					+" AND (assignee_user_group_type='department' OR assignee_user_group_type='department_deskofficer')"
+					+" AND wd.locale=:locale"
+					+" ORDER BY device_type,device_number,assignment_time";
+			
+			Query query = this.em().createNativeQuery(strQuery);
+			List<String> sessionTypes = Arrays.asList(strSessionType.split(","));
+			query.setParameter("sessionType", sessionTypes);
+			List<String> sessionYears = Arrays.asList(strSessionYear.split(","));
+			query.setParameter("sessionYear", sessionYears);
+			List<String> houseTypes = Arrays.asList(strHouseType.split(","));
+			query.setParameter("houseType", houseTypes);
+			List<String> deviceTypes = Arrays.asList(strDeviceType.split(","));
+			query.setParameter("deviceType", deviceTypes);
+			List<String> subdepartments = Arrays.asList(strSubdepartment.split(","));
+			query.setParameter("subdepartment", subdepartments);
+			query.setParameter("status", strStatus);
+			query.setParameter("locale", strLocale);
+	             
+	         List result = query.getResultList();
+	         for(int i=0;i<result.size();i++){
+	        	 Object[] row = (Object[])result.get(i);
+	        	 DepartmentDashboardVo departmentPendingAssemblyDeviceCount = new DepartmentDashboardVo();
+	        	 //device_number
+	        	 departmentPendingAssemblyDeviceCount.setDeviceNumber(row[0].toString());
+	        	 //device_type
+	        	 departmentPendingAssemblyDeviceCount.setDeviceType(row[1].toString());
+	        	 //assignee
+	        	 departmentPendingAssemblyDeviceCount.setAssignee(row[2].toString());
+	        	 //assignment_time
+	        	 departmentPendingAssemblyDeviceCount.setAssignmentTime(FormaterUtil.formatStringToDate(row[3].toString(), ApplicationConstants.DB_DATEFORMAT));
+	        	 //subject
+	        	 departmentPendingAssemblyDeviceCount.setSubject(row[4].toString());
+	   
+	        	 departmentAssemblyDeviceCountsByDeviceType.add(departmentPendingAssemblyDeviceCount);
+	        }
+	         return departmentAssemblyDeviceCountsByDeviceType;
+		}	
+		
 }

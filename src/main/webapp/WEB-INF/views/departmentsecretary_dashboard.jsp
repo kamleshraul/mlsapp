@@ -19,11 +19,13 @@
 	<link type="text/css" rel="stylesheet" href="./resources/css/theme-default/material-design-iconic-font.min.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/theme-default/libs/fullcalendar/fullcalendar.css">
 	<link rel="stylesheet" href="./resources/css/template.css">
+	<!-- <link rel="stylesheet" href="./resources/css/fastsearch.css"> -->
 	
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<!-- <script src="./resources/js/libs/jquery/jquery-1.11.2.min.js?v=2"></script> -->
 	<script src="./resources/js/libs/jquery/jquery-migrate-1.2.1.min.js?v=1"></script>
+	<!-- <script src="./resources/js/libs/jquery/jquery-fastsearch.js?v=1"></script> -->
 	<script src="./resources/js/libs/moment/moment.min.js"></script>
 	<script type="text/javascript" src="./resources/js/jquery/blockUI.js?v=5"></script>	
 	<script type="text/javascript" src="./resources/js/common.js?v=3051"></script>
@@ -113,7 +115,7 @@
 			font-size:20px;
 		}
 		.devicetable{
-			width: 90%;
+		
 			margin: 10px auto;
 		}
 	
@@ -141,84 +143,117 @@
 
 <script>
 $(document).ready(function(){
-	
 	$("#search").click(function(){
-		$("#department-count-filtered-dashboard").empty()
+		$("#department-count-filtered-dashboard").empty();
 		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		url = "?house_type="+$("#selectedHouseType").val()
 				+"&session_type="+$("#selectedSessionType").val()
 				+"&session_year="+$("#selectedSessionYear").val()
 				+"&subdepartment="+$("#selectedSubdepartment").val()
 				+"&device_type="+$("#selectedDeviceType").val();
-		resourceURL = 'departmentdashboard/getDepartmentDeviceCount'+url;
+		resourceURL = 'departmentdashboard/getDepartmentDeviceCounts'+url;
 		$.get(resourceURL,function(data){
 			var text = '';
 			for(var i=0;i<data.length;i++){	
-				text = text + '<div class="col-md-3" >'
+				text = text + '<div class="col-md-3 col-sm-4 col-xs-12" >'
 					+ '<div class="panel panel-default">'
-					+ '<div class="headerblock dashboard-background">'+data[i].name+'</div>'
+					+ '<div class="headerblock dashboard-background">'+data[i].subdepartment+'</div>'
 					+ '<div class="panel-body">'
-			  		+		'<div class="total-task" title="Total Task/s" >'+data[i].formattedOrder+'</div>'
-			    	+ 		'<div class="col-md-12">'
-  			  		+ '<div class="col-md-4 text-center zoom">' 
-			  		+ '<div id="'+data[i].name+'#pending" class="btn-danger task glyphicon glyphicon-envelope workflow-task"></div>'
-			   		+ '<div class="fs-20 text-center">'+data[i].number+'</div>'
-			   		+ '<h5 text-center><spring:message code="department-dashboard.pending" text="Pending"/></h5>'
+			  		+		'<div class="total-task" title="Total Task/s" >'+data[i].totalCount+'</div>'
+			    	+ 		'<div class="col-md-12 col-sm-12 col-xs-12">'
+  			  		+ '<div class="col-md-4 col-sm-4 col-xs-4 text-center zoom">' 
+			  		+ '<div id="'+data[i].subdepartment+'#pending" class="btn-danger task glyphicon glyphicon-envelope workflow-task"></div>'
+			   		+ '<div class="fs-20 text-center">'+data[i].pendingCount+'</div>'
+			   		+ '<h5 text-center><spring:message code="mytask.pending" text="Pending"/></h5>'
 			   		+ '</div>'
-			   		+ '<div class="col-md-4 text-center zoom">'
-			  	 	+ '<div id="'+data[i].name+'#completed" class="btn-success task glyphicon glyphicon-ok workflow-task"></div>'
-			  	 	+ '<div class="fs-20 text-center">'+data[i].order+'</div>'
-			  	 	+ '<h5 text-center><spring:message code="department-dashboard.completed" text="Completed"/></h5>'
+			   		+ '<div class="col-md-4 col-sm-4 col-xs-4 text-center zoom">'
+			  	 	+ '<div id="'+data[i].subdepartment+'#completed" class="btn-success task glyphicon glyphicon-ok workflow-task"></div>'
+			  	 	+ '<div class="fs-20 text-center">'+data[i].completedCount+'</div>'
+			  	 	+ '<h5 text-center><spring:message code="mytask.completed" text="Completed"/></h5>'
 			   		+ '</div>'
-			   		+ '<div class="col-md-4 text-center zoom">'
+			   		+ '<div class="col-md-4 col-sm-4 col-xs-4 text-center zoom">'
 			 	 			+ '<div class="btn-warning task glyphicon glyphicon-hourglass "></div>'
-			 	 			+ '<div class="fs-20 text-center">'+data[i].formattedNumber+'</div>'
+			 	 			+ '<div class="fs-20 text-center">'+data[i].timeoutCount+'</div>'
 			 	  			+ '<h5 class="text-center"><spring:message code="department-dashboard.timeout" text="Timeout"/></h5>'
 			   		+ '	</div>'
 				    +'</div>'
 				    +'</div>'
 					+'</div>'
-					+'</div>';
+					+'</div>'
+				 	+'<input id="houseType" name="houseType" value="${i.houseType}" type="hidden"/>'	
+					+'<input id="sessionType" name="sessionType" value="${i.sessionType}" type="hidden"/>'
+					+'<input id="sessionYear" name="sessionYear" value="${i.sessionYear}" type="hidden"/>'
+					+'<input id="deviceType" name="deviceType" value="${i.deviceType}" type="hidden"/>';
 			}
+			$("#back").show();
 			$("#dashboard").hide();
 			$("#device-workflow-dashboard").hide();
 			$("#backtohousewise").hide();
 			$("#department-count-filtered-dashboard").html(text);
 			$("#department-count-filtered-dashboard").show();
-			loadWorkflowTaskEvents();
+			$("#workflow-dashboard").hide();
+			 loadWorkflowTaskEvents(); 
 			$.unblockUI();
 		});
 	});
 	
-	
-    $(".workflow-task").click(function(){
+	 /* Back Buttons */
+	 $("#back").click(function(){
+        $("#dashboard").show();
+        $("#department-count-filtered-dashboard").hide();
+        $("#backtohousewise").hide();
+        $("#workflow-dashboard").hide();
+        $("#back").hide();
+     });
+	 
+	 $("#backtohousewise").click(function(){
+	        $("#workflow-dashboard").show();
+	        $("#backtohousewise").hide();
+	        $("#back").show();
+	        $("#device-workflow-dashboard").hide();
+	 });
+
+});
+	 
+function loadWorkflowTaskEvents(){
+	$(".workflow-task").click(function(){
+		//$("#department-count-filtered-dashboard").empty();
     	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
     	var id = this.id;
     	var ids = [] ;
     	ids = id.split("#"); 
-    	url = "?status="+ids[1]+"&subdepartment="+ids[0];
-    	resourceURL = 'departmentdashboard/getpendingtask'+url;
+    	url = "	?house_type="+$("#selectedHouseType").val() 
+				+"&session_type="+$("#selectedSessionType").val()
+				+"&session_year="+$("#selectedSessionYear").val()
+	 			+"&subdepartment="+ids[0]  
+				+"&device_type="+$("#selectedDeviceType").val()
+    			+"&status="+ids[1];
+    	resourceURL = 'departmentdashboard/getDepartmentDeviceCountsByHouseType'+url;
     	$.get(resourceURL,function(data){
+    		if(data == ""){
+    			alert('<spring:message code="department.dashboard.nodata" text="No Tasks"/>');
+    		}
     		var text = '';
 			for(var i=0;i<data.length;i++){	
-				text = text +	'<div class="col-md-3">'+
+				text = text +	'<div class="col-md-3 col-sm-12 col-xs-12">'+
 								'<div class="panel panel-default margin-top">'+
-			  						'<div class="headerblock pending-background"><span class="subdepartment-name">'+data[i].name+'</span><br><br>'+data[i].displayName+' '+data[i].type+'</div>'+
-			  							'<div class="col-md-12 border">'+
+			  						'<div class="headerblock pending-background"><span class="subdepartment-name">'+data[i].subdepartment+'</span><br><br>'+data[i].sessionType+' '+data[i].sessionYear+'</div>'+
+			  							'<div class="col-md-12 col-sm-6 col-xs-12 border">'+
 				  							'<div class="panel-body">'+
-				  								'<div class="col-md-6">'+
+				  								'<div class="col-md-6 col-sm-3 col-xs-6">'+
 				  									/* This is assembly count */
-				    								'<div id="'+data[i].name+"#"+data[i].displayName+"#"+data[i].type+"#"+ids[1]+'#vidhansabha" class="task sabha-background sub-zoom assembly-workflow"><span class="text-color"><spring:message code="generic.lowerhouse" text="vidhansabha"/></span><br><span class="text-color">'+data[i].order+'</span></div>'+
+				    								'<div id="'+data[i].subdepartment+"#"+data[i].sessionType+"#"+data[i].sessionYear+"#"+ids[1]+'#<spring:message code="generic.lowerhouse" text="vidhansabha"/>" class="task sabha-background sub-zoom assembly-workflow"><span class="text-color"><spring:message code="generic.lowerhouse" text="vidhansabha"/></span><br><span class="text-color">'+data[i].assemblyCount+'</span></div>'+
 				    							'</div>'+
-				    							'<div class="col-md-6">'+
+				    							'<div class="col-md-6 col-sm-3 col-xs-6">'+
 				    								/* This is council count */
-				    							 	'<div id="'+data[i].name+"#"+data[i].displayName+"#"+data[i].type+"#"+ids[1]+'#vidhanparishad" class="task parishad-background sub-zoom assembly-workflow"><span class="text-color"><spring:message code="generic.upperhouse" text="vidhanparishad"/></span><br><span class="text-color">'+data[i].formattedOrder+'</span></div>'+
+				    							 	'<div id="'+data[i].subdepartment+"#"+data[i].sessionType+"#"+data[i].sessionYear+"#"+ids[1]+'#<spring:message code="generic.upperhouse" text="vidhanparishad"/>" class="task parishad-background sub-zoom assembly-workflow"><span class="text-color"><spring:message code="generic.upperhouse" text="vidhanparishad"/></span><br><span class="text-color">'+data[i].councilCount+'</span></div>'+
 				    							'</div>'+
 				  							'</div>'+
 			  							'</div>'+
 									'</div>'+
 								'</div>';
-			}
+				}	
+			
 			$("#dashboard").hide();
 			$("#device-workflow-dashboard").hide();
 			$("#back").show();
@@ -233,178 +268,43 @@ $(document).ready(function(){
 				var id = this.id;
 				var ids = [] ;
 		    	ids = id.split("#"); 
-		    	url = "?subdepartment="+ids[0]+"&session_type="+ids[1]+"&session_year="+ids[2]+"&status="+ids[3]+"&house_type="+ids[4];
-		    	resourceURL = 'departmentdashboard/getassemblypendingtask'+url;
+		    	url = "?subdepartment="+ids[0]+"&session_type="+ids[1]+"&session_year="+ids[2]+"&status="+ids[3]+"&house_type="+ids[4]+"&device_type="+$("#selectedDeviceType").val();
+		    	resourceURL = 'departmentdashboard/getDepartmentDeviceCountsByDeviceType'+url;
+		    	/* condition to display marathi status */
+		    	if((ids[3])=="completed"){
+					var status = $("#completedstatus").val();
+				}
+				else if((ids[3])=="pending"){
+					var status = $("#pendingdstatus").val();
+				}
+		    	
 		    	$.get(resourceURL,function(data){
-		    		var text =	'<div class="total-task device-title">'+ids[1]+' '+ids[2]+'</div>'+
-		    					'<div class="total-task device-title">'+"Subdepartment:"+' '+ids[0]+'</div>'+
-		    					'<div class="total-task device-title">'+"HouseType:"+' '+ids[4]+'</div>'+
-		    					'<div class="total-task device-title">'+"Status:"+ids[3]+'</div></br>';
-		    					
-		    					
+		    		var text =	'<div class="total-task device-title">'+$("#selectedHouseType").val()+' '+ids[1]+' '+ids[2]+'</div>'+
+		    					'<div class="total-task device-title">'+'<spring:message code="subdepartment" text="subdepartment"/>'+':'+' '+ids[0]+'</div>'+
+		    					'<div class="total-task device-title">'+'<spring:message code="mytask.status" text="status"/>'+':'+' '+status+'</div></br>';
+
 		    					for(var i=0;i<data.length;i++){
-		    							text = text +'<table border="1" class="devicetable">'+
+		    							text = text +'<div><table border="1" class="col-md-12 col-sm-12 col-xs-12 devicetable table">'+
 		    							'<tr>'+
-    								    '<th class="device-tasks table-headers">'+'<spring:message code="part.deviceNo" text="DeviceNumber"/>'+'</th>'+
-    								    '<th class="device-tasks table-headers">'+"Assignee"+'</th>'+
-    								    '<th class="device-tasks table-headers">'+"Assignment Time"+'</th>'+
-    								    '<th class="device-tasks table-headers">'+'<spring:message code="question.subject" text="subject"/>'+'</th>'+
-    								    '</tr>'+'<span class="device-name">'+data[i].type+'</span><br>';
+    								    '<th class="col-md-1 col-sm-1 col-xs-1 device-tasks table-headers">'+'<spring:message code="part.deviceNo" text="DeviceNumber"/>'+'</th>'+
+    								    '<th class="col-md-3 col-sm-3 col-xs-2 device-tasks table-headers">'+'<spring:message code="mytask.assignee" text="Assignee"/>'+'</th>'+
+    								    '<th class="col-md-3 col-sm-3 col-xs-2 device-tasks table-headers">'+'<spring:message code="mytask.assignmentTime" text="Assignment Time"/>'+'</th>'+
+    								    '<th class="col-md-5 col-sm-5 col-xs-7 device-tasks table-headers">'+'<spring:message code="question.subject" text="subject"/>'+'</th>'+
+    								    '</tr>'+'<span class="device-name">'+data[i].deviceType+'</span><br>';	
 
 		    							for(var j=i;j<data.length;j++){
 			    							if(data[i].type == data[j].type){
 												text = text + '<tr>'+
-													   '<td class="device-tasks">'+data[j].name+'</td>'+
-		    	    	    						   '<td class="device-tasks">'+data[j].displayName+'</td>'+
-		    	    	    						   '<td class="device-tasks">'+data[j].sessionDate+'</td>'+
-		    	    	    						   '<td class="device-tasks">'+data[j].formattedOrder+'</td>'+
+													   '<td class="col-md-1 col-sm-1 col-xs-1 device-tasks">'+data[j].deviceNumber+'</td>'+
+		    	    	    						   '<td class="col-md-3 col-sm-3 col-xs-2 device-tasks">'+data[j].assignee+'</td>'+
+		    	    	    						   '<td class="col-md-3 col-sm-3 col-xs-2 device-tasks">'+data[j].assignmentTime+'</td>'+
+		    	    	    						   '<td class="col-md-5 col-sm-5 col-xs-7 device-tasks">'+data[j].subject+'</td>'+
 		    	    	    						   '</tr>'; 
 		    	    	    							i=j;
 		    	    	    				} 
 			    							else{
 					    						i = j;
-					    						text = text+'</table><br><br>';
-					    						break;
-		    								}
-		    							}
-		    					} 
-		    			$("#workflow-dashboard").hide();
-		    			$("#back").hide();
-		    			$("#backtohousewise").show();
-		    			$("#device-workflow-dashboard").html(text);
-		    			$("#device-workflow-dashboard").show();
-		    			$.unblockUI();
-		    		}); 
-				});
-		      });
-			});
-
-
-    
-    $(".assembly-workflow").click(function(){	
-		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
-		var id = this.id;
-		var ids = [] ;
-    	ids = id.split("#"); 
-    	url = "?status="+ids[3]+"&subdepartment="+ids[0]+"&session_year="+ids[2]+"&session_type="+ids[1];
-    	resourceURL = 'departmentdashboard/getassemblypendingtask'+url;
-    	$.get(resourceURL,function(data){
-    		var text =	'<div>'+ids[1]+ids[2]+'</div>'+
-    					'<div>'+"Subdepartment:"+ids[0]+'</div>'+
-    					'<div>'+"Status:"+ids[3]+'</div><br>';
-    					
-    					for(var i=0;i<data.length;i++){
-    							text = text +'<table border="1">';
-	    						
-    							for(var j=i;j<data.length;j++){
-	    							if(data[i].formattedOrder == data[j].formattedOrder){
-										text = text + '<tr>'+
-    	    	    						   '<td>'+data[j].order+'</td>'+
-    	    	    						   '</tr>'; 
-    	    	    							i=j;
-    	    	    				} 
-	    							else{
-			    						i = j;
-			    						text = text+'</table>';
-			    						break;
-    								}
-    							}
-    					} 
-    			$("#dashboard").hide();
-    			$("#back").show();
-    			$("#workflow-dashboard").html(text);
-    			$("#workflow-dashboard").show();
-    			$.unblockUI();
-    		}); 
-		});
-	 /* Back Buttons */
-	 $("#back").click(function(){
-        $("#dashboard").show();
-        $("#backtohousewise").hide();
-        $("#workflow-dashboard").hide();
-    });
-	 $("#backtohousewise").click(function(){
-	        $("#workflow-dashboard").show();
-	        $("#backtohousewise").hide();
-	        $("#back").show();
-	        $("#device-workflow-dashboard").hide();
-	    });
-});
-	 /* filter */
-	 
-function loadWorkflowTaskEvents(){
-	$(".workflow-task").click(function(){
-    	$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
-    	var id = this.id;
-    	var ids = [] ;
-    	ids = id.split("#"); 
-    	url = "?status="+ids[1]+"&subdepartment="+ids[0];
-    	resourceURL = 'departmentdashboard/getpendingtask'+url;
-    	$.get(resourceURL,function(data){
-    		var text = '';
-			for(var i=0;i<data.length;i++){	
-				text = text +	'<div class="col-md-3">'+
-								'<div class="panel panel-default margin-top">'+
-			  						'<div class="headerblock pending-background"><span class="subdepartment-name">'+data[i].name+'</span><br><br>'+data[i].displayName+' '+data[i].type+'</div>'+
-			  							'<div class="col-md-12 border">'+
-				  							'<div class="panel-body">'+
-				  								'<div class="col-md-6">'+
-				  									/* This is assembly count */
-				    								'<div id="'+data[i].name+"#"+data[i].displayName+"#"+data[i].type+"#"+ids[1]+'#vidhansabha" class="task sabha-background sub-zoom assembly-workflow"><span class="text-color"><spring:message code="generic.lowerhouse" text="vidhansabha"/></span><br><span class="text-color">'+data[i].order+'</span></div>'+
-				    							'</div>'+
-				    							'<div class="col-md-6">'+
-				    								/* This is council count */
-				    							 	'<div id="'+data[i].name+"#"+data[i].displayName+"#"+data[i].type+"#"+ids[1]+'#vidhanparishad" class="task parishad-background sub-zoom assembly-workflow"><span class="text-color"><spring:message code="generic.upperhouse" text="vidhanparishad"/></span><br><span class="text-color">'+data[i].formattedOrder+'</span></div>'+
-				    							'</div>'+
-				  							'</div>'+
-			  							'</div>'+
-									'</div>'+
-								'</div>';
-			}
-			$("#dashboard").hide();
-			$("#device-workflow-dashboard").hide();
-			$("#back").show();
-			$("#backtohousewise").hide();
-			$("#workflow-dashboard").html(text);
-			$("#workflow-dashboard").show();
-			$.unblockUI();
-			
-			$(".assembly-workflow").click(function(){	
-				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
-				var id = this.id;
-				var ids = [] ;
-		    	ids = id.split("#"); 
-		    	url = "?subdepartment="+ids[0]+"&session_type="+ids[1]+"&session_year="+ids[2]+"&status="+ids[3]+"&house_type="+ids[4];
-		    	resourceURL = 'departmentdashboard/getassemblypendingtask'+url;
-		    	$.get(resourceURL,function(data){
-		    		var text =	'<div class="total-task device-title">'+ids[1]+' '+ids[2]+'</div>'+
-		    					'<div class="total-task device-title">'+"Subdepartment:"+' '+ids[0]+'</div>'+
-		    					'<div class="total-task device-title">'+"HouseType:"+' '+ids[4]+'</div>'+
-		    					'<div class="total-task device-title">'+"Status:"+ids[3]+'</div></br>';
-		    					
-		    					
-		    					for(var i=0;i<data.length;i++){
-		    							text = text +'<table border="1" class="devicetable">'+
-		    							'<tr>'+
-    								    '<th class="device-tasks table-headers">'+'<spring:message code="part.deviceNo" text="DeviceNumber"/>'+'</th>'+
-    								    '<th class="device-tasks table-headers">'+"Assignee"+'</th>'+
-    								    '<th class="device-tasks table-headers">'+"Assignment Time"+'</th>'+
-    								    '<th class="device-tasks table-headers">'+'<spring:message code="question.subject" text="subject"/>'+'</th>'+
-    								    '</tr>'+'<span class="device-name">'+data[i].type+'</span><br>';
-
-		    							for(var j=i;j<data.length;j++){
-			    							if(data[i].type == data[j].type){
-												text = text + '<tr>'+
-													   '<td class="device-tasks">'+data[j].name+'</td>'+
-		    	    	    						   '<td class="device-tasks">'+data[j].displayName+'</td>'+
-		    	    	    						   '<td class="device-tasks">'+data[j].sessionDate+'</td>'+
-		    	    	    						   '<td class="device-tasks">'+data[j].formattedOrder+'</td>'+
-		    	    	    						   '</tr>'; 
-		    	    	    							i=j;
-		    	    	    				} 
-			    							else{
-					    						i = j;
-					    						text = text+'</table><br><br>';
+					    						text = text+'</table></div><br><br>';
 					    						break;
 		    								}
 		    							}
@@ -420,8 +320,6 @@ function loadWorkflowTaskEvents(){
 		      });
 			});
 	}
-
-
 </script>
 </head>
 
@@ -554,15 +452,17 @@ function loadWorkflowTaskEvents(){
 	
 	<!-- filter code -->
 	<div class="col-md-12 col-sm-12 card" style="margin-top: 10px;" id="selectionDiv1">
+    
+</select>
 		<div class="row" style="padding:10px 0px 0px 0px">
 			<div class="col-md-4 col-sm-4">	
 				<div class="col-md-4 ">
 					<a href="#" id="select_houseType" class="butSim">
-						<spring:message code="dashboard.houseType" text="House Type"/>
+						<spring:message code="mytask.housetype" text="House Type"/>
 					</a>
 				</div>
-				<div class="col-md-8 ">
-					<select name="selectedHouseType" id="selectedHouseType" style="width:150px;height: 25px;">	
+				<div class="col-md-8">
+					<select name="selectedHouseType" id="selectedHouseType" style="width:150px;height: 70px;" multiple>	
 						<option value=""><spring:message code="client.prompt.selectForDropdown" text="----PleaseSelect----"/></option>		
 						<c:forEach items="${houseTypes}" var="i">
 							<option value="${i.name}"><c:out value="${i.name}"></c:out></option>
@@ -573,11 +473,11 @@ function loadWorkflowTaskEvents(){
 			<div class="col-md-4 col-sm-4">	
 				<div class="col-md-4 ">
 					<a href="#" id="select_session_year" class="butSim">
-						<spring:message code="dashboard.sessionyear" text="Year"/>
+						<spring:message code="mytask.sessionYear" text="Year"/>
 					</a>
 				</div>
 				<div class="col-md-8">
-					<select name="selectedSessionYear" id="selectedSessionYear" style="width:150px;height: 25px;">	
+					<select name="selectedSessionYear" id="selectedSessionYear" style="width:150px;height: 70px;" multiple>	
 						<option value=""><spring:message code="client.prompt.selectForDropdown" text="----PleaseSelect----"/></option>			
 						<c:forEach var="i" items="${years}">
 							<option value="${i}"><c:out value="${i}"></c:out></option>
@@ -588,12 +488,12 @@ function loadWorkflowTaskEvents(){
 			<div class="col-md-4 col-sm-4">		
 				<div class="col-md-4 ">						
 					<a href="#" id="select_sessionType" class="butSim">
-						<spring:message code="dashboard.sessionType" text="Session Type"/>
+						<spring:message code="mytask.sessionType" text="Session Type"/>
 					</a>
 				</div>
 				<div class="col-md-8">
-					<select name="selectedSessionType" id="selectedSessionType" style="width:150px;height: 25px;">	
-						<option value=""><spring:message code="client.prompt.selectForDropdown" text="----PleaseSelect----"/></option>			
+					<select name="selectedSessionType" id="selectedSessionType" style="width:150px;height: 70px;" multiple>	
+						<option value="Please select"><spring:message code="client.prompt.selectForDropdown" text="----PleaseSelect----"/></option>			
 						<c:forEach items="${sessionTypes}" var="i">
 							<option value="${i.sessionType}"><c:out value="${i.sessionType}"></c:out></option>			
 						</c:forEach> 
@@ -605,11 +505,11 @@ function loadWorkflowTaskEvents(){
 			<div class="col-md-4 col-sm-4">	
 				<div class="col-md-4 ">
 					<a href="#" id="select_deviceType" class="butSim">
-						<spring:message code="dashboard.deviceType" text="Device Type"/>
+						<spring:message code="mytask.deviceType" text="Device Type"/>
 					</a>
 				</div>
 				<div class="col-md-8 ">
-					<select name="selectedDeviceType" id="selectedDeviceType" style="width:150px;height: 25px;">
+					<select name="selectedDeviceType" id="selectedDeviceType" style="width:150px;height: 70px;" multiple>
 						<option value=""><spring:message code="client.prompt.selectForDropdown" text="----PleaseSelect----"/></option>				
 						<c:forEach items="${deviceTypes}" var="i">
 							<option value="${i.name}"><c:out value="${i.name}"></c:out></option>			
@@ -624,7 +524,7 @@ function loadWorkflowTaskEvents(){
 					</a>
 				</div>
 				<div class="col-md-8 ">
-					<select name="selectedSubdepartment" id="selectedSubdepartment" style="width:150px;height: 25px;">		
+					<select name="selectedSubdepartment" id="selectedSubdepartment" style="width:150px;height: 70px;" multiple>		
 						<option value=""><spring:message code="client.prompt.selectForDropdown" text="----PleaseSelect----"/></option>		
 						<c:forEach items="${subDepartments}" var="i">
 							<option value="${i.name}"><c:out value="${i.name}"></c:out></option>			
@@ -633,7 +533,7 @@ function loadWorkflowTaskEvents(){
 				</div>
 			</div>
 			<div class="col-md-4 col-sm-4">
-				<button class="btn-primary" id="search"> Search</button>	
+				<button class="btn-primary" id="search"><spring:message code="generic.search" text="Search"/></button>	
 			</div>
 		</div>
 	</div>
@@ -641,38 +541,38 @@ function loadWorkflowTaskEvents(){
 	
 	<div id="dashboard" >
 		<c:forEach items="${result}" var="i" >
-				<div class="col-md-3" >
+				<div class="col-md-3 col-sm-4 col-xs-12" >
 					<div class="panel panel-default">
 						<!-- Name Of Subdepartment -->
-	  					<div class="headerblock dashboard-background">${i.name}</div>
+	  					<div class="headerblock dashboard-background">${i.subdepartment}</div>
 	  					<div class="panel-body">
 	  			  			<!-- Total Count -->
-	  			    	 	<div class="total-task" title="Total Task/s" >${i.formattedOrder}</div>
+	  			    	 	<div class="total-task" title="Total Task/s" >${i.totalCount}</div>
 	  			    	
-	  			   			<div class="col-md-12">
+	  			   			<div class="col-md-12 col-sm-12 col-xs-12">
 		  			   			<!-- Pending Count -->
-		  			  			<div class="col-md-4 text-center zoom"> 
-					  				<div id="${i.name}#pending" class="btn-danger task glyphicon glyphicon-envelope workflow-task"></div>
+		  			  			<div class="col-md-4 col-sm-4 col-xs-4 text-center zoom"> 
+					  				<div id="${i.subdepartment}#pending" class="btn-danger task glyphicon glyphicon-envelope workflow-task"></div>
 					   				
-					   				<div class="fs-20 text-center">${i.number}</div>
+					   				<div class="fs-20 text-center">${i.pendingCount}</div>
 					   
-					   				<h5 text-center><spring:message code="department-dashboard.pending" text="Pending"/></h5>
+					   				<h5 text-center><spring:message code="mytask.pending" text="Pending"/></h5>
 					   			</div>
 					   
 					   			<!-- Completed count -->
-					   			<div class="col-md-4 text-center zoom">
-					  	 			<div id="${i.name}#completed" class="btn-success task glyphicon glyphicon-ok workflow-task"></div>
+					   			<div class="col-md-4 col-sm-4 col-xs-4 text-center zoom">
+					  	 			<div id="${i.subdepartment}#completed" class="btn-success task glyphicon glyphicon-ok workflow-task"></div>
 					  	 			
-					  	 			<div class="fs-20 text-center">${i.order}</div>
+					  	 			<div class="fs-20 text-center">${i.completedCount}</div>
 					  	 			
-					   	 			<h5 text-center><spring:message code="department-dashboard.completed" text="Completed"/></h5>
+					   	 			<h5 text-center><spring:message code="mytask.completed" text="Completed"/></h5>
 					   			</div>
 					   
 					  		    <!-- Timeout count -->
-					   			<div class="col-md-4 text-center zoom">
+					   			<div class="col-md-4 col-sm-4 col-xs-4 text-center zoom">
 					 	 			<div class="btn-warning task glyphicon glyphicon-hourglass "></div>
 					 	 			 
-					 	  			<div class="fs-20 text-center">${i.formattedNumber}</div>
+					 	  			<div class="fs-20 text-center">${i.timeoutCount}</div>
 					 	  			
 					   	  			<h5 class="text-center"><spring:message code="department-dashboard.timeout" text="Timeout"/></h5>
 					   			</div>
@@ -680,6 +580,10 @@ function loadWorkflowTaskEvents(){
 						</div>
 					</div>
 				</div>
+				<input id="houseType" name="houseType" value="${i.houseType}" type="hidden"/>	
+				<input id="sessionType" name="sessionType" value="${i.sessionType}" type="hidden"/>	
+				<input id="sessionYear" name="sessionYear" value="${i.sessionYear}" type="hidden"/>	
+				<input id="deviceType" name="deviceType" value="${i.deviceType}" type="hidden"/> 
 		</c:forEach>
 	</div>
 
@@ -693,6 +597,11 @@ function loadWorkflowTaskEvents(){
 <div id="workflow-dashboard" class="display-hidden"></div>
 
 <div id="device-workflow-dashboard" class="display-hidden"></div>
+
+<input type="hidden" id="completedstatus" name="completedstatus" value="<spring:message code="mytask.completed" text="Completed"/>">
+<input type="hidden" id="pendingdstatus" name="pendingdstatus" value="<spring:message code="mytask.pending" text="pending"/>">
+<input type="hidden" id="lowerhouse" name="lowerhouse" value="<spring:message code="generic.lowerhouse" text="assembly"/>">
+<input type="hidden" id="upperhouse" name="upperhouse" value="<spring:message code="generic.upperhouse" text="council"/>">
 
 </body>
 </html>
