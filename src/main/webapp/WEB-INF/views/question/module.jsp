@@ -67,6 +67,7 @@
 		if(currentDeviceType == 'questions_starred') {
 			if(($("#currentusergroupType").val()=='section_officer')
 					|| $("#currentusergroupType").val()=='deputy_secretary'
+					|| $("#currentusergroupType").val()=='joint_secretary2'
 					|| $("#currentusergroupType").val()=='principal_secretary') {
 				$("#yaadi_details_tab").show();
 			} else {
@@ -202,8 +203,9 @@
 			/**** For yaadi details tab to be visible ****/
 			if(text == 'questions_starred') {
 				if(($("#currentusergroupType").val()=='section_officer')
-					|| $("#currentusergroupType").val()=='deputy_secretary'
-					|| $("#currentusergroupType").val()=='principal_secretary') {
+						|| $("#currentusergroupType").val()=='deputy_secretary'
+						|| $("#currentusergroupType").val()=='joint_secretary2'
+						|| $("#currentusergroupType").val()=='principal_secretary') {
 					$("#yaadi_details_tab").show();
 				} else {
 					$("#yaadi_details_tab").hide();
@@ -1666,9 +1668,9 @@
 
 			</security:authorize>
 			<%-- <security:authorize
-				access="hasAnyRole('QIS_DEPUTY_SECRETARY', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
+				access="hasAnyRole('QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_SECTION_OFFICER', 'QIS_UNDER_SECRETARY_COMMITTEE',
 				'SUPER_ADMIN','QIS_ADDITIONAL_SECRETARY')"> --%>
-			<%-- <security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
+			<%-- <security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY')">
 			<li>
 				<a id="yaadi_details_tab" href="#" class="tab"> 
 					<spring:message code="generic.yaadi_details_tab" text="Yaadi Details"></spring:message>
@@ -1913,7 +1915,7 @@
 					</security:authorize>
 			</security:authorize>
 			
-			<security:authorize	access="hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT', 'QIS_SECTION_OFFICER', 'QIS_DEPUTY_SECRETARY', 'QIS_PRINCIPAL_SECRETARY')">
+			<security:authorize	access="hasAnyRole('QIS_CLERK', 'QIS_ASSISTANT', 'QIS_SECTION_OFFICER', 'QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY', 'QIS_PRINCIPAL_SECRETARY')">
 				<a href="#" id="select_clubbingStatus" class="butSim"> 
 					<spring:message	code="generic.clubbingStatus" text="Clubbing Status"/>
 				</a>

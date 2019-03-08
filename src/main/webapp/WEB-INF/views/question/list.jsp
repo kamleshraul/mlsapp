@@ -489,7 +489,7 @@
 					<spring:message code="question.statistical_counts_report" text="Statistical Counts Report"/>
 				</a> | --%>
 			</security:authorize>
-			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY', 'QIS_JOINT_SECRETARY')">
 				<a href="#" id="memberwise_questions_report" class="butSim link">
 					<spring:message code="question.memberwisereport" text="Member's Questions Report"/>
 				</a> |	
