@@ -49,7 +49,7 @@
 				/* $(this).attr('href','#');
 				generateCurrentStatusReport(); */
 				var selectedProprietyPointId = $("#grid").jqGrid ('getGridParam', 'selarrrow');
-				
+				console.log('deviceIds: ' + selectedProprietyPointId);
 				if(selectedProprietyPointId.length>=1){
 					showCurrentStatusReport('multiple',selectedProprietyPointId);
 				}else{

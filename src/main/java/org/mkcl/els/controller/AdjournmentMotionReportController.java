@@ -105,14 +105,18 @@ public class AdjournmentMotionReportController extends BaseController{
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
 		String adjourningDateStr = request.getParameter("adjourningDate");
+		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(adjourningDateStr==null || adjourningDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+		if(adjourningDateStr==null || adjourningDateStr.isEmpty() 
+				|| sessionId==null || sessionId.isEmpty()
+				|| reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.bhag1.parameterNotSet", locale.toString());						
 		} else {
 			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("sessionId", new String[] {sessionId});
 			CustomParameter bhag1StatusAllowedCP = CustomParameter.findByName(CustomParameter.class, "AMOIS_BHAG_1_ALLOWED_STATUS_TYPES", "");
 			String allowedStatusTypesForBhag1 = "";
 			if(bhag1StatusAllowedCP!=null && bhag1StatusAllowedCP.getValue()!=null && !bhag1StatusAllowedCP.getValue().isEmpty()) {
@@ -163,14 +167,18 @@ public class AdjournmentMotionReportController extends BaseController{
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
 		String adjourningDateStr = request.getParameter("adjourningDate");
+		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(adjourningDateStr==null || adjourningDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+		if(adjourningDateStr==null || adjourningDateStr.isEmpty() 
+				|| sessionId==null || sessionId.isEmpty()
+				|| reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.bhag2.parameterNotSet", locale.toString());						
 		} else {
 			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("sessionId", new String[] {sessionId});
 			CustomParameter bhag2StatusAllowedCP = CustomParameter.findByName(CustomParameter.class, "AMOIS_BHAG_2_ALLOWED_STATUS_TYPES", "");
 			String allowedStatusTypesForBhag2 = "";
 			if(bhag2StatusAllowedCP!=null && bhag2StatusAllowedCP.getValue()!=null && !bhag2StatusAllowedCP.getValue().isEmpty()) {
@@ -221,13 +229,16 @@ public class AdjournmentMotionReportController extends BaseController{
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
 		String adjourningDateStr = request.getParameter("adjourningDate");
-		if(adjourningDateStr==null || adjourningDateStr.isEmpty()) {
+		String sessionId = request.getParameter("sessionId");
+		if(adjourningDateStr==null || adjourningDateStr.isEmpty() 
+				|| sessionId==null || sessionId.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.statement.parameterNotSet", locale.toString());						
 		} else {
 			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("sessionId", new String[] {sessionId});
 			/**** Bhag 1 list ****/
 			CustomParameter bhag1StatusAllowedCP = CustomParameter.findByName(CustomParameter.class, "AMOIS_BHAG_1_ALLOWED_STATUS_TYPES", "");
 			String allowedStatusTypesForBhag1 = "";

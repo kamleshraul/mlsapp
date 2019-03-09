@@ -465,6 +465,7 @@
 				$("#amois_bhag_1_report").attr('href',
 						'adjournmentmotion/report/bhag1?'
 						+'adjourningDate=' + selectedAdjourningDate
+						+'&sessionId=' + $("#loadedSession").val()
 						+'&reportQueryName=AMOIS_BHAG1_REPORT');
 			}			
 		}
@@ -478,6 +479,7 @@
 				$("#amois_bhag_2_report").attr('href',
 						'adjournmentmotion/report/bhag2?'
 						+'adjourningDate=' + selectedAdjourningDate
+						+'&sessionId=' + $("#loadedSession").val()
 						+'&reportQueryName=AMOIS_BHAG2_REPORT');
 			}
 		}
@@ -486,7 +488,8 @@
 			var selectedAdjourningDate = $('#selectedAdjourningDate').val();
 			$("#amois_statement_report").attr('href',
 					'adjournmentmotion/report/statement?'
-					+'adjourningDate=' + selectedAdjourningDate);
+					+'adjourningDate=' + selectedAdjourningDate
+					+'&sessionId=' + $("#loadedSession").val());
 		}
 		/**** Submitted Motions Report Generation ****/
 		function generateSubmittedMotionsReport() {

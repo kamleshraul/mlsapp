@@ -27,18 +27,6 @@
 				$formatData.get(15)
 			</td>
 		</tr>
-		<tr style="font-weight: bold;">
-			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
-				स्थगन दिनांक
-			</td>
-			<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-				#if($formatData.get(28))
-					$formatData.get(28)
-				#else
-					-
-				#end				
-			</td>	
-		</tr>
 		<tr style="font-weight: bold;">													
 			<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">					
 				क्रमांक
@@ -60,40 +48,15 @@
 				#end				
 			</td>	
 		</tr>
-		*#		
-		<tr style="font-weight: bold;">
-			#if($formatData.get(32)=='yes')
-				<td style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
-					ह्या प्रस्तावाशी जोडलेला आहे
-				</td>
-				<td colspan="2" style="font-weight: bold; font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
-					#if($formatData.get(33))
-						$formatData.get(33)
-					#else
-						-
-					#end
-				</td>
-			#else
-				<td style="font-weight: bold; font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;" >					
-					जोडलेल्या प्रस्तावांचे क्रमांक
-				</td>
-				<td colspan="" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
-					#if($formatData.get(31))
-						$formatData.get(31)
-					#else
-						-
-					#end
-				</td>
-			#end						
-		</tr>
-		#**
+		*#
+		#if($currentStatusReportAllowedBeforeApproval=="NO")
 		<tr>
 			<td style="font-weight: bold; width: 250px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
 				स्थिती 
 			</td>
 			<td colspan="2" style="font-weight: bold; text-decoration: underline; width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
-				#if($formatData.get(30))
-					#if($formatData.get(30)!='adjournmentmotion_submit' && $formatData.get(30)!='adjournmentmotion_system_assistantprocessed')
+				#if($formatData.get(29))
+					#if($formatData.get(29)!='proprietypoint_submit' && $formatData.get(29)!='proprietypoint_system_assistantprocessed')
 						$formatData.get(25)
 					#else
 						
@@ -103,7 +66,7 @@
 				#end
 			</td>
 		</tr>
-		*#
+		#end		
 		<tr>
 			<td colspan="3">&nbsp;</td>
 		</tr>		
@@ -126,7 +89,8 @@
 </div>
 <br/>
 <div style="width: 750px; border-top: 2px dotted black;">&nbsp;</div>
-#**
+
+#if($currentStatusReportAllowedBeforeApproval=="NO")
 <div style="width: 750px;">	
 	<table style="width: 750px; font-weight: bold; border: 2px solid black; font-size: 16px;" class="uiTable">
 		#foreach($r in $data)
@@ -139,8 +103,8 @@
 					#end
 				</td>
 				<td style="width: 100px; padding: 2px; text-align: center;">
-					#if($formatData.get(29))
-						#if($formatData.get(29)!='adjournmentmotion_submit' && $formatData.get(29)!='adjournmentmotion_system_assistantprocessed')
+					#if($formatData.get(28))
+						#if($formatData.get(28)!='proprietypoint_submit' && $formatData.get(28)!='proprietypoint_system_assistantprocessed')
 							$r.get(24)
 						#else
 							
@@ -173,6 +137,6 @@
 		</tr>
 	</table>
 </div>
-*#
+#end
 <span class='page-break-before-forced'>&nbsp;</span>
 <hr>

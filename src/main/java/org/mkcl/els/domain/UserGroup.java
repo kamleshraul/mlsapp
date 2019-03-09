@@ -197,6 +197,11 @@ public class UserGroup extends BaseDomain implements Serializable {
 			final String locale) throws ELSException {
 		return getUserGroupRepository().findStandaloneMotionActor(question, actor, level, locale);
 	}
+	
+	public static Reference findProprietyPointActor(final ProprietyPoint motion,final String userGroupType,final String level,final String locale) throws ELSException {
+		return getUserGroupRepository().findProprietyPointActor(motion, userGroupType, level, locale);
+	}
+	
 	public static Map<String, String> findParametersByUserGroup(UserGroup userGroup) {
 		return getUserGroupRepository().findParametersByUserGroup(userGroup);
 	}

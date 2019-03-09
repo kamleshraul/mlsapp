@@ -225,10 +225,10 @@
 				showTabByIdAndUrl('bulkputupassistant_tab', resourceURL);				
 		}
 		/**** Current Status Report Generation ****/
-		function showCurrentStatusReport(val, moId){
+		function showCurrentStatusReport(val, deviceId){
 			$("#selectionDiv1").hide();
 			var device = $("#deviceTypeMaster option[value='"+$("#selectedDeviceType").val()+"']").text().split("_")[0];
-			showTabByIdAndUrl('details_tab', "proprietypoint/report/currentstatusreport?device="+ device +"&reportType="+val+"&moId="+moId);
+			showTabByIdAndUrl('details_tab', "proprietypoint/report/currentstatusreport?device="+ device +"&reportType="+val+"&deviceId="+deviceId);
 		}
 	</script>
 </head>

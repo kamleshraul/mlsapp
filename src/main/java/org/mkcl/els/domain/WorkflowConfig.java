@@ -444,12 +444,8 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	
 	public static WorkflowConfig getLatest(CutMotion cutmotion, String internalStatus, String locale) {
 		return getWorkflowConfigRepository().getLatest(cutmotion, internalStatus, locale);
-	}
-	
-	public static WorkflowConfig getLatest(AdjournmentMotion adjmotion, String internalStatus, String locale) {
-		return getWorkflowConfigRepository().getLatest(adjmotion, internalStatus, locale);
-	}
-	/***************************CutMotion********************************/
+	}	
+	/***************************CutMotion********************************/	
 	
 	/***************************DiscussionMotion*************************/
 	public static List<Reference> findDiscussionMotionActorsVO(
@@ -482,6 +478,10 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	public static Reference findActorVOAtGivenLevel(final AdjournmentMotion adjournmentMotion, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String locale) throws ELSException {
 		return getWorkflowConfigRepository().findActorVOAtGivenLevel(adjournmentMotion, processWorkflow, userGroupType, level, locale);
 	}
+	
+	public static WorkflowConfig getLatest(AdjournmentMotion adjmotion, String internalStatus, String locale) {
+		return getWorkflowConfigRepository().getLatest(adjmotion, internalStatus, locale);
+	}
 	/****************************** Adjournment Motion *********************/
 	
 	/****************************** Propriety Point *********************/
@@ -497,6 +497,10 @@ public class WorkflowConfig extends BaseDomain implements Serializable {
 	
 	public static Reference findActorVOAtGivenLevel(final ProprietyPoint proprietyPoint, final Workflow processWorkflow, final UserGroupType userGroupType, final int level, final String locale) throws ELSException {
 		return getWorkflowConfigRepository().findActorVOAtGivenLevel(proprietyPoint, processWorkflow, userGroupType, level, locale);
+	}
+	
+	public static WorkflowConfig getLatest(ProprietyPoint proprietyPoint, String internalStatus, String locale) {
+		return getWorkflowConfigRepository().getLatest(proprietyPoint, internalStatus, locale);
 	}
 	/****************************** Propriety Point *********************/
 	

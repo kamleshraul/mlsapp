@@ -2,22 +2,22 @@
 <html>
 <head>
 	<title>
-	<spring:message code="adjournmentmotion.statusreport" text="Status Report"/>
+	<spring:message code="proprietypoint.statusreport" text="Status Report"/>
 	</title>
 	<link rel="stylesheet" type="text/css" media="print" href="./resources/css/printerfriendly.css?v=31" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
 		var ids, counter, limit, dataSize;
 		$(document).ready(function(){
-			
-			if($("#moIds").val().length==0){
+			console.log('deviceIds: ' + $("#deviceIds").val());
+			if($("#deviceIds").val().length==0){
 				//load the remark report
 				showRemarkReport();
 			}else{
 				if($("#reportType").val()=='multiple'){
-					if($("#moIds").val().length>0){
+					if($("#deviceIds").val().length>0){
 						counter = 0;
-						ids = $("#moIds").val().split(",");
+						ids = $("#deviceIds").val().split(",");
 						dataSize = ids.length;
 						limit = ids.length;
 						
@@ -31,7 +31,7 @@
 					$.prompt($("#noMorePages").val());
 				}
 				
-				if($("#moIds").val().length==0){
+				if($("#deviceIds").val().length==0){
 					if(counter == limit){
 						limit += 10;
 					}
@@ -48,16 +48,7 @@
 			
 			var strLocation = (($("#selectedDeviceType").val()==undefined)?"device":"workflow"); 
 			var device = "";
-			var selectedAdjourningDate = "";
-			if(strLocation=='workflow'){
-				device = $("#selectedDeviceType").val();
-				selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
-			}else if(strLocation=='device'){
-				device = $("#selectedMotionType").val();
-				if($("#isAdjourningDateSelected").is(":checked")) {
-					selectedAdjourningDate = convertToDbFormat($('#selectedAdjourningDate').val());
-				}
-			}
+			device = $("#selectedDeviceType").val();
 			
 			var paramVar = '?deviceType='+device+
 			'&sessionYear='+$("#selectedSessionYear").val()+
@@ -67,11 +58,10 @@
 			'&status='+(($("#reportType").val()=='all' && strLocation=='device')?'0':$("#selectedStatus").val())+
 			'&wfSubType='+$("#selectedSubWorkflow").val()+
 			'&subdepartment='+$("#selectedSubDepartment").val()+ 
-			'&grid='+ strLocation + 
-			'&adjourningDate='+((selectedAdjourningDate=='' || selectedAdjourningDate==undefined)?'0':selectedAdjourningDate);
+			'&grid='+ strLocation;
 			
 			$.ajax({
-				url: 'ref/pendingtasksdevicesamois'+paramVar,
+				url: 'ref/pendingtasksdevicesprois'+paramVar,
 		         async:   false,
 		         success: function(data) {
 		        	 if(data){					
@@ -105,7 +95,7 @@
 		
 		function addRemarkReport(){
 			if(ids.length > 0 && counter < ids.length){
-				 $.get('adjournmentmotion/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val(),function(data1){
+				 $.get('proprietypoint/report/'+ ids[counter] + '/currentstatusreportvm?device='+$("#device").val(),function(data1){
 						 								
 							if($('#reportWindow1').text().trim()=='v'){
 								$('#reportWindow1').empty();
@@ -199,6 +189,6 @@
 <input type="hidden" id="noMorePages" value="<spring:message code='client.message.no_more_pages' text='No more pages.' />"/>
 <input type="hidden" id="device" value="${device}" /> 
 <input type="hidden" id="reportType" value="${reportType}" />
-<input type="hidden" id="moIds" value="${moId}" />
+<input type="hidden" id="deviceIds" value="${deviceId}" />
 </body>
 </html>
