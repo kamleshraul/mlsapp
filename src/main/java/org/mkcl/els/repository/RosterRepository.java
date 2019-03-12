@@ -185,12 +185,12 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 				if(roster.getAction().equals("recreate_slots_from_reporter_changed_time")){
 					Boolean deleteStatus=deleteExistingSlots(roster.getId(),roster.getReporterChangedFrom(),savedRoster.getEndTime());
 					if(deleteStatus){
-						if(reporterAction.equals("add")){
-							return generateNewSlots(roster,roster.getReporterChangedFrom(),roster.getEndTime(),"ORIGINAL_ASSIGNED_USER");
-						}else if(reporterAction.equals("remove")){
-							return generateNewSlots(roster,roster.getReporterChangedFrom(),roster.getEndTime(),"LAST_ASSIGNED_USER");
-						}
-						
+//						if(reporterAction.equals("add") ){
+//							return generateNewSlots(roster,roster.getReporterChangedFrom(),roster.getEndTime(),"ORIGINAL_ASSIGNED_USER");
+//						}else if(reporterAction.equals("remove")){
+//							return generateNewSlots(roster,roster.getReporterChangedFrom(),roster.getEndTime(),"LAST_ASSIGNED_USER");
+//						}
+						return generateNewSlots(roster,roster.getReporterChangedFrom(),roster.getEndTime(),"ORIGINAL_ASSIGNED_USER");
 					}else{
 						return false;
 					}
@@ -212,6 +212,7 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 			}else if(adjournment.getAction().equals("turnoffandshift")){
 				Boolean deleteStatus=deleteExistingSlotsAdjournment(roster.getId(),adjournment.getStartTime(),roster.getEndTime());
 				Boolean toggleStatus= toggleSlotsAdjournment(roster.getId(),adjournment.getStartTime(),adjournment.getEndTime(),true);
+				flush();
 				//Boolean generateStatus=generateNewSlotsAdjournment(roster,adjournment.getEndTime(),roster.getEndTime(), "BEGINING");
 				Boolean generateStatus=generateNewSlotsAdjournment(roster,adjournment, "LAST_ASSIGNED_USER");
 				if(toggleStatus&&generateStatus&&deleteStatus){
@@ -276,16 +277,42 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 						}
 					}
 				}else if(reportersToBeTakenFrom.equals("ORIGINAL_ASSIGNED_USER")){
-					Slot originalGeneratedSlot=Slot.lastOriginalSlot(roster);
-					if(originalGeneratedSlot!=null){
-						if(originalGeneratedSlot.getReporter()!=null){
-							if(originalGeneratedSlot.getReporter().getPosition()!=null){
-								lastSlotReporterPosition=originalGeneratedSlot.getReporter().getPosition()-1;
+					//Slot originalGeneratedSlot=Slot.lastOriginalSlot(roster);
+					// Finding Slot which is previous to Reporter change time
+					Slot slotPreviousToReporterChangeTime = Slot.slotPreviousToReporterChangeTime(roster);
+					Reporter nextReporter = null;
+					StringBuffer nextSlotName = new StringBuffer();
+					if(slotPreviousToReporterChangeTime!=null){
+						repeat = slotPreviousToReporterChangeTime.getName().length();
+						int reporterPreviousToReporterChangedSlotPosition = slotPreviousToReporterChangeTime.getReporter().getPosition();
+						//Getting the Reporters Position of the Slot next to Reporter Change time
+						for(Reporter i:reporters){
+							int reporterPosition=i.getPosition();
+							if(reporterPosition > reporterPreviousToReporterChangedSlotPosition){
+								nextReporter = i;
+								break;
 							}
 						}
-						if(originalGeneratedSlot.getName()!=null&&!originalGeneratedSlot.getName().isEmpty()){
-						ch=originalGeneratedSlot.getName().charAt(0);
-						repeat=originalGeneratedSlot.getName().length();
+						if(nextReporter == null){
+							nextReporter = reporters.get(0);
+						}
+						if(slotPreviousToReporterChangeTime.getName()!=null&&!slotPreviousToReporterChangeTime.getName().isEmpty()){
+							//Getting the Slot Name of Slot next to Reporter Change time
+							ch = slotPreviousToReporterChangeTime.getName().charAt(0);
+							if(ch<'Z'){
+								ch++;
+							}else{
+								ch='A';
+								repeat++;
+							}
+							
+							for(int i=1;i<=repeat;i++){
+								nextSlotName.append(ch);
+							}
+							
+							lastSlotReporterPosition = slotPreviousToReporterChangeTime.getReporter().getPosition();
+							ch = nextSlotName.charAt(0);
+							repeat = nextSlotName.length();
 						}
 					}
 				}
@@ -524,6 +551,7 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 //		}	
 //	}
 	
+	@Transactional
 	public Boolean generateNewSlotsAdjournment(final Roster roster,final Adjournment adjournment,
 			final String reportersToBeTakenFrom) {
 		 Date startTime=adjournment.getEndTime();
@@ -551,16 +579,47 @@ public class RosterRepository extends BaseRepository<Roster, Serializable>{
 				}else if(reportersToBeTakenFrom.equals("LAST_ASSIGNED_USER")){
 					Slot lastAdjournedSlot=Slot.lastAdjournedSlot(roster,adjournment);
 					Slot firstAdjournedSlot=Slot.firstAdjournedSlot(roster, adjournment);
+					//Following Code is required as We are not getting the expected value of First Adjourned Slot
+					// Slot Previous to Adjourned Slot
+					Slot slotPreviousToAdjournedSlot = Slot.slotPreviousToAdjournedSlot(roster, adjournment);
+					StringBuffer nextSlotName = new StringBuffer();
+					Reporter nextReporter = null;
 					if(lastAdjournedSlot!=null&&lastAdjournedSlot.getReporter()!=null 
-							&& firstAdjournedSlot!=null &&firstAdjournedSlot.getReporter()!=null){
-						lastSlotReporterPosition=firstAdjournedSlot.getReporter().getPosition();			
+							&& slotPreviousToAdjournedSlot!=null &&slotPreviousToAdjournedSlot.getReporter()!=null){
+						int reporterPreviousToAdjounedSlotPosition = slotPreviousToAdjournedSlot.getReporter().getPosition();
+						//Getting the Reporters Position of the First Adjourned Slot
+						for(Reporter i:reporters){
+							int reporterPosition=i.getPosition();
+							if(reporterPosition>reporterPreviousToAdjounedSlotPosition){
+								nextReporter = i;
+								break;
+							}
+						}
+						if(nextReporter == null){
+							nextReporter = reporters.get(0);
+						}
+						
+						//Getting the Slot Name of First Adjourned Slot
+						ch = slotPreviousToAdjournedSlot.getName().charAt(0);
+						if(ch<'Z'){
+							ch++;
+						}else{
+							ch='A';
+							repeat++;
+						}
+						
+						for(int i=1;i<=repeat;i++){
+							nextSlotName.append(ch);
+						}
+						lastSlotReporterPosition = nextReporter.getPosition();
+						
 						if(lastAdjournedSlot.getName()!=null&&!lastAdjournedSlot.getName().isEmpty()){
-							ch=firstAdjournedSlot.getName().charAt(0);
-							repeat=firstAdjournedSlot.getName().length();
-							newSlot=new Slot();
+							ch = nextSlotName.charAt(0);
+							repeat = nextSlotName.length();
+							newSlot = new Slot();
 							newSlot.setLocale(lastAdjournedSlot.getLocale());
-							newSlot.setName(firstAdjournedSlot.getName());
-							newSlot.setReporter(firstAdjournedSlot.getReporter());
+							newSlot.setName(nextSlotName.toString());
+							newSlot.setReporter(nextReporter);
 							newSlot.setRoster(roster);
 							Date slotStartTime = null;
 							if(roster.getCommitteeMeeting() != null){

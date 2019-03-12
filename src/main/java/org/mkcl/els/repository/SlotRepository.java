@@ -41,10 +41,12 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 	@SuppressWarnings("unchecked")
 	public Slot lastAdjournedSlot(final Roster roster,final Adjournment adjournment) {
 		//add in query only slots that have delete flag as false
-		String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
-				" AND s.endTime<=:endTime AND s.blnDeleted=true ORDER BY s.endTime " +
+		String strQuery="SELECT s.* FROM slots s "
+				+ " WHERE s.roster=:roster AND s.start_time>=:startTime" 
+				+ " AND s.end_time<=:endTime "
+				+ " AND s.bln_deleted=true ORDER BY s.end_time " +
 				 ApplicationConstants.DESC + " ,s.id DESC"  ;
-		Query query=this.em().createQuery(strQuery);
+		Query query=this.em().createNativeQuery(strQuery,Slot.class);
 		query.setParameter("roster",roster.getId());
 		query.setParameter("startTime", adjournment.getStartTime());
 		query.setParameter("endTime", adjournment.getEndTime());
@@ -217,10 +219,13 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 	}
 
 	public Slot firstAdjournedSlot(Roster roster, Adjournment adjournment) {
-		String strQuery="SELECT s FROM Slot s WHERE s.roster.id=:roster AND s.startTime>=:startTime" +
-				" AND s.endTime<=:endTime AND s.blnDeleted=TRUE ORDER BY s.endTime " +
+		String strQuery="SELECT s.* FROM slots s "
+				+ " WHERE s.roster=:roster "
+				+ " AND s.start_time>=:startTime" 
+				+ " AND s.end_time<=:endTime "
+				+ " AND s.bln_deleted=true ORDER BY s.end_time " +
 				 ApplicationConstants.ASC + ",s.id DESC " ;
-		Query query=this.em().createQuery(strQuery);
+		Query query=this.em().createNativeQuery(strQuery, Slot.class);
 		query.setParameter("roster",roster.getId());
 		query.setParameter("startTime", adjournment.getStartTime());
 		query.setParameter("endTime", adjournment.getEndTime());
@@ -277,6 +282,44 @@ public class SlotRepository extends BaseRepository<Slot, Serializable>{
 		query.setMaxResults(1);
 		List<Slot> slots=query.getResultList();
 		if(slots!=null&&!slots.isEmpty()){
+			return slots.get(0);
+		}
+		return null;
+	}
+
+	public Slot slotPreviousToAdjournedSlot(Roster roster, Adjournment adjournment) {
+		String strQuery = "SELECT s.* FROM slots s"
+				+ " WHERE s.roster=:rosterId"
+				+ " AND s.end_time<=:adjournmentStartTime"
+				+ " AND bln_deleted=false"
+				+ " ORDER BY s.end_time " + ApplicationConstants.DESC;
+		
+		Query query = this.em().createNativeQuery(strQuery, Slot.class);
+		query.setParameter("rosterId", roster.getId());
+		query.setParameter("adjournmentStartTime",adjournment.getEndTime());
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		List<Slot> slots = query.getResultList();
+		if(slots != null && !slots.isEmpty()){
+			return slots.get(0);
+		}
+		return null;
+	}
+
+	public Slot slotPreviousToReporterChangeTime(Roster roster) {
+		String strQuery = "SELECT s.* FROM slots s"
+				+ " WHERE s.roster=:rosterId"
+				+ " AND s.end_time<=:reporterChangeTime"
+				+ " AND bln_deleted=false"
+				+ " ORDER BY s.end_time " + ApplicationConstants.DESC;
+		
+		Query query = this.em().createNativeQuery(strQuery, Slot.class);
+		query.setParameter("rosterId", roster.getId());
+		query.setParameter("reporterChangeTime",roster.getReporterChangedFrom());
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		List<Slot> slots = query.getResultList();
+		if(slots != null && !slots.isEmpty()){
 			return slots.get(0);
 		}
 		return null;
