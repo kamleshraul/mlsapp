@@ -1,27 +1,35 @@
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator" %>
+<%@ taglib uri="http://www.opensymphony.com/sitemesh/page" prefix="page"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/xml"  prefix="x" %>
+<%
+response.setHeader("Cache-Control","no-cache,no-store,must-revalidate");
+response.setHeader("Pragma","no-cache");
+response.setDateHeader ("Expires", 0);
+%>
 
-<%@ include file="/common/taglibs.jsp" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-
 <html>
 <head>
 	<title><spring:message code="home.title" text="ELS - Home"/></title>
-	<!-- BEGIN META -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="keywords" content="your,keywords">
-	<meta name="description" content="Short explanation about this website">
-	<!-- END META -->
 	<!-- BEGIN STYLESHEETS -->
-	<link href='http://fonts.googleapis.com/css?family=Roboto:300italic,400italic,300,400,500,700,900' rel='stylesheet' type='text/css' />
-	<link type="text/css" rel="stylesheet" href="./resources/css/theme-default/bootstrap.css" />
+<!-- 	<link href='http://fonts.googleapis.com/css?family=Roboto:300italic,400italic,300,400,500,700,900' rel='stylesheet' type='text/css' />
+ -->	<link type="text/css" rel="stylesheet" href="./resources/css/theme-default/bootstrap.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/theme-default/materialadmin.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/theme-default/font-awesome.min.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/theme-default/material-design-iconic-font.min.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/theme-default/libs/fullcalendar/fullcalendar.css">
 	<link rel="stylesheet" href="./resources/css/template.css">
+	<link rel="stylesheet" href="./resources/css/departmentecretary_dashboard.css">
 	<!-- <link rel="stylesheet" href="./resources/css/fastsearch.css"> -->
-	
-	
+
+	<!-- BEGIN JAVASCRIPT -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<!-- <script src="./resources/js/libs/jquery/jquery-1.11.2.min.js?v=2"></script> -->
 	<script src="./resources/js/libs/jquery/jquery-migrate-1.2.1.min.js?v=1"></script>
@@ -30,117 +38,6 @@
 	<script type="text/javascript" src="./resources/js/jquery/blockUI.js?v=5"></script>	
 	<script type="text/javascript" src="./resources/js/common.js?v=3051"></script>
 	
-	<style type="text/css">
-		body{background: #ffffff;
-		}
-		
-		.border{
-			border: 1px solid #bdd2ff;
-			background-color: #bdd2ff;
-		}
-		
-		.display-hidden{	display:hidden;
-		}
-		
-		.task{	padding: 15px;
-				text-align:center;
-				border-radius:25px;	}
-				
-		.headerblock{	padding: 10px 15px;	
-						height: 90px;
-						line-height: 1;
-						font-weight: bold;
-						text-align: center;
-						font-size: 25px;
-					    font-family:kokila;
-    					border-radius: 10px 10px 0 0;  }
-    					
-    	.dashboard-background{	 background-color: #6E6E6E;
-    							 border-color: #6E6E6E; 
-    							 color: #fff;	}
-    							 					
-    	.total-task{	text-align: center;
-    					font-weight: bold;
-    					font-size: 20px;	}
-    	
-    	.panel-default{	border-radius:10px;
-    					background-color:#dddddd;	} 
-    	
-    	.margin-top{ margin-top:10px; }
-    	
-    	.border-bottom{ border-bottom:1px solid black; }
-    	
-    	.pending-background{	background-color: #2E6E8C;
-    							border-color: #2E6E8C;
-    							color: #fff;	}
-    	
-    	.fs-20{	font-size:20px;	}
-    	
-		 .zoom {
-		    transition: transform .2s; /* Animation */
-		}
-		
-		.zoom:hover {
-		    transform: scale(1.5);
-		}
-		 .sub-zoom {
-		    transition: transform .2s; /* Animation */
-		}
-		
-		.sub-zoom:hover {
-		    transform: scale(1.2);
-		}
-		.sabha-background{
-			background-color:#4CA636;	}
-			
-		.parishad-background{
-			background-color:#CB1818;	}
-			
-		.text-color{
-			color: #ffffff;	}
-		
-		.device-tasks{
-				padding: 10px;
-				font-size: 15px;
-				text-align: center;
-				font-family:kokila;
-				font-size:20px;
-		}
-	
-		.table-headers{
-			background: #7266ba;;
-			color: #ffffff;
-			border:1px solid #000000;
-			font-family:kokila;
-			font-size:20px;
-		}
-		.devicetable{
-		
-			margin: 10px auto;
-		}
-	
-		.devicetable tr:nth-child(odd){
-			background:   #dedce8;
-		}
-		
-		.devicetable tr:nth-child(even){
-			background:   #bbb3e5;
-		}
-		
-		.device-name{
-			margin-left: 80px;
-			color: #bd200d;
-			font-family:kokila;
-			font-size:30px;
-		}
-		
-		.device-title{
-			color: #667292;
-		}
-			
-	</style>
-
-
 <script>
 $(document).ready(function(){
 	$("#search").click(function(){
@@ -279,11 +176,9 @@ function loadWorkflowTaskEvents(){
 				}
 		    	
 		    	$.get(resourceURL,function(data){
-		    		var text =	'<div class="total-task device-title">'+$("#selectedHouseType").val()+' '+ids[1]+' '+ids[2]+'</div>'+
-		    					'<div class="total-task device-title">'+'<spring:message code="subdepartment" text="subdepartment"/>'+':'+' '+ids[0]+'</div>'+
-		    					'<div class="total-task device-title">'+'<spring:message code="mytask.status" text="status"/>'+':'+' '+status+'</div></br>';
-
-		    					for(var i=0;i<data.length;i++){
+		    		var text ='<div class="total-task device-title">'+ids[1]+' '+ids[2]+' '+"मधील"+' '+ids[0]+' '+''+"विभागाचे"+' '+status+' '+"स्थिती असलेले संसदीय आयुधे"+'</div>';
+		    					
+		    		for(var i=0;i<data.length;i++){
 		    							text = text +'<div><table border="1" class="col-md-12 col-sm-12 col-xs-12 devicetable table">'+
 		    							'<tr>'+
     								    '<th class="col-md-1 col-sm-1 col-xs-1 device-tasks table-headers">'+'<spring:message code="part.deviceNo" text="DeviceNumber"/>'+'</th>'+
@@ -418,12 +313,7 @@ function loadWorkflowTaskEvents(){
             <!--end #header-navbar-collapse -->
         </div>
     </header>
-    <!-- END HEADER-->
-    
-
-
-
-	
+    <!-- END HEADER-->	
     <nav class="navbar navbar-default" <!-- style="background-color: #e2e2ff;" -->>
 		<div class="navbar-header">
 	        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -586,7 +476,6 @@ function loadWorkflowTaskEvents(){
 				<input id="deviceType" name="deviceType" value="${i.deviceType}" type="hidden"/> 
 		</c:forEach>
 	</div>
-
 
 <button class="btn btn-primary" id="back" style="display:none;">Go Back</button>
 

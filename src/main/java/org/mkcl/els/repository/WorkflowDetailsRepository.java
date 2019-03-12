@@ -5814,6 +5814,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				+ " AND ('' IN (:houseType) OR wd.house_type IN (:houseType))"
 				+ " AND ('' IN (:deviceType) OR wd.device_type IN (:deviceType))"
 				+ " AND ('' IN (:subdepartment) OR wd.subdepartment IN (:subdepartment))"
+				+ " AND status<>'DECISION_CHANGED'"
 				+ " AND wd.locale=:locale"
 				+ " GROUP BY SUBDEPARTMENT"
 				+ " ORDER BY SUBDEPARTMENT";		
@@ -5861,21 +5862,22 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 				String strHouseType,String strDeviceType,String strSubdepartment,String strStatus,String strLocale){
 			List<DepartmentDashboardVo> departmentDeviceCountsByHouseType = new ArrayList<DepartmentDashboardVo>();
 			String strQuery = "SELECT wd.subdepartment,"
-					+" wd.session_year AS Sessionyear,"
-					+" wd.session_type AS Sessiontype,"
-					+" SUM(IF(house_type='विधानसभा',1,0)) AS Assemblycount,"
-					+" SUM(IF(house_type='विधानपरिषद',1,0)) AS Councilcount"
-					+" FROM workflow_details wd"
-					+" WHERE(STATUS =:status)" 
-					+" AND (assignee_user_group_type='department' OR assignee_user_group_type='department_deskofficer')"
+					+ " wd.session_year AS Sessionyear,"
+					+ " wd.session_type AS Sessiontype,"
+					+ " SUM(IF(house_type='विधानसभा',1,0)) AS Assemblycount,"
+					+ " SUM(IF(house_type='विधानपरिषद',1,0)) AS Councilcount"
+					+ " FROM workflow_details wd"
+					+ " WHERE(STATUS =:status)" 
+					+ " AND (assignee_user_group_type='department' OR assignee_user_group_type='department_deskofficer')"
 					+ " AND ('' IN (:sessionType) OR wd.session_type IN (:sessionType))"
 					+ " AND ('' IN (:sessionYear) OR wd.session_year IN (:sessionYear))"
 					+ " AND ('' IN (:houseType) OR wd.house_type IN (:houseType))"
 					+ " AND ('' IN (:deviceType) OR wd.device_type IN (:deviceType))"
 					+ " AND ('' IN (:subdepartment) OR wd.subdepartment IN (:subdepartment))"
-					+" AND wd.locale=:locale"
-					+" GROUP BY session_type,session_year"
-					+" ORDER BY session_year";
+					+ " AND status<>'DECISION_CHANGED'"
+					+ " AND wd.locale=:locale"
+					+ " GROUP BY session_type,session_year"
+					+ " ORDER BY session_year";
 			
 			Query query = this.em().createNativeQuery(strQuery);		
 			List<String> sessionTypes = Arrays.asList(strSessionType.split(","));
@@ -5918,20 +5920,21 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 		public List<DepartmentDashboardVo> findDepartmentAssemblyDeviceCountsByDeviceTypeFromWorkflowDetails(String strHouseType, String strSessionType, String strSessionYear,String strDeviceType, String strSubdepartment, String strStatus, String strLocale){
 			List<DepartmentDashboardVo> departmentAssemblyDeviceCountsByDeviceType = new ArrayList<DepartmentDashboardVo>();
 			String strQuery = "SELECT wd.device_number,"
-					+" wd.device_type,"
-					+" wd.assignee,"
-					+" wd.assignment_time,"
-					+" wd.subject"
-					+" FROM workflow_details wd"
-					+" WHERE (status=:status)"
-					+" AND ('' IN (:sessionType) OR wd.session_type IN (:sessionType))"
-					+" AND ('' IN (:sessionYear) OR wd.session_year IN (:sessionYear))"
-					+" AND ('' IN (:houseType) OR wd.house_type IN (:houseType))"
-					+" AND ('' IN (:deviceType) OR wd.device_type IN (:deviceType))"
-					+" AND ('' IN (:subdepartment) OR wd.subdepartment IN (:subdepartment))"
-					+" AND (assignee_user_group_type='department' OR assignee_user_group_type='department_deskofficer')"
-					+" AND wd.locale=:locale"
-					+" ORDER BY device_type,device_number,assignment_time";
+					+ " wd.device_type,"
+					+ " wd.assignee,"
+					+ " wd.assignment_time,"
+					+ " wd.subject"
+					+ " FROM workflow_details wd"
+					+ " WHERE (status=:status)"
+					+ " AND ('' IN (:sessionType) OR wd.session_type IN (:sessionType))"
+					+ " AND ('' IN (:sessionYear) OR wd.session_year IN (:sessionYear))"
+					+ " AND ('' IN (:houseType) OR wd.house_type IN (:houseType))"
+					+ " AND ('' IN (:deviceType) OR wd.device_type IN (:deviceType))"
+					+ " AND ('' IN (:subdepartment) OR wd.subdepartment IN (:subdepartment))"
+					+ " AND (assignee_user_group_type='department' OR assignee_user_group_type='department_deskofficer')"
+					+ " AND status<>'DECISION_CHANGED'"
+					+ " AND wd.locale=:locale"
+					+ " ORDER BY device_type,device_number,assignment_time";
 			
 			Query query = this.em().createNativeQuery(strQuery);
 			List<String> sessionTypes = Arrays.asList(strSessionType.split(","));
@@ -5958,7 +5961,7 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	        	 //assignee
 	        	 departmentPendingAssemblyDeviceCount.setAssignee(row[2].toString());
 	        	 //assignment_time
-	        	 departmentPendingAssemblyDeviceCount.setAssignmentTime(FormaterUtil.formatStringToDate(row[3].toString(), ApplicationConstants.DB_DATEFORMAT));
+	        	 departmentPendingAssemblyDeviceCount.setAssignmentTime(FormaterUtil.formatDateToString(FormaterUtil.formatStringToDate(row[3].toString(), ApplicationConstants.DB_DATETIME_FORMAT), ApplicationConstants.SERVER_DATETIMEFORMAT, strLocale));
 	        	 //subject
 	        	 departmentPendingAssemblyDeviceCount.setSubject(row[4].toString());
 	   

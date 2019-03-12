@@ -32,7 +32,7 @@ public class DepartmentDashboardVo {
 	    
 	    private String assignee;
 	    
-	    private Date assignmentTime;
+	    private String assignmentTime;
 	    
 	    private String subject;
 
@@ -147,11 +147,11 @@ public class DepartmentDashboardVo {
 			this.assignee = assignee;
 		}
 
-		public Date getAssignmentTime() {
+		public String getAssignmentTime() {
 			return assignmentTime;
 		}
 
-		public void setAssignmentTime(Date assignmentTime) {
+		public void setAssignmentTime(String assignmentTime) {
 			this.assignmentTime = assignmentTime;
 		}
 
