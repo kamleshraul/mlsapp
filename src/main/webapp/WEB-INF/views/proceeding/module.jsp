@@ -6,7 +6,13 @@
 	<title><spring:message code="proceeding.list" text="List Of Proceedings"/></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript">
-		$(document).ready(function(){	 
+		$(document).ready(function(){
+			/**** Search Tab ****/
+			$('#search_tab').click(function() {
+				$("#selectionDiv1").hide();
+				showTabByIdAndUrl('search_tab','proceedingsearch/init?'+params);
+			});
+			
 			document.onkeydown = function(e){
 				
 				//var myVar = '';
@@ -435,6 +441,12 @@
 			<li style='display:none;'>
 				<a id="part_tab" href="#" class="tab">
 				   <spring:message code="generic.part" text="part">
+				   </spring:message>
+				</a>
+			</li>
+			<li>
+				<a id="search_tab" href="#" class="tab">
+				   <spring:message code="generic.search" text="Search">
 				   </spring:message>
 				</a>
 			</li>	
