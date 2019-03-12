@@ -110,6 +110,7 @@ $(document).ready(function(){
 	        $("#device-workflow-dashboard").hide();
 	 });
 
+	 loadWorkflowTaskEvents(); //load by default
 });
 	 
 function loadWorkflowTaskEvents(){
