@@ -2,6 +2,7 @@ package org.mkcl.els.domain;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.common.vo.SearchVO;
 import org.mkcl.els.repository.ProceedingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -106,6 +108,12 @@ public class Proceeding extends BaseDomain implements Serializable{
 
 	public static List<RevisionHistoryVO> getRevisions(Long partId, String locale) {
 		return getProceedingRepository().getRevisions(partId, locale);
+	}
+
+
+	public static List<SearchVO> fullTextSearchForSearching(String param, int start, int noOfRecords, String locale,
+			Map<String, String[]> requestMap) {
+		return getProceedingRepository().fullTextSearchForSearching(param, start, noOfRecords, locale, requestMap);
 	}
 
 }

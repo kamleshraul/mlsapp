@@ -53,6 +53,9 @@ public class Slot extends BaseDomain implements Serializable{
 	
 	private Date completedDate;
 	
+	//private Boolean blnPendingForEnglishReporter;
+	
+	//private Boolean blnPendingForHindiReporter;
 	@Autowired
 	private transient SlotRepository slotRepository;
 
@@ -143,12 +146,12 @@ public class Slot extends BaseDomain implements Serializable{
 		return getSlotRepository().findNextSlot(slot);
 	}
 	
-	public Date getCompletedDate() {
-		return completedDate;
+	public static Slot slotPreviousToAdjournedSlot(Roster roster, Adjournment adjournment) {
+		return getSlotRepository().slotPreviousToAdjournedSlot(roster, adjournment);
 	}
 	
-	public void setCompletedDate(Date completedDate) {
-		this.completedDate = completedDate;
+	public static Slot slotPreviousToReporterChangeTime(Roster roster) {
+		return getSlotRepository().slotPreviousToReporterChangeTime(roster);
 	}
 	/*********** Setters and Getters ************/	
 	
@@ -223,6 +226,14 @@ public class Slot extends BaseDomain implements Serializable{
 
 	public void setCompleted(Boolean completed) {
 		this.completed = completed;
+	}
+	
+	public Date getCompletedDate() {
+		return completedDate;
+	}
+	
+	public void setCompletedDate(Date completedDate) {
+		this.completedDate = completedDate;
 	}
 	
 }
