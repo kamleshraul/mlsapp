@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -70,6 +71,10 @@ public class Roster extends BaseDomain implements Serializable{
 	private Boolean publish;
 	
 	private Date publishedDate;
+	
+	/** The handled by (username of the chief reporter who created this roster or handling this roster currently). */
+    @Column(length=300)
+    private String handledBy;
 
 	@Autowired
 	private transient RosterRepository rosterRepository;
@@ -295,6 +300,14 @@ public class Roster extends BaseDomain implements Serializable{
 
 	public void setPublishedDate(Date publishedDate) {
 		this.publishedDate = publishedDate;
+	}
+
+	public String getHandledBy() {
+		return handledBy;
+	}
+
+	public void setHandledBy(String handledBy) {
+		this.handledBy = handledBy;
 	}
 
 }
