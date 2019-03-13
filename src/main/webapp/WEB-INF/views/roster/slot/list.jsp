@@ -7,9 +7,11 @@
 		$(document).ready(function(){
 			$('#gridURLParams').val("roster="+$('#key').val());		
 			$('#new_record').click(function(){
+				$("#sendReminderNotification").hide();
 				newSlot();
 			});
 			$('#edit_record').click(function(){
+				$("#sendReminderNotification").hide();
 				editSlot();
 			});
 			$("#delete_record").click(function() {
@@ -17,6 +19,9 @@
 			});			
 			$("#search").click(function() {
 				searchRecord();
+			});
+			$("#sendReminderNotification").click(function() {
+				sendReminderNotification();
 			});
 		});			
 		function newSlot(){				
@@ -96,7 +101,35 @@
 			        }
 				}});
 			}
-		}		
+		}
+		function sendReminderNotification() {
+			var selectedSlotId=$('#internalKey').val();
+			if(selectedSlotId==null||selectedSlotId==""){								
+				$.prompt("Please select a slot for sending the reminder");
+				return false;
+			}else{
+				var slotCompleted = $('#grid').jqGrid('getCell',selectedSlotId,'completed');
+				if(slotCompleted) {
+					$.prompt("This slot is already completed!");
+					return false;
+				} else {
+					$('.commandbarContent').hide();
+					var reporterUsername = $('#grid').jqGrid('getCell',selectedSlotId,'reporter.user.credential.username');
+					$.get('roster/slot/sendReminderNotification?slotId='+selectedSlotId+'&reporterUsername='+reporterUsername, function(data){
+						$('#grid_container').html(data);
+						scrollTop();															
+					}).fail(function(){
+						if($("#ErrorMsg").val()!=''){
+							$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+						}else{
+							$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+						}
+						$('.commandbarContent').show();
+						scrollTop();
+					});
+				}				
+			}
+		}
 	</script>
 </head>
 <body>
@@ -118,7 +151,12 @@
 			</a> |
 			<a href="#" id="search" class="butSim">
 				<spring:message code="roster.slot.search" text="Search"/>
-			</a> | 						
+			</a> | 			
+			<security:authorize access="hasAnyRole('RIS_CHIEF_REPORTER')">
+				<a href="#" id="sendReminderNotification" class="butSim">
+					<spring:message code="roster.slot.sendReminderNotification" text="Send Reminder"/>
+				</a> |
+			</security:authorize>			
 			<p>&nbsp;</p>
 		</div>
 	</div>

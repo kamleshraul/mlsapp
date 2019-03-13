@@ -5,12 +5,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Language;
@@ -22,6 +24,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/roster/slot")
@@ -163,4 +167,121 @@ public class SlotController extends GenericController<Slot>{
 			roster.merge();			
 		}
 	}
+	
+	@RequestMapping(value = "/sendReminderNotification", method = RequestMethod.GET)
+    public String sendNotificationInit(final ModelMap model, 
+    		final HttpServletRequest request,
+            final Locale locale) {
+        final String servletPath = request.getServletPath().replaceFirst("\\/","");
+        
+        /** reporterUsername **/
+        String reporterUsername = request.getParameter("reporterUsername");
+        if(reporterUsername!=null && !reporterUsername.isEmpty()) {
+        	model.addAttribute("reporterUsername", reporterUsername);
+        } else if(request.getSession().getAttribute("reporterUsername")!=null){
+        	model.addAttribute("reporterUsername",request.getSession().getAttribute("reporterUsername"));
+            request.getSession().removeAttribute("reporterUsername");
+        } else {
+        	model.addAttribute("reporterUsername", "");
+        }        
+        
+        /** is volatile notification **/
+        if(request.getSession().getAttribute("isVolatile")!=null){
+        	model.addAttribute("isVolatile",request.getSession().getAttribute("isVolatile"));
+            request.getSession().removeAttribute("isVolatile");
+        }else{        	
+            if(reporterUsername!=null && !reporterUsername.isEmpty()) {
+            	model.addAttribute("isVolatile", false);
+            } else {
+            	model.addAttribute("isVolatile", true);
+            }
+        }
+        
+        /** notification title **/
+        if(request.getSession().getAttribute("notificationTitle")!=null){
+        	model.addAttribute("notificationTitle",request.getSession().getAttribute("notificationTitle"));
+            request.getSession().removeAttribute("notificationTitle");
+        }
+        
+        /** notification message **/
+        if(request.getSession().getAttribute("notificationMessage")!=null){
+        	model.addAttribute("notificationMessage",request.getSession().getAttribute("notificationMessage"));
+            request.getSession().removeAttribute("notificationMessage");
+        }
+        
+        //this is done so as to remove the bug due to which update message appears even though there
+        //is a fresh request
+        if(request.getSession().getAttribute("type")==null){
+            model.addAttribute("type","");
+        }else{
+        	model.addAttribute("type",request.getSession().getAttribute("type"));
+            request.getSession().removeAttribute("type");
+        }
+        
+        //here making provisions for displaying error pages
+        if(model.containsAttribute("errorcode")){
+            return servletPath.replace("sendReminderNotification","error");
+        }else{
+            return servletPath;
+        }
+    }
+	
+	@RequestMapping(value = "/sendReminderNotification", method = RequestMethod.POST)
+    public String sendNotification(final ModelMap model, 
+    		final HttpServletRequest request,
+    		final RedirectAttributes redirectAttributes,
+            final Locale locale) {
+		final String servletPath = request.getServletPath().replaceFirst("\\/","");
+		String returnUrl = "";
+		String reporterUsername = request.getParameter("reporterUsername");
+		String notificationTitle = request.getParameter("notificationTitle");
+		String notificationMessage = request.getParameter("notificationMessage");
+		String isVolatile = request.getParameter("isVolatile");
+		if(reporterUsername!=null && !reporterUsername.isEmpty()) {
+			if(notificationTitle!=null && !notificationTitle.isEmpty()
+					&& isVolatile!=null && !isVolatile.isEmpty()) {
+				try {
+					StringBuffer senderName = new StringBuffer("");
+					if(this.getCurrentUser().getTitle()!=null && !this.getCurrentUser().getTitle().isEmpty()) {
+						senderName.append(this.getCurrentUser().getTitle());
+						//senderName.append(" ");
+					}
+					if(this.getCurrentUser().getFirstName()!=null && !this.getCurrentUser().getFirstName().isEmpty()) {
+						senderName.append(this.getCurrentUser().getFirstName());
+						senderName.append(" ");
+					}
+					if(this.getCurrentUser().getLastName()!=null && !this.getCurrentUser().getLastName().isEmpty()) {
+						senderName.append(this.getCurrentUser().getLastName());
+					}
+					NotificationController.sendNotificationFromUserPage(senderName.toString(), notificationTitle, notificationMessage, Boolean.parseBoolean(isVolatile), reporterUsername, locale.toString());
+										 
+					request.getSession().setAttribute("reporterUsername", reporterUsername);
+					request.getSession().setAttribute("isVolatile", isVolatile);
+					request.getSession().setAttribute("notificationTitle", notificationTitle);	
+					request.getSession().setAttribute("notificationMessage", notificationMessage);
+					
+			        //this is done so as to remove the bug due to which update message appears even though there
+			        //is a fresh request
+			        request.getSession().setAttribute("type","success");
+			        redirectAttributes.addFlashAttribute("msg", "update_success");
+			        returnUrl = "redirect:/" + servletPath;
+				} catch (Exception e) {
+					e.printStackTrace();
+					//error
+					model.addAttribute("errorcode", "REPORTER_NAME_EMPTY");
+					returnUrl = servletPath.replace("sendReminderNotification","error");
+				}
+			} else {
+				//error
+				model.addAttribute("errorcode", "TITLE_EMPTY");
+		        returnUrl = servletPath.replace("sendReminderNotification","error");
+			}	        	        
+		} else {
+			//error
+			model.addAttribute("errorcode", "REPORTER_NAME_EMPTY");
+			returnUrl = servletPath.replace("sendReminderNotification","error");
+		}
+		return returnUrl;
+    }
+	
 }

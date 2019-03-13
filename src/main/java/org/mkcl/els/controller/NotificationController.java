@@ -350,4 +350,36 @@ public class NotificationController extends GenericController<Notification> {
 		}
 	}
 	
+	public static void sendNotificationFromUserPage(final String sender, final String notificationTitle, final String notificationMessage, final boolean isVolatile, final String receivers, final String locale) {
+		if(isVolatile) {
+			if(notificationTitle.equals(notificationMessage)) {
+				if(receivers!=null && !receivers.isEmpty()) {
+					getNotificationService().sendVolatileNotification(sender, notificationMessage, receivers, locale);
+				} else {
+					getNotificationService().sendVolatileNotificationToAllActiveUsers(sender, notificationMessage, locale);
+				}
+			} else {
+				if(receivers!=null && !receivers.isEmpty()) {
+					getNotificationService().sendVolatileNotificationWithTitle(sender, notificationTitle, notificationMessage, receivers, locale);
+				} else {
+					getNotificationService().sendVolatileNotificationWithTitleToAllActiveUsers(sender, notificationTitle, notificationMessage, locale);
+				}
+			}
+		} else {
+			if(notificationTitle.equals(notificationMessage)) {
+				if(receivers!=null && !receivers.isEmpty()) {
+					getNotificationService().sendNotification(sender, notificationMessage, receivers, locale);
+				} else {
+					getNotificationService().sendNotificationToAllActiveUsers(sender, notificationMessage, locale);
+				}
+			} else {
+				if(receivers!=null && !receivers.isEmpty()) {
+					getNotificationService().sendNotificationWithTitle(sender, notificationTitle, notificationMessage, receivers, locale);
+				} else {
+					getNotificationService().sendNotificationWithTitleToAllActiveUsers(sender, notificationTitle, notificationMessage, locale);
+				}
+			}
+		}
+	}
+	
 }
