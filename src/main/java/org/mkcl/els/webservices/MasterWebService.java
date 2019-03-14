@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
+import org.mkcl.els.common.vo.HouseTypeVO;
+import org.mkcl.els.common.vo.HouseVO;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.domain.ApplicationLocale;
@@ -195,6 +197,18 @@ public class MasterWebService {
         }
         return houseTypeVOs;
     }
+    
+    @RequestMapping(value = "/houseTypes/{locale}")
+    public @ResponseBody
+    List<HouseTypeVO> getHouseTypes(@PathVariable final String locale) {
+        List<HouseType> houseTypes= HouseType.findAll(HouseType.class,"name",ApplicationConstants.ASC, locale);
+        List<HouseTypeVO> houseTypeVOs=new ArrayList<HouseTypeVO>();
+        for(HouseType i:houseTypes){
+        	HouseTypeVO houseTypeVO=new HouseTypeVO(i.getType(), i.getName());
+            houseTypeVOs.add(houseTypeVO);
+        }
+        return houseTypeVOs;
+    }
 
     @RequestMapping(value = "/house/{houseType}/{locale}")
     public @ResponseBody
@@ -214,6 +228,25 @@ public class MasterWebService {
 			return null;
 		}
 		      
+    }
+    
+    @RequestMapping(value = "/houses/{houseType}/{locale}")
+    public @ResponseBody
+    List<HouseVO> getHouses(@PathVariable final String locale,@PathVariable final String houseType) {
+        List<House> houses;
+		try {
+			houses = House.findByHouseType(houseType, locale);
+			List<HouseVO> houseVOs=new ArrayList<HouseVO>();
+			for(House i:houses){
+				HouseVO houseVO=new HouseVO(i.getId(), i.getDisplayName());
+			    houseVOs.add(houseVO);
+			}
+			return houseVOs;  
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}		      
     }
     
     @RequestMapping(value = "/{house}/headingcount/{locale}")
