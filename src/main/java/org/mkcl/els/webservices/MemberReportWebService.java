@@ -14,17 +14,13 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.mkcl.els.common.vo.MemberChildrenWiseReportVO;
-import org.mkcl.els.common.vo.MemberGeneralVO;
-import org.mkcl.els.common.vo.MemberPartyDistrictWiseVO;
-import org.mkcl.els.common.vo.MemberPartyWiseReportVO;
-import org.mkcl.els.common.vo.MemberProfessionWiseReportVO;
-import org.mkcl.els.common.vo.MemberQualificationWiseReportVO;
+import org.mkcl.els.common.vo.MemberDetailsForAccountingVO;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -49,4 +45,11 @@ public class MemberReportWebService {
 			return Query.findReport(report,requestMap);
 		}
 	}	
+	
+	@RequestMapping(value = "/{username}/{locale}",method=RequestMethod.GET)
+    public @ResponseBody MemberDetailsForAccountingVO findMemberDetailsForAccounting(@PathVariable("username") final String username,
+            @PathVariable("locale") final String locale,
+            final HttpServletRequest request){
+    	return Member.findDetailsForAccounting(username, locale);
+    }
 }

@@ -33,12 +33,15 @@ import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBiographyVO;
 import org.mkcl.els.common.vo.MemberCompleteDetailVO;
 import org.mkcl.els.common.vo.MemberContactVO;
+import org.mkcl.els.common.vo.MemberDetailsForAccountingVO;
+import org.mkcl.els.common.vo.MemberIdentityVO;
 import org.mkcl.els.common.vo.MemberInfo;
 import org.mkcl.els.common.vo.PositionHeldVO;
 import org.mkcl.els.common.vo.RivalMemberVO;
 import org.mkcl.els.domain.Address;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Contact;
+import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.ElectionResult;
@@ -54,6 +57,7 @@ import org.mkcl.els.domain.Profession;
 import org.mkcl.els.domain.Qualification;
 import org.mkcl.els.domain.RivalMember;
 import org.mkcl.els.domain.Session;
+import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
 import org.springframework.stereotype.Repository;
@@ -317,6 +321,188 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			size=memberInfos.size();
 		}
 		return memberInfos;
+	}
+	
+	@SuppressWarnings({"rawtypes" })
+	public List<MemberIdentityVO> searchForAccounting(final String housetype, final Long house, final String criteria1,
+			final Long criteria2, final String locale,final String[] councilCriteria) {        
+		String selectClause="";
+		String fromClause="";
+		String whereClause="";
+		if(housetype.equals(ApplicationConstants.LOWER_HOUSE)){
+			selectClause="SELECT DISTINCT rs.member_id, rs.title, rs.first_name, rs.middle_name, rs.last_name, rs.full_display_name, rs.constituency FROM(" +
+			"SELECT m.id as member_id, t.name as title, m.first_name AS first_name, m.middle_name AS middle_name, m.last_name AS last_name, " +
+			"CONCAT((CASE WHEN m.title_id IS NOT NULL THEN CONCAT(t.name, ' ') ELSE '' END), m.first_name, ' ', (CASE WHEN m.middle_name IS NOT NULL AND m.middle_name<>'-' THEN CONCAT(m.middle_name, ' ') ELSE '' END), m.last_name) AS full_display_name, c.display_name as constituency ";
+			fromClause="FROM members AS m "+
+			"LEFT JOIN  members_houses_roles AS mhr ON (mhr.member=m.id) "+
+			"LEFT JOIN members_parties AS mp ON(mp.member=m.id) "+
+			"LEFT JOIN constituencies AS c ON(c.id=mhr.constituency_id) "+
+			"LEFT JOIN parties AS p ON(p.id=mp.party) "+
+			"LEFT JOIN titles AS t ON(t.id=m.title_id) "+
+			"LEFT JOIN memberroles AS mr ON (mr.id=mhr.role) "+
+			"LEFT JOIN genders AS g ON(g.id=m.gender_id) "+
+			"LEFT JOIN maritalstatus AS ms ON(ms.id=m.maritalstatus_id) "+
+			"LEFT JOIN constituencies_districts as cd ON(cd.constituency_id=c.id) "+
+			"LEFT JOIN districts as d ON(d.id=cd.district_id) ";
+			whereClause=" WHERE m.locale='"+locale+"' and mr.priority=0 and mhr.house_id="+house+ " and m.death_date is null and c.is_retired=false";
+		}else{
+			selectClause="SELECT DISTINCT rs.member_id, rs.title, rs.first_name, rs.middle_name, rs.last_name, rs.full_display_name, rs.constituency FROM(" +
+					"SELECT m.id as member_id, t.name as title, m.first_name AS first_name, m.middle_name AS middle_name, m.last_name AS last_name, " +
+					"CONCAT((CASE WHEN m.title_id IS NOT NULL THEN CONCAT(t.name, ' ') ELSE '' END), m.first_name, ' ', (CASE WHEN m.middle_name IS NOT NULL AND m.middle_name<>'-' THEN CONCAT(m.middle_name, ' ') ELSE '' END), m.last_name) AS full_display_name, c.display_name as constituency ";
+			fromClause="FROM members AS m "+
+			"LEFT JOIN  members_houses_roles AS mhr ON (mhr.member=m.id) "+
+			"LEFT JOIN members_parties AS mp ON(mp.member=m.id) "+
+			"LEFT JOIN constituencies AS c ON(c.id=mhr.constituency_id) "+
+			"LEFT JOIN parties AS p ON(p.id=mp.party) "+
+			"LEFT JOIN titles AS t ON(t.id=m.title_id) "+
+			"LEFT JOIN memberroles AS mr ON (mr.id=mhr.role) "+
+			"LEFT JOIN genders AS g ON(g.id=m.gender_id) "+
+			"LEFT JOIN maritalstatus AS ms ON(ms.id=m.maritalstatus_id) ";
+			whereClause=" WHERE m.locale='"+locale+"' and mr.priority=0 and mhr.house_id="+house+ " and m.death_date is null and c.is_retired=false";
+		}
+		String queryCriteriaClause="";
+		if(criteria1.equals("constituency")){
+			if(criteria2==0){
+				queryCriteriaClause=" ";
+			}else{
+				queryCriteriaClause=" AND (c.id="+criteria2+") ";
+			}
+		}else  if(criteria1.equals("district")){
+			if(criteria2==0){
+				queryCriteriaClause=" ";
+			}else{
+				queryCriteriaClause=" AND (d.id="+criteria2+") ";
+			}
+		}else if(criteria1.equals("party")){
+			if(criteria2==0){
+				queryCriteriaClause=" ";
+			}else{
+				queryCriteriaClause=" AND p.id="+criteria2;
+			}
+		}else if(criteria1.equals("gender")){
+			if(criteria2==0){
+				queryCriteriaClause=" ";
+			}else{
+				queryCriteriaClause=" AND g.id="+criteria2;
+			}
+		}else if(criteria1.equals("marital_status")){
+			if(criteria2==0){
+				queryCriteriaClause=" ";
+			}else{
+				queryCriteriaClause=" AND ms.id="+criteria2;
+			}
+		}else if(criteria1.equals("birth_date")){
+			if(criteria2==0){
+				queryCriteriaClause=" ";
+			}else{
+				queryCriteriaClause=" AND month(m.birth_date)="+criteria2;
+			}
+		}else if(criteria1.equals("all")){
+			queryCriteriaClause=" ";
+		}
+		String queryOrderByClause="";
+		if(criteria1.equals("birth_date")){
+			queryOrderByClause=" ORDER BY month(m.birth_date),day(m.birth_date),m.last_name asc";
+		}else if(criteria1.equals("constituency")){
+			queryOrderByClause=" ORDER BY c.name,m.last_name asc";
+		}else if(criteria1.equals("party")){
+			queryOrderByClause=" ORDER BY p.name,m.last_name asc";
+		}else if(criteria1.equals("gender")){
+			queryOrderByClause=" ORDER BY g.name,m.last_name asc";
+		}else if(criteria1.equals("marital_status")){
+			queryOrderByClause=" ORDER BY ms.name,m.last_name asc";
+		}else if(criteria1.equals("district")){
+			queryOrderByClause=" ORDER BY d.name,m.last_name asc";
+		}else{
+			queryOrderByClause=" ORDER BY m.last_name asc";
+		}
+		String query="";	
+		String partyQuery="";
+		String constituencyQuery="";
+		
+		if(housetype.equals(ApplicationConstants.UPPER_HOUSE)){
+			String criteria=councilCriteria[0];
+			String fromDate=councilCriteria[1];
+			String toDate=councilCriteria[2];
+			Date fromDateServerFormat = null;
+			Date toDateServerFormat = null;
+			try {
+				fromDateServerFormat = FormaterUtil.getDateFormatter("dd/MM/yyyy", "en_US").parse(fromDate);
+				toDateServerFormat = FormaterUtil.getDateFormatter("dd/MM/yyyy", "en_US").parse(toDate);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			String fromDateDBFormat=FormaterUtil.getDateFormatter("yyyy-MM-dd", "en_US").format(fromDateServerFormat);
+			String toDateDBFormat=FormaterUtil.getDateFormatter("yyyy-MM-dd", "en_US").format(toDateServerFormat);
+			if(criteria1.equals("party")) {
+				if(criteria.equals("RANGE")){
+					partyQuery=" AND ((mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"') "+
+					" OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"') "+
+					" OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.from_date<='"+toDateDBFormat+"') "+
+					" OR (mp.to_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"')) ";
+				}else if(criteria.equals("YEAR")){
+					partyQuery=" AND ((mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"') "+
+					" OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.from_date<='"+toDateDBFormat+"') "+
+					" OR (mp.to_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"')) ";
+
+				}else if(criteria.equals("DATE")){
+					partyQuery=" AND mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"' ";
+				}
+			}
+			else if(criteria1.equals("constituency")) {
+				if(criteria.equals("RANGE")){
+					constituencyQuery=" AND ((mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"') "+
+					" OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"') "+
+					" OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.from_date<='"+toDateDBFormat+"') "+
+					" OR (mhr.to_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"')) ";
+				}else if(criteria.equals("YEAR")){
+					constituencyQuery=" AND ((mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"') "+
+					" OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.from_date<='"+toDateDBFormat+"') "+
+					" OR (mhr.to_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"')) ";
+				}else if(criteria.equals("DATE")){
+					constituencyQuery=" AND mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"'";
+				}
+			}			
+		}else if(housetype.equals(ApplicationConstants.LOWER_HOUSE)){
+			// String currentDateDBFormat=FormaterUtil.getDateFormatter("yyyy-MM-dd", "en_US").format(new Date());
+			// partyQuery=" AND mp.from_date<='"+currentDateDBFormat+"' AND (mp.to_date>='"+currentDateDBFormat+"' or mp.to_date is null)";
+			// constituencyQuery=" AND mhr.from_date<='"+currentDateDBFormat+"' AND (mhr.to_date>='"+currentDateDBFormat+"' or mhr.to_date is null)";
+			
+			// Instead of pointing to currentDateDBFormat, it should point to to_date in mhr
+			if(criteria1.equals("party")) {
+				partyQuery = " AND mp.from_date<=mhr.to_date AND (mp.to_date>=mhr.to_date or mp.to_date is null)";
+			}
+		}
+		query=selectClause+fromClause+whereClause+queryCriteriaClause+partyQuery+constituencyQuery+queryOrderByClause+") as rs";
+		List records=this.em().createNativeQuery(query).getResultList();
+		List<MemberIdentityVO> memberIdentityVOs=new ArrayList<MemberIdentityVO>();
+		for(Object i:records){
+			Object[] o=(Object[]) i;
+			MemberIdentityVO memberIdentityVO=new MemberIdentityVO();
+			memberIdentityVO.setTitle(o[1]!=null?o[1].toString().trim():"-");
+			memberIdentityVO.setFirstName(o[2]!=null?o[2].toString().trim():"-");
+			memberIdentityVO.setMiddleName(o[3]!=null?o[3].toString().trim():"-");
+			memberIdentityVO.setLastName(o[4]!=null?o[4].toString().trim():"-");			
+			memberIdentityVO.setFullDisplayName(o[5]!=null?o[5].toString():"-");
+			memberIdentityVO.setConstituencyName(o[6]!=null?o[6].toString():"-");
+			if(o[0]!=null) {
+				Member member = Member.findById(Member.class, Long.parseLong(o[0].toString()));
+				if(member!=null) {
+					try {
+						User memberUser = User.findbyNameBirthDate(member.getFirstName(),
+								member.getMiddleName(),member.getLastName(),
+								member.getBirthDate());
+						if(memberUser!=null) {
+							memberIdentityVO.setUsername(memberUser.getCredential().getUsername());
+						}
+					} catch (ELSException e) {
+						memberIdentityVO.setUsername("");
+					}
+				}
+			}
+			memberIdentityVOs.add(memberIdentityVO);
+		}
+		return memberIdentityVOs;
 	}
 
 	/**
@@ -2983,26 +3169,256 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	}
 	
 	public List<Member> findMembersWithConstituency(final String houseType,final Long constituency) {
-CustomParameter parameter =
-	CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
-String currentDate = 
-	FormaterUtil.formatDateToString(new Date(), parameter.getValue());
-
-
-String strQuery = "SELECT m from " +
-	" Member m JOIN m.houseMemberRoleAssociations mhr " +
-	" LEFT JOIN mhr.role mr " +
-	" LEFT JOIN mr.houseType ht " +
-	"LEFT JOIN mhr.constituency c"+
-	" WHERE mhr.fromDate <= '" + currentDate  + "'" +
-	" AND mhr.toDate >= '" + currentDate  + "'" +			
-	" AND ht.type = '" + houseType  + "'" +
-	" AND c.id = " + constituency  + "" +	
-	" AND mr.type = 'MEMBER'";
-
-TypedQuery<Member> query = this.em().createQuery(strQuery, Member.class);
-List<Member> members = query.getResultList();
-return members;
+		CustomParameter parameter =
+			CustomParameter.findByName(CustomParameter.class, "DB_DATEFORMAT", "");
+		String currentDate = 
+			FormaterUtil.formatDateToString(new Date(), parameter.getValue());
+		
+		
+		String strQuery = "SELECT m from " +
+			" Member m JOIN m.houseMemberRoleAssociations mhr " +
+			" LEFT JOIN mhr.role mr " +
+			" LEFT JOIN mr.houseType ht " +
+			"LEFT JOIN mhr.constituency c"+
+			" WHERE mhr.fromDate <= '" + currentDate  + "'" +
+			" AND mhr.toDate >= '" + currentDate  + "'" +			
+			" AND ht.type = '" + houseType  + "'" +
+			" AND c.id = " + constituency  + "" +	
+			" AND mr.type = 'MEMBER'";
+		
+		TypedQuery<Member> query = this.em().createQuery(strQuery, Member.class);
+		List<Member> members = query.getResultList();
+		return members;
+	}
+	
+	public Member findByNameBirthDate(final String firstName,final String middleName,final String lastName,
+			final Date birthDate) throws ELSException {
+		String locale = ApplicationConstants.DEFAULT_LOCALE;
+		Member member = null;
+		List<Member> possibleMembers = null;
+		Map<String, String> memberNameParameters = new HashMap<String, String>();
+		
+		//Combo 1: firstName + middleName + lastName + birthDate
+		try {
+			memberNameParameters.put("firstName", firstName);
+			memberNameParameters.put("middleName", middleName);
+			memberNameParameters.put("lastName", lastName);
+//			System.out.println("combo 1:");
+//			for (Map.Entry<String, String> entry : memberNameParameters.entrySet()) {
+//			    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//			}
+			possibleMembers = Member.findAllByFieldNames(Member.class, memberNameParameters, "id", ApplicationConstants.ASC, locale);
+			if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+				for(Member m: possibleMembers) {
+					if(m.getBirthDate().equals(birthDate)) {
+						member = m;
+						possibleMembers = null;
+						memberNameParameters = null;
+						return member;
+					} else {
+						throw new ELSException("member_not_found", "member_not_found");
+					}
+				}
+			} else {
+				throw new ELSException("member_not_found", "member_not_found");
+			}
+		} catch(ELSException eCombo1) {
+			if(eCombo1.getParameter()!=null && eCombo1.getParameter().equals("member_not_found")) {
+				//Combo 2: firstName + lastName + birthDate
+				try {
+					memberNameParameters.remove("middleName");	
+//					System.out.println("combo 2:");
+//					for (Map.Entry<String, String> entry : memberNameParameters.entrySet()) {
+//					    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//					}
+					possibleMembers = Member.findAllByFieldNames(Member.class, memberNameParameters, "id", ApplicationConstants.ASC, locale);
+					if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+						for(Member m: possibleMembers) {
+							if(m.getBirthDate().equals(birthDate)) {
+								member = m;
+								possibleMembers = null;
+								memberNameParameters = null;
+								return member;
+							} else {
+								throw new ELSException("member_not_found", "member_not_found");
+							}
+						}
+					} else {
+						throw new ELSException("member_not_found", "member_not_found");
+					}
+				} catch(ELSException eCombo2) {
+					if(eCombo2.getParameter()!=null && eCombo2.getParameter().equals("member_not_found")) {
+						//Combo 3: middleName + lastName + birthDate
+						try {
+							memberNameParameters.remove("firstName");
+							memberNameParameters.put("middleName", middleName);			
+//							System.out.println("combo 3:");
+//							for (Map.Entry<String, String> entry : memberNameParameters.entrySet()) {
+//							    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//							}
+							possibleMembers = Member.findAllByFieldNames(Member.class, memberNameParameters, "id", ApplicationConstants.ASC, locale);
+							if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+								for(Member m: possibleMembers) {
+									if(m.getBirthDate().equals(birthDate)) {
+										member = m;
+										possibleMembers = null;
+										memberNameParameters = null;
+										return member;
+									} else {
+										throw new ELSException("member_not_found", "member_not_found");
+									}
+								}
+							} else {
+								throw new ELSException("member_not_found", "member_not_found");
+							}
+						} catch(ELSException eCombo3) {
+							if(eCombo3.getParameter()!=null && eCombo3.getParameter().equals("member_not_found")) {
+								//Combo 4: firstName + middleName + birthDate
+								memberNameParameters.remove("lastName");
+								memberNameParameters.put("firstName", firstName);
+//								System.out.println("combo 4:");
+//								for (Map.Entry<String, String> entry : memberNameParameters.entrySet()) {
+//								    System.out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+//								}
+								possibleMembers = Member.findAllByFieldNames(Member.class, memberNameParameters, "id", ApplicationConstants.ASC, locale);
+								if(possibleMembers!=null && !possibleMembers.isEmpty()) {
+									for(Member m: possibleMembers) {
+										if(m.getBirthDate().equals(birthDate)) {
+											member = m;
+											possibleMembers = null;
+											memberNameParameters = null;
+											return member;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		//if member is not found, return blank instance
+		possibleMembers = null;
+		memberNameParameters = null;
+		return new Member();
+	}
+	
+	public MemberDetailsForAccountingVO findDetailsForAccounting(final String username, final String locale) {
+		CustomParameter parameter = CustomParameter.findByName(
+				CustomParameter.class, "SERVER_DATEFORMAT_DDMMMYYYY", "");
+		MemberDetailsForAccountingVO memberDetailsForAccountingVO=new MemberDetailsForAccountingVO();
+		
+		SimpleDateFormat dateFormat=FormaterUtil.getDateFormatter(parameter.getValue(), locale);
+		FormaterUtil.getNumberFormatterGrouping(locale);
+		FormaterUtil.getNumberFormatterNoGrouping(locale);
+		
+		Credential credential=Credential.findByFieldName(Credential.class, "username", username, "");
+		User memberUser=User.findByFieldName(User.class,"credential",credential, locale.toString());
+		Member member;
+		try {
+			member = Member.findByNameBirthDate(memberUser.getFirstName(), memberUser.getMiddleName(), memberUser.getLastName(), memberUser.getBirthDate());
+		} catch (ELSException e) {
+			return memberDetailsForAccountingVO;
+		}
+		
+		if(member.getTitle()==null){
+			memberDetailsForAccountingVO.setTitle("-");
+		}else{
+			memberDetailsForAccountingVO.setTitle(member.getTitle().getName());
+		}		
+		memberDetailsForAccountingVO.setFirstName(member.getFirstName());
+		memberDetailsForAccountingVO.setMiddleName(member.getMiddleName());
+		memberDetailsForAccountingVO.setLastName(member.getLastName());
+		if(member.getBirthDate()==null){
+			memberDetailsForAccountingVO.setBirthDate("-");
+		}else{
+			memberDetailsForAccountingVO.setBirthDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(member.getBirthDate()), locale));
+		}
+		if(member.getAlias()==null || member.getAlias().isEmpty()){
+			memberDetailsForAccountingVO.setAlias("-");
+		}else{
+			if(member.getAliasEnabled()) {
+				memberDetailsForAccountingVO.setAlias(member.getAlias());
+			} else {
+				memberDetailsForAccountingVO.setAlias("-");
+			}			
+		}
+		if(member.getGender()!=null){
+			memberDetailsForAccountingVO.setGender(member.getGender().getName());
+		}else{
+			memberDetailsForAccountingVO.setGender("-");
+		}
+		Constituency constituency=findConstituency(member.getId());
+		if(constituency!=null){
+			memberDetailsForAccountingVO.setHouseType(constituency.getHouseType().getName());
+			memberDetailsForAccountingVO.setConstituency(constituency.getName());
+			memberDetailsForAccountingVO.setConstituencyDisplayName(constituency.getDisplayName());
+		}else{
+			memberDetailsForAccountingVO.setHouseType("-");
+			memberDetailsForAccountingVO.setConstituency("-");
+			memberDetailsForAccountingVO.setConstituencyDisplayName("-");
+		}		
+		if(member.getMaritalStatus()!=null){
+			memberDetailsForAccountingVO.setMaritalStatus(member.getMaritalStatus().getName());		
+		}else{
+			memberDetailsForAccountingVO.setMaritalStatus("-");
+		}
+		//contact information
+		Contact contact=member.getContact();
+		if(contact==null){
+			memberDetailsForAccountingVO.setEmail("-");
+			memberDetailsForAccountingVO.setMobile("-");
+		}else{
+			memberDetailsForAccountingVO.setEmail("-");
+			if(contact.getEmail1()!=null&&!contact.getEmail1().isEmpty()){
+				memberDetailsForAccountingVO.setEmail(contact.getEmail1());
+			}else if(contact.getEmail2()!=null&&!contact.getEmail2().isEmpty()){
+				memberDetailsForAccountingVO.setEmail(contact.getEmail2());
+			}	
+			memberDetailsForAccountingVO.setMobile("-");
+			if(contact.getMobile1()!=null&&!contact.getMobile1().isEmpty()){
+				memberDetailsForAccountingVO.setMobile(contact.getMobile1());
+			}else if(contact.getMobile2()!=null&&!contact.getMobile2().isEmpty()){
+				memberDetailsForAccountingVO.setMobile(contact.getMobile2());
+			}
+		}
+		//addresses information
+		Address permanentAddress=member.getPermanentAddress();
+		if(permanentAddress!=null){
+			memberDetailsForAccountingVO.setPermanentAddress(permanentAddress.generateAddressVO());			
+		}
+		//permanent address
+		Address permanentAddress1=member.getPermanentAddress1();
+		if(permanentAddress1!=null){
+			memberDetailsForAccountingVO.setPermanentAddress1(permanentAddress1.generateAddressVO());			
+		}
+		//permanent address
+		Address permanentAddress2=member.getPermanentAddress2();
+		if(permanentAddress2!=null){
+			memberDetailsForAccountingVO.setPermanentAddress2(permanentAddress2.generateAddressVO());			
+		}
+		Address presentAddress=member.getPresentAddress();
+		if(presentAddress!=null){
+			memberDetailsForAccountingVO.setPresentAddress(presentAddress.generateAddressVO());			
+		}
+		//present address
+		Address presentAddress1=member.getPresentAddress1();
+		if(presentAddress1!=null){
+			memberDetailsForAccountingVO.setPresentAddress1(presentAddress1.generateAddressVO());			
+		}
+		//present address
+		Address presentAddress2=member.getPresentAddress2();
+		if(presentAddress2!=null){
+			memberDetailsForAccountingVO.setPresentAddress2(presentAddress2.generateAddressVO());			
+		}
+		//death date
+		if(member.getDeathDate()==null){
+			memberDetailsForAccountingVO.setDeathDate("-");
+		}else{
+			memberDetailsForAccountingVO.setDeathDate(FormaterUtil.formatMonthsMarathi(dateFormat.format(member.getDeathDate()),locale));
+		}
+		
+		return memberDetailsForAccountingVO;
 	}
 	
 }

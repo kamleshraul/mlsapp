@@ -17,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.mkcl.els.common.vo.AddressVO;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
@@ -86,6 +87,59 @@ public class Address extends BaseDomain implements Serializable {
     }
 
     // -------------------------------Domain_Methods--------------------------
+    public AddressVO generateAddressVO() {
+    	AddressVO addressVO = new AddressVO();
+    	if(this.getDetails()!=null) {
+    		addressVO.setDetails(this.getDetails());
+    	} else {
+    		addressVO.setDetails("-");
+    	}
+    	if(this.getCity()!=null) {
+    		addressVO.setCity(this.getCity());
+    	} else {
+    		addressVO.setCity("-");
+    	}
+    	if(this.getPincode()!=null) {
+    		addressVO.setPincode(this.getPincode());
+    	} else {
+    		addressVO.setPincode("-");
+    	}
+    	if(this.getTehsil()!=null) {
+    		addressVO.setTehsil(this.getTehsil().getName());
+    	} else {
+    		addressVO.setTehsil("-");
+    	}
+    	if(this.getDistrict()!=null) {
+    		addressVO.setDistrict(this.getDistrict().getName());
+    	} else {
+    		addressVO.setDistrict("-");
+    	}
+    	if(this.getState()!=null) {
+    		addressVO.setState(this.getState().getName());
+    	} else {
+    		addressVO.setState("-");
+    	}
+    	//gather brief details and set in the briefAddress
+    	CustomParameter tehsilLocalized=CustomParameter.findByName(CustomParameter.class,"TEHSIL", this.getLocale());
+		CustomParameter districtLocalized=CustomParameter.findByName(CustomParameter.class,"DISTRICT", this.getLocale());
+		CustomParameter stateLocalized=CustomParameter.findByName(CustomParameter.class,"STATE", this.getLocale());
+		if(tehsilLocalized!=null && districtLocalized!=null && stateLocalized!=null
+				&& this.getDetails()!=null && this.getDistrict()!=null && this.getState()!=null){
+			if(!this.getDetails().trim().isEmpty()){
+				if(this.getTehsil()!=null){
+					addressVO.setBriefAddress(this.getDetails()+"<br>"+tehsilLocalized.getValue()+"-"+this.getTehsil().getName()+","+districtLocalized.getValue()+"-"+this.getDistrict().getName()+","+stateLocalized.getValue()+"-"+this.getState().getName()+" "+this.getPincode());
+				}else{
+					addressVO.setBriefAddress(this.getDetails()+"<br>"+districtLocalized.getValue()+"-"+this.getDistrict().getName()+","+stateLocalized.getValue()+"-"+this.getState().getName()+" "+this.getPincode());
+				}
+			} else {
+				addressVO.setBriefAddress("-");
+			}
+		} else {
+			addressVO.setBriefAddress("-");
+		}
+		
+		return addressVO;
+    }
 
     // ------------------------------------------Getters/Setters-----------------------------------
 

@@ -33,12 +33,15 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.MemberBiographyVO;
 import org.mkcl.els.common.vo.MemberCompleteDetailVO;
 import org.mkcl.els.common.vo.MemberContactVO;
+import org.mkcl.els.common.vo.MemberDetailsForAccountingVO;
+import org.mkcl.els.common.vo.MemberIdentityVO;
 import org.mkcl.els.common.vo.MemberInfo;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.associations.MemberPartyAssociation;
@@ -415,6 +418,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 		return getMemberRepository().search(housetype,house,criteria1,
 				criteria2, locale,councilCriteria);
 	}
+	
+	public static List<MemberIdentityVO> searchForAccounting(final String housetype, final Long house, final String criteria1,
+			final Long criteria2, final String locale, final String[] councilCriteria) {
+		return getMemberRepository().searchForAccounting(housetype,house,criteria1,
+				criteria2, locale,councilCriteria);
+	}
 
 
 	/**
@@ -429,6 +438,15 @@ import org.springframework.beans.factory.annotation.Configurable;
 	 */
 	public static MemberBiographyVO findBiography(final long id, final String locale) {
 		return getMemberRepository().findBiography(id,locale);
+	}
+	
+	public static MemberDetailsForAccountingVO findDetailsForAccounting(final String username, final String locale) {
+		return getMemberRepository().findDetailsForAccounting(username, locale);
+	}
+	
+	public static Member findByNameBirthDate(final String firstName,final String middleName,
+			final String lastName,final Date birthDate) throws ELSException {
+		return getMemberRepository().findByNameBirthDate(firstName,middleName,lastName,birthDate);
 	}
 	
 	public String getFirstNameAliasLastName(){
