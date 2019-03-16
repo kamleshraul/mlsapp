@@ -67,6 +67,7 @@ public class MemberSearchWebService {
             @PathVariable final Long criteria2 ,
             @PathVariable final String locale){
     	String durationUH = request.getParameter("durationUH");
+    	String date = request.getParameter("date");
     	String fromDate = request.getParameter("fromDate");
     	String toDate = request.getParameter("toDate");
     	String year = request.getParameter("year");
@@ -74,9 +75,13 @@ public class MemberSearchWebService {
     	String date1 = "";
     	String date2 = "";
     	if(durationUH!=null && !durationUH.isEmpty()){
-			if(durationUH.equals("CURRENTDATE")){
-				SimpleDateFormat format=new SimpleDateFormat("dd/MM/yyyy");
-				String date=format.format(new Date());
+    		if(durationUH.equals("CURRENTDATE")){
+    			SimpleDateFormat format=new SimpleDateFormat("dd/MM/yyyy");
+    			date=format.format(new Date());
+    			parameterUH="DATE";
+    			date1=date;
+    			date2=date;		
+			}else if(durationUH.equals("DATE")){
 				parameterUH="DATE";
 				date1=date;
 				date2=date;		
@@ -91,7 +96,7 @@ public class MemberSearchWebService {
 			} 
 		} else {
 			SimpleDateFormat format=new SimpleDateFormat("dd/MM/yyyy");
-			String date=format.format(new Date());
+			date=format.format(new Date());
 			parameterUH="DATE";
 			date1=date;
 			date2=date;

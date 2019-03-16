@@ -21,6 +21,9 @@ public class MemberIdentityVO {
 	/** The constituency name. */
 	private String constituencyName;
 	
+	/** The constituency display name. */
+	private String constituencyDisplayName;
+	
 	/** The username. */
 	private String username;
 
@@ -88,6 +91,14 @@ public class MemberIdentityVO {
 
 	public void setConstituencyName(String constituencyName) {
 		this.constituencyName = constituencyName;
+	}
+
+	public String getConstituencyDisplayName() {
+		return constituencyDisplayName;
+	}
+
+	public void setConstituencyDisplayName(String constituencyDisplayName) {
+		this.constituencyDisplayName = constituencyDisplayName;
 	}
 
 	public String getUsername() {

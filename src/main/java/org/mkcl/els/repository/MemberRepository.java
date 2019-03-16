@@ -326,38 +326,39 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 	@SuppressWarnings({"rawtypes" })
 	public List<MemberIdentityVO> searchForAccounting(final String housetype, final Long house, final String criteria1,
 			final Long criteria2, final String locale,final String[] councilCriteria) {        
+		List<MemberIdentityVO> memberIdentityVOs=new ArrayList<MemberIdentityVO>();
 		String selectClause="";
 		String fromClause="";
 		String whereClause="";
 		if(housetype.equals(ApplicationConstants.LOWER_HOUSE)){
-			selectClause="SELECT DISTINCT rs.member_id, rs.title, rs.first_name, rs.middle_name, rs.last_name, rs.full_display_name, rs.constituency FROM(" +
-			"SELECT m.id as member_id, t.name as title, m.first_name AS first_name, m.middle_name AS middle_name, m.last_name AS last_name, " +
-			"CONCAT((CASE WHEN m.title_id IS NOT NULL THEN CONCAT(t.name, ' ') ELSE '' END), m.first_name, ' ', (CASE WHEN m.middle_name IS NOT NULL AND m.middle_name<>'-' THEN CONCAT(m.middle_name, ' ') ELSE '' END), m.last_name) AS full_display_name, c.display_name as constituency ";
+			selectClause="SELECT DISTINCT rs.member_id, rs.title, rs.first_name, rs.middle_name, rs.last_name, rs.full_display_name, rs.constituency_name, rs.constituency_display_name FROM(" +
+				"SELECT m.id as member_id, t.name as title, m.first_name AS first_name, m.middle_name AS middle_name, m.last_name AS last_name, " +
+				"CONCAT((CASE WHEN m.title_id IS NOT NULL THEN CONCAT(t.name, ' ') ELSE '' END), m.first_name, ' ', (CASE WHEN m.middle_name IS NOT NULL AND m.middle_name<>'-' THEN CONCAT(m.middle_name, ' ') ELSE '' END), m.last_name) AS full_display_name, c.name as constituency_name, c.display_name as constituency_display_name ";
 			fromClause="FROM members AS m "+
-			"LEFT JOIN  members_houses_roles AS mhr ON (mhr.member=m.id) "+
-			"LEFT JOIN members_parties AS mp ON(mp.member=m.id) "+
-			"LEFT JOIN constituencies AS c ON(c.id=mhr.constituency_id) "+
-			"LEFT JOIN parties AS p ON(p.id=mp.party) "+
-			"LEFT JOIN titles AS t ON(t.id=m.title_id) "+
-			"LEFT JOIN memberroles AS mr ON (mr.id=mhr.role) "+
-			"LEFT JOIN genders AS g ON(g.id=m.gender_id) "+
-			"LEFT JOIN maritalstatus AS ms ON(ms.id=m.maritalstatus_id) "+
-			"LEFT JOIN constituencies_districts as cd ON(cd.constituency_id=c.id) "+
-			"LEFT JOIN districts as d ON(d.id=cd.district_id) ";
+				"LEFT JOIN  members_houses_roles AS mhr ON (mhr.member=m.id) "+
+				"LEFT JOIN members_parties AS mp ON(mp.member=m.id) "+
+				"LEFT JOIN constituencies AS c ON(c.id=mhr.constituency_id) "+
+				"LEFT JOIN parties AS p ON(p.id=mp.party) "+
+				"LEFT JOIN titles AS t ON(t.id=m.title_id) "+
+				"LEFT JOIN memberroles AS mr ON (mr.id=mhr.role) "+
+				"LEFT JOIN genders AS g ON(g.id=m.gender_id) "+
+				"LEFT JOIN maritalstatus AS ms ON(ms.id=m.maritalstatus_id) "+
+				"LEFT JOIN constituencies_districts as cd ON(cd.constituency_id=c.id) "+
+				"LEFT JOIN districts as d ON(d.id=cd.district_id) ";
 			whereClause=" WHERE m.locale='"+locale+"' and mr.priority=0 and mhr.house_id="+house+ " and m.death_date is null and c.is_retired=false";
 		}else{
-			selectClause="SELECT DISTINCT rs.member_id, rs.title, rs.first_name, rs.middle_name, rs.last_name, rs.full_display_name, rs.constituency FROM(" +
-					"SELECT m.id as member_id, t.name as title, m.first_name AS first_name, m.middle_name AS middle_name, m.last_name AS last_name, " +
-					"CONCAT((CASE WHEN m.title_id IS NOT NULL THEN CONCAT(t.name, ' ') ELSE '' END), m.first_name, ' ', (CASE WHEN m.middle_name IS NOT NULL AND m.middle_name<>'-' THEN CONCAT(m.middle_name, ' ') ELSE '' END), m.last_name) AS full_display_name, c.display_name as constituency ";
+			selectClause="SELECT DISTINCT rs.member_id, rs.title, rs.first_name, rs.middle_name, rs.last_name, rs.full_display_name, rs.constituency_name, rs.constituency_display_name FROM(" +
+				"SELECT m.id as member_id, t.name as title, m.first_name AS first_name, m.middle_name AS middle_name, m.last_name AS last_name, " +
+				"CONCAT((CASE WHEN m.title_id IS NOT NULL THEN CONCAT(t.name, ' ') ELSE '' END), m.first_name, ' ', (CASE WHEN m.middle_name IS NOT NULL AND m.middle_name<>'-' THEN CONCAT(m.middle_name, ' ') ELSE '' END), m.last_name) AS full_display_name, c.name as constituency_name, c.display_name as constituency_display_name ";
 			fromClause="FROM members AS m "+
-			"LEFT JOIN  members_houses_roles AS mhr ON (mhr.member=m.id) "+
-			"LEFT JOIN members_parties AS mp ON(mp.member=m.id) "+
-			"LEFT JOIN constituencies AS c ON(c.id=mhr.constituency_id) "+
-			"LEFT JOIN parties AS p ON(p.id=mp.party) "+
-			"LEFT JOIN titles AS t ON(t.id=m.title_id) "+
-			"LEFT JOIN memberroles AS mr ON (mr.id=mhr.role) "+
-			"LEFT JOIN genders AS g ON(g.id=m.gender_id) "+
-			"LEFT JOIN maritalstatus AS ms ON(ms.id=m.maritalstatus_id) ";
+				"LEFT JOIN  members_houses_roles AS mhr ON (mhr.member=m.id) "+
+				"LEFT JOIN members_parties AS mp ON(mp.member=m.id) "+
+				"LEFT JOIN constituencies AS c ON(c.id=mhr.constituency_id) "+
+				"LEFT JOIN parties AS p ON(p.id=mp.party) "+
+				"LEFT JOIN titles AS t ON(t.id=m.title_id) "+
+				"LEFT JOIN memberroles AS mr ON (mr.id=mhr.role) "+
+				"LEFT JOIN genders AS g ON(g.id=m.gender_id) "+
+				"LEFT JOIN maritalstatus AS ms ON(ms.id=m.maritalstatus_id) ";
 			whereClause=" WHERE m.locale='"+locale+"' and mr.priority=0 and mhr.house_id="+house+ " and m.death_date is null and c.is_retired=false";
 		}
 		String queryCriteriaClause="";
@@ -434,34 +435,30 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			}
 			String fromDateDBFormat=FormaterUtil.getDateFormatter("yyyy-MM-dd", "en_US").format(fromDateServerFormat);
 			String toDateDBFormat=FormaterUtil.getDateFormatter("yyyy-MM-dd", "en_US").format(toDateServerFormat);
-			if(criteria1.equals("party")) {
-				if(criteria.equals("RANGE")){
-					partyQuery=" AND ((mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"') "+
-					" OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"') "+
-					" OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.from_date<='"+toDateDBFormat+"') "+
-					" OR (mp.to_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"')) ";
-				}else if(criteria.equals("YEAR")){
-					partyQuery=" AND ((mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"') "+
-					" OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.from_date<='"+toDateDBFormat+"') "+
-					" OR (mp.to_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"')) ";
+			if(criteria.equals("RANGE")){
+				partyQuery=" AND ((mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"') "+
+				" OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"') "+
+				" OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.from_date<='"+toDateDBFormat+"') "+
+				" OR (mp.to_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"')) ";
+			}else if(criteria.equals("YEAR")){
+				partyQuery=" AND ((mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"') "+
+				" OR (mp.from_date>='"+fromDateDBFormat+"' AND mp.from_date<='"+toDateDBFormat+"') "+
+				" OR (mp.to_date>='"+fromDateDBFormat+"' AND mp.to_date<='"+toDateDBFormat+"')) ";
 
-				}else if(criteria.equals("DATE")){
-					partyQuery=" AND mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"' ";
-				}
-			}
-			else if(criteria1.equals("constituency")) {
-				if(criteria.equals("RANGE")){
-					constituencyQuery=" AND ((mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"') "+
-					" OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"') "+
-					" OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.from_date<='"+toDateDBFormat+"') "+
-					" OR (mhr.to_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"')) ";
-				}else if(criteria.equals("YEAR")){
-					constituencyQuery=" AND ((mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"') "+
-					" OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.from_date<='"+toDateDBFormat+"') "+
-					" OR (mhr.to_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"')) ";
-				}else if(criteria.equals("DATE")){
-					constituencyQuery=" AND mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"'";
-				}
+			}else if(criteria.equals("DATE")){
+				partyQuery=" AND mp.from_date<='"+fromDateDBFormat+"' AND mp.to_date>='"+toDateDBFormat+"' ";
+			}		
+			if(criteria.equals("RANGE")){
+				constituencyQuery=" AND ((mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"') "+
+				" OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"') "+
+				" OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.from_date<='"+toDateDBFormat+"') "+
+				" OR (mhr.to_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"')) ";
+			}else if(criteria.equals("YEAR")){
+				constituencyQuery=" AND ((mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"') "+
+				" OR (mhr.from_date>='"+fromDateDBFormat+"' AND mhr.from_date<='"+toDateDBFormat+"') "+
+				" OR (mhr.to_date>='"+fromDateDBFormat+"' AND mhr.to_date<='"+toDateDBFormat+"')) ";
+			}else if(criteria.equals("DATE")){
+				constituencyQuery=" AND mhr.from_date<='"+fromDateDBFormat+"' AND mhr.to_date>='"+toDateDBFormat+"'";
 			}			
 		}else if(housetype.equals(ApplicationConstants.LOWER_HOUSE)){
 			// String currentDateDBFormat=FormaterUtil.getDateFormatter("yyyy-MM-dd", "en_US").format(new Date());
@@ -469,39 +466,41 @@ public class MemberRepository extends BaseRepository<Member, Long>{
 			// constituencyQuery=" AND mhr.from_date<='"+currentDateDBFormat+"' AND (mhr.to_date>='"+currentDateDBFormat+"' or mhr.to_date is null)";
 			
 			// Instead of pointing to currentDateDBFormat, it should point to to_date in mhr
-			if(criteria1.equals("party")) {
-				partyQuery = " AND mp.from_date<=mhr.to_date AND (mp.to_date>=mhr.to_date or mp.to_date is null)";
-			}
+			//partyQuery = " AND mp.from_date<=mhr.to_date AND (mp.to_date>=mhr.to_date or mp.to_date is null)";
 		}
-		query=selectClause+fromClause+whereClause+queryCriteriaClause+partyQuery+constituencyQuery+queryOrderByClause+") as rs";
+		query=selectClause+fromClause+whereClause+queryCriteriaClause+partyQuery+constituencyQuery+queryOrderByClause+") as rs";		
 		List records=this.em().createNativeQuery(query).getResultList();
-		List<MemberIdentityVO> memberIdentityVOs=new ArrayList<MemberIdentityVO>();
-		for(Object i:records){
-			Object[] o=(Object[]) i;
-			MemberIdentityVO memberIdentityVO=new MemberIdentityVO();
-			memberIdentityVO.setTitle(o[1]!=null?o[1].toString().trim():"-");
-			memberIdentityVO.setFirstName(o[2]!=null?o[2].toString().trim():"-");
-			memberIdentityVO.setMiddleName(o[3]!=null?o[3].toString().trim():"-");
-			memberIdentityVO.setLastName(o[4]!=null?o[4].toString().trim():"-");			
-			memberIdentityVO.setFullDisplayName(o[5]!=null?o[5].toString():"-");
-			memberIdentityVO.setConstituencyName(o[6]!=null?o[6].toString():"-");
-			if(o[0]!=null) {
-				Member member = Member.findById(Member.class, Long.parseLong(o[0].toString()));
-				if(member!=null) {
-					try {
-						User memberUser = User.findbyNameBirthDate(member.getFirstName(),
-								member.getMiddleName(),member.getLastName(),
-								member.getBirthDate());
-						if(memberUser!=null) {
-							memberIdentityVO.setUsername(memberUser.getCredential().getUsername());
+		if(records!=null) {
+			System.out.println("Count of Members: " + records.size());		
+			for(Object i:records){
+				Object[] o=(Object[]) i;
+				MemberIdentityVO memberIdentityVO=new MemberIdentityVO();
+				memberIdentityVO.setTitle(o[1]!=null?o[1].toString().trim():"-");
+				memberIdentityVO.setFirstName(o[2]!=null?o[2].toString().trim():"-");
+				memberIdentityVO.setMiddleName(o[3]!=null?o[3].toString().trim():"-");
+				memberIdentityVO.setLastName(o[4]!=null?o[4].toString().trim():"-");			
+				memberIdentityVO.setFullDisplayName(o[5]!=null?o[5].toString():"-");			
+				memberIdentityVO.setConstituencyName(o[6]!=null?o[6].toString():"-");
+				memberIdentityVO.setConstituencyDisplayName(o[7]!=null?o[7].toString():"-");
+				
+				if(o[0]!=null) {
+					Member member = Member.findById(Member.class, Long.parseLong(o[0].toString()));
+					if(member!=null) {
+						try {
+							User memberUser = User.findbyNameBirthDate(member.getFirstName(),
+									member.getMiddleName(),member.getLastName(),
+									member.getBirthDate());
+							if(memberUser!=null) {
+								memberIdentityVO.setUsername(memberUser.getCredential().getUsername());
+							}
+						} catch (ELSException e) {
+							memberIdentityVO.setUsername("");
 						}
-					} catch (ELSException e) {
-						memberIdentityVO.setUsername("");
 					}
 				}
+				memberIdentityVOs.add(memberIdentityVO);
 			}
-			memberIdentityVOs.add(memberIdentityVO);
-		}
+		}		
 		return memberIdentityVOs;
 	}
 
