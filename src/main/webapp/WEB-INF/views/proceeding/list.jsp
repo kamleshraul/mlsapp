@@ -98,6 +98,36 @@
 				
 			});
 			
+			/**** Notify Chief Reporter handling the roster about the details of turn still pending ****/
+			$("#notifyPendingTurn").click(function(){
+				selectedProceedingId=$('#key').val();
+				if(selectedProceedingId==null||selectedProceedingId==""){								
+					$.prompt("Please select a turn for notifying!");
+					return false;
+				}else{
+					var slotCompleted = $('#grid').jqGrid('getCell',selectedProceedingId,'slot.completed');
+					if(slotCompleted=="true") {
+						$.prompt("This turn is already completed!");
+						return false;
+					} else {
+						$('.commandbarContent').hide();
+						var rosterHandledBy = $('#grid').jqGrid('getCell',selectedProceedingId,'slot.rosterHandledBy');
+						$.get('proceeding/notifyPendingTurn?proceedingId='+selectedProceedingId+'&rosterHandledBy='+rosterHandledBy, function(data){
+							$('#grid_container').html(data);
+							scrollTop();															
+						}).fail(function(){
+							if($("#ErrorMsg").val()!=''){
+								$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+							}else{
+								$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+							}
+							$('.commandbarContent').show();
+							scrollTop();
+						});
+					}
+				}
+			});
+			
 			$("#rosterwise").click(function() {
 				rosterWiseReport();
 			});	
@@ -264,6 +294,9 @@
 			<a href="#" id="complete" class="butSim">
 				<spring:message code="roster.complete" text="Complete"/>
 			</a> |		
+			<a href="#" id="notifyPendingTurn" class="butSim">
+				<spring:message code="roster.proceeding.notifyPendingTurn" text="Notify Pending Turn"/>
+			</a> |
 			<%-- <a href="#" id="search" class="butSim">
 				<spring:message code="generic.search" text="Search"/>
 			</a> | --%>	

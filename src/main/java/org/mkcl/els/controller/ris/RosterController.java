@@ -874,6 +874,13 @@ public class RosterController extends GenericController<Roster>{
 			result.rejectValue("action","ReporterEmpty");
 		}	
 	}
+	
+	@Override
+	protected void populateCreateIfNoErrors(ModelMap model, Roster domain,
+			HttpServletRequest request) {
+		/** set 'handled by' for the roster **/
+		domain.setHandledBy(this.getCurrentUser().getActualUsername());
+	}
 
 	@Override
 	protected void populateAfterCreate(ModelMap model, Roster domain,
@@ -897,6 +904,8 @@ public class RosterController extends GenericController<Roster>{
 			String reporterAction=request.getParameter("reporterAction");
 			Boolean status=domain.generateSlot(reporterAction);		
 		}
+		/** set 'handled by' for the roster **/
+		domain.setHandledBy(this.getCurrentUser().getActualUsername());
 	}	
 	
 	

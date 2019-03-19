@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.mkcl.els.repository.SlotRepository;
@@ -26,7 +27,6 @@ public class Slot extends BaseDomain implements Serializable{
 	/*********Fields **************/
 
 	private static final long serialVersionUID = 1L;
-	
 	
 	private String name;
 	
@@ -52,6 +52,9 @@ public class Slot extends BaseDomain implements Serializable{
 	private Boolean completed;
 	
 	private Date completedDate;
+	
+	@Transient
+	private String rosterHandledBy;
 	
 	//private Boolean blnPendingForEnglishReporter;
 	
@@ -234,6 +237,18 @@ public class Slot extends BaseDomain implements Serializable{
 	
 	public void setCompletedDate(Date completedDate) {
 		this.completedDate = completedDate;
+	}
+	
+	public String getRosterHandledBy() {
+		if(this.getRoster()!=null) {
+			if(this.getRoster().getHandledBy()!=null) {
+				return this.getRoster().getHandledBy();
+			} else {
+				return "";
+			}
+		} else {
+			return "";
+		}
 	}
 	
 }

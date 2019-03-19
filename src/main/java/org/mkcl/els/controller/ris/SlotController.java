@@ -169,7 +169,7 @@ public class SlotController extends GenericController<Slot>{
 	}
 	
 	@RequestMapping(value = "/sendReminderNotification", method = RequestMethod.GET)
-    public String sendNotificationInit(final ModelMap model, 
+    public String sendReminderNotificationInit(final ModelMap model, 
     		final HttpServletRequest request,
             final Locale locale) {
         final String servletPath = request.getServletPath().replaceFirst("\\/","");
@@ -227,7 +227,7 @@ public class SlotController extends GenericController<Slot>{
     }
 	
 	@RequestMapping(value = "/sendReminderNotification", method = RequestMethod.POST)
-    public String sendNotification(final ModelMap model, 
+    public String sendReminderNotification(final ModelMap model, 
     		final HttpServletRequest request,
     		final RedirectAttributes redirectAttributes,
             final Locale locale) {
@@ -244,7 +244,7 @@ public class SlotController extends GenericController<Slot>{
 					StringBuffer senderName = new StringBuffer("");
 					if(this.getCurrentUser().getTitle()!=null && !this.getCurrentUser().getTitle().isEmpty()) {
 						senderName.append(this.getCurrentUser().getTitle());
-						//senderName.append(" ");
+						senderName.append(" ");
 					}
 					if(this.getCurrentUser().getFirstName()!=null && !this.getCurrentUser().getFirstName().isEmpty()) {
 						senderName.append(this.getCurrentUser().getFirstName());
@@ -268,7 +268,7 @@ public class SlotController extends GenericController<Slot>{
 				} catch (Exception e) {
 					e.printStackTrace();
 					//error
-					model.addAttribute("errorcode", "REPORTER_NAME_EMPTY");
+					model.addAttribute("errorcode", "EXCEPTION_OCCURRED");
 					returnUrl = servletPath.replace("sendReminderNotification","error");
 				}
 			} else {
