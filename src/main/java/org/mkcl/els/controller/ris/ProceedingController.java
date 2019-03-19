@@ -4539,7 +4539,7 @@ public class ProceedingController extends GenericController<Proceeding>{
 				}	        	        
 			} else {
 				//error
-				model.addAttribute("errorcode", "REPORTER_NAME_EMPTY");
+				model.addAttribute("errorcode", "CHIEF_REPORTER_NAME_EMPTY");
 				returnUrl = servletPath.replace("notifyPendingTurn","error");
 			}
 			return returnUrl;
