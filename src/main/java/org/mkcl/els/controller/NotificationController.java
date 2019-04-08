@@ -272,6 +272,18 @@ public class NotificationController extends GenericController<Notification> {
 		getNotificationService().sendNotificationWithTitleUsingTemplate(question.getType().getType().toUpperCase() + "_REQUEST_FOR_DEPARTMENT_PROCESSING", templateParameters, locale);
 	}
 	
+	public static void sendReverseClubbingNotification(final String houseTypeName, final String parentDeviceNumber, final String childDeviceNumber, final String parentDeviceTypeName, final String childDeviceTypeName, final String parentSubdepartmentName, final String locale) {
+		Map<String, String[]> templateParameters = new HashMap<String, String[]>();
+		templateParameters.put("locale", new String[]{locale});
+		templateParameters.put("houseTypeName", new String[]{houseTypeName});
+		templateParameters.put("parentDeviceNumber", new String[]{parentDeviceNumber});
+		templateParameters.put("childDeviceNumber", new String[]{childDeviceNumber});
+		templateParameters.put("parentDeviceTypeName", new String[]{parentDeviceTypeName});
+		templateParameters.put("childDeviceTypeName", new String[]{childDeviceTypeName});	
+		templateParameters.put("parentSubdepartmentName", new String[]{parentSubdepartmentName});
+		getNotificationService().sendNotificationWithTitleUsingTemplate("REVERSE_CLUBBING_INTIMATION", templateParameters, locale);
+	}
+	
 	public static void sendBallotCreationNotification(final DeviceType deviceType,
 								final HouseType houseType,
 								final Date ballotDate,

@@ -42,6 +42,7 @@ import org.mkcl.els.common.vo.MemberBallotMemberWiseReportVO;
 import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
+import org.mkcl.els.controller.NotificationController;
 import org.mkcl.els.domain.associations.HouseMemberRoleAssociation;
 import org.mkcl.els.domain.ballot.Ballot;
 import org.mkcl.els.domain.ballot.BallotEntry;
@@ -7231,6 +7232,8 @@ public class Question extends Device implements Serializable {
 						question.setRecommendationStatus(admitDueToReverseClubbingStatus);
 						Workflow admitDueToReverseClubbingWorkflow = Workflow.findByStatus(admitDueToReverseClubbingStatus, locale);
 						WorkflowDetails.startProcess(question, ApplicationConstants.APPROVAL_WORKFLOW, admitDueToReverseClubbingWorkflow, locale);
+						//Send Notification of reverse clubbing
+						NotificationController.sendReverseClubbingNotification(parentQuestion.getHouseType().getName(), parentQuestion.getNumber().toString(), question.getNumber().toString(), parentQuestion.getType().getName(), question.getType().getName(), parentQuestion.getSubDepartment().getName(), locale);
 					} else {
 						//TODO:handle case when parent is already rejected.. below is temporary fix
 						//clarification from ketkip remaining
@@ -7303,6 +7306,8 @@ public class Question extends Device implements Serializable {
 						question.setRecommendationStatus(admitDueToReverseClubbingStatus);
 						Workflow admitDueToReverseClubbingWorkflow = Workflow.findByStatus(admitDueToReverseClubbingStatus, locale);
 						WorkflowDetails.startProcess(question, ApplicationConstants.APPROVAL_WORKFLOW, admitDueToReverseClubbingWorkflow, locale);
+						//Send Notification of reverse clubbing
+						NotificationController.sendReverseClubbingNotification(parentQuestion.getHouseType().getName(), parentQuestion.getNumber().toString(), question.getNumber().toString(), parentQuestion.getType().getName(), question.getType().getName(), parentQuestion.getSubDepartment().getName(), locale);
 					} else {
 						//TODO:handle case when parent is already rejected.. below is temporary fix
 						//clarification from ketkip remaining
@@ -7408,7 +7413,8 @@ public class Question extends Device implements Serializable {
 					question.setRecommendationStatus(admitDueToReverseClubbingStatus);
 					Workflow admitDueToReverseClubbingWorkflow = Workflow.findByStatus(admitDueToReverseClubbingStatus, locale);
 					WorkflowDetails.startProcess(question, ApplicationConstants.APPROVAL_WORKFLOW, admitDueToReverseClubbingWorkflow, locale);
-					
+					//Send Notification of reverse clubbing
+					NotificationController.sendReverseClubbingNotification(parentQuestion.getHouseType().getName(), parentQuestion.getNumber().toString(), question.getNumber().toString(), parentQuestion.getType().getName(), question.getType().getName(), parentQuestion.getSubDepartment().getName(), locale);
 				} else {
 					//TODO:handle case when parent is already rejected.. below is temporary fix
 					//clarification from ketkip remaining
@@ -7484,6 +7490,7 @@ public class Question extends Device implements Serializable {
 					question.setRecommendationStatus(admitDueToReverseClubbingStatus);
 					Workflow admitDueToReverseClubbingWorkflow = Workflow.findByStatus(admitDueToReverseClubbingStatus, locale);
 					WorkflowDetails.startProcess(question, ApplicationConstants.APPROVAL_WORKFLOW, admitDueToReverseClubbingWorkflow, locale);
+					//TODO: Notification of reverse clubbing
 					
 				} else {
 					//TODO:handle case when parent is already rejected.. below is temporary fix
