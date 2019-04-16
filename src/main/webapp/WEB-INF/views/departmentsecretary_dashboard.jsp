@@ -26,7 +26,7 @@ response.setDateHeader ("Expires", 0);
 	<link type="text/css" rel="stylesheet" href="./resources/css/theme-default/material-design-iconic-font.min.css" />
 	<link type="text/css" rel="stylesheet" href="./resources/css/theme-default/libs/fullcalendar/fullcalendar.css">
 	<link rel="stylesheet" href="./resources/css/template.css">
-	<link rel="stylesheet" href="./resources/css/departmentecretary_dashboard.css">
+	<link rel="stylesheet" href="./resources/css/departmentSecretary_dashboard.css">
 	<!-- <link rel="stylesheet" href="./resources/css/fastsearch.css"> -->
 
 	<!-- BEGIN JAVASCRIPT -->
