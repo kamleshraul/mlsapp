@@ -106,8 +106,8 @@
 						<td style="font-size: 17px; word-wrap: break-word; width: 250px; padding-left: 5px;">
 							${labels[3]}
 						</td>
-						<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;">
-							${data[0][7]}
+						<td colspan="2" style="font-size: 17px; word-wrap: break-word; width: 500px; padding-left: 5px;text-align:justify;">
+							${data[0][21]}
 						</td>
 					</tr>
 					<tr style="font-weight: bold;">													
@@ -163,7 +163,7 @@
 						<td colspan="3">&nbsp;</td>
 					</tr>						
 					<tr>
-						<td colspan="3" style="width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px;">
+						<td colspan="3" style="width: 500px; font-size: 17px; word-wrap: break-word; padding-left: 5px; text-align: justify;">
 							${data[0][13]}
 						</td>
 					</tr>						
@@ -195,21 +195,23 @@
 				<table style="width: 750px; font-weight: bold; border: 2px solid black; font-size: 14px; margin-left: 30px;" class="uiTable">
 					
 					<c:forEach items="${fn:split(data[0][2],',')}" var="d" varStatus="dd">
-						<tr>
-							<c:set var="actor" value="actor${dd.count}Name" />
-							<c:set var="propertS" value="actor${dd.count}Status" />
-							<c:set var="propertR" value="actor${dd.count}Remark" />
-							<c:set var="propertName" value="user${dd.count}Name" />
-							<td style="width:120px;">
-								<c:out value="${dataMapper[actor]}" /><br>
-								<c:if test="${dataMapper[propertName]!=null}">
-									<span style="font-size: 10px">
-										(${dataMapper[propertName]})
-									</span>
-								</c:if>
-							<td style="width:100px;"><c:out value="${dataMapper[propertS]}" /></td>
-							<td style="width:530px; text-align:center;"><c:out value="${dataMapper[propertR]}" /></td>
-						</tr>
+						<c:if test="${d!='clerk' && d!='member' && d!='typist'}">
+							<tr>
+								<c:set var="actor" value="actor${dd.count}Name" />
+								<c:set var="propertS" value="actor${dd.count}Status" />
+								<c:set var="propertR" value="actor${dd.count}Remark" />
+								<c:set var="propertName" value="user${dd.count}Name" />
+								<td style="width:120px;">
+									<c:out value="${dataMapper[actor]}" /><br>
+									<c:if test="${dataMapper[propertName]!=null}">
+										<span style="font-size: 10px">
+											(${dataMapper[propertName]})
+										</span>
+									</c:if>
+								<td style="width:100px;"><c:out value="${dataMapper[propertS]}" /></td>
+								<td style="width:530px; text-align:center;"><c:out value="${dataMapper[propertR]}" /></td>
+							</tr>
+						</c:if>
 					</c:forEach>
 				</table>
 				
