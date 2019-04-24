@@ -62,7 +62,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Table(name="members")
 @JsonIgnoreProperties(value={"title","qualifications", "religion", "languages",
 	"familyMembers", "positionsHeld", "reservation", "electionResults",
-	"memberPartyAssociations", "memberMinisters", "books",
+	"memberPartyAssociations", "memberMinisters","memberSupportingMember", "books",
 	"credential", "title", "maritalStatus", "gender", "professions",
 	"nationality", "permanentAddress","permanentAddress1","permanentAddress2","presentAddress","presentAddress1","presentAddress2"
 	,"tempAddress1","tempAddress2", "contact",
@@ -323,6 +323,10 @@ import org.springframework.beans.factory.annotation.Configurable;
 	/** The member ministers. */
 	@OneToMany(mappedBy="member", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	private List<MemberMinister> memberMinisters;
+	
+	/** The member ministers. */
+	@OneToMany(mappedBy="member", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	private List<MemberSupportingMember> memberSupportingMember;
 
 	// ----------------------------------Book_Informations----------------------------------
 	/** The books. */
@@ -1866,7 +1870,14 @@ import org.springframework.beans.factory.annotation.Configurable;
 	public void setMemberMinisters(final List<MemberMinister> memberMinisters) {
 		this.memberMinisters = memberMinisters;
 	}
-
+	
+	public List<MemberSupportingMember> getMemberSupportingMember() {
+		return memberSupportingMember;
+	}
+	
+	public void setMemberSupportingMember(List<MemberSupportingMember> memberSupportingMember) {
+		this.memberSupportingMember = memberSupportingMember;
+	}
 	/**
 	 * Gets the publications.
 	 *
