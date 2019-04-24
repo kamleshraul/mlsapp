@@ -261,6 +261,100 @@
 			}
 		});
 		
+		//Copy supporting members
+		$("#copyMembers").click(function(e){
+			//no need to send for approval in case of empty supporting members.
+			 var supportingMembersName='${supportingMembersName}';
+			if(supportingMembersName==""){
+				$.prompt($('#memberSupportingMembersCOPYEmptyMsg').val(),{
+					buttons: {Ok:true}, callback: function(v){
+				   		if(v){
+				   			scrollTop();
+				   			$('#selectedSupportingMembers').focus();
+				   		
+				   		}     						
+					}
+				});	
+				return false;
+			}
+			 $('.multiselect2').empty()
+			    var options = $('select.multiselect1 option').sort().clone();
+			    $('select.multiselect2').append(options);
+			    
+			    
+			    var supportingMembersName='${supportingMembersName}';
+			    $('#selectedSupportingMembers').val(supportingMembersName+',');
+			
+			    
+			});
+		
+		//save supporting members
+		$("#saveMembers").click(function(e){
+			//no need to send for approval in case of empty supporting members.
+			if($("#selectedSupportingMembers").val()==""){
+				$.prompt($('#memberSupportingMembersSAVEEmptyMsg').val(),{
+					buttons: {Ok:true}, callback: function(v){
+				   		if(v){
+				   			scrollTop();
+				   			$('#selectedSupportingMembers').focus();
+				   		
+				   		}     						
+					}
+				});	
+				return false;
+			}
+			
+		
+
+			//removing <p><br></p>  from wysiwyg editor
+			$(".wysiwyg").each(function(){
+				var wysiwygVal=$(this).val().trim();
+				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
+					$(this).val("");
+				}
+			});	
+			//-------------------------------
+			$.prompt($('#sendForSaveMsg').val()+$("#selectedSupportingMembers").val(),{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+		        if(v){
+		        	var postURL = "member/other/saveSupportingMembers";
+					$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 			        
+					
+						$.post(postURL,
+								$('form').serialize(), function(data){
+							 if(data=='success'){
+								 $.prompt('<spring:message code="update_success" text="Notice"/>',{
+										buttons: {Ok:true}, callback: function(v){
+									   		if(v){
+									   			scrollTop();
+									   			$('#selectedSupportingMembers').focus();
+									   		
+									   		}     						
+										}
+									});	
+		       			
+		       				 $('#savedMemberSupportingMembers').empty()
+
+		       				 var options = $('select.multiselect2 option').sort().clone();
+		     			    $('select.multiselect1').append(options);
+		     			    
+		     			   $('#copyMembers').attr('title', $('#selectedSupportingMembers').val());
+		    					$.unblockUI();	   				
+							 }
+		    	            }).fail(function(){
+		    	            	$.unblockUI();
+		    					if($("#ErrorMsg").val()!=''){
+		    						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+		    					}else{
+		    						$("#error_p").html("Error occured contact for support.");
+		    					}
+		    					scrollTop();
+		    				});
+		        }
+			}});			
+	    
+	    }); 
+		
 		//send for approval
 		$("#sendforapproval").click(function(e){
 			//no need to send for approval in case of empty supporting members.
@@ -791,20 +885,28 @@
 	</security:authorize>
 	
 	<p>
+	<c:if test="${!(empty savedMemberSupportingMembers)}">		
+		<select id="savedMemberSupportingMembers" name="savedMemberSupportingMembers" class="multiselect1" multiple="multiple" style="display: none;">
+		<c:forEach items="${savedMemberSupportingMembers}" var="i">
+		<option value="${i.id}" class="${i.getFullname()}" selected="selected"></option>
+		</c:forEach>		
+		</select>
+		</c:if>
+	
+		<select  name="selectedSupportingMembers" class="multiselect2" multiple="multiple">
+		
+		</select>
+	
 		<label class="centerlabel"><spring:message code="question.supportingMembers" text="Supporting Members"/></label>
-		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50">${supportingMembersName}</textarea>
+		<textarea id="selectedSupportingMembers"  class="autosuggestmultiple" rows="2" cols="50"></textarea>
 		<c:if test="${(selectedQuestionType == 'questions_halfhourdiscussion_from_question')
 			 and (!(empty numberOfSupportingMembersComparator) and !(empty numberOfSupportingMembers))}">
 			<label style="display: inline; border: 1px double blue; padding: 5px; background-color: #DCE4EF; font-weight: bold;" class="centerlabel" id="supportingMemberMessage"><spring:message code="question.numberOfsupportingMembers" text="Number of Supporting Members"></spring:message>&nbsp;${numberOfSupportingMembersComparatorHTML}&nbsp;${numberOfSupportingMembers}</label>										
 		</c:if>
+		<a href="#" title="${supportingMembersName}" id="copyMembers"><img src="./resources/images/back2D.png" title="<spring:message code='question.copyMembers' text='${supportingMembersName}'></spring:message>" style="width: 32px; height: 32px;" /></a>
+		<a href="#" id="saveMembers"><img src="./resources/images/save.jpg" title="<spring:message code='question.saveMembers' text='Save Supporting members'></spring:message>" style="width: 32px; height: 32px;" /></a>
+	
 		
-		<c:if test="${!(empty supporingMembers)}">		
-		<select  name="selectedSupportingMembers" multiple="multiple">
-		<c:forEach items="${supportingMembers}" var="i">
-		<option value="${i.id}" class="${i.member.getFullname()}"></option>
-		</c:forEach>		
-		</select>
-		</c:if>
 		<form:errors path="supportingMembers" cssClass="validationError"/>	
 	</p>
 		
@@ -1027,6 +1129,7 @@
 	<input type="hidden" name="selectedSupportingMembersIfErrors" value="${selectedSupportingMembersIfErrors}" />
 </form:form>
 
+
 <input id="ministrySelected" value="${ministrySelected }" type="hidden">
 <input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
 <input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">
@@ -1038,6 +1141,9 @@
 <input id="questionEmptyMsg" value='<spring:message code="client.error.question.questionEmpty" text="Question Details can not be empty."></spring:message>' type="hidden">
 <input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">
 <input id="supportingMembersEmptyMsg" value="<spring:message code='client.error.supportingmemberempty' text='Supporting Member is required to send for approval.'/>" type="hidden">
+<input id="memberSupportingMembersSAVEEmptyMsg" value="<spring:message code='client.error.supportingmembersaveempty' text='No Supporting Member for Save.'/>" type="hidden">
+<input id="memberSupportingMembersCOPYEmptyMsg" value="<spring:message code='client.error.supportingmembercopyempty' text='No Supporting Member for Copy.'/>" type="hidden">
+<input id="sendForSaveMsg" value="<spring:message code='client.prompt.save' text='following members will be saved as Supporting Members:'></spring:message>" type="hidden">
 <input id="referenceQuestionIncorrectMsg" value="<spring:message code='client.error.referencequestionincorrect' text='Please Provide Correct Question Number'/>" type="hidden">
 <input id="questionNumberIncorrectMsg" value="<spring:message code='client.error.referencequestionincorrect' text='Please Provide Proper Question Number'/>" type="hidden">
 <input id="questionReferenceEmptyMsg" value="<spring:message code='client.error.questionreferenceempty' text='Please Provide Proper Refernce Number'/>" type="hidden">
