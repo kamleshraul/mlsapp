@@ -26,6 +26,7 @@ import org.mkcl.els.common.vo.ProcessInstance;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.NotificationController;
+import org.mkcl.els.controller.mis.MemberOtherController;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
@@ -35,6 +36,7 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
+import org.mkcl.els.domain.MemberSupportingMember;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
@@ -552,6 +554,33 @@ class StarredQuestionController {
 			throw new ELSException("StarredQuestionController.populateNew/5", 
 					"highestquestionprioritynotset");
 		}
+		
+		/*** Populate Saved Supporting member***/
+		//Populate Supporting Member Names
+		Member member = Member.findMember(authUser.getFirstName(), authUser.getMiddleName(),
+				authUser.getLastName(), authUser.getBirthDate(), locale);
+		String supportingMemberNames = MemberOtherController.getDelimitedMemberSupportingMembers(questionType, member, selectedSession, locale, usergroupType);
+		model.addAttribute("supportingMembersName", supportingMemberNames);
+		
+		//Populate Supporting Members 
+		List<MemberSupportingMember> suppMembers = MemberSupportingMember.getMemberSupportingMemberRepository().findMemberSupportingMember(questionType, member, selectedSession, locale);
+
+		List<Member> supportingMembers = new ArrayList<Member>();
+		for(MemberSupportingMember sm : suppMembers){
+	
+				Member supportingMember = sm.getSupportingMember();
+				if(supportingMember.isActiveMemberOn(new Date(), locale)){
+					supportingMembers.add(supportingMember);
+				}
+		
+			
+		}
+		model.addAttribute("supportingMembers", supportingMembers);
+		model.addAttribute("savedMemberSupportingMembers", supportingMembers);
+
+		//Populate PrimaryMemberName + supportingMemberNames
+		String memberNames = member.getFullname() + "," + supportingMemberNames;
+		model.addAttribute("memberNames",memberNames);
 	}
 
 	
@@ -560,7 +589,7 @@ class StarredQuestionController {
 		String locale = domain.getLocale();
 		Role role = QuestionController.getRole(request, locale);
 		List<SupportingMember> supportingMembers = 
-				QuestionController.getSupportingMembers(request, domain, role, locale);
+		QuestionController.getSupportingMembers(request, domain, role, locale);
 		domain.setSupportingMembers(supportingMembers);
 	}
 

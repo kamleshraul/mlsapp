@@ -22,8 +22,8 @@ import org.mkcl.els.common.vo.AuthUser;
 import org.mkcl.els.common.vo.MasterVO;
 import org.mkcl.els.common.vo.ProcessDefinition;
 import org.mkcl.els.common.vo.ProcessInstance;
-import org.mkcl.els.common.vo.QuestionSearchVO;
 import org.mkcl.els.common.vo.Task;
+import org.mkcl.els.controller.mis.MemberOtherController;
 import org.mkcl.els.domain.ClubbedEntity;
 import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
@@ -33,10 +33,10 @@ import org.mkcl.els.domain.Group;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
+import org.mkcl.els.domain.MemberSupportingMember;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Query;
 import org.mkcl.els.domain.Question;
-import org.mkcl.els.domain.QuestionDates;
 import org.mkcl.els.domain.QuestionDraft;
 import org.mkcl.els.domain.Reference;
 import org.mkcl.els.domain.Role;
@@ -54,9 +54,6 @@ import org.mkcl.els.domain.WorkflowDetails;
 import org.mkcl.els.service.IProcessService;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 class HalfHourDiscussionFromQuestionController {
 	
@@ -457,6 +454,37 @@ class HalfHourDiscussionFromQuestionController {
 		List<Ministry> ministries = Ministry.
 				findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
 		model.addAttribute("ministries",ministries);
+		
+		
+		
+		/*** Populate Saved Supporting member***/
+		//Populate Supporting Member Names
+		Member member = Member.findMember(authUser.getFirstName(), authUser.getMiddleName(),
+				authUser.getLastName(), authUser.getBirthDate(), locale);
+		String supportingMemberNames = MemberOtherController.getDelimitedMemberSupportingMembers(questionType, member, selectedSession, locale, usergroupType);
+		model.addAttribute("supportingMembersName", supportingMemberNames);
+		
+		//Populate Supporting Members 
+		List<MemberSupportingMember> suppMembers = MemberSupportingMember.getMemberSupportingMemberRepository().findMemberSupportingMember(questionType, member, selectedSession, locale);
+
+		List<Member> supportingMembers = new ArrayList<Member>();
+		for(MemberSupportingMember sm : suppMembers){
+	
+				Member supportingMember = sm.getSupportingMember();
+				if(supportingMember.isActiveMemberOn(new Date(), locale)){
+					supportingMembers.add(supportingMember);
+				}
+		
+			
+		}
+		model.addAttribute("supportingMembers", supportingMembers);
+		model.addAttribute("savedMemberSupportingMembers", supportingMembers);
+
+		//Populate PrimaryMemberName + supportingMemberNames
+		String memberNames = member.getFullname() + "," + supportingMemberNames;
+		model.addAttribute("memberNames",memberNames);
+
+
 		
 		//Populate Referenced Devices
 		if (selectedSession != null) {	
