@@ -169,6 +169,11 @@ public class Question extends Device implements Serializable {
 
     /** The priority. */
     private Integer priority;
+    
+    /** The submission priority 
+     *  To be used for bulk submission by member
+     */
+    private Integer submissionPriority;
 
     /** 
      * The status. Refers to various final status viz, SUBMITTED,
@@ -1972,6 +1977,44 @@ public class Question extends Device implements Serializable {
     }
     
     /**
+     * Sort the Questions as per @param sortOrder by submission priority. If multiple Questions
+     * have same submission priority, then their order is preserved.
+     *
+     * @param questions SHOULD NOT BE NULL
+     *
+     * Does not sort in place, returns a new list.
+     * @param sortOrder the sort order
+     * @return the list
+     */
+    public static List<Question> sortBySubmissionPriority(final List<Question> questions,
+            final String sortOrder) {
+        List<Question> newQList = new ArrayList<Question>();
+        newQList.addAll(questions);
+
+        if(sortOrder.equals(ApplicationConstants.ASC)) {
+            Comparator<Question> c = new Comparator<Question>() {
+
+                @Override
+                public int compare(final Question q1, final Question q2) {
+                    return q1.getSubmissionPriority().compareTo(q2.getSubmissionPriority());
+                }
+            };
+            Collections.sort(newQList, c);
+        } else if(sortOrder.equals(ApplicationConstants.DESC)) {
+            Comparator<Question> c = new Comparator<Question>() {
+
+                @Override
+                public int compare(final Question q1, final Question q2) {
+                    return q2.getSubmissionPriority().compareTo(q1.getSubmissionPriority());
+                }
+            };
+            Collections.sort(newQList, c);
+        }
+
+        return newQList;
+    }
+    
+    /**
      * Sort the Questions as per @param sortOrder by answeringDate. If multiple Questions
      * have same answeringDate, then break the tie by Question number.
      *
@@ -2577,6 +2620,20 @@ public class Question extends Device implements Serializable {
 	
 	public static List<Question> findByDeviceAndStatus(final DeviceType deviceType, final Status status){
 		return getQuestionRepository().findByDeviceAndStatus(deviceType, status);
+	}
+	
+	public static int findReadyToSubmitCount(final Session session,
+			final Member primaryMember,
+			final DeviceType deviceType,
+			final String locale) {
+		return getQuestionRepository().findReadyToSubmitCount(session, primaryMember, deviceType, locale);
+	}
+	
+	public static List<Question> findReadyToSubmitQuestions(final Session session,
+			final Member primaryMember,
+			final DeviceType deviceType,
+			final String locale) {
+		return getQuestionRepository().findReadyToSubmitQuestions(session, primaryMember, deviceType, locale);
 	}
 	
 	public static List<Question> findAllByMember(final Session session,
@@ -3211,6 +3268,16 @@ public class Question extends Device implements Serializable {
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
+
+	public Integer getSubmissionPriority() {
+		return submissionPriority;
+	}
+
+
+	public void setSubmissionPriority(Integer submissionPriority) {
+		this.submissionPriority = submissionPriority;
+	}
+
 
 	public Status getStatus() {
 		return status;

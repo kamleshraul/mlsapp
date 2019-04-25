@@ -237,6 +237,13 @@
 				$("#member_starred_suchi_view_span").hide();
 			}
 			
+			/**** show/hide determine_ordering_for_submission as per selected devicetype ****/
+			if($('#currentusergroupType').val()=='member' && text == 'questions_starred') {
+				$('#determine_ordering_for_submission_span').show();				
+			} else {
+				$('#determine_ordering_for_submission_span').hide();
+			}
+			
 			if (value != "") {
 				reloadQuestionGrid();
 			}
@@ -254,7 +261,8 @@
 			$('#selectedAnswerReceivedStatus').val("-");
 			var value = $(this).val();
 			if (value != "") {
-				reloadQuestionGrid();
+				//reloadQuestionGrid();
+				showQuestionList();
 			}
 			$("#generateIntimationLetter").attr("href","");
 			
@@ -548,6 +556,16 @@
 				+ "&role=" + $("#srole").val() + "&usergroup="
 				+ $("#currentusergroup").val() + "&usergroupType="
 				+ $("#currentusergroupType").val()+"&subdepartment="+(($("#selectedSubDepartment").val()==undefined)?'0':$("#selectedSubDepartment").val()));
+	}
+	
+	function determineOrderingForSubmission() {
+		var parameters = "houseType=" + $("#selectedHouseType").val()
+		+ "&sessionYear=" + $("#selectedSessionYear").val()
+		+ "&sessionType=" + $("#selectedSessionType").val()
+		+ "&questionType=" + $("#selectedQuestionType").val()
+		+ "&createdBy=" + $("#ugparam").val()
+		+ "&locale="+$("#moduleLocale").val();
+		showTabByIdAndUrl('details_tab','question/determine_ordering_for_submission?'+parameters);
 	}
 	
 	function memberQuestionsView(status_filter) {

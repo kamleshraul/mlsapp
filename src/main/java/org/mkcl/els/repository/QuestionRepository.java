@@ -9,6 +9,7 @@
  */
 package org.mkcl.els.repository;
 
+import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -2237,6 +2238,54 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		}
 	}
 	
+	public int findReadyToSubmitCount(final Session session,
+			final Member primaryMember,
+			final DeviceType deviceType,
+			final String locale) {
+		Integer draftsCount = 0;
+		
+		String queryString = "SELECT COUNT(DISTINCT q.id) FROM questions q" +
+				" INNER JOIN status sta ON (sta.id=q.status_id)" +
+				" WHERE q.session_id=:sessionId" +
+				" AND q.member_id=:memberId" +
+				" AND q.devicetype_id=:deviceTypeId" +
+				" AND sta.type LIKE '%\\_complete'" +
+				" AND q.locale=:locale";
+		Query query = this.em().createNativeQuery(queryString);
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("memberId", primaryMember.getId());
+		query.setParameter("deviceTypeId", deviceType.getId());		
+		query.setParameter("locale", locale);
+		
+		@SuppressWarnings("rawtypes")
+		List draftsList = query.getResultList();
+		if(draftsList!=null) {
+			draftsCount = ((BigInteger) draftsList.get(0)).intValue();
+		}
+		
+		return draftsCount;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Question> findReadyToSubmitQuestions(final Session session,
+			final Member primaryMember,
+			final DeviceType deviceType,
+			final String locale) {		
+		String queryString = "SELECT DISTINCT q.* FROM questions q" +
+				" INNER JOIN status sta ON (sta.id=q.status_id)" +
+				" WHERE q.session_id=:sessionId" +
+				" AND q.member_id=:memberId" +
+				" AND q.devicetype_id=:deviceTypeId" +
+				" AND sta.type LIKE '%\\_complete'" +
+				" AND q.locale=:locale" +
+				" ORDER BY q.submission_priority";
+		Query query = this.em().createNativeQuery(queryString, Question.class);
+		query.setParameter("sessionId", session.getId());
+		query.setParameter("memberId", primaryMember.getId());
+		query.setParameter("deviceTypeId", deviceType.getId());		
+		query.setParameter("locale", locale);
+		return query.getResultList();
+	}
 	
 	public List<Question> findAllByMember(final Session session,
 			final Member primaryMember,

@@ -648,6 +648,84 @@ public class QuestionController extends GenericController<Question> {
 		
 	}
 	
+	@RequestMapping(value="/determine_ordering_for_submission", method=RequestMethod.GET)
+	public String determineOrderingForSubmissionInit(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		AuthUser authUser = this.getCurrentUser();
+		try {
+			DeviceType deviceType = QuestionController.getDeviceTypeById(request, locale.toString());
+			String deviceTypeType = deviceType.getType();
+			
+			if(deviceTypeType.equals(ApplicationConstants.STARRED_QUESTION)) {
+				return StarredQuestionController.
+						determineOrderingForSubmissionInit(request, model, authUser, locale);
+			}
+			/*else if (deviceTypeType.equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+				return  UnstarredQuestionController.
+						getBulkSubmissionView( request, model, authUser, locale);
+			}
+			else if (deviceTypeType.equals(ApplicationConstants.SHORT_NOTICE_QUESTION)) {
+				return  ShortNoticeController.
+						getBulkSubmissionView( request, model, authUser, locale);
+			}
+			else if (deviceTypeType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+				return  HalfHourDiscussionFromQuestionController.
+						getBulkSubmissionView(request, model, authUser, locale);
+			}*/
+			else {
+				throw new ELSException("QuestionController.determineOrderingForSubmissionInit/4", 
+						"Method invoked for inappropriate device type");
+			}
+		}
+		catch(ELSException elsx) {
+			elsx.printStackTrace();
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}	
+	
+	@Transactional
+	@RequestMapping(value="determine_ordering_for_submission", method=RequestMethod.POST)
+	public String determineOrderingForSubmission(final ModelMap model,
+			final HttpServletRequest request,
+			final Locale locale) {
+		AuthUser authUser = this.getCurrentUser();
+		try {
+			DeviceType deviceType = QuestionController.getDeviceTypeById(request, locale.toString());
+			String deviceTypeType = deviceType.getType();
+			
+			if(deviceTypeType.equals(ApplicationConstants.STARRED_QUESTION)) {
+				return StarredQuestionController.
+						determineOrderingForSubmission(request, model, authUser, processService, locale);
+			}
+//			else if (deviceTypeType.equals(ApplicationConstants.UNSTARRED_QUESTION)) {
+//				return  UnstarredQuestionController.
+//						bulkSubmission( request, model, authUser, processService, locale);
+//			}
+//			else if (deviceTypeType.equals(ApplicationConstants.SHORT_NOTICE_QUESTION)) {
+//				return  ShortNoticeController.
+//						bulkSubmission( request, model, authUser, processService, locale);
+//			}
+//			else if (deviceTypeType.equals(ApplicationConstants.HALF_HOUR_DISCUSSION_QUESTION_FROM_QUESTION)) {
+//				return  HalfHourDiscussionFromQuestionController.
+//						bulkSubmission(request, model, authUser, processService, locale);
+//			}
+			else {
+				throw new ELSException("QuestionController.determineOrderingForSubmission/4", 
+						"Method invoked for inappropriate device type");
+			}
+		}
+		catch(ELSException elsx) {
+			elsx.printStackTrace();
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
 	
 	@RequestMapping(value="/bulksubmission", method=RequestMethod.GET)
 	public String getBulkSubmissionView(final ModelMap model,

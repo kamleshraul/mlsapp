@@ -2702,4 +2702,6 @@ public class ApplicationConstants {
 	
 	/**** Temporary Count for confirming performance issues if any ****/
 	public static long isUserSessionActive_URL_HIT_COUNT = 0; //remove once not needed
+	
+	public static int DEFAULT_SUBMISSION_PRIORITY = 1000;
 }

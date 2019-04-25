@@ -951,6 +951,21 @@
 								<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>
 								<form:select path="priority" cssClass="sSelect" items="${priorities}" itemLabel="name" itemValue="number" />
 								<form:errors path="priority" cssClass="validationError"/>	
+								<br />
+								<label class="small"><spring:message code="question.submission_priority" text="Submission Priority"/></label>
+								<select id="submissionPriority" name="submissionPriority" class="sSelect">
+									<option value="${defaultSubmissionPriority}"><spring:message code="question.default_ordering_for_submission" text="Creation Order"/></option>	
+									<c:forEach var="submissionOrder" begin="1" end="200" step="1">
+										<c:choose>
+											<c:when test="${not empty domain.submissionPriority and domain.submissionPriority!=defaultSubmissionPriority and submissionOrder==domain.submissionPriority}">
+												<option value="${submissionOrder}" selected="selected">${formater.formatNumberNoGrouping(submissionOrder, locale)}</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${submissionOrder}">${formater.formatNumberNoGrouping(submissionOrder, locale)}</option>
+											</c:otherwise>
+										</c:choose>										
+									</c:forEach>
+								</select>
 							</security:authorize>
 							<security:authorize access="hasAnyRole('QIS_TYPIST')">
 								<label class="small"><spring:message code="question.priority" text="Priority"/>*</label>

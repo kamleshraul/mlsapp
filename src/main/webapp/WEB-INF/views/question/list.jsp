@@ -50,6 +50,11 @@
 				$('#suchiAnsweringDate').css('display', 'none');
 				$("#member_starred_suchi_view_span").hide();
 			}
+			if($('#currentusergroupType').val()=='member' && currentDeviceType == 'questions_starred') {
+				$("#determine_ordering_for_submission_span").show();
+			} else {
+				$("#determine_ordering_for_submission_span").hide();
+			}
 			$("#member_statistics").click(function(){
 				memberStatistics();
 			});
@@ -74,6 +79,12 @@
 			/****Searching Question****/
 			$("#search").click(function() {
 				searchRecord();
+			});
+			
+			/****Determine Ordering of Questions for Submission ****/
+			$("#determine_ordering_for_submission").click(function() {
+				$("#selectionDiv1").hide();
+				determineOrderingForSubmission();
 			});
 			
 			/****Member's Questions View ****/
@@ -339,6 +350,11 @@
 				<spring:message code="question.search" text="Search"/>
 			</a> |
 			<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+				<span id="determine_ordering_for_submission_span">
+				<a href="#" id="determine_ordering_for_submission" class="butSim">
+					<spring:message code="question.determine_ordering_for_submission" text="Determine Ordering for Submission"/>
+				</a> |
+				</span>
 				<hr/>
 				<a href="#" id="member_questions_view" class="butSim">
 					<spring:message code="question.member_questions_view" text="Member's Questions View"/>

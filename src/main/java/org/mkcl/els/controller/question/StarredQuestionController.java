@@ -342,6 +342,13 @@ class StarredQuestionController {
 							QuestionController.isRoleExists(configuredMemberGridAllowedForRoles, role);
 				 if(isRoleConfiguredForMemberGrid){
 					   newUrlPattern=urlPattern+"?usergroup=member&houseType="+houseType;
+					   String selectedStatusId = request.getParameter("status");
+					   if(selectedStatusId!=null && !selectedStatusId.isEmpty()) {
+						   Status selectedStatus = Status.findById(Status.class, Long.parseLong(selectedStatusId));
+						   if(selectedStatus!=null && selectedStatus.getType().equals(ApplicationConstants.QUESTION_COMPLETE)) {
+							   newUrlPattern=urlPattern+"_readyToSubmit?usergroup=member&houseType="+houseType;
+						   }
+					   }
 					   return newUrlPattern;
 				 }
 			 }
@@ -502,8 +509,9 @@ class StarredQuestionController {
 		
 		//Populate Primary Member
 		String primaryMember = null;
+		Member member = null;
 		if(strRole.startsWith("MEMBER")) {
-			Member member = QuestionController.populateMember(model, authUser, locale);
+			member = QuestionController.populateMember(model, authUser, locale);
 			if(member == null){
 				throw new ELSException("StarredQuestionController.populatenew/5", 
 						"The Current User is Not member");
@@ -536,8 +544,7 @@ class StarredQuestionController {
 			List<Ministry> ministries = Ministry.
 					findMinistriesAssignedToGroups(houseType, sessionYear, sessionType, locale);
 			model.addAttribute("ministries",ministries);
-		}
-		
+		}		
 			
 		//Populate Priorities
 		CustomParameter customParameter = CustomParameter.
@@ -555,10 +562,17 @@ class StarredQuestionController {
 					"highestquestionprioritynotset");
 		}
 		
+		//Submission Priority
+		model.addAttribute("defaultSubmissionPriority", ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+		int currentReadyToSubmitCount = Question.findReadyToSubmitCount(selectedSession, member, questionType, locale);
+		model.addAttribute("submissionPriorityMaximum", currentReadyToSubmitCount+1);
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale);
+		
 		/*** Populate Saved Supporting member***/
 		//Populate Supporting Member Names
-		Member member = Member.findMember(authUser.getFirstName(), authUser.getMiddleName(),
-				authUser.getLastName(), authUser.getBirthDate(), locale);
+//		Member member = Member.findMember(authUser.getFirstName(), authUser.getMiddleName(),
+//				authUser.getLastName(), authUser.getBirthDate(), locale);
 		String supportingMemberNames = MemberOtherController.getDelimitedMemberSupportingMembers(questionType, member, selectedSession, locale, usergroupType);
 		model.addAttribute("supportingMembersName", supportingMemberNames);
 		
@@ -923,6 +937,13 @@ class StarredQuestionController {
 			throw new ELSException("StarredQuestionController.populateNew/5", 
 					"highestquestionprioritynotset");
 		}
+		
+		//Submission Priority
+		model.addAttribute("defaultSubmissionPriority", ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+		int currentReadyToSubmitCount = Question.findReadyToSubmitCount(selectedSession, domain.getPrimaryMember(), domain.getOriginalType(), domain.getLocale());
+		model.addAttribute("submissionPriorityMaximum", currentReadyToSubmitCount+1);
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", domain.getLocale());
 	}
 
 
@@ -1022,6 +1043,11 @@ class StarredQuestionController {
 		domain.setCreatedBy(authUser.getActualUsername());
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(authUser.getActualUsername());
+		
+		//set submission priority to default value if not set explicitly
+		if(domain.getSubmissionPriority()==null) {
+			domain.setSubmissionPriority(ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+		}		
 	}
 
 
@@ -1201,8 +1227,7 @@ class StarredQuestionController {
 		}else{
 			throw new ELSException("StarredQuestionController.populateNew/5", 
 					"highestquestionprioritynotset");
-		}
-		
+		}		
 		//populate selected Priority
 		if(domain.getPriority()!=null){
 			model.addAttribute("priority",domain.getPriority());
@@ -1210,6 +1235,13 @@ class StarredQuestionController {
 					getNumberFormatterNoGrouping(locale).format(domain.getPriority()));
 		}
 		/**** Priorities Ends  ****/
+		
+		//Submission Priority
+		model.addAttribute("defaultSubmissionPriority", ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+		int currentReadyToSubmitCount = Question.findReadyToSubmitCount(selectedSession, member, domain.getOriginalType(), locale);
+		model.addAttribute("submissionPriorityMaximum", currentReadyToSubmitCount+1);
+		model.addAttribute("formater", new FormaterUtil());
+		model.addAttribute("locale", locale);
 
 		// Populate Rotation Order Publishing Date
 		Date rotationOrderPubDate = QuestionController.getRotationOrderPublishingDate(selectedSession);
@@ -2911,7 +2943,66 @@ class StarredQuestionController {
 		}
 		
 	}
-
+	
+	public static String determineOrderingForSubmissionInit(HttpServletRequest request,
+			ModelMap model, AuthUser authUser, Locale locale) throws ELSException {
+		
+		HouseType houseType = QuestionController.getHouseType(request, locale.toString());
+		SessionType sessionType = QuestionController.getSessionType(request, locale.toString());
+		Integer sessionYear = QuestionController.stringToIntegerYear(request, locale.toString());
+		DeviceType deviceType = QuestionController.getDeviceTypeById(request, locale.toString());
+		Member primaryMember = Member.findMember(authUser.getFirstName(),
+				authUser.getMiddleName(), authUser.getLastName(), authUser.getBirthDate(), locale.toString());
+		
+		Session session = Session.findSessionByHouseTypeSessionTypeYear(houseType, sessionType, sessionYear);
+		List<Question> questions = new ArrayList<Question>();
+		if(session != null){
+			if(primaryMember != null){
+				questions = Question.findReadyToSubmitQuestions(session, primaryMember, deviceType, locale.toString());
+			}
+		}
+		
+		model.addAttribute("houseType", houseType.getId());
+		model.addAttribute("questionType", deviceType.getId());
+		model.addAttribute("deviceType", deviceType.getId());
+		model.addAttribute("questions", questions);
+		model.addAttribute("defaultSubmissionPriority", ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+		model.addAttribute("locale", locale.toString());
+		model.addAttribute("formater", new FormaterUtil());
+		
+		return "question/orderingforsubmission";
+	}
+	
+	public static String determineOrderingForSubmission(final HttpServletRequest request,
+			final ModelMap model,
+			final AuthUser authUser,
+			final IProcessService processService, 
+			final Locale locale) {
+		String retVal = "question/error";
+		String selectedItems = request.getParameter("items");
+		if(selectedItems != null && ! selectedItems.isEmpty()) {
+			String[] items = selectedItems.split(",");
+			List<Question> questions = new ArrayList<Question>();
+			for(String i : items) {				
+				Long id = Long.parseLong(i.split("_")[0]);
+				Question question = Question.findById(Question.class, id);
+				if(question!=null) {
+					question.setSubmissionPriority(Integer.parseInt(i.split("_")[1]));
+					question.simpleMerge();
+					questions.add(question);
+				}
+			}
+			questions = Question.sortBySubmissionPriority(questions, ApplicationConstants.ASC);
+			model.addAttribute("questions", questions);
+			model.addAttribute("defaultSubmissionPriority", ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+			model.addAttribute("formater", new FormaterUtil());
+			model.addAttribute("locale", locale.toString());
+			model.addAttribute("type","success");
+			
+			retVal = "question/orderingforsubmissionack";
+		}
+		return retVal;
+	}
 
 	public static String getBulkSubmissionView(HttpServletRequest request,
 			ModelMap model, AuthUser authUser, Locale locale) throws ELSException {
