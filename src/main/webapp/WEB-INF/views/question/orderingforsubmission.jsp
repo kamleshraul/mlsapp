@@ -65,7 +65,7 @@
 							<td style="min-width: 10px !important; max-width:25px !important;vertical-align: top;">
 								${formater.formatNumberNoGrouping(loop.count, locale)}
 							</td>
-							<td>${i.submissionPriority}. ${i.subject}</td>
+							<td>${i.subject}</td>
 							<td style="min-width: 100px !important; max-width:120px !important;">
 								<select class="submissionOrder" id="submissionOrder${loop.count}" name="submissionOrder${loop.count}">
 									<option value="${defaultSubmissionPriority}"><spring:message code="question.default_ordering_for_submission" text="Creation Order"/></option>	
