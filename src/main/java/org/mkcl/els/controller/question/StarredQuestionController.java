@@ -3018,8 +3018,7 @@ class StarredQuestionController {
 		List<Question> questions = new ArrayList<Question>();
 		if(session != null){
 			if(primaryMember != null){
-				questions = Question.
-						findAllByMember(session, primaryMember, deviceType, itemCount, locale.toString());	
+				questions = Question.findReadyToSubmitQuestions(session, primaryMember, deviceType, itemCount, locale.toString());
 			}
 		}
 		model.addAttribute("houseType", houseType.getId());

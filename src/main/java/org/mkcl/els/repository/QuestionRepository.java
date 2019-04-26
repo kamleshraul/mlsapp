@@ -2266,10 +2266,18 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		return draftsCount;
 	}
 	
+	public List<Question> findReadyToSubmitQuestions(final Session session,
+			final Member primaryMember,
+			final DeviceType deviceType,
+			final String locale) {		
+		return this.findReadyToSubmitQuestions(session, primaryMember, deviceType, -1, locale);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List<Question> findReadyToSubmitQuestions(final Session session,
 			final Member primaryMember,
 			final DeviceType deviceType,
+			final Integer itemsCount,
 			final String locale) {		
 		String queryString = "SELECT DISTINCT q.* FROM questions q" +
 				" INNER JOIN status sta ON (sta.id=q.status_id)" +
@@ -2279,11 +2287,17 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 				" AND sta.type LIKE '%\\_complete'" +
 				" AND q.locale=:locale" +
 				" ORDER BY q.submission_priority";
+		if(itemsCount!=null && itemsCount.intValue() != -1) {
+			queryString += " LIMIT :itemsCount";
+		}
 		Query query = this.em().createNativeQuery(queryString, Question.class);
 		query.setParameter("sessionId", session.getId());
 		query.setParameter("memberId", primaryMember.getId());
 		query.setParameter("deviceTypeId", deviceType.getId());		
 		query.setParameter("locale", locale);
+		if(itemsCount!=null && itemsCount.intValue() != -1) {
+			query.setParameter("itemsCount", itemsCount.intValue());
+		}
 		return query.getResultList();
 	}
 	

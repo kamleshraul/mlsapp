@@ -2636,6 +2636,14 @@ public class Question extends Device implements Serializable {
 		return getQuestionRepository().findReadyToSubmitQuestions(session, primaryMember, deviceType, locale);
 	}
 	
+	public static List<Question> findReadyToSubmitQuestions(final Session session,
+			final Member primaryMember,
+			final DeviceType deviceType,
+			final Integer itemsCount,
+			final String locale) {
+		return getQuestionRepository().findReadyToSubmitQuestions(session, primaryMember, deviceType, itemsCount, locale);
+	}
+	
 	public static List<Question> findAllByMember(final Session session,
 			final Member primaryMember,final DeviceType questionType,final Integer itemsCount,
 			final String locale) throws ELSException {
