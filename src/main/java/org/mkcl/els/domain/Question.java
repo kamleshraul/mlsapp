@@ -658,9 +658,11 @@ public class Question extends Device implements Serializable {
 						
 	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
 	            			this.setNumber(Question.getStarredCurrentNumberLowerHouse() + 1);
+		            		this.setSubmissionDate(new Date());
 	            			Question.updateStarredCurrentNumberLowerHouse(Question.getStarredCurrentNumberLowerHouse() + 1);
 	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
 	            			this.setNumber(Question.getStarredCurrentNumberUpperHouse() + 1);
+		            		this.setSubmissionDate(new Date());
 	            			Question.updateStarredCurrentNumberUpperHouse(Question.getStarredCurrentNumberUpperHouse() + 1);
 	            		}
 	            		
@@ -735,12 +737,13 @@ public class Question extends Device implements Serializable {
 						
 	            		if(houseType.equals(ApplicationConstants.LOWER_HOUSE)){
 	            			this.setNumber(Question.getStarredCurrentNumberLowerHouse() + 1);
+		            		this.setSubmissionDate(new Date());
 	            			Question.updateStarredCurrentNumberLowerHouse(Question.getStarredCurrentNumberLowerHouse() + 1);
 	            		}else if(houseType.equals(ApplicationConstants.UPPER_HOUSE)){
 	            			this.setNumber(Question.getStarredCurrentNumberUpperHouse() + 1);
+		            		this.setSubmissionDate(new Date());
 	            			Question.updateStarredCurrentNumberUpperHouse(Question.getStarredCurrentNumberUpperHouse() + 1);
 	            		}
-	            		
 						//addQuestionDraft();
 						question = (Question) super.merge();
 						

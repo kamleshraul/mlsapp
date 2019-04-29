@@ -1801,7 +1801,7 @@
 		<input type="hidden" id="answerReceivedMode" name="answerReceivedMode" value="${domain.answerReceivedMode}"/>
 		<input id="ministrySelected" name="ministrySelected" value="${ministrySelected }" type="hidden">
 		<input id="subDepartmentSelected" name="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-		<input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
+		<input type="hidden" id="submissionPriority" name="submissionPriority" value="${domain.submissionPriority}"/>
 	</form:form>
 	
 	<input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">

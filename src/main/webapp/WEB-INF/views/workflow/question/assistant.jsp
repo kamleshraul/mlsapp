@@ -1795,6 +1795,7 @@
 	<input type="hidden" id="resendQuestionTextStatus" name="resendQuestionTextStatus" value="${resendQuestionTextStatus}" />
 	<input type="hidden" id="lastDateOfAnswerReceiving" name="setLastDateOfAnswerReceiving" class="datemask sText" value="${formattedLastAnswerReceivingDate}"/>
 	<input type="hidden" id="answerReceivedMode" name="answerReceivedMode" value="${domain.answerReceivedMode}"/>
+	<input type="hidden" id="submissionPriority" name="submissionPriority" value="${domain.submissionPriority}"/>
 </form:form>
 <input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 <input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">

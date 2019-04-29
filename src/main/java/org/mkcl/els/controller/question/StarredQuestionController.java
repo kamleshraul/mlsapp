@@ -2471,6 +2471,7 @@ class StarredQuestionController {
 					// set Supporting Members
 					List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
 					if(domain.getSupportingMembers() != null && !domain.getSupportingMembers().isEmpty()){
+						CustomParameter csptTimeoutOfSupportingMembersDisabled = CustomParameter.findByName(CustomParameter.class, "QIS_SUPPORTINGMEMBERS_TIMEOUT_DISABLED", "");
 						for(SupportingMember i:domain.getSupportingMembers()){
 							if(userGroupType.getType().equals("typist")){
 								supportingMembers.add(i);
@@ -2481,41 +2482,48 @@ class StarredQuestionController {
 //								}else{
 //									
 //								}
-								Status timeoutStatus = Status.findByType(
-										ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, domain.getLocale());
-								if(i.getDecisionStatus().getType().equals(
-										ApplicationConstants.SUPPORTING_MEMBER_NOTSEND) ||
-										i.getDecisionStatus().getType().equals(
-												ApplicationConstants.SUPPORTING_MEMBER_PENDING)) {
-									/**** Update Supporting Member ****/
-									i.setDecisionStatus(timeoutStatus);
-									i.setApprovalDate(new Date());	
-									i.setApprovedText(domain.getQuestionText());
-									i.setApprovedSubject(domain.getSubject());
-									i.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
+								/**** Update Supporting Member (can be disabled for starting hour of submission start time using custom parameter) ****/	
+								if(csptTimeoutOfSupportingMembersDisabled!=null 
+										&& csptTimeoutOfSupportingMembersDisabled.getValue()!=null
+										&& csptTimeoutOfSupportingMembersDisabled.getValue().equals("YES")) {
+									System.out.println("Timeout of Pending/Unsent Supporting Members Disabled");
+								} else {
+									Status timeoutStatus = Status.findByType(
+											ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, domain.getLocale());
+									if(i.getDecisionStatus().getType().equals(
+											ApplicationConstants.SUPPORTING_MEMBER_NOTSEND) ||
+											i.getDecisionStatus().getType().equals(
+													ApplicationConstants.SUPPORTING_MEMBER_PENDING)) {
+										/**** Update Supporting Member ****/
+										i.setDecisionStatus(timeoutStatus);
+										i.setApprovalDate(new Date());	
+										i.setApprovedText(domain.getQuestionText());
+										i.setApprovedSubject(domain.getSubject());
+										i.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
 
-									/**** Update Workflow Details ****/
-									String strWorkflowdetails = i.getWorkflowDetailsId();
-									if(strWorkflowdetails != null && ! strWorkflowdetails.isEmpty()) {
-										WorkflowDetails workflowDetails = WorkflowDetails.findById(
-												WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
-										workflowDetails.setStatus("TIMEOUT");
-										workflowDetails.setCompletionTime(new Date());
-										workflowDetails.merge();
+										/**** Update Workflow Details ****/
+										String strWorkflowdetails = i.getWorkflowDetailsId();
+										if(strWorkflowdetails != null && ! strWorkflowdetails.isEmpty()) {
+											WorkflowDetails workflowDetails = WorkflowDetails.findById(
+													WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
+											workflowDetails.setStatus("TIMEOUT");
+											workflowDetails.setCompletionTime(new Date());
+											workflowDetails.merge();
 
-										/**** Complete Task ****/
-										//TODO 
-										// Uncomment following code when refactoring the method by passing processService
-//										String strTaskId = workflowDetails.getTaskId();
-//										Task task = processService.findTaskById(strTaskId);
-//										processService.completeTask(task);
+											/**** Complete Task ****/
+											//TODO 
+											// Uncomment following code when refactoring the method by passing processService
+//											String strTaskId = workflowDetails.getTaskId();
+//											Task task = processService.findTaskById(strTaskId);
+//											processService.completeTask(task);
+										}
 									}
-								}
 
-								if(! i.getDecisionStatus().getType().equals(
-										ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)) {
-									supportingMembers.add(i);
-								}
+									if(! i.getDecisionStatus().getType().equals(
+											ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)) {
+										supportingMembers.add(i);
+									}
+								}								
 							}
 						}
 						domain.setSupportingMembers(supportingMembers);
@@ -2641,6 +2649,10 @@ class StarredQuestionController {
 		domain.setEditedOn(new Date());
 		domain.setEditedBy(authUser.getActualUsername());
 
+		//set submission priority to default value if not set explicitly
+		if(domain.getSubmissionPriority()==null) {
+			domain.setSubmissionPriority(ApplicationConstants.DEFAULT_SUBMISSION_PRIORITY);
+		}
 
 		/**** In case of assistant if internal status=submit,ministry,department,group is set 
 		 * then change its internal and recommendstion status to assistant processed ****/
@@ -3338,6 +3350,9 @@ class StarredQuestionController {
 						&& !validationAfterEndDate 
 						&& domain.getSession().getParameter(domain.getType().getType()+"_processingMode").equals(ApplicationConstants.LOWER_HOUSE))
 						|| (domain.getSession().getParameter(domain.getType().getType()+"_processingMode").equals(ApplicationConstants.UPPER_HOUSE) && validationForBatch)){
+					Status submitStatus = Status.findByFieldName(Status.class, "type", ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
+					CustomParameter csptTimeoutOfSupportingMembersDisabled = CustomParameter.findByName(CustomParameter.class, "QIS_SUPPORTINGMEMBERS_TIMEOUT_DISABLED", "");
+					Status timeoutStatus = Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
 					List<Question> questions = new ArrayList<Question>();
 					for(String i : items) {
 						Long id = Long.parseLong(i);
@@ -3349,55 +3364,58 @@ class StarredQuestionController {
 								break;
 							}
 						}
-						/**** Update Supporting Member ****/
-						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-						Status timeoutStatus = Status.findByType(
-								ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, locale.toString());
-						if(question.getSupportingMembers() != null
-								&& ! question.getSupportingMembers().isEmpty()) {
-							for(SupportingMember sm : question.getSupportingMembers()) {
-								if(sm.getDecisionStatus().getType().equals(
-										ApplicationConstants.SUPPORTING_MEMBER_NOTSEND) ||
-										sm.getDecisionStatus().getType().equals(
-												ApplicationConstants.SUPPORTING_MEMBER_PENDING)) {
-									/**** Update Supporting Member ****/
-									sm.setDecisionStatus(timeoutStatus);
-									sm.setApprovalDate(new Date());	
-									sm.setApprovedText(question.getQuestionText());
-									sm.setApprovedSubject(question.getSubject());
-									sm.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
-		
-									/**** Update Workflow Details ****/
-									String strWorkflowdetails = sm.getWorkflowDetailsId();
-									if(strWorkflowdetails != null && ! strWorkflowdetails.isEmpty()) {
-										WorkflowDetails workflowDetails = WorkflowDetails.findById(
-												WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
-										workflowDetails.setStatus("TIMEOUT");
-										workflowDetails.setCompletionTime(new Date());
-										workflowDetails.merge();
-		
-										/**** Complete Task ****/
-										String strTaskId = workflowDetails.getTaskId();
-										Task task = processService.findTaskById(strTaskId);
-										processService.completeTask(task);
+						
+						/**** Update Supporting Member (can be disabled for starting hour of submission start time using custom parameter) ****/						
+						if(csptTimeoutOfSupportingMembersDisabled!=null 
+								&& csptTimeoutOfSupportingMembersDisabled.getValue()!=null
+								&& csptTimeoutOfSupportingMembersDisabled.getValue().equals("YES")) {
+							System.out.println("Timeout of Pending/Unsent Supporting Members Disabled");
+						} else {
+							List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();							
+							List<SupportingMember> existingSupportingMembers = question.getSupportingMembers();
+							if(existingSupportingMembers != null && ! existingSupportingMembers.isEmpty()) {
+								for(SupportingMember sm : existingSupportingMembers) {
+									if(sm.getDecisionStatus().getType().equals(
+											ApplicationConstants.SUPPORTING_MEMBER_NOTSEND) ||
+											sm.getDecisionStatus().getType().equals(
+													ApplicationConstants.SUPPORTING_MEMBER_PENDING)) {
+										/**** Update Supporting Member ****/
+										sm.setDecisionStatus(timeoutStatus);
+										sm.setApprovalDate(new Date());	
+										sm.setApprovedText(question.getQuestionText());
+										sm.setApprovedSubject(question.getSubject());
+										sm.setApprovalType(ApplicationConstants.SUPPORTING_MEMBER_APPROVALTYPE_ONLINE);
+			
+										/**** Update Workflow Details ****/
+										String strWorkflowdetails = sm.getWorkflowDetailsId();
+										if(strWorkflowdetails != null && ! strWorkflowdetails.isEmpty()) {
+											WorkflowDetails workflowDetails = WorkflowDetails.findById(
+													WorkflowDetails.class, Long.parseLong(strWorkflowdetails));
+											workflowDetails.setStatus("TIMEOUT");
+											workflowDetails.setCompletionTime(new Date());
+											workflowDetails.merge();
+			
+											/**** Complete Task ****/
+											String strTaskId = workflowDetails.getTaskId();
+											Task task = processService.findTaskById(strTaskId);
+											processService.completeTask(task);
+										}
+									}
+			
+									if(! sm.getDecisionStatus().getType().equals(
+											ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)) {
+										supportingMembers.add(sm);
 									}
 								}
-		
-								if(! sm.getDecisionStatus().getType().equals(
-										ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)) {
-									supportingMembers.add(sm);
-								}
+			
+								question.setSupportingMembers(supportingMembers);
 							}
+						}						
 		
-							question.setSupportingMembers(supportingMembers);
-						}
-		
-						/**** Update Status(es) ****/
-						Status newstatus = Status.findByFieldName(Status.class, "type", 
-								ApplicationConstants.QUESTION_SUBMIT, question.getLocale());
-						question.setStatus(newstatus);
-						question.setInternalStatus(newstatus);
-						question.setRecommendationStatus(newstatus);
+						/**** Update Status(es) ****/						
+						question.setStatus(submitStatus);
+						question.setInternalStatus(submitStatus);
+						question.setRecommendationStatus(submitStatus);
 		
 						/**** Edited On, Edited By and Edited As is set ****/
 						question.setSubmissionDate(new Date());

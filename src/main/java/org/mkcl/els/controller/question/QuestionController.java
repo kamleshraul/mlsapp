@@ -1283,7 +1283,9 @@ public class QuestionController extends GenericController<Question> {
 			if(!selectedSupportingMembers.isEmpty()){
 				StringBuffer bufferFirstNamesFirst = new StringBuffer();
 				for(SupportingMember i:selectedSupportingMembers){
-					if(usergroupType != null && !usergroupType.isEmpty() && (usergroupType.equals("member") || usergroupType.equals("typist"))){
+					//if(usergroupType != null && !usergroupType.isEmpty() && (usergroupType.equals("member") || usergroupType.equals("typist"))){
+					if(domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_COMPLETE)
+							|| domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_INCOMPLETE)){
 						Member m = i.getMember();
 						if(m.isActiveMemberOn(new Date(), domain.getLocale())){
 							bufferFirstNamesFirst.append(m.getFullname() + ",");
