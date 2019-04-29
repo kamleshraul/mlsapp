@@ -2468,28 +2468,26 @@ class StarredQuestionController {
 					if(domain.getSubmissionDate() == null){
 						domain.setSubmissionDate(new Date());
 					}
-					// set Supporting Members
-					List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
-					if(domain.getSupportingMembers() != null && !domain.getSupportingMembers().isEmpty()){
-						CustomParameter csptTimeoutOfSupportingMembersDisabled = CustomParameter.findByName(CustomParameter.class, "QIS_SUPPORTINGMEMBERS_TIMEOUT_DISABLED", "");
-						for(SupportingMember i:domain.getSupportingMembers()){
-							if(userGroupType.getType().equals("typist")){
-								supportingMembers.add(i);
-							}else{
-//								String decisionStatusType =i.getDecisionStatus().getType().trim();
-//								if(decisionStatusType.equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
-//									supportingMembers.add(i);
-//								}else{
-//									
-//								}
-								/**** Update Supporting Member (can be disabled for starting hour of submission start time using custom parameter) ****/	
-								if(csptTimeoutOfSupportingMembersDisabled!=null 
-										&& csptTimeoutOfSupportingMembersDisabled.getValue()!=null
-										&& csptTimeoutOfSupportingMembersDisabled.getValue().equals("YES")) {
-									System.out.println("Timeout of Pending/Unsent Supporting Members Disabled");
-								} else {
-									Status timeoutStatus = Status.findByType(
-											ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, domain.getLocale());
+					/**** Update Timed Out Supporting Members (can be disabled for starting hour of submission start time using custom parameter) ****/
+					Status timeoutStatus = Status.findByType(ApplicationConstants.SUPPORTING_MEMBER_TIMEOUT, domain.getLocale());					
+					CustomParameter csptTimeoutOfSupportingMembersDisabled = CustomParameter.findByName(CustomParameter.class, "QIS_SUPPORTINGMEMBERS_TIMEOUT_DISABLED", "");
+					if(csptTimeoutOfSupportingMembersDisabled!=null 
+							&& csptTimeoutOfSupportingMembersDisabled.getValue()!=null
+							&& csptTimeoutOfSupportingMembersDisabled.getValue().equals("YES")) {
+						System.out.println("Timeout of Pending/Unsent Supporting Members Disabled");
+					} else {
+						List<SupportingMember> supportingMembers = new ArrayList<SupportingMember>();
+						if(domain.getSupportingMembers() != null && !domain.getSupportingMembers().isEmpty()){						
+							for(SupportingMember i:domain.getSupportingMembers()){
+								if(userGroupType.getType().equals("typist")){
+									supportingMembers.add(i);
+								}else{
+//									String decisionStatusType =i.getDecisionStatus().getType().trim();
+//									if(decisionStatusType.equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
+//										supportingMembers.add(i);
+//									}else{
+//										
+//									}
 									if(i.getDecisionStatus().getType().equals(
 											ApplicationConstants.SUPPORTING_MEMBER_NOTSEND) ||
 											i.getDecisionStatus().getType().equals(
@@ -2513,21 +2511,21 @@ class StarredQuestionController {
 											/**** Complete Task ****/
 											//TODO 
 											// Uncomment following code when refactoring the method by passing processService
-//											String strTaskId = workflowDetails.getTaskId();
-//											Task task = processService.findTaskById(strTaskId);
-//											processService.completeTask(task);
+//												String strTaskId = workflowDetails.getTaskId();
+//												Task task = processService.findTaskById(strTaskId);
+//												processService.completeTask(task);
 										}
 									}
 
 									if(! i.getDecisionStatus().getType().equals(
 											ApplicationConstants.SUPPORTING_MEMBER_NOTSEND)) {
 										supportingMembers.add(i);
-									}
-								}								
+									}															
+								}
 							}
+							domain.setSupportingMembers(supportingMembers);
 						}
-						domain.setSupportingMembers(supportingMembers);
-					}
+					}					
 					// Set status, internalStatus, recommendationstatus
 					Status newstatus=Status.findByType(ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
 					domain.setStatus(newstatus);
@@ -3365,7 +3363,7 @@ class StarredQuestionController {
 							}
 						}
 						
-						/**** Update Supporting Member (can be disabled for starting hour of submission start time using custom parameter) ****/						
+						/**** Update Timed Out Supporting Members (can be disabled for starting hour of submission start time using custom parameter) ****/						
 						if(csptTimeoutOfSupportingMembersDisabled!=null 
 								&& csptTimeoutOfSupportingMembersDisabled.getValue()!=null
 								&& csptTimeoutOfSupportingMembersDisabled.getValue().equals("YES")) {

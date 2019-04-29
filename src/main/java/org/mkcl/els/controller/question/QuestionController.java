@@ -1284,18 +1284,19 @@ public class QuestionController extends GenericController<Question> {
 				StringBuffer bufferFirstNamesFirst = new StringBuffer();
 				for(SupportingMember i:selectedSupportingMembers){
 					//if(usergroupType != null && !usergroupType.isEmpty() && (usergroupType.equals("member") || usergroupType.equals("typist"))){
-					if(domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_COMPLETE)
-							|| domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_INCOMPLETE)){
-						Member m = i.getMember();
-						if(m.isActiveMemberOn(new Date(), domain.getLocale())){
-							bufferFirstNamesFirst.append(m.getFullname() + ",");
-						}
-					}else{
+					if(domain.getStatus()!=null 
+							&& !domain.getStatus().getType().endsWith(ApplicationConstants.STATUS_COMPLETE)
+							&& !domain.getStatus().getType().endsWith(ApplicationConstants.STATUS_INCOMPLETE)){
 						if(i.getDecisionStatus().getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)){
 							Member m = i.getMember();
 							if(m.isActiveMemberOn(new Date(), domain.getLocale())){
 								bufferFirstNamesFirst.append(m.getFullname() + ",");
 							}
+						}												
+					}else{
+						Member m = i.getMember();
+						if(m.isActiveMemberOn(new Date(), domain.getLocale())){
+							bufferFirstNamesFirst.append(m.getFullname() + ",");
 						}
 					}
 				}
