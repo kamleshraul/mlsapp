@@ -1801,10 +1801,12 @@
 		<input type="hidden" id="answerReceivedMode" name="answerReceivedMode" value="${domain.answerReceivedMode}"/>
 		<input id="ministrySelected" name="ministrySelected" value="${ministrySelected }" type="hidden">
 		<input id="subDepartmentSelected" name="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
+		<input id="oldgroup" name="oldgroup" value="${group}" type="hidden">
 		<input type="hidden" id="submissionPriority" name="submissionPriority" value="${domain.submissionPriority}"/>
 	</form:form>
 	
 	<input id="formattedoldgroup" name="formattedoldgroup" value="${formattedGroup}" type="hidden">
+	
 	
 	<input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
 	<input id="pleaseSelectMessage" value="<spring:message code='please.select' text='Please Select'/>" type="hidden">
