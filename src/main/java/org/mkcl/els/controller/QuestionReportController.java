@@ -33,6 +33,7 @@ import org.mkcl.els.common.vo.MinistryVO;
 import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RoundVO;
 import org.mkcl.els.common.vo.SessionVO;
+import org.mkcl.els.common.xmlvo.DeviceXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionIntimationLetterXmlVO;
 import org.mkcl.els.common.xmlvo.QuestionYaadiSuchiXmlVO;
 import org.mkcl.els.domain.ballot.Ballot;
@@ -166,6 +167,62 @@ public class QuestionReportController extends BaseController{
 		return "question/reports/statreport";
 	}
 	
+	//Print
+	@RequestMapping(value="/questionPrintReport", method=RequestMethod.GET)
+	public void getQuestionReport(HttpServletRequest request, HttpServletResponse response, Model model, Locale locale){
+		File reportFile = null; 
+		String strQuestionId = request.getParameter("questionId");	
+		String reportFormat=request.getParameter("outputFormat");
+		
+		Question question = Question.findById(Question.class, Long.parseLong(strQuestionId));
+		
+		DeviceXmlVO deviceXmlVO = new DeviceXmlVO();
+		deviceXmlVO.setHouseType(question.getOriginalType().getName());//deviceType
+		deviceXmlVO.setFormattedGroupNumber(FormaterUtil.formatNumberNoGrouping(question.getNumber(), locale.toString()));//question number
+		deviceXmlVO.setSubmissionDate(FormaterUtil.formatDateToString(question.getSubmissionDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale.toString()));//submission date
+		deviceXmlVO.setMemberNames(question.getPrimaryMember().findFirstLastName());//Member Name
+		deviceXmlVO.setContent(question.getSubject());//subject
+		deviceXmlVO.setQuestionReferenceText(question.getQuestionText());//Question Text
+		deviceXmlVO.setParent(question.getPrimaryMember().findConstituency().getDisplayName());//constituency
+		deviceXmlVO.setStatus(question.getStatus().getName());//status
+		deviceXmlVO.setMinistryName(question.getMinistry().getName());//Ministry Name
+		deviceXmlVO.setSubdepartmentName(question.getSubDepartment().getName());//Subdepartment name
+		deviceXmlVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(question.getGroup().getNumber(), locale.toString()));//Group Number
+		deviceXmlVO.setSerialNumber(FormaterUtil.formatNumberNoGrouping(question.getPriority(), locale.toString()));//priority number
+		if(question.getAnsweringDate()!=null){
+		deviceXmlVO.setAnsweringDate(question.getAnsweringDate().findFormattedAnsweringDate());//Answering Date
+		}
+		StringBuffer allMemberNamesBuffer = new StringBuffer("");
+		Member member = null;
+		String memberName = "";
+		List<SupportingMember> supportingMembers = question.getSupportingMembers();
+		if (supportingMembers != null) {
+			for (SupportingMember sm : supportingMembers) {
+				  member = sm.getMember();
+				Status approvalStatus = sm.getDecisionStatus();
+				if(member!=null && approvalStatus!=null && approvalStatus.getType().equals(ApplicationConstants.SUPPORTING_MEMBER_APPROVED)) {
+					memberName = member.findFirstLastName();
+					if(memberName!=null && !memberName.isEmpty() && !allMemberNamesBuffer.toString().contains(memberName)) {
+						if(allMemberNamesBuffer.length()>0) {
+							allMemberNamesBuffer.append(", " + memberName);
+						} else {
+							allMemberNamesBuffer.append(memberName);
+						}									
+					}									
+				}				
+			}
+		}	
+		deviceXmlVO.setShortDetails(allMemberNamesBuffer.toString());
+	
+		try {
+			reportFile = generateReportUsingFOP(deviceXmlVO, "template_question_report", reportFormat, "question_"+question.getNumber(), locale.toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		openOrSaveReportFileFromBrowser(response, reportFile, reportFormat);
+	}
+	
 	@RequestMapping(value="/currentstatusreport", method=RequestMethod.GET)
 	public String getCurrentStatusReport(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
 
@@ -197,7 +254,7 @@ public class QuestionReportController extends BaseController{
 
 	@RequestMapping(value="/{qId}/currentstatusreportvm", method=RequestMethod.GET)
 	public String getCurrentStatusReportVM(@PathVariable("qId") Long id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale){
-				
+
 		response.setContentType("text/html; charset=utf-8");		
 		return QuestionReportHelper.getCurrentStatusReportData(id, model, request, response, locale);
 	}

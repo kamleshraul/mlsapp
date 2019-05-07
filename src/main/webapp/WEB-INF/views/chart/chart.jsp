@@ -196,6 +196,21 @@
 			cursor: pointer;
 			overflow: auto;
 		}
+	 	@media print{
+			#reportDiv{
+				padding-right:200px;
+				margin:10px;
+			}
+			.uiTable{
+				border: 2px solid #000000;
+			}
+			.uiTable td
+			{
+				border-bottom: 1px solid #000000;
+				/* color: #669; */
+				border-top: 1px solid #000000;
+			}
+		} 
 	</style>
 </head>
 
@@ -204,7 +219,7 @@
 <c:if test="${(error!='') && (error!=null)}">
 	<h4 style="color: #FF0000;">${error}</h4>
 </c:if>
-<div class="scrollable">
+<div class="scrollable" id="reportDiv">
 <c:choose>
 <c:when test="${report == null}">
 	<spring:message code="question.chart.notCreated" text="Chart is not Created"/>

@@ -21,7 +21,6 @@
 		}
 		
 	</style>
-	
 	<script type="text/javascript">
 	//this is for autosuggest
 	function split( val ) {
@@ -105,8 +104,6 @@
 	}	
 		
 	$(document).ready(function(){	
-				
-		
 		if($("#subDepartmentSelected").val()==''){
 			$("#subDepartment").
 			prepend("<option value='' selected='selected'>----" + $("#pleaseSelectMsg").val() + "----</option>");			
@@ -582,7 +579,18 @@
 		$('#subDepartment').change(function(){
 			loadGroup($(this).val());
 		});
-	});
+		
+		//print pdf
+		$('#Generate_PDF').click(function () { 
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' }); 	
+			var parameters = {	questionId:$("#id").val(),
+			 					outputFormat:"PDF"
+							};
+			resourceURL = 'question/report/questionPrintReport' + parameters;
+			form_submit('question/report/questionPrintReport', parameters, 'GET');
+			$.unblockUI();
+		});
+ 	});
 	
 	/**** new question ****/
 	function newQuestion_ForNew() {
@@ -605,11 +613,19 @@
 			</security:authorize>
 		</div>
 	</div>
+	
+	<div style="text-align: right"><a href="#" id="Generate_PDF">
+			<img src="./resources/images/pdf_icon.png" style="width:25px;height:25px;">
+	</a></div>
+		
 <div class="fields clearfix watermark">
 <form:form action="question" method="PUT" modelAttribute="domain">
 	<%@ include file="/common/info.jsp" %>
+		
 	<div id="reportDiv">
+
 	<h2>${formattedQuestionType} ${formattedNumber}</h2>
+
 	<form:errors path="version" cssClass="validationError"/>
 	<c:if test="${!(empty domain.number)}">
 	<p id="numberP">
