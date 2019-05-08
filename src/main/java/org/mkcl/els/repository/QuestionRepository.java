@@ -3588,4 +3588,22 @@ public class QuestionRepository extends BaseRepository<Question, Long> {
 		
     	return allowedInFirstBatchForMaxCountPerMember;
 	}
+	
+	public int updateTimeoutSupportingMemberTasksForDevice(final Long deviceId, final Date submissionDate) {
+		if(deviceId!=null && submissionDate!=null) {
+			StringBuffer strQuery = new StringBuffer("UPDATE workflow_details wd " + 
+					" SET wd.completion_time=:completionTime, wd.status='TIMEOUT' " +
+					" WHERE wd.device_id=:deviceId " + 
+					" AND wd.workflow_sub_type = 'request_to_supporting_member' " +
+					" AND wd.status='PENDING'");
+			Query query = this.em().createNativeQuery(strQuery.toString());
+			query.setParameter("deviceId", deviceId);	
+			String submissionDateStr = FormaterUtil.formatDateToString(submissionDate, ApplicationConstants.DB_DATETIME__24HOURS_FORMAT);
+			Date completionTime = FormaterUtil.formatStringToDate(submissionDateStr, ApplicationConstants.DB_DATETIME__24HOURS_FORMAT);
+			query.setParameter("completionTime", completionTime);
+			return query.executeUpdate();
+		} else {
+			return 0;
+		}		
+	}
 }

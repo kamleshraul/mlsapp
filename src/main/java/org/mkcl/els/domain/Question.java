@@ -14165,4 +14165,8 @@ public class Question extends Device implements Serializable {
     	}
 		
 	}
+	
+	public static int updateTimeoutSupportingMemberTasksForDevice(final Long deviceId, final Date submissionDate) {
+		return getQuestionRepository().updateTimeoutSupportingMemberTasksForDevice(deviceId, submissionDate);
+	}
 }

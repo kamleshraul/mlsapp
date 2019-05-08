@@ -2525,6 +2525,8 @@ class StarredQuestionController {
 							}
 							domain.setSupportingMembers(supportingMembers);
 						}
+						//end pending supporting member tasks if removed manually by member
+						Question.updateTimeoutSupportingMemberTasksForDevice(domain.getId(), new Date());
 					}					
 					// Set status, internalStatus, recommendationstatus
 					Status newstatus=Status.findByType(ApplicationConstants.QUESTION_SUBMIT, domain.getLocale());
