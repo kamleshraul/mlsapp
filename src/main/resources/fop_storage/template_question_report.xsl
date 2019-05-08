@@ -74,9 +74,9 @@
 	            <fo:flow flow-name="xsl-region-body">						
 	            	<fo:block font-family="Mangal" font-size="10.5px">	            					
 						<fo:block text-align="left">
-							<fo:block text-align="center" font-weight="bold"><xsl:value-of select="houseType"/>&#160;<xsl:value-of select="formattedGroupNumber"/></fo:block>	
+							<fo:block text-align="center" font-weight="bold"><xsl:value-of select="houseType"/>&#160;<xsl:value-of select="formattedNumber"/></fo:block>	
 							<fo:block>&#160;</fo:block>
-							<fo:block><fo:inline font-weight="bold">क्रमांक:</fo:inline><xsl:value-of select="formattedGroupNumber"/>
+							<fo:block><fo:inline font-weight="bold">क्रमांक:</fo:inline><xsl:value-of select="formattedNumber"/>
 							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 	                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 	                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
@@ -91,7 +91,11 @@
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;      		                		
 			                		<fo:inline>
-			                			<fo:inline font-weight="bold">प्राथम्य क्रमांक:</fo:inline><xsl:value-of select="serialNumber"/>
+			                			<xsl:choose>
+			                			<xsl:when test="serialNumber!=''">
+			                				<fo:inline font-weight="bold">प्राथम्य क्रमांक:</fo:inline><xsl:value-of select="serialNumber"/>
+			                			</xsl:when>
+										</xsl:choose>
 			                		</fo:inline>
 							</fo:block>
 							<fo:block>&#160;</fo:block>
@@ -100,11 +104,11 @@
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
 			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;     			                		                		
 			                		<fo:inline>
-			                			<fo:inline font-weight="bold">गट:</fo:inline> <xsl:value-of select="formattedNumber"/>
+			                			<fo:inline font-weight="bold">गट:</fo:inline> <xsl:value-of select="formattedGroupNumber"/>
 			                		</fo:inline>
 							</fo:block>
 							<fo:block>&#160;</fo:block>
-							<fo:block><fo:inline font-weight="bold">निर्वाचन क्षेत्र:</fo:inline><xsl:value-of select="parent"/>            			                		                		
+							<fo:block><fo:inline font-weight="bold">निर्वाचन क्षेत्र:</fo:inline><xsl:value-of select="constituency"/>            			                		                		
 		                		<fo:inline>
 		                			<xsl:choose>
 										<xsl:when test="answeringDate!=''">
@@ -121,14 +125,14 @@
 							<fo:block>
 								<xsl:choose>
 									<xsl:when test="shortDetails!=''">
-										<fo:block><fo:inline font-weight="bold">पाठिंबा देणारे सदस्य:</fo:inline><xsl:apply-templates select="shortDetails"></xsl:apply-templates></fo:block>
+										<fo:block><fo:inline font-weight="bold">पाठिंबा देणारे सदस्य:</fo:inline><xsl:apply-templates select="supportingMembers"></xsl:apply-templates></fo:block>
 									</xsl:when>
 								</xsl:choose>
 							</fo:block>
 							<fo:block>&#160;</fo:block>
-							<fo:block><fo:inline font-weight="bold">विषय:</fo:inline><xsl:value-of select="content"/></fo:block>
+							<fo:block><fo:inline font-weight="bold">विषय:</fo:inline><xsl:value-of select="subject"/></fo:block>
 							<fo:block>&#160;</fo:block>
-							<fo:block><fo:inline font-weight="bold">प्रश्न:</fo:inline><xsl:apply-templates select="questionReferenceText"></xsl:apply-templates></fo:block>
+							<fo:block><fo:inline font-weight="bold">प्रश्न:</fo:inline><xsl:apply-templates select="content"></xsl:apply-templates></fo:block>
 						</fo:block>	
 					</fo:block>												          
 	            </fo:flow>

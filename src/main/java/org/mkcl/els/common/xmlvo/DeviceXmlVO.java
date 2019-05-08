@@ -64,7 +64,7 @@ public class DeviceXmlVO extends XmlVO {
 
 	private Boolean hasParent;
 	
-	private String parent;		
+	private String constituency;		
 	
 	private String parentAnsweringDate;		
 	
@@ -81,6 +81,8 @@ public class DeviceXmlVO extends XmlVO {
 	private String formattedGroupNumber;
 	
 	private String shortDetails;
+	
+	private String supportingMembers;
 	
 	private Boolean isPresentInYaadi;
 	
@@ -114,13 +116,13 @@ public class DeviceXmlVO extends XmlVO {
 	}		
 
 	public DeviceXmlVO(Long id, Integer number, String status,
-			Boolean hasParent, String parent, String kids) {
+			Boolean hasParent, String constituency, String kids) {
 		super();
 		this.id = id;
 		this.number = number;
 		this.status = status;
 		this.hasParent = hasParent;
-		this.parent = parent;
+		this.constituency = constituency;
 		this.kids = kids;
 	}
 	
@@ -190,12 +192,12 @@ public class DeviceXmlVO extends XmlVO {
 		this.hasParent = hasParent;
 	}
 
-	public String getParent() {
-		return parent;
+	public String getConstituency() {
+		return constituency;
 	}
 
-	public void setParent(String parent) {
-		this.parent = parent;
+	public void setConstituency(String constituency) {
+		this.constituency = constituency;
 	}
 
 	public String getParentAnsweringDate() {
@@ -380,6 +382,14 @@ public class DeviceXmlVO extends XmlVO {
 
 	public void setIsPresentInYaadi(Boolean isPresentInYaadi) {
 		this.isPresentInYaadi = isPresentInYaadi;
+	}
+
+	public String getSupportingMembers() {
+		return supportingMembers;
+	}
+
+	public void setSupportingMembers(String supportingMembers) {
+		this.supportingMembers = supportingMembers;
 	}		
 		
 }

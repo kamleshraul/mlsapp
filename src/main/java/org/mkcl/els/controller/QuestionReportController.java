@@ -178,17 +178,23 @@ public class QuestionReportController extends BaseController{
 		
 		DeviceXmlVO deviceXmlVO = new DeviceXmlVO();
 		deviceXmlVO.setHouseType(question.getOriginalType().getName());//deviceType
-		deviceXmlVO.setFormattedGroupNumber(FormaterUtil.formatNumberNoGrouping(question.getNumber(), locale.toString()));//question number
+		deviceXmlVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(question.getNumber(), locale.toString()));//question number
+		if(question.getSubmissionDate()!=null){
 		deviceXmlVO.setSubmissionDate(FormaterUtil.formatDateToString(question.getSubmissionDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale.toString()));//submission date
+		}
 		deviceXmlVO.setMemberNames(question.getPrimaryMember().findFirstLastName());//Member Name
-		deviceXmlVO.setContent(question.getSubject());//subject
-		deviceXmlVO.setQuestionReferenceText(question.getQuestionText());//Question Text
-		deviceXmlVO.setParent(question.getPrimaryMember().findConstituency().getDisplayName());//constituency
+		deviceXmlVO.setSubject(question.getSubject());//subject
+		deviceXmlVO.setContent(question.getQuestionText());//Question Text
+		deviceXmlVO.setConstituency(question.getPrimaryMember().findConstituency().getDisplayName());//constituency
 		deviceXmlVO.setStatus(question.getStatus().getName());//status
 		deviceXmlVO.setMinistryName(question.getMinistry().getName());//Ministry Name
 		deviceXmlVO.setSubdepartmentName(question.getSubDepartment().getName());//Subdepartment name
-		deviceXmlVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(question.getGroup().getNumber(), locale.toString()));//Group Number
+		if(question.getGroup()!=null){
+		deviceXmlVO.setFormattedGroupNumber(FormaterUtil.formatNumberNoGrouping(question.getGroup().getNumber(), locale.toString()));//Group Number
+		}
+		if(question.getPriority()!=null){
 		deviceXmlVO.setSerialNumber(FormaterUtil.formatNumberNoGrouping(question.getPriority(), locale.toString()));//priority number
+		}
 		if(question.getAnsweringDate()!=null){
 		deviceXmlVO.setAnsweringDate(question.getAnsweringDate().findFormattedAnsweringDate());//Answering Date
 		}
@@ -212,7 +218,7 @@ public class QuestionReportController extends BaseController{
 				}				
 			}
 		}	
-		deviceXmlVO.setShortDetails(allMemberNamesBuffer.toString());
+		deviceXmlVO.setSupportingMembers(allMemberNamesBuffer.toString());
 	
 		try {
 			reportFile = generateReportUsingFOP(deviceXmlVO, "template_question_report", reportFormat, "question_"+question.getNumber(), locale.toString());
