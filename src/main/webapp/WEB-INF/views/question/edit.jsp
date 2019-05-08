@@ -614,9 +614,13 @@
 		</div>
 	</div>
 	
-	<div style="text-align: right"><a href="#" id="Generate_PDF">
+	<c:if test="${not fn:endsWith(memberStatusType, 'complete')}">
+	<div style="text-align: right">
+		<a href="#" id="Generate_PDF">
 			<img src="./resources/images/pdf_icon.png" style="width:25px;height:25px;">
-	</a></div>
+		</a>
+	</div>
+	</c:if>
 		
 <div class="fields clearfix watermark">
 <form:form action="question" method="PUT" modelAttribute="domain">
