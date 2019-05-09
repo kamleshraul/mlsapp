@@ -30,7 +30,10 @@
 				var id = $(this).attr("name").split("internalStatus")[1];
 				var advanceCopyReceived = $("#internalStatusMaster option[value='motion_system_advanceCopyReceived']").text();
 				if($(this).val() != advanceCopyReceived){
-					loadActors(id, $("#questionId"+id).val());
+					loadActors(id, $("#motionId"+id).val());
+				}else{
+					$("#actor"+id).empty();
+					$("#actorDiv"+id).hide();
 				}
 			}); 
 			
@@ -41,11 +44,17 @@
 		    		$("#subdepartment"+id +" option[selected!='selected']").show(); 
 		    		$(".transferP"+id).css("display","inline-block");
 		    		$("#submit").css("display","none");
+		    		$("#decisionDiv").css("display","none");
+		    		$(".internalStatus").attr("checked",false);
+		    		$("#actor"+id).empty();
 		        }else{
 		        	$("#ministry"+id +" option[selected!='selected']").hide();
 		        	$("#subdepartment"+id +" option[selected!='selected']").hide(); 
 		    		$(".transferP"+id).css("display","none");
 		    		$("#submit").css("display","inline-block");
+		    		$("#decisionDiv").css("display","inline-block");
+		    		$(".internalStatus").attr("checked",false);
+		    		$("#actor"+id).empty();
 		        }
 		    });
 			
@@ -72,13 +81,14 @@
 			$(".deviceNumber").click(function(){
 				var id = $(this).attr("id").split("deviceNumber")[1];
 				$(this).attr('href', 'motion/report/commonadmissionreport?motionId='+$("#motionId"+id).val()
-						+'&outputFormat=PDF&isAdvanceCopy=yes');
+						+'&outputFormat=PDF&copyType=advanceCopy');
 			});
 			
 		});		
 		
 		//Load Subdepartments
 		function loadSubDepartments(ministry, controlName){
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 			$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),
 				function(data){
 				$("#subdepartment"+controlName).empty();
@@ -94,6 +104,7 @@
 					var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
 					$("#subdepartment"+controlName).html(subDepartmentText);				
 				}
+				$.unblockUI();
 			}).fail(function(){
 				if($("#ErrorMsg").val()!=''){
 					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -108,6 +119,7 @@
 		once and it will be set for all selected questions) ****/
 		function loadActors(id, value){
 			if(value != undefined && value!=''){
+				$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 				var params="motion="+value +"&status="+$("#admissionStatus").val()+"&usergroup="+$("#usergroup").val()+"&level="+$("#motionLevel").val();
 				var resourceURL='ref/motion/actors?'+params;				
 				$.post(resourceURL,function(data){
@@ -125,7 +137,8 @@
 					}else{
 						$("#actor"+id).empty();
 						$("#actorDiv"+id).hide();	
-					}		
+					}	
+					$.unblockUI();
 				}).fail(function(){
 					if($("#ErrorMsg").val()!=''){
 						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -136,7 +149,8 @@
 				});
 			}else{
 				$("#actor"+id).empty();
-				$("#actorDiv"+id).hide();			
+				$("#actorDiv"+id).hide();	
+				$.unblockUI();
 			}	
 		}
 		
@@ -240,17 +254,19 @@
 										<br>
 									</td>
 									<td style="text-align:justify;min-width:200px;">
-										<c:forEach items="${internalStatuses}" var="i">
-											<input type="radio" name="internalStatus${j.index}" value="${i.id}" class="sCheck internalStatus"> ${i.name}
+										<div id="decisionDiv">
+											<c:forEach items="${internalStatuses}" var="i">
+												<input type="radio" name="internalStatus${j.index}" value="${i.id}" class="sCheck internalStatus"> ${i.name}
+												<br>
+											</c:forEach>
 											<br>
-										</c:forEach>
-										<br>
-										<div id="actorDiv${j.index}">
-											<select id="actor${j.index}" name="actor${j.index}" class="sSelect">
-												<option value=''><spring:message code='client.prompt.pleaseselect' text='Please Select.'/></option>
-											</select>
+											<div id="actorDiv${j.index}">
+												<select id="actor${j.index}" name="actor${j.index}" class="sSelect">
+													<option value=''><spring:message code='client.prompt.pleaseselect' text='Please Select.'/></option>
+												</select>
+											</div>
+											<br>
 										</div>
-										<br>
 										<textarea class="sTextarea" name= "remark${j.index}" id="remark${j.index}"/>
 									</td>
 								</tr>

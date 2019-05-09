@@ -686,7 +686,7 @@
 		</c:otherwise>
 	</c:choose>
 	<form:errors path="number" cssClass="validationError"/>	
-		<c:if test="${internalStatusType =='motion_recommend_admission' || internalStatusType == 'motion_final_admision'}">
+		<c:if test="${internalStatusType =='motion_recommend_admission' || internalStatusType == 'motion_final_admission'}">
 			<label class="small" style="margin-left: 150px;"><spring:message code="motion.sendAdvanceCopy" text="Send Advance Copy"/></label>
 			<form:checkbox path="advanceCopySent" cssClass="sCheck"/>
 		</c:if>	
@@ -732,21 +732,6 @@
 	</select>
 	<form:errors path="subDepartment" cssClass="validationError"/>	
 	</p>	
-	
-	<%-- <p>
-	<label class="centerlabel"><spring:message code="motion.members" text="Members"/></label>
-	<textarea id="members" class="sTextarea" readonly="readonly" rows="2" cols="50">${memberNames}</textarea>
-	<c:if test="${!(empty primaryMember)}">
-		<input id="primaryMember" name="primaryMember" value="${primaryMember}" type="hidden">
-	</c:if>
-	<c:if test="${!(empty supportingMembers)}">
-    <select  name="selectedSupportingMembers" id="selectedSupportingMembers" multiple="multiple" style="display:none;">
-		<c:forEach items="${supportingMembers}" var="i">
-		<option value="${i.id}" selected="selected"></option>
-		</c:forEach>		
-		</select>
-	</c:if>	
-	</p> --%>
 	
 	<p>
 		<label class="centerlabel"><spring:message code="question.members" text="Members"/></label>
@@ -1038,6 +1023,7 @@
 	<input id="taskid" name="taskid" value="${taskid}" type="hidden">	
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
+	<input type="hidden" id="internalStatusType"  name="internalStatusType" value="${internalStatusType}">
 	<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 	<input type="hidden" name="createdBy" id="createdBy" value="${createdBy }">
 	<input type="hidden" name="dataEnteredBy" id="dataEnteredBy" value="${dataEnteredBy }">
@@ -1049,7 +1035,7 @@
 	<input id="usergroup" name="usergroup" value="${usergroup}" type="hidden">
 	<input id="usergroupType" name="usergroupType" value="${usergroupType}" type="hidden">	
 	<security:authorize access="hasAnyRole('MOIS_CLERK')">
-	 	<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
+		<input type="hidden" name="dataEntryType" id="dataEntryType" value="offline">
 	</security:authorize>
 </form:form>
 <input id="confirmSupportingMembersMessage" value="<spring:message code='confirm.supportingmembers.message' text='A request for approval will be sent to the following members:'></spring:message>" type="hidden">
