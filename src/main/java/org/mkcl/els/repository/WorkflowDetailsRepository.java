@@ -2508,6 +2508,12 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 							if(motion.getReply() != null && !motion.getReply().isEmpty()){
 								workflowDetails.setReply(motion.getReply());
 							}
+							if(motion.getMinistry() != null){
+								workflowDetails.setMinistry(motion.getMinistry().getName());
+							}
+							if(motion.getSubDepartment() != null){
+								workflowDetails.setSubdepartment(motion.getSubDepartment().getName());
+							}
 						}
 						workflowDetails.setProcessId(task.getProcessInstanceId());
 						workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -2638,6 +2644,12 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 								if(domain.getFile()!=null){
 									workflowDetails.setFile(String.valueOf(domain.getFile()));
 								}
+								if(domain.getMinistry() != null){
+									workflowDetails.setMinistry(domain.getMinistry().getName());
+								}
+								if(domain.getSubDepartment() != null){
+									workflowDetails.setSubdepartment(domain.getSubDepartment().getName());
+								}
 							}
 							workflowDetails.setProcessId(i.getProcessInstanceId());
 							workflowDetails.setStatus(ApplicationConstants.MYTASK_PENDING);
@@ -2757,6 +2769,12 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 						}
 						if(domain.getReply() != null && !domain.getReply().isEmpty()){
 							workflowDetails.setReply(domain.getReply());
+						}
+						if(domain.getMinistry() != null){
+							workflowDetails.setMinistry(domain.getMinistry().getName());
+						}
+						if(domain.getSubDepartment() != null){
+							workflowDetails.setSubdepartment(domain.getSubDepartment().getName());
 						}
 					}
 					workflowDetails.setProcessId(task.getProcessInstanceId());
@@ -5968,6 +5986,53 @@ public WorkflowDetails findCurrentWorkflowDetail(final Device device, final Devi
 	        	 departmentAssemblyDeviceCountsByDeviceType.add(departmentPendingAssemblyDeviceCount);
 	        }
 	         return departmentAssemblyDeviceCountsByDeviceType;
+		}
+
+		public Long findRevisedMotionTextWorkflowCount(Motion motion, Status resendRevisedMotionText,
+				WorkflowDetails workflowDetails) {
+			Long workflowDetailCount = (long) 0;
+			String strQuery = "SELECT count(id) FROM workflow_details "
+					+ " WHERE device_id=:motionId"
+					+ " AND recommendation_status=(SELECT name FROM status WHERE id=:statusId)"
+					+ " AND id<=:workflowDetailsId";
+			Query query = this.em().createNativeQuery(strQuery);
+			query.setParameter("motionId", motion.getId());
+			query.setParameter("statusId", resendRevisedMotionText.getId());
+			query.setParameter("workflowDetailsId", workflowDetails.getId());
+			try{
+			BigInteger count = (BigInteger) query.getSingleResult();
+			workflowDetailCount = Long.parseLong(count.toString());
+			return workflowDetailCount;
+			}catch(Exception e){
+				return workflowDetailCount;
+			}
+		}
+
+		public List<WorkflowDetails> findPendingWorkflowDetails(Motion motion, String workflowType) throws ELSException {
+			List<WorkflowDetails> details = new ArrayList<WorkflowDetails>();
+			try{
+				/**** To make the HDS to take the workflow with mailer task ****/
+				String strQuery="SELECT m FROM WorkflowDetails m" +
+						" WHERE m.deviceId=:deviceId"+
+						" AND m.workflowType=:workflowType" +
+						" AND m.status='PENDING'" +
+						" ORDER BY m.assignmentTime " + ApplicationConstants.DESC;
+				Query query=this.em().createQuery(strQuery);
+				query.setParameter("deviceId", motion.getId().toString());
+				query.setParameter("workflowType",workflowType);
+				details = (List<WorkflowDetails>)query.getResultList();
+			}catch (NoResultException e) {
+				e.printStackTrace();
+				logger.error(e.getMessage());
+			}catch(Exception e){	
+				e.printStackTrace();
+				logger.error(e.getMessage());
+				ELSException elsException=new ELSException();
+				elsException.setParameter("WorkflowDetailsRepository_WorkflowDetail_findPendingWorkflowDetails_motion", "WorkflowDetails Not Found");
+				throw elsException;
+			}		
+			
+			return details;
 		}	
 		
 }

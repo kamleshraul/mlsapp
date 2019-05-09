@@ -369,4 +369,29 @@ BaseRepository<HouseMemberRoleAssociation, Serializable> {
 		List<Member> members=this.em().createQuery(query).getResultList();
 		return members;
 	}
+
+	public List<MasterVO> findActiveMembersInHouseByTerm(House house, String strParam, String locale) {
+		List<MasterVO> memberVOs = new ArrayList<MasterVO>();
+		try {
+				String query="SELECT m.id,t.name,m.first_name,m.middle_name,m.last_name FROM members_houses_roles as mhr JOIN members as m JOIN memberroles as mr "+
+					" JOIN titles as t WHERE t.id=m.title_id and mr.id=mhr.role and mhr.member=m.id and  m.locale='"+locale+"' "+
+					" and mhr.house_id="+house.getId()+" and (m.first_name LIKE '%"+strParam+"%' OR m.middle_name LIKE '%"+strParam+"%' OR m.last_name LIKE '%"+strParam+"%' OR concat(m.last_name,' ',m.first_name) LIKE '%"+strParam+"%' OR concat(m.first_name,' ',m.last_name) LIKE '%"+strParam+"%' OR concat(m.last_name,' ',m.first_name,' ',m.middle_name) LIKE '%"+strParam+"%' OR concat(m.last_name,', ',t.name,' ',m.first_name,' ',m.middle_name) LIKE '%"+strParam+"%' OR concat(m.first_name,' ',m.middle_name,' ',m.last_name) LIKE '%"+strParam+"%') ORDER BY m.first_name asc";
+				List members=this.em().createNativeQuery(query).getResultList();
+				for(Object i:members){
+					Object[] o=(Object[]) i;
+					MasterVO masterVO=new MasterVO();
+					masterVO.setId(Long.parseLong(o[0].toString()));
+					if(o[3]!=null){
+						masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString()+" "+o[4].toString());
+					}else{
+						masterVO.setName(o[1].toString()+o[2].toString()+" "+o[3].toString());
+					}
+					memberVOs.add(masterVO);
+				}
+			return memberVOs;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return memberVOs;
+		}
+	}
 }
