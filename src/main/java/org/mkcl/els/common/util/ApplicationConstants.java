@@ -2706,4 +2706,15 @@ public class ApplicationConstants {
 	public static long isUserSessionActive_URL_HIT_COUNT = 0; //remove once not needed
 	
 	public static int DEFAULT_SUBMISSION_PRIORITY = 1000;
+	
+	
+	public static final String MOTION_SYSTEM_ADVANCECOPYRECEIVED = "motion_system_advanceCopyReceived";
+	
+	public static final String MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT = "motion_processed_resendRevisedMotionTexttoDepartment";
+	
+	public static final String MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTOSECTIONOFFICER = "motion_processed_resendRevisedMotionTextToSectionOfficer";
+	
+	public static final String MOTION_PROCESSED_RESENDREVISEDMOTIONTEXT = "motion_processed_resendRevisedMotionText";
+	
+	public static final String MOTION_PROCESSED_CLARIFICATION_REPUTUP = "motion_processed_clarification_reputup";
 }
