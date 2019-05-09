@@ -3757,6 +3757,12 @@ public class MotionController extends GenericController<Motion>{
 	public String getAdvanceCopyMotions(final ModelMap model,
 	final HttpServletRequest request, 
 	final Locale locale) {
+		if(request.getSession().getAttribute("type")==null){
+            model.addAttribute("type","");
+        }else{
+        	model.addAttribute("type",request.getSession().getAttribute("type"));
+            request.getSession().removeAttribute("type");
+        }
 		/**** Request Params ****/
 		String strHouseType = request.getParameter("houseType");
 		String strSessionType = request.getParameter("sessionType");
@@ -3923,6 +3929,7 @@ public class MotionController extends GenericController<Motion>{
 				String strSubdepartment = request.getParameter("subdepartment"+i);
 				String strTransferAccepted = request.getParameter("transferToDepartmentAccepted"+i);
 				String strMlsNotified = request.getParameter("mlsBranchNotifiedOfTransfer"+i);
+				String strStatus = request.getParameter("internalStatus"+i);
 				
 				if(strChecked != null && !strChecked.isEmpty() && Boolean.parseBoolean(strChecked)){
 					Motion motion = Motion.findById(Motion.class,Long.parseLong(strMotionId));
@@ -3950,6 +3957,12 @@ public class MotionController extends GenericController<Motion>{
 						motion.setMlsBranchNotifiedOfTransfer(true);
 						motion.setAdvanceCopyActor(null);
 						motion.setAdvanceCopyPrinted(false);
+					}
+					if(strStatus != null && !strStatus.isEmpty()){
+						Status advanceStatus = Status.findById(Status.class, Long.parseLong(strStatus));
+						if(advanceStatus.getType().equals(ApplicationConstants.MOTION_SYSTEM_ADVANCECOPYRECEIVED)){
+							motion.setAdvanceCopyPrinted(true);
+						}
 					}
 					
 					/**** Update Motion ****/
