@@ -148,17 +148,6 @@
 		+"&role="+$("#srole").val()
 		+"&usergroup="+$("#currentusergroup").val()
         +"&usergroupType="+$("#currentusergroupType").val();
-		
-		//var resourceURL='motion/'+id+'/edit?'+parameters;
-		//$('a').removeClass('selected');
-		//id refers to the tab name and it is used just to highlight the selected tab
-		//$('#'+ id).addClass('selected');
-		//tabcontent is the content area where result of the url load will be displayed
-		//$('.tabContent').load(resourceURL);
-		//$("#referencingResultDiv").hide();
-		//$("#clubbingResultDiv").hide();
-		//$("#assistantDiv").show();
-		//scrollTop();
 		showTabByIdAndUrl('process_tab', 'workflow/myTasks/' + $("#workflowDetail").val() + '/process');
 		$.unblockUI();			
 	}
@@ -180,7 +169,7 @@
 			var unclubbingRejected = '';
 			var admitDueToReverseClubbingRecommendApprove = '';
 			var admitDueToReverseClubbing = '';
-			
+			var resendToSectionOfficer = '';
 			var sendback=$("#internalStatusMaster option[value='motion_recommend_sendback']").text();			
 		    var discuss=$("#internalStatusMaster option[value='motion_recommend_discuss']").text();		
 		    
@@ -199,10 +188,11 @@
 			unclubbingRejected = $("#internalStatusMaster option[value='motion_final_reject_unclubbing']").text();
 			admitDueToReverseClubbingRecommendApprove = $("#internalStatusMaster option[value='motion_recommend_admitDueToReverseClubbing']").text();
 			admitDueToReverseClubbingApproved = $("#internalStatusMaster option[value='motion_final_admitDueToReverseClubbing']").text();
-			
+			resendToSectionOfficer = $("#internalStatusMaster option[value='motion_processed_resendRevisedMotionTextToSectionOfficer']").text();
 			var valueToSend = "";
 			var changedInternalStatus = $("#changeInternalStatus").val();
-			if(changedInternalStatus == sendToSectionOfficer) {
+			if(changedInternalStatus == sendToSectionOfficer
+				||	changedInternalStatus == resendToSectionOfficer) {
 				valueToSend = $("#internalStatus").val();
 			} else if(value==clubbingApproved || value==clubbingRejected					
 					|| value==nameclubbingApproved || value == nameclubbingRejected
@@ -245,7 +235,9 @@
 					$("#actor").html(text);
 					$("#actorDiv").show();				
 					/**** in case of sendback and discuss only recommendation status is changed ****/
-					if(value != sendback && value != discuss && value != sendToSectionOfficer){
+					if(value != sendback && value != discuss 
+							&& value != sendToSectionOfficer
+							&& value != resendToSectionOfficer){
 						$("#internalStatus").val(valueToSend);
 					}
 					$("#recommendationStatus").val(value);	
@@ -258,7 +250,9 @@
 					$("#actor").empty();
 					$("#actorDiv").hide();
 					/**** in case of sendback and discuss only recommendation status is changed ****/
-					if(value!=sendback&&value!=discuss){
+					if(value!=sendback && value!=discuss
+							&& value != sendToSectionOfficer 
+							&& value != resendToSectionOfficer){
 						$("#internalStatus").val(value);
 					}
 				    $("#recommendationStatus").val(value);
@@ -462,6 +456,10 @@
 				    	loadActors($("#internalStatus").val());	
 					    $("#recommendationStatus").val(value);
 					    $("#endFlag").val("continue");				    
+				    }else if(statusType=="motion_processed_resendRevisedMotionTextToSectionOfficer"){
+				    	loadActors($("#internalStatus").val());	
+					    $("#recommendationStatus").val(value);
+					    $("#endFlag").val("continue");				    
 				    }				    
 				    
 				  //  $("#submit").attr("disabled","disabled");
@@ -617,10 +615,11 @@
 	    	$("#revisedDetailsDiv").show();
 	    }  	  
 	    /**** Load Actors On Start Up ****/
-		if($('#workflowstatus').val()!='COMPLETED'){
+		if($('#workflowstatus').val()!='COMPLETED' 
+				|| ($("#internalStatusType").val()=='motion_final_admission' && $('#workflowstatus').val()=='COMPLETED')){
+			
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
-			//alert($('#workflowstatus').val()+":"+statusType+":"+id);
 			$("#changeInternalStatus").val(id);
 			$("#changeInternalStatus").change();
 			//loadActors($("#changeInternalStatus").val());
@@ -886,7 +885,8 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<c:if test="${workflowstatus=='PENDING'}">
+	<c:if test="${workflowstatus=='PENDING' or (workflowstatus == 'COMPLETED' 
+						and (internalStatusType=='motion_final_admission'))}">
 	<p>
 	<label class="small"><spring:message code="motion.putupfor" text="Put up for"/></label>	
 	<select id="changeInternalStatus" class="sSelect">
@@ -933,20 +933,37 @@
 	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
 	</p>	
 	
-	<c:if test="${workflowstatus=='PENDING'}">
-		<div class="fields">
-			<h2></h2>
-			<p class="tright">		
+	<c:choose>
+		<c:when test="${workflowstatus!='COMPLETED' }">
+			<div class="fields">
+				<h2></h2>
+				<p class="tright">		
 				<c:if test="${bulkedit!='yes'}">
-					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					
 				</c:if>
 				<c:if test="${bulkedit=='yes'}">
 					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
-				</c:if>	
-			</p>
-		</div>
-	</c:if>
-	
+				</c:if>
+				</p>
+			</div>
+		</c:when>
+		<c:otherwise>
+			<c:if test="${internalStatusType=='motion_final_admission'}">
+			<div class="fields">
+				<h2></h2>
+				<p class="tright">		
+				<c:if test="${bulkedit!='yes'}">
+					<input id="resubmit" type="submit" value="<spring:message code='generic.resubmit' text='Resubmit'/>" class="butDef">
+				</c:if>
+				<c:if test="${bulkedit=='yes'}">
+					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+				</c:if>
+				</p>
+			</div>			
+			</c:if>
+		</c:otherwise>
+	</c:choose>
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -961,6 +978,10 @@
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="replyReceivedDate"/>
+	<form:hidden path="advanceCopySent"/>
+	<form:hidden path="advanceCopyPrinted"/>
+	<form:hidden path="advanceCopyActor"/>
+	<input type="hidden" id="resendMotionTextStatus" name="resendMotionTextStatus" value="${resendMotionTextStatus}" />
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">

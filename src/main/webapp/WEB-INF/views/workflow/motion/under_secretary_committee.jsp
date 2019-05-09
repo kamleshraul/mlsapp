@@ -850,6 +850,9 @@
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="replyReceivedDate"/>
+	<form:hidden path="advanceCopySent"/>
+	<form:hidden path="advanceCopyPrinted"/>
+	<form:hidden path="advanceCopyActor"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">

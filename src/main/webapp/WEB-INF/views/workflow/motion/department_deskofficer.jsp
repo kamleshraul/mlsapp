@@ -176,20 +176,11 @@
 			var params="motion="+$("#id").val()+"&status=" + valueToSend + 
 			"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
 			var resourceURL = 'ref/motion/actors?'+params;
-		    
+			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });	
 			$.post(resourceURL,function(data){
 				if(data!=undefined||data!=null||data!=''){
 					var length=data.length;
 					$("#actor").empty();
-					var text="";
-					/* for(var i=0;i<data.length;i++){
-						if(i!=0){
-						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
-						}else{
-							text+="<option value='"+data[i].id+"' selected='selected'>"+data[i].name+"</option>";
-							$("#actorName").val(data[i].id.split("#")[4]);
-						}
-					} */
 					var text="";
 					var actor1="";
 					var actCount = 1;
@@ -233,7 +224,8 @@
 					 //var actor1=data[0].id;
 					 var temp=actor1.split("#");
 					 $("#level").val(temp[2]);		    
-					 $("#actorName").val(temp[3]+"("+temp[4]+")");					
+					 $("#actorName").val(temp[3]+"("+temp[4]+")");	
+					 $.unblockUI();
 				}else{
 					$("#actor").empty();
 					$("#actorDiv").hide();
@@ -242,6 +234,7 @@
 						$("#internalStatus").val(value);
 					}
 				    $("#recommendationStatus").val(value);
+				    $.unblockUI();
 				}
 			}).fail(function(){
 				if($("#ErrorMsg").val()!=''){
@@ -250,16 +243,19 @@
 					$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 				}
 				scrollTop();
+				$.unblockUI();
 			});
 		}else{
 			$("#actor").empty();
 			$("#actorDiv").hide();
 			$("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
+		    $.unblockUI();
 		}
 	}	
 	/**** Load Sub Departments ****/
 	function loadSubDepartments(ministry){
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		$.get('ref/ministry/subdepartments?ministry='+ministry+ '&session='+$('#session').val(),function(data){
 			$("#subDepartment").empty();
 			var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";
@@ -273,6 +269,7 @@
 				var subDepartmentText="<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>";				
 				$("#subDepartment").html(subDepartmentText);				
 			}
+			$.unblockUI();
 		}).fail(function(){
 			if($("#ErrorMsg").val()!=''){
 				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -280,6 +277,7 @@
 				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
 			}
 			scrollTop();
+			 $.unblockUI();
 		});
 	}	   
 	/**** Load Clarifications ****/
@@ -704,7 +702,7 @@
 		<label class="small" id="subdepartmentValue"><spring:message code="motion.transferToDepartmentAccepted" text="Is the Transfer to Department Accepted"/></label>
 		<input type="checkbox" id="transferToDepartmentAccepted" name="transferToDepartmentAccepted" class="sCheck"/>
 		
-		<label class="small" style="margin-left: 175px;"><spring:message code="motion.mlsBranchNotified" text="Is the Respective Question Branch Notified"/></label>
+		<label class="small" style="margin-left: 175px;"><spring:message code="motion.mlsBranchNotified" text="Is the Respective Motion Branch Notified"/></label>
 		<input type="checkbox" id="mlsBranchNotifiedOfTransfer" name="mlsBranchNotifiedOfTransfer" class="sCheck"/>
 	</p>
 	<p>
@@ -737,7 +735,7 @@
 	</security:authorize>	
 		
 	<c:if test="${!(empty parent)}">	
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="motion.parentmotion" text="Clubbed To"></spring:message></label>
 		<a href="#" id="p${parent}" onclick="viewMotionDetail(${parent});"><c:out value="${formattedParentNumber}"></c:out></a>
 		<input type="hidden" id="parent" name="parent" value="${parent}">
@@ -745,27 +743,27 @@
 	</c:if>	
 	
 	<c:if test="${!(empty clubbedEntities) }">
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="motion.clubbedmotions" text="Clubbed Motions"></spring:message></label>
 		<c:choose>
-		<c:when test="${!(empty clubbedEntities) }">
-		<c:forEach items="${clubbedEntities }" var="i">
-		<a href="#" id="cq${i.number}" class="cb" onclick="viewMotionDetail(${i.number},101);" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
-		</c:forEach>
-		</c:when>
-		<c:otherwise>
-		<c:out value="-"></c:out>
-		</c:otherwise>
+			<c:when test="${!(empty clubbedEntities) }">
+				<c:forEach items="${clubbedEntities }" var="i">
+					<a href="#" id="cq${i.number}" class="cb" onclick="viewMotionDetail(${i.number},101);" style="font-size: 18px;"><c:out value="${i.name}"></c:out></a>
+				</c:forEach>
+			</c:when>
+			<c:otherwise>
+				<c:out value="-"></c:out>
+			</c:otherwise>
 		</c:choose>
 		<select id="clubbedEntities" name="clubbedEntities" multiple="multiple" style="display:none;">
-		<c:forEach items="${clubbedEntities }" var="i">
-		<option value="${i.id}" selected="selected"></option>
-		</c:forEach>
+			<c:forEach items="${clubbedEntities }" var="i">
+				<option value="${i.id}" selected="selected"></option>
+			</c:forEach>
 		</select>
 	</p>
 	</c:if>
 		
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="motion.referencedmotions" text="Referenced Motions"></spring:message></label>
 		<c:if test="${!(empty referencedMotions) }">
 			<c:choose>
@@ -781,7 +779,7 @@
 		</c:if>	
 	</p>
 					
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="motion.referencedquestions" text="Referenced Questions"></spring:message></label>
 		<c:if test="${!(empty referencedQuestions) }">
 			<c:choose>
@@ -798,7 +796,7 @@
 	</p>
 		
 	
-	<p>
+	<p style="display:none;">
 		<label class="small"><spring:message code="motion.referencedmotions" text="Referenced Resolutions"></spring:message></label>
 		<c:if test="${!(empty referencedResolutions) }">
 			<c:choose>
@@ -1008,6 +1006,9 @@
 	<form:hidden path="fileIndex"/>	
 	<form:hidden path="fileSent"/>
 	<form:hidden path="replyReceivedDate"/>
+	<form:hidden path="advanceCopySent"/>
+	<form:hidden path="advanceCopyPrinted"/>
+	<form:hidden path="advanceCopyActor"/>
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">

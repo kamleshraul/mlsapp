@@ -163,7 +163,7 @@
 	/**** load actors ****/
 	function loadActors(value){
 		if(value!='-'){
-		
+		var resendToDepartment = $("#internalStatusMaster option[value='motion_processed_resendRevisedMotionTextToDepartment']").text();
 	    var sendback=$("#internalStatusMaster option[value='motion_recommend_sendback']").text();			
 	    var discuss=$("#internalStatusMaster option[value='motion_recommend_discuss']").text();
 	    var sendToDepartment=$("#internalStatusMaster option[value='motion_processed_sendToDepartment']").text();
@@ -176,7 +176,7 @@
 	    if(value==sendback || value == discuss) {
 	    	$("#endFlag").val("continue");
 	    	 $("#recommendationStatus").val(value);
-	    } else if(value == sendToDepartment){
+	    } else if(value == sendToDepartment || value == resendToDepartment){
 	    	valueToSend = $("#oldInternalStatus").val();
 	    	$("#endFlag").val("continue");
 	    }else if(value == answerReceived || value == clarificationReceived || value == clarificationNotReceived) {
@@ -187,9 +187,9 @@
 				return false;	    	
 	    }
 	    
-	    if(sendToDepartment == value){
+	    if(sendToDepartment == value || value == resendToDepartment){
 			 params="motion="+$("#id").val()+"&status="+valueToSend+
-				"&usergroup="+$("#usergroup").val()+"&level=10";
+				"&usergroup="+$("#usergroup").val()+"&level="+ $("#level").val();
 		}else{
 			 params="motion="+$("#id").val()+"&status="+valueToSend+
 				"&usergroup="+$("#usergroup").val()+"&level="+$("#originalLevel").val();
@@ -217,7 +217,8 @@
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value!=sendback && value!=discuss && 
 						value != answerReceived && value != clarificationReceived &&
-						value != clarificationNotReceived && value != sendToDepartment ){
+						value != clarificationNotReceived && value != sendToDepartment 
+						&& value != resendToDepartment){
 					$("#internalStatus").val(value);
 				}
 				$("#recommendationStatus").val(value);	
@@ -232,7 +233,8 @@
 				/**** in case of sendback and discuss only recommendation status is changed ****/
 				if(value!=sendback && value!=discuss && 
 						value != answerReceived && value != clarificationReceived &&
-						value != clarificationNotReceived && value != sendToDepartment ){
+						value != clarificationNotReceived && value != sendToDepartment 
+						&& value != resendToDepartment){
 					$("#internalStatus").val(value);
 				}
 		   	 	$("#recommendationStatus").val(value);
@@ -414,6 +416,7 @@
 						$("#actorDiv").hide();
 						
 			    }else if(statusType=="motion_processed_sendToDepartment"
+			    		|| statusType=='motion_processed_resendRevisedMotionTextToDepartment'
 			    		|| statusType=='motion_recommend_sendback'
 			    		|| statusType=='motion_recommend_discuss'){
 			    	loadActors(value);	
@@ -564,7 +567,8 @@
 	    	$("#revisedDetailsDiv").show();
 	    }
 	    /**** Load Actors On Start Up ****/
-		if($('#workflowstatus').val()!='COMPLETED'){
+		if($('#workflowstatus').val()!='COMPLETED' 
+				|| ($("#internalStatusType").val()=='motion_final_admission' && $('#workflowstatus').val()=='COMPLETED')){
 			var statusType = $("#internalStatusType").val().split("_");
 			var id = $("#internalStatusMaster option[value$='"+statusType[statusType.length-1]+"']").text();
 			//alert($('#workflowstatus').val()+":"+statusType+":"+id);
@@ -841,7 +845,8 @@
 	<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 	</p>
 	
-	<c:if test="${workflowstatus=='PENDING'}">
+	<c:if test="${workflowstatus=='PENDING' or (workflowstatus == 'COMPLETED' 
+						and (internalStatusType=='motion_final_admission'))}">
 		<p>
 			<label class="small"><spring:message code="motion.putupfor" text="Put up for"/></label>	
 			<select id="changeInternalStatus" class="sSelect">
@@ -922,19 +927,37 @@
 	<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
 	</p>
 
-	<div class="fields">
-		<h2></h2>
-		<c:if test="${workflowstatus=='PENDING'}">
-			<p class="tright">		
+	<c:choose>
+		<c:when test="${workflowstatus!='COMPLETED' }">
+			<div class="fields">
+				<h2></h2>
+				<p class="tright">		
 				<c:if test="${bulkedit!='yes'}">
 					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					
 				</c:if>
 				<c:if test="${bulkedit=='yes'}">
 					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
 				</c:if>
-			</p>
-		</c:if>
-	</div>
+				</p>
+			</div>
+		</c:when>
+		<c:otherwise>
+			<c:if test="${internalStatusType=='motion_final_admission'}">
+			<div class="fields">
+				<h2></h2>
+				<p class="tright">		
+				<c:if test="${bulkedit!='yes'}">
+					<input id="resubmit" type="submit" value="<spring:message code='generic.resubmit' text='Resubmit'/>" class="butDef">
+				</c:if>
+				<c:if test="${bulkedit=='yes'}">
+					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
+				</c:if>
+				</p>
+			</div>			
+			</c:if>
+		</c:otherwise>
+	</c:choose>
 	<form:hidden path="id"/>
 	<form:hidden path="locale"/>
 	<form:hidden path="version"/>
@@ -949,6 +972,10 @@
 	<form:hidden path="transferToDepartmentAccepted"/>
 	<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 	<form:hidden path="replyReceivedDate"/>
+	<form:hidden path="advanceCopySent"/>
+	<form:hidden path="advanceCopyPrinted"/>
+	<form:hidden path="advanceCopyActor"/>
+	<input type="hidden" id="resendMotionTextStatus" name="resendMotionTextStatus" value="${resendMotionTextStatus}" />
 	<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">
 	<input type="hidden" name="status" id="status" value="${status }">
 	<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus }">
