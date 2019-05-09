@@ -519,10 +519,22 @@ public class MotionReportController extends BaseController{
 	public void commonAdmissionReport(Model model,HttpServletRequest request,HttpServletResponse response, Locale locale){
 		try{
 			String strMotion = request.getParameter("motionId");
-			if(strMotion != null && !strMotion.isEmpty()){
-				Motion m = Motion.findById(Motion.class, new Long(strMotion));
+			String strWorkflowDetailsId = request.getParameter("workflowDetailId");
+			if((strMotion != null && !strMotion.isEmpty())
+					|| strWorkflowDetailsId != null && !strWorkflowDetailsId.isEmpty() ){
+				Motion m = null;
+				WorkflowDetails wfDetails = null;
+				if(strMotion != null && !strMotion.isEmpty()){
+					m = Motion.findById(Motion.class, new Long(strMotion));
+				}else if(strWorkflowDetailsId != null && !strWorkflowDetailsId.isEmpty()){
+					wfDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowDetailsId));
+				}
+					
 				
-				if(m != null){
+				if(m != null || wfDetails != null){
+					if(wfDetails!=null){
+						m = Motion.findById(Motion.class, Long.parseLong(wfDetails.getDeviceId()));
+					}
 					HouseType ht = m.getHouseType();
 					
 					if(ht.getType().equals(ApplicationConstants.LOWER_HOUSE)){
@@ -621,10 +633,20 @@ public class MotionReportController extends BaseController{
 		
 		//String retVal = "motion/report";
 		try{
+			String strId = request.getParameter("motionId");;
+			String strWorkflowId = request.getParameter("workflowDetailId");
+			WorkflowDetails workflowDetails = null;
+			if(strWorkflowId != null && !strWorkflowId.isEmpty()){
+				workflowDetails = WorkflowDetails.findById(WorkflowDetails.class, Long.parseLong(strWorkflowId));
+				if(workflowDetails != null){
+					strId = workflowDetails.getDeviceId();
+				}
+			}
 			
-			String strId = request.getParameter("motionId");
 			String strReportFormat = request.getParameter("outputFormat");	
-			
+			String strCopyType = request.getParameter("copyType");
+			Long workflowDetailCount = (long) 0;
+			Boolean isResendRevisedMotionTextWorkflow = false;
 			if(strId != null && !strId.isEmpty()){
 				Map<String, String[]> parameters = new HashMap<String, String[]>();
 				parameters.put("locale", new String[]{locale.toString()});
@@ -632,10 +654,25 @@ public class MotionReportController extends BaseController{
 				
 				@SuppressWarnings("rawtypes")
 				List reportData = Query.findReport("MOTION_NIVEDAN_TARIKH_LOWERHOUSE", parameters);	
-				String templateName = "motion_nivedan_tarikh";
+				String templateName = "motion_nivedan_tarikh_lowerhouse";
+				
+				Motion motion = Motion.findById(Motion.class, Long.parseLong(strId));
+				Status resendRevisedMotionText = Status.findByType(ApplicationConstants.MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT, locale.toString());
+				if(workflowDetails != null && resendRevisedMotionText != null){
+					workflowDetailCount = WorkflowDetails.findRevisedMotionTextWorkflowCount(motion, resendRevisedMotionText, workflowDetails);
+					if(workflowDetails.getRecommendationStatus().equals(resendRevisedMotionText.getName())
+						|| workflowDetailCount > 0){
+						isResendRevisedMotionTextWorkflow = true;
+					}
+				}
+				String strRevisedMotionText = null;
+				if(isResendRevisedMotionTextWorkflow){
+					strRevisedMotionText = workflowDetails.getText();
+					strCopyType = "revisedCopy";
+				}
 				File reportFile = null;
 				
-				reportFile = generateReportUsingFOP(new Object[] {reportData}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
+				reportFile = generateReportUsingFOP(new Object[] {reportData, strCopyType, isResendRevisedMotionTextWorkflow, strRevisedMotionText}, templateName, strReportFormat, "motionNivedanTarikh",locale.toString());
 				openOrSaveReportFileFromBrowser(response, reportFile, strReportFormat);
 				
 				model.addAttribute("info", "general_info");;

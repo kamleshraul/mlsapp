@@ -9792,8 +9792,8 @@ public class ReferenceController extends BaseController {
 						}
 					}
 					List<BigInteger> report = Query.findReport("MOIS_PENDING_ADVANCE_COPY", parameterMap, true);
-					if(report != null){
-						return Long.parseLong(report.get(0).toString());
+					if(report != null && !report.isEmpty()){
+						return (long) report.size();
 					}
 				}
 			}
@@ -10225,4 +10225,38 @@ public class ReferenceController extends BaseController {
 		
 		return vos;
 	}
+	
+	@RequestMapping(value="/membersbyhouse", method=RequestMethod.GET)
+	public List<AutoCompleteVO> getMembersAutoCompleteDataByHouse(HttpServletRequest request,Locale locale){
+		CustomParameter customParameter = CustomParameter.findByName(CustomParameter.class,"DEPLOYMENT_SERVER", "");
+		List<AutoCompleteVO> autoCompleteVOs = new ArrayList<AutoCompleteVO>();
+		String strHouseId = request.getParameter("house");
+		House house = House.findById(House.class, Long.parseLong(strHouseId));
+		String strParam = null;
+		if(customParameter != null){
+			String server = customParameter.getValue();
+			if(server.equals("TOMCAT")){
+				strParam = request.getParameter("term");
+				try {
+					strParam = new String(strParam.getBytes("ISO-8859-1"),"UTF-8");
+				}
+				catch (UnsupportedEncodingException e){
+					e.printStackTrace();
+				}
+			}else{
+				strParam = request.getParameter("term");
+			}
+		}
+		List<MasterVO> memberVOs = HouseMemberRoleAssociation.findActiveMembersInHouseByTerm(house, strParam, locale.toString());
+		for(MasterVO i : memberVOs){
+			AutoCompleteVO autoCompleteVO = new AutoCompleteVO();
+			autoCompleteVO.setId(i.getId());
+			autoCompleteVO.setValue(i.getName());
+			autoCompleteVOs.add(autoCompleteVO);
+		}
+		
+		return autoCompleteVOs;
+	}
+	
+	
 }
