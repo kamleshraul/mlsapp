@@ -178,7 +178,9 @@ public class QuestionReportController extends BaseController{
 		
 		DeviceXmlVO deviceXmlVO = new DeviceXmlVO();
 		deviceXmlVO.setHouseType(question.getOriginalType().getName());//deviceType
+		if(question.getNumber()!=null){
 		deviceXmlVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(question.getNumber(), locale.toString()));//question number
+		}
 		if(question.getSubmissionDate()!=null){
 		deviceXmlVO.setSubmissionDate(FormaterUtil.formatDateToString(question.getSubmissionDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale.toString()));//submission date
 		}
@@ -193,7 +195,7 @@ public class QuestionReportController extends BaseController{
 		if(question.getGroup()!=null){
 		deviceXmlVO.setFormattedGroupNumber(FormaterUtil.formatNumberNoGrouping(question.getGroup().getNumber(), locale.toString()));//Group Number
 		}
-		if(question.getPriority()!=null){
+		if(question.getPriority()!=null || question.getPriority()!=0){
 		deviceXmlVO.setSerialNumber(FormaterUtil.formatNumberNoGrouping(question.getPriority(), locale.toString()));//priority number
 		}
 		if(question.getAnsweringDate()!=null){
