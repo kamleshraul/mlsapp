@@ -108,6 +108,14 @@ public class MotionDraft extends BaseDomain implements Serializable{
     private Boolean transferToDepartmentAccepted = false;
     
     private Boolean mlsBranchNotifiedOfTransfer = false;
+    
+    
+    /******Advance Copy *******/
+    private Boolean advanceCopySent = false;
+    
+    private Boolean advanceCopyPrinted = false;
+    
+	private String advanceCopyActor;
     /**
      * ** Setters and Getters ***.
      *
@@ -372,6 +380,30 @@ public class MotionDraft extends BaseDomain implements Serializable{
 
 	public void setMlsBranchNotifiedOfTransfer(Boolean mlsBranchNotifiedOfTransfer) {
 		this.mlsBranchNotifiedOfTransfer = mlsBranchNotifiedOfTransfer;
+	}
+
+	public Boolean getAdvanceCopySent() {
+		return advanceCopySent;
+	}
+
+	public void setAdvanceCopySent(Boolean advanceCopySent) {
+		this.advanceCopySent = advanceCopySent;
+	}
+
+	public Boolean getAdvanceCopyPrinted() {
+		return advanceCopyPrinted;
+	}
+
+	public void setAdvanceCopyPrinted(Boolean advanceCopyPrinted) {
+		this.advanceCopyPrinted = advanceCopyPrinted;
+	}
+
+	public String getAdvanceCopyActor() {
+		return advanceCopyActor;
+	}
+
+	public void setAdvanceCopyActor(String advanceCopyActor) {
+		this.advanceCopyActor = advanceCopyActor;
 	}  
 	
 	

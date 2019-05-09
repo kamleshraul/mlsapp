@@ -989,6 +989,14 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 		return getRepository().findDepartmentAssemblyDeviceCountsByDeviceTypeFromWorkflowDetails(strHouseType, strSessionType, strSessionYear, strDeviceType, strSubdeartment, strStatus, strLocale);
 	}
 	
+	public static Long findRevisedMotionTextWorkflowCount(Motion motion, Status resendRevisedMotionText,
+			WorkflowDetails workflowDetails) {
+		return getRepository().findRevisedMotionTextWorkflowCount(motion, resendRevisedMotionText, workflowDetails);
+	}
+	
+	public static List<WorkflowDetails> findPendingWorkflowDetails(Motion motion, String workflowType) throws ELSException {
+		return getRepository().findPendingWorkflowDetails(motion, workflowType);
+	}
 	// Getters and Setters
 	public String getProcessId() {
 		return processId;
@@ -1461,9 +1469,5 @@ public class WorkflowDetails extends BaseDomain implements Serializable{
 	public void setReply(String reply) {
 		this.reply = reply;
 	}
-
-
-	
-
 
 }

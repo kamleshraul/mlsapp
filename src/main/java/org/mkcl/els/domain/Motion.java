@@ -421,6 +421,9 @@ import org.springframework.transaction.annotation.Transactional;
 			draft.setRecommendationStatus(this.getRecommendationStatus());
 			draft.setMlsBranchNotifiedOfTransfer(this.getMlsBranchNotifiedOfTransfer());
 			draft.setTransferToDepartmentAccepted(this.getTransferToDepartmentAccepted());
+			draft.setAdvanceCopyActor(this.getAdvanceCopyActor());
+			draft.setAdvanceCopySent(this.getAdvanceCopySent());
+			draft.setAdvanceCopyPrinted(this.getAdvanceCopyPrinted());
 			if(this.getRevisedDetails()!= null && this.getRevisedSubject() != null){
 				draft.setDetails(this.getRevisedDetails());
 				draft.setSubject(this.getRevisedSubject());                
