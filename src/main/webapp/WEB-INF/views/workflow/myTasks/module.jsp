@@ -748,6 +748,8 @@
 					$('#generateIntimationLetter').attr('href', 'standalonemotion/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
 				}else if(currentDevice.indexOf('resolutions_')==0){
 					$('#generateIntimationLetter').attr('href', 'resolution/report/generateIntimationLetter?workflowId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val());
+				}else if(currentDevice.indexOf('motions_calling_attention')==0){
+					$('#generateIntimationLetter').attr('href', 'motion/report/commonadmissionreport?workflowDetailId='+workflowId+'&intimationLetterFilter='+$("#intimationLetterFilter").val()+'&outputFormat=PDF&copyType=tentativeCopy');
 				}
 				if(isNeededToResetLetterFilter == true) {
 					$("#intimationLetterFilter").val("-");
@@ -1075,7 +1077,7 @@
 		
 		
 		//to show new advance copy count for motion
-		/* function displayNewAdvanceCopyForMotion(){
+		 function displayNewAdvanceCopyForMotion(){
 			if($("#getNewTasks").val() != undefined && $("#getNewTasks").val() != ''){
 				var url = "ref/newpendingmotionadvancecopy?sessionYear=" + $("#selectedSessionYear").val() +
 							"&sessionType=" + $("#selectedSessionType").val() + 
@@ -1090,7 +1092,7 @@
 					
 				});
 			}			  
-		} */
+		} 
 		
 		function showAdvanceMotionCopy(){
 			var params = "houseType="+$("#selectedHouseType").val()

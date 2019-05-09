@@ -6,7 +6,7 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			if($("#deviceTypeType").val() == 'motions_calling_attention'){
-				//displayNewAdvanceCopyForMotion();
+				displayNewAdvanceCopyForMotion();
 				$("#advanceCopyDiv").css("display","inline");
 			}else{
 				$("#advanceCopyDiv").hide();
