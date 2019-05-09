@@ -327,7 +327,7 @@
 		            						<fo:table-row>
 		            							<fo:table-cell>
 		            								<fo:block>
-		            									<fo:block text-align="center" font-weight="bold">विधानसभा सूचना</fo:block>
+		            									<fo:block text-align="center" font-weight="bold">विधानसभा लक्षवेधी सूचना</fo:block>
 		            									
 		            									<fo:block text-align="left" font-weight="bold">अति तात्काळ</fo:block>
 		            									
@@ -447,14 +447,14 @@
 																								</fo:block>
 																							</fo:table-cell>
 																						</fo:table-row>
-																						
+																						<!-- 
 																						<fo:table-row>
 																							<fo:table-cell text-align="justify">
 																								<fo:block>
 																									महाराष्ट्र शासन,
 																								</fo:block>
 																							</fo:table-cell>										
-																						</fo:table-row>
+																						</fo:table-row> -->
 																						
 																						<fo:table-row>
 																							<fo:table-cell text-align="justify">
@@ -485,7 +485,7 @@
 														
 														<fo:block>
 															&#160;&#160;&#160;&#160;&#160;&#160;
-															<fo:inline font-weight="bold" text-decoration="underline" font-size="12px">विषय:- महाराष्ट्र विधानसभा नियम-१०५ अन्वये लक्षवेधी  सूचना</fo:inline> 
+															<fo:inline font-weight="bold" text-decoration="underline">विषय:- महाराष्ट्र विधानसभा नियम-१०५ अन्वये लक्षवेधी  सूचना</fo:inline> 
 														</fo:block>
 														
 														<fo:block text-align="left" font-weight="bold">महोदय, </fo:block>
@@ -518,7 +518,7 @@
 														</fo:block>
 														
 														<fo:block>
-															&#160;&#160;&#160;&#160;&#160;&#160;या निवेदनाच्या ६०० प्रती 
+															&#160;&#160;&#160;&#160;&#160;&#160;या निवेदनाच्या ७०० प्रती 
 															<fo:inline font-weight="bold">
 																<xsl:choose>
 																	<xsl:when test="./element_1/element_1_12='दिनांक '">
@@ -610,13 +610,16 @@
 		            							</fo:table-cell>
 		            							<fo:table-cell>
 		            								<fo:block>
+		            									&#160;
+		            								</fo:block>
+		            							</fo:table-cell>
+		            							<fo:table-cell>
+		            								<fo:block>
 		            									<fo:block font-weight="bold" text-align="center">
 		            										लक्षवेधी सूचनेची प्रत
 		            									</fo:block>
 		            									
-		            									<fo:block font-weight="bold">
-		            										<xsl:value-of select="./element_1/element_1_9"></xsl:value-of>
-		            									</fo:block>
+		            									
 		            									
 		            									<fo:block font-weight="bold">
 		            										संदर्भ : या सचिवालयाचे पत्र क्र.&#160;&#160;&#160;&#160;&#160;&#160;&#160;/फ दिनांकित 
@@ -630,23 +633,10 @@
 		            										"<xsl:value-of select="./element_1/element_1_5"></xsl:value-of>"
 		            									</fo:block>
 		            									
-		            									
-		            									<fo:block font-size="16px">
-		            										&#160;
+		            									<fo:block font-weight="bold">
+		            										<xsl:value-of select="./element_1/element_1_9"></xsl:value-of>
 		            									</fo:block>
-		            									
-		            									<fo:block font-size="16px">
-		            										&#160;
-		            									</fo:block>		            									
-		            											            									
-		            									<fo:block>
-		            										<fo:inline font-weight="bold">सर्वश्री,</fo:inline>
-		            										<fo:inline>
-		            											<xsl:value-of select="./element_1/element_1_9" />
-															</fo:inline>
-		            									</fo:block>
-		            									
-		            								</fo:block>
+													</fo:block>
 		            							</fo:table-cell>
 		            						</fo:table-row>
 		            					</fo:table-body>
