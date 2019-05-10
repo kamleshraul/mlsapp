@@ -182,7 +182,7 @@ public class QuestionReportController extends BaseController{
 			deviceXmlVO.setFormattedNumber(FormaterUtil.formatNumberNoGrouping(question.getNumber(), locale.toString()));//question number
 		}
 		if(question.getSubmissionDate()!=null){
-		deviceXmlVO.setSubmissionDate(FormaterUtil.formatDateToString(question.getSubmissionDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale.toString()));//submission date
+			deviceXmlVO.setSubmissionDate(FormaterUtil.formatDateToString(question.getSubmissionDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale.toString()));//submission date
 		}
 		deviceXmlVO.setMemberNames(question.getPrimaryMember().findFirstLastName());//Member Name
 		deviceXmlVO.setSubject(question.getSubject());//subject
