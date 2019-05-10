@@ -76,47 +76,98 @@
 						<fo:block text-align="left">
 							<fo:block text-align="center" font-weight="bold"><xsl:value-of select="houseType"/>&#160;<xsl:value-of select="formattedNumber"/></fo:block>	
 							<fo:block>&#160;</fo:block>
-							<fo:block><fo:inline font-weight="bold">क्रमांक: </fo:inline><xsl:value-of select="formattedNumber"/>
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-	                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-	                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-	                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;	                			                		                		
-	                		<fo:inline>
-	                			<fo:inline font-weight="bold">स्थिती: </fo:inline><xsl:value-of select="status"/>
-	                		</fo:inline>
-			                </fo:block>
-							<fo:block>&#160;</fo:block>				
-							<fo:block><fo:inline font-weight="bold">सूचना दिल्याचा दिनांक: </fo:inline><xsl:value-of select="submissionDate"/>
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;      		                		
-			                		<fo:inline>
-			                			<xsl:choose>
-			                			<xsl:when test="serialNumber!=''">
-			                				<fo:inline font-weight="bold">प्राथम्य क्रमांक: </fo:inline><xsl:value-of select="serialNumber"/>
-			                			</xsl:when>
-										</xsl:choose>
-			                		</fo:inline>
-							</fo:block>
-							<fo:block>&#160;</fo:block>
-							<fo:block><fo:inline font-weight="bold">सदस्य: </fo:inline> <xsl:value-of select="memberNames"/>
-							&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-			                		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;     			                		                		
-			                		<fo:inline>
-			                			<fo:inline font-weight="bold">गट: </fo:inline> <xsl:value-of select="formattedGroupNumber"/>
-			                		</fo:inline>
-							</fo:block>
-							<fo:block>&#160;</fo:block>
-							<fo:block><fo:inline font-weight="bold">निर्वाचन क्षेत्र: </fo:inline><xsl:value-of select="constituency"/>            			                		                		
-		                		<fo:inline>
-		                			<xsl:choose>
-										<xsl:when test="answeringDate!=''">
-											<fo:block><fo:inline font-weight="bold">उत्तराचा दिनांक: </fo:inline><xsl:value-of select="answeringDate"/></fo:block>
-										</xsl:when>
-									</xsl:choose>
-		                		</fo:inline>
-							</fo:block>
+							<fo:table>
+							<fo:table-body >
+      							<fo:table-row>
+									<fo:table-cell>
+										<fo:block>
+										<xsl:choose>
+											<xsl:when test="formattedNumber!=''">
+												<fo:inline font-weight="bold">क्रमांक: </fo:inline><xsl:value-of select="formattedNumber"/>
+											</xsl:when>
+											<xsl:otherwise>
+												<fo:block font-weight="bold">क्रमांक: - </fo:block>
+											</xsl:otherwise>
+										</xsl:choose> 
+										</fo:block>             			                		                		
+		                			</fo:table-cell>
+		                			<fo:table-cell>
+		                				<fo:block>
+		                					<fo:inline font-weight="bold">स्थिती:  </fo:inline><xsl:value-of select="status"/>
+		                				</fo:block>
+	                				</fo:table-cell>
+								</fo:table-row>
+								<fo:table-row>
+									<fo:table-cell font-weight="bold" number-columns-spanned="1">
+									<fo:block>&#160;</fo:block>
+									</fo:table-cell>
+								</fo:table-row>
+								<fo:table-row>
+									<fo:table-cell>
+										<fo:block>
+										<xsl:choose>
+											<xsl:when test="submissionDate!=''">
+												<fo:inline font-weight="bold">सूचना दिल्याचा दिनांक: </fo:inline><xsl:value-of select="submissionDate"/>
+											</xsl:when>
+											<xsl:otherwise>
+												<fo:block font-weight="bold">सूचना दिल्याचा दिनांक: -</fo:block>
+											</xsl:otherwise>
+										</xsl:choose> 
+										</fo:block>  
+		                			</fo:table-cell>
+		                			<fo:table-cell>
+		                				<fo:block>
+										<xsl:choose>
+											<xsl:when test="serialNumber!=''">
+												<fo:inline font-weight="bold">प्राथम्य क्रमांक: </fo:inline><xsl:value-of select="serialNumber"/>
+											</xsl:when>
+										</xsl:choose> 
+										</fo:block>  
+	                				</fo:table-cell>
+								</fo:table-row>
+								<fo:table-row>
+									<fo:table-cell font-weight="bold" number-columns-spanned="1">
+									<fo:block>&#160;</fo:block>
+									</fo:table-cell>
+								</fo:table-row>
+								<fo:table-row>
+									<fo:table-cell>
+										<fo:block>
+											<fo:inline font-weight="bold">सदस्य:  </fo:inline><xsl:value-of select="memberNames"/>
+										</fo:block>
+									</fo:table-cell>
+									<fo:table-cell>
+										<fo:block>
+											<fo:inline font-weight="bold">गट:  </fo:inline><xsl:value-of select="formattedGroupNumber"></xsl:value-of>
+										</fo:block>
+									</fo:table-cell>
+								</fo:table-row>
+								<fo:table-row>
+									<fo:table-cell font-weight="bold" number-columns-spanned="1">
+									<fo:block>&#160;</fo:block>
+									</fo:table-cell>
+								</fo:table-row>
+								<fo:table-row>
+									<fo:table-cell>
+										<fo:block>
+											<fo:inline font-weight="bold">निर्वाचन क्षेत्र:  </fo:inline><xsl:value-of select="constituency"/>
+										</fo:block>
+									</fo:table-cell>
+									<fo:table-cell>
+										<fo:block>
+											<xsl:choose>
+												<xsl:when test="answeringDate!=''">
+													<fo:inline font-weight="bold">उत्तराचा दिनांक: </fo:inline><xsl:value-of select="submissionDate"/>
+												</xsl:when>
+												<xsl:otherwise>
+													<fo:block font-weight="bold">उत्तराचा दिनांक: -</fo:block>
+												</xsl:otherwise>
+											</xsl:choose> 
+										</fo:block>
+									</fo:table-cell>
+								</fo:table-row>
+							</fo:table-body>
+							</fo:table>
 							<fo:block>&#160;</fo:block>
 							<fo:block><fo:inline font-weight="bold">मंत्री: </fo:inline><xsl:value-of select="ministryName"/></fo:block>
 							<fo:block>&#160;</fo:block>
