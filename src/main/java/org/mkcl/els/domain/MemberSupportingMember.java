@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 
 @Configurable
 @Entity
-@Table(name="member_supportingmembes")
+@Table(name="member_supportingmembers")
 public class MemberSupportingMember extends BaseDomain implements Serializable {
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
