@@ -792,6 +792,8 @@ class StarredQuestionController {
 		request.getSession().setAttribute("questionType", request.getParameter("questionType"));
 		//Populate Primary Member
 		
+		model.addAttribute("role", request.getParameter("role")); 
+		
 		Member primaryMember = domain.getPrimaryMember();
 		if(primaryMember != null) {
 			model.addAttribute("formattedPrimaryMember", primaryMember.getFullname());
