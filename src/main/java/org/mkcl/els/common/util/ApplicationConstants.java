@@ -2707,7 +2707,6 @@ public class ApplicationConstants {
 	
 	public static int DEFAULT_SUBMISSION_PRIORITY = 1000;
 	
-	
 	public static final String MOTION_SYSTEM_ADVANCECOPYRECEIVED = "motion_system_advanceCopyReceived";
 	
 	public static final String MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT = "motion_processed_resendRevisedMotionTexttoDepartment";
