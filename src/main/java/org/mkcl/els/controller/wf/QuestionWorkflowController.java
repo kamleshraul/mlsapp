@@ -5864,6 +5864,48 @@ public class QuestionWorkflowController  extends BaseController{
 				}
 					model.addAttribute("deviceType", questionType.getId());
 			}
+			if(request.getSession().getAttribute("recommendAdmission")==null){
+	            model.addAttribute("recommendAdmission","");
+	        }else{
+	        	model.addAttribute("recommendAdmission",request.getSession().getAttribute("recommendAdmission"));
+	            request.getSession().removeAttribute("recommendAdmission");
+	        }
+			if(request.getSession().getAttribute("recommendClarification")==null){
+	            model.addAttribute("recommendClarification","");
+	        }else{
+	        	model.addAttribute("recommendClarification",request.getSession().getAttribute("recommendClarification"));
+	            request.getSession().removeAttribute("recommendClarification");
+	        }
+			if(request.getSession().getAttribute("recommendRejection")==null){
+	            model.addAttribute("recommendRejection","");
+	        }else{
+	        	model.addAttribute("recommendRejection",request.getSession().getAttribute("recommendRejection"));
+	            request.getSession().removeAttribute("recommendRejection");
+	        }
+			if(request.getSession().getAttribute("admitted")==null){
+	            model.addAttribute("admitted","");
+	        }else{
+	        	model.addAttribute("admitted",request.getSession().getAttribute("admitted"));
+	            request.getSession().removeAttribute("admitted");
+	        }
+			if(request.getSession().getAttribute("rejected")==null){
+	            model.addAttribute("rejected","");
+	        }else{
+	        	model.addAttribute("rejected",request.getSession().getAttribute("rejected"));
+	            request.getSession().removeAttribute("rejected");
+	        }
+			if(request.getSession().getAttribute("clarification")==null){
+	            model.addAttribute("clarification","");
+	        }else{
+	        	model.addAttribute("clarification",request.getSession().getAttribute("clarification"));
+	            request.getSession().removeAttribute("clarification");
+	        }
+			if(request.getSession().getAttribute("errorMsg")==null){
+	            model.addAttribute("errorMsg","");
+	        }else{
+	        	model.addAttribute("errorMsg",request.getSession().getAttribute("errorMsg"));
+	            request.getSession().removeAttribute("errorMsg");
+	        }
 			return "workflow/question/advancedbulkapproval";	
 		}catch (ELSException ee) {
 			model.addAttribute("error", ee.getParameter());
@@ -5884,101 +5926,108 @@ public class QuestionWorkflowController  extends BaseController{
 			final ModelMap model){
 		String listSize = request.getParameter("questionlistSize");
 		Question tempQuestion  = null;
+		StringBuffer recommendAdmissionMsg = new StringBuffer();
+		StringBuffer recommendRejectionMsg = new StringBuffer();
+		StringBuffer recommendClarificationMsg = new StringBuffer();
+		StringBuffer admittedMsg = new StringBuffer();
+		StringBuffer rejectedMsg = new StringBuffer();
+		StringBuffer clarificationMsg = new StringBuffer();
+		StringBuffer errorMsg = new StringBuffer();
 		if(listSize != null && !listSize.isEmpty()){
 			for(int i =0; i<Integer.parseInt(listSize);i++){
-				String id = request.getParameter("questionId"+i);
-				String subject = request.getParameter("subject"+i);
-				String questionText = request.getParameter("questionText"+i);
-				String actor = request.getParameter("actor"+i);
-				String internalStatus = request.getParameter("internalStatus"+i);
-				String remark = request.getParameter("remark"+i);
-				String workflowDetailsId = request.getParameter("workflowDetailsId"+i);
-				Long wrkflowId = Long.parseLong(workflowDetailsId);
-				WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class,wrkflowId);
-				String strChecked = request.getParameter("chk"+workflowDetailsId);
-				if(strChecked != null && !strChecked.isEmpty() && Boolean.parseBoolean(strChecked)){
-					Question question = Question.findById(Question.class,Long.parseLong(wfDetails.getDeviceId()));
-					tempQuestion = question;
-					if(questionText != null && !questionText.isEmpty()){
-						question.setRevisedQuestionText(questionText);
-					}
-					if(remark != null && !remark.isEmpty()){
-						question.setRemarks(remark);
-					}
-					if(subject != null && !subject.isEmpty()){
-						question.setRevisedSubject(subject);
-					}
-					if(actor == null || actor.isEmpty()){
-						actor = question.getActor();
-						String[] temp = actor.split("#");
-						actor = temp[1];
-					}
-					String level = request.getParameter("questionLevel");
-					if(level == null || level.isEmpty()){
-						level = question.getLevel();
-					}
-
-					/**** Update Actor ****/
-					String[] temp = actor.split("#");
-					question.setActor(actor);
-					question.setLocalizedActorName(temp[3] + "(" + temp[4] + ")");
-					question.setLevel(temp[2]);
-					/**** Update Internal Status and Recommendation Status ****/
-					Status intStatus = Status.findById(Status.class, Long.parseLong(internalStatus));
-					if(internalStatus != null){
-						if(!intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_DISCUSS) 
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_SENDBACK)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTODEPARTMENT)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)
-						&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_RECIEVED)){
-							question.setInternalStatus(intStatus);
-							question.setRecommendationStatus(intStatus);
-							question.setEndFlag("continue");
-						}else if(intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)
-								||intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_RECIEVED)){
-							Status toBePutUp = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale.toString());
-							question.setInternalStatus(toBePutUp);
-							question.setRecommendationStatus(toBePutUp);
-							question.setEndFlag(null);
-							question.setActor(null);
-							question.setLevel(null);
-							question.setLocalizedActorName(null);
-						}else{
-							question.setRecommendationStatus(intStatus);
-							question.setEndFlag("continue");
+				try{
+					String id = request.getParameter("questionId"+i);
+					String subject = request.getParameter("subject"+i);
+					String questionText = request.getParameter("questionText"+i);
+					String actor = request.getParameter("actor"+i);
+					String internalStatus = request.getParameter("internalStatus"+i);
+					String remark = request.getParameter("remark"+i);
+					String workflowDetailsId = request.getParameter("workflowDetailsId"+i);
+					Long wrkflowId = Long.parseLong(workflowDetailsId);
+					WorkflowDetails wfDetails = WorkflowDetails.findById(WorkflowDetails.class,wrkflowId);
+					String strChecked = request.getParameter("chk"+workflowDetailsId);
+					if(strChecked != null && !strChecked.isEmpty() && Boolean.parseBoolean(strChecked)){
+						Question question = Question.findById(Question.class,Long.parseLong(wfDetails.getDeviceId()));
+						tempQuestion = question;
+						if(questionText != null && !questionText.isEmpty()){
+							question.setRevisedQuestionText(questionText);
 						}
-					}
+						if(remark != null && !remark.isEmpty()){
+							question.setRemarks(remark);
+						}
+						if(subject != null && !subject.isEmpty()){
+							question.setRevisedSubject(subject);
+						}
+						if(actor == null || actor.isEmpty()){
+							actor = question.getActor();
+							String[] temp = actor.split("#");
+							actor = temp[1];
+						}
+						String level = request.getParameter("questionLevel");
+						if(level == null || level.isEmpty()){
+							level = question.getLevel();
+						}
 
-					/**** Complete Task ****/
-					Map<String,String> properties = new HashMap<String, String>();
-					properties.put("pv_deviceId", String.valueOf(question.getId()));
-					properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
-					properties.put("pv_user", temp[0]);
-					properties.put("pv_endflag", question.getEndFlag());
-					UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
-					String strTaskId = wfDetails.getTaskId();
-					Task task = processService.findTaskById(strTaskId);
-					processService.completeTask(task, properties);	
-					if(question.getEndFlag() != null && !question.getEndFlag().isEmpty()
-							&& question.getEndFlag().equals("continue")){
-						/**** Create New Workflow Details ****/
-						ProcessInstance processInstance = 
-								processService.findProcessInstanceById(task.getProcessInstanceId());
-						Workflow workflowFromUpdatedStatus = null;
-						try {
+						/**** Update Actor ****/
+						String[] temp = actor.split("#");
+						question.setActor(actor);
+						question.setLocalizedActorName(temp[3] + "(" + temp[4] + ")");
+						question.setLevel(temp[2]);
+						/**** Update Internal Status and Recommendation Status ****/
+						Status intStatus = Status.findById(Status.class, Long.parseLong(internalStatus));
+						if(internalStatus != null){
+							if(!intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_DISCUSS) 
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_SENDBACK)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_UNSTARRED_PROCESSED_SENDTODEPARTMENT)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_DISCUSS) 
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_RECOMMEND_SENDBACK)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTODEPARTMENT)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_SENDTOSECTIONOFFICER)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)
+							&& !intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_RECIEVED)){
+								question.setInternalStatus(intStatus);
+								question.setRecommendationStatus(intStatus);
+								question.setEndFlag("continue");
+							}else if(intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_NOT_RECEIVED)
+									||intStatus.getType().equals(ApplicationConstants.QUESTION_PROCESSED_CLARIFICATION_RECIEVED)){
+								Status toBePutUp = Status.findByType(ApplicationConstants.QUESTION_SYSTEM_TO_BE_PUTUP, locale.toString());
+								question.setInternalStatus(toBePutUp);
+								question.setRecommendationStatus(toBePutUp);
+								question.setEndFlag(null);
+								question.setActor(null);
+								question.setLevel(null);
+								question.setLocalizedActorName(null);
+							}else{
+								question.setRecommendationStatus(intStatus);
+								question.setEndFlag("continue");
+							}
+						}
+
+						/**** Complete Task ****/
+						Map<String,String> properties = new HashMap<String, String>();
+						properties.put("pv_deviceId", String.valueOf(question.getId()));
+						properties.put("pv_deviceTypeId", String.valueOf(question.getType().getId()));
+						properties.put("pv_user", temp[0]);
+						properties.put("pv_endflag", question.getEndFlag());
+						UserGroupType usergroupType = UserGroupType.findByType(temp[1], locale.toString());
+						String strTaskId = wfDetails.getTaskId();
+						Task task = processService.findTaskById(strTaskId);
+						processService.completeTask(task, properties);	
+						if(question.getEndFlag() != null && !question.getEndFlag().isEmpty()
+								&& question.getEndFlag().equals("continue")){
+							/**** Create New Workflow Details ****/
+							ProcessInstance processInstance = 
+									processService.findProcessInstanceById(task.getProcessInstanceId());
+							Workflow workflowFromUpdatedStatus = null;
 							Status iStatus = question.getInternalStatus();
 							String internalStatusType = iStatus.getType();
 							Status recommendationStatus = question.getRecommendationStatus();
@@ -6047,79 +6096,114 @@ public class QuestionWorkflowController  extends BaseController{
 							else {
 								workflowFromUpdatedStatus = Workflow.findByStatus(iStatus, locale.toString());
 							}
-				
-						} catch(ELSException e) {
-							e.printStackTrace();
-							model.addAttribute("error", "Bulk approval is unavailable please try after some time.");
-							model.addAttribute("type", "error");
-							
+							Task newtask = processService.getCurrentTask(processInstance);
+							WorkflowDetails workflowDetails2 = null;
+							try {
+								workflowDetails2 = WorkflowDetails.create(question,newtask,usergroupType,workflowFromUpdatedStatus.getType(),level);
+							} catch (ELSException e) {
+								e.printStackTrace();
+								model.addAttribute("error", e.getParameter());
+							}
+							question.setWorkflowDetailsId(workflowDetails2.getId());
+							question.setTaskReceivedOn(new Date());								
 						}
-						Task newtask = processService.getCurrentTask(processInstance);
-						WorkflowDetails workflowDetails2 = null;
-						try {
-							workflowDetails2 = WorkflowDetails.create(question,newtask,usergroupType,workflowFromUpdatedStatus.getType(),level);
-						} catch (ELSException e) {
-							e.printStackTrace();
-							model.addAttribute("error", e.getParameter());
+						/**** Update Old Workflow Details ****/
+						wfDetails.setStatus("COMPLETED");
+						wfDetails.setInternalStatus(question.getInternalStatus().getName());
+						wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
+						wfDetails.setCompletionTime(new Date());
+						if(!question.getType().getType().startsWith("questions_halfhourdiscussion_") 
+						&& !question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
+						&& !question.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
+							wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
 						}
-						question.setWorkflowDetailsId(workflowDetails2.getId());
-						question.setTaskReceivedOn(new Date());								
-					}
-					/**** Update Old Workflow Details ****/
-					wfDetails.setStatus("COMPLETED");
-					wfDetails.setInternalStatus(question.getInternalStatus().getName());
-					wfDetails.setRecommendationStatus(question.getRecommendationStatus().getName());
-					wfDetails.setCompletionTime(new Date());
-					if(!question.getType().getType().startsWith("questions_halfhourdiscussion_") 
-					&& !question.getType().getType().equals(ApplicationConstants.UNSTARRED_QUESTION)
-					&& !question.getType().getType().equals(ApplicationConstants.SHORT_NOTICE_QUESTION)){
-						wfDetails.setAnsweringDate(question.getChartAnsweringDate().getAnsweringDate());
-					}
-					wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
-					wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
-					wfDetails.merge();
-					/**** Update Motion ****/
-					question.setEditedOn(new Date());
-					question.setEditedBy(this.getCurrentUser().getActualUsername());
-					question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
-					try {
+						wfDetails.setDecisionInternalStatus(question.getInternalStatus().getName());
+						wfDetails.setDecisionRecommendStatus(question.getRecommendationStatus().getName());
+						wfDetails.merge();
+						/**** Update Motion ****/
+						question.setEditedOn(new Date());
+						question.setEditedBy(this.getCurrentUser().getActualUsername());
+						question.setEditedAs(wfDetails.getAssigneeUserGroupName());				
 						performAction(question);
-					} catch (ELSException e) {
-						e.printStackTrace();
-						logger.error(e.toString());
-						model.addAttribute("error", e.getParameter());
+						question.merge();
+						String internalStatusType = question.getInternalStatus().getType();
+						if(internalStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_ADMISSION)
+							|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_ADMISSION)
+							|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_ADMISSION)
+							|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_ADMISSION)){
+							recommendAdmissionMsg.append(question.formatNumber()+",");
+						}else if(internalStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_REJECTION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_REJECTION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_REJECTION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_REJECTION)){
+							recommendRejectionMsg.append(question.formatNumber()+",");
+						}else if(internalStatusType.equals(ApplicationConstants.QUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_RECOMMEND_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
+							recommendClarificationMsg.append(question.formatNumber()+",");
+						}else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_ADMISSION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_ADMISSION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_ADMISSION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_ADMISSION)){
+							admittedMsg.append(question.formatNumber()+",");
+						}else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_REJECTION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_REJECTION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_REJECTION)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_REJECTION)){
+							rejectedMsg.append(question.formatNumber()+",");
+						}else if(internalStatusType.equals(ApplicationConstants.QUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_UNSTARRED_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_SHORTNOTICE_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)
+								|| internalStatusType.equals(ApplicationConstants.QUESTION_HALFHOURDISCUSSION_FROMQUESTION_FINAL_CLARIFICATION_NEEDED_FROM_DEPARTMENT)){
+							clarificationMsg.append(question.formatNumber()+",");
+						}
+						redirectAttributes.addFlashAttribute("type", "success");
+				        //this is done so as to remove the bug due to which update message appears even though there
+				        //is a fresh new/edit request i.e after creating/updating records if we click on
+				        //new /edit then success message appears
+				        request.getSession().setAttribute("type","success");
+				        redirectAttributes.addFlashAttribute("msg", "create_success");
 					}
-					question.merge();
+				} catch(ELSException ee) {
+					ee.printStackTrace();
+					errorMsg.append(tempQuestion.formatNumber()+",");
+					continue;
+				} catch(Exception e) {
+					e.printStackTrace();
+					errorMsg.append(tempQuestion.formatNumber()+",");
+					continue;
 				}
 			}
-		}
-		
-		if(tempQuestion != null){
-			request.getSession().setAttribute("houseType", tempQuestion.getHouseType().getName());
-			request.getSession().setAttribute("sessionType", tempQuestion.getSession().getType().getSessionType());
-			request.getSession().setAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(tempQuestion.getSession().getYear(), locale.toString()));
-			request.getSession().setAttribute("deviceType", tempQuestion.getType().getName());
-			request.getSession().setAttribute("workflowSubType", tempQuestion.getInternalStatus().getType());
+			if(tempQuestion != null){
+				request.getSession().setAttribute("houseType", tempQuestion.getHouseType().getName());
+				request.getSession().setAttribute("sessionType", tempQuestion.getSession().getType().getSessionType());
+				request.getSession().setAttribute("sessionYear", FormaterUtil.formatNumberNoGrouping(tempQuestion.getSession().getYear(), locale.toString()));
+				request.getSession().setAttribute("deviceType", tempQuestion.getType().getName());
+				request.getSession().setAttribute("workflowSubType", tempQuestion.getInternalStatus().getType());
+				
+			}
+			String group = request.getParameter("group");
+			if(group != null && !group.isEmpty()){
+				request.getSession().setAttribute("strGroup", group);
+			}
+			String answeringDate = request.getParameter("answeringDate");
+			if(answeringDate != null && !answeringDate.isEmpty()){
+				request.getSession().setAttribute("strAnsweringDate", answeringDate);
+			}
+			String status = request.getParameter("status");
+			if(status != null && !status.isEmpty()){
+				request.getSession().setAttribute("status", status);
+			}
 			
 		}
-		String group = request.getParameter("group");
-		if(group != null && !group.isEmpty()){
-			request.getSession().setAttribute("strGroup", group);
-		}
-		String answeringDate = request.getParameter("answeringDate");
-		if(answeringDate != null && !answeringDate.isEmpty()){
-			request.getSession().setAttribute("strAnsweringDate", answeringDate);
-		}
-		String status = request.getParameter("status");
-		if(status != null && !status.isEmpty()){
-			request.getSession().setAttribute("status", status);
-		}
-		redirectAttributes.addFlashAttribute("type", "success");
-        //this is done so as to remove the bug due to which update message appears even though there
-        //is a fresh new/edit request i.e after creating/updating records if we click on
-        //new /edit then success message appears
-        request.getSession().setAttribute("type","success");
-        redirectAttributes.addFlashAttribute("msg", "create_success");
+		request.getSession().setAttribute("recommendAdmission", recommendAdmissionMsg.toString());
+		request.getSession().setAttribute("recommendClarification", recommendClarificationMsg.toString());
+		request.getSession().setAttribute("recommendRejection", recommendRejectionMsg.toString());
+		request.getSession().setAttribute("admitted", admittedMsg.toString());
+		request.getSession().setAttribute("rejected", rejectedMsg.toString());
+		request.getSession().setAttribute("clarification", clarificationMsg.toString());
+		request.getSession().setAttribute("errorMsg", errorMsg.toString());
         String returnUrl = "redirect:/workflow/question/advancedbulkapproval";
         return returnUrl;
 //		getAdvancedBulkApproval(request, locale, model);
