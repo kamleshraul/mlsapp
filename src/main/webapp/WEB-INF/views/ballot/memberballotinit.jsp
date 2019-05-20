@@ -27,7 +27,7 @@
 				preballot();
 			});				
 			$('#memberballot').click(function(event, isHighSecurityValidationRequired) {
-				//isHighSecurityValidationRequired = false;
+				isHighSecurityValidationRequired = false;
 				if(isHighSecurityValidationRequired!=false) {
 					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
 					return false;
@@ -516,7 +516,7 @@
 			<a href="#" id="preballot" class="butSim link">
 				<spring:message code="memberballot.preballot" text="Pre Ballot"/>
 			</a> |
-			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECRETARY')">
+			<security:authorize access="hasAnyRole('QIS_DEPUTY_SECRETARY','QIS_SECRETARY','QIS_JOINT_SECRETARY','QIS_PRINCIPAL_SECRETARY')">
 				<a href="#" id="memberballot" class="butSim link">
 					<spring:message code="memberballot.memberballot" text="Member Ballot"/>
 				</a> |	
