@@ -27,7 +27,7 @@
 				preballot();
 			});				
 			$('#memberballot').click(function(event, isHighSecurityValidationRequired) {
-				isHighSecurityValidationRequired = false;
+				//isHighSecurityValidationRequired = false;
 				if(isHighSecurityValidationRequired!=false) {
 					validateHighSecurityPassword(isHighSecurityValidationRequired, $(this).attr('id'), "click");
 					return false;
