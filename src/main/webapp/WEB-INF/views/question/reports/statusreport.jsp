@@ -126,19 +126,19 @@
         @media print{
         	#reportWindow{
         		font-family:Mangal !important;
-	        	font-size: 16px !important;
+	        	font-size: 18px !important;
         	}
 	        #reportDiv{
 	        	width: 750px;
 	        	padding: 5px;
 	        	margin-top: 0px !important;
 	        	font-family:Mangal !important;
-	        	font-size: 16px !important;
+	        	font-size: 18px !important;
 	         }
 	        
 	        td,th{
 				font-family:Mangal !important;
-	        	font-size: 16px !important;
+	        	font-size: 18px !important;
 			} 
 	        
 	        .page-break-before-forced{

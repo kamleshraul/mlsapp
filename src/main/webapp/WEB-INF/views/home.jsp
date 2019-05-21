@@ -133,9 +133,7 @@
 			        }
 				});
 				
-				if($('#authusername').val()=='shrisanjaydutt') {
-					setInterval(updateServerTime, 1000);
-				}
+				setInterval(updateServerTime, 1000);
 				
 				if($('#pushNotificationsEnabled').val()=="YES") {
 					$.getScript("./resources/js/atmosphere.js?v=1", function() {
