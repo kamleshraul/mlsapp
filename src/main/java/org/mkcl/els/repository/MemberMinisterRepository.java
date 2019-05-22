@@ -546,6 +546,7 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 			String initialQuery = "SELECT DISTINCT(sd) FROM MemberMinister mm JOIN mm.ministry mi "+
 						 " JOIN mm.memberDepartments md JOIN md.department d JOIN md.subDepartments sd WHERE "+
 						 " (mm.ministryToDate >='"+strCurrentDate+"' OR mm.ministryToDate=null) "+
+						 " AND md.toDate >='" + strCurrentDate +"'"+
 						 " AND mm.locale='"+locale+"' ";
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(" AND mi.name IN(");
@@ -763,6 +764,7 @@ public class MemberMinisterRepository extends BaseRepository<MemberMinister, Lon
 						 " JOIN mm.memberDepartments md JOIN md.department d JOIN md.subDepartments sd WHERE " +
 						 " mm.ministryFromDate <= '" + activeTo +"'"+
 						 " AND (mm.ministryToDate >='" + activeFrom + "' OR mm.ministryToDate=null) "+
+						 " AND md.toDate >='" + activeFrom +"'"+
 						 " AND mm.locale='"+locale+"' ";
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(" AND mi.name IN(");

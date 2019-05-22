@@ -12,12 +12,22 @@
 		var ministries=$("#param_MINISTRY_"+locale).val();
 		if(ministries!=''){
 			$.post('ref/subdepartments/byministriesname',{'ministries':ministries},function(data){
-				$("#param_SUBDEPARTMENT_"+locale).empty();
 				var text="";
 				if(data.length>0){
 					for(var i=0;i<data.length;i++){
-						text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
+						var flag = false;
+						$("#param_SUBDEPARTMENT_"+locale+" option").each(function(){
+							if($(this).attr("selected")=="selected" && $(this).val()==data[i].name){
+								flag=true;
+							}
+						 });
+						if(flag){
+							text+="<option value='"+data[i].name+"' selected='selected'>"+data[i].name+"</option>";
+						}else{
+							text+="<option value='"+data[i].name+"'>"+data[i].name+"</option>";
+						}
 					}
+					$("#param_SUBDEPARTMENT_"+locale).empty();
 					$("#param_SUBDEPARTMENT_"+locale).html(text);
 					$("#param_SUBDEPARTMENT_"+locale).multiSelect();
 					$.unblockUI();				
