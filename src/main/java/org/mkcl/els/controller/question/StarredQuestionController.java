@@ -2749,6 +2749,24 @@ class StarredQuestionController {
 				e.printStackTrace();
 			}
 		}		
+		
+		/**** updating revised question text in related department workflow details when copy pasted by clerk/assistant from notepad ****/
+		if(domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_ADMISSION)
+				|| domain.getInternalStatus().getType().endsWith(ApplicationConstants.STATUS_FINAL_CLARIFICATION_FROM_DEPARTMENT)) {
+			Question question = Question.findById(Question.class, domain.getId());
+			if(!question.getRevisedQuestionText().equals(domain.getRevisedQuestionText())) {
+				List<WorkflowDetails> wdList = WorkflowDetails.findAllByFieldName(WorkflowDetails.class, "deviceId", domain.getId().toString(), "id", ApplicationConstants.DESC, domain.getLocale());
+				if(wdList!=null && !wdList.isEmpty()) {
+					for(WorkflowDetails wd: wdList) {
+						if(wd.getWorkflowSubType()!=null && wd.getWorkflowSubType().equals(domain.getInternalStatus().getType())
+								&& wd.getText()!=null && wd.getText().equals(question.getRevisedQuestionText())) {
+							wd.setText(domain.getRevisedQuestionText());
+							wd.merge();
+						}
+					}
+				}
+			}			
+		}
 	}
 
 

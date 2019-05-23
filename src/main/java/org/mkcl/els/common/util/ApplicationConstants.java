@@ -2629,6 +2629,8 @@ public class ApplicationConstants {
 	
 	public static final String STATUS_FINAL_ADMISSION="_final_admission";
 	
+	public static final String STATUS_FINAL_CLARIFICATION_FROM_DEPARTMENT="_final_clarificationNeededFromDepartment";
+	
 	public static final String STATUS_PROCESSED_SENDTODEPARTMENT="_processed_sendToDepartment";
 	
 	public static final String STATUS_PROCESSED_SENDTODESKOFFICER = "_processed_sendToDeskOfficer";
