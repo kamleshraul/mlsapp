@@ -754,13 +754,15 @@ public class ResolutionWorkflowController extends BaseController{
 		}else if(houseType.getType().equals(ApplicationConstants.UPPER_HOUSE)){
 			specificDeviceRecommendationStatusUG=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_"+resolutionType.toUpperCase()+"_"+resolution.getRecommendationStatusUpperHouse().getType().toUpperCase()+"_"+userGroupType.toUpperCase(),"");
 		}
-		
+		CustomParameter specificDeviceStatusHouseTypeUserGroupStatuses = CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_"+resolutionType.toUpperCase()+"_"+type.toUpperCase()+"_"+resolution.getHouseType().getType().toUpperCase()+"_"+userGroupType.toUpperCase(),"");
 		CustomParameter specificDeviceStatusUserGroupStatuses=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_"+resolutionType.toUpperCase()+"_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
 		CustomParameter specificDeviceUserGroupStatuses=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_"+resolutionType.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
 		CustomParameter specificStatuses=CustomParameter.findByName(CustomParameter.class,"RESOLUTION_PUT_UP_OPTIONS_"+type.toUpperCase()+"_"+userGroupType.toUpperCase(),"");
 		try{
 			if(specificDeviceRecommendationStatusUG!=null){
 				internalStatuses=Status.findStatusContainedIn(specificDeviceRecommendationStatusUG.getValue(), locale);
+			}else if(specificDeviceStatusHouseTypeUserGroupStatuses!=null){
+				internalStatuses=Status.findStatusContainedIn(specificDeviceStatusHouseTypeUserGroupStatuses.getValue(), locale);
 			}else if(specificDeviceStatusUserGroupStatuses!=null){
 				internalStatuses=Status.findStatusContainedIn(specificDeviceStatusUserGroupStatuses.getValue(), locale);
 			}else if(specificDeviceUserGroupStatuses!=null){
