@@ -1015,7 +1015,8 @@ public class QuestionReportController extends BaseController{
 					if(inwardDateList!=null && !inwardDateList.isEmpty()) {
 						if(inwardDateList.get(0)!=null) {
 							inwardDate = FormaterUtil.formatStringToDate(inwardDateList.get(0).toString(), ApplicationConstants.DB_DATEFORMAT);
-							letterVO.setInwardLetterDate(FormaterUtil.formatDateToString(inwardDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2, locale.toString()));
+							//letterVO.setInwardLetterDate(FormaterUtil.formatDateToString(inwardDate, ApplicationConstants.SERVER_DATEFORMAT_DISPLAY_2, locale.toString()));
+							letterVO.setInwardLetterDate(FormaterUtil.formatDateToString(inwardDate, "dd-MM-yyyy", locale.toString()));
 						}
 					}					
 				}		
