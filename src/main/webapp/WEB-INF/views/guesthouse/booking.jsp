@@ -1,35 +1,60 @@
-<%@ include file="/common/taglibs.jsp" %>
+<%@ include file="/common/taglibs.jsp"%>
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<title><spring:message code="guesthouse.guesthousebooking" text="Guest House Booking"/></title>
-	    <!-- BEGIN META -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title><spring:message code="guesthouse.guesthousebooking"
+		text="Guest House Booking" /></title>
+<!-- BEGIN META -->
 
-	    <!-- END META -->
-	    <!-- BEGIN STYLESHEETS -->
+<!-- END META -->
+<!-- BEGIN STYLESHEETS -->
 
-	    <link type="text/css" rel="stylesheet" href="./resources/css/theme-default/libs/fullcalendar/fullcalendar.css">
-	    <link rel="stylesheet" href="./resources/css/template.css">
-	    <link rel="icon" type="image/png" href="./resources/images/mlsicon.png" />
-	    <script src="./resources/js/libs/jquery/jquery-1.11.2.min.js?v=2"></script>
-	    <script src="./resources/js/libs/jquery/jquery-migrate-1.2.1.min.js?v=1"></script>
-	    <script src="./resources/js/libs/moment/moment.min.js"></script>
-	    <script src="./resources/js/libs/fullcalendar/fullcalendar.js"></script>
-	     <script src="./resources/js/libs/fullcalendar/lang/mr.js"></script>
-	    <!-- <script src="./resources/js/core/demo/DemoCalendar.js?v=3"></script> -->
+<link type="text/css" rel="stylesheet"
+	href="./resources/css/theme-default/libs/fullcalendar/fullcalendar.css">
+<link rel="stylesheet" href="./resources/css/template.css">
+<link rel="icon" type="image/png" href="./resources/images/mlsicon.png" />
+<script src="./resources/js/libs/jquery/jquery-1.11.2.min.js?v=2"></script>
+<script src="./resources/js/libs/jquery/jquery-migrate-1.2.1.min.js?v=1"></script>
+<script src="./resources/js/libs/moment/moment.min.js"></script>
+<script src="./resources/js/libs/fullcalendar/fullcalendar.js"></script>
+<script src="./resources/js/libs/fullcalendar/lang/mr.js"></script>
+<!-- <script src="./resources/js/core/demo/DemoCalendar.js?v=3"></script> -->
 
-	        <script src="./resources/js/libs/daterangepicker/daterangepicker.min.js"></script>
-		<link rel="stylesheet" href="./resources/css/daterangepicker.css" />
-		
-		
-		
-	      <script type="text/javascript">
+<script src="./resources/js/libs/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" href="./resources/css/daterangepicker.css" />
+
+
+
+<script type="text/javascript">
 	      
 	
 	      
 		   	$(document).ready(function() {
+		   		$('#update_success_div').hide();
+
+
+		   		$("#formoid").submit(function(event) {
+
+		   	      /* stop form from submitting normally */
+		   	      event.preventDefault();
+
+		   	      /* get the action attribute from the <form action=""> element */
+		   	      var $form = $( this ),
+		   	          url = $form.attr( 'action' );
+
+		   	      /* Send the data using post with element id name and name2*/
+		   	      var posting = $.post( url, { fromDate:$('#fromDate').val(), toDate: $('#toDate').val(), guesthouserooms: $('#guesthouserooms').val(), guesthouse: $("#guesthouse").val() } );
+
+		   	      /* Alerts the results */
+		   	      posting.done(function( data ) {
+		   	    	getAvailableRooms();
+		   			loadBookingDetails();
+		   		 alert("Booking Done!");
+		   	      });
+		   	    });
 		   		
-		   		$('#update_success_div').hide();		
+		   		
+		   			
 		   		
 		   		function convertDate(d){
 		   		 var parts = d.split(" ");
@@ -82,7 +107,46 @@
 		   		            window.open(event.url);
 		   		            return false;
 		   		        }
-		   		    }
+		   		     
+		   		    },
+		   			
+		   		 dayClick: function(date, jsEvent, view) { 
+		   		
+
+		   			$.get('guesthouse/getAvailableRooms?' +
+							'guesthouse=' + $("#guesthouse").val() + 
+							'&fromDate='+ convertDate(date.toString()) + 
+							'&toDate='+convertDate(date.toString()),function(data){
+		   				if(data != null && data.length>0){
+						var dataLength = data.length;
+						$('#block').empty();
+						var text = "";
+						var output = document.getElementById("block")
+						for(var j = 1; j <= 10; j++) {
+					
+							for(var i = 0; i < dataLength; i++) {
+								if(data[i].number==j)
+								{
+							 var ele = document.createElement("div");
+
+				            ele.innerHTML=data[i].number;
+				            output.appendChild(ele);
+				            break;
+							}
+							}
+							
+					
+						}
+						 
+						}
+						else {
+							$('#guesthouserooms').empty();
+						}
+					});
+
+		   		    // change the day's background color just for fun
+		   		    //$(this).css('background-color', 'blue'); 
+		         }
 		   		
 		   		});
 		   		
@@ -144,11 +208,15 @@
 	   				if(data != null && data.length>0){
 	   					$('#calendar').fullCalendar( 'removeEvents');
 	   					$('#calendar').fullCalendar('gotoDate', data[0].formattedNumber);
+
 	   					for(var i=0;i<data.length;i++){
 	   						var evento = $("#calendar").fullCalendar('clientEvents', data[i].id);
 	   						if(evento == null || evento == ''){
 	   							var newEvent = new Object();
 	   	   						newEvent.id = data[i].id;
+	   		   					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+	   		   					data[i].name="";
+	   		   					</security:authorize>
 	   	   						newEvent.title = data[i].name + ' Room Number:' + data[i].number;
 	   	   			   			newEvent.start = data[i].formattedNumber;
 	   	 
@@ -214,92 +282,133 @@
 	   			});
 		   	}
 	    </script>
-	    <style type="text/css">
-	    
-	    	.card-body .alert-callout{
-	    		min-height:105px !important;
-	    	}
-	    	
-	    	.fc-event{
-	    		font-weight:bold;
-	    		border-left-color: green ;
-	    		background-color: white;
-	    	}
-	    </style>
-	</head>
-	<body>		
-			<div class="clearfix tabbar">
-			<ul class="tabs">
-				<li>
-					<a id="details_tab" href="#" class="tab selected">
-					   <spring:message code="generic.details" text="Details"></spring:message>
-					</a>
-				</li>			
-			</ul>
-			<div class="tabContent clearfix">
-				<p id="error_p" style="display: none;">&nbsp;</p>
-				<c:if test="${(error!='') && (error!=null)}">
-					<h4 style="color: #FF0000;">${error}</h4>
-				</c:if>
-				<div class="fields">
-				<form action="guesthouse/booking" method="POST">
-					<%@ include file="/common/info.jsp" %>
-					
-			
-							<p>
-					<label class="small"><spring:message code="guesthouse.selectdates" text="Select Dates"/>*:</label>
-				<input type="text"  id="daterange" name="daterange" value="" />	
-				</p>
-				
+<style type="text/css">
 
-				
-						<p>
-					<label class="small"><spring:message code="guesthouse.guesthouselocation" text="GuestHouse"/>*</label>
-					<select name="guesthouse" id="guesthouse" class="sSelect">
-						<c:forEach items="${guesthouses}" var="i">
-							
-									<option value="${i.id}" >${i.location}</option>
-								
-						</c:forEach>
-					</select>
+.flex-container {
+  display: flex;
+  flex-wrap: nowrap;
+  background-color: #66ccff;
+}
+
+.flex-container > div {
+  background-color: #529900;
+  width: 100px;
+  margin: 10px;
+  text-align: center;
+  line-height: 50px;
+  font-size: 20px;
+}
+
+#ip1 {
+	border-radius: 18px;
+	background: #529900;
+	padding: 20px;
+	width: 15px;
+	height: 15px;
+	display: inline-block;
+}
+
+#ip2 {
+	border-radius: 18px;
+	background: #666;
+	padding: 20px;
+	width: 15px;
+	height: 15px;
+	display: inline-block;
+}
+
+.card-body .alert-callout {
+	min-height: 105px !important;
+}
+
+.fc-event {
+	font-weight: bold;
+	border-left-color: green;
+	background-color: white;
+}
+</style>
+</head>
+<body>
+	<div class="clearfix tabbar">
+		<ul class="tabs">
+			<li><a id="details_tab" href="#" class="tab selected"> <spring:message
+						code="generic.details" text="Details"></spring:message>
+			</a></li>
+		</ul>
+		<div class="tabContent clearfix">
+			<p id="error_p" style="display: none;">&nbsp;</p>
+			<c:if test="${(error!='') && (error!=null)}">
+				<h4 style="color: #FF0000;">${error}</h4>
+			</c:if>
+			<div class="fields">
+				<form id="formoid" action="guesthouse/booking" method="POST">
+					<%@ include file="/common/info.jsp"%>
+
+
+					<p>
+						<label class="small"><spring:message
+								code="guesthouse.selectdates" text="Select Dates" />*:</label> <input
+							type="text" id="daterange" name="daterange" value="" />
 					</p>
-			
-				<p>
-						<label class="small"><spring:message code="guesthouse.roomnumber" text="Room Number"/>*:</label>
-	<select name="guesthouserooms" id="guesthouserooms" class="sSelect">
-						<c:forEach items="${availablerooms}" var="i">
-							
-									<option value="${i.number}" >${i.name}</option>
-								
-						</c:forEach>
-					</select>
+
+
+
+					<p>
+						<label class="small"><spring:message
+								code="guesthouse.guesthouselocation" text="GuestHouse" />*</label> <select
+							name="guesthouse" id="guesthouse" class="sSelect">
+							<c:forEach items="${guesthouses}" var="i">
+
+								<option value="${i.id}">${i.location}</option>
+
+							</c:forEach>
+						</select>
 					</p>
-					
+
+					<p>
+						<label class="small"><spring:message
+								code="guesthouse.roomnumber" text="Room Number" />*:</label> <select
+							name="guesthouserooms" id="guesthouserooms" class="sSelect">
+							<c:forEach items="${availablerooms}" var="i">
+
+								<option value="${i.number}">${i.name}</option>
+
+							</c:forEach>
+						</select>
+					</p>
+					<div id="block" class="flex-container"></div>
 					<div class="fields">
-		<h2></h2>	
-		<p class="tleft">
-			<input id="submit" name="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+						<h2></h2>
+						<security:authorize
+							access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
+							<p class="tleft">
+								<input id="submit" name="submit" type="submit"
+									value="<spring:message code='generic.submit' text='Submit'/>"
+									class="butDef">
 
-		</p>
-	</div>	
-				 <div class="card calender">
-                                <div class="card-body no-padding">
-                                    <div id="calendar"></div>
-                                </div>
-          		</div>
-                         
-				
+							</p>
+						</security:authorize>
+					</div>
+					<div class="card calender">
+						<div class="card-body no-padding">
+							<div id="calendar"></div>
+						</div>
+					</div>
+
+
 					<input type="hidden" id="mindate" name="mindate" value="${mindate}">
 					<input type="hidden" id="maxdate" name="maxdate" value="${maxdate}">
-					<input type="hidden" id="username" name="username" value="${username}">		
-					<input type="hidden" id="member" name="member" value="${member}">		
-					<input type="hidden" id="fromDate" name="fromDate" value="${fromDate}">	
-					<input type="hidden" id="toDate" name="toDate" value="${toDate}">		
-					
-				</form>	
-				</div>
-		
-			<input type="hidden" id="urlPattern" name="urlPattern" value="${urlPattern}">			
-		</div>		
-	</body>
+					<input type="hidden" id="username" name="username"
+						value="${username}"> <input type="hidden" id="member"
+						name="member" value="${member}"> <input type="hidden"
+						id="fromDate" name="fromDate" value="${fromDate}"> <input
+						type="hidden" id="toDate" name="toDate" value="${toDate}">
+
+				</form>
+			</div>
+
+			<input type="hidden" id="urlPattern" name="urlPattern"
+				value="${urlPattern}">
+		</div>
+</body>
 </html>
