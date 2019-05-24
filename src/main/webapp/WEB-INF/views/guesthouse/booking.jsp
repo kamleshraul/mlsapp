@@ -31,7 +31,9 @@
 	      
 		   	$(document).ready(function() {
 		   		$('#update_success_div').hide();
-
+				$("#successDiv").hide();	
+				$("#failedDiv").hide();
+				
 
 		   		$("#formoid").submit(function(event) {
 
@@ -47,9 +49,22 @@
 
 		   	      /* Alerts the results */
 		   	      posting.done(function( data ) {
-		   	    	getAvailableRooms();
-		   			loadBookingDetails();
-		   		 alert("Booking Done!");
+		   	    	//alert(data);
+	
+		   	    	
+		   		 if(data=='success'){
+					 $("#successDiv").show();
+					 $("#failedDiv").hide();	
+					 getAvailableRooms();
+			   		loadBookingDetails();				 				 
+						 					 
+				 }else{
+					 $("#failedDiv").show();
+					 $("#successDiv").hide();					 
+										 			 
+				 }
+		   		 
+		   	      
 		   	      });
 		   	    });
 		   		
@@ -71,8 +86,7 @@
 				   	endDate: $('#mindate').val()
 				   	
 				   	  }, function(start, end, label) {
-
-			
+				   	
 				   		days = (end- start) / (1000 * 60 * 60 * 24);
 				       if(Math.round(days)>3){	
 				    	
@@ -102,6 +116,7 @@
 		   			
 		   			    
 		   			},
+		   	
 		   		    eventClick: function(event) {
 		   		        if (event.url) {
 		   		            window.open(event.url);
@@ -217,7 +232,8 @@
 	   		   					<security:authorize access="hasAnyRole('MEMBER_LOWERHOUSE','MEMBER_UPPERHOUSE')">
 	   		   					data[i].name="";
 	   		   					</security:authorize>
-	   	   						newEvent.title = data[i].name + ' Room Number:' + data[i].number;
+	   	   						newEvent.title = 'Room:' +data[i].number +' '+  data[i].name;
+	   	   						newEvent.description = 'Room:' +data[i].number +' '+  data[i].name;
 	   	   			   			newEvent.start = data[i].formattedNumber;
 	   	 
 	   	   			   			newEvent.end = data[i].formattedOrder+'T23:59:00';
@@ -340,6 +356,21 @@
 			<c:if test="${(error!='') && (error!=null)}">
 				<h4 style="color: #FF0000;">${error}</h4>
 			</c:if>
+
+<div class="toolTip tpGreen clearfix" id="successDiv" style="display:none;height:30px;">
+		<p style="font-size: 12px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="guesthouse.update_success" text="Data saved successfully."/>
+		</p>
+		<p></p>
+</div>
+<div class="toolTip tpRed clearfix" id="failedDiv" style="display:none;height:30px;">
+		<p style="font-size: 12px;">
+			<img src="./resources/images/template/icons/light-bulb-off.png">
+			<spring:message code="guesthouse.failed" text="Data Save Failed."/>
+		</p>
+		<p></p>
+</div>
 			<div class="fields">
 				<form id="formoid" action="guesthouse/booking" method="POST">
 					<%@ include file="/common/info.jsp"%>
