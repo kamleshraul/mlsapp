@@ -182,6 +182,21 @@ public class GuestHouseReservation extends BaseDomain implements Serializable {
 			return null;
 		}
 	}
+	
+	public List<GuestHouseReservation> findBookedRoomsByGuestHouseMember(final GuestHouse guestHouse,
+			final Date fromDate,
+			final Date toDate,
+			final Member member,
+			final String locale){
+		try {
+			return getGuestHouseReservationRepository().findBookedRoomsByGuestHouseMember(guestHouse,member,fromDate, toDate, locale);
+		} catch (ELSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 
 
 }
