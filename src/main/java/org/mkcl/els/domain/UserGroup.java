@@ -10,17 +10,21 @@
 package org.mkcl.els.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -48,6 +52,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @JsonIgnoreProperties({"credential","parameters"})
 public class UserGroup extends BaseDomain implements Serializable {
 
+	// ---------------------------------Attributes------------------------------------
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 2415572645448037836L;
 
@@ -72,12 +77,33 @@ public class UserGroup extends BaseDomain implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date activeTo;
     
+    /** The edited on. */
+    @Temporal(TemporalType.TIMESTAMP)
+    @JoinColumn(name="editedon")
+    private Date editedOn; 
+    
+    /** The edited by. */
+    @Column(length=1000)
+    private String editedBy;
+
+    /** The edited as. */
+    @Column(length=1000)
+    private String editedAs;
+    
+    /** The drafts. */
+    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+    @JoinColumn(name="usergroup_id", referencedColumnName="id")
+    private List<UserGroupDraft> drafts;
+    
     @Autowired
     private transient UserGroupRepository userGroupRepository;
+    
 
+    // --------------------------------Constructors----------------------------------------------
     public UserGroup() {
         super();
     }
+    
     public UserGroup(final UserGroupType userGroupType,
             final Map<String, String> parameters, final Credential credential,
             final Date activeFrom) {
@@ -88,6 +114,8 @@ public class UserGroup extends BaseDomain implements Serializable {
         this.activeFrom = activeFrom;
     }
     
+    
+    // -------------------------------Domain_Methods----------------------------------------------    
     public static UserGroupRepository getUserGroupRepository() {
     	UserGroupRepository userGroupRepository = new UserGroup().userGroupRepository;
         if (userGroupRepository == null) {
@@ -96,58 +124,8 @@ public class UserGroup extends BaseDomain implements Serializable {
         }
         return userGroupRepository;
     }
-
-    public UserGroupType getUserGroupType() {
-        return userGroupType;
-    }
-
-    public void setUserGroupType(final UserGroupType userGroupType) {
-        this.userGroupType = userGroupType;
-    }
-
-    public Map<String, String> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(final Map<String, String> parameters) {
-        this.parameters = parameters;
-    }
-
-    public Credential getCredential() {
-        return credential;
-    }
-
-    public void setCredential(final Credential credential) {
-        this.credential = credential;
-    }
-
-    public Date getActiveFrom() {
-        return activeFrom;
-    }
-
-    public void setActiveFrom(final Date activeFrom) {
-        this.activeFrom = activeFrom;
-    }
-
-    public String getParameterValue(final String key){
-        Map<String,String> params=this.getParameters();
-        if(params!=null){
-        if(params.containsKey(key)){
-            return params.get(key);
-        }else{
-            return "";
-        }
-        }else{
-            return "";
-        }
-    }
-	public Date getActiveTo() {
-		return activeTo;
-	}
-	public void setActiveTo(Date activeTo) {
-		this.activeTo = activeTo;
-	}
-	public static Reference findMotionActor(final Motion motion,final String userGroupType,final String level,final String locale) throws ELSException {
+    
+    public static Reference findMotionActor(final Motion motion,final String userGroupType,final String level,final String locale) throws ELSException {
 		return getUserGroupRepository().findMotionActor(motion,userGroupType,level,locale);
 	}
 	
@@ -236,7 +214,139 @@ public class UserGroup extends BaseDomain implements Serializable {
 			retVal = false;
 		}
 		return retVal;
+	}	
+	
+	@Override
+    public UserGroup merge() {		
+		if(this.getId()!=null && (this.getDrafts()==null || this.getDrafts().isEmpty())) {
+			UserGroup dbUserGroup = UserGroup.findById(UserGroup.class, this.getId());
+			this.setDrafts(dbUserGroup.getDrafts());
+		}
+		this.addUserGroupDraft();
+		UserGroup userGroup = (UserGroup) super.merge();
+        return userGroup;
 	}
 	
+	/**
+     * Adds the usergroup draft.
+     */
+    private void addUserGroupDraft() {
+    	UserGroupDraft draft = new UserGroupDraft();
+    	draft.setLocale(this.getLocale());
+    	
+    	draft.setEditedAs(this.getEditedAs());
+        draft.setEditedBy(this.getEditedBy());
+        draft.setEditedOn(this.getEditedOn());
+        
+        draft.setActiveFrom(this.getActiveFrom());
+        draft.setActiveTo(this.getActiveTo());
+        draft.setUserGroupType(this.getUserGroupType());
+        draft.setParameters(this.getParameters());
+        
+        if(this.getId() != null) {
+            UserGroup userGroup = UserGroup.findById(UserGroup.class, this.getId());
+            List<UserGroupDraft> originalDrafts = userGroup.getDrafts();
+            if(originalDrafts != null){
+                originalDrafts.add(draft);
+            }
+            else{
+                originalDrafts = new ArrayList<UserGroupDraft>();
+                originalDrafts.add(draft);
+            }
+            this.setDrafts(originalDrafts);
+        }
+        else {
+            List<UserGroupDraft> originalDrafts = new ArrayList<UserGroupDraft>();
+            originalDrafts.add(draft);
+            this.setDrafts(originalDrafts);
+        }
+    }
+	
+
+	// -------------------------------Getters & Setters-------------------------------
+    public UserGroupType getUserGroupType() {
+        return userGroupType;
+    }
+
+    public void setUserGroupType(final UserGroupType userGroupType) {
+        this.userGroupType = userGroupType;
+    }
+
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(final Map<String, String> parameters) {
+        this.parameters = parameters;
+    }
+
+    public Credential getCredential() {
+        return credential;
+    }
+
+    public void setCredential(final Credential credential) {
+        this.credential = credential;
+    }
+
+    public Date getActiveFrom() {
+        return activeFrom;
+    }
+
+    public void setActiveFrom(final Date activeFrom) {
+        this.activeFrom = activeFrom;
+    }
+
+    public String getParameterValue(final String key){
+        Map<String,String> params=this.getParameters();
+        if(params!=null){
+        if(params.containsKey(key)){
+            return params.get(key);
+        }else{
+            return "";
+        }
+        }else{
+            return "";
+        }
+    }
+    
+	public Date getActiveTo() {
+		return activeTo;
+	}
+	
+	public void setActiveTo(Date activeTo) {
+		this.activeTo = activeTo;
+	}	
+	
+	public Date getEditedOn() {
+		return editedOn;
+	}
+	
+	public void setEditedOn(Date editedOn) {
+		this.editedOn = editedOn;
+	}
+	
+	public String getEditedBy() {
+		return editedBy;
+	}
+	
+	public void setEditedBy(String editedBy) {
+		this.editedBy = editedBy;
+	}
+	
+	public String getEditedAs() {
+		return editedAs;
+	}
+	
+	public void setEditedAs(String editedAs) {
+		this.editedAs = editedAs;
+	}
+
+	public List<UserGroupDraft> getDrafts() {
+		return drafts;
+	}
+
+	public void setDrafts(List<UserGroupDraft> drafts) {
+		this.drafts = drafts;
+	}	
 	
 }

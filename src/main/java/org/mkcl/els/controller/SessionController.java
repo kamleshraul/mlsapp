@@ -289,7 +289,12 @@ public class SessionController extends GenericController<Session> {
 	protected void populateCreateIfNoErrors(ModelMap model, Session domain,
 			HttpServletRequest request) throws Exception {
 		/** Edited By **/
-		domain.setEditedBy(this.getCurrentUser().getActualUsername());
+		Object supportUserName = request.getSession().getAttribute("supportUserName");
+		if(supportUserName!=null) {
+			domain.setEditedBy(supportUserName.toString());			
+		} else {
+			domain.setEditedBy(this.getCurrentUser().getActualUsername());
+		}		
 		/** Edited As **/
 		String strUserGroupType = request.getParameter("usergroupType");
 		if(strUserGroupType != null && !strUserGroupType.isEmpty()){
@@ -314,7 +319,12 @@ public class SessionController extends GenericController<Session> {
 	protected void populateUpdateIfNoErrors(ModelMap model, Session domain,
 			HttpServletRequest request) throws Exception {
 		/** Edited By **/
-		domain.setEditedBy(this.getCurrentUser().getActualUsername());
+		Object supportUserName = request.getSession().getAttribute("supportUserName");
+		if(supportUserName!=null) {
+			domain.setEditedBy(supportUserName.toString());			
+		} else {
+			domain.setEditedBy(this.getCurrentUser().getActualUsername());
+		}
 		/** Edited As **/
 		String strUserGroupType = request.getParameter("usergroupType");
 		if(strUserGroupType != null && !strUserGroupType.isEmpty()){
@@ -783,7 +793,12 @@ public class SessionController extends GenericController<Session> {
 	    	domain.setParameters(parameters);
 	    	
 	    	/** Edited By **/
-			domain.setEditedBy(this.getCurrentUser().getActualUsername());
+			Object supportUserName = request.getSession().getAttribute("supportUserName");
+			if(supportUserName!=null) {
+				domain.setEditedBy(supportUserName.toString());			
+			} else {
+				domain.setEditedBy(this.getCurrentUser().getActualUsername());
+			}
 			/** Edited As **/
 			String strUserGroupType = request.getParameter("usergroupType");
 			if(strUserGroupType != null && !strUserGroupType.isEmpty()){

@@ -1,6 +1,7 @@
 package org.mkcl.els.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.mkcl.els.domain.DeviceType;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.MemberMinister;
 import org.mkcl.els.domain.Ministry;
+import org.mkcl.els.domain.Role;
 import org.mkcl.els.domain.SubDepartment;
 import org.mkcl.els.domain.User;
 import org.mkcl.els.domain.UserGroup;
@@ -243,7 +245,29 @@ public class UserGroupController extends GenericController<UserGroup>{
 					}
 				}
 			}
-			domain.setParameters(deviceTypeParams);
+			domain.setParameters(deviceTypeParams);			
+			/** Edited By **/
+			Object supportUserName = request.getSession().getAttribute("supportUserName");
+			if(supportUserName!=null) {
+				domain.setEditedBy(supportUserName.toString());			
+			} else {
+				domain.setEditedBy(this.getCurrentUser().getActualUsername());
+			}		
+			/** Edited As **/
+			String strUserGroupType = request.getParameter("usergroupType");
+			if(strUserGroupType != null && !strUserGroupType.isEmpty()){
+				UserGroupType userGroupType = UserGroupType.findByType(strUserGroupType, domain.getLocale());
+				if(userGroupType!=null) {
+					domain.setEditedAs(userGroupType.getName());
+				}
+			} else { //default user is administrator with role 'SUPER_ADMIN'
+				Role role = Role.findByType(ApplicationConstants.ROLE_SUPER_ADMIN, domain.getLocale());
+				if(role!=null) {
+					domain.setEditedAs(role.getLocalizedName());
+				}
+			}
+			/** Edited ON **/
+			domain.setEditedOn(new Date());
 		} catch (Exception e) {
 			String message = e.getMessage();
 			if(message == null){
@@ -281,6 +305,28 @@ public class UserGroupController extends GenericController<UserGroup>{
 				}
 			}
 			domain.setParameters(deviceTypeParams);
+			/** Edited By **/
+			Object supportUserName = request.getSession().getAttribute("supportUserName");
+			if(supportUserName!=null) {
+				domain.setEditedBy(supportUserName.toString());			
+			} else {
+				domain.setEditedBy(this.getCurrentUser().getActualUsername());
+			}		
+			/** Edited As **/
+			String strUserGroupType = request.getParameter("usergroupType");
+			if(strUserGroupType != null && !strUserGroupType.isEmpty()){
+				UserGroupType userGroupType = UserGroupType.findByType(strUserGroupType, domain.getLocale());
+				if(userGroupType!=null) {
+					domain.setEditedAs(userGroupType.getName());
+				}
+			} else { //default user is administrator with role 'SUPER_ADMIN'
+				Role role = Role.findByType(ApplicationConstants.ROLE_SUPER_ADMIN, domain.getLocale());
+				if(role!=null) {
+					domain.setEditedAs(role.getLocalizedName());
+				}
+			}
+			/** Edited ON **/
+			domain.setEditedOn(new Date());
 		} catch (Exception e) {
 			String message = e.getMessage();
 			if(message == null){
