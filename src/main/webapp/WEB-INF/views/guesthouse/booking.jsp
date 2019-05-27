@@ -116,11 +116,25 @@
 		   			
 		   			    
 		   			},
+		   			
+		   			eventMouseover: function(calEvent, jsEvent) { var tooltip = '<div class="tooltipevent" style="width:130px;height:100px;background:#aed0ea;position:absolute;z-index:10001;"> ' + calEvent.title + '</div>'; var $tool = $(tooltip).appendTo('body');
+		   			$(this).mouseover(function(e) {
+		   			    $(this).css('z-index', 10000);
+		   			            $tool.fadeIn('500');
+		   			            $tool.fadeTo('10', 1.9);
+		   			}).mousemove(function(e) {
+		   			    $tool.css('top', e.pageY + 10);
+		   			    $tool.css('left', e.pageX + 20);
+		   			});
+		   			},
+		   			eventMouseout: function(calEvent, jsEvent) {
+		   			$(this).css('z-index', 8);
+		   			$('.tooltipevent').remove();
+		   			},
 		   	
 		   		    eventClick: function(event) {
-		   		        if (event.url) {
-		   		            window.open(event.url);
-		   		            return false;
+		   		        if (event.title) {
+		   		        alert(event.title);                 
 		   		        }
 		   		     
 		   		    },
