@@ -316,6 +316,11 @@ public class WorkflowController extends BaseController {
 		for(UserGroup ug : userGroups){
 			UserGroup userGroup = UserGroup.findActive(cr, ug.getUserGroupType(), new Date(), locale.toString());
 			if(userGroup != null){
+				/**** Authenticated User's usergroup and usergroupType ****/
+				String userGroupType = userGroup.getUserGroupType().getType();			
+				model.addAttribute("usergroup", userGroup.getId());
+				model.addAttribute("usergroupType", userGroupType);
+				
 				Map<String, String> parameters = UserGroup.findParametersByUserGroup(ug);
 				String deviceTypeNameParam= parameters.get(ApplicationConstants.DEVICETYPE_KEY + "_" + locale);
 				if(deviceTypeNameParam != null && ! deviceTypeNameParam.equals("")) {
@@ -410,11 +415,7 @@ public class WorkflowController extends BaseController {
 					
 					DeviceType newSelectedDeviceType = isAllowedDevice(deviceTypes, userGroupDeviceType); 
 					if(newSelectedDeviceType != null){
-						/**** Authenticated User's usergroup and usergroupType ****/
-						String userGroupType=i.getUserGroupType().getType();			
-						model.addAttribute("usergroup", userGroup.getId());
-						model.addAttribute("usergroupType", userGroup.getUserGroupType().getType());
-						
+						String userGroupType = i.getUserGroupType().getType();
 						/**** Status Allowed ****/
 						CustomParameter allowedWorkflowTypes=CustomParameter.findByName(CustomParameter.class,"MYTASK_GRID_WORKFLOW_TYPES_ALLOWED_"+newSelectedDeviceType.getType().toUpperCase()+"_"+userGroupType.toUpperCase(), "");
 						if(allowedWorkflowTypes!=null){
