@@ -178,6 +178,8 @@ public class ClubbedEntityController extends BaseController{
 						/**** Question number will also be visible ****/
 						model.addAttribute("id",Long.parseLong(strquestionId));
 						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(question.getLocale()).format(question.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",question.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						/**** Advanced Search Filters****/
 						String deviceType=question.getType().getType();
 						model.addAttribute("deviceType",deviceType);
@@ -258,7 +260,9 @@ public class ClubbedEntityController extends BaseController{
 							model.addAttribute("id",Long.parseLong(strbillId));
 							if(bill.getNumber()!=null) {
 								model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(bill.getLocale()).format(bill.getNumber()));
-							}						
+							}		
+							/**** Member Name will also be visible ****/
+							model.addAttribute("memberName",bill.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 							/**** Advanced Search Filters****/
 							String deviceType=bill.getType().getType();
 							model.addAttribute("deviceType",deviceType);
@@ -327,6 +331,8 @@ public class ClubbedEntityController extends BaseController{
 						/**** Question number will also be visible ****/
 						model.addAttribute("id",Long.parseLong(strMotionId));
 						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",motion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						/**** Advanced Search Filters****/
 						String deviceType = motion.getType().getType();
 						model.addAttribute("deviceType", deviceType);
@@ -386,6 +392,8 @@ public class ClubbedEntityController extends BaseController{
 						/**** StandaloneMotion number will also be visible ****/
 						model.addAttribute("id",Long.parseLong(strStandaloneMotionId));
 						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",motion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						/**** Advanced Search Filters****/
 						String deviceType = motion.getType().getType();
 						model.addAttribute("deviceType", deviceType);
@@ -454,6 +462,8 @@ public class ClubbedEntityController extends BaseController{
 						/**** Question number will also be visible ****/
 						model.addAttribute("id",Long.parseLong(strCutMotionId));
 						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",motion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						/**** Advanced Search Filters****/
 						String deviceType = motion.getDeviceType().getType();
 						model.addAttribute("deviceType", deviceType);
@@ -502,6 +512,8 @@ public class ClubbedEntityController extends BaseController{
 						/**** StandaloneMotion number will also be visible ****/
 						model.addAttribute("id",Long.parseLong(strEventMotionId));
 						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",motion.getMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						/**** Advanced Search Filters****/
 						String deviceType = motion.getDeviceType().getType();
 						model.addAttribute("deviceType", deviceType);
@@ -550,6 +562,8 @@ public class ClubbedEntityController extends BaseController{
 						/**** StandaloneMotion number will also be visible ****/
 						model.addAttribute("id",Long.parseLong(strDiscussionMotionId));
 						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(motion.getLocale()).format(motion.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",motion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						/**** Advanced Search Filters****/
 						String deviceType = motion.getType().getType();
 						model.addAttribute("deviceType", deviceType);
@@ -597,6 +611,8 @@ public class ClubbedEntityController extends BaseController{
 						/**** Adjournment Motion number will also be visible ****/
 						model.addAttribute("id",Long.parseLong(strAdjournmentMotionId));
 						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(adjournmentMotion.getLocale()).format(adjournmentMotion.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",adjournmentMotion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						/**** Advanced Search Filters****/
 						String deviceType = adjournmentMotion.getType().getType();
 						model.addAttribute("deviceType", deviceType);
@@ -652,6 +668,8 @@ public class ClubbedEntityController extends BaseController{
 						/**** Bill Amendment Motion number will also be visible ****/
 						model.addAttribute("id",Long.parseLong(strBillAmendmentMotionId));
 						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(billAmendmentMotion.getLocale()).format(billAmendmentMotion.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",billAmendmentMotion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						/**** Advanced Search Filters****/
 						/**** Amended Bill Languages ****/		
 						Bill amendedBill = billAmendmentMotion.getAmendedBill();
@@ -719,6 +737,8 @@ public class ClubbedEntityController extends BaseController{
 						/**** StandaloneMotion number will also be visible ****/
 						model.addAttribute("id",Long.parseLong(strResolutionId));
 						model.addAttribute("number",FormaterUtil.getNumberFormatterNoGrouping(r.getLocale()).format(r.getNumber()));
+						/**** Member Name will also be visible ****/
+						model.addAttribute("memberName",r.getMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						/**** Advanced Search Filters****/
 						String deviceType = r.getType().getType();
 						model.addAttribute("deviceType", deviceType);

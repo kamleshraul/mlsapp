@@ -408,7 +408,7 @@
 						var text="";
 						
 						for(var i = 0; i < data.length; i++){
-							text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
+							text += "<p>"+data[i].name+" ("+data[i].displayName+")</p><p>"+data[i].value+"</p><hr />";
 						}						
 						$("#clubbedAdjournmentMotionTextsDiv").html(text);
 						
@@ -796,10 +796,10 @@
 			</c:if>
 			
 			<c:choose>
-			<c:when test="${not empty domain.reply}">
+			<c:when test="${internalStatusType eq 'adjournmentmotion_final_admission'}">
 			<p>
 				<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
-				<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
+				<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 				<form:errors path="reply" cssClass="validationError"></form:errors>
 			</p>
 			</c:when>

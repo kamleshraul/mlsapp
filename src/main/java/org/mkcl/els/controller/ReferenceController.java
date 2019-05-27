@@ -858,8 +858,28 @@ public class ReferenceController extends BaseController {
 		//populating sub departments
 		List<MasterVO> subDepartmentVOs=new ArrayList<MasterVO>();
 		if(ministries != null){
+			List<SubDepartment> subDepartments = new ArrayList<SubDepartment>();
+			String fromDateStr = request.getParameter("activeFrom");
+			String toDateStr = request.getParameter("activeTo");
 			
-			List<SubDepartment> subDepartments=MemberMinister.findAssignedSubDepartments(ministries, locale.toString());
+			if(fromDateStr!=null && !fromDateStr.isEmpty()
+					&& toDateStr!=null && !toDateStr.isEmpty()) {
+				CustomParameter csptDeployment = CustomParameter.findByName(CustomParameter.class, "DEPLOYMENT_SERVER", "");
+				if(csptDeployment!=null && csptDeployment.getValue().equals("TOMCAT")){
+					try {
+						fromDateStr = new String(fromDateStr.getBytes("ISO-8859-1"),"UTF-8");
+						toDateStr = new String(toDateStr.getBytes("ISO-8859-1"),"UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+						return subDepartmentVOs;
+					}										
+				}
+				Date fromDate = FormaterUtil.formatStringToDate(fromDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+				Date toDate = FormaterUtil.formatStringToDate(toDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
+				subDepartments=MemberMinister.findAssignedSubDepartments(ministries, fromDate, toDate, locale.toString());
+			} else {
+				subDepartments=MemberMinister.findAssignedSubDepartments(ministries, locale.toString());
+			}
 			
 			for(SubDepartment i:subDepartments){
 				MasterVO masterVO=new MasterVO();
@@ -5854,6 +5874,7 @@ public class ReferenceController extends BaseController {
 							MasterVO mVO = new MasterVO();
 							mVO.setId(cQuestion.getId());
 							mVO.setName(FormaterUtil.formatNumberNoGrouping(cQuestion.getNumber(), locale.toString()));
+							mVO.setDisplayName(cQuestion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 							if(cQuestion.getQuestionText()!= null && !cQuestion.getQuestionText().isEmpty()){
 								mVO.setValue(cQuestion.getQuestionText());
 							}else{
@@ -5928,6 +5949,7 @@ public class ReferenceController extends BaseController {
 						MasterVO mVO = new MasterVO();
 						mVO.setId(cMotion.getId());
 						mVO.setName(FormaterUtil.formatNumberNoGrouping(cMotion.getNumber(), locale.toString()));
+						mVO.setDisplayName(cMotion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						if(cMotion.getDetails()!= null && !cMotion.getDetails().isEmpty()){
 							mVO.setValue(cMotion.getDetails());
 						}else{
@@ -7810,6 +7832,7 @@ public class ReferenceController extends BaseController {
 						MasterVO mVO = new MasterVO();
 						mVO.setId(cAdjournmentMotion.getId());
 						mVO.setName(FormaterUtil.formatNumberNoGrouping(cAdjournmentMotion.getNumber(), locale.toString()));
+						mVO.setDisplayName(cAdjournmentMotion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						if(cAdjournmentMotion.getRevisedNoticeContent() != null && !cAdjournmentMotion.getRevisedNoticeContent().isEmpty()){
 							mVO.setValue(cAdjournmentMotion.getRevisedNoticeContent());
 						}else{
@@ -8183,6 +8206,7 @@ public class ReferenceController extends BaseController {
 						MasterVO mVO = new MasterVO();
 						mVO.setId(cBillAmendmentMotion.getId());
 						mVO.setName(FormaterUtil.formatNumberNoGrouping(cBillAmendmentMotion.getNumber(), locale.toString()));
+						mVO.setDisplayName(cBillAmendmentMotion.getPrimaryMember().findNameInGivenFormat(ApplicationConstants.FORMAT_MEMBERNAME_FIRSTNAMELASTNAME));
 						mVO.setValue(cBillAmendmentMotion.findDefaultSectionAmendmentContent());						
 						
 						clubbedBillAmendmentMotionsVO.add(mVO);

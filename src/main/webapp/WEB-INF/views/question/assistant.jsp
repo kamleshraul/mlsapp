@@ -548,7 +548,43 @@
 				if($("#revisedQuestionTextDiv").css("display")=="none"){
 					$("#revisedQuestionText").wysiwyg("setContent","");
 				}else{
-					$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val());
+					//find if question text by member has invalid formatting text and notify the clerk/assistant
+					if($('#questionText').val().toLowerCase().indexOf("mso") >= 0 || $('#questionText').val().toLowerCase().indexOf("w:") >= 0){	
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;					
+						
+					} else if($('#questionText').val().toLowerCase().indexOf("o:p") >= 0){
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());	
+						return false;
+						
+					} if($('#questionText').val().toLowerCase().indexOf("ol style=") >= 0){	
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());	
+						return false;
+					
+					} else if($('#questionText').val().toLowerCase().indexOf("&lt;ol&gt;&lt;/ol&gt;") >= 0){	
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());	
+						return false;
+					
+					} else if($('#questionText').val().toLowerCase().indexOf("<ol></ol>") >= 0){
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());	
+						return false;
+					
+					} else if($('#questionText').val().toLowerCase().indexOf("br style=") >= 0){	
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;
+					
+					} else if($('#questionText').val().toLowerCase().indexOf("-webkit-text-stroke-widt") >= 0){	
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;
+						
+					} else if($('#questionText').val().toLowerCase().indexOf("font-size: small") >= 0){	
+						$.prompt($('#noInvalidFormattingInDeviceTextPrompt').val());
+						return false;
+						
+					} else {
+						$("#revisedQuestionText").wysiwyg("setContent",$("#questionText").val()); //as question text is valid formatted
+						
+					}					
 				}
 			} else {
 				$.prompt("The revised question text is already set and its editor is open too!");
@@ -755,7 +791,7 @@
 						var text="";
 						
 						for(var i = 0; i < data.length; i++){
-							text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
+							text += "<p>"+data[i].name+" ("+data[i].displayName+")</p><p>"+data[i].value+"</p><hr />";
 						}						
 						$("#clubbedQuestionTextsDiv").html(text);
 						

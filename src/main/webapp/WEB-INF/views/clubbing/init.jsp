@@ -1622,20 +1622,20 @@ td>table{
 <p id="clubbingP">
 <c:choose>
 	<c:when test="${whichDevice=='questions_'}">
-		<a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${subject}
+		<a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a> (${memberName}): ${subject}
 		<a href="javascript:void(0);" id="viewClubbedQuestionTextsDiv1" style="border: 1px solid #000000; background-color: #657A8F; border-radius: 5px; color: #FFFFFF; text-decoration: none;"><spring:message code="question.clubbed.texts" text="C"></spring:message></a>
 		<%-- <input type="hidden" id="questionText1" value='${questionText}' /> --%>
 		<c:set var="questionTextEscapingDoubleQuote" value="${fn:replace(questionText, '\"', '&#34;')}" />
 		<c:set var='questionTextEscapingSingleQuote' value='${fn:replace(questionTextEscapingDoubleQuote, "\'", "&#39;")}' />
 		<input type="hidden" id="questionText1" value='${questionTextEscapingSingleQuote}' />
 	</c:when>
-	<c:when test="${whichDevice=='bills_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${title}</c:when>
-	<c:when test="${whichDevice=='motions_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${subject}</c:when>
-	<c:when test="${whichDevice=='resolutions_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${subject}</c:when>
+	<c:when test="${whichDevice=='bills_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a> (${memberName}): ${title}</c:when>
+	<c:when test="${whichDevice=='motions_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a> (${memberName}): ${subject}</c:when>
+	<c:when test="${whichDevice=='resolutions_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a> (${memberName}): ${subject}</c:when>
 	<c:when test="${whichDevice=='motions_billamendment_'}"><a style="color:blue;font-size:14px;" id="primary" href="#">
 		${number}</a>:<span id="billAmendmentMotion_subjectline"></span>
 	</c:when>
-	<c:when test="${fn:startsWith(whichDevice,'motions_')}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a>:${subject}</c:when>
+	<c:when test="${fn:startsWith(whichDevice,'motions_')}"><a style="color:blue;font-size:14px;" id="primary" href="#">${number}</a> (${memberName}): ${subject}</c:when>
 </c:choose>
 <input type="hidden" id="deviceId" value="${id }">
 <input type="hidden" id="deviceNumber" value="${number}">
