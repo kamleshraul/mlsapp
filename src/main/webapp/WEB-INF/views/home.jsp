@@ -192,6 +192,7 @@
             <input type="hidden" id="noWordContentPrompt" value="<spring:message code='generic.noWordContentPrompt' text='MS Word Content is not allowed. Please paste from Notepad'/>"/>      
            	<input type="hidden" id="noMsOfficeContentPrompt" value="<spring:message code='generic.noMsOfficeContentPrompt' text='Microsoft Office Content is not allowed. Please paste from Notepad'/>"/>
         	<input type="hidden" id="noInvalidFormattingPrompt" value="<spring:message code='generic.noInvalidFormattingPrompt' text='Content is having invalid formatting tags which are not allowed. Please paste from Notepad'/>"/>
+        	<input type="hidden" id="noInvalidFormattingInDeviceTextPrompt" value="<spring:message code='generic.noInvalidFormattingInDeviceTextPrompt' text='Device Text submitted is having invalid formatting tags which are not allowed. Please paste from Notepad'/>"/>
         	<input type="hidden" id="loginMessageFromSystem" value="${loginMessageFromSystem}"/>
         	<input type="hidden" id="logintime_server" value="${logintime_server}"/>
         	<input type="hidden" id="pushNotificationsEnabled" value="${pushNotificationsEnabled}"/>
