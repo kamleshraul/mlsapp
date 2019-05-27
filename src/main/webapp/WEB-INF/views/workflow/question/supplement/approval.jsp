@@ -50,7 +50,7 @@
 								var text="";
 								
 								for(var i = 0; i < data.length; i++){
-									text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
+									text += "<p>"+data[i].name+" ("+data[i].displayName+")</p><p>"+data[i].value+"</p><hr />";
 								}						
 								$("#clubbedQuestionTextsDiv").html(text);
 								
@@ -77,7 +77,7 @@
 								var text="";
 								
 								for(var i = 0; i < data.length; i++){
-									text += "<p>"+data[i].name+"</p><p>"+data[i].value+"</p><hr />";
+									text += "<p>"+data[i].name+" ("+data[i].displayName+")</p><p>"+data[i].value+"</p><hr />";
 								}						
 								$("#clubbedQuestionTextsDiv").html(text);
 								
