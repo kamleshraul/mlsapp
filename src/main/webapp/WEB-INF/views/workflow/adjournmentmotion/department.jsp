@@ -1,4 +1,5 @@
 <%@ include file="/common/taglibs.jsp" %>
+<%@ page import="java.util.Date;" %>
 <html>
 <head>
 	<title>
@@ -109,104 +110,88 @@
 		$.unblockUI();			
 	}
 	/**** load actors ****/
-	function loadActors(value){		
-		var valueToSend = value;
+	function loadActors(value){	
+		$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
 		if(value!='-'){					
-			var sendBack=$("#internalStatusMaster option[value='adjournmentmotion_recommend_sendback']").text();			
-		    var discuss=$("#internalStatusMaster option[value='adjournmentmotion_recommend_discuss']").text();	
-		    var sendToSectionOfficer=$("#internalStatusMaster option[value='adjournmentmotion_processed_sendToSectionOfficer']").text();
-		    var sendToDepartment=$("#internalStatusMaster option[value='adjournmentmotion_processed_sendToDepartment']").text();
-		    var replyReceived = $("#internalStatusMaster option[value='adjournmentmotion_processed_replyReceived']").text();
-		    var rejectedWithReason=$("#internalStatusMaster option[value='adjournmentmotion_processed_rejectionWithReason']").text();	  
-		    var clubbingApproved = $("#internalStatusMaster option[value='adjournmentmotion_final_clubbing']").text();
-		    var clubbingRejected = $("#internalStatusMaster option[value='adjournmentmotion_final_reject_clubbing']").text();	
-		    var nameclubbingApproved = $("#internalStatusMaster option[value='adjournmentmotion_final_nameclubbing']").text();
-		    var nameclubbingRejected = $("#internalStatusMaster option[value='adjournmentmotion_final_reject_nameclubbing']").text();	    
-		    var clubbingPostAdmissionRecommendApprove = $("#internalStatusMaster option[value='adjournmentmotion_recommend_clubbingPostAdmission']").text();
-		    var clubbingPostAdmissionRecommendReject = $("#internalStatusMaster option[value='adjournmentmotion_recommend_reject_clubbingPostAdmission']").text();
-		    var clubbingPostAdmissionApproved = $("#internalStatusMaster option[value='adjournmentmotion_final_clubbingPostAdmission']").text();
-		    var clubbingPostAdmissionRejected = $("#internalStatusMaster option[value='adjournmentmotion_final_reject_clubbingPostAdmission']").text();
-		    var unclubbingRecommendApprove = $("#internalStatusMaster option[value='adjournmentmotion_recommend_unclubbing']").text();
-		    var unclubbingRecommendReject = $("#internalStatusMaster option[value='adjournmentmotion_recommend_reject_unclubbing']").text();
-		    var unclubbingApproved = $("#internalStatusMaster option[value='adjournmentmotion_final_unclubbing']").text();
-		    var unclubbingRejected = $("#internalStatusMaster option[value='adjournmentmotion_final_reject_unclubbing']").text();
-		    var admitDueToReverseClubbingRecommendApprove = $("#internalStatusMaster option[value='adjournmentmotion_recommend_admitDueToReverseClubbing']").text();
-		    var admitDueToReverseClubbing = $("#internalStatusMaster option[value='adjournmentmotion_final_admitDueToReverseClubbing']").text();
+			var sendToDeskOfficer=$("#internalStatusMaster option[value='adjournmentmotion_processed_sendToDeskOfficer']").text();
 		    
 		    //reset endflag value to continue by default..then in special cases to end workflow we will set it to end
 		    $("#endFlag").val("continue");
 		    
-		    if(value==replyReceived || value==rejectedWithReason
-		    		|| value==clubbingApproved || value==clubbingRejected					
-					|| value==nameclubbingApproved || value == nameclubbingRejected
-					|| value==clubbingPostAdmissionApproved || value==clubbingPostAdmissionRejected
-					|| value==unclubbingApproved || value == unclubbingRejected
-					|| value==admitDueToReverseClubbing){
-				$("#endFlag").val("end");
-				if(value!=replyReceived && value!=rejectedWithReason
-						&&value!=clubbingPostAdmissionApproved && value!=clubbingPostAdmissionRejected
-						&& value!=unclubbingApproved && value!=unclubbingRejected
-						&& value!=admitDueToReverseClubbing) {
-					$("#internalStatus").val(value);
-				}				
-				$("#recommendationStatus").val(value);
-				$("#actor").empty();
-				$("#actorDiv").hide();
-				return false;
+		    var valueToSend = "";
+			if(value == sendToDeskOfficer ) {
+				valueToSend = $("#internalStatus").val();
+			}else{
+				valueToSend = value;
 			}
-		    
-		    if(value==sendToSectionOfficer || value==sendToDepartment) {
-		    	valueToSend = $("#internalStatus").val();	    	
-		    }
-		    
+			
 		    var params="motion=" + $("#id").val() + "&status=" + valueToSend +
 			"&usergroup=" + $("#usergroup").val() + "&level=" + $("#originalLevel").val();
 			var resourceURL = 'ref/adjournmentmotion/actors?' + params;
 		    
 			$.post(resourceURL,function(data){			
-				if(data!=undefined||data!=null||data!=''){
+				if(data!=undefined && data!=null && data.length>0){
+					var actor1="";
+					var actCount = 1;
 					$("#actor").empty();
 					var text="";
 					for(var i=0;i<data.length;i++){
-						text+="<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						var act = data[i].id;
+						if(value != sendToDeskOfficer){
+							var ugtActor = data[i].id.split("#");
+							var ugt = ugtActor[1];
+							if(ugt!='member' && data[i].state!='active'){
+								text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+							}else{
+								text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+								if(actCount == 1){
+									actor1=data[i].id;
+									actCount++;
+								}
+							}
+						}else{
+							if(act.indexOf("section_officer") < 0){
+								var ugtActor = data[i].id.split("#")
+								var ugt = ugtActor[1];
+								if(ugt!='member' && data[i].state!='active'){
+									text += "<option value='" + data[i].id + "' disabled='disabled'>" + data[i].name +"("+ugtActor[4]+")"+ "</option>";
+								}else{
+									text += "<option value='" + data[i].id + "'>" + ugtActor[4]+ "</option>";	
+									if(actCount == 1){
+										actor1=data[i].id;
+										actCount++;
+									}
+								}
+							}
+						}
 					}				
 					$("#actor").html(text);
 					$("#actorDiv").show();			
-					if(value!=sendBack && value!=discuss
-							&& value != sendToSectionOfficer && value != sendToDepartment
-							&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
-							&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
-							&& value != admitDueToReverseClubbingRecommendApprove){
+					if(value != sendToDeskOfficer){
 						$("#internalStatus").val(value);
-						$("#actorDiv").show();
 					} else {
 						$("#internalStatus").val($("#oldInternalStatus").val());
 					}
 					$("#recommendationStatus").val(value);
 					/**** setting level,localizedActorName ****/
-					 var actor1=data[0].id;
-					 var temp=actor1.split("#");
+					 var temp = actor1.split("#");
 					 $("#level").val(temp[2]);		    
-					 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");		
-					 $('#actorName').val(temp[4]);
-					 $('#actorName').css('display','inline');
+					 $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
 				}else{
 					$("#actor").empty();
 					$("#actorDiv").hide();
-					$('#actorName').val("");
-					$('#actorName').css('display','none');
-					if(value!=sendBack && value!=discuss
-							&& value != sendToSectionOfficer && value != sendToDepartment
-							&& value != clubbingPostAdmissionRecommendApprove && value != clubbingPostAdmissionRecommendReject
-							&& value != unclubbingRecommendApprove && value != unclubbingRecommendReject
-							&& value != admitDueToReverseClubbingRecommendApprove){
+					if(value != sendToDeskOfficer){
 						$("#internalStatus").val(value);
-						$("#actorDiv").show();
 					} else {
 						$("#internalStatus").val($("#oldInternalStatus").val());
 					}
-					$("#recommendationStatus").val(value);
+					$("#recommendationStatus").val(value);					
+					if(value == sendToDeskOfficer){
+						alert("No Desk Officer Found!");
+						$('#submit').attr('disabled', 'disabled');
+					}					
 				}
+				$.unblockUI();
 			}).fail(function(){
 				if($("#ErrorMsg").val()!=''){
 					$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
@@ -216,19 +201,17 @@
 				$("#submit").attr("disabled","disabled");
 				$("#actor").empty();
 				$("#actorDiv").hide();
-				$('#actorName').val("");
-				$('#actorName').css('display','none');
 				$("#internalStatus").val($("#oldInternalStatus").val());
 			    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
 				scrollTop();
+				$.unblockUI();
 			});
 		}else{			
 			$("#actor").empty();
 			$("#actorDiv").hide();
-			$('#actorName').val("");
-			$('#actorName').css('display','none');
 			$("#internalStatus").val($("#oldInternalStatus").val());
 		    $("#recommendationStatus").val($("#oldRecommendationStatus").val());
+		    $.unblockUI();
 		}
 	}
 	function loadSubDepartments(ministry){
@@ -260,7 +243,20 @@
 	
 	$(document).ready(function(){
 		initControls();
-		
+		loadActors($("#changeInternalStatus").val());
+		$('#remarks-wysiwyg-iframe').css('max-height','50px');
+
+		$('#mlsBranchNotifiedOfTransfer').val(null);
+		$('#transferToDepartmentAccepted').val(null);
+		/*******Actor changes*************/
+		$("#actor").change(function(){
+		    var actor=$(this).val();
+		    var temp=actor.split("#");
+		    $("#level").val(temp[2]);		    
+		    $("#localizedActorName").val(temp[3]+"("+temp[4]+")");
+		    $("#actorName").val(temp[4]);
+		    $("#actorName").css('display','inline');
+	    });
 		/**** Back To motion ****/
 		$("#backToMotion").click(function(){
 			$("#clubbingResultDiv").hide();
@@ -270,86 +266,21 @@
 			/**** Hide update success/failure message on coming back to motion ****/
 			$(".toolTip").hide();
 		});			
-		/**** Adjourning Date ****/
-		$('#changeAdjourningDate').click(function() {
-			var yesLabel = $('#yesLabel').val();
-			var noLabel = $('#noLabel').val();
-			$.prompt('Do you really want to change the adjourning date?', {
-				buttons: [
-					{title: yesLabel, value: true},
-					{title: noLabel, value: false}
-				],
-				callback: function(v) {
-					if(v) {
-						$('#adjourningDate').removeAttr('disabled');
-						$('#changeAdjourningDate').hide();
-					} else {
-						return false;
-					}
-				}
-			});			
-		});
-		/**** Ministry Autocomplete ****/
-		$( "#formattedMinistry").autocomplete({
-			minLength:3,			
-			source:'ref/getministries?session=' + $('#session').val(),
-			select:function(event,ui){		
-				if(ui.item != undefined) {
-					$("#ministry").val(ui.item.id);
-				} else {
-					$("#ministry").val('');
-				}
-			},
-			change:function(event,ui){
-				if(ui.item != undefined) {
-					var ministryVal = ui.item.id;						
-					if(ministryVal != ''){
-						loadSubDepartments(ministryVal);
-					}else{
-						$("#subDepartment").empty();				
-						$("#subDepartment").prepend("<option value=''>----" + $("#pleaseSelectMsg").val() + "----</option>");				
-					}
-				} else {
-					if($( "#formattedMinistry").val() == '') {
-						$("#subDepartment").empty();				
-						$("#subDepartment").prepend("<option value=''>----" + $("#pleaseSelectMsg").val() + "----</option>");
-					}					
-				}			
+		/**** Ministry Changes ****/
+		$("#ministry").change(function(){
+			if($(this).val()!=''){
+				loadSubDepartments($(this).val());
+			}else{
+				$("#subDepartment").empty();				
+				$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");								
 			}
-		});
-		/**** Initialize SubDepartment to 'Please Select' if not already set by member ****/
-		if($("#subDepartmentSelected").val()==''){
-			$("#subDepartment").
-			prepend("<option value='' selected='selected'>----" + $("#pleaseSelectMsg").val() + "----</option>");			
-		}else{
-			$("#subDepartment").
-			prepend("<option value=''>----" + $("#pleaseSelectMsg").val() + "----</option>");			
-		}							
+		});							
 		/**** Citations ****/
 		$("#viewCitation").click(function(){
 			$.get('adjournmentmotion/citations/'+$("#type").val()+ "?status=" + $("#internalStatus").val(),function(data){
 			    $.fancybox.open(data, {autoSize: false, width: 600, height:600});
 		    },'html');
 		    return false;
-		});	
-		/**** Revise subject and text****/
-		$("#reviseSubject").click(function(){
-			$(".revise1").toggle();
-			if($("#revisedSubjectDiv").css("display")=="none"){
-				$("#revisedSubject").val("");	
-			}else{
-				$("#revisedSubject").val($("#subject").val());
-			}						
-			return false;			
-		});	
-		$("#reviseNoticeContent").click(function(){
-			$(".revise2").toggle();		
-			if($("#revisedNoticeContentDiv").css("display")=="none"){
-				$("#revisedNoticeContent").wysiwyg("setContent","");
-			}else{
-				$("#revisedNoticeContent").wysiwyg("setContent",$("#noticeContent").val());				
-			}				
-			return false;			
 		});
 		/**** Revisions ****/
 	    $("#viewRevision").click(function(){
@@ -404,98 +335,33 @@
 		} else {
 			$('#remarks_div').hide();
 		}
-		/**** To show/hide viewClubbedAdjournmentMotionTextsDiv to view clubbed adjournment motion's text starts****/
-		$("#clubbedAdjournmentMotionTextsDiv").hide();
-		$("#hideClubMTDiv").hide();
-		$("#viewClubbedAdjournmentMotionTextsDiv").click(function(){
-			var parent = $("#key").val();
-			if(parent==undefined || parent==''){
-				parent = ($("#id").val()!=undefined && $("#id").val()!='')? $("#id").val():"";
-			}
-			if(parent!=undefined && parent!=''){			
-				
-				if($("#clubbedAdjournmentMotionTextsDiv").css('display')=='none'){
-					$("#clubbedAdjournmentMotionTextsDiv").empty();
-					$.get('ref/adjournmentmotion/'+parent+'/clubbedmotiontext',function(data){
-						
-						var text="";
-						
-						for(var i = 0; i < data.length; i++){
-							text += "<p>"+data[i].name+" ("+data[i].displayName+")</p><p>"+data[i].value+"</p><hr />";
-						}						
-						$("#clubbedAdjournmentMotionTextsDiv").html(text);
-						
-					});	
-					$("#hideClubMTDiv").show();
-					$("#clubbedAdjournmentMotionTextsDiv").show();
-				}else{
-					$("#clubbedAdjournmentMotionTextsDiv").hide();
-					$("#hideClubMTDiv").hide();
-				}
-			}
-		});
-		$("#hideClubMTDiv").click(function(){
-			$(this).hide();
-			$('#clubbedAdjournmentMotionTextsDiv').hide();
-		});
-		/**** To show/hide viewClubbedAdjournmentMotionTextsDiv to view clubbed adjournment motion's text end****/
 		
-		/**** Right Click Menu ****/
-		$(".clubbedRefMotions").contextMenu({
-	        menu: 'contextMenuItems'
-	    },
-	        function(action, el, pos) {
-			var id=$(el).attr("id");
-			if(action=='unclubbing'){
-				if(id.indexOf("cq")!=-1){
-				var motionId=$("#id").val();
-				var clubId=id.split("cq")[1];				
-				$.post('clubentity/unclubbing?pId='+motionId+"&cId="+clubId+"&whichDevice=motions_",function(data){
-					$.prompt(data,{callback: function(v){ 
-									refreshEdit(motionId);
-									}
-					});					
-				},'html').fail(function(){
-					if($("#ErrorMsg").val()!=''){
-						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-					}else{
-						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-					}
-					scrollTop();
-				});	
-				}else{
-					$.prompt("Unclubbing not allowed");
-				}			
-			}else if(action=='dereferencing'){
-				if(id.indexOf("rq")!=-1){					
-				var motionId=$("#id").val();
-				var refId=id.split("rq")[1];				
-				$.post('refentity/adjournmentmotion/dereferencing?pId='+motionId+"&rId="+refId,function(data){
-					if(data=='SUCCESS'){
-						$.prompt("Dereferencing Successful");				
-						}else{
-							$.prompt("Dereferencing Failed");
-						}							
-				},'html').fail(function(){
-					if($("#ErrorMsg").val()!=''){
-						$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-					}else{
-						$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-					}
-					scrollTop();
-				});	
-				}else{
-					$.prompt("Referencing not allowed");					
-				}			
-			}
+		//************Hiding Unselected Options In Ministry,Department,SubDepartment ***************//
+		$("#ministry option[selected!='selected']").hide();
+		$("#subDepartment option[selected!='selected']").hide(); 
+		
+		$('#isTransferable').change(function() {
+	        if ($(this).is(':checked')) {
+	        	$("#ministry option[selected!='selected']").show();
+	    		$("#subDepartment option[selected!='selected']").show(); 
+	    		$("#transferP").css("display","inline-block");
+	    		$("#submit").css("display","none");
+	        }else{
+	        	$("#ministry option[selected!='selected']").hide();
+	    		$("#subDepartment option[selected!='selected']").hide(); 
+	    		$("#transferP").css("display","none");
+	    		$("#submit").css("display","inline-block");
+	        }
 	    });
-		if($("#revisedSubject").val()!=''){
-		    $("#revisedSubjectDiv").show();
-	    }		
-	    if($("#revisedNoticeContent").val()!=''
-	    		&& $("#revisedNoticeContent").val()!='<p></p>'){
-	    	$("#revisedNoticeContentDiv").show();
-	    }
+		
+		$('#mlsBranchNotifiedOfTransfer').change(function() {
+	        if ($(this).is(':checked') && $("#isTransferable").is(':checked')) {
+	        	$("#submit").css("display","inline-block");
+	        }else{
+	        	$("#submit").css("display","none");
+	        }
+	    });
+		
 	    /********Submit Click*********/
 		$('#submit').click(function(){			
 			if($('#changeInternalStatus').val()=="-") {
@@ -508,51 +374,44 @@
 					$(this).val("");
 				}
 			});			
-			$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
-			$.post($('form').attr('action')+'?operation=workflowsubmit',  
-    	            $("form").serialize(),
-    	            function(data){
-       					$('.tabContent').html(data);
-       					$('html').animate({scrollTop:0}, 'slow');
-       				 	$('body').animate({scrollTop:0}, 'slow');	
-       					 $.unblockUI();	
-    	            }
-			).fail(function(){
-    			$.unblockUI();
-    			if($("#ErrorMsg").val()!=''){
-    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-    			}else{
-    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-    			}
-    			scrollTop();
-    		});			
+			$.prompt($('#submissionMsg').val(),{
+				buttons: {Ok:true, Cancel:false}, callback: function(v){
+			        if(v){				        	
+						$.blockUI({ message: '<img src="./resources/images/waitAnimated.gif" />' });
+						var url = $('form').attr('action')+'?operation=workflowsubmit';
+						$.post(url,  
+			    	            $("form").serialize(),
+			    	            function(data){
+			       					$('.tabContent').html(data);
+			       					$('html').animate({scrollTop:0}, 'slow');
+			       				 	$('body').animate({scrollTop:0}, 'slow');	
+			       				 	$.unblockUI();	
+			    	            }
+						).fail(function(){
+	    	    			$.unblockUI();
+	    	    			if($("#ErrorMsg").val()!=''){
+	    	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
+	    	    			}else{
+	    	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
+	    	    			}
+	    	    			scrollTop();
+	    	    		});
+			        }
+				}
+			});			
 			return false;			
 		});
-		/**** On Bulk Edit ****/
-		$("#submitBulkEdit").click(function(e){
-			//removing <p><br></p>  from wysiwyg editor
-			$(".wysiwyg").each(function(){
-				var wysiwygVal=$(this).val().trim();
-				if(wysiwygVal=="<p></p>"||wysiwygVal=="<p><br></p>"||wysiwygVal=="<br><p></p>"){
-					$(this).val("");
-				}
-			});								
-			$.post($('form').attr('action'),  
-	            $("form").serialize(),  
-	            function(data){
-   					$('.fancybox-inner').html(data);
-   					$('html').animate({scrollTop:0}, 'slow');
-   				 	$('body').animate({scrollTop:0}, 'slow');	
-	            }).fail(function(){
-	    			if($("#ErrorMsg").val()!=''){
-	    				$("#error_p").html($("#ErrorMsg").val()).css({'color':'red', 'display':'block'});
-	    			}else{
-	    				$("#error_p").html("Error occured contact for support.").css({'color':'red', 'display':'block'});
-	    			}
-	    			scrollTop();
-	    		});
-	        return false;  
-	    });
+		/**** On Page Load ****/
+	    if($("#ministrySelected").val()==''){
+			$("#ministry").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
+		}else{
+			$("#ministry").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");		
+		}
+		if($("#subDepartmentSelected").val()==''){
+			$("#subDepartment").prepend("<option value='' selected='selected'>----"+$("#pleaseSelectMessage").val()+"----</option>");			
+		}else{
+			$("#subDepartment").prepend("<option value=''>----"+$("#pleaseSelectMessage").val()+"----</option>");			
+		}
 		//***** On Page Load Internal Status Actors Will be Loaded ****/
 		if($('#workflowstatus').val()!='COMPLETED'){
 			var statusType = $("#internalStatusType").val().split("_");
@@ -569,19 +428,6 @@
             display:none;
             }
         }
-        
-        #clubbedAdjournmentMotionTextsDiv{
-        	background: none repeat-x scroll 0 0 #FFF;
-		    box-shadow: 0 2px 5px #888888;
-		    max-height: 260px;
-		    right: 0;
-		    position: fixed;
-		    top: 10px;
-		    width: 300px;
-		    z-index: 10000;
-		    overflow: auto;
-		    border-radius: 10px;
-	    }
     </style>
 </head>
 
@@ -665,12 +511,17 @@
 				<input id="setSubmissionDate" name="setSubmissionDate" type="hidden"  value="${submissionDate}">	
 			</p>
 			</c:if>
+			
+			<p>
+				<label class="small"><spring:message code="standalonemotion.isTransferable" text="is adjournment motion to be transfered?"/></label>
+				<input type="checkbox" name="isTransferable" id="isTransferable" class="sCheck">
+			</p>
 				
 			<p>
 				<label class="small"><spring:message code="adjournmentmotion.ministry" text="Ministry"/></label>
-				<input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
-				<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}">
-				<%-- <form:select path="ministry" id="ministry" class="sSelect">
+				<%-- <input id="formattedMinistry" name="formattedMinistry" type="text" class="sText" value="${formattedMinistry}">
+				<input name="ministry" id="ministry" type="hidden" value="${ministrySelected}"> --%>
+				<form:select path="ministry" id="ministry" class="sSelect" style="width: 270px;">
 				<c:forEach items="${ministries}" var="i">
 					<c:choose>
 						<c:when test="${i.id==ministrySelected }">
@@ -681,10 +532,10 @@
 						</c:otherwise>
 					</c:choose>
 				</c:forEach>
-				</form:select> --%>
+				</form:select>
 				<form:errors path="ministry" cssClass="validationError"/>			
 				<label class="small"><spring:message code="adjournmentmotion.subdepartment" text="Sub Department"/></label>
-				<select name="subDepartment" id="subDepartment" class="sSelect">
+				<select name="subDepartment" id="subDepartment" class="sSelect" style="width: 270px;">
 				<c:forEach items="${subDepartments}" var="i">
 					<c:choose>
 						<c:when test="${i.id==subDepartmentSelected}">
@@ -696,6 +547,14 @@
 					</c:choose>
 				</c:forEach>
 				</select>						
+			</p>
+			
+			<p id="transferP" style="display:none;">
+				<label class="small" id="subdepartmentValue"><spring:message code="adjournmentmotion.transferToDepartmentAccepted" text="Is the Transfer to Department Accepted?"/></label>
+				<input type="checkbox" id="transferToDepartmentAccepted" name="transferToDepartmentAccepted" class="sCheck"/>
+				
+				<label class="small" style="margin-left: 175px;"><spring:message code="adjournmentmotion.mlsBranchNotified" text="Is the Respective Adjournment Motion Branch Notified?"/></label>
+				<input type="checkbox" id="mlsBranchNotifiedOfTransfer" name="mlsBranchNotifiedOfTransfer" class="sCheck"/>
 			</p>
 			
 			<p>
@@ -713,7 +572,7 @@
 				</c:if>
 			</p>
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="adjournmentmotion.primaryMemberConstituency" text="Constituency"/>*</label>
 				<input type="text" readonly="readonly" value="${constituency}" class="sText">
 				<a href="#" id="viewContacts" style="margin-left:20px;margin-right: 20px;"><img src="/els/resources/images/contactus.jpg" width="40" height="25"></a>		
@@ -729,7 +588,7 @@
 			</p>
 			
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="adjournmentmotion.parentmotion" text="Clubbed To"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty parent)}">	
@@ -742,7 +601,7 @@
 				<input type="hidden" id="parent" name="parent" value="${parent}">
 			</p>
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="adjournmentmotion.clubbedmotions" text="Clubbed Motions"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty clubbedMotions) }">
@@ -762,7 +621,7 @@
 				</select>
 			</p>
 			
-			<p>
+			<p style="display:none;">
 				<label class="small"><spring:message code="adjournmentmotion.referencedmotion" text="Referenced Motion"></spring:message></label>
 				<c:choose>
 					<c:when test="${!(empty referencedMotion) }">
@@ -776,31 +635,31 @@
 				</c:choose>				
 			</p>
 			
-			<p>
+			<p style="display:none;">
 				<label class="centerlabel"><spring:message code="adjournmentmotion.subject" text="Subject"/>*</label>
 				<form:textarea path="subject" rows="2" cols="50"></form:textarea>
 				<form:errors path="subject" cssClass="validationError" />	
 			</p>
 				
-			<p>
+			<p style="display:none;">
 				<label class="wysiwyglabel"><spring:message code="adjournmentmotion.noticeContent" text="Notice Content"/>*</label>
 				<form:textarea path="noticeContent" cssClass="wysiwyg"></form:textarea>
 				<form:errors path="noticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>	
 			</p>	
 			
-			<p>
+			<p style="display:none;">
 				<a href="#" id="reviseSubject" style="margin-left: 162px;margin-right: 20px;"><spring:message code="adjournmentmotion.reviseSubject" text="Revise Subject"></spring:message></a>
 				<a href="#" id="reviseNoticeContent" style="margin-right: 20px;"><spring:message code="adjournmentmotion.reviseNoticeContent" text="Revise Notice Content"></spring:message></a>
 				<a href="#" id="viewRevision"><spring:message code="adjournmentmotion.viewrevisions" text="View Revisions"></spring:message></a>
 			</p>	
 			
-			<p style="display:none;" class="revise1" id="revisedSubjectDiv">
+			<p class="revise1" id="revisedSubjectDiv">
 				<label class="centerlabel"><spring:message code="adjournmentmotion.revisedSubject" text="Revised Subject"/></label>
 				<form:textarea path="revisedSubject" rows="2" cols="50"></form:textarea>
 				<form:errors path="revisedSubject" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
 			</p>
 			
-			<p style="display:none;" class="revise2" id="revisedNoticeContentDiv">
+			<p class="revise2" id="revisedNoticeContentDiv">
 				<label class="wysiwyglabel"><spring:message code="adjournmentmotion.revisedNoticeContent" text="Revised Notice Content"/></label>
 				<form:textarea path="revisedNoticeContent" cssClass="wysiwyg"></form:textarea>
 				<form:errors path="revisedNoticeContent" cssClass="validationError" cssStyle="float:right;margin-top:-100px;margin-right:40px;"/>
@@ -811,73 +670,151 @@
 				<input id="formattedInternalStatus" name="formattedInternalStatus" value="${formattedInternalStatus }" type="text" readonly="readonly">
 			</p>
 			
-			<p>	
-				<label class="small"><spring:message code="adjournmentmotion.putupfor" text="Put up for"/></label>	
-				<select id="changeInternalStatus" class="sSelect">
-				<option value="-"><spring:message code='please.select' text='Please Select'/></option>
-				<c:forEach items="${internalStatuses}" var="i">
-					<c:choose>
-							<c:when test="${i.id==internalStatusSelected }">
-								<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+			<table class="uiTable" style="margin-left:165px;">
+				<thead>
+					<tr>
+					<th>
+					<spring:message code="qis.latestrevisions.user" text="Usergroup"></spring:message>
+					</th>
+					<th>
+					<spring:message code="qis.latestrevisions.decision" text="Decision"></spring:message>
+					</th>
+					<th>
+					<spring:message code="qis.latestrevisions.remarks" text="Remarks"></spring:message>
+					</th>
+					</tr>
+				</thead>
+				<tbody>	
+					<c:set var="startingActor" value="${startingActor}"></c:set>
+					<c:set var="count" value="0"></c:set>
+					<c:set var="startingActorCount" value="0"></c:set>
+					<c:forEach items="${latestRevisions}" var="i">	
+						<c:choose>
+							<c:when test="${i[0]==startingActor}">	
+								<c:set var="startingActorCount" value="${count}"></c:set>
+								<c:set var="count" value="${count+1 }"></c:set>
 							</c:when>
 							<c:otherwise>
-							<option value="${i.id}"><c:out value="${i.name}"></c:out></option>	
+								<c:set var="count" value="${count+1 }"></c:set>
 							</c:otherwise>
-					</c:choose>
-				</c:forEach>
+						</c:choose>
+					</c:forEach>
+					
+					<c:set var="count" value="0"></c:set>
+					<c:forEach items="${latestRevisions }" var="i">
+						<c:choose>
+							<c:when test="${count>= startingActorCount}">
+								<tr>
+									<td>
+									${i[0]}<br>${i[1]}
+									</td>
+									<td>
+									<c:choose>
+										<c:when test="${fn:endsWith(i[12],'recommend_sendback')
+												|| fn:endsWith(i[12],'recommend_discuss')}">
+											${i[3]}
+										</c:when>
+										<c:otherwise>${i[2]}</c:otherwise>
+									</c:choose>							
+									</td>
+									<td style="max-width:400px;">
+									${i[4]}
+									</td>
+								</tr>
+								<c:set var="count" value="${count+1 }"></c:set>
+							</c:when>
+							<c:otherwise>
+								<c:set var="count" value="${count+1 }"></c:set>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>						
+				</tbody>
+			</table>			
+			<c:if test="${workflowstatus != 'COMPLETED'}">
+				<!-- <p style="display:none;"> -->
+				<p>
+				<label class="small"><spring:message code="question.putupfor" text="Put up for"/></label>
+				<select id="changeInternalStatus" class="sSelect">
+					<c:forEach items="${internalStatuses}" var="i">
+						<c:choose>
+							<c:when test="${i.type=='adjournmentmotion_system_groupchanged' }">
+								<option value="${i.id}" style="display: none;"><c:out value="${i.name}"></c:out></option>	
+							</c:when>
+							<c:otherwise>
+								<c:choose>
+									<c:when test="${i.id==internalStatus }">
+										<option value="${i.id}" selected="selected"><c:out value="${i.name}"></c:out></option>	
+									</c:when>
+									<c:otherwise>
+										<option value="${i.id}"><c:out value="${i.name}"></c:out></option>		
+									</c:otherwise>
+								</c:choose>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
 				</select>
-								
+				
 				<select id="internalStatusMaster" style="display:none;">
-				<c:forEach items="${internalStatuses}" var="i">
-				<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
-				</c:forEach>
+					<c:forEach items="${internalStatuses}" var="i">
+						<option value="${i.type}"><c:out value="${i.id}"></c:out></option>
+					</c:forEach>
 				</select>	
-				<form:errors path="internalStatus" cssClass="validationError"/>
-			</p>				
-			<p id="actorDiv" style="display: none;">
-				<label class="small"><spring:message code="adjournmentmotion.nextactor" text="Next Users"/></label>
-				<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
-				<input type="text" id="actorName" name="actorName" style="display: none;" class="sText" readonly="readonly"/>
-			</p>	
+				<form:errors path="internalStatus" cssClass="validationError"/>	
+				</p>
+				
+				<p id="actorDiv" style="display: none;">
+					<label class="small"><spring:message code="adjournmentmotion.nextactor" text="Next Users"/></label>
+					<form:select path="actor" cssClass="sSelect" itemLabel="name" itemValue="id" items="${actors}"/>
+				</p>
+			</c:if>				
+				
 			<input type="hidden" id="internalStatus"  name="internalStatus" value="${internalStatus}">
 			<input type="hidden" id="recommendationStatus"  name="recommendationStatus" value="${recommendationStatus}">
 			
+			<c:if test="${workflowstatus != 'COMPLETED'}">
+				<p>
+					<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="adjournmentmotion.viewcitation" text="View Citations"></spring:message></a>	
+				</p>
+			</c:if>
+			
 			<c:choose>
-			<c:when test="${internalStatusType == 'adjournmentmotion_final_admission'}">
-			<p>
-				<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
-				<form:textarea path="reply" cssClass="wysiwyg" readonly="${workflowstatus=='COMPLETED'}"></form:textarea>
-				<form:errors path="reply" cssClass="validationError"></form:errors>
-			</p>
+			<c:when test="${workflowstatus=='COMPLETED'}">
+				<p>
+					<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
+					<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
+					<form:errors path="reply" cssClass="validationError"></form:errors>
+				</p>
 			</c:when>
 			<c:otherwise>
-				<form:hidden path="reply"/>
+				<p style="display:none;">
+					<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
+					<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
+					<form:errors path="reply" cssClass="validationError"></form:errors>
+				</p>
 			</c:otherwise>
-			</c:choose>			
-					
-			<p>
-				<a href="#" id="viewCitation" style="margin-left: 162px;margin-top: 30px;"><spring:message code="adjournmentmotion.viewcitation" text="View Citations"></spring:message></a>	
-			</p>
+			</c:choose>
 			
-			<p>
-			<label class="wysiwyglabel"><spring:message code="adjournmentmotion.remarks" text="Remarks"/></label>
-			<form:textarea path="remarks" cssClass="wysiwyg"></form:textarea>
-			<form:hidden path="remarksAboutDecision"/>
-			</p>	
+			<c:if test="${not empty domain.reasonForLateReply}">
+				<p>
+					<label class="wysiwyglabel"><spring:message code="question.reasonForLateReply" text="Reason for Late Reply"/></label>
+					<form:textarea path="reasonForLateReply" cssClass="wysiwyg"></form:textarea>
+					<form:errors path="reasonForLateReply" cssClass="validationError"></form:errors>
+				</p>
+			</c:if>
+			
+			<c:if test="${workflowstatus!='COMPLETED'}">
+				<p>
+					<label class="wysiwyglabel"><spring:message code="adjournmentmotion.remarks" text="Remarks"/></label>
+					<form:textarea path="remarks" rows="4" style="width: 250px;"></form:textarea>
+					<form:hidden path="remarksAboutDecision"/>
+				</p>	
+			</c:if>
 			
 			<c:if test="${workflowstatus!='COMPLETED' }">
 			<div class="fields">
-				<h2></h2>
-				<p class="tright">		
-				<%-- <c:if test="${currTimeMillis <= sendbacktimelimit}"> --%>
-					<input id="sendBack" type="button" value="<spring:message code='adjournmentmotion.sendback' text='Send Back'/>" class="butDef">
-				<%-- </c:if> --%>
-				<c:if test="${bulkedit!='yes'}">
+				<h2></h2>				
+				<p class="tright">
 					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
-				</c:if>
-				<c:if test="${bulkedit=='yes'}">
-					<input id="submitBulkEdit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">	
-				</c:if>
 				</p>
 			</div>
 			</c:if>
@@ -890,6 +827,8 @@
 			<form:hidden path="level"/>
 			<form:hidden path="localizedActorName"/>
 			<form:hidden path="workflowDetailsId"/>
+			<form:hidden path="transferToDepartmentAccepted"/>
+			<form:hidden path="mlsBranchNotifiedOfTransfer"/>
 			<form:hidden path="rejectionReason"/>
 			<input id="bulkedit" name="bulkedit" value="${bulkedit}" type="hidden">	
 			<input type="hidden" name="status" id="status" value="${status }">
@@ -909,6 +848,12 @@
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
 			<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">
+			<c:if test="${not empty formattedAnswerRequestedDate}">
+				<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+			</c:if>
+			<c:if test="${not empty formattedAnswerReceivedDate}">
+				<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+			</c:if>
 		</form:form>
 
 		<input id="ministrySelected" value="${ministrySelected }" type="hidden">
