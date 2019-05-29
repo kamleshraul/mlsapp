@@ -215,8 +215,10 @@ public class HomeController extends BaseController {
         StringBuffer buffer=new StringBuffer();
         Boolean isUserAllowedForMemberDashboardView = false; //for showing dashboard post login to allowed users only
         Boolean isUserAllowedForDeptSecretaryDashboardView = false; //for showing dashboard post login to allowed users only
+        Boolean isUserAllowedForStatisticalDashboardView =false;
         CustomParameter rolesAllowedForMemberDashBoardViewCP = CustomParameter.findByName(CustomParameter.class, "ROLES_ALLOWED_FOR_MEMBERDASHBOARD_VIEW", "");
         CustomParameter rolesAllowedForDeptSecretaryDashBoardViewCP = CustomParameter.findByName(CustomParameter.class, "ROLES_ALLOWED_FOR_DEPARTMENT_SECRETARY_DASHBOARD_VIEW", "");
+        CustomParameter rolesAllowedForStatisticalDashBoardViewCP = CustomParameter.findByName(CustomParameter.class, "ROLES_ALLOWED_FOR_STATISTICAL_DASHBOARD_VIEW", "");
         for(Role i:roles){
         	if(rolesAllowedForMemberDashBoardViewCP!=null 
         			&& rolesAllowedForMemberDashBoardViewCP.getValue()!=null
@@ -234,6 +236,16 @@ public class HomeController extends BaseController {
         		for(String allowedRole: rolesAllowedForDeptSecretaryDashBoardViewCP.getValue().split(",")) {
         			if(i.getType().trim().equalsIgnoreCase(allowedRole.trim())) {
         				isUserAllowedForDeptSecretaryDashboardView = true;
+        				break;
+        			}
+        		}
+        	}
+        	if(rolesAllowedForStatisticalDashBoardViewCP!=null 
+        			&& rolesAllowedForStatisticalDashBoardViewCP.getValue()!=null
+        			&& !rolesAllowedForStatisticalDashBoardViewCP.getValue().isEmpty()) {
+        		for(String allowedRole: rolesAllowedForStatisticalDashBoardViewCP.getValue().split(",")) {
+        			if(i.getType().trim().equalsIgnoreCase(allowedRole.trim())) {
+        				isUserAllowedForStatisticalDashboardView = true;
         				break;
         			}
         		}
@@ -335,6 +347,9 @@ public class HomeController extends BaseController {
              }else if(isUserAllowedForDeptSecretaryDashboardView){
             	populateDeptSecretaryDashboard(model, request, locale);
               	return "departmentsecretary_dashboard"; 
+             }else if(isUserAllowedForStatisticalDashboardView){
+            	populateStatisticalDashboard(model, request, locale);
+              	return "statisticaldashboard"; 
              }else {
              	return "home";
              }
@@ -342,7 +357,6 @@ public class HomeController extends BaseController {
         return "home";
     }
     
-	
 	//redirect to home page using POST (taken for hiding the flag of request parameter 'redirectedToHomePage')
     @RequestMapping(value = "/home", method = RequestMethod.POST)
     public String redirectToHome(final ModelMap model, 
@@ -610,6 +624,11 @@ public class HomeController extends BaseController {
               	 departmentDeviceCounts.add(departmentDeviceCount);
         }
          model.addAttribute("result", departmentDeviceCounts);
+		
+	}
+    
+    private void populateStatisticalDashboard(ModelMap model, HttpServletRequest request, Locale locale) {
+		// TODO Auto-generated method stub
 		
 	}
     
