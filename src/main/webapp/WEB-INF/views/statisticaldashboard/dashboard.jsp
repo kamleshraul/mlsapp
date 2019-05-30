@@ -681,7 +681,7 @@
   			var text = '';
   			for(var i=0;i<data.length;i++){	
   				text = text + 
-  				'<tr><td><img src="statisticaldashboard/getSortedData'+data[i].type+'"></td>'+
+  				'<tr><td><img src="statisticaldashboard/getSortedData/'+data[i].type+'"></td>'+
   				'<td>'+data[i].name+'</td>'+
   				'<td>'+data[i].formattedNumber+'</td>'+
   				'<td>'+data[i].formattedOrder+'</td>'+
