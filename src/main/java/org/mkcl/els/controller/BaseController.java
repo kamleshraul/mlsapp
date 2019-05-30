@@ -246,6 +246,8 @@ public abstract class BaseController {
 		
 		try {
 			FileCopyUtils.copy(fis, response.getOutputStream());
+			//try deleting report file once it is copied into response to be displayed (remove this code if we need to keep the server copy saved using cdn or so)
+			file.delete();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -66,7 +66,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 	<http auto-config="false" use-expressions="true">
 		<intercept-url pattern="/login" access="isAnonymous()" />		
 		<form-login login-page="/login.htm" default-target-url="/home.htm"
-			authentication-failure-url="/login?error=true" />
+			authentication-failure-url="/login.htm?error=true" />
 		<!-- <logout logout-success-url="/login.htm" invalidate-session="true"  delete-cookies="JSESSIONID" /> -->
 		<logout logout-success-url="/login.htm" invalidate-session="true" />
 		
@@ -86,7 +86,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 		<beans:property name="useProxy" value="false"></beans:property>
 		<beans:property name="proxyPort" value=""></beans:property>
 		<beans:property name="proxyHost" value=""></beans:property>
-		<beans:property name="failureUrl" value="/login?error=true"></beans:property>
+		<beans:property name="failureUrl" value="/login.htm?error=true"></beans:property>
 		<beans:property name="captchaCaptureFilter" ref="captureFilter"></beans:property>
 		<beans:property name="privateKey" value="6LecywwTAAAAAD4VuXBf7CfCf1_w8BliZnbfKXmm"></beans:property>		
 	</beans:bean> -->
@@ -117,7 +117,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 		 
 	<beans:bean id="concurrencyFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
 		<beans:property name="sessionRegistry" ref="sessionRegistry" />
-	 	<beans:property name="expiredUrl" value="/login.html" />	 	
+	 	<beans:property name="expiredUrl" value="/login.htm" />	 	
 	</beans:bean>
 	
 	<beans:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />

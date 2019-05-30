@@ -12,8 +12,14 @@
 	<script type="text/javascript" src="./resources/js/crosstab_handling_loginpage.js"></script>
 	<link rel="stylesheet" rel="stylesheet" href="./resources/css/jquery-impromptu.css"  />
 	
-	<script type="text/javascript"> 
-		$(document).ready(function(){
+	<script type="text/javascript">
+		//console.log("secret key for login page: " + '${secret_key}');
+		if('${secret_key}'==undefined || '${secret_key}'==null || '${secret_key}'=='') {
+			//console.log("secret_key is undefined at: "+location);
+			//This case happens when user has already logged in from other tab/window of same browser.. hence redirecting to home page below!
+			location.replace("home.htm");
+		}
+		$(document).ready(function(){			
 		    $("#j_username").focus();
 		    $("#j_password").attr('autocomplete','off');
 		    if($('#selectedLocale').val()!=""){
