@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="./assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="./assets/img/favicon.png">
+  <link rel="icon" type="image/png" href="./resources/images/mlsicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
     Dashboard For MLS
@@ -12,171 +12,16 @@
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
-  <link rel="stylesheet" href="./assets/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
   <!-- CSS Files -->
   <link href="./assets/css/material-dashboard.css?v=2.1.1" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project -->
+  <link href="./assets/demo/demo.css" rel="stylesheet" />
  
 </head>
 
 <body class="">
-  <div class="wrapper ">
-    <div class="sidebar" data-color="purple" data-background-color="white" data-image="./assets/img/sidebar-1.jpg">
-      <!--
-        Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
-
-        Tip 2: you can also add an image using data-image tag
-    -->
-      <div class="logo">
-        <a href="http://49.45.8.156/" class="simple-text logo-normal">
-          MAHARASHTRA <br>LEGISLATURE
-        </a>
-      </div>
-      <div class="sidebar-wrapper">
-        <ul class="nav">
-          <li class="nav-item active  ">
-            <a class="nav-link" href="./statisticaldashboard">
-              <i class="material-icons">dashboard</i>
-              <p>Dashboard</p>
-            </a>
-          </li>
-		  
-		       <li class="nav-item " data-toggle="collapse" href="#collapseQuestion"  aria-expanded="false" aria-controls="collapseExample">
-            <a class="nav-link">
-              <i class="material-icons">label_important</i>
-              <p>QUESTIONS</p>
-            </a>
-     </li>
-
-    <div class="collapse" id="collapseQuestion">
-		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>STARRED QUESTIONS</p>
-            </a>
-          </li>
-		     
-		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>UNSTARRED QUESTIONS</p>
-            </a>
-          </li>
-		     <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>QUESTION HALF HOUR</p>
-            </a>
-          </li>
-		
-		     <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>STANDALONE HALF HOUR</p>
-            </a>
-          </li>
-		   
-		     <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>SHORT NOTICE QUESTIONS</p>
-            </a>
-          </li>
-	</div>
-
-  
-    <li class="nav-item " data-toggle="collapse" href="#collapseResolution"  aria-expanded="false" aria-controls="collapseExample">
-            <a class="nav-link">
-              <i class="material-icons">label_important</i>
-              <p>RESOLUTIONS</p>
-            </a>
-     </li>
-
-    <div class="collapse" id="collapseResolution">
-		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>GOVEREMENT RESOLUTION</p>
-            </a>
-          </li>
-		    
-		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>NON OFFICIAL RESOLUTION</p>
-            </a>
-          </li>
-	</div>
-         
-
-		  <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>CALLING ATTENTION</p>
-            </a>
-          </li>
-		  
-		      <li class="nav-item " data-toggle="collapse" href="#collapseCutmotion"  aria-expanded="false" aria-controls="collapseExample">
-            <a class="nav-link">
-              <i class="material-icons">label_important</i>
-              <p>CUT MOTION</p>
-            </a>
-     </li>
-
-    <div class="collapse" id="collapseCutmotion">
-		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>BUDGETARY CUT MOTION</p>
-            </a>
-          </li>
-		    
-		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>SUPPLEMENTARY CUT MOTION</p>
-            </a>
-          </li>
-	</div>
-	 <li class="nav-item " data-toggle="collapse" href="#collapseDiscussionmotion"  aria-expanded="false" aria-controls="collapseExample">
-            <a class="nav-link">
-              <i class="material-icons">label_important</i>
-              <p>DISCUSSION MOTION</p>
-            </a>
-     </li>
-
-    <div class="collapse" id="collapseDiscussionmotion">
-		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>PUBLIC IMPORTANCE</p>
-            </a>
-          </li>
-		    
-		   <li class="nav-item ">
-            <a class="nav-link" href="./dashboard.html">
-              <i class="material-icons">label_important</i>
-              <p>LAST WEEK</p>
-            </a>
-         </li>
-	</div>
-
-          
-          <li class="nav-item ">
-            <a class="nav-link" href="./tables.html">
-              <i class="material-icons">content_paste</i>
-              <p>Table List</p>
-            </a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link" href="./icons">
-              <i class="material-icons">bubble_chart</i>
-              <p>Icons</p>
-            </a>
-          </li>
-       
-        </ul>
-      </div>
-    </div>
+ 	<%@ include file="sidebar.jsp" %>
     <div class="main-panel">
       <!-- Navbar -->
       <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
@@ -184,7 +29,6 @@
           <div class="navbar-wrapper">
             <a class="navbar-brand" href="#pablo">Dashboard</a>
           </div>
-          
           <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
             <span class="sr-only">Toggle navigation</span>
             <span class="navbar-toggler-icon icon-bar"></span>
@@ -194,7 +38,7 @@
           <div class="collapse navbar-collapse justify-content-end">
             <form class="navbar-form">
               <div class="input-group no-border">
-                <input type="text" value="" class="form-control" placeholder="Search...">
+                <input type="text" value="" class="form-control" placeholder="Search..">
                 <button type="submit" class="btn btn-white btn-round btn-just-icon">
                   <i class="material-icons">search</i>
                   <div class="ripple-container"></div>
@@ -247,191 +91,21 @@
       <!-- End Navbar -->
       <div class="content">
         <div class="container-fluid">
-           <div class="row">
-              <div class="col-md-4 mb-3">
-                <label for="state">House</label>
-                <select class="custom-select d-block w-50" id="selectedHouseType" required>
-                  <option value="">Choose...</option>
-                      <c:forEach items="${houses}" var="i">
-							<option value="${i.name}"><c:out value="${i.name}"></c:out></option>
-					 </c:forEach>
-                </select>
-              </div>
-              
-              <div class="col-md-4 mb-3">
-                <label for="country">Session</label>
-                <select class="custom-select d-block w-50" id="selectedSession">
-                  <option value="">Choose...</option>
-                 <c:forEach var="i" items="${sessions}">
-					<option value="${i}"><c:out value="${i}"></c:out></option>
-				</c:forEach>
-                </select>
-              </div>
-              
-              <div class="col-md-4 mb-3">
-                <label for="state">Search</label>
-                   <button type="submit" class="btn btn-secondary d-block w-50" id="search">Search</button>
-              </div>
-            </div>
-          <div class="row">
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header card-header-warning card-header-icon">
-                  <div class="card-icon">
-                    <i class="material-icons">content_copy</i>
-                  </div>
-                  <p class="card-category">Used Space</p>
-                  <h3 class="card-title">49/50
-                    <small>GB</small>
-                  </h3>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons text-danger">warning</i>
-                    <a href="#pablo">Get More Space...</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header card-header-success card-header-icon">
-                  <div class="card-icon">
-                    <i class="material-icons">store</i>
-                  </div>
-                  <p class="card-category">Revenue</p>
-                  <h3 class="card-title">$34,245</h3>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons">date_range</i> Last 24 Hours
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header card-header-danger card-header-icon">
-                  <div class="card-icon">
-                    <i class="material-icons">info_outline</i>
-                  </div>
-                  <p class="card-category">Fixed Issues</p>
-                  <h3 class="card-title">75</h3>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons">local_offer</i> Tracked from Github
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header card-header-danger card-header-icon">
-                  <div class="card-icon">
-                    <i class="material-icons">info_outline</i>
-                  </div>
-                  <p class="card-category">Fixed Issues</p>
-                  <h3 class="card-title">75</h3>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons">local_offer</i> Tracked from Github
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-4">
-              <div class="card card-chart">
-                <div class="card-header card-header-success">
-                  <div class="ct-chart" id="dailySalesChart"></div>
-                </div>
-                <div class="card-body">
-                  <h4 class="card-title">Daily Sales</h4>
-                  <p class="card-category">
-                    <span class="text-success"><i class="fa fa-long-arrow-up"></i> 55% </span> increase in today sales.</p>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons">access_time</i> updated 4 minutes ago
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="card card-chart">
-                <div class="card-header card-header-warning">
-                  <div class="ct-chart" id="websiteViewsChart"></div>
-                </div>
-                <div class="card-body">
-                  <h4 class="card-title">Email Subscriptions</h4>
-                  <p class="card-category">Last Campaign Performance</p>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons">access_time</i> campaign sent 2 days ago
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="card card-chart">
-                <div class="card-header card-header-danger">
-                  <div class="ct-chart" id="completedTasksChart"></div>
-                </div>
-                <div class="card-body">
-                  <h4 class="card-title">Completed Tasks</h4>
-                  <p class="card-category">Last Campaign Performance</p>
-                </div>
-                <div class="card-footer">
-                  <div class="stats">
-                    <i class="material-icons">access_time</i> campaign sent 2 days ago
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-12 col-md-12">
-              <div class="card">
-                <div class="card-header card-header-warning">
-                  <h4 class="card-title">Memberwise Report</h4>
-                  <p class="card-category">New employees on 15th September, 2016</p>
-                </div>
-                <div class="card-body table-responsive" >
-                	<table class="table table-hover">
-	                    <thead class="text-warning">
-	                      <th>ID</th>
-	                      <th>Member Name</th>
-	                      <th>AdmittedCount</th>
-	                      <th>RejectedCount</th>
-	                      <th>SubmittedCout</th>
-	                    </thead>
-                    <tbody id="membersSessionwise">
-                    </tbody>
-                   </table>
-                </div>
-              </div>
-            </div>
-            
-            <div class="col-lg-6 col-md-12">
-			  <form class="form-inline">
-			    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-			    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-			  </form>
-            </div>
-          </div>
+	        <div class="row" style="background: rgba(255,255,255,0.3)">
+       	   		<embed src="./assets/img/mhv.svg?v=30810" type="" />
+	        	
+	        	<div id="districtwiseMemberList" class="row" style="background: rgba(255,255,255,0.3); ">
+	        	</div>
+	        </div>
         </div>
       </div>
       <footer class="footer">
-        <div class="container-fluid">
+        <div class="container-fluid" overflow: auto;>
           <nav class="float-left">
             <ul>
               <li>
-                <a href="https://www.creative-tim.com">
-                  Creative Tim
+                <a href="https://www.mkcl.org">
+                  MKCL
                 </a>
               </li>
               <li>
@@ -495,16 +169,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
   <!-- Library for adding dinamically elements -->
   <script src="./assets/js/plugins/arrive.min.js"></script>
-  <!--  Google Maps Plugin    -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
+
   <!-- Chartist JS -->
   <script src="./assets/js/plugins/chartist.min.js"></script>
   <!--  Notifications Plugin    -->
   <script src="./assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="./assets/js/material-dashboard.js?v=2.1.1" type="text/javascript"></script>
-
-	
   <script>
     $(document).ready(function() {
       $().ready(function() {
@@ -517,96 +188,6 @@
         $sidebar_responsive = $('body > .navbar-collapse');
 
         window_width = $(window).width();
-
-        fixed_plugin_open = $('.sidebar .sidebar-wrapper .nav li.active a p').html();
-
-        if (window_width > 767 && fixed_plugin_open == 'Dashboard') {
-          if ($('.fixed-plugin .dropdown').hasClass('show-dropdown')) {
-            $('.fixed-plugin .dropdown').addClass('open');
-          }
-
-        }
-
-        $('.fixed-plugin a').click(function(event) {
-          // Alex if we click on switch, stop propagation of the event, so the dropdown will not be hide, otherwise we set the  section active
-          if ($(this).hasClass('switch-trigger')) {
-            if (event.stopPropagation) {
-              event.stopPropagation();
-            } else if (window.event) {
-              window.event.cancelBubble = true;
-            }
-          }
-        });
-
-        $('.fixed-plugin .active-color span').click(function() {
-          $full_page_background = $('.full-page-background');
-
-          $(this).siblings().removeClass('active');
-          $(this).addClass('active');
-
-          var new_color = $(this).data('color');
-
-          if ($sidebar.length != 0) {
-            $sidebar.attr('data-color', new_color);
-          }
-
-          if ($full_page.length != 0) {
-            $full_page.attr('filter-color', new_color);
-          }
-
-          if ($sidebar_responsive.length != 0) {
-            $sidebar_responsive.attr('data-color', new_color);
-          }
-        });
-
-        $('.fixed-plugin .background-color .badge').click(function() {
-          $(this).siblings().removeClass('active');
-          $(this).addClass('active');
-
-          var new_color = $(this).data('background-color');
-
-          if ($sidebar.length != 0) {
-            $sidebar.attr('data-background-color', new_color);
-          }
-        });
-
-        $('.fixed-plugin .img-holder').click(function() {
-          $full_page_background = $('.full-page-background');
-
-          $(this).parent('li').siblings().removeClass('active');
-          $(this).parent('li').addClass('active');
-
-
-          var new_image = $(this).find("img").attr('src');
-
-          if ($sidebar_img_container.length != 0 && $('.switch-sidebar-image input:checked').length != 0) {
-            $sidebar_img_container.fadeOut('fast', function() {
-              $sidebar_img_container.css('background-image', 'url("' + new_image + '")');
-              $sidebar_img_container.fadeIn('fast');
-            });
-          }
-
-          if ($full_page_background.length != 0 && $('.switch-sidebar-image input:checked').length != 0) {
-            var new_image_full_page = $('.fixed-plugin li.active .img-holder').find('img').data('src');
-
-            $full_page_background.fadeOut('fast', function() {
-              $full_page_background.css('background-image', 'url("' + new_image_full_page + '")');
-              $full_page_background.fadeIn('fast');
-            });
-          }
-
-          if ($('.switch-sidebar-image input:checked').length == 0) {
-            var new_image = $('.fixed-plugin li.active .img-holder').find("img").attr('src');
-            var new_image_full_page = $('.fixed-plugin li.active .img-holder').find('img').data('src');
-
-            $sidebar_img_container.css('background-image', 'url("' + new_image + '")');
-            $full_page_background.css('background-image', 'url("' + new_image_full_page + '")');
-          }
-
-          if ($sidebar_responsive.length != 0) {
-            $sidebar_responsive.css('background-image', 'url("' + new_image + '")');
-          }
-        });
 
         $('.switch-sidebar-image input').change(function() {
           $full_page_background = $('.full-page-background');
@@ -673,32 +254,6 @@
           }, 1000);
 
         });
-        $("#search").click(function(){
-    		url = "?house="+$("#selectedHouseType").val()
-    				+"&session="+$("#selectedSession").val();
-    		resourceURL = 'statisticaldashboard/getSortedData'+url;
-    		$.get(resourceURL,function(data){
-  			var text = '';
-  			for(var i=0;i<data.length;i++){	
-  				text = text + 
-  				'<tr><td><img src="statisticaldashboard/getSortedData/'+data[i].type+'"></td>'+
-  				'<td>'+data[i].name+'</td>'+
-  				'<td>'+data[i].formattedNumber+'</td>'+
-  				'<td>'+data[i].formattedOrder+'</td>'+
-  				'<td>'+data[i].value+'</td></tr>';
-  			}
-  			$("#membersSessionwise").html(text);
-    		});
-        });
-      });
-      
-      
-      
-      loadHouseTypes();
-      $("#selectedHouseType").change(function(){
-    	 if(this.value !=''){
-    		 loadSessionsByHouseType(this.value);
-    	 } 
       });
     });
   </script>
@@ -706,33 +261,48 @@
     $(document).ready(function() {
       // Javascript method's body can be found in assets/js/demos.js
       md.initDashboardPageCharts();
-      
-    });
-    
-    function loadHouseTypes(){
-    	$.get("statisticaldashboard/loadhousetypes",function(data){
-    		var text = '<option value="">Choose...</option>';
-    		if(data!=null && data!=''){
-    			for(var i=0;i<data.length;i++){
-    				text = text + "<option value='"+data[i].id+"'>"+data[i].name + "</option>"
-    			}
-    		}
-    		$("#selectedHouseType").html(text);
-    	});
+	});
+    function notify(evt){
+	   	getMembersByDistrict(evt.target.id)
+	   	if(evt.pageX > 850){
+	   		$("#districtwiseMemberList").css( {position:"absolute", top:evt.pageY, left: evt.pageX - 650});
+	   	}else{
+	   		$("#districtwiseMemberList").css( {position:"absolute", top:evt.pageY, left: evt.pageX});
+	   	}
+	   	
     }
-    
-    function loadSessionsByHouseType(houseTypeId){
-    	 $.get("ref/loadsessionsbyhousetype?houseTypeId="+houseTypeId,function(data){
-    		var text = '<option value="">Choose...</option>';
-    		if(data!=null && data!=''){
-    			for(var i=0;i<data.length;i++){
-    				text = text + "<option value='"+data[i].id+"'>"+data[i].name + "</option>"
-    			}
-    		}
-    		$("#selectedSession").html(text);
+    	
+    function getMembersByDistrict(districtId){
+    	
+    	$.get("ws/biography/membersforGrav/allMembersDistrictwise/lowerhouse/mr_IN?districtId="+districtId,function(result){
+    			var text ='';
+				for(var i=0;i<result.length;i++){
+					if(result[i].firstName!= null && result[i].firstName!=''){
+						var text = text+
+									'<div class="col-md-3" style="padding-top:20px;">'+
+										'<div class="img-wrapper rounded">';
+											if(result[i].photo!=null && result[i].photo!=''){
+												text = text + '<img src="ws/biography/photo/'+result[i].photo+'" class="img-fluid rounded" style="width:80px;height:80px;">'
+											}else{
+												text = text + '<img src="./resources/images/member.png" class="img-fluid rounded" style="width:80px;height:80px;">';
+											}
+										text = text + '</div>'+
+										'<div class="member-info">'+
+											'<div class="member-name" style="font-size: small;">'+
+												result[i].firstName+' '+result[i].lastName +
+											'</div>'+
+										'</div>'+
+									'</div>';
+					}
+				}
+				$("#districtwiseMemberList").html(text);
+				
     	});
-    }
+  
+    } 
+
   </script>
 </body>
+
 
 </html>
