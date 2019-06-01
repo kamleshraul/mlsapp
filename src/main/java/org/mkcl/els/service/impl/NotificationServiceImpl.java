@@ -154,7 +154,7 @@ public class NotificationServiceImpl implements INotificationService {
 			if(!isVolatile) {
 				if(receivers==null || receivers.isEmpty()) { //receivers either not set or not found
 					receivers = "admin";					
-				} else if(receivers=="all") {
+				} else if(receivers.equals("all")) {
 					receivers = Credential.findAllActiveUsernamesAsCommaSeparatedString(locale);
 				}				
 				Notification notification = null;
