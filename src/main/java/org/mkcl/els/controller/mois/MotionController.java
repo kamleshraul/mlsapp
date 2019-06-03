@@ -29,6 +29,7 @@ import org.mkcl.els.common.vo.Reference;
 import org.mkcl.els.common.vo.RevisionHistoryVO;
 import org.mkcl.els.common.vo.Task;
 import org.mkcl.els.controller.GenericController;
+import org.mkcl.els.controller.mis.MemberOtherController;
 import org.mkcl.els.domain.BaseDomain;
 import org.mkcl.els.domain.Citation;
 import org.mkcl.els.domain.ClubbedEntity;
@@ -41,6 +42,7 @@ import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberBallot;
 import org.mkcl.els.domain.MemberMinister;
+import org.mkcl.els.domain.MemberSupportingMember;
 import org.mkcl.els.domain.Ministry;
 import org.mkcl.els.domain.Motion;
 import org.mkcl.els.domain.Party;
@@ -492,6 +494,34 @@ public class MotionController extends GenericController<Motion>{
 						}else{
 							model.addAttribute("memberNames",memberNames);
 						}
+						
+						/*** Populate Saved Supporting member***/
+						//Populate Supporting Member Names
+//						Member member = Member.findMember(authUser.getFirstName(), authUser.getMiddleName(),
+//								authUser.getLastName(), authUser.getBirthDate(), locale);
+						String supportingMemberNames = MemberOtherController.getDelimitedMemberSupportingMembers(motionType, member, selectedSession, locale, usergroupType);
+						model.addAttribute("supportingMembersName", supportingMemberNames);
+						
+						//Populate Supporting Members 
+						List<MemberSupportingMember> suppMembers = MemberSupportingMember.getMemberSupportingMemberRepository().findMemberSupportingMember(motionType, member, selectedSession, locale);
+
+						List<Member> supportingMembers1 = new ArrayList<Member>();
+						for(MemberSupportingMember sm : suppMembers){
+					
+								Member supportingMember = sm.getSupportingMember();
+								if(supportingMember.isActiveMemberOn(new Date(), locale)){
+									supportingMembers1.add(supportingMember);
+								}
+						
+							
+						}
+						model.addAttribute("supportingMembers", supportingMembers1);
+						model.addAttribute("savedMemberSupportingMembers", supportingMembers1);
+
+						//Populate PrimaryMemberName + supportingMemberNames
+						String memberNames1 = member.getFullname() + "," + supportingMemberNames;
+						model.addAttribute("memberNames",memberNames1);
+						
 						/**** Constituency ****/
 						Long houseId=selectedSession.getHouse().getId();
 						MasterVO constituency=null;
