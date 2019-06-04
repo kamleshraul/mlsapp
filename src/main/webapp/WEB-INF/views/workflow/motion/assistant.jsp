@@ -939,7 +939,7 @@
 				<h2></h2>
 				<p class="tright">		
 				<c:if test="${bulkedit!='yes'}">
-					<input id="submit" type="button" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
+					<input id="submit" type="submit" value="<spring:message code='generic.submit' text='Submit'/>" class="butDef">
 					
 				</c:if>
 				<c:if test="${bulkedit=='yes'}">
