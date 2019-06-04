@@ -78,7 +78,12 @@
 						&nbsp;<br>$r.get(0)
 					#end
 				</td>
-				<td style="width: 100px; padding: 2px; text-align: center;">$r.get(22)</td>
+				<td style="width: 100px; padding: 2px; text-align: center;">
+					#if($r.get(21)=='under_secretary')
+						रजेवर</td>
+					#else
+						$r.get(22)</td>
+					#end
 				<td style="width: 410px; padding: 2px;">$r.get(6)</td>
 				<!--<td style="width: 120px; padding: 2px; text-align: center;">&nbsp;</td>-->
 			</tr>
