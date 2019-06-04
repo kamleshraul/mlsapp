@@ -301,15 +301,19 @@ public class AdjournmentMotionReportController extends BaseController{
 		Boolean isError = false;
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
-		String adjourningDateStr = request.getParameter("adjourningDate");
+		String adjourningDateStr = request.getParameter("adjourningDate");		
+		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(adjourningDateStr==null || adjourningDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+		if(adjourningDateStr==null || adjourningDateStr.isEmpty() 
+				|| sessionId==null || sessionId.isEmpty()
+				|| reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.submitted_motions_report.parameterNotSet", locale.toString());						
 		} else {
 			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("sessionId", new String[] {sessionId});
 			requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
 			List submittedMotions = Query.findReport(reportQueryName, requestMap, true);
@@ -352,14 +356,18 @@ public class AdjournmentMotionReportController extends BaseController{
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
 		String adjourningDateStr = request.getParameter("adjourningDate");
+		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(adjourningDateStr==null || adjourningDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+		if(adjourningDateStr==null || adjourningDateStr.isEmpty() 
+				|| sessionId==null || sessionId.isEmpty()
+				|| reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.admitted_motions_report.parameterNotSet", locale.toString());						
 		} else {
 			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("sessionId", new String[] {sessionId});
 			requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
 			List admittedMotions = Query.findReport(reportQueryName, requestMap, true);
@@ -402,14 +410,18 @@ public class AdjournmentMotionReportController extends BaseController{
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
 		String adjourningDateStr = request.getParameter("adjourningDate");
+		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(adjourningDateStr==null || adjourningDateStr.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
+		if(adjourningDateStr==null || adjourningDateStr.isEmpty() 
+				|| sessionId==null || sessionId.isEmpty()
+				|| reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.rejected_motions_report.parameterNotSet", locale.toString());						
 		} else {
 			Date adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 			requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
+			requestMap.put("sessionId", new String[] {sessionId});
 			requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
 			List rejectedMotions = Query.findReport(reportQueryName, requestMap, true);
@@ -452,8 +464,9 @@ public class AdjournmentMotionReportController extends BaseController{
 		MessageResource errorMessage = null;
 		Map<String, String[]> requestMap = new HashMap<String, String[]>();
 		String adjourningDateStr = request.getParameter("adjourningDate");
+		String sessionId = request.getParameter("sessionId");
 		String reportQueryName = request.getParameter("reportQueryName");
-		if(reportQueryName==null || reportQueryName.isEmpty()) {
+		if(sessionId==null || sessionId.isEmpty() || reportQueryName==null || reportQueryName.isEmpty()) {
 			logger.error("**** One of the request parameters is not set ****");
 			isError = true;
 			errorMessage = MessageResource.findByFieldName(MessageResource.class, "code", "amois.register_report.parameterNotSet", locale.toString());						
@@ -462,7 +475,8 @@ public class AdjournmentMotionReportController extends BaseController{
 			if(adjourningDateStr!=null && !adjourningDateStr.isEmpty()) {
 				adjourningDate = FormaterUtil.formatStringToDate(adjourningDateStr, ApplicationConstants.SERVER_DATEFORMAT, locale.toString());
 				requestMap.put("adjourningDate", new String[] {FormaterUtil.formatDateToString(adjourningDate, ApplicationConstants.DB_DATEFORMAT)});
-			}			
+			}		
+			requestMap.put("sessionId", new String[] {sessionId});
 			requestMap.put("locale", new String[]{locale.toString()});
 			@SuppressWarnings("rawtypes")
 			List registerMotions = Query.findReport(reportQueryName, requestMap, true);
