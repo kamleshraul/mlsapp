@@ -501,6 +501,7 @@
 				$("#amois_submitted_report").attr('href',
 						'adjournmentmotion/report/submittedmotions?'
 						+'adjourningDate=' + selectedAdjourningDate
+						+'&sessionId=' + $("#loadedSession").val()
 						+'&reportQueryName=AMOIS_SUBMITTED_MOTIONS_REPORT');
 			}			
 		}
@@ -514,6 +515,7 @@
 				$("#amois_admitted_report").attr('href',
 						'adjournmentmotion/report/admittedmotions?'
 						+'adjourningDate=' + selectedAdjourningDate
+						+'&sessionId=' + $("#loadedSession").val()
 						+'&reportQueryName=AMOIS_ADMITTED_MOTIONS_REPORT');
 			}			
 		}
@@ -527,6 +529,7 @@
 				$("#amois_rejected_report").attr('href',
 						'adjournmentmotion/report/rejectedmotions?'
 						+'adjourningDate=' + selectedAdjourningDate
+						+'&sessionId=' + $("#loadedSession").val()
 						+'&reportQueryName=AMOIS_REJECTED_MOTIONS_REPORT');
 			}			
 		}
@@ -536,6 +539,7 @@
 			$("#amois_register_report").attr('href',
 					'adjournmentmotion/report/register?'
 					+'adjourningDate=' + selectedAdjourningDate
+					+'&sessionId=' + $("#loadedSession").val()
 					+'&reportQueryName=AMOIS_REGISTER_REPORT');
 		}
 		/**** Memberwise Devices Report Generation ****/
