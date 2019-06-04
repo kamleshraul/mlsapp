@@ -256,7 +256,8 @@ public class ResolutionReportController extends BaseController{
 													|| ref.getId().split("#")[1].equals(ApplicationConstants.UNDER_SECRETARY)
 													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY)
 													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY1)
-													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY2)){
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.DEPUTY_SECRETARY2)
+													|| ref.getId().split("#")[1].equals(ApplicationConstants.JOINT_SECRETARY2)){
 												actor[0] = new String(ref.getId().split("#")[3]);
 												actor[1] = new String(ref.getId().split("#")[4]);
 											}else{
@@ -406,8 +407,14 @@ public class ResolutionReportController extends BaseController{
 //									}
 //								}
 //							}
-	
-							model.addAttribute("data", dataMap);
+							Map<String, Object[]> sortedDataMap = new LinkedHashMap<String, Object[]>();
+							for(WorkflowActor wfa:distinctActors){
+								UserGroupType ugt = wfa.getUserGroupType();
+								if(dataMap.containsKey(ugt.getType())){
+									sortedDataMap.put(ugt.getType(), dataMap.get(ugt.getType()));
+								}
+							}
+							model.addAttribute("data", sortedDataMap);
 							model.addAttribute("formatData", report.get(report.size()-1));
 						}
 					}
