@@ -2708,7 +2708,7 @@ public class ApplicationConstants {
 	public static long isUserSessionActive_URL_HIT_COUNT = 0; //remove once not needed
 	
 	public static int DEFAULT_SUBMISSION_PRIORITY = 1000;
-	
+			
 	public static final String MOTION_SYSTEM_ADVANCECOPYRECEIVED = "motion_system_advanceCopyReceived";
 	
 	public static final String MOTION_PROCESSED_RESENDREVISEDMOTIONTEXTTODEPARTMENT = "motion_processed_resendRevisedMotionTexttoDepartment";
@@ -2718,4 +2718,84 @@ public class ApplicationConstants {
 	public static final String MOTION_PROCESSED_RESENDREVISEDMOTIONTEXT = "motion_processed_resendRevisedMotionText";
 	
 	public static final String MOTION_PROCESSED_CLARIFICATION_REPUTUP = "motion_processed_clarification_reputup";
+	
+	/************ Rules Suspension Motion ****************/
+	public static final String RULESSUSPENSIONMOTION_SUBMIT = "rulessuspensionmotion_submit";
+	
+	public static final String RULESSUSPENSIONMOTION_INCOMPLETE = "rulesuspensionmotion_incomplete";
+	
+	public static final String RULESSUSPENSIONMOTION_COMPLETE = "rulessuspensionmotion_complete";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_CLUBBING_POST_ADMISSION = "rulessuspensionmotion_recommend_clubbingPostAdmission";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_REJECT_CLUBBING_POST_ADMISSION = "rulessuspensionmotion_recommend_reject_clubbingPostAdmission";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_CLUBBING_POST_ADMISSION = "rulessuspensionmotion_final_clubbingPostAdmission";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_REJECT_CLUBBING_POST_ADMISSION = "rulessuspensionmotion_final_reject_ClubbingPostAdmission";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_UNCLUBBING = "rulessuspensionmotion_recommend_unclubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_REJECT_UNCLUBBING = "rulessuspensionmotion_recommend_reject_unclubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_REJECT_UNCLUBBING = "rulessuspensionmotion_final_reject_unclubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_UNCLUBBING = "rulessuspensionmotion_final_unclubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_ADMIT_DUE_TO_REVERSE_CLUBBING = "rulessuspensionmotion_recommend_admitDueToReverseClubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_ADMIT_DUE_TO_REVERSE_CLUBBING = "rulessuspensionmotion_final_admitDueToReverseClubbing";
+	
+	public static final String RULESSUSPENSION_MOTION = "motions_rules_suspension";
+	
+	public static final String RULESSUSPENSIONMOTION_SYSTEM_CLUBBED = "rulessuspensionmotion_system_clubbed";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_ADMISSION = "rulessuspensionmotion_recommend_admission";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_REJECTION = "rulessuspensionmotion_recommend_rejection";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_REJECTION = "rulessuspensionmotion_final_rejection";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_ADMISSION = "rulessuspensionmotion_final_admission";
+	
+	public static final String SUPPORTING_MEMBER_WORKFLOW_URLPATTERN_RULESSUSPENSIONMOTION = "workflow/rulessuspensionmotion/supportingmember";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_SENDBACK = "rulessuspensionmotion_recommend_sendback";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_DISCUSS = "rulessuspensionmotion_recommend_discuss";
+	
+	public static final String RULESSUSPENSIONMOTION_PUTUP_CLUBBING_POST_ADMISSION = "rulessuspension_putup_clubbingPostAdmission";
+	
+	public static final String RULESSUSPENSIONMOTION_PUTUP_REJECTION = "rulessuspensionmotion_putup_rejection";
+	
+	public static final String RULESSUSPENSIONMOTION_PUTUP_UNCLUBBING = "rulessuspensionmotion_putup_unclubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_PUTUP_ADMIT_DUE_TO_REVERSE_CLUBBING = "rulessuspensionmotion_putup_admitDueToReverseClubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_SYSTEM_ASSISTANT_PROCESSED = "rulessuspensionmotion_system_assistantprocessed";
+	
+	public static final String RULESSUSPENSIONMOTION_GET_REVISION = "rulessuspensionmotion_get_revision";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_CLUBBING = "rulessuspensionmotion_final_clubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_REJECT_CLUBBING = "rulessuspensionmotion_final_rejectClubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_NAMECLUBBING = "rulessuspensionmotion_final_nameClubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_FINAL_REJECT_NAMECLUBBING = "rulessuspensionmotion_final_rejectNameClubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_CLUBBING = "rulessuspensionmotion_recommend_clubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_RECOMMEND_NAMECLUBBING = "rulessuspensionmotion_recommend_nameClubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_PUTUP_CLUBBING = "rulessuspensionmotion_putup_clubbing";
+	
+	public static final String RULESSUSPENSIONMOTION_PUTUP_NAMECLUBBING = "rulessuspensionmotion_putup_nameclubbing";
+	
+	public static final String APPROVAL_WORKFLOW_URLPATTERN_RULESSUSPENSIONMOTION = "workflow/rulessuspensionmotion";
+	
+	public static final String JOINT_SECRETARY2 = "joint_secretary2";
+	
+	
+	
 }
