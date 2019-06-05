@@ -132,7 +132,7 @@
 			
 			/* hide submit for sending reply in case of late reply filling validation */
 			if(value == sendToSectionOfficer
-					&& $("#lateAnswerFillingFlag").val()=="set"
+					&& $("#lateReplyFillingFlag").val()=="set"
 					&& $("#internalStatusType").val()=="adjournmentmotion_final_admission") {
 				$('#submit').hide();
 			}else{
@@ -178,10 +178,10 @@
 						$("#internalStatus").val($("#oldInternalStatus").val());
 					}
 					if(value ==sendToDeskOfficer){
-						$("#answerP").css("display","none");
+						$("#replyP").css("display","none");
 						 $("#actorDiv").show();
 					}else{
-						$("#answerP").css("display","inline-block");
+						$("#replyP").css("display","inline-block");
 					}
 					$("#recommendationStatus").val(value);
 					/**** setting level,localizedActorName ****/
@@ -197,10 +197,10 @@
 						$("#internalStatus").val($("#oldInternalStatus").val());
 					}
 					if(value ==sendToDeskOfficer){
-						$("#answerP").css("display","none");
+						$("#replyP").css("display","none");
 						 $("#actorDiv").show();
 					}else{
-						$("#answerP").css("display","inline-block");
+						$("#replyP").css("display","inline-block");
 					}
 					$("#recommendationStatus").val(value);					
 					if(value == sendToSectionOfficer){
@@ -265,7 +265,7 @@
 		initControls();
 		loadActors($("#changeInternalStatus").val());
 		if($('#workflowstatus').val()=="PENDING") {
-			$("#answerP").hide();			
+			$("#replyP").hide();			
 		}
 		/*******Actor changes*************/
 		$("#actor").change(function(){
@@ -823,14 +823,14 @@
 			
 			<c:choose>
 			<c:when test="${workflowstatus=='COMPLETED'}">
-				<p id="answerP">
+				<p id="replyP">
 					<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
 					<form:textarea path="reply" cssClass="wysiwyg" readonly="true"></form:textarea>
 					<form:errors path="reply" cssClass="validationError"></form:errors>
 				</p>
 			</c:when>
 			<c:otherwise>
-				<p id="answerP">
+				<p id="replyP">
 					<label class="wysiwyglabel"><spring:message code="adjournmentmotion.reply" text="Reply"/></label>
 					<form:textarea path="reply" cssClass="wysiwyg"></form:textarea>
 					<form:errors path="reply" cssClass="validationError"></form:errors>
@@ -890,11 +890,11 @@
 			<input id="internalStatusType" name="internalStatusType" type="hidden" value="${internalStatusType}">
 			<input id="oldRecommendationStatus" value="${recommendationStatus}" type="hidden">
 			<input id="workflowdetails" name="workflowdetails" value="${workflowdetails}" type="hidden">
-			<c:if test="${not empty formattedAnswerRequestedDate}">
-				<input type="hidden" id="answerRequestedDate" name="setAnswerRequestedDate" class="datetimemask sText" value="${formattedAnswerRequestedDate}"/>
+			<c:if test="${not empty formattedReplyRequestedDate}">
+				<input type="hidden" id="replyRequestedDate" name="setReplyRequestedDate" class="datetimemask sText" value="${formattedReplyRequestedDate}"/>
 			</c:if>
-			<c:if test="${not empty formattedAnswerReceivedDate}">
-				<input type="hidden" id="answerReceivedDate" name="setAnswerReceivedDate" class="datetimemask sText" value="${formattedAnswerReceivedDate}"/>
+			<c:if test="${not empty formattedReplyReceivedDate}">
+				<input type="hidden" id="replyReceivedDate" name="setReplyReceivedDate" class="datetimemask sText" value="${formattedReplyReceivedDate}"/>
 			</c:if>
 			<input type="hidden" id="lateReplyFillingFlag" name="lateReplyFillingFlag" value="${lateReplyFillingFlag}"/>
 			<input type="hidden" id="lastDateForReplyReceiving" value="${lastDateOfReplyReceiving}"/>
@@ -903,7 +903,6 @@
 
 		<input id="ministrySelected" value="${ministrySelected }" type="hidden">
 		<input id="subDepartmentSelected" value="${subDepartmentSelected }" type="hidden">
-		<input id="answeringDateSelected" value="${ answeringDateSelected}" type="hidden">		
 		<input id="originalLevel" value="${ domain.level}" type="hidden">		
 		<input id="motionTypeType" value="${selectedMotionType}" type="hidden"/>
 		<input id="ministryEmptyMsg" value='<spring:message code="client.error.ministryempty" text="Ministry can not be empty."></spring:message>' type="hidden">

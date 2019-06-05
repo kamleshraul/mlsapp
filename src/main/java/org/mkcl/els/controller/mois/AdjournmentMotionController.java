@@ -995,6 +995,17 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 					populateInternalStatus(model,internalStatus.getType(),usergroupType,locale,deviceType.getType());
 				}*/
 			}
+			/**** Reply related Dates ****/
+			if(domain.getReplyRequestedDate() != null) {
+				model.addAttribute("formattedReplyRequestedDate",
+						FormaterUtil.formatDateToString(domain.getReplyRequestedDate(), 
+								ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+			}
+			if(domain.getReplyReceivedDate()!=null) {
+				model.addAttribute("formattedReplyReceivedDate", 
+						FormaterUtil.formatDateToString(domain.getReplyReceivedDate(),
+								ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+			}
 			/**** remarks for final rejection ****/
 			Status rejectionFinalStatus = Status.findByType(ApplicationConstants.ADJOURNMENTMOTION_FINAL_REJECTION, locale);
 			boolean canRemark = false;	
@@ -1013,7 +1024,7 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 			if(!canRemark){
 				model.addAttribute("sectionofficer_remark","");
 			}
-			/** getting remarks as remarks for decision if mentioned by allowed usergrouptypes  **/
+			/** setting remarks as remarks for decision if mentioned by allowed usergrouptypes  **/
 			UserGroupType userGroupTypeObj = UserGroupType.findByType(userGroupType.getType(), domain.getLocale());
 			CustomParameter remarksForDecisionAllowed = CustomParameter.findByName(CustomParameter.class,"AMOIS_REMARKS_FOR_DECISION_ALLOWED_FOR","");
 			if(remarksForDecisionAllowed!=null) {
@@ -1667,6 +1678,15 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 			if(strSubmissionDate!=null){
 				domain.setSubmissionDate(FormaterUtil.formatStringToDate(strSubmissionDate, ApplicationConstants.SERVER_DATETIMEFORMAT));
 			}
+			/**** reply related dates ****/
+			String strReplyRequestedDate = request.getParameter("setReplyRequestedDate");
+			if(strReplyRequestedDate != null && !strReplyRequestedDate.isEmpty()) {
+				domain.setReplyRequestedDate(FormaterUtil.formatStringToDate(strReplyRequestedDate, ApplicationConstants.SERVER_DATETIMEFORMAT));					
+			}
+			String strReplyReceivedDate = request.getParameter("setReplyReceivedDate");
+			if(strReplyReceivedDate !=null && !strReplyReceivedDate.isEmpty()) {
+				domain.setReplyReceivedDate(FormaterUtil.formatStringToDate(strReplyReceivedDate, ApplicationConstants.SERVER_DATETIMEFORMAT));					
+			}
 			/**** House Type ****/
 			HouseType houseType = domain.getHouseType();
 			if(houseType != null) {
@@ -1906,7 +1926,35 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 					populateInternalStatus(model,internalStatus.getType(),usergroupType,locale,deviceType.getType());
 				}*/
 			}
-			
+			/**** Reply related Dates ****/
+			if(domain.getReplyRequestedDate() != null) {
+				model.addAttribute("formattedReplyRequestedDate",
+						FormaterUtil.formatDateToString(domain.getReplyRequestedDate(), 
+								ApplicationConstants.SERVER_DATETIMEFORMAT, domain.getLocale()));
+			}
+			if(domain.getReplyReceivedDate()!=null) {
+				model.addAttribute("formattedReplyReceivedDate", 
+						FormaterUtil.formatDateToString(domain.getReplyReceivedDate(),
+								ApplicationConstants.SERVER_DATETIMEFORMAT, domain.getLocale()));
+			}
+			/**** remarks for final rejection ****/
+			Status rejectionFinalStatus = Status.findByType(ApplicationConstants.ADJOURNMENTMOTION_FINAL_REJECTION, domain.getLocale());
+			boolean canRemark = false;	
+			String errorMessagePossible="";
+			try{
+				errorMessagePossible = "domain_not_found";
+				if (internalStatus.getType().equals(rejectionFinalStatus.getType())) {
+					errorMessagePossible = "questiondraft_not_found_for_remark";
+					AdjournmentMotionDraft mDraft = domain.findPreviousDraft();
+					model.addAttribute("sectionofficer_remark",mDraft.getRemarks());
+					canRemark = true;
+				}
+			}catch(Exception e){
+				model.addAttribute("errorcode",errorMessagePossible);
+			}
+			if(!canRemark){
+				model.addAttribute("sectionofficer_remark","");
+			}
 			/** setting remarks as remarks for decision if mentioned by allowed usergrouptypes  **/
 			CustomParameter remarksForDecisionAllowed = CustomParameter.findByName(CustomParameter.class,"AMOIS_REMARKS_FOR_DECISION_ALLOWED_FOR","");
 			if(remarksForDecisionAllowed!=null) {
@@ -2039,6 +2087,15 @@ public class AdjournmentMotionController extends GenericController<AdjournmentMo
 		String strSubmissionDate=request.getParameter("setSubmissionDate");		
 		if(strSubmissionDate!=null){
 			domain.setSubmissionDate(FormaterUtil.formatStringToDate(strSubmissionDate, ApplicationConstants.SERVER_DATETIMEFORMAT));
+		}
+		/**** reply related dates ****/
+		String strReplyRequestedDate = request.getParameter("setReplyRequestedDate");
+		if(strReplyRequestedDate != null && !strReplyRequestedDate.isEmpty()) {
+			domain.setReplyRequestedDate(FormaterUtil.formatStringToDate(strReplyRequestedDate, ApplicationConstants.SERVER_DATETIMEFORMAT));					
+		}
+		String strReplyReceivedDate = request.getParameter("setReplyReceivedDate");
+		if(strReplyReceivedDate !=null && !strReplyReceivedDate.isEmpty()) {
+			domain.setReplyReceivedDate(FormaterUtil.formatStringToDate(strReplyReceivedDate, ApplicationConstants.SERVER_DATETIMEFORMAT));					
 		}
 		/**** Edited On,Edited By and Edited As is set ****/
 		domain.setEditedOn(new Date());

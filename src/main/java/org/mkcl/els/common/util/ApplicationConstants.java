@@ -2422,6 +2422,12 @@ public class ApplicationConstants {
 	public static final String ADJOURNMENTMOTION_FINAL_REJECT_NAMECLUBBING = "adjournmentmotion_final_reject_nameclubbing";
 	
 	/**** Processed status ****/ 
+	public static final String ADJOURNMENTMOTION_PROCESSED_SENDTOSECTIONOFFICER = "adjournmentmotion_processed_sendToSectionOfficer";
+	
+	public static final String ADJOURNMENTMOTION_PROCESSED_SENDTODEPARTMENT = "adjournmentmotion_processed_sendToDepartment";
+	
+	public static final String ADJOURNMENTMOTION_PROCESSED_SENDTODESKOFFICER = "adjournmentmotion_processed_sendToDeskOfficer";
+	
 	public static final String ADJOURNMENTMOTION_PROCESSED_REJECTIONWITHREASON = "adjournmentmotion_processed_rejectionWithReason";
 	
 	public static final String ADJOURNMENTMOTION_PROCESSED_REPLY_RECEIVED = "adjournmentmotion_processed_replyReceived";

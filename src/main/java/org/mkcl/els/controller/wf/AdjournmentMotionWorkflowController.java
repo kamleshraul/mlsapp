@@ -18,6 +18,7 @@ import javax.validation.Valid;
 import org.mkcl.els.common.editors.BaseEditor;
 import org.mkcl.els.common.exception.ELSException;
 import org.mkcl.els.common.util.ApplicationConstants;
+import org.mkcl.els.common.util.DateUtil;
 import org.mkcl.els.common.util.FormaterUtil;
 import org.mkcl.els.common.vo.BulkApprovalVO;
 import org.mkcl.els.common.vo.ProcessInstance;
@@ -32,6 +33,7 @@ import org.mkcl.els.domain.Constituency;
 import org.mkcl.els.domain.Credential;
 import org.mkcl.els.domain.CustomParameter;
 import org.mkcl.els.domain.DeviceType;
+import org.mkcl.els.domain.Holiday;
 import org.mkcl.els.domain.HouseType;
 import org.mkcl.els.domain.Member;
 import org.mkcl.els.domain.MemberMinister;
@@ -456,6 +458,75 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 		}
 		//Populate createdby
 		model.addAttribute("createdBy",domain.getCreatedBy());
+		/** Set Last Date of Answer Receiving from Department **/
+		Date lastDateOfReplyReceiving = null;
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.SECTION_OFFICER)
+				&& workflowDetails.getWorkflowSubType().equals(ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION)
+				&& domain.getRecommendationStatus().getType().equals(ApplicationConstants.ADJOURNMENTMOTION_PROCESSED_SENDTOSECTIONOFFICER)) {
+			
+			String daysCountForReceivingReplyFromDepartment = "2";
+			CustomParameter csptDaysCountForReceivingReplyFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_"+houseType.getType().toUpperCase()+"_"+ApplicationConstants.DAYS_COUNT_FOR_RECEIVING_ANSWER_FROM_DEPARTMENT, "");
+			if(csptDaysCountForReceivingReplyFromDepartment!=null
+					&& csptDaysCountForReceivingReplyFromDepartment.getValue()!=null) {
+				daysCountForReceivingReplyFromDepartment = csptDaysCountForReceivingReplyFromDepartment.getValue();
+			}
+			if(domain.getReplyRequestedDate()!=null) {
+				lastDateOfReplyReceiving = Holiday.getNextWorkingDateFrom(domain.getReplyRequestedDate(), Integer.parseInt(daysCountForReceivingReplyFromDepartment), locale);
+			} else {
+				lastDateOfReplyReceiving = Holiday.getNextWorkingDateFrom(new Date(), Integer.parseInt(daysCountForReceivingReplyFromDepartment), locale);
+			}
+			domain.setLastDateOfReplyReceiving(lastDateOfReplyReceiving);
+		} else {
+			if(domain.getLastDateOfReplyReceiving()!=null) {
+				lastDateOfReplyReceiving = domain.getLastDateOfReplyReceiving();
+			}
+		}
+		if(lastDateOfReplyReceiving!=null) {
+			model.addAttribute("lastDateOfReplyReceiving", lastDateOfReplyReceiving);
+			model.addAttribute("formattedLastReplyReceivingDate", FormaterUtil.formatDateToString(lastDateOfReplyReceiving, ApplicationConstants.SERVER_DATEFORMAT, locale));
+		}
+		/**** To have the task creation date and lateReplyFillingFlag if userGroup is department related ***/
+		if(workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT)
+				|| workflowDetails.getAssigneeUserGroupType().equals(ApplicationConstants.DEPARTMENT_DESKOFFICER)){
+			boolean canAdd = false;
+
+			try{	
+				/** validation for restricting late Reply filling **/				
+				if(domain.getStatus().getType().equals(ApplicationConstants.ADJOURNMENTMOTION_FINAL_ADMISSION)) {
+					//check validation flag
+					CustomParameter csptValidationFlagForLastReceivingDateFromDepartment = CustomParameter.findByName(CustomParameter.class, domain.getType().getType().toUpperCase()+"_"+domain.getHouseType().getType().toUpperCase()+"_"+ApplicationConstants.VALIDATION_FLAG_FOR_LAST_RECEIVING_DATE_FROM_DEPARTMENT, "");
+					if(csptValidationFlagForLastReceivingDateFromDepartment!=null) {
+						String validationFlagForLastReceivingDateFromDepartment = csptValidationFlagForLastReceivingDateFromDepartment.getValue();
+						if(validationFlagForLastReceivingDateFromDepartment!=null
+								&& !validationFlagForLastReceivingDateFromDepartment.isEmpty()) {
+							if(Boolean.valueOf(validationFlagForLastReceivingDateFromDepartment)) {
+								//perform validation
+								if(DateUtil.compareDatePartOnly(domain.getLastDateOfReplyReceiving(), new Date())<0) {
+									model.addAttribute("lateReplyFillingFlag", "set");
+								}
+							}
+						}
+					}
+				}
+
+				CustomParameter serverTimeStamp = 
+						CustomParameter.findByName(CustomParameter.class,"SERVER_TIMESTAMP","");
+				if(serverTimeStamp != null){
+					if(workflowDetails.getAssignmentTime() != null){	
+						String formattedTaskCreationDate = FormaterUtil.
+								getDateFormatter(serverTimeStamp.getValue(),locale).
+								format(workflowDetails.getAssignmentTime());
+						model.addAttribute("taskCreationDate", formattedTaskCreationDate);
+					}
+				}
+				canAdd = true;
+			}catch(Exception e){
+				logger.error("task creation date is missing.: " + e.getMessage());
+			}
+			if(!canAdd){
+				model.addAttribute("taskCreationDate", "");
+			}
+		}
 		/**** Referenced Motions Starts ****/
 		CustomParameter clubbedReferencedEntitiesVisibleUserGroups = CustomParameter.
 				findByName(CustomParameter.class, "AMOIS_ALLOWED_USERGROUP_TO_DO_VIEW_CLUBBING_REFERENCING", "");   
@@ -553,7 +624,10 @@ public class AdjournmentMotionWorkflowController  extends BaseController {
 		model.addAttribute("pv_mailflag", "off");
 		model.addAttribute("pv_reminderflag", "off");
 		model.addAttribute("pv_timerflag", "off");
-		
+		/**** Reply related Dates ****/
+		if(domain.getReplyRequestedDate()!=null) {
+			model.addAttribute("formattedReplyRequestedDate", FormaterUtil.formatDateToString(domain.getReplyRequestedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
+		}
 		if(domain.getReplyReceivedDate()!=null) {
 			model.addAttribute("formattedReplyReceivedDate", FormaterUtil.formatDateToString(domain.getReplyReceivedDate(), ApplicationConstants.SERVER_DATETIMEFORMAT, locale));
 		}
